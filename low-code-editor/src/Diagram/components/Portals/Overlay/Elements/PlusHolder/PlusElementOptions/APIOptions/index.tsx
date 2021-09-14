@@ -17,6 +17,8 @@ import { useIntl } from "react-intl";
 import { LocalVarDecl, QualifiedNameReference } from "@ballerina/syntax-tree";
 import { Divider } from "@material-ui/core";
 
+import ExpEditorCollapseIcon from "../../../../../../../../assets/icons/ExpEditorCollapseIcon";
+import ExpEditorExpandIcon from "../../../../../../../../assets/icons/ExpEditorExpandIcon";
 import Tooltip from "../../../../../../../../components/TooltipV2";
 import { Context } from "../../../../../../../../Contexts/Diagram";
 import { BallerinaConnectorsInfo } from "../../../../../../../../Definitions/lang-client-extended";
@@ -682,9 +684,9 @@ export function APIOptions(props: APIOptionsProps) {
                                     (
                                         <div onClick={toggleExistingCon} className="existing-connector-toggle">
                                             {isToggledExistingConnector ?
-                                                <img src="../../../../../../images/exp-editor-expand.svg" />
+                                                <ExpEditorExpandIcon />
                                                 :
-                                                <img src="../../../../../../images/exp-editor-collapse.svg" />
+                                                <ExpEditorCollapseIcon />
                                             }
                                         </div>
                                     )
@@ -713,9 +715,9 @@ export function APIOptions(props: APIOptionsProps) {
                         (
                             <div onClick={toggleSelectCon}>
                                 {isToggledSelectConnector ?
-                                    <img src="../../../../../../images/exp-editor-expand.svg" />
+                                    <ExpEditorExpandIcon />
                                     :
-                                    <img src="../../../../../../images/exp-editor-collapse.svg" />
+                                    <ExpEditorCollapseIcon />
                                 }
                             </div>
                         )

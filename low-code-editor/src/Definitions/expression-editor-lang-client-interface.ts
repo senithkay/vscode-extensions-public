@@ -76,7 +76,7 @@ export interface ExpressionTypeResponse {
 }
 
 export interface ExpressionEditorLangClientInterface extends BaseLangClientInterface {
-	diagnostics: (
+	getDiagnostics: (
 		params: BallerinaProjectParams
 	) => Thenable<PublishDiagnosticsParams[]>;
 	getCompletion: (params: CompletionParams) => Thenable<CompletionResponse[]>;

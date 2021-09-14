@@ -32,6 +32,7 @@ import Typography from "@material-ui/core/Typography";
 
 import { DiagramOverlayPosition } from "../../../..";
 import { ConnectionDetails } from "../../../../../../../../api/models";
+import EditDarkIcon from "../../../../../../../../assets/icons/EditDarkIcon";
 import { Context } from "../../../../../../../../Contexts/Diagram";
 import { STModification } from "../../../../../../../../Definitions";
 import { Gcalendar } from "../../../../../../../../Definitions/connector";
@@ -301,7 +302,7 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
                         } }
                         onClick={handleOnDeselectConnection}
                     >
-                        <img src="../../../../../../images/edit-dark.svg"/>
+                        <EditDarkIcon />
                     </IconButton>
                 </div>
             </div>

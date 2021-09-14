@@ -28,6 +28,7 @@ import Typography from "@material-ui/core/Typography";
 
 import { DiagramOverlayPosition } from "../../../..";
 import { ConnectionDetails } from "../../../../../../../../api/models";
+import EditDarkIcon from "../../../../../../../../assets/icons/EditDarkIcon";
 import { TooltipIcon } from "../../../../../../../../components/Tooltip";
 import { Context } from "../../../../../../../../Contexts/Diagram";
 import {
@@ -541,7 +542,7 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
             }}
             onClick={handleOnDeselectConnection}
           >
-            <img src="../../../../../../images/edit-dark.svg" />
+            <EditDarkIcon />
           </IconButton>
         </div>
       </div>

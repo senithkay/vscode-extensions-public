@@ -1,0 +1,32 @@
+export default {
+    CHECKED_PAYLOAD_FUNCTION_INVOCATION: '{{{ TYPE }}} {{{ VARIABLE }}} = check {{{ RESPONSE }}}.{{{ PAYLOAD }}}();',
+    DECLARATION: '{{{ TYPE }}} {{{ VARIABLE }}} = new ({{{ PARAMS }}});',
+    FOREACH_STATEMENT_CONDITION: '{{{ VARIABLE }}} in {{{ COLLECTION }}}',
+    FOREACH_STATEMENT: '{{{ VARIABLE }}} in {{{ COLLECTION }}}',
+    IF_STATEMENT_CONDITION: '({{{ CONDITION }}})',
+    IF_STATEMENT: `
+if ({{{ CONDITION }}}) {
+
+} else {
+
+}`,
+    IMPORT: 'import {{{ TYPE }}};',
+    LOG_STATEMENT: 'log:print{{{ TYPE }}}({{{ LOG_EXPR }}});',
+    PROPERTY_STATEMENT: '{{{ PROPERTY }}}',
+    REMOTE_SERVICE_CALL_CHECK: '{{{ TYPE }}} {{{ VARIABLE }}} = check {{{ CALLER }}}-> {{{ FUNCTION }}}({{{ PARAMS }}});',
+    REMOTE_SERVICE_CALL: '{{{ TYPE }}} {{{ VARIABLE }}} = {{{ CALLER }}}->{{{ FUNCTION }}}({{{ PARAMS }}});',
+    RESOURCE_SIGNATURE: '{{{ METHOD }}} {{{ PATH }}} ({{{ QUERY_PARAM }}}{{{ PAYLOAD }}}{{#if ADD_REQUEST}}http:Request request{{/if}}{{#if ADD_CALLER}}{{#if ADD_REQUEST}}, {{/if}}{{/if}}{{#if ADD_CALLER}}http:Caller caller{{/if}}) {{#if ADD_RETURN}}returns {{ADD_RETURN}}{{/if}}',
+    RESOURCE: `
+resource function {{{ METHOD }}} {{{ PATH }}} ({{{ QUERY_PARAM }}}{{{PAYLOAD}}}{{#if ADD_REQUEST}}http:Request request{{/if}}{{#if ADD_CALLER}}{{#if ADD_REQUEST}}, {{/if}}{{/if}}{{#if ADD_CALLER}}http:Caller caller{{/if}}) {{#if ADD_RETURN}}returns {{ADD_RETURN}}{{/if}} {
+
+}`,
+    RESPOND_WITH_CHECK: 'check {{{ CALLER }}}->respond({{{ EXPRESSION }}});',
+    RETURN_STATEMENT: 'return {{{ RETURN_EXPR }}};',
+    SERVICE_CALL_CHECK: '{{{ TYPE }}} {{{ VARIABLE }}} = check {{{ CALLER }}}.{{{ FUNCTION }}}({{{ PARAMS }}});',
+    SERVICE_CALL: '{{{ TYPE }}} {{{ VARIABLE }}} = {{{ CALLER }}}.{{{ FUNCTION }}}({{{ PARAMS }}});',
+    WHILE_STATEMENT_CONDITION: '({{{ CONDITION }}})',
+    WHILE_STATEMENT: `
+while ({{{ CONDITION }}}) {
+
+}`,
+}
