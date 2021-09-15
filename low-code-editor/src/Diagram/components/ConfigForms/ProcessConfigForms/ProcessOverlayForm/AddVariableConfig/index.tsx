@@ -20,6 +20,8 @@ import { Box, FormControl, Typography } from "@material-ui/core";
 import { CloseRounded, PropertyIcon } from "../../../../../../assets/icons";
 import { PrimitiveBalType, WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
+import {MainContainer} from '../../../../../../TreeEditor/components/ViewContainer';
+import { statementEditorStyles } from "../../../../../../TreeEditor/Components/ViewContainer/styles";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { getAllVariables } from "../../../../../utils/mixins";
 import { ButtonWithIcon } from "../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
@@ -46,6 +48,7 @@ const defaultValues = [defaultJsonVal, defaultXmlVal];
 export function AddVariableConfig(props: AddVariableConfigProps) {
     const classes = useStyles();
     const overlayClasses = wizardStyles();
+    const statementEditorClasses = statementEditorStyles();
     const intl = useIntl();
     const { config, onCancel, onSave } = props;
 
@@ -242,72 +245,73 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                 (
                     <div className={overlayClasses.configWizardContainer}>
                         <div className={classes.formWrapper}>
-                            <ButtonWithIcon
-                                className={classes.overlayDeleteBtn}
-                                onClick={onCancel}
-                                icon={<CloseRounded fontSize="small" />}
-                            />
-                            <div className={classes.formTitleWrapper}>
-                                <div className={classes.mainTitleWrapper}>
-                                    <div className={classes.iconWrapper}>
-                                        <PropertyIcon />
-                                    </div>
-                                    <Typography variant="h4">
-                                        <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.variable.title" defaultMessage="Variable" /></Box>
-                                    </Typography>
-                                </div>
-                            </div>
+                            <MainContainer />
+                        {/*    <ButtonWithIcon*/}
+                        {/*        className={classes.overlayDeleteBtn}*/}
+                        {/*        onClick={onCancel}*/}
+                        {/*        icon={<CloseRounded fontSize="small" />}*/}
+                        {/*    />*/}
+                        {/*    <div className={classes.formTitleWrapper}>*/}
+                        {/*        <div className={classes.mainTitleWrapper}>*/}
+                        {/*            <div className={classes.iconWrapper}>*/}
+                        {/*                <PropertyIcon />*/}
+                        {/*            </div>*/}
+                        {/*            <Typography variant="h4">*/}
+                        {/*                <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.variable.title" defaultMessage="Variable" /></Box>*/}
+                        {/*            </Typography>*/}
+                        {/*        </div>*/}
+                        {/*    </div>*/}
 
 
-                            <div className={classes.activeWrapper}>
-                                <SelectDropdownWithButton
-                                    defaultValue={selectedType === "other" ? "other" : modelType}
-                                    customProps={{
-                                        disableCreateNew: true,
-                                        values: variableTypes,
-                                    }}
-                                    label={variableTypeLabel}
-                                    onChange={handleTypeChange}
-                                />
-                                {(selectedType === "other") && (
-                                    <FormTextInput
-                                        defaultValue={otherType}
-                                        onChange={handleOtherTypeOnChange}
-                                        label={otherTypeLabel}
-                                        placeholder={enterTypePlaceholder}
-                                    />
-                                )}
-                                <FormTextInput
-                                    dataTestId="variable-name"
-                                    customProps={{
-                                        validate: validateNameValue,
-                                        disabled: variableHasReferences
-                                    }}
-                                    defaultValue={varName}
-                                    onChange={handleNameOnChange}
-                                    label={addVariableNameLabel}
-                                    errorMessage={varNameError}
-                                    placeholder={addVariablePlaceholder}
-                                />
-                                <div className="exp-wrapper">
-                                    <ExpressionEditor
-                                        key={selectedType}
-                                        model={{ name: "Expression", value: variableExpression, type: (modelType ? modelType : "other") }}
-                                        customProps={{
-                                            validate: validateExpression,
-                                            expandDefault: (selectedType === "other"),
-                                            tooltipTitle: variableTooltipMessages.expressionEditor.title,
-                                            tooltipActionText: variableTooltipMessages.expressionEditor.actionText,
-                                            tooltipActionLink: variableTooltipMessages.expressionEditor.actionLink,
-                                            interactive: true,
-                                            focus: editorFocus,
-                                            statementType: (modelType ? modelType : "other") as PrimitiveBalType,
-                                            revertFocus: revertEditorFocus
-                                        }}
-                                        onChange={onPropertyChange}
-                                    />
-                                </div>
-                            </div>
+                        {/*    <div className={classes.activeWrapper}>*/}
+                        {/*        <SelectDropdownWithButton*/}
+                        {/*            defaultValue={selectedType === "other" ? "other" : modelType}*/}
+                        {/*            customProps={{*/}
+                        {/*                disableCreateNew: true,*/}
+                        {/*                values: variableTypes,*/}
+                        {/*            }}*/}
+                        {/*            label={variableTypeLabel}*/}
+                        {/*            onChange={handleTypeChange}*/}
+                        {/*        />*/}
+                        {/*        {(selectedType === "other") && (*/}
+                        {/*            <FormTextInput*/}
+                        {/*                defaultValue={otherType}*/}
+                        {/*                onChange={handleOtherTypeOnChange}*/}
+                        {/*                label={otherTypeLabel}*/}
+                        {/*                placeholder={enterTypePlaceholder}*/}
+                        {/*            />*/}
+                        {/*        )}*/}
+                        {/*        <FormTextInput*/}
+                        {/*            dataTestId="variable-name"*/}
+                        {/*            customProps={{*/}
+                        {/*                validate: validateNameValue,*/}
+                        {/*                disabled: variableHasReferences*/}
+                        {/*            }}*/}
+                        {/*            defaultValue={varName}*/}
+                        {/*            onChange={handleNameOnChange}*/}
+                        {/*            label={addVariableNameLabel}*/}
+                        {/*            errorMessage={varNameError}*/}
+                        {/*            placeholder={addVariablePlaceholder}*/}
+                        {/*        />*/}
+                        {/*        <div className="exp-wrapper">*/}
+                        {/*            <ExpressionEditor*/}
+                        {/*                key={selectedType}*/}
+                        {/*                model={{ name: "Expression", value: variableExpression, type: (modelType ? modelType : "other") }}*/}
+                        {/*                customProps={{*/}
+                        {/*                    validate: validateExpression,*/}
+                        {/*                    expandDefault: (selectedType === "other"),*/}
+                        {/*                    tooltipTitle: variableTooltipMessages.expressionEditor.title,*/}
+                        {/*                    tooltipActionText: variableTooltipMessages.expressionEditor.actionText,*/}
+                        {/*                    tooltipActionLink: variableTooltipMessages.expressionEditor.actionLink,*/}
+                        {/*                    interactive: true,*/}
+                        {/*                    focus: editorFocus,*/}
+                        {/*                    statementType: (modelType ? modelType : "other") as PrimitiveBalType,*/}
+                        {/*                    revertFocus: revertEditorFocus*/}
+                        {/*                }}*/}
+                        {/*                onChange={onPropertyChange}*/}
+                        {/*            />*/}
+                        {/*        </div>*/}
+                        {/*    </div>*/}
                         </div>
                         <div className={overlayClasses.buttonWrapper}>
                             <SecondaryButton text={cancelVariableButtonText} fullWidth={false} onClick={onCancel} />

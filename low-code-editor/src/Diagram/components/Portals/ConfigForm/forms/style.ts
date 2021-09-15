@@ -17,7 +17,8 @@ import { formCreateSvg } from "../../../../../assets";
 export const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         wizardFormControl: {
-            width: 270,
+            width: 500,
+            height: 500,
             "& .MuiFormControl-marginNormal": {
                 margin: '0 !important',
             },
@@ -394,6 +395,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         formWrapper: {
             width: '100%',
+            height: '85%',
             flexDirection: "row"
         },
         oauthWrapper: {
