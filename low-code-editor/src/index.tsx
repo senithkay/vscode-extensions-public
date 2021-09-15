@@ -63,45 +63,41 @@ export {
 export { visitor as initVisitor } from "./Diagram/visitors/init-visitor";
 export { visitor as positionVisitor } from "./Diagram/visitors/positioning-visitor";
 export { visitor as sizingVisitor } from "./Diagram/visitors/sizing-visitor";
-export { cleanAll, getSymbolInfo, visitor as SymbolVisitor } from "./Diagram/visitors/symbol-finder-visitor";
+export { cleanLocalSymbols, cleanModuleLevelSymbols, getSymbolInfo, visitor as SymbolVisitor } from "./Diagram/visitors/symbol-finder-visitor";
 export { BlockViewState } from './Diagram/view-state';
 export { DraftInsertPosition } from './Diagram/view-state/draft';
 export { ConfigPanel, CONFIG_PANEL_PORTAL_DIV_ID } from "./Diagram/components/ConfigPanel";
 export { getTriggerSource, getSampleSource } from "./Diagram/utils/template-utils";
 export { InsertorDelete, createPropertyStatement } from "./Diagram/utils/modification-util";
+export { renderDiagramEditor } from "./DiagramGenerator/vscode";
 
-export default function LowCodeEditor(props: Props) {
-
-    const {
-        exprEditorState,
-        onMutate,
-        ...restProps
-    } = props;
+const LowCodeEditor: React.FC<Props> = (props: Props) => {
 
     const modifyTrigger = (
         triggerType: TriggerType,
         model?: any,
         configObject?: any
     ) => {
-        onMutate("TRIGGER", { triggerType, model, configObject });
+        props.api.code.onMutate("TRIGGER", { triggerType, model, configObject });
     };
 
     const modifyDiagram = (mutations: STModification[], options: any = {}) => {
-        onMutate("DIAGRAM", { mutations, ...options });
+        props.api.code.onMutate("DIAGRAM", { mutations, ...options });
     };
 
     const newProps = {
-        onMutate,
         modifyDiagram,
         modifyTrigger,
-        ...restProps
+        ...props
     }
 
     return (
-            <DiagramProvider initialState={newProps} >
+            <DiagramProvider {...newProps} >
                 <div>
-                    <DiagramContainer {...newProps} />
+                    <DiagramContainer />
                 </div>
             </DiagramProvider>
     );
 }
+
+export default LowCodeEditor;

@@ -32,14 +32,12 @@ import {
 import { EXECUTION_TIME_DEFAULT_X_OFFSET, EXECUTION_TIME_IF_X_OFFSET } from "../components/ControlFlowExecutionTime";
 import { BOTTOM_CURVE_SVG_WIDTH } from "../components/IfElse/Else/BottomCurve";
 import { TOP_CURVE_SVG_HEIGHT } from "../components/IfElse/Else/TopCurve";
-import { GAP_BETWEEN_MEMBERS } from "../components/ModulePart";
 import { BIGPLUS_SVG_WIDTH } from "../components/Plus/Initial";
 import { PLUS_SVG_HEIGHT } from "../components/Plus/PlusAndCollapse/PlusSVG";
 import { EXISTING_PLUS_HOLDER_API_HEIGHT, EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_API_HEIGHT, PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_STATEMENT_HEIGHT } from "../components/Portals/Overlay/Elements/PlusHolder/PlusElements";
-import { SERVICE_HEADER_HEIGHT } from "../components/Service/ServiceHeader";
-import { START_SVG_HEIGHT, START_SVG_SHADOW_OFFSET } from "../components/Start/StartSVG";
+import { START_SVG_SHADOW_OFFSET } from "../components/Start/StartSVG";
 import { TRIGGER_PARAMS_SVG_HEIGHT } from "../components/TriggerParams/TriggerParamsSVG";
-import { Endpoint, getMaXWidthOfConnectors, getPlusViewState, updateConnectorCX } from "../utils/st-util";
+import { Endpoint, getPlusViewState, updateConnectorCX } from "../utils/st-util";
 import {
     BlockViewState,
     CompilationUnitViewState,
@@ -55,10 +53,8 @@ import {
     PlusViewState,
     SimpleBBox,
     StatementViewState,
-    ViewState,
     WhileViewState
 } from "../view-state";
-import { ServiceViewState } from "../view-state/service";
 
 import { DefaultConfig } from "./default";
 
@@ -452,6 +448,7 @@ class PositioningVisitor implements Visitor {
         const epGap = DefaultConfig.epGap;
         // Clean rendered labels
         blockViewState.controlFlow.executionTimeStates = [];
+        blockViewState.controlFlow.lineStates = [];
         node.statements.forEach((statement) => {
             const statementViewState: StatementViewState = statement.viewState;
             statementViewState.bBox.cx = blockViewState.bBox.cx;

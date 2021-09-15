@@ -61,9 +61,29 @@ export interface ForeachProps {
 }
 
 export function ForEach(props: ForeachProps) {
-    const { state, diagramCleanDraw, diagramRedraw, insertComponentStart } = useContext(Context); // TODO: Get diagramCleanDraw, diagramRedraw from state
-    const { syntaxTree, isReadOnly, isMutationProgress, stSymbolInfo, isWaitingOnWorkspace, maximize: maximizeCodeView,
-            currentApp, setCodeLocationToHighlight: setCodeToHighlight, isCodeEditorActive, handleRightPanelContent } = state;
+    const {
+        state,
+        actions: {
+            diagramCleanDraw, diagramRedraw, insertComponentStart
+        },
+        api: {
+            splitPanel: {
+                handleRightPanelContent,
+                maximize: maximizeCodeView,
+            },
+            code: {
+                setCodeLocationToHighlight: setCodeToHighlight,
+            }
+        },
+        props: {
+            currentApp,
+            syntaxTree,
+            isReadOnly,
+            isMutationProgress,
+            stSymbolInfo,
+            isWaitingOnWorkspace
+        }
+    } = useContext(Context); // TODO: Get diagramCleanDraw, diagramRedraw from state
 
     const { model } = props;
 

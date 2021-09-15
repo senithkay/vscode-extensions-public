@@ -32,8 +32,7 @@ export interface WebhookConfigFormProps {
 }
 
 export function WebhookConfigForm(props: WebhookConfigFormProps) {
-    const { state } = useContext(Context)
-    const { isMutationInProgress } = state;
+    const { props: { isMutationProgress: isMutationInProgress } } = useContext(Context)
     const { onComplete, onClose } = props;
     let { path: currentPath = ""} = props;
     // remove leading / from path

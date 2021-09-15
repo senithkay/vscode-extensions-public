@@ -50,8 +50,13 @@ export const DEFINE_RANGE: string = "Define Range";
 export const EXISTING_PROPERTY: string = "Select Existing Property";
 
 export function AddForeachForm(props: ForeachProps) {
-    const { state } = useContext(Context);
-    const { isMutationProgress: isMutationInProgress, stSymbolInfo, isCodeEditorActive } = state;
+    const {
+        props: {
+            isCodeEditorActive,
+            isMutationProgress: isMutationInProgress,
+            stSymbolInfo
+        }
+    } = useContext(Context);
     const { condition, onCancel, onSave, isNewConditionForm } = props;
 
     const [conditionExpression] = useState(condition.conditionExpression);
@@ -159,7 +164,7 @@ export function AddForeachForm(props: ForeachProps) {
 
     const invalidConnectionErrorMessage = intl.formatMessage({
         id: "lowcode.develop.configForms.forEach.invalidConnectionErrorMessage",
-        defaultMessage: "Invalid Collection Name"
+        defaultMessage: "Invalid collection name."
     });
 
     const cancelForEachButtonLabel = intl.formatMessage({

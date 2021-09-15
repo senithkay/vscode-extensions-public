@@ -43,14 +43,22 @@ export interface ConnectorEvents {
 }
 
 export function ASBConfigureForm(props: ASBConfigureFormProps) {
-    const {state} = useContext(Context);
     const {
-        isMutationProgress: isFileSaving,
-        isLoadingSuccess: isFileSaved,
-        syntaxTree,
-        onEvent,
-        modifyTrigger
-    } = state;
+        props: {
+            isMutationProgress: isFileSaving,
+            isLoadingSuccess: isFileSaved,
+            syntaxTree,
+        },
+        api: {
+            insights: {
+                onEvent,
+            },
+            code: {
+                modifyTrigger
+            }
+        }
+    } = useContext(Context);
+
     const {onComplete} = props;
     const classes = useStyles();
     const intl = useIntl();

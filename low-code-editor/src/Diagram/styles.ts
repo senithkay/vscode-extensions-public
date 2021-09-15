@@ -20,7 +20,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             textAlign: "center"
         },
         DesignContainer: {
-            minWidth: "100vw",
+            minWidth: "100%",
             scrollbarWidth: "none",
             margin: 0,
             padding: 0,

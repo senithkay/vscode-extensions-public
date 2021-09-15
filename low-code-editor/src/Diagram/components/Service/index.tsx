@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js  jsx-wrap-multiline
-import React from "react"
+import React, { useState } from "react"
 
 import { ServiceDeclaration } from "@ballerina/syntax-tree";
 
@@ -33,23 +33,29 @@ export interface ServiceProps {
 export function Service(props: ServiceProps) {
     const { model } = props;
 
+    const [isExpanded, setIsExpanded] = useState(false);
+
+    const onExpandClick = () => {
+        setIsExpanded(!isExpanded);
+    }
+
     const children = getSTComponents(model.members);
 
     return (
         <>
             <div className={'service'} >
-                <ServiceHeader model={model} />
+                <ServiceHeader model={model} isExpanded={isExpanded} onExpandClick={onExpandClick} />
                 {/* initial plus inside a resource function */}
-                <TopLevelPlus
+                {/* <TopLevelPlus
                     margin={{ top: SERVICE_PLUS_OFFSET, bottom: SERVICE_PLUS_OFFSET, left: FUNCTION_PLUS_MARGIN_LEFT }}
-                />
+                /> */}
                 <div className={'content-container'}>
-                    {children}
+                    {isExpanded && children}
                 </div>
             </div>
-            <TopLevelPlus
+            {/* <TopLevelPlus
                 margin={{ top: SERVICE_PLUS_OFFSET, bottom: SERVICE_PLUS_OFFSET, left: SERVICE_MARGIN_LEFT }}
-            />
+            /> */}
         </>
     );
 }

@@ -81,9 +81,18 @@ export function HTTPWizard(props: WizardProps) {
     const wizardClasses = wizardStyles();
     const { functionDefinitions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition,
             model, selectedConnector, isAction } = props;
-    const { state: diagramState } = useContext(Context);
+    const {
+        api: {
+            insights: {
+                onEvent
+            }
+        },
+        props: {
+            stSymbolInfo
+        }
+    } = useContext(Context);
 
-    const symbolInfo: STSymbolInfo = diagramState.stSymbolInfo;
+    const symbolInfo: STSymbolInfo = stSymbolInfo;
     const connectorInitFormFields: FormField[] = functionDefinitions.get("init") ? functionDefinitions.get("init").parameters : functionDefinitions.get("__init").parameters;
     const enableConnectorInitalizePage = !isAction;
 
@@ -140,7 +149,7 @@ export function HTTPWizard(props: WizardProps) {
             name: CONTINUE_TO_INVOKE_API,
             property: connector.displayName
         };
-        diagramState.onEvent(event);
+        onEvent(event);
     };
 
     const handleConnectionChange = () => {
@@ -163,7 +172,7 @@ export function HTTPWizard(props: WizardProps) {
             name: CONNECTOR_CLOSED,
             property: connector.displayName
         };
-        diagramState.onEvent(event);
+        onEvent(event);
         onClose();
     };
 
@@ -173,7 +182,7 @@ export function HTTPWizard(props: WizardProps) {
             name: FINISH_CONNECTOR_INIT_ADD_INSIGHTS,
             property: connector.displayName
         };
-        diagramState.onEvent(event);
+        onEvent(event);
         const modifications: STModification[] = [];
         if (!isNewConnectorInitWizard) {
             const updatedConnectorInit = updatePropertyStatement(
@@ -207,7 +216,7 @@ export function HTTPWizard(props: WizardProps) {
             name: FINISH_CONNECTOR_ACTION_ADD_INSIGHTS,
             property: connector.displayName
         };
-        diagramState.onEvent(event);
+        onEvent(event);
 
         const modifications: STModification[] = [];
         if (!isNewConnectorInitWizard) {

@@ -59,8 +59,19 @@ export const EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED = 660;
 
 export function PlusElements(props: PlusElementsProps) {
     const { position, onClose, onChange, onComponentClick, initPlus, viewState, setAPIholderHeight } = props;
-    const { state, diagramRedraw } = useContext(Context);
-    const { isCodeEditorActive, stSymbolInfo, syntaxTree, onEvent } = state;
+    const {
+        actions: { diagramRedraw },
+        props: { isCodeEditorActive, stSymbolInfo, syntaxTree },
+        api: {
+            insights: {
+                onEvent,
+            },
+            helpPanel: {
+                openConnectorHelp
+            }
+        }
+    } = useContext(Context);
+
     const intl = useIntl();
     // const [isAPICallsExisting] = useState(stSymbolInfo.endpoints && Array.from(stSymbolInfo.endpoints).length > 0);
     const [isAPIHightState, setAPIHightState] = useState(APIHeightStates.SelectConnectors);
@@ -98,7 +109,8 @@ export function PlusElements(props: PlusElementsProps) {
             // dispatchGoToNextTourStep("DIAGRAM_ADD_RESPOND");
         }
         if (processType === "DataMapper") {
-            state.onAPIClient({org: processType});
+            // FIXME: Found this while enabling types for context. We are reusing help panel action in a wrong way
+            openConnectorHelp({org: processType});
         }
     };
 

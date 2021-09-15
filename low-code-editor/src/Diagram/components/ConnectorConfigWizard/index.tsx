@@ -15,7 +15,7 @@ import React, { useContext, useState } from "react";
 import { useIntl } from "react-intl";
 
 import { LocalVarDecl, STNode } from "@ballerina/syntax-tree";
-// import { diagramPanLocation as acDiagramPanLocation } from 'store/actions/preference';
+// import { pan as acpan } from 'store/actions/preference';
 
 import {
   ConnectorConfig,
@@ -62,16 +62,34 @@ export interface ConnectorConfigWizardProps {
 }
 
 export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
-  const { state, toggleDiagramOverlay } = useContext(Context);
   const {
-    closeConfigOverlayForm: dispatchOverlayClose,
-    configOverlayFormPrepareStart: dispatchOverlayOpen,
-    isCodeEditorActive,
-    triggerErrorNotification,
-    onFitToScreen,
-    appInfo,
-    diagramPanLocation
-  } = state;
+    actions: {
+      toggleDiagramOverlay
+    },
+    props: {
+      isCodeEditorActive,
+      currentApp,
+      userInfo,
+      langServerURL,
+      stSymbolInfo
+    },
+    api: {
+      ls: {
+        getDiagramEditorLangClient
+      },
+      panNZoom: {
+        pan,
+        fitToScreen
+      },
+      notifications: {
+        triggerErrorNotification,
+      },
+      configPanel: {
+        closeConfigOverlayForm: dispatchOverlayClose,
+        configOverlayFormPrepareStart: dispatchOverlayOpen,
+      }
+    }
+  } = useContext(Context);
 
   const {
     position,
@@ -102,11 +120,11 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
     defaultMessage: "Something went wrong. Couldn't load the connection.",
   });
 
-  const currentAppid = appInfo?.currentApp?.id;
+  const currentAppid = currentApp?.id;
 
   React.useEffect(() => {
-    onFitToScreen(currentAppid);
-    diagramPanLocation(currentAppid, 0, -position.y + DefaultConfig.dotGap * 3);
+    fitToScreen();
+    pan(0, -position.y + DefaultConfig.dotGap * 3);
   }, []);
 
   React.useEffect(() => {
@@ -115,7 +133,10 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
         const configList = await fetchConnectorInfo(
           connectorInfo,
           model,
-          state
+          stSymbolInfo,
+          langServerURL,
+          getDiagramEditorLangClient,
+          userInfo?.user?.email
         );
         if (configList) {
           setWizardState(configList);

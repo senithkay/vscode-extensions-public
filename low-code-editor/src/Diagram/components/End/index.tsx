@@ -40,21 +40,31 @@ export interface EndProps {
 
 export function End(props: EndProps) {
     const {
-        state: {
+        api: {
+            splitPanel: {
+                maximize: maximizeCodeView,
+                handleRightPanelContent
+            },
+            code: {
+                setCodeLocationToHighlight: setCodeToHighlight
+            },
+            configPanel: {
+                dispactchConfigOverlayForm: openNewReturnConfigForm,
+            }
+        },
+        actions: {
+            diagramCleanDraw,
+            toggleDiagramOverlay
+        },
+        props: {
+            isCodeEditorActive,
+            currentApp,
             syntaxTree,
             isMutationProgress,
             isWaitingOnWorkspace,
             stSymbolInfo,
             isReadOnly,
-            setCodeLocationToHighlight: setCodeToHighlight,
-            handleRightPanelContent,
-            maximize: maximizeCodeView,
-            dispactchConfigOverlayForm: openNewReturnConfigForm,
-            currentApp,
-            isCodeEditorActive
-        },
-        diagramCleanDraw,
-        toggleDiagramOverlay
+        }
     } = useContext(Context);
     const { id: appId } = currentApp || {};
 

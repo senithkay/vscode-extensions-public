@@ -29,8 +29,12 @@ export interface ScheduleConfigFormProps {
 }
 
 export function ScheduleConfigForm(props: ScheduleConfigFormProps) {
-    const { state } = useContext(Context);
-    const { currentApp, isMutationInProgress } = state;
+    const {
+        props: {
+            currentApp,
+            isMutationProgress: isMutationInProgress
+        }
+    } = useContext(Context);
     const currentCronSchedule = currentApp ? currentApp.cronSchedule : "";
     const { onComplete, onClose  } = props;
     const formClasses = useFormStyles();

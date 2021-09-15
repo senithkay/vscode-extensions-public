@@ -11,9 +11,9 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 
-import { ExpressionFunctionBody, FunctionBodyBlock, FunctionDefinition, STKindChecker } from "@ballerina/syntax-tree";
+import { FunctionBodyBlock, FunctionDefinition, STKindChecker } from "@ballerina/syntax-tree";
 import classNames from "classnames";
 
 import { Context } from "../../../Contexts/Diagram";
@@ -21,14 +21,13 @@ import { useStyles } from "../../styles";
 import { BlockViewState, FunctionViewState } from "../../view-state";
 import { Canvas } from "../Canvas";
 import { End } from "../End";
-import PanAndZoom from "../PanAndZoom";
 import { StartButton } from "../Start";
-import { TopLevelPlus } from "../TopLevelPlus";
 import { TriggerParams } from "../TriggerParams";
 import { WorkerBody } from "../WorkerBody";
 import { WorkerLine } from "../WorkerLine";
 
 import { FunctionSignature } from "./FunctionSignature";
+import PanAndZoom from "./PanAndZoom";
 import "./style.scss";
 
 export const FUNCTION_PLUS_MARGIN_TOP = 7.5;
@@ -44,12 +43,24 @@ export interface FunctionProps {
 export function Function(props: FunctionProps) {
     const classes = useStyles();
     const { state } = useContext(Context);
-    const { isWaitingOnWorkspace, isCodeEditorActive, isReadOnly } = state;
+    const {
+        props: {
+            isWaitingOnWorkspace,
+            isReadOnly,
+            isCodeEditorActive
+        }
+    } = useContext(Context);
+
     const { model } = props;
 
     const viewState: FunctionViewState = model.viewState;
     const isInitPlusAvailable: boolean = viewState.initPlus !== undefined;
     const isExpressionFuncBody: boolean = STKindChecker.isExpressionFunctionBody(model.functionBody);
+    const [diagramExpanded, setDiagramExpanded] = useState(false);
+
+    const onExpandClick = () => {
+        setDiagramExpanded(!diagramExpanded);
+    }
 
     let component: JSX.Element;
 
@@ -66,11 +77,12 @@ export function Function(props: FunctionProps) {
         const isStatementsAvailable: boolean = block.statements.length > 0;
         const bodyViewState: BlockViewState = block.viewState;
         const isTriggerParamsAvailable: boolean = viewState.triggerParams?.visible;
+
         component = (
             <g>
                 <>
                     {(!isReadOnly && isInitPlusAvailable && !isCodeEditorActive && !isWaitingOnWorkspace && !viewState.initPlus.isTriggerDropdown) && (<WorkerLine viewState={viewState} />)}
-                    <FunctionSignature model={model} />
+                    {/* <FunctionSignature model={model} onExpandClick={onExpandClick} /> */}
                 </>
 
                 {!isInitPlusAvailable && <WorkerLine viewState={viewState} />}
@@ -85,37 +97,33 @@ export function Function(props: FunctionProps) {
         );
     }
 
+    const functionBody = (
+        <div className={'lowcode-diagram'}>
+            <PanAndZoom >
+                <div id="canvas-overlay" className={classes.OverlayContainer} />
+                <Canvas h={model.viewState.bBox.h} w={model.viewState.bBox.w} >
+                    {component}
+                </Canvas>
+            </PanAndZoom>
+        </div>
+    )
+
     return (
-        <>
-            <div
-                className={
-                    classNames(
-                        'function-box',
-                        STKindChecker.isResourceAccessorDefinition(model) ? model.functionName.value : ''
-                    )
-                }
-            >
-                <FunctionSignature model={model} />
-                <div className={'lowcode-diagram'}>
-                    {/* <Container className={classes.DesignContainer}> */}
-                    <div id="canvas-overlay" className={classes.OverlayContainer} />
-                    <Canvas h={model.viewState.bBox.h} w={model.viewState.bBox.w} >
-                        {component}
-                    </Canvas>
-                    {/* {isDataMapperShown && (
-                        <DataMapper width={w} />
-                    )} */}
-                    {/* {!isDataMapperShown && (
-                    )} */}
-                    {/* {diagramDisabledWithTextLoaderStatus && triggerType !== undefined && isWaitingOnWorkspace && <OverlayBackground />}
-                    {isCodeEditorActive && !isConfigOverlayFormOpen && diagramDisabledStatus && <OverlayBackground />}
-                    {isConfigOverlayFormOpen && <OverlayBackground />} */}
-                    {/* </Container> */}
-                </div>
-            </div>
-            <TopLevelPlus
-                margin={{ top: FUNCTION_PLUS_MARGIN_TOP, bottom : FUNCTION_PLUS_MARGIN_BOTTOM, left: FUNCTION_PLUS_MARGIN_LEFT }}
-            />
-        </>
+        <div
+            className={
+                classNames(
+                    {
+                        'function-box': STKindChecker.isResourceAccessorDefinition(model)
+                            || STKindChecker.isObjectMethodDefinition(model),
+                        'module-level-function': STKindChecker.isFunctionDefinition(model),
+                        expanded: diagramExpanded
+                    },
+                    STKindChecker.isResourceAccessorDefinition(model) ? model.functionName.value : '',
+                )
+            }
+        >
+            <FunctionSignature isExpanded={diagramExpanded} model={model} onExpandClick={onExpandClick} />
+            {diagramExpanded && functionBody}
+        </div>
     );
 }

@@ -35,7 +35,7 @@ export interface ConnectorLineProps {
 
 export function ActionInvocation(props: ConnectorLineProps) {
     const { model } = props;
-    const { state: { obsViewState } } = useContext(Context);
+    const { props: { isPerformanceViewOpen } } = useContext(Context);
     const classes = cn("action-invocation");
     const leftline = "leftline";
     const dashedLine = "dashedLine";
@@ -93,7 +93,7 @@ export function ActionInvocation(props: ConnectorLineProps) {
                     width={DefaultConfig.textLine.padding + DefaultConfig.textLine.width + DefaultConfig.textLine.padding}
                     className={'method-text'}
                 >
-                    {obsViewState?.analysisInfo.isPerformanceViewOpen ? truncatedActionName : viewState.action.actionName}
+                    {isPerformanceViewOpen ? truncatedActionName : viewState.action.actionName}
                 </text>
                 <ActionInvoLine
                     actionX={actionLineStartX}

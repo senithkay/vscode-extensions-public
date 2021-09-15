@@ -36,8 +36,7 @@ interface WhileProps {
 }
 
 export function AddWhileForm(props: WhileProps) {
-    const { state } = useContext(Context);
-    const { isMutationProgress: isMutationInProgress } = state;
+    const { props: { isMutationProgress: isMutationInProgress } } = useContext(Context);
     const { condition, onCancel, onSave } = props;
     const classes = useStyles();
     const overlayClasses = wizardStyles();

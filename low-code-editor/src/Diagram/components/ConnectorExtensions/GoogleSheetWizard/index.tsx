@@ -83,8 +83,7 @@ export function GoogleSheet(props: WizardProps) {
     const classes = useStyles();
     const intl = useIntl();
     const { functionDefinitions, connectorConfig, connector, onSave, onClose, isNewConnectorInitWizard, targetPosition, model, selectedConnector } = props;
-    const { state } = useContext(Context);
-    const { stSymbolInfo: symbolInfo, isMutationProgress, syntaxTree } = state;
+    const { props: { stSymbolInfo: symbolInfo, isMutationProgress, syntaxTree } } = useContext(Context);
     let connectorInitFormFields: FormField[] = functionDefinitions.get("init") ? functionDefinitions.get("init").parameters : functionDefinitions.get("__init").parameters;
 
     const config: ConnectorConfig = connectorConfig ? connectorConfig : new ConnectorConfig();

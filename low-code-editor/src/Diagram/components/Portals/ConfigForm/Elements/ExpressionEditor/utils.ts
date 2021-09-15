@@ -13,6 +13,7 @@
 // tslint:disable: ordered-imports
 import { FunctionDefinition, NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import { Diagnostic, Range } from "monaco-languageclient";
+import { ExpEditorExpandSvg, ExpEditorCollapseSvg } from "../../../../../../assets";
 
 import * as monaco from 'monaco-editor';
 
@@ -65,10 +66,6 @@ export function addToZerothLine(oldModelValue: string, codeSnippet: string): str
 
 export function addToTargetPosition(oldLine: string, targetColumn: number, codeSnippet: string): string {
     return oldLine.slice(0, targetColumn) + codeSnippet + oldLine.slice(targetColumn);
-}
-
-export function getExpState(state: any): ExpressionEditorState {
-    return state?.exprEditorState
 }
 
 export function getDiagnostics(state: any): Diagnostic[] {
@@ -352,10 +349,10 @@ export function createContentWidget(id: string): monaco.editor.IContentWidget {
                 this.domNode = document.createElement('div');
                 if (id === EXPAND_WIDGET_ID) {
                     this.domNode.className = "expand-icon";
-                    this.domNode.innerHTML = '<img src="../../../../../../images/exp-editor-expand.svg"/>';
+                    this.domNode.innerHTML = `<img src="${ExpEditorExpandSvg}"/>`;
                 } else if (id === COLLAPSE_WIDGET_ID) {
                     this.domNode.className = "collapse-icon";
-                    this.domNode.innerHTML = '<img src="../../../../../../images/exp-editor-collapse.svg"/>';
+                    this.domNode.innerHTML = `<img src="${ExpEditorCollapseSvg}"/>`;
                 }
             }
             return this.domNode;

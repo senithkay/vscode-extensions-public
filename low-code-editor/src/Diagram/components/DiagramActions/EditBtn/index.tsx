@@ -16,11 +16,10 @@ import React, { useContext } from "react";
 import { STNode } from "@ballerina/syntax-tree";
 
 import { Context } from "../../../../Contexts/Diagram"
+import { DraftUpdatePosition } from "../../../view-state/draft";
 
 import { EditSVG } from "./EditSVG";
 import "./style.scss";
-
-// import { editComponentStart } from "../../../!store/actions/expression-editor";
 
 export interface EditBtnProps {
     cx: number;
@@ -35,20 +34,25 @@ export interface EditBtnProps {
 }
 
 export function EditBtn(props: EditBtnProps) {
-    const { state, editorComponentStart: dispatchEditComponentStart } = useContext(Context);
+    const {
+        props: { isReadOnly },
+        actions: { editorComponentStart: dispatchEditComponentStart },
+        state: { targetPosition }
+    } = useContext(Context);
     const { cx, cy, onHandleEdit, model, isButtonDisabled } = props;
     const onEditClick = () => {
         if (!isButtonDisabled) {
+            const targetPos = targetPosition as DraftUpdatePosition;
             if (model &&
-                (state.targetPosition?.startLine !== model.position.startLine
-                    || state.targetPosition?.startColumn !== model.position.startColumn)) {
+                (targetPos?.startLine !== model.position.startLine
+                    || targetPos?.startColumn !== model.position.startColumn)) {
                 dispatchEditComponentStart(model.position)
             }
             onHandleEdit();
         }
     };
 
-    if (state.isReadOnly) return null;
+    if (isReadOnly) return null;
 
     return (
         <g onClick={onEditClick} className="edit-icon-wrapper" data-testid="editBtn">
