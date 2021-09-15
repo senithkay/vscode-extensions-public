@@ -72,7 +72,12 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
             run.passed(test, Date.now() - start);
           } catch (e) {
             // test failed
-            const testMessage = new vscode.TestMessage(e.message);
+            let testMessage :vscode.TestMessage;
+            if (e instanceof Error) {
+              testMessage = new vscode.TestMessage(e.message);
+            } else {
+              testMessage = new vscode.TestMessage("");
+            }
             run.failed(test, testMessage, Date.now() - start);
           }
         }
@@ -146,9 +151,15 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
  * @param command Command to run.
  * @param path Path to execute the command.
  */
-async function runCommand(command, path) {
+async function runCommand(command, path: string | undefined) {
   return new Promise<string>(function (resolve, reject) {
-    const cp = require('child_process')
+    const cp = require('child_process');
+    if (path == undefined) {
+      return;
+    } else if (path.endsWith(".bal")) {
+      const lastIndex = path.lastIndexOf("/");
+      path = path.slice(0, lastIndex);
+    }
     cp.exec(`${command}`, { cwd: path }, (err, stdout, stderr) => {
       if (err) {
         console.log('error: ' + err);
@@ -165,7 +176,7 @@ async function runCommand(command, path) {
  * @param controller Test Controller.
  * @param uri File uri to find tests.
  * @param ballerinaExtInstance Balleina extension instace.
- */ 
+ */
 async function createTests(controller: vscode.TestController, uri: vscode.Uri, ballerinaExtInstance: BallerinaExtension) {
   // Get tests from LS.
   await ballerinaExtInstance.langClient!.getExecutorPositions({
