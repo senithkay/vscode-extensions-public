@@ -10,6 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { Constant } from './Constant';
 import { End } from "./End";
 import { ForEach } from './ForEach';
 import { Function } from "./Function";
@@ -31,6 +32,7 @@ export { Statement as ActionStatement };
 export { Statement as AssignmentStatement }
 export { Statement as DoStatement };
 export { Listener as ListenerDeclaration };
+export { Constant as ConstDeclaration };
 export { ModuleVariable as ModuleVarDecl };
 export { Record as TypeDefinition };
 export { End as ReturnStatement };
