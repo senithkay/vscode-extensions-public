@@ -39,7 +39,7 @@ enum EXEC_TYPE {
     DEBUG = 'Debug'
 }
 
-enum EXEC_ARG {
+export enum EXEC_ARG {
     TESTS = '--tests'
 }
 
