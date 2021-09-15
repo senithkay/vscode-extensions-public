@@ -87,6 +87,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             connectorConfig.responsePayloadMap.selectedPayloadType === undefined));
     const [isGenFieldsFilled, setIsGenFieldsFilled] = useState(!isNewConnectorInitWizard || connectorConfig?.action?.name === "get");
     const [selectedOperation, setSelectedOperation] = useState<string>(connectorConfig?.action?.name);
+    let selectedTargetType = "";
     const httpVar = model as LocalVarDecl;
     const initialReturnNameState: ReturnNameState = {
         value: connectorConfig.action.returnVariableName, // connectorConfig?.action?.returnVariableName || genVariableName(connectorConfig.action.name + "Response", getAllVariables(symbolInfo)),
@@ -134,18 +135,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         }
         const selectedType = httpVar.typeData.typeSymbol.signature;
         const defaultReturnType = httpVar.typedBindingPattern.typeDescriptor.source;
-        formFields.find(field => {
-            if (field.name === "targetType") {
-                // tslint:disable-next-line: no-conditional-assignment
-                if (selectedType === "string" || selectedType === "json" || selectedType === "xml") {
-                    field.selectedDataType = selectedType;
-                    field.fields.find(subFields => subFields.type === selectedType).value = field.value;
-                } else {
-                    field.selectedDataType = defaultReturnType;
-                    field.selectedDataType = field.value;
-                }
-            }
-        })
+        selectedTargetType = (selectedType || defaultReturnType);
     }
 
     const onValidate = (isRequiredFieldsFilled: boolean) => {
@@ -180,6 +170,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         // TODO: tour step should update without redux store
         // dispatchGoToNextTourStep("CONFIG_SAVE_AND_DONE");
         action.returnVariableName = returnNameState.value;
+        action.fields.find(subField => subField.name === "targetType").selectedDataType = selectedTargetType;
         onSave();
     };
 
@@ -257,7 +248,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                 id: "lowcode.develop.configForms.HTTP.HTTPPayload.tooltip.content",
                 defaultMessage: "jsonPayload \nxmlPayload \ntextPayload"
             }),
-    },
+        },
         payloadVariableName: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.HTTP.HTTPPayloadName.tooltip.title",
@@ -400,6 +391,11 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         setOnOperationChange(true);
     }
 
+    const handleTypeChange = (value: string) => {
+        selectedTargetType = value;
+    }
+
+    const tragetTypes = ["string", "json", "xml"]
     return (
         <div>
             {((!selectedOperation || onOperationChange) && (
@@ -433,9 +429,21 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                                     </Box>
                                 </>
                                 <FormHelperText className={classes.subtitle}>Operation Inputs</FormHelperText>
+
                                 <div className={classNames(classes.groupedForm, classes.marginTB)}>
                                     {selectedOperationParams}
                                 </div>
+                                <SelectDropdownWithButton
+                                    onChange={handleTypeChange}
+                                    customProps={{
+                                        values: tragetTypes,
+                                        disableCreateNew: true,
+                                        optional: true
+                                    }}
+                                    defaultValue={selectedTargetType}
+                                    placeholder="Select Target Type"
+                                    label="Target Type"
+                                />
                                 <div className={classes.marginTB}>
                                     <FormTextInput
                                         dataTestId={"response-variable-name"}
