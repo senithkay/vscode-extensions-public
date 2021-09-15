@@ -21,6 +21,7 @@ import { SecondaryButton } from "../../../../../../ConfigForm/Elements/Button/Se
 import { SelectDropdownWithButton } from "../../../../../../ConfigForm/Elements/DropDown/SelectDropdownWithButton";
 import { ReturnType } from "../../types";
 import { returnTypes } from "../../util";
+import { FormTextInput } from "../../../../../../ConfigForm/Elements/TextField/FormTextInput";
 
 import { useStyles } from './style';
 
@@ -34,6 +35,7 @@ interface PathSegmentEditorProps {
 
 export function ReturnTypeSegmentEditor(props: PathSegmentEditorProps) {
     const { segment, showDefaultError, onSave, id, onCancel } = props;
+    const [otherTypeSelected, setOtherTypeSelected] = useState(false);
     const classes = useStyles();
 
     const initValue: ReturnType = segment ? { ...segment } : {
@@ -44,10 +46,28 @@ export function ReturnTypeSegmentEditor(props: PathSegmentEditorProps) {
     const [segmentState, setSegmentState] = useState<ReturnType>(initValue);
 
     const onChangeSegmentType = (text: any) => {
+        if(returnTypes.includes(text)){
+            setSegmentState({
+                ...segmentState,
+                type: text
+            });
+            setOtherTypeSelected(false);
+        }else{
+            setSegmentState({
+                ...segmentState,
+                type: ""
+            });
+            setOtherTypeSelected(true);
+        }
+        
+    };
+
+    const onChangeOtherType = (text: any) => {
         setSegmentState({
             ...segmentState,
             type: text
         });
+        
     };
 
     const onChangeSegmentOptional = (text: any) => {
@@ -65,6 +85,8 @@ export function ReturnTypeSegmentEditor(props: PathSegmentEditorProps) {
         onSave(segmentState);
     };
 
+    const isValidSelection = !!segmentState?.type;
+
     return (
         <div className={classes.returnTypeEditorWrap}>
             <div>
@@ -79,20 +101,40 @@ export function ReturnTypeSegmentEditor(props: PathSegmentEditorProps) {
                     <Grid item={true} xs={6}>
                         <SelectDropdownWithButton
                             dataTestId="api-return-type"
-                            defaultValue={segmentState?.type === "error" ? "" : segmentState?.type}
+                            defaultValue={segmentState?.type === "error" ? "" : otherTypeSelected ? "other" : segmentState?.type}
                             customProps={
                                 {
-                                    values: returnTypes,
+                                    values: [...returnTypes, 'other'],
                                     disableCreateNew: true,
                                 }
                             }
                             onChange={onChangeSegmentType}
                         />
                     </Grid>
-                    <Grid item={true} xs={6}>
-                        <CheckBoxGroup values={["Is Optional"]} defaultValues={[segmentState.isOptional ? "Is Optional" : ""]} onChange={onChangeSegmentOptional} />
-                    </Grid>
+                    {!otherTypeSelected &&
+                        <Grid item={true} xs={6}>
+                            <CheckBoxGroup values={["Is Optional"]} defaultValues={[segmentState.isOptional ? "Is Optional" : ""]} onChange={onChangeSegmentOptional} />
+                        </Grid>
+                    }
                 </Grid>
+                {otherTypeSelected &&
+                    <Grid container={true} item={true} spacing={2}>
+                        <Grid item={true} xs={12}>
+                            <FormTextInput
+                                dataTestId="resource-other-input"
+                                onChange={(text: string) => onChangeOtherType(text)}
+                                customProps={{
+                                    // validate: validateResourcePath,
+                                    // isErrored: resProps.isPathDuplicated || duplicatedPathsInEdit,
+                                }}
+                                // errorMessage={resProps.isPathDuplicated || duplicatedPathsInEdit ? pathDuplicateErrorMessage : isValidPath ? "" : pathErrorMessage}
+                                placeholder='Other Type'
+                            />
+                        </Grid>
+                    </Grid>
+                }
+
+                
                 <Grid container={true} item={true} spacing={2}>
                     <Grid item={true} xs={12}>
                         <div className={classes.btnContainer}>
@@ -105,7 +147,7 @@ export function ReturnTypeSegmentEditor(props: PathSegmentEditorProps) {
                             <PrimaryButton
                                 dataTestId={"api-return-save-btn"}
                                 text={"Add"}
-                                disabled={false}
+                                disabled={!isValidSelection}
                                 fullWidth={false}
                                 onClick={handleOnSave}
                             />
