@@ -17,6 +17,8 @@ import { ModulePart, STNode } from "@ballerina/syntax-tree";
 import { getSTComponent } from "../../utils";
 import { TopLevelPlus } from "../TopLevelPlus";
 
+import './style.scss';
+
 export const GAP_BETWEEN_MEMBERS = 31;
 export const INIT_PLUS_MARGIN_LEFT = 24.5;
 export const INIT_PLUS_MARGIN_TOP = 7.5;
@@ -32,14 +34,19 @@ export function ModulePartComponent(props: ModulePartProps) {
     const moduleMembers: JSX.Element[] = [];
 
     model.members.forEach((member: STNode) => {
-        moduleMembers.push(getSTComponent(member))
+        moduleMembers.push(
+            <div className={'member-container'} >
+                {getSTComponent(member)}
+            </div>
+        )
     });
 
     return (
         <>
+            {/* TODO: Fix Plus
             <TopLevelPlus
                 margin={{ top: INIT_PLUS_MARGIN_TOP, bottom : INIT_PLUS_MARGIN_BOTTOM, left: INIT_PLUS_MARGIN_LEFT }}
-            />
+            /> */}
             {moduleMembers}
         </>
     );

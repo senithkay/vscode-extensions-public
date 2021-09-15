@@ -69,9 +69,9 @@ export function ListenerC(props: ListenerProps) {
                     </>
                 )}
             </div>
-            <TopLevelPlus
+            {/* <TopLevelPlus
                 margin={{ top: LISTENER_PLUS_OFFSET, bottom: LISTENER_PLUS_OFFSET, left: LISTENER_MARGIN_LEFT }}
-            />
+            /> */}
         </>
     );
 }
