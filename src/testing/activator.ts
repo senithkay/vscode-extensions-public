@@ -23,9 +23,11 @@
  */
 import { getCurrentBallerinaProject } from '../utils/project-utils';
 import * as vscode from 'vscode';
-import { BallerinaExtension, ExecutorPosition } from "../core";
+import { BallerinaExtension, ExecutorPosition, LANGUAGE } from "../core";
 import { BALLERINA_COMMANDS } from '../project';
 import { EXEC_ARG } from '../editor-support/codelens-provider';
+import fileUriToPath from 'file-uri-to-path';
+import { DEBUG_REQUEST, DEBUG_CONFIG } from '../debugger';
 
 export async function activate(ballerinaExtInstance: BallerinaExtension) {
   const ctrl = vscode.tests.createTestController('ballerina-tests', 'Ballerina Tests');
@@ -60,25 +62,30 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
         } else {
           run.started(test);
 
-          // execute test
-          const executor = ballerinaExtInstance.getBallerinaCmd();
-          const commandText = `${executor} ${BALLERINA_COMMANDS.TEST} ${EXEC_ARG.TESTS} ${test.label}`;
-          const path = (await getCurrentBallerinaProject()).path;
-
           const start = Date.now();
 
-          try {
-            await runCommand(commandText, path);
-            run.passed(test, Date.now() - start);
-          } catch (e) {
-            // test failed
-            let testMessage :vscode.TestMessage;
-            if (e instanceof Error) {
-              testMessage = new vscode.TestMessage(e.message);
-            } else {
-              testMessage = new vscode.TestMessage("");
+          if (request.profile?.kind == vscode.TestRunProfileKind.Run) {
+            try {
+              // execute test
+              const executor = ballerinaExtInstance.getBallerinaCmd();
+              const commandText = `${executor} ${BALLERINA_COMMANDS.TEST} ${EXEC_ARG.TESTS} ${test.label}`;
+              const path = (await getCurrentBallerinaProject()).path;
+              await runCommand(commandText, path);
+              run.passed(test, Date.now() - start);
+            } catch (e) {
+              // test failed
+              let testMessage: vscode.TestMessage;
+              if (e instanceof Error) {
+                testMessage = new vscode.TestMessage(e.message);
+              } else {
+                testMessage = new vscode.TestMessage("");
+              }
+              run.failed(test, testMessage, Date.now() - start);
             }
-            run.failed(test, testMessage, Date.now() - start);
+          } else if (request.profile?.kind == vscode.TestRunProfileKind.Debug) {
+            // Debugs tests.
+            startDebugging(vscode.window.activeTextEditor!.document.uri, true, ballerinaExtInstance.getBallerinaCmd(),
+              ballerinaExtInstance.getBallerinaHome(), [test.label]);
           }
         }
 
@@ -115,6 +122,7 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
 
   // create test profiles to display.
   ctrl.createRunProfile('Run Tests', vscode.TestRunProfileKind.Run, runHandler, true);
+  ctrl.createRunProfile('Debug Tests', vscode.TestRunProfileKind.Debug, runHandler, true);
 
   ctrl.resolveHandler = async item => {
     if (!item) {
@@ -169,6 +177,14 @@ async function runCommand(command, path: string | undefined) {
       }
     });
   });
+}
+
+async function startDebugging(uri: vscode.Uri, testDebug: boolean, ballerinaCmd: string, ballerinaHome: string, args: any[])
+  : Promise<boolean> {
+  const workspaceFolder: vscode.WorkspaceFolder | undefined = vscode.workspace.getWorkspaceFolder(uri);
+  const debugConfig: vscode.DebugConfiguration = await constructDebugConfig(testDebug, ballerinaCmd,
+    ballerinaHome, args);
+  return vscode.debug.startDebugging(workspaceFolder, debugConfig);
 }
 
 /** 
@@ -326,4 +342,52 @@ function startWatchingWorkspace(controller: vscode.TestController, ballerinaExtI
 
     return watcher;
   });
+}
+
+async function constructDebugConfig(testDebug: boolean, ballerinaCmd: string, ballerinaHome: string, args: any[])
+  : Promise<vscode.DebugConfiguration> {
+
+  let programArgs = [];
+  let commandOptions = [];
+  let env = {};
+  const debugConfigs: vscode.DebugConfiguration[] = vscode.workspace.getConfiguration(DEBUG_REQUEST.LAUNCH).configurations;
+  if (debugConfigs.length > 0) {
+    let debugConfig: vscode.DebugConfiguration | undefined;
+    for (let i = 0; i < debugConfigs.length; i++) {
+      if ((testDebug && debugConfigs[i].name == DEBUG_CONFIG.TEST_DEBUG_NAME) ||
+        (!testDebug && debugConfigs[i].name == DEBUG_CONFIG.SOURCE_DEBUG_NAME)) {
+        debugConfig = debugConfigs[i];
+        break;
+      }
+    }
+    if (debugConfig) {
+      if (debugConfig.programArgs) {
+        programArgs = debugConfig.programArgs;
+      }
+      if (debugConfig.commandOptions) {
+        commandOptions = debugConfig.commandOptions;
+      }
+      if (debugConfig.env) {
+        env = debugConfig.env;
+      }
+    }
+  }
+
+  const debugConfig: vscode.DebugConfiguration = {
+    type: LANGUAGE.BALLERINA,
+    name: testDebug ? DEBUG_CONFIG.TEST_DEBUG_NAME : DEBUG_CONFIG.SOURCE_DEBUG_NAME,
+    request: DEBUG_REQUEST.LAUNCH,
+    script: fileUriToPath(vscode.window.activeTextEditor!.document.uri.toString()),
+    networkLogs: false,
+    debugServer: '10001',
+    debuggeePort: '5010',
+    'ballerina.home': ballerinaHome,
+    'ballerina.command': ballerinaCmd,
+    debugTests: testDebug,
+    tests: testDebug ? args : [],
+    programArgs,
+    commandOptions,
+    env
+  };
+  return debugConfig;
 }
