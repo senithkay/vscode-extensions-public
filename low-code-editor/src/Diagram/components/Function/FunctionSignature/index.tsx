@@ -13,17 +13,20 @@
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
-import { FunctionDefinition, IdentifierToken, RequiredParam, STKindChecker } from "@ballerina/syntax-tree";
+import { FunctionDefinition, IdentifierToken, ObjectMethodDefinition, RequiredParam, ResourceAccessorDefinition, STKindChecker } from "@ballerina/syntax-tree";
 import classNames from 'classnames';
 
 import { FunctionViewState } from '../../../view-state';
+import { ComponentExpandButton } from '../../ComponentExpandButton';
 
 interface FunctionSignatureProps {
-    model: FunctionDefinition;
+    model: FunctionDefinition | ResourceAccessorDefinition | ObjectMethodDefinition;
+    onExpandClick: () => void;
+    isExpanded: boolean;
 }
 
 export function FunctionSignature(props: FunctionSignatureProps) {
-    const { model } = props;
+    const { model, onExpandClick, isExpanded } = props;
     const viewState: FunctionViewState = model.viewState as FunctionViewState;
 
     const component: JSX.Element[] = [];
@@ -37,19 +40,11 @@ export function FunctionSignature(props: FunctionSignatureProps) {
 
     if (STKindChecker.isResourceAccessorDefinition(model)) {
         const functionSignature = model.functionSignature;
-        const functionName: IdentifierToken = model.functionName as IdentifierToken;
 
         let pathConstruct = '';
 
         model.relativeResourcePath.forEach(resourceMember => {
-            switch (resourceMember.kind) {
-                case 'IdentifierToken':
-                case 'SlashToken':
-                    pathConstruct += resourceMember.value;
-                    break;
-                default:
-                    pathConstruct += resourceMember.source;
-            }
+            pathConstruct += resourceMember.source ? resourceMember.source : resourceMember.value;
         });
 
         const queryParamComponents: JSX.Element[] = [];
@@ -77,7 +72,7 @@ export function FunctionSignature(props: FunctionSignatureProps) {
                     || STKindChecker.isDecimalTypeDesc(param.typeName)))
             .forEach((param: RequiredParam, i) => {
                 otherParamComponents.push(
-                    <span>{param.source}</span>
+                    <span className={'param'} >{param.source}</span>
                 )
             });
 
@@ -101,11 +96,14 @@ export function FunctionSignature(props: FunctionSignatureProps) {
                     >
                         <p className={'text'}>{model.functionName.value.toUpperCase()}</p>
                     </div>
-                    <p className={'path-text'} >{pathConstruct}{queryParamComponents.length > 0 ? '?' : ''}{queryParamComponents}</p>
+                    <p className={'path-text'} >
+                        {pathConstruct === '.' ? '/' : pathConstruct}{queryParamComponents.length > 0 ? '?' : ''}{queryParamComponents}
+                    </p>
                 </div>
                 <div className={'param-container'} >
                     <p className={'path-text'} >{otherParamComponents}</p>
                 </div>
+                <ComponentExpandButton isExpanded={isExpanded} onClick={onExpandClick} />
             </div>
         ));
     } else {
@@ -116,7 +114,7 @@ export function FunctionSignature(props: FunctionSignatureProps) {
         functionSignature.parameters
             .forEach((param: RequiredParam, i) => {
                 params.push(
-                    <tspan dx={i > 0 ? 10 : 0}>{param.source}</tspan>
+                    <span className={'param'} >{param.source}</span>
                 )
             })
 
@@ -129,7 +127,13 @@ export function FunctionSignature(props: FunctionSignatureProps) {
                     )
                 }
             >
-                <p className={'path-text'}>{functionName.value}</p>
+                <div className={'param-container'} >
+                    <p className={'path-text'}>{functionName.value}</p>
+                </div>
+                <div className={'param-container'} >
+                    <p className={'path-text'}>{params}</p>
+                </div>
+                <ComponentExpandButton isExpanded={isExpanded} onClick={onExpandClick} />
             </div>
         ));
     }

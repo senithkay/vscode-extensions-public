@@ -3,7 +3,7 @@ import { FunctionDefinition, ModulePart, STKindChecker, STNode, traversNode } fr
 import { initVisitor, positionVisitor, sizingVisitor, SymbolVisitor } from "..";
 import { DiagramEditorLangClientInterface } from "../Definitions/diagram-editor-lang-client-interface";
 import { getLowCodeSTFnSelected } from "../Diagram/utils/st-util";
-import { cleanAll } from "../Diagram/visitors/symbol-finder-visitor";
+import { cleanLocalSymbols, cleanModuleLevelSymbols } from "../Diagram/visitors/symbol-finder-visitor";
 
 export async function getSyntaxTree(filePath: string, langClient: DiagramEditorLangClientInterface) {
     const resp = await langClient.getSyntaxTree({
@@ -29,7 +29,7 @@ export function getLowcodeST(payload: any, startLine: string, startColumn: strin
             }
             const fnDef = getLowCodeSTFnSelected(payload, node, true);
             const st: STNode = sizingAndPositioningST(fnDef);
-            cleanAll();
+            cleanLocalSymbols();
             traversNode(st, SymbolVisitor);
             responseST = st;
             break;
@@ -45,12 +45,32 @@ export function getLowcodeST(payload: any, startLine: string, startColumn: strin
                     && functionDef.functionName.position.startColumn.toString() === startColumn) {
                     const fnDef = getLowCodeSTFnSelected(payload, resource, false);
                     const st: STNode = sizingAndPositioningST(fnDef);
-                    cleanAll();
+                    cleanLocalSymbols();
                     traversNode(st, SymbolVisitor);
                     responseST = st;
                     break;
                 }
             }
+        }
+    }
+
+    // TODO falling back to showing first fn available
+    // Now that editing is enabled in vscode, start positions are going to change
+    // We need a proper way to persist lastly shown construct not from position
+    // Or we have to show all the constructs in a given file
+    if (!responseST) {
+        if (fnMembers && fnMembers.length > 0) {
+            const fnDef = getLowCodeSTFnSelected(payload, fnMembers[0], true);
+            const st: STNode = sizingAndPositioningST(fnDef);
+            cleanLocalSymbols();
+            traversNode(st, SymbolVisitor);
+            responseST = st;
+        } else if (serviceMembers && serviceMembers.length > 0) {
+            const fnDef = getLowCodeSTFnSelected(payload, serviceMembers[0], true);
+            const st: STNode = sizingAndPositioningST(fnDef);
+            cleanLocalSymbols();
+            traversNode(st, SymbolVisitor);
+            responseST = st;
         }
     }
     return responseST;

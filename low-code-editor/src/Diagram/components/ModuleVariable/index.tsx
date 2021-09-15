@@ -85,9 +85,10 @@ export function ModuleVariable(props: ModuleVariableProps) {
                     )}
                 </div>
             </div>
+            {/* ToDo : Sort out the add button situation
             <TopLevelPlus
                 margin={{ top: MODULE_VAR_PLUS_OFFSET, bottom : MODULE_VAR_PLUS_OFFSET, left: MODULE_VAR_MARGIN_LEFT }}
-            />
+            /> */}
         </div>
     );
 }

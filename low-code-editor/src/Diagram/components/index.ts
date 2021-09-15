@@ -38,5 +38,6 @@ export { Record as TypeDefinition };
 export { End as ReturnStatement };
 export { Function as FunctionDefinition };
 export { Function as ResourceAccessorDefinition };
+export { Function as ObjectMethodDefinition };
 export { ModulePartComponent as ModulePart};
 export { While as WhileStatement };

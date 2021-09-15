@@ -37,7 +37,7 @@ const GLOBALERRORPATH = 127;
 const GLOBALERRORPATH_TEXT_WIDTH = 147;
 
 export function OnFailClause(props: OnFailClauseProps) {
-    const { state, insertComponentStart } = useContext(DiagramContext);
+    const { state, actions: { insertComponentStart } } = useContext(DiagramContext);
 
     const { model } = props;
 

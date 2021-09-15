@@ -37,7 +37,12 @@ export interface ConditionFormProps {
 }
 
 export function ConditionFormC(props: ConditionFormProps) {
-    const { isReadOnly, modifyDiagram } = useContext(Context).state;
+    const {
+        api: {
+            code: { modifyDiagram }
+        },
+        props: { isReadOnly }
+    } = useContext(Context);
     const { type, targetPosition, wizardType, config, onCancel, scopeSymbols } = props;
     let conditionConfig: ConditionConfig;
 

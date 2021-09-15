@@ -46,8 +46,12 @@ export function AddLogConfig(props: LogConfigProps) {
     const overlayClasses = wizardStyles();
     const intl = useIntl();
 
-    const { state } = useContext(Context);
-    const { isMutationProgress: isMutationInProgress, isCodeEditorActive } = state;
+    const {
+        props: {
+            isMutationProgress: isMutationInProgress,
+            isCodeEditorActive
+        }
+    } = useContext(Context);
     const { config, onCancel, onSave } = props;
     const isExisting = config.wizardType === WizardType.EXISTING;
     const logTypeFunctionNameMap: Map<string, string> = new Map([

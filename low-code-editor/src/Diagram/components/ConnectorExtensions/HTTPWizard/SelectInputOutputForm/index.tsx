@@ -70,9 +70,15 @@ interface PayloadState {
 export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     const { onConnectionChange, onSave, functionDefinitions, connectorConfig, isNewConnectorInitWizard, model } = props;
     const actions = functionDefinitions;
-    const { state: diagramState } = useContext(Context);
-    const { isMutationProgress } = diagramState;
-    const symbolInfo: STSymbolInfo = diagramState.stSymbolInfo;
+    const {
+        props: { isMutationProgress, stSymbolInfo },
+        api: {
+            helpPanel: {
+                openConnectorHelp
+            }
+        }
+    } = useContext(Context);
+    const symbolInfo: STSymbolInfo = stSymbolInfo;
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
     const classes = useStyles();
     const wizardClasses = wizardStyles();
@@ -173,7 +179,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     const validateResponseNameValue = (value: string) => {
         if (value) {
             const varValidationResponse = checkVariableName("response name", value,
-                defaultResponseVarName, diagramState);
+                defaultResponseVarName, stSymbolInfo);
             setResponseVarError(varValidationResponse.message);
             if (varValidationResponse?.error) {
                 return false;
@@ -356,7 +362,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         const name = symbolInfo.endpoints.get(connectorConfig.name)?.typeData?.typeSymbol?.name;
         if (connector){
             const {orgName: org, moduleName: module, version} = connector;
-            diagramState.onAPIClient({org, module, version, name}, operation);
+            openConnectorHelp({org, module, version, name}, operation);
         }
         if (isNewConnectorInitWizard) {
             setReturnNameState({

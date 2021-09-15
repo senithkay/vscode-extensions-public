@@ -24,6 +24,7 @@ import { Context as DiagramContext } from '../../../../../../Contexts/Diagram';
 import { STModification } from '../../../../../../Definitions';
 import { getAllVariables } from '../../../../../utils/mixins';
 import { createPropertyStatement, updatePropertyStatement } from '../../../../../utils/modification-util';
+import { DraftInsertPosition } from '../../../../../view-state/draft';
 import { wizardStyles } from "../../../../ConfigForms/style";
 import { FormAutocomplete } from '../../../../Portals/ConfigForm/Elements/Autocomplete';
 import { PrimaryButton } from '../../../../Portals/ConfigForm/Elements/Button/PrimaryButton';
@@ -44,8 +45,9 @@ export enum GenerationType {
 }
 
 export function OutputTypeConfigForm() {
-    const { state: diagramState } = useContext(DiagramContext);
-    const { currentApp, targetPosition } = diagramState;
+    const { state: diagramState, props: { currentApp, stSymbolInfo: symbolInfo } } = useContext(DiagramContext);
+    const { targetPosition } = diagramState;
+    const targetpos = targetPosition as DraftInsertPosition;
     const {
         state: {
             dataMapperConfig,
@@ -186,7 +188,8 @@ export function OutputTypeConfigForm() {
         config.outputType = {
             ...option,
             generationType,
-            variableName
+            variableName,
+            typeDefInSameModule: true
         }
     }
 
@@ -278,7 +281,7 @@ export function OutputTypeConfigForm() {
             generationType,
             typeInfo,
             variableName: variableOption.name,
-            sampleStructure
+            sampleStructure,
         }
         setVariableName(variableOption.name);
     }
@@ -299,7 +302,7 @@ export function OutputTypeConfigForm() {
     const validateNameValue = (value: string) => {
         if (value) {
             const varValidationResponse = checkVariableName("Data Mapper function name", value,
-                variableName, diagramState);
+                variableName, symbolInfo);
             if (varValidationResponse?.error) {
                 setVariableNameError(varValidationResponse.message);
                 setVariableNameValid(false);
@@ -324,7 +327,7 @@ export function OutputTypeConfigForm() {
         const modifications: STModification[] = [];
 
         if (isSaved) {
-            config.outputType.startLine = outputSTNode ? outputSTNode.position.startLine : targetPosition.line;
+            config.outputType.startLine = outputSTNode ? outputSTNode.position.startLine : targetpos.line;
             const defaultReturn = getDefaultValueForType(config.outputType, stSymbolInfo.recordTypeDescriptions, "");
 
             let outputType = '';
@@ -335,7 +338,7 @@ export function OutputTypeConfigForm() {
                     break;
                 case 'record':
                     const outputTypeInfo = config.outputType?.typeInfo;
-                    outputType = outputTypeInfo.moduleName === currentApp.name ?
+                    outputType = config.outputType?.typeDefInSameModule ?
                         outputTypeInfo.name
                         : `${outputTypeInfo.moduleName}:${outputTypeInfo.name}`
                     break;
@@ -347,7 +350,7 @@ export function OutputTypeConfigForm() {
             const dataMapperFunction: STModification = updatePropertyStatement(variableDefString, outputSTNode.position);
             modifications.push(dataMapperFunction);
         } else {
-            config.outputType.startLine = targetPosition.line;
+            config.outputType.startLine = targetpos.line;
             const defaultReturn = getDefaultValueForType(config.outputType, stSymbolInfo.recordTypeDescriptions, "");
 
             let outputType = '';
@@ -358,7 +361,7 @@ export function OutputTypeConfigForm() {
                     break;
                 case 'record':
                     const outputTypeInfo = config.outputType?.typeInfo;
-                    outputType = outputTypeInfo.moduleName === currentApp.name ?
+                    outputType = config.outputType?.typeDefInSameModule ?
                         outputTypeInfo.name
                         : `${outputTypeInfo.moduleName}:${outputTypeInfo.name}`
                     break;
@@ -370,7 +373,7 @@ export function OutputTypeConfigForm() {
             const variableDefString
                 = `${config.outputType.generationType === GenerationType.NEW ? outputType : ''}${isVariableOptional ? '?' : ''} ${variableName} = ${defaultReturn};`
 
-            const dataMapperFunction: STModification = createPropertyStatement(variableDefString, targetPosition);
+            const dataMapperFunction: STModification = createPropertyStatement(variableDefString, targetpos);
             modifications.push(dataMapperFunction);
         }
 

@@ -29,7 +29,7 @@ export interface DropDownMenuTriggerProps<DataType> {
 }
 
 export function DropDownMenuTrigger<DataType>(props: DropDownMenuTriggerProps<DataType>) {
-    const { state: { isReadOnly } } = useContext(Context);
+    const { props: { isReadOnly } } = useContext(Context);
 
     const { cx, cy, menuOptions, active } = props;
     const { onChange, onClose = () => undefined } = menuOptions;

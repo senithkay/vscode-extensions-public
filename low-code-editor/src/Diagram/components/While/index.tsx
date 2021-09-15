@@ -60,9 +60,21 @@ export interface WhileProps {
 }
 
 export function While(props: WhileProps) {
-    const { state, diagramCleanDraw, diagramRedraw, insertComponentStart } = useContext(Context);
-    const { syntaxTree, isReadOnly, isMutationProgress, currentApp, isWaitingOnWorkspace, isCodeEditorActive,
-            maximize: maximizeCodeView, setCodeLocationToHighlight: setCodeToHighlight, handleRightPanelContent } = state;
+    const {
+        state,
+        actions: { diagramCleanDraw, diagramRedraw, insertComponentStart },
+        props: { currentApp, isCodeEditorActive, syntaxTree, isReadOnly, isMutationProgress, isWaitingOnWorkspace },
+        api: {
+            splitPanel: {
+                maximize: maximizeCodeView,
+                handleRightPanelContent
+            },
+            code: {
+                setCodeLocationToHighlight: setCodeToHighlight
+            }
+        }
+    } = useContext(Context);
+
     const { model } = props;
 
     const [isConfigWizardOpen, setConfigWizardOpen] = useState(false);

@@ -17,6 +17,7 @@ import { useIntl } from "react-intl";
 import { FormHelperText } from "@material-ui/core";
 import * as MonacoEditor from 'monaco-editor';
 
+import { ErrorSvg } from "../../../../../../assets";
 import { useStyles as useFormStyles } from "../../forms/style";
 
 import { truncateText } from "./utils";
@@ -80,7 +81,7 @@ export function ExpressionEditorHint(props: ExpressionEditorHintProps) {
 
     const addElvisOperator = intl.formatMessage({
         id: "lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage.addElvisOperator.text",
-        defaultMessage: " to handle optional value"
+        defaultMessage: " to handle the optional value"
     })
 
     const suggetCast = intl.formatMessage({
@@ -93,7 +94,7 @@ export function ExpressionEditorHint(props: ExpressionEditorHintProps) {
         case HintType.ADD_CHECK: {
             component = (
                 <div className={formClasses.suggestionsWrapper} >
-                    <img className={formClasses.suggestionsIcon} src="../../../../../../images/console-error.svg" />
+                    <img className={formClasses.suggestionsIcon} src={ErrorSvg} />
                     <FormHelperText className={formClasses.suggestionsText}>
                         {expressionHasError}
                         {<a className={formClasses.suggestionsTextInfo} onClick={onClickHere}>{clickHereText}</a>}
@@ -106,7 +107,7 @@ export function ExpressionEditorHint(props: ExpressionEditorHintProps) {
         case HintType.ADD_DOUBLE_QUOTES: {
             component = (
                 <div className={formClasses.suggestionsWrapper} >
-                    <img className={formClasses.suggestionsIcon} src="../../../../../../images/console-error.svg" />
+                    <img className={formClasses.suggestionsIcon} src={ErrorSvg} />
                     <FormHelperText className={formClasses.suggestionsText}>
                         {<a className={formClasses.suggestionsTextInfo} onClick={onClickHere}>{clickHereText}</a>}
                         {addDoubleQuotes}
@@ -119,7 +120,7 @@ export function ExpressionEditorHint(props: ExpressionEditorHintProps) {
         case HintType.ADD_DOUBLE_QUOTES_EMPTY: {
             component = (
                 <div className={formClasses.suggestionsWrapper} >
-                    <img className={formClasses.suggestionsIcon} src="../../../../../../images/console-error.svg" />
+                    <img className={formClasses.suggestionsIcon} src={ErrorSvg} />
                     <FormHelperText className={formClasses.suggestionsText}>
                         {<a className={formClasses.suggestionsTextInfo} onClick={onClickHere}>{clickHereText}</a>}
                         {addDoubleQuotesToEmptyExpr}
@@ -131,7 +132,7 @@ export function ExpressionEditorHint(props: ExpressionEditorHintProps) {
         case HintType.ADD_TO_STRING: {
             component = (
                 <div className={formClasses.suggestionsWrapper} >
-                    <img className={formClasses.suggestionsIcon} src="../../../../../../images/console-error.svg" />
+                    <img className={formClasses.suggestionsIcon} src={ErrorSvg} />
                     <FormHelperText className={formClasses.suggestionsText}>
                         {<a className={formClasses.suggestionsTextInfo} onClick={onClickHere}>{clickHereText}</a>}
                         {addToString}
@@ -144,7 +145,7 @@ export function ExpressionEditorHint(props: ExpressionEditorHintProps) {
         case HintType.ADD_ELVIS_OPERATOR: {
             component = (
                 <div className={formClasses.suggestionsWrapper} >
-                    <img className={formClasses.suggestionsIcon} src="../../../../../../images/console-error.svg" />
+                    <img className={formClasses.suggestionsIcon} src={ErrorSvg} />
                     <FormHelperText className={formClasses.suggestionsText}>
                         {<a className={formClasses.suggestionsTextInfo} onClick={onClickHere}>{clickHereText}</a>}
                         {addElvisOperator}
@@ -156,7 +157,7 @@ export function ExpressionEditorHint(props: ExpressionEditorHintProps) {
         case HintType.SUGGEST_CAST: {
             component = (
                 <div className={formClasses.suggestionsWrapper} >
-                    <img className={formClasses.suggestionsIcon} src="../../../../../../images/console-error.svg" />
+                    <img className={formClasses.suggestionsIcon} src={ErrorSvg} />
                     <FormHelperText className={formClasses.suggestionsText}>
                         {<a className={formClasses.suggestionsTextInfo} onClick={onClickHere}>{clickHereText}</a>}
                         {suggetCast}

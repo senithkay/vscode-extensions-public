@@ -18,6 +18,8 @@ import { withStyles } from '@material-ui/core/styles';
 import TooltipBase, { TooltipProps } from '@material-ui/core/Tooltip';
 import * as MonacoEditor from 'monaco-editor';
 
+import { InfoIcon } from '../../assets/icons';
+
 import useStyles, { tooltipInvertedStyles, tooltipStyles } from "./style";
 
 export { TooltipProps } from '@material-ui/core/Tooltip';
@@ -49,7 +51,7 @@ export default function Tooltip(props: Partial<TooltipPropsExtended>) {
 
     const tooltipHintSuggestionText = intl.formatMessage({
         id: "lowcode.develop.elements.tooltip.suggestionText",
-        defaultMessage: "Press Ctrl/Cmd+Space for suggestions"
+        defaultMessage: "Press Ctrl/Cmd+Spacebar for suggestions"
     });
     const tooltipHintVarScopeText = intl.formatMessage({
         id: "lowcode.develop.elements.tooltip.varScopeText",
@@ -150,13 +152,12 @@ export default function Tooltip(props: Partial<TooltipPropsExtended>) {
 export function TooltipIcon(props: Partial<TooltipPropsExtended>) {
     const styles = useStyles();
 
-    const infoIcon = <img src="../../../../../../images/info.svg" />;
-    let iconComponent = infoIcon;
+    let iconComponent =  <InfoIcon />;
 
     const { title, children, ...restProps } = props;
 
     if (children) {
-        iconComponent = <><div className={styles.content}>{children}</div> <div className={styles.iconWrapper}>{infoIcon}</div></>;
+        iconComponent = <><div className={styles.content}>{children}</div> <div className={styles.iconWrapper}>{iconComponent}</div></>;
     }
 
     return (

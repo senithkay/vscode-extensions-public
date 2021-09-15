@@ -39,7 +39,7 @@ interface PathSegmentEditorProps {
 export function QueryParamSegmentEditor(props: PathSegmentEditorProps) {
     const { segment, onSave, id, onCancel } = props;
     const classes = useStyles();
-    const { state: diagramState } = useContext(Context);
+    const { props: { stSymbolInfo } } = useContext(Context);
     const initValue: QueryParam = segment ? { ...segment } : {
         id: id ? id : 0,
         name: "",
@@ -66,7 +66,7 @@ export function QueryParamSegmentEditor(props: PathSegmentEditorProps) {
     const validateNameValue = (value: string) => {
         if (value) {
             const varValidationResponse = checkVariableName("query param name", value,
-                "", diagramState);
+                "", stSymbolInfo);
             if (varValidationResponse?.error) {
                 setParamError(varValidationResponse.message);
                 return false;

@@ -43,14 +43,22 @@ export interface ConnectorEvents {
 }
 
 export function SheetConfigureForm(props: SheetConfigureFormProps) {
-    const {state} = useContext(Context);
     const {
-        isMutationProgress: isFileSaving,
-        isLoadingSuccess: isFileSaved,
-        syntaxTree,
-        onEvent,
-        modifyTrigger
-    } = state;
+        api: {
+            insights: {
+                onEvent
+            },
+            code: {
+                modifyTrigger
+            }
+        },
+        props: {
+            isMutationProgress: isFileSaving,
+            isLoadingSuccess: isFileSaved,
+            syntaxTree,
+        }
+    } = useContext(Context);
+
     const { onComplete } = props;
     const classes = useStyles();
     const intl = useIntl();
@@ -108,14 +116,14 @@ export function SheetConfigureForm(props: SheetConfigureFormProps) {
 
     const sheetIdPlaceholder = intl.formatMessage({
         id: "lowcode.develop.GSheetConfigWizard.sheetId.placeholder",
-        defaultMessage: "Sheet Id"
+        defaultMessage: "Sheet ID"
     });
 
     const sheetConfigTooltips = {
         sheetTrigger: {
             sheetId: intl.formatMessage({
                 id: "lowcode.develop.triggerDropDown.sheetTrigger.sheetId.tooltip.title",
-                defaultMessage: "Google Sheet Id"
+                defaultMessage: "Google Sheet ID"
             }),
         }
     };

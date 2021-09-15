@@ -13,11 +13,15 @@
 
 .function-box {
     box-sizing: border-box;
-    border: 1px solid #C1E4FC;
+    border: 1px dashed #C1E4FC;
     border-radius: 6px;
     background-color: #F4FAFF;
-    margin: 0 10px;
+    margin: 10px;
     // height: 100px;
+
+    &.expanded {
+        border: 1px solid #C1E4FC;
+    }
 
     &.get {
         background-color: #F4FAFF;
@@ -56,7 +60,7 @@
     }
 
     .function-signature {
-        height: 48px;
+        min-height: 48px;
         display: flex;
         flex-direction: row;
         border-bottom: 1px #C1E4FC solid;
@@ -80,6 +84,12 @@
         .path-text {
             margin-top: 10px;
             margin-left: 8px;
+
+            span {
+                &.param {
+                    margin-left: 10px;
+                }
+            }
         }
 
         .resource-badge {
@@ -122,8 +132,56 @@
     }
 }
 
+.module-level-function {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    border: 1px solid #E6E7EC;
+    border-radius: 6px;
+    background-color: #FFFFFF;
+    margin-left: 25px;
+
+    .function-signature {
+        display: flex;
+        flex-direction: row;
+        padding: 15px;
+        border-bottom: 1px #E6E7EC solid;
+    }
+
+    .lowcode-diagram {
+        background-image: url('/images/PatternBg.svg');
+        background-repeat: repeat;
+        overflow: hidden;
+    }
+}
+
 .param-container {
-    width: 50%;
+    flex-grow: 1;
     display: flex;
     flex-direction: row;
+}
+
+.design-container {
+    min-width: 100vw;
+    scrollbar-width: none;
+    margin: 0;
+    padding: 0;
+}
+
+.zoom-control-wrapper {
+    height: 32px;
+    width: 32px;
+    border-radius: 20px;
+    box-shadow: 0 1px 1px 0 #CBCFDA;
+    background:  #fff;
+    margin-top: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    &:hover {
+        &:focus {
+            box-shadow: 0 1px 2px 0 #CBCFDA;
+            background: "#f1f1f1";
+        }
+    }
 }

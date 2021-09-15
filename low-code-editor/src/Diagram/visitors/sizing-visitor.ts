@@ -434,27 +434,43 @@ class SizingVisitor implements Visitor {
     }
 
     public endVisitObjectMethodDefinition(node: ObjectMethodDefinition) {
-        // replaces endVisitFunction
         const viewState: FunctionViewState = node.viewState as FunctionViewState;
         const body: FunctionBodyBlock = node.functionBody as FunctionBodyBlock;
         const bodyViewState: BlockViewState = body.viewState;
         const lifeLine = viewState.workerLine;
         const trigger = viewState.trigger;
+        const triggerParams = viewState.triggerParams;
         const end = viewState.end;
 
         trigger.h = START_SVG_HEIGHT;
         trigger.w = START_SVG_WIDTH;
 
+        if (triggerParams) {
+            triggerParams.bBox.h = TRIGGER_PARAMS_SVG_HEIGHT;
+            triggerParams.bBox.w = TRIGGER_PARAMS_SVG_WIDTH;
+
+            node?.functionSignature?.parameters?.length > 0 ?
+                viewState.triggerParams.visible = true : viewState.triggerParams.visible = false
+        }
+
         end.bBox.w = STOP_SVG_WIDTH;
         end.bBox.h = STOP_SVG_HEIGHT;
 
-        lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
-        if (!STKindChecker.isExpressionFunctionBody(node.functionBody) && body.statements.length > 0) {
+        if (viewState.triggerParams) {
+            viewState.triggerParams.visible ?
+                lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h + triggerParams.bBox.h + DefaultConfig.dotGap
+                : lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
+        } else {
+            lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
+        }
+
+        if (STKindChecker.isExpressionFunctionBody(body) || body.statements.length > 0) {
             lifeLine.h += end.bBox.offsetFromTop;
         }
 
-        viewState.bBox.h = lifeLine.h;
-        viewState.bBox.w = trigger.w > bodyViewState.bBox.w ? trigger.w : bodyViewState.bBox.w;
+        viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2 + DefaultConfig.functionHeaderHeight;
+        viewState.bBox.w = (trigger.w > bodyViewState.bBox.w ? trigger.w : bodyViewState.bBox.w)
+            + DefaultConfig.serviceFrontPadding + DefaultConfig.serviceRearPadding + allEndpoints.size * 150 * 2;
     }
 
     public beginVisitFunctionBodyBlock(node: FunctionBodyBlock) {

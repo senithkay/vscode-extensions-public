@@ -32,6 +32,7 @@ import Typography from "@material-ui/core/Typography";
 
 import { DiagramOverlayPosition } from "../../../..";
 import { ConnectionDetails } from "../../../../../../../../api/models";
+import EditDarkIcon from "../../../../../../../../assets/icons/EditDarkIcon";
 import { Context } from "../../../../../../../../Contexts/Diagram";
 import { STModification } from "../../../../../../../../Definitions";
 import { Gcalendar } from "../../../../../../../../Definitions/connector";
@@ -63,19 +64,29 @@ export interface ConnectorEvents {
 }
 
 export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
-    const { state } = useContext(Context);
     const {
-        isMutationProgress: isFileSaving,
-        isLoadingSuccess: isFileSaved,
-        syntaxTree,
-        currentApp,
-        getGcalendarList,
-        stSymbolInfo,
-        originalSyntaxTree,
-        onEvent,
-        modifyTrigger,
-        modifyDiagram
-    } = state;
+        props: {
+            currentApp,
+            isMutationProgress: isFileSaving,
+            isLoadingSuccess: isFileSaved,
+            syntaxTree,
+            stSymbolInfo,
+            originalSyntaxTree
+        },
+        api: {
+            insights: {
+                onEvent,
+            },
+            code: {
+                modifyTrigger,
+                modifyDiagram,
+            },
+            data: {
+                getGcalendarList
+            }
+        }
+    } = useContext(Context);
+
     const { position, onComplete, currentConnection, isTriggerTypeChanged } = props;
     const classes = useStyles();
     const intl = useIntl();
@@ -291,7 +302,7 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
                         } }
                         onClick={handleOnDeselectConnection}
                     >
-                        <img src="../../../../../../images/edit-dark.svg"/>
+                        <EditDarkIcon />
                     </IconButton>
                 </div>
             </div>

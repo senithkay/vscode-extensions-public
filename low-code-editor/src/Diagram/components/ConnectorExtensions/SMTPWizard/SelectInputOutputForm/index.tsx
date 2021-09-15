@@ -49,8 +49,7 @@ interface ReturnNameState {
 
 export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     const { onConnectionChange, onSave, functionDefinitions, connectorConfig, isNewConnectorInitWizard } = props;
-    const { state: diagramState } = useContext(Context);
-    const { stSymbolInfo: symbolInfo, isMutationProgress } = diagramState;
+    const { props: { stSymbolInfo: symbolInfo, isMutationProgress } } = useContext(Context);
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
     const classes = useStyles();
     const wizardClasses = wizardStyles();
@@ -202,7 +201,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
 
     const validateNameValue = (value: string) => {
         if (value) {
-            const varValidationResponse = checkVariableName("response name", value, defaultResponseVarName, diagramState);
+            const varValidationResponse = checkVariableName("response name", value, defaultResponseVarName, symbolInfo);
             if (varValidationResponse?.error) {
                 setResponseVarError(varValidationResponse.message);
                 return false;

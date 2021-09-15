@@ -69,9 +69,22 @@ export enum ConnectorType {
 }
 
 export function TriggerDropDown(props: TriggerDropDownProps) {
-    const { state } = useContext(Context);
+    const {
+        props: {
+            originalSyntaxTree,
+            isMutationProgress: isFileSaving,
+            isLoadingSuccess: isFileSaved
+        },
+        api: {
+            insights: {
+                onEvent,
+            },
+            code: {
+                modifyTrigger
+            }
+        }
+    } = useContext(Context);
     const intl = useIntl();
-    const { isMutationProgress: isFileSaving, isLoadingSuccess: isFileSaved, originalSyntaxTree, onEvent, modifyTrigger } = state;
     const { onClose, onComplete, title = "Select Trigger", activeConnectorType,
             position, isEmptySource, triggerType, configData /*, createTrigger*/ } = props;
 
@@ -152,7 +165,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
         scheduleTrigger: {
         title: intl.formatMessage({
             id: "lowcode.develop.triggerDropDown.scheduleTrigger.tooltip.title",
-            defaultMessage: "To trigger an application according to a given schedule."
+            defaultMessage: "Triggers an application according to a given schedule."
         }),
     }
     };
@@ -161,7 +174,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
         manualTrigger: {
         title: intl.formatMessage({
             id: "lowcode.develop.triggerDropDown.manualTrigger.tooltip.title",
-            defaultMessage: "To create an application that can be triggered manually by clicking 'Run & Test'."
+            defaultMessage: "Creates an application that can be triggered manually by clicking 'Run & Test'."
         }),
     }
     };
@@ -258,7 +271,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                         { getConnectorTriggerButton(
                             ConnectorType.GITHUB,
                             'github_Client',
-                            "To trigger an application based on GitHub events.",
+                            "Triggers an application based on GitHub events.",
                             "GitHub",
                             "left",
                         ) }
@@ -274,7 +287,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                         { getConnectorTriggerButton(
                             ConnectorType.G_CALENDAR,
                             'googleapis_calendar_Client',
-                            "To trigger an application based on Google Calendar events.",
+                            "Triggers an application based on Google Calendar events.",
                             "Calendar",
                             "left"
                         ) }
@@ -282,7 +295,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                         { getConnectorTriggerButton(
                             ConnectorType.G_SHEET,
                             'googleapis_sheets_Sheet',
-                            "To trigger an application based on Google Sheet events.",
+                            "Triggers an application based on Google Sheet events.",
                             "Sheets",
                             "right"
                         ) }
@@ -297,7 +310,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                         { getConnectorTriggerButton(
                             ConnectorType.SALESFORCE,
                             'sfdc_Client',
-                            "To trigger an application based on Salesforce events.",
+                            "Triggers an application based on Salesforce events.",
                             "Salesforce",
                             "left"
                         ) }
@@ -305,7 +318,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                         { getConnectorTriggerButton(
                             ConnectorType.SLACK,
                             'slack_Client',
-                            "To trigger an application based on Slack events.",
+                            "Triggers an application based on Slack events.",
                             "Slack",
                             "left"
                         ) }
@@ -313,7 +326,7 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                         { getConnectorTriggerButton(
                             ConnectorType.ASB,
                             'asb_AsbClient',
-                            "To trigger an application based on Azure Service Bus events.",
+                            "Triggers an application based on Azure Service Bus events.",
                             "Azure SB",
                             "left"
                         ) }

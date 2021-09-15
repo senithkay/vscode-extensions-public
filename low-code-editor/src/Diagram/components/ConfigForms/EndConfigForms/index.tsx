@@ -48,8 +48,15 @@ export interface AddEndFormProps {
 }
 
 export function EndConfigForm(props: any) {
-    const { state } = useContext(Context);
-    const { onEvent, stSymbolInfo, configOverlayFormStatus, modifyDiagram } = state;
+    const {
+        api: {
+            insights: { onEvent },
+            code: {
+                modifyDiagram,
+            }
+        },
+        props: { configOverlayFormStatus, stSymbolInfo }
+    } = useContext(Context);
 
     const { onCancel, onSave, wizardType, position } = props as AddEndFormProps;
     const { formArgs, formType } = configOverlayFormStatus;

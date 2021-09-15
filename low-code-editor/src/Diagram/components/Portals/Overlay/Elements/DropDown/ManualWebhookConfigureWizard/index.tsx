@@ -39,8 +39,12 @@ export interface ConnectorEvents {
 }
 
 export function ManualWebhookConfigureWizard(props: ManualWebhookConfigureWizardProps) {
-  const { state } = useContext(Context);
-  const { isMutationProgress: isFileSaving, isLoadingSuccess: isFileSaved, syntaxTree, modifyTrigger } = state;
+  const {
+    api: {
+      code: { modifyTrigger }
+    },
+    props: { isMutationProgress: isFileSaving, isLoadingSuccess: isFileSaved, syntaxTree }
+  } = useContext(Context);
   const model: FunctionDefinition = syntaxTree as FunctionDefinition;
   const body: FunctionBodyBlock = model?.functionBody as FunctionBodyBlock;
   const isEmptySource = (body?.statements.length < 1) || (body?.statements === undefined);

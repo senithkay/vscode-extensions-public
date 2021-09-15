@@ -1,5 +1,7 @@
 import { compile } from "handlebars";
 
+import templates from "../../templates/components";
+
 export async function getTriggerTemplate(templateName: string) {
     const resp = await fetch(`/templates/triggers/${templateName}.hbs`);
     return resp && resp.status === 200 ? resp.text() : undefined;
@@ -22,8 +24,7 @@ export async function getSampleSource(sampleName: string, config: {[key: string]
 }
 
 export async function getInsertTemplate(insertTempName: string) {
-    const resp = await fetch(`/templates/components/${insertTempName}.hbs`);
-    return resp && resp.status === 200 ? resp.text() : undefined;
+    return templates[insertTempName];
 }
 
 export async function getInsertComponentSource(insertTempName: string, config: { [key: string]: any }) {

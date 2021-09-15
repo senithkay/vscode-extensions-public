@@ -132,24 +132,37 @@ export interface ConnectorConfigWizardProps {
 export function ConnectorForm(props: ConnectorConfigWizardProps) {
   const wizardClasses = wizardStyles();
   const intl = useIntl();
-  const { state } = useContext(Context);
   const {
-    stSymbolInfo,
-    isMutationProgress,
-    oauthProviderConfigs,
-    userInfo,
-    getAiSuggestions,
-    onEvent,
-    syntaxTree,
-    getAllConnections,
-    dispatchGetAllConfiguration,
-    dispatchGetConfig,
-    modifyDiagram,
-    triggerErrorNotification,
-    triggerSuccessNotification,
-    updateManualConnection,
-    createManualConnection,
-  } = state;
+    api: {
+      oauth: {
+        dispatchGetAllConfiguration,
+        oauthProviderConfigs
+      },
+      code: {
+        modifyDiagram,
+      },
+      notifications: {
+        triggerErrorNotification,
+        triggerSuccessNotification,
+      },
+      insights: {
+        onEvent,
+      },
+      connections: {
+        getAllConnections,
+        updateManualConnection,
+        createManualConnection,
+      },
+      ai: { getAiSuggestions }
+    },
+    props: {
+      userInfo,
+      stSymbolInfo,
+      isMutationProgress,
+      syntaxTree,
+    }
+  } = useContext(Context);
+
   const symbolInfo: STSymbolInfo = stSymbolInfo;
   const configurations: OauthProviderConfigState = oauthProviderConfigs;
   const {

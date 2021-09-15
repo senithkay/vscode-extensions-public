@@ -140,29 +140,45 @@ export function isPathDuplicated (resources: Resource[]) : boolean {
     return isDuplicated;
 }
 
-export function validateFormFields(field: FormField, emptyFieldChecker: Map<string, boolean>): boolean {
-    let allFieldsValid = true;
-    if (field.type === "record" && !field.optional) {
-        for (const recordField of field.fields) {
-            allFieldsValid = validateFormFields(recordField, emptyFieldChecker);
-            if (!allFieldsValid) {
-                break;
+export function isAllEmpty (emptyFields: Map<string, boolean>): boolean {
+    let result = true
+    emptyFields.forEach((isEmpty, key) => {
+        if (!isEmpty) {
+            result = false;
+        }
+    });
+    return result;
+}
+
+export function isAllValid(validFields: Map<string, boolean>, emptyFields: Map<string, boolean>,
+                           isAllChildrenOptional: boolean, isOptional: boolean, isRoot: boolean): boolean {
+    let result = true;
+    const allEmpty = isAllEmpty(emptyFields);
+    if (!isRoot && isOptional && allEmpty) {
+        result = true;
+    } else {
+        validFields.forEach((isValid, key) => {
+            if (!isValid) {
+                result = false;
             }
-        }
-    } else if (field.type === "union" && !field.optional) {
-        const isFieldValueInValid: boolean = emptyFieldChecker.get(field.name);
-        // breaks the loop if one field is empty
-        if (isFieldValueInValid !== undefined && isFieldValueInValid) {
-            allFieldsValid = !isFieldValueInValid;
-        }
-    } else if (!field.optional) {
-        const isFieldValueInValid: boolean = emptyFieldChecker.get(field.name);
-        // breaks the loop if one field is empty
-        if (isFieldValueInValid !== undefined && isFieldValueInValid) {
-            allFieldsValid = !isFieldValueInValid;
+        });
+        if (result && isAllChildrenOptional && !isOptional) {
+            result = !allEmpty;
         }
     }
-    return allFieldsValid;
+    return result;
+}
+
+export function isAllOptional (fields: FormField[]): boolean {
+    let result = true;
+    if (fields && fields.length > 0) {
+        fields.map((field: any, index: any) => {
+            if (!(field?.optional ?? false)) {
+                result = false;
+            }
+        });
+    }
+    return result;
 }
 
 export function isKeywords(word: string): boolean {

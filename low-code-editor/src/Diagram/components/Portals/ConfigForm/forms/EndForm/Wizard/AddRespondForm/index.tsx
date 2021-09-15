@@ -37,8 +37,9 @@ export const DEFINE_RESPOND_EXP: string = "Define Respond Expression";
 export const EXISTING_PROPERTY: string = "Select Existing Property";
 
 export function AddRespondForm(props: RespondFormProps) {
-    const { state } = useContext(Context);
-    const { isMutationProgress: isMutationInProgress } = state;
+    const {
+        props: { isMutationProgress: isMutationInProgress }
+    } = useContext(Context);
     const formClasses = useFormStyles();
     const { config, onCancel, onSave } = props;
     let initIsExp = !(config.scopeSymbols.length > 0);
