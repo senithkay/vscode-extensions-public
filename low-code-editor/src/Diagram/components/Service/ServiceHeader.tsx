@@ -16,9 +16,9 @@ import { ListenerDeclaration, ServiceDeclaration, STKindChecker } from "@balleri
 
 import ServiceIcon from "../../../assets/icons/ServiceIcon";
 import { Context as DiagramContext } from '../../../Contexts/Diagram'
+import { ComponentExpandButton } from "../ComponentExpandButton";
 
 import "./style.scss";
-import { ComponentExpandButton } from "../ComponentExpandButton";
 
 export const SERVICE_HEADER_HEIGHT: number = 49;
 
