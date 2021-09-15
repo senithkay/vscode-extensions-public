@@ -75,6 +75,8 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
         if (!element) {
             return this.getPackageStructure();
         } else if (element.getKind() === CMP_KIND.DEFAULT_MODULE || element.getKind() === CMP_KIND.MODULE) {
+            return this.getComponentLabels(element);
+        } else if (element.getKind() === CMP_KIND.FUNCTION_LABEL || element.getKind() === CMP_KIND.SERVICE_LABEL) {
             return this.getComponentStructure(element);
         } else if (element.getKind() === CMP_KIND.SERVICE) {
             return this.getResourceStructure(element);
@@ -118,6 +120,23 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
         });
     }
 
+    private getComponentLabels(parent: PackageTreeItem): PackageTreeItem[] {
+        let components: PackageTreeItem[] = [];
+        const children: ChildrenData = parent.getChildrenData();
+
+        if (children.functions && children.functions.length > 0) {
+            components.push(new PackageTreeItem('Functions', '', TreeItemCollapsibleState.Expanded,
+                CMP_KIND.FUNCTION_LABEL, parent.getFilePath(), this.extensionPath, false, parent, parent.getChildrenData(), -1, -1,
+                parent.getIsSingleFile()));
+        }
+        if (children.services && children.services.length > 0) {
+            components.push(new PackageTreeItem('Services', '', TreeItemCollapsibleState.Expanded,
+                CMP_KIND.SERVICE_LABEL, parent.getFilePath(), this.extensionPath, false, parent, parent.getChildrenData(), -1, -1,
+                parent.getIsSingleFile()));
+        }
+        return components;
+    }
+
     /**
      * Returns the tree structure for functions and services.
      * @returns An array of tree nodes with module component data.
@@ -126,51 +145,25 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
         let components: PackageTreeItem[] = [];
         const children: ChildrenData = parent.getChildrenData();
 
-        if (parent.getKind() === CMP_KIND.DEFAULT_MODULE && children.functions) {
-            const mainFunctionNodes = children.functions.filter(fn => {
-                return fn.name === 'main';
-            });
-            if (mainFunctionNodes.length > 0) {
-                mainFunctionNodes.forEach(fn => {
-                    components.push(new PackageTreeItem(fn.name, `${fn.filePath}`, TreeItemCollapsibleState.None,
-                        CMP_KIND.MAIN_FUNCTION, parent.getIsSingleFile() ? parent.getFilePath() :
-                        join(parent.getFilePath(), fn.filePath), this.extensionPath, true, parent, {}, fn.startLine,
-                        fn.startColumn));
+        if (parent.getKind() === CMP_KIND.FUNCTION_LABEL) {
+            if (parent.getParent()!.getKind() === CMP_KIND.DEFAULT_MODULE && children.functions) {
+                const mainFunctionNodes = children.functions.filter(fn => {
+                    return fn.name === 'main';
                 });
+                if (mainFunctionNodes.length > 0) {
+                    mainFunctionNodes.forEach(fn => {
+                        components.push(new PackageTreeItem(fn.name, `${fn.filePath}`, TreeItemCollapsibleState.None,
+                            CMP_KIND.MAIN_FUNCTION, parent.getIsSingleFile() ? parent.getFilePath() :
+                            join(parent.getFilePath(), fn.filePath), this.extensionPath, true, parent, {}, fn.startLine,
+                            fn.startColumn));
+                    });
+                }
             }
-        }
 
-        //Process service nodes
-        if (children.services) {
-            const serviceNodes = children.services.filter(service => {
-                return service.name;
-            });
-            serviceNodes.sort((service1, service2) => {
-                return service1.name!.localeCompare(service2.name!);
-            });
-            serviceNodes.forEach(service => {
-                components.push(new PackageTreeItem(service.name, `${service.filePath}`,
-                    TreeItemCollapsibleState.Expanded, CMP_KIND.SERVICE, parent.getIsSingleFile() ?
-                    parent.getFilePath() : join(parent.getFilePath(), service.filePath), this.extensionPath, true,
-                    parent, { resources: service.resources }, service.startLine, service.startColumn));
-            });
-
-            const serviceNodesWithoutName = children.services.filter(service => {
-                return !service.name;
-            });
-            let count: number = 0;
-            serviceNodesWithoutName.forEach(service => {
-                components.push(new PackageTreeItem(`${CMP_KIND.SERVICE} ${++count}`, `${service.filePath}`,
-                    TreeItemCollapsibleState.Expanded, CMP_KIND.SERVICE, parent.getIsSingleFile() ?
-                    parent.getFilePath() : join(parent.getFilePath(), service.filePath), this.extensionPath, true,
-                    parent, { resources: service.resources }, service.startLine, service.startColumn));
-            });
-        }
-
-        //Process function nodes
-        if (children.functions) {
-            let functionNodes = children.functions;
-            if (parent.getKind() === CMP_KIND.DEFAULT_MODULE) {
+            //Process function nodes
+            // if (children.functions) {
+            let functionNodes = children.functions!;
+            if (parent.getParent()!.getKind() === CMP_KIND.DEFAULT_MODULE) {
                 functionNodes = functionNodes.filter(fn => {
                     return fn.name !== 'main';
                 });
@@ -183,7 +176,38 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
                     CMP_KIND.FUNCTION, parent.getIsSingleFile() ? parent.getFilePath() : join(parent.getFilePath(),
                         fn.filePath), this.extensionPath, true, parent, {}, fn.startLine, fn.startColumn));
             });
+            // }
         }
+
+        if (parent.getKind() === CMP_KIND.SERVICE_LABEL) {
+            //Process service nodes
+            if (children.services) {
+                const serviceNodes = children.services.filter(service => {
+                    return service.name;
+                });
+                serviceNodes.sort((service1, service2) => {
+                    return service1.name!.localeCompare(service2.name!);
+                });
+                serviceNodes.forEach(service => {
+                    components.push(new PackageTreeItem(service.name, `${service.filePath}`,
+                        TreeItemCollapsibleState.Expanded, CMP_KIND.SERVICE, parent.getIsSingleFile() ?
+                        parent.getFilePath() : join(parent.getFilePath(), service.filePath), this.extensionPath, true,
+                        parent, { resources: service.resources }, service.startLine, service.startColumn));
+                });
+
+                const serviceNodesWithoutName = children.services.filter(service => {
+                    return !service.name;
+                });
+                let count: number = 0;
+                serviceNodesWithoutName.forEach(service => {
+                    components.push(new PackageTreeItem(`${CMP_KIND.SERVICE} ${++count}`, `${service.filePath}`,
+                        TreeItemCollapsibleState.Expanded, CMP_KIND.SERVICE, parent.getIsSingleFile() ?
+                        parent.getFilePath() : join(parent.getFilePath(), service.filePath), this.extensionPath, true,
+                        parent, { resources: service.resources }, service.startLine, service.startColumn));
+                });
+            }
+        }
+
         return components;
     }
 

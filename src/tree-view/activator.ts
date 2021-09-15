@@ -28,7 +28,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
     sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_PACKAGE_OVERVIEW, CMP_PACKAGE_VIEW);
 
     const packageTreeDataProvider = new PackageOverviewDataProvider(ballerinaExtInstance);
-    const ballerinaPackageTree = window.createTreeView('ballerinaPackageTreeView', {
+    window.createTreeView('ballerinaPackageTreeView', {
         treeDataProvider: packageTreeDataProvider
     });
 
@@ -40,11 +40,11 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
         return packageTreeDataProvider;
     }
 
-    packageTreeDataProvider.getPackageStructure().then(treeViewChildren => {
-        if (treeViewChildren.length > 0) {
-            ballerinaPackageTree.reveal(treeViewChildren[0], { expand: true, focus: false, select: false });
-        }
-    });
+    // packageTreeDataProvider.getPackageStructure().then(treeViewChildren => {
+    //     if (treeViewChildren.length > 0) {
+    //         ballerinaPackageTree.reveal(treeViewChildren[0], { expand: true, focus: false, select: false });
+    //     }
+    // });
 
     commands.registerCommand(TREE_ELEMENT_EXECUTE_COMMAND, (filePath: string, kind: string, startLine: number,
         startColumn: number, name: string) => {

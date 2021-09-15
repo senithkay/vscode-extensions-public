@@ -136,7 +136,7 @@ class DiagramPanel {
 		const panel = window.createWebviewPanel(
 			'ballerinaDiagram',
 			"Ballerina Diagram",
-			{ viewColumn: ViewColumn.Two, preserveFocus: false },
+			{ viewColumn: ViewColumn.One, preserveFocus: false },
 			getCommonWebViewOptions()
 		);
 
@@ -149,11 +149,11 @@ class DiagramPanel {
 		const remoteMethods: WebViewMethod[] = [
 			{
 				methodName: "getFileContent",
-				handler: async (args: any[]): Promise<string|undefined> => {
+				handler: async (args: any[]): Promise<string | undefined> => {
 					// Get the active text editor
 					const filePath = args[0];
 					const doc = workspace.textDocuments.find((doc) => doc.fileName === filePath);
-					const content =  doc ? doc.getText() : "";
+					const content = doc ? doc.getText() : "";
 					return content;
 				}
 			},

@@ -278,10 +278,20 @@
             }
         ],
         "views": {
-            "explorer": [
+            "diagram-explorer": [
                 {
                     "id": "ballerinaPackageTreeView",
-                    "name": "Diagrams"
+                    "name": "Diagrams",
+                    "contextualTitle": "Diagram Explorer"
+                }
+            ]
+        },
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "diagram-explorer",
+                    "title": "Diagram Explorer",
+                    "icon": "resources/images/icons/tab.svg"
                 }
             ]
         },

@@ -26,7 +26,15 @@ export enum CMP_KIND {
     FUNCTION = "Function",
     MAIN_FUNCTION = "main_function",
     SERVICE = "service",
-    RESOURCE = "Resource"
+    RESOURCE = "Resource",
+    FUNCTION_LABEL = "function_label",
+    SERVICE_LABEL = "service_label",
+    RECORDS = "records",
+    OBJECTS = "objects",
+    TYPES = "types",
+    VARIABLES = "variables",
+    CONSTANTS = "constants",
+    ENUMS = "enums"
 }
 
 export const TREE_ELEMENT_EXECUTE_COMMAND: string = 'ballerina.executeTreeElement';
@@ -59,7 +67,12 @@ export class PackageTreeItem extends TreeItem {
         this.isSingleFile = isSingleFile;
 
         if (hasIcon) {
-            const iconName = kind === CMP_KIND.DEFAULT_MODULE ? 'module' : kind;
+            let iconName = kind;
+            if (kind === CMP_KIND.DEFAULT_MODULE) {
+                iconName = 'module';
+            } else if (kind === CMP_KIND.FUNCTION_LABEL || kind === CMP_KIND.SERVICE_LABEL) {
+                iconName = CMP_KIND.MODULE;
+            }
             this.iconPath = {
                 light: join(this.extensionPath, 'resources', 'images', 'icons', `${iconName.toLowerCase()}.svg`),
                 dark: join(this.extensionPath, 'resources', 'images', 'icons', `${iconName.toLowerCase()}-inverse.svg`)
@@ -144,6 +157,12 @@ interface FunctionOrResource {
     startColumn: number;
     endLine: number;
     endColumn: number;
+    functionName?: {
+        value: string;
+    };
+    typeName?: {
+        value: string;
+    };
 }
 
 interface Service {
