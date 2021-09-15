@@ -1,9 +1,15 @@
-// import React from "react";
-//
-// export function DefaultBooleanC() {
-//     return (
-//         <span className="App-expression-block App-expression-block-element">
-//             expression
-//         </span>
-//     );
-// }
+import React from "react";
+
+import {statementEditorStyles} from "../../../ViewContainer/styles";
+
+export function DefaultBooleanC() {
+    const overlayClasses = statementEditorStyles();
+
+    return (
+        <span
+            className={`${overlayClasses.AppExpressionBlock} ${overlayClasses.AppExpressionBlockElement}`}
+        >
+            expression
+        </span>
+    );
+}

@@ -20,7 +20,7 @@ export function MainContainer() {
 
     return (
         <div className={overlayClasses.App}>
-            <LeftPane />
+            <LeftPane model={sampleModel} currentModel={currentModel} />
             <div className={overlayClasses.vl}/>
             <RightPane />
         </div>

@@ -74,8 +74,8 @@ export const statementEditorStyles = makeStyles(() =>
             left: '5%',
             top: '5%',
             height: '93%',
-            width: '93%'
-            // overflow: 'scroll'
+            width: '93%',
+            overflowY: 'scroll'
         },
         AppContextSensitivePane: {
             // backgroundColor: '#f7f8fb',
@@ -87,6 +87,73 @@ export const statementEditorStyles = makeStyles(() =>
             top: '5%',
             height: '60%',
             width: '90%',
-        }
+        },
+        AppSuggestionBlock: {
+            // backgroundColor: '#f7f8fb',
+            display: 'inline-block',
+            position: 'relative',
+            left: '5%',
+            top: '5%',
+            height: '90%',
+            width: '90%',
+            overflowY: 'scroll'
+        },
+        AppSuggestionButtons: {
+            padding: '6px 16px',
+            fontSize: '0.875rem',
+            minWidth: '64px',
+            boxSizing: 'border-box',
+            borderColor: '#808bc7',
+            borderRadius: '10px',
+            borderStyle: 'solid',
+            lineHeight: '1.75',
+            height: '40px',
+            marginLeft: '2%',
+            marginTop: '3%',
+            '&:hover': {
+                backgroundColor: '#5567D5',
+                color: 'white'
+            }
+        },
+        AppExpressionBlock: {
+            position: 'relative',
+            paddingRight: '10px'
+        },
+        AppExpressionBlockDisabled: {
+            color: 'rgba(12, 11, 11, 0.63)'
+        },
+        AppTemplateButton: {
+            position: 'relative',
+            width: 'fit-content',
+            backgroundColor: '#ffffff',
+            color: 'rgb(0, 0, 255)',
+            textAlign: 'center',
+            display: 'inline-block',
+            fontSize: '16px',
+            borderRadius: '10px',
+            marginLeft: '2px',
+            marginTop: '1px',
+            borderColor: '#808bc7',
+            borderStyle: 'dotted',
+            '&:hover': {
+                backgroundColor: '#5567D5',
+                color: 'white'
+            }
+        },
+        AppAddNewExpressionButton: {
+            backgroundColor: '#f7f8fb',
+            border: '#6830e9',
+            borderStyle: 'solid',
+            color: '#6830e9',
+            textAlign: 'center',
+            fontSize: '16px',
+            margin: '4px 2px',
+            borderRadius: '50%'
+        },
+        AppExpressionBlockElement: {
+            color: '#490cd6',
+            marginLeft: '10px',
+            display: 'inline-block'
+        },
     }),
 );

@@ -1,12 +1,15 @@
-import { Arithmetic, Conditional, Equality, Expression, Literal, Logical, Relational, TypeCheck, Unary, Variable, StringTemplate } from '../models/definitions';
 import * as c from "../constants";
+import {
+    Arithmetic, Conditional, Equality, Expression, Literal, Logical, Relational,
+    StringTemplate, TypeCheck, Unary, Variable
+} from '../models/definitions';
 
 export function deleteExpression(model: Expression) {
     delete model.expressionType;
 }
 
 export function addOperator(model: Expression, kind: any) {
-    let expression: any = model.expressionType
+    const expression: any = model.expressionType
     if ("typeDescriptor" in expression) {
         expression.typeDescriptor = kind
     } else {
@@ -16,7 +19,7 @@ export function addOperator(model: Expression, kind: any) {
 
 export function addExpression(model: Expression, kind: string, value?: any) {
     model['kind'] = kind;
-    var expressionTemplate: TypeCheck
+    let expressionTemplate: TypeCheck
         | Conditional
         | Literal
         | Arithmetic
@@ -55,67 +58,67 @@ export function addExpression(model: Expression, kind: string, value?: any) {
 
 
 function createLiteral(value: any): Literal {
-    return { value: value };
+    return {value};
 }
 
 function createVariable(name: string): Variable {
-    return { name: name };
+    return {name};
 }
 
 function createRelational(operator: ">" | ">=" | "<" | "<=" | "operator"): Relational {
     return {
-        lhsExp: { type: ["int", "float", "decimal"], kind: c.DEFAULT_BOOL, },
-        operator: operator,
-        rhsExp: { type: ["int", "float", "decimal"], kind: c.DEFAULT_BOOL, }
+        lhsExp: {type: ["int", "float", "decimal"], kind: c.DEFAULT_BOOL},
+        operator,
+        rhsExp: {type: ["int", "float", "decimal"], kind: c.DEFAULT_BOOL}
     };
 }
 
 function createEquality(operator: "==" | "!=" | "===" | "!==" | "operator"): Equality {
     return {
-        lhsExp: { type: ["int", "float", "decimal"], kind: c.DEFAULT_BOOL, },
-        operator: operator,
-        rhsExp: { type: ["int", "float", "decimal"], kind: c.DEFAULT_BOOL, }
+        lhsExp: {type: ["int", "float", "decimal"], kind: c.DEFAULT_BOOL},
+        operator,
+        rhsExp: {type: ["int", "float", "decimal"], kind: c.DEFAULT_BOOL}
     };
 }
 
 function createArithmetic(operator: "*" | "/" | "%" | "+" | "-" | "operator"): Arithmetic {
     return {
-        lhsOperand: { type: ["int", "float", "decimal"], kind: c.DEFAULT_BOOL, },
-        operator: operator,
-        rhsOperand: { type: ["int", "float", "decimal"], kind: c.DEFAULT_BOOL, }
+        lhsOperand: {type: ["int", "float", "decimal"], kind: c.DEFAULT_BOOL},
+        operator,
+        rhsOperand: {type: ["int", "float", "decimal"], kind: c.DEFAULT_BOOL}
     };
 
 }
 
 function createConditional(): Conditional {
     return {
-        condition: { type: ["int", "float", "decimal"], kind: c.DEFAULT_BOOL, },
+        condition: {type: ["int", "float", "decimal"], kind: c.DEFAULT_BOOL},
         keyWord1: '?',
-        trueExpr: { type: ["int", "float", "decimal"], kind: c.DEFAULT_BOOL, },
+        trueExpr: {type: ["int", "float", "decimal"], kind: c.DEFAULT_BOOL},
         keyWord2: ':',
-        falseExpr: { type: ["int", "float", "decimal"], kind: c.DEFAULT_BOOL, }
+        falseExpr: {type: ["int", "float", "decimal"], kind: c.DEFAULT_BOOL}
     }
 }
 
 function createLogical(operator: "&&" | "||" | "operator"): Logical {
     return {
-        lhsComponent: { type: ["int", "float", "decimal"], kind: c.DEFAULT_BOOL, },
-        operator: operator,
-        rhsComponent: { type: ["int", "float", "decimal"], kind: c.DEFAULT_BOOL, }
+        lhsComponent: {type: ["int", "float", "decimal"], kind: c.DEFAULT_BOOL},
+        operator,
+        rhsComponent: {type: ["int", "float", "decimal"], kind: c.DEFAULT_BOOL}
     };
 }
 
 function createStringTemplate(): StringTemplate {
     return {
         start: "string `",
-        exp: { type: ["string"], kind: c.DEFAULT_BOOL},
+        exp: {type: ["string"], kind: c.DEFAULT_BOOL},
         end: "`"
     }
 }
 
 function createTypeCheck(type: "string" | "int" | "float" | "boolean"): TypeCheck {
     return {
-        value: { type: ["int", "float", "decimal"], kind: c.DEFAULT_BOOL, },
+        value: {type: ["int", "float", "decimal"], kind: c.DEFAULT_BOOL},
         keyWord: "is",
         typeDescriptor: type
     }
@@ -123,10 +126,11 @@ function createTypeCheck(type: "string" | "int" | "float" | "boolean"): TypeChec
 
 function createUnary(operator: "+" | "-" | "~" | "!" | "operator"): Unary {
     return {
-        operator: operator,
-        operand: { type: ["int", "float", "decimal", "boolean"], kind: c.DEFAULT_BOOL, }
+        operator,
+        operand: {type: ["int", "float", "decimal", "boolean"], kind: c.DEFAULT_BOOL}
     }
 }
+
 // export const ExpressionSuggestionsByKind : {[key: string]: string[]} = {
 //     literal : ["comparison", "logical", "arithmetic"],
 //     comparison : ["arithmetic", "conditional", "type-checks"],
@@ -143,9 +147,9 @@ export const ExpressionSuggestionsByKind: { [key: string]: string[] } = {
     ArithmeticC: [c.LITERAL, c.ARITHMETIC, c.CONDITIONAL],
     LogicalC: [c.RELATIONAL, c.LOGICAL, c.CONDITIONAL, c.LITERAL],
     ConditionalC: [c.LITERAL, c.RELATIONAL, c.TYPE_CHECK, c.CONDITIONAL],
-    EqualityC: [c.ARITHMETIC, c.CONDITIONAL, c.LITERAL, c.STRING_TEMPLATE,],
+    EqualityC: [c.ARITHMETIC, c.CONDITIONAL, c.LITERAL, c.STRING_TEMPLATE],
     DefaultBooleanC: [c.RELATIONAL, c.EQUALITY, c.LOGICAL, c.LITERAL, c.TYPE_CHECK, c.CONDITIONAL, c.UNARY],
-    TypeCheckC: [c.LITERAL, c.CONDITIONAL   ],
+    TypeCheckC: [c.LITERAL, c.CONDITIONAL],
     UnaryC: [c.LITERAL, c.RELATIONAL, c.EQUALITY, c.ARITHMETIC],
     StringTemplateC: [c.STRING_TEMPLATE, c.ARITHMETIC, c.CONDITIONAL]
 }
