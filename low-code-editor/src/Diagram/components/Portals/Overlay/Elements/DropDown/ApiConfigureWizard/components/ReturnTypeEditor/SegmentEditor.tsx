@@ -19,9 +19,9 @@ import CheckBoxGroup from "../../../../../../../../../Diagram/components/Portals
 import { PrimaryButton } from "../../../../../../ConfigForm/Elements/Button/PrimaryButton";
 import { SecondaryButton } from "../../../../../../ConfigForm/Elements/Button/SecondaryButton";
 import { SelectDropdownWithButton } from "../../../../../../ConfigForm/Elements/DropDown/SelectDropdownWithButton";
+import { FormTextInput } from "../../../../../../ConfigForm/Elements/TextField/FormTextInput";
 import { ReturnType } from "../../types";
 import { returnTypes } from "../../util";
-import { FormTextInput } from "../../../../../../ConfigForm/Elements/TextField/FormTextInput";
 
 import { useStyles } from './style';
 
@@ -46,7 +46,7 @@ export function ReturnTypeSegmentEditor(props: PathSegmentEditorProps) {
     const [segmentState, setSegmentState] = useState<ReturnType>(initValue);
 
     const onChangeSegmentType = (text: any) => {
-        if(returnTypes.includes(text)){
+        if (returnTypes.includes(text)){
             setSegmentState({
                 ...segmentState,
                 type: text
@@ -59,15 +59,15 @@ export function ReturnTypeSegmentEditor(props: PathSegmentEditorProps) {
             });
             setOtherTypeSelected(true);
         }
-        
+
     };
 
-    const onChangeOtherType = (text: any) => {
+    const onChangeOtherType = (text: string) => {
         setSegmentState({
             ...segmentState,
             type: text
         });
-        
+
     };
 
     const onChangeSegmentOptional = (text: any) => {
@@ -111,30 +111,25 @@ export function ReturnTypeSegmentEditor(props: PathSegmentEditorProps) {
                             onChange={onChangeSegmentType}
                         />
                     </Grid>
-                    {!otherTypeSelected &&
+                    {!otherTypeSelected && (
                         <Grid item={true} xs={6}>
                             <CheckBoxGroup values={["Is Optional"]} defaultValues={[segmentState.isOptional ? "Is Optional" : ""]} onChange={onChangeSegmentOptional} />
                         </Grid>
-                    }
+                    )}
                 </Grid>
-                {otherTypeSelected &&
+                {otherTypeSelected && (
                     <Grid container={true} item={true} spacing={2}>
                         <Grid item={true} xs={12}>
                             <FormTextInput
                                 dataTestId="resource-other-input"
-                                onChange={(text: string) => onChangeOtherType(text)}
-                                customProps={{
-                                    // validate: validateResourcePath,
-                                    // isErrored: resProps.isPathDuplicated || duplicatedPathsInEdit,
-                                }}
-                                // errorMessage={resProps.isPathDuplicated || duplicatedPathsInEdit ? pathDuplicateErrorMessage : isValidPath ? "" : pathErrorMessage}
+                                onChange={onChangeOtherType}
                                 placeholder='Other Type'
                             />
                         </Grid>
                     </Grid>
-                }
+                )}
 
-                
+
                 <Grid container={true} item={true} spacing={2}>
                     <Grid item={true} xs={12}>
                         <div className={classes.btnContainer}>

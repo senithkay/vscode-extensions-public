@@ -795,7 +795,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
               title={returnTypeTitle}
               tooltipWithExample={{ title: returnTitle, content: returnTypeExample }}
             >
-            <ReturnTypeEditor returnTypeString={resProps.returnType} defaultValue={resProps.returnType} isCaller={resProps.isCaller} onChange={(text: string) => handleOnChangeReturnTypeFormUI(text, index)} />  
+            <ReturnTypeEditor returnTypeString={resProps.returnType} defaultValue={resProps.returnType} isCaller={resProps.isCaller} onChange={(text: string) => handleOnChangeReturnTypeFormUI(text, index)} />
             </Section>
             <div className={resources.length > 1 ? classes.deleteBtnWrapper : ""} onClick={() => onDeleteResource(index)}>
               {resources.length > 1 && (
