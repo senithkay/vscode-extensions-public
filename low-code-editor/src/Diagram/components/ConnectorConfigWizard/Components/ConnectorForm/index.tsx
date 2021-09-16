@@ -181,7 +181,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
   } = configWizardArgs;
 
   let isOauthConnector = false;
-  const connectorName = connectorInfo.displayName || connectorInfo.name;
+  const connectorName = connectorInfo.displayName || connectorInfo.packageName;
   configurations.configList.forEach((configuration) => {
     // TODO: need to find proper way to identify auth enable connector
     if (
@@ -1442,7 +1442,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             <div className={wizardClasses.titleWrapper}>
               <div className={wizardClasses.connectorIconWrapper}>
                 {getConnectorIcon(
-                  `${connectorInfo.moduleName}_${connectorInfo.name}`
+                  `${connectorInfo.packageName}_${connectorInfo.name}`
                 )}
               </div>
               <Typography className={wizardClasses.configTitle} variant="h4">

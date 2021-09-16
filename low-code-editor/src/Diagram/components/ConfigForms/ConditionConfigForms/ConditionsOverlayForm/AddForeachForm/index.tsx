@@ -127,7 +127,7 @@ export function AddForeachForm(props: ForeachProps) {
     const formField: FormField = {
         name: "iterable expression",
         displayName: "Iterable Expression",
-        type: "var"
+        typeName: "var"
     };
 
     const forEachTooltipMessages = {
@@ -179,7 +179,7 @@ export function AddForeachForm(props: ForeachProps) {
             tooltipActionText: forEachTooltipMessages.expressionEditor.actionText,
             tooltipActionLink: forEachTooltipMessages.expressionEditor.actionLink,
             interactive: true,
-            statementType: formField.type,
+            statementType: formField.typeName,
             customTemplate: {
                 defaultCodeSnippet: 'foreach var temp_var in  {}',
                 targetColumn: 25,

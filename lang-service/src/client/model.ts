@@ -158,22 +158,20 @@ export interface BallerinaRecordRequest {
 }
 
 export interface FormField {
-    type: string;
+    typeName: string;
     name?: string;
     label?: string;
     displayName?: string;
     collectionDataType?: FormField;
     selectedDataType?: string;
-    typeName?: string;
     description?: string;
     defaultValue?: any;
     value?: any;
     optional?: boolean;
     fields?: FormField[];
+    members?: FormField[];
     references?: FormField[];
     isReturn?: boolean;
-    isParam?: boolean;
-    isUnion?: boolean;
     isArray?: boolean;
     isTypeDef?: boolean;
     isReference?: boolean;
@@ -205,7 +203,7 @@ export interface BallerinaConnectorInfo extends Connector {
     displayAnnotation?: any;
 }
 export interface BallerinaConnectorsResponse {
-    connectors: BallerinaConnectorInfo[];
+    connectors: Connector[];
 }
 
 export interface BallerinaConnectorResponse extends Connector{
@@ -218,7 +216,7 @@ export interface BallerinaConnectorRequest extends Connector {
 }
 
 export interface Connector {
-    id: string;
+    id?: string;
     name: string;
     orgName: string;
     packageName: string;

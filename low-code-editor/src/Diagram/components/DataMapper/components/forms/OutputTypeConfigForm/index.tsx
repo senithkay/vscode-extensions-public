@@ -148,7 +148,7 @@ export function OutputTypeConfigForm() {
     const variables: DataMapperInputTypeInfo[] = [];
 
     // form field model for json type form
-    const jsonFormField: FormField = { isParam: true, type: 'json', value: defaultJsonValue };
+    const jsonFormField: FormField = {typeName: 'json', value: defaultJsonValue };
 
     stSymbolInfo.variables.forEach((definedVars: STNode[], type: string) => {
         definedVars

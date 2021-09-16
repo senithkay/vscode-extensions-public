@@ -52,7 +52,7 @@ export function Array(props: FormElementProps<ArrayProps>) {
 
     const fieldModel: FormField = {
         name: model.name,
-        type: getType(model.collectionDataType?.type),
+        typeName: getType(model.collectionDataType?.type),
         displayName: model.displayName
     };
 
@@ -148,9 +148,8 @@ export function Array(props: FormElementProps<ArrayProps>) {
     };
 
     const addValue = () => {
-        fieldModel.type = getType(model.collectionDataType?.type);
+        fieldModel.typeName = getType(model.collectionDataType?.type);
         fieldModel.collectionDataType  = model.collectionDataType;
-        fieldModel.isParam = true;
         if (model.collectionDataType.type) {
             if (model.collectionDataType.type === "record") {
                 // TODO: Handle record
@@ -185,7 +184,7 @@ export function Array(props: FormElementProps<ArrayProps>) {
                     // 2nd condition is to cater boolean values coming at the initial instance where array value state
                     // is empty
                     (model.collectionDataType.type === "boolean") && (arrayValue === undefined)) {
-                    if (model.type === "collection") {
+                    if (model.typeName === "collection") {
                         model.fields.push(fieldModel);
                         if (onChange) {
                             // Arrays coming from property-form
@@ -218,15 +217,15 @@ export function Array(props: FormElementProps<ArrayProps>) {
                 };
                 elementProps.customProps = {
                     validate: validateField,
-                    statementType: fieldModel.type
+                    statementType: fieldModel.typeName
                 };
                 if (model.collectionDataType.type === "json" || model.collectionDataType.type === "xml") {
                     elementProps.onChange = onJsonChange;
                     elementProps.defaultValue = arrayValue;
-                } else if (model.collectionDataType.type === "boolean") {
+                } else if (model.collectionDataType.typeName === "boolean") {
                     elementProps.onChange = onCollectionChange;
                     elementProps.defaultValue = arrayValue;
-                } else if (model.type === "collection") {
+                } else if (model.typeName === "collection") {
                     elementProps.onChange = onCollectionChange;
                 }
                 setArrayField(getFormElement(elementProps, model.collectionDataType.type));

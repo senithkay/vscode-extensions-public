@@ -39,7 +39,7 @@ export interface BallerinaSyntaxTreeResponse {
 }
 
 export interface Connector {
-    id: string;
+    id?: string;
     name: string;
     orgName: string;
     packageName: string;
@@ -64,7 +64,7 @@ export interface BallerinaConnectorInfo extends Connector {
 }
 
 export interface BallerinaConnectorsResponse {
-    connectors: BallerinaConnectorInfo[];
+    connectors: Connector[];
 }
 export interface BallerinaConnectorResponse extends Connector{
     connector: BallerinaConnectorInfo;

@@ -64,22 +64,20 @@ export interface FunctionDefinitionInfo {
 }
 
 export interface FormField {
-    type: PrimitiveBalType | any;
+    typeName: string;
     name?: string;
     label?: string;
     displayName?: string;
     collectionDataType?: FormField;
     selectedDataType?: string;
-    typeName?: string;
     description?: string;
     defaultValue?: any;
     value?: any;
     optional?: boolean;
     fields?: FormField[];
+    members?: FormField[];
     references?: FormField[];
     isReturn?: boolean;
-    isParam?: boolean;
-    isUnion?: boolean;
     isArray?: boolean;
     isTypeDef?: boolean;
     isReference?: boolean;

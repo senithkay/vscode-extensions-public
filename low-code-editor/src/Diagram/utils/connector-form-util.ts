@@ -113,28 +113,24 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
             // Set mandatory fields of OAuth2RefreshTokenGrantConfig
             mandatoryFields.fields.find(fields => fields.typeInfo?.name === "OAuth2RefreshTokenGrantConfig").fields = [
                 {
-                    "isParam": true,
                     "name": "refreshUrl",
                     "optional": false,
-                    "type": "string"
+                    "typeName": "string"
                 },
                 {
-                    "isParam": true,
                     "name": "refreshToken",
                     "optional": false,
-                    "type": "string"
+                    "typeName": "string"
                 },
                 {
-                    "isParam": true,
                     "name": "clientId",
                     "optional": false,
-                    "type": "string"
+                    "typeName": "string"
                 },
                 {
-                    "isParam": true,
                     "name": "clientSecret",
                     "optional": false,
-                    "type": "string"
+                    "typeName": "string"
                 },
             ]
         }
@@ -221,7 +217,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                             param.value = "\"/\"";
                         } else if (param.name === "request") {
                             param.displayName = "Request";
-                            param.type = "httpRequest";
+                            param.typeName = "httpRequest";
                             param.typeInfo = httpRequest;
                         } else if (param.name === "targetType") {
                             param.hide = true;
@@ -259,10 +255,9 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                             param.value = userEmail ? "\"" + userEmail + "\"" : undefined;
                             formField = [param, ...formField]
                         } else if (param.name === "to") {
-                            param.type = "collection";
+                            param.typeName = "collection";
                             param.isArray = true;
-                            param.collectionDataType = {type: PrimitiveBalType.String, isParam: true};
-                            param.isUnion = false;
+                            param.collectionDataType = {typeName: PrimitiveBalType.String};
                             param.fields = [];
                             param.tooltip = tooltipMessages.SMTP.to
                         }
@@ -465,23 +460,23 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     // HACK: use hardcoded FormFields until ENUM fix from lang-server
                     const stateField = value.parameters.find(fields => fields.name === "state");
                     if (stateField) {
-                        stateField.type = PrimitiveBalType.String;
+                        stateField.typeName = PrimitiveBalType.String;
                         stateField.customAutoComplete = [`"OPEN"`, `"CLOSED"`];
                     }
                 } else if (key === "getRepositoryProjectList") {
                     // HACK: use hardcoded FormFields until ENUM fix from lang-server
                     const stateField = value.parameters.find(fields => fields.name === "state");
                     if (stateField) {
-                        stateField.type = PrimitiveBalType.String;
+                        stateField.typeName = PrimitiveBalType.String;
                         stateField.customAutoComplete = [`"OPEN"`, `"CLOSED"`];
                     }
                 } else if (key === "getRepositoryIssueList") {
                     // HACK: use hardcoded FormFields until ENUM fix from lang-server
                     const statesField = value.parameters.find(fields => fields.name === "states");
                     if (statesField) {
-                        statesField.type = "collection";
+                        statesField.typeName = "collection";
                         statesField.isArray = true;
-                        statesField.collectionDataType = {type: PrimitiveBalType.String, isParam: true};
+                        statesField.collectionDataType = {typeName: PrimitiveBalType.String};
                         statesField.customAutoComplete = [`"OPEN"`, `"CLOSED"`];
                     }
                 }
@@ -506,11 +501,11 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     value.parameters.forEach(field => {
                         if (field.name === "operation"){
                             // HACK: use hardcoded FormFields until ENUM fix from lang-server
-                            field.type = PrimitiveBalType.String;
+                            field.typeName = PrimitiveBalType.String;
                             field.customAutoComplete = [`"insert"`, `"update"`, `"delete"`, `"upsert"`, `"query"`];
                         } else if (field.name === "contentType"){
                             // HACK: use hardcoded FormFields until ENUM fix from lang-server
-                            field.type = PrimitiveBalType.String;
+                            field.typeName = PrimitiveBalType.String;
                             field.customAutoComplete = [`"JSON"`, `"XML"`, `"CSV"`];
                         }
                     })
@@ -523,10 +518,9 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                 // HACK: use hardcoded FormFields until ENUM fix from lang-server
                 if (key === "getAll") {
                     value.parameters[0] = {
-                        type: PrimitiveBalType.String,
+                        typeName: PrimitiveBalType.String,
                         name: "RecordType",
                         optional: false,
-                        isParam: true
                     }
                 }
                 filteredFunctions.set(key, value);
@@ -560,7 +554,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                                 "twilio:TWIML_URL",
                                 "twilio:MESSAGE_IN_TEXT"
                             ];
-                            field.type = PrimitiveBalType.String
+                            field.typeName = PrimitiveBalType.String
                         }
                     });
                 }
@@ -616,7 +610,7 @@ export function filterCodeGenFunctions(connector: Connector, functionDefInfoMap:
                     case 'patch':
                         // this filter common for all post put delete and patch methods
                         value.parameters.find(field => field.name === "message").fields.forEach((param) => {
-                            if (!(param.type === "string" || param.type === "xml" || param.type === "json")) {
+                            if (!(param.typeName === "string" || param.typeName === "xml" || param.typeName === "json")) {
                                 param.noCodeGen = true;
                             }
                         });
@@ -652,8 +646,7 @@ export function filterCodeGenFunctions(connector: Connector, functionDefInfoMap:
                 if (key === 'getRepository') {
                     value.parameters.forEach(field => {
                         if (field.name === 'repoIdentifier') {
-                            field.isUnion = false;
-                            field.type = PrimitiveBalType.String;
+                            field.typeName = PrimitiveBalType.String;
                             field.value = field.fields[0].value;
                             field.fields = [];
                         }

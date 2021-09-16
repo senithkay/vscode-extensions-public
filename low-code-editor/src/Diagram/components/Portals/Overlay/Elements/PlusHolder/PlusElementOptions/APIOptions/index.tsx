@@ -21,7 +21,7 @@ import ExpEditorCollapseIcon from "../../../../../../../../assets/icons/ExpEdito
 import ExpEditorExpandIcon from "../../../../../../../../assets/icons/ExpEditorExpandIcon";
 import Tooltip from "../../../../../../../../components/TooltipV2";
 import { Context } from "../../../../../../../../Contexts/Diagram";
-import { BallerinaConnectorInfo } from "../../../../../../../../Definitions/lang-client-extended";
+import { BallerinaConnectorInfo, Connector } from "../../../../../../../../Definitions/lang-client-extended";
 import { PlusViewState } from "../../../../../../../../Diagram/view-state/plus";
 import {
     EVENT_TYPE_AZURE_APP_INSIGHTS,
@@ -536,7 +536,7 @@ export function APIOptions(props: APIOptionsProps) {
         const event: LowcodeEvent = {
             type: EVENT_TYPE_AZURE_APP_INSIGHTS,
             name: START_CONNECTOR_ADD_INSIGHTS,
-            property: connector.displayName || connector.name
+            property: connector.displayName || connector.packageName
         };
         onEvent(event);
         onSelect(connector, undefined);
@@ -547,7 +547,7 @@ export function APIOptions(props: APIOptionsProps) {
         const event: LowcodeEvent = {
             type: EVENT_TYPE_AZURE_APP_INSIGHTS,
             name: START_EXISTING_CONNECTOR_ADD_INSIGHTS,
-            property: connector.displayName || connector.name
+            property: connector.displayName || connector.packageName
         };
         onEvent(event);
         openConnectorHelp(connector);
@@ -558,11 +558,11 @@ export function APIOptions(props: APIOptionsProps) {
     const connectorComponents: ConnctorComponent[] = [];
     if (connectors) {
         let tooltipSideCount = 0;
-        connectors.forEach((connector: any) => {
+        connectors.forEach((connector: BallerinaConnectorInfo) => {
             // filter connectors due to maintenance
-            const connectorName = connector.displayName || connector.name;
+            const connectorName = connector.displayName || connector.packageName;
             const filteredConnectors = ["azure_storage_service.files", "azure_storage_service.blobs", "choreo.sendwhatsapp"];
-            if (filteredConnectors.includes(connector.module)) {
+            if (filteredConnectors.includes(connector.packageName)) {
                 return;
             }
 
@@ -651,7 +651,7 @@ export function APIOptions(props: APIOptionsProps) {
     const updatedConnectorComponents: ReactNode[] = [];
     if (selectedContName !== "") {
         const filteredComponents: ConnctorComponent[] = connectorComponents.filter(el =>
-            el.connectorInfo.displayName.toLowerCase().includes(selectedContName.toLowerCase()));
+            el.connectorInfo.packageName.toLowerCase().includes(selectedContName.toLowerCase())); // TODO: need to check display name
         filteredComponents.map((component) => updatedConnectorComponents.push(component.component));
     } else {
         connectorComponents.map((component) => updatedConnectorComponents.push(component.component));

@@ -204,7 +204,7 @@ export function getDefaultValue(expEditorType: string): string {
  * Currently simply returns the type name for non primitive types.
  */
 export const transformFormFieldTypeToString = (model?: FormField, returnUndefined?: boolean): string => {
-    if (model.type === "record" || model.typeInfo) {
+    if (model.typeName === "record" || model.typeInfo) {
         if (model.typeInfo) {
             let modName = model.typeInfo.modName;
             if (modName.includes('.')) {
@@ -216,23 +216,23 @@ export const transformFormFieldTypeToString = (model?: FormField, returnUndefine
                 return modName + ":" + model.typeInfo.name
             }
         }
-    } else if (model.type === "union") {
+    } else if (model.typeName === "union") {
         if (model.fields) {
             const allTypes: string[] = [];
             for (const field of model.fields) {
                 let type;
-                if (field.type === "record" || field.typeInfo) {
+                if (field.typeName === "record" || field.typeInfo) {
                     if (field.typeInfo) {
                         type = field.isArray ? field.typeInfo.modName + ":" + field.typeInfo.name + "[]" : field.typeInfo.modName + ":" + field.typeInfo.name;
                     }
-                } else if (field.type === "tuple") {
+                } else if (field.typeName === "tuple") {
                     type = transformFormFieldTypeToString(field);
-                } else if (field.type === "collection") {
-                    if (field.collectionDataType?.type) {
-                        type = field.collectionDataType.type + "[]";
+                } else if (field.typeName === "collection") {
+                    if (field.collectionDataType?.typeName) {
+                        type = field.collectionDataType.typeName + "[]";
                     }
-                } else if (field.type) {
-                    type = field.type;
+                } else if (field.typeName) {
+                    type = field.typeName;
                 }
 
                 if (type && !field.noCodeGen && !allTypes.includes(type.toString())) {
@@ -241,23 +241,23 @@ export const transformFormFieldTypeToString = (model?: FormField, returnUndefine
             }
             return model.isArray ? "(" + allTypes.join("|") + ")[]" : allTypes.join("|");
         }
-    } else if (model.type === "tuple") {
+    } else if (model.typeName === "tuple") {
         if (model.fields) {
             const allTypes: string[] = [];
             for (const field of model.fields) {
                 let type;
-                if (field.type === "record" && field.typeInfo) {
+                if (field.typeName === "record" && field.typeInfo) {
                     type = field.isArray ? field.typeInfo.modName + ":" + field.typeInfo.name + "[]" : field.typeInfo.modName + ":" + field.typeInfo.name;
-                } else if (field.type) {
-                    type = field.type;
+                } else if (field.typeName) {
+                    type = field.typeName;
                 }
-                if (type && field.isParam && !field.noCodeGen) {
+                if (type && !field.noCodeGen) {
                     allTypes.push(type.toString());
                 }
             }
             return "[" + allTypes.join(",") + "]";
         }
-    } else if (model.type === "collection") {
+    } else if (model.typeName === "collection") {
         if (model.typeInfo) {
             return model.typeInfo.modName + ":" + model.typeInfo.name + "[]";
         } else if (model.collectionDataType) {
@@ -272,7 +272,7 @@ export const transformFormFieldTypeToString = (model?: FormField, returnUndefine
             }
             return returnTypeString;
         }
-    } else if (model.type === "map") {
+    } else if (model.typeName === "map") {
         if (model.fields) {
             const returnTypesList: string[] = [];
             model.fields.forEach(field => {
@@ -281,10 +281,10 @@ export const transformFormFieldTypeToString = (model?: FormField, returnUndefine
             });
             return `map<${returnTypesList.join(',')}>${model.optional ? '?' : ''}`;
         }
-    } else if (model.type) {
-        return model.type;
+    } else if (model.typeName) {
+        return model.typeName;
     }
-    if (returnUndefined && !model.type) {
+    if (returnUndefined && !model.typeName) {
         return undefined;
     }
     return PrimitiveBalType.Var.toString();
@@ -308,7 +308,7 @@ export function checkIfStringExist(varType: string): boolean {
  */
 export const addImportModuleToCode = (codeSnipet: string, model: FormField): string => {
     let code = codeSnipet;
-    if (model.type === "record" || model.typeInfo) {
+    if (model.typeName === "record" || model.typeInfo) {
         if (model.typeInfo) {
             const nonPrimitiveTypeItem = model.typeInfo as NonPrimitiveBal
             const importSnippet = `import ${nonPrimitiveTypeItem.orgName}/${nonPrimitiveTypeItem.modName};`;
@@ -318,10 +318,10 @@ export const addImportModuleToCode = (codeSnipet: string, model: FormField): str
                 code = addToZerothLine(code, `${importSnippet}`);
             }
         }
-    } else if (model.type === "union") {
+    } else if (model.typeName === "union") {
         if (model.fields) {
             for (const field of model.fields) {
-                if (field.type === "record" || model.typeInfo) {
+                if (field.typeName === "record" || model.typeInfo) {
                     if (field.typeInfo) {
                         const nonPrimitiveTypeItem = field.typeInfo as NonPrimitiveBal
                         const importSnippet = `import ${nonPrimitiveTypeItem.orgName}/${nonPrimitiveTypeItem.modName};`;
