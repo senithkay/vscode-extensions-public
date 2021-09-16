@@ -11,9 +11,10 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
+// tslint:disable: jsx-wrap-multiline
 import React, { useState } from "react"
 
-import { RecordFieldWithDefaultValue, RecordTypeDesc, STNode, TypeDefinition } from "@ballerina/syntax-tree";
+import { RecordFieldWithDefaultValue, RecordTypeDesc, STNode, TypeDefinition, STKindChecker } from "@ballerina/syntax-tree";
 
 import DeleteButton from "../../../assets/icons/DeleteButton";
 import EditButton from "../../../assets/icons/EditButton";
@@ -26,17 +27,13 @@ export const RECORD_MARGIN_LEFT: number = 24.5;
 export const RECORD_PLUS_OFFSET: number = 7.5;
 
 export interface TypeDefComponentProps {
-    model: STNode;
+    model: TypeDefinition;
 }
 
 export function TypeDefinitionComponent(props: TypeDefComponentProps) {
     const { model } = props;
 
     const [isEditable, setIsEditable] = useState(false);
-
-    const recordModel: TypeDefinition = model as TypeDefinition;
-
-    const varName = recordModel.typeName.value;
 
     const handleMouseEnter = () => {
         setIsEditable(true);
@@ -45,23 +42,30 @@ export function TypeDefinitionComponent(props: TypeDefComponentProps) {
         setIsEditable(false);
     };
 
-    const record = [];
-    for (const field of (recordModel.typeDescriptor as RecordTypeDesc).fields) {
-        if (field.kind === "RecordField") {
-            const fieldName = field.fieldName.value;
-            const fieldType = field.typeName.source?.trim();
-            record.push([fieldType, fieldName]);
-        } else if (field.kind === "RecordFieldWithDefaultValue") {
-            const fieldName = field.fieldName.value;
-            const fieldType = field.typeName.source?.trim();
-            const fieldValue = (field as RecordFieldWithDefaultValue).expression.source
-            record.push([fieldType, fieldName + " = " + fieldValue]);
-        }
-    }
+    const component: JSX.Element[] = [];
 
-    return (
-        <>
-            <div className="record-comp" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}  >
+    if (STKindChecker.isRecordTypeDesc(model.typeDescriptor)) {
+
+        const recordModel: TypeDefinition = model as TypeDefinition;
+
+        const varName = recordModel.typeName.value;
+
+        const record = [];
+        for (const field of (recordModel.typeDescriptor as RecordTypeDesc).fields) {
+            if (field.kind === "RecordField") {
+                const fieldName = field.fieldName.value;
+                const fieldType = field.typeName.source?.trim();
+                record.push([fieldType, fieldName]);
+            } else if (field.kind === "RecordFieldWithDefaultValue") {
+                const fieldName = field.fieldName.value;
+                const fieldType = field.typeName.source?.trim();
+                const fieldValue = (field as RecordFieldWithDefaultValue).expression.source
+                record.push([fieldType, fieldName + " = " + fieldValue]);
+            }
+        }
+
+        component.push(
+            <div className="record-comp" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 <div className="record-header" >
                     <div className="record-icon">
                         <RecordIcon />
@@ -101,10 +105,40 @@ export function TypeDefinitionComponent(props: TypeDefComponentProps) {
                     </>
                 )}
             </div>
-            {/* ToDo: Sort out top level component
-            <TopLevelPlus
-                margin={{ top: RECORD_PLUS_OFFSET, bottom: RECORD_PLUS_OFFSET, left: RECORD_MARGIN_LEFT }}
-            /> */}
+        )
+        /* ToDo: Sort out top level component
+                    <TopLevelPlus
+                        margin={{ top: RECORD_PLUS_OFFSET, bottom: RECORD_PLUS_OFFSET, left: RECORD_MARGIN_LEFT }}
+                    /> */
+    } else {
+        // ToDo : sort out how to display general typedefinitions
+        component.push(
+            <div className="record-comp" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+                <div className="record-header" >
+                    <div className="record-icon">
+                        <RecordIcon />
+                    </div>
+                    <div className="record-name">
+                        {model.source.trim()}
+                    </div>
+                    {isEditable && (
+                        <>
+                            <div className="record-edit">
+                                <EditButton />
+                            </div>
+                            <div className="record-delete">
+                                <DeleteButton />
+                            </div>
+                        </>
+                    )}
+                </div>
+            </div>
+        )
+    }
+
+    return (
+        <>
+            {component}
         </>
     );
 }
