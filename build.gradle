@@ -23,7 +23,20 @@ configurations {
     ballerinaTools
 }
 
+task installDeps() {
+    doFirst {
+        exec {
+            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                commandLine 'cmd', '/c', 'npm', 'install'
+            } else {
+                commandLine 'npm', 'install'
+            }
+        }
+    }
+}
+
 task copyDeps(type: Copy) {
+    dependsOn installDeps
     from "$rootDir/node_modules/@wso2-enterprise/ballerina-low-code-editor/build/"
     into "$rootDir/resources/jslibs"
     include "BLCEditor.js"
