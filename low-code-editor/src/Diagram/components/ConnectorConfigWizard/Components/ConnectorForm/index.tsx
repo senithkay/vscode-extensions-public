@@ -182,7 +182,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
 
   let isOauthConnector = false;
   const connectorName = connectorInfo.displayName || connectorInfo.packageName;
-  configurations.configList.forEach((configuration) => {
+  configurations.configList?.forEach((configuration) => {
     // TODO: need to find proper way to identify auth enable connector
     if (
       connectorName.toLocaleLowerCase() ===
@@ -312,9 +312,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     }
   }, [selectedConnector]);
 
-  const connectorInitFormFields: FormField[] = functionDefInfo?.get("init")
-    ? functionDefInfo?.get("init").parameters
-    : functionDefInfo?.get("__init").parameters;
+  const connectorInitFormFields: FormField[] = functionDefInfo?.get("init")?.parameters;
 
   // managing name set by the non oauth connectors
   config.name =
@@ -1274,15 +1272,16 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
       mapFrom: [varAi],
       mapTo: [getMapTo(allFormFields, model ? model.position : targetPosition)],
     };
-    getAiSuggestions(aiSuggestionsReq).then((res: AiSuggestionsRes) => {
-      res.suggestedMappings.forEach((schema: string) => {
-        const varMap = JSON.parse(schema);
-        const varKeys = Object.keys(varMap);
-        varKeys.forEach((variable: string) => {
-          addAiSuggestion(variable, varMap[variable], allFormFields);
-        });
-      });
-    });
+    // TODO: fix AI suggestion issue with vscode implementation
+    // getAiSuggestions(aiSuggestionsReq).then((res: AiSuggestionsRes) => {
+    //   res.suggestedMappings.forEach((schema: string) => {
+    //     const varMap = JSON.parse(schema);
+    //     const varKeys = Object.keys(varMap);
+    //     varKeys.forEach((variable: string) => {
+    //       addAiSuggestion(variable, varMap[variable], allFormFields);
+    //     });
+    //   });
+    // });
   }, [functionDefInfo]);
 
   const onSave = (sourceModifications: STModification[]) => {

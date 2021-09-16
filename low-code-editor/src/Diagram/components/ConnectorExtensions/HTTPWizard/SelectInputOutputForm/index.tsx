@@ -355,8 +355,8 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         const connector = (symbolInfo.endpoints.get(connectorConfig.name)?.typeData?.typeSymbol?.moduleID);
         const name = symbolInfo.endpoints.get(connectorConfig.name)?.typeData?.typeSymbol?.name;
         if (connector){
-            const {orgName: org, moduleName: module, version} = connector;
-            openConnectorHelp({org, module, version, name}, operation);
+            const {orgName, moduleName, version} = connector;
+            openConnectorHelp({orgName, moduleName, version, name}, operation);
         }
         if (isNewConnectorInitWizard) {
             setReturnNameState({

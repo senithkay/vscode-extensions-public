@@ -14,8 +14,8 @@
 import { ModulePart, STNode } from "@ballerina/syntax-tree";
 import { Diagnostic } from "monaco-languageclient";
 
-import { STSymbolInfo } from "../../../Definitions/store";
 import { BallerinaConnectorInfo } from "../../../Definitions/lang-client-extended";
+import { STSymbolInfo } from "../../../Definitions/store";
 import { BlockViewState } from "../../view-state";
 
 export interface DiagramCoordinates {

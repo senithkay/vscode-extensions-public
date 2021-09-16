@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, SyntheticEvent, useContext, useState } from "react";
+import React, { ReactNode, SyntheticEvent, useContext, useEffect, useState } from "react";
 import { useIntl } from "react-intl";
 
 import { LocalVarDecl, QualifiedNameReference } from "@ballerina/syntax-tree";
@@ -21,7 +21,8 @@ import ExpEditorCollapseIcon from "../../../../../../../../assets/icons/ExpEdito
 import ExpEditorExpandIcon from "../../../../../../../../assets/icons/ExpEditorExpandIcon";
 import Tooltip from "../../../../../../../../components/TooltipV2";
 import { Context } from "../../../../../../../../Contexts/Diagram";
-import { BallerinaConnectorInfo, Connector } from "../../../../../../../../Definitions/lang-client-extended";
+import { DiagramEditorLangClientInterface } from "../../../../../../../../Definitions/diagram-editor-lang-client-interface";
+import { BallerinaConnectorInfo, BallerinaConnectorsResponse, Connector } from "../../../../../../../../Definitions/lang-client-extended";
 import { PlusViewState } from "../../../../../../../../Diagram/view-state/plus";
 import {
     EVENT_TYPE_AZURE_APP_INSIGHTS,
@@ -61,19 +62,47 @@ export interface ExisitingConnctorComponent {
 
 export function APIOptions(props: APIOptionsProps) {
     const {
-        props: { connectors, stSymbolInfo },
+        props: { langServerURL, stSymbolInfo },
         api: {
             helpPanel: {
                 openConnectorHelp,
             },
             insights: {
                 onEvent
+            },
+            ls: {
+                getDiagramEditorLangClient
             }
         }
     } = useContext(Context);
     const { onSelect, collapsed } = props;
     const [selectedContName, setSelectedContName] = useState("");
+    const [connectors, setConnectors] = useState<Connector[]>()
     const intl = useIntl();
+
+    useEffect(() => {
+        if (!connectors || connectors?.length === 0){
+            getDiagramEditorLangClient(langServerURL).then(
+              (langClient: DiagramEditorLangClientInterface) => {
+                langClient
+                  .getConnectors()
+                  .then((response: BallerinaConnectorsResponse) => {
+                    const slackCon: Connector = {
+                      orgName: "ballerinax",
+                      packageName: "slack",
+                      moduleName: "slack",
+                      version: "0.9.9",
+                      name: "Client",
+                      platform: "java11",
+                      ballerinaVersion: "slbeta3",
+                    };
+                    response.connectors.push(slackCon);
+                    setConnectors(response.connectors);
+                  });
+              }
+            );
+        }
+    }, [langServerURL]);
 
     const connectionsTooltipMessages = {
         httpConnector: {
