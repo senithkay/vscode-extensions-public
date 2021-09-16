@@ -9,15 +9,17 @@ import {statementEditorStyles} from "../ViewContainer/styles";
 
 
 interface ModelProps {
-    model: Expression
+    model: Expression,
+    kind: string,
+    label: string,
     currentModel: { model: Expression }
 }
 
 export function LeftPane(props: ModelProps) {
     const overlayClasses = statementEditorStyles();
-    const {model, currentModel} = props;
+    const {model, kind, label, currentModel} = props;
 
-    const [suggestionList, setSuggestionsList] = useState(getSuggestionsBasedOnExpressionKind(c.DEFAULT_BOOL));
+    const [suggestionList, setSuggestionsList] = useState(getSuggestionsBasedOnExpressionKind(kind));
     const [isSuggestionClicked, setIsSuggestionClicked] = useState(false);
     const [isOperator, setIsOperator] = useState(false);
 
@@ -36,7 +38,7 @@ export function LeftPane(props: ModelProps) {
 
     return (
         <div className={overlayClasses.AppLeftPane}>
-            <h3 className={overlayClasses.AppLeftPaneHeading}>Variable Statement</h3>
+            <h3 className={overlayClasses.AppLeftPaneHeading}>{label}</h3>
             <div className={overlayClasses.AppStatementTemplateEditor}>
                 <div className={overlayClasses.AppStatementTemplateEditorInner}>
                     <ExpressionComponent model={model} callBack={onClickExpressionButton} isRoot={true}/>

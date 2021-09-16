@@ -154,6 +154,15 @@ export const ExpressionSuggestionsByKind: { [key: string]: string[] } = {
     StringTemplateC: [c.STRING_TEMPLATE, c.ARITHMETIC, c.CONDITIONAL]
 }
 
+export const booleanDefaultModel: Expression = {
+    type: ["boolean"],
+    kind: "DefaultBooleanC"
+}
+
+export const DefaultModelsByKind: { [key: string]: Expression } = {
+    DefaultBooleanC: booleanDefaultModel
+}
+
 
 // Since there is no LS backend,we will not be able to find the type
 // export const ExpressionSuggestionByType : {[key: string]: string[]}= {

@@ -3,7 +3,16 @@ import React, {ReactNode} from 'react';
 import * as expressionTypeComponents from '../components/ExpressionTypes';
 import {Expression} from '../models/definitions';
 
-import {ExpressionSuggestionsByKind, OperatorsForExpressionKind, TypesForExpressionKind} from "./utils";
+import {
+    DefaultModelsByKind,
+    ExpressionSuggestionsByKind,
+    OperatorsForExpressionKind,
+    TypesForExpressionKind
+} from "./utils";
+
+export function getDefaultModel(kind: string): Expression {
+    return DefaultModelsByKind[kind];
+}
 
 export function getSuggestionsBasedOnExpressionKind(kind: string): string[] {
     return ExpressionSuggestionsByKind[kind];

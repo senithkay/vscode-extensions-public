@@ -21,7 +21,7 @@ import { CloseRounded, PropertyIcon } from "../../../../../../assets/icons";
 import { PrimitiveBalType, WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
 import {MainContainer} from '../../../../../../TreeEditor/components/ViewContainer';
-import { statementEditorStyles } from "../../../../../../TreeEditor/Components/ViewContainer/styles";
+import { statementEditorStyles } from "../../../../../../TreeEditor/components/ViewContainer/styles";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { getAllVariables } from "../../../../../utils/mixins";
 import { ButtonWithIcon } from "../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
@@ -245,7 +245,10 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                 (
                     <div className={overlayClasses.configWizardContainer}>
                         <div className={classes.formWrapper}>
-                            <MainContainer />
+                            <MainContainer
+                                kind="DefaultBooleanC"
+                                label="Variable Statement"
+                            />
                         {/*    <ButtonWithIcon*/}
                         {/*        className={classes.overlayDeleteBtn}*/}
                         {/*        onClick={onCancel}*/}
