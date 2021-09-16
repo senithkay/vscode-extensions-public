@@ -58,7 +58,7 @@ class AnalyzePayloadVisitor implements Visitor {
         } else if (STKindChecker.isIfElseStatement(parent)) {
             analyzerPayload.pushIfBranch();
         } else if (STKindChecker.isWhileStatement(parent) || STKindChecker.isForeachStatement(parent)) {
-            analyzerPayload.pushForBranch();
+            analyzerPayload.pushForBranch(parent);
         }
     }
 

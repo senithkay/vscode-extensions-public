@@ -112,6 +112,7 @@ export interface AnalyzerRequestPayload {
 }
 
 export interface AnalyzerAction {
+    length?: number;
     nextNode?: AnalyzerAction;
     endPointRef?: string;
     name?: string;
