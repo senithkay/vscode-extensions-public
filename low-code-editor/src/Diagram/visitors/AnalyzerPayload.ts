@@ -82,12 +82,12 @@ export default class AnalyzerPayload {
     }
 
     public pushForBranch(node: STNode) {
-        let itterations = 2;
+        let iterations = 2;
         if (STKindChecker.isForeachStatement(node)) {
             const rhsValue = Number((((node as ForeachStatement)?.actionOrExpressionNode as BinaryExpression)?.rhsExpr as NumericLiteral)?.literalToken?.value);
             const lhsValue = Number((((node as ForeachStatement)?.actionOrExpressionNode as BinaryExpression)?.lhsExpr as NumericLiteral)?.literalToken?.value);
             if ((rhsValue - lhsValue) >= 0) {
-                itterations = (rhsValue - lhsValue) + 1;
+                iterations = (rhsValue - lhsValue) + 1;
             }
         }
         const lastIndex = this.getLastIndex(this.analyzerActionStack);
@@ -98,7 +98,7 @@ export default class AnalyzerPayload {
         }
 
         const nextAction: AnalyzerAction = {};
-        this.analyzerActionStack[lastIndex].length = itterations;
+        this.analyzerActionStack[lastIndex].length = iterations;
         this.analyzerActionStack[lastIndex].forBody = nextAction;
         this.analyzerActionStack.push(nextAction);
     }
