@@ -28,6 +28,7 @@ export enum PALETTE_COMMANDS {
     DOC = 'ballerina.project.doc',
     FOCUS_OVERVIEW = 'ballerinaPackageTreeView.focus',
     RUN = 'ballerina.project.run',
+    RUNICON = 'ballerina.project.run-icon',
     SAVE_ALL = 'workbench.action.files.saveFiles',
     TEST = 'ballerina.project.test',
     PASTE_JSON_AS_RECORD = 'ballerina.pasteAsRecord'

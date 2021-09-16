@@ -28,6 +28,13 @@ import { getCurrentBallerinaProject, getCurrentBallerinaFile, getCurrenDirectory
 function activateRunCommand() {
     // register ballerina run handler
     commands.registerCommand(PALETTE_COMMANDS.RUN, async (...args: any[]) => {
+        await run(args);
+    });
+    commands.registerCommand(PALETTE_COMMANDS.RUNICON, async (...args: any[]) => {
+        await run([]);
+    });
+
+    async function run(args: any[]) {
         try {
             sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_PROJECT_RUN, CMP_PROJECT_RUN);
             if (window.activeTextEditor && window.activeTextEditor.document.isDirty) {
@@ -58,7 +65,7 @@ function activateRunCommand() {
                 window.showErrorMessage("Unkown error occurred.");
             }
         }
-    });
+    }
 }
 
 function runCurrentFile() {
