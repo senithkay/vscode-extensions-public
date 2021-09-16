@@ -84,7 +84,7 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
             }
           } else if (request.profile?.kind == vscode.TestRunProfileKind.Debug) {
             // Debugs tests.
-            startDebugging(vscode.window.activeTextEditor!.document.uri, true, ballerinaExtInstance.getBallerinaCmd(),
+            await startDebugging(vscode.window.activeTextEditor!.document.uri, true, ballerinaExtInstance.getBallerinaCmd(),
               ballerinaExtInstance.getBallerinaHome(), [test.label]);
           }
         }
@@ -180,11 +180,21 @@ async function runCommand(command, path: string | undefined) {
 }
 
 async function startDebugging(uri: vscode.Uri, testDebug: boolean, ballerinaCmd: string, ballerinaHome: string, args: any[])
-  : Promise<boolean> {
+  : Promise<void> {
   const workspaceFolder: vscode.WorkspaceFolder | undefined = vscode.workspace.getWorkspaceFolder(uri);
   const debugConfig: vscode.DebugConfiguration = await constructDebugConfig(testDebug, ballerinaCmd,
     ballerinaHome, args);
-  return vscode.debug.startDebugging(workspaceFolder, debugConfig);
+  return vscode.debug.startDebugging(workspaceFolder, debugConfig).then(
+    // Wait for debug session to be complete.
+    () => {
+        return new Promise<void>((resolve) => {
+          vscode.debug.onDidTerminateDebugSession(() => {
+                resolve();
+            });
+        });
+    },
+    (ex) => console.log('Failed to start debugging tests', ex),
+);
 }
 
 /** 
