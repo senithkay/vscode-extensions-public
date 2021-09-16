@@ -1,5 +1,6 @@
-import { withStyles } from "@material-ui/styles";
 import * as React from "react";
+
+import { withStyles } from "@material-ui/core";
 
 import { DiagramGenerator } from "..";
 import { DotBackground } from "../../assets";
