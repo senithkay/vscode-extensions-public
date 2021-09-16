@@ -14,6 +14,7 @@ import React, { useContext } from "react"
 
 import { ListenerDeclaration, ServiceDeclaration, STKindChecker } from "@ballerina/syntax-tree";
 
+import ServiceIcon from "../../../assets/icons/ServiceIcon";
 import { Context as DiagramContext } from '../../../Contexts/Diagram'
 import { ComponentExpandButton } from "../ComponentExpandButton";
 

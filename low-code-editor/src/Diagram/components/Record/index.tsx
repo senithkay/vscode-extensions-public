@@ -17,6 +17,7 @@ import { RecordFieldWithDefaultValue, RecordTypeDesc, STNode, TypeDefinition } f
 
 import DeleteButton from "../../../assets/icons/DeleteButton";
 import EditButton from "../../../assets/icons/EditButton";
+import RecordIcon from "../../../assets/icons/RecordIcon";
 import { TopLevelPlus } from "../TopLevelPlus";
 
 import "./style.scss";
@@ -62,7 +63,9 @@ export function Record(props: RecordProps) {
         <>
             <div className="record-comp" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}  >
                 <div className="record-header" >
-                    <div className="record-icon" />
+                    <div className="record-icon">
+                        <RecordIcon />
+                    </div>
                     <div className="record-type">
                         Record
                     </div>

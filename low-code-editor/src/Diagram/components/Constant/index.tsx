@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react"
 
-import { CaptureBindingPattern, ModuleVarDecl, STNode } from "@ballerina/syntax-tree";
+import {CaptureBindingPattern, ConstDeclaration, ModuleVarDecl, STNode} from "@ballerina/syntax-tree";
 
 import ConstantIcon from "../../../assets/icons/ConstantIcon";
 import DeleteButton from "../../../assets/icons/DeleteButton";
@@ -28,20 +28,19 @@ export const MODULE_VAR_PLUS_OFFSET: number = 7.5;
 export const MODULE_VAR_HEIGHT: number = 49;
 export const MIN_MODULE_VAR_WIDTH: number = 275;
 
-export interface ModuleVariableProps {
+export interface ConstantProps {
     model: STNode;
 }
 
-export function ModuleVariable(props: ModuleVariableProps) {
+export function Constant(props: ConstantProps) {
     const { model } = props;
 
     const [isEditable, setIsEditable] = useState(false);
 
-    const moduleMemberModel: ModuleVarDecl = model as ModuleVarDecl;
-    const varType = (moduleMemberModel.typedBindingPattern.bindingPattern as CaptureBindingPattern)?.typeData?.
-        typeSymbol?.typeKind;
-    const varName = (moduleMemberModel.typedBindingPattern.bindingPattern as CaptureBindingPattern)?.variableName.value;
-    const varValue = moduleMemberModel.initializer.source.trim();
+    const constModel: ConstDeclaration = model as ConstDeclaration;
+    const varType = "const";
+    const varName = constModel.variableName.value;
+    const varValue = constModel.initializer.source.trim();
 
     const handleMouseEnter = () => {
         setIsEditable(true);
@@ -49,6 +48,7 @@ export function ModuleVariable(props: ModuleVariableProps) {
     const handleMouseLeave = () => {
         setIsEditable(false);
     };
+
 
     return (
         <div>
@@ -61,11 +61,11 @@ export function ModuleVariable(props: ModuleVariableProps) {
                 }}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
-                data-test-id="module-var"
+                data-test-id="const"
             >
                 <div className={"moduleVariableWrapper"}>
                     <div className={"moduleVariableIcon"}>
-                        <VariableIcon />
+                        <ConstantIcon />
                     </div>
                     <p className={"moduleVariableTypeText"}>
                         {varType}
@@ -85,10 +85,9 @@ export function ModuleVariable(props: ModuleVariableProps) {
                     )}
                 </div>
             </div>
-            {/* ToDo : Sort out the add button situation
             <TopLevelPlus
                 margin={{ top: MODULE_VAR_PLUS_OFFSET, bottom : MODULE_VAR_PLUS_OFFSET, left: MODULE_VAR_MARGIN_LEFT }}
-            /> */}
+            />
         </div>
     );
 }

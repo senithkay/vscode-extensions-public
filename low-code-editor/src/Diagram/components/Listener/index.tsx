@@ -17,6 +17,7 @@ import { ListenerDeclaration, STNode } from "@ballerina/syntax-tree";
 
 import DeleteButton from "../../../assets/icons/DeleteButton";
 import EditButton from "../../../assets/icons/EditButton";
+import ListenerIcon from "../../../assets/icons/ListenerIcon";
 import { TopLevelPlus } from "../TopLevelPlus";
 
 import "./style.scss";
@@ -51,7 +52,9 @@ export function ListenerC(props: ListenerProps) {
     return (
         <>
             <div className="listener-comp" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} >
-                <div className="listener-icon" />
+                <div className="listener-icon">
+                    <ListenerIcon />
+                </div>
                 <div className="listener-type">
                     HTTP
                 </div>
