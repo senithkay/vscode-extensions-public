@@ -23,9 +23,9 @@
  */
 import { getCurrentBallerinaProject } from '../utils/project-utils';
 import * as vscode from 'vscode';
-import { BallerinaExtension, ExecutorPosition, LANGUAGE } from "../core";
+import { BallerinaExtension, ExecutorPosition, LANGUAGE, } from "../core";
 import { BALLERINA_COMMANDS } from '../project';
-import { EXEC_ARG } from '../editor-support/codelens-provider';
+import { EXEC_ARG, EXEC_POSITION_TYPE } from '../editor-support/codelens-provider';
 import fileUriToPath from 'file-uri-to-path';
 import { DEBUG_REQUEST, DEBUG_CONFIG } from '../debugger';
 
@@ -187,14 +187,14 @@ async function startDebugging(uri: vscode.Uri, testDebug: boolean, ballerinaCmd:
   return vscode.debug.startDebugging(workspaceFolder, debugConfig).then(
     // Wait for debug session to be complete.
     () => {
-        return new Promise<void>((resolve) => {
-          vscode.debug.onDidTerminateDebugSession(() => {
-                resolve();
-            });
+      return new Promise<void>((resolve) => {
+        vscode.debug.onDidTerminateDebugSession(() => {
+          resolve();
         });
+      });
     },
     (ex) => console.log('Failed to start debugging tests', ex),
-);
+  );
 }
 
 /** 
@@ -210,7 +210,13 @@ async function createTests(controller: vscode.TestController, uri: vscode.Uri, b
       uri: uri.toString()
     }
   }).then(response => {
-    if (response.executorPositions && response.executorPositions.length > 0) {
+    let positions: ExecutorPosition[] = [];
+    response.executorPositions!.forEach(position => {
+      if (position.kind === EXEC_POSITION_TYPE.TEST) {
+        positions.push(position);
+      }
+    });
+    if (positions.length > 0) {
       const ancestors: vscode.TestItem[] = [];
 
       var path = require('path');
@@ -270,8 +276,7 @@ async function createTests(controller: vscode.TestController, uri: vscode.Uri, b
 
       const parent = ancestors.pop()!;
       let testCaseItems: vscode.TestItem[] = [];
-      response.executorPositions!.forEach(position => {
-
+      positions.forEach(position => {
         const tcase = createTestCase(controller, fullPath, position);
         testCaseItems.push(tcase);
       });

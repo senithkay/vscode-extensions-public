@@ -29,7 +29,7 @@ import {
 } from '../telemetry';
 import { DEBUG_CONFIG, DEBUG_REQUEST } from '../debugger';
 
-enum EXEC_POSITION_TYPE {
+export enum EXEC_POSITION_TYPE {
     SOURCE = 'source',
     TEST = 'test'
 }
