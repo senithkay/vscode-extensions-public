@@ -17,22 +17,22 @@ export function LeftPane(props: ModelProps) {
     const overlayClasses = statementEditorStyles();
     const {model, currentModel} = props;
 
-    const [suggestionList, SetSuggestionsList] = useState(getSuggestionsBasedOnExpressionKind(c.DEFAULT_BOOL));
-    const [isSuggestionClicked, SetIsSuggestionClicked] = useState(false);
-    const [isOperator, SetIsOperator] = useState(false);
+    const [suggestionList, setSuggestionsList] = useState(getSuggestionsBasedOnExpressionKind(c.DEFAULT_BOOL));
+    const [isSuggestionClicked, setIsSuggestionClicked] = useState(false);
+    const [isOperator, setIsOperator] = useState(false);
 
     const onClickExpressionButton = (suggestions: string[], exprModel: Expression, operator: boolean) => {
         currentModel.model = exprModel
-        SetSuggestionsList(suggestions)
-        SetIsSuggestionClicked(false)
-        SetIsOperator(operator)
+        setSuggestionsList(suggestions)
+        setIsSuggestionClicked(false)
+        setIsOperator(operator)
     }
 
-    const onClickSuggestionButton = (modelForSuggestion: Expression) => {
-        currentModel.model = modelForSuggestion
-        SetIsSuggestionClicked(!isSuggestionClicked)
+    const onClickSuggestionButton = (exprModel: Expression) => {
+        setIsSuggestionClicked((prevState) => {
+            return (!prevState);
+        });
     }
-
 
     return (
         <div className={overlayClasses.AppLeftPane}>
