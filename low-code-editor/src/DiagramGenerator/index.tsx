@@ -71,23 +71,23 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     }, [updated]);
 
 
-    function onZoomIn() {
+    function zoomIn() {
         const newZoomStatus = cloneDeep(zoomStatus);
         newZoomStatus.scale = (zoomStatus.scale + ZOOM_STEP >= MAX_ZOOM) ? MAX_ZOOM : zoomStatus.scale + ZOOM_STEP;
         setZoomStatus(newZoomStatus);
     }
 
-    function onZoomOut() {
+    function zoomOut() {
         const newZoomStatus = cloneDeep(zoomStatus);
         newZoomStatus.scale = (zoomStatus.scale - ZOOM_STEP <= MIN_ZOOM) ? MIN_ZOOM : zoomStatus.scale - ZOOM_STEP;
         setZoomStatus(newZoomStatus);
     }
 
-    function onFitToScreen() {
+    function fitToScreen() {
         setZoomStatus(defaultZoomStatus);
     }
 
-    function onPanLocation(newPanX: number, newPanY: number) {
+    function pan(newPanX: number, newPanY: number) {
         const newZoomStatus = cloneDeep(zoomStatus);
         newZoomStatus.panX = newPanX;
         newZoomStatus.panY = newPanY;
@@ -239,10 +239,10 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                     // Move these inside and get an external API for pref persistance
                                     // against a unique ID (eg AppID) for rerender from prev state
                                     panNZoom: {
-                                        pan: (panXAx: number, panYAx: number) => undefined,
-                                        fitToScreen: () => undefined,
-                                        zoomIn: () => undefined,
-                                        zoomOut: () => undefined,
+                                        pan,
+                                        fitToScreen,
+                                        zoomIn,
+                                        zoomOut
                                     },
                                     configPanel: {
                                         dispactchConfigOverlayForm: (type: string, targetPosition: DraftInsertPosition,
