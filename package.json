@@ -273,6 +273,33 @@
                 "category": "Ballerina"
             },
             {
+                "command": "ballerina.project.run",
+                "title": "Run project in terminal",
+                "icon": {
+                    "dark": "./resources/images/icons/start-inverse.svg",
+                    "light": "./resources/images/icons/start.svg"
+                },
+                "category": "Ballerina"
+            },
+            {
+                "command": "ballerina.project.run-icon",
+                "title": "Run project in terminal",
+                "icon": {
+                    "dark": "./resources/images/icons/start-inverse.svg",
+                    "light": "./resources/images/icons/start.svg"
+                },
+                "category": "Ballerina"
+            },
+            {
+                "command": "ballerina.source.debug",
+                "title": "Debug project in terminal",
+                "icon": {
+                    "dark": "./resources/images/icons/debug-inverse.svg",
+                    "light": "./resources/images/icons/debug.svg"
+                },
+                "category": "Ballerina"
+            },
+            {
                 "command": "ballerina.pasteAsRecord",
                 "title": "Paste JSON as Record",
                 "category": "Ballerina"
@@ -299,6 +326,27 @@
                     "when": "resourceLangId == ballerina",
                     "command": "ballerina.show.diagram",
                     "group": "navigation"
+                }
+            ],
+            "editor/title/run": [
+                {
+                    "command": "ballerina.project.run-icon",
+                    "group": "navigation@0",
+                    "title": "Run project in terminal",
+                    "when": "resourceLangId == ballerina && !isInDiffEditor"
+                },
+                {
+                    "command": "ballerina.source.debug",
+                    "group": "navigation@1",
+                    "title": "Debug project in terminal",
+                    "when": "resourceLangId == ballerina && !isInDiffEditor"
+                }
+            ],
+            "explorer/context": [
+                {
+                    "command": "ballerina.project.run",
+                    "group": "Ballerina",
+                    "when": "resourceLangId == ballerina"
                 }
             ]
         }
