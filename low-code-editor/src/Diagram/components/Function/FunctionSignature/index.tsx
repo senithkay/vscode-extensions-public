@@ -18,6 +18,7 @@ import classNames from 'classnames';
 
 import { FunctionViewState } from '../../../view-state';
 import { ComponentExpandButton } from '../../ComponentExpandButton';
+import '../style.scss';
 
 interface FunctionSignatureProps {
     model: FunctionDefinition | ResourceAccessorDefinition | ObjectMethodDefinition;
@@ -51,6 +52,7 @@ export function FunctionSignature(props: FunctionSignatureProps) {
         const otherParamComponents: JSX.Element[] = [];
 
         functionSignature.parameters
+            .filter(param => !STKindChecker.isCommaToken(param))
             .filter((param) => STKindChecker.isRequiredParam(param)
                 && (STKindChecker.isStringTypeDesc(param.typeName) || STKindChecker.isIntTypeDesc(param.typeName)
                     || STKindChecker.isBooleanTypeDesc(param.typeName) || STKindChecker.isFloatTypeDesc(param.typeName)
@@ -66,6 +68,7 @@ export function FunctionSignature(props: FunctionSignatureProps) {
             });
 
         functionSignature.parameters
+            .filter(param => !STKindChecker.isCommaToken(param))
             .filter((param) => STKindChecker.isRequiredParam(param)
                 && !(STKindChecker.isStringTypeDesc(param.typeName) || STKindChecker.isIntTypeDesc(param.typeName)
                     || STKindChecker.isBooleanTypeDesc(param.typeName) || STKindChecker.isFloatTypeDesc(param.typeName)
@@ -112,6 +115,7 @@ export function FunctionSignature(props: FunctionSignatureProps) {
 
         const params: JSX.Element[] = [];
         functionSignature.parameters
+            .filter(param => !STKindChecker.isCommaToken(param))
             .forEach((param: RequiredParam, i) => {
                 params.push(
                     <span className={'param'} >{param.source}</span>

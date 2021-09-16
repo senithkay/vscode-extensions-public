@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react"
 
-import { CaptureBindingPattern, ModuleVarDecl, STNode } from "@ballerina/syntax-tree";
+import { CaptureBindingPattern, ModuleVarDecl, STKindChecker, STNode } from "@ballerina/syntax-tree";
 
 import ConstantIcon from "../../../assets/icons/ConstantIcon";
 import DeleteButton from "../../../assets/icons/DeleteButton";
@@ -37,11 +37,22 @@ export function ModuleVariable(props: ModuleVariableProps) {
 
     const [isEditable, setIsEditable] = useState(false);
 
-    const moduleMemberModel: ModuleVarDecl = model as ModuleVarDecl;
-    const varType = (moduleMemberModel.typedBindingPattern.bindingPattern as CaptureBindingPattern)?.typeData?.
-        typeSymbol?.typeKind;
-    const varName = (moduleMemberModel.typedBindingPattern.bindingPattern as CaptureBindingPattern)?.variableName.value;
-    const varValue = moduleMemberModel.initializer.source.trim();
+    let varType = '';
+    let varName = '';
+    let varValue = '';
+
+    if (STKindChecker.isModuleVarDecl(model)) {
+        const moduleMemberModel: ModuleVarDecl = model as ModuleVarDecl;
+        varType = (moduleMemberModel.typedBindingPattern.bindingPattern as CaptureBindingPattern)?.typeData?.
+            typeSymbol?.typeKind;
+        varName = (moduleMemberModel.typedBindingPattern.bindingPattern as CaptureBindingPattern)?.variableName.value;
+        varValue = model.source.trim();
+    } else if (STKindChecker.isObjectField(model)) {
+        varType = model.typeData?.typeSymbol?.typeKind;
+        varName = model.fieldName.value;
+        varValue = model.source.trim();
+    }
+
 
     const handleMouseEnter = () => {
         setIsEditable(true);
@@ -54,11 +65,6 @@ export function ModuleVariable(props: ModuleVariableProps) {
         <div>
             <div
                 className={"moduleVariableContainer"}
-                style={{
-                    marginLeft: MODULE_VAR_MARGIN_LEFT,
-                    width: MIN_MODULE_VAR_WIDTH,
-                    height: MODULE_VAR_HEIGHT
-                }}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
                 data-test-id="module-var"
@@ -67,19 +73,19 @@ export function ModuleVariable(props: ModuleVariableProps) {
                     <div className={"moduleVariableIcon"}>
                         <VariableIcon />
                     </div>
-                    <p className={"moduleVariableTypeText"}>
-                        {varType}
+                    <p className={'variable-text'}>
+                        {varValue}
                     </p>
-                    <p className={"moduleVariableNameText"}>
+                    {/* <p className={"moduleVariableNameText"}>
                         {`${varName} = ${varValue}`}
-                    </p>
-                    { isEditable && (
+                    </p> */}
+                    {isEditable && (
                         <>
                             <div className={"editBtnWrapper"}>
-                                <EditButton/>
+                                <EditButton />
                             </div>
                             <div className={"deleteBtnWrapper"}>
-                                <DeleteButton/>
+                                <DeleteButton />
                             </div>
                         </>
                     )}

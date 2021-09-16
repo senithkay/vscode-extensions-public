@@ -14,7 +14,7 @@ import React, { useState } from "react";
 
 import { ClassDefinition } from "@ballerina/syntax-tree";
 
-import { getSTComponents } from "../../utils";
+import { getSTComponent, getSTComponents } from "../../utils";
 
 import { ClassHeader } from "./ClassHeader";
 import './style.scss'
@@ -31,12 +31,23 @@ export function ClassComponent(props: ClassComponentProps) {
         setIsExpanded(!isExpanded);
     }
 
-    const children = getSTComponents(model.members);
+    const children: JSX.Element[] = []
+
+    model.members.forEach(member => {
+        children.push(
+            <div className={'class-member'} >
+                {getSTComponent(member)}
+            </div>
+        )
+    });
+
 
     return (
         <div className={'class-component'}>
             <ClassHeader model={model} onExpandClick={onExpandClick} isExpanded={isExpanded} />
-            {isExpanded && children}
+            <div className={'content-container'}>
+                {isExpanded && children}
+            </div>
         </div>
     );
 }

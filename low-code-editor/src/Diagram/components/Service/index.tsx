@@ -15,9 +15,7 @@ import React, { useState } from "react"
 
 import { ServiceDeclaration } from "@ballerina/syntax-tree";
 
-import { getSTComponents } from "../../utils";
-import { FUNCTION_PLUS_MARGIN_LEFT } from "../Function";
-import { TopLevelPlus } from "../TopLevelPlus";
+import { getSTComponent } from "../../utils";
 
 import { ServiceHeader } from "./ServiceHeader";
 import "./style.scss";
@@ -39,7 +37,15 @@ export function Service(props: ServiceProps) {
         setIsExpanded(!isExpanded);
     }
 
-    const children = getSTComponents(model.members);
+    const children: JSX.Element[] = []
+
+    model.members.forEach(member => {
+        children.push(
+            <div className={'service-member'}>
+                {getSTComponent(member)}
+            </div>
+        )
+    });
 
     return (
         <>

@@ -25,11 +25,11 @@ import "./style.scss";
 export const RECORD_MARGIN_LEFT: number = 24.5;
 export const RECORD_PLUS_OFFSET: number = 7.5;
 
-export interface RecordProps {
+export interface TypeDefComponentProps {
     model: STNode;
 }
 
-export function Record(props: RecordProps) {
+export function TypeDefinitionComponent(props: TypeDefComponentProps) {
     const { model } = props;
 
     const [isEditable, setIsEditable] = useState(false);
@@ -101,9 +101,10 @@ export function Record(props: RecordProps) {
                     </>
                 )}
             </div>
+            {/* ToDo: Sort out top level component
             <TopLevelPlus
                 margin={{ top: RECORD_PLUS_OFFSET, bottom: RECORD_PLUS_OFFSET, left: RECORD_MARGIN_LEFT }}
-            />
+            /> */}
         </>
     );
 }
