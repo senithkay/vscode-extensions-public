@@ -10,12 +10,12 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { DiagramEditorLangClientInterface, JsonToRecordResponse } from "../../../../../Definitions";
-import {RecordTypeDesc} from "@ballerina/syntax-tree";
+import { RecordTypeDesc } from "@ballerina/syntax-tree";
 
-export async function convertToRecord(json: string, state?: any): Promise<string> {
-    const { langServerURL, getDiagramEditorLangClient } = state;
-    const langClient: DiagramEditorLangClientInterface = await getDiagramEditorLangClient(langServerURL);
+import { DiagramEditorLangClientInterface, JsonToRecordResponse, STSymbolInfo } from "../../../../../Definitions";
+
+export async function convertToRecord(json: string, lsUrl: string, ls?: any): Promise<string> {
+    const langClient: DiagramEditorLangClientInterface = await ls.getDiagramEditorLangClient(lsUrl);
     const resp: JsonToRecordResponse = await langClient.convert(
         {
             jsonString: json
@@ -24,9 +24,9 @@ export async function convertToRecord(json: string, state?: any): Promise<string
     return resp.codeBlock;
 }
 
-export function getRecordPrefix(state: any): string {
-    if (state?.stSymbolInfo?.recordTypeDescriptions?.size > 0) {
-        const typeDesc: RecordTypeDesc = state?.stSymbolInfo?.recordTypeDescriptions?.entries().next()?.value[1];
+export function getRecordPrefix(symbolInfo: STSymbolInfo): string {
+    if (symbolInfo?.recordTypeDescriptions?.size > 0) {
+        const typeDesc: RecordTypeDesc = symbolInfo?.recordTypeDescriptions?.entries().next()?.value[1];
         const typeSymbol = typeDesc.typeData?.typeSymbol;
         if (typeSymbol) {
             return `${typeSymbol.moduleID.orgName}/${typeSymbol.moduleID.moduleName}:${typeSymbol.moduleID.version}:`;

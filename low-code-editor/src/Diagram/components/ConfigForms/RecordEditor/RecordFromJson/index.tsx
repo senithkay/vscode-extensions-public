@@ -16,28 +16,30 @@ import React, { useContext, useEffect, useReducer } from 'react';
 import { Box, FormControl, FormHelperText, Typography } from "@material-ui/core";
 
 import { Context } from "../../../../../Contexts/Diagram";
+import { STModification } from "../../../../../Definitions";
+import { TextPreloaderVertical } from "../../../../../PreLoader/TextPreloaderVertical";
+import { createPropertyStatement } from "../../../../utils/modification-util";
 import { DraftInsertPosition } from "../../../../view-state/draft";
 import { PrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
 import { SecondaryButton } from "../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
 import { FormTextArea } from "../../../Portals/ConfigForm/Elements/TextField/FormTextArea";
 import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
+import { keywords } from "../../../Portals/utils/constants";
 import { wizardStyles } from "../../style";
 import { convertToRecord, getRecordPrefix } from "../utils";
-import { TextPreloaderVertical } from "../../../../../PreLoader/TextPreloaderVertical";
-import { STModification } from "../../../../../Definitions";
-import { createPropertyStatement } from "../../../../utils/modification-util";
 
 interface RecordState {
     isLoading?: boolean;
     jsonValue?: string;
     isValidRecord?: boolean;
     recordName?: string;
-    isValidRecordName?: string;
+    nameError?: string;
 }
 
 export interface RecordFromJsonProps {
     targetPosition: DraftInsertPosition;
+    onCancel: () => void;
 }
 
 const reducer = (state: RecordState, action: {type: string, payload: any }) => {
@@ -49,37 +51,38 @@ const reducer = (state: RecordState, action: {type: string, payload: any }) => {
         case 'setJsonValue':
             return {...state, jsonValue: action.payload};
         case 'jsonConversionSuccess':
-            return {jsonValue: "", isLoading: false, isValidRecord: true,
-                recordName: "", isValidRecordName: true};
+            return {jsonValue: "", isLoading: false, isValidRecord: true, recordName: "", nameError: ""};
         case 'jsonConversionFailure':
             return {jsonValue: "", isLoading: false, isValidRecord: false,
-                recordName: state.recordName, isValidRecordName: state.isValidRecordName};
+                    recordName: state.recordName, nameError: state.nameError};
 
         case 'setRecordName':
             return {...state, recordName: action.payload};
         case 'setRecordNameValidity':
-            return {...state, isValidRecordName: action.payload};
+            return {...state, nameError: action.payload};
         default:
             break;
     }
 }
 
-export function RecordFromJson(props: RecordFromJsonProps) {
-    const { targetPosition } = props;
+export function RecordFromJson(formProps: RecordFromJsonProps) {
+    const { targetPosition, onCancel } = formProps;
     const overlayClasses = wizardStyles();
     const classes = useStyles();
 
-    const { state } = useContext(Context);
-    const { isMutationInProgress } = state;
+    const { props, api } = useContext(Context);
+    const { isMutationProgress, stSymbolInfo, langServerURL } = props;
+    const { code, ls } = api;
 
-    const prefix = getRecordPrefix(state);
+    const prefix = getRecordPrefix(stSymbolInfo);
+    const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 
     const [formState, dispatchFromState] = useReducer(reducer, {
         jsonValue: "",
         isLoading: false,
         isValidRecord: true,
         recordName: "",
-        isValidRecordName: true
+        nameError: ""
     });
 
     const convertToJSon = () => {
@@ -89,10 +92,14 @@ export function RecordFromJson(props: RecordFromJsonProps) {
     const onNameChange = (name: string) => {
         dispatchFromState({type: 'setRecordName', payload: name});
         const recordNameWithModuleInfo = `${prefix}${name}`;
-        if ((state?.stSymbolInfo?.recordTypeDescriptions)?.has(recordNameWithModuleInfo)) {
-            dispatchFromState({type: 'setRecordNameValidity', payload: false});
+        if ((stSymbolInfo.recordTypeDescriptions)?.has(recordNameWithModuleInfo)) {
+            dispatchFromState({type: 'setRecordNameValidity', payload: "Variable name already exists"});
+        } else if (keywords.includes(name)) {
+            dispatchFromState({type: 'setRecordNameValidity', payload: "Keywords are not allowed"});
+        } else if ((name !== "") && !nameRegex.test(name)) {
+            dispatchFromState({type: 'setRecordNameValidity', payload: "Enter a valid name"});
         } else {
-            dispatchFromState({type: 'setRecordNameValidity', payload: true});
+            dispatchFromState({type: 'setRecordNameValidity', payload: ""});
         }
     };
 
@@ -109,40 +116,39 @@ export function RecordFromJson(props: RecordFromJsonProps) {
     useEffect(() => {
         if (formState.isLoading) {
             (async () => {
-                const recordString = await convertToRecord(formState.jsonValue, state);
+                const recordString = await convertToRecord(formState.jsonValue, langServerURL, ls);
                 const modifications: STModification[] = [createPropertyStatement(
-                    recordString.replace("NewRecord", formState.recordName),
-                    {line: 0, column: 0}
+                    recordString.replace("NewRecord", formState.recordName), targetPosition
                 )];
-                // modifyDiagram(modifications);
+                code.modifyDiagram(modifications);
                 dispatchFromState({type: 'jsonConversionSuccess', payload: recordString});
+                onCancel();
             })();
         }
     }, [formState.isLoading]);
 
-    const isSaveButtonEnabled = !isMutationInProgress &&
-        (formState.isValidRecordName && (formState.recordName !== "") &&
-        formState.isValidRecord && (formState.jsonValue !== ""));
+    const isSaveButtonEnabled = !isMutationProgress &&
+        ((formState.nameError === "") && (formState.recordName !== "") &&
+            formState.isValidRecord && (formState.jsonValue !== ""));
 
-    const varNameError = "Variable name already exists";
     const jsonError = "Please enter a valid JSON";
 
     return (
         <FormControl data-testid="record-form" className={classes.wizardFormControl}>
             <div className={classes.formTitleWrapper}>
                 <Typography variant="h4">
-                    <Box paddingTop={2} paddingBottom={2}>Record From JSON</Box>
+                    <Box paddingTop={2} paddingBottom={2}>Create record</Box>
                 </Typography>
             </div>
             <FormTextInput
                 dataTestId="variable-name"
                 customProps={{
-                    isErrored: !formState.isValidRecordName,
+                    isErrored: (formState.nameError !== ""),
                 }}
                 defaultValue={formState.recordName}
                 onChange={onNameChange}
                 label={"Name"}
-                errorMessage={varNameError}
+                errorMessage={formState.nameError}
                 placeholder={"Enter record name"}
             />
             <div className={classes.inputWrapper}>
@@ -164,7 +170,7 @@ export function RecordFromJson(props: RecordFromJsonProps) {
                 <TextPreloaderVertical position="absolute" />
             )}
             <div className={overlayClasses.buttonWrapper}>
-                <SecondaryButton text="Cancel" fullWidth={false} onClick={null} />
+                <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
                 <PrimaryButton
                     dataTestId={"record-from-json-save-btn"}
                     text={"Save"}

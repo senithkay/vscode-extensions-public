@@ -11,27 +11,28 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from 'react';
+import React  from 'react';
 
 import { STNode } from "@ballerina/syntax-tree";
 
 import { DraftInsertPosition } from "../../../view-state/draft";
 
-import {RecordFromJson} from "./RecordFromJson";
+import { RecordFromJson } from "./RecordFromJson";
 
 export interface RecordEditorProps {
     model?: STNode;
     targetPosition?: DraftInsertPosition;
+    onCancel?: () => void;
 }
 
 export function RecordEditor(props: RecordEditorProps) {
-    const { model, targetPosition } = props;
+    const { model, targetPosition, onCancel } = props;
 
     return (
         <div>
             {targetPosition && (
                 <div>
-                    <RecordFromJson targetPosition={targetPosition} />
+                    <RecordFromJson onCancel={onCancel} targetPosition={targetPosition} />
                 </div>
             )}
         </div>

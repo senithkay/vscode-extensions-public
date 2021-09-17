@@ -10,34 +10,36 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from 'react';
-
-// tslint:disable-next-line: no-submodule-imports
-import { Story } from '@storybook/react/types-6-0';
-
-import { RecordFromJson, RecordFromJsonProps } from "./index";
-import { Provider as DiagramProvider } from "../../../../../Contexts/Diagram";
-
-export default {
-    title: 'Low Code Editor/Form/Record/Record from JSON',
-    component: RecordFromJson,
-};
-
-const initialState = {
-    isMutationProgress: false,
-    modifyDiagram: jest.fn()
-}
-
-const Template: Story<RecordFromJsonProps> = (args: RecordFromJsonProps) => (
-    <DiagramProvider initialState={initialState} >
-        <RecordFromJson {...args} />;
-    </DiagramProvider>
-);
-
-export const RecordFromJSON = Template.bind({});
-RecordFromJSON.args = {
-    targetPosition: {
-        line: 1,
-        column: 1
-    }
-};
+// todo: need to mock the context
+// import React from 'react';
+//
+// // tslint:disable-next-line:no-submodule-imports
+// import { Story } from '@storybook/react/types-6-0';
+//
+// import { Provider } from "../../../../../Contexts/Diagram";
+//
+// import { RecordFromJson, RecordFromJsonProps } from "./index";
+//
+// export default {
+//     title: 'Low Code Editor/Form/Record/Record from JSON',
+//     component: RecordFromJson,
+// };
+//
+// const initialState = {
+//     isMutationProgress: false,
+//     modifyDiagram: null
+// }
+//
+// const Template: Story<RecordFromJsonProps> = (args: RecordFromJsonProps) => (
+//     <Provider initialState={initialState} >
+//         <RecordFromJson {...args} />;
+//     </Provider>
+// );
+//
+// export const RecordFromJSON = Template.bind({});
+// RecordFromJSON.args = {
+//     targetPosition: {
+//         line: 1,
+//         column: 1
+//     }
+// };
