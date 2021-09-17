@@ -14,12 +14,11 @@
 // tslint:disable: jsx-wrap-multiline
 import React, { useState } from "react"
 
-import { RecordFieldWithDefaultValue, RecordTypeDesc, STNode, TypeDefinition, STKindChecker } from "@ballerina/syntax-tree";
+import { RecordFieldWithDefaultValue, RecordTypeDesc, STKindChecker, TypeDefinition } from "@ballerina/syntax-tree";
 
 import DeleteButton from "../../../assets/icons/DeleteButton";
 import EditButton from "../../../assets/icons/EditButton";
 import RecordIcon from "../../../assets/icons/RecordIcon";
-import { TopLevelPlus } from "../TopLevelPlus";
 
 import "./style.scss";
 

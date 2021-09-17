@@ -19,9 +19,9 @@ import { IfElse } from './IfElse';
 import { Listener } from './Listener';
 import { ModulePartComponent } from "./ModulePart";
 import { ModuleVariable } from './ModuleVariable';
-import { TypeDefinitionComponent } from "./TypeDefinion";
 import { Service } from "./Service";
 import { Statement } from "./Statement";
+import { TypeDefinitionComponent } from "./TypeDefinion";
 import { While } from './While';
 
 export { IfElse as IfElseStatement };
@@ -32,7 +32,6 @@ export { Statement as CallStatement };
 export { Statement as ActionStatement };
 export { Statement as AssignmentStatement }
 export { Statement as DoStatement };
-// export { Statement as TypeDefinition };
 export { Listener as ListenerDeclaration };
 export { Constant as ConstDeclaration };
 export { ModuleVariable as ModuleVarDecl };

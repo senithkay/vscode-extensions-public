@@ -16,10 +16,10 @@ import React from 'react';
 import { FunctionDefinition, IdentifierToken, ObjectMethodDefinition, RequiredParam, ResourceAccessorDefinition, STKindChecker } from "@ballerina/syntax-tree";
 import classNames from 'classnames';
 
+import FunctionIcon from '../../../../assets/icons/FunctionIcon';
 import { FunctionViewState } from '../../../view-state';
 import { ComponentExpandButton } from '../../ComponentExpandButton';
 import '../style.scss';
-import FunctionIcon from '../../../../assets/icons/FunctionIcon';
 
 interface FunctionSignatureProps {
     model: FunctionDefinition | ResourceAccessorDefinition | ObjectMethodDefinition;
