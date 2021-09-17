@@ -46,6 +46,7 @@ export function DiagramOverlay({ children, position, className, stylePosition }:
 export interface DiagramOverlayContainerProps {
     children: React.ReactElement | React.ReactElement[];
     forceRender?: boolean;
+    divId?: string;
 }
 
 export function DiagramOverlayContainer(props: DiagramOverlayContainerProps) {
@@ -54,13 +55,13 @@ export function DiagramOverlayContainer(props: DiagramOverlayContainerProps) {
             isReadOnly
         }
     } = useContext(Context);
-    const { children, forceRender } = props;
+    const { children, forceRender, divId = `canvas-overlay` } = props;
 
     if (!forceRender && isReadOnly) {
         return null;
     }
 
-    const overlayDiv = document.getElementById('canvas-overlay');
+    const overlayDiv = document.getElementById(divId);
 
     if (overlayDiv) {
         return ReactDOM.createPortal(children, overlayDiv);
