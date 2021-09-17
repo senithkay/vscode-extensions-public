@@ -25,7 +25,8 @@
         "declaration": true,
         "moduleResolution": "node",
         "skipLibCheck": true,
-        "esModuleInterop": true
+        "esModuleInterop": true,
+        "alwaysStrict": true
     },
     "exclude": [
         "node_modules",

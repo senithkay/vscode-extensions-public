@@ -1,4 +1,3 @@
-'use strict';
 /**
  * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
@@ -19,7 +18,7 @@
  */
 
 import { BALLERINA_HOME } from "./preferences";
- 
+
 export const INVALID_HOME_MSG: string = "Ballerina Home is invalid, please check `" + BALLERINA_HOME + "` in settings";
 export const INSTALL_BALLERINA: string = "Unable to detect Ballerina in your environment. If you just installed Ballerina, you may need to restart VSCode." +
     " If not, please install Ballerina or configure `" + BALLERINA_HOME + "` in settings.";
