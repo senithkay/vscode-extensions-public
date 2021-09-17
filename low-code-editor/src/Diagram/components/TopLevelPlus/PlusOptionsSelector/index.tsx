@@ -11,21 +11,11 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline object-literal-shorthand align
-import React, {useState} from "react";
+import React from "react";
 
-import { ClickAwayListener } from "@material-ui/core";
-
-import ClassIcon from "../../../../assets/icons/ClassIcon";
-import ConstantIcon from "../../../../assets/icons/ConstantIcon";
-import ListenerIcon from "../../../../assets/icons/ListenerIcon";
-import RecordIcon from "../../../../assets/icons/RecordIcon";
-import ServiceIcon from "../../../../assets/icons/ServiceIcon";
-import VariableIcon from "../../../../assets/icons/VariableIcon";
+import { DraftInsertPosition } from "../../../view-state/draft";
 import { Margin } from "../index";
-
-import {RecordEditor} from "../../ConfigForms/RecordEditor";
-import "./style.scss";
-import {DraftInsertPosition} from "../../../view-state/draft";
+import { ModuleLevelPlusOptions } from "../ModuleLevelPlusOptions";
 
 export interface PlusOptionsProps {
     margin?: Margin;
@@ -33,92 +23,13 @@ export interface PlusOptionsProps {
     targetPosition?: DraftInsertPosition;
 }
 
-export const PlusOptions = (props: PlusOptionsProps) => {
-    const { margin = { top: 0, bottom: 0, left: 0, right: 0 }, onClose, targetPosition } = props;
-
-    const optionContainerMargin = {
-        marginBottom: margin.bottom,
-        marginLeft: margin.left
-    }
-
-    const [isRecordFromVisible, setIsRecordFromVisible] = useState(false);
-    const handleJsonFormClose = () => {
-        setIsRecordFromVisible(false);
-        onClose();
-    };
-
-    const handleJsonFormClick = () => {
-        setIsRecordFromVisible(true);
-    };
+export const PlusOptionsSelector = (props: PlusOptionsProps) => {
+    const { margin, onClose, targetPosition } = props;
 
     return (
         <>
-            <ClickAwayListener
-                mouseEvent="onMouseDown"
-                touchEvent="onTouchStart"
-                onClickAway={handleJsonFormClose}
-            >
-                <div className="plus-option-container" style={optionContainerMargin}>
-                    <div onClick={handleJsonFormClick} className="plus-option" style={{ borderTopLeftRadius: 8, borderTopRightRadius: 8 }}>
-                        <div className="plus-option-icon">
-                            <RecordIcon color={"#CBCEDB"}/>
-                        </div>
-                        <p className="plus-option-text">
-                            Record
-                        </p>
-                    </div>
-                    <div className="plus-option-separator"/>
-                    <div className="plus-option">
-                        <div className="plus-option-icon">
-                            <ConstantIcon color={"#CBCEDB"}/>
-                        </div>
-                        <p className="plus-option-text">
-                            Constant
-                        </p>
-                    </div>
-                    <div className="plus-option-separator"/>
-                    <div className="plus-option">
-                        <div className="plus-option-icon">
-                            <VariableIcon color={"#CBCEDB"}/>
-                        </div>
-                        <p className="plus-option-text">
-                            Variable
-                        </p>
-                    </div>
-                    <div className="plus-option-separator"/>
-                    <div className="plus-option">
-                        <div className="plus-option-icon">
-                            <ServiceIcon color={"#CBCEDB"}/>
-                        </div>
-                        <p className="plus-option-text">
-                            Service
-                        </p>
-                    </div>
-                    <div className="plus-option-separator"/>
-                    <div className="plus-option">
-                        <div className="plus-option-icon">
-                            <ClassIcon color={"#CBCEDB"}/>
-                        </div>
-                        <p className="plus-option-text">
-                            Class
-                        </p>
-                    </div>
-                    <div className="plus-option-separator"/>
-                    <div className="plus-option" style={{ borderBottomLeftRadius: 8, borderBottomRightRadius: 8 }}>
-                        <div className="plus-option-icon">
-                            <ListenerIcon color={"#CBCEDB"}/>
-                        </div>
-                        <p className="plus-option-text">
-                            Listener
-                        </p>
-                    </div>
-                </div>
-            </ClickAwayListener>
-            {isRecordFromVisible && (
-                <div style={{ height: "auto", width: "290px", background: "#fff", marginLeft: margin.left, border: "1px solid #e6e7ec" }}>
-                    <RecordEditor onCancel={handleJsonFormClose} targetPosition={targetPosition}/>
-                </div>
-            )}
+        {/* todo: plus selection here   */}
+            <ModuleLevelPlusOptions onClose={onClose} targetPosition={targetPosition} margin={margin} />
         </>
     );
 };

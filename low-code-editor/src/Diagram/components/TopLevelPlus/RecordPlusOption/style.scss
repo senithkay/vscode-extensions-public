@@ -10,9 +10,29 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-.plus-option-container {
+
+.plus-option-text {
+    height: 14px;
+    width: 112px;
+    color: #1d2028;
+    font-family: inherit;
+    font-size: 13px;
+    letter-spacing: 0;
+    line-height: 14px;
+    margin: 15px 94px 0 15px;
+}
+
+.plus-option-icon {
+    cursor: pointer;
+    height: 16px;
+    width: 16px;
+    margin: 14px 0 18px 15px;
+}
+
+.sub-option-container {
     box-sizing: border-box;
-    height: 288px;
+    margin-left: 16px;
+    height: 96px;
     width: 183px;
     border: 1px solid #e6e7ec;
     border-radius: 8px;
@@ -22,17 +42,16 @@
     flex-direction: column;
 }
 
-.plus-option {
-    cursor: pointer;
-    height: 46.5px;
+.sub-option {
+    height: 47px;
     width: 183px;
     background-color: #fff;
     display: flex;
     flex-direction: row;
 
-    .plus-option-text {
+    .sub-option-text {
         height: 14px;
-        width: 53px;
+        width: 160px;
         color: #1d2028;
         font-family: inherit;
         font-size: 13px;
@@ -41,15 +60,9 @@
         margin-left: 15px;
         margin-top: 15px;
     }
-
-    .plus-option-icon {
-        height: 16px;
-        width: 16px;
-        margin: 14px 0 18px 15px;
-    }
 }
 
-.plus-option-separator {
+.sub-option-separator {
     height: 1px;
     width: 183px;
     background-color: #e6e7ec;
