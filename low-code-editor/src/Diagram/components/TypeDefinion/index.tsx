@@ -19,9 +19,10 @@ import { RecordFieldWithDefaultValue, RecordTypeDesc, STKindChecker, TypeDefinit
 import DeleteButton from "../../../assets/icons/DeleteButton";
 import EditButton from "../../../assets/icons/EditButton";
 import RecordIcon from "../../../assets/icons/RecordIcon";
+import { ComponentExpandButton } from "../ComponentExpandButton";
+import { TopLevelPlus } from "../TopLevelPlus";
 
 import "./style.scss";
-import { ComponentExpandButton } from "../ComponentExpandButton";
 
 export const RECORD_MARGIN_LEFT: number = 24.5;
 export const RECORD_PLUS_OFFSET: number = 7.5;
@@ -138,6 +139,14 @@ export function TypeDefinitionComponent(props: TypeDefComponentProps) {
             </div>
         )
     }
+
+    // ToDo : need to fix plus here
+    component.push(
+        <TopLevelPlus
+            margin={{top: RECORD_PLUS_OFFSET, bottom: RECORD_PLUS_OFFSET, left: RECORD_MARGIN_LEFT}}
+            targetPosition={{line: model.position.endLine + 1, column: model.position.endColumn}}
+        />
+    )
 
     return (
         <>
