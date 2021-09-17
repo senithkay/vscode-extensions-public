@@ -19,6 +19,7 @@ import classNames from 'classnames';
 import { FunctionViewState } from '../../../view-state';
 import { ComponentExpandButton } from '../../ComponentExpandButton';
 import '../style.scss';
+import FunctionIcon from '../../../../assets/icons/FunctionIcon';
 
 interface FunctionSignatureProps {
     model: FunctionDefinition | ResourceAccessorDefinition | ObjectMethodDefinition;
@@ -131,6 +132,9 @@ export function FunctionSignature(props: FunctionSignatureProps) {
                     )
                 }
             >
+                <div className={'function-icon'}>
+                    <FunctionIcon />
+                </div>
                 <div className={'param-container'} >
                     <p className={'path-text'}>{functionName.value}</p>
                 </div>
