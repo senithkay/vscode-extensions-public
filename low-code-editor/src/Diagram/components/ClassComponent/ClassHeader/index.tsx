@@ -28,12 +28,14 @@ export function ClassHeader(props: ClassHeaderProps) {
     return (
         <div className={'class-component-header'}>
             <div className={'header-segement-container'}>
-                <ClassIcon />
-                <div className="headerSegment">
+                <div className="header-segment" >
+                    <ClassIcon />
+                </div>
+                <div className="header-segment">
                     {model.className.value}
                 </div>
             </div>
             <ComponentExpandButton isExpanded={isExpanded} onClick={onExpandClick} />
-        </div>
+        </div >
     );
 }
