@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-.service {
+.class-component {
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
@@ -18,7 +18,7 @@
     border-radius: 6px;
     background-color: #FFFFFF;
 
-    .service-header {
+    .class-component-header {
         display: flex;
         flex-direction: row;
         padding: 15px;
@@ -35,21 +35,24 @@
         }
     }
 
+
     .content-container {
         display: flex;
         flex-direction: column;
         overflow-y: auto;
 
-        .service-member:nth-of-type(1) {
+        .class-member:nth-of-type(1) {
             margin: 10px 10px 5px 10px;
         }
 
-        .service-member {
+        .class-member {
             margin: 5px 10px 5px 10px;
         }
 
-        .service-member:last-of-type {
+        .class-member:last-of-type {
             margin: 5px 10px 10px 10px;
         }
     }
+
+
 }

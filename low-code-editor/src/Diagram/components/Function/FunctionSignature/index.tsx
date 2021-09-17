@@ -16,8 +16,10 @@ import React from 'react';
 import { FunctionDefinition, IdentifierToken, ObjectMethodDefinition, RequiredParam, ResourceAccessorDefinition, STKindChecker } from "@ballerina/syntax-tree";
 import classNames from 'classnames';
 
+import FunctionIcon from '../../../../assets/icons/FunctionIcon';
 import { FunctionViewState } from '../../../view-state';
 import { ComponentExpandButton } from '../../ComponentExpandButton';
+import '../style.scss';
 
 interface FunctionSignatureProps {
     model: FunctionDefinition | ResourceAccessorDefinition | ObjectMethodDefinition;
@@ -51,6 +53,7 @@ export function FunctionSignature(props: FunctionSignatureProps) {
         const otherParamComponents: JSX.Element[] = [];
 
         functionSignature.parameters
+            .filter(param => !STKindChecker.isCommaToken(param))
             .filter((param) => STKindChecker.isRequiredParam(param)
                 && (STKindChecker.isStringTypeDesc(param.typeName) || STKindChecker.isIntTypeDesc(param.typeName)
                     || STKindChecker.isBooleanTypeDesc(param.typeName) || STKindChecker.isFloatTypeDesc(param.typeName)
@@ -66,6 +69,7 @@ export function FunctionSignature(props: FunctionSignatureProps) {
             });
 
         functionSignature.parameters
+            .filter(param => !STKindChecker.isCommaToken(param))
             .filter((param) => STKindChecker.isRequiredParam(param)
                 && !(STKindChecker.isStringTypeDesc(param.typeName) || STKindChecker.isIntTypeDesc(param.typeName)
                     || STKindChecker.isBooleanTypeDesc(param.typeName) || STKindChecker.isFloatTypeDesc(param.typeName)
@@ -112,6 +116,7 @@ export function FunctionSignature(props: FunctionSignatureProps) {
 
         const params: JSX.Element[] = [];
         functionSignature.parameters
+            .filter(param => !STKindChecker.isCommaToken(param))
             .forEach((param: RequiredParam, i) => {
                 params.push(
                     <span className={'param'} >{param.source}</span>
@@ -127,6 +132,9 @@ export function FunctionSignature(props: FunctionSignatureProps) {
                     )
                 }
             >
+                <div className={'function-icon'}>
+                    <FunctionIcon />
+                </div>
                 <div className={'param-container'} >
                     <p className={'path-text'}>{functionName.value}</p>
                 </div>
