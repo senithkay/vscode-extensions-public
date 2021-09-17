@@ -82,11 +82,6 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ki
     const scripts = `
         function loadedScript() {
             window.langclient = getLangClient();
-            let filePath = ${JSON.stringify(ballerinaFilePath)};
-            let startLine = ${JSON.stringify(startLine.toString())};
-            let startColumn = ${JSON.stringify(startColumn.toString())};
-            let name = ${JSON.stringify(name)};
-            let kind = ${JSON.stringify(kind)};
             function getFileContent(url) {
                 return new Promise((resolve, _reject) => {
                     webViewRPCHandler.invokeRemoteMethod(
@@ -109,7 +104,14 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ki
                     );
                 })
             }
-            function drawDiagram() {
+            function drawDiagram({
+                filePath,
+                startLine,
+                startColumn,
+                name,
+                kind,
+                lastUpdatedAt
+            }) {
                 try {
                     const options = {
                         target: document.getElementById("diagram"),
@@ -121,21 +123,11 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ki
                             name,
                             kind,
                             getFileContent,
-                            updateFileContent
+                            updateFileContent,
+                            lastUpdatedAt
                         }
                     };
-                    const diagram = BLCEditor.renderDiagramEditor(options);
-                    webViewRPCHandler.addMethod("updateDiagram", (args) => {
-                        diagram.update({
-                            langClient: getLangClient(),
-                            filePath: args[0].filePath,
-                            startLine: args[0].startLine,
-                            startColumn: args[0].startColumn,
-                            name: args[0].name,
-                            kind: args[0].kind
-                        });
-                        return Promise.resolve({});
-                    });
+                    BLCEditor.renderDiagramEditor(options);
                 } catch(e) {
                     if (e.message === 'ballerinaComposer is not defined') {
                         drawLoading();
@@ -157,7 +149,26 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ki
                 <div class="loader"></div>
                 \`;
             }
-            drawDiagram();
+            webViewRPCHandler.addMethod("updateDiagram", (args) => {
+                console.log("on update invoked" + JSON.stringify(args));
+                drawDiagram({
+                    filePath: args[0].filePath,
+                    startLine: args[0].startLine,
+                    startColumn: args[0].startColumn,
+                    name: args[0].name,
+                    kind: args[0].kind,
+                    lastUpdatedAt: (new Date()).toISOString()
+                });
+                return Promise.resolve({});
+            });
+            drawDiagram({
+                filePath: ${JSON.stringify(ballerinaFilePath)},
+                startLine: ${JSON.stringify(startLine.toString())},
+                startColumn: ${JSON.stringify(startColumn.toString())},
+                name: ${JSON.stringify(name)},
+                kind: ${JSON.stringify(kind)},
+                lastUpdatedAt: (new Date()).toISOString()
+            });
         }
     `;
 
