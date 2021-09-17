@@ -1,12 +1,18 @@
 import * as React from "react";
 
+import { withStyles } from "@material-ui/core";
+
 import { DiagramGenerator } from "..";
+import { DotBackground } from "../../assets";
 import { DiagramEditorLangClientInterface } from "../../Definitions/diagram-editor-lang-client-interface";
 import { DiagramGenErrorBoundary } from "../ErrorBoundrary";
 
 export interface DiagramProps {
     target: HTMLElement;
     editorProps: DiagramStates;
+    classes?: {
+        lowCodeContainer: string;
+    }
 }
 
 export interface DiagramStates {
@@ -20,10 +26,17 @@ export interface DiagramStates {
     updateFileContent?: (url: string, content: string) => Promise<boolean>;
 }
 
+const styles = () => ({
+    lowCodeContainer: {
+        backgroundImage: `url("${DotBackground}")`,
+        backgroundRepeat: 'repeat'
+    },
+});
+
 /**
  * React component for rendering a the low code editor.
  */
-export class Diagram extends React.Component<DiagramProps, DiagramStates> {
+class DiagramWrapper extends React.Component<DiagramProps, DiagramStates> {
 
     private languageClient: DiagramEditorLangClientInterface;
     private updated: boolean;
@@ -44,7 +57,7 @@ export class Diagram extends React.Component<DiagramProps, DiagramStates> {
 
     public render() {
         return (
-            <div className="low-code-container">
+            <div className={this.props.classes?.lowCodeContainer}>
                 <DiagramGenErrorBoundary>
                     <DiagramGenerator
                         diagramLangClient={this.languageClient}
@@ -82,3 +95,5 @@ export class Diagram extends React.Component<DiagramProps, DiagramStates> {
         });
     }
 }
+
+export const Diagram = withStyles(styles)(DiagramWrapper);
