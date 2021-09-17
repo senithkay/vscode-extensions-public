@@ -86,15 +86,15 @@
             margin-left: 8px;
 
             span {
-                &.param {
-                    margin-left: 10px;
+                &.param:not(:first-child) {
+                    margin-left: 24px;
                 }
             }
         }
 
         .function-icon {
-            margin: 0px 10px;
-        }
+            margin: 12px 15px 8px 8px;
+        } 
 
         .resource-badge {
             height: 32px;
@@ -130,7 +130,7 @@
     }
 
     .lowcode-diagram {
-        background-image: url('/images/PatternBg.svg');
+        background-image: url('../../../assets/images/PatternBg.svg');
         background-repeat: repeat;
         overflow: hidden;
     }
@@ -151,20 +151,25 @@
         padding: 15px;
         border-bottom: 1px #E6E7EC solid;
 
+        .function-icon {
+            margin-top: 2px;
+            margin-right: 15px;
+        }
+
         .path-text {
             // margin-top: 10px;
             // margin-left: 8px;
             
             span {
-                &.param {
-                    margin-left: 10px;
+                &.param:not(:first-child) {
+                    margin-left: 24px;
                 }
             }
         }
     }
 
     .lowcode-diagram {
-        background-image: url('/images/PatternBg.svg');
+        background-image: url('../../../assets/images/PatternBg.svg');
         background-repeat: repeat;
         overflow: hidden;
     }

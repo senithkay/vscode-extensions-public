@@ -14,6 +14,7 @@ import React from 'react';
 
 import { ClassDefinition } from '@ballerina/syntax-tree';
 
+import ClassIcon from '../../../../assets/icons/ClassIcon';
 import { ComponentExpandButton } from '../../ComponentExpandButton';
 
 interface ClassHeaderProps {
@@ -27,11 +28,14 @@ export function ClassHeader(props: ClassHeaderProps) {
     return (
         <div className={'class-component-header'}>
             <div className={'header-segement-container'}>
-                <div className="headerSegment">
+                <div className="header-segment" >
+                    <ClassIcon />
+                </div>
+                <div className="header-segment">
                     {model.className.value}
                 </div>
             </div>
             <ComponentExpandButton isExpanded={isExpanded} onClick={onExpandClick} />
-        </div>
+        </div >
     );
 }
