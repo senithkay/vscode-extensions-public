@@ -12,7 +12,7 @@ interface ViewProps {
     label: string
 }
 
-export function MainContainer(props: ViewProps) {
+function MainContainer(props: ViewProps) {
     const {kind, label} = props;
 
     const defaultModel = getDefaultModel(kind);
@@ -25,9 +25,16 @@ export function MainContainer(props: ViewProps) {
 
     return (
         <div className={overlayClasses.App}>
-            <LeftPane model={defaultModel} currentModel={currentModel} kind={kind} label={label}/>
+            <LeftPane
+                model={defaultModel}
+                currentModel={currentModel}
+                kind={kind}
+                label={label}
+            />
             <div className={overlayClasses.vl}/>
             <RightPane/>
         </div>
     )
 }
+
+export default React.memo(MainContainer); // To prevent rendering the component in each time the parent change
