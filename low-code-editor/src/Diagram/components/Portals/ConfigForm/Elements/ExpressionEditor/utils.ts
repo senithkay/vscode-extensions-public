@@ -210,7 +210,7 @@ export const transformFormFieldTypeToString = (model?: FormField, returnUndefine
             if (modName.includes('.')) {
                 modName = modName.split('.')[1];
             }
-            if (model.isArray) {
+            if (model.typeName === PrimitiveBalType.Array) {
                 return modName + ":" + model.typeInfo.name + "[]"
             } else {
                 return modName + ":" + model.typeInfo.name
@@ -223,13 +223,13 @@ export const transformFormFieldTypeToString = (model?: FormField, returnUndefine
                 let type;
                 if (field.typeName === "record" || field.typeInfo) {
                     if (field.typeInfo) {
-                        type = field.isArray ? field.typeInfo.modName + ":" + field.typeInfo.name + "[]" : field.typeInfo.modName + ":" + field.typeInfo.name;
+                        type = (field.typeName === PrimitiveBalType.Array) ? field.typeInfo.modName + ":" + field.typeInfo.name + "[]" : field.typeInfo.modName + ":" + field.typeInfo.name;
                     }
                 } else if (field.typeName === "tuple") {
                     type = transformFormFieldTypeToString(field);
-                } else if (field.typeName === "collection") {
-                    if (field.collectionDataType?.typeName) {
-                        type = field.collectionDataType.typeName + "[]";
+                } else if (field.typeName === "array") {
+                    if (field.memberType?.typeName) {
+                        type = field.memberType.typeName + "[]";
                     }
                 } else if (field.typeName) {
                     type = field.typeName;
@@ -239,7 +239,7 @@ export const transformFormFieldTypeToString = (model?: FormField, returnUndefine
                     allTypes.push(type.toString());
                 }
             }
-            return model.isArray ? "(" + allTypes.join("|") + ")[]" : allTypes.join("|");
+            return allTypes.join("|");
         }
     } else if (model.typeName === "tuple") {
         if (model.fields) {
@@ -247,7 +247,7 @@ export const transformFormFieldTypeToString = (model?: FormField, returnUndefine
             for (const field of model.fields) {
                 let type;
                 if (field.typeName === "record" && field.typeInfo) {
-                    type = field.isArray ? field.typeInfo.modName + ":" + field.typeInfo.name + "[]" : field.typeInfo.modName + ":" + field.typeInfo.name;
+                    type = field.typeInfo.modName + ":" + field.typeInfo.name;
                 } else if (field.typeName) {
                     type = field.typeName;
                 }
@@ -257,20 +257,15 @@ export const transformFormFieldTypeToString = (model?: FormField, returnUndefine
             }
             return "[" + allTypes.join(",") + "]";
         }
-    } else if (model.typeName === "collection") {
+    } else if (model.typeName === "array") {
         if (model.typeInfo) {
             return model.typeInfo.modName + ":" + model.typeInfo.name + "[]";
-        } else if (model.collectionDataType) {
-            const returnTypeString = transformFormFieldTypeToString(model.collectionDataType);
-            if (model?.isArray) {
-                // check end with array
-                // eg: (int|string)[][]
-                if (returnTypeString.length > 2 && returnTypeString.substr(-2) === "[]") {
-                    return `${returnTypeString}[]`;
-                }
-                return returnTypeString.includes('|') ? `(${returnTypeString})[]` : `${returnTypeString}[]`;
+        } else if (model.memberType) {
+            const returnTypeString = transformFormFieldTypeToString(model.memberType);
+            if (returnTypeString.length > 2 && returnTypeString.substr(-2) === "[]") {
+                return `${returnTypeString}[]`;
             }
-            return returnTypeString;
+            return returnTypeString.includes('|') ? `(${returnTypeString})[]` : `${returnTypeString}[]`;
         }
     } else if (model.typeName === "map") {
         if (model.fields) {

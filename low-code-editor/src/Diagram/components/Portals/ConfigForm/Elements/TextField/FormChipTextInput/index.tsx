@@ -33,7 +33,7 @@ export function FormChipTextInput(props: FormElementProps<FormChipTextInputProps
         model.value = [];
     }
     const defalultVal: any[] = model.value.map((element: any) => {
-        return model.typeName === "collection" ?
+        return model.typeName === "array" ?
             typeof element === 'string' ? (element as string).replace(/["]/g, '') : element
             : element.value;
     });

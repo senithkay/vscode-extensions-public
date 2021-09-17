@@ -18,6 +18,8 @@ import Container from "@material-ui/core/Container";
 import classnames from 'classnames';
 
 import { Context as DiagramContext } from "../Contexts/Diagram";
+import { DiagramEditorLangClientInterface } from "../Definitions/diagram-editor-lang-client-interface";
+import { BallerinaConnectorsResponse, Connector } from "../Definitions/lang-client-extended";
 import { TextPreLoader } from "../PreLoader/TextPreLoader";
 
 import { Canvas } from "./components/Canvas";
@@ -31,6 +33,7 @@ import { TriggerType } from "./models";
 import "./style.scss";
 import { useStyles } from "./styles";
 import { getSTComponent } from "./utils";
+import { addConnectorListToCache } from "./utils/st-util";
 import { ViewState } from "./view-state";
 import { DefaultConfig } from "./visitors/default";
 
@@ -42,6 +45,9 @@ export function Diagram() {
         },
         api: {
             code: { hasConfigurables },
+            ls: {
+                getDiagramEditorLangClient
+            },
         },
         props: {
             diagnostics,
@@ -55,7 +61,8 @@ export function Diagram() {
             isCodeEditorActive,
             isLoadingAST,
             originalSyntaxTree,
-            error
+            error,
+            langServerURL
         },
     } = useContext(DiagramContext);
 
@@ -76,6 +83,28 @@ export function Diagram() {
         setIsErrorStateDialogOpen(diagramErrors);
         setIsErrorDetailsOpen(diagramErrors);
     }, [diagramErrors, diagramWarnings])
+
+    React.useEffect(() => {
+          getDiagramEditorLangClient(langServerURL).then(
+            (langClient: DiagramEditorLangClientInterface) => {
+              langClient
+                .getConnectors()
+                .then((response: BallerinaConnectorsResponse) => {
+                  const slackCon: Connector = {
+                    orgName: "ballerinax",
+                    packageName: "slack",
+                    moduleName: "slack",
+                    version: "0.9.9",
+                    name: "Client",
+                    platform: "java11",
+                    ballerinaVersion: "slbeta3",
+                  };
+                  response.connectors.push(slackCon);
+                  addConnectorListToCache(response.connectors);
+                });
+            }
+          );
+    }, [langServerURL]);
 
     const openErrorDialog = () => {
         setIsErrorStateDialogOpen(true);

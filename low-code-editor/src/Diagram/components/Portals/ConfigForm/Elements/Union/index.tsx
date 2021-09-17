@@ -128,10 +128,7 @@ export function Union(props: FormElementProps<UnionProps>) {
 
 // get field name of the union record
 export function getUnionFormFieldName(field: FormField): string {
-    let name = field.label;
-    if (!name) {
-        name = field.name;
-    }
+    let name = field.name;
     if (!name) {
         name = field.typeInfo?.name;
     }

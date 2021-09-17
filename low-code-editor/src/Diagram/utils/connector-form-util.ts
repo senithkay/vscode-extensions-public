@@ -255,9 +255,8 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                             param.value = userEmail ? "\"" + userEmail + "\"" : undefined;
                             formField = [param, ...formField]
                         } else if (param.name === "to") {
-                            param.typeName = "collection";
-                            param.isArray = true;
-                            param.collectionDataType = {typeName: PrimitiveBalType.String};
+                            param.typeName = "array";
+                            param.memberType = {typeName: PrimitiveBalType.String};
                             param.fields = [];
                             param.tooltip = tooltipMessages.SMTP.to
                         }
@@ -474,9 +473,8 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                     // HACK: use hardcoded FormFields until ENUM fix from lang-server
                     const statesField = value.parameters.find(fields => fields.name === "states");
                     if (statesField) {
-                        statesField.typeName = "collection";
-                        statesField.isArray = true;
-                        statesField.collectionDataType = {typeName: PrimitiveBalType.String};
+                        statesField.typeName = "array";
+                        statesField.memberType = {typeName: PrimitiveBalType.String};
                         statesField.customAutoComplete = [`"OPEN"`, `"CLOSED"`];
                     }
                 }

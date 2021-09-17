@@ -31,7 +31,7 @@ export interface FormElementProps<T = {}> extends FormElementEvents {
     validateEmptyField?: (field: string, isEmpty: boolean) => void;
     onFieldValueChange?: (isRequiredFieldsFilled: boolean) => void;
     size?: "small" | "medium";
-    type?: "string" | "number" | "collection" | "record" | "|" | "varref" | "int" | "float" | "boolean" | "json" | "var";
+    type?: "string" | "number" | "array" | "record" | "|" | "varref" | "int" | "float" | "boolean" | "json" | "var";
     currentFile?: ApplicationFile;
     currentApp?: AppInfo;
     editorDiagnostics?: Diagnostic[];

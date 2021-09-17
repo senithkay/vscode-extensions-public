@@ -46,7 +46,7 @@ export function Record(props: FormElementProps<RecordProps>) {
         if (model.fields && model.fields.length > 0) {
             model.fields.map((field: FormField, index: any) => {
                 if (!field.hide && (field.typeName === "string" || field.typeName === "int" || field.typeName === "boolean"
-                    || field.typeName === "float" || field.typeName === "collection" || (field.typeName === 'record' && !field.isReference) ||
+                    || field.typeName === "float" || field.typeName === "array" || (field.typeName === 'record' && !field.isReference) ||
                     field.typeName === "union" || field.typeName === "map" || field.typeName === "handle")) {
                     const elementProps: FormElementProps = {
                         model: field,

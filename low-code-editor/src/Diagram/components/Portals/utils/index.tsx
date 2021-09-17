@@ -32,10 +32,10 @@ import { BallerinaConnectorInfo, Connector } from "../../../../Definitions/lang-
 import { filterCodeGenFunctions, filterConnectorFunctions } from "../../../utils/connector-form-util";
 import { getAllVariables as retrieveVariables } from "../../../utils/mixins";
 import {
-    addToFormFieldCache,
+    addConnectorToCache,
     getConnectorDefFromCache,
+    getConnectorFromCache,
     getFormFieldFromFileCache,
-    getFromFormFieldCache,
     isSTActionInvocation
 } from "../../../utils/st-util";
 import { StatementViewState } from "../../../view-state";
@@ -124,7 +124,7 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
             }
             if (formField.typeName === "string" && formField.value) {
                 paramString += formField.value;
-            } else if (formField.typeName === "collection" && !formField.hide && formField.value) {
+            } else if (formField.typeName === "array" && !formField.hide && formField.value) {
                 paramString += formField.value.toString();
             } else if (formField.typeName === "map" && formField.value) {
                 paramString += formField.value;
@@ -164,7 +164,7 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
                         //          expression-editor component will set value property directly.
                         //          need to implement fetch inner field's values of map object.
                         recordFieldsString += getFieldName(field.name) + ": " + field.value;
-                    } else if (field.typeName === "collection" && !field.hide && field.value) {
+                    } else if (field.typeName === "array" && !field.hide && field.value) {
                         if (firstRecordField) {
                             recordFieldsString += ", ";
                         } else {
@@ -635,35 +635,26 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
                                          : Promise<ConfigWizardState> {
 
     // get form fields from browser cache
-    let functionDefInfo = await getFromFormFieldCache(connector);
+    let cachedConnector = getConnectorFromCache(connector);
+    let functionDefInfo: Map<string, FunctionDefinitionInfo> = new Map();
     const connectorConfig = new ConnectorConfig();
 
-    // if (!functionDefInfo) {
-    //     // get form fields from file cache
-    //     functionDefInfo = await getFormFieldFromFileCache(connector);
-    //     // save form fields in browser cache
-    //     if (functionDefInfo) {
-    //         await addToFormFieldCache(connector, functionDefInfo);
-    //     }
-    // }
-
-    if (!functionDefInfo) {
+    if (!cachedConnector) {
         // generate form fields form connector syntax tree
         const langClient: DiagramEditorLangClientInterface = await getDiagramEditorLangClient(langServerURL);
-        const functionDefMap: Map<string, FunctionDefinitionInfo> = new Map();
-
         if (connector) {
             const connectorResp = await langClient.getConnector(connector);
-            if (connectorResp.connector?.functions) {
-                connectorResp.connector?.functions.forEach((functionInfo: FunctionDefinitionInfo) => {
-                    functionDefMap.set(functionInfo.name, functionInfo);
-                });
-                functionDefInfo = functionDefMap;
+            if (connectorResp.connector) {
+                cachedConnector = connectorResp.connector;
+                // save form fields in browser cache
+                await addConnectorToCache(connectorResp.connector);
             }
         }
-        // save form fields in browser cache
-        await addToFormFieldCache(connector, functionDefInfo);
     }
+
+    cachedConnector?.functions.forEach((functionInfo: FunctionDefinitionInfo) => {
+        functionDefInfo.set(functionInfo.name, functionInfo);
+    });
 
     // Filter connector functions to have better usability.
     functionDefInfo = filterConnectorFunctions(connector, functionDefInfo, connectorConfig, userEmail);
@@ -848,16 +839,16 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                 }
                 break;
 
-            case "collection":
-                if (formField?.collectionDataType) {
-                    const returnTypeResponse = getFormFieldReturnType(formField.collectionDataType, depth + 1);
+            case "array":
+                if (formField?.memberType) {
+                    const returnTypeResponse = getFormFieldReturnType(formField.memberType, depth + 1);
                     response.returnType = returnTypeResponse.returnType;
                     response.hasError = returnTypeResponse.hasError || response.hasError;
                     response.hasReturn = returnTypeResponse.hasReturn || response.hasReturn;
                     response.importTypeInfo = [...response.importTypeInfo, ...returnTypeResponse.importTypeInfo];
                 }
 
-                if (response.returnType && formField?.isArray) {
+                if (response.returnType && formField.typeName === PrimitiveBalType.Array) {
                     // set array type
                     response.returnType = response.returnType.includes('|') ? `(${response.returnType})[]` : `${response.returnType}[]`;
                 }
@@ -916,7 +907,7 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                 }
 
                 // filters
-                if (formField?.isArray) {
+                if (formField.typeName === PrimitiveBalType.Array) {
                     // set array type
                     type = type.includes('|') ? `(${type})[]` : `${type}[]`;
                 }

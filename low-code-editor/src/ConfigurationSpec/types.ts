@@ -20,7 +20,7 @@ export enum PrimitiveBalType {
     Int = "int",
     Float = "float",
     Boolean = "boolean",
-    Collection = "collection",
+    Array = "array",
     Json = "json",
     Xml = "xml",
     Nil = "nil",
@@ -49,7 +49,7 @@ export interface NonPrimitiveBal {
 }
 
 // tslint:disable-next-line: max-classes-per-file
-export type balTypes = "string" | "record" | "union" | "int" | "float" | "boolean" | "collection" | "json" | "xml" | "nil" | "http:Request" | "var" | "error" | undefined;
+export type balTypes = "string" | "record" | "union" | "int" | "float" | "decimal" | "boolean" | "array" | "json" | "xml" | "nil" | "http:Request" | "var" | "error" | undefined;
 
 export type BallerinaType = PrimitiveBalType | NonPrimitiveBal;
 
@@ -66,9 +66,8 @@ export interface FunctionDefinitionInfo {
 export interface FormField {
     typeName: string;
     name?: string;
-    label?: string;
     displayName?: string;
-    collectionDataType?: FormField;
+    memberType?: FormField;
     selectedDataType?: string;
     description?: string;
     defaultValue?: any;
@@ -78,7 +77,6 @@ export interface FormField {
     members?: FormField[];
     references?: FormField[];
     isReturn?: boolean;
-    isArray?: boolean;
     isTypeDef?: boolean;
     isReference?: boolean;
     isStream?: boolean;
@@ -173,7 +171,7 @@ export function getType(type: string): PrimitiveBalType {
             typeString = PrimitiveBalType.Boolean;
             break;
         case "[]":
-            typeString = PrimitiveBalType.Collection;
+            typeString = PrimitiveBalType.Array;
             break;
         case "json":
             typeString = PrimitiveBalType.Json;

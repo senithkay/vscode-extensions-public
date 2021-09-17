@@ -30,6 +30,7 @@ import {
     START_CONNECTOR_ADD_INSIGHTS,
     START_EXISTING_CONNECTOR_ADD_INSIGHTS
 } from "../../../../../../../models";
+import { addConnectorListToCache, getConnectorListFromCache } from "../../../../../../../utils/st-util";
 import { getConnectorIconSVG, getExistingConnectorIconSVG, getFormattedModuleName } from "../../../../../utils";
 import { APIHeightStates } from "../../PlusElements";
 import "../../style.scss";
@@ -81,28 +82,11 @@ export function APIOptions(props: APIOptionsProps) {
     const intl = useIntl();
 
     useEffect(() => {
-        if (!connectors || connectors?.length === 0){
-            getDiagramEditorLangClient(langServerURL).then(
-              (langClient: DiagramEditorLangClientInterface) => {
-                langClient
-                  .getConnectors()
-                  .then((response: BallerinaConnectorsResponse) => {
-                    const slackCon: Connector = {
-                      orgName: "ballerinax",
-                      packageName: "slack",
-                      moduleName: "slack",
-                      version: "0.9.9",
-                      name: "Client",
-                      platform: "java11",
-                      ballerinaVersion: "slbeta3",
-                    };
-                    response.connectors.push(slackCon);
-                    setConnectors(response.connectors);
-                  });
-              }
-            );
-        }
-    }, [langServerURL]);
+      if (!connectors) {
+        const connectorList = getConnectorListFromCache();
+        setConnectors(connectorList);
+      }
+    }, [connectors]);
 
     const connectionsTooltipMessages = {
         httpConnector: {

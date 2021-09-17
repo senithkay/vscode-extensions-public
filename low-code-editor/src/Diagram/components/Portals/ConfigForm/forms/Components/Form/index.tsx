@@ -51,7 +51,7 @@ export function Form(props: FormProps) {
 
     fields?.map((field, index) => {
         if (!field.hide && (field.typeName === "string" || (field.typeName === 'record' && !field.isReference) || field.typeName === "int"
-            || field.typeName === "boolean" || field.typeName === "float" || field.typeName === "collection"
+            || field.typeName === "boolean" || field.typeName === "float" || field.typeName === "array"
             || field.typeName === "map" || field.typeName === "union" || field.typeName === "json" ||
             field.typeName === "httpRequest" || field.typeName === "handle")) {
             const elementProps: FormElementProps = {
@@ -68,7 +68,7 @@ export function Form(props: FormProps) {
             // only union record types will get Union element
             // other union types will get expression editor
             if (field.typeName === "union"){
-                field.fields?.forEach((subField: FormField) => {
+                field.members?.forEach((subField: FormField) => {
                     if (subField.typeName !== "record"){
                         type = "expression";
                     }

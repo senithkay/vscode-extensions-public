@@ -424,34 +424,55 @@ export interface FormFiledCacheEntry {
     [key: string]: FunctionDefinitionInfo,
 }
 
-export const FORM_FIELD_CACHE = "FORM_FIELD_CACHE";
-
-export async function addToFormFieldCache(connector: Connector, fields: Map<string, FunctionDefinitionInfo>) {
-    // TODO: fix with connector api
-    // const { org, module: mod, version, name, cacheVersion } = connector;
-    // const cacheId = `${org}_${mod}_${name}_${version}_${cacheVersion || "0"}`;
-    // const formFieldJsonObject: any = {};
-    // fields.forEach((value, key) => {
-    //     formFieldJsonObject[key] = value;
-    // });
-    // formFieldDatabase.put(cacheId, formFieldJsonObject);
+export const CONNECTOR_CACHE = "CONNECTOR_CACHE";
+export const CONNECTOR_LIST_CACHE = "CONNECTOR_LIST_CACHE";
+export interface ConnectorCache {
+    [key: string]: BallerinaConnectorInfo;
 }
 
-export async function getFromFormFieldCache(connector: Connector): Promise<Map<string, FunctionDefinitionInfo>> {
-    // TODO: fix with connector api
-    // if (connector) {
-    //     const { org, module: mod, version, name, cacheVersion } = connector;
-    //     const cacheId = `${org}_${mod}_${name}_${version}_${cacheVersion || "0"}`;
-    //     const formFieldCache = await formFieldDatabase.get(cacheId);
-    //     if (formFieldCache) {
-    //         const functionDef: Map<string, FunctionDefinitionInfo> = new Map();
-    //         for (const [key, fieldsInfo] of Object.entries(formFieldCache)) {
-    //             functionDef.set(key, fieldsInfo as FunctionDefinitionInfo);
-    //         }
-    //         return functionDef.size > 0 ? functionDef : undefined;
-    //     }
-    // }
+// TODO: need to update local storage with persistent disk
+export async function addConnectorToCache(connector: BallerinaConnectorInfo) {
+    const { orgName, packageName, version, name, id } = connector;
+    const key = `${orgName}_${packageName}_${name}_${version}_${id || "x"}`;
+
+    const connectorsStr = localStorage.getItem(CONNECTOR_CACHE);
+    let connectors: ConnectorCache = {};
+    if (connectorsStr){
+        connectors = JSON.parse(connectorsStr);
+    }
+    connectors[key] = connector;
+    localStorage.setItem(CONNECTOR_CACHE, JSON.stringify(connectors));
+}
+
+export function getConnectorFromCache(connector: Connector): BallerinaConnectorInfo {
+    if (connector) {
+        const { orgName, packageName, version, name, id } = connector;
+        const key = `${orgName}_${packageName}_${name}_${version}_${id || "x"}`;
+
+        const connectorsStr = localStorage.getItem(CONNECTOR_CACHE);
+        let connectors: ConnectorCache;
+        if (connectorsStr){
+            connectors = JSON.parse(connectorsStr) as ConnectorCache;
+            if (connectors.hasOwnProperty(key)){
+                return connectors[key];
+            }
+        }
+    }
     return undefined;
+}
+
+// TODO: need to update local storage with persistent disk
+export async function addConnectorListToCache(connectors: Connector[]) {
+    localStorage.setItem(CONNECTOR_LIST_CACHE, JSON.stringify(connectors));
+}
+
+export function getConnectorListFromCache(): Connector[] {
+    const connectorsStr = localStorage.getItem(CONNECTOR_LIST_CACHE);
+    let connectors: Connector[] = [];
+    if (connectorsStr) {
+        connectors = JSON.parse(connectorsStr) as Connector[];
+    }
+    return connectors;
 }
 
 export function findActualEndPositionOfIfElseStatement(ifNode: IfElseStatement): any {
