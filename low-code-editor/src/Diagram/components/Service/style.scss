@@ -17,7 +17,6 @@
     border: 1px solid #E6E7EC;
     border-radius: 6px;
     background-color: #FFFFFF;
-    margin-left: 25px;
 
     .service-header {
         display: flex;
@@ -36,10 +35,21 @@
         }
     }
 
-
     .content-container {
         display: flex;
         flex-direction: column;
         overflow-y: auto;
+
+        .service-member:nth-of-type(1) {
+            margin: 10px 10px 5px 10px;
+        }
+
+        .service-member {
+            margin: 5px 10px 5px 10px;
+        }
+
+        .service-member:last-of-type {
+            margin: 5px 10px 10px 10px;
+        }
     }
 }

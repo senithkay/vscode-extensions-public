@@ -14,6 +14,7 @@
     border: 1px solid #e6e7ec;
     border-radius: 6px;
     background-color: #fff;
+    width: 275px;
 }
 
 .moduleVariableWrapper {
@@ -27,9 +28,15 @@
     margin: 15.5px 12px 15.5px 16.5px;
 }
 
+.variable-text {
+    margin: 15px 15px 0px 0px;
+    font-family: inherit;
+    color: #8d91a3;
+}
+
 .moduleVariableTypeText {
     height: 24px;
-    width: 60px;
+    // width: 60px;
     margin: 10.5px 0 14.5px 0;
     font-family: inherit;
     font-size: 13px;
