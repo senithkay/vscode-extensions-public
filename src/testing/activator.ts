@@ -25,9 +25,24 @@ import { getCurrentBallerinaProject } from '../utils/project-utils';
 import * as vscode from 'vscode';
 import { BallerinaExtension, ExecutorPosition, LANGUAGE, } from "../core";
 import { BALLERINA_COMMANDS } from '../project';
-import { EXEC_ARG, EXEC_POSITION_TYPE } from '../editor-support/codelens-provider';
 import fileUriToPath from 'file-uri-to-path';
 import { DEBUG_REQUEST, DEBUG_CONFIG } from '../debugger';
+
+enum EXEC_POSITION_TYPE {
+  SOURCE = 'source',
+  TEST = 'test'
+}
+enum EXEC_ARG {
+  TESTS = '--tests',
+  COVERAGE = '--code-coverage'
+}
+enum TEST_STATUS {
+  PASSED = 'PASSED',
+  FAILED = 'FAILURE'
+}
+
+const fs = require('fs');
+const TEST_RESULTS_PATH = "/target/report/test_results.json";
 
 export async function activate(ballerinaExtInstance: BallerinaExtension) {
   const ctrl = vscode.tests.createTestController('ballerina-tests', 'Ballerina Tests');
@@ -55,66 +70,87 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
     };
 
     const runTestQueue = async () => {
-      for (const { test, } of queue) {
-        run.appendOutput(`Running ${test.id}\r\n`);
-        if (cancellation.isCancellationRequested) {
-          run.skipped(test);
-        } else {
+      const startTime = Date.now();
+      run.appendOutput(`Running Tests\r\n`);
+
+      let EndTime;
+      if (request.profile?.kind == vscode.TestRunProfileKind.Run) {
+        let testNames = "";
+        for (const { test, } of queue) {
+          testNames = testNames == "" ? test.label : `${testNames},${test.label}`;
           run.started(test);
+        }
+        let testsJson: JSON | undefined = undefined;
+        const path = (await getCurrentBallerinaProject()).path;
+        try {
+          // execute test
+          const executor = ballerinaExtInstance.getBallerinaCmd();
+          const commandText = `${executor} ${BALLERINA_COMMANDS.TEST} ${EXEC_ARG.TESTS} ${testNames} ${EXEC_ARG.COVERAGE}`;
+          await runCommand(commandText, path);
 
-          const start = Date.now();
+        } finally {
+          EndTime = Date.now();
+          testsJson = await readTestJson(`${path}${TEST_RESULTS_PATH}`);
+          if (testsJson) {
+            const moduleStatus = testsJson["moduleStatus"];
+            const testResults = moduleStatus[0]["tests"];
+            const moduleCoverage = testsJson["moduleCoverage"];
+            const sourceFiles = moduleCoverage[0]["sourceFiles"];
+            const timeElapsed = EndTime - startTime;
 
-          if (request.profile?.kind == vscode.TestRunProfileKind.Run) {
-            try {
-              // execute test
-              const executor = ballerinaExtInstance.getBallerinaCmd();
-              const commandText = `${executor} ${BALLERINA_COMMANDS.TEST} ${EXEC_ARG.TESTS} ${test.label}`;
-              const path = (await getCurrentBallerinaProject()).path;
-              await runCommand(commandText, path);
-              run.passed(test, Date.now() - start);
-            } catch (e) {
-              // test failed
-              let testMessage: vscode.TestMessage;
-              if (e instanceof Error) {
-                testMessage = new vscode.TestMessage(e.message);
-              } else {
-                testMessage = new vscode.TestMessage("");
+            for (const { test, } of queue) {
+              for (const testResult of testResults) {
+                if (test.label === testResult.name) {
+                  if (testResult.status === TEST_STATUS.PASSED) {
+                    run.passed(test, timeElapsed);
+                  } else if (testResult.status === TEST_STATUS.FAILED) {
+                    // test failed
+                    let testMessage: vscode.TestMessage;
+                    testMessage = new vscode.TestMessage(testResult.failureMessage);
+                    run.failed(test, testMessage, timeElapsed);
+                  }
+                }
               }
-              run.failed(test, testMessage, Date.now() - start);
+
+              // file coverage
+              for (const sourceFile of sourceFiles) {
+                const statements: vscode.StatementCoverage[] = [];
+                for (let coveredLine of sourceFile.coveredLines) {
+                  const statement = new vscode.StatementCoverage(1, new vscode.Position(parseInt(coveredLine), 0));
+                  statements.push(statement);
+                }
+                coveredLines.set(`${path}/${sourceFile.name}`, statements);
+              }
             }
-          } else if (request.profile?.kind == vscode.TestRunProfileKind.Debug) {
-            // Debugs tests.
-            await startDebugging(vscode.window.activeTextEditor!.document.uri, true, ballerinaExtInstance.getBallerinaCmd(),
-              ballerinaExtInstance.getBallerinaHome(), [test.label]);
           }
         }
+      } else if (request.profile?.kind == vscode.TestRunProfileKind.Debug) {
+        for (const { test, } of queue) {
+          // Debugs tests.
+          await startDebugging(vscode.window.activeTextEditor!.document.uri, true, ballerinaExtInstance.getBallerinaCmd(),
+            ballerinaExtInstance.getBallerinaHome(), [test.label]);
 
-        const lineNo = test.range!.start.line;
-        const fileCoverage = coveredLines.get(test.uri!.toString());
-        if (fileCoverage) {
-          fileCoverage[lineNo]!.executionCount++;
         }
-
-        run.appendOutput(`Completed ${test.id}\r\n`);
       }
+      run.appendOutput(`Tests Completed\r\n`);
+
+      run.coverageProvider = {
+        provideFileCoverage() {
+          const coverage: vscode.FileCoverage[] = [];
+          for (const [uri, statements] of coveredLines) {
+            coverage.push(
+              vscode.FileCoverage.fromDetails(
+                vscode.Uri.parse(uri),
+                statements.filter((s): s is vscode.StatementCoverage => !!s)
+              )
+            );
+          }
+
+          return coverage;
+        },
+      };
 
       run.end();
-    };
-
-    run.coverageProvider = {
-      provideFileCoverage() {
-        const coverage: vscode.FileCoverage[] = [];
-        for (const [uri, statements] of coveredLines) {
-          coverage.push(
-            vscode.FileCoverage.fromDetails(
-              vscode.Uri.parse(uri),
-              statements.filter((s): s is vscode.StatementCoverage => !!s)
-            )
-          );
-        }
-
-        return coverage;
-      },
     };
 
     discoverTests(request.include ?? gatherTestItems(ctrl.items)).then(runTestQueue);
@@ -177,6 +213,15 @@ async function runCommand(command, path: string | undefined) {
       }
     });
   });
+}
+
+/** 
+ * Run terminal command.
+ * @param file File path of the json.
+ */
+async function readTestJson(file): Promise<JSON> {
+  let rawdata = fs.readFileSync(file);
+  return JSON.parse(rawdata);
 }
 
 async function startDebugging(uri: vscode.Uri, testDebug: boolean, ballerinaCmd: string, ballerinaHome: string, args: any[])
