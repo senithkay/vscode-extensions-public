@@ -381,12 +381,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
         isValidated = false;
         return;
       }
-      // validate return type
-      // TODO: commenting as this needs to be validated properly using an expression editor
-      // if (!validateReturnType(res.returnType)) {
-      //   isValidated = false;
-      //   return;
-      // }
+
       // validate payload name
       if (res.payloadError) {
         isValidated = false;
