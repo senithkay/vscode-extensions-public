@@ -20,8 +20,9 @@ import { BallerinaExtension, ConstructIdentifier } from "../core";
 import { showDiagramEditor } from '../diagram';
 import { sendTelemetryEvent, CMP_PACKAGE_VIEW, TM_EVENT_OPEN_PACKAGE_OVERVIEW } from "../telemetry";
 import { commands, window } from 'vscode';
-import { CMP_KIND, TREE_ELEMENT_EXECUTE_COMMAND, TREE_REFRESH_COMMAND } from "./model";
+import { CMP_KIND, TREE_COLLAPSE_COMMAND, TREE_ELEMENT_EXECUTE_COMMAND, TREE_REFRESH_COMMAND } from "./model";
 import { PackageOverviewDataProvider } from "./tree-data-provider";
+import { SessionDataProvider } from "./session-tree-data-provider";
 
 export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverviewDataProvider {
 
@@ -36,9 +37,29 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
         packageTreeDataProvider.refresh()
     );
 
+    commands.registerCommand(TREE_COLLAPSE_COMMAND, () => {
+        packageTreeDataProvider.refresh()
+        // ballerinaPackageTree.dispose();
+        // ballerinaPackageTree = window.createTreeView('ballerinaPackageTreeView', {
+        //     treeDataProvider: packageTreeDataProvider
+        // });
+        // ballerinaPackageTree.
+        // packageTreeDataProvider.refresh();
+        // packageTreeDataProvider.getPackageStructure().then(treeViewChildren => {
+        //     if (treeViewChildren.length > 0) {
+        //         ballerinaPackageTree.reveal(treeViewChildren[0], { expand: true, focus: false, select: false });
+        //     }
+        // });
+    });
+
     if (!ballerinaExtInstance.isSwanLake()) {
         return packageTreeDataProvider;
     }
+
+    const sessionTreeDataProvider = new SessionDataProvider(ballerinaExtInstance);
+    window.createTreeView('sessionExplorer', {
+        treeDataProvider: sessionTreeDataProvider
+    });
 
     // packageTreeDataProvider.getPackageStructure().then(treeViewChildren => {
     //     if (treeViewChildren.length > 0) {
@@ -58,7 +79,11 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
     });
 
     ballerinaExtInstance.onDiagramTreeElementClicked((construct: ConstructIdentifier) => {
-        if (construct.kind === CMP_KIND.FUNCTION || construct.kind === CMP_KIND.RESOURCE) {
+        if (construct.kind === CMP_KIND.FUNCTION || construct.kind === CMP_KIND.RESOURCE ||
+            construct.kind == CMP_KIND.RECORD || construct.kind == CMP_KIND.OBJECT || construct.kind == CMP_KIND.TYPE
+            || construct.kind == CMP_KIND.CLASS || construct.kind == CMP_KIND.ENUM ||
+            construct.kind == CMP_KIND.CONSTANT || construct.kind == CMP_KIND.VARIABLE ||
+            construct.kind == CMP_KIND.METHOD) {
             showDiagramEditor(construct.startLine, construct.startColumn, construct.kind, construct.name,
                 construct.filePath);
         }

@@ -55,6 +55,7 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 	}
 
 	if (isCommand && overviewDataProvider) {
+		overviewDataProvider.refresh(); // TODO remove
 		const diagramOptions: DiagramOptions = await overviewDataProvider.getFirstViewElement();
 		if (!diagramOptions.isDiagram) {
 			window.showErrorMessage(NO_DIAGRAM_VIEWS);
@@ -95,6 +96,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension, diagramOvervi
 	});
 
 	const diagramRenderDisposable = commands.registerCommand('ballerina.show.diagram', () => {
+		//TODO load the currect file's diagram
 		if (!ballerinaExtInstance.isSwanLake()) {
 			ballerinaExtInstance.showMessageOldBallerina();
 			sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED, CMP_DIAGRAM_VIEW,

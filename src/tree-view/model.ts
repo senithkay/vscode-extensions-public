@@ -25,20 +25,30 @@ export enum CMP_KIND {
     MODULE = "module",
     FUNCTION = "Function",
     MAIN_FUNCTION = "main_function",
+    FUNCTION_LABEL = "function_label",
     SERVICE = "service",
     RESOURCE = "Resource",
-    FUNCTION_LABEL = "function_label",
     SERVICE_LABEL = "service_label",
-    RECORDS = "records",
-    OBJECTS = "objects",
-    TYPES = "types",
-    VARIABLES = "variables",
-    CONSTANTS = "constants",
-    ENUMS = "enums"
+    RECORD = "record",
+    RECORD_LABEL = "record_label",
+    OBJECT = "object",
+    OBJECT_LABEL = "object_label",
+    TYPE = "type",
+    TYPE_LABEL = "type_label",
+    VARIABLE = "variable",
+    VARIABLE_LABEL = "variable_label",
+    CONSTANT = "constant",
+    CONSTANT_LABEL = "constant_label",
+    ENUM = "enum",
+    ENUM_LABEL = "enum_label",
+    CLASS = "class",
+    CLASS_LABEL = "class_label",
+    METHOD = "method"
 }
 
 export const TREE_ELEMENT_EXECUTE_COMMAND: string = 'ballerina.executeTreeElement';
 export const TREE_REFRESH_COMMAND: string = 'ballerina.refreshPackageTree';
+export const TREE_COLLAPSE_COMMAND: string = 'ballerina.collapsePackageTree';
 
 export class PackageTreeItem extends TreeItem {
     private kind: string;
@@ -134,6 +144,13 @@ export interface ChildrenData {
     functions?: FunctionOrResource[];
     services?: Service[];
     resources?: FunctionOrResource[];
+    records?: FunctionOrResource[];
+    objects?: FunctionOrResource[];
+    types?: FunctionOrResource[];
+    variables?: FunctionOrResource[];
+    constants?: FunctionOrResource[];
+    enums?: FunctionOrResource[];
+    classes?: FunctionOrResource[];
     modules?: Module[];
 }
 
@@ -147,6 +164,13 @@ export interface Module {
     name?: string;
     default?: boolean;
     functions: FunctionOrResource[];
+    records?: FunctionOrResource[];
+    objects?: FunctionOrResource[];
+    types?: FunctionOrResource[];
+    variables?: FunctionOrResource[];
+    constants?: FunctionOrResource[];
+    enums?: FunctionOrResource[];
+    classes?: FunctionOrResource[];
     services: Service[];
 }
 

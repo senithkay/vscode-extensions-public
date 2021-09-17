@@ -41,12 +41,14 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
         this.extensionPath = ballerinaExtension.extension.extensionPath;
         workspace.onDidOpenTextDocument(document => {
             if (document.languageId === LANGUAGE.BALLERINA || document.fileName.endsWith(BAL_TOML)) {
+                this.ballerinaExtension.setCurrentDocument(document);
                 this.refresh();
             }
         });
         workspace.onDidChangeTextDocument(activatedTextEditor => {
             if (activatedTextEditor && activatedTextEditor.document.languageId === LANGUAGE.BALLERINA ||
                 activatedTextEditor.document.fileName.endsWith(BAL_TOML)) {
+                this.ballerinaExtension.setCurrentDocument(activatedTextEditor.document);
                 this.refresh();
             }
         });
@@ -76,7 +78,11 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
             return this.getPackageStructure();
         } else if (element.getKind() === CMP_KIND.DEFAULT_MODULE || element.getKind() === CMP_KIND.MODULE) {
             return this.getComponentLabels(element);
-        } else if (element.getKind() === CMP_KIND.FUNCTION_LABEL || element.getKind() === CMP_KIND.SERVICE_LABEL) {
+        } else if (element.getKind() === CMP_KIND.FUNCTION_LABEL || element.getKind() === CMP_KIND.SERVICE_LABEL
+            || element.getKind() === CMP_KIND.RECORD_LABEL || element.getKind() === CMP_KIND.OBJECT_LABEL ||
+            element.getKind() === CMP_KIND.TYPE_LABEL || element.getKind() === CMP_KIND.CONSTANT_LABEL ||
+            element.getKind() === CMP_KIND.VARIABLE_LABEL || element.getKind() === CMP_KIND.ENUM_LABEL ||
+            element.getKind() === CMP_KIND.CLASS_LABEL) {
             return this.getComponentStructure(element);
         } else if (element.getKind() === CMP_KIND.SERVICE) {
             return this.getResourceStructure(element);
@@ -89,22 +95,23 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
      */
     public getPackageStructure(): Promise<PackageTreeItem[]> {
         return new Promise<PackageTreeItem[]>((resolve) => {
-            if (!window.activeTextEditor) {
+            const activeDocument = window.activeTextEditor ? window.activeTextEditor!.document :
+                this.ballerinaExtension.getCurrentDocument();
+            if (!activeDocument) {
                 resolve([]);
             }
-            const activeDocument = window.activeTextEditor!.document;
             this.ballerinaExtension.onReady().then(() => {
                 this.langClient!.getBallerinaProject({
                     documentIdentifier: {
-                        uri: activeDocument.uri.toString()
+                        uri: activeDocument!.uri.toString()
                     }
                 }).then(project => {
-                    const documentIdentifiers: DocumentIdentifier[] = [{ uri: activeDocument.uri.toString(true) }];
+                    const documentIdentifiers: DocumentIdentifier[] = [{ uri: activeDocument!.uri.toString(true) }];
                     if (project.kind === PROJECT_TYPE.BUILD_PROJECT || project.kind === PROJECT_TYPE.SINGLE_FILE) {
                         this.langClient!.getBallerinaProjectComponents({ documentIdentifiers }).then((response) => {
                             if (response.packages) {
                                 const projectItems: PackageTreeItem[] = this.createPackageData(response.packages[0],
-                                    project.kind === PROJECT_TYPE.SINGLE_FILE, activeDocument.fileName);
+                                    project.kind === PROJECT_TYPE.SINGLE_FILE, activeDocument!.fileName);
                                 resolve(projectItems);
                             } else {
                                 resolve([]);
@@ -125,13 +132,48 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
         const children: ChildrenData = parent.getChildrenData();
 
         if (children.functions && children.functions.length > 0) {
-            components.push(new PackageTreeItem('Functions', '', TreeItemCollapsibleState.Expanded,
+            components.push(new PackageTreeItem('Functions', '', TreeItemCollapsibleState.Collapsed,
                 CMP_KIND.FUNCTION_LABEL, parent.getFilePath(), this.extensionPath, false, parent, parent.getChildrenData(), -1, -1,
                 parent.getIsSingleFile()));
         }
         if (children.services && children.services.length > 0) {
-            components.push(new PackageTreeItem('Services', '', TreeItemCollapsibleState.Expanded,
+            components.push(new PackageTreeItem('Services', '', TreeItemCollapsibleState.Collapsed,
                 CMP_KIND.SERVICE_LABEL, parent.getFilePath(), this.extensionPath, false, parent, parent.getChildrenData(), -1, -1,
+                parent.getIsSingleFile()));
+        }
+        if (children.records && children.records.length > 0) {
+            components.push(new PackageTreeItem('Records', '', TreeItemCollapsibleState.Collapsed,
+                CMP_KIND.RECORD_LABEL, parent.getFilePath(), this.extensionPath, false, parent, parent.getChildrenData(), -1, -1,
+                parent.getIsSingleFile()));
+        }
+        if (children.objects && children.objects.length > 0) {
+            components.push(new PackageTreeItem('Objects', '', TreeItemCollapsibleState.Collapsed,
+                CMP_KIND.OBJECT_LABEL, parent.getFilePath(), this.extensionPath, false, parent, parent.getChildrenData(), -1, -1,
+                parent.getIsSingleFile()));
+        }
+        if (children.types && children.types.length > 0) {
+            components.push(new PackageTreeItem('Types', '', TreeItemCollapsibleState.Collapsed,
+                CMP_KIND.TYPE_LABEL, parent.getFilePath(), this.extensionPath, false, parent, parent.getChildrenData(), -1, -1,
+                parent.getIsSingleFile()));
+        }
+        if (children.variables && children.variables.length > 0) {
+            components.push(new PackageTreeItem('Variables', '', TreeItemCollapsibleState.Collapsed,
+                CMP_KIND.VARIABLE_LABEL, parent.getFilePath(), this.extensionPath, false, parent, parent.getChildrenData(), -1, -1,
+                parent.getIsSingleFile()));
+        }
+        if (children.constants && children.constants.length > 0) {
+            components.push(new PackageTreeItem('Constants', '', TreeItemCollapsibleState.Collapsed,
+                CMP_KIND.CONSTANT_LABEL, parent.getFilePath(), this.extensionPath, false, parent, parent.getChildrenData(), -1, -1,
+                parent.getIsSingleFile()));
+        }
+        if (children.enums && children.enums.length > 0) {
+            components.push(new PackageTreeItem('Enums', '', TreeItemCollapsibleState.Collapsed,
+                CMP_KIND.ENUM_LABEL, parent.getFilePath(), this.extensionPath, false, parent, parent.getChildrenData(), -1, -1,
+                parent.getIsSingleFile()));
+        }
+        if (children.classes && children.classes.length > 0) {
+            components.push(new PackageTreeItem('Classes', '', TreeItemCollapsibleState.Collapsed,
+                CMP_KIND.CLASS_LABEL, parent.getFilePath(), this.extensionPath, false, parent, parent.getChildrenData(), -1, -1,
                 parent.getIsSingleFile()));
         }
         return components;
@@ -177,6 +219,90 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
                         fn.filePath), this.extensionPath, true, parent, {}, fn.startLine, fn.startColumn));
             });
             // }
+        }
+
+        if (parent.getKind() == CMP_KIND.RECORD_LABEL) {
+            let functionNodes = children.records!;
+            functionNodes.sort((fn1, fn2) => {
+                return fn1.name!.localeCompare(fn2.name!);
+            });
+            functionNodes.forEach(fn => {
+                components.push(new PackageTreeItem(fn.name, `${fn.filePath}`, TreeItemCollapsibleState.None,
+                    CMP_KIND.RECORD, parent.getIsSingleFile() ? parent.getFilePath() : join(parent.getFilePath(),
+                        fn.filePath), this.extensionPath, true, parent, {}, fn.startLine, fn.startColumn));
+            });
+        }
+
+        if (parent.getKind() == CMP_KIND.OBJECT_LABEL) {
+            let functionNodes = children.objects!;
+            functionNodes.sort((fn1, fn2) => {
+                return fn1.name!.localeCompare(fn2.name!);
+            });
+            functionNodes.forEach(fn => {
+                components.push(new PackageTreeItem(fn.name, `${fn.filePath}`, TreeItemCollapsibleState.None,
+                    CMP_KIND.OBJECT, parent.getIsSingleFile() ? parent.getFilePath() : join(parent.getFilePath(),
+                        fn.filePath), this.extensionPath, true, parent, {}, fn.startLine, fn.startColumn));
+            });
+        }
+
+        if (parent.getKind() == CMP_KIND.TYPE_LABEL) {
+            let functionNodes = children.types!;
+            functionNodes.sort((fn1, fn2) => {
+                return fn1.name!.localeCompare(fn2.name!);
+            });
+            functionNodes.forEach(fn => {
+                components.push(new PackageTreeItem(fn.name, `${fn.filePath}`, TreeItemCollapsibleState.None,
+                    CMP_KIND.TYPE, parent.getIsSingleFile() ? parent.getFilePath() : join(parent.getFilePath(),
+                        fn.filePath), this.extensionPath, true, parent, {}, fn.startLine, fn.startColumn));
+            });
+        }
+
+        if (parent.getKind() == CMP_KIND.VARIABLE_LABEL) {
+            let functionNodes = children.variables!;
+            functionNodes.sort((fn1, fn2) => {
+                return fn1.name!.localeCompare(fn2.name!);
+            });
+            functionNodes.forEach(fn => {
+                components.push(new PackageTreeItem(fn.name, `${fn.filePath}`, TreeItemCollapsibleState.None,
+                    CMP_KIND.VARIABLE, parent.getIsSingleFile() ? parent.getFilePath() : join(parent.getFilePath(),
+                        fn.filePath), this.extensionPath, true, parent, {}, fn.startLine, fn.startColumn));
+            });
+        }
+
+        if (parent.getKind() == CMP_KIND.CONSTANT_LABEL) {
+            let functionNodes = children.constants!;
+            functionNodes.sort((fn1, fn2) => {
+                return fn1.name!.localeCompare(fn2.name!);
+            });
+            functionNodes.forEach(fn => {
+                components.push(new PackageTreeItem(fn.name, `${fn.filePath}`, TreeItemCollapsibleState.None,
+                    CMP_KIND.CONSTANT, parent.getIsSingleFile() ? parent.getFilePath() : join(parent.getFilePath(),
+                        fn.filePath), this.extensionPath, true, parent, {}, fn.startLine, fn.startColumn));
+            });
+        }
+
+        if (parent.getKind() == CMP_KIND.ENUM_LABEL) {
+            let functionNodes = children.enums!;
+            functionNodes.sort((fn1, fn2) => {
+                return fn1.name!.localeCompare(fn2.name!);
+            });
+            functionNodes.forEach(fn => {
+                components.push(new PackageTreeItem(fn.name, `${fn.filePath}`, TreeItemCollapsibleState.None,
+                    CMP_KIND.ENUM, parent.getIsSingleFile() ? parent.getFilePath() : join(parent.getFilePath(),
+                        fn.filePath), this.extensionPath, true, parent, {}, fn.startLine, fn.startColumn));
+            });
+        }
+
+        if (parent.getKind() == CMP_KIND.CLASS_LABEL) {
+            let functionNodes = children.classes!;
+            functionNodes.sort((fn1, fn2) => {
+                return fn1.name!.localeCompare(fn2.name!);
+            });
+            functionNodes.forEach(fn => {
+                components.push(new PackageTreeItem(fn.name, `${fn.filePath}`, TreeItemCollapsibleState.None,
+                    CMP_KIND.CLASS, parent.getIsSingleFile() ? parent.getFilePath() : join(parent.getFilePath(),
+                        fn.filePath), this.extensionPath, true, parent, {}, fn.startLine, fn.startColumn));
+            });
         }
 
         if (parent.getKind() === CMP_KIND.SERVICE_LABEL) {
@@ -240,7 +366,13 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
             if (defaultModules.length === 1) {
                 parent.setChildrenData({
                     functions: defaultModules[0].functions, services:
-                        defaultModules[0].services
+                        defaultModules[0].services, objects: defaultModules[0].objects,
+                    records: defaultModules[0].records,
+                    constants: defaultModules[0].constants,
+                    variables: defaultModules[0].variables,
+                    types: defaultModules[0].types,
+                    enums: defaultModules[0].enums,
+                    classes: defaultModules[0].classes
                 });
             }
 
@@ -256,7 +388,14 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
                         module.name!), this.extensionPath, true, parent,
                     {
                         functions: module.functions,
-                        services: module.services
+                        services: module.services,
+                        objects: module.objects,
+                        records: module.records,
+                        constants: module.constants,
+                        variables: module.variables,
+                        types: module.types,
+                        enums: module.enums,
+                        classes: module.classes
                     }));
             });
         }
@@ -314,7 +453,11 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
 
         for (let i = 0; i < children.length; i++) {
             let child: PackageTreeItem = children[i];
-            if (child.getKind() === CMP_KIND.SERVICE) {
+            if (child.getKind() === CMP_KIND.SERVICE || child.getKind() === CMP_KIND.FUNCTION_LABEL ||
+                child.getKind() === CMP_KIND.RECORD_LABEL || child.getKind() === CMP_KIND.OBJECT_LABEL ||
+                child.getKind() === CMP_KIND.TYPE_LABEL || child.getKind() === CMP_KIND.CONSTANT_LABEL ||
+                child.getKind() === CMP_KIND.VARIABLE_LABEL || child.getKind() === CMP_KIND.ENUM_LABEL ||
+                child.getKind() === CMP_KIND.CLASS_LABEL) {
                 return await this.getNextChild(child);
             }
             if (child.getKind() === CMP_KIND.FUNCTION || child.getKind() === CMP_KIND.RESOURCE) {
