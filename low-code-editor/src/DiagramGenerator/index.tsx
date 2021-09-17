@@ -22,17 +22,11 @@ import { DiagramGenErrorBoundary } from "./ErrorBoundrary";
 import { getLowcodeST, getSyntaxTree } from "./generatorUtil";
 import { useGeneratorStyles } from "./styles";
 import { theme } from "./theme";
-export interface DiagramGeneratorProps {
-    diagramLangClient: DiagramEditorLangClientInterface;
-    filePath: string;
-    startLine: string;
-    startCharacter: string;
-    updated: boolean;
+import { EditorProps } from "./vscode/Diagram";
+export interface DiagramGeneratorProps extends EditorProps {
     scale: string;
     panX: string;
     panY: string;
-    getFileContent?: (url?: string) => Promise<string>;
-    updateFileContent?: (url: string, content: string) => Promise<boolean>;
 }
 
 const ZOOM_STEP = 0.1;
@@ -40,7 +34,12 @@ const MAX_ZOOM = 2;
 const MIN_ZOOM = 0.6;
 
 export function DiagramGenerator(props: DiagramGeneratorProps) {
-    const { diagramLangClient, filePath, startLine, startCharacter, updated, scale, panX, panY } = props;
+    const { langClient, filePath, startLine: stLine, startColumn, lastUpdatedAt, scale, panX, panY } = props;
+    // FIXME Improve line passing properly without having to do toString()
+    // Moving existing code from wrapper inside for the moment for refactoring purposes
+    const startLine = stLine.toString();
+    const startCharacter = startColumn.toString();
+
     const classes = useGeneratorStyles();
     const defaultScale = scale ? Number(scale) : 1;
     const defaultPanX = panX ? Number(panX) : 0;
@@ -59,7 +58,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     React.useEffect(() => {
         (async () => {
             try {
-                const genSyntaxTree = await getSyntaxTree(filePath, diagramLangClient);
+                const genSyntaxTree = await getSyntaxTree(filePath, langClient);
                 const vistedSyntaxTree : STNode = getLowcodeST(genSyntaxTree, startLine, startCharacter);
                 if (!vistedSyntaxTree) {
                     return (<div><h1>Parse error...!</h1></div>);
@@ -71,7 +70,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                 throw err;
             }
         })();
-    }, [updated]);
+    }, [lastUpdatedAt]);
 
 
     function zoomIn() {
@@ -146,10 +145,10 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                         },
                                         ls: {
                                             getDiagramEditorLangClient: (url: string) => {
-                                                return Promise.resolve(diagramLangClient);
+                                                return Promise.resolve(langClient);
                                             },
                                             getExpressionEditorLangClient: (url: string) => {
-                                                return Promise.resolve(diagramLangClient);
+                                                return Promise.resolve(langClient);
                                             }
                                         },
                                         insights: {
@@ -158,7 +157,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                         },
                                         code: {
                                             modifyDiagram: async (mutations: STModification[], options?: any) => {
-                                                const { parseSuccess, source, syntaxTree: newST } = await diagramLangClient.stModify({
+                                                const { parseSuccess, source, syntaxTree: newST } = await langClient.stModify({
                                                     astModifications: await InsertorDelete(mutations),
                                                     documentIdentifier : {
                                                         uri: `file://${filePath}`
