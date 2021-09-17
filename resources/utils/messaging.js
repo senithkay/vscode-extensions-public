@@ -245,6 +245,13 @@ function getLangClient() {
                     resolve(resp);
                 });
             })
+        },
+        convert: (params) => {
+            return new Promise((resolve, _reject) => {
+                webViewRPCHandler.invokeRemoteMethod('convert', [params], (resp) => {
+                    resolve(resp);
+                });
+            })
         }
     }
 }
