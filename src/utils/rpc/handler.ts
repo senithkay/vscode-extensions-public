@@ -133,6 +133,7 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
             return langClient.getRecordsFromJson(args[0]);
         }
     }
+    // impelmet here also
     ];
 };
 
