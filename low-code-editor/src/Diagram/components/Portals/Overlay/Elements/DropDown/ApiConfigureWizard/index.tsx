@@ -40,6 +40,7 @@ import {
 } from "../../../../../../models";
 import { PrimaryButton } from "../../../../ConfigForm/Elements/Button/PrimaryButton";
 import { SelectDropdownWithButton } from "../../../../ConfigForm/Elements/DropDown/SelectDropdownWithButton";
+import ExpressionEditor from "../../../../ConfigForm/Elements/ExpressionEditor";
 import { SwitchToggle } from "../../../../ConfigForm/Elements/SwitchToggle";
 import { FormTextInput } from "../../../../ConfigForm/Elements/TextField/FormTextInput";
 import { useStyles as returnStyles } from "../ApiConfigureWizard/components/ReturnTypeEditor/style";
@@ -69,8 +70,9 @@ import {
   genrateBallerinaResourcePath,
   getBallerinaPayloadType,
   getReturnType,
+  getReturnTypePosition,
   isCallerParamAvailable,
-  isRequestParamAvailable
+  isRequestParamAvailable,
 } from "./util";
 
 interface ApiConfigureWizardProps {
@@ -141,6 +143,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   const [existingResources, setExistingResources] = useState<string[]>();
   const [duplicatedPathsInEdit, setDuplicatedPathsInEdit] = useState<boolean>(false);
   const [defaultResourceSignature, setDefaultResourceSignature] = useState<string>("");
+  const [isValidReturnExpr, setIsValidReturnExpr] = useState(true);
 
   useEffect(() => {
     const members = syntaxTree && (syntaxTree as ModulePart).members;
@@ -283,6 +286,11 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     setResources(updatedResources);
   }
 
+  function handleOnChangeReturnType(text: string, index: number) {
+    const updatedResources = resources;
+    updatedResources[index].returnType = text;
+    setResources(updatedResources);
+  }
 
   function handleOnChangePathFromUI(text: string, index: number) {
     const resClone = resources;
@@ -795,7 +803,27 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
               title={returnTypeTitle}
               tooltipWithExample={{ title: returnTitle, content: returnTypeExample }}
             >
-            <ReturnTypeEditor returnTypeString={resProps.returnType} defaultValue={resProps.returnType} isCaller={resProps.isCaller} onChange={(text: string) => handleOnChangeReturnTypeFormUI(text, index)} />
+              {funcSignature?.returnTypeDesc ? (
+                 <div className={classes.returnTextBoxWrapper}>
+                  <ExpressionEditor
+                      model={{ name: "Other type"}}
+                      customProps={{
+                          validate: (_name: string, isInvalid: boolean) => setIsValidReturnExpr(!isInvalid),
+                          interactive: true,
+                          customTemplate: {
+                              defaultCodeSnippet: ` | error?`,
+                              targetColumn: 1,
+                          },
+                          editPosition: getReturnTypePosition(funcSignature?.returnTypeDesc),
+                          hideTextLabel: true
+                      }}
+                      onChange={(text: string) => handleOnChangeReturnType(text, index)}
+                      defaultValue={resProps.returnType}
+                  />
+                </div>
+              ) : (
+                <ReturnTypeEditor returnTypeString={resProps.returnType} defaultValue={resProps.returnType} isCaller={resProps.isCaller} onChange={(text: string) => handleOnChangeReturnTypeFormUI(text, index)} />
+              )}
             </Section>
             <div className={resources.length > 1 ? classes.deleteBtnWrapper : ""} onClick={() => onDeleteResource(index)}>
               {resources.length > 1 && (
@@ -830,7 +858,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                     text={saveAPIButton}
                     className={classes.saveBtn}
                     onClick={handleUserConfirm}
-                    disabled={isFileSaving}
+                    disabled={isFileSaving || !isValidReturnExpr}
                   />
                 </div>
               </div>

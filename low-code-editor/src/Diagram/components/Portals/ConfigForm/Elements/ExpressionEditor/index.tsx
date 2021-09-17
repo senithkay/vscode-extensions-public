@@ -354,7 +354,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                             },
                             position: {
                                 character: monacoRef.current.editor.getPosition().column - 1 + (snippetTargetPosition - 1),
-                                line: targetPosition.line
+                                line: targetPosition.startLine
                             }
                         }
 
@@ -556,7 +556,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             return
         } else {
             const newCodeSnippet: string = addToTargetPosition(defaultCodeSnippet, (snippetTargetPosition - 1), currentContent);
-            initContent = addToTargetLine((currentFile.content), targetPosition.line, newCodeSnippet, EOL);
+            initContent = addToTargetLine(currentFile.content, targetPosition, newCodeSnippet, EOL);
             initContent = addImportModuleToCode(initContent, model);
         }
 
@@ -616,11 +616,11 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             // No need to send didChange with the template because this is an optional field and empty content is allowed.
             // Replacing the templates lenght with space char to get the LS completions correctly
             const newCodeSnippet: string = " ".repeat(snippetTargetPosition);
-            initContent = addToTargetLine((currentFile.content), targetPosition.line, newCodeSnippet, EOL);
+            initContent = addToTargetLine(currentFile.content, targetPosition, newCodeSnippet, EOL);
             initContent = addImportModuleToCode(initContent, model);
         } else {
             const newCodeSnippet: string = addToTargetPosition(defaultCodeSnippet, (snippetTargetPosition - 1), currentContent);
-            initContent = addToTargetLine((currentFile.content), targetPosition.line, newCodeSnippet, EOL);
+            initContent = addToTargetLine(currentFile.content, targetPosition, newCodeSnippet, EOL);
             initContent = addImportModuleToCode(initContent, model);
         }
 
@@ -663,7 +663,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         //             uri: expressionEditorState.uri,
         //         },
         //         position: {
-        //             line: targetPosition.line,
+        //             line: targetPosition.startLine,
         //             offset
         //         }
         //     }).then((resp: any) => {
@@ -686,12 +686,12 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 // No need to send didChange with the template because this is an optional field and empty content is allowed.
                 // Replacing the templates lenght with space char to get the LS completions correctly
                 const newCodeSnippet: string = " ".repeat(snippetTargetPosition);
-                newModel = addToTargetLine((currentFile.content), targetPosition.line, newCodeSnippet, EOL);
+                newModel = addToTargetLine(currentFile.content, targetPosition, newCodeSnippet, EOL);
                 newModel = addImportModuleToCode(newModel, model);
             } else {
                 // set the new model for the file
                 const newCodeSnippet: string = addToTargetPosition(defaultCodeSnippet, (snippetTargetPosition - 1), currentContent);
-                newModel = addToTargetLine((currentFile.content), targetPosition.line, newCodeSnippet, EOL);
+                newModel = addToTargetLine(currentFile.content, targetPosition, newCodeSnippet, EOL);
                 newModel = addImportModuleToCode(newModel, model);
             }
 
@@ -735,7 +735,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             //             uri: expressionEditorState.uri,
             //         },
             //         position: {
-            //             line: targetPosition.line,
+            //             line: targetPosition.startLine,
             //             offset
             //         }
             //     }).then((resp: any) => {
