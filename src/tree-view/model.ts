@@ -35,15 +35,17 @@ export enum CMP_KIND {
     OBJECT_LABEL = "object_label",
     TYPE = "type",
     TYPE_LABEL = "type_label",
-    VARIABLE = "variable",
-    VARIABLE_LABEL = "variable_label",
     CONSTANT = "constant",
     CONSTANT_LABEL = "constant_label",
     ENUM = "enum",
     ENUM_LABEL = "enum_label",
     CLASS = "class",
     CLASS_LABEL = "class_label",
-    METHOD = "method"
+    METHOD = "method",
+    LISTENER = "listener",
+    LISTENER_LABEL = "listener_label",
+    MODULE_LEVEL_VAR = "module_level_variable",
+    MODULE_LEVEL_VAR_LABEL = "module_level_variable_label"
 }
 
 export const TREE_ELEMENT_EXECUTE_COMMAND: string = 'ballerina.executeTreeElement';
@@ -141,17 +143,19 @@ export class PackageTreeItem extends TreeItem {
 }
 
 export interface ChildrenData {
-    functions?: FunctionOrResource[];
+    functions?: Leaf[];
     services?: Service[];
-    resources?: FunctionOrResource[];
-    records?: FunctionOrResource[];
-    objects?: FunctionOrResource[];
-    types?: FunctionOrResource[];
-    variables?: FunctionOrResource[];
-    constants?: FunctionOrResource[];
-    enums?: FunctionOrResource[];
-    classes?: FunctionOrResource[];
+    resources?: Leaf[];
+    records?: Leaf[];
+    objects?: Leaf[];
+    types?: Leaf[];
+    constants?: Leaf[];
+    enums?: Leaf[];
+    classes?: Class[];
     modules?: Module[];
+    listeners?: Leaf[];
+    moduleVariables?: Leaf[];
+    methods?: Leaf[];
 }
 
 export interface Package {
@@ -163,30 +167,25 @@ export interface Package {
 export interface Module {
     name?: string;
     default?: boolean;
-    functions: FunctionOrResource[];
-    records?: FunctionOrResource[];
-    objects?: FunctionOrResource[];
-    types?: FunctionOrResource[];
-    variables?: FunctionOrResource[];
-    constants?: FunctionOrResource[];
-    enums?: FunctionOrResource[];
-    classes?: FunctionOrResource[];
+    functions: Leaf[];
+    records?: Leaf[];
+    objects?: Leaf[];
+    types?: Leaf[];
+    constants?: Leaf[];
+    enums?: Leaf[];
+    classes?: Class[];
     services: Service[];
+    listeners?: Leaf[];
+    moduleVariables?: Leaf[];
 }
 
-interface FunctionOrResource {
+export interface Leaf {
     name: string;
     filePath: string;
     startLine: number;
     startColumn: number;
     endLine: number;
     endColumn: number;
-    functionName?: {
-        value: string;
-    };
-    typeName?: {
-        value: string;
-    };
 }
 
 interface Service {
@@ -196,5 +195,15 @@ interface Service {
     startColumn: number;
     endLine: number;
     endColumn: number;
-    resources: FunctionOrResource[];
+    resources: Leaf[];
+}
+
+interface Class {
+    name: string;
+    filePath: string;
+    startLine: number;
+    startColumn: number;
+    endLine: number;
+    endColumn: number;
+    functions: Leaf[];
 }

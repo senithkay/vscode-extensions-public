@@ -82,8 +82,9 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
         if (construct.kind === CMP_KIND.FUNCTION || construct.kind === CMP_KIND.RESOURCE ||
             construct.kind == CMP_KIND.RECORD || construct.kind == CMP_KIND.OBJECT || construct.kind == CMP_KIND.TYPE
             || construct.kind == CMP_KIND.CLASS || construct.kind == CMP_KIND.ENUM ||
-            construct.kind == CMP_KIND.CONSTANT || construct.kind == CMP_KIND.VARIABLE ||
-            construct.kind == CMP_KIND.METHOD) {
+            construct.kind == CMP_KIND.CONSTANT || construct.kind == CMP_KIND.METHOD ||
+            construct.kind == CMP_KIND.LISTENER || construct.kind == CMP_KIND.MODULE_LEVEL_VAR ||
+            construct.kind == CMP_KIND.SERVICE) {
             showDiagramEditor(construct.startLine, construct.startColumn, construct.kind, construct.name,
                 construct.filePath);
         }

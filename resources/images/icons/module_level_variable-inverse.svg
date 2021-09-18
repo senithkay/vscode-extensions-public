@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ ~   Copyright 2021, WSO2 Inc. (http://www.wso2.com)
+ ~
+ ~   Licensed under the Apache License, Version 2.0 (the "License");
+ ~   you may not use this file except in compliance with the License.
+ ~   You may obtain a copy of the License at
+ ~
+ ~        http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~   Unless required by applicable law or agreed to in writing, software
+ ~   distributed under the License is distributed on an "AS IS" BASIS,
+ ~   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~   See the License for the specific language governing permissions and
+ ~   limitations under the License.
+-->
+<svg width="15px" height="16px" viewBox="0 0 15 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>8C775F90-37D7-4A2D-8DF3-758E8FF31EBD</title>
+    <g id="Home" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="choose-service" transform="translate(-135.000000, -112.000000)" fill="#CBCEDB" fill-rule="nonzero">
+            <path fill="#C5C5C5" d="M142.331115,128 C145.660481,125.085859 147.76567,122.827366 148.646681,121.224522 C150.605748,118.26028 149.884894,115.630132 149.662231,114.691679 C149.544874,114.197056 149.360729,113.713948 149.109797,113.242354 C148.817798,112.693559 148.136196,112.485395 147.587405,112.777404 C147.485098,112.831841 147.391812,112.901751 147.310844,112.984662 C146.769022,113.539488 146.661536,114.386642 147.047632,115.059199 C147.354733,115.594156 147.508283,115.984494 147.508283,116.230213 C147.508283,121.616986 144.780176,123.579427 142.918595,124.231551 C141.605712,116.313228 140.136267,112.876209 137.90783,112.876209 C135.713451,112.876209 135,116.019947 135,116.799471 C135,117.03538 135.148725,117.204618 135.446175,117.307187 C135.753882,115.758396 136.297497,114.984001 137.077021,114.984001 C137.77449,114.984001 138.69481,115.312814 139.576903,118.000121 C140.164965,119.791658 141.083036,123.124951 142.331115,128 Z" id="variable"></path>
+        </g>
+    </g>
+</svg>

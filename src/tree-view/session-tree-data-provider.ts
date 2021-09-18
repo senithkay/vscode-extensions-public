@@ -33,12 +33,10 @@ export class SessionDataProvider implements TreeDataProvider<TreeItem> {
         let treeItems: TreeItem[] = [];
         if (!element) {
             const item = new TreeItem("Sign in to Choreo...", TreeItemCollapsibleState.None);
-            item.iconPath = join(this.ballerinaExtension.extension.extensionPath, 'resources', 'images', 'icons', 'signin.svg');
-            // item.iconPath = {
-            //     light: join(this.ballerinaExtension.extensionPath, 'resources', 'images', 'icons', 'signin.svg'),
-            //     dark: join(this.ballerinaExtension.extensionPath, 'resources', 'images', 'icons', 'signin.svg')
-            // }
-            // item.command
+            item.iconPath = {
+                light: join(this.ballerinaExtension.extension.extensionPath, 'resources', 'images', 'icons', 'signin.svg'),
+                dark: join(this.ballerinaExtension.extension.extensionPath, 'resources', 'images', 'icons', 'signin-inverse.svg')
+            }
             treeItems.push(item);
         }
         return treeItems;
