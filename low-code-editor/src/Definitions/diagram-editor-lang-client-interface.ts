@@ -30,6 +30,8 @@ import {
 	BallerinaSTModifyResponse,
 	BallerinaSyntaxTreeModifyRequest,
 	BallerinaSyntaxTreeResponse,
+	JsonToRecordRequest,
+	JsonToRecordResponse,
 	TriggerModifyRequest,
 } from "./lang-client-extended";
 
@@ -83,4 +85,7 @@ export interface DiagramEditorLangClientInterface extends BaseLangClientInterfac
 	diagnostics: (
 		params: BallerinaProjectParams
 	) => Thenable<PublishDiagnosticsParams[]>;
+	convert: (
+		params: JsonToRecordRequest
+	) => Thenable<JsonToRecordResponse>;
 }
