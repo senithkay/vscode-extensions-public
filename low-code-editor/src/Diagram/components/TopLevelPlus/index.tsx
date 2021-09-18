@@ -16,8 +16,9 @@ import React, { useState } from "react";
 import { STNode } from "@ballerina/syntax-tree";
 
 import TopLevelPlusIcon from "../../../assets/icons/TopLevelPlusIcon";
+import { DraftInsertPosition } from "../../view-state/draft";
 
-import { PlusOptions } from "./PlusOptions";
+import { PlusOptionsSelector } from "./PlusOptionsSelector";
 import "./style.scss";
 
 export const PLUS_WIDTH = 16;
@@ -34,10 +35,11 @@ export interface PlusProps {
     model?: STNode,
     initPlus?: boolean;
     margin?: Margin;
+    targetPosition?: DraftInsertPosition;
 }
 
 export const TopLevelPlus = (props: PlusProps) => {
-    const { model, initPlus = false, margin = { top: 0, bottom: 0, left: 0, right: 0 } } = props;
+    const { model, initPlus = false, margin = { top: 0, bottom: 0, left: 0, right: 0 }, targetPosition } = props;
 
     const [isPlusOptionsVisible, setIsPlusOptionsVisible] = useState(false);
 
@@ -72,7 +74,11 @@ export const TopLevelPlus = (props: PlusProps) => {
                 <TopLevelPlusIcon />
             </div>
             {isPlusOptionsVisible && (
-                <PlusOptions margin={optionContainerMargin} onClose={handlePlusOptionsClose} />
+                <PlusOptionsSelector
+                    margin={optionContainerMargin}
+                    onClose={handlePlusOptionsClose}
+                    targetPosition={targetPosition}
+                />
             )}
         </div>
     );

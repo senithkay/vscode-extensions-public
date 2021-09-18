@@ -19,6 +19,8 @@ import { RecordFieldWithDefaultValue, RecordTypeDesc, STKindChecker, TypeDefinit
 import DeleteButton from "../../../assets/icons/DeleteButton";
 import EditButton from "../../../assets/icons/EditButton";
 import RecordIcon from "../../../assets/icons/RecordIcon";
+import { ComponentExpandButton } from "../ComponentExpandButton";
+import { TopLevelPlus } from "../TopLevelPlus";
 
 import "./style.scss";
 
@@ -33,12 +35,16 @@ export function TypeDefinitionComponent(props: TypeDefComponentProps) {
     const { model } = props;
 
     const [isEditable, setIsEditable] = useState(false);
+    const [isExpanded, setIsExpanded] = useState(false);
 
     const handleMouseEnter = () => {
         setIsEditable(true);
     };
     const handleMouseLeave = () => {
         setIsEditable(false);
+    };
+    const onExpandClick = () => {
+        setIsExpanded(!isExpanded);
     };
 
     const component: JSX.Element[] = [];
@@ -66,28 +72,33 @@ export function TypeDefinitionComponent(props: TypeDefComponentProps) {
         component.push(
             <div className="record-comp" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 <div className="record-header" >
-                    <div className="record-icon">
-                        <RecordIcon />
-                    </div>
-                    <div className="record-type">
-                        Record
-                    </div>
-                    <div className="record-name">
-                        {varName}
+                    <div className="record-content">
+                        <div className="record-icon">
+                            <RecordIcon />
+                        </div>
+                        <div className="record-type">
+                            Record
+                        </div>
+                        <div className="record-name">
+                            {varName}
+                        </div>
                     </div>
                     {isEditable && (
-                        <>
+                        <div className="record-amendment-options">
                             <div className="record-edit">
                                 <EditButton />
                             </div>
                             <div className="record-delete">
                                 <DeleteButton />
                             </div>
-                        </>
+                            <div className="record-expand">
+                                <ComponentExpandButton isExpanded={isExpanded} onClick={onExpandClick} />
+                            </div>
+                        </div>
                     )}
                 </div>
                 <div className="record-separator" />
-                {isEditable && (
+                {isExpanded && (
                     <>
                         <div className="record-fields" >
                             {record.map(recordfield => (
@@ -105,35 +116,41 @@ export function TypeDefinitionComponent(props: TypeDefComponentProps) {
                 )}
             </div>
         )
-        /* ToDo: Sort out top level component
-                    <TopLevelPlus
-                        margin={{ top: RECORD_PLUS_OFFSET, bottom: RECORD_PLUS_OFFSET, left: RECORD_MARGIN_LEFT }}
-                    /> */
     } else {
         // ToDo : sort out how to display general typedefinitions
         component.push(
             <div className="record-comp" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 <div className="record-header" >
-                    <div className="record-icon">
-                        <RecordIcon />
-                    </div>
-                    <div className="record-name">
-                        {model.source.trim()}
+                    <div className="record-content">
+                        <div className="record-icon">
+                            <RecordIcon />
+                        </div>
+                        <div className="record-name">
+                            {model.source.trim()}
+                        </div>
                     </div>
                     {isEditable && (
-                        <>
+                        <div className="record-amendment-options">
                             <div className="record-edit">
                                 <EditButton />
                             </div>
                             <div className="record-delete">
                                 <DeleteButton />
                             </div>
-                        </>
+                        </div>
                     )}
                 </div>
             </div>
         )
     }
+
+    // ToDo : need to fix plus here
+    component.push(
+        <TopLevelPlus
+            margin={{top: RECORD_PLUS_OFFSET, bottom: RECORD_PLUS_OFFSET, left: RECORD_MARGIN_LEFT}}
+            targetPosition={{line: model.position.endLine + 1, column: model.position.endColumn}}
+        />
+    )
 
     return (
         <>
