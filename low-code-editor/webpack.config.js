@@ -57,7 +57,7 @@ module.exports = (env, argv) => ({
             {
                 test: /\.(woff|woff2|ttf|otf|eot)$/,
                 include: [APP_DIR, MONACO_DIR],
-                use: ['file-loader']
+                type: 'asset/inline'
             },
             {
                 test: /\.svg/,
