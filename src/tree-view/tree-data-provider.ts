@@ -24,7 +24,6 @@ import { Module, PackageTreeItem, Package, ChildrenData, CMP_KIND, Leaf } from '
 import { join, sep } from 'path';
 import fileUriToPath from 'file-uri-to-path';
 import { BAL_TOML, PROJECT_TYPE } from '../project';
-import { DiagramOptions } from '../diagram';
 import { isSupportedVersion, VERSION } from '../utils';
 
 /**
@@ -132,13 +131,13 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
         const children: ChildrenData = parent.getChildrenData();
 
         this.addComponentLabel(children.functions, components, 'Functions', parent, CMP_KIND.FUNCTION_LABEL);
-        this.addComponentLabel(children.services, components, 'Services', parent, CMP_KIND.SERVICE_LABEL);// TODO add command
+        this.addComponentLabel(children.services, components, 'Services', parent, CMP_KIND.SERVICE_LABEL);
         this.addComponentLabel(children.records, components, 'Records', parent, CMP_KIND.RECORD_LABEL);
         this.addComponentLabel(children.objects, components, 'Objects', parent, CMP_KIND.OBJECT_LABEL);
         this.addComponentLabel(children.types, components, 'Types', parent, CMP_KIND.TYPE_LABEL);
         this.addComponentLabel(children.constants, components, 'Constants', parent, CMP_KIND.CONSTANT_LABEL);
         this.addComponentLabel(children.enums, components, 'Enums', parent, CMP_KIND.ENUM_LABEL);
-        this.addComponentLabel(children.classes, components, 'Classes', parent, CMP_KIND.CLASS_LABEL);// TODO add command
+        this.addComponentLabel(children.classes, components, 'Classes', parent, CMP_KIND.CLASS_LABEL);
         this.addComponentLabel(children.listeners, components, 'Listeners', parent, CMP_KIND.LISTENER_LABEL);
         this.addComponentLabel(children.moduleVariables, components, 'Module Level Variables', parent,
             CMP_KIND.MODULE_LEVEL_VAR_LABEL);
@@ -355,49 +354,5 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
             });
         }
         return leafNodes;
-    }
-
-    public async getFirstViewElement(): Promise<DiagramOptions> {
-        const packageItems: PackageTreeItem[] | undefined | null = await this.getChildren();
-        if (!packageItems) {
-            return { isDiagram: false };
-        }
-        if (packageItems.length > 0) {
-            for (let i = 0; i < packageItems.length; i++) {
-                const child: PackageTreeItem | undefined = await this.getNextChild(packageItems[i]);
-                if (child) {
-                    return {
-                        name: child.getName(),
-                        kind: child.getKind(),
-                        filePath: child.getFilePath(),
-                        startLine: child.getStartLine(),
-                        startColumn: child.getStartColumn(),
-                        isDiagram: true
-                    };
-                }
-            }
-        }
-        return { isDiagram: false };
-    }
-
-    async getNextChild(treeItem: PackageTreeItem): Promise<PackageTreeItem | undefined> {
-        const children: PackageTreeItem[] | undefined | null = await this.getChildren(treeItem);
-        if (!children || children.length === 0) {
-            return;
-        }
-
-        for (let i = 0; i < children.length; i++) {
-            let child: PackageTreeItem = children[i];
-            if (child.getKind() === CMP_KIND.SERVICE || child.getKind() === CMP_KIND.FUNCTION_LABEL ||
-                child.getKind() === CMP_KIND.RECORD_LABEL || child.getKind() === CMP_KIND.OBJECT_LABEL ||
-                child.getKind() === CMP_KIND.TYPE_LABEL || child.getKind() === CMP_KIND.CONSTANT_LABEL ||
-                child.getKind() === CMP_KIND.ENUM_LABEL || child.getKind() === CMP_KIND.CLASS_LABEL) {
-                return await this.getNextChild(child);
-            }
-            if (child.getKind() === CMP_KIND.FUNCTION || child.getKind() === CMP_KIND.RESOURCE) {
-                return child;
-            }
-        }
-        return;
     }
 }

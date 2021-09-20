@@ -38,34 +38,17 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
     );
 
     commands.registerCommand(TREE_COLLAPSE_COMMAND, () => {
-        packageTreeDataProvider.refresh()
-        // ballerinaPackageTree.dispose();
-        // ballerinaPackageTree = window.createTreeView('ballerinaPackageTreeView', {
-        //     treeDataProvider: packageTreeDataProvider
-        // });
-        // ballerinaPackageTree.
-        // packageTreeDataProvider.refresh();
-        // packageTreeDataProvider.getPackageStructure().then(treeViewChildren => {
-        //     if (treeViewChildren.length > 0) {
-        //         ballerinaPackageTree.reveal(treeViewChildren[0], { expand: true, focus: false, select: false });
-        //     }
-        // });
+        commands.executeCommand('workbench.actions.treeView.ballerinaPackageTreeView.collapseAll');
     });
 
     if (!ballerinaExtInstance.isSwanLake()) {
         return packageTreeDataProvider;
     }
 
-    const sessionTreeDataProvider = new SessionDataProvider(ballerinaExtInstance);
+    const sessionTreeDataProvider = new SessionDataProvider();
     window.createTreeView('sessionExplorer', {
         treeDataProvider: sessionTreeDataProvider
     });
-
-    // packageTreeDataProvider.getPackageStructure().then(treeViewChildren => {
-    //     if (treeViewChildren.length > 0) {
-    //         ballerinaPackageTree.reveal(treeViewChildren[0], { expand: true, focus: false, select: false });
-    //     }
-    // });
 
     commands.registerCommand(TREE_ELEMENT_EXECUTE_COMMAND, (filePath: string, kind: string, startLine: number,
         startColumn: number, name: string) => {

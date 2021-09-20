@@ -15,30 +15,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-import { BallerinaExtension } from "../core";
-import { Event, ProviderResult, TreeDataProvider, TreeItem, TreeItemCollapsibleState } from "vscode";
-import { join } from "path";
+import { Event, ProviderResult, TreeDataProvider, TreeItem } from "vscode";
 
 export class SessionDataProvider implements TreeDataProvider<TreeItem> {
-    private ballerinaExtension;
-    constructor(ballerinaExtension: BallerinaExtension) {
-        this.ballerinaExtension = ballerinaExtension;
+    constructor() {
     }
     onDidChangeTreeData?: Event<void | TreeItem | null | undefined> | undefined;
     getTreeItem(element: TreeItem): TreeItem | Thenable<TreeItem> {
         return element;
     }
     getChildren(element?: TreeItem): ProviderResult<TreeItem[]> {
+        // TODO: Show choreo signed sessions
         let treeItems: TreeItem[] = [];
-        if (!element) {
-            const item = new TreeItem("Sign in to Choreo...", TreeItemCollapsibleState.None);
-            item.iconPath = {
-                light: join(this.ballerinaExtension.extension.extensionPath, 'resources', 'images', 'icons', 'signin.svg'),
-                dark: join(this.ballerinaExtension.extension.extensionPath, 'resources', 'images', 'icons', 'signin-inverse.svg')
-            }
-            treeItems.push(item);
-        }
         return treeItems;
     }
 }

@@ -17,7 +17,10 @@
  *
  */
 
-import { commands, window, Uri, ViewColumn, ExtensionContext, WebviewPanel, Disposable, workspace, WorkspaceEdit, Range, Position } from 'vscode';
+import {
+	commands, window, Uri, ViewColumn, ExtensionContext, WebviewPanel, Disposable, workspace, WorkspaceEdit, Range,
+	Position
+} from 'vscode';
 import * as _ from 'lodash';
 import { render } from './renderer';
 import { ExtendedLangClient } from '../core/extended-language-client';
@@ -28,10 +31,10 @@ import {
 	TM_EVENT_OPEN_DIAGRAM, TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED, TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW,
 	sendTelemetryEvent, sendTelemetryException
 } from '../telemetry';
-import { CMP_KIND, PackageOverviewDataProvider } from '../tree-view';
+import { PackageOverviewDataProvider } from '../tree-view';
 import { PALETTE_COMMANDS } from '../project';
 import { sep } from "path";
-import { DiagramOptions, Member, SyntaxTree } from './model';
+import { DiagramOptions } from './model';
 
 const NO_DIAGRAM_VIEWS: string = 'No Ballerina diagram views found!';
 
@@ -40,6 +43,7 @@ let overviewDataProvider: PackageOverviewDataProvider;
 let diagramElement: DiagramOptions | undefined = undefined;
 let ballerinaExtension: BallerinaExtension;
 let webviewRPCHandler: WebViewRPCHandler;
+let currentColumn: ViewColumn | undefined;
 
 export async function showDiagramEditor(startLine: number, startColumn: number, kind: string, name: string,
 	filePath: string, isCommand: boolean = false): Promise<void> {
@@ -55,19 +59,17 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 	}
 
 	if (isCommand && overviewDataProvider) {
-		overviewDataProvider.refresh(); // TODO remove
-		const diagramOptions: DiagramOptions = await overviewDataProvider.getFirstViewElement();
-		if (!diagramOptions.isDiagram) {
+		overviewDataProvider.refresh();
+
+		if (!editor) {
 			window.showErrorMessage(NO_DIAGRAM_VIEWS);
 			return;
 		}
 
 		diagramElement = {
-			fileUri: Uri.file(diagramOptions.filePath!),
-			startLine: diagramOptions.startLine!,
-			startColumn: diagramOptions.startColumn!,
-			kind: diagramOptions.kind!,
-			name: diagramOptions.name!,
+			fileUri: editor!.document.uri,
+			startLine: editor!.selection.active.line,
+			startColumn: editor!.selection.active.character,
 			isDiagram: true
 		};
 	} else {
@@ -75,13 +77,11 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 			fileUri: filePath === '' ? editor!.document.uri : Uri.file(filePath),
 			startLine,
 			startColumn,
-			kind,
-			name,
 			isDiagram: true
 		};
 	}
 
-	DiagramPanel.create();
+	DiagramPanel.create(isCommand ? ViewColumn.Two : ViewColumn.One);
 }
 
 export function activate(ballerinaExtInstance: BallerinaExtension, diagramOverviewDataProvider:
@@ -96,7 +96,6 @@ export function activate(ballerinaExtInstance: BallerinaExtension, diagramOvervi
 	});
 
 	const diagramRenderDisposable = commands.registerCommand('ballerina.show.diagram', () => {
-		//TODO load the currect file's diagram
 		if (!ballerinaExtInstance.isSwanLake()) {
 			ballerinaExtInstance.showMessageOldBallerina();
 			sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED, CMP_DIAGRAM_VIEW,
@@ -122,26 +121,29 @@ class DiagramPanel {
 	private readonly webviewPanel: WebviewPanel;
 	private disposables: Disposable[] = [];
 
+
 	private constructor(panel: WebviewPanel) {
 		this.webviewPanel = panel;
 		this.update();
 		this.webviewPanel.onDidDispose(() => this.dispose(), null, this.disposables);
 	}
 
-	public static create() {
-		if (DiagramPanel.currentPanel) {
+	public static create(columns: ViewColumn) {
+		if (DiagramPanel.currentPanel && currentColumn === columns) {
 			DiagramPanel.currentPanel.webviewPanel.reveal();
 			DiagramPanel.currentPanel.update();
 			return;
+		} else if (DiagramPanel.currentPanel) {
+			DiagramPanel.currentPanel.dispose();
 		}
 
 		const panel = window.createWebviewPanel(
 			'ballerinaDiagram',
 			"Ballerina Diagram",
-			{ viewColumn: ViewColumn.One, preserveFocus: false },
+			{ viewColumn: columns, preserveFocus: false },
 			getCommonWebViewOptions()
 		);
-
+		currentColumn = columns;
 		panel.iconPath = {
 			light: Uri.file(join(ballerinaExtension.context!.extensionPath, 'resources/images/icons/design-view.svg')),
 			dark: Uri.file(join(ballerinaExtension.context!.extensionPath,
@@ -186,14 +188,13 @@ class DiagramPanel {
 		this.disposables.forEach(disposable => {
 			disposable.dispose();
 		});
-		diagramElement = undefined;
 	}
 
 	private update() {
 		if (diagramElement && diagramElement.isDiagram) {
 			if (!DiagramPanel.currentPanel) {
 				this.webviewPanel.webview.html = render(diagramElement!.fileUri!, diagramElement!.startLine!,
-					diagramElement!.startColumn!, diagramElement!.kind!, diagramElement!.name!);
+					diagramElement!.startColumn!);
 			} else {
 				callUpdateDiagramMethod();
 			}
@@ -201,61 +202,8 @@ class DiagramPanel {
 	}
 }
 
-function getChangedElement(st: SyntaxTree, change: Change): DiagramOptions {
-	if (!st.members) {
-		return { isDiagram: false };
-	}
-	const functions: Member[] = st.members.filter(member => {
-		return member.kind === 'FunctionDefinition';
-	});
-	const services: Member[] = st.members.filter(member => {
-		return member.kind === 'ServiceDeclaration';
-	});
-
-	if (!functions && !services) {
-		return { isDiagram: false };
-	}
-
-	for (let i = 0; i < functions.length; i++) {
-		const fn = functions[i];
-		if (isWithinRange(fn, change)) {
-			return {
-				isDiagram: true, name: fn.functionName?.value, kind: CMP_KIND.FUNCTION,
-				fileUri: change.fileUri, startLine: fn.functionName?.position.startLine,
-				startColumn: fn.functionName?.position.startColumn
-			};
-		}
-	}
-
-	for (let i = 0; i < services.length; i++) {
-		const service = services[i];
-		if (!service.members || !isWithinRange(service, change)) {
-			continue;
-		}
-
-		for (let ri = 0; ri < service.members.length; ri++) {
-			const resource = service.members[ri];
-			if (isWithinRange(resource, change)) {
-				let resourceName = resource.functionName?.value;
-				const resourcePaths = resource.relativeResourcePath;
-				if (resourcePaths && resourcePaths.length > 0) {
-					resourcePaths.forEach(resourcePath => {
-						resourceName += ` ${resourcePath.value}`;
-					});
-				}
-				return {
-					isDiagram: true, name: resourceName, kind: CMP_KIND.RESOURCE,
-					fileUri: change.fileUri, startLine: resource.functionName?.position.startLine,
-					startColumn: resource.functionName?.position.startColumn
-				};
-			}
-		}
-	}
-	return { isDiagram: false };
-}
-
 export async function refreshDiagramForEditorChange(change: Change) {
-	if (!webviewRPCHandler || !DiagramPanel.currentPanel) {
+	if (!webviewRPCHandler || !DiagramPanel.currentPanel || (currentColumn && currentColumn === ViewColumn.One)) {
 		return;
 	}
 
@@ -266,8 +214,10 @@ export async function refreshDiagramForEditorChange(change: Change) {
 			}
 		}).then(response => {
 			if (response.parseSuccess && response.syntaxTree) {
-				const st: SyntaxTree = response.syntaxTree;
-				diagramElement = getChangedElement(st, change);
+				diagramElement = {
+					isDiagram: true, fileUri: change.fileUri, startLine: change.startLine,
+					startColumn: change.startColumn
+				};
 			}
 		});
 	}
@@ -278,12 +228,6 @@ export async function refreshDiagramForEditorChange(change: Change) {
 	callUpdateDiagramMethod();
 }
 
-function isWithinRange(member: Member, change: Change) {
-	return (member.position.startLine < change.startLine || (member.position.startLine === change.startLine &&
-		member.position.startColumn <= change.startColumn)) && (member.position.endLine > change.startLine ||
-			(member.position.endLine === change.startLine && member.position.endColumn >= change.startColumn));
-}
-
 function callUpdateDiagramMethod() {
 	let ballerinaFilePath = diagramElement!.fileUri!.fsPath;
 	if (isWindows()) {
@@ -292,9 +236,7 @@ function callUpdateDiagramMethod() {
 	const args = [{
 		filePath: ballerinaFilePath,
 		startLine: diagramElement!.startLine,
-		startColumn: diagramElement!.startColumn,
-		name: diagramElement!.name,
-		kind: diagramElement!.kind
+		startColumn: diagramElement!.startColumn
 	}];
 	webviewRPCHandler.invokeRemoteMethod('updateDiagram', args, () => { });
 }

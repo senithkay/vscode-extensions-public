@@ -303,11 +303,17 @@
             "activitybar": [
                 {
                     "id": "diagram-explorer",
-                    "title": "Diagram Explorer",
+                    "title": "Ballerina",
                     "icon": "resources/images/icons/tab.svg"
                 }
             ]
         },
+        "viewsWelcome": [
+            {
+                "view": "sessionExplorer",
+                "contents": "No Choreo sessions found.\n[Sign In](command:ballerina.choreo.signin)\nRefer to our docs to learn more about [Choreo](https://wso2.com/choreo/)."
+            }
+        ],
         "menus": {
             "view/title": [
                 {
@@ -357,7 +363,6 @@
         "vscode-test": "^1.5.1"
     },
     "devDependencies": {
-        "@opentelemetry/tracing": "^0.24.0",
         "@types/chai": "^4.2.18",
         "@types/mocha": "^8.2.2",
         "@types/node": "^15.12.2",
