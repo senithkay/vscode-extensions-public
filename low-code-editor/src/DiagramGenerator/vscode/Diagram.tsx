@@ -9,9 +9,7 @@ import { DiagramGenErrorBoundary } from "../ErrorBoundrary";
 
 export interface EditorState {
     filePath: string;
-    kind: string;
     langClient: DiagramEditorLangClientInterface;
-    name: string;
     startColumn: number;
     startLine: string;
     lastUpdatedAt: string;
