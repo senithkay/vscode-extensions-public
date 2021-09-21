@@ -54,11 +54,6 @@ export function Constant(props: ConstantProps) {
         <div>
             <div
                 className={"moduleVariableContainer"}
-                style={{
-                    marginLeft: MODULE_VAR_MARGIN_LEFT,
-                    width: MIN_MODULE_VAR_WIDTH,
-                    height: MODULE_VAR_HEIGHT
-                }}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
                 data-test-id="const"
