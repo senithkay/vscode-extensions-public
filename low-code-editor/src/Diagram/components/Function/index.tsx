@@ -36,8 +36,6 @@ export const FUNCTION_PLUS_MARGIN_LEFT = 10;
 
 export interface FunctionProps {
     model: FunctionDefinition;
-    isWaitingOnWorkspace: boolean;
-    isCodeEditorActive: boolean;
 }
 
 export function Function(props: FunctionProps) {

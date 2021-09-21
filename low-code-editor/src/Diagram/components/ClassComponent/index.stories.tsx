@@ -18,43 +18,28 @@ import { Story } from '@storybook/react';
 import { LowCodeEditorProps, STSymbolInfo } from '../../..';
 import { Provider as DiagramProvider } from '../../../Contexts/Diagram';
 
-import { Service, ServiceProps } from '.';
-import listenerDecl from './data/listener-st-raw.json';
-import serviceDecl from "./data/service-raw.json";
+import { ClassComponent, ClassComponentProps } from '.';
+import classDecl from "./story-data/classdef-st-raw.json";
 
 
 // tslint:disable-next-line: no-submodule-imports
 
 export default {
-    title: 'Low Code Editor/Diagram/Service Definition',
-    component: Service,
+    title: 'Low Code Editor/Diagram/Class Definition',
+    component: ClassComponent,
 };
-
-const symbolInfo: STSymbolInfo = {
-    endpoints: new Map<string, STNode>(),
-    actions: new Map<string, STNode>(),
-    variables: new Map<string, STNode[]>(),
-    configurables: new Map<string, STNode>(),
-    callStatement: new Map<string, STNode[]>(),
-    variableNameReferences: new Map<string, STNode[]>(),
-    assignmentStatement: new Map<string, STNode[]>(),
-    recordTypeDescriptions: new Map<string, STNode>(),
-    listeners: new Map<string, STNode>(),
-};
-
-symbolInfo.listeners.set("defaultListener", listenerDecl)
-
-
 
 const Template: Story<LowCodeEditorProps> = (args: LowCodeEditorProps) =>
 (
     <DiagramProvider {...args} >
-        <Service model={(args as any).model} />
+        <ClassComponent model={(args as any).model} />
     </DiagramProvider>
 );
 
-export const ServiceDeclaration = Template.bind({});
-ServiceDeclaration.args = {
-    model: serviceDecl,
-    stSymbolInfo: symbolInfo,
+export const ClassDeclaration = Template.bind({});
+ClassDeclaration.args = {
+    model: classDecl,
+    isWaitingOnWorkspace: false,
+    isReadOnly: false,
+    isCodeEditorActive: false
 };
