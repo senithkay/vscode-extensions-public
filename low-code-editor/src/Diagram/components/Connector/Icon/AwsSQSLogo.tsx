@@ -19,8 +19,8 @@ export function AwsSQSLogo(props: { cx?: number, cy?: number, scale?: number }) 
     const { cx, cy, scale } = props;
     return (
         <svg transform={scale ? `scale(${scale})` : ''} x={!cx ? 0 : cx - (AWSSQS_LOGO_WIDTH / 2)} y={!cy ? 0 : cy - (AWSSQS_LOGO_HEIGHT / 2)} width={AWSSQS_LOGO_WIDTH} height={AWSSQS_LOGO_HEIGHT}>
-            <g id="Aws-sqs" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                <g id="new-adding-new" transform="translate(-1048.000000, -674.000000)" fill-rule="nonzero">
+            <g id="Aws-sqs" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
+                <g id="new-adding-new" transform="translate(-1048.000000, -674.000000)" fillRule="nonzero">
                     <g id="Dropdown/Select/Default-Copy-26" transform="translate(1038.000000, 664.000000)">
                         <g id="Icon/Connectro-logo" transform="translate(10.000000, 10.000000)">
                             <g id="AWSSQS" transform="translate(2.000000, 0.000000)">

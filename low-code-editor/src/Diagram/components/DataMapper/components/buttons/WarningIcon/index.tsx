@@ -36,11 +36,11 @@ export function WarningIcon(props: WarningIcon) {
 					<feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.15 0" type="matrix" in="shadowBlurOuter1"/>
 				</filter>
 			</defs>
-			<g id="Develop" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+			<g id="Develop" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
 				<g id="develop-UI-kit" transform="translate(-721.000000, -788.000000)">
 					<g id="Input/48/Default-Copy" transform="translate(721.000000, 697.000000)">
 						<g id="Icon/Alerts/Warning" transform="translate(1.000000, 91.000000)">
-							<g id="Shape" fill-rule="nonzero">
+							<g id="Shape" fillRule="nonzero">
 								<use fill="black" fill-opacity="1" filter="url(#filter-3)" xlinkHref="#path-2"/>
 								<use fill="#FF9D52" xlinkHref="#path-2"/>
 							</g>

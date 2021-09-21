@@ -16,7 +16,7 @@ export default function TopLevelPlusIcon(props: any) {
     return (
         <svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
             <title>C17F1246-4826-4D15-A0BF-46E5CC538706</title>
-            <g id="Top_plus" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+            <g id="Top_plus" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
                 <g id="top_plus_svg" transform="translate(-98.000000, -80.000000)">
                     <g id="Group_top_plus_svg" transform="translate(98.000000, 80.000000)">
                         <rect id="top_plus_rec" stroke="#E6E7EC" x="0.5" y="0.5" width="15" height="15" rx="4"/>

@@ -19,8 +19,8 @@ export function ChoreoMailLogo(props: { cx?: number, cy?: number, scale?: number
     const { cx, cy, scale } = props;
     return (
         <svg transform={scale ? `scale(${scale})` : ''} x={!cx ? 0 : cx - (TWILIO_LOGO_WIDTH / 2)} y={!cy ? 0 : cy - (TWILIO_LOGO_HEIGHT / 2)} width={TWILIO_LOGO_WIDTH} height={TWILIO_LOGO_HEIGHT} >
-            <g id="Adding" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                <g id="new-adding-new" transform="translate(-593.000000, -650.000000)" stroke-width="2">
+            <g id="Adding" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
+                <g id="new-adding-new" transform="translate(-593.000000, -650.000000)" strokeWidth="2">
                     <g id="Dropdown/Select/Default-Copy-29" transform="translate(583.000000, 640.000000)">
                         <g id="Logo/Circle" transform="translate(10.000000, 10.000000)">
                             <path d="M19,6 L19,15 C19,16.1045695 18.1045695,17 17,17 L3,17 C1.8954305,17 1,16.1045695 1,15 L1,6" id="Path" stroke="#CCD1F2" stroke-linecap="round"/>

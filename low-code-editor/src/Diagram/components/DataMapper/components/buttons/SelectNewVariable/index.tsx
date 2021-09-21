@@ -26,10 +26,10 @@ export function AddVariableButton(props: AddVariableButtonProps) {
     return (
         <svg data-testid={'datamapper-json-input-configure-btn'} {...xyProps} width="110px" height="18px" onClick={onClick} className="add-button">
             <rect width="117px" height="22px" fill="#fff" rx="6" y="-2" x="-2"  />
-            <g id="add-variable-icon" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                <g id="datamaping-start" transform="translate(-356.000000, -131.000000)" stroke="#5567D5" stroke-width="1.5">
+            <g id="add-variable-icon" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
+                <g id="datamaping-start" transform="translate(-356.000000, -131.000000)" stroke="#5567D5" strokeWidth="1.5">
                     <g id="Icon/Feedback-Copy-6" transform="translate(356.000000, 131.000000)">
-                        <circle id="Oval" fill-rule="nonzero" cx="9" cy="9" r="6.75" />
+                        <circle id="Oval" fillRule="nonzero" cx="9" cy="9" r="6.75" />
                         <path d="M9,6 L9,11.9442139 M11.9721069,8.97210693 L6.02789307,8.97210693" id="Combined-Shape" stroke-linecap="round" />
                     </g>
                 </g>

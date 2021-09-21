@@ -32,7 +32,7 @@ export function BigPlus(props: BigPlusProps) {
                 cy={plusBtnViewState.bBox.cy}
                 r="40"
                 stroke="black"
-                stroke-width="3"
+                strokeWidth="3"
                 fill="red"
             />
         </>

@@ -71,8 +71,8 @@ export function DataPoint(props: DataPointProps) {
                         r="6"
                         // fill="none"
                         stroke="#a6b3ff"
-                        stroke-miterlimit="10"
-                        stroke-width="1"
+                        strokeMiterlimit="10"
+                        strokeWidth="1"
                         onClick={onDataPointClick}
                     />
                     <circle
@@ -108,8 +108,8 @@ export function DataPoint(props: DataPointProps) {
                         r="6"
                         fill="none"
                         stroke="#a6b3ff"
-                        stroke-miterlimit="10"
-                        stroke-width="1"
+                        strokeMiterlimit="10"
+                        strokeWidth="1"
                         onClick={onDataPointClick}
                     />
                     <circle
@@ -137,8 +137,8 @@ export function DataPoint(props: DataPointProps) {
                         r="6"
                         // fill="none"
                         stroke="#a6b3ff"
-                        stroke-miterlimit="10"
-                        stroke-width="1"
+                        strokeMiterlimit="10"
+                        strokeWidth="1"
                         onClick={onDataPointClick}
                     />
                     <circle
@@ -169,8 +169,8 @@ export function DataPoint(props: DataPointProps) {
                         r="6"
                         fill="none"
                         stroke="#a6b3ff"
-                        stroke-miterlimit="10"
-                        stroke-width="1"
+                        strokeMiterlimit="10"
+                        strokeWidth="1"
                     />
                     <circle
                         id="Oval-2"

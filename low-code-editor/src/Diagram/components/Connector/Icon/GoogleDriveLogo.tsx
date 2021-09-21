@@ -19,8 +19,8 @@ export function GoogleDriveLogo(props: { cx?: number, cy?: number, scale?: numbe
     const { cx, cy, scale } = props;
     return (
         <svg transform={scale ? `scale(${scale})` : ''} x={!cx ? 0 : cx - (GOOGLE_DRIVE_LOGO_WIDTH / 2)} y={!cy ? 0 : cy - (GOOGLE_DRIVE_LOGO_HEIGHT / 2)} width={GOOGLE_DRIVE_LOGO_WIDTH} height={GOOGLE_DRIVE_LOGO_HEIGHT} >
-            <g id="GoogleDrive" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                <g id="GoogleDrive-new" transform="translate(-1048.000000, -514.000000)" fill-rule="nonzero">
+            <g id="GoogleDrive" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
+                <g id="GoogleDrive-new" transform="translate(-1048.000000, -514.000000)" fillRule="nonzero">
                     <g id="Dropdown/Select/Default-Copy-20" transform="translate(1038.000000, 504.000000)">
                         <g id="GoogleDrive-circle" transform="translate(10.000000, 10.000000)">
                             <path d="M1.51202749,16.4269231 L2.39404353,17.9615385 C2.57731959,18.2846154 2.84077892,18.5384615 3.15005727,18.7230769 L6.30011455,13.2307692 L0,13.2307692 C0,13.5884615 0.0916380298,13.9461538 0.274914089,14.2692308 L1.51202749,16.4269231 Z" id="Path" fill="#0066DA"/>

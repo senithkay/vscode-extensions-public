@@ -19,8 +19,8 @@ export function AzureBlobServiceLogo(props: { cx?: number, cy?: number, scale?: 
     const { cx, cy, scale } = props;
     return (
         <svg transform={scale ? `scale(${scale})` : ''} x={!cx ? 0 : cx - (AZURE_BLOB_SERVICE_LOGO_WIDTH / 2)} y={!cy ? 0 : cy - (AZURE_BLOB_SERVICE_LOGO_HEIGHT / 2)} width={AZURE_BLOB_SERVICE_LOGO_WIDTH} height={AZURE_BLOB_SERVICE_LOGO_HEIGHT} >
-            <g id="Azure-blob-service" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                <g id="new-adding-new" transform="translate(-1048.000000, -634.000000)" fill-rule="nonzero">
+            <g id="Azure-blob-service" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
+                <g id="new-adding-new" transform="translate(-1048.000000, -634.000000)" fillRule="nonzero">
                     <g id="Dropdown/Select/Default-Copy-24" transform="translate(1038.000000, 624.000000)">
                         <g id="Icon/Connectro-logo" transform="translate(10.000000, 10.000000)">
                             <g id="icons8-azure-storage-blob" transform="translate(0.000000, 1.000000)">
