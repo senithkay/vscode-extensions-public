@@ -412,6 +412,7 @@ async function constructDebugConfig(testDebug: boolean, ballerinaCmd: string, ba
   let programArgs = [];
   let commandOptions = [];
   let env = {};
+  let capabilities = {};
   const debugConfigs: vscode.DebugConfiguration[] = vscode.workspace.getConfiguration(DEBUG_REQUEST.LAUNCH).configurations;
   if (debugConfigs.length > 0) {
     let debugConfig: vscode.DebugConfiguration | undefined;
@@ -449,7 +450,8 @@ async function constructDebugConfig(testDebug: boolean, ballerinaCmd: string, ba
     tests: testDebug ? args : [],
     programArgs,
     commandOptions,
-    env
+    env,
+    capabilities: { supportsReadOnlyEditors: true }
   };
   return debugConfig;
 }
