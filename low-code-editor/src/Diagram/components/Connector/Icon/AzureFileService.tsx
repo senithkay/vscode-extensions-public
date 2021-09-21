@@ -25,8 +25,8 @@ export function AzureFileServiceLogo(props: { cx?: number, cy?: number, scale?: 
                     <stop stop-color="#32D4F5" offset="77.5%"/>
                 </linearGradient>
             </defs>
-            <g id="Azure-file-service" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                <g id="new-adding-new" transform="translate(-1204.000000, -594.000000)" fill-rule="nonzero">
+            <g id="Azure-file-service" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
+                <g id="new-adding-new" transform="translate(-1204.000000, -594.000000)" fillRule="nonzero">
                     <g id="Dropdown/Select/Default-Copy-23" transform="translate(1194.000000, 584.000000)">
                         <g id="Icon/Connectro-logo" transform="translate(10.000000, 10.000000)">
                             <g id="10838-icon-service-Storage-Azure-Files" transform="translate(0.000000, 2.000000)">

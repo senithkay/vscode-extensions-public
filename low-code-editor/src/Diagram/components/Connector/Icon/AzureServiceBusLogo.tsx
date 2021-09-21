@@ -20,7 +20,7 @@ export function AzureServiceBusLogo(props: { cx?: number, cy?: number, scale?: n
     return (
         <svg transform={scale ? `scale(${scale})` : ''} x={!cx ? 0 : cx - (LOGO_WIDTH / 2)} y={!cy ? 0 : cy - (LOGO_HEIGHT / 2)} width={LOGO_WIDTH} height={LOGO_HEIGHT} >
             <title>ECFAEF0E-C86E-4CAE-9B66-F864789D106A</title>
-            <g id="Adding" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+            <g id="Adding" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
                 <g id="new-adding-new" transform="translate(-1204.000000, -674.000000)" fill="#0072C6">
                     <g id="Dropdown/Select/Default-Copy-26" transform="translate(1038.000000, 664.000000)">
                         <g id="Logo/Circle" transform="translate(166.000000, 10.000000)">

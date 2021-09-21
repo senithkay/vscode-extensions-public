@@ -19,8 +19,8 @@ export function MongoDBLogo(props: { cx?: number, cy?: number, scale?: number })
     const { cx, cy, scale } = props;
     return (
         <svg transform={scale ? `scale(${scale})` : ''} x={!cx ? 0 : cx - (MONGODB_LOGO_WIDTH / 2)} y={!cy ? 0 : cy - (MONGODB_LOGO_HEIGHT / 2)} width={MONGODB_LOGO_WIDTH} height={MONGODB_LOGO_HEIGHT} >
-            <g id="MongoBD" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                <g id="new-adding-new" transform="translate(-1048.000000, -594.000000)" fill-rule="nonzero">
+            <g id="MongoBD" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
+                <g id="new-adding-new" transform="translate(-1048.000000, -594.000000)" fillRule="nonzero">
                     <g id="Dropdown/Select/Default-Copy-22" transform="translate(1038.000000, 584.000000)">
                         <g id="Logo/Circle" transform="translate(10.000000, 10.000000)">
                             <path d="M10.4372976,0.0546227784 L10.9719965,1.0570475 C11.0922098,1.24203361 11.2224409,1.40577132 11.3758381,1.55825986 C11.8235076,2.00510131 12.248637,2.47319116 12.6305648,2.97440352 C13.5365476,4.16181435 14.1476321,5.48046533 14.5840315,6.90660824 C14.845746,7.77779281 14.9878732,8.6714757 14.9985171,9.57515784 C15.0423449,12.27683 14.1144482,14.5966558 12.2436282,16.524636 C11.9380859,16.8296131 11.6112559,17.1120919 11.2606337,17.363323 C11.0753048,17.363323 10.9876492,17.2214587 10.9112637,17.0908435 C10.7691365,16.8514864 10.682107,16.5783819 10.6382792,16.3065274 C10.5725376,15.9796769 10.5293359,15.6528264 10.5506237,15.3153518 L10.5506237,15.1628632 C10.535597,15.1303657 10.372182,0.131492006 10.4372976,0.0546227784 L10.4372976,0.0546227784 Z" id="Path" fill="#599636"/>
