@@ -43,6 +43,7 @@ import {
 } from "../telemetry";
 import { BALLERINA_COMMANDS, runCommand } from "../project";
 import { SessionDataProvider } from "../tree-view/session-tree-data-provider";
+import { EXTENDED_APIS } from ".";
 const any = require('promise.any');
 
 const SWAN_LAKE_REGEX = /(s|S)wan( |-)(l|L)ake/g;
@@ -90,6 +91,7 @@ export class BallerinaExtension {
     private documentContext: DocumentContext;
     private choreoSession: ChoreoSession;
     private choreoSessionTreeProvider: SessionDataProvider | undefined;
+    private ballerinaExtendedServices: Set<String>;
 
     constructor() {
         this.ballerinaHome = '';
@@ -114,6 +116,7 @@ export class BallerinaExtension {
         this.telemetryReporter = createTelemetryReporter(this);
         this.documentContext = new DocumentContext();
         this.choreoSession = { loginStatus: false };
+        this.ballerinaExtendedServices = new Set();
     }
 
     setContext(context: ExtensionContext) {
@@ -187,6 +190,9 @@ export class BallerinaExtension {
                         log(message);
                         this.showPluginActivationError();
                     } else if (stateChangeEvent.newState === LS_STATE.Running) {
+                        if (this.langClient) {
+                            this.registerExtendedAPICapabilities();
+                        }
                         sendTelemetryEvent(this, TM_EVENT_EXTENSION_INIT, CMP_EXTENSION_CORE);
                     }
                 });
@@ -444,6 +450,23 @@ export class BallerinaExtension {
      */
     getConfiguredBallerinaHome(): string {
         return <string>workspace.getConfiguration().get(BALLERINA_HOME);
+    }
+
+    registerExtendedAPICapabilities() {
+        this.langClient?.initBalServices({
+            ballerinaClientCapabilities: [
+                { name: EXTENDED_APIS.ST_NODE },
+                { name: EXTENDED_APIS.EXECUTOR_POSITIONS }
+            ]
+        }).then(response => {
+            response.ballerinaServerCapabilities.forEach(value => {
+                this.ballerinaExtendedServices.add(value.name);
+            })
+        });
+    }
+
+    isExtendedServiceSupported(serviceName: string): boolean {
+        return this.ballerinaExtendedServices.has(serviceName);
     }
 
     autoDetectBallerinaHome(): { home: string, isOldBallerinaDist: boolean, isBallerinaNotFound: boolean } {

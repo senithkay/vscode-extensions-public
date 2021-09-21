@@ -61,7 +61,7 @@ export function activatePasteJsonAsRecord() {
                     window.showErrorMessage("Ballerina language client not found.");
                     return;
                 }
-                ballerinaExtInstance.langClient!.getRecordsForJson(clipboardText)
+                ballerinaExtInstance.langClient!.getRecordsFromJson({ jsonString: clipboardText })
                     .then(response => {
                         if (!response || response.codeBlock === "") {
                             window.showErrorMessage(MESSAGES.INVALID_JSON);

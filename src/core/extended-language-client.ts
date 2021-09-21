@@ -34,6 +34,12 @@ import {
 
 export const BALLERINA_LANG_ID = "ballerina";
 
+export enum EXTENDED_APIS {
+    ST_NODE = 'ballerinaDocument/syntaxTreeNode',
+    EXECUTOR_POSITIONS = 'ballerinaDocument/executorPositions',
+    PACKAGE_COMPONENTS = 'ballerinaPackage/components',
+    PACKAGE_METADATA = 'ballerinaPackage/metadata'
+}
 export interface ExtendedClientCapabilities extends ClientCapabilities {
     experimental: { introspection: boolean, showTextDocument: boolean };
 }
@@ -93,6 +99,22 @@ export interface JsonToRecordRequestParams {
 
 export interface JsonToRecordResponse {
     codeBlock: string;
+}
+
+export interface BallerinaInitializeParams {
+    ballerinaClientCapabilities: BallerinaClientCapability[];
+}
+
+interface BallerinaClientCapability {
+    name: string;
+}
+
+export interface BallerinaInitializeResult {
+    ballerinaServerCapabilities: BallerinaServerCapability[];
+}
+
+interface BallerinaServerCapability {
+    name: string;
 }
 
 export interface GetBallerinaPackagesParams {
@@ -262,29 +284,26 @@ export class ExtendedLangClient extends LanguageClient {
     }
 
     getBallerinaProject(params: GetBallerinaProjectParams): Thenable<BallerinaProject> {
-        return this.sendRequest("ballerinaPackage/metadata", params);
+        return this.sendRequest(EXTENDED_APIS.PACKAGE_METADATA, params);
     }
 
     getBallerinaProjectComponents(params: GetBallerinaPackagesParams): Thenable<BallerinaProjectComponents> {
-        return this.sendRequest("ballerinaPackage/components", params);
+        return this.sendRequest(EXTENDED_APIS.PACKAGE_COMPONENTS, params);
     }
 
     getSyntaxTreeNode(params: SyntaxTreeNodeRequestParams): Thenable<SyntaxTreeNodeResponse> {
-        return this.sendRequest("ballerinaDocument/syntaxTreeNode", params);
+        return this.sendRequest(EXTENDED_APIS.ST_NODE, params);
     }
 
     getExecutorPositions(params: GetBallerinaProjectParams): Thenable<ExecutorPositionsResponse> {
-        return this.sendRequest("ballerinaDocument/executorPositions", params);
-    }
-
-    getRecordsForJson(json: string): Thenable<JsonToRecordResponse> {
-        const params: JsonToRecordRequestParams = {
-            jsonString: json
-        };
-        return this.sendRequest("jsonToRecord/convert", params);
+        return this.sendRequest(EXTENDED_APIS.EXECUTOR_POSITIONS, params);
     }
 
     getRecordsFromJson(params: JsonToRecordRequestParams): Thenable<JsonToRecordResponse> {
         return this.sendRequest("jsonToRecord/convert", params);
+    }
+
+    initBalServices(params: BallerinaInitializeParams): Thenable<BallerinaInitializeResult> {
+        return this.sendRequest("initBalServices", params);
     }
 }
