@@ -27,6 +27,8 @@ import { BallerinaExtension, ExecutorPosition, LANGUAGE, } from "../core";
 import { BALLERINA_COMMANDS } from '../project';
 import fileUriToPath from 'file-uri-to-path';
 import { DEBUG_REQUEST, DEBUG_CONFIG } from '../debugger';
+import child_process from 'child_process';
+import { debug } from '../utils';
 
 enum EXEC_POSITION_TYPE {
   SOURCE = 'source',
@@ -140,11 +142,7 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
   };
 
   async function updateNodeForDocument(e: vscode.TextDocument) {
-    if (e.uri.scheme !== 'file') {
-      return;
-    }
-
-    if (!e.uri.path.endsWith('.bal')) {
+    if (e.uri.scheme !== 'file' || !e.uri.path.endsWith('.bal')) {
       return;
     }
 
@@ -169,16 +167,15 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
  */
 async function runCommand(command, path: string | undefined) {
   return new Promise<string>(function (resolve, reject) {
-    const cp = require('child_process');
     if (path == undefined) {
       return;
     } else if (path.endsWith(".bal")) {
       const lastIndex = path.lastIndexOf("/");
       path = path.slice(0, lastIndex);
     }
-    cp.exec(`${command}`, { cwd: path }, (err, stdout, stderr) => {
+    child_process.exec(`${command}`, { cwd: path }, (err, stdout, stderr) => {
       if (err) {
-        console.log('error: ' + err);
+        debug('error: ' + err);
         reject(err);
       } else {
         resolve("OK");
