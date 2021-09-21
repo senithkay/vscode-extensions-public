@@ -251,4 +251,8 @@ export class ExtendedLangClient extends LanguageClient {
         };
         return this.sendRequest("jsonToRecord/convert", params);
     }
+
+    getRecordsFromJson(params: JsonToRecordRequestParams): Thenable<JsonToRecordResponse> {
+        return this.sendRequest("jsonToRecord/convert", params);
+    }
 }
