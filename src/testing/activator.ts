@@ -96,7 +96,7 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
             const testResults = moduleStatus[0]["tests"];
             const moduleCoverage = testsJson["moduleCoverage"];
             const sourceFiles = moduleCoverage[0]["sourceFiles"];
-            const timeElapsed = EndTime - startTime;
+            const timeElapsed = (EndTime - startTime) / queue.length;
 
             for (const { test, } of queue) {
               for (const testResult of testResults) {
