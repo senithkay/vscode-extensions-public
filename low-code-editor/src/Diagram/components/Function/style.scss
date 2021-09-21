@@ -13,49 +13,56 @@
 
 .function-box {
     box-sizing: border-box;
-    border: 1px dashed #C1E4FC;
+    border: 1px dashed #c1e4fc;
     border-radius: 6px;
-    background-color: #F4FAFF;
-    // margin: 10px;
-    // height: 100px;
+    background-color: #f4faff;
 
     &.expanded {
-        border: 1px solid #C1E4FC;
+        border: 1px solid #c1e4fc;
     }
 
     &.get {
-        background-color: #F4FAFF;
-        border: 1px dashed #C1E4FC;
+        background-color: #f4faff;
+        border: 1px dashed #c1e4fc;
+
         &.expanded {
-            border: 1px solid #C1E4FC;
+            border: 1px solid #c1e4fc;
         }
     }
+
     &.post {
-        background-color: #F5FFF7;
-        border: 1px dashed #CDF1DF;
+        background-color: #f5fff7;
+        border: 1px dashed #cdf1df;
+
         &.expanded {
-            border: 1px solid #CDF1DF;
+            border: 1px solid #cdf1df;
         }
     }
+
     &.put {
-        background-color: #FFFBF6;
-        border: 1px dashed #FEE6C8;
+        background-color: #fffbf6;
+        border: 1px dashed #fee6c8;
+
         &.expanded {
-            border: 1px solid #FEE6C8;
+            border: 1px solid #fee6c8;
         }
     }
+
     &.delete {
         background-color: #fceded;
-        border: 1px dashed #F8C2C2;
+        border: 1px dashed #f8c2c2;
+
         &.expanded {
-            border: 1px solid #F8C2C2;
+            border: 1px solid #f8c2c2;
         }
     }
+
     &.patch {
-        background-color: #F4FAFF;
-        border: 1px dashed #C1E4FC;
+        background-color: #f4faff;
+        border: 1px dashed #c1e4fc;
+
         &.expanded {
-            border: 1px solid #C1E4FC;
+            border: 1px solid #c1e4fc;
         }
     }
 
@@ -63,24 +70,28 @@
         min-height: 48px;
         display: flex;
         flex-direction: row;
-        border-bottom: 1px #C1E4FC solid;
+        border-bottom: 1px #c1e4fc solid;
 
         &.get {
-            border-bottom: 1px solid #C1E4FC;
+            border-bottom: 1px solid #c1e4fc;
         }
+
         &.post {
-            border-bottom: 1px solid #CDF1DF;
+            border-bottom: 1px solid #cdf1df;
         }
+
         &.put {
-            border-bottom: 1px solid #FEE6C8;
+            border-bottom: 1px solid #fee6c8;
         }
+
         &.delete {
-            border-bottom: 1px solid #F8C2C2;
+            border-bottom: 1px solid #f8c2c2;
         }
+
         &.patch {
-            border-bottom: 1px solid #C1E4FC;
+            border-bottom: 1px solid #c1e4fc;
         }
-        
+
         .path-text {
             margin-top: 10px;
             margin-left: 8px;
@@ -94,7 +105,7 @@
 
         .function-icon {
             margin: 12px 15px 8px 8px;
-        } 
+        }
 
         .resource-badge {
             height: 32px;
@@ -103,7 +114,7 @@
             border-radius: 4px;
 
             .text {
-                color: #FFFFFF;
+                color: #fff;
                 font-size: 12px;
                 letter-spacing: 0;
                 line-height: 14px;
@@ -112,19 +123,23 @@
             }
 
             &.get {
-                background-color: #0095FF;
+                background-color: #0095ff;
             }
+
             &.post {
                 background-color: #3fc47d;
             }
+
             &.put {
-                background-color: #FF9D52;
+                background-color: #ff9d52;
             }
+
             &.delete {
                 background-color: #f5242e;
             }
+
             &.patch {
-                background-color: #5567D5;
+                background-color: #5567d5;
             }
         }
     }
@@ -140,16 +155,15 @@
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
-    border: 1px solid #E6E7EC;
+    border: 1px solid #e6e7ec;
     border-radius: 6px;
-    background-color: #FFFFFF;
-    // margin-left: 25px;
+    background-color: #fff;
 
     .function-signature {
         display: flex;
         flex-direction: row;
         padding: 15px;
-        border-bottom: 1px #E6E7EC solid;
+        border-bottom: 1px #e6e7ec solid;
 
         .function-icon {
             margin-top: 2px;
@@ -157,9 +171,6 @@
         }
 
         .path-text {
-            // margin-top: 10px;
-            // margin-left: 8px;
-            
             span {
                 &.param:not(:first-child) {
                     margin-left: 24px;
@@ -193,15 +204,16 @@
     height: 32px;
     width: 32px;
     border-radius: 20px;
-    box-shadow: 0 1px 1px 0 #CBCFDA;
-    background:  #fff;
+    box-shadow: 0 1px 1px 0 #cbcfda;
+    background: #fff;
     margin-top: 5px;
     display: flex;
     justify-content: center;
     align-items: center;
+
     &:hover {
         &:focus {
-            box-shadow: 0 1px 2px 0 #CBCFDA;
+            box-shadow: 0 1px 2px 0 #cbcfda;
             background: "#f1f1f1";
         }
     }
