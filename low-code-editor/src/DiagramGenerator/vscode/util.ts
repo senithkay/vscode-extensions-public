@@ -18,20 +18,12 @@
 import { createElement } from "react";
 import { render } from "react-dom";
 
-import { DiagramEditorLangClientInterface } from "../../Definitions/diagram-editor-lang-client-interface";
-
-import { Diagram } from "./Diagram";
+import { Diagram, EditorProps } from "./Diagram";
 
 export function renderDiagramEditor(options: {
-    target: HTMLElement, editorProps: {
-        langClient: DiagramEditorLangClientInterface,
-        filePath: string,
-        startLine: number,
-        startColumn: number,
-        kind: string,
-        name: string
-    }
+    target: HTMLElement,
+    editorProps: EditorProps
 }) {
-    const DiagramElement = createElement(Diagram, options);
+    const DiagramElement = createElement(Diagram, options.editorProps);
     return render(DiagramElement, options.target);
 }

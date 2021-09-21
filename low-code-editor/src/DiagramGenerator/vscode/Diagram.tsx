@@ -1,84 +1,56 @@
 import * as React from "react";
 
+import { makeStyles, Theme, withStyles } from "@material-ui/core";
+
 import { DiagramGenerator } from "..";
+import { DotBackground } from "../../assets";
 import { DiagramEditorLangClientInterface } from "../../Definitions/diagram-editor-lang-client-interface";
 import { DiagramGenErrorBoundary } from "../ErrorBoundrary";
 
-export interface DiagramProps {
-    target: HTMLElement;
-    editorProps: DiagramStates;
-}
-
-export interface DiagramStates {
+export interface EditorState {
     filePath: string;
-    kind: string;
     langClient: DiagramEditorLangClientInterface;
-    name: string;
     startColumn: number;
-    startLine: number;
-    getFileContent?: (url: string) => Promise<string>;
-    updateFileContent?: (url: string, content: string) => Promise<boolean>;
+    startLine: string;
+    lastUpdatedAt: string;
 }
 
-/**
- * React component for rendering a the low code editor.
- */
-export class Diagram extends React.Component<DiagramProps, DiagramStates> {
+export interface EditorAPI {
+    getFileContent: (url: string) => Promise<string>;
+    updateFileContent: (url: string, content: string) => Promise<boolean>;
+}
 
-    private languageClient: DiagramEditorLangClientInterface;
-    private updated: boolean;
+export type EditorProps = EditorState & EditorAPI;
 
-    constructor(props: DiagramProps) {
-        super(props);
-        this.languageClient = props.editorProps.langClient;
-        this.updated = false;
-        this.state = {
-            filePath: props.editorProps.filePath,
-            kind: props.editorProps.kind,
-            langClient: props.editorProps.langClient,
-            name: props.editorProps.name,
-            startColumn: props.editorProps.startColumn,
-            startLine: props.editorProps.startLine
-        };
-    }
+export const useStyles = makeStyles((theme: Theme) => ({
+    lowCodeContainer: {
+        backgroundImage: `url("${DotBackground}")`,
+        backgroundRepeat: 'repeat'
+    },
+}));
 
-    public render() {
-        return (
-            <div className="low-code-container">
-                <DiagramGenErrorBoundary>
-                    <DiagramGenerator
-                        diagramLangClient={this.languageClient}
-                        filePath={this.state.filePath}
-                        startLine={this.state.startLine.toString()}
-                        updated={this.updated}
-                        startCharacter={this.state.startColumn.toString()}
-                        getFileContent={this.props.editorProps.getFileContent}
-                        updateFileContent={this.props.editorProps.updateFileContent}
-                        panX="-30"
-                        panY="0"
-                        scale="0.9"
-                    />
-                </DiagramGenErrorBoundary>
-            </div>
-        );
-    }
+export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
+    const styles = useStyles();
 
-    public update(properties: {
-        filePath: string,
-        startLine: number,
-        startColumn: number,
-        kind: string,
-        name: string,
-        langClient: DiagramEditorLangClientInterface
-    }) {
-        this.updated = !this.updated;
-        this.setState({
-            filePath: properties.filePath,
-            kind: properties.kind,
-            langClient: properties.langClient,
-            name: properties.name,
-            startColumn: properties.startColumn,
-            startLine: properties.startLine
-        });
-    }
+    const { getFileContent, updateFileContent, ...restProps } = props;
+    const [state, setState] = React.useState<EditorState>(restProps);
+
+    React.useEffect(() => {
+        setState(restProps);
+    }, [restProps.lastUpdatedAt]);
+
+    return (
+        <div className={styles.lowCodeContainer}>
+            <DiagramGenErrorBoundary>
+                <DiagramGenerator
+                    {...state}
+                    getFileContent={getFileContent}
+                    updateFileContent={updateFileContent}
+                    panX="-30"
+                    panY="0"
+                    scale="0.9"
+                />
+            </DiagramGenErrorBoundary>
+        </div>
+    );
 }

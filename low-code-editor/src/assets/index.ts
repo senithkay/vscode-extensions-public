@@ -16,3 +16,4 @@ export { default as DataMapper } from "./images/dataMapper.svg";
 export { default as ErrorSvg } from "./images/error.svg";
 export { default as ExpEditorCollapseSvg } from "./images/exp-editor-collapse.svg";
 export { default as ExpEditorExpandSvg } from "./images/exp-editor-expand.svg";
+export { default as DotBackground } from "./images/dot-background.svg";
