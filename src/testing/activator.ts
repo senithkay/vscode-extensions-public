@@ -28,6 +28,7 @@ import { BALLERINA_COMMANDS } from '../project';
 import fileUriToPath from 'file-uri-to-path';
 import { DEBUG_REQUEST, DEBUG_CONFIG } from '../debugger';
 import child_process from 'child_process';
+import * as path from 'path';
 import { debug } from '../utils';
 
 enum EXEC_POSITION_TYPE {
@@ -44,7 +45,7 @@ enum TEST_STATUS {
 }
 
 const fs = require('fs');
-const TEST_RESULTS_PATH = "/target/report/test_results.json";
+const TEST_RESULTS_PATH = path.join("target", "report", "test_results.json").toString();
 
 export async function activate(ballerinaExtInstance: BallerinaExtension) {
   const ctrl = vscode.tests.createTestController('ballerina-tests', 'Ballerina Tests');
@@ -92,7 +93,7 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
           // exception.
         } finally {
           EndTime = Date.now();
-          testsJson = await readTestJson(`${path}${TEST_RESULTS_PATH}`);
+          testsJson = await readTestJson(`${path}/${TEST_RESULTS_PATH}`);
           if (testsJson) {
             const moduleStatus = testsJson["moduleStatus"];
             const testResults = moduleStatus[0]["tests"];
@@ -233,7 +234,6 @@ async function createTests(controller: vscode.TestController, uri: vscode.Uri, b
     if (positions.length > 0) {
       const ancestors: vscode.TestItem[] = [];
 
-      var path = require('path');
       let root;
       vscode.workspace.workspaceFolders?.map(folder => { root = folder.uri.path });
       let relativePath = path.relative(root, uri.fsPath).split('/');
