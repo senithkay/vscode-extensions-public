@@ -21,11 +21,11 @@ import { Uri } from 'vscode';
 import { getLibraryWebViewContent, WebViewOptions, getComposerWebViewOptions, isWindows } from '../utils';
 import { sep } from "path";
 
-export function render(filePath: Uri, startLine: number, startColumn: number, kind: string, name: string): string {
-    return renderDiagram(filePath, startLine, startColumn, kind, name);
+export function render(filePath: Uri, startLine: number, startColumn: number): string {
+    return renderDiagram(filePath, startLine, startColumn);
 }
 
-function renderDiagram(filePath: Uri, startLine: number, startColumn: number, kind: string, name: string): string {
+function renderDiagram(filePath: Uri, startLine: number, startColumn: number): string {
 
     const body = `
         <div class="ballerina-editor design-view-container" id="diagram"></div>
@@ -108,8 +108,6 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ki
                 filePath,
                 startLine,
                 startColumn,
-                name,
-                kind,
                 lastUpdatedAt
             }) {
                 try {
@@ -120,8 +118,6 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ki
                             filePath,
                             startLine,
                             startColumn,
-                            name,
-                            kind,
                             getFileContent,
                             updateFileContent,
                             lastUpdatedAt
@@ -155,8 +151,6 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ki
                     filePath: args[0].filePath,
                     startLine: args[0].startLine,
                     startColumn: args[0].startColumn,
-                    name: args[0].name,
-                    kind: args[0].kind,
                     lastUpdatedAt: (new Date()).toISOString()
                 });
                 return Promise.resolve({});
@@ -165,8 +159,6 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ki
                 filePath: ${JSON.stringify(ballerinaFilePath)},
                 startLine: ${JSON.stringify(startLine.toString())},
                 startColumn: ${JSON.stringify(startColumn.toString())},
-                name: ${JSON.stringify(name)},
-                kind: ${JSON.stringify(kind)},
                 lastUpdatedAt: (new Date()).toISOString()
             });
         }

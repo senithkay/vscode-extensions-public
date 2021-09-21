@@ -20,7 +20,7 @@
 import {
     workspace, window, commands, languages, Uri,
     ConfigurationChangeEvent, extensions,
-    Extension, ExtensionContext, IndentAction, WebviewPanel, OutputChannel, StatusBarItem, StatusBarAlignment
+    Extension, ExtensionContext, IndentAction, WebviewPanel, OutputChannel, StatusBarItem, StatusBarAlignment, TextDocument
 } from "vscode";
 import {
     INVALID_HOME_MSG, INSTALL_BALLERINA, DOWNLOAD_BALLERINA, MISSING_SERVER_CAPABILITY, ERROR, COMMAND_NOT_FOUND,
@@ -82,6 +82,7 @@ export class BallerinaExtension {
     private sdkVersion: StatusBarItem;
     private diagramTreeElementClickedCallbacks: Array<(construct: ConstructIdentifier) => void> = [];
     private editorChangesCallbacks: Array<(change: Change) => void> = [];
+    private currentDocument: TextDocument | undefined;
 
     private webviewPanels: {
         [name: string]: WebviewPanel;
@@ -546,6 +547,14 @@ export class BallerinaExtension {
         this.editorChangesCallbacks.forEach((callback) => {
             callback(change);
         });
+    }
+
+    public setCurrentDocument(document: TextDocument) {
+        this.currentDocument = document;
+    }
+
+    public getCurrentDocument(): TextDocument | undefined {
+        return this.currentDocument;
     }
 }
 
