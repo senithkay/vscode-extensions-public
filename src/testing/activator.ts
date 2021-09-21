@@ -88,6 +88,8 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
           const commandText = `${executor} ${BALLERINA_COMMANDS.TEST} ${EXEC_ARG.TESTS} ${testNames} ${EXEC_ARG.COVERAGE}`;
           await runCommand(commandText, path);
 
+        } catch {
+          // exception.
         } finally {
           EndTime = Date.now();
           testsJson = await readTestJson(`${path}${TEST_RESULTS_PATH}`);
