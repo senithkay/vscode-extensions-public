@@ -52,8 +52,6 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
   const runHandler = (request: vscode.TestRunRequest, cancellation: vscode.CancellationToken) => {
     const queue: { test: vscode.TestItem; data: any }[] = [];
     const run = ctrl.createTestRun(request);
-    // map of file uris to statments on each line:
-    const coveredLines = new Map</* file uri */ string, (vscode.StatementCoverage | undefined)[]>();
 
     const discoverTests = async (tests: Iterable<vscode.TestItem>) => {
       for (const test of tests) {
@@ -96,8 +94,6 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
           if (testsJson) {
             const moduleStatus = testsJson["moduleStatus"];
             const testResults = moduleStatus[0]["tests"];
-            const moduleCoverage = testsJson["moduleCoverage"];
-            const sourceFiles = moduleCoverage[0]["sourceFiles"];
             const timeElapsed = (EndTime - startTime) / queue.length;
 
             for (const { test, } of queue) {
@@ -113,16 +109,6 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
                   }
                 }
               }
-
-              // file coverage
-              for (const sourceFile of sourceFiles) {
-                const statements: vscode.StatementCoverage[] = [];
-                for (let coveredLine of sourceFile.coveredLines) {
-                  const statement = new vscode.StatementCoverage(1, new vscode.Position(parseInt(coveredLine), 0));
-                  statements.push(statement);
-                }
-                coveredLines.set(`${path}/${sourceFile.name}`, statements);
-              }
             }
           }
         }
@@ -135,22 +121,6 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
         }
       }
       run.appendOutput(`Tests Completed\r\n`);
-
-      run.coverageProvider = {
-        provideFileCoverage() {
-          const coverage: vscode.FileCoverage[] = [];
-          for (const [uri, statements] of coveredLines) {
-            coverage.push(
-              vscode.FileCoverage.fromDetails(
-                vscode.Uri.parse(uri),
-                statements.filter((s): s is vscode.StatementCoverage => !!s)
-              )
-            );
-          }
-
-          return coverage;
-        },
-      };
 
       run.end();
     };
@@ -412,7 +382,6 @@ async function constructDebugConfig(testDebug: boolean, ballerinaCmd: string, ba
   let programArgs = [];
   let commandOptions = [];
   let env = {};
-  let capabilities = {};
   const debugConfigs: vscode.DebugConfiguration[] = vscode.workspace.getConfiguration(DEBUG_REQUEST.LAUNCH).configurations;
   if (debugConfigs.length > 0) {
     let debugConfig: vscode.DebugConfiguration | undefined;
