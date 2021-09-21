@@ -72,17 +72,19 @@ export function TypeDefinitionComponent(props: TypeDefComponentProps) {
         component.push(
             <div className="record-comp" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 <div className="record-header" >
-                    <div className="record-icon">
-                        <RecordIcon />
-                    </div>
-                    <div className="record-type">
-                        Record
-                    </div>
-                    <div className="record-name">
-                        {varName}
+                    <div className="record-content">
+                        <div className="record-icon">
+                            <RecordIcon />
+                        </div>
+                        <div className="record-type">
+                            Record
+                        </div>
+                        <div className="record-name">
+                            {varName}
+                        </div>
                     </div>
                     {isEditable && (
-                        <>
+                        <div className="record-amendment-options">
                             <div className="record-edit">
                                 <EditButton />
                             </div>
@@ -92,7 +94,7 @@ export function TypeDefinitionComponent(props: TypeDefComponentProps) {
                             <div className="record-expand">
                                 <ComponentExpandButton isExpanded={isExpanded} onClick={onExpandClick} />
                             </div>
-                        </>
+                        </div>
                     )}
                 </div>
                 <div className="record-separator" />
@@ -119,21 +121,23 @@ export function TypeDefinitionComponent(props: TypeDefComponentProps) {
         component.push(
             <div className="record-comp" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 <div className="record-header" >
-                    <div className="record-icon">
-                        <RecordIcon />
-                    </div>
-                    <div className="record-name">
-                        {model.source.trim()}
+                    <div className="record-content">
+                        <div className="record-icon">
+                            <RecordIcon />
+                        </div>
+                        <div className="record-name">
+                            {model.source.trim()}
+                        </div>
                     </div>
                     {isEditable && (
-                        <>
+                        <div className="record-amendment-options">
                             <div className="record-edit">
                                 <EditButton />
                             </div>
                             <div className="record-delete">
                                 <DeleteButton />
                             </div>
-                        </>
+                        </div>
                     )}
                 </div>
             </div>
