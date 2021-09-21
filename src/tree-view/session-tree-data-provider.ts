@@ -14,41 +14,19 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *
  */
+import { Event, ProviderResult, TreeDataProvider, TreeItem } from "vscode";
 
-import { Uri } from 'vscode';
-
-export interface DiagramOptions {
-    startLine?: number;
-    startColumn?: number;
-    filePath?: string;
-    isDiagram: boolean;
-    fileUri?: Uri;
-}
-
-export interface SyntaxTree {
-    members: Member[];
-}
-
-export interface Member {
-    kind: string;
-    position: Position;
-    functionName?: {
-        value: string;
-        position: Position;
-    };
-    members: Member[];
-    relativeResourcePath?: ResourcePath[];
-}
-
-interface Position {
-    startLine: number;
-    startColumn: number;
-    endLine: number;
-    endColumn: number;
-}
-
-interface ResourcePath {
-    value: string;
+export class SessionDataProvider implements TreeDataProvider<TreeItem> {
+    constructor() {
+    }
+    onDidChangeTreeData?: Event<void | TreeItem | null | undefined> | undefined;
+    getTreeItem(element: TreeItem): TreeItem | Thenable<TreeItem> {
+        return element;
+    }
+    getChildren(element?: TreeItem): ProviderResult<TreeItem[]> {
+        // TODO: Show choreo signed sessions
+        let treeItems: TreeItem[] = [];
+        return treeItems;
+    }
 }

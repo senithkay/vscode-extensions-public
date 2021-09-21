@@ -1,0 +1,33 @@
+<?xml version="1.0" standalone="no"?>
+<!--
+ ~   Copyright 2021, WSO2 Inc. (http://www.wso2.com)
+ ~
+ ~   Licensed under the Apache License, Version 2.0 (the "License");
+ ~   you may not use this file except in compliance with the License.
+ ~   You may obtain a copy of the License at
+ ~
+ ~        http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~   Unless required by applicable law or agreed to in writing, software
+ ~   distributed under the License is distributed on an "AS IS" BASIS,
+ ~   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~   See the License for the specific language governing permissions and
+ ~   limitations under the License.
+-->
+<svg version="1.0" xmlns="http://www.w3.org/2000/svg"
+ width="225.000000pt" height="225.000000pt" viewBox="0 0 225.000000 225.000000"
+ preserveAspectRatio="xMidYMid meet">
+    <g transform="translate(0.000000,225.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
+        <path d="M295 2041 c-48 -22 -69 -44 -90 -94 -13 -31 -15 -108 -15 -522 l0
+        -485 90 0 90 0 2 468 3 467 468 3 467 2 0 90 0 90 -487 0 c-452 0 -491 -2
+        -528 -19z"/>
+        <path fill="#C5C5C5" d="M696 1678 c-59 -16 -112 -75 -126 -140 -8 -37 -10 -194 -8 -513 l3
+        -460 93 -3 92 -3 0 471 0 470 470 0 471 0 -3 93 -3 92 -475 2 c-300 0 -489 -3
+        -514 -9z"/>
+        <path fill="#C5C5C5" d="M1045 1291 c-48 -22 -69 -44 -90 -94 -13 -31 -15 -100 -15 -449 0
+        -379 2 -416 19 -453 22 -48 44 -69 94 -90 31 -13 100 -15 449 -15 379 0 416 2
+        453 19 48 22 69 44 90 94 23 54 23 840 0 894 -21 50 -42 72 -90 94 -37 17 -73
+        19 -455 19 -382 0 -418 -2 -455 -19z m833 -538 l3 -93 -381 0 -380 0 0 88 c0
+        49 3 92 7 95 4 4 173 6 377 5 l371 -3 3 -92z"/>
+    </g>
+</svg>

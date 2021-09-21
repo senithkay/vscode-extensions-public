@@ -21,11 +21,11 @@ import { Uri } from 'vscode';
 import { getLibraryWebViewContent, WebViewOptions, getComposerWebViewOptions, isWindows } from '../utils';
 import { sep } from "path";
 
-export function render(filePath: Uri, startLine: number, startColumn: number, kind: string, name: string): string {
-    return renderDiagram(filePath, startLine, startColumn, kind, name);
+export function render(filePath: Uri, startLine: number, startColumn: number): string {
+    return renderDiagram(filePath, startLine, startColumn);
 }
 
-function renderDiagram(filePath: Uri, startLine: number, startColumn: number, kind: string, name: string): string {
+function renderDiagram(filePath: Uri, startLine: number, startColumn: number): string {
 
     const body = `
         <div class="ballerina-editor design-view-container" id="diagram"></div>
@@ -82,11 +82,6 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ki
     const scripts = `
         function loadedScript() {
             window.langclient = getLangClient();
-            let filePath = ${JSON.stringify(ballerinaFilePath)};
-            let startLine = ${JSON.stringify(startLine.toString())};
-            let startColumn = ${JSON.stringify(startColumn.toString())};
-            let name = ${JSON.stringify(name)};
-            let kind = ${JSON.stringify(kind)};
             function getFileContent(url) {
                 return new Promise((resolve, _reject) => {
                     webViewRPCHandler.invokeRemoteMethod(
@@ -109,7 +104,12 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ki
                     );
                 })
             }
-            function drawDiagram() {
+            function drawDiagram({
+                filePath,
+                startLine,
+                startColumn,
+                lastUpdatedAt
+            }) {
                 try {
                     const options = {
                         target: document.getElementById("diagram"),
@@ -118,24 +118,12 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ki
                             filePath,
                             startLine,
                             startColumn,
-                            name,
-                            kind,
                             getFileContent,
-                            updateFileContent
+                            updateFileContent,
+                            lastUpdatedAt
                         }
                     };
-                    const diagram = BLCEditor.renderDiagramEditor(options);
-                    webViewRPCHandler.addMethod("updateDiagram", (args) => {
-                        diagram.update({
-                            langClient: getLangClient(),
-                            filePath: args[0].filePath,
-                            startLine: args[0].startLine,
-                            startColumn: args[0].startColumn,
-                            name: args[0].name,
-                            kind: args[0].kind
-                        });
-                        return Promise.resolve({});
-                    });
+                    BLCEditor.renderDiagramEditor(options);
                 } catch(e) {
                     if (e.message === 'ballerinaComposer is not defined') {
                         drawLoading();
@@ -157,7 +145,22 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ki
                 <div class="loader"></div>
                 \`;
             }
-            drawDiagram();
+            webViewRPCHandler.addMethod("updateDiagram", (args) => {
+                console.log("on update invoked" + JSON.stringify(args));
+                drawDiagram({
+                    filePath: args[0].filePath,
+                    startLine: args[0].startLine,
+                    startColumn: args[0].startColumn,
+                    lastUpdatedAt: (new Date()).toISOString()
+                });
+                return Promise.resolve({});
+            });
+            drawDiagram({
+                filePath: ${JSON.stringify(ballerinaFilePath)},
+                startLine: ${JSON.stringify(startLine.toString())},
+                startColumn: ${JSON.stringify(startColumn.toString())},
+                lastUpdatedAt: (new Date()).toISOString()
+            });
         }
     `;
 
