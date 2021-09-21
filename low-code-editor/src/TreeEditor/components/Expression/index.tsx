@@ -16,7 +16,17 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
     const component = getExpressionTypeComponent(model, callBack);
 
     return (
-        // <IfStatement model={model} callBack={callBack} isRoot={isRoot} component={component} />
-        <VariableStatement model={model} callBack={callBack} isRoot={isRoot} component={component} />
+        // <IfStatement
+        //     model={model}
+        //     callBack={callBack}
+        //     isRoot={isRoot}
+        //     component={component}
+        // />
+        <VariableStatement
+            model={model}
+            callBack={callBack}
+            isRoot={isRoot}
+            component={component}
+        />
     );
 }
