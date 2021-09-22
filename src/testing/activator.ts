@@ -23,7 +23,7 @@
  */
 import { getCurrentBallerinaProject } from '../utils/project-utils';
 import { CancellationToken, debug, DebugConfiguration, Position, Range, RelativePattern, TestController, TestItem, TestItemCollection, TestMessage, TestRunProfileKind, TestRunRequest, tests, TextDocument, Uri, window, workspace, WorkspaceFolder } from 'vscode';
-import { BallerinaExtension, ExecutorPosition, LANGUAGE, } from "../core";
+import { BallerinaExtension, ExecutorPosition, ExtendedLangClient, LANGUAGE, } from "../core";
 import { BALLERINA_COMMANDS } from '../project';
 import fileUriToPath from 'file-uri-to-path';
 import { DEBUG_REQUEST, DEBUG_CONFIG } from '../debugger';
@@ -71,6 +71,14 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
     };
 
     const runTestQueue = async () => {
+      let rootPath;
+      try {
+        rootPath = await (await getCurrentBallerinaProject()).path;
+      } catch {
+        run.end();
+        return;
+      }
+
       const startTime = Date.now();
       run.appendOutput(`Running Tests\r\n`);
 
@@ -82,7 +90,6 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
           run.started(test);
         }
         let testsJson: JSON | undefined = undefined;
-        const rootPath = (await getCurrentBallerinaProject()).path;
         try {
           // execute test
           const executor = ballerinaExtInstance.getBallerinaCmd();
@@ -94,23 +101,27 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
         } finally {
           EndTime = Date.now();
           testsJson = await readTestJson(path.join(rootPath!, TEST_RESULTS_PATH).toString());
-          if (testsJson) {
-            const moduleStatus = testsJson["moduleStatus"];
-            const testResults = moduleStatus[0]["tests"];
-            const timeElapsed = (EndTime - startTime) / queue.length;
+          if (!testsJson) {
+            return;
+          }
 
-            for (const { test, } of queue) {
-              for (const testResult of testResults) {
-                if (test.label === testResult.name) {
-                  if (testResult.status === TEST_STATUS.PASSED) {
-                    run.passed(test, timeElapsed);
-                  } else if (testResult.status === TEST_STATUS.FAILED) {
-                    // test failed
-                    let testMessage: TestMessage;
-                    testMessage = new TestMessage(testResult.failureMessage);
-                    run.failed(test, testMessage, timeElapsed);
-                  }
-                }
+          const moduleStatus = testsJson["moduleStatus"];
+          const testResults = moduleStatus[0]["tests"];
+          const timeElapsed = (EndTime - startTime) / queue.length;
+
+          for (const { test, } of queue) {
+            for (const testResult of testResults) {
+              if (test.label !== testResult.name) {
+                continue;
+              }
+
+              if (testResult.status === TEST_STATUS.PASSED) {
+                run.passed(test, timeElapsed);
+              } else if (testResult.status === TEST_STATUS.FAILED) {
+                // test failed
+                let testMessage: TestMessage;
+                testMessage = new TestMessage(testResult.failureMessage);
+                run.failed(test, testMessage, timeElapsed);
               }
             }
           }
@@ -142,12 +153,12 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
     }
   };
 
-  async function updateNodeForDocument(e: TextDocument) {
-    if (e.uri.scheme !== 'file' || !e.uri.path.endsWith('.bal')) {
+  async function updateNodeForDocument(document: TextDocument) {
+    if (document.uri.scheme !== 'file' || !document.uri.path.endsWith('.bal')) {
       return;
     }
 
-    await createTests(ctrl, e.uri, ballerinaExtInstance);
+    await createTests(ctrl, document.uri, ballerinaExtInstance);
   }
 
   for (const document of workspace.textDocuments) {
@@ -208,7 +219,7 @@ async function startDebugging(uri: Uri, testDebug: boolean, ballerinaCmd: string
         });
       });
     },
-    (ex) => console.log('Failed to start debugging tests', ex),
+    (ex) => log('Failed to start debugging tests' + ex),
   );
 }
 
@@ -219,8 +230,12 @@ async function startDebugging(uri: Uri, testDebug: boolean, ballerinaCmd: string
  * @param ballerinaExtInstance Balleina extension instace.
  */
 async function createTests(controller: TestController, uri: Uri, ballerinaExtInstance: BallerinaExtension) {
+  const langClient: ExtendedLangClient | undefined = await ballerinaExtInstance.langClient;
+  if (!langClient) {
+    return;
+  }
   // Get tests from LS.
-  await ballerinaExtInstance.langClient!.getExecutorPositions({
+  langClient.getExecutorPositions({
     documentIdentifier: {
       uri: uri.toString()
     }
