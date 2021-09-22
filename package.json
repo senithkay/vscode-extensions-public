@@ -288,13 +288,13 @@
         "views": {
             "diagram-explorer": [
                 {
-                    "id": "sessionExplorer",
-                    "name": "Choreo Session Details",
+                    "id": "ballerinaPackageTreeView",
+                    "name": "Diagrams",
                     "contextualTitle": "Diagram Explorer"
                 },
                 {
-                    "id": "ballerinaPackageTreeView",
-                    "name": "Diagrams",
+                    "id": "sessionExplorer",
+                    "name": "Choreo Session Details",
                     "contextualTitle": "Diagram Explorer"
                 }
             ]
@@ -311,7 +311,11 @@
         "viewsWelcome": [
             {
                 "view": "sessionExplorer",
-                "contents": "No Choreo sessions found.\n[Sign In](command:ballerina.choreo.signin)\nRefer to our docs to learn more about [Choreo](https://wso2.com/choreo/)."
+                "contents": "No Choreo sessions found.\n[Sign In](command:ballerina.choreo.signin)\nRefer to our documentation to learn more about [Choreo](https://wso2.com/choreo/)."
+            },
+            {
+                "view": "ballerinaPackageTreeView",
+                "contents": "No Ballerina packages found.\n[Go to File Explorer](command:workbench.files.action.focusFilesExplorer)"
             }
         ],
         "menus": {

@@ -45,7 +45,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
         return packageTreeDataProvider;
     }
 
-    const sessionTreeDataProvider = new SessionDataProvider();
+    const sessionTreeDataProvider = new SessionDataProvider(ballerinaExtInstance);
     window.createTreeView('sessionExplorer', {
         treeDataProvider: sessionTreeDataProvider
     });
