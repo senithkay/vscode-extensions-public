@@ -1,0 +1,208 @@
+/*
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ * the WSO2 Commercial License available at http://wso2.com/licenses.
+ * For specific language governing the permissions and limitations under
+ * this license, please see the license as well as any agreement you’ve
+ * entered into with WSO2 governing the purchase of this software and any
+ * associated services.
+ */
+
+.function-box {
+    box-sizing: border-box;
+    border: 1px dashed #C1E4FC;
+    border-radius: 6px;
+    background-color: #F4FAFF;
+    // margin: 10px;
+    // height: 100px;
+
+    &.expanded {
+        border: 1px solid #C1E4FC;
+    }
+
+    &.get {
+        background-color: #F4FAFF;
+        border: 1px dashed #C1E4FC;
+        &.expanded {
+            border: 1px solid #C1E4FC;
+        }
+    }
+    &.post {
+        background-color: #F5FFF7;
+        border: 1px dashed #CDF1DF;
+        &.expanded {
+            border: 1px solid #CDF1DF;
+        }
+    }
+    &.put {
+        background-color: #FFFBF6;
+        border: 1px dashed #FEE6C8;
+        &.expanded {
+            border: 1px solid #FEE6C8;
+        }
+    }
+    &.delete {
+        background-color: #fceded;
+        border: 1px dashed #F8C2C2;
+        &.expanded {
+            border: 1px solid #F8C2C2;
+        }
+    }
+    &.patch {
+        background-color: #F4FAFF;
+        border: 1px dashed #C1E4FC;
+        &.expanded {
+            border: 1px solid #C1E4FC;
+        }
+    }
+
+    .function-signature {
+        min-height: 48px;
+        display: flex;
+        flex-direction: row;
+        border-bottom: 1px #C1E4FC solid;
+
+        &.get {
+            border-bottom: 1px solid #C1E4FC;
+        }
+        &.post {
+            border-bottom: 1px solid #CDF1DF;
+        }
+        &.put {
+            border-bottom: 1px solid #FEE6C8;
+        }
+        &.delete {
+            border-bottom: 1px solid #F8C2C2;
+        }
+        &.patch {
+            border-bottom: 1px solid #C1E4FC;
+        }
+        
+        .path-text {
+            margin-top: 10px;
+            margin-left: 8px;
+
+            span {
+                &.param:not(:first-child) {
+                    margin-left: 24px;
+                }
+            }
+        }
+
+        .function-icon {
+            margin: 12px 15px 8px 8px;
+        } 
+
+        .resource-badge {
+            height: 32px;
+            width: 67px;
+            margin: 8px 0 8px 8px;
+            border-radius: 4px;
+
+            .text {
+                color: #FFFFFF;
+                font-size: 12px;
+                letter-spacing: 0;
+                line-height: 14px;
+                text-align: center;
+                margin-top: 8px;
+            }
+
+            &.get {
+                background-color: #0095FF;
+            }
+            &.post {
+                background-color: #3fc47d;
+            }
+            &.put {
+                background-color: #FF9D52;
+            }
+            &.delete {
+                background-color: #f5242e;
+            }
+            &.patch {
+                background-color: #5567D5;
+            }
+        }
+    }
+
+    .lowcode-diagram {
+        background-image: url('../../../assets/images/PatternBg.svg');
+        background-repeat: repeat;
+        overflow: hidden;
+    }
+}
+
+.module-level-function {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    border: 1px solid #E6E7EC;
+    border-radius: 6px;
+    background-color: #FFFFFF;
+    // margin-left: 25px;
+
+    .function-signature {
+        display: flex;
+        flex-direction: row;
+        padding: 15px;
+        border-bottom: 1px #E6E7EC solid;
+
+        .function-icon {
+            margin-top: 2px;
+            margin-right: 15px;
+        }
+
+        .path-text {
+            // margin-top: 10px;
+            // margin-left: 8px;
+            
+            span {
+                &.param:not(:first-child) {
+                    margin-left: 24px;
+                }
+            }
+        }
+    }
+
+    .lowcode-diagram {
+        background-image: url('../../../assets/images/PatternBg.svg');
+        background-repeat: repeat;
+        overflow: hidden;
+    }
+}
+
+.param-container {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: row;
+    max-width: 50%;
+}
+
+.design-container {
+    min-width: 100vw;
+    scrollbar-width: none;
+    margin: 0;
+    padding: 0;
+}
+
+.zoom-control-wrapper {
+    height: 32px;
+    width: 32px;
+    border-radius: 20px;
+    box-shadow: 0 1px 1px 0 #CBCFDA;
+    background:  #fff;
+    margin-top: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    &:hover {
+        &:focus {
+            box-shadow: 0 1px 2px 0 #CBCFDA;
+            background: "#f1f1f1";
+        }
+    }
+}

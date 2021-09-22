@@ -10,22 +10,37 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { ClassComponent } from './ClassComponent';
+import { Constant } from './Constant';
 import { End } from "./End";
 import { ForEach } from './ForEach';
 import { Function } from "./Function";
 import { IfElse } from './IfElse';
+import { Listener } from './Listener';
 import { ModulePartComponent } from "./ModulePart";
+import { ModuleVariable } from './ModuleVariable';
+import { Service } from "./Service";
 import { Statement } from "./Statement";
+import { TypeDefinitionComponent } from "./TypeDefinion";
 import { While } from './While';
 
 export { IfElse as IfElseStatement };
 export { ForEach as ForeachStatement };
+export { Service as ServiceDeclaration };
 export { Statement as LocalVarDecl };
 export { Statement as CallStatement };
 export { Statement as ActionStatement };
 export { Statement as AssignmentStatement }
 export { Statement as DoStatement };
+export { Listener as ListenerDeclaration };
+export { Constant as ConstDeclaration };
+export { ModuleVariable as ModuleVarDecl };
+export { ModuleVariable as ObjectField };
+export { TypeDefinitionComponent as TypeDefinition };
 export { End as ReturnStatement };
 export { Function as FunctionDefinition };
-export { ModulePartComponent as ModulePart};
+export { Function as ResourceAccessorDefinition };
+export { Function as ObjectMethodDefinition };
+export { ModulePartComponent as ModulePart };
 export { While as WhileStatement };
+export { ClassComponent as ClassDefinition }

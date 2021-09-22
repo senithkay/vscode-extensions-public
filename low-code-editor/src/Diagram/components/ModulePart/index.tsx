@@ -10,20 +10,45 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { ModulePart } from "@ballerina/syntax-tree";
+import { ModulePart, STNode } from "@ballerina/syntax-tree";
 
-import { StartButton } from "../Start"
+import { getSTComponent } from "../../utils";
+import { TopLevelPlus } from "../TopLevelPlus";
+
+import './style.scss';
+
+export const GAP_BETWEEN_MEMBERS = 31;
+export const INIT_PLUS_MARGIN_LEFT = 24.5;
+export const INIT_PLUS_MARGIN_TOP = 7.5;
+export const INIT_PLUS_MARGIN_BOTTOM = 7.5;
 
 export interface ModulePartProps {
     model: ModulePart
 }
 
 export function ModulePartComponent(props: ModulePartProps) {
-    const {model} = props;
+    const { model } = props;
+
+    const moduleMembers: JSX.Element[] = [];
+
+    model.members.forEach((member: STNode) => {
+        moduleMembers.push(
+            <div className={'member-container'} >
+                {getSTComponent(member)}
+            </div>
+        )
+    });
 
     return (
-        <StartButton model={model} />
+        <>
+            {/* TODO: Fix Plus
+            <TopLevelPlus
+                margin={{ top: INIT_PLUS_MARGIN_TOP, bottom : INIT_PLUS_MARGIN_BOTTOM, left: INIT_PLUS_MARGIN_LEFT }}
+            /> */}
+            {moduleMembers}
+        </>
     );
 }

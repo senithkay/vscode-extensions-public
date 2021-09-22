@@ -21,6 +21,7 @@ import { Context as DiagramContext } from "../Contexts/Diagram";
 import { TextPreLoader } from "../PreLoader/TextPreLoader";
 
 import { Canvas } from "./components/Canvas";
+import { CanvasDiagram } from "./components/CanvasContainer";
 import { DataMapper } from './components/DataMapper';
 import { DiagramDisableState } from "./components/DiagramState/DiagramDisableState";
 import { DiagramErrorState } from "./components/DiagramState/DiagramErrorState";
@@ -65,7 +66,7 @@ export function Diagram() {
     const classes = useStyles();
     const diagnosticInDiagram = diagnostics && diagnostics.length > 0;
     const numberOfErrors = diagnostics && diagnostics.length;
-    const numberOfWarnings  = (warnings && warnings.length);
+    const numberOfWarnings = (warnings && warnings.length);
     const diagramErrors = diagnostics && diagnostics.length > 0;
     const diagramWarnings = warnings && warnings.length > 0;
     const warningsInDiagram = warnings && warnings.length > 0;
@@ -113,7 +114,7 @@ export function Diagram() {
         </div>
     );
 
-    const diagramStatus = (diagnosticInDiagram ||  warningsInDiagram) ? diagramErrorMessage : null;
+    const diagramStatus = (diagnosticInDiagram || warningsInDiagram) ? diagramErrorMessage : null;
 
     if (!syntaxTree) {
         if (isLoadingAST) {
@@ -130,8 +131,8 @@ export function Diagram() {
     // AST node passed in to this is can be a top level node or a compilation unit.
     // const child = getSTComponent(syntaxTree); // TODO: Handle datamapper switching logic
     const viewState = syntaxTree.viewState as ViewState;
-    let h = viewState.bBox.h ? (viewState.bBox.h + DefaultConfig.canvas.paddingY) : DefaultConfig.canvas.height;
-    const w = viewState.bBox.w ? (viewState.bBox.w + DefaultConfig.canvas.paddingX) : DefaultConfig.canvas.width;
+    let h = viewState.bBox.h ? (viewState.bBox.h + DefaultConfig.canvas.childPaddingY) : DefaultConfig.canvas.height;
+    const w = viewState.bBox.w ? (viewState.bBox.w + DefaultConfig.canvas.childPaddingX) : DefaultConfig.canvas.width;
 
     if (h < window.innerHeight) {
         h = h + (window.innerHeight - h);
@@ -165,7 +166,24 @@ export function Diagram() {
 
             {isErrorDetailsOpen && <ErrorList />}
 
-            <PanAndZoom>
+            <Container className={classes.DesignContainer}>
+                {/* <div id="canvas-overlay" className={classes.OverlayContainer} /> */}
+                {isDataMapperShown && (
+                    <DataMapper width={w} />
+                )}
+                {!isDataMapperShown && (
+                    <CanvasDiagram>
+                        {child}
+                    </CanvasDiagram>
+                )}
+                {/*
+                {diagramDisabledWithTextLoaderStatus && triggerType !== undefined && isWaitingOnWorkspace && <OverlayBackground />}
+                {isCodeEditorActive && !isConfigOverlayFormOpen && diagramDisabledStatus && <OverlayBackground />}
+                {isConfigOverlayFormOpen && <OverlayBackground />}
+                */}
+            </Container>
+
+            {/* <PanAndZoom>
                 <Container className={classes.DesignContainer}>
                     <div id="canvas-overlay" className={classes.OverlayContainer} />
                     {isDataMapperShown && (
@@ -180,7 +198,7 @@ export function Diagram() {
                     {isCodeEditorActive && !isConfigOverlayFormOpen && diagramDisabledStatus && <OverlayBackground />}
                     {isConfigOverlayFormOpen && <OverlayBackground />}
                 </Container>
-            </PanAndZoom>
+            </PanAndZoom> */}
         </div>
     );
 }
