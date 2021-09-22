@@ -166,3 +166,11 @@ export function getConditionConfig(
 export function getRandomInt(max: number) {
     return Math.floor(Math.random() * Math.floor(max));
 }
+
+export function isVarTypeDescriptor(model: STNode) : boolean {
+    if (model && STKindChecker.isLocalVarDecl(model)) {
+        return STKindChecker.isVarTypeDesc(model.typedBindingPattern?.typeDescriptor);
+    } else {
+        return false;
+    }
+}

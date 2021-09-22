@@ -600,8 +600,7 @@ export function APIOptions(props: APIOptionsProps) {
             Array.from(connectors).forEach(element => {
                 // tslint:disable-next-line: no-unused-expression
                 const existingConnector = element as BallerinaConnectorsInfo;
-                const formattedModuleName = getFormattedModuleName(existingConnector.module);
-                if (formattedModuleName === moduleName && existingConnector.name === name) {
+                if (existingConnector.module === moduleName && existingConnector.name === name) {
                     returnConnnectorType = existingConnector;
                 }
             });
@@ -609,37 +608,30 @@ export function APIOptions(props: APIOptionsProps) {
         }
 
         stSymbolInfo.endpoints.forEach((value: LocalVarDecl, key: string) => {
-            const moduleName = (value.typedBindingPattern.typeDescriptor as QualifiedNameReference).modulePrefix.value;
-            const name = (value.typedBindingPattern.typeDescriptor as QualifiedNameReference).identifier.value;
-            const existConnector = getConnector(moduleName, name);
-            const component: ReactNode = (
-                <div className="existing-connect-option" key={key} onClick={onSelectExistingConnector.bind(this, existConnector, value)} data-testid={key.toLowerCase()}>
-                    <div className="existing-connector-details product-tour-add-http">
-                        <div className="existing-connector-icon">
-                            {getExistingConnectorIconSVG(`${existConnector.module}_${existConnector.name}`)}
-                        </div>
-                        <div className="existing-connector-name">
-                            {key}
+            // todo: need to add connector filtering here
+            const moduleName = (value.typedBindingPattern.typeDescriptor as QualifiedNameReference)?.modulePrefix?.value;
+            const name = (value.typedBindingPattern.typeDescriptor as QualifiedNameReference)?.identifier?.value;
+            if (moduleName && name) {
+                const existConnector = getConnector(moduleName, name);
+                const component: ReactNode = (
+                    <div className="existing-connect-option" key={key} onClick={onSelectExistingConnector.bind(this, existConnector, value)} data-testid={key.toLowerCase()}>
+                        <div className="existing-connector-details product-tour-add-http">
+                            <div className="existing-connector-icon">
+                                {getExistingConnectorIconSVG(`${existConnector.module}_${existConnector.name}`)}
+                            </div>
+                            <div className="existing-connector-name">
+                                {key}
+                            </div>
                         </div>
                     </div>
-                </div>
-            );
-            const exsitingConnectorComponent: ExisitingConnctorComponent = {
-                connectorInfo: existConnector,
-                component,
-                key
+                );
+                const exsitingConnectorComponent: ExisitingConnctorComponent = {
+                    connectorInfo: existConnector,
+                    component,
+                    key
+                }
+                exsitingConnectorComponents.push(exsitingConnectorComponent);
             }
-            // todo Connector filtering here
-            // const connectorPosition = value.position;
-            // const connectorClientViewState: ViewState = (model === null)
-            //      ? blockViewState.draft[1]
-            //      : model.viewState as StatementViewState;
-            // const draftVS: any = connectorClientViewState as DraftStatementViewState;
-            // const connectorTargetPosition = targetPosition as DraftInsertPosition;
-            // if (connectorPosition.startLine > connectorTargetPosition.line) {
-            //     exsitingConnectorComponents.push(exsitingConnectorComponent);
-            // }
-            exsitingConnectorComponents.push(exsitingConnectorComponent);
         });
     }
 

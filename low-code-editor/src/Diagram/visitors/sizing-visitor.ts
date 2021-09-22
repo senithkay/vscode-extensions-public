@@ -61,6 +61,7 @@ import { ServiceViewState } from "../view-state/service";
 import { WhileViewState } from "../view-state/while";
 
 import { DefaultConfig } from "./default";
+import { isVarTypeDescriptor } from "../utils/diagram-util";
 
 let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
 
@@ -772,9 +773,14 @@ class SizingVisitor implements Visitor {
 
                 // Update endpoint sizing values.
                 viewState.bBox.h = CLIENT_SVG_HEIGHT;
-                viewState.bBox.w = CLIENT_SVG_WIDTH;
                 viewState.bBox.r = CLIENT_RADIUS;
 
+                if (isVarTypeDescriptor(node)) {
+                    // renders process box if the endpoint var type
+                    viewState.dataProcess.w = PROCESS_SVG_WIDTH;
+                } else {
+                    viewState.bBox.w = CLIENT_SVG_WIDTH;
+                }
             }
         } else {
             if (viewState.isCallerAction) {

@@ -56,6 +56,7 @@ import {
 } from "../view-state";
 
 import { DefaultConfig } from "./default";
+import { isVarTypeDescriptor } from "../utils/diagram-util";
 
 let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
 let epCount: number = 0;
@@ -562,7 +563,8 @@ class PositioningVisitor implements Visitor {
                     endpoint.actions.push(statementViewState);
                 }
 
-                if (statementViewState.isEndpoint && statementViewState.endpoint.epName) {
+                if (statementViewState.isEndpoint && statementViewState.endpoint.epName &&
+                    !isVarTypeDescriptor(statement)) {
                     const endpointViewState: EndpointViewState = statementViewState.endpoint;
                     // to identify a connector init ( http:Client ep1 = new ("/context") )
                     endpointViewState.lifeLine.cx = blockViewState.bBox.cx +
