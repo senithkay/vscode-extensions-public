@@ -146,10 +146,11 @@ export function TypeDefinitionComponent(props: TypeDefComponentProps) {
 
     // ToDo : need to fix plus here
     component.push(
-        <TopLevelPlus
-            margin={{top: RECORD_PLUS_OFFSET, bottom: RECORD_PLUS_OFFSET, left: RECORD_MARGIN_LEFT}}
-            targetPosition={{line: model.position.endLine + 1, column: model.position.endColumn}}
-        />
+        // TODO: Commented until all top level pluses sorted out
+        // <TopLevelPlus
+        //     margin={{top: RECORD_PLUS_OFFSET, bottom: RECORD_PLUS_OFFSET, left: RECORD_MARGIN_LEFT}}
+        //     targetPosition={{line: model.position.endLine + 1, column: model.position.endColumn}}
+        // />
     )
 
     return (
