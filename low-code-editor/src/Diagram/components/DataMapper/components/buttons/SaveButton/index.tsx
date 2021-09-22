@@ -42,22 +42,22 @@ export function SaveButton(props: SaveButtonProps) {
                     <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.1 0" type="matrix" in="shadowInnerInner1" />
                 </filter>
             </defs>
-            <g id="Develop" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+            <g id="Develop" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
                 <g id="develop-UI-kit" transform="translate(-214.000000, -175.000000)">
                     <g id="Button/Square/48/Default" transform="translate(216.000000, 176.000000)">
                         <g id="Shadow">
                             <use fill="black" fill-opacity="1" filter="url(#dm-savebtn-filter-2)" xlinkHref="#dm-savebtn-path-1" />
-                            <use fill-opacity="0" fill="#FFFFFF" fill-rule="evenodd" xlinkHref="#dm-savebtn-path-1" />
+                            <use fill-opacity="0" fill="#FFFFFF" fillRule="evenodd" xlinkHref="#dm-savebtn-path-1" />
                         </g>
                         <mask id="mask-4" fill="white">
                             <use xlinkHref="#dm-savebtn-path-3" />
                         </mask>
                         <use id="Mask" fill="#D8D8D8" xlinkHref="#dm-savebtn-path-3" />
-                        <g id="Purpose" mask="url(#mask-4)" fill="#5567D5" fill-rule="nonzero">
+                        <g id="Purpose" mask="url(#mask-4)" fill="#5567D5" fillRule="nonzero">
                             <rect x="0" y="0" width="80" height="48" />
                         </g>
                         <g id="Rectangle">
-                            <use fill-opacity="0" fill="#FFFFFF" fill-rule="evenodd" xlinkHref="#dm-savebtn-path-5" />
+                            <use fill-opacity="0" fill="#FFFFFF" fillRule="evenodd" xlinkHref="#dm-savebtn-path-5" />
                             <use fill="black" fill-opacity="1" filter="url(#dm-savebtn-filter-6)" xlinkHref="#dm-savebtn-path-5" />
                         </g>
                         <text id="Text" font-family="GilmerMedium, Gilmer Medium" font-size="18" font-weight="500" fill="#FFFFFF">

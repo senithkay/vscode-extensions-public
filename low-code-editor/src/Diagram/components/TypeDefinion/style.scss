@@ -17,96 +17,88 @@
     box-sizing: border-box;
     height: auto;
     width: 275px;
-    border: 1px solid #E6E7EC;
+    border: 1px solid #e6e7ec;
     border-radius: 6px;
-    background-color: #FFFFFF;
-    // margin-left: 25px;
-}
-.record-header {
-    display: flex;
-    flex-direction: row;
-    height: 49px;
-    width: 275px;
-}
+    background-color: #fff;
+    font-family: "Gilmer", sans-serif;
+    font-weight: 300;
 
-.record-icon {
-    height: 16px;
-    width: 16px;
-    margin-top: 16.5px;
-    margin-left: 16.5px;
-}
+    .record-header {
+        display: flex;
+        flex-direction: row;
+        height: 49px;
+        width: 100%;
 
-.record-type {
-    margin-left: 12px;
-    margin-top: 10.5px;
-    height: 24px;
-    width: 34px;
-    color: #222228;
-    font-size: 13px;
-    letter-spacing: 0;
-    line-height: 24px;
-}
+        .record-content {
+            display: flex;
+            font-size: 13px;
+            align-content: center;
+            align-items: center;
+            width: 75%;
+            padding-left: 16px;
 
-.record-name {
-    margin-left: 21px;
-    margin-top: 10.5px;
-    height: 24px;
-    // width: 90px;
-    color: #8D91A3;
-    font-size: 13px;
-    letter-spacing: 0;
-    line-height: 24px;
-}
+            .record-icon {
+                height: 16px;
+                width: 10%;
+            }
 
-.record-edit {
-    cursor: pointer;
-    margin-top: 15px;
-}
+            .record-type {
+                color: #222228;
+                padding-left: 10px;
+            }
 
-.record-delete {
-    cursor: pointer;
-    margin-top: 15px;
-    margin-left: 20px;
-}
+            .record-name {
+                padding-left: 10px;
+                color: #8d91a3;
+            }
+        }
 
-.record-expand {
-    cursor: pointer;
-    margin-top: 17px;
-    margin-left: 14px;
-}
+        .record-amendment-options {
+            display: flex;
+            width: 25%;
+            align-items: center;
 
-.record-separator {
-    height: 1px;
-    width: auto;
-    background-color: #E6E7EC;
-}
+            .record-edit,
+            .record-delete,
+            .record-expand {
+                width: 25px;
+                text-align: center;
+                padding-right: 5px;
 
-.record-fields {
-    height: auto;
-    margin-top: 8px;
-    margin-left: 44.5px;
-}
+                &:hover {
+                    cursor: pointer;
+                }
+            }
+        }
+    }
 
+    .record-separator {
+        height: 1px;
+        width: auto;
+        background-color: #e6e7ec;
+    }
 
-.record-field {
-    height: 30px;
-    display: flex;
-    flex-direction: row;
-}
+    .record-fields {
+        margin-left: 44.5px;
 
-.record-field-type {
-    color: dodgerblue;
-    font-family: "Droid Sans Mono";
-    font-size: 12px;
-    letter-spacing: 0;
-    line-height: 24px;
-}
+        .record-field {
+            display: flex;
+            flex-direction: row;
+            /* stylelint-disable */
+            font-family: "Droid Sans Mono";
+            /* stylelint-enable */
+            font-size: 12px;
+            height: 38px;
+            align-items: center;
 
-.record-field-name {
-    color: #1D2028;
-    font-family: "Droid Sans Mono";
-    font-size: 12px;
-    letter-spacing: 0;
-    line-height: 24px;
-    margin-left: 10px;
+            .record-field-type {
+                color: dodgerblue;
+            }
+
+            .record-field-name {
+                color: #1d2028;
+                margin-left: 12px;
+            }
+        }
+    }
 }

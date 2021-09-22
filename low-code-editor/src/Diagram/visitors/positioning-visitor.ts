@@ -36,7 +36,6 @@ import { BIGPLUS_SVG_WIDTH } from "../components/Plus/Initial";
 import { PLUS_SVG_HEIGHT } from "../components/Plus/PlusAndCollapse/PlusSVG";
 import { EXISTING_PLUS_HOLDER_API_HEIGHT, EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_API_HEIGHT, PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_STATEMENT_HEIGHT } from "../components/Portals/Overlay/Elements/PlusHolder/PlusElements";
 import { START_SVG_SHADOW_OFFSET } from "../components/Start/StartSVG";
-import { TRIGGER_PARAMS_SVG_HEIGHT } from "../components/TriggerParams/TriggerParamsSVG";
 import { Endpoint, getPlusViewState, updateConnectorCX } from "../utils/st-util";
 import {
     BlockViewState,
@@ -135,25 +134,11 @@ class PositioningVisitor implements Visitor {
         viewState.trigger.cx = viewState.bBox.cx;
         viewState.trigger.cy = viewState.bBox.cy;
 
-        if (viewState.triggerParams) {
-            viewState.triggerParams.bBox.cx = viewState.trigger.cx;
-            viewState.triggerParams.bBox.cy = viewState.trigger.cy + (DefaultConfig.dotGap / 2);
-        }
-
         viewState.workerLine.x = viewState.trigger.cx;
         viewState.workerLine.y = viewState.trigger.cy + (viewState.trigger.h / 2);
 
         bodyViewState.bBox.cx = viewState.workerLine.x;
-        // bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
-
-        if (viewState.triggerParams) {
-            node?.functionSignature?.parameters?.length > 0 ?
-                viewState.triggerParams.visible = true : viewState.triggerParams.visible = false
-            viewState.triggerParams.visible ? bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom + TRIGGER_PARAMS_SVG_HEIGHT + DefaultConfig.dotGap
-                : bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
-        } else {
-            bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
-        }
+        bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
 
         viewState.end.bBox.cx = viewState.bBox.cx;
         viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.childPaddingY;
@@ -173,25 +158,11 @@ class PositioningVisitor implements Visitor {
         viewState.trigger.cy = viewState.bBox.cy + DefaultConfig.serviceVerticalPadding + viewState.trigger.h / 2
             + DefaultConfig.functionHeaderHeight;
 
-        if (viewState.triggerParams) {
-            viewState.triggerParams.bBox.cx = viewState.trigger.cx;
-            viewState.triggerParams.bBox.cy = viewState.trigger.cy + (DefaultConfig.dotGap / 2);
-        }
-
         viewState.workerLine.x = viewState.trigger.cx;
         viewState.workerLine.y = viewState.trigger.cy + (viewState.trigger.h / 2);
 
         bodyViewState.bBox.cx = viewState.workerLine.x;
-        // bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
-
-        if (viewState.triggerParams) {
-            node?.functionSignature?.parameters?.length > 0 ?
-                viewState.triggerParams.visible = true : viewState.triggerParams.visible = false
-            viewState.triggerParams.visible ? bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom + TRIGGER_PARAMS_SVG_HEIGHT + DefaultConfig.dotGap
-                : bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
-        } else {
-            bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
-        }
+        bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
 
         viewState.end.bBox.cx = viewState.bBox.cx + viewState.bBox.w / 2;
         viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.childPaddingY;
@@ -248,25 +219,11 @@ class PositioningVisitor implements Visitor {
         viewState.trigger.cy = viewState.bBox.cy + DefaultConfig.serviceVerticalPadding + viewState.trigger.h / 2
             + DefaultConfig.functionHeaderHeight;
 
-        if (viewState.triggerParams) {
-            viewState.triggerParams.bBox.cx = viewState.trigger.cx;
-            viewState.triggerParams.bBox.cy = viewState.trigger.cy + (DefaultConfig.dotGap / 2);
-        }
-
         viewState.workerLine.x = viewState.trigger.cx;
         viewState.workerLine.y = viewState.trigger.cy + (viewState.trigger.h / 2);
 
         bodyViewState.bBox.cx = viewState.workerLine.x;
-        // bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
-
-        if (viewState.triggerParams) {
-            node?.functionSignature?.parameters?.length > 0 ?
-                viewState.triggerParams.visible = true : viewState.triggerParams.visible = false
-            viewState.triggerParams.visible ? bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom + TRIGGER_PARAMS_SVG_HEIGHT + DefaultConfig.dotGap
-                : bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
-        } else {
-            bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
-        }
+        bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
 
         viewState.end.bBox.cx = viewState.bBox.cx + + viewState.bBox.w / 2;
         viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.childPaddingY;
@@ -283,24 +240,11 @@ class PositioningVisitor implements Visitor {
         viewState.trigger.cx = DefaultConfig.canvas.childPaddingX;
         viewState.trigger.cy = DefaultConfig.startingY + DefaultConfig.canvas.childPaddingY;
 
-        if (viewState.triggerParams) {
-            viewState.triggerParams.bBox.cx = viewState.trigger.cx;
-            viewState.triggerParams.bBox.cy = viewState.trigger.cy + (DefaultConfig.dotGap / 2);
-        }
-
         viewState.workerLine.x = viewState.trigger.cx;
         viewState.workerLine.y = viewState.trigger.cy + (viewState.trigger.h / 2);
 
         bodyViewState.bBox.cx = viewState.workerLine.x;
-
-        if (viewState.triggerParams) {
-            node?.functionSignature?.parameters?.length > 0 ?
-                viewState.triggerParams.visible = true : viewState.triggerParams.visible = false
-            viewState.triggerParams.visible ? bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom + TRIGGER_PARAMS_SVG_HEIGHT + DefaultConfig.dotGap
-                : bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
-        } else {
-            bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
-        }
+        bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
 
         viewState.end.bBox.cx = DefaultConfig.canvas.childPaddingX;
         viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.childPaddingY;
@@ -336,18 +280,7 @@ class PositioningVisitor implements Visitor {
             const plusBtnViewState: PlusViewState = viewState.initPlus;
             if (bodyViewState.draft === undefined && plusBtnViewState) {
                 plusBtnViewState.bBox.cx = viewState.trigger.cx - (BIGPLUS_SVG_WIDTH / 2);
-
-                if (viewState.triggerParams) {
-                    node?.functionSignature?.parameters?.length > 0 ?
-                        viewState.triggerParams.visible = true : viewState.triggerParams.visible = false
-                    viewState.triggerParams.visible ?
-                        plusBtnViewState.bBox.cy = viewState.trigger.cy + (viewState.trigger.h / 2) + viewState.trigger.offsetFromBottom + (START_SVG_SHADOW_OFFSET / 4) + TRIGGER_PARAMS_SVG_HEIGHT + (DefaultConfig.dotGap / 2)
-                        : plusBtnViewState.bBox.cy = viewState.trigger.cy + (viewState.trigger.h / 2) + viewState.trigger.offsetFromBottom + (START_SVG_SHADOW_OFFSET / 4);
-
-                } else {
-                    plusBtnViewState.bBox.cy = viewState.trigger.cy + (viewState.trigger.h / 2) + viewState.trigger.offsetFromBottom + (START_SVG_SHADOW_OFFSET / 4);
-
-                }
+                plusBtnViewState.bBox.cy = viewState.trigger.cy + (viewState.trigger.h / 2) + viewState.trigger.offsetFromBottom + (START_SVG_SHADOW_OFFSET / 4);
             }
         }
 

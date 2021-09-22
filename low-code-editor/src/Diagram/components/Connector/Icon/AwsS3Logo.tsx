@@ -19,8 +19,8 @@ export function AwsS3Logo(props: { cx?: number, cy?: number, scale?: number }) {
     const { cx, cy, scale } = props;
     return (
         <svg transform={scale ? `scale(${scale})` : ''} x={!cx ? 0 : cx - (AWSS3_LOGO_WIDTH / 2)} y={!cy ? 0 : cy - (AWSS3_LOGO_HEIGHT / 2)} width={AWSS3_LOGO_WIDTH} height={AWSS3_LOGO_HEIGHT}>
-            <g id="Aws-S3" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                <g id="develop-UI-kit" transform="translate(-696.000000, -2561.000000)" fill-rule="nonzero">
+            <g id="Aws-S3" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
+                <g id="develop-UI-kit" transform="translate(-696.000000, -2561.000000)" fillRule="nonzero">
                     <g id="Logo/AWSS3" transform="translate(696.000000, 2561.000000)">
                         <g id="AWSS3" transform="translate(1.666667, 0.000000)">
                             <polyline id="XMLID_2_" fill="#8C3123" points="1.32786885 3.4863388 0 4.15300546 0 15.8196721 1.32786885 16.4808743 1.33879781 16.4699454 1.33879781 3.49726776 1.32786885 3.4863388"/>

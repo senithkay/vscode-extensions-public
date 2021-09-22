@@ -22,7 +22,6 @@ import { BlockViewState, FunctionViewState } from "../../view-state";
 import { Canvas } from "../Canvas";
 import { End } from "../End";
 import { StartButton } from "../Start";
-import { TriggerParams } from "../TriggerParams";
 import { WorkerBody } from "../WorkerBody";
 import { WorkerLine } from "../WorkerLine";
 
@@ -74,7 +73,6 @@ export function Function(props: FunctionProps) {
         const block: FunctionBodyBlock = model.functionBody as FunctionBodyBlock;
         const isStatementsAvailable: boolean = block.statements.length > 0;
         const bodyViewState: BlockViewState = block.viewState;
-        const isTriggerParamsAvailable: boolean = viewState.triggerParams?.visible;
 
         component = (
             <g>
@@ -87,8 +85,6 @@ export function Function(props: FunctionProps) {
                 {isInitPlusAvailable && <StartButton model={model} />}
                 {!isInitPlusAvailable && <StartButton model={model} />}
                 {!isInitPlusAvailable && <WorkerBody model={block} viewState={block.viewState} />}
-                {isInitPlusAvailable && isTriggerParamsAvailable && <TriggerParams model={model} />}
-                {!isInitPlusAvailable && isTriggerParamsAvailable && <TriggerParams model={model} />}
                 {!isInitPlusAvailable && isStatementsAvailable && (!bodyViewState?.isEndComponentInMain ||
                     bodyViewState?.collapseView) && <End viewState={viewState.end} />}
             </g>

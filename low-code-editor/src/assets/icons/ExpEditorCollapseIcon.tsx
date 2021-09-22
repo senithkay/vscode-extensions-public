@@ -4,7 +4,7 @@ export default function ExpEditorCollapseIcon(props: any) {
     return (
         <svg width="18px" height="18px" viewBox="0 0 18 18" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
             <title>2D0EC81D-2972-4B5E-A7C7-197EB158FE5B</title>
-            <g id="Develop" stroke="none" stroke-width="1" fill="#FFFFFF" fill-rule="evenodd">
+            <g id="Develop" stroke="none" strokeWidth="1" fill="#FFFFFF" fillRule="evenodd">
                 <g id="develop-wizzard-suggestion-complex" transform="translate(-893.000000, -563.000000)">
                     <g id="Icon/Colapse" transform="translate(894.000000, 564.000000)">
                         <circle id="Oval" stroke="#E6E7EC" cx="8" cy="8" r="8"/>
