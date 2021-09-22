@@ -22,14 +22,14 @@
  * Test explorer implemntation.
  */
 import { getCurrentBallerinaProject } from '../utils/project-utils';
-import * as vscode from 'vscode';
+import { CancellationToken, debug, DebugConfiguration, Position, Range, RelativePattern, TestController, TestItem, TestItemCollection, TestMessage, TestRunProfileKind, TestRunRequest, tests, TextDocument, Uri, window, workspace, WorkspaceFolder } from 'vscode';
 import { BallerinaExtension, ExecutorPosition, LANGUAGE, } from "../core";
 import { BALLERINA_COMMANDS } from '../project';
 import fileUriToPath from 'file-uri-to-path';
 import { DEBUG_REQUEST, DEBUG_CONFIG } from '../debugger';
 import child_process from 'child_process';
-import * as path from 'path';
-import { debug } from '../utils';
+import path from 'path';
+import { debug as log } from '../utils';
 
 enum EXEC_POSITION_TYPE {
   SOURCE = 'source',
@@ -48,15 +48,15 @@ const fs = require('fs');
 const TEST_RESULTS_PATH = path.join("target", "report", "test_results.json").toString();
 
 export async function activate(ballerinaExtInstance: BallerinaExtension) {
-  const ctrl = vscode.tests.createTestController('ballerina-tests', 'Ballerina Tests');
+  const ctrl = tests.createTestController('ballerina-tests', 'Ballerina Tests');
   ballerinaExtInstance.context?.subscriptions.push(ctrl);
 
   // run tests.
-  const runHandler = (request: vscode.TestRunRequest, cancellation: vscode.CancellationToken) => {
-    const queue: { test: vscode.TestItem; data: any }[] = [];
+  const runHandler = (request: TestRunRequest, cancellation: CancellationToken) => {
+    const queue: { test: TestItem; data: any }[] = [];
     const run = ctrl.createTestRun(request);
 
-    const discoverTests = async (tests: Iterable<vscode.TestItem>) => {
+    const discoverTests = async (tests: Iterable<TestItem>) => {
       for (const test of tests) {
         if (request.exclude?.includes(test)) {
           continue;
@@ -75,7 +75,7 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
       run.appendOutput(`Running Tests\r\n`);
 
       let EndTime;
-      if (request.profile?.kind == vscode.TestRunProfileKind.Run) {
+      if (request.profile?.kind == TestRunProfileKind.Run) {
         let testNames = "";
         for (const { test, } of queue) {
           testNames = testNames == "" ? test.label : `${testNames},${test.label}`;
@@ -106,8 +106,8 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
                     run.passed(test, timeElapsed);
                   } else if (testResult.status === TEST_STATUS.FAILED) {
                     // test failed
-                    let testMessage: vscode.TestMessage;
-                    testMessage = new vscode.TestMessage(testResult.failureMessage);
+                    let testMessage: TestMessage;
+                    testMessage = new TestMessage(testResult.failureMessage);
                     run.failed(test, testMessage, timeElapsed);
                   }
                 }
@@ -115,10 +115,10 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
             }
           }
         }
-      } else if (request.profile?.kind == vscode.TestRunProfileKind.Debug) {
+      } else if (request.profile?.kind == TestRunProfileKind.Debug) {
         for (const { test, } of queue) {
           // Debugs tests.
-          await startDebugging(vscode.window.activeTextEditor!.document.uri, true, ballerinaExtInstance.getBallerinaCmd(),
+          await startDebugging(window.activeTextEditor!.document.uri, true, ballerinaExtInstance.getBallerinaCmd(),
             ballerinaExtInstance.getBallerinaHome(), [test.label]);
 
         }
@@ -132,8 +132,8 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
   };
 
   // create test profiles to display.
-  ctrl.createRunProfile('Run Tests', vscode.TestRunProfileKind.Run, runHandler, true);
-  ctrl.createRunProfile('Debug Tests', vscode.TestRunProfileKind.Debug, runHandler, true);
+  ctrl.createRunProfile('Run Tests', TestRunProfileKind.Run, runHandler, true);
+  ctrl.createRunProfile('Debug Tests', TestRunProfileKind.Debug, runHandler, true);
 
   ctrl.resolveHandler = async item => {
     if (!item) {
@@ -142,7 +142,7 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
     }
   };
 
-  async function updateNodeForDocument(e: vscode.TextDocument) {
+  async function updateNodeForDocument(e: TextDocument) {
     if (e.uri.scheme !== 'file' || !e.uri.path.endsWith('.bal')) {
       return;
     }
@@ -150,14 +150,14 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
     await createTests(ctrl, e.uri, ballerinaExtInstance);
   }
 
-  for (const document of vscode.workspace.textDocuments) {
+  for (const document of workspace.textDocuments) {
     updateNodeForDocument(document);
   }
 
   ballerinaExtInstance.context?.subscriptions.push(
-    vscode.workspace.onDidOpenTextDocument(updateNodeForDocument),
-    vscode.workspace.onDidChangeTextDocument(e => updateNodeForDocument(e.document)),
-    vscode.workspace.onDidSaveTextDocument(doc => updateNodeForDocument(doc)),
+    workspace.onDidOpenTextDocument(updateNodeForDocument),
+    workspace.onDidChangeTextDocument(e => updateNodeForDocument(e.document)),
+    workspace.onDidSaveTextDocument(doc => updateNodeForDocument(doc)),
   );
 }
 
@@ -176,7 +176,7 @@ async function runCommand(command, path: string | undefined) {
     }
     child_process.exec(`${command}`, { cwd: path }, (err, stdout, stderr) => {
       if (err) {
-        debug('error: ' + err);
+        log('error: ' + err);
         reject(err);
       } else {
         resolve("OK");
@@ -194,16 +194,16 @@ async function readTestJson(file): Promise<JSON> {
   return JSON.parse(rawdata);
 }
 
-async function startDebugging(uri: vscode.Uri, testDebug: boolean, ballerinaCmd: string, ballerinaHome: string, args: any[])
+async function startDebugging(uri: Uri, testDebug: boolean, ballerinaCmd: string, ballerinaHome: string, args: any[])
   : Promise<void> {
-  const workspaceFolder: vscode.WorkspaceFolder | undefined = vscode.workspace.getWorkspaceFolder(uri);
-  const debugConfig: vscode.DebugConfiguration = await constructDebugConfig(testDebug, ballerinaCmd,
+  const workspaceFolder: WorkspaceFolder | undefined = workspace.getWorkspaceFolder(uri);
+  const debugConfig: DebugConfiguration = await constructDebugConfig(testDebug, ballerinaCmd,
     ballerinaHome, args);
-  return vscode.debug.startDebugging(workspaceFolder, debugConfig).then(
+  return debug.startDebugging(workspaceFolder, debugConfig).then(
     // Wait for debug session to be complete.
     () => {
       return new Promise<void>((resolve) => {
-        vscode.debug.onDidTerminateDebugSession(() => {
+        debug.onDidTerminateDebugSession(() => {
           resolve();
         });
       });
@@ -218,7 +218,7 @@ async function startDebugging(uri: vscode.Uri, testDebug: boolean, ballerinaCmd:
  * @param uri File uri to find tests.
  * @param ballerinaExtInstance Balleina extension instace.
  */
-async function createTests(controller: vscode.TestController, uri: vscode.Uri, ballerinaExtInstance: BallerinaExtension) {
+async function createTests(controller: TestController, uri: Uri, ballerinaExtInstance: BallerinaExtension) {
   // Get tests from LS.
   await ballerinaExtInstance.langClient!.getExecutorPositions({
     documentIdentifier: {
@@ -232,10 +232,10 @@ async function createTests(controller: vscode.TestController, uri: vscode.Uri, b
       }
     });
     if (positions.length > 0) {
-      const ancestors: vscode.TestItem[] = [];
+      const ancestors: TestItem[] = [];
 
       let root;
-      vscode.workspace.workspaceFolders?.map(folder => { root = folder.uri.path });
+      workspace.workspaceFolders?.map(folder => { root = folder.uri.path });
       let relativePath = path.relative(root, uri.fsPath).split('/');
 
       let level = relativePath[0];
@@ -245,7 +245,7 @@ async function createTests(controller: vscode.TestController, uri: vscode.Uri, b
       // if already added to the test explorer.
       let rootNode = controller.items.get(fullPath);
       if (rootNode) {
-        let parentNode: vscode.TestItem = rootNode;
+        let parentNode: TestItem = rootNode;
         let pathToFind = uri.fsPath;
         while (pathToFind != '') {
           parentNode = getTestItemNode(rootNode, pathToFind);
@@ -258,7 +258,7 @@ async function createTests(controller: vscode.TestController, uri: vscode.Uri, b
         }
 
         if (parentNode && parentNode.id === uri.fsPath) {
-          let testCaseItems: vscode.TestItem[] = [];
+          let testCaseItems: TestItem[] = [];
           response.executorPositions!.forEach(position => {
 
             const tcase = createTestCase(controller, fullPath, position);
@@ -289,7 +289,7 @@ async function createTests(controller: vscode.TestController, uri: vscode.Uri, b
       }
 
       const parent = ancestors.pop()!;
-      let testCaseItems: vscode.TestItem[] = [];
+      let testCaseItems: TestItem[] = [];
       positions.forEach(position => {
         const tcase = createTestCase(controller, fullPath, position);
         testCaseItems.push(tcase);
@@ -305,19 +305,19 @@ async function createTests(controller: vscode.TestController, uri: vscode.Uri, b
 /**
  * Create folder level node in test explorer tree. 
  */
-function createTestCase(controller: vscode.TestController, fullPath: string, position: ExecutorPosition) {
+function createTestCase(controller: TestController, fullPath: string, position: ExecutorPosition) {
   const tcase = createTestItem(controller, `${fullPath}/${position.name}`, fullPath, position.name);
   tcase.canResolveChildren = false;
-  tcase.range = new vscode.Range(new vscode.Position(position.range.startLine.line, position.range.startLine.offset),
-    new vscode.Position(position.range.endLine.line, position.range.endLine.offset));
+  tcase.range = new Range(new Position(position.range.startLine.line, position.range.startLine.offset),
+    new Position(position.range.endLine.line, position.range.endLine.offset));
   return tcase;
 }
 
 /**
  * Create test item. 
  */
-function createTestItem(controller: vscode.TestController, id: string, path: string, label: string): vscode.TestItem {
-  const uri = vscode.Uri.file(path);
+function createTestItem(controller: TestController, id: string, path: string, label: string): TestItem {
+  const uri = Uri.file(path);
   const item = controller.createTestItem(id, label, uri);
   item.canResolveChildren = true;
   return item;
@@ -328,7 +328,7 @@ function createTestItem(controller: vscode.TestController, id: string, path: str
  * if the parent is not found. Always check the parent id with the returned
  * parent's id to validate.
  */
-function getTestItemNode(testNode: vscode.TestItem, id: string): vscode.
+function getTestItemNode(testNode: TestItem, id: string):
   TestItem {
   if (testNode.canResolveChildren && testNode.id === id) {
     return testNode;
@@ -342,20 +342,20 @@ function getTestItemNode(testNode: vscode.TestItem, id: string): vscode.
   return testNode;
 }
 
-function gatherTestItems(collection: vscode.TestItemCollection) {
-  const items: vscode.TestItem[] = [];
+function gatherTestItems(collection: TestItemCollection) {
+  const items: TestItem[] = [];
   collection.forEach(item => items.push(item));
   return items;
 }
 
-function startWatchingWorkspace(controller: vscode.TestController, ballerinaExtInstance: BallerinaExtension) {
-  if (!vscode.workspace.workspaceFolders) {
+function startWatchingWorkspace(controller: TestController, ballerinaExtInstance: BallerinaExtension) {
+  if (!workspace.workspaceFolders) {
     return [];
   }
 
-  return vscode.workspace.workspaceFolders.map(workspaceFolder => {
-    const pattern = new vscode.RelativePattern(workspaceFolder, '**/*.bal');
-    const watcher = vscode.workspace.createFileSystemWatcher(pattern);
+  return workspace.workspaceFolders.map(workspaceFolder => {
+    const pattern = new RelativePattern(workspaceFolder, '**/*.bal');
+    const watcher = workspace.createFileSystemWatcher(pattern);
 
     watcher.onDidCreate(uri => createTests(controller, uri, ballerinaExtInstance));
     watcher.onDidChange(async uri => {
@@ -363,7 +363,7 @@ function startWatchingWorkspace(controller: vscode.TestController, ballerinaExtI
     });
     watcher.onDidDelete(uri => controller.items.delete(uri.toString()));
 
-    vscode.workspace.findFiles(pattern).then(async files => {
+    workspace.findFiles(pattern).then(async files => {
       for (const fileX of files) {
         await createTests(controller, fileX, ballerinaExtInstance);
       }
@@ -374,14 +374,14 @@ function startWatchingWorkspace(controller: vscode.TestController, ballerinaExtI
 }
 
 async function constructDebugConfig(testDebug: boolean, ballerinaCmd: string, ballerinaHome: string, args: any[])
-  : Promise<vscode.DebugConfiguration> {
+  : Promise<DebugConfiguration> {
 
   let programArgs = [];
   let commandOptions = [];
   let env = {};
-  const debugConfigs: vscode.DebugConfiguration[] = vscode.workspace.getConfiguration(DEBUG_REQUEST.LAUNCH).configurations;
+  const debugConfigs: DebugConfiguration[] = workspace.getConfiguration(DEBUG_REQUEST.LAUNCH).configurations;
   if (debugConfigs.length > 0) {
-    let debugConfig: vscode.DebugConfiguration | undefined;
+    let debugConfig: DebugConfiguration | undefined;
     for (let i = 0; i < debugConfigs.length; i++) {
       if ((testDebug && debugConfigs[i].name == DEBUG_CONFIG.TEST_DEBUG_NAME) ||
         (!testDebug && debugConfigs[i].name == DEBUG_CONFIG.SOURCE_DEBUG_NAME)) {
@@ -402,11 +402,11 @@ async function constructDebugConfig(testDebug: boolean, ballerinaCmd: string, ba
     }
   }
 
-  const debugConfig: vscode.DebugConfiguration = {
+  const debugConfig: DebugConfiguration = {
     type: LANGUAGE.BALLERINA,
     name: testDebug ? DEBUG_CONFIG.TEST_DEBUG_NAME : DEBUG_CONFIG.SOURCE_DEBUG_NAME,
     request: DEBUG_REQUEST.LAUNCH,
-    script: fileUriToPath(vscode.window.activeTextEditor!.document.uri.toString()),
+    script: fileUriToPath(window.activeTextEditor!.document.uri.toString()),
     networkLogs: false,
     debugServer: '10001',
     debuggeePort: '5010',
