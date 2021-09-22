@@ -52,25 +52,31 @@ export function ListenerC(props: ListenerProps) {
     return (
         <>
             <div className="listener-comp" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} >
-                <div className="listener-icon">
-                    <ListenerIcon />
-                </div>
-                <div className="listener-type">
-                    HTTP
-                </div>
-                <div className="listener-name">
-                    {listenerName}
-                </div>
-                { isEditable && (
-                    <>
-                        <div className={"editBtnWrapper"}>
-                            <EditButton/>
+                <div className="listener-header">
+                    <div className="listener-content">
+                        <div className="listener-icon">
+                            <ListenerIcon />
                         </div>
-                        <div className={"deleteBtnWrapper"}>
-                            <DeleteButton/>
+                        <div className="listener-type">
+                            HTTP
                         </div>
-                    </>
-                )}
+                        <div className="listener-name">
+                            {listenerName}
+                        </div>
+                    </div>
+                    {isEditable && (
+                        <div className={"listener-amendment-options"}>
+                            <>
+                                <div className={"editBtnWrapper"}>
+                                    <EditButton />
+                                </div>
+                                <div className={"deleteBtnWrapper"}>
+                                    <DeleteButton />
+                                </div>
+                            </>
+                        </div>
+                    )}
+                </div>
             </div>
             {/* <TopLevelPlus
                 margin={{ top: LISTENER_PLUS_OFFSET, bottom: LISTENER_PLUS_OFFSET, left: LISTENER_MARGIN_LEFT }}
