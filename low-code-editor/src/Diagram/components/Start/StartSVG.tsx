@@ -12,88 +12,41 @@
  */
 // tslint:disable: jsx-no-multiline-js
 // tslint:disable: jsx-wrap-multiline
-import React, { useContext } from "react";
+import React from "react";
 
-import { Context } from "../../../Contexts/Diagram";
-
-import { EditIconSVG } from "./Hover/EditIconSVG";
-
-export const START_SVG_WIDTH_WITH_SHADOW = 131;
-export const START_SVG_HEIGHT_WITH_SHADOW = 63;
-export const START_HOVER_SVG_WIDTH_WITH_SHADOW = 165;
-export const START_HOVER_SVG_HEIGHT_WITH_SHADOW = 94;
-export const START_SVG_WIDTH = 113;
-export const START_SVG_HEIGHT = 49;
+export const START_SVG_WIDTH_WITH_SHADOW = 94;
+export const START_SVG_HEIGHT_WITH_SHADOW = 52;
+export const START_HOVER_SVG_WIDTH_WITH_SHADOW = 94;
+export const START_HOVER_SVG_HEIGHT_WITH_SHADOW = 52;
+export const START_SVG_WIDTH = 82;
+export const START_SVG_HEIGHT = 40;
 export const START_SVG_SHADOW_OFFSET = START_SVG_HEIGHT_WITH_SHADOW - START_SVG_HEIGHT;
 
-export function StartSVG(props: {
-    x: number,
-    y: number,
-    text: string,
-    showIcon: boolean,
-    resourceText?: string,
-    handleDropDown?: () => void,
-    handleEdit: () => void
-}) {
-    const { props: contextProps } = useContext(Context);
-    const { isMutationProgress, isWaitingOnWorkspace, isReadOnly } = contextProps;
-    const { text, showIcon, handleDropDown, handleEdit, resourceText, ...xyProps } = props;
+export function StartSVG(props: { x: number, y: number, text: string}) {
+    const { text, ...xyProps } = props;
 
     return (
-        <svg {...xyProps} width={START_HOVER_SVG_WIDTH_WITH_SHADOW} height={START_HOVER_SVG_HEIGHT_WITH_SHADOW} >
+        <svg {...xyProps} width={START_HOVER_SVG_WIDTH_WITH_SHADOW} height={START_HOVER_SVG_HEIGHT_WITH_SHADOW}>
             <defs>
-                <filter id="StartFilterDefault" x="-10" y="0" width="131" height="67" filterUnits="userSpaceOnUse">
-                    <feOffset dy="2" in="SourceAlpha" />
-                    <feGaussianBlur stdDeviation="3" result="blur" />
-                    <feFlood floodColor="#a9acb6" floodOpacity="0.722" />
-                    <feComposite operator="in" in2="blur" />
-                    <feComposite in="SourceGraphic" />
-                </filter>
-                <filter id="StartFilterHover" x="-20" y="-20" width="158" height="94" filterUnits="userSpaceOnUse">
+                <filter id="StartFilterDefault" x="0" y="0" width="94" height="52" filterUnits="userSpaceOnUse">
                     <feOffset dy="1" in="SourceAlpha" />
-                    <feGaussianBlur stdDeviation="7.5" result="blur" />
-                    <feFlood floodColor="#a9acb6" floodOpacity="0.478" />
+                    <feGaussianBlur stdDeviation="2" result="blur" />
+                    <feFlood floodColor="#a9acb6" floodOpacity="0.388" />
                     <feComposite operator="in" in2="blur" />
                     <feComposite in="SourceGraphic" />
                 </filter>
-                <filter id="StartFilterClick" x="0" y="0" width="158" height="94" filterUnits="userSpaceOnUse">
-                    <feOffset dy="1" in="SourceAlpha" />
-                    <feGaussianBlur stdDeviation="1.5" result="blur" />
-                    <feFlood floodColor="#a9acb6" floodOpacity="0.722" />
-                    <feComposite operator="in" in2="blur" />
-                    <feComposite in="SourceGraphic" />
-                </filter>
-
+                <linearGradient id="linear-gradient" x1="0.5" x2="0.5" y2="1" gradientUnits="objectBoundingBox">
+                    <stop offset="0" stopColor="#fcfcfd" />
+                    <stop offset="1" stopColor="#f7f8fb" />
+                </linearGradient>
             </defs>
-            <g id="Start" className="start-button" transform="translate(0 1)" >
-                <g transform="matrix(1, 0, 0, 1, 0, -1)" className="start-button-rect">
-                    <rect id="StartRectangle" width="105" height="49" rx="24.5" transform="translate(10 7)" />
+            <g id="Start" className="start-button" >
+                <g className="start-button-rect">
+                    <rect id="StartRectangle" width={START_SVG_WIDTH} height={START_SVG_HEIGHT} rx="24.5" />
                 </g>
-                {resourceText ? (
-                    <text id="StartText" transform="translate(10 7)" x="52" y="21" >
-                        <tspan className="start-text">
-                            {text}
-                        </tspan>
-                        <tspan className="resource-text" y="35" x="52">
-                            {resourceText}
-                        </tspan>
-                    </text>
-                ) : (
-                    <text id="StartText" transform="translate(10 7)" x="52" y="27" >
-                        <tspan className="start-text">
-                            {text}
-                        </tspan>
-                    </text>
-                )}
-                {!isMutationProgress && !isWaitingOnWorkspace && (<>
-                    {(!isReadOnly) && (<g className="start-options-wrapper">
-                        <rect className="start-rect" x={20} y={13} width="80" height="35" />
-                        <g >
-                            <EditIconSVG x={46} y={15} onClick={handleEdit} />
-                        </g>
-                    </g>)}
-                </>)
-                }
+                <text id="StartText" x="44" y="24" >
+                    <tspan className="start-text"> {text}  </tspan>
+                </text>
             </g>
         </svg>
     )

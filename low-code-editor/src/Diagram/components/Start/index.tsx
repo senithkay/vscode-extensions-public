@@ -37,6 +37,7 @@ import { ConnectorType, TriggerDropDown } from "../Portals/Overlay/Elements";
 
 import {
     StartSVG,
+    START_SVG_HEIGHT,
     START_SVG_HEIGHT_WITH_SHADOW,
     START_SVG_WIDTH_WITH_SHADOW
 } from "./StartSVG";
@@ -116,63 +117,63 @@ export function StartButton(props: StartButtonProps) {
         diagramRedraw(syntaxTree);
     };
 
-    const handleSubMenuClose = () => {
-        setShowDropDownC(false);
-        setdropDownC(undefined);
-    };
+    // const handleSubMenuClose = () => {
+    //     setShowDropDownC(false);
+    //     setdropDownC(undefined);
+    // };
 
-    const handleOnScheduleComplete = () => {
-        handleOnComplete(activeTriggerType);
-    }
+    // const handleOnScheduleComplete = () => {
+    //     handleOnComplete(activeTriggerType);
+    // }
 
-    const getWebhookType = (): ConnectorType => {
-        const webHookSyntaxTree = originalSyntaxTree as ModulePart;
-        const services: ServiceDeclaration[] = webHookSyntaxTree.members.filter(member =>
-            STKindChecker.isServiceDeclaration(member)) as ServiceDeclaration[];
-        let webHookType;
-        services.forEach(service => {
-            if ((service as ServiceDeclaration).absoluteResourcePath.find(resourcePath =>
-                resourcePath.value === "calendar")) {
-                webHookType = ConnectorType.G_CALENDAR;
-            } else if ((service as ServiceDeclaration)?.expressions?.find(expression =>
-                (expression as SimpleNameReference)?.name?.value === "githubWebhookListener")) {
-                webHookType = ConnectorType.GITHUB;
-            } else if ((webHookSyntaxTree).members?.find(member => (((member as ModuleVarDecl)?.
-                typedBindingPattern?.bindingPattern) as CaptureBindingPattern)?.typeData?.
-                typeSymbol?.moduleID?.moduleName === "sfdc")) {
-                webHookType = ConnectorType.SALESFORCE;
-            }
-        });
-        return webHookType as ConnectorType;
-    }
+    // const getWebhookType = (): ConnectorType => {
+    //     const webHookSyntaxTree = originalSyntaxTree as ModulePart;
+    //     const services: ServiceDeclaration[] = webHookSyntaxTree.members.filter(member =>
+    //         STKindChecker.isServiceDeclaration(member)) as ServiceDeclaration[];
+    //     let webHookType;
+    //     services.forEach(service => {
+    //         if ((service as ServiceDeclaration).absoluteResourcePath.find(resourcePath =>
+    //             resourcePath.value === "calendar")) {
+    //             webHookType = ConnectorType.G_CALENDAR;
+    //         } else if ((service as ServiceDeclaration)?.expressions?.find(expression =>
+    //             (expression as SimpleNameReference)?.name?.value === "githubWebhookListener")) {
+    //             webHookType = ConnectorType.GITHUB;
+    //         } else if ((webHookSyntaxTree).members?.find(member => (((member as ModuleVarDecl)?.
+    //             typedBindingPattern?.bindingPattern) as CaptureBindingPattern)?.typeData?.
+    //             typeSymbol?.moduleID?.moduleName === "sfdc")) {
+    //             webHookType = ConnectorType.SALESFORCE;
+    //         }
+    //     });
+    //     return webHookType as ConnectorType;
+    // }
 
-    const handleWebhookEditOnComplete = () => {
-        setdropDownC(undefined);
-        handleOnComplete(TRIGGER_TYPE_WEBHOOK);
-    }
+    // const handleWebhookEditOnComplete = () => {
+    //     setdropDownC(undefined);
+    //     handleOnComplete(TRIGGER_TYPE_WEBHOOK);
+    // }
 
-    const handleEditClick = () => {
-        const position: DiagramOverlayPosition = {
-            x: cx + DefaultConfig.triggerPortalOffset.x,
-            y: cy + DefaultConfig.triggerPortalOffset.y
-        };
-        setdropDownC(
-            <TriggerDropDown
-                position={position}
-                onClose={handleOnClose}
-                isEmptySource={emptySource}
-                triggerType={activeTriggerType}
-                activeConnectorType={getWebhookType()}
-                onComplete={handleOnComplete}
-                configData={getConfigDataFromSt(activeTriggerType, model as FunctionDefinition, currentApp)}
-            />
-        );
-        if (plusView) {
-            plusView.isTriggerDropdown = true;
-        }
-        setShowDropDownC(true);
-        diagramRedraw(syntaxTree);
-    };
+    // const handleEditClick = () => {
+    //     const position: DiagramOverlayPosition = {
+    //         x: cx + DefaultConfig.triggerPortalOffset.x,
+    //         y: cy + DefaultConfig.triggerPortalOffset.y
+    //     };
+    //     setdropDownC(
+    //         <TriggerDropDown
+    //             position={position}
+    //             onClose={handleOnClose}
+    //             isEmptySource={emptySource}
+    //             triggerType={activeTriggerType}
+    //             activeConnectorType={getWebhookType()}
+    //             onComplete={handleOnComplete}
+    //             configData={getConfigDataFromSt(activeTriggerType, model as FunctionDefinition, currentApp)}
+    //         />
+    //     );
+    //     if (plusView) {
+    //         plusView.isTriggerDropdown = true;
+    //     }
+    //     setShowDropDownC(true);
+    //     diagramRedraw(syntaxTree);
+    // };
 
     function handleOnComplete(newTrigger: TriggerType) {
         setActiveTriggerType(newTrigger);
@@ -242,14 +243,12 @@ export function StartButton(props: StartButtonProps) {
 
     return (
         // hide edit button for triggers and expression bodied functions
-        <g className={((block && STKindChecker.isExpressionFunctionBody(block)) || triggerType === TRIGGER_TYPE_WEBHOOK || triggerText === "FUNCTION") ? "start-wrapper" : "start-wrapper-edit"}>
+        // <g className={((block && STKindChecker.isExpressionFunctionBody(block)) || triggerType === TRIGGER_TYPE_WEBHOOK || triggerText === "FUNCTION") ? "start-wrapper" : "start-wrapper-edit"}>
+        <g className="start-wrapper">
             <StartSVG
-                x={cx - (START_SVG_WIDTH_WITH_SHADOW / 2) + (DefaultConfig.dotGap / 3)}
-                y={cy - (START_SVG_HEIGHT_WITH_SHADOW / 2)}
+                x={cx - (START_SVG_WIDTH_WITH_SHADOW / 2) + DefaultConfig.dotGap / 2}
+                y={cy - (START_SVG_HEIGHT / 2)}
                 text={triggerText}
-                resourceText={additionalInfo}
-                showIcon={true}
-                handleEdit={handleEditClick}
             />
             {triggerUpdated && <TriggerUpdatedSVG className="animated fadeOut" x={cx + START_SVG_WIDTH_WITH_SHADOW / 2} y={cy - (START_SVG_HEIGHT_WITH_SHADOW / 2 - UPDATE_TRIGGER_SVG_HEIGHT / 2)} />}
             {block && initPlusAvailable && !showDropDownC && <PlusButton viewState={plusView} model={block} initPlus={true} />}
