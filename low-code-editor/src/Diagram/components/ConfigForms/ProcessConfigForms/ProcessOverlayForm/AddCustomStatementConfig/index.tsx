@@ -47,12 +47,12 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         }
     } = useContext(Context);
     const { config, onCancel, onSave } = props;
-    const isExisting = config.wizardType === WizardType.EXISTING;
+    // const isExisting = config.wizardType === WizardType.EXISTING;
 
     const expressionFormConfig: CustomExpressionConfig = config.config as CustomExpressionConfig;
 
     let defaultExpression = "";
-    if (isExisting) {
+    if (expressionFormConfig) {
         defaultExpression = config?.model?.source.trim();
     }
 

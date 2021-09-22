@@ -43,7 +43,6 @@ export interface AddProcessFormProps {
     onCancel: () => void;
     onSave: () => void;
     model?: STNode;
-    wizardType: WizardType;
     position: DiagramOverlayPosition;
     configOverlayFormStatus: ConfigOverlayFormStatus;
 }
@@ -59,19 +58,23 @@ export function ProcessConfigForm(props: any) {
         props: { currentApp, stSymbolInfo }
     } = useContext(Context);
 
-    const { onCancel, onSave, wizardType, position, configOverlayFormStatus } = props as AddProcessFormProps;
+    const { onCancel, onSave, configOverlayFormStatus } = props as AddProcessFormProps;
     const { formArgs, formType } = configOverlayFormStatus;
 
     const processConfig: ProcessConfig = {
         type: formType,
         scopeSymbols: [],
-        model: formArgs?.model,
-        wizardType,
+        model: formArgs?.model
     };
+
+    const position = {
+        x: 264.5,
+        y: 0
+    }
 
     const onSaveClick = () => {
         const modifications: STModification[] = [];
-        if (wizardType === WizardType.EXISTING) {
+        if (processConfig.model) {
             switch (processConfig.type) {
                 case 'Variable':
                     const propertyConfig: string = processConfig.config as string;

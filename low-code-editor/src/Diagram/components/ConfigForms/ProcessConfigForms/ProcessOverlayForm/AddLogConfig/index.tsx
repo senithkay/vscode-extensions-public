@@ -53,7 +53,6 @@ export function AddLogConfig(props: LogConfigProps) {
         }
     } = useContext(Context);
     const { config, onCancel, onSave } = props;
-    const isExisting = config.wizardType === WizardType.EXISTING;
     const logTypeFunctionNameMap: Map<string, string> = new Map([
         ['printInfo', 'Info'],
         ['printDebug', 'Debug'],
@@ -63,15 +62,15 @@ export function AddLogConfig(props: LogConfigProps) {
     const logTypes: string[] = Array.from(logTypeFunctionNameMap.values());
     const logFormConfig: LogConfig = config.config as LogConfig;
 
+    const logModel: CallStatement = config.model as CallStatement;
+
     let defaultType = "Info";
     let defaultExpression = "";
-    if (isExisting) {
-        const logModel: CallStatement = config.model as CallStatement;
+    if (logModel) {
         const functionCallModel: FunctionCall = logModel.expression as FunctionCall;
         defaultType = logTypeFunctionNameMap.get((functionCallModel.functionName as QualifiedNameReference).identifier.value);
         defaultExpression = functionCallModel.arguments[0].source;
     }
-
     const [logType, setLogType] = useState(defaultType);
     const [expression, setExpression] = useState(defaultExpression);
     const [isFormValid, setIsFormValid] = useState(logType && expression);
