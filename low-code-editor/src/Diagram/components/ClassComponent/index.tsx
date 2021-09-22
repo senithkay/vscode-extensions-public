@@ -19,7 +19,7 @@ import { getSTComponent, getSTComponents } from "../../utils";
 import { ClassHeader } from "./ClassHeader";
 import './style.scss'
 
-interface ClassComponentProps {
+export interface ClassComponentProps {
     model: ClassDefinition
 }
 

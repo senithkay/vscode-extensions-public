@@ -47,15 +47,7 @@ module.exports = (env, argv) => ({
             {
                 test: /\.css$/,
                 include: APP_DIR,
-                use: [{
-                    loader: 'style-loader',
-                }, {
-                    loader: 'css-loader',
-                    options: {
-                        modules: true,
-                        namedExport: true,
-                    },
-                }],
+                use: ['style-loader', 'css-loader'],
             },
             {
                 test: /\.css$/,
@@ -63,9 +55,9 @@ module.exports = (env, argv) => ({
                 use: ['style-loader', 'css-loader'],
             },
             {
-                test: /\.ttf$/,
-                include: [MONACO_DIR],
-                use: ['file-loader']
+                test: /\.(woff|woff2|ttf|otf|eot)$/,
+                include: [APP_DIR, MONACO_DIR],
+                type: 'asset/inline'
             },
             {
                 test: /\.svg/,

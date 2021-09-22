@@ -45,20 +45,15 @@ export function Constant(props: ConstantProps) {
     const handleMouseEnter = () => {
         setIsEditable(true);
     };
+
     const handleMouseLeave = () => {
         setIsEditable(false);
     };
-
 
     return (
         <div>
             <div
                 className={"moduleVariableContainer"}
-                style={{
-                    marginLeft: MODULE_VAR_MARGIN_LEFT,
-                    width: MIN_MODULE_VAR_WIDTH,
-                    height: MODULE_VAR_HEIGHT
-                }}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
                 data-test-id="const"
@@ -85,9 +80,11 @@ export function Constant(props: ConstantProps) {
                     )}
                 </div>
             </div>
+
+            {/* ToDo: sort out the top level plus
             <TopLevelPlus
                 margin={{ top: MODULE_VAR_PLUS_OFFSET, bottom : MODULE_VAR_PLUS_OFFSET, left: MODULE_VAR_MARGIN_LEFT }}
-            />
+            /> */}
         </div>
     );
 }
