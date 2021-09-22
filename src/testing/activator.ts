@@ -82,18 +82,18 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
           run.started(test);
         }
         let testsJson: JSON | undefined = undefined;
-        const path = (await getCurrentBallerinaProject()).path;
+        const rootPath = (await getCurrentBallerinaProject()).path;
         try {
           // execute test
           const executor = ballerinaExtInstance.getBallerinaCmd();
           const commandText = `${executor} ${BALLERINA_COMMANDS.TEST} ${EXEC_ARG.TESTS} ${testNames} ${EXEC_ARG.COVERAGE}`;
-          await runCommand(commandText, path);
+          await runCommand(commandText, rootPath);
 
         } catch {
           // exception.
         } finally {
           EndTime = Date.now();
-          testsJson = await readTestJson(`${path}/${TEST_RESULTS_PATH}`);
+          testsJson = await readTestJson(path.join(rootPath!, TEST_RESULTS_PATH).toString());
           if (testsJson) {
             const moduleStatus = testsJson["moduleStatus"];
             const testResults = moduleStatus[0]["tests"];
@@ -164,17 +164,17 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
 /** 
  * Run terminal command.
  * @param command Command to run.
- * @param path Path to execute the command.
+ * @param pathToRun Path to execute the command.
  */
-async function runCommand(command, path: string | undefined) {
+async function runCommand(command, pathToRun: string | undefined) {
   return new Promise<string>(function (resolve, reject) {
-    if (path == undefined) {
+    if (pathToRun == undefined) {
       return;
-    } else if (path.endsWith(".bal")) {
-      const lastIndex = path.lastIndexOf("/");
-      path = path.slice(0, lastIndex);
+    } else if (pathToRun.endsWith(".bal")) {
+      const lastIndex = pathToRun.lastIndexOf(path.sep);
+      pathToRun = pathToRun.slice(0, lastIndex);
     }
-    child_process.exec(`${command}`, { cwd: path }, (err, stdout, stderr) => {
+    child_process.exec(`${command}`, { cwd: pathToRun }, (err, stdout, stderr) => {
       if (err) {
         log('error: ' + err);
         reject(err);
@@ -236,10 +236,10 @@ async function createTests(controller: TestController, uri: Uri, ballerinaExtIns
 
       let root;
       workspace.workspaceFolders?.map(folder => { root = folder.uri.path });
-      let relativePath = path.relative(root, uri.fsPath).split('/');
+      let relativePath = path.relative(root, uri.fsPath).toString().split(path.sep);
 
       let level = relativePath[0];
-      let fullPath = `${root}/${level}`;
+      let fullPath = path.join(root, level).toString();
       let depth = 0;
 
       // if already added to the test explorer.
@@ -250,10 +250,10 @@ async function createTests(controller: TestController, uri: Uri, ballerinaExtIns
         while (pathToFind != '') {
           parentNode = getTestItemNode(rootNode, pathToFind);
           if (parentNode.id == pathToFind) {
-            relativePath = path.relative(pathToFind, uri.fsPath).split('/');
+            relativePath = path.relative(pathToFind, uri.fsPath).split(path.sep);
             break;
           }
-          const lastIndex = pathToFind.lastIndexOf("/");
+          const lastIndex = pathToFind.lastIndexOf(path.sep);
           pathToFind = pathToFind.slice(0, lastIndex);
         }
 
@@ -281,7 +281,7 @@ async function createTests(controller: TestController, uri: Uri, ballerinaExtIns
       for (depth; depth < relativePath.length; depth++) {
         const parent = ancestors.pop()!;
         const level = relativePath[depth];
-        fullPath = `${fullPath}/${level}`;
+        fullPath = path.join(fullPath, level).toString();
         const middleNode = createTestItem(controller, fullPath, fullPath, level);
         middleNode.canResolveChildren = true;
         parent.children.add(middleNode);
