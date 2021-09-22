@@ -14,11 +14,9 @@
 import React, { ReactNode, useContext, useEffect, useState } from "react";
 
 import {
-    CaptureBindingPattern, DotToken,
     FunctionBodyBlock,
-    FunctionDefinition, IdentifierToken,
-    ModulePart, ModuleVarDecl,
-    ServiceDeclaration, SimpleNameReference,
+    FunctionDefinition,
+    ModulePart,
     STKindChecker,
 } from "@ballerina/syntax-tree";
 
@@ -29,11 +27,10 @@ import {
     TRIGGER_TYPE_API,
     TRIGGER_TYPE_WEBHOOK
 } from "../../models";
-import { getConfigDataFromSt } from "../../utils/st-util";
 import { DefaultConfig } from "../../visitors/default";
 import { PlusButton } from "../Plus";
 import { DiagramOverlayPosition } from "../Portals/Overlay";
-import { ConnectorType, TriggerDropDown } from "../Portals/Overlay/Elements";
+import { TriggerDropDown } from "../Portals/Overlay/Elements";
 
 import {
     StartSVG,
@@ -53,8 +50,6 @@ export function StartButton(props: StartButtonProps) {
         actions: { diagramRedraw, setTriggerUpdated },
         props: {
             currentAppType,
-            currentApp,
-            originalSyntaxTree,
             syntaxTree,
             isReadOnly,
             isMutationProgress,
@@ -116,64 +111,6 @@ export function StartButton(props: StartButtonProps) {
         }
         diagramRedraw(syntaxTree);
     };
-
-    // const handleSubMenuClose = () => {
-    //     setShowDropDownC(false);
-    //     setdropDownC(undefined);
-    // };
-
-    // const handleOnScheduleComplete = () => {
-    //     handleOnComplete(activeTriggerType);
-    // }
-
-    // const getWebhookType = (): ConnectorType => {
-    //     const webHookSyntaxTree = originalSyntaxTree as ModulePart;
-    //     const services: ServiceDeclaration[] = webHookSyntaxTree.members.filter(member =>
-    //         STKindChecker.isServiceDeclaration(member)) as ServiceDeclaration[];
-    //     let webHookType;
-    //     services.forEach(service => {
-    //         if ((service as ServiceDeclaration).absoluteResourcePath.find(resourcePath =>
-    //             resourcePath.value === "calendar")) {
-    //             webHookType = ConnectorType.G_CALENDAR;
-    //         } else if ((service as ServiceDeclaration)?.expressions?.find(expression =>
-    //             (expression as SimpleNameReference)?.name?.value === "githubWebhookListener")) {
-    //             webHookType = ConnectorType.GITHUB;
-    //         } else if ((webHookSyntaxTree).members?.find(member => (((member as ModuleVarDecl)?.
-    //             typedBindingPattern?.bindingPattern) as CaptureBindingPattern)?.typeData?.
-    //             typeSymbol?.moduleID?.moduleName === "sfdc")) {
-    //             webHookType = ConnectorType.SALESFORCE;
-    //         }
-    //     });
-    //     return webHookType as ConnectorType;
-    // }
-
-    // const handleWebhookEditOnComplete = () => {
-    //     setdropDownC(undefined);
-    //     handleOnComplete(TRIGGER_TYPE_WEBHOOK);
-    // }
-
-    // const handleEditClick = () => {
-    //     const position: DiagramOverlayPosition = {
-    //         x: cx + DefaultConfig.triggerPortalOffset.x,
-    //         y: cy + DefaultConfig.triggerPortalOffset.y
-    //     };
-    //     setdropDownC(
-    //         <TriggerDropDown
-    //             position={position}
-    //             onClose={handleOnClose}
-    //             isEmptySource={emptySource}
-    //             triggerType={activeTriggerType}
-    //             activeConnectorType={getWebhookType()}
-    //             onComplete={handleOnComplete}
-    //             configData={getConfigDataFromSt(activeTriggerType, model as FunctionDefinition, currentApp)}
-    //         />
-    //     );
-    //     if (plusView) {
-    //         plusView.isTriggerDropdown = true;
-    //     }
-    //     setShowDropDownC(true);
-    //     diagramRedraw(syntaxTree);
-    // };
 
     function handleOnComplete(newTrigger: TriggerType) {
         setActiveTriggerType(newTrigger);
@@ -243,7 +180,6 @@ export function StartButton(props: StartButtonProps) {
 
     return (
         // hide edit button for triggers and expression bodied functions
-        // <g className={((block && STKindChecker.isExpressionFunctionBody(block)) || triggerType === TRIGGER_TYPE_WEBHOOK || triggerText === "FUNCTION") ? "start-wrapper" : "start-wrapper-edit"}>
         <g className="start-wrapper">
             <StartSVG
                 x={cx - (START_SVG_WIDTH_WITH_SHADOW / 2) + DefaultConfig.dotGap / 2}
