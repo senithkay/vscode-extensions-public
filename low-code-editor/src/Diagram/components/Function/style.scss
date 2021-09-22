@@ -16,6 +16,7 @@
     border: 1px dashed #c1e4fc;
     border-radius: 6px;
     background-color: #f4faff;
+    font-family: "Gilmer", sans-serif;
 
     &.expanded {
         border: 1px solid #c1e4fc;
@@ -93,12 +94,19 @@
         }
 
         .path-text {
-            margin-top: 10px;
-            margin-left: 8px;
+            font-family: inherit;
+            margin: 15px 0 10px 8px;
+            font-weight: 300;
+            color: #222228;
+            display: flex;
+            flex-wrap: wrap;
 
             span {
-                &.param:not(:first-child) {
-                    margin-left: 24px;
+                padding-bottom: 10px;
+                margin-right: 24px;
+
+                sub {
+                    vertical-align: bottom;
                 }
             }
         }
@@ -109,21 +117,26 @@
 
         .resource-badge {
             height: 32px;
-            width: 67px;
+            min-width: 67px;
             margin: 8px 0 8px 8px;
             border-radius: 4px;
+            display: flex;
+            align-content: center;
+            flex-direction: column;
+            flex-wrap: nowrap;
+            justify-content: center;
+            align-items: center;
+            font-weight: 300;
 
             .text {
                 color: #fff;
                 font-size: 12px;
                 letter-spacing: 0;
-                line-height: 14px;
                 text-align: center;
-                margin-top: 8px;
             }
 
             &.get {
-                background-color: #0095ff;
+                background-color: #1a98fc;
             }
 
             &.post {
