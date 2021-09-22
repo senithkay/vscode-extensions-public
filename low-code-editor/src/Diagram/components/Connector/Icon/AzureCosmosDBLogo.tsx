@@ -19,8 +19,8 @@ export function AzureCosmosDBLogo(props: { cx?: number, cy?: number, scale?: num
     const { cx, cy, scale } = props;
     return (
         <svg transform={scale ? `scale(${scale})` : ''} x={!cx ? 0 : cx - (AZURE_COSMOS_DB_LOGO_WIDTH / 2)} y={!cy ? 0 : cy - (AZURE_COSMOS_DB_LOGO_HEIGHT / 2)} width={AZURE_COSMOS_DB_LOGO_WIDTH} height={AZURE_COSMOS_DB_LOGO_HEIGHT} >
-            <g id="Azure-cosmosdb" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                <g id="azure-cosmos-db" transform="translate(-1204.000000, -554.000000)" fill-rule="nonzero">
+            <g id="Azure-cosmosdb" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
+                <g id="azure-cosmos-db" transform="translate(-1204.000000, -554.000000)" fillRule="nonzero">
                     <g id="Dropdown/Select/Default-Copy-19" transform="translate(1194.000000, 544.000000)">
                         <g id="Logo/Circle" transform="translate(10.000000, 10.000000)">
                             <path d="M9.30277335,5.6849711 C12.4514043,4.99710983 15.5046223,7.06069364 16.1725137,10.3034682 C16.8404051,13.5462428 14.8367308,16.6907514 11.6880999,17.3786127 C8.53946887,18.066474 5.48625095,16.0028902 4.81835953,12.7601156 C4.15046811,9.51734104 6.15414237,6.37283237 9.30277335,5.6849711 Z" id="Path" fill="#5AB3D9"/>

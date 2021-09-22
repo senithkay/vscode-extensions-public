@@ -51,7 +51,6 @@ import { RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH } from "../components/Respond/Res
 import { DEFAULT_SERVICE_WIDTH } from "../components/Service";
 import { SERVICE_HEADER_HEIGHT } from "../components/Service/ServiceHeader";
 import { START_SVG_HEIGHT, START_SVG_WIDTH } from "../components/Start/StartSVG";
-import { TRIGGER_PARAMS_SVG_HEIGHT, TRIGGER_PARAMS_SVG_WIDTH } from "../components/TriggerParams/TriggerParamsSVG";
 import { VARIABLE_NAME_WIDTH } from "../components/VariableName";
 import { WHILE_SVG_HEIGHT, WHILE_SVG_WIDTH } from "../components/While/WhileSVG";
 import { Endpoint, getDraftComponentSizes, getPlusViewState, haveBlockStatement, isSTActionInvocation, updateConnectorCX } from "../utils/st-util";
@@ -284,30 +283,16 @@ class SizingVisitor implements Visitor {
         const bodyViewState: BlockViewState = body.viewState;
         const lifeLine = viewState.workerLine;
         const trigger = viewState.trigger;
-        const triggerParams = viewState.triggerParams;
         const end = viewState.end;
 
         trigger.h = START_SVG_HEIGHT;
         trigger.w = START_SVG_WIDTH;
 
-        if (triggerParams) {
-            triggerParams.bBox.h = TRIGGER_PARAMS_SVG_HEIGHT;
-            triggerParams.bBox.w = TRIGGER_PARAMS_SVG_WIDTH;
-
-            node?.functionSignature?.parameters?.length > 0 ?
-                viewState.triggerParams.visible = true : viewState.triggerParams.visible = false
-        }
-
         end.bBox.w = STOP_SVG_WIDTH;
         end.bBox.h = STOP_SVG_HEIGHT;
 
-        if (viewState.triggerParams) {
-            viewState.triggerParams.visible ?
-                lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h + triggerParams.bBox.h + DefaultConfig.dotGap
-                : lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
-        } else {
-            lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
-        }
+        lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
+
         if (STKindChecker.isExpressionFunctionBody(body) || body.statements.length > 0) {
             lifeLine.h += end.bBox.offsetFromTop;
         }
@@ -347,30 +332,16 @@ class SizingVisitor implements Visitor {
         const bodyViewState: BlockViewState = body.viewState;
         const lifeLine = viewState.workerLine;
         const trigger = viewState.trigger;
-        const triggerParams = viewState.triggerParams;
         const end = viewState.end;
 
         trigger.h = START_SVG_HEIGHT;
         trigger.w = START_SVG_WIDTH;
 
-        if (triggerParams) {
-            triggerParams.bBox.h = TRIGGER_PARAMS_SVG_HEIGHT;
-            triggerParams.bBox.w = TRIGGER_PARAMS_SVG_WIDTH;
-
-            node?.functionSignature?.parameters?.length > 0 ?
-                viewState.triggerParams.visible = true : viewState.triggerParams.visible = false
-        }
-
         end.bBox.w = STOP_SVG_WIDTH;
         end.bBox.h = STOP_SVG_HEIGHT;
 
-        if (viewState.triggerParams) {
-            viewState.triggerParams.visible ?
-                lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h + triggerParams.bBox.h + DefaultConfig.dotGap
-                : lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
-        } else {
-            lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
-        }
+        lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
+
         if (STKindChecker.isExpressionFunctionBody(body) || body.statements.length > 0) {
             lifeLine.h += end.bBox.offsetFromTop;
         }
@@ -397,30 +368,16 @@ class SizingVisitor implements Visitor {
         const bodyViewState: BlockViewState = body.viewState;
         const lifeLine = viewState.workerLine;
         const trigger = viewState.trigger;
-        const triggerParams = viewState.triggerParams;
         const end = viewState.end;
 
         trigger.h = START_SVG_HEIGHT;
         trigger.w = START_SVG_WIDTH;
 
-        if (triggerParams) {
-            triggerParams.bBox.h = TRIGGER_PARAMS_SVG_HEIGHT;
-            triggerParams.bBox.w = TRIGGER_PARAMS_SVG_WIDTH;
-
-            node?.functionSignature?.parameters?.length > 0 ?
-                viewState.triggerParams.visible = true : viewState.triggerParams.visible = false
-        }
-
         end.bBox.w = STOP_SVG_WIDTH;
         end.bBox.h = STOP_SVG_HEIGHT;
 
-        if (viewState.triggerParams) {
-            viewState.triggerParams.visible ?
-                lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h + triggerParams.bBox.h + DefaultConfig.dotGap
-                : lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
-        } else {
-            lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
-        }
+        lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
+
         if (STKindChecker.isExpressionFunctionBody(body) || body.statements.length > 0) {
             lifeLine.h += end.bBox.offsetFromTop;
         }
@@ -439,30 +396,15 @@ class SizingVisitor implements Visitor {
         const bodyViewState: BlockViewState = body.viewState;
         const lifeLine = viewState.workerLine;
         const trigger = viewState.trigger;
-        const triggerParams = viewState.triggerParams;
         const end = viewState.end;
 
         trigger.h = START_SVG_HEIGHT;
         trigger.w = START_SVG_WIDTH;
 
-        if (triggerParams) {
-            triggerParams.bBox.h = TRIGGER_PARAMS_SVG_HEIGHT;
-            triggerParams.bBox.w = TRIGGER_PARAMS_SVG_WIDTH;
-
-            node?.functionSignature?.parameters?.length > 0 ?
-                viewState.triggerParams.visible = true : viewState.triggerParams.visible = false
-        }
-
         end.bBox.w = STOP_SVG_WIDTH;
         end.bBox.h = STOP_SVG_HEIGHT;
 
-        if (viewState.triggerParams) {
-            viewState.triggerParams.visible ?
-                lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h + triggerParams.bBox.h + DefaultConfig.dotGap
-                : lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
-        } else {
-            lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
-        }
+        lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
 
         if (STKindChecker.isExpressionFunctionBody(body) || body.statements.length > 0) {
             lifeLine.h += end.bBox.offsetFromTop;
