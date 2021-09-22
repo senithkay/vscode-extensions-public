@@ -61,7 +61,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     let modelType;
     let variableName: string = '';
 
-    const existingProperty = config && config.wizardType === WizardType.EXISTING;
+    const existingProperty = config && config.model;
     if (existingProperty && STKindChecker.isLocalVarDecl(config.model)) {
         const localVarDec: LocalVarDecl = config.model as LocalVarDecl;
         const typeDescriptor = localVarDec.typedBindingPattern.typeDescriptor;
@@ -150,7 +150,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
 
     let variableHasReferences = false;
 
-    if (config.wizardType === WizardType.EXISTING) {
+    if (existingProperty && STKindChecker.isLocalVarDecl(config.model)) {
         const symbolRefArray = stSymbolInfo.variableNameReferences.get(variableName);
         variableHasReferences = symbolRefArray ? symbolRefArray.length > 0 : false;
     }
