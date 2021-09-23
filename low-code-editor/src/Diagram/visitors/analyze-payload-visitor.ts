@@ -23,66 +23,67 @@ import {
     Visitor
 } from "@ballerina/syntax-tree";
 
-import { AnalyzerRequestPayload } from "../../Definitions";
+import { AnalyzerRequestPayload } from "../../api/models";
 
 import AnalyzerPayload from "./AnalyzerPayload";
 
-const analyzerPayload = new AnalyzerPayload();
 class AnalyzePayloadVisitor implements Visitor {
+    private analyzerPayload = new AnalyzerPayload();
 
     public beginVisitLocalVarDecl(node: LocalVarDecl) {
         if ((node.initializer as CheckExpression).typeData.isEndpoint) {
-            analyzerPayload.pushEndPointNode(node);
+            this.analyzerPayload.pushEndPointNode(node);
         }
     }
 
     public beginVisitRemoteMethodCallAction(node: RemoteMethodCallAction) {
-        analyzerPayload.pushActionNode(node);
+        this.analyzerPayload.pushActionNode(node);
     }
 
     public beginVisitElseBlock(node: ElseBlock) {
         if (STKindChecker.isIfElseStatement(node.elseBody)) {
-            analyzerPayload.pushElseBranch();
+            this.analyzerPayload.pushElseBranch();
         }
     }
     public endVisitElseBlock(node: ElseBlock) {
         if (STKindChecker.isIfElseStatement(node.elseBody)) {
-            analyzerPayload.popBranch();
+            this.analyzerPayload.popBranch();
         }
     }
 
     public beginVisitBlockStatement(node: BlockStatement, parent?: STNode) {
-        analyzerPayload.pushBody();
+        this.analyzerPayload.pushBody();
         if (STKindChecker.isElseBlock(parent)) {
-            analyzerPayload.pushElseBranch();
+            this.analyzerPayload.pushElseBranch();
         } else if (STKindChecker.isIfElseStatement(parent)) {
-            analyzerPayload.pushIfBranch();
+            this.analyzerPayload.pushIfBranch();
         } else if (STKindChecker.isWhileStatement(parent) || STKindChecker.isForeachStatement(parent)) {
-            analyzerPayload.pushForBranch(parent);
+            this.analyzerPayload.pushForBranch(parent);
         }
     }
 
     public endVisitBlockStatement(node: BlockStatement, parent?: STNode) {
         if (STKindChecker.isElseBlock(parent) || STKindChecker.isIfElseStatement(parent)
             || STKindChecker.isWhileStatement(parent) || STKindChecker.isForeachStatement(parent)) {
-                analyzerPayload.popBranch();
+            this.analyzerPayload.popBranch();
         }
-        analyzerPayload.popBody();
+        this.analyzerPayload.popBody();
     }
 
     public beginVisitFunctionDefinition(node: FunctionDefinition) {
-        analyzerPayload.pushBody();
-        analyzerPayload.addNextNode();
+        this.analyzerPayload.pushBody();
+        this.analyzerPayload.addNextNode();
+    }
+
+    public getPayload() {
+        return this.analyzerPayload.getPayload()
     }
 
 }
 
-export function getPayload(): AnalyzerRequestPayload {
-    return analyzerPayload.getPayload();
-}
-
-export function analyzerVisitorReset() {
-    analyzerPayload.cleanup();
-}
-
 export const visitor = new AnalyzePayloadVisitor();
+
+export function getPayload(): AnalyzerRequestPayload {
+    return visitor.getPayload();
+}
+

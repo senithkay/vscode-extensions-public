@@ -13,13 +13,19 @@
 
 import { BinaryExpression, CaptureBindingPattern, CheckExpression, ForeachStatement, ImplicitNewExpression, LocalVarDecl, NodePosition, NumericLiteral, PositionalArg, RemoteMethodCallAction, STKindChecker, STNode, StringLiteral, StringLiteralToken } from "@ballerina/syntax-tree";
 
-import { AnalyzerAction, AnalyzerEndPoint } from "../../Definitions";
+import { AnalyzerAction, AnalyzerEndPoint } from "../../api/models";
 
 export default class AnalyzerPayload {
     private endPointIdDictionary: { id: string, variableName: string }[][] = [[]];
     private analyzerActionStack: AnalyzerAction[] = [];
     private analyzerPayload: AnalyzerAction;
     private endPointPayload: { [id: string]: AnalyzerEndPoint } = {};
+
+    constructor() {
+        const newAction: AnalyzerAction = {};
+        this.analyzerPayload = newAction;
+        this.analyzerActionStack = [newAction];
+    }
 
     private getLastIndex(array: any[]) {
         if (array.length) {
@@ -187,13 +193,6 @@ export default class AnalyzerPayload {
         this.endPointPayload[id] = analyzerEndPoint;
     }
 
-    public cleanup() {
-        const newAction: AnalyzerAction = {};
-        this.endPointPayload = {};
-        this.endPointIdDictionary = [[]];
-        this.analyzerPayload = newAction;
-        this.analyzerActionStack = [newAction];
-    }
 
     public getPayload() {
         return { endpoints: this.endPointPayload, actionInvocations: this.analyzerPayload }

@@ -49,9 +49,9 @@ export {
     DiagramState,
     ConfigPanelStatus,
     STSymbolInfo,
-    AnalyzerRequestPayload,
     ConfigOverlayFormStatus as ConfigOverlayFormStatusDef
 } from "./Definitions";
+export { AnalyzerRequestPayload } from "./api/models"; 
 export { Diagram } from "./Diagram";
 export {
     getDiagnosticsFromVisitor,
@@ -65,7 +65,7 @@ export {
 export { visitor as initVisitor } from "./Diagram/visitors/init-visitor";
 export { visitor as positionVisitor } from "./Diagram/visitors/positioning-visitor";
 export { visitor as sizingVisitor } from "./Diagram/visitors/sizing-visitor";
-export { getPayload, visitor as analyzePayloadVisitor, analyzerVisitorReset } from "./Diagram/visitors/analyze-payload-visitor"
+export { getPayload, visitor as analyzePayloadVisitor } from "./Diagram/visitors/analyze-payload-visitor"
 export { cleanLocalSymbols, cleanModuleLevelSymbols, getSymbolInfo, visitor as SymbolVisitor } from "./Diagram/visitors/symbol-finder-visitor";
 export { BlockViewState } from './Diagram/view-state';
 export { DraftInsertPosition } from './Diagram/view-state/draft';
