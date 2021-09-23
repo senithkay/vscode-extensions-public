@@ -146,7 +146,6 @@ async function constructDebugConfig(testDebug: boolean, ballerinaCmd: string, ba
     let programArgs = [];
     let commandOptions = [];
     let env = {};
-    let capabilities = {};
     const debugConfigs: DebugConfiguration[] = workspace.getConfiguration(DEBUG_REQUEST.LAUNCH).configurations;
     if (debugConfigs.length > 0) {
         let debugConfig: DebugConfiguration | undefined;
@@ -170,9 +169,6 @@ async function constructDebugConfig(testDebug: boolean, ballerinaCmd: string, ba
         }
     }
 
-    // All the extended capabilities of the debug client should be provided via this config.
-    capabilities = { supportsReadOnlyEditors: true };
-
     const debugConfig: DebugConfiguration = {
         type: LANGUAGE.BALLERINA,
         name: testDebug ? DEBUG_CONFIG.TEST_DEBUG_NAME : DEBUG_CONFIG.SOURCE_DEBUG_NAME,
@@ -188,7 +184,7 @@ async function constructDebugConfig(testDebug: boolean, ballerinaCmd: string, ba
         programArgs,
         commandOptions,
         env,
-        capabilities
+        capabilities: { supportsReadOnlyEditors: true }
     };
     return debugConfig;
 }
