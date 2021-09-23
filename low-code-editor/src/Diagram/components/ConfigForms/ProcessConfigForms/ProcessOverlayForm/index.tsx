@@ -71,8 +71,7 @@ export function ProcessOverlayForm(props: ProcessOverlayFormProps) {
     } else if (formType === "DataMapper") {
         config.config = {
             inputTypes: [],
-            outputType: undefined,
-            wizardType: config.wizardType
+            outputType: undefined
         }
     } else if (formType === "Call" || formType === "Custom") {
         config.config = {
@@ -113,18 +112,12 @@ export function ProcessOverlayForm(props: ProcessOverlayFormProps) {
     } else {
         return (
             <div>
-                <DiagramOverlayContainer>
-                    <DiagramOverlay
-                        position={position}
-                    >
-                        <>
-                            {formType === "Variable" && <AddVariableConfig config={config} onSave={onSave} onCancel={onCancel} />}
-                            {formType === "Log" && <AddLogConfig config={config} onSave={onSave} onCancel={onCancel} />}
-                            {formType === "DataMapper" && <AddDataMappingConfig processConfig={config} onSave={onSave} onCancel={onCancel} />}
-                            {(formType === "Custom" || formType === "Call") && <AddCustomStatementConfig config={config} onSave={onSave} onCancel={onCancel} />}
-                        </>
-                    </DiagramOverlay>
-                </DiagramOverlayContainer>
+                <>
+                    {formType === "Variable" && <AddVariableConfig config={config} onSave={onSave} onCancel={onCancel} />}
+                    {formType === "Log" && <AddLogConfig config={config} onSave={onSave} onCancel={onCancel} />}
+                    {formType === "DataMapper" && <AddDataMappingConfig processConfig={config} onSave={onSave} onCancel={onCancel} />}
+                    {(formType === "Custom" || formType === "Call") && <AddCustomStatementConfig config={config} onSave={onSave} onCancel={onCancel} />}
+                </>
             </div>
         );
     }
