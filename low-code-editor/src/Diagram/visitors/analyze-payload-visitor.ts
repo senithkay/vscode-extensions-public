@@ -27,7 +27,7 @@ import { AnalyzerRequestPayload } from "../../api/models";
 
 import AnalyzerPayload from "./AnalyzerPayload";
 
-class AnalyzePayloadVisitor implements Visitor {
+export class AnalyzePayloadVisitor implements Visitor {
     private analyzerPayload = new AnalyzerPayload();
 
     public beginVisitLocalVarDecl(node: LocalVarDecl) {
@@ -81,9 +81,4 @@ class AnalyzePayloadVisitor implements Visitor {
 
 }
 
-export const visitor = new AnalyzePayloadVisitor();
-
-export function getPayload(): AnalyzerRequestPayload {
-    return visitor.getPayload();
-}
 
