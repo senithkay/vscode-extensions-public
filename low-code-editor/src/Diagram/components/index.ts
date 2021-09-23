@@ -13,6 +13,7 @@
 import { ClassComponent } from './ClassComponent';
 import { Constant } from './Constant';
 import { End } from "./End";
+import { EnumDeclarationComponent } from './Enum';
 import { ForEach } from './ForEach';
 import { Function } from "./Function";
 import { IfElse } from './IfElse';
@@ -23,7 +24,6 @@ import { Service } from "./Service";
 import { Statement } from "./Statement";
 import { TypeDefinitionComponent } from "./TypeDefinion";
 import { While } from './While';
-import { EnumDeclarationComponent } from './Enum';
 
 export { IfElse as IfElseStatement };
 export { ForEach as ForeachStatement };
