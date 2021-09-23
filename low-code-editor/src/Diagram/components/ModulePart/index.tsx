@@ -16,7 +16,7 @@ import React from "react";
 import { ModulePart, STNode } from "@ballerina/syntax-tree";
 
 import { getSTComponent } from "../../utils";
-import { TopLevelPlus } from "../TopLevelPlus";
+import { useStyles } from "../../styles";
 
 import './style.scss';
 
@@ -30,6 +30,7 @@ export interface ModulePartProps {
 }
 
 export function ModulePartComponent(props: ModulePartProps) {
+    const classes = useStyles();
     const { model } = props;
 
     const moduleMembers: JSX.Element[] = [];
@@ -44,10 +45,7 @@ export function ModulePartComponent(props: ModulePartProps) {
 
     return (
         <>
-            {/* TODO: Fix Plus
-            <TopLevelPlus
-                margin={{ top: INIT_PLUS_MARGIN_TOP, bottom : INIT_PLUS_MARGIN_BOTTOM, left: INIT_PLUS_MARGIN_LEFT }}
-            /> */}
+            <div id={'canvas-overlay'} className={classes.OverlayContainer}></div>
             {moduleMembers}
         </>
     );
