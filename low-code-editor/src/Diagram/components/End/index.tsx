@@ -153,11 +153,6 @@ export function End(props: EndProps) {
                                 x={cx - (STOP_SVG_SHADOW_OFFSET / 2)}
                                 y={cy - (STOP_SVG_SHADOW_OFFSET / 2)}
                             >
-                                <rect
-                                    x={cx - (STOP_SVG_WIDTH / 4)}
-                                    y={cy + (STOP_SVG_HEIGHT / 4)}
-                                    className="end-rect"
-                                />
 
                                 {isConfigWizardOpen && endConfigFormOverlayState &&
                                     <EndConfigForm

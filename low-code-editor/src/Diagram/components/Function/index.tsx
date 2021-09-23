@@ -94,7 +94,7 @@ export function Function(props: FunctionProps) {
     const functionBody = (
         <div className={'lowcode-diagram'}>
             <PanAndZoom >
-                <div id="canvas-overlay" className={classes.OverlayContainer} />
+                <div id="function-overlay" className={classes.OverlayContainer} />
                 <Canvas h={model.viewState.bBox.h} w={model.viewState.bBox.w} >
                     {component}
                 </Canvas>
