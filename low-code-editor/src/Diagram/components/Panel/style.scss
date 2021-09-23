@@ -11,19 +11,13 @@
  * associated services.
  */
  .panel {
-    position: absolute;
+    position: relative;
     top: 0;
     right: 0;
-    height: 100%;
-    width: 376px;
+    height: 400px;
+    width: 350px;
     background-color: #FFFFFF;
     margin-left: auto; 
     margin-right: 0;
     box-shadow: inset 1px 0 0 0 #E6E7EC;
-}
-
-.togglePanelButton {
-    position: absolute;
-    right: 0;
-    top: 100px;
 }

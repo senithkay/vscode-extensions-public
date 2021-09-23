@@ -13,48 +13,69 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
 
+import { CloseIcon } from "../../../assets/icons";
 import { PrimaryButton } from "../../../components/Buttons/PrimaryButton";
+import { CanvasDiagram } from "../CanvasContainer";
 import { FormGenerator } from "../FormGenerator";
+import { DiagramOverlayContainer } from "../Portals/Overlay";
 
 import "./style.scss";
 
-export interface PanelProps {
-    panelOpen: boolean;
-}
-
-export function Panel(props: PanelProps) {
-    const {
-        panelOpen
-    } = props;
-    const [isPanelOpen, setIsPanelOpen] = useState(panelOpen);
-
-    useEffect(() => {
-        setIsPanelOpen(panelOpen);
-    }, [panelOpen]);
+export function Panel(props: any) {
+    const { children, onClose, showClose } = props;
+    const [isPanelOpen, setIsPanelOpen] = useState(true);
 
     function togglePanel() {
         setIsPanelOpen(!isPanelOpen);
     }
 
     return (
-        <div>
-            {isPanelOpen &&
-                // tslint:disable-next-line: jsx-wrap-multiline
-                <>
-                    <div className="panel">
-                        {/* <FormGenerator /> */}
-                    </div>
-                </>
-            }
+        // <div>
+        //     {isPanelOpen &&
+        //         // tslint:disable-next-line: jsx-wrap-multiline
+        //         <>
+        //             <div className="form-generator">
+        //                 {/* <FormGenerator /> */}
+        //             </div>
+        //         </>
+        //     }
 
-            <div className="togglePanelButton">
-                <PrimaryButton
-                    dataTestId="save-btn"
-                    text="panel"
-                    onClick={togglePanel}
-                // disabled={}
-                />
-            </div>
+        //     <div className="togglePanelButton">
+        //         <PrimaryButton
+        //             dataTestId="save-btn"
+        //             text="panel"
+        //             onClick={togglePanel}
+        //         // disabled={}
+        //         />
+        //     </div>
+        // </div>
+        <div>
+            <DiagramOverlayContainer>
+                {isPanelOpen &&
+                    (
+                        <div className="panel">
+                            <div className="header">
+                                <p className="title">title</p>
+                                {(showClose) && (
+                                    <button className="closeBtnWrapper" onClick={onClose}>
+                                        <CloseIcon className="closeBtn" />
+                                    </button>
+                                )}
+                            </div>
+                            {children}
+                            <div className="togglePanelButton">
+                                <PrimaryButton
+                                    dataTestId="save-btn"
+                                    text="panel"
+                                    onClick={togglePanel}
+                                // disabled={}
+                                />
+                            </div>
+                        </div>
+                    )
+                }
+
+            </DiagramOverlayContainer>
         </div>
     );
 }

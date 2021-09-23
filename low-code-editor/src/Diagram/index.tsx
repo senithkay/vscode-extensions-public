@@ -175,7 +175,6 @@ export function Diagram() {
                 {!isDataMapperShown && (
                     <CanvasDiagram>
                         {child}
-                        <Panel panelOpen={true} />
                     </CanvasDiagram>
                 )}
                 {/*

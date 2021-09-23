@@ -14,6 +14,8 @@
 import React from "react";
 
 import { ConfigOverlayFormStatus } from "../../../Definitions";
+import { Panel } from "../Panel";
+import { DiagramOverlayContainer } from "../Portals/Overlay";
 import { getForm } from "../Portals/utils";
 
 export interface FormGeneratorProps {
@@ -26,9 +28,19 @@ export function FormGenerator(props: FormGeneratorProps) {
     const { onCancel, onSave, configOverlayFormStatus } = props;
     const { formArgs, formType } = configOverlayFormStatus;
     const args = { onCancel, onSave, configOverlayFormStatus }
+    const position = {
+        x: 264.5,
+        y: 0
+    }
     return (
-        <div className="form-generator">
-            {getForm(formType, args)}
-        </div>
+        <Panel
+            onClose={onCancel}
+            showClose={(formType !== undefined) && false}
+        >
+                <div className="form-generator">
+                    {getForm(formType, args)}
+                </div>
+
+        </Panel>
     );
 }
