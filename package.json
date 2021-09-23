@@ -366,13 +366,13 @@
                     "command": "ballerina.project.run-icon",
                     "group": "navigation@0",
                     "title": "Run project in terminal",
-                    "when": "resourceLangId == ballerina && !isInDiffEditor"
+                    "when": "resourceLangId == ballerina"
                 },
                 {
                     "command": "ballerina.source.debug",
                     "group": "navigation@1",
                     "title": "Debug project in terminal",
-                    "when": "resourceLangId == ballerina && !isInDiffEditor"
+                    "when": "resourceLangId == ballerina"
                 }
             ],
             "explorer/context": [
