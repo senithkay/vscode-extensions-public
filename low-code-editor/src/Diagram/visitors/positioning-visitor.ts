@@ -23,7 +23,8 @@ import {
     OnFailClause,
     ResourceAccessorDefinition,
     ServiceDeclaration,
-    STKindChecker, STNode,
+    STKindChecker,
+    STNode,
     VisibleEndpoint,
     Visitor,
     WhileStatement
@@ -36,6 +37,7 @@ import { BIGPLUS_SVG_WIDTH } from "../components/Plus/Initial";
 import { PLUS_SVG_HEIGHT } from "../components/Plus/PlusAndCollapse/PlusSVG";
 import { EXISTING_PLUS_HOLDER_API_HEIGHT, EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_API_HEIGHT, PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_STATEMENT_HEIGHT } from "../components/Portals/Overlay/Elements/PlusHolder/PlusElements";
 import { START_SVG_SHADOW_OFFSET } from "../components/Start/StartSVG";
+import { isVarTypeDescriptor } from "../utils/diagram-util";
 import { Endpoint, getPlusViewState, updateConnectorCX } from "../utils/st-util";
 import {
     BlockViewState,
@@ -56,7 +58,6 @@ import {
 } from "../view-state";
 
 import { DefaultConfig } from "./default";
-import { isVarTypeDescriptor } from "../utils/diagram-util";
 
 let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
 let epCount: number = 0;
