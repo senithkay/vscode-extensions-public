@@ -53,11 +53,13 @@
         .listener-amendment-options {
             display: flex;
             width: 25%;
+            align-items: center;
     
-            .deleteBtnWrapper,
-            .editBtnWrapper {
+            .edit-btn-wrapper,
+            .delete-btn-wrapper {
                 text-align: center;
                 padding-right: 5px;
+                width: 25px;
                 &:hover {
                     cursor: pointer;
                 }

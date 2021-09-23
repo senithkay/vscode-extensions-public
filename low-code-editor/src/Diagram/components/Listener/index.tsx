@@ -66,14 +66,12 @@ export function ListenerC(props: ListenerProps) {
                     </div>
                     {isEditable && (
                         <div className={"listener-amendment-options"}>
-                            <>
-                                <div className={"editBtnWrapper"}>
-                                    <EditButton />
-                                </div>
-                                <div className={"deleteBtnWrapper"}>
-                                    <DeleteButton />
-                                </div>
-                            </>
+                            <div className={"edit-btn-wrapper"}>
+                                <EditButton />
+                            </div>
+                            <div className={"delete-btn-wrapper"}>
+                                <DeleteButton />
+                            </div>
                         </div>
                     )}
                 </div>
