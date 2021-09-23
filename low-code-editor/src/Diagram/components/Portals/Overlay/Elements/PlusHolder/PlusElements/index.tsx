@@ -212,9 +212,7 @@ export function PlusElements(props: PlusElementsProps) {
     );
 
     return (
-        <DiagramOverlayContainer
-            divId='function-overlay'
-        >
+        <DiagramOverlayContainer>
             <DiagramOverlay
                 className={plusContainer}
                 position={position}
