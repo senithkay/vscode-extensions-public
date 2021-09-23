@@ -600,7 +600,8 @@ export function APIOptions(props: APIOptionsProps) {
             Array.from(connectors).forEach(element => {
                 // tslint:disable-next-line: no-unused-expression
                 const existingConnector = element as BallerinaConnectorsInfo;
-                if (existingConnector.module === moduleName && existingConnector.name === name) {
+                const formattedModuleName = getFormattedModuleName(existingConnector.module);
+                if (formattedModuleName === moduleName && existingConnector.name === name) {
                     returnConnnectorType = existingConnector;
                 }
             });
