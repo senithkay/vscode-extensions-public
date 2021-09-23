@@ -15,7 +15,7 @@
 // tslint:disable: no-unused-expression
 import React, { useState } from "react"
 
-import { EnumDeclaration, EnumMember, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { EnumDeclaration, EnumMember, STKindChecker } from "@ballerina/syntax-tree";
 
 import DeleteButton from "../../../assets/icons/DeleteButton";
 import EditButton from "../../../assets/icons/EditButton";
@@ -27,11 +27,11 @@ import "./style.scss";
 export const RECORD_MARGIN_LEFT: number = 24.5;
 export const RECORD_PLUS_OFFSET: number = 7.5;
 
-export interface TypeDefComponentProps {
+export interface EnumDeclarationComponentProps {
     model: EnumDeclaration;
 }
 
-export function EnumDeclaration(props: TypeDefComponentProps) {
+export function EnumDeclarationComponent(props: EnumDeclarationComponentProps) {
     const { model } = props;
     const [isExpanded, setIsExpanded] = useState(false);
 

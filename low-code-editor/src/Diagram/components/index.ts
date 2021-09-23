@@ -23,7 +23,7 @@ import { Service } from "./Service";
 import { Statement } from "./Statement";
 import { TypeDefinitionComponent } from "./TypeDefinion";
 import { While } from './While';
-import { EnumDeclaration } from './Enum';
+import { EnumDeclarationComponent } from './Enum';
 
 export { IfElse as IfElseStatement };
 export { ForEach as ForeachStatement };
@@ -45,4 +45,4 @@ export { Function as ObjectMethodDefinition };
 export { ModulePartComponent as ModulePart };
 export { While as WhileStatement };
 export { ClassComponent as ClassDefinition }
-export {EnumDeclaration as EnumDeclaration}
+export {EnumDeclarationComponent as EnumDeclaration}
