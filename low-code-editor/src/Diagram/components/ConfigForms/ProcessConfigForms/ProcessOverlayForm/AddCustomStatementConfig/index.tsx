@@ -52,7 +52,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
     const expressionFormConfig: CustomExpressionConfig = config.config as CustomExpressionConfig;
 
     let defaultExpression = "";
-    if (expressionFormConfig) {
+    if (config.model) {
         defaultExpression = config?.model?.source.trim();
     }
 

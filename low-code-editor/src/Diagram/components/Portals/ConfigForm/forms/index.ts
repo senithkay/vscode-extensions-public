@@ -27,5 +27,6 @@ export { ConditionConfigForm as If };
 export { ConditionConfigForm as ForEach };
 export { ProcessConfigForm as Variable };
 export { ProcessConfigForm as Log };
+export { ProcessConfigForm as Custom };
 export { EndConfigForm as Return };
 export { EndConfigForm as Respond };
