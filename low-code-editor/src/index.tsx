@@ -51,7 +51,7 @@ export {
     STSymbolInfo,
     ConfigOverlayFormStatus as ConfigOverlayFormStatusDef
 } from "./Definitions";
-export { AnalyzerRequestPayload } from "./api/models"; 
+export { AnalyzerRequestPayload } from "./api/models";
 export { Diagram } from "./Diagram";
 export {
     getDiagnosticsFromVisitor,
