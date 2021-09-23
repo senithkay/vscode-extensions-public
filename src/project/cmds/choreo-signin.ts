@@ -67,15 +67,21 @@ export class ChoreoOAuth {
                     );
                     const successHtml = fs.readFileSync(htmlFilePath.fsPath, "utf8");
                     res.send(successHtml);
-                    this.server.close();
 
                     vscode.window.showInformationMessage(`Successfully Logged into Choreo!`);
                 } else {
+                    const htmlFilePath = vscode.Uri.file(
+                        path.join(this.context.extensionPath, "resources", "pages", "choreo-login-fail.html"),
+                    );
+                    const failHtml = fs.readFileSync(htmlFilePath.fsPath, "utf8");
+                    res.send(failHtml);
+
                     vscode.window.showErrorMessage(`Choreo Login Failed!`);
                 }
             } catch (err) {
                 vscode.window.showErrorMessage("Choreo Login Failed!\n" + err);
             }
+            this.server.close();
         });
     }
 }
