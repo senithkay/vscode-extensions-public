@@ -15,8 +15,8 @@ import React from "react";
 
 import { ModulePart, STNode } from "@ballerina/syntax-tree";
 
-import { getSTComponent } from "../../utils";
 import { useStyles } from "../../styles";
+import { getSTComponent } from "../../utils";
 
 import './style.scss';
 
@@ -45,7 +45,7 @@ export function ModulePartComponent(props: ModulePartProps) {
 
     return (
         <>
-            <div id={'canvas-overlay'} className={classes.OverlayContainer}></div>
+            <div id={'canvas-overlay'} className={classes.OverlayContainer}/>
             {moduleMembers}
         </>
     );
