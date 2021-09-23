@@ -117,6 +117,26 @@
                     "type": "boolean",
                     "default": true,
                     "markdownDescription": "Enable Ballerina telemetry."
+                },
+                "ballerina.choreo.login.url": {
+                    "type": "string",
+                    "default": "https://id.dv.choreo.dev/oauth2/authorize",
+                    "description": "Specify the login url for the choreo dev environment."
+                },
+                "ballerina.choreo.clientId": {
+                    "type": "string",
+                    "default": "choreoportalapplication",
+                    "description": "Specify the client id for the choreo dev environment."
+                },
+                "ballerina.choreo.redirect.url": {
+                    "type": "string",
+                    "default": "http://localhost:9000/",
+                    "description": "Specify the redirect url for the vscode choreo login."
+                },
+                "ballerina.choreo.login.scope": {
+                    "type": "string",
+                    "default": "openid name user",
+                    "description": "Specify the scope for the vscode choreo login."
                 }
             }
         },
@@ -256,6 +276,11 @@
             {
                 "command": "ballerina.project.add",
                 "title": "Add Module",
+                "category": "Ballerina"
+            },
+            {
+                "command": "ballerina.choreo.signin",
+                "title": "Choreo Sign In",
                 "category": "Ballerina"
             },
             {
@@ -475,7 +500,8 @@
         "vscode-debugadapter-testsupport": "^1.44.0",
         "webpack": "^4.46.0",
         "webpack-cli": "^3.3.3",
-        "yarn": "^1.22.11"
+        "yarn": "^1.22.11",
+        "express": "^4.17.1"
     },
     "extensionPack": [
         "be5invis.toml"
