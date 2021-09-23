@@ -20,7 +20,7 @@ import { subMinutes } from "date-fns";
 import cloneDeep from "lodash.clonedeep";
 import { Diagnostic } from 'monaco-languageclient';
 
-import { initVisitor, positionVisitor, sizingVisitor, AnalyzePayloadVisitor } from '../..';
+import { AnalyzePayloadVisitor, initVisitor, positionVisitor, sizingVisitor } from '../..';
 import { FunctionDefinitionInfo } from "../../ConfigurationSpec/types";
 import { STSymbolInfo } from '../../Definitions';
 import { BallerinaConnectorsInfo, BallerinaRecord, Connector } from '../../Definitions/lang-client-extended';
