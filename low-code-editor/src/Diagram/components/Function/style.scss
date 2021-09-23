@@ -72,6 +72,8 @@
         display: flex;
         flex-direction: row;
         border-bottom: 1px #c1e4fc solid;
+        align-items: center;
+        justify-content: space-around;
 
         &.get {
             border-bottom: 1px solid #c1e4fc;
@@ -171,6 +173,7 @@
     border: 1px solid #e6e7ec;
     border-radius: 6px;
     background-color: #fff;
+    font-family: "Gilmer", sans-serif;
 
     .function-signature {
         display: flex;
@@ -190,6 +193,13 @@
                 }
             }
         }
+
+        .param-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: row;
+            max-width: 50%;
+        }
     }
 
     .lowcode-diagram {
@@ -197,13 +207,6 @@
         background-repeat: repeat;
         overflow: hidden;
     }
-}
-
-.param-container {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: row;
-    max-width: 50%;
 }
 
 .design-container {

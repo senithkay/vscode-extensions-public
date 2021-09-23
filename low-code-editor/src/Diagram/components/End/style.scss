@@ -11,6 +11,8 @@
  * associated services.
  */
 .end-wrapper {
+    font-family: "Gilmer", sans-serif;
+
     rect {
         fill: #5567d5;
     }
@@ -20,7 +22,6 @@
     .end-text {
         fill: #fff;
         font-size: 10px;
-        font-family: "Gilmer", sans-serif;
         letter-spacing: 0.05em;
         font-weight: 600;
     }
@@ -28,7 +29,6 @@
     .return-text {
         fill: #fff;
         font-size: 10px;
-        font-family: "Gilmer", sans-serif;
         letter-spacing: 0.05em;
         font-weight: 600;
     }
