@@ -80,10 +80,10 @@ export function ServiceHeader(props: ServiceHeaderProps) {
                 <div className={'header-segment'}>
                     {serviceType}
                 </div>
-                <div className={'header-segment'}>
+                <div className={'header-segment-path'}>
                     {servicePath}
                 </div>
-                <div className={'header-segment'}>
+                <div className={'header-segment-listener'}>
                     {listeningOnText.length > 0 ? `listening on ${listeningOnText}` : ''}
                 </div>
             </div>

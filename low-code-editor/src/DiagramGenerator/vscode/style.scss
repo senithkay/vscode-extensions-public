@@ -11,17 +11,8 @@
  * associated services.
  */
 
-.component-expand-icon-container {
-    display: flex;
-    min-width: 20px;
-    align-items: center;
-    margin-right: 10px;
-
-    .component-expand-icon {
-        margin: 0 auto;
-    }
-
-    .component-collapse-icon {
-        margin: 0 auto;
-    }
+.lowcode-main-wrapper {
+    background-color: #f7f8fbe3;
+    font-family: "Gilmer", sans-serif;
+    min-height: 100vh;
 }
