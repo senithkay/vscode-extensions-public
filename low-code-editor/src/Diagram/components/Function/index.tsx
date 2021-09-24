@@ -15,7 +15,6 @@ import React, { useContext, useState } from "react";
 
 import { FunctionBodyBlock, FunctionDefinition, STKindChecker } from "@ballerina/syntax-tree";
 import classNames from "classnames";
-
 import { v4 as uuid } from 'uuid';
 
 import { Context } from "../../../Contexts/Diagram";
