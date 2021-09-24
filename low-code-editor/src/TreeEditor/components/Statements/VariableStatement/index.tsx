@@ -1,13 +1,14 @@
 import React, {ReactNode} from "react";
 
+import {STNode} from "@ballerina/syntax-tree";
+
 import * as c from "../../../constants";
-import {Expression} from "../../../models/definitions";
 import {getSuggestionsBasedOnExpressionKind} from "../../../utils";
 import {statementEditorStyles} from "../../ViewContainer/styles";
 
 interface VariableStatementProps {
-    model: Expression
-    callBack: (suggestions: string[], model: Expression, operator: boolean) => void
+    model: STNode
+    callBack: (suggestions: string[], model: STNode, operator: boolean) => void
     isRoot: boolean
     component: ReactNode
 }
@@ -17,8 +18,8 @@ export function VariableStatement(props: VariableStatementProps) {
 
     const overlayClasses = statementEditorStyles();
 
-    const onClickOnRootExpression = (model: Expression, e: any) => {
-        e.stopPropagation()
+    const onClickOnRootExpression = (event: any) => {
+        event.stopPropagation()
         callBack(getSuggestionsBasedOnExpressionKind(c.DEFAULT_BOOL), model, false) // Need to change this to get suggestions for variable
     };
 
@@ -30,7 +31,7 @@ export function VariableStatement(props: VariableStatementProps) {
                 </span>
                 <button
                     className={overlayClasses.AppTemplateButton}
-                    onClick={(e) => onClickOnRootExpression(model, e)}
+                    onClick={onClickOnRootExpression}
                 >
                     {component}
                 </button>

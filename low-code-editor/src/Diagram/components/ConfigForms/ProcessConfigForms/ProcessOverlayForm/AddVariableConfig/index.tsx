@@ -355,7 +355,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                     <div className={overlayClasses.configWizardContainer}>
                         <div className={classes.formWrapper}>
                             <MainContainer
-                                kind="DefaultBooleanC"
+                                kind="DefaultBoolean"
                                 label="Variable Statement"
                             />
                         </div>

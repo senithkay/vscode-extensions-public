@@ -1,38 +1,64 @@
-import React from "react";
+import React, {ReactNode} from "react";
 
-import {Expression} from "../../models/definitions";
-import {addExpression, addOperator} from "../../utils/utils";
-import { statementEditorStyles } from "../ViewContainer/styles";
+import {STNode} from "@ballerina/syntax-tree";
+
+import {addExpression, addOperator, Operator} from "../../utils/utils";
+import {statementEditorStyles} from "../ViewContainer/styles";
 
 interface SuggestionsProps {
-    model: Expression
+    model: STNode
     suggestions: string[],
     operator: boolean,
-    callBack: (model: Expression) => void
+    callBack: (model: STNode) => void
 }
 
 export function Suggestions(props: SuggestionsProps) {
     const overlayClasses = statementEditorStyles();
-    const {model, suggestions, operator, callBack} = props;
+    const {model, suggestions, callBack} = props;
 
-    const onClickSuggestion = (kind: string, selectedOperator: boolean, selectedModel: Expression) => {
-        if (selectedOperator) {
-            addOperator(selectedModel, kind)
-        } else {
-            addExpression(selectedModel, kind);
-        }
-        callBack(selectedModel)
+    const onClickExpressionSuggestion = (cModel: STNode, kind: string) => {
+        addExpression(cModel, kind);
+        callBack(model);
     }
 
+    const onClickOperatorSuggestion = (cModel: STNode, operator: Operator) => {
+        addOperator(cModel, operator);
+        callBack(model);
+    }
+
+    // const suggestionsContent: ReactNode[] = suggestions.map((suggestion: string, index: number) => {
+    //     // if (suggestion.constructor === String) {
+    //         const expressionItem: string = suggestion as string;
+    //         return <button
+    //             className={overlayClasses.AppSuggestionButtons}
+    //             key={index}
+    //             onClick={(e) => onClickExpressionSuggestion(model, expressionItem)}
+    //         >
+    //             {suggestion}
+    //         </button>;
+    //     } else {
+    //         const operatorItem: Operator = suggestion as Operator;
+    //         return <button
+    //             className={overlayClasses.AppSuggestionButtons}
+    //             key={index}
+    //             onClick={(e) => onClickOperatorSuggestion(model, operatorItem)}
+    //         >
+    //             {operatorItem.value}
+    //         </button>;
+    //     }
+    // });
+
+
     return (
-        <div className={overlayClasses.AppSuggestionBlock}>
-            {suggestions.map((suggestion, index) => (
+        // {suggestionsContent}
+        <div>
+            {suggestions.map((suggestion: string, index: number) => (
                 <button
                     className={overlayClasses.AppSuggestionButtons}
                     key={index}
-                    onClick={() => onClickSuggestion(suggestion, operator, model)}
+                    onClick={(e) => onClickExpressionSuggestion(model, suggestion)}
                 >
-                    {suggestion.substring(0, suggestion.length - 1)}
+                {suggestion}
                 </button>
             ))}
         </div>

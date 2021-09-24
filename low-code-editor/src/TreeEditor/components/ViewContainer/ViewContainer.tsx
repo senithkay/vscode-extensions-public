@@ -1,6 +1,7 @@
 import React from 'react';
 
-import {Expression} from '../../models/definitions';
+import {STNode} from "@ballerina/syntax-tree";
+
 import {getDefaultModel} from "../../utils";
 import {LeftPane} from '../LeftPane';
 import {RightPane} from '../RightPane';
@@ -17,7 +18,7 @@ function MainContainer(props: ViewProps) {
 
     const defaultModel = getDefaultModel(kind);
 
-    const currentModel: { model: Expression } = {
+    const currentModel: { model: STNode } = {
         model: defaultModel
     }
 

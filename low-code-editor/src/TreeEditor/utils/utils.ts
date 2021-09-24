@@ -1,134 +1,102 @@
-import * as c from "../constants";
-import {
-    Arithmetic, Conditional, Equality, Expression, Literal, Logical, Relational,
-    StringTemplate, TypeCheck, Unary, Variable
-} from '../models/definitions';
+import {BinaryExpression, STNode} from "@ballerina/syntax-tree";
 
-export function deleteExpression(model: Expression) {
+import * as c from "../constants";
+import { Expression } from '../models/definitions';
+
+export interface Operator {
+    value: string,
+    kind: string
+}
+
+export function deleteExpression(model: Expression) { // Need to handle accordingly with ST
     delete model.expressionType;
 }
 
-export function addOperator(model: Expression, kind: any) {
-    const expression: any = model.expressionType
+export function addOperator(model: STNode, operator: Operator) {
+    const expression: any = model;
     if ("typeDescriptor" in expression) {
-        expression.typeDescriptor = kind
+        expression.typeDescriptor = operator.value;
     } else {
-        expression.operator = kind
+        expression.operator.value = operator.value;
+        expression.operator.kind = operator.kind;
     }
 }
 
-export function addExpression(model: Expression, kind: string, value?: any) {
-    model['kind'] = kind;
-    let expressionTemplate: TypeCheck
-        | Conditional
-        | Literal
-        | Arithmetic
-        | Variable
-        | Relational
-        | Equality
-        | Logical
-        | StringTemplate
-        | Unary
-        | Expression;
-
-    if (kind === c.LITERAL) {
-        expressionTemplate = createLiteral(value);
+export function addExpression(model: STNode, kind: string, value?: any) {
+    if (kind === c.ARITHMETIC) {
+        Object.assign(model, createArithmetic(value));
     } else if (kind === c.RELATIONAL) {
-        expressionTemplate = createRelational(value);
-    } else if (kind === c.EQUALITY) {
-        expressionTemplate = createEquality(value);
-    } else if (kind === c.CONDITIONAL) {
-        expressionTemplate = createConditional();
-    } else if (kind === c.ARITHMETIC) {
-        expressionTemplate = createArithmetic(value);
-    } else if (kind === c.LOGICAL) {
-        expressionTemplate = createLogical(value);
-    } else if (kind === c.VARIABLE) {
-        expressionTemplate = createVariable(value);
-    } else if (kind === c.UNARY) {
-        expressionTemplate = createUnary(value);
-    } else if (kind === c.STRING_TEMPLATE) {
-        expressionTemplate = createStringTemplate();
+        Object.assign(model, createRelational(value));
     } else {
-        expressionTemplate = createTypeCheck(value);
+        console.log(`Unsupported kind. (${kind})`);
     }
-
-    model['expressionType'] = expressionTemplate;
 }
 
 
-function createLiteral(value: any): Literal {
-    return {value};
-}
-
-function createVariable(name: string): Variable {
-    return {name};
-}
-
-function createRelational(operator: ">" | ">=" | "<" | "<=" | "operator"): Relational {
+function createArithmetic(operator: "*" | "/" | "%" | "+" | "-" | "operator"): BinaryExpression {
     return {
-        lhsExp: {type: ["int", "float", "decimal"], kind: c.DEFAULT_BOOL},
-        operator,
-        rhsExp: {type: ["int", "float", "decimal"], kind: c.DEFAULT_BOOL}
+        kind: "BinaryExpression",
+        lhsExpr: {
+            kind: "NumericLiteral",
+            literalToken: {
+                kind: "DecimalIntegerLiteralToken",
+                isToken: false,
+                value: "expression",
+                source: ""
+            },
+            source: ""
+        },
+        operator: {
+            kind: "PlusToken",
+            isToken: false,
+            value: "+",
+            source: ""
+        },
+        rhsExpr: {
+            kind: "NumericLiteral",
+            literalToken: {
+                kind: "DecimalIntegerLiteralToken",
+                isToken: false,
+                value: "expression",
+                source: ""
+            },
+            source: ""
+        },
+        source: ""
     };
 }
 
-function createEquality(operator: "==" | "!=" | "===" | "!==" | "operator"): Equality {
+function createRelational(operator: "*" | "/" | "%" | "+" | "-" | "operator"): BinaryExpression {
     return {
-        lhsExp: {type: ["int", "float", "decimal"], kind: c.DEFAULT_BOOL},
-        operator,
-        rhsExp: {type: ["int", "float", "decimal"], kind: c.DEFAULT_BOOL}
+        kind: "BinaryExpression",
+        lhsExpr: {
+            kind: "NumericLiteral",
+            literalToken: {
+                kind: "DecimalIntegerLiteralToken",
+                isToken: false,
+                value: "expression",
+                source: ""
+            },
+            source: ""
+        },
+        operator: {
+            kind: "GtToken",
+            isToken: false,
+            value: ">",
+            source: ""
+        },
+        rhsExpr: {
+            kind: "NumericLiteral",
+            literalToken: {
+                kind: "DecimalIntegerLiteralToken",
+                isToken: false,
+                value: "expression",
+                source: ""
+            },
+            source: ""
+        },
+        source: ""
     };
-}
-
-function createArithmetic(operator: "*" | "/" | "%" | "+" | "-" | "operator"): Arithmetic {
-    return {
-        lhsOperand: {type: ["int", "float", "decimal"], kind: c.DEFAULT_BOOL},
-        operator,
-        rhsOperand: {type: ["int", "float", "decimal"], kind: c.DEFAULT_BOOL}
-    };
-
-}
-
-function createConditional(): Conditional {
-    return {
-        condition: {type: ["int", "float", "decimal"], kind: c.DEFAULT_BOOL},
-        keyWord1: '?',
-        trueExpr: {type: ["int", "float", "decimal"], kind: c.DEFAULT_BOOL},
-        keyWord2: ':',
-        falseExpr: {type: ["int", "float", "decimal"], kind: c.DEFAULT_BOOL}
-    }
-}
-
-function createLogical(operator: "&&" | "||" | "operator"): Logical {
-    return {
-        lhsComponent: {type: ["int", "float", "decimal"], kind: c.DEFAULT_BOOL},
-        operator,
-        rhsComponent: {type: ["int", "float", "decimal"], kind: c.DEFAULT_BOOL}
-    };
-}
-
-function createStringTemplate(): StringTemplate {
-    return {
-        start: "string `",
-        exp: {type: ["string"], kind: c.DEFAULT_BOOL},
-        end: "`"
-    }
-}
-
-function createTypeCheck(type: "string" | "int" | "float" | "boolean"): TypeCheck {
-    return {
-        value: {type: ["int", "float", "decimal"], kind: c.DEFAULT_BOOL},
-        keyWord: "is",
-        typeDescriptor: type
-    }
-}
-
-function createUnary(operator: "+" | "-" | "~" | "!" | "operator"): Unary {
-    return {
-        operator,
-        operand: {type: ["int", "float", "decimal", "boolean"], kind: c.DEFAULT_BOOL}
-    }
 }
 
 // export const ExpressionSuggestionsByKind : {[key: string]: string[]} = {
@@ -141,26 +109,267 @@ function createUnary(operator: "+" | "-" | "~" | "!" | "operator"): Unary {
 // }
 
 export const ExpressionSuggestionsByKind: { [key: string]: string[] } = {
-    LiteralC: [],
-    // comparison : [c.ARITHMETIC, c.CONDITIONAL, "type-checks"],
-    RelationalC: [c.ARITHMETIC, c.CONDITIONAL, c.TYPE_CHECK, c.RELATIONAL, c.LITERAL],
-    ArithmeticC: [c.LITERAL, c.ARITHMETIC, c.CONDITIONAL],
-    LogicalC: [c.RELATIONAL, c.LOGICAL, c.CONDITIONAL, c.LITERAL],
-    ConditionalC: [c.LITERAL, c.RELATIONAL, c.TYPE_CHECK, c.CONDITIONAL],
-    EqualityC: [c.ARITHMETIC, c.CONDITIONAL, c.LITERAL, c.STRING_TEMPLATE],
-    DefaultBooleanC: [c.RELATIONAL, c.EQUALITY, c.LOGICAL, c.LITERAL, c.TYPE_CHECK, c.CONDITIONAL, c.UNARY],
-    TypeCheckC: [c.LITERAL, c.CONDITIONAL],
-    UnaryC: [c.LITERAL, c.RELATIONAL, c.EQUALITY, c.ARITHMETIC],
-    StringTemplateC: [c.STRING_TEMPLATE, c.ARITHMETIC, c.CONDITIONAL]
+    Literal: [],
+    Relational: [c.ARITHMETIC, c.CONDITIONAL, c.TYPE_CHECK, c.RELATIONAL, c.LITERAL],
+    Arithmetic: [c.LITERAL, c.ARITHMETIC, c.CONDITIONAL],
+    Logical: [c.RELATIONAL, c.LOGICAL, c.CONDITIONAL, c.LITERAL],
+    Conditional: [c.LITERAL, c.RELATIONAL, c.TYPE_CHECK, c.CONDITIONAL],
+    Equality: [c.ARITHMETIC, c.CONDITIONAL, c.LITERAL, c.STRING_TEMPLATE,],
+    DefaultBoolean: [c.RELATIONAL, c.EQUALITY, c.LOGICAL, c.LITERAL, c.TYPE_CHECK, c.CONDITIONAL, c.UNARY],
+    TypeCheck: [c.LITERAL, c.CONDITIONAL   ],
+    Unary: [c.LITERAL, c.RELATIONAL, c.EQUALITY, c.ARITHMETIC],
+    StringTemplate: [c.STRING_TEMPLATE, c.ARITHMETIC, c.CONDITIONAL]
 }
 
-export const booleanDefaultModel: Expression = {
-    type: ["boolean"],
-    kind: "DefaultBooleanC"
+export const ExpressionKindByOperator: { [key: string]: string } = {
+    AsteriskToken: c.ARITHMETIC,
+    BitwiseAndToken: c.ARITHMETIC,
+    BitwiseXorToken: c.ARITHMETIC,
+    DoubleDotLtToken: c.ARITHMETIC,
+    DoubleEqualToken: c.EQUALITY,
+    EllipsisToken: c.ARITHMETIC,
+    ElvisToken: c.ARITHMETIC,
+    GtEqualToken: c.RELATIONAL,
+    GtToken: c.RELATIONAL,
+    LogicalAndToken: c.LOGICAL,
+    LogicalOrToken: c.LOGICAL,
+    LtEqualToken: c.RELATIONAL,
+    LtToken: c.RELATIONAL,
+    NotDoubleEqualToken: c.EQUALITY,
+    NotEqualToken: c.EQUALITY,
+    PercentToken: c.ARITHMETIC,
+    PipeToken: c.ARITHMETIC,
+    PlusToken: c.ARITHMETIC,
+    SlashToken: c.ARITHMETIC,
+    TrippleEqualToken: c.EQUALITY
 }
 
-export const DefaultModelsByKind: { [key: string]: Expression } = {
-    DefaultBooleanC: booleanDefaultModel
+// export const booleanDefaultModel: Expression = {
+//     type: ["boolean"],
+//     kind: "DefaultBooleanC"
+// }
+
+// export const DefaultModelsByKind: { [key: string]: Expression } = {
+//     DefaultBooleanC: booleanDefaultModel
+// }
+
+export const DefaultModelsByKind: { [key: string]: BinaryExpression } = {
+    DefaultBoolean: {
+        // "kind": "IfElseStatement",
+        // "ifKeyword": {
+        //     "kind": "IfKeyword",
+        //     "isToken": true,
+        //     "value": "if",
+        //     "source": "",
+        //     "position": {
+        //         "startLine": 4,
+        //         "startColumn": 8,
+        //         "endLine": 4,
+        //         "endColumn": 10
+        //     }
+        // },
+        // "condition": {
+        "kind": "BinaryExpression",
+        "lhsExpr": {
+            "kind": "NumericLiteral",
+            "literalToken": {
+                "kind": "DecimalIntegerLiteralToken",
+                "isToken": true,
+                "value": "20",
+                "source": "",
+                "position": {
+                    "startLine": 4,
+                    "startColumn": 11,
+                    "endLine": 4,
+                    "endColumn": 13
+                }
+            },
+            "source": "20 ",
+            "position": {
+                "startLine": 4,
+                "startColumn": 11,
+                "endLine": 4,
+                "endColumn": 13
+            },
+            "typeData": {
+                "typeSymbol": {
+                    "typeKind": "int",
+                    "kind": "TYPE",
+                    "signature": "int"
+                },
+                "diagnostics": []
+            }
+        },
+        "operator": {
+            "kind": "PlusToken",
+            "isToken": true,
+            "value": "+",
+            "source": "",
+            "position": {
+                "startLine": 4,
+                "startColumn": 14,
+                "endLine": 4,
+                "endColumn": 15
+            }
+        },
+        "rhsExpr": {
+            "kind": "NumericLiteral",
+            "literalToken": {
+                "kind": "DecimalIntegerLiteralToken",
+                "isToken": true,
+                "value": "10",
+                "source": "",
+                "position": {
+                    "startLine": 4,
+                    "startColumn": 16,
+                    "endLine": 4,
+                    "endColumn": 18
+                }
+            },
+            "source": "10 ",
+            "position": {
+                "startLine": 4,
+                "startColumn": 16,
+                "endLine": 4,
+                "endColumn": 18
+            },
+            "typeData": {
+                "typeSymbol": {
+                    "typeKind": "int",
+                    "kind": "TYPE",
+                    "signature": "int"
+                },
+                "diagnostics": []
+            }
+        },
+        "source": "20 + 10 ",
+        "position": {
+            "startLine": 4,
+            "startColumn": 11,
+            "endLine": 4,
+            "endColumn": 18
+        },
+        "typeData": {
+            "typeSymbol": {
+                "typeKind": "boolean",
+                "kind": "TYPE",
+                "signature": "boolean"
+            },
+            "diagnostics": []
+        }
+        // },
+        // "ifBody": {
+        //     "kind": "BlockStatement",
+        //     "openBraceToken": {
+        //         "kind": "OpenBraceToken",
+        //         "isToken": true,
+        //         "value": "{",
+        //         "source": "",
+        //         "position": {
+        //             "startLine": 4,
+        //             "startColumn": 19,
+        //             "endLine": 4,
+        //             "endColumn": 20
+        //         }
+        //     },
+        //     "statements": [],
+        //     "closeBraceToken": {
+        //         "kind": "CloseBraceToken",
+        //         "isToken": true,
+        //         "value": "}",
+        //         "source": "",
+        //         "position": {
+        //             "startLine": 5,
+        //             "startColumn": 8,
+        //             "endLine": 5,
+        //             "endColumn": 9
+        //         }
+        //     },
+        //     "source": "{\n        } ",
+        //     "position": {
+        //         "startLine": 4,
+        //         "startColumn": 19,
+        //         "endLine": 5,
+        //         "endColumn": 9
+        //     },
+        //     "typeData": {
+        //         "diagnostics": []
+        //     }
+        // },
+        // "elseBody": {
+        //     "kind": "ElseBlock",
+        //     "elseKeyword": {
+        //         "kind": "ElseKeyword",
+        //         "isToken": true,
+        //         "value": "else",
+        //         "source": "",
+        //         "position": {
+        //             "startLine": 5,
+        //             "startColumn": 10,
+        //             "endLine": 5,
+        //             "endColumn": 14
+        //         }
+        //     },
+        //     "elseBody": {
+        //         "kind": "BlockStatement",
+        //         "openBraceToken": {
+        //             "kind": "OpenBraceToken",
+        //             "isToken": true,
+        //             "value": "{",
+        //             "source": "",
+        //             "position": {
+        //                 "startLine": 5,
+        //                 "startColumn": 15,
+        //                 "endLine": 5,
+        //                 "endColumn": 16
+        //             }
+        //         },
+        //         "statements": [],
+        //         "closeBraceToken": {
+        //             "kind": "CloseBraceToken",
+        //             "isToken": true,
+        //             "value": "}",
+        //             "source": "",
+        //             "position": {
+        //                 "startLine": 6,
+        //                 "startColumn": 8,
+        //                 "endLine": 6,
+        //                 "endColumn": 9
+        //             }
+        //         },
+        //         "source": "{\n        }\n",
+        //         "position": {
+        //             "startLine": 5,
+        //             "startColumn": 15,
+        //             "endLine": 6,
+        //             "endColumn": 9
+        //         },
+        //         "typeData": {
+        //             "diagnostics": []
+        //         }
+        //     },
+        //     "source": "else {\n        }\n",
+        //     "position": {
+        //         "startLine": 5,
+        //         "startColumn": 10,
+        //         "endLine": 6,
+        //         "endColumn": 9
+        //     },
+        //     "typeData": {
+        //         "diagnostics": []
+        //     }
+        // },
+        // "source": "        if 20 > 10 {\n        } else {\n        }\n",
+        // "position": {
+        //     "startLine": 4,
+        //     "startColumn": 8,
+        //     "endLine": 6,
+        //     "endColumn": 9
+        // },
+        // "typeData": {
+        //     "diagnostics": []
+        // }
+    }
 }
 
 
@@ -181,13 +390,54 @@ export const TypesForExpressionKind: { [key: string]: string[] } = {
     // arithmetic : ["int","decimal","float","string"]
 }
 
-export const OperatorsForExpressionKind: { [key: string]: string[] } = {
-    ArithmeticC: ["+ ", "- ", "* ", "/ ", "% "],
-    RelationalC: ["> ", ">= ", "< ", "<= "],
-    EqualityC: ["== ", "!= ", "=== ", "!== "],
-    LogicalC: ["&& ", "|| "],
-    UnaryC: ["+ ", "- ", "! ", "~ "],
-    // comparison: [">","<",">=","<=","==","!=","===","!=="],
-    ShiftC: ["<< ", ">> ", ">>> "],
-    RangeC: ["... ", "..< "]
+// export const OperatorsForExpressionKind: { [key: string]: string[] } = {
+//     ArithmeticC: ["+ ", "- ", "* ", "/ ", "% "],
+//     RelationalC: ["> ", ">= ", "< ", "<= "],
+//     EqualityC: ["== ", "!= ", "=== ", "!== "],
+//     LogicalC: ["&& ", "|| "],
+//     UnaryC: ["+ ", "- ", "! ", "~ "],
+//     // comparison: [">","<",">=","<=","==","!=","===","!=="],
+//     ShiftC: ["<< ", ">> ", ">>> "],
+//     RangeC: ["... ", "..< "]
+// }
+
+export const OperatorsForExpressionKind: { [key: string]: Operator[] } = {
+    Arithmetic: [
+        {value: "+", kind: "PlusToken"},
+        {value: "-", kind: "MinusToken"},
+        {value: "*", kind: "AsteriskToken"},
+        {value: "/", kind: "SlashToken"},
+        {value: "%", kind: "PercentToken"}
+    ],
+    Relational: [
+        {value: ">", kind: "GtToken"},
+        {value: ">=", kind: "GtEqualToken"},
+        {value: "<", kind: "LtToken"},
+        {value: "<=", kind: "LtEqualToken"}
+    ],
+    Equality: [
+        {value: "==", kind: "DoubleEqualToken"},
+        {value: "!=", kind: "NotEqualToken"},
+        {value: "===", kind: "TrippleEqualToken"},
+        {value: "!==", kind: "NotDoubleEqualToken"}
+    ],
+    Logical: [
+        {value: "&&", kind: "LogicalAndToken"},
+        {value: "||", kind: "LogicalOrToken"}
+    ],
+    Unary: [
+        {value: "+", kind: "PlusToken"},
+        {value: "-", kind: "MinusToken"},
+        {value: "!", kind: "Unknown"},
+        {value: "~", kind: "Unknown"}
+    ],
+    Shift: [
+        {value: "<<", kind: "Unknown"},
+        {value: ">>", kind: "Unknown"},
+        {value: ">>>", kind: "Unknown"}
+    ],
+    Range: [
+        {value: "...", kind: "Unknown"},
+        {value: "..<", kind: "DoubleDotLtToken"}
+    ]
 }

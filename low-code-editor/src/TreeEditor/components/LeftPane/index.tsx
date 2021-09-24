@@ -1,18 +1,20 @@
 import React, {useState} from "react";
 
-import * as c from "../../constants";
-import {Expression} from "../../models/definitions";
+import {STNode, traversNode} from "@ballerina/syntax-tree";
+
 import {getSuggestionsBasedOnExpressionKind} from "../../utils";
+// import {Operator} from "../../utils/utils";
 import {ExpressionComponent} from '../Expression';
 import {Suggestions} from '../Suggestions';
 import {statementEditorStyles} from "../ViewContainer/styles";
+import {visitor as CodeGenVisitor} from "../Visitors/codeGenVisitor";
 
 
 interface ModelProps {
-    model: Expression,
+    model: STNode,
     kind: string,
     label: string,
-    currentModel: { model: Expression }
+    currentModel: { model: STNode }
 }
 
 export function LeftPane(props: ModelProps) {
@@ -23,18 +25,23 @@ export function LeftPane(props: ModelProps) {
     const [isSuggestionClicked, setIsSuggestionClicked] = useState(false);
     const [isOperator, setIsOperator] = useState(false);
 
-    const onClickExpressionButton = (suggestions: string[], exprModel: Expression, operator: boolean) => {
-        currentModel.model = exprModel
+    const onClickExpressionButton = (suggestions: string[], cModel: STNode, operator: boolean) => {
+        currentModel.model = cModel
         setSuggestionsList(suggestions)
         setIsSuggestionClicked(false)
         setIsOperator(operator)
     }
 
-    const onClickSuggestionButton = (exprModel: Expression) => {
-        setIsSuggestionClicked((prevState) => {
-            return (!prevState);
+    const onClickSuggestionButton = () => {
+        setIsSuggestionClicked(prevState => {
+            return !prevState;
         });
     }
+
+    CodeGenVisitor.clearShapeList();
+    traversNode(model, CodeGenVisitor);
+
+    console.log(CodeGenVisitor.getCodeSnippet());
 
     return (
         <div className={overlayClasses.AppLeftPane}>
