@@ -55,7 +55,6 @@ export function Panel(props: any) {
                     (
                         <div className="panel">
                             <div className="header">
-                                <p className="title">title</p>
                                 {(showClose) && (
                                     <button className="closeBtnWrapper" onClick={onClose}>
                                         <CloseIcon className="closeBtn" />
@@ -63,14 +62,14 @@ export function Panel(props: any) {
                                 )}
                             </div>
                             {children}
-                            <div className="togglePanelButton">
+                            {/* <div className="togglePanelButton">
                                 <PrimaryButton
                                     dataTestId="save-btn"
                                     text="panel"
                                     onClick={togglePanel}
                                 // disabled={}
                                 />
-                            </div>
+                            </div> */}
                         </div>
                     )
                 }
