@@ -1,18 +1,18 @@
 import {BinaryExpression, STNode} from "@ballerina/syntax-tree";
 
 import * as c from "../constants";
-import { Expression } from '../models/definitions';
+import {Expression} from '../models/definitions';
 
-export interface Operator {
+export interface SuggestionItem {
     value: string,
-    kind: string
+    kind?: string
 }
 
 export function deleteExpression(model: Expression) { // Need to handle accordingly with ST
     delete model.expressionType;
 }
 
-export function addOperator(model: STNode, operator: Operator) {
+export function addOperator(model: STNode, operator: SuggestionItem) {
     const expression: any = model;
     if ("typeDescriptor" in expression) {
         expression.typeDescriptor = operator.value;
@@ -108,18 +108,18 @@ function createRelational(operator: "*" | "/" | "%" | "+" | "-" | "operator"): B
 //     conditional : ["literal"]
 // }
 
-export const ExpressionSuggestionsByKind: { [key: string]: string[] } = {
-    Literal: [],
-    Relational: [c.ARITHMETIC, c.CONDITIONAL, c.TYPE_CHECK, c.RELATIONAL, c.LITERAL],
-    Arithmetic: [c.LITERAL, c.ARITHMETIC, c.CONDITIONAL],
-    Logical: [c.RELATIONAL, c.LOGICAL, c.CONDITIONAL, c.LITERAL],
-    Conditional: [c.LITERAL, c.RELATIONAL, c.TYPE_CHECK, c.CONDITIONAL],
-    Equality: [c.ARITHMETIC, c.CONDITIONAL, c.LITERAL, c.STRING_TEMPLATE,],
-    DefaultBoolean: [c.RELATIONAL, c.EQUALITY, c.LOGICAL, c.LITERAL, c.TYPE_CHECK, c.CONDITIONAL, c.UNARY],
-    TypeCheck: [c.LITERAL, c.CONDITIONAL   ],
-    Unary: [c.LITERAL, c.RELATIONAL, c.EQUALITY, c.ARITHMETIC],
-    StringTemplate: [c.STRING_TEMPLATE, c.ARITHMETIC, c.CONDITIONAL]
-}
+// export const ExpressionSuggestionsByKind: { [key: string]: string[] } = {
+//     Literal: [],
+//     Relational: [c.ARITHMETIC, c.CONDITIONAL, c.TYPE_CHECK, c.RELATIONAL, c.LITERAL],
+//     Arithmetic: [c.LITERAL, c.ARITHMETIC, c.CONDITIONAL],
+//     Logical: [c.RELATIONAL, c.LOGICAL, c.CONDITIONAL, c.LITERAL],
+//     Conditional: [c.LITERAL, c.RELATIONAL, c.TYPE_CHECK, c.CONDITIONAL],
+//     Equality: [c.ARITHMETIC, c.CONDITIONAL, c.LITERAL, c.STRING_TEMPLATE,],
+//     DefaultBoolean: [c.RELATIONAL, c.EQUALITY, c.LOGICAL, c.LITERAL, c.TYPE_CHECK, c.CONDITIONAL, c.UNARY],
+//     TypeCheck: [c.LITERAL, c.CONDITIONAL   ],
+//     Unary: [c.LITERAL, c.RELATIONAL, c.EQUALITY, c.ARITHMETIC],
+//     StringTemplate: [c.STRING_TEMPLATE, c.ARITHMETIC, c.CONDITIONAL]
+// }
 
 export const ExpressionKindByOperator: { [key: string]: string } = {
     AsteriskToken: c.ARITHMETIC,
@@ -401,7 +401,7 @@ export const TypesForExpressionKind: { [key: string]: string[] } = {
 //     RangeC: ["... ", "..< "]
 // }
 
-export const OperatorsForExpressionKind: { [key: string]: Operator[] } = {
+export const OperatorsForExpressionKind: { [key: string]: SuggestionItem[] } = {
     Arithmetic: [
         {value: "+", kind: "PlusToken"},
         {value: "-", kind: "MinusToken"},
@@ -439,5 +439,63 @@ export const OperatorsForExpressionKind: { [key: string]: Operator[] } = {
     Range: [
         {value: "...", kind: "Unknown"},
         {value: "..<", kind: "DoubleDotLtToken"}
+    ]
+}
+
+export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = {
+    Literal: [],
+    Relational: [
+        {value: c.ARITHMETIC},
+        {value: c.CONDITIONAL},
+        {value: c.TYPE_CHECK},
+        {value: c.RELATIONAL},
+        {value: c.LITERAL}
+    ],
+    Arithmetic: [
+        {value: c.LITERAL},
+        {value: c.ARITHMETIC},
+        {value: c.CONDITIONAL}
+    ],
+    Logical: [
+        {value: c.RELATIONAL},
+        {value: c.LOGICAL},
+        {value: c.CONDITIONAL},
+        {value: c.LITERAL}
+    ],
+    Conditional: [
+        {value: c.LITERAL},
+        {value: c.RELATIONAL},
+        {value: c.TYPE_CHECK},
+        {value: c.CONDITIONAL}
+    ],
+    Equality: [
+        {value: c.ARITHMETIC},
+        {value: c.CONDITIONAL},
+        {value: c.LITERAL},
+        {value: c.STRING_TEMPLATE}
+    ],
+    DefaultBoolean: [
+        {value: c.RELATIONAL},
+        {value: c.EQUALITY},
+        {value: c.LOGICAL},
+        {value: c.LITERAL},
+        {value: c.TYPE_CHECK},
+        {value: c.CONDITIONAL},
+        {value: c.UNARY}
+    ],
+    TypeCheck: [
+        {value: c.LITERAL},
+        {value: c.CONDITIONAL}
+    ],
+    Unary: [
+        {value: c.LITERAL},
+        {value: c.RELATIONAL},
+        {value: c.EQUALITY},
+        {value: c.ARITHMETIC}
+    ],
+    StringTemplate: [
+        {value: c.STRING_TEMPLATE},
+        {value: c.ARITHMETIC},
+        {value: c.CONDITIONAL}
     ]
 }

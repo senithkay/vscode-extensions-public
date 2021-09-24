@@ -4,13 +4,13 @@ import {BinaryExpression, STNode} from "@ballerina/syntax-tree";
 
 import {getKindBasedOnOperator, getSuggestionsBasedOnExpressionKind} from "../../../utils";
 import {getOperatorSuggestions} from "../../../utils";
-import {Operator} from "../../../utils/utils";
+import {SuggestionItem} from "../../../utils/utils";
 import {ExpressionComponent} from "../../Expression";
 import {statementEditorStyles} from "../../ViewContainer/styles";
 
 interface BinaryProps {
     model: STNode
-    callBack: (suggestions: string[] | Operator[], model: STNode, operator: boolean) => void
+    callBack: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void
 }
 
 export function BinaryExpressionC(props: BinaryProps) {

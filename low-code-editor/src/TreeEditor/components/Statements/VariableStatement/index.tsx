@@ -4,11 +4,12 @@ import {STNode} from "@ballerina/syntax-tree";
 
 import * as c from "../../../constants";
 import {getSuggestionsBasedOnExpressionKind} from "../../../utils";
+import {SuggestionItem} from "../../../utils/utils";
 import {statementEditorStyles} from "../../ViewContainer/styles";
 
 interface VariableStatementProps {
     model: STNode
-    callBack: (suggestions: string[], model: STNode, operator: boolean) => void
+    callBack: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void
     isRoot: boolean
     component: ReactNode
 }

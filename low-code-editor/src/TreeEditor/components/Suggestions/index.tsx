@@ -1,13 +1,13 @@
-import React, {ReactNode} from "react";
+import React from "react";
 
 import {STNode} from "@ballerina/syntax-tree";
 
-import {addExpression, addOperator, Operator} from "../../utils/utils";
+import {addExpression, addOperator, SuggestionItem} from "../../utils/utils";
 import {statementEditorStyles} from "../ViewContainer/styles";
 
 interface SuggestionsProps {
     model: STNode
-    suggestions: string[],
+    suggestions: SuggestionItem[],
     operator: boolean,
     callBack: (model: STNode) => void
 }
@@ -21,7 +21,7 @@ export function Suggestions(props: SuggestionsProps) {
         callBack(model);
     }
 
-    const onClickOperatorSuggestion = (cModel: STNode, operator: Operator) => {
+    const onClickOperatorSuggestion = (cModel: STNode, operator: SuggestionItem) => {
         addOperator(cModel, operator);
         callBack(model);
     }
@@ -52,13 +52,22 @@ export function Suggestions(props: SuggestionsProps) {
     return (
         // {suggestionsContent}
         <div>
-            {suggestions.map((suggestion: string, index: number) => (
+            {suggestions.map((suggestion: SuggestionItem, index: number) => (
+                (suggestion.kind) ?
                 <button
                     className={overlayClasses.AppSuggestionButtons}
                     key={index}
-                    onClick={(e) => onClickExpressionSuggestion(model, suggestion)}
+                    onClick={(e) => onClickOperatorSuggestion(model, suggestion)}
                 >
-                {suggestion}
+                    {suggestion.value}
+                </button>
+                    :
+                <button
+                    className={overlayClasses.AppSuggestionButtons}
+                    key={index}
+                    onClick={(e) => onClickExpressionSuggestion(model, suggestion.value)}
+                >
+                    {suggestion.value}
                 </button>
             ))}
         </div>

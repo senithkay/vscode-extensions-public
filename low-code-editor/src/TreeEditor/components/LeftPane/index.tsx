@@ -3,7 +3,7 @@ import React, {useState} from "react";
 import {STNode, traversNode} from "@ballerina/syntax-tree";
 
 import {getSuggestionsBasedOnExpressionKind} from "../../utils";
-// import {Operator} from "../../utils/utils";
+import {SuggestionItem} from "../../utils/utils";
 import {ExpressionComponent} from '../Expression';
 import {Suggestions} from '../Suggestions';
 import {statementEditorStyles} from "../ViewContainer/styles";
@@ -25,7 +25,7 @@ export function LeftPane(props: ModelProps) {
     const [isSuggestionClicked, setIsSuggestionClicked] = useState(false);
     const [isOperator, setIsOperator] = useState(false);
 
-    const onClickExpressionButton = (suggestions: string[], cModel: STNode, operator: boolean) => {
+    const onClickExpressionButton = (suggestions: SuggestionItem[], cModel: STNode, operator: boolean) => {
         currentModel.model = cModel
         setSuggestionsList(suggestions)
         setIsSuggestionClicked(false)

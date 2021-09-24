@@ -4,10 +4,11 @@ import {BooleanLiteral, STNode} from "@ballerina/syntax-tree";
 
 import * as c from "../../../../constants";
 import {getSuggestionsBasedOnExpressionKind} from "../../../../utils";
+import {SuggestionItem} from "../../../../utils/utils";
 
 interface LiteralProps {
     model: STNode
-    callBack: (suggestions: string[], model: STNode) => void
+    callBack: (suggestions: SuggestionItem[], model: STNode) => void
 }
 
 export function BooleanLiteralC(props: LiteralProps) {
