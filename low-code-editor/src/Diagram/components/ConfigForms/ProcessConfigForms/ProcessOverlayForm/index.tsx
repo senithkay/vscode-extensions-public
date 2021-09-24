@@ -82,23 +82,19 @@ export function ProcessOverlayForm(props: ProcessOverlayFormProps) {
     if (isLoading) {
         return (
             <div>
+                <DiagramOverlayContainer>
+                    <DiagramOverlay
+                        position={position}
+                    >
                         <>
                             <TextPreloaderVertical position='relative' />
                         </>
+                    </DiagramOverlay>
+                </DiagramOverlayContainer>
             </div>
         );
 
     } else if (error) {
-        return (
-            <div>
-                        <>
-                            {error?.message}
-                        </>
-
-
-            </div>
-        );
-    } else {
         return (
             <div>
                 <DiagramOverlayContainer>
@@ -106,13 +102,22 @@ export function ProcessOverlayForm(props: ProcessOverlayFormProps) {
                         position={position}
                     >
                         <>
-                            {formType === "Variable" && <AddVariableConfig config={config} onSave={onSave} onCancel={onCancel} />}
-                            {formType === "Log" && <AddLogConfig config={config} onSave={onSave} onCancel={onCancel} />}
-                            {formType === "DataMapper" && <AddDataMappingConfig processConfig={config} onSave={onSave} onCancel={onCancel} />}
-                            {(formType === "Custom" || formType === "Call") && <AddCustomStatementConfig config={config} onSave={onSave} onCancel={onCancel} />}
+                            {error?.message}
                         </>
                     </DiagramOverlay>
                 </DiagramOverlayContainer>
+
+            </div>
+        );
+    } else {
+        return (
+            <div>
+                <>
+                    {formType === "Variable" && <AddVariableConfig config={config} onSave={onSave} onCancel={onCancel} />}
+                    {formType === "Log" && <AddLogConfig config={config} onSave={onSave} onCancel={onCancel} />}
+                    {formType === "DataMapper" && <AddDataMappingConfig processConfig={config} onSave={onSave} onCancel={onCancel} />}
+                    {(formType === "Custom" || formType === "Call") && <AddCustomStatementConfig config={config} onSave={onSave} onCancel={onCancel} />}
+                </>
             </div>
         );
     }
