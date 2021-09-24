@@ -137,7 +137,7 @@ export function End(props: EndProps) {
         (
             <g className="end-wrapper" data-testid="end-block">
                 <StopSVG
-                    x={cx - (STOP_SVG_WIDTH_WITH_SHADOW / 2)}
+                    x={cx - ((STOP_SVG_WIDTH_WITH_SHADOW / 2) + (STOP_SVG_SHADOW_OFFSET  / 4))}
                     y={cy - DefaultConfig.shadow}
                     text={compType.toUpperCase()}
                     codeSnippet={codeSnippet}

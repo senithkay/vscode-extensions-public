@@ -11,7 +11,7 @@
  * associated services.
  */
 .end-wrapper {
-    font-family: "Gilmer", sans-serif;
+    font-family: inherit;
 
     rect {
         fill: #dce1ff;
@@ -68,7 +68,7 @@
 
     &:last-child:hover {
         .end-text {
-            fill: #fff !important;
+            fill: #5567d5 !important;
             display: inline !important;
         }
     }

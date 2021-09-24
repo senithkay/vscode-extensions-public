@@ -36,6 +36,7 @@ import {
     StartSVG,
     START_SVG_HEIGHT,
     START_SVG_HEIGHT_WITH_SHADOW,
+    START_SVG_WIDTH,
     START_SVG_WIDTH_WITH_SHADOW
 } from "./StartSVG";
 import "./style.scss";
@@ -182,7 +183,8 @@ export function StartButton(props: StartButtonProps) {
         // hide edit button for triggers and expression bodied functions
         <g className="start-wrapper">
             <StartSVG
-                x={cx - (START_SVG_WIDTH_WITH_SHADOW / 2) + DefaultConfig.dotGap / 2}
+                // x={cx - (START_SVG_WIDTH_WITH_SHADOW / 2) + DefaultConfig.dotGap / 2}
+                x={cx - (START_SVG_WIDTH / 2)}
                 y={cy - (START_SVG_HEIGHT / 2)}
                 text={triggerText}
             />
