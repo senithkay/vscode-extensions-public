@@ -10,12 +10,10 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
 import React from "react";
 
 import { ConfigOverlayFormStatus } from "../../../Definitions";
 import { Panel } from "../Panel";
-import { DiagramOverlayContainer } from "../Portals/Overlay";
 import { getForm } from "../Portals/utils";
 
 export interface FormGeneratorProps {
@@ -35,7 +33,6 @@ export function FormGenerator(props: FormGeneratorProps) {
     return (
         <Panel
             onClose={onCancel}
-            showClose={(formType !== undefined) && false}
         >
                 <div className="form-generator">
                     {getForm(formType, args)}

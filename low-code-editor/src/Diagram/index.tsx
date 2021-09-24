@@ -28,7 +28,6 @@ import { DiagramErrorState } from "./components/DiagramState/DiagramErrorState";
 import { ErrorList } from "./components/DiagramState/ErrorList";
 import { OverlayBackground } from "./components/OverlayBackground";
 import PanAndZoom from "./components/PanAndZoom";
-import { Panel } from "./components/Panel";
 import { TriggerType } from "./models";
 import "./style.scss";
 import { useStyles } from "./styles";
