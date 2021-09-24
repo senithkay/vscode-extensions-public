@@ -16,6 +16,7 @@
     border: 1px dashed #c1e4fc;
     border-radius: 6px;
     background-color: #f4faff;
+    font-family: inherit;
 
     &.expanded {
         border: 1px solid #c1e4fc;
@@ -92,38 +93,64 @@
             border-bottom: 1px solid #c1e4fc;
         }
 
-        .path-text {
-            margin-top: 10px;
-            margin-left: 8px;
+        .function-icon {
+            margin: 15px 15px 8px;
+        }
 
-            span {
-                &.param:not(:first-child) {
-                    margin-left: 24px;
+        .param-wrapper {
+            display: flex;
+            width: 93%;
+
+            .param-container {
+                flex-grow: 1;
+                display: flex;
+                flex-direction: row;
+                font-weight: 300;
+                color: #8d91a3;
+                min-width: 50%;
+
+                .path-text {
+                    font-family: inherit;
+                    margin: 15px 0 10px 8px;
+                    font-weight: 300;
+                    color: #222228;
+                    display: flex;
+                    flex-wrap: wrap;
+
+                    span {
+                        padding-bottom: 2px;
+                        margin-right: 24px;
+
+                        sub {
+                            vertical-align: bottom;
+                        }
+                    }
                 }
             }
         }
 
-        .function-icon {
-            margin: 12px 15px 8px 8px;
-        }
-
         .resource-badge {
             height: 32px;
-            width: 67px;
+            min-width: 67px;
             margin: 8px 0 8px 8px;
             border-radius: 4px;
+            display: flex;
+            align-content: center;
+            flex-direction: column;
+            flex-wrap: nowrap;
+            justify-content: center;
+            align-items: center;
+            font-weight: 300;
 
             .text {
                 color: #fff;
                 font-size: 12px;
                 letter-spacing: 0;
-                line-height: 14px;
                 text-align: center;
-                margin-top: 8px;
             }
 
             &.get {
-                background-color: #0095ff;
+                background-color: #1a98fc;
             }
 
             &.post {
@@ -158,6 +185,7 @@
     border: 1px solid #e6e7ec;
     border-radius: 6px;
     background-color: #fff;
+    font-family: inherit;
 
     .function-signature {
         display: flex;
@@ -170,10 +198,23 @@
             margin-right: 15px;
         }
 
-        .path-text {
-            span {
-                &.param:not(:first-child) {
-                    margin-left: 24px;
+        .param-wrapper {
+            display: flex;
+            flex-direction: row;
+            width: 93%;
+
+            .param-container {
+                width: auto;
+                font-weight: 300;
+                color: #8d91a3;
+                padding-right: 10px;
+
+                .path-text {
+                    span {
+                        &.param:not(:first-child) {
+                            margin-left: 24px;
+                        }
+                    }
                 }
             }
         }
@@ -184,13 +225,6 @@
         background-repeat: repeat;
         overflow: hidden;
     }
-}
-
-.param-container {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: row;
-    max-width: 50%;
 }
 
 .design-container {
