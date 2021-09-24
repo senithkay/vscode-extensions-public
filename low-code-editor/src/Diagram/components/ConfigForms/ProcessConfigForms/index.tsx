@@ -68,7 +68,7 @@ export function ProcessConfigForm(props: any) {
     };
 
     const position = {
-        x: 264.5,
+        x: 265,
         y: 0
     }
 
