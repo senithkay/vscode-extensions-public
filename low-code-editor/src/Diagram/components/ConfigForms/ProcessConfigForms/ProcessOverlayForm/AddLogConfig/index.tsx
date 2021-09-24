@@ -117,7 +117,7 @@ export function AddLogConfig(props: LogConfigProps) {
         <FormControl data-testid="log-form" className={formClasses.wizardFormControl}>
             {!isCodeEditorActive ?
                 (
-                    <div className={overlayClasses.configWizardContainer}>
+                    <div>
                         <div className={formClasses.formWrapper}>
                             <ButtonWithIcon
                                 className={formClasses.overlayDeleteBtn}

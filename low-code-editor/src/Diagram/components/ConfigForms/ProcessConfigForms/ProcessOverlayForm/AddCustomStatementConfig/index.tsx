@@ -96,7 +96,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         <FormControl data-testid="custom-expression-form" className={formClasses.wizardFormControl}>
             {!isCodeEditorActive ?
                 (
-                    <div className={overlayClasses.configWizardContainer}>
+                    <div>
                         <div className={formClasses.formWrapper}>
                             <ButtonWithIcon
                                 className={formClasses.overlayDeleteBtn}

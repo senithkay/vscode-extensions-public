@@ -82,30 +82,17 @@ export function ProcessOverlayForm(props: ProcessOverlayFormProps) {
     if (isLoading) {
         return (
             <div>
-                <DiagramOverlayContainer>
-                    <DiagramOverlay
-                        position={position}
-                    >
-                        <>
-                            <TextPreloaderVertical position='relative' />
-                        </>
-                    </DiagramOverlay>
-                </DiagramOverlayContainer>
+                <>
+                    <TextPreloaderVertical position='relative' />
+                </>
             </div>
         );
 
     } else if (error) {
         return (
-            <div>
-                <DiagramOverlayContainer>
-                    <DiagramOverlay
-                        position={position}
-                    >
-                        <>
-                            {error?.message}
-                        </>
-                    </DiagramOverlay>
-                </DiagramOverlayContainer>
+            <div>  <>
+                {error?.message}
+            </>
 
             </div>
         );
