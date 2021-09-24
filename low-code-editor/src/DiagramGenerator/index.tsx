@@ -59,7 +59,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         (async () => {
             try {
                 const genSyntaxTree = await getSyntaxTree(filePath, langClient);
-                const vistedSyntaxTree : STNode = getLowcodeST(genSyntaxTree, startLine, startCharacter);
+                const vistedSyntaxTree: STNode = getLowcodeST(genSyntaxTree, startLine, startCharacter);
                 if (!vistedSyntaxTree) {
                     return (<div><h1>Parse error...!</h1></div>);
                 }
@@ -96,12 +96,12 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         setZoomStatus(newZoomStatus);
     }
 
-    if (!syntaxTree){
-        return (<div className={classes.loaderContainer}><CirclePreloader position="relative"/></div>);
+    if (!syntaxTree) {
+        return (<div className={classes.loaderContainer}><CirclePreloader position="relative" /></div>);
     }
 
     if (syntaxTree && STKindChecker.isFunctionDefinition(syntaxTree)) {
-        const vst : FunctionDefinition = syntaxTree as FunctionDefinition;
+        const vst: FunctionDefinition = syntaxTree as FunctionDefinition;
         if (STKindChecker.isExternalFunctionBody(vst.functionBody)) {
             return (<div className={classes.errorMessageDialog}><h4>Sorry...! External Function Body is not supported yet.</h4></div>);
         }
@@ -114,153 +114,149 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     return (
         <MuiThemeProvider theme={theme}>
             <div className={classes.lowCodeContainer}>
-                <Grid container={true}>
-                    <Grid item={true} xs={10} sm={11} md={11}>
-                        <IntlProvider locale='en' defaultLocale='en' messages={messages}>
-                            <DiagramGenErrorBoundary>
-                                <LowCodeEditor
-                                    {...missingProps}
-                                    isReadOnly={false}
-                                    syntaxTree={syntaxTree}
-                                    zoomStatus={zoomStatus}
-                                    stSymbolInfo={getSymbolInfo()}
-                                    // tslint:disable-next-line: jsx-no-multiline-js
-                                    currentFile={{
-                                        content: fileContent,
-                                        path: filePath,
-                                        size: 1,
-                                        type: "File"
-                                    }}
-                                    // tslint:disable-next-line: jsx-no-multiline-js
-                                    api={{
-                                        tour: {
-                                            goToNextTourStep: (step: string) => undefined,
-                                        },
-                                        helpPanel: {
-                                            openConnectorHelp: (connector?: Partial<Connector>, method?: string) => undefined,
-                                        },
-                                        notifications: {
-                                            triggerErrorNotification: (msg: Error | string) => undefined,
-                                            triggerSuccessNotification: (msg: Error | string) => undefined,
-                                        },
-                                        ls: {
-                                            getDiagramEditorLangClient: (url: string) => {
-                                                return Promise.resolve(langClient);
-                                            },
-                                            getExpressionEditorLangClient: (url: string) => {
-                                                return Promise.resolve(langClient);
+                <IntlProvider locale='en' defaultLocale='en' messages={messages}>
+                    <DiagramGenErrorBoundary>
+                        <LowCodeEditor
+                            {...missingProps}
+                            isReadOnly={false}
+                            syntaxTree={syntaxTree}
+                            zoomStatus={zoomStatus}
+                            stSymbolInfo={getSymbolInfo()}
+                            // tslint:disable-next-line: jsx-no-multiline-js
+                            currentFile={{
+                                content: fileContent,
+                                path: filePath,
+                                size: 1,
+                                type: "File"
+                            }}
+                            // tslint:disable-next-line: jsx-no-multiline-js
+                            api={{
+                                tour: {
+                                    goToNextTourStep: (step: string) => undefined,
+                                },
+                                helpPanel: {
+                                    openConnectorHelp: (connector?: Partial<Connector>, method?: string) => undefined,
+                                },
+                                notifications: {
+                                    triggerErrorNotification: (msg: Error | string) => undefined,
+                                    triggerSuccessNotification: (msg: Error | string) => undefined,
+                                },
+                                ls: {
+                                    getDiagramEditorLangClient: (url: string) => {
+                                        return Promise.resolve(langClient);
+                                    },
+                                    getExpressionEditorLangClient: (url: string) => {
+                                        return Promise.resolve(langClient);
+                                    }
+                                },
+                                insights: {
+                                    onEvent: (event: LowcodeEvent) => undefined,
+                                    trackTriggerSelection: (trigger: string) => undefined,
+                                },
+                                code: {
+                                    modifyDiagram: async (mutations: STModification[], options?: any) => {
+                                        const { parseSuccess, source, syntaxTree: newST } = await langClient.stModify({
+                                            astModifications: await InsertorDelete(mutations),
+                                            documentIdentifier: {
+                                                uri: `file://${filePath}`
                                             }
-                                        },
-                                        insights: {
-                                            onEvent: (event: LowcodeEvent) => undefined,
-                                            trackTriggerSelection: (trigger: string) => undefined,
-                                        },
-                                        code: {
-                                            modifyDiagram: async (mutations: STModification[], options?: any) => {
-                                                const { parseSuccess, source, syntaxTree: newST } = await langClient.stModify({
-                                                    astModifications: await InsertorDelete(mutations),
-                                                    documentIdentifier : {
-                                                        uri: `file://${filePath}`
-                                                    }
-                                                });
-                                                if (parseSuccess) {
-                                                    const vistedSyntaxTree : STNode = getLowcodeST(newST, startLine, startCharacter);
-                                                    setSyntaxTree(vistedSyntaxTree);
-                                                    setFileContent(source);
-                                                    props.updateFileContent(filePath, source);
-                                                } else {
-                                                    // TODO show error
-                                                }
-
-                                            },
-                                            onMutate: (type: string, options: any) => undefined,
-                                            modifyTrigger: (
-                                                triggerType: TriggerType,
-                                                model?: any,
-                                                configObject?: any
-                                            ) => undefined,
-                                            dispatchCodeChangeCommit: () => Promise.resolve(),
-                                            dispatchFileChange: (content: string, callback?: () => undefined) => Promise.resolve(),
-                                            hasConfigurables: (templateST: ModulePart) => false,
-                                            setCodeLocationToHighlight: (position: ModelCodePosition) => undefined,
-                                        },
-                                        connections: {
-                                            createManualConnection: (orgHandle: string, displayName: string, connectorName: string,
-                                                                     userAccountIdentifier: string,
-                                                                     tokens: { name: string; value: string }[],
-                                                                     selectedType: string) => {
-                                                                        return {} as any;
-                                                                    },
-                                            updateManualConnection: (activeConnectionId: string, orgHandle: string, displayName: string, connectorName: string,
-                                                                     userAccountIdentifier: string, tokens: { name: string; value: string }[],
-                                                                     type?: string, activeConnectionHandler?: string) => {
-                                                                        return {} as any;
-                                                                    },
-                                            getAllConnections: (
-                                                            orgHandle: string,
-                                                            connector?: string
-                                                            ) => {
-                                                            return {} as any;
-                                                        },
-                                        },
-                                        ai: {
-                                            getAiSuggestions: (params: AiSuggestionsReq) => {
-                                            return {} as any;
-                                            }
-                                        },
-                                        splitPanel: {
-                                            maximize: (view: string, orientation: string, appId: number | string) => undefined,
-                                            minimize: (view: string, orientation: string, appId: number | string) => undefined,
-                                            setPrimaryRatio: (view: string, orientation: string, appId: number | string) => undefined,
-                                            setSecondaryRatio: (view: string, orientation: string, appId: number | string) => undefined,
-                                            handleRightPanelContent: (viewName: string) => undefined
-                                        },
-                                        data: {
-                                            getGsheetList: (orgHandle: string, handler: string) => {
-                                            return {} as any;
-                                            },
-                                            getGcalendarList: (orgHandle: string, handler: string) => {
-                                            return {} as any;
-                                            },
-                                            getGithubRepoList: (orgHandle: string, handler: string, username: string) => {
-                                            return {} as any;
-                                            },
-                                        },
-                                        oauth: {
-                                            oauthSessions: {},
-                                            dispatchGetAllConfiguration: (orgHandle?: string) => {
-                                            return {} as any;
-                                            },
-                                            dispatchFetchConnectionList: (connector: string, sessionId: string) => undefined,
-                                            dispatchInitOauthSession: (sessionId: string, connector: string, oauthProviderConfig?: OauthProviderConfig) => undefined,
-                                            dispatchResetOauthSession: (sessionId: string) => undefined,
-                                            dispatchTimeoutOauthRequest: (sessionId: string) => undefined,
-                                            dispatchDeleteOauthSession: (sessionId: string) => undefined,
-                                            oauthProviderConfigs: {} as any,
-                                        },
-                                        // FIXME Doesn't make sense to take these methods below from outside
-                                        // Move these inside and get an external API for pref persistance
-                                        // against a unique ID (eg AppID) for rerender from prev state
-                                        panNZoom: {
-                                            pan,
-                                            fitToScreen,
-                                            zoomIn,
-                                            zoomOut
-                                        },
-                                        configPanel: {
-                                            dispactchConfigOverlayForm: (type: string, targetPosition: DraftInsertPosition,
-                                                                         wizardType: WizardType, blockViewState?: BlockViewState, config?: ConditionConfig,
-                                                                         symbolInfo?: STSymbolInfo, model?: STNode) => undefined,
-                                            closeConfigOverlayForm: () => undefined,
-                                            configOverlayFormPrepareStart: () => undefined,
-                                            closeConfigPanel: () => undefined,
+                                        });
+                                        if (parseSuccess) {
+                                            const vistedSyntaxTree: STNode = getLowcodeST(newST, startLine, startCharacter);
+                                            setSyntaxTree(vistedSyntaxTree);
+                                            setFileContent(source);
+                                            props.updateFileContent(filePath, source);
+                                        } else {
+                                            // TODO show error
                                         }
-                                    }}
-                                />
-                            </DiagramGenErrorBoundary>
-                        </IntlProvider>
-                    </Grid>
-                </Grid>
+
+                                    },
+                                    onMutate: (type: string, options: any) => undefined,
+                                    modifyTrigger: (
+                                        triggerType: TriggerType,
+                                        model?: any,
+                                        configObject?: any
+                                    ) => undefined,
+                                    dispatchCodeChangeCommit: () => Promise.resolve(),
+                                    dispatchFileChange: (content: string, callback?: () => undefined) => Promise.resolve(),
+                                    hasConfigurables: (templateST: ModulePart) => false,
+                                    setCodeLocationToHighlight: (position: ModelCodePosition) => undefined,
+                                },
+                                connections: {
+                                    createManualConnection: (orgHandle: string, displayName: string, connectorName: string,
+                                                             userAccountIdentifier: string,
+                                                             tokens: { name: string; value: string }[],
+                                                             selectedType: string) => {
+                                                             return {} as any;
+                                    },
+                                    updateManualConnection: (activeConnectionId: string, orgHandle: string, displayName: string, connectorName: string,
+                                                             userAccountIdentifier: string, tokens: { name: string; value: string }[],
+                                                             type?: string, activeConnectionHandler?: string) => {
+                                        return {} as any;
+                                    },
+                                    getAllConnections: (
+                                        orgHandle: string,
+                                        connector?: string
+                                    ) => {
+                                        return {} as any;
+                                    },
+                                },
+                                ai: {
+                                    getAiSuggestions: (params: AiSuggestionsReq) => {
+                                        return {} as any;
+                                    }
+                                },
+                                splitPanel: {
+                                    maximize: (view: string, orientation: string, appId: number | string) => undefined,
+                                    minimize: (view: string, orientation: string, appId: number | string) => undefined,
+                                    setPrimaryRatio: (view: string, orientation: string, appId: number | string) => undefined,
+                                    setSecondaryRatio: (view: string, orientation: string, appId: number | string) => undefined,
+                                    handleRightPanelContent: (viewName: string) => undefined
+                                },
+                                data: {
+                                    getGsheetList: (orgHandle: string, handler: string) => {
+                                        return {} as any;
+                                    },
+                                    getGcalendarList: (orgHandle: string, handler: string) => {
+                                        return {} as any;
+                                    },
+                                    getGithubRepoList: (orgHandle: string, handler: string, username: string) => {
+                                        return {} as any;
+                                    },
+                                },
+                                oauth: {
+                                    oauthSessions: {},
+                                    dispatchGetAllConfiguration: (orgHandle?: string) => {
+                                        return {} as any;
+                                    },
+                                    dispatchFetchConnectionList: (connector: string, sessionId: string) => undefined,
+                                    dispatchInitOauthSession: (sessionId: string, connector: string, oauthProviderConfig?: OauthProviderConfig) => undefined,
+                                    dispatchResetOauthSession: (sessionId: string) => undefined,
+                                    dispatchTimeoutOauthRequest: (sessionId: string) => undefined,
+                                    dispatchDeleteOauthSession: (sessionId: string) => undefined,
+                                    oauthProviderConfigs: {} as any,
+                                },
+                                // FIXME Doesn't make sense to take these methods below from outside
+                                // Move these inside and get an external API for pref persistance
+                                // against a unique ID (eg AppID) for rerender from prev state
+                                panNZoom: {
+                                    pan,
+                                    fitToScreen,
+                                    zoomIn,
+                                    zoomOut
+                                },
+                                configPanel: {
+                                    dispactchConfigOverlayForm: (type: string, targetPosition: DraftInsertPosition,
+                                                                 wizardType: WizardType, blockViewState?: BlockViewState, config?: ConditionConfig,
+                                                                 symbolInfo?: STSymbolInfo, model?: STNode) => undefined,
+                                    closeConfigOverlayForm: () => undefined,
+                                    configOverlayFormPrepareStart: () => undefined,
+                                    closeConfigPanel: () => undefined,
+                                }
+                            }}
+                        />
+                    </DiagramGenErrorBoundary>
+                </IntlProvider>
             </div>
         </MuiThemeProvider>
     );

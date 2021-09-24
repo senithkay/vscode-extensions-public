@@ -18,7 +18,7 @@
     border: 1px solid #e6e7ec;
     border-radius: 6px;
     background-color: #fff;
-    font-family: "Gilmer", sans-serif;
+    font-family: inherit;
     font-weight: 300;
 
     .listener-header {
@@ -54,16 +54,17 @@
             display: flex;
             width: 25%;
             align-items: center;
-    
+
             .edit-btn-wrapper,
             .delete-btn-wrapper {
                 text-align: center;
                 padding-right: 5px;
                 width: 25px;
+
                 &:hover {
                     cursor: pointer;
                 }
             }
         }
-    } 
+    }
 }
