@@ -84,7 +84,7 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
             element.getKind() === CMP_KIND.LISTENER_LABEL || element.getKind() === CMP_KIND.MODULE_LEVEL_VAR_LABEL) {
             return this.getComponentStructure(element);
         } else if (element.getKind() === CMP_KIND.SERVICE || element.getKind() === CMP_KIND.CLASS) {
-            return this.getResourceStructure(element);
+            return this.getExpandedComponentStructure(element);
         }
     }
 
@@ -325,10 +325,10 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
     }
 
     /**
-      * Returns the tree structure for resources.
+      * Returns the tree structure for resources and classes.
       * @returns An array of tree nodes with resource data.
       */
-    private getResourceStructure(parent: PackageTreeItem): PackageTreeItem[] {
+    private getExpandedComponentStructure(parent: PackageTreeItem): PackageTreeItem[] {
         let leafNodes: PackageTreeItem[] = [];
         const children: ChildrenData = parent.getChildrenData();
         if (parent.getKind() == CMP_KIND.SERVICE && children.resources) {
