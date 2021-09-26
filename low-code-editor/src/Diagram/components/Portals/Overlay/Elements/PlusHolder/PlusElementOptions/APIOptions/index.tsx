@@ -610,9 +610,12 @@ export function APIOptions(props: APIOptionsProps) {
 
         stSymbolInfo.endpoints.forEach((value: LocalVarDecl, key: string) => {
             // todo: need to add connector filtering here
-            const moduleName = STKindChecker.isQualifiedNameReference(value.typedBindingPattern.typeDescriptor) ?
-                value.typedBindingPattern.typeDescriptor?.modulePrefix?.value : null;
-            const name = (value.typedBindingPattern.typeDescriptor as QualifiedNameReference)?.identifier?.value;
+            let moduleName: string;
+            let name: string;
+            if (STKindChecker.isQualifiedNameReference(value.typedBindingPattern.typeDescriptor)) {
+                moduleName = value.typedBindingPattern.typeDescriptor?.modulePrefix?.value;
+                name = value.typedBindingPattern.typeDescriptor?.identifier?.value;
+            }
             if (moduleName && name) {
                 const existConnector = getConnector(moduleName, name);
                 const component: ReactNode = (
