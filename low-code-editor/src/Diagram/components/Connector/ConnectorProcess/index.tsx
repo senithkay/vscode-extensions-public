@@ -127,7 +127,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
         }
     }
 
-    const isSingleFormConnector =  connector && connector.orgName === defaultOrgs.WSO2;
+    const isSingleFormConnector =  connector && connector.package.organization === defaultOrgs.WSO2;
     const toolTip = isReferencedVariable ? "API is referred in the code below" : undefined;
 
     return (

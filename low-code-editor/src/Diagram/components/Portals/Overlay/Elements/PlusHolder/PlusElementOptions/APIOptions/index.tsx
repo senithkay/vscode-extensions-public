@@ -24,6 +24,7 @@ import { Context } from "../../../../../../../../Contexts/Diagram";
 import { DiagramEditorLangClientInterface } from "../../../../../../../../Definitions/diagram-editor-lang-client-interface";
 import { BallerinaConnectorInfo, BallerinaConnectorsResponse, Connector } from "../../../../../../../../Definitions/lang-client-extended";
 import { PlusViewState } from "../../../../../../../../Diagram/view-state/plus";
+import { CirclePreloader } from "../../../../../../../../PreLoader/CirclePreloader";
 import {
     EVENT_TYPE_AZURE_APP_INSIGHTS,
     LowcodeEvent,
@@ -78,15 +79,20 @@ export function APIOptions(props: APIOptionsProps) {
     } = useContext(Context);
     const { onSelect, collapsed } = props;
     const [selectedContName, setSelectedContName] = useState("");
-    const [connectors, setConnectors] = useState<Connector[]>()
+    const [connectors, setConnectors] = useState<Connector[]>();
+    const [showConnectorLoader, setShowConnectorLoader] = useState(true);
     const intl = useIntl();
 
-    useEffect(() => {
-      if (!connectors) {
+    React.useEffect(() => {
+      if (selectedContName === "") {
         const connectorList = getConnectorListFromCache();
-        setConnectors(connectorList);
+        if (connectorList.length > 0) {
+          setConnectors(connectorList);
+          setShowConnectorLoader(false);
+          return;
+        }
       }
-    }, [connectors]);
+    }, [langServerURL]);
 
     const connectionsTooltipMessages = {
         httpConnector: {
@@ -549,7 +555,7 @@ export function APIOptions(props: APIOptionsProps) {
         const event: LowcodeEvent = {
             type: EVENT_TYPE_AZURE_APP_INSIGHTS,
             name: START_CONNECTOR_ADD_INSIGHTS,
-            property: connector.displayName || connector.packageName
+            property: connector.displayName || connector.package.name
         };
         onEvent(event);
         onSelect(connector, undefined);
@@ -560,7 +566,7 @@ export function APIOptions(props: APIOptionsProps) {
         const event: LowcodeEvent = {
             type: EVENT_TYPE_AZURE_APP_INSIGHTS,
             name: START_EXISTING_CONNECTOR_ADD_INSIGHTS,
-            property: connector.displayName || connector.packageName
+            property: connector.displayName || connector.package.name
         };
         onEvent(event);
         openConnectorHelp(connector);
@@ -573,9 +579,9 @@ export function APIOptions(props: APIOptionsProps) {
         let tooltipSideCount = 0;
         connectors.forEach((connector: BallerinaConnectorInfo) => {
             // filter connectors due to maintenance
-            const connectorName = connector.displayName || connector.packageName;
+            const connectorName = connector.displayName || connector.package.name;
             const filteredConnectors = ["azure_storage_service.files", "azure_storage_service.blobs", "choreo.sendwhatsapp"];
-            if (filteredConnectors.includes(connector.packageName)) {
+            if (filteredConnectors.includes(connector.package.name)) {
                 return;
             }
 
@@ -614,7 +620,7 @@ export function APIOptions(props: APIOptionsProps) {
             Array.from(connectors).forEach(element => {
                 // tslint:disable-next-line: no-unused-expression
                 const existingConnector = element as BallerinaConnectorInfo;
-                const formattedModuleName = getFormattedModuleName(existingConnector.packageName);
+                const formattedModuleName = getFormattedModuleName(existingConnector.package.name);
                 if (formattedModuleName === moduleName && existingConnector.name === name) {
                     returnConnnectorType = existingConnector;
                 }
@@ -661,14 +667,26 @@ export function APIOptions(props: APIOptionsProps) {
         setSelectedContName(evt.target.value);
     };
 
+    const handleSearchKeyPress = (event: any) => {
+      if (event.key === "Enter") {
+        setShowConnectorLoader(true);
+        getDiagramEditorLangClient(langServerURL).then(
+          (langClient: DiagramEditorLangClientInterface) => {
+            langClient.getConnectors(selectedContName).then((response: BallerinaConnectorsResponse) => {
+                setConnectors(response.connectors);
+                setShowConnectorLoader(false);
+                if (selectedContName === "") {
+                  addConnectorListToCache(response.connectors);
+                }
+              });
+          }
+        );
+      }
+    };
+
     const updatedConnectorComponents: ReactNode[] = [];
-    if (selectedContName !== "") {
-        const filteredComponents: ConnctorComponent[] = connectorComponents.filter(el =>
-            el.connectorInfo.packageName.toLowerCase().includes(selectedContName.toLowerCase())); // TODO: need to check display name
-        filteredComponents.map((component) => updatedConnectorComponents.push(component.component));
-    } else {
-        connectorComponents.map((component) => updatedConnectorComponents.push(component.component));
-    }
+    connectorComponents.map((component) => updatedConnectorComponents.push(component.component));
+
     const exsitingConnectors: ReactNode[] = [];
     if (selectedContName !== "") {
         const allCnts: ExisitingConnctorComponent[] = exsitingConnectorComponents.filter(el =>
@@ -748,11 +766,23 @@ export function APIOptions(props: APIOptionsProps) {
                                     placeholder="Search"
                                     value={selectedContName}
                                     onChange={handleSearchChange}
+                                    onKeyPress={handleSearchKeyPress}
                                     className='search-wrapper'
                                 />
                             </div>
                             <div className={`api-options options-wrapper ${isExistingConnectors ? 'with-existing-con' : ''}`}>
-                                {updatedConnectorComponents}
+                                {showConnectorLoader && (
+                                    <div className="full-wrapper center-wrapper">
+                                        <CirclePreloader position="relative" />
+                                    </div>
+                                )}
+                                {!showConnectorLoader && updatedConnectorComponents}
+                                {!showConnectorLoader &&
+                                    updatedConnectorComponents.length === 0 && (
+                                        <div className="full-wrapper center-wrapper no-connector-msg">
+                                        No connectors found
+                                        </div>
+                                    )}
                             </div>
                         </>
                     )

@@ -78,7 +78,7 @@ export function ConnectorInitForm(props: any) {
             const modifications: STModification[] = [];
             // Add an import.
             const addImport: STModification = createImportStatement(
-                connector.orgName,
+                connector.package.organization,
                 connector.moduleName,
                 targetPosition
             );

@@ -99,7 +99,7 @@ const headerVal = [
 export function filterConnectorFunctions(connector: Connector, fieldsForFunctions: Map<string, FunctionDefinitionInfo>,
                                          connectorConfig: ConnectorConfig, userEmail?: string): Map<string, FunctionDefinitionInfo> {
     let filteredFunctions: Map<string, FunctionDefinitionInfo> = new Map();
-    const connectorName: string = connector.orgName + "_" + connector.moduleName + "_" + connector.name;
+    const connectorName: string = connector.package.organization + "_" + connector.moduleName + "_" + connector.name;
 
     // TODO: Remove when optional field BE support is given
     const hideOptionalFields = (value: FunctionDefinitionInfo, connectorType: string, oauthConfigName: string) => {
@@ -587,7 +587,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
 
 export function filterCodeGenFunctions(connector: Connector, functionDefInfoMap: Map<string, FunctionDefinitionInfo>)
     : Map<string, FunctionDefinitionInfo> {
-    const connectorName: string = connector.orgName + "_" + connector.moduleName + "_" + connector.name;
+    const connectorName: string = connector.package.organization + "_" + connector.moduleName + "_" + connector.name;
     switch (connectorName) {
         case 'ballerina_http_Client':
             functionDefInfoMap.forEach((value, key) => {

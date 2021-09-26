@@ -432,8 +432,8 @@ export interface ConnectorCache {
 
 // TODO: need to update local storage with persistent disk
 export async function addConnectorToCache(connector: BallerinaConnectorInfo) {
-    const { orgName, packageName, version, name, id } = connector;
-    const key = `${orgName}_${packageName}_${name}_${version}_${id || "x"}`;
+    const {package: {organization, name: packageName, version}, name, id } = connector;
+    const key = `${organization}_${packageName}_${name}_${version}_${id || "x"}`;
 
     const connectorsStr = localStorage.getItem(CONNECTOR_CACHE);
     let connectors: ConnectorCache = {};
@@ -446,8 +446,8 @@ export async function addConnectorToCache(connector: BallerinaConnectorInfo) {
 
 export function getConnectorFromCache(connector: Connector): BallerinaConnectorInfo {
     if (connector) {
-        const { orgName, packageName, version, name, id } = connector;
-        const key = `${orgName}_${packageName}_${name}_${version}_${id || "x"}`;
+        const {package: {organization, name: packageName, version}, name, id } = connector;
+        const key = `${organization}_${packageName}_${name}_${version}_${id || "x"}`;
 
         const connectorsStr = localStorage.getItem(CONNECTOR_CACHE);
         let connectors: ConnectorCache;
@@ -561,7 +561,7 @@ export function getMatchingConnector(actionInvo: STNode, connectors: BallerinaCo
             const identifierName = nameReference?.identifier.value;
             if (moduleName && identifierName) {
                 for (const connectorInfo of connectors) {
-                    if (getFormattedModuleName(connectorInfo.packageName) === moduleName) {
+                    if (getFormattedModuleName(connectorInfo.package.name) === moduleName) {
                         matchModule = true;
                     }
                     if (connectorInfo.name === identifierName) {
