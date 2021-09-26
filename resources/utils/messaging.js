@@ -176,9 +176,9 @@ function getLangClient() {
                 });
             })
         },
-        getConnectors: () => {
+        getConnectors: (params) => {
             return new Promise((resolve, _reject) => {
-                webViewRPCHandler.invokeRemoteMethod('getConnectors', [], (resp) => {
+                webViewRPCHandler.invokeRemoteMethod('getConnectors', [params], (resp) => {
                     resolve(resp);
                 });
             })
