@@ -14,7 +14,7 @@
 import React, { ReactNode, SyntheticEvent, useContext, useState } from "react";
 import { useIntl } from "react-intl";
 
-import { LocalVarDecl, QualifiedNameReference } from "@ballerina/syntax-tree";
+import { LocalVarDecl, QualifiedNameReference, STKindChecker } from "@ballerina/syntax-tree";
 import { Divider } from "@material-ui/core";
 
 import ExpEditorCollapseIcon from "../../../../../../../../assets/icons/ExpEditorCollapseIcon";
@@ -610,7 +610,8 @@ export function APIOptions(props: APIOptionsProps) {
 
         stSymbolInfo.endpoints.forEach((value: LocalVarDecl, key: string) => {
             // todo: need to add connector filtering here
-            const moduleName = (value.typedBindingPattern.typeDescriptor as QualifiedNameReference)?.modulePrefix?.value;
+            const moduleName = STKindChecker.isQualifiedNameReference(value.typedBindingPattern.typeDescriptor) ?
+                value.typedBindingPattern.typeDescriptor?.modulePrefix?.value : null;
             const name = (value.typedBindingPattern.typeDescriptor as QualifiedNameReference)?.identifier?.value;
             if (moduleName && name) {
                 const existConnector = getConnector(moduleName, name);
