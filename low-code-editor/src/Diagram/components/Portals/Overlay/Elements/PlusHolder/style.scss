@@ -152,6 +152,21 @@
             margin-top: 12px;
         }
 
+        .full-wrapper {
+            height: 400px;
+            width: 100%;
+        }
+
+        .center-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .no-connector-msg {
+            color: #5567d5;
+        }
+
         .with-existing-con {
             max-height: 219px !important;
         }

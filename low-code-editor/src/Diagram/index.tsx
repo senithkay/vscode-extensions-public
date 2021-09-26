@@ -88,18 +88,8 @@ export function Diagram() {
           getDiagramEditorLangClient(langServerURL).then(
             (langClient: DiagramEditorLangClientInterface) => {
               langClient
-                .getConnectors()
+                .getConnectors("")
                 .then((response: BallerinaConnectorsResponse) => {
-                  const slackCon: Connector = {
-                    orgName: "ballerinax",
-                    packageName: "slack",
-                    moduleName: "slack",
-                    version: "0.9.9",
-                    name: "Client",
-                    platform: "java11",
-                    ballerinaVersion: "slbeta3",
-                  };
-                  response.connectors.push(slackCon);
                   addConnectorListToCache(response.connectors);
                 });
             }

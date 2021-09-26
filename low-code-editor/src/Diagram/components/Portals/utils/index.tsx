@@ -490,7 +490,7 @@ export function getConnectorIconSVG(connector: Connector, scale: number = 1): Re
 
     return (
       <Avatar variant="rounded">
-        {connector.packageName.substring(0, 2).toUpperCase()}
+        {connector.package.name.substring(0, 2).toUpperCase()}
       </Avatar>
     );
 }
@@ -725,7 +725,7 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
         }
     }
 
-    connectorConfig.existingConnections = symbolInfo.variables.get(getFormattedModuleName(connector.packageName) + ":" + connector.name);
+    connectorConfig.existingConnections = symbolInfo.variables.get(getFormattedModuleName(connector.package.name) + ":" + connector.name);
 
     return {
         isLoading: false,

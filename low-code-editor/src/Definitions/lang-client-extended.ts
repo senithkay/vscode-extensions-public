@@ -42,12 +42,31 @@ export interface Connector {
     id?: string;
     name: string;
     orgName: string;
-    packageName: string;
-    version: string;
-    platform: string;
-    ballerinaVersion: string;
     displayName?: string;
     moduleName?: string;
+    package: Package;
+}
+
+export interface Package {
+    organization: string;
+    name: string;
+    version: string;
+    platform?: string;
+    languageSpecificationVersion?: string;
+    URL?: string;
+    balaVersion?: string;
+    digest?: string;
+    readme?: string;
+    template?: boolean;
+    licenses?: any[];
+    authors?: any[];
+    sourceCodeLocation?: string;
+    keywords?: any[];
+    ballerinaVersion?: string;
+    icon?: string;
+    pullCount?: number;
+    createdDate?: number;
+    modules?: any[];
 }
 
 export interface BallerinaRecord {

@@ -25,7 +25,7 @@ import {
     FormField,
     FunctionDefinitionInfo} from "../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../Contexts/Diagram";
-import { STSymbolInfo } from "../../../../../Definitions";
+import { Connector, STSymbolInfo } from "../../../../../Definitions";
 import { getAllVariables } from "../../../../utils/mixins";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";
 import { PrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
@@ -352,11 +352,11 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     const handleOnOperationSelect = (operation: string) => {
         connectorConfig.action.name = operation;
         setSelectedOperation(operation);
-        const connector = (symbolInfo.endpoints.get(connectorConfig.name)?.typeData?.typeSymbol?.moduleID);
+        const connector = (symbolInfo.endpoints.get(connectorConfig.name)?.typeData?.typeSymbol?.moduleID) as Connector;
         const name = symbolInfo.endpoints.get(connectorConfig.name)?.typeData?.typeSymbol?.name;
         if (connector){
-            const {orgName, moduleName, version} = connector;
-            openConnectorHelp({orgName, moduleName, version, name}, operation);
+            const {moduleName, package: {version, organization}} = connector;
+            openConnectorHelp({moduleName, package: {name, version, organization}, name}, operation);
         }
         if (isNewConnectorInitWizard) {
             setReturnNameState({

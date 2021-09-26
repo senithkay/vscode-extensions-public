@@ -192,7 +192,7 @@ export function HTTPWizard(props: WizardProps) {
         } else {
             // Add an import.
             const addImport: STModification = createImportStatement(
-                connector.orgName,
+                connector.package.organization,
                 connector.moduleName,
                 targetPosition
             );
@@ -264,7 +264,7 @@ export function HTTPWizard(props: WizardProps) {
                 if (targetPosition) {
                     // Add an import.
                     const addImport: STModification = createImportStatement(
-                        connector.orgName,
+                        connector.package.organization,
                         connector.moduleName,
                         targetPosition
                     );
@@ -556,7 +556,7 @@ export function HTTPWizard(props: WizardProps) {
                 modifications = [];
                 // Add an import.
                 const addImport: STModification = createImportStatement(
-                    connector.orgName,
+                    connector.package.organization,
                     connector.moduleName,
                     targetPosition
                 );
@@ -646,7 +646,7 @@ export function HTTPWizard(props: WizardProps) {
                     icon={<CloseRounded fontSize="small" />}
                 />
                 <div className={wizardClasses.titleWrapper}>
-                    <div className={wizardClasses.connectorIconWrapper}>{getConnectorIcon(`${connector.packageName}_${connector.name}`)}</div>
+                    <div className={wizardClasses.connectorIconWrapper}>{getConnectorIcon(`${connector.package.name}_${connector.name}`)}</div>
                     <Typography className={wizardClasses.configTitle} variant="h4">{isNewConnectorInitWizard ? "New" : "Update"} {connector.displayName} <FormattedMessage id="lowcode.develop.connectorForms.HTTP.connection.title" defaultMessage="Connection" /></Typography>
                 </div>
             </div>
