@@ -38,20 +38,20 @@ export function ModulePartComponent(props: ModulePartProps) {
 
     model.members.forEach((member: STNode) => {
         moduleMembers.push(
-            <div className={'member-container'} >
-                {getSTComponent(member)}
-            </div>
+            <>
+                <div className={'member-container'} >
+                    <TopLevelPlus model={member} />
+                    {getSTComponent(member)}
+                </div>
+            </>
         )
     });
 
     return (
         <>
-            {/* TODO: Fix Plus
-            <TopLevelPlus
-                margin={{ top: INIT_PLUS_MARGIN_TOP, bottom : INIT_PLUS_MARGIN_BOTTOM, left: INIT_PLUS_MARGIN_LEFT }}
-            /> */}
-            <div id={'canvas-overlay'} className={classes.OverlayContainer}/>
+            <div id={'canvas-overlay'} className={classes.OverlayContainer} />
             {moduleMembers}
+            <TopLevelPlus model={model.eofToken} />
         </>
     );
 }

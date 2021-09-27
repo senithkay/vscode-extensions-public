@@ -16,6 +16,7 @@ import React, { useState } from "react"
 import { ServiceDeclaration } from "@ballerina/syntax-tree";
 
 import { getSTComponent } from "../../utils";
+import { TopLevelPlus } from "../TopLevelPlus";
 
 import { ServiceHeader } from "./ServiceHeader";
 import "./style.scss";
@@ -41,9 +42,12 @@ export function Service(props: ServiceProps) {
 
     model.members.forEach(member => {
         children.push(
-            <div className={'service-member'}>
-                {getSTComponent(member)}
-            </div>
+            <>
+                <div className={'service-member'}>
+                    <TopLevelPlus model={member} />
+                    {getSTComponent(member)}
+                </div>
+            </>
         )
     });
 
@@ -56,7 +60,12 @@ export function Service(props: ServiceProps) {
                     margin={{ top: SERVICE_PLUS_OFFSET, bottom: SERVICE_PLUS_OFFSET, left: FUNCTION_PLUS_MARGIN_LEFT }}
                 /> */}
                 <div className={'content-container'}>
-                    {isExpanded && children}
+                    {isExpanded && (
+                        <>
+                            {children}
+                            <TopLevelPlus model={model.closeBraceToken} />
+                        </>
+                    )}
                 </div>
             </div>
             {/* <TopLevelPlus

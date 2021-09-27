@@ -36,6 +36,7 @@ export function DiagramOverlay({ children, position, className, stylePosition }:
                 position: stylePosition ? stylePosition : 'relative',
                 top: position.y,
                 left: position.x,
+                zIndex: 3
             }}
         >
             {children}
