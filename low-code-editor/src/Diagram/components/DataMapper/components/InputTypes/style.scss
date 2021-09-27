@@ -13,7 +13,7 @@
 }
 
 .plus-symbol {
-    fill: #36B475;
+    fill: #36b475;
     font-family: inherit;
     font-size: 24px;
     letter-spacing: 0;
@@ -137,10 +137,11 @@
 }
 
 .json-add-field-btn {
-    fill: #CBCEDB;
+    fill: #cbcedb;
     pointer-events: all;
+
     &:hover {
-        fill: #5567D5;
+        fill: #5567d5;
     }
 }
 
@@ -169,7 +170,7 @@
                 fill: #fff;
             }
         }
-    
+
         .outer-oval {
             fill: #5567d5;
         }
@@ -177,6 +178,14 @@
 }
 
 .datamapper-expression-box {
+    .edit-icon-wrapper {
+        display: none;
+    }
+
+    .expression-icon {
+        display: block;
+    }
+
     &:hover {
         .expression-icon {
             display: none;
@@ -185,13 +194,5 @@
         .edit-icon-wrapper {
             display: block;
         }
-    }
-
-    .edit-icon-wrapper {
-        display: none;
-    }
-
-    .expression-icon {
-        display: block;
     }
 }

@@ -7,11 +7,11 @@ import { DotBackground } from "../../assets";
 import { DiagramEditorLangClientInterface } from "../../Definitions/diagram-editor-lang-client-interface";
 import { DiagramGenErrorBoundary } from "../ErrorBoundrary";
 
+import './style.scss';
+
 export interface EditorState {
     filePath: string;
-    kind: string;
     langClient: DiagramEditorLangClientInterface;
-    name: string;
     startColumn: number;
     startLine: string;
     lastUpdatedAt: string;
@@ -24,15 +24,7 @@ export interface EditorAPI {
 
 export type EditorProps = EditorState & EditorAPI;
 
-export const useStyles = makeStyles((theme: Theme) => ({
-    lowCodeContainer: {
-        backgroundImage: `url("${DotBackground}")`,
-        backgroundRepeat: 'repeat'
-    },
-}));
-
 export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
-    const styles = useStyles();
 
     const { getFileContent, updateFileContent, ...restProps } = props;
     const [state, setState] = React.useState<EditorState>(restProps);
@@ -42,7 +34,7 @@ export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
     }, [restProps.lastUpdatedAt]);
 
     return (
-        <div className={styles.lowCodeContainer}>
+        <div className="lowcode-main-wrapper">
             <DiagramGenErrorBoundary>
                 <DiagramGenerator
                     {...state}

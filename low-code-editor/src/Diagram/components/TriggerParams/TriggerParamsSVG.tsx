@@ -30,7 +30,7 @@ export function TriggerParamsSVG(props: { x: number, y: number, text: any }) {
             <Tooltip type={"truncate-code"} text={tooltipText} placement="right" arrow={true}>
                 <g id="Trigger-Params" transform="translate(3.5 2.5)">
                     <g id="Trigger-Params-wrapper" transform="translate(-1038.5 -145.5)">
-                        <g id="Rectangle" transform="translate(1038.5 145.5)" fill="#fff" stroke="#ccd1f2" stroke-miterlimit="10" stroke-width="1">
+                        <g id="Rectangle" transform="translate(1038.5 145.5)" fill="#fff" stroke="#ccd1f2" strokeMiterlimit="10" strokeWidth="1">
                             <rect width="99" height="24" rx="4" stroke="none" />
                             <rect x="0.5" y="0.5" width="98" height="23" rx="3.5" fill="none" />
                         </g>

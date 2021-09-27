@@ -13,216 +13,27 @@
 .start-wrapper {
     user-select: none;
 
-    text .start-text {
-        fill: #fff;
-        font-family: inherit;
-        font-size: 10px;
-        font-weight: 600;
-        letter-spacing: 0.5;
-        text-align: center;
-        text-anchor: middle;
-    }
-
-    text .resource-text {
-        fill: #fff;
-        font-family: inherit;
-        font-size: 9px;
-        font-weight: 400;
-        letter-spacing: 0.5;
-        text-align: center;
-        text-anchor: middle;
-    }
-
     .start-button {
         .start-button-rect {
+            rect {
+                fill: #d7dbfd;
+            }
+        }
+
+        .start-rect-fill {
+            stroke: #5567d5;
+            stroke-miterlimit: 10;
+            stroke-width: 1;
+        }
+
+        text .start-text {
             fill: #5567d5;
-            filter: url(#StartFilterDefault) #5567d5;
-        }
-
-        .start-options-wrapper {
-            fill: transparent;
-            display: none;
-            width: 100px;
-            height: 30px;
-
-            .start-rect {
-                fill: #5567d5;
-                height: 20px;
-                width: 60px;
-            }
-        }
-    }
-}
-
-.start-wrapper-edit {
-    user-select: none;
-
-    text .start-text {
-        fill: #fff;
-        font-family: inherit;
-        font-size: 10px;
-        font-weight: 600;
-        letter-spacing: 0.5;
-        text-align: center;
-        text-anchor: middle;
-    }
-
-    text .resource-text {
-        fill: #fff;
-        font-family: inherit;
-        font-size: 9px;
-        font-weight: 400;
-        letter-spacing: 0.5;
-        text-align: center;
-        text-anchor: middle;
-    }
-
-    .start-button {
-        .start-button-rect {
-            fill: #5567d5;
-            filter: url(#StartFilterDefault) #5567d5;
-        }
-
-        &:hover {
-            filter: url(#StartFilterHover) #5567d5;
-            cursor: pointer;
-
-            text .start-text {
-                fill: #fff;
-                opacity: 0.75;
-            }
-
-            text .resource-text {
-                fill: #fff;
-                font-family: inherit;
-                font-size: 9px;
-                font-weight: 400;
-                letter-spacing: 0.5;
-                text-align: center;
-                text-anchor: middle;
-            }
-        }
-
-        &:active {
-            filter: url(#StartFilterClick) #5567d5;
-            cursor: pointer;
-
-            text .start-text {
-                fill: #fff;
-                opacity: 1;
-            }
-
-            text .resource-text {
-                fill: #fff;
-                font-family: inherit;
-                font-size: 9px;
-                font-weight: 400;
-                letter-spacing: 0.5;
-                text-align: center;
-                text-anchor: middle;
-            }
-        }
-
-        .start-options-wrapper {
-            fill: transparent;
-            display: none;
-            width: 100px;
-            height: 30px;
-
-            .disable {
-                pointer-events: none !important;
-                opacity: 0.5;
-
-                &:hover {
-                    cursor: none !important;
-                }
-            }
-
-            .start-rect {
-                fill: #5567d5;
-                height: 20px;
-                width: 60px;
-            }
-        }
-    }
-
-    &:hover {
-        .start-options-wrapper {
-            display: inline !important;
-
-            .start-rect {
-                fill: #5567d5;
-                height: 35px;
-                width: 80px;
-            }
-
-            .editIcon-button {
-                .editIcon-wrapper {
-                    filter: url(#DefaultEditFilter) none;
-                    fill: none;
-                    stroke: #a6b3ff !important;
-                    stroke-miterlimit: 10;
-                    stroke-width: 1;
-                    opacity: 0.43;
-                }
-
-                .editIcon {
-                    fill: #f0f1fb;
-                }
-
-                &:hover {
-                    cursor: pointer;
-
-                    .editIcon-wrapper {
-                        fill: #f0f1fb;
-                        filter: url(#HoverEditFilter) #f0f1fb;
-                        opacity: 1;
-                        stroke-width: 0;
-                    }
-
-                    .editIcon {
-                        fill: #5567d5;
-                    }
-                }
-            }
-
-            .dropdown-icon-button {
-                .dropdown-icon-wrapper {
-                    filter: url(#DefaultDropDownIcon) none;
-                    fill: none;
-                    stroke: #a6b3ff;
-                    stroke-miterlimit: 10;
-                    stroke-width: 1;
-                    opacity: 0.43;
-                }
-
-                .dropdown-icon {
-                    fill: none;
-                    stroke: #f0f1fb;
-                    stroke-linecap: round;
-                    stroke-miterlimit: 10;
-                    stroke-width: 1.5;
-                }
-
-                &:hover {
-                    cursor: pointer;
-
-                    .dropdown-icon-wrapper {
-                        fill: #f0f1fb;
-                        filter: url(#HoverDropDownIcon) #f0f1fb;
-                        opacity: 1;
-                        stroke-width: 0;
-                    }
-
-                    .dropdown-icon {
-                        fill: none;
-                        stroke: #5567d5;
-                        stroke-linecap: round;
-                        stroke-miterlimit: 10;
-                        stroke-width: 1.5;
-                    }
-                }
-            }
+            font-family: "Gilmer", sans-serif;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.5;
+            text-align: center;
+            text-anchor: middle;
         }
     }
 }

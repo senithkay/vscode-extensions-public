@@ -11,18 +11,21 @@ import {
     FunctionBodyBlock,
     FunctionDefinition,
     IfElseStatement,
+    ListenerDeclaration,
     LocalVarDecl,
     ModulePart,
+    ModuleVarDecl,
     ObjectMethodDefinition,
     OnFailClause,
     RemoteMethodCallAction,
     RequiredParam,
     ResourceAccessorDefinition,
     ResourceKeyword,
+    ServiceDeclaration,
     SimpleNameReference,
     STKindChecker,
     STNode,
-    TypeCastExpression,
+    TypeCastExpression, TypeDefinition,
     Visitor,
     WhileStatement
 } from "@ballerina/syntax-tree";
@@ -39,14 +42,16 @@ import {
     ForEachViewState,
     FunctionViewState,
     IfViewState,
+    ModuleMemberViewState,
     OnErrorViewState,
     PlusViewState,
+    ServiceViewState,
     SimpleBBox,
     StatementViewState,
-    ViewState
+    ViewState,
+    WhileViewState
 } from "../view-state";
 import { DraftStatementViewState } from "../view-state/draft";
-import { WhileViewState } from "../view-state/while";
 
 import { DefaultConfig } from "./default";
 
@@ -63,7 +68,9 @@ class InitVisitor implements Visitor {
     }
 
     public beginVisitModulePart(node: ModulePart, parent?: STNode) {
-        node.viewState = new CompilationUnitViewState();
+        if (!node.viewState) {
+            node.viewState = new CompilationUnitViewState();
+        }
     }
 
     public beginVisitFunctionDefinition(node: FunctionDefinition, parent?: STNode) {
@@ -75,6 +82,27 @@ class InitVisitor implements Visitor {
             if (viewState.initPlus) {
                 viewState.initPlus = undefined;
             }
+        }
+    }
+
+    public beginVisitListenerDeclaration(node: ListenerDeclaration, parent?: STNode) {
+        if (!node.viewState) {
+            const viewState = new ModuleMemberViewState();
+            node.viewState = viewState;
+        }
+    }
+
+    public beginVisitModuleVarDecl(node: ModuleVarDecl) {
+        if (!node.viewState) {
+            const viewState = new ModuleMemberViewState();
+            node.viewState = viewState;
+        }
+    }
+
+    public beginVisitTypeDefinition(node: TypeDefinition) {
+        if (!node.viewState) {
+            const viewState = new ModuleMemberViewState();
+            node.viewState = viewState;
         }
     }
 
@@ -90,6 +118,10 @@ class InitVisitor implements Visitor {
             const viewState = new FunctionViewState();
             node.viewState = viewState;
         }
+    }
+
+    public beginVisitServiceDeclaration(node: ServiceDeclaration, parent?: STNode) {
+        node.viewState = new ServiceViewState();
     }
 
     public beginVisitFunctionBodyBlock(node: FunctionBodyBlock, parent?: STNode) {

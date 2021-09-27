@@ -367,18 +367,18 @@ export function TriggerDropDown(props: TriggerDropDownProps) {
                 integrationMenu
             }
 
-            {(selectedTrigger === TRIGGER_TYPE_API || selectedTrigger === TRIGGER_TYPE_SERVICE_DRAFT) && (
-                <ApiConfigureWizard
-                    position={{ x: position.x, y: position.y }}
-                    onWizardComplete={handleTriggerComplete}
-                    onClose={onClose}
-                    path={configData?.path}
-                    method={configData?.method}
-                    triggerType={selectedTrigger}
-                />
-            )}
-
-            {triggerType !== undefined && <OverlayBackground />}
+            {/* FIXME: Check whether initial rendering of configure resource is needed */}
+            {/*{(selectedTrigger === TRIGGER_TYPE_API || selectedTrigger === TRIGGER_TYPE_SERVICE_DRAFT) && (*/}
+            {/*    <ApiConfigureWizard*/}
+            {/*        position={{ x: position.x, y: position.y }}*/}
+            {/*        onWizardComplete={handleTriggerComplete}*/}
+            {/*        onClose={onClose}*/}
+            {/*        path={configData?.path}*/}
+            {/*        method={configData?.method}*/}
+            {/*        triggerType={selectedTrigger}*/}
+            {/*    />*/}
+            {/*)}*/}
+            {/*{triggerType !== undefined && <OverlayBackground />}*/}
         </DiagramOverlayContainer>
     );
 }

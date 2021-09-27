@@ -418,7 +418,7 @@ export function OutputTypeConfigForm() {
                 customProps={{
                     validate: validateNameValue
                 }}
-                onChange={setVariableName}
+                onChange={handleVariableNameChange}
                 defaultValue={defaultVariableName}
                 errorMessage={variableNameError}
                 placeholder={"Enter Variable Name"}
@@ -508,7 +508,7 @@ export function OutputTypeConfigForm() {
                     }
                     <PrimaryButton
                         dataTestId={"datamapper-output-config-save-btn"}
-                        disabled={!variableNameValid || (selectedDataType === PrimitiveBalType.Json && !isJsonValid)}
+                        disabled={!variableNameValid || variableName === "" || (selectedDataType === PrimitiveBalType.Json && !isJsonValid)}
                         text={"Save"}
                         fullWidth={false}
                         onClick={handleSave}

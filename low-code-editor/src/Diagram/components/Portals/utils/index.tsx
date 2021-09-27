@@ -646,6 +646,7 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
             const connectorResp = await langClient.getConnector(connector);
             if (connectorResp.connector) {
                 cachedConnector = connectorResp.connector;
+                connector.moduleName = connectorResp.connector.moduleName;
                 // save form fields in browser cache
                 await addConnectorToCache(connectorResp.connector);
             }

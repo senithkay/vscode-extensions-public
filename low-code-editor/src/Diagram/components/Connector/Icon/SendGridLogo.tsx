@@ -20,8 +20,8 @@ export function SendGridLogo(props: { cx?: number, cy?: number, scale?: number; 
     return (
         <svg transform={scale ? `scale(${scale})` : ''} x={!cx ? 0 : cx - (LOGO_WIDTH / 2)} y={!cy ? 0 : cy - (LOGO_HEIGHT / 2)} width={LOGO_WIDTH} height={LOGO_HEIGHT} >
             <title>C728B5A1-E8B9-4D2C-912E-4D4EC818DA55</title>
-            <g id="Adding" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                <g id="adding-new-API-Calls" transform="translate(-1008.000000, -714.000000)" fill-rule="nonzero">
+            <g id="Adding" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
+                <g id="adding-new-API-Calls" transform="translate(-1008.000000, -714.000000)" fillRule="nonzero">
                     <g id="Group" transform="translate(1008.000000, 714.000000)">
                         <rect id="Rectangle" fill="#99E1F4" x="6.66142969" y="13.3385703" width="6.66142969" height="6.66142969"/>
                         <polygon id="Path" fill="#99E1F4" points="6.66142969 6.67714061 6.66142969 6.67714061 6.66142969 6.67714061 0 6.67714061 0 13.3385703 6.66142969 13.3385703"/>

@@ -37,7 +37,7 @@ export function ExpressionBoxSVG(props: { x: number, y: number, onClick: () => v
         >
             <g id="Button_Primary_Square_Click" transform="translate(2.5 2.5)">
                 <g id="State">
-                    <rect id="Rectangle" width="28" height="28" rx="5" fill="#fff" stroke="#dee0e7" stroke-width="1" />
+                    <rect id="Rectangle" width="28" height="28" rx="5" fill="#fff" stroke="#dee0e7" strokeWidth="1" />
                 </g>
                 <g className="expression-icon" id="Icon_Wrapper" transform="translate(6 6)">
                     <g id="Group_8" transform="translate(-0.002 2.667)">

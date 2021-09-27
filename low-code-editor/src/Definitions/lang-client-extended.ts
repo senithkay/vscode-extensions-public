@@ -156,3 +156,11 @@ export interface BallerinaProjectParams {
         uri: string;
     };
 }
+
+export interface JsonToRecordRequest {
+    jsonString: string;
+}
+
+export interface JsonToRecordResponse {
+    codeBlock: string;
+}

@@ -60,7 +60,6 @@ export function RecordType(props: RecordTypeProps) {
 
     const fields: JSX.Element[] = [];
     const dataPoints: JSX.Element[] = [];
-    const OffestValue = 10;
 
     let hasMappinConstructor = false;
 

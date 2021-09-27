@@ -14,7 +14,7 @@
 import React, { ReactNode, SyntheticEvent, useContext, useEffect, useState } from "react";
 import { useIntl } from "react-intl";
 
-import { LocalVarDecl, QualifiedNameReference } from "@ballerina/syntax-tree";
+import { LocalVarDecl, QualifiedNameReference, STKindChecker } from "@ballerina/syntax-tree";
 import { Divider } from "@material-ui/core";
 
 import ExpEditorCollapseIcon from "../../../../../../../../assets/icons/ExpEditorCollapseIcon";
@@ -631,37 +631,34 @@ export function APIOptions(props: APIOptionsProps) {
         }
 
         stSymbolInfo.endpoints.forEach((value: LocalVarDecl, key: string) => {
-            const moduleName = (value.typedBindingPattern.typeDescriptor as QualifiedNameReference).modulePrefix.value;
-            const name = (value.typedBindingPattern.typeDescriptor as QualifiedNameReference).identifier.value;
-            const existConnector = getConnector(moduleName, name);
-            const component: ReactNode = (
-                <div className="existing-connect-option" key={key} onClick={onSelectExistingConnector.bind(this, existConnector, value)} data-testid={key.toLowerCase()}>
-                    <div className="existing-connector-details product-tour-add-http">
-                        <div className="existing-connector-icon">
-                            {getExistingConnectorIconSVG(`${existConnector.moduleName}_${existConnector.name}`)}
-                        </div>
-                        <div className="existing-connector-name">
-                            {key}
+            // todo: need to add connector filtering here
+            let moduleName: string;
+            let name: string;
+            if (STKindChecker.isQualifiedNameReference(value.typedBindingPattern.typeDescriptor)) {
+                moduleName = value.typedBindingPattern.typeDescriptor?.modulePrefix?.value;
+                name = value.typedBindingPattern.typeDescriptor?.identifier?.value;
+            }
+            if (moduleName && name) {
+                const existConnector = getConnector(moduleName, name);
+                const component: ReactNode = (
+                    <div className="existing-connect-option" key={key} onClick={onSelectExistingConnector.bind(this, existConnector, value)} data-testid={key.toLowerCase()}>
+                        <div className="existing-connector-details product-tour-add-http">
+                            <div className="existing-connector-icon">
+                                {getExistingConnectorIconSVG(`${existConnector.moduleName}_${existConnector.package.name}`)}
+                            </div>
+                            <div className="existing-connector-name">
+                                {key}
+                            </div>
                         </div>
                     </div>
-                </div>
-            );
-            const exsitingConnectorComponent: ExisitingConnctorComponent = {
-                connectorInfo: existConnector,
-                component,
-                key
+                );
+                const exsitingConnectorComponent: ExisitingConnctorComponent = {
+                    connectorInfo: existConnector,
+                    component,
+                    key
+                }
+                exsitingConnectorComponents.push(exsitingConnectorComponent);
             }
-            // todo Connector filtering here
-            // const connectorPosition = value.position;
-            // const connectorClientViewState: ViewState = (model === null)
-            //      ? blockViewState.draft[1]
-            //      : model.viewState as StatementViewState;
-            // const draftVS: any = connectorClientViewState as DraftStatementViewState;
-            // const connectorTargetPosition = targetPosition as DraftInsertPosition;
-            // if (connectorPosition.startLine > connectorTargetPosition.line) {
-            //     exsitingConnectorComponents.push(exsitingConnectorComponent);
-            // }
-            exsitingConnectorComponents.push(exsitingConnectorComponent);
         });
     }
 
