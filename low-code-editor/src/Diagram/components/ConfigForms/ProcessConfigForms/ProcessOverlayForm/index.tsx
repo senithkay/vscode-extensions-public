@@ -31,12 +31,11 @@ interface ProcessOverlayFormProps {
     config: ProcessConfig;
     onCancel: () => void;
     onSave: () => void;
-    position: DiagramOverlayPosition;
     configOverlayFormStatus: ConfigOverlayFormStatus;
 }
 
 export function ProcessOverlayForm(props: ProcessOverlayFormProps) {
-    const { config, onCancel, onSave, position, configOverlayFormStatus } = props;
+    const { config, onCancel, onSave, configOverlayFormStatus } = props;
     const { isLoading, error, formType } = configOverlayFormStatus;
     const {
         api: {
@@ -46,11 +45,6 @@ export function ProcessOverlayForm(props: ProcessOverlayFormProps) {
             }
         }
     } = useContext(Context);
-
-    React.useEffect(() => {
-        fitToScreen();
-        pan(0, (-position.y + (DefaultConfig.dotGap * 3)));
-    }, []);
 
     if (formType === "Variable") {
         if (config.wizardType === WizardType.EXISTING) {
@@ -82,29 +76,23 @@ export function ProcessOverlayForm(props: ProcessOverlayFormProps) {
     if (isLoading) {
         return (
             <div>
-                <>
-                    <TextPreloaderVertical position='relative' />
-                </>
+                <TextPreloaderVertical position='relative' />
             </div>
         );
 
     } else if (error) {
         return (
-            <div>  <>
+            <div>
                 {error?.message}
-            </>
-
             </div>
         );
     } else {
         return (
             <div>
-                <>
-                    {formType === "Variable" && <AddVariableConfig config={config} onSave={onSave} onCancel={onCancel} />}
-                    {formType === "Log" && <AddLogConfig config={config} onSave={onSave} onCancel={onCancel} />}
-                    {formType === "DataMapper" && <AddDataMappingConfig processConfig={config} onSave={onSave} onCancel={onCancel} />}
-                    {(formType === "Custom" || formType === "Call") && <AddCustomStatementConfig config={config} onSave={onSave} onCancel={onCancel} />}
-                </>
+                {formType === "Variable" && <AddVariableConfig config={config} onSave={onSave} onCancel={onCancel} />}
+                {formType === "Log" && <AddLogConfig config={config} onSave={onSave} onCancel={onCancel} />}
+                {formType === "DataMapper" && <AddDataMappingConfig processConfig={config} onSave={onSave} onCancel={onCancel} />}
+                {(formType === "Custom" || formType === "Call") && <AddCustomStatementConfig config={config} onSave={onSave} onCancel={onCancel} />}
             </div>
         );
     }

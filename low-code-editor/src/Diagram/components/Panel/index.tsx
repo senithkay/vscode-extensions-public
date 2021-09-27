@@ -24,7 +24,7 @@ export function Panel(props: any) {
         <div>
             <DiagramOverlayContainer>
                 <div className="panel">
-                    <div className="panel-formwrapper">
+                    <div className="panel-form-wrapper">
                         {children}
                     </div>
                 </div>

@@ -26,10 +26,7 @@ export function FormGenerator(props: FormGeneratorProps) {
     const { onCancel, onSave, configOverlayFormStatus } = props;
     const { formArgs, formType } = configOverlayFormStatus;
     const args = { onCancel, onSave, configOverlayFormStatus }
-    const position = {
-        x: 264.5,
-        y: 0
-    }
+
     return (
         <Panel
             onClose={onCancel}

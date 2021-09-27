@@ -67,11 +67,6 @@ export function ProcessConfigForm(props: any) {
         model: formArgs?.model
     };
 
-    const position = {
-        x: 264.5,
-        y: 0
-    }
-
     const onSaveClick = () => {
         const modifications: STModification[] = [];
         if (processConfig.model) {
@@ -176,6 +171,6 @@ export function ProcessConfigForm(props: any) {
     };
 
     return (
-        <ProcessOverlayForm position={position} config={processConfig} onCancel={onCancel} onSave={onSaveClick} configOverlayFormStatus={configOverlayFormStatus} />
+        <ProcessOverlayForm config={processConfig} onCancel={onCancel} onSave={onSaveClick} configOverlayFormStatus={configOverlayFormStatus} />
     );
 }
