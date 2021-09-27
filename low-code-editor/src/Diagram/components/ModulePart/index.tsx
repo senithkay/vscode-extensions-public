@@ -51,7 +51,9 @@ export function ModulePartComponent(props: ModulePartProps) {
         <>
             <div id={'canvas-overlay'} className={classes.OverlayContainer} />
             {moduleMembers}
-            <TopLevelPlus model={model.eofToken} />
+            <div className={'member-container'} >
+                <TopLevelPlus model={model.eofToken} />
+            </div>
         </>
     );
 }
