@@ -47,12 +47,11 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         }
     } = useContext(Context);
     const { config, onCancel, onSave } = props;
-    const isExisting = config.wizardType === WizardType.EXISTING;
 
     const expressionFormConfig: CustomExpressionConfig = config.config as CustomExpressionConfig;
 
     let defaultExpression = "";
-    if (isExisting) {
+    if (config.model) {
         defaultExpression = config?.model?.source.trim();
     }
 
@@ -96,7 +95,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         <FormControl data-testid="custom-expression-form" className={formClasses.wizardFormControl}>
             {!isCodeEditorActive ?
                 (
-                    <div className={overlayClasses.configWizardContainer}>
+                    <div className={formClasses.formWrapper}>
                         <div className={formClasses.formWrapper}>
                             <ButtonWithIcon
                                 className={formClasses.overlayDeleteBtn}

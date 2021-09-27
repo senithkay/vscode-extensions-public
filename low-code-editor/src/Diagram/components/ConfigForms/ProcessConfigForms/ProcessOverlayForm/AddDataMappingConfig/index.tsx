@@ -54,7 +54,7 @@ export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
 
     useEffect(() => {
         onCancel();
-        if (processConfig.wizardType === WizardType.EXISTING) {
+        if (processConfig.model) {
             const mappingVisitor = new DataMapperMappingVisitor(new Map(), new Map(), new Map(), true);
             traversNode(processConfig.model, new DataMapperInitVisitor(VisitingType.OUTPUT));
             traversNode(processConfig.model, mappingVisitor);
@@ -62,8 +62,7 @@ export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
             const outputST = processConfig.model;
             const dataMapperConfig: DataMapperConfig = {
                 inputTypes: [],
-                outputType: undefined,
-                wizardType: processConfig.wizardType
+                outputType: undefined
             };
             let generationType: GenerationType;
             let outputVarName: string;
@@ -171,8 +170,7 @@ export function AddDataMappingConfig(props: AddDataMappingConfigProps) {
                     variableName: genVariableName('mappedValue', getAllVariables(stSymbolInfo)),
                     generationType: GenerationType.NEW,
                     type: PrimitiveBalType.String
-                },
-                wizardType: processConfig.wizardType
+                }
             });
         }
     }, []);
