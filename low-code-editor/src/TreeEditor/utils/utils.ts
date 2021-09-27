@@ -1,4 +1,4 @@
-import {BinaryExpression, STNode} from "@ballerina/syntax-tree";
+import {BinaryExpression, BracedExpression, STNode} from "@ballerina/syntax-tree";
 
 import * as c from "../constants";
 import {Expression} from '../models/definitions';
@@ -22,51 +22,69 @@ export function addOperator(model: STNode, operator: SuggestionItem) {
     }
 }
 
-export function addExpression(model: STNode, kind: string, value?: any) {
+export function addExpression(model: any, kind: string, value?: any) {
+    delete model.literalToken;
     if (kind === c.ARITHMETIC) {
-        Object.assign(model, createArithmetic(value));
+        Object.assign(model, createArithmetic());
     } else if (kind === c.RELATIONAL) {
-        Object.assign(model, createRelational(value));
+        Object.assign(model, createRelational());
+    } else if (kind === c.EQUALITY) {
+        Object.assign(model, createEquality());
     } else {
         console.log(`Unsupported kind. (${kind})`);
     }
 }
 
-
-function createArithmetic(operator: "*" | "/" | "%" | "+" | "-" | "operator"): BinaryExpression {
+function createArithmetic(): BracedExpression {
     return {
-        kind: "BinaryExpression",
-        lhsExpr: {
-            kind: "NumericLiteral",
-            literalToken: {
-                kind: "DecimalIntegerLiteralToken",
+        kind: "BracedExpression",
+        source: "",
+        closeParen: {
+            kind: "CloseParenToken",
+            isToken: true,
+            value: ")",
+            source: "",
+        },
+        expression: {
+            kind: "BinaryExpression",
+            lhsExpr: {
+                kind: "NumericLiteral",
+                literalToken: {
+                    kind: "DecimalIntegerLiteralToken",
+                    isToken: false,
+                    value: "expression",
+                    source: ""
+                },
+                source: ""
+            },
+            operator: {
+                kind: "PlusToken",
                 isToken: false,
-                value: "expression",
+                value: "+",
+                source: ""
+            },
+            rhsExpr: {
+                kind: "NumericLiteral",
+                literalToken: {
+                    kind: "DecimalIntegerLiteralToken",
+                    isToken: false,
+                    value: "expression",
+                    source: ""
+                },
                 source: ""
             },
             source: ""
         },
-        operator: {
-            kind: "PlusToken",
-            isToken: false,
-            value: "+",
+        openParen: {
+            kind: "OpenParenToken",
+            isToken: true,
+            value: "(",
             source: ""
-        },
-        rhsExpr: {
-            kind: "NumericLiteral",
-            literalToken: {
-                kind: "DecimalIntegerLiteralToken",
-                isToken: false,
-                value: "expression",
-                source: ""
-            },
-            source: ""
-        },
-        source: ""
+        }
     };
 }
 
-function createRelational(operator: "*" | "/" | "%" | "+" | "-" | "operator"): BinaryExpression {
+function createRelational(): BinaryExpression {
     return {
         kind: "BinaryExpression",
         lhsExpr: {
@@ -83,6 +101,39 @@ function createRelational(operator: "*" | "/" | "%" | "+" | "-" | "operator"): B
             kind: "GtToken",
             isToken: false,
             value: ">",
+            source: ""
+        },
+        rhsExpr: {
+            kind: "NumericLiteral",
+            literalToken: {
+                kind: "DecimalIntegerLiteralToken",
+                isToken: false,
+                value: "expression",
+                source: ""
+            },
+            source: ""
+        },
+        source: ""
+    };
+}
+
+function createEquality(): BinaryExpression {
+    return {
+        kind: "BinaryExpression",
+        lhsExpr: {
+            kind: "NumericLiteral",
+            literalToken: {
+                kind: "DecimalIntegerLiteralToken",
+                isToken: false,
+                value: "expression",
+                source: ""
+            },
+            source: ""
+        },
+        operator: {
+            kind: "TrippleEqualToken",
+            isToken: false,
+            value: "===",
             source: ""
         },
         rhsExpr: {
@@ -152,225 +203,6 @@ export const ExpressionKindByOperator: { [key: string]: string } = {
 // export const DefaultModelsByKind: { [key: string]: Expression } = {
 //     DefaultBooleanC: booleanDefaultModel
 // }
-
-export const DefaultModelsByKind: { [key: string]: BinaryExpression } = {
-    DefaultBoolean: {
-        // "kind": "IfElseStatement",
-        // "ifKeyword": {
-        //     "kind": "IfKeyword",
-        //     "isToken": true,
-        //     "value": "if",
-        //     "source": "",
-        //     "position": {
-        //         "startLine": 4,
-        //         "startColumn": 8,
-        //         "endLine": 4,
-        //         "endColumn": 10
-        //     }
-        // },
-        // "condition": {
-        "kind": "BinaryExpression",
-        "lhsExpr": {
-            "kind": "NumericLiteral",
-            "literalToken": {
-                "kind": "DecimalIntegerLiteralToken",
-                "isToken": true,
-                "value": "20",
-                "source": "",
-                "position": {
-                    "startLine": 4,
-                    "startColumn": 11,
-                    "endLine": 4,
-                    "endColumn": 13
-                }
-            },
-            "source": "20 ",
-            "position": {
-                "startLine": 4,
-                "startColumn": 11,
-                "endLine": 4,
-                "endColumn": 13
-            },
-            "typeData": {
-                "typeSymbol": {
-                    "typeKind": "int",
-                    "kind": "TYPE",
-                    "signature": "int"
-                },
-                "diagnostics": []
-            }
-        },
-        "operator": {
-            "kind": "PlusToken",
-            "isToken": true,
-            "value": "+",
-            "source": "",
-            "position": {
-                "startLine": 4,
-                "startColumn": 14,
-                "endLine": 4,
-                "endColumn": 15
-            }
-        },
-        "rhsExpr": {
-            "kind": "NumericLiteral",
-            "literalToken": {
-                "kind": "DecimalIntegerLiteralToken",
-                "isToken": true,
-                "value": "10",
-                "source": "",
-                "position": {
-                    "startLine": 4,
-                    "startColumn": 16,
-                    "endLine": 4,
-                    "endColumn": 18
-                }
-            },
-            "source": "10 ",
-            "position": {
-                "startLine": 4,
-                "startColumn": 16,
-                "endLine": 4,
-                "endColumn": 18
-            },
-            "typeData": {
-                "typeSymbol": {
-                    "typeKind": "int",
-                    "kind": "TYPE",
-                    "signature": "int"
-                },
-                "diagnostics": []
-            }
-        },
-        "source": "20 + 10 ",
-        "position": {
-            "startLine": 4,
-            "startColumn": 11,
-            "endLine": 4,
-            "endColumn": 18
-        },
-        "typeData": {
-            "typeSymbol": {
-                "typeKind": "boolean",
-                "kind": "TYPE",
-                "signature": "boolean"
-            },
-            "diagnostics": []
-        }
-        // },
-        // "ifBody": {
-        //     "kind": "BlockStatement",
-        //     "openBraceToken": {
-        //         "kind": "OpenBraceToken",
-        //         "isToken": true,
-        //         "value": "{",
-        //         "source": "",
-        //         "position": {
-        //             "startLine": 4,
-        //             "startColumn": 19,
-        //             "endLine": 4,
-        //             "endColumn": 20
-        //         }
-        //     },
-        //     "statements": [],
-        //     "closeBraceToken": {
-        //         "kind": "CloseBraceToken",
-        //         "isToken": true,
-        //         "value": "}",
-        //         "source": "",
-        //         "position": {
-        //             "startLine": 5,
-        //             "startColumn": 8,
-        //             "endLine": 5,
-        //             "endColumn": 9
-        //         }
-        //     },
-        //     "source": "{\n        } ",
-        //     "position": {
-        //         "startLine": 4,
-        //         "startColumn": 19,
-        //         "endLine": 5,
-        //         "endColumn": 9
-        //     },
-        //     "typeData": {
-        //         "diagnostics": []
-        //     }
-        // },
-        // "elseBody": {
-        //     "kind": "ElseBlock",
-        //     "elseKeyword": {
-        //         "kind": "ElseKeyword",
-        //         "isToken": true,
-        //         "value": "else",
-        //         "source": "",
-        //         "position": {
-        //             "startLine": 5,
-        //             "startColumn": 10,
-        //             "endLine": 5,
-        //             "endColumn": 14
-        //         }
-        //     },
-        //     "elseBody": {
-        //         "kind": "BlockStatement",
-        //         "openBraceToken": {
-        //             "kind": "OpenBraceToken",
-        //             "isToken": true,
-        //             "value": "{",
-        //             "source": "",
-        //             "position": {
-        //                 "startLine": 5,
-        //                 "startColumn": 15,
-        //                 "endLine": 5,
-        //                 "endColumn": 16
-        //             }
-        //         },
-        //         "statements": [],
-        //         "closeBraceToken": {
-        //             "kind": "CloseBraceToken",
-        //             "isToken": true,
-        //             "value": "}",
-        //             "source": "",
-        //             "position": {
-        //                 "startLine": 6,
-        //                 "startColumn": 8,
-        //                 "endLine": 6,
-        //                 "endColumn": 9
-        //             }
-        //         },
-        //         "source": "{\n        }\n",
-        //         "position": {
-        //             "startLine": 5,
-        //             "startColumn": 15,
-        //             "endLine": 6,
-        //             "endColumn": 9
-        //         },
-        //         "typeData": {
-        //             "diagnostics": []
-        //         }
-        //     },
-        //     "source": "else {\n        }\n",
-        //     "position": {
-        //         "startLine": 5,
-        //         "startColumn": 10,
-        //         "endLine": 6,
-        //         "endColumn": 9
-        //     },
-        //     "typeData": {
-        //         "diagnostics": []
-        //     }
-        // },
-        // "source": "        if 20 > 10 {\n        } else {\n        }\n",
-        // "position": {
-        //     "startLine": 4,
-        //     "startColumn": 8,
-        //     "endLine": 6,
-        //     "endColumn": 9
-        // },
-        // "typeData": {
-        //     "diagnostics": []
-        // }
-    }
-}
 
 
 // Since there is no LS backend,we will not be able to find the type

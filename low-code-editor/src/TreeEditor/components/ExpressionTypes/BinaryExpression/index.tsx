@@ -2,8 +2,7 @@ import React from "react";
 
 import {BinaryExpression, STNode} from "@ballerina/syntax-tree";
 
-import {getKindBasedOnOperator, getSuggestionsBasedOnExpressionKind} from "../../../utils";
-import {getOperatorSuggestions} from "../../../utils";
+import {getKindBasedOnOperator, getOperatorSuggestions, getSuggestionsBasedOnExpressionKind} from "../../../utils";
 import {SuggestionItem} from "../../../utils/utils";
 import {ExpressionComponent} from "../../Expression";
 import {statementEditorStyles} from "../../ViewContainer/styles";
@@ -25,7 +24,7 @@ export function BinaryExpressionC(props: BinaryProps) {
     const overlayClasses = statementEditorStyles();
 
     if (model.kind === 'BinaryExpression') {
-        let binaryExpModel = model as BinaryExpression;
+        const binaryExpModel = model as BinaryExpression;
         operatorKind = binaryExpModel.operator.kind;
         lhsExpression = binaryExpModel.lhsExpr;
         rhsExpression = binaryExpModel.rhsExpr;
@@ -41,17 +40,31 @@ export function BinaryExpressionC(props: BinaryProps) {
         callBack(getOperatorSuggestions(kind), model, true)
     }
 
-    const onClickOnExpression = (model: STNode, e: any) => {
+    const onClickOnExpression = (clickedModel: STNode, e: any) => {
         e.stopPropagation()
-        callBack(getSuggestionsBasedOnExpressionKind(kind), model, false)
+        callBack(getSuggestionsBasedOnExpressionKind(kind), clickedModel, false)
     };
 
     return (
         <span>
-            <button className={overlayClasses.AppTemplateButton} onClick={(e) => onClickOnExpression(lhsExpression, e)}>{lhs}</button>
-            <button className={overlayClasses.AppTemplateButton}
-                    onClick={(e) => onClickOperator(e)}>{operator ? operator : "operator"}</button>
-            <button className={overlayClasses.AppTemplateButton} onClick={(e) => onClickOnExpression(rhsExpression, e)}>{rhs}</button>
+            <button
+                className={overlayClasses.AppTemplateButton}
+                onClick={(e) => onClickOnExpression(lhsExpression, e)}
+            >
+                {lhs}
+            </button>
+            <button
+                className={overlayClasses.AppTemplateButton}
+                onClick={(e) => onClickOperator(e)}
+            >
+                {operator ? operator : "operator"}
+            </button>
+            <button
+                className={overlayClasses.AppTemplateButton}
+                onClick={(e) => onClickOnExpression(rhsExpression, e)}
+            >
+                {rhs}
+            </button>
         </span>
     );
 }

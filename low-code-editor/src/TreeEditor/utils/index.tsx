@@ -4,8 +4,8 @@ import {STNode} from "@ballerina/syntax-tree";
 
 import * as expressionTypeComponents from '../components/ExpressionTypes';
 
+import {DefaultModelsByKind} from "./sample-model";
 import {
-    DefaultModelsByKind,
     ExpressionKindByOperator,
     ExpressionSuggestionsByKind,
     OperatorsForExpressionKind,

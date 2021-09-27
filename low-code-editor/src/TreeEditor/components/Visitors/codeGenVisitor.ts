@@ -12,30 +12,48 @@
  */
 
 import {
+    BracedExpression,
     STNode,
     Visitor
 } from "@ballerina/syntax-tree";
+
+const leafKind = ['PlusToken', 'MinusToken', 'AsteriskToken', 'SlashToken', 'PercentToken',
+    'GtToken', 'GtEqualToken', 'LtToken', 'LtEqualToken',
+    'DoubleEqualToken', 'NotEqualToken', 'TrippleEqualToken', 'NotDoubleEqualToken',
+    'LogicalAndToken', 'LogicalOrToken',
+    'DoubleDotLtToken',
+    'DecimalIntegerLiteralToken'];
 
 class CodeGenVisitor implements Visitor {
     private codeSnippet: string = "";
 
     public beginVisitSTNode(node: STNode, parent?: STNode) {
-        if (node.kind === "DecimalIntegerLiteralToken" || node.kind === "PlusToken") {
+        if (leafKind.includes(node.kind)) {
             this.codeSnippet = this.codeSnippet + node.value + " ";
         }
     }
 
-    public beginVisitNumericLiteral(node: STNode, parent?: STNode) {
-        if (node.kind === "DecimalIntegerLiteralToken" || node.kind === "PlusToken") {
-            this.codeSnippet = this.codeSnippet + node.value + " ";
-        }
+    public beginVisitBracedExpression(node: STNode, parent?: STNode) {
+        const bracedExprNode = node as BracedExpression;
+        this.codeSnippet = this.codeSnippet + bracedExprNode.openParen.value + " ";
     }
 
-    public beginVisitPlusToken(node: STNode, parent?: STNode) {
-        if (node.kind === "DecimalIntegerLiteralToken" || node.kind === "PlusToken") {
-            this.codeSnippet = this.codeSnippet + node.value + " ";
-        }
+    public endVisitBracedExpression(node: STNode, parent?: STNode) {
+        const bracedExprNode = node as BracedExpression;
+        this.codeSnippet = this.codeSnippet + bracedExprNode.closeParen.value + " ";
     }
+
+    // public beginVisitNumericLiteral(node: STNode, parent?: STNode) {
+    //     if (node.kind === "DecimalIntegerLiteralToken" || node.kind === "PlusToken") {
+    //         this.codeSnippet = this.codeSnippet + node.value + " ";
+    //     }
+    // }
+    //
+    // public beginVisitPlusToken(node: STNode, parent?: STNode) {
+    //     if (node.kind === "DecimalIntegerLiteralToken" || node.kind === "PlusToken") {
+    //         this.codeSnippet = this.codeSnippet + node.value + " ";
+    //     }
+    // }
 
     getCodeSnippet() {
         return this.codeSnippet;
