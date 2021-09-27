@@ -28,15 +28,14 @@ interface EndOverlayFormProps {
     config: EndConfig;
     onCancel: () => void;
     onSave: () => void;
-    position: DiagramOverlayPosition;
     configOverlayFormStatus: ConfigOverlayFormStatus;
 }
 
 export function EndOverlayForm(props: EndOverlayFormProps) {
-    const { config, onCancel, onSave, position, configOverlayFormStatus } = props;
+    const { config, onCancel, onSave, configOverlayFormStatus } = props;
     const { isLoading, error, formType } = configOverlayFormStatus;
     const isExpressionFunctionBody: boolean = config.model ?
-    STKindChecker.isExpressionFunctionBody(config.model) : false;
+        STKindChecker.isExpressionFunctionBody(config.model) : false;
     const {
         api: {
             panNZoom: {
@@ -45,11 +44,6 @@ export function EndOverlayForm(props: EndOverlayFormProps) {
             }
         }
     } = useContext(Context);
-
-    React.useEffect(() => {
-        fitToScreen();
-        pan(0, (-position.y + (DefaultConfig.dotGap * 3)));
-    }, []);
 
     if (formType === "Return") {
         config.expression = "";
@@ -62,12 +56,12 @@ export function EndOverlayForm(props: EndOverlayFormProps) {
         };
     }
 
-    if (config.wizardType === WizardType.EXISTING && formType === "Respond") {
+    if (config.model && formType === "Respond") {
         const respondModel: ActionStatement = config.model as ActionStatement;
         const remoteCallModel: RemoteMethodCallAction = respondModel?.expression.expression as RemoteMethodCallAction;
         const respondFormConfig: RespondConfig = config.expression as RespondConfig;
         respondFormConfig.respondExpression = remoteCallModel?.arguments[0].source;
-    } else if (config.wizardType === WizardType.EXISTING && formType === "Return") {
+    } else if (config.model && formType === "Return") {
         if (isExpressionFunctionBody) {
             const expressionEditor: ExpressionFunctionBody = config?.model as ExpressionFunctionBody;
             config.expression = expressionEditor.expression?.source;
@@ -81,46 +75,23 @@ export function EndOverlayForm(props: EndOverlayFormProps) {
     if (isLoading) {
         return (
             <div>
-                <DiagramOverlayContainer>
-                    <DiagramOverlay
-                        position={position}
-                    >
-                        <>
-                            <TextPreloaderVertical position='relative' />
-                        </>
-                    </DiagramOverlay>
-                </DiagramOverlayContainer>
+                <TextPreloaderVertical position='relative' />
             </div>
         );
 
     } else if (error) {
         return (
             <div>
-                <DiagramOverlayContainer>
-                    <DiagramOverlay
-                        position={position}
-                    >
-                        <>
-                            {error?.message}
-                        </>
-                    </DiagramOverlay>
-                </DiagramOverlayContainer>
-
+                {error?.message}
             </div>
         );
     } else {
         return (
             <div>
-                <DiagramOverlayContainer>
-                    <DiagramOverlay
-                        position={position}
-                    >
-                        <>
-                            {formType === "Return" && <AddReturnForm config={config} onSave={onSave} onCancel={onCancel} />}
-                            {formType === "Respond" && <AddRespondForm config={config} onSave={onSave} onCancel={onCancel} />}
-                        </>
-                    </DiagramOverlay>
-                </DiagramOverlayContainer>
+
+                {formType === "Return" && <AddReturnForm config={config} onSave={onSave} onCancel={onCancel} />}
+                {formType === "Respond" && <AddRespondForm config={config} onSave={onSave} onCancel={onCancel} />}
+
             </div>
         );
     }
