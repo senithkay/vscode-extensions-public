@@ -3,11 +3,12 @@ import React from "react";
 import * as c from "../../../constants";
 import {Expression, Literal} from "../../../models/definitions";
 import {getSuggestionsBasedOnExpressionKind} from "../../../utils";
+import {SuggestionItem} from "../../../utils/utils";
 import {statementEditorStyles} from "../../ViewContainer/styles";
 
 interface LiteralProps {
     model: Expression
-    callBack: (suggestions: string[], model: Expression) => void
+    callBack: (suggestions: SuggestionItem[], model: Expression) => void
 }
 
 export function LiteralC(props: LiteralProps) {
