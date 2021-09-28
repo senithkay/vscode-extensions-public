@@ -18,7 +18,6 @@ import { ListenerDeclaration, STNode } from "@ballerina/syntax-tree";
 import DeleteButton from "../../../assets/icons/DeleteButton";
 import EditButton from "../../../assets/icons/EditButton";
 import ListenerIcon from "../../../assets/icons/ListenerIcon";
-import { TopLevelPlus } from "../TopLevelPlus";
 
 import "./style.scss";
 
@@ -76,9 +75,6 @@ export function ListenerC(props: ListenerProps) {
                     )}
                 </div>
             </div>
-            {/* <TopLevelPlus
-                margin={{ top: LISTENER_PLUS_OFFSET, bottom: LISTENER_PLUS_OFFSET, left: LISTENER_MARGIN_LEFT }}
-            /> */}
         </>
     );
 }

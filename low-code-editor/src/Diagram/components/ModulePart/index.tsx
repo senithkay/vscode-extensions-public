@@ -40,7 +40,7 @@ export function ModulePartComponent(props: ModulePartProps) {
         moduleMembers.push(
             <>
                 <div className={'member-container'} >
-                    <TopLevelPlus model={member} />
+                    <TopLevelPlus kind={model.kind} targetPosition={member.position} />
                     {getSTComponent(member)}
                 </div>
             </>
@@ -52,7 +52,7 @@ export function ModulePartComponent(props: ModulePartProps) {
             <div id={'canvas-overlay'} className={classes.OverlayContainer} />
             {moduleMembers}
             <div className={'member-container'} >
-                <TopLevelPlus model={model.eofToken} />
+                <TopLevelPlus kind={model.kind} targetPosition={model.eofToken.position} />
             </div>
         </>
     );

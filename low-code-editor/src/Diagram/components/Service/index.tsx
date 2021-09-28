@@ -44,7 +44,7 @@ export function Service(props: ServiceProps) {
         children.push(
             <>
                 <div className={'service-member'}>
-                    <TopLevelPlus model={member} />
+                    <TopLevelPlus kind={model.kind} targetPosition={member.position} />
                     {getSTComponent(member)}
                 </div>
             </>
@@ -63,7 +63,7 @@ export function Service(props: ServiceProps) {
                     {isExpanded && (
                         <>
                             {children}
-                            <TopLevelPlus model={model.closeBraceToken} />
+                            <TopLevelPlus kind={model.kind} targetPosition={model.closeBraceToken.position} />
                         </>
                     )}
                 </div>

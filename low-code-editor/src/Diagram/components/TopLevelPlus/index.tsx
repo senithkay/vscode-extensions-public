@@ -34,14 +34,14 @@ export interface Margin {
 }
 
 export interface PlusProps {
-    model: STNode,
+    kind: string,
     initPlus?: boolean;
     margin?: Margin;
     targetPosition?: DraftInsertPosition;
 }
 
 export const TopLevelPlus = (props: PlusProps) => {
-    const { targetPosition, model } = props;
+    const { targetPosition, kind } = props;
     const containerElement = useRef(null);
 
     const [isPlusOptionsVisible, setIsPlusOptionsVisible] = useState(false);
@@ -62,7 +62,7 @@ export const TopLevelPlus = (props: PlusProps) => {
                     <DiagramOverlayContainer>
                         <DiagramOverlay position={containerElement.current ? { x: containerElement.current.offsetLeft, y: containerElement.current.offsetTop } : { x: 0, y: 0 }}>
                             <PlusOptionsSelector
-                                model={model}
+                                kind={kind}
                                 onClose={handlePlusOptionsClose}
                                 targetPosition={targetPosition}
                             />
