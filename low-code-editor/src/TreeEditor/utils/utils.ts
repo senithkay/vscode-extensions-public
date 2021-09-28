@@ -31,6 +31,7 @@ export function addExpression(model: any, kind: string, value?: any) {
     } else if (kind === c.EQUALITY) {
         Object.assign(model, createEquality());
     } else {
+        // tslint:disable-next-line:no-console
         console.log(`Unsupported kind. (${kind})`);
     }
 }

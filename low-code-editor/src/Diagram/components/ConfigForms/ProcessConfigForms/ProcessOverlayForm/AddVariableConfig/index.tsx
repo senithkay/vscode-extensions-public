@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
+// tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
 import React, { useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -268,9 +268,12 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                                     <PropertyIcon/>
                                 </div>
                                 <Typography variant="h4">
-                                    <Box paddingTop={2} paddingBottom={2}><FormattedMessage
-                                        id="lowcode.develop.configForms.variable.title"
-                                        defaultMessage="Variable"/></Box>
+                                    <Box paddingTop={2} paddingBottom={2}>
+                                        <FormattedMessage
+                                            id="lowcode.develop.configForms.variable.title"
+                                            defaultMessage="Variable"
+                                        />
+                                    </Box>
                                 </Typography>
                             </div>
                         </div>

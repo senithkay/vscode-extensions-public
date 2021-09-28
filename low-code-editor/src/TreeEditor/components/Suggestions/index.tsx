@@ -1,3 +1,5 @@
+// tslint:disable: jsx-no-multiline-js jsx-wrap-multiline jsx-no-lambda
+
 import React from "react";
 
 import {STNode} from "@ballerina/syntax-tree";
@@ -16,48 +18,24 @@ export function Suggestions(props: SuggestionsProps) {
     const overlayClasses = statementEditorStyles();
     const {model, suggestions, callBack} = props;
 
-    const onClickExpressionSuggestion = (cModel: STNode, kind: string) => {
-        addExpression(cModel, kind);
+    const onClickExpressionSuggestion = (kind: string) => {
+        addExpression(model, kind);
         callBack(model);
     }
 
-    const onClickOperatorSuggestion = (cModel: STNode, operator: SuggestionItem) => {
-        addOperator(cModel, operator);
+    const onClickOperatorSuggestion = (operator: SuggestionItem) => {
+        addOperator(model, operator);
         callBack(model);
     }
-
-    // const suggestionsContent: ReactNode[] = suggestions.map((suggestion: string, index: number) => {
-    //     // if (suggestion.constructor === String) {
-    //         const expressionItem: string = suggestion as string;
-    //         return <button
-    //             className={overlayClasses.AppSuggestionButtons}
-    //             key={index}
-    //             onClick={(e) => onClickExpressionSuggestion(model, expressionItem)}
-    //         >
-    //             {suggestion}
-    //         </button>;
-    //     } else {
-    //         const operatorItem: Operator = suggestion as Operator;
-    //         return <button
-    //             className={overlayClasses.AppSuggestionButtons}
-    //             key={index}
-    //             onClick={(e) => onClickOperatorSuggestion(model, operatorItem)}
-    //         >
-    //             {operatorItem.value}
-    //         </button>;
-    //     }
-    // });
-
 
     return (
-        // {suggestionsContent}
         <div>
             {suggestions.map((suggestion: SuggestionItem, index: number) => (
                 (suggestion.kind) ?
                 <button
                     className={overlayClasses.AppSuggestionButtons}
                     key={index}
-                    onClick={(e) => onClickOperatorSuggestion(model, suggestion)}
+                    onClick={() => onClickOperatorSuggestion(suggestion)}
                 >
                     {suggestion.value}
                 </button>
@@ -65,7 +43,7 @@ export function Suggestions(props: SuggestionsProps) {
                 <button
                     className={overlayClasses.AppSuggestionButtons}
                     key={index}
-                    onClick={(e) => onClickExpressionSuggestion(model, suggestion.value)}
+                    onClick={() => onClickExpressionSuggestion(suggestion.value)}
                 >
                     {suggestion.value}
                 </button>

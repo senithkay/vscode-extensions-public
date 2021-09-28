@@ -30,9 +30,6 @@ export function getTypesBasedOnExpressionKind(kind: string): string[] {
 }
 
 export function getOperatorSuggestions(kind: string): SuggestionItem[] {
-    console.log("+++++++++++++++++++++++++++++++++++++++++++++++++++++");
-    console.log(kind);
-    console.log("+++++++++++++++++++++++++++++++++++++++++++++++++++++");
     if (kind in OperatorsForExpressionKind) {
         return OperatorsForExpressionKind[kind];
     }

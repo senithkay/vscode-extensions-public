@@ -24,6 +24,7 @@ export interface Variable {
     name: string
 }
 
+// tslint:disable-next-line:no-empty-interface
 export interface DefaultBoolean { }
 
 export interface Comparison {

@@ -22,7 +22,7 @@ export function LeftPane(props: ModelProps) {
     const {model, kind, label, currentModel} = props;
 
     const [suggestionList, setSuggestionsList] = useState(getSuggestionsBasedOnExpressionKind(kind));
-    const [isSuggestionClicked, setIsSuggestionClicked] = useState(false);
+    const [, setIsSuggestionClicked] = useState(false);
     const [isOperator, setIsOperator] = useState(false);
 
     const onClickExpressionButton = (suggestions: SuggestionItem[], cModel: STNode, operator: boolean) => {
@@ -41,6 +41,7 @@ export function LeftPane(props: ModelProps) {
     CodeGenVisitor.clearShapeList();
     traversNode(model, CodeGenVisitor);
 
+    // tslint:disable-next-line:no-console
     console.log(CodeGenVisitor.getCodeSnippet());
 
     return (

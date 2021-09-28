@@ -25,17 +25,17 @@ export function BracedExpressionC(props: BracedExprProps) {
         expressionComponent = <ExpressionComponent model={expression} callBack={callBack} isRoot={false}/>;
     }
 
-    const onClickOnExpression = (clickedModel: STNode, e: any) => {
-        e.stopPropagation()
+    const onClickOnExpression = (event: any) => {
+        event.stopPropagation()
         // TODO: Change the kind appropriately
-        callBack(getSuggestionsBasedOnExpressionKind("Arithmetic"), clickedModel, false);
+        callBack(getSuggestionsBasedOnExpressionKind("Arithmetic"), expression, false);
     };
 
     return (
         <span>
             <button
                 className={overlayClasses.AppTemplateButton}
-                onClick={(e) => onClickOnExpression(expression, e)}
+                onClick={onClickOnExpression}
             >
                 {expressionComponent}
             </button>

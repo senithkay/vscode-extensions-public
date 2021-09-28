@@ -35,33 +35,38 @@ export function BinaryExpressionC(props: BinaryProps) {
 
     const kind = getKindBasedOnOperator(operatorKind);
 
-    const onClickOperator = (e: any) => {
-        e.stopPropagation()
+    const onClickOperator = (event: any) => {
+        event.stopPropagation()
         callBack(getOperatorSuggestions(kind), model, true)
     }
 
-    const onClickOnExpression = (clickedModel: STNode, e: any) => {
-        e.stopPropagation()
-        callBack(getSuggestionsBasedOnExpressionKind(kind), clickedModel, false)
+    const onClickOnLhsExpression = (event: any) => {
+        event.stopPropagation()
+        callBack(getSuggestionsBasedOnExpressionKind(kind), lhsExpression, false)
+    };
+
+    const onClickOnRhsExpression = (event: any) => {
+        event.stopPropagation()
+        callBack(getSuggestionsBasedOnExpressionKind(kind), rhsExpression, false)
     };
 
     return (
         <span>
             <button
                 className={overlayClasses.AppTemplateButton}
-                onClick={(e) => onClickOnExpression(lhsExpression, e)}
+                onClick={onClickOnLhsExpression}
             >
                 {lhs}
             </button>
             <button
                 className={overlayClasses.AppTemplateButton}
-                onClick={(e) => onClickOperator(e)}
+                onClick={onClickOperator}
             >
                 {operator ? operator : "operator"}
             </button>
             <button
                 className={overlayClasses.AppTemplateButton}
-                onClick={(e) => onClickOnExpression(rhsExpression, e)}
+                onClick={onClickOnRhsExpression}
             >
                 {rhs}
             </button>
