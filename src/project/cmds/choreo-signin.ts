@@ -25,7 +25,6 @@ import express from "express";
 import * as fs from "fs";
 import * as path from "path";
 import keytar = require("keytar");
-import { debug } from "console";
 
 const CHOREO_LOGIN_URL = "https://id.dv.choreo.dev/oauth2/authorize";
 const CHOREO_CLIENT_ID = "choreoportalapplication";
