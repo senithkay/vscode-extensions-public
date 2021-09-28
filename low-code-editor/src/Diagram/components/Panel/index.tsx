@@ -25,12 +25,12 @@ export function Panel(props: any) {
         <div>
             <DiagramOverlayContainer
             >
-                    <div className="panel">
-                        <div className="panel-form-wrapper">
-                            {children}
-                        </div>
+                <div className="panel">
+                    <div className="panel-form-wrapper">
+                        {children}
                     </div>
-                    <OverlayBackground />
+                </div>
+                <OverlayBackground />
             </DiagramOverlayContainer>
         </div>
     );
