@@ -35,7 +35,7 @@ export function EndOverlayForm(props: EndOverlayFormProps) {
     const { config, onCancel, onSave, configOverlayFormStatus } = props;
     const { isLoading, error, formType } = configOverlayFormStatus;
     const isExpressionFunctionBody: boolean = config.model ?
-        STKindChecker.isExpressionFunctionBody(config.model) : false;
+    STKindChecker.isExpressionFunctionBody(config.model) : false;
     const {
         api: {
             panNZoom: {
