@@ -339,13 +339,11 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     if (isStmtEditor) {
         exprEditor = <FormControl data-testid="property-form" className={classes.stmtEditorFormControl}>
             {!isCodeEditorActive ? (
-                <div className={overlayClasses.configWizardContainer}>
-                    <div className={classes.formWrapper}>
-                        <MainContainer
-                            kind="DefaultBoolean"
-                            label="Variable Statement"
-                        />
-                    </div>
+                <div>
+                    <MainContainer
+                        kind="DefaultBoolean"
+                        label="Variable Statement"
+                    />
                     <div className={overlayClasses.buttonWrapper}>
                         <SecondaryButton text={cancelVariableButtonText} fullWidth={false} onClick={handleStmtEditorCancel}/>
                         <PrimaryButton

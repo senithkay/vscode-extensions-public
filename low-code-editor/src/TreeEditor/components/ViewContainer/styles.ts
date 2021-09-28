@@ -23,7 +23,7 @@ export const statementEditorStyles = makeStyles(() =>
         },
         vl: {
             borderLeft: '3px solid #959ee1',
-            height: '80%',
+            height: '90%',
             position: 'absolute',
             left: '60%',
             marginLeft: '-3px',
@@ -32,16 +32,15 @@ export const statementEditorStyles = makeStyles(() =>
         AppRightPane: {
             display: 'flex',
             flexDirection: 'column',
-            backgroundColor: '#f7f8fb',
             width: '40%',
-            height: '100%'
+            height: 700
         },
         AppLeftPane: {
             display: 'flex',
             flexDirection: 'column',
             backgroundColor: '#fff',
             width: '60%',
-            height: '100%'
+            height: 700
         },
         AppRightPaneBlock: {
             backgroundColor: '#fff',
