@@ -28,8 +28,8 @@ export const useStyles = makeStyles((theme: Theme) =>
             }
         },
         stmtEditorFormControl: {
-            width: 500,
-            height: 500,
+            width: "100%",
+            height: "100%",
             "& .MuiFormControl-marginNormal": {
                 margin: '0 !important',
             },
