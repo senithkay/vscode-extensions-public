@@ -37,6 +37,7 @@ import { DeleteBtn } from "../DiagramActions/DeleteBtn";
 import { DELETE_SVG_HEIGHT_WITH_SHADOW, DELETE_SVG_WIDTH_WITH_SHADOW } from "../DiagramActions/DeleteBtn/DeleteSVG";
 import { EditBtn } from "../DiagramActions/EditBtn";
 import { EDIT_SVG_OFFSET, EDIT_SVG_WIDTH_WITH_SHADOW } from "../DiagramActions/EditBtn/EditSVG";
+import { FormGenerator } from "../FormGenerator";
 import { VariableName, VARIABLE_NAME_WIDTH } from "../VariableName";
 
 import { ProcessSVG, PROCESS_SVG_HEIGHT, PROCESS_SVG_HEIGHT_WITH_SHADOW, PROCESS_SVG_SHADOW_OFFSET, PROCESS_SVG_WIDTH, PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW } from "./ProcessSVG";
@@ -286,12 +287,7 @@ export function DataProcessor(props: ProcessorProps) {
                             >
 
                                 {model === null && blockViewState && blockViewState.draft && isDraftStatement && configOverlayFormState &&
-                                    <ProcessConfigForm
-                                        position={{
-                                            x: viewState.bBox.cx + PROCESS_SVG_WIDTH,
-                                            y: viewState.bBox.cy,
-                                        }}
-                                        wizardType={WizardType.NEW}
+                                    <FormGenerator
                                         onCancel={onCancel}
                                         onSave={onSave}
                                         configOverlayFormStatus={configOverlayFormState}
@@ -299,12 +295,7 @@ export function DataProcessor(props: ProcessorProps) {
                                 }
 
                                 {model && isConfigWizardOpen && configOverlayFormState &&
-                                    <ProcessConfigForm
-                                        position={{
-                                            x: viewState.bBox.cx + PROCESS_SVG_WIDTH,
-                                            y: viewState.bBox.cy,
-                                        }}
-                                        wizardType={WizardType.EXISTING}
+                                    <FormGenerator
                                         onCancel={onCancel}
                                         onSave={onSave}
                                         configOverlayFormStatus={configOverlayFormState}

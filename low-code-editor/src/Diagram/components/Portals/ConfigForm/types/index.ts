@@ -119,7 +119,6 @@ export interface DataMapperOutputTypeInfo {
 export interface DataMapperConfig {
     inputTypes: DataMapperInputTypeInfo[]; // todo ::: finalize the interface
     outputType: DataMapperOutputTypeInfo;
-    wizardType: WizardType;
 }
 
 export interface DataMapperOutputField {
