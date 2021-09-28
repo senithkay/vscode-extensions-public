@@ -24,7 +24,10 @@
 <body>
     <h1>Success! You may now close the browser.</h1>
     <script type="text/javascript">
-        window.location = 'vscode://wso2.ballerina';
+        if (confirm("Do you want to allow this page to open “Visual Studio Code”?")) {
+            window.location = 'vscode://wso2.ballerina';
+            window.close();
+        }
     </script>
 </body>
 

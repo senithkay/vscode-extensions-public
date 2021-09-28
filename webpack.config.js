@@ -16,6 +16,7 @@ const config = {
   },
   devtool: 'source-map',
   externals: {
+    keytar: "commonjs keytar",
     vscode: 'commonjs vscode',
     bufferutil: 'commonjs bufferutil',
     'utf-8-validate': 'commonjs utf-8-validate'

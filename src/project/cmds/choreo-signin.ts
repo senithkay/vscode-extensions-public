@@ -16,7 +16,7 @@
  * under the License.
  *
  */
-import vscode, { workspace, commands, window } from "vscode";
+import vscode, { commands, window } from "vscode";
 import { PALETTE_COMMANDS } from "./cmd-runner";
 import { CMP_PROJECT_ADD, sendTelemetryException } from "../../telemetry";
 import { ballerinaExtInstance } from "../../core";
@@ -24,19 +24,19 @@ import { Server } from "http";
 import express from "express";
 import * as fs from "fs";
 import * as path from "path";
+import keytar = require("keytar");
+import { debug } from "console";
 
-const CHOREO_LOGIN_URL = getConfiguration("ballerina.choreo.login.url");
-const CHOREO_CLIENT_ID = getConfiguration("ballerina.choreo.clientId");
-const CHOREO_REDIRECT_URL = getConfiguration("ballerina.choreo.redirect.url");
-const CHOREO_SCOPE = getConfiguration("ballerina.choreo.login.scope");
+const CHOREO_LOGIN_URL = "https://id.dv.choreo.dev/oauth2/authorize";
+const CHOREO_CLIENT_ID = "choreoportalapplication";
+const CHOREO_REDIRECT_URL = "http://localhost:9000/";
+const CHOREO_SCOPE = "openid name user";
+const SERVICE_NAME = "wso2.ballerina";
+const ACCOUNT_NAME = "choreo.token";
 
 const VS_CODE_MESSAGE_COMMAND_OPEN: string = "vscode.open";
 const PATH_GET_AUTH_CODE = `${CHOREO_LOGIN_URL}?response_type=code&`
     + `redirect_uri=${CHOREO_REDIRECT_URL}&client_id=${CHOREO_CLIENT_ID}&scope="${CHOREO_SCOPE}`;
-
-function getConfiguration(configName: string): string {
-    return <string>workspace.getConfiguration().get(configName);
-}
 
 export class ChoreoOAuth {
     public app: express.Express;
@@ -61,7 +61,8 @@ export class ChoreoOAuth {
             try {
                 const requestToken = req.query.code;
                 if (requestToken) {
-                    console.log("Request Token for Choreo Authentication:" + requestToken);
+                    keytar.setPassword(SERVICE_NAME, ACCOUNT_NAME, requestToken);
+                    console.debug("Request Token for Choreo Authentication:" + requestToken);
                     const htmlFilePath = vscode.Uri.file(
                         path.join(this.context.extensionPath, "resources", "pages", "choreo-login-success.html"),
                     );
