@@ -65,7 +65,7 @@ export function AddForeachForm(props: ForeachProps) {
         end: undefined
     };
 
-    if (condition.model) {
+    if (conditionExpression.model) {
         const forEachModel: ForeachStatement = (conditionExpression as ForeachConfig).model as ForeachStatement;
         switch (forEachModel.actionOrExpressionNode.kind) {
             case 'BinaryExpression':
