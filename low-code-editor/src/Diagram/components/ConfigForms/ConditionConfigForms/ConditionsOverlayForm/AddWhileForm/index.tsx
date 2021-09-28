@@ -105,7 +105,7 @@ export function AddWhileForm(props: WhileProps) {
     return (
 
         <FormControl data-testid="while-form" className={classes.wizardFormControl}>
-            <div className={overlayClasses.configWizardContainer}>
+            <div className={classes.formWrapper}>
                 <div className={classes.formWrapper}>
                     <ButtonWithIcon
                         className={classes.overlayDeleteBtn}

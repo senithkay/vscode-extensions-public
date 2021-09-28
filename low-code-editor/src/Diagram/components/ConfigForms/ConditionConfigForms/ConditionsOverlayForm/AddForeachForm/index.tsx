@@ -43,7 +43,6 @@ interface ForeachProps {
     condition: ConditionConfig | any;
     onCancel: () => void;
     onSave: () => void;
-    isNewConditionForm: boolean;
 }
 
 export const DEFINE_RANGE: string = "Define Range";
@@ -57,7 +56,7 @@ export function AddForeachForm(props: ForeachProps) {
             stSymbolInfo
         }
     } = useContext(Context);
-    const { condition, onCancel, onSave, isNewConditionForm } = props;
+    const { condition, onCancel, onSave } = props;
 
     const [conditionExpression] = useState(condition.conditionExpression);
     let initCollectionDefined: boolean = (condition.scopeSymbols.length > 0);
@@ -66,7 +65,7 @@ export function AddForeachForm(props: ForeachProps) {
         end: undefined
     };
 
-    if (!isNewConditionForm) {
+    if (condition.model) {
         const forEachModel: ForeachStatement = (conditionExpression as ForeachConfig).model as ForeachStatement;
         switch (forEachModel.actionOrExpressionNode.kind) {
             case 'BinaryExpression':
@@ -194,7 +193,7 @@ export function AddForeachForm(props: ForeachProps) {
         <FormControl data-testid="foreach-form" className={classes.wizardFormControl}>
             {!isCodeEditorActive ?
                 (
-                    <div className={overlayClasses.configWizardContainer}>
+                    <div className={classes.formWrapper}>
                         <div className={classes.formWrapper}>
                             <ButtonWithIcon
                                 className={classes.overlayDeleteBtn}
