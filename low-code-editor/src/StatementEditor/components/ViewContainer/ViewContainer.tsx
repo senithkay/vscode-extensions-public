@@ -25,7 +25,7 @@ interface ViewProps {
     label: string
 }
 
-function MainContainer(props: ViewProps) {
+export function ViewContainer(props: ViewProps) {
     const {kind, label} = props;
 
     const defaultModel = getDefaultModel(kind);
@@ -50,4 +50,3 @@ function MainContainer(props: ViewProps) {
     )
 }
 
-export default React.memo(MainContainer); // To prevent rendering the component in each time the parent change

@@ -20,8 +20,8 @@ import { Box, FormControl, Typography } from "@material-ui/core";
 import { CloseRounded, PropertyIcon } from "../../../../../../assets/icons";
 import { PrimitiveBalType, WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
-import { statementEditorStyles } from "../../../../../../TreeEditor/components/ViewContainer/styles";
-import MainContainer from "../../../../../../TreeEditor/components/ViewContainer/ViewContainer";
+import { statementEditorStyles } from "../../../../../../StatementEditor/components/ViewContainer/styles";
+import { ViewContainer } from "../../../../../../StatementEditor/components/ViewContainer/ViewContainer";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { getAllVariables } from "../../../../../utils/mixins";
 import { ButtonWithIcon } from "../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
@@ -340,7 +340,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         exprEditor = <FormControl data-testid="property-form" className={classes.stmtEditorFormControl}>
             {!isCodeEditorActive ? (
                 <div>
-                    <MainContainer
+                    <ViewContainer
                         kind="DefaultBoolean"
                         label="Variable Statement"
                     />
