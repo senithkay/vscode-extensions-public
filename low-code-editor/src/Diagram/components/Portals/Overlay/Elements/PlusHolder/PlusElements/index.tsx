@@ -21,6 +21,7 @@ import cn from "classnames";
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from '../../..';
 import Tooltip from "../../../../../../../components/Tooltip";
 import { Context } from "../../../../../../../Contexts/Diagram";
+import { useFunctionContext } from "../../../../../../../Contexts/Function";
 import { BallerinaConnectorsInfo } from "../../../../../../../Definitions/lang-client-extended";
 import { API_TAB_SELECTION_INSIGHTS, EVENT_TYPE_AZURE_APP_INSIGHTS, LowcodeEvent } from "../../../../../../models";
 import { PlusViewState } from "../../../../../../view-state/plus";
@@ -71,6 +72,7 @@ export function PlusElements(props: PlusElementsProps) {
             }
         }
     } = useContext(Context);
+    const { overlayId } = useFunctionContext();
 
     const intl = useIntl();
     // const [isAPICallsExisting] = useState(stSymbolInfo.endpoints && Array.from(stSymbolInfo.endpoints).length > 0);
@@ -110,7 +112,7 @@ export function PlusElements(props: PlusElementsProps) {
         }
         if (processType === "DataMapper") {
             // FIXME: Found this while enabling types for context. We are reusing help panel action in a wrong way
-            openConnectorHelp({org: processType});
+            openConnectorHelp({ org: processType });
         }
     };
 
@@ -161,12 +163,12 @@ export function PlusElements(props: PlusElementsProps) {
             })
         },
         APIsPlusHolder: {
-        title: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.tooltip.title",
-            defaultMessage: "A collection of API calls that helps you to integrate your application to external services."
-        })
-},
-}
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.tooltip.title",
+                defaultMessage: "A collection of API calls that helps you to integrate your application to external services."
+            })
+        },
+    }
 
     const plusHolder: ReactNode = (
         <div className="holder-wrapper-large">
@@ -213,7 +215,7 @@ export function PlusElements(props: PlusElementsProps) {
 
     return (
         <DiagramOverlayContainer
-            divId='function-overlay'
+            divId={`function-overlay-${overlayId}`}
         >
             <DiagramOverlay
                 className={plusContainer}
