@@ -13,6 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
+import { OverlayBackground } from "../OverlayBackground";
 import { DiagramOverlayContainer } from "../Portals/Overlay";
 
 import "./style.scss";
@@ -28,7 +29,7 @@ export function Panel(props: any) {
                         {children}
                     </div>
                 </div>
-                <div className="panel-overlay" />
+                <OverlayBackground />
             </DiagramOverlayContainer>
         </div>
     );
