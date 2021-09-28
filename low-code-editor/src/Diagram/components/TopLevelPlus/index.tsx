@@ -68,7 +68,6 @@ export const TopLevelPlus = (props: PlusProps) => {
                             />
                         </DiagramOverlay>
                     </DiagramOverlayContainer>
-
                 )
             }
             {isPlusOptionsVisible && <OverlayBackground />}
