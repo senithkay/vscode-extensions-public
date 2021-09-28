@@ -62,7 +62,7 @@ export function ValueType(props: ValueTypeProps) {
         case PrimitiveBalType.Union:
             type = viewState.unionType;
             break;
-        case PrimitiveBalType.Collection:
+        case PrimitiveBalType.Array:
             type = convertMemberViewStateToString(viewState);
             break;
         default:

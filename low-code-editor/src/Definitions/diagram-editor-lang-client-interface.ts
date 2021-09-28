@@ -60,7 +60,7 @@ export interface DiagramEditorLangClientInterface extends BaseLangClientInterfac
 	syntaxTreeModify: (
 		params: BallerinaSyntaxTreeModifyRequest
 	) => Thenable<BallerinaSyntaxTreeResponse>;
-	getConnectors: () => Thenable<BallerinaConnectorsResponse>;
+	getConnectors: (query: string) => Thenable<BallerinaConnectorsResponse>;
 	getConnector: (
 		params: BallerinaConnectorRequest
 	) => Thenable<BallerinaConnectorResponse>;

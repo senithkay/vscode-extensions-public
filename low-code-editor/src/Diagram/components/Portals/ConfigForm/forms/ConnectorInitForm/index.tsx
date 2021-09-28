@@ -78,8 +78,8 @@ export function ConnectorInitForm(props: any) {
             const modifications: STModification[] = [];
             // Add an import.
             const addImport: STModification = createImportStatement(
-                connector.org,
-                connector.module,
+                connector.package.organization,
+                connector.moduleName,
                 targetPosition
             );
             modifications.push(addImport);
@@ -87,7 +87,7 @@ export function ConnectorInitForm(props: any) {
             // Add an connector client initialization.
             if (!connectorConfig.isExistingConnection) {
                 const addConnectorInit: STModification = createObjectDeclaration(
-                    (connector.module + ":" + connector.name),
+                    (connector.moduleName + ":" + connector.name),
                     connectorConfig.name,
                     getParams(connectorConfig.connectorInit),
                     targetPosition
@@ -109,7 +109,7 @@ export function ConnectorInitForm(props: any) {
     };
 
     const connectorComponent: ReactNode = getConnectorComponent(
-        connector.module + connector.name, {
+        connector.moduleName + connector.name, {
         functionDefinitions: fieldsForFunctions,
         connectorConfig,
         onSave,

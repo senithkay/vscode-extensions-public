@@ -208,7 +208,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             }
         }
         const isEmpty = (model.value ?? "") === "";
-        if (model.validationRegex && model.type === PrimitiveBalType.String) {
+        if (model.validationRegex && model.typeName === PrimitiveBalType.String) {
             if ((!model.value.trim().startsWith("\"") && !model.value.trim().endsWith("\"")) || monacoRef.current && model.validationRegex.test(monacoRef.current?.editor?.getModel()?.getValue())) {
                 validate(model.name, false, isEmpty);
                 setValidating(false);

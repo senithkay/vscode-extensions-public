@@ -14,7 +14,7 @@
 import { ModulePart, STNode } from "@ballerina/syntax-tree";
 import { Diagnostic } from "monaco-languageclient";
 
-import { BallerinaConnectorsInfo } from "../../../Definitions/lang-client-extended";
+import { BallerinaConnectorInfo } from "../../../Definitions/lang-client-extended";
 import { STSymbolInfo } from "../../../Definitions/store";
 import { BlockViewState } from "../../view-state";
 
@@ -75,7 +75,7 @@ export interface DiagramState {
     error?: any;
     isMutationProgress: boolean;
     isCodeEditorActive: boolean;
-    connectors?: BallerinaConnectorsInfo[];
+    connectors?: BallerinaConnectorInfo[];
     isConfigFetchInProgress?: boolean;
     diagnostics?: Diagnostic[];
     stSymbolInfo?: STSymbolInfo;
