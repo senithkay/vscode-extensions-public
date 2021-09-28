@@ -17,6 +17,7 @@ import { ModulePart, STNode } from "@ballerina/syntax-tree";
 
 import { useStyles } from "../../styles";
 import { getSTComponent } from "../../utils";
+import { TopLevelPlus } from "../TopLevelPlus";
 
 import './style.scss';
 
@@ -45,6 +46,10 @@ export function ModulePartComponent(props: ModulePartProps) {
 
     return (
         <>
+            {/* TODO: Fix Plus
+            <TopLevelPlus
+                margin={{ top: INIT_PLUS_MARGIN_TOP, bottom : INIT_PLUS_MARGIN_BOTTOM, left: INIT_PLUS_MARGIN_LEFT }}
+            /> */}
             <div id={'canvas-overlay'} className={classes.OverlayContainer}/>
             {moduleMembers}
         </>

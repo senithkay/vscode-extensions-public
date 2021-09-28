@@ -144,8 +144,8 @@ export const Provider: React.FC<LowCodeEditorProps> = (props) => {
     };
 
     return (
-    <Context.Provider value={{ state, actions, api, props: restProps }}>
-      {children}
-    </Context.Provider>
-  );
+        <Context.Provider value={{ state, actions, api, props: restProps }}>
+            {children}
+        </Context.Provider>
+    );
 }

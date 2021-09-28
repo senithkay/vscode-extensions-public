@@ -16,6 +16,7 @@ import { useIntl } from 'react-intl';
 
 import { Button, ClickAwayListener } from "@material-ui/core";
 
+import { useFunctionContext } from '../../../../../../Contexts/Function';
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from '../../index';
 
 import "./style.scss";
@@ -31,6 +32,7 @@ export function DeleteConfirmDialog(props: DeleteConfirmDialogProps) {
     const intl = useIntl();
     const { position, onConfirm, onCancel } = props;
     const { message = "Remove this logic block?" } = props;
+    const { overlayId } = useFunctionContext();
     const removeButtonText = intl.formatMessage({
         id: "lowcode.develop.elements.deleteConfirmationDialog.removeButton.text",
         defaultMessage: "Remove"
@@ -38,7 +40,8 @@ export function DeleteConfirmDialog(props: DeleteConfirmDialogProps) {
     const cancelButtonText = intl.formatMessage({
         id: "lowcode.develop.elements.deleteConfirmationDialog.cancelButton.text",
         defaultMessage: "Cancel"
-    })
+    });
+
     return (
         <ClickAwayListener
             mouseEvent="onMouseDown"
@@ -46,7 +49,9 @@ export function DeleteConfirmDialog(props: DeleteConfirmDialogProps) {
             onClickAway={onCancel}
         >
             <div>
-                <DiagramOverlayContainer>
+                <DiagramOverlayContainer
+                    divId={`function-overlay-${overlayId}`}
+                >
                     <DiagramOverlay
                         className="delete-container"
                         position={position}

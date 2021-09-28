@@ -208,6 +208,10 @@ export interface LowCodeEditorProperties {
     zoomStatus: ZoomStatus;
 }
 
+export interface FunctionProperties {
+    overlayId: string;
+}
+
 export interface LowCodeEditorContext {
     state: LowCodeEditorState;
     actions: LowCodeEditorActions;
