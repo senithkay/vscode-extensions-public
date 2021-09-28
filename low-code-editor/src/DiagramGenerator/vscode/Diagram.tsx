@@ -7,6 +7,8 @@ import { DotBackground } from "../../assets";
 import { DiagramEditorLangClientInterface } from "../../Definitions/diagram-editor-lang-client-interface";
 import { DiagramGenErrorBoundary } from "../ErrorBoundrary";
 
+import './style.scss';
+
 export interface EditorState {
     filePath: string;
     langClient: DiagramEditorLangClientInterface;
@@ -32,7 +34,7 @@ export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
     }, [restProps.lastUpdatedAt]);
 
     return (
-        <div>
+        <div className="lowcode-main-wrapper">
             <DiagramGenErrorBoundary>
                 <DiagramGenerator
                     {...state}

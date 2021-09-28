@@ -30,7 +30,8 @@ import {
     ResourceAccessorDefinition,
     ServiceDeclaration,
     STKindChecker,
-    STNode, TypeDefinition,
+    STNode,
+    TypeDefinition,
     Visitor, WhileStatement
 } from "@ballerina/syntax-tree";
 
@@ -53,6 +54,7 @@ import { SERVICE_HEADER_HEIGHT } from "../components/Service/ServiceHeader";
 import { START_SVG_HEIGHT, START_SVG_WIDTH } from "../components/Start/StartSVG";
 import { VARIABLE_NAME_WIDTH } from "../components/VariableName";
 import { WHILE_SVG_HEIGHT, WHILE_SVG_WIDTH } from "../components/While/WhileSVG";
+import { isVarTypeDescriptor } from "../utils/diagram-util";
 import { Endpoint, getDraftComponentSizes, getPlusViewState, haveBlockStatement, isSTActionInvocation, updateConnectorCX } from "../utils/st-util";
 import { BlockViewState, CollapseViewState, CompilationUnitViewState, DoViewState, ElseViewState, EndpointViewState, ForEachViewState, FunctionViewState, IfViewState, OnErrorViewState, PlusViewState, StatementViewState } from "../view-state";
 import { DraftStatementViewState } from "../view-state/draft";
@@ -772,9 +774,14 @@ class SizingVisitor implements Visitor {
 
                 // Update endpoint sizing values.
                 viewState.bBox.h = CLIENT_SVG_HEIGHT;
-                viewState.bBox.w = CLIENT_SVG_WIDTH;
                 viewState.bBox.r = CLIENT_RADIUS;
 
+                if (isVarTypeDescriptor(node)) {
+                    // renders process box if the endpoint var type
+                    viewState.dataProcess.w = PROCESS_SVG_WIDTH;
+                } else {
+                    viewState.bBox.w = CLIENT_SVG_WIDTH;
+                }
             }
         } else {
             if (viewState.isCallerAction) {

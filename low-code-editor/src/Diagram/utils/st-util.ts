@@ -531,8 +531,8 @@ export function getMatchingConnector(actionInvo: STNode, connectors: BallerinaCo
     } else if (viewState.isEndpoint) {
         if (STKindChecker.isCaptureBindingPattern(variable.typedBindingPattern.bindingPattern)) {
             const nameReference = variable.typedBindingPattern.typeDescriptor as QualifiedNameReference;
-            const moduleName = nameReference?.modulePrefix.value;
-            const identifierName = nameReference?.identifier.value;
+            const moduleName = nameReference?.modulePrefix?.value;
+            const identifierName = nameReference?.identifier?.value;
             if (moduleName && identifierName) {
                 for (const connectorInfo of connectors) {
                     if (getFormattedModuleName(connectorInfo.module) === moduleName) {

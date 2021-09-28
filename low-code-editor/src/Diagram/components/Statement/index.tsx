@@ -15,6 +15,7 @@ import React from 'react'
 import { LocalVarDecl, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import cn from "classnames";
 
+import { isVarTypeDescriptor } from "../../utils/diagram-util";
 import { EndpointViewState, StatementViewState } from '../../view-state';
 import { ActionInvocation } from '../ActionInvocation';
 import { Connector } from "../Connector";
@@ -49,7 +50,7 @@ export function StatementC(props: StatementProps) {
                     <Respond model={model} />
                 </g>
             );
-        } else if (viewState.isAction || viewState.isEndpoint) {
+        } else if ((viewState.isAction || viewState.isEndpoint) && !isVarTypeDescriptor(model)) {
             if (viewState.isAction && !viewState.collapsed) {
                 statements.push(
                     <ActionInvocation model={clientInit} />
@@ -79,7 +80,7 @@ export function StatementC(props: StatementProps) {
                     />
                 );
             }
-        } else if (!viewState.isEndpoint && !viewState.collapsed) {
+        } else if ((!viewState.isEndpoint || isVarTypeDescriptor(model)) && !viewState.collapsed) {
             statements.push(
                 <g>
                     <DataProcessor model={model} />

@@ -89,23 +89,25 @@ export function FunctionSignature(props: FunctionSignatureProps) {
                     )
                 }
             >
-                <div className={'param-container'} >
-                    <div
-                        className={
-                            classNames(
-                                'resource-badge',
-                                STKindChecker.isResourceAccessorDefinition(model) ? model.functionName.value : ''
-                            )
-                        }
-                    >
-                        <p className={'text'}>{model.functionName.value.toUpperCase()}</p>
-                    </div>
-                    <p className={'path-text'} >
-                        {pathConstruct === '.' ? '/' : pathConstruct}{queryParamComponents.length > 0 ? '?' : ''}{queryParamComponents}
-                    </p>
+                <div
+                    className={
+                        classNames(
+                            'resource-badge',
+                            STKindChecker.isResourceAccessorDefinition(model) ? model.functionName.value : ''
+                        )
+                    }
+                >
+                    <p className={'text'}>{model.functionName.value.toUpperCase()}</p>
                 </div>
-                <div className={'param-container'} >
-                    <p className={'path-text'} >{otherParamComponents}</p>
+                <div className="param-wrapper">
+                    <div className={'param-container'} >
+                        <p className={'path-text'} >
+                            {pathConstruct === '.' ? '/' : pathConstruct}{queryParamComponents.length > 0 ? '?' : ''}{queryParamComponents}
+                        </p>
+                    </div>
+                    <div className={'param-container'} >
+                        <p className={'path-text'} >{otherParamComponents}</p>
+                    </div>
                 </div>
                 <ComponentExpandButton isExpanded={isExpanded} onClick={onExpandClick} />
             </div>
@@ -135,12 +137,16 @@ export function FunctionSignature(props: FunctionSignatureProps) {
                 <div className={'function-icon'}>
                     <FunctionIcon />
                 </div>
-                <div className={'param-container'} >
-                    <p className={'path-text'}>{functionName.value}</p>
+
+                <div className="param-wrapper">
+                    <div className={'param-container'} >
+                        <p className={'path-text'}>{functionName.value}</p>
+                    </div>
+                    <div className={'param-container'} >
+                        <p className={'path-text'}>{params}</p>
+                    </div>
                 </div>
-                <div className={'param-container'} >
-                    <p className={'path-text'}>{params}</p>
-                </div>
+
                 <ComponentExpandButton isExpanded={isExpanded} onClick={onExpandClick} />
             </div>
         ));
