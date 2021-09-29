@@ -177,8 +177,8 @@ export class ExtendedLangClient extends LanguageClient {
     getType(params: ExpressionTypeRequest): Promise<ExpressionTypeResponse> {
         return this.sendRequest("ballerinaSymbol/type", params);
     }
-    getConnectors(): Thenable<BallerinaConnectorsResponse> {
-        return this.sendRequest<BallerinaConnectorsResponse>("ballerinaConnector/connectors");
+    getConnectors(query:string): Thenable<BallerinaConnectorsResponse> {
+        return this.sendRequest<BallerinaConnectorsResponse>("ballerinaConnector/connectors", query);
     }
     getConnector(params: BallerinaConnectorRequest): Thenable<BallerinaConnectorResponse> {
         return this.sendRequest<BallerinaConnectorResponse>("ballerinaConnector/connector", params);

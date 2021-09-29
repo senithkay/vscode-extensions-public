@@ -89,8 +89,8 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
         }
     }, {
         methodName: 'getConnectors',
-        handler: () => {
-            return langClient.getConnectors();
+        handler: (args: any[]) => {
+            return langClient.getConnectors(args[0]);
         }
     }, {
         methodName: 'getConnector',
