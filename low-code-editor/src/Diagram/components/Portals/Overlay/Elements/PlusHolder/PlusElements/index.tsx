@@ -112,11 +112,7 @@ export function PlusElements(props: PlusElementsProps) {
         }
         if (processType === "DataMapper") {
             // FIXME: Found this while enabling types for context. We are reusing help panel action in a wrong way
-<<<<<<< HEAD
-            openConnectorHelp({ org: processType });
-=======
             openConnectorHelp({orgName: processType});
->>>>>>> 6050f31a03562cb4326a20e7c8429e863b54b487
         }
     };
 
