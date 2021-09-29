@@ -13,6 +13,7 @@
 import { ClassComponent } from './ClassComponent';
 import { Constant } from './Constant';
 import { End } from "./End";
+import { EnumDeclarationComponent } from './Enum';
 import { ForEach } from './ForEach';
 import { Function } from "./Function";
 import { IfElse } from './IfElse';
@@ -44,3 +45,4 @@ export { Function as ObjectMethodDefinition };
 export { ModulePartComponent as ModulePart };
 export { While as WhileStatement };
 export { ClassComponent as ClassDefinition }
+export {EnumDeclarationComponent as EnumDeclaration}

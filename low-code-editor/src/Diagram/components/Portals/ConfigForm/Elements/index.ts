@@ -24,7 +24,7 @@ export { ExpressionEditor as string };
 export { ExpressionEditor as int };
 export { ExpressionEditor as boolean };
 export { ExpressionEditor as float };
-export { ExpressionEditorArray as collection };
+export { ExpressionEditorArray as array };
 export { ExpressionEditorMap as map };
 export { ExpressionEditor as httpRequest };
 export { Union as union };

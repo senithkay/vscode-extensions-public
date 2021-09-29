@@ -479,7 +479,7 @@ export function MapperView() {
                     case PrimitiveBalType.Union:
                         type = dataPointVS.unionType;
                         break;
-                    case PrimitiveBalType.Collection:
+                    case PrimitiveBalType.Array:
                         // type = convertMemberViewStateToString(dataPointVS);
                         break;
                     default:
@@ -825,7 +825,7 @@ export function MapperView() {
                         case PrimitiveBalType.Json:
                             statement = `check ${sourcePointViewState.text}`;
                             break;
-                        case PrimitiveBalType.Collection:
+                        case PrimitiveBalType.Array:
                             statement = `check ${sourcePointViewState.text}`;
                         default:
                         // unmappableÎ

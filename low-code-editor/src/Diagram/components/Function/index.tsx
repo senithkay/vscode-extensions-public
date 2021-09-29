@@ -15,8 +15,10 @@ import React, { useContext, useState } from "react";
 
 import { FunctionBodyBlock, FunctionDefinition, STKindChecker } from "@ballerina/syntax-tree";
 import classNames from "classnames";
+import { v4 as uuid } from 'uuid';
 
 import { Context } from "../../../Contexts/Diagram";
+import { Provider as FunctionProvider } from "../../../Contexts/Function";
 import { useStyles } from "../../styles";
 import { BlockViewState, FunctionViewState } from "../../view-state";
 import { Canvas } from "../Canvas";
@@ -40,6 +42,7 @@ export interface FunctionProps {
 export function Function(props: FunctionProps) {
     const classes = useStyles();
     const { state } = useContext(Context);
+    const [overlayId] = useState(`function-overlay-${uuid()}`);
     const {
         props: {
             isWaitingOnWorkspace,
@@ -93,12 +96,14 @@ export function Function(props: FunctionProps) {
 
     const functionBody = (
         <div className={'lowcode-diagram'}>
-            <PanAndZoom >
-                <div id="canvas-overlay" className={classes.OverlayContainer} />
-                <Canvas h={model.viewState.bBox.h} w={model.viewState.bBox.w} >
-                    {component}
-                </Canvas>
-            </PanAndZoom>
+            <FunctionProvider overlayId={overlayId} >
+                <PanAndZoom >
+                    <div id={overlayId} className={classes.OverlayContainer} />
+                    <Canvas h={model.viewState.bBox.h} w={model.viewState.bBox.w} >
+                        {component}
+                    </Canvas>
+                </PanAndZoom>
+            </FunctionProvider >
         </div>
     )
 

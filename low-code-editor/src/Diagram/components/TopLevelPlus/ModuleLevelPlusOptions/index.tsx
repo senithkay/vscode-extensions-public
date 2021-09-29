@@ -33,12 +33,7 @@ export interface ModuleLevelPlusOptionsProps {
 }
 
 export const ModuleLevelPlusOptions = (props: ModuleLevelPlusOptionsProps) => {
-    const { margin = { top: 0, bottom: 0, left: 0, right: 0 }, onClose, targetPosition } = props;
-
-    const optionContainerMargin = {
-        marginBottom: margin.bottom,
-        marginLeft: margin.left
-    }
+    const { onClose, targetPosition } = props;
 
     const [isRecordSelected, setIsRecordSelected] = useState(false);
 
@@ -63,7 +58,7 @@ export const ModuleLevelPlusOptions = (props: ModuleLevelPlusOptionsProps) => {
                 touchEvent="onTouchStart"
                 onClickAway={handleClickAway}
             >
-                <div className="plus-option-container" style={optionContainerMargin}>
+                <div className="plus-option-container">
                     <div
                         className="plus-option"
                         style={{ borderTopLeftRadius: 8, borderTopRightRadius: 8 }}

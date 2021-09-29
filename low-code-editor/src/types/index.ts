@@ -21,7 +21,7 @@ import { BlockViewState } from "..";
 import { AiSuggestionsReq, AiSuggestionsRes, AppInfo, ApplicationFile, AppType, ConnectionDetails, ConnectorApiResponse, ModelCodePosition, OauthProviderConfig } from "../api/models";
 import { WizardType } from "../ConfigurationSpec/types";
 import { ConfigOverlayFormStatus, ConfigPanelStatus, DiagramEditorLangClientInterface, DiagramState, ExpressionEditorLangClientInterface, ExpressionEditorState, Gcalendar, GithubRepo, STSymbolInfo } from "../Definitions";
-import { BallerinaConnectorsInfo, Connector, STModification } from "../Definitions/lang-client-extended";
+import { BallerinaConnectorInfo, Connector, STModification } from "../Definitions/lang-client-extended";
 import { ConditionConfig, DataMapperConfig } from "../Diagram/components/Portals/ConfigForm/types";
 import { LowcodeEvent, TriggerType } from "../Diagram/models";
 import { Warning } from "../Diagram/utils/st-util";
@@ -189,7 +189,7 @@ export interface LowCodeEditorProperties {
     syntaxTree: STNode;
     originalSyntaxTree: ModulePart;
     stSymbolInfo: STSymbolInfo;
-    connectors?: BallerinaConnectorsInfo[];
+    connectors?: BallerinaConnectorInfo[];
     diagnostics?: Diagnostic[];
     warnings?: Warning[];
     error?: Error;
@@ -206,6 +206,10 @@ export interface LowCodeEditorProperties {
     isCodeChangeInProgress: boolean;
     isReadOnly: boolean;
     zoomStatus: ZoomStatus;
+}
+
+export interface FunctionProperties {
+    overlayId: string;
 }
 
 export interface LowCodeEditorContext {
@@ -242,7 +246,7 @@ export interface LowCodeEditorPropsOld {
     isReadOnly?: boolean;
     dispatch?: (fn: any) => void;
     configPanelStatus?: ConfigPanelStatus;
-    connectors?: BallerinaConnectorsInfo[];
+    connectors?: BallerinaConnectorInfo[];
     isLoadingSuccess?: boolean;
     userInfo?: UserState;
     onZoomIn?: any;

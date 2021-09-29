@@ -17,7 +17,7 @@ import { AppInfo, ApplicationFile } from "../../../../../api/models";
 import { FormField, WizardType } from "../../../../../ConfigurationSpec/types";
 import { ExpressionEditorState } from "../../../../../Definitions";
 import { DraftUpdatePosition } from "../../../../view-state/draft";
-import { GenerationType } from "../../../ConfigForms/ProcessConfigForms/ProcessOverlayForm/AddDataMappingConfig/OutputTypeSelector";
+import { GenerationType } from "../../../ConfigForms/ProcessConfigForms/ProcessForm/AddDataMappingConfig/OutputTypeSelector";
 
 export interface FormElementProps<T = {}> extends FormElementEvents {
     model?: FormField | any;
@@ -31,7 +31,7 @@ export interface FormElementProps<T = {}> extends FormElementEvents {
     validateEmptyField?: (field: string, isEmpty: boolean) => void;
     onFieldValueChange?: (isRequiredFieldsFilled: boolean) => void;
     size?: "small" | "medium";
-    type?: "string" | "number" | "collection" | "record" | "|" | "varref" | "int" | "float" | "boolean" | "json" | "var";
+    type?: "string" | "number" | "array" | "record" | "|" | "varref" | "int" | "float" | "boolean" | "json" | "var";
     currentFile?: ApplicationFile;
     currentApp?: AppInfo;
     editorDiagnostics?: Diagnostic[];
@@ -119,7 +119,6 @@ export interface DataMapperOutputTypeInfo {
 export interface DataMapperConfig {
     inputTypes: DataMapperInputTypeInfo[]; // todo ::: finalize the interface
     outputType: DataMapperOutputTypeInfo;
-    wizardType: WizardType;
 }
 
 export interface DataMapperOutputField {

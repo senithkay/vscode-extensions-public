@@ -20,7 +20,6 @@ import DeleteButton from "../../../assets/icons/DeleteButton";
 import EditButton from "../../../assets/icons/EditButton";
 import RecordIcon from "../../../assets/icons/RecordIcon";
 import { ComponentExpandButton } from "../ComponentExpandButton";
-import { TopLevelPlus } from "../TopLevelPlus";
 
 import "./style.scss";
 

@@ -21,7 +21,8 @@ import cn from "classnames";
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from '../../..';
 import Tooltip from "../../../../../../../components/Tooltip";
 import { Context } from "../../../../../../../Contexts/Diagram";
-import { BallerinaConnectorsInfo } from "../../../../../../../Definitions/lang-client-extended";
+import { useFunctionContext } from "../../../../../../../Contexts/Function";
+import { BallerinaConnectorInfo } from "../../../../../../../Definitions/lang-client-extended";
 import { API_TAB_SELECTION_INSIGHTS, EVENT_TYPE_AZURE_APP_INSIGHTS, LowcodeEvent } from "../../../../../../models";
 import { PlusViewState } from "../../../../../../view-state/plus";
 import { OverlayBackground } from "../../../../../OverlayBackground";
@@ -32,7 +33,7 @@ import "../style.scss";
 export interface PlusElementsProps {
     position?: DiagramOverlayPosition;
     isPlusActive?: boolean;
-    onChange?: (type: string, subType: string, connector?: BallerinaConnectorsInfo, isExisting?: boolean, selectedConnector?: LocalVarDecl) => void;
+    onChange?: (type: string, subType: string, connector?: BallerinaConnectorInfo, isExisting?: boolean, selectedConnector?: LocalVarDecl) => void;
     onClose?: () => void;
     onComponentClick?: (value: string) => void;
     initPlus: boolean,
@@ -71,6 +72,7 @@ export function PlusElements(props: PlusElementsProps) {
             }
         }
     } = useContext(Context);
+    const { overlayId } = useFunctionContext();
 
     const intl = useIntl();
     // const [isAPICallsExisting] = useState(stSymbolInfo.endpoints && Array.from(stSymbolInfo.endpoints).length > 0);
@@ -110,11 +112,11 @@ export function PlusElements(props: PlusElementsProps) {
         }
         if (processType === "DataMapper") {
             // FIXME: Found this while enabling types for context. We are reusing help panel action in a wrong way
-            openConnectorHelp({org: processType});
+            openConnectorHelp({orgName: processType});
         }
     };
 
-    const onAPITypeSelect = (connector: BallerinaConnectorsInfo, selectedConnector: LocalVarDecl) => {
+    const onAPITypeSelect = (connector: BallerinaConnectorInfo, selectedConnector: LocalVarDecl) => {
         if (selectedConnector) {
             onChange("APIS", "Existing", connector, true, selectedConnector);
         } else {
@@ -161,12 +163,12 @@ export function PlusElements(props: PlusElementsProps) {
             })
         },
         APIsPlusHolder: {
-        title: intl.formatMessage({
-            id: "lowcode.develop.configForms.plusHolder.plusElements.connections.tooltip.title",
-            defaultMessage: "A collection of API calls that helps you to integrate your application to external services."
-        })
-},
-}
+            title: intl.formatMessage({
+                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.tooltip.title",
+                defaultMessage: "A collection of API calls that helps you to integrate your application to external services."
+            })
+        },
+    }
 
     const plusHolder: ReactNode = (
         <div className="holder-wrapper-large">
@@ -212,7 +214,9 @@ export function PlusElements(props: PlusElementsProps) {
     );
 
     return (
-        <DiagramOverlayContainer>
+        <DiagramOverlayContainer
+            divId={overlayId}
+        >
             <DiagramOverlay
                 className={plusContainer}
                 position={position}

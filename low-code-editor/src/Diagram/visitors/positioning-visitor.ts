@@ -23,7 +23,8 @@ import {
     OnFailClause,
     ResourceAccessorDefinition,
     ServiceDeclaration,
-    STKindChecker, STNode,
+    STKindChecker,
+    STNode,
     VisibleEndpoint,
     Visitor,
     WhileStatement
@@ -36,6 +37,7 @@ import { BIGPLUS_SVG_WIDTH } from "../components/Plus/Initial";
 import { PLUS_SVG_HEIGHT } from "../components/Plus/PlusAndCollapse/PlusSVG";
 import { EXISTING_PLUS_HOLDER_API_HEIGHT, EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_API_HEIGHT, PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_STATEMENT_HEIGHT } from "../components/Portals/Overlay/Elements/PlusHolder/PlusElements";
 import { START_SVG_SHADOW_OFFSET } from "../components/Start/StartSVG";
+import { isVarTypeDescriptor } from "../utils/diagram-util";
 import { Endpoint, getPlusViewState, updateConnectorCX } from "../utils/st-util";
 import {
     BlockViewState,
@@ -562,7 +564,8 @@ class PositioningVisitor implements Visitor {
                     endpoint.actions.push(statementViewState);
                 }
 
-                if (statementViewState.isEndpoint && statementViewState.endpoint.epName) {
+                if (statementViewState.isEndpoint && statementViewState.endpoint.epName &&
+                    !isVarTypeDescriptor(statement)) {
                     const endpointViewState: EndpointViewState = statementViewState.endpoint;
                     // to identify a connector init ( http:Client ep1 = new ("/context") )
                     endpointViewState.lifeLine.cx = blockViewState.bBox.cx +

@@ -11,18 +11,6 @@
  * associated services.
  */
 
-import { GithubWizard } from "./GithubWizard";
-import { GmailWizard } from "./GmailWizard";
-import { GoogleCalender } from "./GoogleCalenderWizard";
-import { GoogleSheet } from "./GoogleSheetWizard";
 import { HTTPWizard } from "./HTTPWizard";
-import { NetSuiteWizard } from "./NetSuiteWizard";
-import { SMTPWizard } from "./SMTPWizard";
 
 export { HTTPWizard as httpClient };
-export { SMTPWizard as emailSmtpClient };
-export { GmailWizard as googleapis_gmailClient };
-export { GithubWizard as githubClient };
-export { GoogleCalender as googleapis_calendarClient };
-export { GoogleSheet as googleapis_sheetsClient };
-export { NetSuiteWizard as netsuiteClient };

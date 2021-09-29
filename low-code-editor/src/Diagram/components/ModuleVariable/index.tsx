@@ -15,11 +15,9 @@ import React, { useState } from "react"
 
 import { CaptureBindingPattern, ModuleVarDecl, STKindChecker, STNode } from "@ballerina/syntax-tree";
 
-import ConstantIcon from "../../../assets/icons/ConstantIcon";
 import DeleteButton from "../../../assets/icons/DeleteButton";
 import EditButton from "../../../assets/icons/EditButton";
 import VariableIcon from "../../../assets/icons/VariableIcon";
-import { TopLevelPlus } from "../TopLevelPlus";
 
 import "./style.scss";
 
@@ -91,10 +89,6 @@ export function ModuleVariable(props: ModuleVariableProps) {
                     )}
                 </div>
             </div>
-            {/* ToDo : Sort out the add button situation
-            <TopLevelPlus
-                margin={{ top: MODULE_VAR_PLUS_OFFSET, bottom : MODULE_VAR_PLUS_OFFSET, left: MODULE_VAR_MARGIN_LEFT }}
-            /> */}
         </div>
     );
 }

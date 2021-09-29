@@ -56,6 +56,10 @@
 
         .service-member {
             margin: 5px 10px 5px 10px;
+
+            .plus-container {
+                margin-left: 0px;
+            }
         }
 
         .service-member:nth-of-type(1) {
@@ -64,6 +68,10 @@
 
         .service-member:last-of-type {
             margin: 5px 10px 10px 10px;
+        }
+
+        .plus-container {
+            margin-left: 10px;
         }
     }
 }

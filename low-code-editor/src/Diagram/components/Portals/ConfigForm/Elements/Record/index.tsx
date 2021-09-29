@@ -44,10 +44,10 @@ export function Record(props: FormElementProps<RecordProps>) {
 
     if (model) {
         if (model.fields && model.fields.length > 0) {
-            model.fields.map((field: any, index: any) => {
-                if (!field.hide && (field.type === "string" || field.type === "int" || field.type === "boolean"
-                    || field.type === "float" || field.type === "collection" || (field.type === 'record' && !field.isReference) ||
-                    field.type === "union" || field.type === "map" || field.type === "handle")) {
+            model.fields.map((field: FormField, index: any) => {
+                if (!field.hide && (field.typeName === "string" || field.typeName === "int" || field.typeName === "boolean"
+                    || field.typeName === "float" || field.typeName === "array" || (field.typeName === 'record' && !field.isReference) ||
+                    field.typeName === "union" || field.typeName === "map" || field.typeName === "handle")) {
                     const elementProps: FormElementProps = {
                         model: field,
                         index,
@@ -56,18 +56,18 @@ export function Record(props: FormElementProps<RecordProps>) {
                         }
                     };
 
-                    let type = field.type;
+                    let type = field.typeName;
                     // validate union types
                     // only union record types will get Union element
                     // other union types will get expression editor
-                    if (field.type === "union"){
+                    if (field.typeName === "union"){
                         field.fields?.forEach((subField: FormField) => {
-                            if (subField.type !== "record"){
+                            if (subField.typeName !== "record"){
                                 type = "expression";
                             }
                         });
                     }
-                    if (field.type === "handle"){
+                    if (field.typeName === "handle"){
                         type = "expression";
                     }
                     const element = getFormElement(elementProps, type);
