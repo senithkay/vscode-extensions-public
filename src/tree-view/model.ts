@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { TreeItem, TreeItemCollapsibleState } from "vscode";
+import { TreeItem, TreeItemCollapsibleState, Uri, WorkspaceFolder } from "vscode";
 import { join } from 'path';
 
 export enum CMP_KIND {
@@ -45,12 +45,89 @@ export enum CMP_KIND {
     LISTENER = "listener",
     LISTENER_LABEL = "listener_label",
     MODULE_LEVEL_VAR = "module_level_variable",
-    MODULE_LEVEL_VAR_LABEL = "module_level_variable_label"
+    MODULE_LEVEL_VAR_LABEL = "module_level_variable_label",
+    ENTRY_POINT_LABEL = 'entry_point_label'
+}
+
+export enum EXPLORER_ITEM_KIND {
+    BAL_FILE = 'ballerina_file',
+    TOML_FILE = 'toml_file',
+    OTHER_FILE = 'other_file',
+    FOLDER = 'folder'
+}
+
+export enum FILE_EXTENSION {
+    BAL = '.bal',
+    TOML = '.toml'
 }
 
 export const TREE_ELEMENT_EXECUTE_COMMAND: string = 'ballerina.executeTreeElement';
-export const TREE_REFRESH_COMMAND: string = 'ballerina.refreshPackageTree';
-export const TREE_COLLAPSE_COMMAND: string = 'ballerina.collapsePackageTree';
+export const OUTLINE_TREE_REFRESH_COMMAND: string = 'ballerina.refreshPackageTree';
+export const OUTLINE_TREE_COLLAPSE_COMMAND: string = 'ballerina.collapsePackageTree';
+export const EXPLORER_TREE_REFRESH_COMMAND: string = 'ballerina.refreshExplorerTree';
+export const EXPLORER_TREE_COLLAPSE_COMMAND: string = 'ballerina.collapseExplorerTree';
+export const EXPLORER_TREE_NEW_FILE_COMMAND: string = 'ballerina.newFileExplorerTree';
+export const EXPLORER_TREE_NEW_FOLDER_COMMAND: string = 'ballerina.newFolderExplorerTree';
+
+export class ExplorerTreeItem extends TreeItem {
+    private filePath: string;
+    private folder: WorkspaceFolder | undefined;
+    private extensionPath: string;
+
+    constructor(public readonly label: string, public readonly collapsibleState:
+        TreeItemCollapsibleState, kind: string, filePath: string, folder: WorkspaceFolder | undefined, extensionPath: string) {
+        super(label, collapsibleState);
+        this.filePath = filePath;
+        this.folder = folder;
+        this.extensionPath = extensionPath;
+
+        if (kind === EXPLORER_ITEM_KIND.BAL_FILE) {
+            this.iconPath = {
+                light: join(extensionPath, 'resources', 'images', 'icons', `ballerina.svg`),
+                dark: join(extensionPath, 'resources', 'images', 'icons', `ballerina-inverse.svg`)
+            };
+            this.command = {
+                command: TREE_ELEMENT_EXECUTE_COMMAND,
+                title: "Execute Tree Command",
+                arguments: [
+                    this.filePath,
+                    kind,
+                    0,
+                    0,
+                    this.label
+                ]
+            };
+        }
+        if (kind === EXPLORER_ITEM_KIND.TOML_FILE || kind == EXPLORER_ITEM_KIND.OTHER_FILE) {
+            this.command = {
+                command: 'vscode.open',
+                title: "Open file Command",
+                arguments: [
+                    Uri.file(this.filePath)
+                ]
+            };
+        }
+
+        if (kind === EXPLORER_ITEM_KIND.TOML_FILE) {
+            this.iconPath = {
+                light: join(extensionPath, 'resources', 'images', 'icons', `toml.svg`),
+                dark: join(extensionPath, 'resources', 'images', 'icons', `toml-inverse.svg`)
+            };
+        }
+    }
+
+    getFolder(): WorkspaceFolder | undefined {
+        return this.folder
+    }
+
+    getExtensionPath(): string {
+        return this.extensionPath;
+    }
+
+    getFilePath(): string {
+        return this.filePath;
+    }
+}
 
 export class PackageTreeItem extends TreeItem {
     private kind: string;
@@ -156,6 +233,7 @@ export interface ChildrenData {
     listeners?: Leaf[];
     moduleVariables?: Leaf[];
     methods?: Leaf[];
+    entryPoint?: Leaf[]
 }
 
 export interface Package {

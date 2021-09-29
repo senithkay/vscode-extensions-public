@@ -35,6 +35,8 @@ import { PackageOverviewDataProvider } from '../tree-view';
 import { PALETTE_COMMANDS } from '../project';
 import { sep } from "path";
 import { DiagramOptions } from './model';
+import { readFileSync, writeFileSync } from 'fs';
+import fileUriToPath from 'file-uri-to-path';
 
 const NO_DIAGRAM_VIEWS: string = 'No Ballerina diagram views found!';
 
@@ -44,6 +46,7 @@ let diagramElement: DiagramOptions | undefined = undefined;
 let ballerinaExtension: BallerinaExtension;
 let webviewRPCHandler: WebViewRPCHandler;
 let currentColumn: ViewColumn | undefined;
+let currentDocumentURI: Uri;
 
 export async function showDiagramEditor(startLine: number, startColumn: number, kind: string, name: string,
 	filePath: string, isCommand: boolean = false): Promise<void> {
@@ -114,6 +117,15 @@ export function activate(ballerinaExtInstance: BallerinaExtension, diagramOvervi
 			});
 	});
 	context.subscriptions.push(diagramRenderDisposable);
+
+	commands.registerCommand('ballerina.show.source', () => {
+		const path = ballerinaExtension.getLatestDiagramDocument();
+		if (!path) {
+			return;
+		}
+		commands.executeCommand('workbench.action.splitEditor');
+		commands.executeCommand('vscode.open', path);
+	});
 }
 
 class DiagramPanel {
@@ -157,8 +169,10 @@ class DiagramPanel {
 					// Get the active text editor
 					const filePath = args[0];
 					const doc = workspace.textDocuments.find((doc) => doc.fileName === filePath);
-					const content = doc ? doc.getText() : "";
-					return content;
+					if (doc) {
+						return doc.getText();
+					}
+					return readFileSync(filePath, { encoding: 'utf-8' });
 				}
 			},
 			{
@@ -171,7 +185,21 @@ class DiagramPanel {
 					if (doc) {
 						const edit = new WorkspaceEdit();
 						edit.replace(Uri.file(filePath), new Range(new Position(0, 0), doc.lineAt(doc.lineCount - 1).range.end), fileContent);
-						return await workspace.applyEdit(edit);
+						await workspace.applyEdit(edit);
+						return doc.save();
+					} else {
+						langClient.didChange({
+							contentChanges: [
+								{
+									text: fileContent
+								}
+							],
+							textDocument: {
+								uri: Uri.file(filePath).toString(),
+								version: 1
+							}
+						});
+						writeFileSync(filePath, fileContent);
 					}
 					return false;
 				}
@@ -193,6 +221,7 @@ class DiagramPanel {
 	private update() {
 		if (diagramElement && diagramElement.isDiagram) {
 			if (!DiagramPanel.currentPanel) {
+				performDidOpen();
 				this.webviewPanel.webview.html = render(diagramElement!.fileUri!, diagramElement!.startLine!,
 					diagramElement!.startColumn!);
 			} else {
@@ -203,7 +232,7 @@ class DiagramPanel {
 }
 
 export async function refreshDiagramForEditorChange(change: Change) {
-	if (!webviewRPCHandler || !DiagramPanel.currentPanel || (currentColumn && currentColumn === ViewColumn.One)) {
+	if (!webviewRPCHandler || !DiagramPanel.currentPanel) {
 		return;
 	}
 
@@ -229,6 +258,7 @@ export async function refreshDiagramForEditorChange(change: Change) {
 }
 
 function callUpdateDiagramMethod() {
+	performDidOpen();
 	let ballerinaFilePath = diagramElement!.fileUri!.fsPath;
 	if (isWindows()) {
 		ballerinaFilePath = '/' + ballerinaFilePath.split(sep).join("/");
@@ -239,4 +269,30 @@ function callUpdateDiagramMethod() {
 		startColumn: diagramElement!.startColumn
 	}];
 	webviewRPCHandler.invokeRemoteMethod('updateDiagram', args, () => { });
+}
+
+function performDidOpen() {
+	let tempUri: Uri | undefined;
+	if (diagramElement!.filePath) {
+		tempUri = Uri.file(diagramElement!.filePath!);
+	} else if (diagramElement!.fileUri) {
+		tempUri = diagramElement?.fileUri!;
+	}
+	ballerinaExtension.setLatestDiagramDocument(tempUri);
+	const doc = workspace.textDocuments.find((doc) => doc.uri === tempUri);
+	if (doc) {
+		return;
+	}
+	if (tempUri && currentDocumentURI !== tempUri!) {
+		const content: string = readFileSync(fileUriToPath(tempUri.toString()), { encoding: 'utf-8' });
+		langClient.didOpen({
+			textDocument: {
+				uri: tempUri.toString(),
+				languageId: 'ballerina',
+				version: 1,
+				text: content
+			}
+		});
+		currentDocumentURI = tempUri;
+	}
 }

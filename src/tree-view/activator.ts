@@ -20,9 +20,14 @@ import { BallerinaExtension, ConstructIdentifier } from "../core";
 import { showDiagramEditor } from '../diagram';
 import { sendTelemetryEvent, CMP_PACKAGE_VIEW, TM_EVENT_OPEN_PACKAGE_OVERVIEW } from "../telemetry";
 import { commands, window } from 'vscode';
-import { CMP_KIND, TREE_COLLAPSE_COMMAND, TREE_ELEMENT_EXECUTE_COMMAND, TREE_REFRESH_COMMAND } from "./model";
-import { PackageOverviewDataProvider } from "./tree-data-provider";
+import {
+    CMP_KIND, OUTLINE_TREE_COLLAPSE_COMMAND, TREE_ELEMENT_EXECUTE_COMMAND, OUTLINE_TREE_REFRESH_COMMAND,
+    EXPLORER_TREE_REFRESH_COMMAND, EXPLORER_TREE_COLLAPSE_COMMAND
+} from "./model";
+import { PackageOverviewDataProvider } from "./outline-tree-data-provider";
 import { SessionDataProvider } from "./session-tree-data-provider";
+import { ExplorerDataProvider } from "./explorer-tree-data-provider";
+import { EXPLORER_ITEM_KIND, EXPLORER_TREE_NEW_FILE_COMMAND, EXPLORER_TREE_NEW_FOLDER_COMMAND } from ".";
 
 export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverviewDataProvider {
 
@@ -33,17 +38,38 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
         treeDataProvider: packageTreeDataProvider
     });
 
-    commands.registerCommand(TREE_REFRESH_COMMAND, () =>
+    commands.registerCommand(OUTLINE_TREE_REFRESH_COMMAND, () =>
         packageTreeDataProvider.refresh()
     );
 
-    commands.registerCommand(TREE_COLLAPSE_COMMAND, () => {
+    commands.registerCommand(OUTLINE_TREE_COLLAPSE_COMMAND, () => {
         commands.executeCommand('workbench.actions.treeView.ballerinaPackageTreeView.collapseAll');
     });
 
     if (!ballerinaExtInstance.isSwanLake()) {
         return packageTreeDataProvider;
     }
+
+    const explorerDataProvider = new ExplorerDataProvider(ballerinaExtInstance);
+    window.createTreeView('ballerinaExplorerTreeView', {
+        treeDataProvider: explorerDataProvider
+    });
+
+    commands.registerCommand(EXPLORER_TREE_REFRESH_COMMAND, () =>
+        explorerDataProvider.refresh()
+    );
+
+    commands.registerCommand(EXPLORER_TREE_COLLAPSE_COMMAND, () => {
+        commands.executeCommand('workbench.actions.treeView.ballerinaExplorerTreeView.collapseAll');
+    });
+
+    commands.registerCommand(EXPLORER_TREE_NEW_FILE_COMMAND, () =>
+        commands.executeCommand('explorer.newFile')
+    );
+
+    commands.registerCommand(EXPLORER_TREE_NEW_FOLDER_COMMAND, () =>
+        commands.executeCommand('explorer.newFolder')
+    );
 
     const sessionTreeDataProvider = new SessionDataProvider(ballerinaExtInstance);
     window.createTreeView('sessionExplorer', {
@@ -67,7 +93,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
             || construct.kind == CMP_KIND.CLASS || construct.kind == CMP_KIND.ENUM ||
             construct.kind == CMP_KIND.CONSTANT || construct.kind == CMP_KIND.METHOD ||
             construct.kind == CMP_KIND.LISTENER || construct.kind == CMP_KIND.MODULE_LEVEL_VAR ||
-            construct.kind == CMP_KIND.SERVICE) {
+            construct.kind == CMP_KIND.SERVICE || construct.kind == EXPLORER_ITEM_KIND.BAL_FILE) {
             showDiagramEditor(construct.startLine, construct.startColumn, construct.kind, construct.name,
                 construct.filePath);
         }

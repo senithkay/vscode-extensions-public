@@ -26,7 +26,7 @@
         "onLanguage:ballerina",
         "onCommand:ballerina.showExamples",
         "workspaceContains:Ballerina.toml",
-        "onView:ballerinaPackageTreeView"
+        "onView:ballerinaExplorerTreeView"
     ],
     "contributes": {
         "languages": [
@@ -271,10 +271,51 @@
                 }
             },
             {
+                "command": "ballerina.refreshExplorerTree",
+                "title": "Refresh",
+                "icon": {
+                    "light": "./resources/images/icons/refresh.svg",
+                    "dark": "./resources/images/icons/refresh-inverse.svg"
+                }
+            },
+            {
+                "command": "ballerina.collapseExplorerTree",
+                "title": "Collapse Diagrams",
+                "icon": {
+                    "light": "./resources/images/icons/collapse.svg",
+                    "dark": "./resources/images/icons/collapse-inverse.svg"
+                }
+            },
+            {
+                "command": "ballerina.newFileExplorerTree",
+                "title": "New File",
+                "icon": {
+                    "light": "./resources/images/icons/new-file.svg",
+                    "dark": "./resources/images/icons/new-file-inverse.svg"
+                }
+            },
+            {
+                "command": "ballerina.newFolderExplorerTree",
+                "title": "New Folder",
+                "icon": {
+                    "light": "./resources/images/icons/new-folder.svg",
+                    "dark": "./resources/images/icons/new-folder-inverse.svg"
+                }
+            },
+            {
                 "command": "ballerina.show.diagram",
                 "title": "Show Diagram",
                 "icon": {
                     "dark": "./resources/images/icons/design-view-inverse.svg",
+                    "light": "./resources/images/icons/design-view.svg"
+                },
+                "category": "Ballerina"
+            },
+            {
+                "command": "ballerina.show.source",
+                "title": "Show Source",
+                "icon": {
+                    "dark": "./resources/images/icons/design-view.svg",
                     "light": "./resources/images/icons/design-view.svg"
                 },
                 "category": "Ballerina"
@@ -288,8 +329,13 @@
         "views": {
             "diagram-explorer": [
                 {
+                    "id": "ballerinaExplorerTreeView",
+                    "name": "Explorer",
+                    "contextualTitle": "Explorer"
+                },
+                {
                     "id": "ballerinaPackageTreeView",
-                    "name": "Diagrams",
+                    "name": "Outline",
                     "contextualTitle": "Diagram Explorer"
                 },
                 {
@@ -316,6 +362,10 @@
             {
                 "view": "ballerinaPackageTreeView",
                 "contents": "No Ballerina packages found.\n[Go to File Explorer](command:workbench.files.action.focusFilesExplorer)"
+            },
+            {
+                "view": "ballerinaExplorerTreeView",
+                "contents": "No files found in your workspace.\n[Go to File Explorer](command:workbench.files.action.focusFilesExplorer)"
             }
         ],
         "menus": {
@@ -329,12 +379,37 @@
                     "command": "ballerina.collapsePackageTree",
                     "when": "view == ballerinaPackageTreeView",
                     "group": "navigation"
+                },
+                {
+                    "command": "ballerina.refreshExplorerTree",
+                    "when": "view == ballerinaExplorerTreeView",
+                    "group": "navigation"
+                },
+                {
+                    "command": "ballerina.collapseExplorerTree",
+                    "when": "view == ballerinaExplorerTreeView",
+                    "group": "navigation"
+                },
+                {
+                    "command": "ballerina.newFileExplorerTree",
+                    "when": "view == ballerinaExplorerTreeView",
+                    "group": "navigation"
+                },
+                {
+                    "command": "ballerina.newFolderExplorerTree",
+                    "when": "view == ballerinaExplorerTreeView",
+                    "group": "navigation"
                 }
             ],
             "editor/title": [
                 {
                     "when": "resourceLangId == ballerina",
                     "command": "ballerina.show.diagram",
+                    "group": "navigation"
+                },
+                {
+                    "when": "resourceLangId != ballerina",
+                    "command": "ballerina.show.source",
                     "group": "navigation"
                 }
             ]

@@ -83,11 +83,6 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
             return langClient.didChange(args[0]);
         }
     }, {
-        methodName: 'syntaxTreeModify',
-        handler: (args: any[]) => {
-            return langClient.syntaxTreeModify(args[0]);
-        }
-    }, {
         methodName: 'getConnectors',
         handler: (args: any[]) => {
             return langClient.getConnectors(args[0]);
