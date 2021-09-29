@@ -215,7 +215,7 @@ export function PlusElements(props: PlusElementsProps) {
 
     return (
         <DiagramOverlayContainer
-            divId={`function-overlay-${overlayId}`}
+            divId={overlayId}
         >
             <DiagramOverlay
                 className={plusContainer}
