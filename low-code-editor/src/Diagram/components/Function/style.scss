@@ -16,7 +16,6 @@
     border: 1px dashed #c1e4fc;
     border-radius: 6px;
     background-color: #f4faff;
-    font-family: inherit;
 
     &.expanded {
         border: 1px solid #c1e4fc;
@@ -110,7 +109,6 @@
                 min-width: 50%;
 
                 .path-text {
-                    font-family: inherit;
                     margin: 15px 0 10px 8px;
                     font-weight: 300;
                     color: #222228;
@@ -185,7 +183,6 @@
     border: 1px solid #e6e7ec;
     border-radius: 6px;
     background-color: #fff;
-    font-family: inherit;
 
     .function-signature {
         display: flex;

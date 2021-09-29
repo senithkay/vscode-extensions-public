@@ -20,7 +20,7 @@ import { Box, FormHelperText, TextField, Typography } from '@material-ui/core';
 import { AddRounded, CloseRounded } from '@material-ui/icons';
 import classNames from 'classnames';
 
-import { FormAutocomplete } from '../../../../../../components/Portals/ConfigForm/Elements/Autocomplete';
+import { FormAutocomplete } from '../../../../../Portals/ConfigForm/Elements/Autocomplete';
 import { ButtonWithIcon } from '../../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon';
 import { IconBtnWithText } from '../../../../../Portals/ConfigForm/Elements/Button/IconBtnWithText';
 import { useStyles as useFormStyles } from "../../../../../Portals/ConfigForm/forms/style";

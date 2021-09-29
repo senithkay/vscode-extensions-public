@@ -13,23 +13,34 @@
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline object-literal-shorthand align
 import React from "react";
 
+import { STKindChecker, STNode } from "@ballerina/syntax-tree";
+
 import { DraftInsertPosition } from "../../../view-state/draft";
 import { Margin } from "../index";
 import { ModuleLevelPlusOptions } from "../ModuleLevelPlusOptions";
 
 export interface PlusOptionsProps {
+    kind: string
     margin?: Margin;
     onClose: () => void;
     targetPosition?: DraftInsertPosition;
 }
 
 export const PlusOptionsSelector = (props: PlusOptionsProps) => {
-    const { margin, onClose, targetPosition } = props;
+    const { onClose, targetPosition, kind } = props;
+
+    let menu;
+
+    switch (kind) {
+        case 'ModulePart':
+            menu = (<ModuleLevelPlusOptions onClose={onClose} targetPosition={targetPosition} />);
+            break;
+        default:
+    }
 
     return (
         <>
-        {/* todo: plus selection here   */}
-            <ModuleLevelPlusOptions onClose={onClose} targetPosition={targetPosition} margin={margin} />
+            {menu}
         </>
     );
 };

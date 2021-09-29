@@ -33,8 +33,8 @@ import { generateInlineRecordForJson, getDefaultValueForType } from "../../DataM
 import { CustomExpressionConfig, DataMapperConfig, LogConfig, ProcessConfig } from "../../Portals/ConfigForm/types";
 import { DiagramOverlayPosition } from "../../Portals/Overlay";
 
-import { ProcessOverlayForm } from "./ProcessOverlayForm";
-import { GenerationType } from "./ProcessOverlayForm/AddDataMappingConfig/OutputTypeSelector";
+import { ProcessForm } from "./ProcessForm";
+import { GenerationType } from "./ProcessForm/AddDataMappingConfig/OutputTypeSelector";
 
 export interface AddProcessFormProps {
     type: string;
@@ -43,7 +43,6 @@ export interface AddProcessFormProps {
     onCancel: () => void;
     onSave: () => void;
     model?: STNode;
-    wizardType: WizardType;
     position: DiagramOverlayPosition;
     configOverlayFormStatus: ConfigOverlayFormStatus;
 }
@@ -59,19 +58,18 @@ export function ProcessConfigForm(props: any) {
         props: { currentApp, stSymbolInfo }
     } = useContext(Context);
 
-    const { onCancel, onSave, wizardType, position, configOverlayFormStatus } = props as AddProcessFormProps;
+    const { onCancel, onSave, configOverlayFormStatus } = props as AddProcessFormProps;
     const { formArgs, formType } = configOverlayFormStatus;
 
     const processConfig: ProcessConfig = {
         type: formType,
         scopeSymbols: [],
-        model: formArgs?.model,
-        wizardType,
+        model: formArgs?.model
     };
 
     const onSaveClick = () => {
         const modifications: STModification[] = [];
-        if (wizardType === WizardType.EXISTING) {
+        if (processConfig.model) {
             switch (processConfig.type) {
                 case 'Variable':
                     const propertyConfig: string = processConfig.config as string;
@@ -173,6 +171,6 @@ export function ProcessConfigForm(props: any) {
     };
 
     return (
-        <ProcessOverlayForm position={position} config={processConfig} onCancel={onCancel} onSave={onSaveClick} configOverlayFormStatus={configOverlayFormStatus} />
+        <ProcessForm config={processConfig} onCancel={onCancel} onSave={onSaveClick} configOverlayFormStatus={configOverlayFormStatus} />
     );
 }

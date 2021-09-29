@@ -17,8 +17,8 @@ import { LocalVarDecl } from "@ballerina/syntax-tree";
 import { WizardType } from "../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../Contexts/Diagram";
 import { ConfigOverlayFormStatus } from "../../../../../Definitions";
-import { DefaultConfig } from "../../../../../Diagram/visitors/default";
 import { TextPreloaderVertical } from "../../../../../PreLoader/TextPreloaderVertical";
+import { DefaultConfig } from "../../../../visitors/default";
 import { ProcessConfig } from "../../../Portals/ConfigForm/types";
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from "../../../Portals/Overlay";
 
@@ -27,16 +27,15 @@ import { AddDataMappingConfig } from "./AddDataMappingConfig";
 import { AddLogConfig } from "./AddLogConfig";
 import { AddVariableConfig } from "./AddVariableConfig";
 
-interface ProcessOverlayFormProps {
+interface ProcessFormProps {
     config: ProcessConfig;
     onCancel: () => void;
     onSave: () => void;
-    position: DiagramOverlayPosition;
     configOverlayFormStatus: ConfigOverlayFormStatus;
 }
 
-export function ProcessOverlayForm(props: ProcessOverlayFormProps) {
-    const { config, onCancel, onSave, position, configOverlayFormStatus } = props;
+export function ProcessForm(props: ProcessFormProps) {
+    const { config, onCancel, onSave, configOverlayFormStatus } = props;
     const { isLoading, error, formType } = configOverlayFormStatus;
     const {
         api: {
@@ -46,11 +45,6 @@ export function ProcessOverlayForm(props: ProcessOverlayFormProps) {
             }
         }
     } = useContext(Context);
-
-    React.useEffect(() => {
-        fitToScreen();
-        pan(0, (-position.y + (DefaultConfig.dotGap * 3)));
-    }, []);
 
     if (formType === "Variable") {
         if (config.wizardType === WizardType.EXISTING) {
@@ -71,8 +65,7 @@ export function ProcessOverlayForm(props: ProcessOverlayFormProps) {
     } else if (formType === "DataMapper") {
         config.config = {
             inputTypes: [],
-            outputType: undefined,
-            wizardType: config.wizardType
+            outputType: undefined
         }
     } else if (formType === "Call" || formType === "Custom") {
         config.config = {
@@ -82,50 +75,23 @@ export function ProcessOverlayForm(props: ProcessOverlayFormProps) {
 
     if (isLoading) {
         return (
-            <div>
-                <DiagramOverlayContainer>
-                    <DiagramOverlay
-                        position={position}
-                    >
-                        <>
-                            <TextPreloaderVertical position='relative' />
-                        </>
-                    </DiagramOverlay>
-                </DiagramOverlayContainer>
-            </div>
+            <TextPreloaderVertical position='relative' />
         );
 
     } else if (error) {
         return (
-            <div>
-                <DiagramOverlayContainer>
-                    <DiagramOverlay
-                        position={position}
-                    >
-                        <>
-                            {error?.message}
-                        </>
-                    </DiagramOverlay>
-                </DiagramOverlayContainer>
-
-            </div>
+            <>
+                {error?.message}
+            </>
         );
     } else {
         return (
-            <div>
-                <DiagramOverlayContainer>
-                    <DiagramOverlay
-                        position={position}
-                    >
-                        <>
-                            {formType === "Variable" && <AddVariableConfig config={config} onSave={onSave} onCancel={onCancel} />}
-                            {formType === "Log" && <AddLogConfig config={config} onSave={onSave} onCancel={onCancel} />}
-                            {formType === "DataMapper" && <AddDataMappingConfig processConfig={config} onSave={onSave} onCancel={onCancel} />}
-                            {(formType === "Custom" || formType === "Call") && <AddCustomStatementConfig config={config} onSave={onSave} onCancel={onCancel} />}
-                        </>
-                    </DiagramOverlay>
-                </DiagramOverlayContainer>
-            </div>
+            <>
+                {formType === "Variable" && <AddVariableConfig config={config} onSave={onSave} onCancel={onCancel} />}
+                {formType === "Log" && <AddLogConfig config={config} onSave={onSave} onCancel={onCancel} />}
+                {formType === "DataMapper" && <AddDataMappingConfig processConfig={config} onSave={onSave} onCancel={onCancel} />}
+                {(formType === "Custom" || formType === "Call") && <AddCustomStatementConfig config={config} onSave={onSave} onCancel={onCancel} />}
+            </>
         );
     }
 }

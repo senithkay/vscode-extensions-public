@@ -17,7 +17,7 @@ import { AppInfo, ApplicationFile } from "../../../../../api/models";
 import { FormField, WizardType } from "../../../../../ConfigurationSpec/types";
 import { ExpressionEditorState } from "../../../../../Definitions";
 import { DraftUpdatePosition } from "../../../../view-state/draft";
-import { GenerationType } from "../../../ConfigForms/ProcessConfigForms/ProcessOverlayForm/AddDataMappingConfig/OutputTypeSelector";
+import { GenerationType } from "../../../ConfigForms/ProcessConfigForms/ProcessForm/AddDataMappingConfig/OutputTypeSelector";
 
 export interface FormElementProps<T = {}> extends FormElementEvents {
     model?: FormField | any;
@@ -119,7 +119,6 @@ export interface DataMapperOutputTypeInfo {
 export interface DataMapperConfig {
     inputTypes: DataMapperInputTypeInfo[]; // todo ::: finalize the interface
     outputType: DataMapperOutputTypeInfo;
-    wizardType: WizardType;
 }
 
 export interface DataMapperOutputField {
