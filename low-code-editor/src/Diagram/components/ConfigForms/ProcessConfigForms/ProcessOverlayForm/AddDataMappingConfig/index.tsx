@@ -198,7 +198,7 @@ export function generateFieldStructureForJsonSample(obj: any): DataMapperOutputF
                 break;
             case 'object':
                 if (Array.isArray(obj[key])) {
-                    currentField.type = PrimitiveBalType.Collection;
+                    currentField.type = PrimitiveBalType.Array;
                 } else {
                     currentField.type = 'object'; // todo: revisit with a proper field type
                     currentField.fields = generateFieldStructureForJsonSample(obj[key]);

@@ -41,7 +41,7 @@ export function FormFieldTextInput(props: FormElementProps<FormFieldTextInputPro
 
     let valueIsEmpty = !model.optional && (model.value === undefined || model.value === "");
     let emailCheck = customProps?.isEmail ? validateEmail(model.value) : true;
-    let valueIsInvalid: boolean = model.value !== undefined && model.value !== "" && (!emailCheck || !isValidTextInput(model.value, model.type));
+    let valueIsInvalid: boolean = model.value !== undefined && model.value !== "" && (!emailCheck || !isValidTextInput(model.value, model.typeName));
 
     if (model && model.value === undefined) {
         model.value = "";
@@ -63,7 +63,7 @@ export function FormFieldTextInput(props: FormElementProps<FormFieldTextInputPro
         }
         valueIsEmpty = !model.optional && (model.value === undefined || model.value === "");
         emailCheck = customProps?.isEmail ? validateEmail(model.value) : true;
-        valueIsInvalid = model.value !== undefined && model.value !== "" && (!emailCheck || !isValidTextInput(model.value, model.type));
+        valueIsInvalid = model.value !== undefined && model.value !== "" && (!emailCheck || !isValidTextInput(model.value, model.typeName));
         setIsInvalid(valueIsInvalid);
         if (customProps?.validate) {
             customProps.validate(model.name, (valueIsEmpty || valueIsInvalid));

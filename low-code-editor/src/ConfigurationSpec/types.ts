@@ -20,7 +20,7 @@ export enum PrimitiveBalType {
     Int = "int",
     Float = "float",
     Boolean = "boolean",
-    Collection = "collection",
+    Array = "array",
     Json = "json",
     Xml = "xml",
     Nil = "nil",
@@ -49,36 +49,34 @@ export interface NonPrimitiveBal {
 }
 
 // tslint:disable-next-line: max-classes-per-file
-export type balTypes = "string" | "record" | "union" | "int" | "float" | "boolean" | "collection" | "json" | "xml" | "nil" | "http:Request" | "var" | "error" | undefined;
+export type balTypes = "string" | "record" | "union" | "int" | "float" | "decimal" | "boolean" | "array" | "json" | "xml" | "nil" | "http:Request" | "var" | "error" | undefined;
 
 export type BallerinaType = PrimitiveBalType | NonPrimitiveBal;
 
 export type ExpressionEditorType = BallerinaType | BallerinaType[];
 
 export interface FunctionDefinitionInfo {
-    label?: string;
+    name: string;
+    documentation: string;
     parameters: FormField[];
-    returnType: FormField;
+    returnType?: FormField;
+    isRemote?: boolean;
 }
 
 export interface FormField {
-    type: PrimitiveBalType | any;
+    typeName: string;
     name?: string;
-    label?: string;
     displayName?: string;
-    collectionDataType?: FormField;
+    memberType?: FormField;
     selectedDataType?: string;
-    typeName?: string;
     description?: string;
     defaultValue?: any;
     value?: any;
     optional?: boolean;
     fields?: FormField[];
+    members?: FormField[];
     references?: FormField[];
     isReturn?: boolean;
-    isParam?: boolean;
-    isUnion?: boolean;
-    isArray?: boolean;
     isTypeDef?: boolean;
     isReference?: boolean;
     isStream?: boolean;
@@ -173,7 +171,7 @@ export function getType(type: string): PrimitiveBalType {
             typeString = PrimitiveBalType.Boolean;
             break;
         case "[]":
-            typeString = PrimitiveBalType.Collection;
+            typeString = PrimitiveBalType.Array;
             break;
         case "json":
             typeString = PrimitiveBalType.Json;

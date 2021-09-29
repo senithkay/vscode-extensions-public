@@ -56,7 +56,7 @@ export function AddWhileForm(props: WhileProps) {
     const formField: FormField = {
         name: "condition",
         displayName: "Condition",
-        type: "boolean"
+        typeName: "boolean"
     }
 
     const whileStatementTooltipMessages = {
@@ -81,7 +81,7 @@ export function AddWhileForm(props: WhileProps) {
             tooltipActionText: whileStatementTooltipMessages.actionText,
             tooltipActionLink: whileStatementTooltipMessages.actionLink,
             interactive: true,
-            statementType: formField.type
+            statementType: formField.typeName
         },
         onChange: handleExpEditorChange,
         defaultValue: condition.conditionExpression

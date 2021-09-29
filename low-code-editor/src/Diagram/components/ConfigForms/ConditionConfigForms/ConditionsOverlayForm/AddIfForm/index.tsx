@@ -65,7 +65,7 @@ export function AddIfForm(props: IfProps) {
     const formField: FormField = {
         name: "condition",
         displayName: "Condition",
-        type: "boolean"
+        typeName: "boolean"
     }
 
     const IFStatementTooltipMessages = {
@@ -91,7 +91,7 @@ export function AddIfForm(props: IfProps) {
             tooltipActionText: IFStatementTooltipMessages.actionText,
             tooltipActionLink: IFStatementTooltipMessages.actionLink,
             interactive: true,
-            statementType: formField.type
+            statementType: formField.typeName
         },
         onChange: handleExpEditorChange,
         defaultValue: condition.conditionExpression

@@ -24,7 +24,7 @@ import {
 } from "../../../ConfigurationSpec/types";
 import { Context } from "../../../Contexts/Diagram";
 import {
-  BallerinaConnectorsInfo,
+  BallerinaConnectorInfo,
   Connector,
 } from "../../../Definitions/lang-client-extended";
 import { TextPreloaderVertical } from "../../../PreLoader/TextPreloaderVertical";
@@ -52,7 +52,7 @@ export interface ConfigWizardState {
 
 export interface ConnectorConfigWizardProps {
   position: DiagramOverlayPosition;
-  connectorInfo: BallerinaConnectorsInfo;
+  connectorInfo: BallerinaConnectorInfo;
   targetPosition: DraftInsertPosition;
   model?: STNode;
   onClose: () => void;

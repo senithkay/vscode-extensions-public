@@ -21,7 +21,7 @@ import classNames from 'classnames';
 import { TooltipIcon } from '../../../../../components/Tooltip';
 import { ConnectorConfig } from "../../../../../ConfigurationSpec/types";
 import {Context} from "../../../../../Contexts/Diagram";
-import {STSymbolInfo} from "../../../../../Definitions";
+import {Connector, STSymbolInfo} from "../../../../../Definitions";
 import {getModuleVariable} from "../../../../utils/mixins";
 import { FormAutocomplete } from '../../../Portals/ConfigForm/Elements/Autocomplete';
 import { wizardStyles } from "../../style";
@@ -48,13 +48,12 @@ export function OperationDropdown(props: OperationDropdownProps) {
 
     const handleSelect = (event: object, value: any, reason: string) => {
         onOperationSelect(value.name);
-        const connector = (stSymbolInfo.endpoints.get(connectionDetails.name)?.typeData?.typeSymbol?.moduleID);
+        const connector = (stSymbolInfo.endpoints.get(connectionDetails.name)?.typeData?.typeSymbol?.moduleID) as Connector;
         const name = stSymbolInfo.endpoints.get(connectionDetails.name)?.typeData?.typeSymbol?.name;
         if (connector){
-            const {orgName: org, moduleName: module, version} = connector;
-            openConnectorHelp({org, module, version, name}, value.name);
+            const {moduleName, package: {version, organization}} = connector;
+            openConnectorHelp({moduleName, package: {name: value.name, version, organization}, name}, value.name);
         }
-
     };
 
     const operationDropdownPlaceholder = intl.formatMessage({

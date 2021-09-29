@@ -16,7 +16,7 @@ import { Diagnostic } from "monaco-languageclient";
 
 import { BlockViewState } from "../Diagram/view-state";
 
-import { BallerinaConnectorsInfo } from "./lang-client-extended";
+import { BallerinaConnectorInfo, Connector } from "./lang-client-extended";
 
 export interface DiagramCoordinates {
     start: RectCoordinates;
@@ -76,7 +76,7 @@ export interface DiagramState {
     error?: any;
     isMutationProgress?: boolean;
     isCodeEditorActive?: boolean;
-    connectors?: BallerinaConnectorsInfo[];
+    connectors?: Connector[];
     isConfigFetchInProgress?: boolean;
     diagnostics?: Diagnostic[];
     stSymbolInfo?: STSymbolInfo;
