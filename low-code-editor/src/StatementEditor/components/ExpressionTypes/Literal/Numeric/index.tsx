@@ -11,13 +11,15 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, {useState} from "react";
+import React, {useContext, useState} from "react";
 
-import {NumericLiteral, STNode} from "@ballerina/syntax-tree";
+import {NumericLiteral, STNode, traversNode} from "@ballerina/syntax-tree";
 
 import * as c from "../../../../constants";
+import {ModelContext} from "../../../../store/model-context";
 import {addExpression, SuggestionItem} from "../../../../utils/utils";
 import {statementEditorStyles} from "../../../ViewContainer/styles";
+import {visitor as CodeGenVisitor} from "../../../Visitors/codeGenVisitor";
 
 interface LiteralProps {
     model: STNode
@@ -27,6 +29,8 @@ interface LiteralProps {
 export function NumericLiteralC(props: LiteralProps) {
     const overlayClasses = statementEditorStyles();
     const {model, callBack} = props;
+
+    const ctx = useContext(ModelContext);
 
     const [isDoubleClick, setIsDoubleClick] = useState(false);
     const [literal, setLiteral] = useState("");
@@ -47,6 +51,12 @@ export function NumericLiteralC(props: LiteralProps) {
         if (literal !== "") {
             addExpression(model, c.LITERAL, literal);
             callBack([], model, false);
+
+            CodeGenVisitor.clearCodeSnippet();
+            traversNode(ctx.statementModel, CodeGenVisitor);
+
+            // tslint:disable-next-line:no-console
+            console.log(`=============== ${CodeGenVisitor.getCodeSnippet()}`);
         }
     };
 
@@ -60,6 +70,12 @@ export function NumericLiteralC(props: LiteralProps) {
         if (event.code === "Enter" || event.code === "Tab") {
             addExpression(model, c.LITERAL, event.currentTarget.textContent);
             callBack([], model, false);
+
+            CodeGenVisitor.clearCodeSnippet();
+            traversNode(ctx.statementModel, CodeGenVisitor);
+
+            // tslint:disable-next-line:no-console
+            console.log(`=============== ${CodeGenVisitor.getCodeSnippet()}`);
         }
     };
 

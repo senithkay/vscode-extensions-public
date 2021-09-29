@@ -12,14 +12,13 @@
  */
 import React, {useState} from "react";
 
-import {STNode, traversNode} from "@ballerina/syntax-tree";
+import {STNode} from "@ballerina/syntax-tree";
 
 import {getSuggestionsBasedOnExpressionKind} from "../../utils";
 import {SuggestionItem} from "../../utils/utils";
 import {ExpressionComponent} from '../Expression';
 import {Suggestions} from '../Suggestions';
 import {statementEditorStyles} from "../ViewContainer/styles";
-import {visitor as CodeGenVisitor} from "../Visitors/codeGenVisitor";
 
 interface ModelProps {
     model: STNode,
@@ -48,12 +47,6 @@ export function LeftPane(props: ModelProps) {
             return !prevState;
         });
     }
-
-    CodeGenVisitor.clearShapeList();
-    traversNode(model, CodeGenVisitor);
-
-    // tslint:disable-next-line:no-console
-    console.log(`=============== ${CodeGenVisitor.getCodeSnippet()}`);
 
     return (
         <div className={overlayClasses.AppLeftPane}>

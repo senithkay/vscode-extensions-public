@@ -10,10 +10,12 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
 import {STNode} from "@ballerina/syntax-tree";
 
+import { ModelContext } from '../../store/model-context'
 import {getDefaultModel} from "../../utils";
 import {LeftPane} from '../LeftPane';
 import {RightPane} from '../RightPane';
@@ -38,12 +40,18 @@ export function ViewContainer(props: ViewProps) {
 
     return (
         <div className={overlayClasses.App}>
-            <LeftPane
-                model={defaultModel}
-                currentModel={currentModel}
-                kind={kind}
-                label={label}
-            />
+            <ModelContext.Provider
+                value={{
+                    statementModel: defaultModel
+                }}
+            >
+                <LeftPane
+                    model={defaultModel}
+                    currentModel={currentModel}
+                    kind={kind}
+                    label={label}
+                />
+            </ModelContext.Provider>
             <div className={overlayClasses.vl}/>
             <RightPane/>
         </div>

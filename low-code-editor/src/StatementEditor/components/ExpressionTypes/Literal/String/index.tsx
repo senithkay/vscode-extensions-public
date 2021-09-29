@@ -11,13 +11,15 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, {useRef, useState} from "react";
+import React, {useContext, useRef, useState} from "react";
 
-import {STNode, StringLiteral} from "@ballerina/syntax-tree";
+import {STNode, StringLiteral, traversNode} from "@ballerina/syntax-tree";
 
 import * as c from "../../../../constants";
+import {ModelContext} from "../../../../store/model-context";
 import {addExpression, SuggestionItem} from "../../../../utils/utils";
 import {statementEditorStyles} from "../../../ViewContainer/styles";
+import {visitor as CodeGenVisitor} from "../../../Visitors/codeGenVisitor";
 
 interface LiteralProps {
     model: STNode
@@ -27,6 +29,8 @@ interface LiteralProps {
 export function StringLiteralC(props: LiteralProps) {
     const overlayClasses = statementEditorStyles();
     const {model, callBack} = props;
+
+    const ctx = useContext(ModelContext);
 
     const [isDoubleClick, setIsDoubleClick] = useState(false);
     const [literal, setLiteral] = useState("");
@@ -48,6 +52,12 @@ export function StringLiteralC(props: LiteralProps) {
         if (literal !== "") {
             addExpression(model, c.LITERAL, literal)
             callBack([], model, false);
+
+            CodeGenVisitor.clearCodeSnippet();
+            traversNode(ctx.statementModel, CodeGenVisitor);
+
+            // tslint:disable-next-line:no-console
+            console.log(`=============== ${CodeGenVisitor.getCodeSnippet()}`);
         }
     };
 
@@ -60,8 +70,13 @@ export function StringLiteralC(props: LiteralProps) {
         if (event.code === "Enter" || event.code === "Tab") {
             addExpression(model, c.LITERAL, event.currentTarget.textContent);
             callBack([], model, false);
-        }
 
+            CodeGenVisitor.clearCodeSnippet();
+            traversNode(ctx.statementModel, CodeGenVisitor);
+
+            // tslint:disable-next-line:no-console
+            console.log(`=============== ${CodeGenVisitor.getCodeSnippet()}`);
+        }
     };
 
     return (

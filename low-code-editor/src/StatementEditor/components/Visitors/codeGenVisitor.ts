@@ -58,7 +58,7 @@ class CodeGenVisitor implements Visitor {
         return this.codeSnippet;
     }
 
-    clearShapeList() {
+    clearCodeSnippet() {
         this.codeSnippet = "";
     }
 }
