@@ -42,12 +42,10 @@ export function Service(props: ServiceProps) {
 
     model.members.forEach(member => {
         children.push(
-            <>
-                <div className={'service-member'}>
-                    <TopLevelPlus kind={model.kind} targetPosition={member.position} />
-                    {getSTComponent(member)}
-                </div>
-            </>
+            <div className={'service-member'}>
+                <TopLevelPlus kind={model.kind} targetPosition={member.position} />
+                {getSTComponent(member)}
+            </div>
         )
     });
 
