@@ -46,7 +46,7 @@ export function Union(props: FormElementProps<UnionProps>) {
 
     const getTypes = () => {
         const types: string[] = [];
-        model.fields?.forEach((field: FormField, key: number) => {
+        model.members?.forEach((field: FormField, key: number) => {
             const name = getUnionFormFieldName(field);
             if (name) {
                 types.push(name);
@@ -57,7 +57,7 @@ export function Union(props: FormElementProps<UnionProps>) {
     };
 
     const getSelectedFormField = () => {
-        const selectedField: FormField = model.fields.find((field: FormField) => {
+        const selectedField: FormField = model.members?.find((field: FormField) => {
             const name = getUnionFormFieldName(field);
             return name === selectedType;
         });
@@ -69,7 +69,7 @@ export function Union(props: FormElementProps<UnionProps>) {
         let element: React.ReactNode = null;
         const selectedField = getSelectedFormField();
         model.selectedDataType = selectedType;
-        if (selectedField && selectedField.type) {
+        if (selectedField && selectedField.typeName) {
             element = (
                 <div className={classes.removeInnerMargin}>
                     <Form fields={selectedField.fields} onValidate={validateForm} key={selectedType} />
@@ -128,12 +128,12 @@ export function Union(props: FormElementProps<UnionProps>) {
 
 // get field name of the union record
 export function getUnionFormFieldName(field: FormField): string {
-    let name = field.label;
-    if (!name) {
-        name = field.name;
-    }
+    let name = field.name;
     if (!name) {
         name = field.typeInfo?.name;
+    }
+    if (!name) {
+        name = field.typeName;
     }
 
     return name;

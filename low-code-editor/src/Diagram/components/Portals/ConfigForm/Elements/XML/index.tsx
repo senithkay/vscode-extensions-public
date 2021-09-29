@@ -45,7 +45,7 @@ export function XML(props: FormElementProps<XMLProps>) {
                 model={model}
                 customProps={{
                     validate: validateExpression,
-                    statementType: model.type
+                    statementType: model.typeName
                 }}
                 defaultValue={model.value}
                 onChange={onPropertyChange}

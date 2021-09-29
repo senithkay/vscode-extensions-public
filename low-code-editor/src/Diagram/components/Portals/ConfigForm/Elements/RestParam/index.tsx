@@ -77,7 +77,7 @@ export function RestParam(props: FormElementProps<ExpressionEditorProps>) {
         model: {
             name: "sub_editor_" + model.name,
             displayName: intl.formatMessage({ id: 'lowcode.develop.elements.restParam.itemText', defaultMessage: "Item" }),
-            type: model.type,
+            type: model.typeName,
             value: subEditorValue,
             tooltip: intl.formatMessage({ id: 'lowcode.develop.elements.restParam.tooltip', defaultMessage: "Add elements to field" }),
             optional: true

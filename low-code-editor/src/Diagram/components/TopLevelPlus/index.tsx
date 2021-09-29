@@ -11,12 +11,14 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline object-literal-shorthand align
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { STNode } from "@ballerina/syntax-tree";
 
 import TopLevelPlusIcon from "../../../assets/icons/TopLevelPlusIcon";
 import { DraftInsertPosition } from "../../view-state/draft";
+import { OverlayBackground } from "../OverlayBackground";
+import { DiagramOverlay, DiagramOverlayContainer } from "../Portals/Overlay";
 
 import { PlusOptionsSelector } from "./PlusOptionsSelector";
 import "./style.scss";
@@ -32,33 +34,17 @@ export interface Margin {
 }
 
 export interface PlusProps {
-    model?: STNode,
+    kind: string,
     initPlus?: boolean;
     margin?: Margin;
     targetPosition?: DraftInsertPosition;
 }
 
 export const TopLevelPlus = (props: PlusProps) => {
-    const { model, initPlus = false, margin = { top: 0, bottom: 0, left: 0, right: 0 }, targetPosition } = props;
+    const { targetPosition, kind } = props;
+    const containerElement = useRef(null);
 
     const [isPlusOptionsVisible, setIsPlusOptionsVisible] = useState(false);
-
-    const plusIconMargin = isPlusOptionsVisible ?
-        {
-            marginTop: margin.top,
-            marginRight: margin.right,
-            marginLeft: margin.left
-        } :
-        {
-            marginTop: margin.top,
-            marginBottom: margin.bottom,
-            marginRight: margin.right,
-            marginLeft: margin.left
-        };
-    const optionContainerMargin: Margin = {
-        bottom: margin.bottom,
-        left: margin.left + PLUS_WIDTH + PLUS_AND_OPTIONS_GAP
-    }
 
     const handlePlusClick = () => {
         setIsPlusOptionsVisible(true);
@@ -69,17 +55,22 @@ export const TopLevelPlus = (props: PlusProps) => {
     };
 
     return (
-        <div className="plus-container">
-            <div className="plus-icon" style={plusIconMargin} onClick={handlePlusClick}>
-                <TopLevelPlusIcon />
-            </div>
-            {isPlusOptionsVisible && (
-                <PlusOptionsSelector
-                    margin={optionContainerMargin}
-                    onClose={handlePlusOptionsClose}
-                    targetPosition={targetPosition}
-                />
-            )}
+        <div className="plus-container" ref={containerElement}>
+            <TopLevelPlusIcon onClick={handlePlusClick} />
+            {
+                isPlusOptionsVisible && (
+                    <DiagramOverlayContainer>
+                        <DiagramOverlay position={containerElement.current ? { x: containerElement.current.offsetLeft, y: containerElement.current.offsetTop } : { x: 0, y: 0 }}>
+                            <PlusOptionsSelector
+                                kind={kind}
+                                onClose={handlePlusOptionsClose}
+                                targetPosition={targetPosition}
+                            />
+                        </DiagramOverlay>
+                    </DiagramOverlayContainer>
+                )
+            }
+            {isPlusOptionsVisible && <OverlayBackground />}
         </div>
     );
 };

@@ -792,7 +792,7 @@ export async function initializeNodesAndUpdate(state: DataMapperState, updateSta
 }
 
 export function convertMemberViewStateToString(memeberTypeVS: FieldViewState): string {
-    if (memeberTypeVS.type === PrimitiveBalType.Collection) {
+    if (memeberTypeVS.type === PrimitiveBalType.Array) {
         return `${convertMemberViewStateToString(memeberTypeVS.memberType)}${memeberTypeVS.isArray ? '[]' : ''}`;
     } else {
         return `${memeberTypeVS.type}${memeberTypeVS.isArray ? '[]' : ''}`

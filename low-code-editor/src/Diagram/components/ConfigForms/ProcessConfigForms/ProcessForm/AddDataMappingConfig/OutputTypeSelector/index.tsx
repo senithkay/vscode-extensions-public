@@ -19,8 +19,8 @@ import { LocalVarDecl } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from '@material-ui/core';
 import classNames from 'classnames';
 
-import { FormAutocomplete } from '../../../../../../components/Portals/ConfigForm/Elements/Autocomplete';
-import { SelectDropdownWithButton } from '../../../../../../components/Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton';
+import { FormAutocomplete } from '../../../../../Portals/ConfigForm/Elements/Autocomplete';
+import { SelectDropdownWithButton } from '../../../../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton';
 import { FormJson } from '../../../../../Portals/ConfigForm/Elements/Json/FormJson';
 import { SwitchToggle } from '../../../../../Portals/ConfigForm/Elements/SwitchToggle';
 import { FormTextInput } from '../../../../../Portals/ConfigForm/Elements/TextField/FormTextInput';

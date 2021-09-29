@@ -77,10 +77,9 @@ export function AddVariableForm(props: AddVariableProps) {
                 const listConstructor: ListConstructor = localVarDec.initializer as ListConstructor;
                 listConstructor.expressions.filter((el: any) => el.kind !== 'CommaToken').forEach((el: any) => {
                     fields.push({
-                        collectionDataType: {type: typeSelected as PrimitiveBalType, isParam: true},
-                        isParam: true,
+                        memberType: {typeName: typeSelected as PrimitiveBalType},
                         name: typeSelected + ' Array',
-                        type: typeSelected as PrimitiveBalType,
+                        typeName: typeSelected as PrimitiveBalType,
                         value: el.source
                     })
                 });
@@ -93,10 +92,9 @@ export function AddVariableForm(props: AddVariableProps) {
             }
             initPropertyName = localVarDec.typedBindingPattern.bindingPattern.source.trim();
             arrayFieldModel = {
-                type: "collection",
+                typeName: PrimitiveBalType.Array,
                 name: typeSelected + " Array",
-                isParam: true,
-                collectionDataType: {type: typeSelected as PrimitiveBalType, isParam: true},
+                memberType: {typeName: typeSelected as PrimitiveBalType},
                 fields,
                 value: undefined
             };
@@ -143,9 +141,8 @@ export function AddVariableForm(props: AddVariableProps) {
         setValidExpresssionValue(false);
         setValidConfigProperty(false);
         const field: FormField = {
-            type: type as PrimitiveBalType,
+            typeName: type as PrimitiveBalType,
             name: type + " Value",
-            isParam: true
         };
         setFieldModel(field);
     };

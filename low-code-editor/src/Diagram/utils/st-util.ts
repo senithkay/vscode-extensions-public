@@ -21,7 +21,7 @@ import { Diagnostic } from 'monaco-languageclient';
 import { initVisitor, positionVisitor, sizingVisitor } from '../..';
 import { FunctionDefinitionInfo } from "../../ConfigurationSpec/types";
 import { STSymbolInfo } from '../../Definitions';
-import { BallerinaConnectorsInfo, BallerinaRecord, Connector } from '../../Definitions/lang-client-extended';
+import { BallerinaConnectorInfo, BallerinaRecord, Connector } from '../../Definitions/lang-client-extended';
 import { CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH } from "../../Diagram/components/Connector/ConnectorHeader/ConnectorClientSVG";
 import * as formFieldDatabase from "../../utils/idb";
 import { IFELSE_SVG_HEIGHT, IFELSE_SVG_WIDTH } from "../components/IfElse/IfElseSVG";
@@ -367,15 +367,16 @@ export function getDraftComponentSizes(type: string, subType: string): { h: numb
 }
 
 export async function getConnectorDefFromCache(connector: Connector) {
-    const { org, module: mod, version, name } = connector;
-    let connectorDef;
-    try {
-        const resp = await fetch(`/connectors/cache/${org}/${mod}/${version}/${name}/st.json`);
-        connectorDef = resp && resp.status === 200 ? resp.json() : undefined;
-    } catch (error) {
-        // IGNORE
-    }
-    return connectorDef;
+    // TODO: fix with connector api
+    // const { org, module: mod, version, name } = connector;
+    // let connectorDef;
+    // try {
+    //     const resp = await fetch(`/connectors/cache/${org}/${mod}/${version}/${name}/st.json`);
+    //     connectorDef = resp && resp.status === 200 ? resp.json() : undefined;
+    // } catch (error) {
+    //     // IGNORE
+    // }
+    // return connectorDef;
 }
 
 export async function getRecordDefFromCache(record: BallerinaRecord) {
@@ -391,26 +392,28 @@ export async function getRecordDefFromCache(record: BallerinaRecord) {
 }
 
 export async function getFormFieldFromFileCache(connector: Connector): Promise<Map<string, FunctionDefinitionInfo>> {
-    if (!connector) {
-        return undefined;
-    }
+    // TODO: fix with connector api
+    // if (!connector) {
+    //     return undefined;
+    // }
 
-    const { org, module, version, name, cacheVersion } = connector;
-    const functionDef: Map<string, FunctionDefinitionInfo> = new Map();
-    try {
-        await fetch(`/connectors/cache/${org}/${module}/${version}/${name}/${cacheVersion || "0"}/fields.json`)
-            .then(response => response.json())
-            .then(data => {
-                if (data) {
-                    for (const [key, fieldsInfo] of Object.entries(data)) {
-                        functionDef.set(key, fieldsInfo as FunctionDefinitionInfo);
-                    }
-                }
-            });
-    } catch (error) {
-        // IGNORE
-    }
-    return functionDef.size > 0 ? functionDef : undefined;
+    // const { org, module, version, name, cacheVersion } = connector;
+    // const functionDef: Map<string, FunctionDefinitionInfo> = new Map();
+    // try {
+    //     await fetch(`/connectors/cache/${org}/${module}/${version}/${name}/${cacheVersion || "0"}/fields.json`)
+    //         .then(response => response.json())
+    //         .then(data => {
+    //             if (data) {
+    //                 for (const [key, fieldsInfo] of Object.entries(data)) {
+    //                     functionDef.set(key, fieldsInfo as FunctionDefinitionInfo);
+    //                 }
+    //             }
+    //         });
+    // } catch (error) {
+    //     // IGNORE
+    // }
+    // return functionDef.size > 0 ? functionDef : undefined;
+    return undefined;
 }
 
 export interface FormFieldCache {
@@ -421,32 +424,55 @@ export interface FormFiledCacheEntry {
     [key: string]: FunctionDefinitionInfo,
 }
 
-export const FORM_FIELD_CACHE = "FORM_FIELD_CACHE";
-
-export async function addToFormFieldCache(connector: Connector, fields: Map<string, FunctionDefinitionInfo>) {
-    const { org, module: mod, version, name, cacheVersion } = connector;
-    const cacheId = `${org}_${mod}_${name}_${version}_${cacheVersion || "0"}`;
-    const formFieldJsonObject: any = {};
-    fields.forEach((value, key) => {
-        formFieldJsonObject[key] = value;
-    });
-    formFieldDatabase.put(cacheId, formFieldJsonObject);
+export const CONNECTOR_CACHE = "CONNECTOR_CACHE";
+export const CONNECTOR_LIST_CACHE = "CONNECTOR_LIST_CACHE";
+export interface ConnectorCache {
+    [key: string]: BallerinaConnectorInfo;
 }
 
-export async function getFromFormFieldCache(connector: Connector): Promise<Map<string, FunctionDefinitionInfo>> {
+// TODO: need to update local storage with persistent disk
+export async function addConnectorToCache(connector: BallerinaConnectorInfo) {
+    const {package: {organization, name: packageName, version}, name, id } = connector;
+    const key = `${organization}_${packageName}_${name}_${version}_${id || "x"}`;
+
+    const connectorsStr = localStorage.getItem(CONNECTOR_CACHE);
+    let connectors: ConnectorCache = {};
+    if (connectorsStr){
+        connectors = JSON.parse(connectorsStr);
+    }
+    connectors[key] = connector;
+    localStorage.setItem(CONNECTOR_CACHE, JSON.stringify(connectors));
+}
+
+export function getConnectorFromCache(connector: Connector): BallerinaConnectorInfo {
     if (connector) {
-        const { org, module: mod, version, name, cacheVersion } = connector;
-        const cacheId = `${org}_${mod}_${name}_${version}_${cacheVersion || "0"}`;
-        const formFieldCache = await formFieldDatabase.get(cacheId);
-        if (formFieldCache) {
-            const functionDef: Map<string, FunctionDefinitionInfo> = new Map();
-            for (const [key, fieldsInfo] of Object.entries(formFieldCache)) {
-                functionDef.set(key, fieldsInfo as FunctionDefinitionInfo);
+        const {package: {organization, name: packageName, version}, name, id } = connector;
+        const key = `${organization}_${packageName}_${name}_${version}_${id || "x"}`;
+
+        const connectorsStr = localStorage.getItem(CONNECTOR_CACHE);
+        let connectors: ConnectorCache;
+        if (connectorsStr){
+            connectors = JSON.parse(connectorsStr) as ConnectorCache;
+            if (connectors.hasOwnProperty(key)){
+                return connectors[key];
             }
-            return functionDef.size > 0 ? functionDef : undefined;
         }
     }
     return undefined;
+}
+
+// TODO: need to update local storage with persistent disk
+export async function addConnectorListToCache(connectors: Connector[]) {
+    localStorage.setItem(CONNECTOR_LIST_CACHE, JSON.stringify(connectors));
+}
+
+export function getConnectorListFromCache(): Connector[] {
+    const connectorsStr = localStorage.getItem(CONNECTOR_LIST_CACHE);
+    let connectors: Connector[] = [];
+    if (connectorsStr) {
+        connectors = JSON.parse(connectorsStr) as Connector[];
+    }
+    return connectors;
 }
 
 export function findActualEndPositionOfIfElseStatement(ifNode: IfElseStatement): any {
@@ -462,8 +488,8 @@ export function findActualEndPositionOfIfElseStatement(ifNode: IfElseStatement):
     return position;
 }
 
-export function getMatchingConnector(actionInvo: STNode, connectors: BallerinaConnectorsInfo[], stSymbolInfo: STSymbolInfo): BallerinaConnectorsInfo {
-    let connector: BallerinaConnectorsInfo;
+export function getMatchingConnector(actionInvo: STNode, connectors: BallerinaConnectorInfo[], stSymbolInfo: STSymbolInfo): BallerinaConnectorInfo {
+    let connector: BallerinaConnectorInfo;
     const variable = actionInvo as LocalVarDecl;
     const viewState: StatementViewState = variable.viewState as StatementViewState;
     let actionVariable: RemoteMethodCallAction;
@@ -514,7 +540,7 @@ export function getMatchingConnector(actionInvo: STNode, connectors: BallerinaCo
 
             if (moduleName && identifierName) {
                 for (const connectorInfo of connectors) {
-                    if (connectorInfo.module === moduleName) {
+                    if (connectorInfo.moduleName === moduleName) {
                         matchModule = true;
                     }
                     if (connectorInfo.name === identifierName) {
@@ -531,11 +557,11 @@ export function getMatchingConnector(actionInvo: STNode, connectors: BallerinaCo
     } else if (viewState.isEndpoint) {
         if (STKindChecker.isCaptureBindingPattern(variable.typedBindingPattern.bindingPattern)) {
             const nameReference = variable.typedBindingPattern.typeDescriptor as QualifiedNameReference;
-            const moduleName = nameReference?.modulePrefix.value;
-            const identifierName = nameReference?.identifier.value;
+            const moduleName = nameReference?.modulePrefix?.value;
+            const identifierName = nameReference?.identifier?.value;
             if (moduleName && identifierName) {
                 for (const connectorInfo of connectors) {
-                    if (getFormattedModuleName(connectorInfo.module) === moduleName) {
+                    if (getFormattedModuleName(connectorInfo.package.name) === moduleName) {
                         matchModule = true;
                     }
                     if (connectorInfo.name === identifierName) {
