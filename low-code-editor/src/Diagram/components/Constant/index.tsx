@@ -13,13 +13,11 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react"
 
-import {CaptureBindingPattern, ConstDeclaration, ModuleVarDecl, STNode} from "@ballerina/syntax-tree";
+import { ConstDeclaration, STNode } from "@ballerina/syntax-tree";
 
 import ConstantIcon from "../../../assets/icons/ConstantIcon";
 import DeleteButton from "../../../assets/icons/DeleteButton";
 import EditButton from "../../../assets/icons/EditButton";
-import VariableIcon from "../../../assets/icons/VariableIcon";
-import { TopLevelPlus } from "../TopLevelPlus";
 
 import "./style.scss";
 
@@ -68,23 +66,18 @@ export function Constant(props: ConstantProps) {
                     <p className={"moduleVariableNameText"}>
                         {`${varName} = ${varValue}`}
                     </p>
-                    { isEditable && (
+                    {isEditable && (
                         <>
                             <div className={"editBtnWrapper"}>
-                                <EditButton/>
+                                <EditButton />
                             </div>
                             <div className={"deleteBtnWrapper"}>
-                                <DeleteButton/>
+                                <DeleteButton />
                             </div>
                         </>
                     )}
                 </div>
             </div>
-
-            {/* ToDo: sort out the top level plus
-            <TopLevelPlus
-                margin={{ top: MODULE_VAR_PLUS_OFFSET, bottom : MODULE_VAR_PLUS_OFFSET, left: MODULE_VAR_MARGIN_LEFT }}
-            /> */}
         </div>
     );
 }

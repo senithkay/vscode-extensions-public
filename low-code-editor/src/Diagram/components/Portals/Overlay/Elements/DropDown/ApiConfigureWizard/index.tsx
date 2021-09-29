@@ -625,7 +625,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
 
   const returnTypeExample = intl.formatMessage({
     id: "lowcode.develop.apiConfigWizard.return.type.tooltip.example",
-    defaultMessage: "string|error?\nint?|error?"
+    defaultMessage: "string,int,boolean,etc."
   });
 
   const advancedExample = intl.formatMessage({

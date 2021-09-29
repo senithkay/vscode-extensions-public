@@ -39,13 +39,11 @@ export function EnumDeclarationComponent(props: EnumDeclarationComponentProps) {
         setIsExpanded(!isExpanded);
     }
 
-    const members: JSX.Element[] = [];
-
-    model.enumMemberList
+    const members: JSX.Element[] = model.enumMemberList
         .filter(member => !STKindChecker.isCommaToken(member))
-        .forEach((member: EnumMember) => {
-            members.push(
-                <div className="enum-field" >
+        .map((member: EnumMember, i: number) => {
+            return (
+                <div key={`${model.identifier.value}-member-${i}`} className="enum-field" >
                     <div className="enum-field-type">
                         {member.identifier.value}
                     </div>

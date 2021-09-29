@@ -25,7 +25,7 @@ export interface FormProps {
     size?: "small" | "medium"
 }
 
-const isAllOptionalFields = (recordFields: FormField[]): boolean => recordFields.every(field => field.optional || (field.fields && isAllOptionalFields(field.fields)))
+const isAllOptionalFields = (recordFields: FormField[]): boolean => recordFields?.every(field => field.optional || (field.fields && isAllOptionalFields(field.fields)));
 
 export function Form(props: FormProps) {
     const { fields, onValidate } = props;
@@ -49,11 +49,11 @@ export function Form(props: FormProps) {
         onValidate(isAllValid(validFieldChecker.current, emptyFieldChecker.current, false, true, true));
     };
 
-    fields.map((field, index) => {
-        if (!field.hide && (field.type === "string" || (field.type === 'record' && !field.isReference) || field.type === "int"
-            || field.type === "boolean" || field.type === "float" || field.type === "collection"
-            || field.type === "map" || field.type === "union" || field.type === "json" ||
-            field.type === "httpRequest" || field.type === "handle")) {
+    fields?.map((field, index) => {
+        if (!field.hide && (field.typeName === "string" || (field.typeName === 'record' && !field.isReference) || field.typeName === "int"
+            || field.typeName === "boolean" || field.typeName === "float" || field.typeName === "array"
+            || field.typeName === "map" || field.typeName === "union" || field.typeName === "json" ||
+            field.typeName === "httpRequest" || field.typeName === "handle")) {
             const elementProps: FormElementProps = {
                 model: field,
                 index,
@@ -63,19 +63,19 @@ export function Form(props: FormProps) {
                 },
             };
 
-            let type = field.type;
+            let type = field.typeName;
             // validate union types
             // only union record types will get Union element
             // other union types will get expression editor
-            if (field.type === "union"){
-                field.fields?.forEach((subField: FormField) => {
-                    if (subField.type !== "record"){
+            if (field.typeName === "union"){
+                field.members?.forEach((subField: FormField) => {
+                    if (subField.typeName !== "record"){
                         type = "expression";
                     }
                 });
             } else if (field.isRestParam) {
                 type = "restParam"
-            } else if (field.type === "handle"){
+            } else if (field.typeName === "handle"){
                 type = "expression";
             }
             const element = getFormElement(elementProps, type);

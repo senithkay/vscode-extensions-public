@@ -42,7 +42,7 @@ export interface FunctionProps {
 export function Function(props: FunctionProps) {
     const classes = useStyles();
     const { state } = useContext(Context);
-    const [overlayId] = useState(uuid());
+    const [overlayId] = useState(`function-overlay-${uuid()}`);
     const {
         props: {
             isWaitingOnWorkspace,
@@ -98,7 +98,7 @@ export function Function(props: FunctionProps) {
         <div className={'lowcode-diagram'}>
             <FunctionProvider overlayId={overlayId} >
                 <PanAndZoom >
-                    <div id={`function-overlay-${overlayId}`} className={classes.OverlayContainer} />
+                    <div id={overlayId} className={classes.OverlayContainer} />
                     <Canvas h={model.viewState.bBox.h} w={model.viewState.bBox.w} >
                         {component}
                     </Canvas>

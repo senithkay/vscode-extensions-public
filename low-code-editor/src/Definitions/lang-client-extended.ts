@@ -13,6 +13,8 @@
 
 import { STNode } from "@ballerina/syntax-tree";
 
+import { FunctionDefinitionInfo } from "../ConfigurationSpec/types";
+
 export type STModificationConfig = {};
 
 export interface STModification {
@@ -37,14 +39,34 @@ export interface BallerinaSyntaxTreeResponse {
 }
 
 export interface Connector {
-    org: string;
-    module: string;
-    version: string;
-    cacheVersion?: string; // to keep track of frontend cache file changes
+    id?: string;
     name: string;
-    displayName: string;
-    beta: boolean;
-    category: string;
+    orgName: string;
+    displayName?: string;
+    moduleName?: string;
+    package: Package;
+}
+
+export interface Package {
+    organization: string;
+    name: string;
+    version: string;
+    platform?: string;
+    languageSpecificationVersion?: string;
+    URL?: string;
+    balaVersion?: string;
+    digest?: string;
+    readme?: string;
+    template?: boolean;
+    licenses?: any[];
+    authors?: any[];
+    sourceCodeLocation?: string;
+    keywords?: any[];
+    ballerinaVersion?: string;
+    icon?: string;
+    pullCount?: number;
+    createdDate?: number;
+    modules?: any[];
 }
 
 export interface BallerinaRecord {
@@ -54,20 +76,18 @@ export interface BallerinaRecord {
     name: string;
 }
 
-export interface BallerinaConnectorsInfo extends Connector {
-    logoBase64Encoded: string;
+export interface BallerinaConnectorInfo extends Connector {
+    functions: FunctionDefinitionInfo[];
+    documentation?: string;
+    displayAnnotation?: any;
 }
 
 export interface BallerinaConnectorsResponse {
-    connectors: any;
+    connectors: Connector[];
 }
-
-export interface BallerinaConnectorResponse {
-    org: string;
-    module: string;
-    version: string;
-    name: string;
-    ast?: STNode;
+export interface BallerinaConnectorResponse extends Connector{
+    connector: BallerinaConnectorInfo;
+    error?: string;
 }
 
 // tslint:disable-next-line: no-empty-interface

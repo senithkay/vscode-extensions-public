@@ -17,8 +17,8 @@ import { LocalVarDecl } from "@ballerina/syntax-tree";
 import { WizardType } from "../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../Contexts/Diagram";
 import { ConfigOverlayFormStatus } from "../../../../../Definitions";
-import { DefaultConfig } from "../../../../../Diagram/visitors/default";
 import { TextPreloaderVertical } from "../../../../../PreLoader/TextPreloaderVertical";
+import { DefaultConfig } from "../../../../visitors/default";
 import { ProcessConfig } from "../../../Portals/ConfigForm/types";
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from "../../../Portals/Overlay";
 
@@ -27,14 +27,14 @@ import { AddDataMappingConfig } from "./AddDataMappingConfig";
 import { AddLogConfig } from "./AddLogConfig";
 import { AddVariableConfig } from "./AddVariableConfig";
 
-interface ProcessOverlayFormProps {
+interface ProcessFormProps {
     config: ProcessConfig;
     onCancel: () => void;
     onSave: () => void;
     configOverlayFormStatus: ConfigOverlayFormStatus;
 }
 
-export function ProcessOverlayForm(props: ProcessOverlayFormProps) {
+export function ProcessForm(props: ProcessFormProps) {
     const { config, onCancel, onSave, configOverlayFormStatus } = props;
     const { isLoading, error, formType } = configOverlayFormStatus;
     const {
@@ -75,25 +75,23 @@ export function ProcessOverlayForm(props: ProcessOverlayFormProps) {
 
     if (isLoading) {
         return (
-            <div>
-                <TextPreloaderVertical position='relative' />
-            </div>
+            <TextPreloaderVertical position='relative' />
         );
 
     } else if (error) {
         return (
-            <div>
+            <>
                 {error?.message}
-            </div>
+            </>
         );
     } else {
         return (
-            <div>
+            <>
                 {formType === "Variable" && <AddVariableConfig config={config} onSave={onSave} onCancel={onCancel} />}
                 {formType === "Log" && <AddLogConfig config={config} onSave={onSave} onCancel={onCancel} />}
                 {formType === "DataMapper" && <AddDataMappingConfig processConfig={config} onSave={onSave} onCancel={onCancel} />}
                 {(formType === "Custom" || formType === "Call") && <AddCustomStatementConfig config={config} onSave={onSave} onCancel={onCancel} />}
-            </div>
+            </>
         );
     }
 }

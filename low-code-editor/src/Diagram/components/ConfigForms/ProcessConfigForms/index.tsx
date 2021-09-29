@@ -33,8 +33,8 @@ import { generateInlineRecordForJson, getDefaultValueForType } from "../../DataM
 import { CustomExpressionConfig, DataMapperConfig, LogConfig, ProcessConfig } from "../../Portals/ConfigForm/types";
 import { DiagramOverlayPosition } from "../../Portals/Overlay";
 
-import { ProcessOverlayForm } from "./ProcessOverlayForm";
-import { GenerationType } from "./ProcessOverlayForm/AddDataMappingConfig/OutputTypeSelector";
+import { ProcessForm } from "./ProcessForm";
+import { GenerationType } from "./ProcessForm/AddDataMappingConfig/OutputTypeSelector";
 
 export interface AddProcessFormProps {
     type: string;
@@ -171,6 +171,6 @@ export function ProcessConfigForm(props: any) {
     };
 
     return (
-        <ProcessOverlayForm config={processConfig} onCancel={onCancel} onSave={onSaveClick} configOverlayFormStatus={configOverlayFormStatus} />
+        <ProcessForm config={processConfig} onCancel={onCancel} onSave={onSaveClick} configOverlayFormStatus={configOverlayFormStatus} />
     );
 }

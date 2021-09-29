@@ -462,7 +462,7 @@ function setViewStateTypeInformation(viewState: FieldViewState, typeDescriptor: 
         viewState.isOptionalType = true;
         setViewStateTypeInformation(viewState, realTypeDescNode, parentNode);
     } else if (STKindChecker.isArrayTypeDesc(typeDescriptor)) {
-        viewState.type = PrimitiveBalType.Collection;
+        viewState.type = PrimitiveBalType.Array;
         viewState.isArray = true;
         const memberTypeViewstate = new FieldViewState();
         setViewStateTypeInformation(memberTypeViewstate, typeDescriptor.memberTypeDesc, typeDescriptor);

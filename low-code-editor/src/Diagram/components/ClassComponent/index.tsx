@@ -15,6 +15,7 @@ import React, { useState } from "react";
 import { ClassDefinition } from "@ballerina/syntax-tree";
 
 import { getSTComponent, getSTComponents } from "../../utils";
+import { TopLevelPlus } from "../TopLevelPlus";
 
 import { ClassHeader } from "./ClassHeader";
 import './style.scss'
@@ -36,17 +37,26 @@ export function ClassComponent(props: ClassComponentProps) {
     model.members.forEach(member => {
         children.push(
             <div className={'class-member'} >
+                <TopLevelPlus kind={model.kind} targetPosition={member.position} />
                 {getSTComponent(member)}
             </div>
         )
     });
 
+    const classComponentBody = isExpanded && (
+        <>
+            {children}
+            <div className={'class-member'} >
+                <TopLevelPlus kind={model.kind} targetPosition={model.closeBrace.position} />
+            </div>
+        </>
+    );
 
     return (
         <div className={'class-component'}>
             <ClassHeader model={model} onExpandClick={onExpandClick} isExpanded={isExpanded} />
             <div className={'content-container'}>
-                {isExpanded && children}
+                {classComponentBody}
             </div>
         </div>
     );

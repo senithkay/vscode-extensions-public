@@ -1,6 +1,6 @@
 import { LocalVarDecl } from "@ballerina/syntax-tree";
 
-import { BallerinaConnectorsInfo } from "../../Definitions/lang-client-extended";
+import { BallerinaConnectorInfo } from "../../Definitions/lang-client-extended";
 
 import { StatementViewState } from ".";
 
@@ -20,7 +20,7 @@ export class DraftStatementViewState extends StatementViewState {
 
     public type: string;
     public subType: string;
-    public connector?: BallerinaConnectorsInfo;
+    public connector?: BallerinaConnectorInfo;
     public targetPosition: DraftInsertPosition;
     public selectedConnector?: LocalVarDecl;
 

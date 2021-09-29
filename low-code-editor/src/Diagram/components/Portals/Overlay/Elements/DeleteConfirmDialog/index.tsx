@@ -50,7 +50,7 @@ export function DeleteConfirmDialog(props: DeleteConfirmDialogProps) {
         >
             <div>
                 <DiagramOverlayContainer
-                    divId={`function-overlay-${overlayId}`}
+                    divId={overlayId}
                 >
                     <DiagramOverlay
                         className="delete-container"

@@ -24,7 +24,6 @@ export const useStyles = makeStyles((theme: Theme) =>
             scrollbarWidth: "none",
             margin: 0,
             padding: 0,
-            paddingBottom: 24,
             '&::-webkit-scrollbar': {
                 width: '0em'
             }

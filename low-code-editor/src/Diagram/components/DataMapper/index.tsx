@@ -24,7 +24,7 @@ import {
 import { PrimitiveBalType } from '../../../ConfigurationSpec/types';
 import { Context as DiagramContext } from '../../../Contexts/Diagram';
 import { STModification } from '../../../Definitions';
-import { GenerationType } from '../ConfigForms/ProcessConfigForms/ProcessOverlayForm/AddDataMappingConfig/OutputTypeSelector';
+import { GenerationType } from '../ConfigForms/ProcessConfigForms/ProcessForm/AddDataMappingConfig/OutputTypeSelector';
 import "../DataMapper/components/InputTypes/style.scss";
 import { DataMapperInputTypeInfo, DataMapperOutputTypeInfo } from '../Portals/ConfigForm/types';
 
