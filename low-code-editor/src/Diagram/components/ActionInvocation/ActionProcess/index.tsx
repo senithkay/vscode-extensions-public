@@ -18,7 +18,7 @@ import cn from "classnames";
 
 import { WizardType } from "../../../../ConfigurationSpec/types";
 import { Context } from "../../../../Contexts/Diagram";
-import { BallerinaConnectorsInfo } from "../../../../Definitions";
+import { BallerinaConnectorInfo } from "../../../../Definitions";
 import { getOverlayFormConfig, getRandomInt } from "../../../utils/diagram-util";
 import { getMatchingConnector } from "../../../utils/st-util";
 import { BlockViewState, StatementViewState } from "../../../view-state";
@@ -154,7 +154,7 @@ export function ActionProcessor(props: ProcessorProps) {
         dispatchCloseConfigOverlayForm();
     }
 
-    const connectorsCollection: BallerinaConnectorsInfo[] = [];
+    const connectorsCollection: BallerinaConnectorInfo[] = [];
     if (connectors) {
         connectors.forEach((connectorInfo: any) => {
             connectorsCollection.push(connectorInfo);
@@ -162,7 +162,7 @@ export function ActionProcessor(props: ProcessorProps) {
     }
 
     const [isEditConnector, setIsConnectorEdit] = useState<boolean>(false);
-    const [connector, setConnector] = useState<BallerinaConnectorsInfo>(draftViewState.connector);
+    const [connector, setConnector] = useState<BallerinaConnectorInfo>(draftViewState.connector);
 
     // let exsitingWizard: ReactNode = null;
     const toggleSelection = () => {

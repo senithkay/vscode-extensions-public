@@ -17,7 +17,7 @@ import { CaptureBindingPattern, LocalVarDecl, STKindChecker, STNode } from "@bal
 import cn from "classnames";
 
 import { Context } from "../../../../Contexts/Diagram";
-import { BallerinaConnectorsInfo } from "../../../../Definitions";
+import { BallerinaConnectorInfo } from "../../../../Definitions";
 import { getMatchingConnector } from "../../../utils/st-util";
 import { BlockViewState, StatementViewState, ViewState } from "../../../view-state";
 import { DraftStatementViewState } from "../../../view-state/draft";
@@ -26,7 +26,7 @@ import { DeleteBtn } from "../../DiagramActions/DeleteBtn";
 import { DELETE_SVG_HEIGHT_WITH_SHADOW, DELETE_SVG_WIDTH_WITH_SHADOW } from "../../DiagramActions/DeleteBtn/DeleteSVG";
 import { EditBtn } from "../../DiagramActions/EditBtn";
 import { EDIT_SVG_OFFSET, EDIT_SVG_WIDTH_WITH_SHADOW } from "../../DiagramActions/EditBtn/EditSVG";
-import { connectorCategories } from "../../Portals/utils/constants";
+import { defaultOrgs } from "../../Portals/utils/constants";
 
 import { ConnectorProcessSVG, CONNECTOR_PROCESS_SHADOW_OFFSET, CONNECTOR_PROCESS_SVG_HEIGHT, CONNECTOR_PROCESS_SVG_HEIGHT_WITH_SHADOW, CONNECTOR_PROCESS_SVG_WIDTH, CONNECTOR_PROCESS_SVG_WIDTH_WITH_SHADOW } from "./ConnectorProcessSVG";
 import "./style.scss";
@@ -60,7 +60,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
         ? blockViewState.draft[1]
         : model.viewState as StatementViewState;
 
-    const connectorsCollection: BallerinaConnectorsInfo[] = [];
+    const connectorsCollection: BallerinaConnectorInfo[] = [];
     if (connectors) {
         connectors.forEach((connectorInfo: any) => {
             connectorsCollection.push(connectorInfo);
@@ -74,7 +74,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
 
     const [isEditConnector, setIsConnectorEdit] = useState<boolean>(false);
     // const [isClosed, setIsClosed] = useState<boolean>(false);
-    const [connector, setConnector] = useState<BallerinaConnectorsInfo>(draftVS.connector);
+    const [connector, setConnector] = useState<BallerinaConnectorInfo>(draftVS.connector);
 
     const toggleSelection = () => {
         setIsConnectorEdit(!isEditConnector);
@@ -127,7 +127,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
         }
     }
 
-    const isSingleFormConnector =  connector && connector.category === connectorCategories.CHOREO_CONNECTORS;
+    const isSingleFormConnector =  connector && connector.package.organization === defaultOrgs.WSO2;
     const toolTip = isReferencedVariable ? "API is referred in the code below" : undefined;
 
     return (

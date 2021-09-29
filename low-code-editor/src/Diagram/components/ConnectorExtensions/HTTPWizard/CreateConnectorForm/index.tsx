@@ -60,7 +60,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const intl = useIntl();
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
     const initialNameState: NameState = {
-        value: connectorConfig.name || genVariableName(connector.module + "Endpoint", getAllVariables(symbolInfo)),
+        value: connectorConfig.name || genVariableName(connector.moduleName + "Endpoint", getAllVariables(symbolInfo)),
         isValidName: true,
         isNameProvided: true
     };

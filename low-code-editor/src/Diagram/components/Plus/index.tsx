@@ -18,7 +18,7 @@ import { ClickAwayListener } from "@material-ui/core";
 import cn from "classnames";
 
 import { Context } from "../../../Contexts/Diagram";
-import { BallerinaConnectorsInfo } from "../../../Definitions/lang-client-extended";
+import { BallerinaConnectorInfo } from "../../../Definitions/lang-client-extended";
 import { BlockViewState } from "../../view-state";
 import { PlusViewState } from "../../view-state/plus";
 import { DefaultConfig } from "../../visitors/default";
@@ -177,7 +177,7 @@ export const PlusButton = (props: PlusProps) => {
     };
 
     const handlePlusHolderItemClick = (type: string, subType: string,
-                                       connectorType: BallerinaConnectorsInfo = undefined, isExisting?: boolean, selectedConnector?: LocalVarDecl) => {
+                                       connectorType: BallerinaConnectorInfo = undefined, isExisting?: boolean, selectedConnector?: LocalVarDecl) => {
         setStates({
             isPlusHolderShown: false,
             isSmallPlusShown: false,

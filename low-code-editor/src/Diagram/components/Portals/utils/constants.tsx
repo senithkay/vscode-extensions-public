@@ -35,7 +35,7 @@ export const symbolKind: Record<number, string> = {
     15: "string",
     16: "int", // This is either int, float or decimal
     17: "boolean",
-    18: "collection", // This is an Array
+    18: "array", // This is an Array
     19: "object",
     20: "key",
     21: "null",
@@ -92,4 +92,10 @@ export const connectorCategories = {
     GENERIC_CONNECTORS: "generic-connectors",
     SERVICE_CONNECTORS: "service-connectors",
     CHOREO_CONNECTORS: "choreo-connectors"
+}
+
+export const defaultOrgs = {
+    WSO2: "wso2",
+    BALLERINA:  "ballerina",
+    BALLERINAX:  "ballerinax"
 }

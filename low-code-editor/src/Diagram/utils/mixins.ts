@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { BallerinaConnectorsInfo, STSymbolInfo } from "../../Definitions";
+import { BallerinaConnectorInfo, STSymbolInfo } from "../../Definitions";
 import { getAllVariablesForAi, getFormattedModuleName } from "../../Diagram/components/Portals/utils";
 
 export function getAllVariables(symbolInfo: STSymbolInfo): string[] {
@@ -23,8 +23,8 @@ export function getAllVariables(symbolInfo: STSymbolInfo): string[] {
 }
 
 // this function will return existing module variable name
-export function getModuleVariable(symbolInfo: STSymbolInfo, connectorInfo: BallerinaConnectorsInfo): string {
-    const moduleName = getFormattedModuleName(connectorInfo.module);
+export function getModuleVariable(symbolInfo: STSymbolInfo, connectorInfo: BallerinaConnectorInfo): string {
+    const moduleName = getFormattedModuleName(connectorInfo.package.name);
     let variableName: string;
     symbolInfo.variables?.forEach((nodes, type) => {
         if (type === `${moduleName}:${connectorInfo.name}` && nodes.length > 0 && variableName === undefined){

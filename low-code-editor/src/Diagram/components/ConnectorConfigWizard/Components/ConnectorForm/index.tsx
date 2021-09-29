@@ -41,7 +41,7 @@ import {
 import { Context } from "../../../../../Contexts/Diagram";
 import { STSymbolInfo } from "../../../../../Definitions";
 import {
-  BallerinaConnectorsInfo,
+  BallerinaConnectorInfo,
   STModification,
 } from "../../../../../Definitions/lang-client-extended";
 import { TextPreloaderVertical } from "../../../../../PreLoader/TextPreloaderVertical";
@@ -85,7 +85,7 @@ import {
   getParams,
   matchEndpointToFormField,
 } from "../../../Portals/utils";
-import { connectorCategories } from "../../../Portals/utils/constants";
+import { defaultOrgs } from "../../../Portals/utils/constants";
 import { ConfigWizardState } from "../../index";
 import { wizardStyles } from "../../style";
 import "../../style.scss";
@@ -121,7 +121,7 @@ enum ConnectionAction {
 }
 
 export interface ConnectorConfigWizardProps {
-  connectorInfo: BallerinaConnectorsInfo;
+  connectorInfo: BallerinaConnectorInfo;
   targetPosition: DraftInsertPosition;
   configWizardArgs?: ConfigWizardState;
   onClose: () => void;
@@ -174,6 +174,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     isAction,
   } = props;
   const {
+    connector,
     functionDefInfo,
     connectorConfig,
     wizardType,
@@ -181,9 +182,11 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
   } = configWizardArgs;
 
   let isOauthConnector = false;
-  configurations.configList.forEach((configuration) => {
+  const connectorName = connector.displayName || connector.package.name;
+  configurations.configList?.forEach((configuration) => {
+    // TODO: need to find proper way to identify auth enable connector
     if (
-      connectorInfo?.displayName.toLocaleLowerCase() ===
+      connectorName.toLocaleLowerCase() ===
       configuration.connectorName.toLocaleLowerCase()
     ) {
       isOauthConnector = true;
@@ -256,7 +259,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
       setIsLoading(false);
       return;
     } else if (
-      connectorInfo.category === connectorCategories.CHOREO_CONNECTORS
+      connector.package.organization === defaultOrgs.WSO2
     ) {
       setFormState(FormStates.SingleForm);
       setIsLoading(false);
@@ -310,15 +313,13 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     }
   }, [selectedConnector]);
 
-  const connectorInitFormFields: FormField[] = functionDefInfo?.get("init")
-    ? functionDefInfo?.get("init").parameters
-    : functionDefInfo?.get("__init").parameters;
+  const connectorInitFormFields: FormField[] = functionDefInfo?.get("init")?.parameters;
 
   // managing name set by the non oauth connectors
   config.name =
     isNewConnectorInitWizard && !config.name
       ? genVariableName(
-          getFormattedModuleName(connectorInfo.module) + "Endpoint",
+          getFormattedModuleName(connector.package.name) + "Endpoint",
           getAllVariables(symbolInfo)
         )
       : config.name;
@@ -331,7 +332,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
   if (functionDefInfo) {
     functionDefInfo.forEach((value, key) => {
       if (key !== "init" && key !== "__init") {
-        operations.push({ name: key, label: value.label });
+        operations.push({ name: key, label: value.name });
       }
     });
   }
@@ -342,7 +343,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
   const onCreateNew = () => {
     setConfigName(
       genVariableName(
-        connectorInfo.module + "Endpoint",
+        connector.moduleName + "Endpoint",
         getAllVariables(symbolInfo)
       )
     );
@@ -352,7 +353,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     } else {
       setConfigName(
         genVariableName(
-          connectorInfo.module + "Endpoint",
+          connector.moduleName + "Endpoint",
           getAllVariables(symbolInfo)
         )
       );
@@ -401,7 +402,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
   const onManualConnection = () => {
     setConfigName(
       genVariableName(
-        getFormattedModuleName(connectorInfo.module) + "Endpoint",
+        getFormattedModuleName(connector.package.name) + "Endpoint",
         getAllVariables(symbolInfo)
       )
     );
@@ -410,7 +411,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
   };
 
   const onSelectExisting = (value: any) => {
-    if (connectorInfo.category === connectorCategories.CHOREO_CONNECTORS) {
+    if (connector.package.organization === defaultOrgs.WSO2) {
       setIsNewConnection(true);
       setFormState(FormStates.SingleForm);
     } else {
@@ -425,7 +426,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     const event: LowcodeEvent = {
       type: EVENT_TYPE_AZURE_APP_INSIGHTS,
       name: CONTINUE_TO_INVOKE_API,
-      property: connectorInfo.displayName,
+      property: connectorName,
     };
     onEvent(event);
   };
@@ -471,11 +472,11 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
   const handleClientOnSave = () => {
     const modifications: STModification[] = [];
     const isInitReturnError = getInitReturnType(functionDefInfo);
-    const moduleName = getFormattedModuleName(connectorInfo.module);
+    const moduleName = getFormattedModuleName(connector.package.name);
     const event: LowcodeEvent = {
       type: EVENT_TYPE_AZURE_APP_INSIGHTS,
       name: FINISH_CONNECTOR_INIT_ADD_INSIGHTS,
-      property: connectorInfo.displayName,
+      property: connectorName,
     };
     onEvent(event);
 
@@ -496,7 +497,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         OAuthtype = "OAuth2RefreshTokenGrantConfig";
       }
       const connectorConfigurables = getOauthConnectionConfigurables(
-        connectorInfo.displayName.toLocaleLowerCase(),
+        connectorName.toLocaleLowerCase(),
         connection,
         symbolInfo.configurables,
         OAuthtype
@@ -506,8 +507,8 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
       if (isNewConnectorInitWizard && targetPosition) {
         // new connector client initialization
         const addImport: STModification = createImportStatement(
-          connectorInfo.org,
-          connectorInfo.module,
+          connector.package.organization,
+          connector.moduleName,
           targetPosition
         );
         modifications.push(addImport);
@@ -524,11 +525,11 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         }
 
         const addConnectorInit: STModification = createPropertyStatement(
-          `${moduleName}:${connectorInfo.name} ${config.name} = ${
+          `${moduleName}:${connector.name} ${config.name} = ${
             isInitReturnError ? "check" : ""
           } new (
                         ${getOauthParamsFromConnection(
-                          connectorInfo.displayName.toLocaleLowerCase(),
+                          connectorName.toLocaleLowerCase(),
                           connection,
                           OAuthtype
                         )});`,
@@ -548,11 +549,11 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         }
         // update connector client initialization
         const updateConnectorInit = updatePropertyStatement(
-          `${moduleName}:${connectorInfo.name} ${config.name} = ${
+          `${moduleName}:${connector.name} ${config.name} = ${
             isInitReturnError ? "check" : ""
           } new (
                         ${getOauthParamsFromConnection(
-                          connectorInfo.displayName.toLocaleLowerCase(),
+                          connectorName.toLocaleLowerCase(),
                           connection,
                           OAuthtype
                         )});`,
@@ -565,7 +566,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
       let connectorConfigurables;
       let configSource = getParams(config.connectorInit).join();
       let response;
-      if (connectorTypes.includes(connectorInfo.displayName)) {
+      if (connectorTypes.includes(connectorName)) {
         const selectedType = getManualConnectionTypeFromFormFields(
           config.connectorInit
         );
@@ -581,7 +582,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             });
           }
         });
-        if (connectorInfo.displayName === GITHUB_CONNECTOR) {
+        if (connectorName === GITHUB_CONNECTOR) {
           formattedFieldValues.push({
             name: "clientSecret",
             value: generateUuid(),
@@ -593,7 +594,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             if (formattedFieldValues.length > 0) {
               response = await createManualConnection(
                 userInfo?.selectedOrgHandle,
-                connectorInfo.displayName,
+                connectorName,
                 config.connectionName,
                 userInfo.user.email,
                 formattedFieldValues,
@@ -605,12 +606,12 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
               if (apiResponseStatus === 200 || apiResponseStatus === 201) {
                 dispatchGetAllConfiguration(userInfo.selectedOrgHandle);
                 configSource = getOauthParamsFromConnection(
-                  connectorInfo.displayName.toLocaleLowerCase(),
+                  connectorName.toLocaleLowerCase(),
                   response.data,
                   selectedType
                 );
                 connectorConfigurables = getOauthConnectionConfigurables(
-                  connectorInfo.displayName.toLocaleLowerCase(),
+                  connectorName.toLocaleLowerCase(),
                   response.data,
                   symbolInfo.configurables,
                   selectedType
@@ -624,8 +625,8 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             } else {
               // tslint:disable-next-line: no-shadowed-variable
               const addImport: STModification = createImportStatement(
-                connectorInfo.org,
-                connectorInfo.module,
+                connector.package.organization,
+                connector.moduleName,
                 targetPosition
               );
               modifications.push(addImport);
@@ -642,7 +643,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
               }
               // tslint:disable-next-line: no-shadowed-variable
               const addConnectorInit: STModification = createPropertyStatement(
-                `${moduleName}:${connectorInfo.name} ${config.name} = ${
+                `${moduleName}:${connector.name} ${config.name} = ${
                   isInitReturnError ? "check" : ""
                 } new (${configSource});`,
                 targetPosition
@@ -652,8 +653,8 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             if (apiResponseStatus === 200 || apiResponseStatus === 201) {
               // new connector client initialization
               const addImport: STModification = createImportStatement(
-                connectorInfo.org,
-                connectorInfo.module,
+                connector.package.organization,
+                connector.moduleName,
                 targetPosition
               );
               modifications.push(addImport);
@@ -669,7 +670,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
               }
 
               const addConnectorInit: STModification = createPropertyStatement(
-                `${moduleName}:${connectorInfo.name} ${config.name} = ${
+                `${moduleName}:${connector.name} ${config.name} = ${
                   isInitReturnError ? "check" : ""
                 } new (${configSource});`,
                 targetPosition
@@ -697,7 +698,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
               response = await updateManualConnection(
                 activeConnectionId,
                 userInfo?.selectedOrgHandle,
-                connectorInfo.displayName,
+                connectorName,
                 config?.connectionName,
                 userInfo.user.email,
                 updatedFields,
@@ -709,13 +710,13 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
               setResponseStatus(apiResponseStatus);
               if (apiResponseStatus === 200 || apiResponseStatus === 201) {
                 configSource = getOauthParamsFromConnection(
-                  connectorInfo.displayName.toLocaleLowerCase(),
+                  connectorName.toLocaleLowerCase(),
                   response.data,
                   selectedType
                 );
                 if (config.name) {
                   const updateConnectorInit = updatePropertyStatement(
-                    `${moduleName}:${connectorInfo.name} ${config.name} = ${
+                    `${moduleName}:${connector.name} ${config.name} = ${
                       isInitReturnError ? "check" : ""
                     } new (${configSource});`,
                     connectorConfig.initPosition
@@ -736,7 +737,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                 config.name
               ) {
                 const updateConnectorInit = updatePropertyStatement(
-                  `${moduleName}:${connectorInfo.name} ${config.name} = ${
+                  `${moduleName}:${connector.name} ${config.name} = ${
                     isInitReturnError ? "check" : ""
                   } new (${configSource});`,
                   connectorConfig.initPosition
@@ -750,8 +751,8 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         if (isNewConnectorInitWizard && targetPosition) {
           // new connector client initialization
           const addImport: STModification = createImportStatement(
-            connectorInfo.org,
-            connectorInfo.module,
+            connector.package.organization,
+            connector.moduleName,
             targetPosition
           );
           modifications.push(addImport);
@@ -768,7 +769,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
           }
 
           const addConnectorInit: STModification = createPropertyStatement(
-            `${moduleName}:${connectorInfo.name} ${config.name} = ${
+            `${moduleName}:${connector.name} ${config.name} = ${
               isInitReturnError ? "check" : ""
             } new (${configSource});`,
             targetPosition
@@ -777,7 +778,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         } else {
           // update connector client initialization
           const updateConnectorInit = updatePropertyStatement(
-            `${moduleName}:${connectorInfo.name} ${config.name} = ${
+            `${moduleName}:${connector.name} ${config.name} = ${
               isInitReturnError ? "check" : ""
             } new (${configSource});`,
             connectorConfig.initPosition
@@ -800,11 +801,11 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
       config.action.name,
       functionDefInfo
     );
-    const moduleName = getFormattedModuleName(connectorInfo.module);
+    const moduleName = getFormattedModuleName(connector.package.name);
     const event: LowcodeEvent = {
       type: EVENT_TYPE_AZURE_APP_INSIGHTS,
       name: FINISH_CONNECTOR_ACTION_ADD_INSIGHTS,
-      property: connectorInfo.displayName,
+      property: connectorName,
     };
     let connectorConfigurables;
     let configSource = getParams(config.connectorInit).join();
@@ -838,7 +839,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     } else {
       if (targetPosition) {
         if (
-          connectorTypes.includes(connectorInfo.displayName) &&
+          connectorTypes.includes(connectorName) &&
           !connection &&
           !isAction
         ) {
@@ -868,7 +869,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
               // save action with client path
               response = await createManualConnection(
                 userInfo?.selectedOrgHandle,
-                connectorInfo.displayName,
+                connectorName,
                 config.connectionName,
                 userInfo.user.email,
                 formattedFieldValues,
@@ -880,19 +881,19 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
               if (apiResponseStatus === 200 || apiResponseStatus === 201) {
                 dispatchGetAllConfiguration(userInfo.selectedOrgHandle);
                 configSource = getOauthParamsFromConnection(
-                  connectorInfo.displayName.toLocaleLowerCase(),
+                  connectorName.toLocaleLowerCase(),
                   response.data,
                   selectedType
                 );
                 connectorConfigurables = getOauthConnectionConfigurables(
-                  connectorInfo.displayName.toLocaleLowerCase(),
+                  connectorName.toLocaleLowerCase(),
                   response.data,
                   symbolInfo.configurables,
                   selectedType
                 );
                 const addImport: STModification = createImportStatement(
-                  connectorInfo.org,
-                  connectorInfo.module,
+                  connector.package.organization,
+                  connector.moduleName,
                   targetPosition
                 );
                 modifications.push(addImport);
@@ -909,7 +910,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                 }
 
                 const addConnectorInit: STModification = createPropertyStatement(
-                  `${moduleName}:${connectorInfo.name} ${config.name} = ${
+                  `${moduleName}:${connector.name} ${config.name} = ${
                     isInitReturnError ? "check" : ""
                   } new (${configSource});`,
                   targetPosition
@@ -990,14 +991,14 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
               OAuthtype = "OAuth2RefreshTokenGrantConfig";
             }
             const connectorConfigurablesInvoke = getOauthConnectionConfigurables(
-              connectorInfo.displayName.toLocaleLowerCase(),
+              connectorName.toLocaleLowerCase(),
               connection,
               symbolInfo.configurables,
               OAuthtype
             );
             const addImport: STModification = createImportStatement(
-              connectorInfo.org,
-              connectorInfo.module,
+              connector.package.organization,
+              connector.moduleName,
               targetPosition
             );
             modifications.push(addImport);
@@ -1014,11 +1015,11 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             }
 
             const addConnectorInit: STModification = createPropertyStatement(
-              `${moduleName}:${connectorInfo.name} ${config.name} = ${
+              `${moduleName}:${connector.name} ${config.name} = ${
                 isInitReturnError ? "check" : ""
               } new (
                                 ${getOauthParamsFromConnection(
-                                  connectorInfo.displayName.toLocaleLowerCase(),
+                                  connectorName.toLocaleLowerCase(),
                                   connection,
                                   OAuthtype
                                 )}\n);`,
@@ -1027,13 +1028,13 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             modifications.push(addConnectorInit);
           } else if (config.connectorInit && config.connectorInit.length > 0) {
             const addImport: STModification = createImportStatement(
-              connectorInfo.org,
-              connectorInfo.module,
+              connector.package.organization,
+              connector.moduleName,
               targetPosition
             );
             modifications.push(addImport);
             const addConnectorInit: STModification = createPropertyStatement(
-              `${moduleName}:${connectorInfo.name} ${config.name} = ${
+              `${moduleName}:${connector.name} ${config.name} = ${
                 isInitReturnError ? "check" : ""
               } new (${configSource});`,
               targetPosition
@@ -1098,7 +1099,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
   // only one client will be create for each module
   const handleSingleFormOnSave = () => {
     const modifications: STModification[] = [];
-    const moduleName = getFormattedModuleName(connectorInfo.module);
+    const moduleName = getFormattedModuleName(connector.package.name);
     const existingEndpointName = getModuleVariable(symbolInfo, connectorInfo);
     const isInitReturnError = getInitReturnType(functionDefInfo);
     const currentActionReturnType = getActionReturnType(
@@ -1108,7 +1109,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     const event: LowcodeEvent = {
       type: EVENT_TYPE_AZURE_APP_INSIGHTS,
       name: FINISH_CONNECTOR_ACTION_ADD_INSIGHTS,
-      property: connectorInfo.displayName,
+      property: connectorName,
     };
     onEvent(event);
     if (!isNewConnectorInitWizard) {
@@ -1137,14 +1138,14 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         if (!existingEndpointName) {
           // new connector client initialization
           const addImport: STModification = createImportStatement(
-            connectorInfo.org,
-            connectorInfo.module,
+            connector.package.organization,
+            connector.moduleName,
             targetPosition
           );
           modifications.push(addImport);
 
           const addConnectorInit: STModification = createPropertyStatement(
-            `${moduleName}:${connectorInfo.name} ${config.name} = ${
+            `${moduleName}:${connector.name} ${config.name} = ${
               isInitReturnError ? "check" : ""
             } new (${getParams(config.connectorInit).join()});`,
             targetPosition
@@ -1191,7 +1192,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     } else if (isNewConnection && isOauthConnector && !isManualConnection) {
       setFormState(FormStates.OauthConnect);
     } else if (
-      connectorInfo.category === connectorCategories.CHOREO_CONNECTORS
+      connector.package.organization === defaultOrgs.WSO2
     ) {
       setFormState(FormStates.SingleForm);
     } else {
@@ -1235,7 +1236,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     const event: LowcodeEvent = {
       type: EVENT_TYPE_AZURE_APP_INSIGHTS,
       name: CONNECTOR_CLOSED,
-      property: connectorInfo.displayName,
+      property: connectorName,
     };
     onEvent(event);
     onClose();
@@ -1272,20 +1273,21 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
       mapFrom: [varAi],
       mapTo: [getMapTo(allFormFields, model ? model.position : targetPosition)],
     };
-    getAiSuggestions(aiSuggestionsReq).then((res: AiSuggestionsRes) => {
-      res.suggestedMappings.forEach((schema: string) => {
-        const varMap = JSON.parse(schema);
-        const varKeys = Object.keys(varMap);
-        varKeys.forEach((variable: string) => {
-          addAiSuggestion(variable, varMap[variable], allFormFields);
-        });
-      });
-    });
+    // TODO: fix AI suggestion issue with vscode implementation
+    // getAiSuggestions(aiSuggestionsReq).then((res: AiSuggestionsRes) => {
+    //   res.suggestedMappings.forEach((schema: string) => {
+    //     const varMap = JSON.parse(schema);
+    //     const varKeys = Object.keys(varMap);
+    //     varKeys.forEach((variable: string) => {
+    //       addAiSuggestion(variable, varMap[variable], allFormFields);
+    //     });
+    //   });
+    // });
   }, [functionDefInfo]);
 
   const onSave = (sourceModifications: STModification[]) => {
     const isInitReturnError = getInitReturnType(functionDefInfo);
-    const moduleName = getFormattedModuleName(connectorInfo.module);
+    const moduleName = getFormattedModuleName(connector.package.name);
     if (sourceModifications) {
       // Modifications for special Connectors
       modifyDiagram(sourceModifications);
@@ -1296,7 +1298,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
 
       if (!isNewConnectorInitWizard) {
         const updateConnectorInit = updatePropertyStatement(
-          `${moduleName}:${connectorInfo.name} ${config.name} = ${
+          `${moduleName}:${connector.name} ${config.name} = ${
             isInitReturnError ? "check" : ""
           } new (${getParams(config.connectorInit).join()});`,
           config.initPosition
@@ -1326,8 +1328,8 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
         if (targetPosition) {
           // Add an import.
           const addImport: STModification = createImportStatement(
-            connectorInfo.org,
-            connectorInfo.module,
+            connector.package.organization,
+            connector.moduleName,
             targetPosition
           );
           modifications.push(addImport);
@@ -1337,17 +1339,17 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             let addConnectorInit: STModification;
             if (isOauthConnector && !isManualConnection) {
               addConnectorInit = createObjectDeclaration(
-                moduleName + ":" + connectorInfo.name,
+                moduleName + ":" + connector.name,
                 config.name,
                 getOauthConnectionParams(
-                  connectorInfo.displayName.toLocaleLowerCase(),
+                  connectorName.toLocaleLowerCase(),
                   connection
                 ),
                 targetPosition
               );
             } else {
               addConnectorInit = createPropertyStatement(
-                `${moduleName}:${connectorInfo.name} ${config.name} = ${
+                `${moduleName}:${connector.name} ${config.name} = ${
                   isInitReturnError ? "check" : ""
                 } new (${getParams(config.connectorInit).join()});`,
                 targetPosition
@@ -1412,15 +1414,15 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
   let connectorComponent: ReactNode = null;
 
   if (functionDefInfo) {
-    if (connectorInfo.module === "http") {
+    if (connector.moduleName === "http") {
       connectorComponent = getConnectorComponent(
-        connectorInfo.module + connectorInfo.name,
+        connector.moduleName + connector.name,
         {
           functionDefinitions: functionDefInfo,
           connectorConfig: config,
           onSave,
           onClose,
-          connector: connectorInfo,
+          connector,
           isNewConnectorInitWizard,
           targetPosition,
           model,
@@ -1440,14 +1442,14 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
             <div className={wizardClasses.titleWrapper}>
               <div className={wizardClasses.connectorIconWrapper}>
                 {getConnectorIcon(
-                  `${connectorInfo.module}_${connectorInfo.name}`
+                  `${connector.package.name}_${connector.name}`
                 )}
               </div>
               <Typography className={wizardClasses.configTitle} variant="h4">
-                {connectorInfo.displayName}
+                {connectorName}
                 <FormattedMessage
                   id="lowcode.develop.connectorForms.title"
-                  defaultMessage="&nbsp;Connection"
+                  defaultMessage=" Connection"
                 />
               </Typography>
             </div>
@@ -1470,7 +1472,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                           wizardClasses.oauthBtnWrapper
                         )}
                         currentConnection={connection}
-                        connectorName={connectorInfo.displayName}
+                        connectorName={connectorName}
                         onSelectConnection={handleOnConnection}
                         onFailure={handleOnFailure}
                         onDeselectConnection={handleConnectionUpdate}
@@ -1506,7 +1508,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
               <SelectConnectionForm
                 onCreateNew={onCreateNew}
                 connectorConfig={config}
-                connector={connectorInfo}
+                connector={connector}
                 onSelectExisting={onSelectExisting}
               />
             )}
@@ -1518,7 +1520,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                 connectorConfig={config}
                 onConfigNameChange={handleConfigNameChange}
                 onBackClick={onCreateConnectorBack}
-                connector={connectorInfo}
+                connector={connector}
                 isNewConnectorInitWizard={isNewConnectorInitWizard}
                 isOauthConnector={isOauthConnector}
                 responseStatus={responseStatus}
@@ -1532,7 +1534,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
               connectorConfig={config}
               onConfigNameChange={handleConfigNameChange}
               onBackClick={onCreateConnectorBack}
-              connector={connectorInfo}
+              connector={connector}
               isNewConnectorInitWizard={isNewConnectorInitWizard}
               isOauthConnector={isOauthConnector}
               responseStatus={responseStatus}
