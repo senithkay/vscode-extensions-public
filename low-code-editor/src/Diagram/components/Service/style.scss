@@ -17,6 +17,7 @@
     border: 1px solid #e6e7ec;
     border-radius: 6px;
     background-color: #fff;
+    font-family: inherit;
 
     .service-header {
         display: flex;
@@ -31,6 +32,19 @@
 
             .header-segment {
                 margin-right: 15px;
+                font-weight: 400;
+            }
+
+            .header-segment-path {
+                margin-right: 4px;
+                font-weight: 300;
+                color: #8d91a3;
+            }
+
+            .header-segment-listener {
+                margin-right: 15px;
+                font-weight: 300;
+                color: #8d91a3;
             }
         }
     }
@@ -42,6 +56,10 @@
 
         .service-member {
             margin: 5px 10px 5px 10px;
+
+            .plus-container {
+                margin-left: 0px;
+            }
         }
 
         .service-member:nth-of-type(1) {
@@ -50,6 +68,10 @@
 
         .service-member:last-of-type {
             margin: 5px 10px 10px 10px;
+        }
+
+        .plus-container {
+            margin-left: 10px;
         }
     }
 }
