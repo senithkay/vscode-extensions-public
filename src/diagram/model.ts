@@ -20,8 +20,6 @@
 import { Uri } from 'vscode';
 
 export interface DiagramOptions {
-    name?: string;
-    kind?: string;
     startLine?: number;
     startColumn?: number;
     filePath?: string;

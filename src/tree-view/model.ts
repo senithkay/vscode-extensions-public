@@ -25,12 +25,32 @@ export enum CMP_KIND {
     MODULE = "module",
     FUNCTION = "Function",
     MAIN_FUNCTION = "main_function",
+    FUNCTION_LABEL = "function_label",
     SERVICE = "service",
-    RESOURCE = "Resource"
+    RESOURCE = "Resource",
+    SERVICE_LABEL = "service_label",
+    RECORD = "record",
+    RECORD_LABEL = "record_label",
+    OBJECT = "object",
+    OBJECT_LABEL = "object_label",
+    TYPE = "type",
+    TYPE_LABEL = "type_label",
+    CONSTANT = "constant",
+    CONSTANT_LABEL = "constant_label",
+    ENUM = "enum",
+    ENUM_LABEL = "enum_label",
+    CLASS = "class",
+    CLASS_LABEL = "class_label",
+    METHOD = "method",
+    LISTENER = "listener",
+    LISTENER_LABEL = "listener_label",
+    MODULE_LEVEL_VAR = "module_level_variable",
+    MODULE_LEVEL_VAR_LABEL = "module_level_variable_label"
 }
 
 export const TREE_ELEMENT_EXECUTE_COMMAND: string = 'ballerina.executeTreeElement';
 export const TREE_REFRESH_COMMAND: string = 'ballerina.refreshPackageTree';
+export const TREE_COLLAPSE_COMMAND: string = 'ballerina.collapsePackageTree';
 
 export class PackageTreeItem extends TreeItem {
     private kind: string;
@@ -59,7 +79,12 @@ export class PackageTreeItem extends TreeItem {
         this.isSingleFile = isSingleFile;
 
         if (hasIcon) {
-            const iconName = kind === CMP_KIND.DEFAULT_MODULE ? 'module' : kind;
+            let iconName = kind;
+            if (kind === CMP_KIND.DEFAULT_MODULE) {
+                iconName = 'module';
+            } else if (kind === CMP_KIND.FUNCTION_LABEL || kind === CMP_KIND.SERVICE_LABEL) {
+                iconName = CMP_KIND.MODULE;
+            }
             this.iconPath = {
                 light: join(this.extensionPath, 'resources', 'images', 'icons', `${iconName.toLowerCase()}.svg`),
                 dark: join(this.extensionPath, 'resources', 'images', 'icons', `${iconName.toLowerCase()}-inverse.svg`)
@@ -118,10 +143,19 @@ export class PackageTreeItem extends TreeItem {
 }
 
 export interface ChildrenData {
-    functions?: FunctionOrResource[];
+    functions?: Leaf[];
     services?: Service[];
-    resources?: FunctionOrResource[];
+    resources?: Leaf[];
+    records?: Leaf[];
+    objects?: Leaf[];
+    types?: Leaf[];
+    constants?: Leaf[];
+    enums?: Leaf[];
+    classes?: Class[];
     modules?: Module[];
+    listeners?: Leaf[];
+    moduleVariables?: Leaf[];
+    methods?: Leaf[];
 }
 
 export interface Package {
@@ -133,11 +167,19 @@ export interface Package {
 export interface Module {
     name?: string;
     default?: boolean;
-    functions: FunctionOrResource[];
+    functions: Leaf[];
+    records?: Leaf[];
+    objects?: Leaf[];
+    types?: Leaf[];
+    constants?: Leaf[];
+    enums?: Leaf[];
+    classes?: Class[];
     services: Service[];
+    listeners?: Leaf[];
+    moduleVariables?: Leaf[];
 }
 
-interface FunctionOrResource {
+export interface Leaf {
     name: string;
     filePath: string;
     startLine: number;
@@ -153,5 +195,15 @@ interface Service {
     startColumn: number;
     endLine: number;
     endColumn: number;
-    resources: FunctionOrResource[];
+    resources: Leaf[];
+}
+
+interface Class {
+    name: string;
+    filePath: string;
+    startLine: number;
+    startColumn: number;
+    endLine: number;
+    endColumn: number;
+    functions: Leaf[];
 }

@@ -263,6 +263,14 @@
                 }
             },
             {
+                "command": "ballerina.collapsePackageTree",
+                "title": "Collapse Diagrams",
+                "icon": {
+                    "light": "./resources/images/icons/collapse.svg",
+                    "dark": "./resources/images/icons/collapse-inverse.svg"
+                }
+            },
+            {
                 "command": "ballerina.show.diagram",
                 "title": "Show Diagram",
                 "icon": {
@@ -278,17 +286,47 @@
             }
         ],
         "views": {
-            "explorer": [
+            "diagram-explorer": [
                 {
                     "id": "ballerinaPackageTreeView",
-                    "name": "Diagrams"
+                    "name": "Diagrams",
+                    "contextualTitle": "Diagram Explorer"
+                },
+                {
+                    "id": "sessionExplorer",
+                    "name": "Choreo Session Details",
+                    "contextualTitle": "Diagram Explorer"
                 }
             ]
         },
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "diagram-explorer",
+                    "title": "Ballerina",
+                    "icon": "resources/images/icons/tab.svg"
+                }
+            ]
+        },
+        "viewsWelcome": [
+            {
+                "view": "sessionExplorer",
+                "contents": "No Choreo sessions found.\n[Sign In](command:ballerina.choreo.signin)\nRefer to our documentation to learn more about [Choreo](https://wso2.com/choreo/)."
+            },
+            {
+                "view": "ballerinaPackageTreeView",
+                "contents": "No Ballerina packages found.\n[Go to File Explorer](command:workbench.files.action.focusFilesExplorer)"
+            }
+        ],
         "menus": {
             "view/title": [
                 {
                     "command": "ballerina.refreshPackageTree",
+                    "when": "view == ballerinaPackageTreeView",
+                    "group": "navigation"
+                },
+                {
+                    "command": "ballerina.collapsePackageTree",
                     "when": "view == ballerinaPackageTreeView",
                     "group": "navigation"
                 }
@@ -326,11 +364,9 @@
         "vscode-debugprotocol": "^1.44.0",
         "vscode-extension-telemetry": "^0.1.7",
         "vscode-languageclient": "^6.1.4",
-        "vscode-test": "^1.5.1",
-        "yarn": "^1.22.11"
+        "vscode-test": "^1.5.1"
     },
     "devDependencies": {
-        "@opentelemetry/tracing": "^0.24.0",
         "@types/chai": "^4.2.18",
         "@types/mocha": "^8.2.2",
         "@types/node": "^15.12.2",
@@ -349,11 +385,12 @@
         "tcp-port-used": "^1.0.2",
         "ts-loader": "^6.0.2",
         "tslint": "^6.1.3",
-        "typescript": "^4.3.3",
+        "typescript": "^4.4.3",
         "vsce": "^1.93.0",
         "vscode-debugadapter-testsupport": "^1.44.0",
         "webpack": "^4.46.0",
-        "webpack-cli": "^3.3.3"
+        "webpack-cli": "^3.3.3",
+        "yarn": "^1.22.11"
     },
     "extensionPack": [
         "be5invis.toml"

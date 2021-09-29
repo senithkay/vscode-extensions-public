@@ -132,6 +132,11 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
         handler: () => {
             return langClient.getDidOpenParams();
         }
+    }, {
+        methodName: 'convert',
+        handler: (args: any[]) => {
+            return langClient.getRecordsFromJson(args[0]);
+        }
     }
     ];
 };
