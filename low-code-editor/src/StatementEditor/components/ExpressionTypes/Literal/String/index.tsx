@@ -11,9 +11,9 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, {useState} from "react";
+import React, {useRef, useState} from "react";
 
-import {NumericLiteral, STNode} from "@ballerina/syntax-tree";
+import {STNode, StringLiteral} from "@ballerina/syntax-tree";
 
 import * as c from "../../../../constants";
 import {addExpression, SuggestionItem} from "../../../../utils/utils";
@@ -21,21 +21,22 @@ import {statementEditorStyles} from "../../../ViewContainer/styles";
 
 interface LiteralProps {
     model: STNode
-    callBack: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void;
+    callBack: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void
 }
 
-export function NumericLiteralC(props: LiteralProps) {
+export function StringLiteralC(props: LiteralProps) {
     const overlayClasses = statementEditorStyles();
     const {model, callBack} = props;
 
     const [isDoubleClick, setIsDoubleClick] = useState(false);
     const [literal, setLiteral] = useState("");
+    const inputRef = useRef(null);
 
-    let literalModel: NumericLiteral;
+    let literalModel: StringLiteral;
     let value: any;
 
-    if (model.kind === "NumericLiteral") {
-        literalModel = model as NumericLiteral;
+    if (model.kind === "StringLiteral") {
+        literalModel = model as StringLiteral;
         value = literalModel.literalToken.value;
     }
 
@@ -45,15 +46,14 @@ export function NumericLiteralC(props: LiteralProps) {
 
     const inputBlurHandler = () => {
         if (literal !== "") {
-            addExpression(model, c.LITERAL, literal);
+            addExpression(model, c.LITERAL, literal)
             callBack([], model, false);
         }
     };
 
     const inputChangeHandler = (event: React.KeyboardEvent<HTMLSpanElement>) => {
-        setLiteral(
-            event.currentTarget.textContent ? event.currentTarget.textContent : ""
-        );
+
+        setLiteral(event.currentTarget.textContent ? event.currentTarget.textContent : "");
     };
 
     const inputEnterHandler = (event: React.KeyboardEvent<HTMLSpanElement>) => {
@@ -61,6 +61,7 @@ export function NumericLiteralC(props: LiteralProps) {
             addExpression(model, c.LITERAL, event.currentTarget.textContent);
             callBack([], model, false);
         }
+
     };
 
     return (
@@ -79,6 +80,7 @@ export function NumericLiteralC(props: LiteralProps) {
                     suppressContentEditableWarning={true}
                     onBlur={inputBlurHandler}
                     onInput={inputChangeHandler}
+                    ref={inputRef}
                 >
                     {value}
                 </span>

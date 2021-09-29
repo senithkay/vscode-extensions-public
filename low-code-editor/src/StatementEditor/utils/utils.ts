@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import {BinaryExpression, BracedExpression, STNode} from "@ballerina/syntax-tree";
+import {BinaryExpression, BracedExpression, STNode, StringLiteral} from "@ballerina/syntax-tree";
 
 import * as c from "../constants";
 import {Expression} from '../models/definitions';
@@ -35,13 +35,23 @@ export function addOperator(model: STNode, operator: SuggestionItem) {
 }
 
 export function addExpression(model: any, kind: string, value?: any) {
-    delete model.literalToken;
+    const initialKeys = Object.keys(model);
+    initialKeys.forEach((key) => {
+        delete model[key];
+    });
+
     if (kind === c.ARITHMETIC) {
         Object.assign(model, createArithmetic());
     } else if (kind === c.RELATIONAL) {
         Object.assign(model, createRelational());
     } else if (kind === c.EQUALITY) {
         Object.assign(model, createEquality());
+    } else if (kind === c.LITERAL) {
+        if (value) {
+            Object.assign(model, createLiteral(value));
+        } else {
+            Object.assign(model, createLiteral("expression"));
+        }
     } else {
         // tslint:disable-next-line:no-console
         console.log(`Unsupported kind. (${kind})`);
@@ -160,6 +170,19 @@ function createEquality(): BinaryExpression {
             source: ""
         },
         source: ""
+    };
+}
+
+function createLiteral(value: string) : StringLiteral {
+    return {
+        "kind": "StringLiteral",
+        "literalToken": {
+            "kind": "StringLiteralToken",
+            "isToken": true,
+            "value": value,
+            "source": ""
+        },
+        "source": ""
     };
 }
 

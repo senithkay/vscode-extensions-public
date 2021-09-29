@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
-import React, { useContext, useState } from "react";
+import React, {ReactNode, useContext, useState} from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { LocalVarDecl, STKindChecker } from "@ballerina/syntax-tree";

@@ -53,7 +53,7 @@ export function LeftPane(props: ModelProps) {
     traversNode(model, CodeGenVisitor);
 
     // tslint:disable-next-line:no-console
-    console.log(CodeGenVisitor.getCodeSnippet());
+    console.log(`=============== ${CodeGenVisitor.getCodeSnippet()}`);
 
     return (
         <div className={overlayClasses.AppLeftPane}>
