@@ -119,11 +119,6 @@ export function AddLogConfig(props: LogConfigProps) {
                 (
                     <div className={formClasses.formWrapper}>
                         <div className={formClasses.formWrapper}>
-                            <ButtonWithIcon
-                                className={formClasses.overlayDeleteBtn}
-                                onClick={onCancel}
-                                icon={<CloseRounded fontSize="small" />}
-                            />
                             <div className={formClasses.formTitleWrapper}>
                                 <div className={formClasses.mainTitleWrapper}>
                                     <div className={formClasses.iconWrapper}>
