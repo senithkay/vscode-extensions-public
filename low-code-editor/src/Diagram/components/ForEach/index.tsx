@@ -23,7 +23,6 @@ import { BlockViewState, ForEachViewState } from "../../view-state";
 import { DraftInsertPosition, DraftUpdatePosition } from "../../view-state/draft";
 import { DefaultConfig } from "../../visitors/default";
 import { Collapse } from "../Collapse";
-import { ConditionConfigForm } from "../ConfigForms/ConditionConfigForms";
 import { CONDITION_ASSIGNMENT_NAME_WIDTH, ContitionAssignment } from "../ContitionAssignment";
 import { ControlFlowIterationCount, ControlFlowIterationCountProp, CONTROL_FLOW_ITERATION_COUNT_PADDING } from "../ControlFlowIterationCount"
 import { ControlFlowLine } from "../ControlFlowLine";
@@ -39,6 +38,7 @@ import {
     EDIT_SVG_OFFSET,
     EDIT_SVG_WIDTH_WITH_SHADOW
 } from "../DiagramActions/EditBtn/EditSVG";
+import { FormGenerator } from "../FormGenerator";
 import { PlusButton } from "../Plus";
 import { ForeachConfig } from "../Portals/ConfigForm/types";
 import { VARIABLE_NAME_WIDTH } from "../VariableName";
@@ -267,13 +267,7 @@ export function ForEach(props: ForeachProps) {
                         y={viewState.bBox.cy - (FOREACH_SHADOW_OFFSET / 2)}
                     >
                         {model && isConfigWizardOpen &&
-                            <ConditionConfigForm
-                                type={"ForEach"}
-                                position={{
-                                    x: viewState.bBox.cx + FOREACH_SVG_WIDTH,
-                                    y: viewState.bBox.cy
-                                }}
-                                wizardType={WizardType.EXISTING}
+                            <FormGenerator
                                 onCancel={onCancel}
                                 onSave={onSave}
                                 configOverlayFormStatus={forEachConfigOverlayState}
@@ -337,13 +331,7 @@ export function ForEach(props: ForeachProps) {
                                 className="forech-rect"
                             />
                             {model && isConfigWizardOpen &&
-                                <ConditionConfigForm
-                                    type={"ForEach"}
-                                    position={{
-                                        x: viewState.bBox.cx + FOREACH_SVG_WIDTH,
-                                        y: viewState.bBox.cy
-                                    }}
-                                    wizardType={WizardType.EXISTING}
+                                <FormGenerator
                                     onCancel={onCancel}
                                     onSave={onSave}
                                     configOverlayFormStatus={forEachConfigOverlayState}
