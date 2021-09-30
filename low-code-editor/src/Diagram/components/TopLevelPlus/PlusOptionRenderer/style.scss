@@ -1,0 +1,61 @@
+/*
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ * the WSO2 Commercial License available at http://wso2.com/licenses.
+ * For specific language governing the permissions and limitations under
+ * this license, please see the license as well as any agreement you’ve
+ * entered into with WSO2 governing the purchase of this software and any
+ * associated services.
+ */
+.plus-option-container {
+    box-sizing: border-box;
+    height: fit-content;
+    width: fit-content;
+    border: 1px solid #e6e7ec;
+    border-radius: 8px;
+    background-color: #fff;
+    box-shadow: 0 0 20px 0 rgba(141, 143, 160, 0.2);
+    display: flex;
+    flex-direction: column;
+    z-index: 3;
+}
+
+.plus-option {
+    cursor: pointer;
+    // height: 46.5px;
+    // width: 183px;
+    background-color: #fff;
+    display: flex;
+    flex-direction: row;
+
+    .plus-option-text {
+        color: #1d2028;
+        font-family: inherit;
+        font-size: 13px;
+        padding: 15px;
+        white-space: nowrap;
+    }
+
+    .plus-option-icon {
+        padding: 16px 0 14px 15px;
+    }
+}
+
+.plus-option:nth-of-type(1) {
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+.plus-option:last-of-type {
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
+.plus-option-separator {
+    height: 1px;
+    width: 100%;
+    background-color: #e6e7ec;
+}

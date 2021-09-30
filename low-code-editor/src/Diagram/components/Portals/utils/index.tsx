@@ -40,7 +40,8 @@ import {
 } from "../../../utils/st-util";
 import { StatementViewState } from "../../../view-state";
 import { DraftInsertPosition } from "../../../view-state/draft";
-import * as Icons from "../../Connector/Icon";
+import * as ConnectorIcons from "../../Connector/Icon";
+import * as ConstructIcons from "../../../../assets/icons"
 import { ConfigWizardState } from "../../ConnectorConfigWizard";
 import * as ConnectorExtension from "../../ConnectorExtensions";
 import * as Elements from "../ConfigForm/Elements";
@@ -496,14 +497,20 @@ export function getConnectorIconSVG(connector: Connector, scale: number = 1): Re
 }
 
 export function getExistingConnectorIconSVG(iconId: string, scale: number = 1): React.ReactNode {
-    const Icon = (Icons as any)[iconId.replace('.', '_')];
-    const DefaultIcon = (Icons as any).default;
+    const Icon = (ConnectorIcons as any)[iconId.replace('.', '_')];
+    const DefaultIcon = (ConnectorIcons as any).default;
     const props = {
         scale
     }
     return Icon ? (
         <Icon {...props} />
     ) : <DefaultIcon {...props} />;
+}
+
+
+export function getConstructIcons(iconId: string, args: any) {
+    const Icon = (ConstructIcons as any)[iconId];
+    return <Icon {...args} />
 }
 
 export function getConnectorIconId(connector: BallerinaConnectorInfo) {
@@ -1178,3 +1185,4 @@ export function getManualConnectionTypeFromFormFields(formFields: FormField[]): 
     const selectedType = (formFields[0]?.fields[0]?.selectedDataType) ? ((formFields[0]?.fields[0]?.selectedDataType)) : (formFields[0].selectedDataType)
     return selectedType
 }
+

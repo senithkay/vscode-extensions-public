@@ -18,6 +18,7 @@ import { STKindChecker, STNode } from "@ballerina/syntax-tree";
 import { DraftInsertPosition } from "../../../view-state/draft";
 import { Margin } from "../index";
 import { ModuleLevelPlusOptions } from "../ModuleLevelPlusOptions";
+import { PlusOptionRenderer } from "../PlusOptionRenderer";
 
 export interface PlusOptionsProps {
     kind: string
@@ -26,21 +27,39 @@ export interface PlusOptionsProps {
     targetPosition?: DraftInsertPosition;
 }
 
+const moduleLevelEntries = [
+    'Service',
+    'Variable',
+    'Listener',
+    'Type Definition',
+    'Class',
+    'Constant'
+];
+
+const serviceLevelEntries = [
+    'Variable',
+    'Resource',
+    'Function'
+];
+
 export const PlusOptionsSelector = (props: PlusOptionsProps) => {
     const { onClose, targetPosition, kind } = props;
 
-    let menu;
+    let menuEntries: string[] = [];
 
     switch (kind) {
         case 'ModulePart':
-            menu = (<ModuleLevelPlusOptions onClose={onClose} targetPosition={targetPosition} />);
+            menuEntries = moduleLevelEntries;
+            break;
+        case 'ServiceDeclaration':
+            menuEntries = serviceLevelEntries;
             break;
         default:
     }
 
     return (
         <>
-            {menu}
+            <PlusOptionRenderer entries={menuEntries} onClose={onClose} targetPosition={targetPosition} />
         </>
     );
 };
