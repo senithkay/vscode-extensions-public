@@ -12,9 +12,9 @@
  */
  .panel {
     position: fixed;
-    left: calc(100vw - 350px);
+    left: calc(100vw - 320px);
     height: 100vh;
-    width: 350px;
+    width: fit-content;
     background-color: #ffffff;
     margin-left: auto;
     margin-right: 0;
