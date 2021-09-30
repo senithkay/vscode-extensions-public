@@ -1,0 +1,4 @@
+└─ @ballerina/syntax-tree-generator@1.0.0
+   ├─ licenses: Apache-2.0
+   └─ path: /Users/marcus/Documents/myGitRepos/ballerina-low-code-editor-1/syntax-tree/generator
+

@@ -1,0 +1,4 @@
+└─ @ballerina/lang-service@0.0.1
+   ├─ licenses: Apache-2.0
+   └─ path: /Users/marcus/Documents/myGitRepos/ballerina-low-code-editor-1/lang-service
+
