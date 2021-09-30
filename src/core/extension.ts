@@ -82,8 +82,7 @@ export class BallerinaExtension {
     private sdkVersion: StatusBarItem;
     private diagramTreeElementClickedCallbacks: Array<(construct: ConstructIdentifier) => void> = [];
     private editorChangesCallbacks: Array<(change: Change) => void> = [];
-    private latestTextDocument: TextDocument | undefined;
-    private latestDiagramDocument: Uri | undefined;
+    private latestDocument: Uri | undefined;
 
     private webviewPanels: {
         [name: string]: WebviewPanel;
@@ -550,20 +549,12 @@ export class BallerinaExtension {
         });
     }
 
-    public setLatestTextDocument(document: TextDocument) {
-        this.latestTextDocument = document;
+    public setLatestDocument(uri: Uri | undefined) {
+        this.latestDocument = uri;
     }
 
-    public getLatestTextDocument(): TextDocument | undefined {
-        return this.latestTextDocument;
-    }
-
-    public setLatestDiagramDocument(uri: Uri | undefined) {
-        this.latestDiagramDocument = uri;
-    }
-
-    public getLatestDiagramDocument(): Uri | undefined {
-        return this.latestDiagramDocument;
+    public getLatestDocument(): Uri | undefined {
+        return this.latestDocument;
     }
 }
 

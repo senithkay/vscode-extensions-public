@@ -119,7 +119,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension, diagramOvervi
 	context.subscriptions.push(diagramRenderDisposable);
 
 	commands.registerCommand('ballerina.show.source', () => {
-		const path = ballerinaExtension.getLatestDiagramDocument();
+		const path = ballerinaExtension.getLatestDocument();
 		if (!path) {
 			return;
 		}
@@ -278,7 +278,7 @@ function performDidOpen() {
 	} else if (diagramElement!.fileUri) {
 		tempUri = diagramElement?.fileUri!;
 	}
-	ballerinaExtension.setLatestDiagramDocument(tempUri);
+	ballerinaExtension.setLatestDocument(tempUri);
 	const doc = workspace.textDocuments.find((doc) => doc.uri === tempUri);
 	if (doc) {
 		return;

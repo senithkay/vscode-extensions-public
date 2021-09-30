@@ -18,10 +18,10 @@
 
 import { BallerinaExtension, DocumentIdentifier, ExtendedLangClient, LANGUAGE } from '../core';
 import {
-    Event, EventEmitter, ProviderResult, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri, window, workspace
+    Event, EventEmitter, ProviderResult, TextDocument, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri, window, workspace
 } from 'vscode';
 import { Module, PackageTreeItem, Package, ChildrenData, CMP_KIND, Leaf } from './model';
-import { join, sep } from 'path';
+import { basename, extname, join, sep } from 'path';
 import fileUriToPath from 'file-uri-to-path';
 import { BAL_TOML, PROJECT_TYPE } from '../project';
 import { isSupportedVersion, VERSION } from '../utils';
@@ -41,15 +41,26 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
         this.extensionPath = ballerinaExtension.extension.extensionPath;
         workspace.onDidOpenTextDocument(document => {
             if (document.languageId === LANGUAGE.BALLERINA || document.fileName.endsWith(BAL_TOML)) {
-                this.ballerinaExtension.setLatestTextDocument(document);
+                this.ballerinaExtension.setLatestDocument(document.uri);
                 this.refresh();
             }
         });
         workspace.onDidChangeTextDocument(activatedTextEditor => {
             if (activatedTextEditor && activatedTextEditor.document.languageId === LANGUAGE.BALLERINA ||
                 activatedTextEditor.document.fileName.endsWith(BAL_TOML)) {
-                this.ballerinaExtension.setLatestTextDocument(activatedTextEditor.document);
+                this.ballerinaExtension.setLatestDocument(activatedTextEditor.document.uri);
                 this.refresh();
+            }
+        });
+        workspace.onDidChangeWorkspaceFolders(listener => {
+            const latestDiagramDocument = this.ballerinaExtension.getLatestDocument();
+            if (latestDiagramDocument) {
+                for (let i = 0; i < listener.removed.length; i++) {
+                    const file = listener.removed[i];
+                    if (file.uri === latestDiagramDocument) {
+                        this.ballerinaExtension.setLatestDocument(undefined);
+                    }
+                }
             }
         });
     }
@@ -96,15 +107,24 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
      * @returns An array of tree nodes with package data.
      */
     public getPackageStructure(): Promise<PackageTreeItem[]> {
-        return new Promise<PackageTreeItem[]>((resolve) => {
-            const activeDocument = window.activeTextEditor ? window.activeTextEditor!.document :
-                this.ballerinaExtension.getLatestTextDocument();
-            if (!activeDocument && (!workspace.workspaceFolders || (workspace.workspaceFolders
+        return new Promise<PackageTreeItem[]>(async (resolve) => {
+            const activeDocument = window.activeTextEditor ? window.activeTextEditor!.document : undefined;
+            let currentFileUri: string;
+            let fileName: string = '';
+
+            const latestDocument: Uri | undefined = this.ballerinaExtension.getLatestDocument();
+            if (!activeDocument && !latestDocument && (!workspace.workspaceFolders || (workspace.workspaceFolders
                 && workspace.workspaceFolders.length == 0))) {
                 resolve([]);
             }
-            let currentFileUri: string;
-            if (!activeDocument) {
+
+            if (!activeDocument && latestDocument) {
+                currentFileUri = latestDocument.toString();
+                const extension = extname(currentFileUri);
+                fileName = basename(currentFileUri, extension);
+            }
+
+            if (!activeDocument && !latestDocument) {
                 const folder = workspace.workspaceFolders![0];
                 const tomlPath = fileUriToPath(folder.uri.toString()) + sep + 'Ballerina.toml';
                 if (existsSync(tomlPath)) {
@@ -122,19 +142,20 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
 
             if (activeDocument) {
                 currentFileUri = activeDocument!.uri.toString();
+                fileName = activeDocument.fileName;
             }
-            this.ballerinaExtension.onReady().then(() => {
+            await this.ballerinaExtension.onReady().then(() => {
                 this.langClient!.getBallerinaProject({
                     documentIdentifier: {
                         uri: currentFileUri
                     }
-                }).then(project => {
+                }).then(async project => {
                     const documentIdentifiers: DocumentIdentifier[] = [{ uri: currentFileUri }];
                     if (project.kind === PROJECT_TYPE.BUILD_PROJECT || project.kind === PROJECT_TYPE.SINGLE_FILE) {
-                        this.langClient!.getBallerinaProjectComponents({ documentIdentifiers }).then((response) => {
+                        await this.langClient!.getBallerinaProjectComponents({ documentIdentifiers }).then((response) => {
                             if (response.packages) {
                                 const projectItems: PackageTreeItem[] = this.createPackageData(response.packages[0],
-                                    project.kind === PROJECT_TYPE.SINGLE_FILE, activeDocument ? activeDocument.fileName : '');
+                                    project.kind === PROJECT_TYPE.SINGLE_FILE, fileName);
                                 resolve(projectItems);
                             } else {
                                 resolve([]);
@@ -156,7 +177,10 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
         if (parent.getKind() == CMP_KIND.DEFAULT_MODULE) {
             this.addComponentLabel(children.functions, components, 'EntryPoints', parent, CMP_KIND.ENTRY_POINT_LABEL);
         }
-        this.addComponentLabel(children.functions, components, 'Functions', parent, CMP_KIND.FUNCTION_LABEL);
+        if (children.functions && (children.functions.length > 1 || children.functions.length === 1
+            && children.functions[0].name !== 'main')) {
+            this.addComponentLabel(children.functions, components, 'Functions', parent, CMP_KIND.FUNCTION_LABEL);
+        }
         this.addComponentLabel(children.services, components, 'Services', parent, CMP_KIND.SERVICE_LABEL);
         this.addComponentLabel(children.records, components, 'Records', parent, CMP_KIND.RECORD_LABEL);
         this.addComponentLabel(children.objects, components, 'Objects', parent, CMP_KIND.OBJECT_LABEL);

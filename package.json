@@ -263,27 +263,11 @@
                 }
             },
             {
-                "command": "ballerina.collapsePackageTree",
-                "title": "Collapse Diagrams",
-                "icon": {
-                    "light": "./resources/images/icons/collapse.svg",
-                    "dark": "./resources/images/icons/collapse-inverse.svg"
-                }
-            },
-            {
                 "command": "ballerina.refreshExplorerTree",
                 "title": "Refresh",
                 "icon": {
                     "light": "./resources/images/icons/refresh.svg",
                     "dark": "./resources/images/icons/refresh-inverse.svg"
-                }
-            },
-            {
-                "command": "ballerina.collapseExplorerTree",
-                "title": "Collapse Diagrams",
-                "icon": {
-                    "light": "./resources/images/icons/collapse.svg",
-                    "dark": "./resources/images/icons/collapse-inverse.svg"
                 }
             },
             {
@@ -376,17 +360,7 @@
                     "group": "navigation"
                 },
                 {
-                    "command": "ballerina.collapsePackageTree",
-                    "when": "view == ballerinaPackageTreeView",
-                    "group": "navigation"
-                },
-                {
                     "command": "ballerina.refreshExplorerTree",
-                    "when": "view == ballerinaExplorerTreeView",
-                    "group": "navigation"
-                },
-                {
-                    "command": "ballerina.collapseExplorerTree",
                     "when": "view == ballerinaExplorerTreeView",
                     "group": "navigation"
                 },

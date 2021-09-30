@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { TreeItem, TreeItemCollapsibleState, Uri, WorkspaceFolder } from "vscode";
+import { FileType, TreeItem, TreeItemCollapsibleState, Uri, WorkspaceFolder } from "vscode";
 import { join } from 'path';
 
 export enum CMP_KIND {
@@ -63,69 +63,38 @@ export enum FILE_EXTENSION {
 
 export const TREE_ELEMENT_EXECUTE_COMMAND: string = 'ballerina.executeTreeElement';
 export const OUTLINE_TREE_REFRESH_COMMAND: string = 'ballerina.refreshPackageTree';
-export const OUTLINE_TREE_COLLAPSE_COMMAND: string = 'ballerina.collapsePackageTree';
 export const EXPLORER_TREE_REFRESH_COMMAND: string = 'ballerina.refreshExplorerTree';
-export const EXPLORER_TREE_COLLAPSE_COMMAND: string = 'ballerina.collapseExplorerTree';
 export const EXPLORER_TREE_NEW_FILE_COMMAND: string = 'ballerina.newFileExplorerTree';
 export const EXPLORER_TREE_NEW_FOLDER_COMMAND: string = 'ballerina.newFolderExplorerTree';
 
 export class ExplorerTreeItem extends TreeItem {
-    private filePath: string;
     private folder: WorkspaceFolder | undefined;
-    private extensionPath: string;
+    private uri: Uri;
+    private type: FileType;
+    private kind: string;
 
     constructor(public readonly label: string, public readonly collapsibleState:
-        TreeItemCollapsibleState, kind: string, filePath: string, folder: WorkspaceFolder | undefined, extensionPath: string) {
+        TreeItemCollapsibleState, kind: string, uri: Uri, type: FileType) {
         super(label, collapsibleState);
-        this.filePath = filePath;
-        this.folder = folder;
-        this.extensionPath = extensionPath;
-
-        if (kind === EXPLORER_ITEM_KIND.BAL_FILE) {
-            this.iconPath = {
-                light: join(extensionPath, 'resources', 'images', 'icons', `ballerina.svg`),
-                dark: join(extensionPath, 'resources', 'images', 'icons', `ballerina-inverse.svg`)
-            };
-            this.command = {
-                command: TREE_ELEMENT_EXECUTE_COMMAND,
-                title: "Execute Tree Command",
-                arguments: [
-                    this.filePath,
-                    kind,
-                    0,
-                    0,
-                    this.label
-                ]
-            };
-        }
-        if (kind === EXPLORER_ITEM_KIND.TOML_FILE || kind == EXPLORER_ITEM_KIND.OTHER_FILE) {
-            this.command = {
-                command: 'vscode.open',
-                title: "Open file Command",
-                arguments: [
-                    Uri.file(this.filePath)
-                ]
-            };
-        }
-
-        if (kind === EXPLORER_ITEM_KIND.TOML_FILE) {
-            this.iconPath = {
-                light: join(extensionPath, 'resources', 'images', 'icons', `toml.svg`),
-                dark: join(extensionPath, 'resources', 'images', 'icons', `toml-inverse.svg`)
-            };
-        }
+        this.uri = uri;
+        this.type = type
+        this.kind = kind;
     }
 
     getFolder(): WorkspaceFolder | undefined {
         return this.folder
     }
 
-    getExtensionPath(): string {
-        return this.extensionPath;
+    getUri(): Uri {
+        return this.uri;
     }
 
-    getFilePath(): string {
-        return this.filePath;
+    getFileType(): FileType {
+        return this.type;
+    }
+
+    getKind(): string {
+        return this.kind;
     }
 }
 
