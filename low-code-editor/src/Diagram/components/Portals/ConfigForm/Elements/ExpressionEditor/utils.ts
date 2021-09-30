@@ -18,7 +18,7 @@ import { ExpEditorExpandSvg, ExpEditorCollapseSvg } from "../../../../../../asse
 import * as monaco from 'monaco-editor';
 
 import { ExpressionEditorState } from '../../../../../../Definitions';
-import { DraftInsertPosition } from '../../../../../view-state/draft';
+import { DraftUpdatePosition } from '../../../../../view-state/draft';
 
 import {
     FormField,
@@ -52,9 +52,13 @@ export function diagnosticChecker(diagnostics: Diagnostic[]): boolean {
     return diagnostics.some(diagnostic => diagnostic.severity === 1)
 }
 
-export function addToTargetLine(oldModelValue: string, targetLine: number, codeSnippet: string, EOL?: string): string {
+export function addToTargetLine(oldModelValue: string, targetPosition: NodePosition, codeSnippet: string, EOL?: string): string {
     const modelContent: string[] = oldModelValue.split(/\n/g) || [];
-    modelContent.splice(targetLine, 0, codeSnippet);
+    if (targetPosition?.startColumn){
+        modelContent[targetPosition?.startLine] = addToTargetPosition(modelContent[targetPosition?.startLine], targetPosition?.startColumn, codeSnippet, targetPosition?.endColumn || targetPosition.startColumn);
+    }else{
+        modelContent.splice(targetPosition?.startLine, 0, codeSnippet);
+    }
     return modelContent.join('\n');
 }
 
@@ -64,8 +68,8 @@ export function addToZerothLine(oldModelValue: string, codeSnippet: string): str
     return modelContent.join('\n');
 }
 
-export function addToTargetPosition(oldLine: string, targetColumn: number, codeSnippet: string): string {
-    return oldLine.slice(0, targetColumn) + codeSnippet + oldLine.slice(targetColumn);
+export function addToTargetPosition(oldLine: string, targetColumn: number, codeSnippet: string, endColumn?: number): string {
+    return oldLine.slice(0, targetColumn) + codeSnippet + oldLine.slice(endColumn || targetColumn);
 }
 
 export function getDiagnostics(state: any): Diagnostic[] {
@@ -76,25 +80,38 @@ export function getCurrentSyntaxTree(state: any): STNode {
     return state?.syntaxTree
 }
 
-export function getTargetPosition(targetPosition: any, syntaxTree: any): DraftInsertPosition {
+export function getTargetPosition(targetPosition: any, syntaxTree: any): DraftUpdatePosition {
     if (targetPosition?.line) {
-        return targetPosition
+        return {
+            startLine: targetPosition?.line,
+            endLine: undefined,
+            startColumn: undefined,
+            endColumn: undefined,
+
+        }
     } else if (targetPosition?.startLine) {
         return {
-            line: targetPosition.startLine,
-            column: undefined
+            startLine: targetPosition.startLine,
+            endLine: targetPosition.endLine,
+            startColumn: targetPosition.startColumn,
+            endColumn: targetPosition.endColumn,
+
         }
     } else {
         if (syntaxTree && STKindChecker.isFunctionDefinition(syntaxTree)) {
             const functionBodyPosition: NodePosition = (syntaxTree as FunctionDefinition).functionBody.position;
             return {
-                line: functionBodyPosition.endLine,
-                column: undefined
+                startLine: functionBodyPosition.endLine,
+                endLine: undefined,
+                startColumn: undefined,
+                endColumn: undefined,
             }
         } else {
             return {
-                line: 1,
-                column: undefined
+                startLine: 1,
+                endLine: undefined,
+                startColumn: undefined,
+                endColumn: undefined,
             }
         }
     }

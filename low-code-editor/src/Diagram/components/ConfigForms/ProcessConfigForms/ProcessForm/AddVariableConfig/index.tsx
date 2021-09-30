@@ -63,6 +63,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     let initialModelType: string = 'json';
     let modelType;
     let variableName: string = '';
+    let varExpression;
 
     const existingProperty = config && config.model;
     if (existingProperty && STKindChecker.isLocalVarDecl(config.model)) {
@@ -83,8 +84,10 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             modelType = typeDescriptor.source.trim();
         }
         variableName = localVarDec.typedBindingPattern.bindingPattern.source.trim();
+        varExpression = localVarDec.initializer.source;
     } else {
-        variableName = stSymbolInfo ? null : "";
+        variableName = null;
+        varExpression = null;
     }
 
     const [selectedType, setSelectedType] = useState(initialModelType);
@@ -94,7 +97,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     const [varNameError, setVarNameError] = useState("");
     const [isValidVarName, setIsValidVarName] = useState(false);
     const [validExpresssionValue, setValidExpresssionValue] = useState(config.config !== "");
-    const [variableExpression, setVariableExpression] = useState<string>(config.config.toString());
+    const [variableExpression, setVariableExpression] = useState<string>(varExpression);
     const [editorFocus, setEditorFocus] = useState<boolean>(false);
     const [isStmtEditor, setIsStmtEditor] = useState(false);
 
@@ -315,6 +318,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                                     revertFocus: revertEditorFocus
                                 }}
                                 onChange={onPropertyChange}
+                                defaultValue={variableExpression}
                             />
                             <button onClick={handleStmtEditorButtonClick}>Edit</button>
                         </div>

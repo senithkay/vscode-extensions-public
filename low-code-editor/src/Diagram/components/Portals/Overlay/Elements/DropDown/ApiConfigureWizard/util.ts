@@ -1,4 +1,4 @@
-import { ReturnTypeDescriptor, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { NodePosition, ReturnTypeDescriptor, STKindChecker, STNode } from "@ballerina/syntax-tree";
 
 import {
     Path,
@@ -249,6 +249,19 @@ export function getReturnType(returnTypeDesc: ReturnTypeDescriptor): string {
         return returnTypeDesc.type.source.trim();
     } else {
         return "";
+    }
+}
+
+export function getReturnTypePosition(returnTypeDesc: ReturnTypeDescriptor): NodePosition {
+    if (returnTypeDesc) {
+        return returnTypeDesc.type?.position;
+    } else {
+        return {
+            endColumn: 0,
+            endLine: 0,
+            startColumn: 0,
+            startLine: 0,
+        };
     }
 }
 

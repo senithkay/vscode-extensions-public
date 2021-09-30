@@ -56,6 +56,7 @@ export interface ConditionConfig {
     conditionExpression?: string | ForeachConfig;
     scopeSymbols?: string[];
     conditionPosition?: DraftUpdatePosition;
+    model?: STNode
 }
 
 export interface ForeachConfig {

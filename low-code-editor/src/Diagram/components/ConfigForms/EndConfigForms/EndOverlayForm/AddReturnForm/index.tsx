@@ -92,7 +92,7 @@ export function AddReturnForm(props: ReturnFormProps) {
         <FormControl data-testid="return-form" className={classes.wizardFormControl}>
             {!isCodeEditorActive ?
                 (
-                    <div className={overlayClasses.configWizardContainer}>
+                    <div className={classes.formWrapper}>
                         <div className={classes.formTitleWrapper}>
 
                             <ButtonWithIcon
