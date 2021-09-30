@@ -30,7 +30,6 @@ import { BlockViewState, ControlFlowLineState, ElseViewState, IfViewState } from
 import { DraftStatementViewState } from "../../view-state/draft";
 import { DefaultConfig } from "../../visitors/default";
 import { Collapse } from "../Collapse";
-import { ConditionConfigForm } from "../ConfigForms/ConditionConfigForms";
 import { CONDITION_ASSIGNMENT_NAME_WIDTH, ContitionAssignment } from "../ContitionAssignment";
 import { ControlFlowLine } from "../ControlFlowLine";
 import { DeleteBtn } from "../DiagramActions/DeleteBtn";
@@ -45,6 +44,7 @@ import {
     EDIT_SVG_OFFSET,
     EDIT_SVG_WIDTH_WITH_SHADOW
 } from "../DiagramActions/EditBtn/EditSVG";
+import { FormGenerator } from "../FormGenerator";
 import { PlusButton } from "../Plus";
 
 import { Else } from "./Else";
@@ -202,26 +202,14 @@ export function IfElse(props: IfElseProps) {
                             >
                                 {model === null && blockViewState && isDraftStatement && ifElseConfigOverlayFormState &&
                                     // {model === null && blockViewState?.draft && isDraftStatement &&
-                                    <ConditionConfigForm
-                                        type={blockViewState.draft[1].subType}
-                                        position={{
-                                            x: viewState.bBox.cx + IFELSE_SVG_HEIGHT_WITH_SHADOW,
-                                            y: viewState.bBox.cy
-                                        }}
-                                        wizardType={WizardType.NEW}
+                                    <FormGenerator
                                         onCancel={onCancel}
                                         onSave={onSave}
                                         configOverlayFormStatus={ifElseConfigOverlayFormState}
                                     />
                                 }
                                 {model && isConfigWizardOpen && ifElseConfigOverlayFormState &&
-                                    <ConditionConfigForm
-                                        type={"If"}
-                                        position={{
-                                            x: viewState.bBox.cx + IFELSE_SVG_HEIGHT_WITH_SHADOW,
-                                            y: viewState.bBox.cy
-                                        }}
-                                        wizardType={WizardType.EXISTING}
+                                    <FormGenerator
                                         onCancel={onCancel}
                                         onSave={onSave}
                                         configOverlayFormStatus={ifElseConfigOverlayFormState}
@@ -376,26 +364,14 @@ export function IfElse(props: IfElseProps) {
                                         className="condition-rect"
                                     />
                                     {model === null && blockViewState && isDraftStatement && ifElseConfigOverlayFormState &&
-                                        <ConditionConfigForm
-                                            type={blockViewState.draft[1].subType}
-                                            position={{
-                                                x: viewState.bBox.cx + IFELSE_SVG_HEIGHT_WITH_SHADOW,
-                                                y: viewState.bBox.cy
-                                            }}
-                                            wizardType={WizardType.NEW}
+                                        <FormGenerator
                                             onCancel={onCancel}
                                             onSave={onSave}
                                             configOverlayFormStatus={ifElseConfigOverlayFormState}
                                         />
                                     }
                                     {model && isConfigWizardOpen && ifElseConfigOverlayFormState &&
-                                        <ConditionConfigForm
-                                            type={"If"}
-                                            position={{
-                                                x: viewState.bBox.cx + IFELSE_SVG_HEIGHT_WITH_SHADOW,
-                                                y: viewState.bBox.cy
-                                            }}
-                                            wizardType={WizardType.EXISTING}
+                                        <FormGenerator
                                             onCancel={onCancel}
                                             onSave={onSave}
                                             configOverlayFormStatus={ifElseConfigOverlayFormState}

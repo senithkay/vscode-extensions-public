@@ -83,8 +83,8 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         variableName = localVarDec.typedBindingPattern.bindingPattern.source.trim();
         varExpression = localVarDec.initializer.source;
     } else {
-        variableName = stSymbolInfo ? null : "";
-        varExpression = stSymbolInfo ? null : "";
+        variableName = null;
+        varExpression = null;
     }
 
     const [selectedType, setSelectedType] = useState(initialModelType);

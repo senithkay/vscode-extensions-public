@@ -27,14 +27,12 @@ interface ConditionsWizardProps {
     condition: ConditionConfig;
     onCancel: () => void;
     onSave: () => void;
-    isNewConditionForm: boolean;
-    position: DiagramOverlayPosition
     configOverlayFormStatus: ConfigOverlayFormStatus
 }
 
 
 export function ConditionsOverlayForm(props: ConditionsWizardProps) {
-    const { condition, onCancel, onSave, isNewConditionForm, position, configOverlayFormStatus } = props;
+    const { condition, onCancel, onSave, configOverlayFormStatus } = props;
     const { isLoading, error, formType } = configOverlayFormStatus;
     const {
         api: {
@@ -45,17 +43,12 @@ export function ConditionsOverlayForm(props: ConditionsWizardProps) {
         }
     } = useContext(Context);
 
-    React.useEffect(() => {
-        fitToScreen();
-        pan(0, (-position.y + (DefaultConfig.dotGap * 3)));
-    }, []);
-
     if (formType === "if" || formType === "While") {
-        if (isNewConditionForm) {
+        if (!condition.conditionExpression) {
             condition.conditionExpression = "";
         }
     } else if (formType === "ForEach") {
-        if (isNewConditionForm) {
+        if (!condition.conditionExpression) {
             condition.conditionExpression = {
                 variable: '', collection: ''
             };
@@ -65,47 +58,23 @@ export function ConditionsOverlayForm(props: ConditionsWizardProps) {
     if (isLoading) {
         return (
             <div>
-                <DiagramOverlayContainer>
-                    <DiagramOverlay
-                        position={position}
-                    >
-                        <>
-                            <TextPreloaderVertical position='relative' />
-                        </>
-                    </DiagramOverlay>
-                </DiagramOverlayContainer>
+                <TextPreloaderVertical position='relative' />
             </div>
         );
 
     } else if (error) {
         return (
             <div>
-                <DiagramOverlayContainer>
-                    <DiagramOverlay
-                        position={position}
-                    >
-                        <>
-                            {error?.message}
-                        </>
-                    </DiagramOverlay>
-                </DiagramOverlayContainer>
+                {error?.message}
 
             </div>
         );
     } else {
         return (
             <div>
-                <DiagramOverlayContainer>
-                    <DiagramOverlay
-                        position={position}
-                    >
-                        <>
-                            {formType === "If" && <AddIfForm condition={condition} onSave={onSave} onCancel={onCancel} />}
-                            {formType === "ForEach" && <AddForeachForm condition={condition} onSave={onSave} onCancel={onCancel} isNewConditionForm={isNewConditionForm} />}
-                            {formType === "While" && <AddWhileForm condition={condition} onSave={onSave} onCancel={onCancel} />}
-                        </>
-                    </DiagramOverlay>
-                </DiagramOverlayContainer>
+                {formType === "If" && <AddIfForm condition={condition} onSave={onSave} onCancel={onCancel} />}
+                {formType === "ForEach" && <AddForeachForm condition={condition} onSave={onSave} onCancel={onCancel} />}
+                {formType === "While" && <AddWhileForm condition={condition} onSave={onSave} onCancel={onCancel} />}
             </div>
         );
     }

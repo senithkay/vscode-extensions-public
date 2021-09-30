@@ -29,7 +29,6 @@ import { WhileViewState } from "../../view-state/while";
 import { DefaultConfig } from "../../visitors/default";
 import { Assignment, ASSIGNMENT_NAME_WIDTH } from "../Assignment";
 import { Collapse } from "../Collapse";
-import { ConditionConfigForm } from "../ConfigForms/ConditionConfigForms";
 import { CONDITION_ASSIGNMENT_NAME_WIDTH, ContitionAssignment } from "../ContitionAssignment";
 import { ControlFlowIterationCount, ControlFlowIterationCountProp, CONTROL_FLOW_ITERATION_COUNT_PADDING } from "../ControlFlowIterationCount";
 import { ControlFlowLine } from "../ControlFlowLine";
@@ -49,6 +48,7 @@ import { ColapseButtonSVG, COLLAPSE_SVG_WIDTH } from "../ForEach/ColapseButtonSV
 import { ExpandButtonSVG } from "../ForEach/ExpandButtonSVG";
 import { FOREACH_SVG_HEIGHT } from "../ForEach/ForeachSVG";
 import { COLLAPSE_DOTS_SVG_WIDTH, ThreeDotsSVG } from "../ForEach/ThreeDotsSVG";
+import { FormGenerator } from "../FormGenerator";
 import { PlusButton } from "../Plus";
 
 import "./style.scss";
@@ -236,13 +236,7 @@ export function While(props: WhileProps) {
                     y={viewState.bBox.cy - (WHILE_SHADOW_OFFSET / 2)}
                 >
                     {model && isConfigWizardOpen &&
-                        <ConditionConfigForm
-                            type={"While"}
-                            position={{
-                                x: viewState.bBox.cx + WHILE_SVG_WIDTH,
-                                y: viewState.bBox.cy
-                            }}
-                            wizardType={WizardType.EXISTING}
+                        <FormGenerator
                             onCancel={onCancel}
                             onSave={onSave}
                             configOverlayFormStatus={whileConfigOverlayState}
@@ -310,13 +304,7 @@ export function While(props: WhileProps) {
                             className="while-rect"
                         />
                         {model && isConfigWizardOpen &&
-                            <ConditionConfigForm
-                                type={"While"}
-                                position={{
-                                    x: viewState.bBox.cx + WHILE_SVG_WIDTH,
-                                    y: viewState.bBox.cy
-                                }}
-                                wizardType={WizardType.EXISTING}
+                            <FormGenerator
                                 onCancel={onCancel}
                                 onSave={onSave}
                                 configOverlayFormStatus={whileConfigOverlayState}
