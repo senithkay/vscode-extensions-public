@@ -24,11 +24,13 @@ import {statementEditorStyles} from "./styles";
 
 interface ViewProps {
     kind: string,
-    label: string
+    label: string,
+    formArgs: any,
+    config: any
 }
 
 export function ViewContainer(props: ViewProps) {
-    const {kind, label} = props;
+    const {kind, label, formArgs} = props;
 
     const defaultModel = getDefaultModel(kind);
 

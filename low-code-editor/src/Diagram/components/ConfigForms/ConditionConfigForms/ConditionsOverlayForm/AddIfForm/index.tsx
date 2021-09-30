@@ -15,7 +15,7 @@ import React, { useContext, useState } from "react";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
 
-import { CloseRounded, IfIcon } from "../../../../../../assets/icons";
+import { CloseRounded, IfIcon, EditIcon } from "../../../../../../assets/icons";
 
 import { FormField } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
@@ -28,9 +28,11 @@ import { ConditionConfig, FormElementProps } from "../../../../Portals/ConfigFor
 import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
+import { ViewContainer } from "../../../../../../StatementEditor/components/ViewContainer/ViewContainer";
 
 interface IfProps {
     condition: ConditionConfig;
+    formArgs: any;
     onCancel: () => void;
     onSave: () => void;
 }
@@ -45,13 +47,14 @@ export function AddIfForm(props: IfProps) {
             isMutationProgress: isMutationInProgress
         }
     } = useContext(Context);
-    const { condition, onCancel, onSave } = props;
+    const { condition, formArgs, onCancel, onSave } = props;
     const classes = useStyles();
     const overlayClasses = wizardStyles();
     const intl = useIntl();
 
     const [isInvalid, setIsInvalid] = useState(true);
     const [conditionState, setConditionState] = useState(condition);
+    const [isStmtEditor, setIsStmtEditor] = useState(false);
 
     const handleExpEditorChange = (value: string) => {
         // condition.conditionExpression = value;
@@ -102,6 +105,14 @@ export function AddIfForm(props: IfProps) {
         onSave();
     }
 
+    const handleStmtEditorButtonClick = () => {
+        setIsStmtEditor(true);
+    };
+
+    const handleStmtEditorCancel = () => {
+        setIsStmtEditor(false);
+    };
+
     const saveIfConditionButtonLabel = intl.formatMessage({
         id: "lowcode.develop.configForms.if.saveButton.label",
         defaultMessage: "Save"
@@ -113,6 +124,9 @@ export function AddIfForm(props: IfProps) {
     });
 
     return (
+        <>
+        {!isStmtEditor ?
+        (
         <FormControl data-testid="if-form" className={classes.wizardFormControl}>
             {!isCodeEditorActive ?
                 // tslint:disable-next-line:jsx-no-multiline-js
@@ -137,6 +151,12 @@ export function AddIfForm(props: IfProps) {
                                             />
                                         </Box>
                                     </Typography>
+                                    <div style={{ marginLeft: "auto", marginRight: 0 }}>
+                                            <ButtonWithIcon
+                                                icon={<EditIcon/>}
+                                                onClick={handleStmtEditorButtonClick}
+                                            />
+                                    </div>
                                 </div>
                             </div>
                             <div className="exp-wrapper">
@@ -159,6 +179,35 @@ export function AddIfForm(props: IfProps) {
                 null
             }
         </FormControl>
+        )
+        :
+        (
+            <FormControl data-testid="property-form" className={classes.stmtEditorFormControl}>
+            {!isCodeEditorActive ?
+            (
+                <div>
+                    <ViewContainer
+                        kind="DefaultBoolean"
+                        label="Variable Statement"
+                        formArgs={formArgs}
+                        config={condition}
+                    />
+                    <div className={overlayClasses.buttonWrapper}>
+                    <SecondaryButton text="Cancel" fullWidth={false} onClick={handleStmtEditorCancel} />
+                    <PrimaryButton
+                        dataTestId={"if-save-btn"}
+                        text={saveIfConditionButtonLabel}
+                        disabled={isMutationInProgress || isInvalid}
+                        fullWidth={false}
+                        onClick={handleOnSaveClick}
+                    />
+                    </div>
+                </div>
+            ) : null}
+        </FormControl>
+        )
+        }
+        </>
     );
 }
 

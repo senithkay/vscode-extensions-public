@@ -17,7 +17,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { LocalVarDecl, STKindChecker } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 
-import { CloseRounded, PropertyIcon } from "../../../../../../assets/icons";
+import { CloseRounded, EditIcon, PropertyIcon } from "../../../../../../assets/icons";
 import { PrimitiveBalType, WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
 import { statementEditorStyles } from "../../../../../../StatementEditor/components/ViewContainer/styles";
@@ -37,6 +37,7 @@ import { wizardStyles } from "../../../style";
 
 interface AddVariableConfigProps {
     config: ProcessConfig;
+    formArgs: any;
     onCancel: () => void;
     onSave: () => void;
 }
@@ -50,7 +51,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     const overlayClasses = wizardStyles();
     const statementEditorClasses = statementEditorStyles();
     const intl = useIntl();
-    const { config, onCancel, onSave } = props;
+    const { config, formArgs, onCancel, onSave } = props;
 
     const {
         props: {
@@ -265,6 +266,12 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                             <Typography variant="h4">
                                 <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.variable.title" defaultMessage="Variable" /></Box>
                             </Typography>
+                            <div style={{marginLeft: "auto", marginRight: 0}}>
+                                            <ButtonWithIcon
+                                                icon={<EditIcon/>}
+                                                onClick={handleStmtEditorButtonClick}
+                                            />
+                                    </div>
                         </div>
                     </div>
 
@@ -316,7 +323,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                                 }}
                                 onChange={onPropertyChange}
                             />
-                            <button onClick={handleStmtEditorButtonClick}>Edit</button>
                         </div>
                     </div>
                     <div className={overlayClasses.buttonWrapper}>
@@ -343,6 +349,8 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                     <ViewContainer
                         kind="DefaultBoolean"
                         label="Variable Statement"
+                        formArgs={formArgs}
+                        config={config}
                     />
                     <div className={overlayClasses.buttonWrapper}>
                         <SecondaryButton text={cancelVariableButtonText} fullWidth={false} onClick={handleStmtEditorCancel}/>

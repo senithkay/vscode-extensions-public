@@ -17,7 +17,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { Box, FormControl, Typography } from "@material-ui/core";
 import cn from "classnames";
 
-import { CloseRounded, RespondIcon } from "../../../../../../assets/icons";
+import { CloseRounded, EditIcon, RespondIcon } from "../../../../../../assets/icons";
 import { httpResponse, PrimitiveBalType, WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
@@ -28,9 +28,11 @@ import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/Expression
 import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { EndConfig, RespondConfig } from "../../../../Portals/ConfigForm/types";
 import { wizardStyles } from "../../../style";
+import { ViewContainer } from "../../../../../../StatementEditor/components/ViewContainer/ViewContainer";
 
 interface RespondFormProps {
     config: EndConfig;
+    formArgs: any;
     onCancel: () => void;
     onSave: () => void;
 }
@@ -52,7 +54,7 @@ export function AddRespondForm(props: RespondFormProps) {
             }
         }
     } = useContext(Context);
-    const { config, onCancel, onSave } = props;
+    const { config, formArgs, onCancel, onSave } = props;
 
     const respondFormConfig: RespondConfig = config.expression as RespondConfig;
 
@@ -65,6 +67,8 @@ export function AddRespondForm(props: RespondFormProps) {
     const [statusCodeState, setStatusCode] = useState(undefined);
     const [resExp, setResExp] = useState(undefined);
     const intl = useIntl();
+    const [isStmtEditor, setIsStmtEditor] = useState(false);
+
 
     const onExpressionChange = (value: any) => {
         respondFormConfig.respondExpression = value;
@@ -108,6 +112,14 @@ export function AddRespondForm(props: RespondFormProps) {
         setStatusCode(value);
     }
 
+    const handleStmtEditorButtonClick = () => {
+        setIsStmtEditor(true);
+    };
+
+    const handleStmtEditorCancel = () => {
+        setIsStmtEditor(false);
+    };
+
     const saveRespondButtonLabel = intl.formatMessage({
         id: "lowcode.develop.configForms.respond.saveButton.label",
         defaultMessage: "Save"
@@ -146,6 +158,8 @@ export function AddRespondForm(props: RespondFormProps) {
     const disableSave = (isMutationInProgress || !validForm || !validStatusCode);
 
     return (
+        <>
+        {!isStmtEditor ? (
         <FormControl data-testid="respond-form" className={cn(formClasses.wizardFormControl)}>
             {!isCodeEditorActive ?
                 (
@@ -162,6 +176,12 @@ export function AddRespondForm(props: RespondFormProps) {
                                 <Typography variant="h4">
                                     <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.Respond.title" defaultMessage="Respond"/></Box>
                                 </Typography>
+                                <div style={{ marginLeft: "auto", marginRight: 0 }}>
+                                            <ButtonWithIcon
+                                                icon={<EditIcon/>}
+                                                onClick={handleStmtEditorButtonClick}
+                                            />
+                                    </div>
                             </div>
                         </div>
                         <div className={formClasses.formWrapper}>
@@ -218,5 +238,35 @@ export function AddRespondForm(props: RespondFormProps) {
                 null
             }
         </FormControl>
+        )
+        :
+        (
+            <FormControl data-testid="property-form" className={formClasses.stmtEditorFormControl}>
+            {!isCodeEditorActive ? (
+                <div>
+                    <ViewContainer
+                        kind="DefaultBoolean"
+                        label="Variable Statement"
+                        formArgs={formArgs}
+                        config={config}
+
+                    />
+                    <div className={overlayClasses.buttonWrapper}>
+                    <SecondaryButton text="Cancel" fullWidth={false} onClick={handleStmtEditorCancel} />
+                    <PrimaryButton
+                        dataTestId="save-btn"
+                        className="product-tour-save"
+                        text={saveRespondButtonLabel}
+                        disabled={disableSave}
+                        fullWidth={false}
+                        onClick={onSaveWithTour}
+                    />
+                    </div>
+                </div>
+            ) : null}
+        </FormControl>
+        )
+        }
+        </>
     );
 }

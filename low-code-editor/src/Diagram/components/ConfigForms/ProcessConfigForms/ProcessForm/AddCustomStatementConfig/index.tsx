@@ -25,12 +25,14 @@ import { CustomExpressionConfig, ProcessConfig } from "../../../../Portals/Confi
 import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { CloseRounded } from "../../../../../../assets/icons";
+import { CloseRounded, EditIcon } from "../../../../../../assets/icons";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import LogoCircleIcon from "../../../../../../assets/icons/LogoCircle";
+import { ViewContainer } from "../../../../../../StatementEditor/components/ViewContainer/ViewContainer";
 
 interface LogConfigProps {
     config: ProcessConfig;
+    formArgs: any;
     onCancel: () => void;
     onSave: () => void;
 }
@@ -46,7 +48,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
             isCodeEditorActive
         }
     } = useContext(Context);
-    const { config, onCancel, onSave } = props;
+    const { config, formArgs, onCancel, onSave } = props;
 
     const expressionFormConfig: CustomExpressionConfig = config.config as CustomExpressionConfig;
 
@@ -57,6 +59,8 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
 
     const [expression, setExpression] = useState(defaultExpression);
     const [isFormValid, setIsFormValid] = useState(!!expression);
+    const [isStmtEditor, setIsStmtEditor] = useState(false);
+
 
     const onExpressionChange = (value: any) => {
         setExpression(value);
@@ -71,6 +75,14 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         const isValidExpression = !isInvalid ? (expression !== undefined && expression !== "") : false;
         setIsFormValid(isValidExpression);
     }
+
+    const handleStmtEditorButtonClick = () => {
+        setIsStmtEditor(true);
+    };
+
+    const handleStmtEditorCancel = () => {
+        setIsStmtEditor(false);
+    };
 
     const saveCustomStatementButtonLabel = intl.formatMessage({
         id: "lowcode.develop.configForms.customStatement.saveButton.label",
@@ -92,63 +104,101 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
     }
     return (
-        <FormControl data-testid="custom-expression-form" className={formClasses.wizardFormControl}>
-            {!isCodeEditorActive ?
-                (
+        <>
+        {!isStmtEditor ?
+        (
+        < FormControl data-testid="custom-expression-form" className={formClasses.wizardFormControl}>
+        {!isCodeEditorActive ?
+            (
+                <div className={formClasses.formWrapper}>
                     <div className={formClasses.formWrapper}>
-                        <div className={formClasses.formWrapper}>
-                            <ButtonWithIcon
-                                className={formClasses.overlayDeleteBtn}
-                                onClick={onCancel}
-                                icon={<CloseRounded fontSize="small" />}
-                            />
-                            <div className={formClasses.formTitleWrapper}>
-                                <div className={formClasses.mainTitleWrapper}>
-                                    <LogoCircleIcon />
-                                    <Typography variant="h4">
-                                        <Box paddingTop={2} paddingBottom={2}>
-                                            <FormattedMessage
-                                                id="lowcode.develop.configForms.customStatement.title"
-                                                defaultMessage="Other"
-                                            />
-                                        </Box>
-                                    </Typography>
+                        <ButtonWithIcon
+                            className={formClasses.overlayDeleteBtn}
+                            onClick={onCancel}
+                            icon={<CloseRounded fontSize="small" />}
+                        />
+                        <div className={formClasses.formTitleWrapper}>
+                            <div className={formClasses.mainTitleWrapper}>
+                                <LogoCircleIcon />
+                                <Typography variant="h4">
+                                    <Box paddingTop={2} paddingBottom={2}>
+                                        <FormattedMessage
+                                            id="lowcode.develop.configForms.customStatement.title"
+                                            defaultMessage="Other"
+                                        />
+                                    </Box>
+                                </Typography>
+                                <div style={{ marginLeft: "auto", marginRight: 0 }}>
+                                    <ButtonWithIcon
+                                        icon={<EditIcon/>}
+                                        onClick={handleStmtEditorButtonClick}
+                                    />
                                 </div>
                             </div>
-                            <div className="exp-wrapper">
-                                <ExpressionEditor
-                                    model={{ name: "statement", value: expression }}
-                                    customProps={{
-                                        validate: validateExpression,
-                                        tooltipTitle: customStatementTooltipMessages.title,
-                                        tooltipActionText: customStatementTooltipMessages.actionText,
-                                        tooltipActionLink: customStatementTooltipMessages.actionLink,
-                                        interactive: true,
-                                        customTemplate: {
-                                            defaultCodeSnippet: '',
-                                            targetColumn: 1,
-                                        },
-                                    }}
-                                    onChange={onExpressionChange}
-                                />
-                            </div>
                         </div>
-                        <div className={overlayClasses.buttonWrapper}>
-                            <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
-                            <PrimaryButton
-                                dataTestId={"custom-expression-save-btn"}
-                                text={saveCustomStatementButtonLabel}
-                                disabled={isMutationInProgress || !isFormValid}
-                                fullWidth={false}
-                                onClick={onSaveBtnClick}
+                        <div className="exp-wrapper">
+                            <ExpressionEditor
+                                model={{ name: "statement", value: expression }}
+                                customProps={{
+                                    validate: validateExpression,
+                                    tooltipTitle: customStatementTooltipMessages.title,
+                                    tooltipActionText: customStatementTooltipMessages.actionText,
+                                    tooltipActionLink: customStatementTooltipMessages.actionLink,
+                                    interactive: true,
+                                    customTemplate: {
+                                        defaultCodeSnippet: '',
+                                        targetColumn: 1,
+                                    },
+                                }}
+                                onChange={onExpressionChange}
                             />
+
                         </div>
                     </div>
-                )
-                :
-                null
-            }
+                    <div className={overlayClasses.buttonWrapper}>
+                        <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
+                        <PrimaryButton
+                            dataTestId={"custom-expression-save-btn"}
+                            text={saveCustomStatementButtonLabel}
+                            disabled={isMutationInProgress || !isFormValid}
+                            fullWidth={false}
+                            onClick={onSaveBtnClick}
+                        />
+                    </div>
+                </div>
+            )
+            :
+            null
+        }
+    </FormControl>
+    )
+    :
+    (
+    <FormControl data-testid="property-form" className={formClasses.stmtEditorFormControl}>
+            {!isCodeEditorActive ? (
+                <div>
+                    <ViewContainer
+                        kind="DefaultBoolean"
+                        label="Variable Statement"
+                        formArgs={formArgs}
+                        config={config}
+                    />
+                    <div className={overlayClasses.buttonWrapper}>
+                    <SecondaryButton text="Cancel" fullWidth={false} onClick={handleStmtEditorCancel} />
+                        <PrimaryButton
+                            dataTestId={"custom-expression-save-btn"}
+                            text={saveCustomStatementButtonLabel}
+                            disabled={isMutationInProgress || !isFormValid}
+                            fullWidth={false}
+                            onClick={onSaveBtnClick}
+                        />
+                    </div>
+                </div>
+            ) : null}
         </FormControl>
+    )
+    }
+    </>
     );
 }
 

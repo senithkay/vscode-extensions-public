@@ -17,7 +17,7 @@ import React, { useContext, useState } from "react";
 import { BinaryExpression, ForeachStatement } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 
-import { CloseRounded, ForEachIcon } from "../../../../../../assets/icons";
+import { CloseRounded, ForEachIcon, EditIcon } from "../../../../../../assets/icons";
 
 import { FormField } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
@@ -33,6 +33,7 @@ import { genVariableName } from "../../../../Portals/utils";
 import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
+import { ViewContainer } from "../../../../../../StatementEditor/components/ViewContainer/ViewContainer";
 
 interface Iterations {
     start?: string;
@@ -41,6 +42,7 @@ interface Iterations {
 
 interface ForeachProps {
     condition: ConditionConfig | any;
+    formArgs: any;
     onCancel: () => void;
     onSave: () => void;
     isNewConditionForm: boolean;
@@ -57,7 +59,7 @@ export function AddForeachForm(props: ForeachProps) {
             stSymbolInfo
         }
     } = useContext(Context);
-    const { condition, onCancel, onSave, isNewConditionForm } = props;
+    const { condition, formArgs, onCancel, onSave, isNewConditionForm } = props;
 
     const [conditionExpression] = useState(condition.conditionExpression);
     let initCollectionDefined: boolean = (condition.scopeSymbols.length > 0);
@@ -109,6 +111,7 @@ export function AddForeachForm(props: ForeachProps) {
     };
 
     const [isInvalid, setIsInvalid] = useState(!!conditionExpression.collection);
+    const [isStmtEditor, setIsStmtEditor] = useState(false);
 
     const handleExpEditorChange = (value: string) => {
         conditionExpression.collection = value;
@@ -123,6 +126,14 @@ export function AddForeachForm(props: ForeachProps) {
         const isValidExpression = !isInvalidFromField ? (conditionExpression.collection !== undefined && conditionExpression.collection !== "") : false;
         setIsInvalid(!isValidExpression)
     }
+
+    const handleStmtEditorButtonClick = () => {
+        setIsStmtEditor(true);
+    };
+
+    const handleStmtEditorCancel = () => {
+        setIsStmtEditor(false);
+    };
 
     const formField: FormField = {
         name: "iterable expression",
@@ -191,6 +202,9 @@ export function AddForeachForm(props: ForeachProps) {
 
 
     return (
+        <>
+        {!isStmtEditor ?
+        (
         <FormControl data-testid="foreach-form" className={classes.wizardFormControl}>
             {!isCodeEditorActive ?
                 (
@@ -214,6 +228,12 @@ export function AddForeachForm(props: ForeachProps) {
                                             />
                                     </Box>
                                     </Typography>
+                                    <div style={{ marginLeft: "auto", marginRight: 0 }}>
+                                            <ButtonWithIcon
+                                                icon={<EditIcon/>}
+                                                onClick={handleStmtEditorButtonClick}
+                                            />
+                                    </div>
                                 </div>
                             </div>
                             <FormTextInput
@@ -245,6 +265,34 @@ export function AddForeachForm(props: ForeachProps) {
                 null
             }
         </FormControl>
+        )
+        :
+        (
+            <FormControl data-testid="property-form" className={classes.stmtEditorFormControl}>
+            {!isCodeEditorActive ? (
+                <div>
+                    <ViewContainer
+                        kind="DefaultBoolean"
+                        label="Variable Statement"
+                        formArgs={formArgs}
+                        config={condition}
+                    />
+                    <div className={overlayClasses.buttonWrapper}>
+                    <SecondaryButton text="Cancel" fullWidth={false} onClick={handleStmtEditorCancel} />
+                    <PrimaryButton
+                        text={saveForEachButtonLabel}
+                        disabled={isMutationInProgress || isInvalid}
+                        fullWidth={false}
+                        onClick={handleSave}
+                    />
+                    </div>
+                </div>
+            ) : null}
+        </FormControl>
+        )
+        }
+        </>
+
     );
 }
 

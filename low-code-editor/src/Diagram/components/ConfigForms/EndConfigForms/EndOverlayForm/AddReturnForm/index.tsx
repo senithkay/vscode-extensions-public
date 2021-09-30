@@ -25,13 +25,15 @@ import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { EndConfig } from "../../../../Portals/ConfigForm/types";
 import { wizardStyles } from "../../../style";
 
-import { CloseRounded, ReturnIcon } from "../../../../../../assets/icons";
+import { CloseRounded, ReturnIcon, EditIcon } from "../../../../../../assets/icons";
 
 import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
+import { ViewContainer } from "../../../../../../StatementEditor/components/ViewContainer/ViewContainer";
 
 interface ReturnFormProps {
     config: EndConfig;
+    formArgs: any;
     onCancel: () => void;
     onSave: () => void;
 }
@@ -45,10 +47,11 @@ export function AddReturnForm(props: ReturnFormProps) {
         }
     } = useContext(Context);
     const triggerType = currentApp ? currentApp.displayType : undefined;
-    const { config, onCancel, onSave } = props;
+    const { config, formArgs, onCancel, onSave } = props;
     const classes = useStyles();
     const overlayClasses = wizardStyles();
     const intl = useIntl();
+    const [isStmtEditor, setIsStmtEditor] = useState(false);
 
     const [returnExpression, setReturnExpression] = useState(config.expression);
     const onReturnValueChange = (value: any) => {
@@ -63,6 +66,14 @@ export function AddReturnForm(props: ReturnFormProps) {
     const [isValidValue, setIsValidValue] = useState(true);
     const validateExpression = (fieldName: string, isInvalid: boolean) => {
         setIsValidValue(!isInvalid || (returnExpression === ""));
+    };
+
+    const handleStmtEditorButtonClick = () => {
+        setIsStmtEditor(true);
+    };
+
+    const handleStmtEditorCancel = () => {
+        setIsStmtEditor(false);
     };
 
     const isButtonDisabled = isMutationInProgress || !isValidValue;
@@ -89,6 +100,8 @@ export function AddReturnForm(props: ReturnFormProps) {
 
     const containsMainFunction = triggerType && (triggerType === "Manual" || triggerType === "Schedule"); // todo: this is not working due to triggerType is blank.
     return (
+        <>
+        {!isStmtEditor ? (
         <FormControl data-testid="return-form" className={classes.wizardFormControl}>
             {!isCodeEditorActive ?
                 (
@@ -107,6 +120,12 @@ export function AddReturnForm(props: ReturnFormProps) {
                                 <Typography variant="h4">
                                     <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.Return.title" defaultMessage="Return"/></Box>
                                 </Typography>
+                                <div style={{ marginLeft: "auto", marginRight: 0 }}>
+                                            <ButtonWithIcon
+                                                icon={<EditIcon/>}
+                                                onClick={handleStmtEditorButtonClick}
+                                            />
+                                    </div>
                             </div>
 
                             <div className={classes.formWrapper}>
@@ -148,6 +167,34 @@ export function AddReturnForm(props: ReturnFormProps) {
                 null
             }
         </FormControl>
+        )
+        :
+        (
+            <FormControl data-testid="property-form" className={classes.stmtEditorFormControl}>
+            {!isCodeEditorActive ? (
+                <div>
+                    <ViewContainer
+                        kind="DefaultBoolean"
+                        label="Variable Statement"
+                        formArgs={formArgs}
+                        config={config}
+                    />
+
+                    <div className={overlayClasses.buttonWrapper}>
+                    <SecondaryButton text="Cancel" fullWidth={false} onClick={handleStmtEditorCancel} />
+                    <PrimaryButton
+                        text={saveReturnButtonLabel}
+                        disabled={isButtonDisabled}
+                        fullWidth={false}
+                        onClick={onReturnExpressionSave}
+                    />
+                    </div>
+                </div>
+            ) : null}
+        </FormControl>
+        )
+    }
+    </>
     );
 }
 

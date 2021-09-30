@@ -17,7 +17,7 @@ import React, { useContext, useState } from "react";
 import { CallStatement, FunctionCall, QualifiedNameReference } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 
-import { CloseRounded, LogIcon } from "../../../../../../assets/icons";
+import { CloseRounded, LogIcon, EditIcon } from "../../../../../../assets/icons";
 
 import { WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
@@ -31,9 +31,11 @@ import { LogConfig, ProcessConfig } from "../../../../Portals/ConfigForm/types";
 import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
+import { ViewContainer } from "../../../../../../StatementEditor/components/ViewContainer/ViewContainer";
 
 interface LogConfigProps {
     config: ProcessConfig;
+    formArgs: any;
     onCancel: () => void;
     onSave: () => void;
 }
@@ -52,7 +54,7 @@ export function AddLogConfig(props: LogConfigProps) {
             isCodeEditorActive
         }
     } = useContext(Context);
-    const { config, onCancel, onSave } = props;
+    const { config, formArgs, onCancel, onSave } = props;
     const logTypeFunctionNameMap: Map<string, string> = new Map([
         ['printInfo', 'Info'],
         ['printDebug', 'Debug'],
@@ -74,6 +76,8 @@ export function AddLogConfig(props: LogConfigProps) {
     const [logType, setLogType] = useState(defaultType);
     const [expression, setExpression] = useState(defaultExpression);
     const [isFormValid, setIsFormValid] = useState(logType && expression);
+    const [isStmtEditor, setIsStmtEditor] = useState(false);
+
 
 
     const onExpressionChange = (value: any) => {
@@ -92,6 +96,14 @@ export function AddLogConfig(props: LogConfigProps) {
 
     const validateExpression = (field: string, isInvalid: boolean) => {
         setIsFormValid(!isInvalid && logType);
+    };
+
+    const handleStmtEditorButtonClick = () => {
+        setIsStmtEditor(true);
+    };
+
+    const handleStmtEditorCancel = () => {
+        setIsStmtEditor(false);
     };
 
     const saveLogButtonLabel = intl.formatMessage({
@@ -114,6 +126,8 @@ export function AddLogConfig(props: LogConfigProps) {
         }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
     }
     return (
+        <>
+        { !isStmtEditor ? (
         <FormControl data-testid="log-form" className={formClasses.wizardFormControl}>
             {!isCodeEditorActive ?
                 (
@@ -132,6 +146,12 @@ export function AddLogConfig(props: LogConfigProps) {
                                     <Typography variant="h4">
                                         <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.log.title" defaultMessage="Log"/></Box>
                                     </Typography>
+                                    <div style={{marginLeft: "auto", marginRight: 0}}>
+                                            <ButtonWithIcon
+                                                icon={<EditIcon/>}
+                                                onClick={handleStmtEditorButtonClick}
+                                            />
+                                    </div>
                                 </div>
                             </div>
                             <SelectDropdownWithButton
@@ -158,6 +178,7 @@ export function AddLogConfig(props: LogConfigProps) {
                                     onChange={onExpressionChange}
                                     defaultValue={expression}
                                 />
+
                             </div>
                         </div>
                         <div className={overlayClasses.buttonWrapper}>
@@ -176,6 +197,34 @@ export function AddLogConfig(props: LogConfigProps) {
                 null
             }
         </FormControl>
+        )
+        :
+        (
+        <FormControl data-testid="property-form" className={formClasses.stmtEditorFormControl}>
+            {!isCodeEditorActive ? (
+                <div>
+                    <ViewContainer
+                        kind="DefaultBoolean"
+                        label="Variable Statement"
+                        formArgs={formArgs}
+                        config={config}
+                    />
+                    <div className={overlayClasses.buttonWrapper}>
+                    <SecondaryButton text="Cancel" fullWidth={false} onClick={handleStmtEditorCancel} />
+                            <PrimaryButton
+                                dataTestId={"log-save-btn"}
+                                text={saveLogButtonLabel}
+                                disabled={isMutationInProgress || !isFormValid}
+                                fullWidth={false}
+                                onClick={onSaveBtnClick}
+                            />
+                    </div>
+                </div>
+            ) : null}
+        </FormControl>
+        )
+    }
+    </>
     );
 }
 
