@@ -20,7 +20,7 @@ import { STNode } from "@ballerina/syntax-tree";
 import { Context } from "../../../../Contexts/Diagram";
 
 import { WizardType } from "../../../../ConfigurationSpec/types";
-import { STModification } from "../../../../Definitions";
+import { ConfigOverlayFormStatus, STModification } from "../../../../Definitions";
 import { getAllVariables } from "../../../utils/mixins";
 import {
     createPropertyStatement,
@@ -43,8 +43,7 @@ export interface AddEndFormProps {
     onCancel: () => void;
     onSave: () => void;
     model?: STNode;
-    wizardType?: WizardType;
-    position: DiagramOverlayPosition;
+    configOverlayFormStatus: ConfigOverlayFormStatus;
 }
 
 export function EndConfigForm(props: any) {
@@ -55,18 +54,17 @@ export function EndConfigForm(props: any) {
                 modifyDiagram,
             }
         },
-        props: { configOverlayFormStatus, stSymbolInfo }
+        props: { stSymbolInfo }
     } = useContext(Context);
 
-    const { onCancel, onSave, wizardType, position } = props as AddEndFormProps;
+    const { onCancel, onSave, configOverlayFormStatus } = props as AddEndFormProps;
     const { formArgs, formType } = configOverlayFormStatus;
 
     const endConfig: EndConfig = {
         type: formType,
         expression: '',
         scopeSymbols: [],
-        model: formArgs?.model,
-        wizardType
+        model: formArgs?.model
     };
 
     const onCancelClick = () => {
@@ -76,7 +74,7 @@ export function EndConfigForm(props: any) {
     const onSaveClick = () => {
         if (formArgs?.targetPosition) {
             const modifications: STModification[] = [];
-            if (wizardType === WizardType.EXISTING) {
+            if (endConfig.model) {
                 switch (endConfig.type) {
                     case 'Return':
                         const updateReturnStmt: STModification = updateReturnStatement(
@@ -169,7 +167,6 @@ export function EndConfigForm(props: any) {
     return (
         <EndOverlayForm
             configOverlayFormStatus={configOverlayFormStatus}
-            position={position}
             config={endConfig}
             onCancel={onCancelClick}
             onSave={onSaveClick}

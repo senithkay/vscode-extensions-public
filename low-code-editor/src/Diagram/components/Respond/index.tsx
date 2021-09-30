@@ -26,6 +26,7 @@ import { DeleteBtn } from "../DiagramActions/DeleteBtn";
 import { DELETE_SVG_HEIGHT_WITH_SHADOW, DELETE_SVG_OFFSET, DELETE_SVG_WIDTH_WITH_SHADOW } from "../DiagramActions/DeleteBtn/DeleteSVG";
 import { EditBtn } from "../DiagramActions/EditBtn";
 import { EDIT_SVG_HEIGHT_WITH_SHADOW, EDIT_SVG_OFFSET, EDIT_SVG_WIDTH_WITH_SHADOW } from "../DiagramActions/EditBtn/EditSVG";
+import { FormGenerator } from "../FormGenerator";
 import { PROCESS_SVG_HEIGHT, PROCESS_SVG_HEIGHT_WITH_SHADOW, PROCESS_SVG_SHADOW_OFFSET, PROCESS_SVG_WIDTH, PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW } from "../Processor/ProcessSVG";
 
 import { RespondSVG, RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH_WITH_SHADOW } from "./RespondSVG";
@@ -96,7 +97,7 @@ export function Respond(props: RespondProps) {
     }
 
     useEffect(() => {
-        if (configOverlayFormState){
+        if (configOverlayFormState) {
             toggleDiagramOverlay();
         }
     }, [configOverlayFormState])
@@ -107,7 +108,7 @@ export function Respond(props: RespondProps) {
     };
 
     const editTriggerPosition = {
-        cx: cx - (EDIT_SVG_WIDTH_WITH_SHADOW / 2) + PROCESS_SVG_WIDTH / 3 + (DefaultConfig.dotGap / 2) ,
+        cx: cx - (EDIT_SVG_WIDTH_WITH_SHADOW / 2) + PROCESS_SVG_WIDTH / 3 + (DefaultConfig.dotGap / 2),
         cy: cy + (RESPOND_SVG_HEIGHT / 4)
     };
 
@@ -188,25 +189,15 @@ export function Respond(props: RespondProps) {
                     y={cy - (PROCESS_SVG_SHADOW_OFFSET / 2)}
                 >
                     {blockViewState && blockViewState.draft && configOverlayFormState &&
-                        <EndConfigForm
-                            position={{
-                                x: cx + PROCESS_SVG_WIDTH,
-                                y: cy,
-                            }}
+                        <FormGenerator
                             onCancel={onCancel}
-                            wizardType={WizardType.NEW}
                             onSave={onSave}
                             configOverlayFormStatus={configOverlayFormState}
                         />
                     }
                     {isConfigWizardOpen && configOverlayFormState &&
-                        <EndConfigForm
-                            position={{
-                                x: cx + PROCESS_SVG_WIDTH,
-                                y: cy,
-                            }}
+                        <FormGenerator
                             onCancel={onCancel}
-                            wizardType={WizardType.EXISTING}
                             onSave={onSave}
                             configOverlayFormStatus={configOverlayFormState}
                         />
