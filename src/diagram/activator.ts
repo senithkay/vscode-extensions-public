@@ -141,6 +141,7 @@ class DiagramPanel {
 	}
 
 	public static create(columns: ViewColumn) {
+		ballerinaExtension.setDiagramActiveContext(true);
 		if (DiagramPanel.currentPanel && currentColumn === columns) {
 			DiagramPanel.currentPanel.webviewPanel.reveal();
 			DiagramPanel.currentPanel.update();
@@ -161,6 +162,11 @@ class DiagramPanel {
 			dark: Uri.file(join(ballerinaExtension.context!.extensionPath,
 				'resources/images/icons/design-view-inverse.svg'))
 		};
+
+		panel.onDidChangeViewState(event => {
+			event.webviewPanel.active ? ballerinaExtension.setDiagramActiveContext(true) :
+				ballerinaExtension.setDiagramActiveContext(false);
+		});
 
 		const remoteMethods: WebViewMethod[] = [
 			{
@@ -211,6 +217,7 @@ class DiagramPanel {
 	}
 
 	public dispose() {
+		ballerinaExtension.setDiagramActiveContext(false);
 		DiagramPanel.currentPanel = undefined;
 		this.webviewPanel.dispose();
 		this.disposables.forEach(disposable => {

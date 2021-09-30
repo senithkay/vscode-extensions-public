@@ -18,7 +18,7 @@
 
 import { BallerinaExtension, DocumentIdentifier, ExtendedLangClient, LANGUAGE } from '../core';
 import {
-    Event, EventEmitter, ProviderResult, TextDocument, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri, window, workspace
+    Event, EventEmitter, ProviderResult, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri, window, workspace
 } from 'vscode';
 import { Module, PackageTreeItem, Package, ChildrenData, CMP_KIND, Leaf } from './model';
 import { basename, extname, join, sep } from 'path';
@@ -174,14 +174,19 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
     private getComponentLabels(parent: PackageTreeItem): PackageTreeItem[] {
         let components: PackageTreeItem[] = [];
         const children: ChildrenData = parent.getChildrenData();
-        if (parent.getKind() == CMP_KIND.DEFAULT_MODULE) {
-            this.addComponentLabel(children.functions, components, 'EntryPoints', parent, CMP_KIND.ENTRY_POINT_LABEL);
+        if (parent.getKind() == CMP_KIND.DEFAULT_MODULE && (children.services && children.services.length > 0
+            || children.functions && children.functions.filter(f => f.name === 'main').length === 1)) {
+            components.push(new PackageTreeItem('EntryPoints', '', TreeItemCollapsibleState.Collapsed,
+                CMP_KIND.ENTRY_POINT_LABEL, parent.getFilePath(), this.extensionPath, false, parent,
+                parent.getChildrenData(), -1, -1, parent.getIsSingleFile()));
         }
         if (children.functions && (children.functions.length > 1 || children.functions.length === 1
             && children.functions[0].name !== 'main')) {
             this.addComponentLabel(children.functions, components, 'Functions', parent, CMP_KIND.FUNCTION_LABEL);
         }
-        this.addComponentLabel(children.services, components, 'Services', parent, CMP_KIND.SERVICE_LABEL);
+        if (parent.getKind() != CMP_KIND.DEFAULT_MODULE) {
+            this.addComponentLabel(children.services, components, 'Services', parent, CMP_KIND.SERVICE_LABEL);
+        }
         this.addComponentLabel(children.records, components, 'Records', parent, CMP_KIND.RECORD_LABEL);
         this.addComponentLabel(children.objects, components, 'Objects', parent, CMP_KIND.OBJECT_LABEL);
         this.addComponentLabel(children.types, components, 'Types', parent, CMP_KIND.TYPE_LABEL);

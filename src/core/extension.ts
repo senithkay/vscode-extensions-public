@@ -20,7 +20,7 @@
 import {
     workspace, window, commands, languages, Uri,
     ConfigurationChangeEvent, extensions,
-    Extension, ExtensionContext, IndentAction, WebviewPanel, OutputChannel, StatusBarItem, StatusBarAlignment, TextDocument
+    Extension, ExtensionContext, IndentAction, WebviewPanel, OutputChannel, StatusBarItem, StatusBarAlignment
 } from "vscode";
 import {
     INVALID_HOME_MSG, INSTALL_BALLERINA, DOWNLOAD_BALLERINA, MISSING_SERVER_CAPABILITY, ERROR, COMMAND_NOT_FOUND,
@@ -555,6 +555,10 @@ export class BallerinaExtension {
 
     public getLatestDocument(): Uri | undefined {
         return this.latestDocument;
+    }
+
+    public setDiagramActiveContext(value: boolean) {
+        commands.executeCommand('setContext', 'isBallerinaDiagram', value);
     }
 }
 

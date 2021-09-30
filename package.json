@@ -299,8 +299,8 @@
                 "command": "ballerina.show.source",
                 "title": "Show Source",
                 "icon": {
-                    "dark": "./resources/images/icons/design-view.svg",
-                    "light": "./resources/images/icons/design-view.svg"
+                    "dark": "./resources/images/icons/source-view-inverse.svg",
+                    "light": "./resources/images/icons/source-view.svg"
                 },
                 "category": "Ballerina"
             },
@@ -363,16 +363,6 @@
                     "command": "ballerina.refreshExplorerTree",
                     "when": "view == ballerinaExplorerTreeView",
                     "group": "navigation"
-                },
-                {
-                    "command": "ballerina.newFileExplorerTree",
-                    "when": "view == ballerinaExplorerTreeView",
-                    "group": "navigation"
-                },
-                {
-                    "command": "ballerina.newFolderExplorerTree",
-                    "when": "view == ballerinaExplorerTreeView",
-                    "group": "navigation"
                 }
             ],
             "editor/title": [
@@ -382,9 +372,21 @@
                     "group": "navigation"
                 },
                 {
-                    "when": "resourceLangId != ballerina",
+                    "when": "isBallerinaDiagram",
                     "command": "ballerina.show.source",
                     "group": "navigation"
+                }
+            ],
+            "view/item/context": [
+                {
+                    "command": "ballerina.newFileExplorerTree",
+                    "when": "view == ballerinaExplorerTreeView && viewItem == folder",
+                    "group": "inline"
+                },
+                {
+                    "command": "ballerina.newFolderExplorerTree",
+                    "when": "view == ballerinaExplorerTreeView && viewItem == folder",
+                    "group": "inline"
                 }
             ]
         }

@@ -36,11 +36,13 @@ export class ExplorerDataProvider implements TreeDataProvider<ExplorerTreeItem> 
     constructor(ballerinaExtension: BallerinaExtension) {
         this.ballerinaExtension = ballerinaExtension;
         workspace.onDidOpenTextDocument(document => {
+            ballerinaExtension.setDiagramActiveContext(false);
             if (document.languageId === LANGUAGE.BALLERINA || document.fileName.endsWith(BAL_TOML)) {
                 this.refresh();
             }
         });
         workspace.onDidChangeTextDocument(activatedTextEditor => {
+            ballerinaExtension.setDiagramActiveContext(false);
             if (activatedTextEditor && activatedTextEditor.document.languageId === LANGUAGE.BALLERINA ||
                 activatedTextEditor.document.fileName.endsWith(BAL_TOML)) {
                 this.refresh();
@@ -101,6 +103,8 @@ export class ExplorerDataProvider implements TreeDataProvider<ExplorerTreeItem> 
                 };
             }
             treeItem.contextValue = 'file';
+        } else {
+            treeItem.contextValue = 'folder';
         }
         return treeItem;
     }

@@ -22,11 +22,13 @@ import { sendTelemetryEvent, CMP_PACKAGE_VIEW, TM_EVENT_OPEN_PACKAGE_OVERVIEW } 
 import { commands, Uri, window } from 'vscode';
 import {
     CMP_KIND, TREE_ELEMENT_EXECUTE_COMMAND, OUTLINE_TREE_REFRESH_COMMAND, EXPLORER_TREE_REFRESH_COMMAND,
-    EXPLORER_ITEM_KIND, EXPLORER_TREE_NEW_FILE_COMMAND, EXPLORER_TREE_NEW_FOLDER_COMMAND
+    EXPLORER_ITEM_KIND, EXPLORER_TREE_NEW_FILE_COMMAND, EXPLORER_TREE_NEW_FOLDER_COMMAND, ExplorerTreeItem
 } from "./model";
 import { PackageOverviewDataProvider } from "./outline-tree-data-provider";
 import { SessionDataProvider } from "./session-tree-data-provider";
 import { ExplorerDataProvider } from "./explorer-tree-data-provider";
+import { existsSync, mkdirSync, open } from 'fs';
+import { join } from 'path';
 
 export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverviewDataProvider {
 
@@ -48,19 +50,30 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
     const explorerDataProvider = new ExplorerDataProvider(ballerinaExtInstance);
     ballerinaExtInstance.context!.subscriptions.push(window.createTreeView('ballerinaExplorerTreeView', {
         treeDataProvider: explorerDataProvider, showCollapseAll: true
-    }))
+    }));
 
     commands.registerCommand(EXPLORER_TREE_REFRESH_COMMAND, () =>
         explorerDataProvider.refresh()
     );
 
-    commands.registerCommand(EXPLORER_TREE_NEW_FILE_COMMAND, () =>
-        commands.executeCommand('explorer.newFile')
-    );
+    commands.registerCommand(EXPLORER_TREE_NEW_FILE_COMMAND, async (item: ExplorerTreeItem) => {
+        const name = await window.showInputBox({ placeHolder: 'Enter file name...' });
+        if (name && name.trim().length > 0) {
+            open(join(item.getUri().fsPath, name), 'w', () => { });
+            explorerDataProvider.refresh();
+        }
+    });
 
-    commands.registerCommand(EXPLORER_TREE_NEW_FOLDER_COMMAND, () =>
-        commands.executeCommand('explorer.newFolder')
-    );
+    commands.registerCommand(EXPLORER_TREE_NEW_FOLDER_COMMAND, async (item: ExplorerTreeItem) => {
+        const name = await window.showInputBox({ placeHolder: 'Enter folder name...' });
+        if (name && name.trim().length > 0) {
+            const filePath = join(item.getUri().fsPath, name);
+            if (!existsSync(filePath)) {
+                mkdirSync(filePath);
+            }
+            explorerDataProvider.refresh();
+        }
+    });
 
     const sessionTreeDataProvider = new SessionDataProvider(ballerinaExtInstance);
     window.createTreeView('sessionExplorer', {
@@ -89,6 +102,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
                 construct.filePath);
             ballerinaExtInstance.setLatestDocument(Uri.file(construct.filePath));
             packageTreeDataProvider.refresh();
+            explorerDataProvider.refresh();
         }
     });
     return packageTreeDataProvider;
