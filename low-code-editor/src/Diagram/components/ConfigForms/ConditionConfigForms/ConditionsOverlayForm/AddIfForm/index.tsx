@@ -117,7 +117,7 @@ export function AddIfForm(props: IfProps) {
             {!isCodeEditorActive ?
                 // tslint:disable-next-line:jsx-no-multiline-js
                 (
-                    <div className={overlayClasses.configWizardContainer}>
+                    <div className={classes.formWrapper}>
                         <div className={classes.formWrapper}>
                             <ButtonWithIcon
                                 className={classes.overlayDeleteBtn}

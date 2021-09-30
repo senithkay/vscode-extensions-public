@@ -46,9 +46,9 @@ export function ConditionConfigForm(props: ConditionConfigFormProps) {
     const { api } = useContext(Context);
     const {
         insights: { onEvent },
-        code: { modifyDiagram  }
+        code: { modifyDiagram }
     } = api;
-    const { type, wizardType, onCancel, onSave, position, configOverlayFormStatus } = props;
+    const { onCancel, onSave, configOverlayFormStatus } = props;
     let conditionConfig: ConditionConfig;
     const { isLoading, isOpen, error, formArgs, formType } = configOverlayFormStatus;
 
@@ -65,7 +65,7 @@ export function ConditionConfigForm(props: ConditionConfigFormProps) {
             conditionConfig = {
                 type: formType,
                 conditionExpression:
-                    wizardType === WizardType.NEW ?
+                    !formArgs?.config ?
                         { variable: '', collection: '' }
                         : formArgs?.config.conditionExpression,
                 scopeSymbols: [],
@@ -83,28 +83,28 @@ export function ConditionConfigForm(props: ConditionConfigFormProps) {
     const onSaveClick = () => {
         if (formArgs?.targetPosition) {
             const modifications: STModification[] = [];
-            if (type === "If") {
+            if (formType === "If") {
                 const ifConfig: ConditionConfig = conditionConfig as ConditionConfig;
                 const conditionExpression: string = ifConfig.conditionExpression as string;
-                if (wizardType === WizardType.NEW) {
+                if (!formArgs?.config) {
                     const event: LowcodeEvent = {
                         type: EVENT_TYPE_AZURE_APP_INSIGHTS,
                         name: FINISH_STATEMENT_ADD_INSIGHTS,
-                        property: type
+                        property: formType
                     };
                     onEvent(event);
                     modifications.push(createIfStatement(conditionExpression, formArgs?.targetPosition));
                 } else {
                     modifications.push(updateIfStatementCondition(conditionExpression, formArgs?.config.conditionPosition));
                 }
-            } else if (type === "ForEach") {
+            } else if (formType === "ForEach") {
                 const conditionExpression: ForeachConfig = conditionConfig.conditionExpression as
                     ForeachConfig;
-                if (wizardType === WizardType.NEW) {
+                if (!formArgs?.config) {
                     const event: LowcodeEvent = {
                         type: EVENT_TYPE_AZURE_APP_INSIGHTS,
                         name: FINISH_STATEMENT_ADD_INSIGHTS,
-                        property: type
+                        property: formType
                     };
                     onEvent(event);
                     modifications.push(createForeachStatement(conditionExpression.collection, conditionExpression.variable, formArgs?.targetPosition));
@@ -112,14 +112,14 @@ export function ConditionConfigForm(props: ConditionConfigFormProps) {
                     modifications.push(updateForEachCondition(conditionExpression.collection, conditionExpression.variable, formArgs?.config.conditionPosition))
                 }
                 // modifications.push();
-            } else if (type === "While") {
+            } else if (formType === "While") {
                 const whileConfig: ConditionConfig = conditionConfig as ConditionConfig;
                 const conditionExpression: string = whileConfig.conditionExpression as string;
-                if (wizardType === WizardType.NEW) {
+                if (!formArgs?.config) {
                     const event: LowcodeEvent = {
                         type: EVENT_TYPE_AZURE_APP_INSIGHTS,
                         name: FINISH_STATEMENT_ADD_INSIGHTS,
-                        property: type
+                        property: formType
                     };
                     onEvent(event);
                     modifications.push(createWhileStatement(conditionExpression, formArgs?.targetPosition));
@@ -137,8 +137,6 @@ export function ConditionConfigForm(props: ConditionConfigFormProps) {
             condition={conditionConfig}
             onCancel={onCancel}
             onSave={onSaveClick}
-            isNewConditionForm={wizardType === WizardType.NEW}
-            position={position}
             configOverlayFormStatus={configOverlayFormStatus}
         />
     )

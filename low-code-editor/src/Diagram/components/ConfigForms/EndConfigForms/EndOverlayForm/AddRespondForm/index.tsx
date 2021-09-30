@@ -149,7 +149,7 @@ export function AddRespondForm(props: RespondFormProps) {
         <FormControl data-testid="respond-form" className={cn(formClasses.wizardFormControl)}>
             {!isCodeEditorActive ?
                 (
-                    <div className={overlayClasses.configWizardContainer}>
+                    <div className={formClasses.formWrapper}>
                         <div className={formClasses.formTitleWrapper}>
                             <ButtonWithIcon
                                 className={formClasses.overlayDeleteBtn}
@@ -199,7 +199,7 @@ export function AddRespondForm(props: RespondFormProps) {
                                 />
                             </div>
 
-                            {(config.wizardType === WizardType.NEW) ? statusCodeComp : null}
+                            {(!config.model) ? statusCodeComp : null}
                         </div>
                         <div className={overlayClasses.buttonWrapper}>
                             <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
