@@ -195,11 +195,6 @@ export function AddForeachForm(props: ForeachProps) {
                 (
                     <div className={classes.formWrapper}>
                         <div className={classes.formWrapper}>
-                            <ButtonWithIcon
-                                className={classes.overlayDeleteBtn}
-                                onClick={onCancel}
-                                icon={<CloseRounded fontSize="small" />}
-                            />
                             <div className={classes.formTitleWrapper}>
                                 <div className={classes.mainTitleWrapper}>
                                     <div className={classes.iconWrapper}>
