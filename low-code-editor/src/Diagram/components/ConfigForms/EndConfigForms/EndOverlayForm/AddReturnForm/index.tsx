@@ -94,12 +94,6 @@ export function AddReturnForm(props: ReturnFormProps) {
                 (
                     <div className={classes.formWrapper}>
                         <div className={classes.formTitleWrapper}>
-
-                            <ButtonWithIcon
-                                className={classes.overlayDeleteBtn}
-                                onClick={onCancel}
-                                icon={<CloseRounded fontSize="small" />}
-                            />
                             <div className={classes.mainTitleWrapper}>
                                 <div className={classes.iconWrapper}>
                                     <ReturnIcon />

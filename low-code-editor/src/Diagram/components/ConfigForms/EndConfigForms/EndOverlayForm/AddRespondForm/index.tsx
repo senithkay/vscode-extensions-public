@@ -151,12 +151,6 @@ export function AddRespondForm(props: RespondFormProps) {
                 (
                     <div className={formClasses.formWrapper}>
                         <div className={formClasses.formTitleWrapper}>
-                            <ButtonWithIcon
-                                className={formClasses.overlayDeleteBtn}
-                                onClick={onCancel}
-                                icon={<CloseRounded fontSize="small" />}
-                            />
-
                             <div className={formClasses.mainTitleWrapper}>
                                 <RespondIcon />
                                 <Typography variant="h4">
