@@ -10,7 +10,6 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-export const LITERAL = "Literal"
 export const VARIABLE = "Variable"
 export const ARITHMETIC = "Arithmetic"
 export const CONDITIONAL = "Conditional"
@@ -21,3 +20,5 @@ export const STRING_TEMPLATE = "StringTemplate"
 export const DEFAULT_BOOL = "DefaultBoolean"
 export const TYPE_CHECK = "TypeCheck"
 export const UNARY = "Unary"
+export const STRING_LITERAL = "StringLiteral"
+export const NUMERIC_LITERAL = "NumericLiteral"

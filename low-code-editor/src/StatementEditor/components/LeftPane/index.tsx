@@ -10,15 +10,16 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, {useState} from "react";
+import React, { useState } from "react";
 
-import {STNode} from "@ballerina/syntax-tree";
+import { STNode } from "@ballerina/syntax-tree";
 
-import {getSuggestionsBasedOnExpressionKind} from "../../utils";
-import {SuggestionItem} from "../../utils/utils";
-import {ExpressionComponent} from '../Expression';
-import {Suggestions} from '../Suggestions';
-import {statementEditorStyles} from "../ViewContainer/styles";
+import { getSuggestionsBasedOnExpressionKind } from "../../utils";
+import { SuggestionItem } from "../../utils/utils";
+import { ExpressionComponent } from '../Expression';
+import { Suggestions } from '../Suggestions';
+import { statementEditorStyles } from "../ViewContainer/styles";
+import { Diagnostics } from "../InputEditor";
 
 interface ModelProps {
     model: STNode,
@@ -29,9 +30,10 @@ interface ModelProps {
 
 export function LeftPane(props: ModelProps) {
     const overlayClasses = statementEditorStyles();
-    const {model, kind, label, currentModel} = props;
+    const { model, kind, label, currentModel } = props;
 
     const [suggestionList, setSuggestionsList] = useState(getSuggestionsBasedOnExpressionKind(kind));
+    const [diagnosticList, setDiagnostic] = useState("");
     const [, setIsSuggestionClicked] = useState(false);
     const [isOperator, setIsOperator] = useState(false);
 
@@ -48,13 +50,20 @@ export function LeftPane(props: ModelProps) {
         });
     }
 
+    const diagnosticHandler = (diagnostics: string) => {
+        setDiagnostic(diagnostics)
+    }
+
     return (
         <div className={overlayClasses.AppLeftPane}>
             <h3 className={overlayClasses.AppLeftPaneHeading}>{label}</h3>
             <div className={overlayClasses.AppStatementTemplateEditor}>
                 <div className={overlayClasses.AppStatementTemplateEditorInner}>
-                    <ExpressionComponent model={model} callBack={onClickExpressionButton} isRoot={true}/>
+                    <ExpressionComponent model={model} callBack={onClickExpressionButton} isRoot={true} diagnosticHandler={diagnosticHandler} />
                 </div>
+            </div>
+            <div className={overlayClasses.AppDiagnosticsPane}>
+                <Diagnostics message={diagnosticList} />
             </div>
             <div className={overlayClasses.AppContextSensitivePane}>
                 <Suggestions

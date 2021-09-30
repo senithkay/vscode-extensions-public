@@ -11,95 +11,35 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, {useContext, useRef, useState} from "react";
+import React, { useContext, useRef, useState } from "react";
 
-import {STNode, StringLiteral, traversNode} from "@ballerina/syntax-tree";
+import { STNode, StringLiteral, traversNode } from "@ballerina/syntax-tree";
 
 import * as c from "../../../../constants";
-import {ModelContext} from "../../../../store/model-context";
-import {addExpression, SuggestionItem} from "../../../../utils/utils";
-import {statementEditorStyles} from "../../../ViewContainer/styles";
-import {visitor as CodeGenVisitor} from "../../../Visitors/codeGenVisitor";
+import { ModelContext } from "../../../../store/model-context";
+import { SuggestionItem } from "../../../../utils/utils";
+import { statementEditorStyles } from "../../../ViewContainer/styles";
+import { InputEditor } from "../../../InputEditor";
 
 interface LiteralProps {
     model: STNode
-    callBack: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void
+    callBack: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void,
+    diagnosticHandler: (diagnostics: string) => void
 }
 
 export function StringLiteralC(props: LiteralProps) {
     const overlayClasses = statementEditorStyles();
-    const {model, callBack} = props;
-
+    const { model, callBack, diagnosticHandler } = props;
     const ctx = useContext(ModelContext);
 
-    const [isDoubleClick, setIsDoubleClick] = useState(false);
-    const [literal, setLiteral] = useState("");
-    const inputRef = useRef(null);
-
-    let literalModel: StringLiteral;
-    let value: any;
-
-    if (model.kind === "StringLiteral") {
-        literalModel = model as StringLiteral;
-        value = literalModel.literalToken.value;
-    }
-
-    const doubleClickHandler = () => {
-        setIsDoubleClick(false);
-    };
-
-    const inputBlurHandler = () => {
-        if (literal !== "") {
-            addExpression(model, c.LITERAL, literal)
-            callBack([], model, false);
-
-            CodeGenVisitor.clearCodeSnippet();
-            traversNode(ctx.statementModel, CodeGenVisitor);
-
-            // tslint:disable-next-line:no-console
-            console.log(`=============== ${CodeGenVisitor.getCodeSnippet()}`);
-        }
-    };
-
-    const inputChangeHandler = (event: React.KeyboardEvent<HTMLSpanElement>) => {
-
-        setLiteral(event.currentTarget.textContent ? event.currentTarget.textContent : "");
-    };
-
-    const inputEnterHandler = (event: React.KeyboardEvent<HTMLSpanElement>) => {
-        if (event.code === "Enter" || event.code === "Tab") {
-            addExpression(model, c.LITERAL, event.currentTarget.textContent);
-            callBack([], model, false);
-
-            CodeGenVisitor.clearCodeSnippet();
-            traversNode(ctx.statementModel, CodeGenVisitor);
-
-            // tslint:disable-next-line:no-console
-            console.log(`=============== ${CodeGenVisitor.getCodeSnippet()}`);
-        }
+    const inputEditorProps = {
+        statementType: model.kind,
+        model,
+        callBack,
+        diagnosticHandler
     };
 
     return (
-        <>
-            {isDoubleClick ? (
-                <span
-                    className={`${overlayClasses.AppExpressionBlock } ${overlayClasses.AppExpressionBlockElement}`}
-                    onDoubleClick={doubleClickHandler}
-                >
-                    {value}
-                </span>
-            ) : (
-                <span
-                    onKeyDown={inputEnterHandler}
-                    contentEditable={true}
-                    suppressContentEditableWarning={true}
-                    onBlur={inputBlurHandler}
-                    onInput={inputChangeHandler}
-                    ref={inputRef}
-                >
-                    {value}
-                </span>
-            )}
-        </>
+        <InputEditor {...inputEditorProps} />
     );
 }

@@ -12,24 +12,25 @@
  */
 import React from "react";
 
-import {BooleanLiteral, STNode} from "@ballerina/syntax-tree";
+import { BooleanLiteral, STNode } from "@ballerina/syntax-tree";
 
 import * as c from "../../../../constants";
-import {getSuggestionsBasedOnExpressionKind} from "../../../../utils";
-import {SuggestionItem} from "../../../../utils/utils";
+import { getSuggestionsBasedOnExpressionKind } from "../../../../utils";
+import { SuggestionItem } from "../../../../utils/utils";
 
 interface LiteralProps {
     model: STNode
     callBack: (suggestions: SuggestionItem[], model: STNode) => void
+    diagnosticHandler: (diagnostics: string) => void
 }
 
 export function BooleanLiteralC(props: LiteralProps) {
-    const {model, callBack} = props;
+    const { model, callBack } = props;
     let value: any;
 
     const onClickOnExpression = (event: any) => {
         event.stopPropagation()
-        callBack(getSuggestionsBasedOnExpressionKind(c.LITERAL), model)
+        callBack(getSuggestionsBasedOnExpressionKind(c.STRING_LITERAL), model)
     };
 
     if (model.kind === "BooleanLiteral") {

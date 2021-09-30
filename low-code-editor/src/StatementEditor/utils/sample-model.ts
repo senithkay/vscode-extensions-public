@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import {BracedExpression} from "@ballerina/syntax-tree";
+import { BracedExpression } from "@ballerina/syntax-tree";
 
 // export const DefaultModelsByKind: { [key: string]: BinaryExpression } = {
 //     DefaultBoolean: {
@@ -266,11 +266,11 @@ export const DefaultModelsByKind: { [key: string]: BracedExpression } = {
         "expression": {
             "kind": "BinaryExpression",
             "lhsExpr": {
-                "kind": "NumericLiteral",
+                "kind": "StringLiteral",
                 "literalToken": {
-                    "kind": "DecimalIntegerLiteralToken",
+                    "kind": "StringLiteralToken",
                     "isToken": true,
-                    "value": "20",
+                    "value": "expression",
                     "source": "",
                     "position": {
                         "startLine": 4,
@@ -279,7 +279,7 @@ export const DefaultModelsByKind: { [key: string]: BracedExpression } = {
                         "endColumn": 13
                     }
                 },
-                "source": "20 ",
+                "source": "",
                 "position": {
                     "startLine": 4,
                     "startColumn": 11,
@@ -308,11 +308,11 @@ export const DefaultModelsByKind: { [key: string]: BracedExpression } = {
                 }
             },
             "rhsExpr": {
-                "kind": "NumericLiteral",
+                "kind": "StringLiteral",
                 "literalToken": {
-                    "kind": "DecimalIntegerLiteralToken",
+                    "kind": "StringLiteralToken",
                     "isToken": true,
-                    "value": "10",
+                    "value": "expression",
                     "source": "",
                     "position": {
                         "startLine": 4,
@@ -321,7 +321,7 @@ export const DefaultModelsByKind: { [key: string]: BracedExpression } = {
                         "endColumn": 18
                     }
                 },
-                "source": "10 ",
+                "source": "",
                 "position": {
                     "startLine": 4,
                     "startColumn": 16,
@@ -337,7 +337,7 @@ export const DefaultModelsByKind: { [key: string]: BracedExpression } = {
                     "diagnostics": []
                 }
             },
-            "source": "20 + 10 ",
+            "source": "",
             "position": {
                 "startLine": 4,
                 "startColumn": 11,
