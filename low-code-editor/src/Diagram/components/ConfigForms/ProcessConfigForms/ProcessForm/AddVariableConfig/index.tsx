@@ -244,11 +244,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             {!isCodeEditorActive ?
                 (
                     <div>
-                        <ButtonWithIcon
-                            className={classes.overlayDeleteBtn}
-                            onClick={onCancel}
-                            icon={<CloseRounded fontSize="small" />}
-                        />
                         <div className={classes.formTitleWrapper}>
                             <div className={classes.mainTitleWrapper}>
                                 <div className={classes.iconWrapper}>
