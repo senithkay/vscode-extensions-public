@@ -342,17 +342,8 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                     <ViewContainer
                         kind="DefaultBoolean"
                         label="Variable Statement"
+                        onCancel={handleStmtEditorCancel}
                     />
-                    <div className={overlayClasses.buttonWrapper}>
-                        <SecondaryButton text={cancelVariableButtonText} fullWidth={false} onClick={handleStmtEditorCancel}/>
-                        <PrimaryButton
-                            dataTestId="save-btn"
-                            text={saveVariableButtonText}
-                            disabled={isMutationInProgress || !validForm}
-                            fullWidth={false}
-                            onClick={handleSave}
-                        />
-                    </div>
                 </div>
             ) : null}
         </FormControl>;
