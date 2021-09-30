@@ -10,38 +10,46 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-
 import React from "react";
 
 import { ClickAwayListener } from "@material-ui/core";
 
 import { DraftInsertPosition } from "../../../view-state/draft";
-import { getConstructIcons } from "../../Portals/utils";
+import { getConstructIcon } from "../../Portals/utils";
+import { PlusMenuEntry } from "../PlusOptionsSelector";
 
 import "./style.scss";
 
 interface PlusOptionRendererProps {
-    entries: string[];
+    entries: PlusMenuEntry[];
     onClose: () => void;
+    onOptionSelect: (entry: PlusMenuEntry) => void;
     targetPosition: DraftInsertPosition;
 }
 
 export function PlusOptionRenderer(props: PlusOptionRendererProps) {
-    const { entries, onClose } = props;
+    const { entries, onClose, onOptionSelect } = props;
 
-    const plusOptions: JSX.Element[] = entries.map((entry, i) => (
-        <>
-            <div key={`plus-option-${entry.replaceAll(' ', '')}`} className="plus-option">
-                <div className="plus-option-icon">
-                    {getConstructIcons(`${entry.replaceAll(' ', '')}Icon`, { color: '#CBCEDB' })}
+    const plusOptions: JSX.Element[] = entries.map((entry, i) => {
+
+        const onClick = () => {
+            onOptionSelect(entry);
+        }
+
+        return (
+            <>
+                <div key={`plus-option-${i}`} className="plus-option" onClick={onClick}>
+                    <div className="plus-option-icon">
+                        {getConstructIcon(entry.type, { color: '#CBCEDB' })}
+                    </div>
+                    <div className="plus-option-text">
+                        {entry.name}
+                    </div>
                 </div>
-                <div className="plus-option-text">
-                    {entry}
-                </div>
-            </div>
-            {i < entries.length - 1 ? < div className="plus-option-separator" /> : null}
-        </>
-    ));
+                {i < entries.length - 1 ? < div className="plus-option-separator" /> : null}
+            </>
+        )
+    });
 
     return (
         <ClickAwayListener

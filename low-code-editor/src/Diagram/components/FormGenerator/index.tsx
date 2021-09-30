@@ -19,7 +19,7 @@ import { getForm } from "../Portals/utils";
 export interface FormGeneratorProps {
     onCancel?: () => void;
     onSave?: () => void;
-    configOverlayFormStatus?: ConfigOverlayFormStatus;
+    configOverlayFormStatus: ConfigOverlayFormStatus;
 }
 
 export function FormGenerator(props: FormGeneratorProps) {

@@ -26,6 +26,7 @@ import { Avatar, colors } from "@material-ui/core";
 import { DocumentSymbol, SymbolInformation } from "monaco-languageclient";
 
 import { ConnectionDetails } from "../../../../api/models";
+import * as ConstructIcons from "../../../../assets/icons"
 import { ActionConfig, ConnectorConfig, FormField, FormFieldReturnType, FunctionDefinitionInfo, ManualConfigType, PrimitiveBalType, WizardType } from "../../../../ConfigurationSpec/types";
 import { DiagramEditorLangClientInterface, STSymbolInfo } from "../../../../Definitions";
 import { BallerinaConnectorInfo, Connector } from "../../../../Definitions/lang-client-extended";
@@ -41,7 +42,6 @@ import {
 import { StatementViewState } from "../../../view-state";
 import { DraftInsertPosition } from "../../../view-state/draft";
 import * as ConnectorIcons from "../../Connector/Icon";
-import * as ConstructIcons from "../../../../assets/icons"
 import { ConfigWizardState } from "../../ConnectorConfigWizard";
 import * as ConnectorExtension from "../../ConnectorExtensions";
 import * as Elements from "../ConfigForm/Elements";
@@ -508,7 +508,7 @@ export function getExistingConnectorIconSVG(iconId: string, scale: number = 1): 
 }
 
 
-export function getConstructIcons(iconId: string, args: any) {
+export function getConstructIcon(iconId: string, args: any) {
     const Icon = (ConstructIcons as any)[iconId];
     return <Icon {...args} />
 }
