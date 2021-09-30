@@ -1,6 +1,20 @@
+/*
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ * the WSO2 Commercial License available at http://wso2.com/licenses.
+ * For specific language governing the permissions and limitations under
+ * this license, please see the license as well as any agreement you’ve
+ * entered into with WSO2 governing the purchase of this software and any
+ * associated services.
+ */
+// tslint:disable: jsx-no-multiline-js ordered-imports
+import React, { useContext, useEffect, useRef, useState } from "react";
+
 import { NumericLiteral, STNode, StringLiteral, traversNode } from "@ballerina/syntax-tree";
 import debounce from "lodash.debounce";
-import React, { useContext, useEffect, useRef, useState } from "react";
 import { monaco } from "react-monaco-editor";
 import { Context } from "../../../Contexts/Diagram";
 import { ExpressionEditorLangClientInterface } from "../../../Definitions";
@@ -60,7 +74,7 @@ export function InputEditor(props: InputEditorProps) {
     // TODO: Need to get the model-name from the input form
     const textLabel = "modelKind"
     const varName = "temp_" + (textLabel).replace(/[^A-Z0-9]+/ig, "");
-    //TODO: Need to get the varType from the input form
+    // TODO: Need to get the varType from the input form
     const varType = "int";
     const defaultCodeSnippet = varType + " " + varName + " = ;";
     const snippetTargetPosition = defaultCodeSnippet.length;
@@ -68,7 +82,6 @@ export function InputEditor(props: InputEditorProps) {
 
     // InputEditor start
     const handleOnFocus = async (currentContent: string, EOL: string) => {
-        console.log("======HANDLE-ON-FOCUS")
         let initContent: string = null;
         const newCodeSnippet: string = addToTargetPosition(defaultCodeSnippet, (snippetTargetPosition - 1), currentContent);
         initContent = addToTargetLine((currentFile.content), targetPosition, newCodeSnippet, EOL);
@@ -77,6 +90,7 @@ export function InputEditor(props: InputEditorProps) {
         inputEditorState.content = initContent;
         inputEditorState.uri = monaco.Uri.file(currentFile.path).toString();
 
+        // tslint:disable-next-line:no-console
         console.log("=========HANDLE-ON-FOCUS-CONTENT", inputEditorState.content)
 
         const langClient = await getExpressionEditorLangClient(langServerURL);
@@ -105,9 +119,10 @@ export function InputEditor(props: InputEditorProps) {
     }
 
     const handleDiagnostic = () => {
+        // tslint:disable-next-line:no-console
         console.log("============HANDLING DIAGNOSTICS==============");
 
-        //TODO: Need to obtain the default value as a prop
+        // TODO: Need to obtain the default value as a prop
         return (
             <>
                 {!CodeGenVisitor.getCodeSnippet().includes(' expression ') ?
@@ -120,8 +135,6 @@ export function InputEditor(props: InputEditorProps) {
 
     // InputEditor onChange
     const handleContentChange = async (currentContent: string, EOL: string) => {
-        console.log("======HANDLE-CONTENT-CHANGE")
-
         let newModel: string = null;
         const newCodeSnippet: string = addToTargetPosition(defaultCodeSnippet, (snippetTargetPosition - 1), currentContent);
         newModel = addToTargetLine((currentFile.content), targetPosition, newCodeSnippet, EOL);
@@ -130,6 +143,7 @@ export function InputEditor(props: InputEditorProps) {
         inputEditorState.content = newModel;
         inputEditorState.uri = monaco.Uri.file(currentFile.path).toString();
 
+        // tslint:disable-next-line:no-console
         console.log("=========HANDLE-ON-CHANGE-CONTENT", inputEditorState.content)
 
         const langClient = await getExpressionEditorLangClient(langServerURL);
@@ -155,7 +169,7 @@ export function InputEditor(props: InputEditorProps) {
         })
     }
 
-    //Revert file changes
+    // Revert file changes
     const revertContent = async () => {
         if (inputEditorState?.uri) {
             inputEditorState.name = "modelName";

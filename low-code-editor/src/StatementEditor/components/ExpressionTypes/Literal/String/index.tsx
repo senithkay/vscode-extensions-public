@@ -10,10 +10,10 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
-import React, { useContext, useRef, useState } from "react";
+// tslint:disable: jsx-no-multiline-js ordered-imports
+import React, { useContext } from "react";
 
-import { STNode, StringLiteral, traversNode } from "@ballerina/syntax-tree";
+import { STNode } from "@ballerina/syntax-tree";
 
 import * as c from "../../../../constants";
 import { ModelContext } from "../../../../store/model-context";

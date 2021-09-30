@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { BinaryExpression, BracedExpression, STNode, StringLiteral, NumericLiteral } from "@ballerina/syntax-tree";
+import { BinaryExpression, BracedExpression, NumericLiteral, STNode, StringLiteral } from "@ballerina/syntax-tree";
 
 import * as c from "../constants";
 import { Expression } from '../models/definitions';

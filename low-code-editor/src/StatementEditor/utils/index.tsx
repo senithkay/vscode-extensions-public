@@ -48,8 +48,7 @@ export function getOperatorSuggestions(kind: string): SuggestionItem[] {
     return []; // we can remove the empty array return if we only set the operator prop to true for the expressions with operators
 }
 
-export function getExpressionTypeComponent(expression: STNode, callBack: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void,
-    diagnosticHandler: (diagnostics: string) => void): ReactNode {
+export function getExpressionTypeComponent(expression: STNode, callBack: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void, diagnosticHandler: (diagnostics: string) => void): ReactNode {
     const ExprTypeComponent = (expressionTypeComponents as any)[expression.kind];
 
     if (!ExprTypeComponent) {
