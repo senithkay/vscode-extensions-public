@@ -1,0 +1,4 @@
+└─ @ballerina/lang-service@0.0.1
+   ├─ licenses: Apache-2.0
+   └─ path: /lang-service
+

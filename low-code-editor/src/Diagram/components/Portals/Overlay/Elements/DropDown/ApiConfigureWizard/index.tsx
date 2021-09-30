@@ -29,7 +29,6 @@ import {
   isPathDuplicated,
   reCalculateDuplicatedResources,
   validatePath,
-  validateReturnType
 } from "../../../../../../../utils/validator";
 import {
   EVENT_TYPE_AZURE_APP_INSIGHTS,
@@ -41,6 +40,7 @@ import {
 } from "../../../../../../models";
 import { PrimaryButton } from "../../../../ConfigForm/Elements/Button/PrimaryButton";
 import { SelectDropdownWithButton } from "../../../../ConfigForm/Elements/DropDown/SelectDropdownWithButton";
+import ExpressionEditor from "../../../../ConfigForm/Elements/ExpressionEditor";
 import { SwitchToggle } from "../../../../ConfigForm/Elements/SwitchToggle";
 import { FormTextInput } from "../../../../ConfigForm/Elements/TextField/FormTextInput";
 import { useStyles as returnStyles } from "../ApiConfigureWizard/components/ReturnTypeEditor/style";
@@ -70,8 +70,9 @@ import {
   genrateBallerinaResourcePath,
   getBallerinaPayloadType,
   getReturnType,
+  getReturnTypePosition,
   isCallerParamAvailable,
-  isRequestParamAvailable
+  isRequestParamAvailable,
 } from "./util";
 
 interface ApiConfigureWizardProps {
@@ -123,24 +124,18 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
 
   const [resources, setResources] = useState<Resource[]>([]);
   const [isNewService, setIsNewService] = useState(true);
-  // const [currentMethod, setCurrentMethod] = useState<ServiceMethodType>(method || "GET");
   const [currentMethod, setCurrentMethod] = useState<string>(method || "GET");
   const [currentPath, setCurrentPath] = useState<string>(path || "");
-  const [returnType, setReturnType] = useState<string>("");
-  const [callerChecked, setCallerChecked] = useState<boolean>(false);
-  const [payloadError, setPayloadError] = useState<boolean>(false);
   const [triggerChanged, setTriggerChanged] = useState(false);
 
   const funcSignature = (syntaxTree as FunctionDefinition)?.functionSignature;
   const extPayload: string = extractPayloadFromST(funcSignature?.parameters);
   const initAdvancedResourceState: AdvancedResourceState = {
     path: new Map([[0, false]]),
-    returnType: new Map([[0, false]]),
     payloadSelected: new Map([[0, extPayload ? true : false]]),
   }
   const [advancedMenuState, setAdvancesMenuState] = useState<AdvancedResourceState>(initAdvancedResourceState);
   const [toggleMainAdvancedMenu, setToggleMainAdvancedMenu] = useState(false);
-  const [toggleReturnTypeMenu, setToggleReturnTypeMenu] = useState(false);
   const [toggleResourceDelete, setToggleResourceDelete] = useState(false);
   const [togglePayload, setTogglePayload] = useState(false);
   const [isValidPath, setIsValidPath] = useState(false);
@@ -148,6 +143,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   const [existingResources, setExistingResources] = useState<string[]>();
   const [duplicatedPathsInEdit, setDuplicatedPathsInEdit] = useState<boolean>(false);
   const [defaultResourceSignature, setDefaultResourceSignature] = useState<string>("");
+  const [isValidReturnExpr, setIsValidReturnExpr] = useState(true);
 
   useEffect(() => {
     const members = syntaxTree && (syntaxTree as ModulePart).members;
@@ -210,7 +206,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
             setTogglePayload(true);
           }
         } else {
-          const defaultConfig: Resource = { id: resources.length, method: "GET", path: "", isCaller: true};
+          const defaultConfig: Resource = { id: resources.length, method: "GET", path: "", isCaller: true, returnType: 'json'};
           resourceMembers.push(defaultConfig);
           setResources(resourceMembers);
         }
@@ -224,11 +220,6 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     setToggleMainAdvancedMenu(!toggleMainAdvancedMenu);
   }
 
-  const onReturnTypeToggleSelect = (index: number) => {
-    advancedMenuState.returnType.set(index, !advancedMenuState.returnType.get(index));
-    setAdvancesMenuState(advancedMenuState);
-    setToggleReturnTypeMenu(!toggleReturnTypeMenu);
-  }
 
   const onPayloadToggleSelect = (checked: boolean, index: number) => {
     setTogglePayload(!togglePayload);
@@ -296,7 +287,6 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   }
 
   function handleOnChangeReturnType(text: string, index: number) {
-    setReturnType(text);
     const updatedResources = resources;
     updatedResources[index].returnType = text;
     setResources(updatedResources);
@@ -328,7 +318,6 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   }
 
   function handleOnChangeReturnTypeFormUI(text: string, index: number) {
-    setReturnType(text);
     const updatedResources = resources;
     updatedResources[index].returnType = text;
     setResources(updatedResources);
@@ -353,7 +342,6 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     // Update path
     const updatedResources = resources;
     updatedResources[index].payloadError = isError;
-    setPayloadError(isError);
     setResources(updatedResources);
   }
 
@@ -370,7 +358,6 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     updatedResources[index].isCaller = advanced.isCaller;
     updatedResources[index].isRequest = advanced.isRequest;
     setResources(updatedResources);
-    setCallerChecked(advanced.isCaller);
   }
 
   const validateResources = () => {
@@ -394,11 +381,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
         isValidated = false;
         return;
       }
-      // validate return type
-      if (!validateReturnType(res.returnType)) {
-        isValidated = false;
-        return;
-      }
+
       // validate payload name
       if (res.payloadError) {
         isValidated = false;
@@ -425,21 +408,6 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     return isValidated;
   }
 
-  const validateReturnTypes = () => {
-    if (!resources || resources.length === 0) return false;
-
-    let isValidated = true;
-
-    resources.forEach((res: any) => {
-      // validate return type
-      if (!validateReturnType(res.returnType)) {
-        isValidated = false;
-        return;
-      }
-    });
-
-    return isValidated;
-  }
 
   const handleUserConfirm = () => {
     handleUpdateResources();
@@ -509,11 +477,10 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
 
   const handleAddResource = () => {
     isPathDuplicated(resources);
-    const defaultConfig: Resource = { id: resources.length, method: "GET", path: "", isCaller: true };
+    const defaultConfig: Resource = { id: resources.length, method: "GET", path: "", isCaller: true, returnType: 'json' };
     defaultConfig.isPathDuplicated = isPathDuplicated([...resources, defaultConfig]);
     setResources([...resources, defaultConfig]);
     advancedMenuState.path.set(resources.length, false);
-    advancedMenuState.returnType.set(resources.length, false);
     advancedMenuState.payloadSelected.set(resources.length, false);
     setAdvancesMenuState(advancedMenuState);
   }
@@ -524,7 +491,6 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
       resourceClone.splice(index, 1);
       setResources(resourceClone);
       advancedMenuState.path.delete(index);
-      advancedMenuState.returnType.delete(index);
       advancedMenuState.payloadSelected.delete(index);
       setAdvancesMenuState(advancedMenuState);
       setToggleResourceDelete(!toggleResourceDelete);
@@ -573,15 +539,6 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     defaultMessage: "Relative path from host"
   });
 
-  const returnErrorMessage = intl.formatMessage({
-    id: "lowcode.develop.apiConfigWizard.return.type.errorMessage",
-    defaultMessage: "Please enter a valid return type"
-  });
-
-  const returnTypePlaceholder = intl.formatMessage({
-    id: "lowcode.develop.apiConfigWizard.return.type.placeholder",
-    defaultMessage: "Return Type"
-  });
 
   const queryParamTitle = intl.formatMessage({
     id: "lowcode.develop.apiConfigWizard.query.param.title",
@@ -776,7 +733,8 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                       onChange={(text: string) => handleOnChangePath(text, index)}
                       customProps={{
                         validate: validateResourcePath,
-                        isErrored: resProps.isPathDuplicated || duplicatedPathsInEdit
+                        isErrored: resProps.isPathDuplicated || duplicatedPathsInEdit,
+                        startAdornment: '/'
                       }}
                       errorMessage={resProps.isPathDuplicated || duplicatedPathsInEdit ? pathDuplicateErrorMessage : isValidPath ? "" : pathErrorMessage}
                       placeholder={pathPlaceholder}
@@ -840,36 +798,27 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
               title={returnTypeTitle}
               tooltipWithExample={{ title: returnTitle, content: returnTypeExample }}
             >
-              {advancedMenuState.returnType.get(index) ? (
-                <ReturnTypeEditor returnTypeString={resProps.returnType} defaultValue={resProps.returnType} isCaller={resProps.isCaller} onChange={(text: string) => handleOnChangeReturnTypeFormUI(text, index)} />
-              ) : (
-                <div className={classes.returnTextBoxWrapper}>
-                  <FormTextInput
-                      dataTestId="api-return-type"
-                      defaultValue={resProps.returnType}
-                      onChange={(text: string) => handleOnChangeReturnType(text, index)}
+              {funcSignature?.returnTypeDesc ? (
+                 <div className={classes.returnTextBoxWrapper}>
+                  <ExpressionEditor
+                      model={{ name: "Other type"}}
                       customProps={{
-                        validate: validateReturnType
+                          validate: (_name: string, isInvalid: boolean) => setIsValidReturnExpr(!isInvalid),
+                          interactive: true,
+                          customTemplate: {
+                              defaultCodeSnippet: ` | error?`,
+                              targetColumn: 1,
+                          },
+                          editPosition: getReturnTypePosition(funcSignature?.returnTypeDesc),
+                          hideTextLabel: true
                       }}
-                      errorMessage={returnErrorMessage}
-                      placeholder={returnTypePlaceholder}
+                      onChange={(text: string) => handleOnChangeReturnType(text, index)}
+                      defaultValue={resProps.returnType}
                   />
                 </div>
+              ) : (
+                <ReturnTypeEditor returnTypeString={resProps.returnType} defaultValue={resProps.returnType} isCaller={resProps.isCaller} onChange={(text: string) => handleOnChangeReturnTypeFormUI(text, index)} />
               )}
-              <Grid container={true} spacing={1}>
-                <Grid item={true} xs={9} />
-                <Grid item={true} xs={3}>
-                  <div>
-                    {validateReturnTypes() &&
-                      (
-                        <Link data-testid="advanced-return-config" component="button" variant="body2" onClick={onReturnTypeToggleSelect.bind(this, index)}>
-                          {advancedMenuState.returnType.get(index) ? showLessText : advancedText}
-                        </Link>
-                      )
-                    }
-                  </div>
-                </Grid>
-              </Grid>
             </Section>
             <div className={resources.length > 1 ? classes.deleteBtnWrapper : ""} onClick={() => onDeleteResource(index)}>
               {resources.length > 1 && (
@@ -904,7 +853,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                     text={saveAPIButton}
                     className={classes.saveBtn}
                     onClick={handleUserConfirm}
-                    disabled={isFileSaving}
+                    disabled={isFileSaving || !isValidReturnExpr}
                   />
                 </div>
               </div>

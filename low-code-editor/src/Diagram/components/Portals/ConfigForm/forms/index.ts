@@ -26,6 +26,7 @@ export { APIConfigForm as apiConfig };
 export { ConnectorInitForm as connectorInit };
 export { ConditionConfigForm as If };
 export { ConditionConfigForm as ForEach };
+export { ConditionConfigForm as While };
 export { ProcessConfigForm as Variable };
 export { ProcessConfigForm as Log };
 export { ProcessConfigForm as Custom };
