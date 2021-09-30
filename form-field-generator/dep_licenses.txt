@@ -1,4 +1,4 @@
 └─ @ballerina/form-field-generator@1.0.0
    ├─ licenses: Apache-2.0
-   └─ path: /Users/marcus/Documents/myGitRepos/ballerina-low-code-editor-1/form-field-generator
+   └─ path: /form-field-generator
 
