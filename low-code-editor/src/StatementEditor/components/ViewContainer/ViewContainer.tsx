@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js ordered-imports
+// tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useState } from 'react';
 import { useIntl } from "react-intl";
 
@@ -20,11 +20,11 @@ import { wizardStyles } from "../../../Diagram/components/ConfigForms/style";
 import { PrimaryButton } from "../../../Diagram/components/Portals/ConfigForm/Elements/Button/PrimaryButton";
 import { SecondaryButton } from "../../../Diagram/components/Portals/ConfigForm/Elements/Button/SecondaryButton";
 import { VariableUserInputs } from '../../models/definitions';
+import { EditorCancelContext } from '../../store/form-cancel-context';
 import { ModelContext } from '../../store/model-context'
 import { getDefaultModel } from "../../utils";
 import { LeftPane } from '../LeftPane';
 import { RightPane } from '../RightPane';
-import { EditorCancelContext } from '../../store/form-cancel-context';
 
 import { statementEditorStyles } from "./styles";
 
@@ -37,7 +37,7 @@ interface ViewProps {
 }
 
 export function ViewContainer(props: ViewProps) {
-    const { kind, label, formArgs, userInputs, onCancel } = props;
+    const { kind, label, userInputs, onCancel } = props;
     const intl = useIntl();
 
     const defaultModel = getDefaultModel(kind);
