@@ -10,8 +10,12 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: no-empty
 import React from 'react';
 
 export const EditorCancelContext = React.createContext({
-    onCancelled: false
+    onCancelled: false,
+    onSaved: () => {},
+    onChanged: (p: string) => {},
+    validated: (f: string, v: boolean, e: boolean) => {},
 });

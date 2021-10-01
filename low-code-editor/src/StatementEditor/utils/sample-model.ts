@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { BracedExpression } from "@ballerina/syntax-tree";
+import { BracedExpression, STNode, StringLiteral } from "@ballerina/syntax-tree";
 
 // export const DefaultModelsByKind: { [key: string]: BinaryExpression } = {
 //     DefaultBoolean: {
@@ -233,8 +233,8 @@ import { BracedExpression } from "@ballerina/syntax-tree";
 
 
 // if (20 > 10) {} else {}
-export const DefaultModelsByKind: { [key: string]: BracedExpression } = {
-    DefaultBoolean: {
+export const DefaultModelsByKind: { [key: string]: STNode | BracedExpression | StringLiteral } = {
+    DefaultArithmetic: {
         // "kind": "IfElseStatement",
         // "ifKeyword": {
         //     "kind": "IfKeyword",
@@ -477,5 +477,35 @@ export const DefaultModelsByKind: { [key: string]: BracedExpression } = {
         // "typeData": {
         //     "diagnostics": []
         // }
+    },
+    DefaultString: {
+        "kind": "StringLiteral",
+        "literalToken": {
+            "kind": "StringLiteralToken",
+            "isToken": true,
+            "value": "expression",
+            "source": "",
+            "position": {
+                "startLine": 4,
+                "startColumn": 11,
+                "endLine": 4,
+                "endColumn": 13
+            }
+        },
+        "source": "",
+        "position": {
+            "startLine": 4,
+            "startColumn": 11,
+            "endLine": 4,
+            "endColumn": 13
+        },
+        "typeData": {
+            "typeSymbol": {
+                "typeKind": "string",
+                "kind": "TYPE",
+                "signature": "string"
+            },
+            "diagnostics": []
+        }
     }
 }

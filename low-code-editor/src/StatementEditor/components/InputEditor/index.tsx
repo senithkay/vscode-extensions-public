@@ -84,7 +84,7 @@ export function InputEditor(props: InputEditorProps) {
 
     // InputEditor start
     const handleOnFocus = async (currentContent: string, EOL: string) => {
-        let initContent: string = null;
+        let initContent: string;
         const newCodeSnippet: string = addToTargetPosition(defaultCodeSnippet, (snippetTargetPosition - 1), currentContent);
         initContent = addToTargetLine((currentFile.content), targetPosition, newCodeSnippet, EOL);
 
@@ -124,14 +124,16 @@ export function InputEditor(props: InputEditorProps) {
         // tslint:disable-next-line:no-console
         console.log("============HANDLING DIAGNOSTICS==============");
 
+        const codeSnippet = CodeGenVisitor.getCodeSnippet();
+        const hasDiagnostic = !inputEditorState.diagnostic.length // true if there are no diagnostics
+
+        onCancelCtx.onChanged(codeSnippet);
+        onCancelCtx.validated("", !hasDiagnostic, false);
+
         // TODO: Need to obtain the default value as a prop
-        return (
-            <>
-                {!CodeGenVisitor.getCodeSnippet().includes(' expression ') ?
-                    diagnosticHandler(getDiagnosticMessage(inputEditorState.diagnostic, varType)) :
-                    null}
-            </>
-        );
+        if (!CodeGenVisitor.getCodeSnippet().includes('expression')) {
+            diagnosticHandler(getDiagnosticMessage(inputEditorState.diagnostic, varType))
+        }
     }
 
 

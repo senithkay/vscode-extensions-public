@@ -356,11 +356,16 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             {!isCodeEditorActive ? (
                 <div>
                     <ViewContainer
-                        kind="DefaultBoolean"
+                        kind="DefaultString" // TODO: Derive the kind from the user input
                         label="Variable Statement"
                         formArgs={formArgs}
                         userInputs={userInputs}
+                        isMutationInProgress={isMutationInProgress}
+                        validForm={validForm}
                         onCancel={handleStmtEditorCancel}
+                        onSave={handleSave}
+                        onChange={onPropertyChange}
+                        validate={validateExpression}
                     />
                 </div>
             ) : null}

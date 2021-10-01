@@ -66,7 +66,7 @@ export function Suggestions(props: SuggestionsProps) {
                 )
                 :
                 (
-                    (suggestion.value === c.ARITHMETIC  || suggestion.value === c.NUMERIC_LITERAL) ?
+                    (suggestion.value === c.ARITHMETIC  || suggestion.value === c.STRING_LITERAL) ?
                     <button
                         className={overlayClasses.AppSuggestionButtons}
                         key={index}

@@ -33,11 +33,16 @@ interface ViewProps {
     label: string,
     formArgs: any,
     userInputs?: VariableUserInputs,
-    onCancel: () => void
+    validate?: (field: string, isInvalid: boolean, isEmpty: boolean) => void
+    isMutationInProgress?: boolean
+    validForm?: boolean
+    onCancel?: () => void
+    onSave?: () => void
+    onChange?: (property: string) => void
 }
 
 export function ViewContainer(props: ViewProps) {
-    const { kind, label, userInputs, onCancel } = props;
+    const { kind, label, userInputs, validate, isMutationInProgress, validForm, onCancel, onSave, onChange } = props;
     const intl = useIntl();
 
     const defaultModel = getDefaultModel(kind);
@@ -80,7 +85,10 @@ export function ViewContainer(props: ViewProps) {
                 >
                     <EditorCancelContext.Provider
                         value={{
-                            onCancelled: onCancelClicked
+                            onCancelled: onCancelClicked,
+                            onSaved: onSave,
+                            onChanged: onChange,
+                            validated: validate
                         }}
                     >
                         <LeftPane
@@ -105,8 +113,9 @@ export function ViewContainer(props: ViewProps) {
                     <PrimaryButton
                         dataTestId="save-btn"
                         text={saveVariableButtonText}
-                        disabled={true}
+                        disabled={isMutationInProgress || !validForm}
                         fullWidth={false}
+                        onClick={onSave}
                     />
                 </div>
             </div>
