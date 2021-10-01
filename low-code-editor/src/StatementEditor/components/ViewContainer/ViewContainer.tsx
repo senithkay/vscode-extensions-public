@@ -19,6 +19,7 @@ import { STNode } from "@ballerina/syntax-tree";
 import { wizardStyles } from "../../../Diagram/components/ConfigForms/style";
 import { PrimaryButton } from "../../../Diagram/components/Portals/ConfigForm/Elements/Button/PrimaryButton";
 import { SecondaryButton } from "../../../Diagram/components/Portals/ConfigForm/Elements/Button/SecondaryButton";
+import { VariableUserInputs } from '../../models/definitions';
 import { ModelContext } from '../../store/model-context'
 import { getDefaultModel } from "../../utils";
 import { LeftPane } from '../LeftPane';
@@ -30,11 +31,13 @@ import { onCancelContext } from '../../store/form-cancel-context';
 interface ViewProps {
     kind: string,
     label: string,
+    formArgs: any,
+    userInputs?: VariableUserInputs,
     onCancel: () => void
 }
 
 export function ViewContainer(props: ViewProps) {
-    const { kind, label, onCancel } = props;
+    const { kind, label, formArgs, userInputs, onCancel } = props;
     const intl = useIntl();
 
     const defaultModel = getDefaultModel(kind);
@@ -85,7 +88,7 @@ export function ViewContainer(props: ViewProps) {
                             currentModel={currentModel}
                             kind={kind}
                             label={label}
-                        />
+                        userInputs={userInputs}/>
                     </onCancelContext.Provider>
                 </ModelContext.Provider>
                 <div className={overlayClasses.vl} />

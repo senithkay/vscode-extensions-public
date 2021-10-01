@@ -25,12 +25,14 @@ import { CustomExpressionConfig, ProcessConfig } from "../../../../Portals/Confi
 import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { CloseRounded } from "../../../../../../assets/icons";
+import { CloseRounded, EditIcon } from "../../../../../../assets/icons";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import LogoCircleIcon from "../../../../../../assets/icons/LogoCircle";
+import { ViewContainer } from "../../../../../../StatementEditor/components/ViewContainer/ViewContainer";
 
 interface LogConfigProps {
     config: ProcessConfig;
+    formArgs: any;
     onCancel: () => void;
     onSave: () => void;
 }
@@ -46,7 +48,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
             isCodeEditorActive
         }
     } = useContext(Context);
-    const { config, onCancel, onSave } = props;
+    const { config, formArgs, onCancel, onSave } = props;
 
     const expressionFormConfig: CustomExpressionConfig = config.config as CustomExpressionConfig;
 
@@ -57,6 +59,8 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
 
     const [expression, setExpression] = useState(defaultExpression);
     const [isFormValid, setIsFormValid] = useState(!!expression);
+    const [isStmtEditor, setIsStmtEditor] = useState(false);
+
 
     const onExpressionChange = (value: any) => {
         setExpression(value);
@@ -71,6 +75,14 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         const isValidExpression = !isInvalid ? (expression !== undefined && expression !== "") : false;
         setIsFormValid(isValidExpression);
     }
+
+    const handleStmtEditorButtonClick = () => {
+        setIsStmtEditor(true);
+    };
+
+    const handleStmtEditorCancel = () => {
+        setIsStmtEditor(false);
+    };
 
     const saveCustomStatementButtonLabel = intl.formatMessage({
         id: "lowcode.develop.configForms.customStatement.saveButton.label",
@@ -91,8 +103,9 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
             defaultMessage: "{learnBallerina}"
         }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
     }
-    return (
-        <FormControl data-testid="custom-expression-form" className={formClasses.wizardFormControl}>
+    let exprEditor =
+        (
+        < FormControl data-testid="custom-expression-form" className={formClasses.wizardFormControl}>
             {!isCodeEditorActive ?
                 (
                     <div className={formClasses.formWrapper}>
@@ -108,6 +121,12 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                                             />
                                         </Box>
                                     </Typography>
+                                    <div style={{ marginLeft: "auto", marginRight: 0 }}>
+                                        <ButtonWithIcon
+                                            icon={<EditIcon/>}
+                                            onClick={handleStmtEditorButtonClick}
+                                        />
+                                    </div>
                                 </div>
                             </div>
                             <div className="exp-wrapper">
@@ -126,6 +145,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                                     }}
                                     onChange={onExpressionChange}
                                 />
+
                             </div>
                         </div>
                         <div className={overlayClasses.buttonWrapper}>
@@ -144,6 +164,28 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                 null
             }
         </FormControl>
+        );
+
+    if (isStmtEditor) {
+        exprEditor =
+            (
+            <FormControl data-testid="property-form" className={formClasses.stmtEditorFormControl}>
+                {!isCodeEditorActive ? (
+                    <div>
+                        <ViewContainer
+                            kind="DefaultBoolean"
+                            label="Variable Statement"
+                            formArgs={formArgs}
+                            onCancel={handleStmtEditorCancel}
+                        />
+                    </div>
+                ) : null}
+            </FormControl>
+            );
+    }
+
+    return (
+        exprEditor
     );
 }
 

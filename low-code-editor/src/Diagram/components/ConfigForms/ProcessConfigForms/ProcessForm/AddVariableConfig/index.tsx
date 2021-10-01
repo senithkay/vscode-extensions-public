@@ -17,7 +17,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { LocalVarDecl, STKindChecker } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 
-import { CloseRounded, PropertyIcon } from "../../../../../../assets/icons";
+import { CloseRounded, EditIcon, PropertyIcon } from "../../../../../../assets/icons";
 import { PrimitiveBalType, WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
 import { statementEditorStyles } from "../../../../../../StatementEditor/components/ViewContainer/styles";
@@ -37,6 +37,7 @@ import { wizardStyles } from "../../../style";
 
 interface AddVariableConfigProps {
     config: ProcessConfig;
+    formArgs: any;
     onCancel: () => void;
     onSave: () => void;
 }
@@ -50,7 +51,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     const overlayClasses = wizardStyles();
     const statementEditorClasses = statementEditorStyles();
     const intl = useIntl();
-    const { config, onCancel, onSave } = props;
+    const { config, formArgs, onCancel, onSave } = props;
 
     const {
         props: {
@@ -251,89 +252,102 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     // todo: Support other data types
     const variableTypes: string[] = ["var", "int", "float", "decimal", "boolean", "string", "json", "xml", "error", "any", "anydata", "other"];
 
-    let exprEditor = <FormControl data-testid="property-form" className={classes.wizardFormControl}>
-        {!isCodeEditorActive ?
-            (
-                <div>
-                    <div className={classes.formTitleWrapper}>
-                        <div className={classes.mainTitleWrapper}>
-                            <div className={classes.iconWrapper}>
-                                <PropertyIcon />
+    const userInputs = {
+            selectedType,
+            otherType,
+            varName,
+            variableExpression
+    };
+
+    let exprEditor =
+            <FormControl data-testid="property-form" className={classes.wizardFormControl}>
+                {!isCodeEditorActive ?
+                    (
+                        <div>
+                            <div className={classes.formTitleWrapper}>
+                                <div className={classes.mainTitleWrapper}>
+                                    <div className={classes.iconWrapper}>
+                                        <PropertyIcon />
+                                    </div>
+                                    <Typography variant="h4">
+                                        <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.variable.title" defaultMessage="Variable" /></Box>
+                                    </Typography>
+                                    <div style={{marginLeft: "auto", marginRight: 0}}>
+                                                    <ButtonWithIcon
+                                                        icon={<EditIcon/>}
+                                                        onClick={handleStmtEditorButtonClick}
+                                                    />
+                                            </div>
+                                </div>
                             </div>
-                            <Typography variant="h4">
-                                <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.variable.title" defaultMessage="Variable" /></Box>
-                            </Typography>
-                        </div>
-                    </div>
 
 
-                    <div className={classes.activeWrapper}>
-                        <SelectDropdownWithButton
-                            defaultValue={selectedType === "other" ? "other" : modelType}
-                            customProps={{
-                                disableCreateNew: true,
-                                values: variableTypes,
-                            }}
-                            label={variableTypeLabel}
-                            onChange={handleTypeChange}
-                        />
-                        {(selectedType === "other") && (
-                            <FormTextInput
-                                defaultValue={otherType}
-                                onChange={handleOtherTypeOnChange}
-                                label={otherTypeLabel}
-                                placeholder={enterTypePlaceholder}
-                            />
-                        )}
-                        <FormTextInput
-                            dataTestId="variable-name"
-                            customProps={{
-                                validate: validateNameValue,
-                                disabled: variableHasReferences
-                            }}
-                            defaultValue={varName}
-                            onChange={handleNameOnChange}
-                            label={addVariableNameLabel}
-                            errorMessage={varNameError}
-                            placeholder={addVariablePlaceholder}
-                        />
-                        <div className="exp-wrapper">
-                            <ExpressionEditor
-                                key={selectedType}
-                                model={{ name: "Expression", value: variableExpression, type: (modelType ? modelType : "other") }}
-                                customProps={{
-                                    validate: validateExpression,
-                                    expandDefault: (selectedType === "other"),
-                                    tooltipTitle: variableTooltipMessages.expressionEditor.title,
-                                    tooltipActionText: variableTooltipMessages.expressionEditor.actionText,
-                                    tooltipActionLink: variableTooltipMessages.expressionEditor.actionLink,
-                                    interactive: true,
-                                    focus: editorFocus,
-                                    statementType: (modelType ? modelType : "other") as PrimitiveBalType,
-                                    revertFocus: revertEditorFocus
-                                }}
-                                onChange={onPropertyChange}
-                                defaultValue={variableExpression}
-                            />
-                            <button onClick={handleStmtEditorButtonClick}>Edit</button>
+                            <div className={classes.activeWrapper}>
+                                <SelectDropdownWithButton
+                                    defaultValue={selectedType === "other" ? "other" : modelType}
+                                    customProps={{
+                                        disableCreateNew: true,
+                                        values: variableTypes,
+                                    }}
+                                    label={variableTypeLabel}
+                                    onChange={handleTypeChange}
+                                />
+                                {(selectedType === "other") && (
+                                    <FormTextInput
+                                        defaultValue={otherType}
+                                        onChange={handleOtherTypeOnChange}
+                                        label={otherTypeLabel}
+                                        placeholder={enterTypePlaceholder}
+                                    />
+                                )}
+                                <FormTextInput
+                                    dataTestId="variable-name"
+                                    customProps={{
+                                        validate: validateNameValue,
+                                        disabled: variableHasReferences
+                                    }}
+                                    defaultValue={varName}
+                                    onChange={handleNameOnChange}
+                                    label={addVariableNameLabel}
+                                    errorMessage={varNameError}
+                                    placeholder={addVariablePlaceholder}
+                                />
+                                <div className="exp-wrapper">
+                                    <ExpressionEditor
+                                        key={selectedType}
+                                        model={{ name: "Expression", value: variableExpression, type: (modelType ? modelType : "other") }}
+                                        customProps={{
+                                            validate: validateExpression,
+                                            expandDefault: (selectedType === "other"),
+                                            tooltipTitle: variableTooltipMessages.expressionEditor.title,
+                                            tooltipActionText: variableTooltipMessages.expressionEditor.actionText,
+                                            tooltipActionLink: variableTooltipMessages.expressionEditor.actionLink,
+                                            interactive: true,
+                                            focus: editorFocus,
+                                            statementType: (modelType ? modelType : "other") as PrimitiveBalType,
+                                            revertFocus: revertEditorFocus
+                                        }}
+                                        onChange={onPropertyChange}
+                                        defaultValue={variableExpression}
+                                    />
+                                </div>
+                            </div>
+                            <div className={overlayClasses.buttonWrapper}>
+                                <SecondaryButton text={cancelVariableButtonText} fullWidth={false} onClick={onCancel} />
+                                <PrimaryButton
+                                    dataTestId="save-btn"
+                                    text={saveVariableButtonText}
+                                    disabled={isMutationInProgress || !validForm}
+                                    fullWidth={false}
+                                    onClick={handleSave}
+                                />
+                            </div>
                         </div>
-                    </div>
-                    <div className={overlayClasses.buttonWrapper}>
-                        <SecondaryButton text={cancelVariableButtonText} fullWidth={false} onClick={onCancel} />
-                        <PrimaryButton
-                            dataTestId="save-btn"
-                            text={saveVariableButtonText}
-                            disabled={isMutationInProgress || !validForm}
-                            fullWidth={false}
-                            onClick={handleSave}
-                        />
-                    </div>
-                </div>
-            )
-            :
-            null
-        }
-    </FormControl >;
+                    )
+                    :
+                    null
+                }
+            </FormControl >;
 
     if (isStmtEditor) {
         exprEditor = <FormControl data-testid="property-form" className={classes.stmtEditorFormControl}>
@@ -342,6 +356,8 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                     <ViewContainer
                         kind="DefaultBoolean"
                         label="Variable Statement"
+                        formArgs={formArgs}
+                        userInputs={userInputs}
                         onCancel={handleStmtEditorCancel}
                     />
                 </div>

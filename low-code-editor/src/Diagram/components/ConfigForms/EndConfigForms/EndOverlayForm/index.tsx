@@ -33,7 +33,7 @@ interface EndOverlayFormProps {
 
 export function EndOverlayForm(props: EndOverlayFormProps) {
     const { config, onCancel, onSave, configOverlayFormStatus } = props;
-    const { isLoading, error, formType } = configOverlayFormStatus;
+    const { isLoading, error, formType, formArgs } = configOverlayFormStatus;
     const isExpressionFunctionBody: boolean = config.model ?
     STKindChecker.isExpressionFunctionBody(config.model) : false;
     const {
@@ -88,10 +88,8 @@ export function EndOverlayForm(props: EndOverlayFormProps) {
     } else {
         return (
             <div>
-
-                {formType === "Return" && <AddReturnForm config={config} onSave={onSave} onCancel={onCancel} />}
-                {formType === "Respond" && <AddRespondForm config={config} onSave={onSave} onCancel={onCancel} />}
-
+                {formType === "Return" && <AddReturnForm config={config} formArgs={formArgs} onSave={onSave} onCancel={onCancel} />}
+                {formType === "Respond" && <AddRespondForm config={config} formArgs={formArgs} onSave={onSave} onCancel={onCancel} />}
             </div>
         );
     }
