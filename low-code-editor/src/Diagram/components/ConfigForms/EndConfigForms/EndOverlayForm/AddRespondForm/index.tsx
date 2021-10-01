@@ -173,6 +173,7 @@ export function AddRespondForm(props: RespondFormProps) {
                                             <ButtonWithIcon
                                                 icon={<EditIcon/>}
                                                 onClick={handleStmtEditorButtonClick}
+                                                disabled={true}
                                             />
                                     </div>
                             </div>

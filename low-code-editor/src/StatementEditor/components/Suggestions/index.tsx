@@ -43,13 +43,26 @@ export function Suggestions(props: SuggestionsProps) {
         <div>
             {suggestions.map((suggestion: SuggestionItem, index: number) => (
                 (suggestion.kind) ?
-                <button
-                    className={overlayClasses.AppSuggestionButtons}
-                    key={index}
-                    onClick={() => onClickOperatorSuggestion(suggestion)}
-                >
-                    {suggestion.value}
-                </button>
+                (
+                    (suggestion.kind === "PlusToken") ?
+                    <button
+                        className={overlayClasses.AppSuggestionButtons}
+                        key={index}
+                        onClick={() => onClickOperatorSuggestion(suggestion)}
+                    >
+                        {suggestion.value}
+                    </button>
+                    :
+                    <button
+                        className={overlayClasses.AppSuggestionButtons}
+                        key={index}
+                        onClick={() => onClickOperatorSuggestion(suggestion)}
+                        disabled={true}
+                    >
+                        {suggestion.value}
+                    </button>
+
+                )
                     :
                 <button
                     className={overlayClasses.AppSuggestionButtons}
