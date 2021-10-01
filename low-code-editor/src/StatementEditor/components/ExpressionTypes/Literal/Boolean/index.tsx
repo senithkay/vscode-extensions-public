@@ -15,12 +15,14 @@ import React from "react";
 import { BooleanLiteral, STNode } from "@ballerina/syntax-tree";
 
 import * as c from "../../../../constants";
+import { VariableUserInputs } from "../../../../models/definitions";
 import { getSuggestionsBasedOnExpressionKind } from "../../../../utils";
 import { SuggestionItem } from "../../../../utils/utils";
 
 interface LiteralProps {
     model: STNode
     callBack: (suggestions: SuggestionItem[], model: STNode) => void
+    userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }
 

@@ -15,22 +15,24 @@ import React from "react";
 
 import { STNode } from "@ballerina/syntax-tree";
 
+import { VariableUserInputs } from "../../../../models/definitions";
 import { SuggestionItem } from "../../../../utils/utils";
 import { InputEditor } from "../../../InputEditor";
 
 interface LiteralProps {
     model: STNode
     callBack: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void;
+    userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }
 
 export function NumericLiteralC(props: LiteralProps) {
-    const { model, callBack, diagnosticHandler } = props;
-
+    const { model, callBack, userInputs, diagnosticHandler } = props;
     const inputEditorProps = {
         statementType: model.kind,
         model,
         callBack,
+        userInputs,
         diagnosticHandler
     };
 

@@ -99,4 +99,5 @@ export interface VariableUserInputs {
     otherType?: string
     varName?: string
     variableExpression?: string
+    formField?: string
 }
