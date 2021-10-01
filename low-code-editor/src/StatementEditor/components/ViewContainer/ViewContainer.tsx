@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
+// tslint:disable: jsx-no-multiline-js ordered-imports
 import React, { useEffect, useState } from 'react';
 import { useIntl } from "react-intl";
 
@@ -24,9 +24,9 @@ import { ModelContext } from '../../store/model-context'
 import { getDefaultModel } from "../../utils";
 import { LeftPane } from '../LeftPane';
 import { RightPane } from '../RightPane';
+import { OnCancelContext } from '../../store/form-cancel-context';
 
 import { statementEditorStyles } from "./styles";
-import { onCancelContext } from '../../store/form-cancel-context';
 
 interface ViewProps {
     kind: string,
@@ -78,7 +78,7 @@ export function ViewContainer(props: ViewProps) {
                         statementModel: defaultModel
                     }}
                 >
-                    <onCancelContext.Provider
+                    <OnCancelContext.Provider
                         value={{
                             onCancelled: onCancelClicked
                         }}
@@ -88,8 +88,9 @@ export function ViewContainer(props: ViewProps) {
                             currentModel={currentModel}
                             kind={kind}
                             label={label}
-                        userInputs={userInputs}/>
-                    </onCancelContext.Provider>
+                            userInputs={userInputs}
+                        />
+                    </OnCancelContext.Provider>
                 </ModelContext.Provider>
                 <div className={overlayClasses.vl} />
                 <RightPane />

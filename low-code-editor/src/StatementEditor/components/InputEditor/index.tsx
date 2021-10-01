@@ -23,7 +23,7 @@ import * as c from "../../constants";
 import { ModelContext } from "../../store/model-context";
 import { addExpression, SuggestionItem } from "../../utils/utils";
 import { visitor as CodeGenVisitor } from "../Visitors/codeGenVisitor";
-import { onCancelContext } from "../../store/form-cancel-context";
+import { OnCancelContext } from "../../store/form-cancel-context";
 
 export interface InputEditorProps {
     model: STNode,
@@ -55,8 +55,8 @@ export function InputEditor(props: InputEditorProps) {
     });
 
     const { model, callBack, statementType, diagnosticHandler } = props;
-    const ctx = useContext(ModelContext);
-    const onCancel = useContext(onCancelContext);
+    const modelCtx = useContext(ModelContext);
+    const onCancelCtx = useContext(OnCancelContext);
 
     let literalModel: StringLiteral | NumericLiteral;
     let value: any;
@@ -196,13 +196,13 @@ export function InputEditor(props: InputEditorProps) {
         }
     }
 
-    if(onCancel.onCancelled) {
+    if (onCancelCtx.onCancelled) {
         revertContent();
     }
 
     useEffect(() => {
         CodeGenVisitor.clearCodeSnippet();
-        traversNode(ctx.statementModel, CodeGenVisitor);
+        traversNode(modelCtx.statementModel, CodeGenVisitor);
         handleOnFocus(CodeGenVisitor.getCodeSnippet(), "");
     }, [statementType]);
 
@@ -216,7 +216,7 @@ export function InputEditor(props: InputEditorProps) {
             callBack([], model, false);
 
             CodeGenVisitor.clearCodeSnippet();
-            traversNode(ctx.statementModel, CodeGenVisitor);
+            traversNode(modelCtx.statementModel, CodeGenVisitor);
             handleContentChange(CodeGenVisitor.getCodeSnippet(), "")
         }
     };
@@ -227,7 +227,7 @@ export function InputEditor(props: InputEditorProps) {
             callBack([], model, false);
 
             CodeGenVisitor.clearCodeSnippet();
-            traversNode(ctx.statementModel, CodeGenVisitor);
+            traversNode(modelCtx.statementModel, CodeGenVisitor);
             handleContentChange(CodeGenVisitor.getCodeSnippet(), "")
         }
     };
@@ -237,7 +237,7 @@ export function InputEditor(props: InputEditorProps) {
         addExpression(model, kind, event.currentTarget.textContent ? event.currentTarget.textContent : "");
         callBack([], model, false);
         CodeGenVisitor.clearCodeSnippet();
-        traversNode(ctx.statementModel, CodeGenVisitor);
+        traversNode(modelCtx.statementModel, CodeGenVisitor);
         debouncedContentChange(CodeGenVisitor.getCodeSnippet(), "");
     };
 

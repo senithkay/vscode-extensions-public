@@ -12,6 +12,6 @@
  */
 import React from 'react';
 
-export const onCancelContext = React.createContext({
+export const OnCancelContext = React.createContext({
     onCancelled: false
 });
