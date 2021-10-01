@@ -23,6 +23,7 @@ import * as c from "../../constants";
 import { ModelContext } from "../../store/model-context";
 import { addExpression, SuggestionItem } from "../../utils/utils";
 import { visitor as CodeGenVisitor } from "../Visitors/codeGenVisitor";
+import { onCancelContext } from "../../store/form-cancel-context";
 
 export interface InputEditorProps {
     model: STNode,
@@ -55,6 +56,7 @@ export function InputEditor(props: InputEditorProps) {
 
     const { model, callBack, statementType, diagnosticHandler } = props;
     const ctx = useContext(ModelContext);
+    const onCancel = useContext(onCancelContext);
 
     let literalModel: StringLiteral | NumericLiteral;
     let value: any;
@@ -171,6 +173,8 @@ export function InputEditor(props: InputEditorProps) {
 
     // Revert file changes
     const revertContent = async () => {
+        // tslint:disable-next-line:no-console
+        console.log("==========REVERTING-CONTENT")
         if (inputEditorState?.uri) {
             inputEditorState.name = "modelName";
             inputEditorState.content = (currentFile.content);
@@ -192,11 +196,9 @@ export function InputEditor(props: InputEditorProps) {
         }
     }
 
-    // useEffect(() => {
-    //     if (changed !== undefined) {
-    //         revertContent();
-    //     }
-    // }, [changed]);
+    if(onCancel.onCancelled) {
+        revertContent();
+    }
 
     useEffect(() => {
         CodeGenVisitor.clearCodeSnippet();

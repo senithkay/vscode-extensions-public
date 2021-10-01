@@ -11,20 +11,21 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useIntl } from "react-intl";
 
-import {STNode} from "@ballerina/syntax-tree";
+import { STNode } from "@ballerina/syntax-tree";
 
-import {wizardStyles} from "../../../Diagram/components/ConfigForms/style";
-import {PrimaryButton} from "../../../Diagram/components/Portals/ConfigForm/Elements/Button/PrimaryButton";
-import {SecondaryButton} from "../../../Diagram/components/Portals/ConfigForm/Elements/Button/SecondaryButton";
+import { wizardStyles } from "../../../Diagram/components/ConfigForms/style";
+import { PrimaryButton } from "../../../Diagram/components/Portals/ConfigForm/Elements/Button/PrimaryButton";
+import { SecondaryButton } from "../../../Diagram/components/Portals/ConfigForm/Elements/Button/SecondaryButton";
 import { ModelContext } from '../../store/model-context'
-import {getDefaultModel} from "../../utils";
-import {LeftPane} from '../LeftPane';
-import {RightPane} from '../RightPane';
+import { getDefaultModel } from "../../utils";
+import { LeftPane } from '../LeftPane';
+import { RightPane } from '../RightPane';
 
-import {statementEditorStyles} from "./styles";
+import { statementEditorStyles } from "./styles";
+import { onCancelContext } from '../../store/form-cancel-context';
 
 interface ViewProps {
     kind: string,
@@ -33,14 +34,25 @@ interface ViewProps {
 }
 
 export function ViewContainer(props: ViewProps) {
-    const {kind, label, onCancel} = props;
+    const { kind, label, onCancel } = props;
     const intl = useIntl();
 
     const defaultModel = getDefaultModel(kind);
+    const [onCancelClicked, setOnCancel] = useState(false);
 
     const currentModel: { model: STNode } = {
         model: defaultModel
     }
+
+    const onCancelHandler = () => {
+        setOnCancel(true);
+    }
+
+    useEffect(() => {
+        return () => {
+            onCancel();
+        }
+    }, [onCancelClicked])
 
     const overlayClasses = statementEditorStyles();
     const wizardStylesClasses = wizardStyles();
@@ -63,22 +75,28 @@ export function ViewContainer(props: ViewProps) {
                         statementModel: defaultModel
                     }}
                 >
-                    <LeftPane
-                        model={defaultModel}
-                        currentModel={currentModel}
-                        kind={kind}
-                        label={label}
-                    />
+                    <onCancelContext.Provider
+                        value={{
+                            onCancelled: onCancelClicked
+                        }}
+                    >
+                        <LeftPane
+                            model={defaultModel}
+                            currentModel={currentModel}
+                            kind={kind}
+                            label={label}
+                        />
+                    </onCancelContext.Provider>
                 </ModelContext.Provider>
-                <div className={overlayClasses.vl}/>
-                <RightPane/>
+                <div className={overlayClasses.vl} />
+                <RightPane />
             </div>
             <div className={overlayClasses.AppBottomPane}>
                 <div className={wizardStylesClasses.buttonWrapper}>
                     <SecondaryButton
                         text={cancelVariableButtonText}
                         fullWidth={false}
-                        onClick={onCancel}
+                        onClick={onCancelHandler}
                     />
                     <PrimaryButton
                         dataTestId="save-btn"
