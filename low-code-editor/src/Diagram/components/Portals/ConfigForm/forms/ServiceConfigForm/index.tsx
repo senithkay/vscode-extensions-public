@@ -10,10 +10,57 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from "react";
+import React, { useState } from "react";
 
-export function ServiceConfigForm() {
+import { STNode } from "@ballerina/syntax-tree";
+import { Box, FormControl, Typography } from "@material-ui/core";
+
+import { ServiceIcon } from "../../../../../../assets/icons";
+import { STModification } from "../../../../../../Definitions";
+import { DraftUpdatePosition } from "../../../../../view-state/draft";
+import { useStyles as useFormStyles } from "../style";
+
+import { HttpServiceForm } from "./forms/HttpService";
+import { ServiceTypeSelector } from "./ServiceTypeSelector";
+// import './style.scss';
+
+interface ServiceConfigFormProps {
+    model?: STNode;
+    targetPosition?: DraftUpdatePosition;
+    onClose: () => void;
+    onSave: (modifications: STModification[]) => void;
+}
+
+export function ServiceConfigForm(props: ServiceConfigFormProps) {
+    const formClasses = useFormStyles();
+    const { model, targetPosition } = props;
+    const [serviceType, setServiceType] = useState<string>(undefined);
+
+    let configForm = <div />;
+
+    switch (serviceType) {
+        case 'HTTP':
+            configForm = <HttpServiceForm />
+            break;
+
+    }
+
     return (
-        <div>This is the Service Config Form!!!</div>
+        <FormControl data-testid="log-form" className={formClasses.wizardFormControl}>
+            <div className={formClasses.formTitleWrapper}>
+                <div className={formClasses.mainTitleWrapper}>
+                    <ServiceIcon color={'#CBCEDB'} />
+                    <Typography variant="h4">
+                        <Box paddingTop={2} paddingBottom={2}>Service</Box>
+                    </Typography>
+                </div>
+            </div>
+
+            <div className={formClasses.formWrapper}>
+                {!serviceType && <ServiceTypeSelector onSelect={setServiceType} />}
+                {serviceType && configForm}
+            </div>
+
+        </FormControl>
     )
 }

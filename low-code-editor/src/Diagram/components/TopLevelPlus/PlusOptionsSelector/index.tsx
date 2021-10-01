@@ -88,7 +88,10 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
             }
             {
                 selectedOption && (
-                    <FormGenerator configOverlayFormStatus={{ formType: selectedOption.type, isLoading: false }} />
+                    <FormGenerator
+                        configOverlayFormStatus={{ formType: selectedOption.type, isLoading: false, formArgs: {} }}
+                        onCancel={handleOnClose}
+                    />
                 )
             }
         </>
