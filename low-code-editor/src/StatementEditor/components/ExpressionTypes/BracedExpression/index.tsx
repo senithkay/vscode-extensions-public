@@ -14,6 +14,7 @@ import React from "react";
 
 import { BracedExpression, STNode } from "@ballerina/syntax-tree";
 
+import * as c from "../../../constants";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { SuggestionItem } from "../../../utils/utils";
 import { ExpressionComponent } from "../../Expression";
@@ -42,18 +43,13 @@ export function BracedExpressionC(props: BracedExprProps) {
 
     const onClickOnExpression = (event: any) => {
         event.stopPropagation()
-        // TODO: Change the kind appropriately
-        callBack(getSuggestionsBasedOnExpressionKind("Arithmetic"), expression, false);
+        // TODO: Give the kind appropriately
+        callBack(getSuggestionsBasedOnExpressionKind(c.DEFAULT_STRING), expression, false);
     };
 
     return (
         <span>
-            <button
-                className={overlayClasses.AppTemplateButton}
-                onClick={onClickOnExpression}
-            >
-                {expressionComponent}
-            </button>
+            {expressionComponent}
         </span>
     );
 }

@@ -125,6 +125,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                                         <ButtonWithIcon
                                             icon={<EditIcon/>}
                                             onClick={handleStmtEditorButtonClick}
+                                            disabled={true}
                                         />
                                     </div>
                                 </div>

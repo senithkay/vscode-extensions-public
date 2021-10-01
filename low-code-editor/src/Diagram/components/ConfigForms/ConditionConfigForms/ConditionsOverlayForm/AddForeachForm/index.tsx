@@ -224,6 +224,7 @@ export function AddForeachForm(props: ForeachProps) {
                                             <ButtonWithIcon
                                                 icon={<EditIcon/>}
                                                 onClick={handleStmtEditorButtonClick}
+                                                disabled={true}
                                             />
                                     </div>
                                 </div>
