@@ -41,24 +41,24 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
         this.extensionPath = ballerinaExtension.extension.extensionPath;
         workspace.onDidOpenTextDocument(document => {
             if (document.languageId === LANGUAGE.BALLERINA || document.fileName.endsWith(BAL_TOML)) {
-                this.ballerinaExtension.setLatestDocument(document.uri);
+                this.ballerinaExtension.getDocumentContext().setLatestDocument(document.uri);
                 this.refresh();
             }
         });
         workspace.onDidChangeTextDocument(activatedTextEditor => {
             if (activatedTextEditor && activatedTextEditor.document.languageId === LANGUAGE.BALLERINA ||
                 activatedTextEditor.document.fileName.endsWith(BAL_TOML)) {
-                this.ballerinaExtension.setLatestDocument(activatedTextEditor.document.uri);
+                this.ballerinaExtension.getDocumentContext().setLatestDocument(activatedTextEditor.document.uri);
                 this.refresh();
             }
         });
         workspace.onDidChangeWorkspaceFolders(listener => {
-            const latestDiagramDocument = this.ballerinaExtension.getLatestDocument();
+            const latestDiagramDocument = this.ballerinaExtension.getDocumentContext().getLatestDocument();
             if (latestDiagramDocument) {
                 for (let i = 0; i < listener.removed.length; i++) {
                     const file = listener.removed[i];
                     if (file.uri === latestDiagramDocument) {
-                        this.ballerinaExtension.setLatestDocument(undefined);
+                        this.ballerinaExtension.getDocumentContext().setLatestDocument(undefined);
                     }
                 }
             }
@@ -112,7 +112,7 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
             let currentFileUri: string;
             let fileName: string = '';
 
-            const latestDocument: Uri | undefined = this.ballerinaExtension.getLatestDocument();
+            const latestDocument: Uri | undefined = this.ballerinaExtension.getDocumentContext().getLatestDocument();
             if (!activeDocument && !latestDocument && (!workspace.workspaceFolders || (workspace.workspaceFolders
                 && workspace.workspaceFolders.length == 0))) {
                 resolve([]);

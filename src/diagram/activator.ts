@@ -93,7 +93,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension, diagramOvervi
 	overviewDataProvider = diagramOverviewDataProvider;
 	ballerinaExtension = ballerinaExtInstance;
 
-	ballerinaExtInstance.onEditorChanged(change => {
+	ballerinaExtInstance.getDocumentContext().onEditorChanged(change => {
 		refreshDiagramForEditorChange(change);
 	});
 
@@ -118,7 +118,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension, diagramOvervi
 	context.subscriptions.push(diagramRenderDisposable);
 
 	commands.registerCommand('ballerina.show.source', () => {
-		const path = ballerinaExtension.getLatestDocument();
+		const path = ballerinaExtension.getDocumentContext().getLatestDocument();
 		if (!path) {
 			return;
 		}
@@ -285,7 +285,7 @@ function performDidOpen() {
 	} else if (diagramElement!.fileUri) {
 		tempUri = diagramElement?.fileUri!;
 	}
-	ballerinaExtension.setLatestDocument(tempUri);
+	ballerinaExtension.getDocumentContext().setLatestDocument(tempUri);
 	const doc = workspace.textDocuments.find((doc) => doc.uri === tempUri);
 	if (doc) {
 		return;

@@ -36,8 +36,8 @@ export class ExplorerDataProvider implements TreeDataProvider<ExplorerTreeItem> 
     constructor(ballerinaExtension: BallerinaExtension) {
         this.ballerinaExtension = ballerinaExtension;
         workspace.onDidOpenTextDocument(document => {
-            ballerinaExtension.setDiagramActiveContext(false);
             if (document.languageId === LANGUAGE.BALLERINA || document.fileName.endsWith(BAL_TOML)) {
+                ballerinaExtension.setDiagramActiveContext(false);
                 this.refresh();
             }
         });

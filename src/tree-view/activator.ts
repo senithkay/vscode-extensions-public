@@ -82,7 +82,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
 
     commands.registerCommand(TREE_ELEMENT_EXECUTE_COMMAND, (filePath: string, kind: string, startLine: number,
         startColumn: number, name: string) => {
-        ballerinaExtInstance.diagramTreeElementClicked({
+        ballerinaExtInstance.getDocumentContext().diagramTreeElementClicked({
             filePath,
             kind,
             startLine,
@@ -91,7 +91,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
         });
     });
 
-    ballerinaExtInstance.onDiagramTreeElementClicked((construct: ConstructIdentifier) => {
+    ballerinaExtInstance.getDocumentContext().onDiagramTreeElementClicked((construct: ConstructIdentifier) => {
         if (construct.kind === CMP_KIND.FUNCTION || construct.kind === CMP_KIND.RESOURCE ||
             construct.kind == CMP_KIND.RECORD || construct.kind == CMP_KIND.OBJECT || construct.kind == CMP_KIND.TYPE
             || construct.kind == CMP_KIND.CLASS || construct.kind == CMP_KIND.ENUM ||
@@ -100,7 +100,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
             construct.kind == CMP_KIND.SERVICE || construct.kind == EXPLORER_ITEM_KIND.BAL_FILE) {
             showDiagramEditor(construct.startLine, construct.startColumn, construct.kind, construct.name,
                 construct.filePath);
-            ballerinaExtInstance.setLatestDocument(Uri.file(construct.filePath));
+            ballerinaExtInstance.getDocumentContext().setLatestDocument(Uri.file(construct.filePath));
             packageTreeDataProvider.refresh();
             explorerDataProvider.refresh();
         }

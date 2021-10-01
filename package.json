@@ -315,17 +315,17 @@
                 {
                     "id": "ballerinaExplorerTreeView",
                     "name": "Explorer",
-                    "contextualTitle": "Explorer"
+                    "contextualTitle": "Diagram Explorer"
                 },
                 {
                     "id": "ballerinaPackageTreeView",
                     "name": "Outline",
-                    "contextualTitle": "Diagram Explorer"
+                    "contextualTitle": "Package Outline"
                 },
                 {
                     "id": "sessionExplorer",
                     "name": "Choreo Session Details",
-                    "contextualTitle": "Diagram Explorer"
+                    "contextualTitle": "Choreo Session"
                 }
             ]
         },
