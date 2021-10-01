@@ -65,5 +65,4 @@ export interface Advanced {
 export interface AdvancedResourceState {
     path: Map<number, boolean>;
     payloadSelected: Map<number, boolean>;
-    returnType: Map<number, boolean>;
 }
