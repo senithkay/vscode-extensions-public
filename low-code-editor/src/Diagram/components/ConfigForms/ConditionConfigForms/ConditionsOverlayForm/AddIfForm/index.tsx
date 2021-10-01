@@ -133,11 +133,6 @@ export function AddIfForm(props: IfProps) {
                 (
                     <div className={classes.formWrapper}>
                         <div className={classes.formWrapper}>
-                            <ButtonWithIcon
-                                className={classes.overlayDeleteBtn}
-                                onClick={onCancel}
-                                icon={<CloseRounded fontSize="small" />}
-                            />
                             <div className={classes.formTitleWrapper}>
                                 <div className={classes.mainTitleWrapper}>
                                     <div className={classes.iconWrapper}>
@@ -190,17 +185,8 @@ export function AddIfForm(props: IfProps) {
                         kind="DefaultBoolean"
                         label="Variable Statement"
                         formArgs={formArgs}
+                        onCancel={handleStmtEditorCancel}
                     />
-                    <div className={overlayClasses.buttonWrapper}>
-                    <SecondaryButton text="Cancel" fullWidth={false} onClick={handleStmtEditorCancel} />
-                    <PrimaryButton
-                        dataTestId={"if-save-btn"}
-                        text={saveIfConditionButtonLabel}
-                        disabled={isMutationInProgress || isInvalid}
-                        fullWidth={false}
-                        onClick={handleOnSaveClick}
-                    />
-                    </div>
                 </div>
             ) : null}
         </FormControl>

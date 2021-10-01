@@ -107,12 +107,6 @@ export function AddReturnForm(props: ReturnFormProps) {
                 (
                     <div className={classes.formWrapper}>
                         <div className={classes.formTitleWrapper}>
-
-                            <ButtonWithIcon
-                                className={classes.overlayDeleteBtn}
-                                onClick={onCancel}
-                                icon={<CloseRounded fontSize="small" />}
-                            />
                             <div className={classes.mainTitleWrapper}>
                                 <div className={classes.iconWrapper}>
                                     <ReturnIcon />
@@ -177,17 +171,8 @@ export function AddReturnForm(props: ReturnFormProps) {
                         kind="DefaultBoolean"
                         label="Variable Statement"
                         formArgs={formArgs}
+                        onCancel={handleStmtEditorCancel}
                     />
-
-                    <div className={overlayClasses.buttonWrapper}>
-                    <SecondaryButton text="Cancel" fullWidth={false} onClick={handleStmtEditorCancel} />
-                    <PrimaryButton
-                        text={saveReturnButtonLabel}
-                        disabled={isButtonDisabled}
-                        fullWidth={false}
-                        onClick={onReturnExpressionSave}
-                    />
-                    </div>
                 </div>
             ) : null}
         </FormControl>

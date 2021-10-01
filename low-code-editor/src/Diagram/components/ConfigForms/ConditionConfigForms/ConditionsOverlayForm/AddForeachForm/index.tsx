@@ -209,11 +209,6 @@ export function AddForeachForm(props: ForeachProps) {
                 (
                     <div className={classes.formWrapper}>
                         <div className={classes.formWrapper}>
-                            <ButtonWithIcon
-                                className={classes.overlayDeleteBtn}
-                                onClick={onCancel}
-                                icon={<CloseRounded fontSize="small" />}
-                            />
                             <div className={classes.formTitleWrapper}>
                                 <div className={classes.mainTitleWrapper}>
                                     <div className={classes.iconWrapper}>
@@ -274,16 +269,8 @@ export function AddForeachForm(props: ForeachProps) {
                         kind="DefaultBoolean"
                         label="Variable Statement"
                         formArgs={formArgs}
+                        onCancel={handleStmtEditorCancel}
                     />
-                    <div className={overlayClasses.buttonWrapper}>
-                    <SecondaryButton text="Cancel" fullWidth={false} onClick={handleStmtEditorCancel} />
-                    <PrimaryButton
-                        text={saveForEachButtonLabel}
-                        disabled={isMutationInProgress || isInvalid}
-                        fullWidth={false}
-                        onClick={handleSave}
-                    />
-                    </div>
                 </div>
             ) : null}
         </FormControl>

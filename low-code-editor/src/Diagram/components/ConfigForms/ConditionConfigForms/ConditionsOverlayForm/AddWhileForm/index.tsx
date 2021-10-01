@@ -121,11 +121,6 @@ export function AddWhileForm(props: WhileProps) {
         <FormControl data-testid="while-form" className={classes.wizardFormControl}>
             <div className={classes.formWrapper}>
                 <div className={classes.formWrapper}>
-                    <ButtonWithIcon
-                        className={classes.overlayDeleteBtn}
-                        onClick={onCancel}
-                        icon={<CloseRounded fontSize="small" />}
-                    />
                     <div className={classes.formTitleWrapper}>
                         <div className={classes.mainTitleWrapper}>
                             <div className={classes.iconWrapper}>
@@ -173,17 +168,8 @@ export function AddWhileForm(props: WhileProps) {
                         kind="DefaultBoolean"
                         label="Variable Statement"
                         formArgs={formArgs}
+                        onCancel={handleStmtEditorCancel}
                     />
-                    <div className={overlayClasses.buttonWrapper}>
-                    <SecondaryButton text="Cancel" fullWidth={false} onClick={handleStmtEditorCancel} />
-                    <PrimaryButton
-                        dataTestId={"while-save-btn"}
-                        text={saveWhileButtonLabel}
-                        disabled={isMutationInProgress || isInvalid}
-                        fullWidth={false}
-                        onClick={handleOnSaveClick}
-                    />
-                    </div>
                 </div>
         </FormControl>
         )

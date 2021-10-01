@@ -165,12 +165,6 @@ export function AddRespondForm(props: RespondFormProps) {
                 (
                     <div className={formClasses.formWrapper}>
                         <div className={formClasses.formTitleWrapper}>
-                            <ButtonWithIcon
-                                className={formClasses.overlayDeleteBtn}
-                                onClick={onCancel}
-                                icon={<CloseRounded fontSize="small" />}
-                            />
-
                             <div className={formClasses.mainTitleWrapper}>
                                 <RespondIcon />
                                 <Typography variant="h4">
@@ -248,18 +242,8 @@ export function AddRespondForm(props: RespondFormProps) {
                         kind="DefaultBoolean"
                         label="Variable Statement"
                         formArgs={formArgs}
+                        onCancel={handleStmtEditorCancel}
                     />
-                    <div className={overlayClasses.buttonWrapper}>
-                    <SecondaryButton text="Cancel" fullWidth={false} onClick={handleStmtEditorCancel} />
-                    <PrimaryButton
-                        dataTestId="save-btn"
-                        className="product-tour-save"
-                        text={saveRespondButtonLabel}
-                        disabled={disableSave}
-                        fullWidth={false}
-                        onClick={onSaveWithTour}
-                    />
-                    </div>
                 </div>
             ) : null}
         </FormControl>

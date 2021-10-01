@@ -112,11 +112,6 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
             (
                 <div className={formClasses.formWrapper}>
                     <div className={formClasses.formWrapper}>
-                        <ButtonWithIcon
-                            className={formClasses.overlayDeleteBtn}
-                            onClick={onCancel}
-                            icon={<CloseRounded fontSize="small" />}
-                        />
                         <div className={formClasses.formTitleWrapper}>
                             <div className={formClasses.mainTitleWrapper}>
                                 <LogoCircleIcon />
@@ -181,17 +176,8 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                         kind="DefaultBoolean"
                         label="Variable Statement"
                         formArgs={formArgs}
+                        onCancel={handleStmtEditorCancel}
                     />
-                    <div className={overlayClasses.buttonWrapper}>
-                    <SecondaryButton text="Cancel" fullWidth={false} onClick={handleStmtEditorCancel} />
-                        <PrimaryButton
-                            dataTestId={"custom-expression-save-btn"}
-                            text={saveCustomStatementButtonLabel}
-                            disabled={isMutationInProgress || !isFormValid}
-                            fullWidth={false}
-                            onClick={onSaveBtnClick}
-                        />
-                    </div>
                 </div>
             ) : null}
         </FormControl>

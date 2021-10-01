@@ -12,9 +12,13 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
+import { useIntl } from "react-intl";
 
 import {STNode} from "@ballerina/syntax-tree";
 
+import {wizardStyles} from "../../../Diagram/components/ConfigForms/style";
+import {PrimaryButton} from "../../../Diagram/components/Portals/ConfigForm/Elements/Button/PrimaryButton";
+import {SecondaryButton} from "../../../Diagram/components/Portals/ConfigForm/Elements/Button/SecondaryButton";
 import { ModelContext } from '../../store/model-context'
 import {getDefaultModel} from "../../utils";
 import {LeftPane} from '../LeftPane';
@@ -27,11 +31,13 @@ interface ViewProps {
     kind: string,
     label: string,
     formArgs: any,
-    userInputs?: variableUserInputs
+    userInputs?: variableUserInputs,
+    onCancel: () => void
 }
 
 export function ViewContainer(props: ViewProps) {
-    const {kind, label, formArgs, userInputs} = props;
+    const {kind, label, formArgs, userInputs, onCancel} = props;
+    const intl = useIntl();
 
     const defaultModel = getDefaultModel(kind);
 
@@ -40,24 +46,52 @@ export function ViewContainer(props: ViewProps) {
     }
 
     const overlayClasses = statementEditorStyles();
+    const wizardStylesClasses = wizardStyles();
+
+    const saveVariableButtonText = intl.formatMessage({
+        id: "lowcode.develop.configForms.variable.saveButton.text",
+        defaultMessage: "Save"
+    });
+
+    const cancelVariableButtonText = intl.formatMessage({
+        id: "lowcode.develop.configForms.variable.cancelButton.text",
+        defaultMessage: "Cancel"
+    });
 
     return (
         <div className={overlayClasses.App}>
-            <ModelContext.Provider
-                value={{
-                    statementModel: defaultModel
-                }}
-            >
-                <LeftPane
-                    model={defaultModel}
-                    currentModel={currentModel}
-                    kind={kind}
-                    label={label}
-                    userInputs={userInputs}
-                />
-            </ModelContext.Provider>
-            <div className={overlayClasses.vl}/>
-            <RightPane/>
+            <div className={overlayClasses.AppContentPane}>
+                <ModelContext.Provider
+                    value={{
+                        statementModel: defaultModel
+                    }}
+                >
+                    <LeftPane
+                        model={defaultModel}
+                        currentModel={currentModel}
+                        kind={kind}
+                        label={label}
+                        userInputs={userInputs}
+                    />
+                </ModelContext.Provider>
+                <div className={overlayClasses.vl}/>
+                <RightPane/>
+            </div>
+            <div className={overlayClasses.AppBottomPane}>
+                <div className={wizardStylesClasses.buttonWrapper}>
+                    <SecondaryButton
+                        text={cancelVariableButtonText}
+                        fullWidth={false}
+                        onClick={onCancel}
+                    />
+                    <PrimaryButton
+                        dataTestId="save-btn"
+                        text={saveVariableButtonText}
+                        disabled={true}
+                        fullWidth={false}
+                    />
+                </div>
+            </div>
         </div>
     )
 }

@@ -133,11 +133,6 @@ export function AddLogConfig(props: LogConfigProps) {
                 (
                     <div className={formClasses.formWrapper}>
                         <div className={formClasses.formWrapper}>
-                            <ButtonWithIcon
-                                className={formClasses.overlayDeleteBtn}
-                                onClick={onCancel}
-                                icon={<CloseRounded fontSize="small" />}
-                            />
                             <div className={formClasses.formTitleWrapper}>
                                 <div className={formClasses.mainTitleWrapper}>
                                     <div className={formClasses.iconWrapper}>
@@ -207,17 +202,8 @@ export function AddLogConfig(props: LogConfigProps) {
                         kind="DefaultBoolean"
                         label="Variable Statement"
                         formArgs={formArgs}
+                        onCancel={handleStmtEditorCancel}
                     />
-                    <div className={overlayClasses.buttonWrapper}>
-                    <SecondaryButton text="Cancel" fullWidth={false} onClick={handleStmtEditorCancel} />
-                            <PrimaryButton
-                                dataTestId={"log-save-btn"}
-                                text={saveLogButtonLabel}
-                                disabled={isMutationInProgress || !isFormValid}
-                                fullWidth={false}
-                                onClick={onSaveBtnClick}
-                            />
-                    </div>
                 </div>
             ) : null}
         </FormControl>

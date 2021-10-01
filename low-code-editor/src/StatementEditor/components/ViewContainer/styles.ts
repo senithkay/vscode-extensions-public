@@ -11,36 +11,51 @@
  * associated services.
  */
 // tslint:disable: ordered-imports
-import {createStyles, makeStyles} from '@material-ui/core/styles';
+import { createStyles, makeStyles } from '@material-ui/core/styles';
 
 export const statementEditorStyles = makeStyles(() =>
     createStyles({
         App: {
             display: "flex",
+            flexDirection: 'column',
             backgroundColor: '#fff',
-            width: '100%',
-            height: '100%'
+            width: 700,
+            height: 700
         },
         vl: {
             borderLeft: '3px solid #959ee1',
-            height: '90%',
-            position: 'absolute',
+            height: '100%',
             left: '60%',
             marginLeft: '-3px',
-            top: '2%'
+            top: '2%',
+            bottom: '10%'
         },
         AppRightPane: {
             display: 'flex',
             flexDirection: 'column',
             width: '40%',
-            height: 700
+            height: '100%'
         },
         AppLeftPane: {
             display: 'flex',
             flexDirection: 'column',
             backgroundColor: '#fff',
             width: '60%',
-            height: 700
+            height: '100%'
+        },
+        AppContentPane: {
+            display: 'flex',
+            flexDirection: 'row',
+            backgroundColor: '#fff',
+            width: '100%',
+            height: '90%'
+        },
+        AppBottomPane: {
+            display: 'flex',
+            flexDirection: 'column',
+            backgroundColor: '#fff',
+            width: '100%',
+            height: '10%'
         },
         AppRightPaneBlock: {
             backgroundColor: '#fff',
@@ -84,8 +99,14 @@ export const statementEditorStyles = makeStyles(() =>
             display: 'flex',
             position: 'relative',
             top: '5%',
-            height: '60%',
+            height: '55%',
             width: '90%',
+        },
+        AppDiagnosticsPane: {
+            color: '#ea4c4d',
+            display: 'flex',
+            height: '5%',
+            paddingLeft: '5%'
         },
         AppSuggestionBlock: {
             // backgroundColor: '#f7f8fb',

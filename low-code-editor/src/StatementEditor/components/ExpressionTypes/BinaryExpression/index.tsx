@@ -12,20 +12,21 @@
  */
 import React from "react";
 
-import {BinaryExpression, STNode} from "@ballerina/syntax-tree";
+import { BinaryExpression, STNode } from "@ballerina/syntax-tree";
 
-import {getKindBasedOnOperator, getOperatorSuggestions, getSuggestionsBasedOnExpressionKind} from "../../../utils";
-import {SuggestionItem} from "../../../utils/utils";
-import {ExpressionComponent} from "../../Expression";
-import {statementEditorStyles} from "../../ViewContainer/styles";
+import { getKindBasedOnOperator, getOperatorSuggestions, getSuggestionsBasedOnExpressionKind } from "../../../utils";
+import { SuggestionItem } from "../../../utils/utils";
+import { ExpressionComponent } from "../../Expression";
+import { statementEditorStyles } from "../../ViewContainer/styles";
 
 interface BinaryProps {
     model: STNode
     callBack: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void
+    diagnosticHandler: (diagnostics: string) => void
 }
 
 export function BinaryExpressionC(props: BinaryProps) {
-    const {model, callBack} = props;
+    const { model, callBack, diagnosticHandler } = props;
     let lhsExpression: any;
     let rhsExpression: any;
     let lhs: any;
@@ -41,8 +42,8 @@ export function BinaryExpressionC(props: BinaryProps) {
         lhsExpression = binaryExpModel.lhsExpr;
         rhsExpression = binaryExpModel.rhsExpr;
         operator = binaryExpModel.operator.value;
-        lhs = <ExpressionComponent model={lhsExpression} callBack={callBack} isRoot={false}/>;
-        rhs = <ExpressionComponent model={rhsExpression} callBack={callBack} isRoot={false}/>;
+        lhs = <ExpressionComponent model={lhsExpression} callBack={callBack} isRoot={false} diagnosticHandler={diagnosticHandler} />;
+        rhs = <ExpressionComponent model={rhsExpression} callBack={callBack} isRoot={false} diagnosticHandler={diagnosticHandler} />;
     }
 
     const kind = getKindBasedOnOperator(operatorKind);

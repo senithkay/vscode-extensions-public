@@ -13,7 +13,9 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
+import { CloseRounded } from "../../../assets/icons";
 import { OverlayBackground } from "../OverlayBackground";
+import { ButtonWithIcon } from "../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import { DiagramOverlayContainer } from "../Portals/Overlay";
 
 import "./style.scss";
@@ -26,6 +28,11 @@ export function Panel(props: any) {
             <DiagramOverlayContainer
             >
                 <div className="panel">
+                    <ButtonWithIcon
+                        className="panel-close-button"
+                        onClick={onClose}
+                        icon={<CloseRounded fontSize="small" />}
+                    />
                     <div className="panel-form-wrapper">
                         {children}
                     </div>
