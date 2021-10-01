@@ -24,7 +24,7 @@ import { ModelContext } from '../../store/model-context'
 import { getDefaultModel } from "../../utils";
 import { LeftPane } from '../LeftPane';
 import { RightPane } from '../RightPane';
-import { OnCancelContext } from '../../store/form-cancel-context';
+import { EditorCancelContext } from '../../store/form-cancel-context';
 
 import { statementEditorStyles } from "./styles";
 
@@ -78,7 +78,7 @@ export function ViewContainer(props: ViewProps) {
                         statementModel: defaultModel
                     }}
                 >
-                    <OnCancelContext.Provider
+                    <EditorCancelContext.Provider
                         value={{
                             onCancelled: onCancelClicked
                         }}
@@ -90,7 +90,7 @@ export function ViewContainer(props: ViewProps) {
                             label={label}
                             userInputs={userInputs}
                         />
-                    </OnCancelContext.Provider>
+                    </EditorCancelContext.Provider>
                 </ModelContext.Provider>
                 <div className={overlayClasses.vl} />
                 <RightPane />
