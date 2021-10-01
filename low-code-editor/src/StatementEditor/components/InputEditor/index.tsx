@@ -23,7 +23,7 @@ import * as c from "../../constants";
 import { ModelContext } from "../../store/model-context";
 import { addExpression, SuggestionItem } from "../../utils/utils";
 import { visitor as CodeGenVisitor } from "../Visitors/codeGenVisitor";
-import { EditorCancelContext } from "../../store/form-cancel-context";
+import { FormContext } from "../../store/form-context";
 import { VariableUserInputs } from "../../models/definitions";
 
 export interface InputEditorProps {
@@ -58,7 +58,7 @@ export function InputEditor(props: InputEditorProps) {
 
     const { model, callBack, statementType, diagnosticHandler, userInputs } = props;
     const modelCtx = useContext(ModelContext);
-    const onCancelCtx = useContext(EditorCancelContext);
+    const formCtx = useContext(FormContext);
 
     let literalModel: StringLiteral | NumericLiteral;
     let value: any;
@@ -127,8 +127,8 @@ export function InputEditor(props: InputEditorProps) {
         const codeSnippet = CodeGenVisitor.getCodeSnippet();
         const hasDiagnostic = !inputEditorState.diagnostic.length // true if there are no diagnostics
 
-        onCancelCtx.onChanged(codeSnippet);
-        onCancelCtx.validated("", !hasDiagnostic, false);
+        formCtx.onChange(codeSnippet);
+        formCtx.validate("", !hasDiagnostic, false);
 
         // TODO: Need to obtain the default value as a prop
         if (!CodeGenVisitor.getCodeSnippet().includes('expression')) {
@@ -198,7 +198,7 @@ export function InputEditor(props: InputEditorProps) {
         }
     }
 
-    if (onCancelCtx.onCancelled) {
+    if (formCtx.onCancel) {
         revertContent();
     }
 

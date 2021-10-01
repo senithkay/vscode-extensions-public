@@ -13,9 +13,9 @@
 // tslint:disable: no-empty
 import React from 'react';
 
-export const EditorCancelContext = React.createContext({
-    onCancelled: false,
-    onSaved: () => {},
-    onChanged: (p: string) => {},
-    validated: (f: string, v: boolean, e: boolean) => {},
+export const FormContext = React.createContext({
+    onCancel: false,
+    onSave: () => {},
+    onChange: (p: string) => {},
+    validate: (fieldName: string, isInvalid: boolean, isEmpty: boolean) => {},
 });

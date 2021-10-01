@@ -20,7 +20,7 @@ import { wizardStyles } from "../../../Diagram/components/ConfigForms/style";
 import { PrimaryButton } from "../../../Diagram/components/Portals/ConfigForm/Elements/Button/PrimaryButton";
 import { SecondaryButton } from "../../../Diagram/components/Portals/ConfigForm/Elements/Button/SecondaryButton";
 import { VariableUserInputs } from '../../models/definitions';
-import { EditorCancelContext } from '../../store/form-cancel-context';
+import { FormContext } from '../../store/form-context';
 import { ModelContext } from '../../store/model-context'
 import { getDefaultModel } from "../../utils";
 import { LeftPane } from '../LeftPane';
@@ -83,12 +83,12 @@ export function ViewContainer(props: ViewProps) {
                         statementModel: defaultModel
                     }}
                 >
-                    <EditorCancelContext.Provider
+                    <FormContext.Provider
                         value={{
-                            onCancelled: onCancelClicked,
-                            onSaved: onSave,
-                            onChanged: onChange,
-                            validated: validate
+                            onCancel: onCancelClicked,
+                            onSave,
+                            onChange,
+                            validate
                         }}
                     >
                         <LeftPane
@@ -98,7 +98,7 @@ export function ViewContainer(props: ViewProps) {
                             label={label}
                             userInputs={userInputs}
                         />
-                    </EditorCancelContext.Provider>
+                    </FormContext.Provider>
                 </ModelContext.Provider>
                 <div className={overlayClasses.vl} />
                 <RightPane />
