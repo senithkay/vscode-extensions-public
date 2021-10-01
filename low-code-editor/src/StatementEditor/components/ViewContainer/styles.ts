@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: ordered-imports
-import {createStyles, makeStyles} from '@material-ui/core/styles';
+import { createStyles, makeStyles } from '@material-ui/core/styles';
 
 export const statementEditorStyles = makeStyles(() =>
     createStyles({
@@ -99,8 +99,14 @@ export const statementEditorStyles = makeStyles(() =>
             display: 'flex',
             position: 'relative',
             top: '5%',
-            height: '60%',
+            height: '55%',
             width: '90%',
+        },
+        AppDiagnosticsPane: {
+            color: '#ea4c4d',
+            display: 'flex',
+            height: '5%',
+            paddingLeft: '5%'
         },
         AppSuggestionBlock: {
             // backgroundColor: '#f7f8fb',

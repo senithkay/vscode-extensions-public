@@ -10,10 +10,10 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import {BinaryExpression, BracedExpression, STNode, StringLiteral} from "@ballerina/syntax-tree";
+import { BinaryExpression, BracedExpression, NumericLiteral, STNode, StringLiteral } from "@ballerina/syntax-tree";
 
 import * as c from "../constants";
-import {Expression} from '../models/definitions';
+import { Expression } from '../models/definitions';
 
 export interface SuggestionItem {
     value: string,
@@ -46,11 +46,17 @@ export function addExpression(model: any, kind: string, value?: any) {
         Object.assign(model, createRelational());
     } else if (kind === c.EQUALITY) {
         Object.assign(model, createEquality());
-    } else if (kind === c.LITERAL) {
+    } else if (kind === c.STRING_LITERAL) {
         if (value) {
-            Object.assign(model, createLiteral(value));
+            Object.assign(model, createStringLiteral(value));
         } else {
-            Object.assign(model, createLiteral("expression"));
+            Object.assign(model, createStringLiteral("expression"));
+        }
+    } else if (kind === c.NUMERIC_LITERAL) {
+        if (value) {
+            Object.assign(model, createNumericLiteral(value));
+        } else {
+            Object.assign(model, createNumericLiteral("expression"));
         }
     } else {
         // tslint:disable-next-line:no-console
@@ -173,11 +179,24 @@ function createEquality(): BinaryExpression {
     };
 }
 
-function createLiteral(value: string) : StringLiteral {
+function createStringLiteral(value: string): StringLiteral {
     return {
         "kind": "StringLiteral",
         "literalToken": {
             "kind": "StringLiteralToken",
+            "isToken": true,
+            "value": value,
+            "source": ""
+        },
+        "source": ""
+    };
+}
+
+function createNumericLiteral(value: string): NumericLiteral {
+    return {
+        "kind": "NumericLiteral",
+        "literalToken": {
+            "kind": "DecimalIntegerLiteralToken",
             "isToken": true,
             "value": value,
             "source": ""
@@ -271,99 +290,104 @@ export const TypesForExpressionKind: { [key: string]: string[] } = {
 
 export const OperatorsForExpressionKind: { [key: string]: SuggestionItem[] } = {
     Arithmetic: [
-        {value: "+", kind: "PlusToken"},
-        {value: "-", kind: "MinusToken"},
-        {value: "*", kind: "AsteriskToken"},
-        {value: "/", kind: "SlashToken"},
-        {value: "%", kind: "PercentToken"}
+        { value: "+", kind: "PlusToken" },
+        { value: "-", kind: "MinusToken" },
+        { value: "*", kind: "AsteriskToken" },
+        { value: "/", kind: "SlashToken" },
+        { value: "%", kind: "PercentToken" }
     ],
     Relational: [
-        {value: ">", kind: "GtToken"},
-        {value: ">=", kind: "GtEqualToken"},
-        {value: "<", kind: "LtToken"},
-        {value: "<=", kind: "LtEqualToken"}
+        { value: ">", kind: "GtToken" },
+        { value: ">=", kind: "GtEqualToken" },
+        { value: "<", kind: "LtToken" },
+        { value: "<=", kind: "LtEqualToken" }
     ],
     Equality: [
-        {value: "==", kind: "DoubleEqualToken"},
-        {value: "!=", kind: "NotEqualToken"},
-        {value: "===", kind: "TrippleEqualToken"},
-        {value: "!==", kind: "NotDoubleEqualToken"}
+        { value: "==", kind: "DoubleEqualToken" },
+        { value: "!=", kind: "NotEqualToken" },
+        { value: "===", kind: "TrippleEqualToken" },
+        { value: "!==", kind: "NotDoubleEqualToken" }
     ],
     Logical: [
-        {value: "&&", kind: "LogicalAndToken"},
-        {value: "||", kind: "LogicalOrToken"}
+        { value: "&&", kind: "LogicalAndToken" },
+        { value: "||", kind: "LogicalOrToken" }
     ],
     Unary: [
-        {value: "+", kind: "PlusToken"},
-        {value: "-", kind: "MinusToken"},
-        {value: "!", kind: "Unknown"},
-        {value: "~", kind: "Unknown"}
+        { value: "+", kind: "PlusToken" },
+        { value: "-", kind: "MinusToken" },
+        { value: "!", kind: "Unknown" },
+        { value: "~", kind: "Unknown" }
     ],
     Shift: [
-        {value: "<<", kind: "Unknown"},
-        {value: ">>", kind: "Unknown"},
-        {value: ">>>", kind: "Unknown"}
+        { value: "<<", kind: "Unknown" },
+        { value: ">>", kind: "Unknown" },
+        { value: ">>>", kind: "Unknown" }
     ],
     Range: [
-        {value: "...", kind: "Unknown"},
-        {value: "..<", kind: "DoubleDotLtToken"}
+        { value: "...", kind: "Unknown" },
+        { value: "..<", kind: "DoubleDotLtToken" }
     ]
 }
 
 export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = {
-    Literal: [],
+    StringLiteral: [],
+    NumericLiteral: [],
     Relational: [
-        {value: c.ARITHMETIC},
-        {value: c.CONDITIONAL},
-        {value: c.TYPE_CHECK},
-        {value: c.RELATIONAL},
-        {value: c.LITERAL}
+        { value: c.ARITHMETIC },
+        { value: c.CONDITIONAL },
+        { value: c.TYPE_CHECK },
+        { value: c.RELATIONAL },
+        { value: c.NUMERIC_LITERAL }
     ],
     Arithmetic: [
-        {value: c.LITERAL},
-        {value: c.ARITHMETIC},
-        {value: c.CONDITIONAL}
+        { value: c.NUMERIC_LITERAL },
+        { value: c.ARITHMETIC },
+        { value: c.CONDITIONAL },
+        { value: c.STRING_LITERAL }
     ],
     Logical: [
-        {value: c.RELATIONAL},
-        {value: c.LOGICAL},
-        {value: c.CONDITIONAL},
-        {value: c.LITERAL}
+        { value: c.RELATIONAL },
+        { value: c.LOGICAL },
+        { value: c.CONDITIONAL },
+        { value: c.STRING_LITERAL }
     ],
     Conditional: [
-        {value: c.LITERAL},
-        {value: c.RELATIONAL},
-        {value: c.TYPE_CHECK},
-        {value: c.CONDITIONAL}
+        { value: c.STRING_LITERAL },
+        { value: c.NUMERIC_LITERAL },
+        { value: c.RELATIONAL },
+        { value: c.TYPE_CHECK },
+        { value: c.CONDITIONAL }
     ],
     Equality: [
-        {value: c.ARITHMETIC},
-        {value: c.CONDITIONAL},
-        {value: c.LITERAL},
-        {value: c.STRING_TEMPLATE}
+        { value: c.ARITHMETIC },
+        { value: c.CONDITIONAL },
+        { value: c.STRING_LITERAL },
+        { value: c.NUMERIC_LITERAL },
+        { value: c.STRING_TEMPLATE }
     ],
     DefaultBoolean: [
-        {value: c.RELATIONAL},
-        {value: c.EQUALITY},
-        {value: c.LOGICAL},
-        {value: c.LITERAL},
-        {value: c.TYPE_CHECK},
-        {value: c.CONDITIONAL},
-        {value: c.UNARY}
+        { value: c.RELATIONAL },
+        { value: c.EQUALITY },
+        { value: c.LOGICAL },
+        { value: c.STRING_LITERAL },
+        { value: c.TYPE_CHECK },
+        { value: c.CONDITIONAL },
+        { value: c.UNARY }
     ],
     TypeCheck: [
-        {value: c.LITERAL},
-        {value: c.CONDITIONAL}
+        { value: c.STRING_LITERAL },
+        { value: c.NUMERIC_LITERAL },
+        { value: c.CONDITIONAL }
     ],
     Unary: [
-        {value: c.LITERAL},
-        {value: c.RELATIONAL},
-        {value: c.EQUALITY},
-        {value: c.ARITHMETIC}
+        { value: c.NUMERIC_LITERAL },
+        { value: c.RELATIONAL },
+        { value: c.EQUALITY },
+        { value: c.ARITHMETIC }
     ],
     StringTemplate: [
-        {value: c.STRING_TEMPLATE},
-        {value: c.ARITHMETIC},
-        {value: c.CONDITIONAL}
+        { value: c.STRING_TEMPLATE },
+        { value: c.ARITHMETIC },
+        { value: c.CONDITIONAL }
     ]
 }
