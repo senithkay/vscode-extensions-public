@@ -35,8 +35,9 @@ export function VariableStatement(props: VariableStatementProps) {
 
     const onClickOnRootExpression = (event: any) => {
         event.stopPropagation()
-        callBack(getSuggestionsBasedOnExpressionKind(c.DEFAULT_BOOL), model, false) // Need to change this to get suggestions for variable
+        callBack(getSuggestionsBasedOnExpressionKind(c.DEFAULT_INTEGER), model, false) // Need to change this to get suggestions for given types
     };
+
     let type: string = "var";
     let varName: string = "x";
     if (userInputs) {

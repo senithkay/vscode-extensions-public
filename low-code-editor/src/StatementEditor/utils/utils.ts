@@ -374,6 +374,18 @@ export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = 
         { value: c.CONDITIONAL },
         { value: c.UNARY }
     ],
+    DefaultInteger: [
+        { value: c.ARITHMETIC },
+        { value: c.NUMERIC_LITERAL },
+        { value: c.CONDITIONAL },
+        { value: c.UNARY }
+    ],
+    DefaultString: [
+        { value: c.STRING_LITERAL },
+        { value: c.CONDITIONAL },
+        { value: c.STRING_TEMPLATE },
+        { value: c.ARITHMETIC }
+    ],
     TypeCheck: [
         { value: c.STRING_LITERAL },
         { value: c.NUMERIC_LITERAL },
