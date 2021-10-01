@@ -14,6 +14,7 @@ import React from "react";
 
 import { STNode } from "@ballerina/syntax-tree";
 
+import { VariableUserInputs } from "../../models/definitions";
 import { getExpressionTypeComponent } from "../../utils";
 import { SuggestionItem } from "../../utils/utils";
 import { VariableStatement } from "../Statements/VariableStatement";
@@ -21,12 +22,13 @@ import { VariableStatement } from "../Statements/VariableStatement";
 interface ExpressionComponentProps {
     model: STNode
     callBack: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void
-    isRoot: boolean
+    isRoot: boolean,
+    userInputs?: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }
 
 export function ExpressionComponent(props: ExpressionComponentProps) {
-    const { model, callBack, isRoot, diagnosticHandler } = props;
+    const {model, callBack, isRoot, userInputs, diagnosticHandler} = props;
 
     const component = getExpressionTypeComponent(model, callBack, diagnosticHandler);
 
@@ -42,6 +44,7 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
             callBack={callBack}
             isRoot={isRoot}
             component={component}
+            userInputs={userInputs}
         />
     );
 }

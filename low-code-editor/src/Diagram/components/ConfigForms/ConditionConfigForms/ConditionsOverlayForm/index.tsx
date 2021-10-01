@@ -33,7 +33,7 @@ interface ConditionsWizardProps {
 
 export function ConditionsOverlayForm(props: ConditionsWizardProps) {
     const { condition, onCancel, onSave, configOverlayFormStatus } = props;
-    const { isLoading, error, formType } = configOverlayFormStatus;
+    const { isLoading, error, formType, formArgs} = configOverlayFormStatus;
     const {
         api: {
             panNZoom: {
@@ -72,9 +72,9 @@ export function ConditionsOverlayForm(props: ConditionsWizardProps) {
     } else {
         return (
             <div>
-                {formType === "If" && <AddIfForm condition={condition} onSave={onSave} onCancel={onCancel} />}
-                {formType === "ForEach" && <AddForeachForm condition={condition} onSave={onSave} onCancel={onCancel} />}
-                {formType === "While" && <AddWhileForm condition={condition} onSave={onSave} onCancel={onCancel} />}
+                {formType === "If" && <AddIfForm condition={condition} formArgs={formArgs} onSave={onSave} onCancel={onCancel} />}
+                {formType === "ForEach" && <AddForeachForm condition={condition} formArgs={formArgs} onSave={onSave} onCancel={onCancel} />}
+                {formType === "While" && <AddWhileForm condition={condition} formArgs={formArgs} onSave={onSave} onCancel={onCancel} />}
             </div>
         );
     }

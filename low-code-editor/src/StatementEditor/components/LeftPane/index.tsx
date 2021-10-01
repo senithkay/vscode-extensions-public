@@ -15,23 +15,25 @@ import React, { useState } from "react";
 
 import { STNode } from "@ballerina/syntax-tree";
 
-import { getSuggestionsBasedOnExpressionKind } from "../../utils";
-import { SuggestionItem } from "../../utils/utils";
-import { ExpressionComponent } from '../Expression';
-import { Suggestions } from '../Suggestions';
-import { statementEditorStyles } from "../ViewContainer/styles";
+import {getSuggestionsBasedOnExpressionKind} from "../../utils";
+import {SuggestionItem} from "../../utils/utils";
+import {ExpressionComponent} from '../Expression';
+import {Suggestions} from '../Suggestions';
+import {statementEditorStyles} from "../ViewContainer/styles";
+import { VariableUserInputs } from "../../models/definitions";
 import { Diagnostics } from "../Diagnostics";
 
 interface ModelProps {
     model: STNode,
     kind: string,
     label: string,
-    currentModel: { model: STNode }
+    currentModel: { model: STNode },
+    userInputs?: VariableUserInputs
 }
 
 export function LeftPane(props: ModelProps) {
     const overlayClasses = statementEditorStyles();
-    const { model, kind, label, currentModel } = props;
+    const {model, kind, label, currentModel, userInputs} = props;
 
     const [suggestionList, setSuggestionsList] = useState(getSuggestionsBasedOnExpressionKind(kind));
     const [diagnosticList, setDiagnostic] = useState("");
@@ -60,7 +62,7 @@ export function LeftPane(props: ModelProps) {
             <h3 className={overlayClasses.AppLeftPaneHeading}>{label}</h3>
             <div className={overlayClasses.AppStatementTemplateEditor}>
                 <div className={overlayClasses.AppStatementTemplateEditorInner}>
-                    <ExpressionComponent model={model} callBack={onClickExpressionButton} isRoot={true} diagnosticHandler={diagnosticHandler} />
+                    <ExpressionComponent model={model} callBack={onClickExpressionButton} isRoot={true} userInputs={userInputs} diagnosticHandler={diagnosticHandler}/>
                 </div>
             </div>
             <div className={overlayClasses.AppDiagnosticsPane}>
