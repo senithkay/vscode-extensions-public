@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js ordered-imports
+// tslint:disable: jsx-no-multiline-js
 import React from "react";
 
 import { STNode } from "@ballerina/syntax-tree";

@@ -20,7 +20,7 @@ import { SuggestionItem } from "../../utils/utils";
 import { ExpressionComponent } from '../Expression';
 import { Suggestions } from '../Suggestions';
 import { statementEditorStyles } from "../ViewContainer/styles";
-import { Diagnostics } from "../InputEditor";
+import { Diagnostics } from "../Diagnostics";
 
 interface ModelProps {
     model: STNode,
