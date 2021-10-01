@@ -190,7 +190,6 @@ export function AddIfForm(props: IfProps) {
                         kind="DefaultBoolean"
                         label="Variable Statement"
                         formArgs={formArgs}
-                        config={condition}
                     />
                     <div className={overlayClasses.buttonWrapper}>
                     <SecondaryButton text="Cancel" fullWidth={false} onClick={handleStmtEditorCancel} />

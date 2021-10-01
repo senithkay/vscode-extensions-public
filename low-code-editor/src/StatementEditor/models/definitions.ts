@@ -93,3 +93,11 @@ export interface Unary {
     operator: "+" | "-" | "~" | "!" | "operator"
     operand: Expression
 }
+
+
+export interface variableUserInputs {
+    selectedType: string
+    otherType?: string
+    varName?: string
+    variableExpression?: string
+}

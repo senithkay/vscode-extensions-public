@@ -173,7 +173,6 @@ export function AddWhileForm(props: WhileProps) {
                         kind="DefaultBoolean"
                         label="Variable Statement"
                         formArgs={formArgs}
-                        config={condition}
                     />
                     <div className={overlayClasses.buttonWrapper}>
                     <SecondaryButton text="Cancel" fullWidth={false} onClick={handleStmtEditorCancel} />

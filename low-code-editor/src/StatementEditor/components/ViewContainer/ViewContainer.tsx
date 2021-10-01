@@ -21,13 +21,13 @@ import {LeftPane} from '../LeftPane';
 import {RightPane} from '../RightPane';
 
 import {statementEditorStyles} from "./styles";
+import { variableUserInputs } from '../../models/definitions';
 
 interface ViewProps {
     kind: string,
     label: string,
     formArgs: any,
-    config: any,
-    userInputs?: any
+    userInputs?: variableUserInputs
 }
 
 export function ViewContainer(props: ViewProps) {

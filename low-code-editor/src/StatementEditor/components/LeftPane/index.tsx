@@ -19,13 +19,14 @@ import {SuggestionItem} from "../../utils/utils";
 import {ExpressionComponent} from '../Expression';
 import {Suggestions} from '../Suggestions';
 import {statementEditorStyles} from "../ViewContainer/styles";
+import { variableUserInputs } from "../../models/definitions";
 
 interface ModelProps {
     model: STNode,
     kind: string,
     label: string,
     currentModel: { model: STNode },
-    userInputs?: any
+    userInputs?: variableUserInputs
 }
 
 export function LeftPane(props: ModelProps) {

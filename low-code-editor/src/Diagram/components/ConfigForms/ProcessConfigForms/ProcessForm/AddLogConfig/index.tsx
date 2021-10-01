@@ -207,7 +207,6 @@ export function AddLogConfig(props: LogConfigProps) {
                         kind="DefaultBoolean"
                         label="Variable Statement"
                         formArgs={formArgs}
-                        config={config}
                     />
                     <div className={overlayClasses.buttonWrapper}>
                     <SecondaryButton text="Cancel" fullWidth={false} onClick={handleStmtEditorCancel} />

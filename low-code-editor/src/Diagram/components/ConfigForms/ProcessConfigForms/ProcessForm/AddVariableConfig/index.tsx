@@ -361,7 +361,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                         kind="DefaultBoolean"
                         label="Variable Statement"
                         formArgs={formArgs}
-                        config={config}
                         userInputs={userInputs}
                     />
                     <div className={overlayClasses.buttonWrapper}>

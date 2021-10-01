@@ -248,8 +248,6 @@ export function AddRespondForm(props: RespondFormProps) {
                         kind="DefaultBoolean"
                         label="Variable Statement"
                         formArgs={formArgs}
-                        config={config}
-
                     />
                     <div className={overlayClasses.buttonWrapper}>
                     <SecondaryButton text="Cancel" fullWidth={false} onClick={handleStmtEditorCancel} />

@@ -177,7 +177,6 @@ export function AddReturnForm(props: ReturnFormProps) {
                         kind="DefaultBoolean"
                         label="Variable Statement"
                         formArgs={formArgs}
-                        config={config}
                     />
 
                     <div className={overlayClasses.buttonWrapper}>

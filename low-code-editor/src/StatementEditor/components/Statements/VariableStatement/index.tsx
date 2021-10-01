@@ -18,13 +18,14 @@ import * as c from "../../../constants";
 import {getSuggestionsBasedOnExpressionKind} from "../../../utils";
 import {SuggestionItem} from "../../../utils/utils";
 import {statementEditorStyles} from "../../ViewContainer/styles";
+import { variableUserInputs } from "../../../models/definitions";
 
 interface VariableStatementProps {
     model: STNode,
     callBack: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void,
     isRoot: boolean,
     component: ReactNode,
-    userInputs?: any
+    userInputs?: variableUserInputs
 }
 
 export function VariableStatement(props: VariableStatementProps) {
@@ -39,7 +40,7 @@ export function VariableStatement(props: VariableStatementProps) {
     let type: string = "var";
     let varName: string = "x";
     if(userInputs){
-        type = (userInputs.selectedType === "other") ? userInputs.otherType : userInputs.selectedType;
+        type = (userInputs.selectedType === "other") ? (userInputs.otherType === "" ? "var" : userInputs.otherType) : userInputs.selectedType;
         if (userInputs.varName){
             varName = userInputs.varName;
         }
