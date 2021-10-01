@@ -15,6 +15,7 @@ import React from "react";
 
 import {STNode} from "@ballerina/syntax-tree";
 
+import * as c from "../../constants";
 import {addExpression, addOperator, SuggestionItem} from "../../utils/utils";
 import {statementEditorStyles} from "../ViewContainer/styles";
 
@@ -43,21 +44,46 @@ export function Suggestions(props: SuggestionsProps) {
         <div>
             {suggestions.map((suggestion: SuggestionItem, index: number) => (
                 (suggestion.kind) ?
-                <button
-                    className={overlayClasses.AppSuggestionButtons}
-                    key={index}
-                    onClick={() => onClickOperatorSuggestion(suggestion)}
-                >
-                    {suggestion.value}
-                </button>
+                (
+                    (suggestion.kind === "PlusToken") ?
+                    <button
+                        className={overlayClasses.AppSuggestionButtons}
+                        key={index}
+                        onClick={() => onClickOperatorSuggestion(suggestion)}
+                    >
+                        {suggestion.value}
+                    </button>
                     :
-                <button
-                    className={overlayClasses.AppSuggestionButtons}
-                    key={index}
-                    onClick={() => onClickExpressionSuggestion(suggestion.value)}
-                >
-                    {suggestion.value}
-                </button>
+                    <button
+                        className={overlayClasses.AppSuggestionButtons}
+                        key={index}
+                        onClick={() => onClickOperatorSuggestion(suggestion)}
+                        disabled={true}
+                    >
+                        {suggestion.value}
+                    </button>
+
+                )
+                :
+                (
+                    (suggestion.value === c.ARITHMETIC  || suggestion.value === c.NUMERIC_LITERAL) ?
+                    <button
+                        className={overlayClasses.AppSuggestionButtons}
+                        key={index}
+                        onClick={() => onClickExpressionSuggestion(suggestion.value)}
+                    >
+                        {suggestion.value}
+                    </button>
+                    :
+                    <button
+                        className={overlayClasses.AppSuggestionButtons}
+                        key={index}
+                        onClick={() => onClickExpressionSuggestion(suggestion.value)}
+                        disabled={true}
+                    >
+                        {suggestion.value}
+                    </button>
+                )
             ))}
         </div>
     );

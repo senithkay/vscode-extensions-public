@@ -138,6 +138,7 @@ export function AddWhileForm(props: WhileProps) {
                                             <ButtonWithIcon
                                                 icon={<EditIcon/>}
                                                 onClick={handleStmtEditorButtonClick}
+                                                disabled={true}
                                             />
                                     </div>
                         </div>

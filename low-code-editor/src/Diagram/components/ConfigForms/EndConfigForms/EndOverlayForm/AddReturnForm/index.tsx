@@ -118,6 +118,7 @@ export function AddReturnForm(props: ReturnFormProps) {
                                             <ButtonWithIcon
                                                 icon={<EditIcon/>}
                                                 onClick={handleStmtEditorButtonClick}
+                                                disabled={true}
                                             />
                                     </div>
                             </div>

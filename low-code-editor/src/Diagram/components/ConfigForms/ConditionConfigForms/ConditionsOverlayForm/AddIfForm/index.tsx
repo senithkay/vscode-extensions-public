@@ -148,6 +148,7 @@ export function AddIfForm(props: IfProps) {
                                             <ButtonWithIcon
                                                 icon={<EditIcon/>}
                                                 onClick={handleStmtEditorButtonClick}
+                                                disabled={true}
                                             />
                                     </div>
                                 </div>
