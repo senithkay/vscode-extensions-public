@@ -12,6 +12,6 @@
  */
 import React from 'react';
 
-export const ModelContext = React.createContext({
-    statementModel: null
+export const EditorCancelContext = React.createContext({
+    onCancelled: false
 });
