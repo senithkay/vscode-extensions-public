@@ -15,17 +15,17 @@ import React, {ReactNode} from "react";
 import {STNode} from "@ballerina/syntax-tree";
 
 import * as c from "../../../constants";
+import { VariableUserInputs } from "../../../models/definitions";
 import {getSuggestionsBasedOnExpressionKind} from "../../../utils";
 import {SuggestionItem} from "../../../utils/utils";
 import {statementEditorStyles} from "../../ViewContainer/styles";
-import { variableUserInputs } from "../../../models/definitions";
 
 interface VariableStatementProps {
     model: STNode,
     callBack: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void,
     isRoot: boolean,
     component: ReactNode,
-    userInputs?: variableUserInputs
+    userInputs?: VariableUserInputs
 }
 
 export function VariableStatement(props: VariableStatementProps) {
@@ -39,18 +39,18 @@ export function VariableStatement(props: VariableStatementProps) {
     };
     let type: string = "var";
     let varName: string = "x";
-    if(userInputs){
+    if (userInputs) {
         type = (userInputs.selectedType === "other") ? (userInputs.otherType === "" ? "var" : userInputs.otherType) : userInputs.selectedType;
         if (userInputs.varName){
             varName = userInputs.varName;
         }
     }
-    
+
     return (
         isRoot ? (
             <span>
                 <span className={`${overlayClasses.AppExpressionBlock} ${overlayClasses.AppExpressionBlockDisabled}`}>
-                    {type+" "+varName+" = "}
+                    {type + " " + varName + " = "}
                 </span>
                 <button
                     className={overlayClasses.AppTemplateButton}

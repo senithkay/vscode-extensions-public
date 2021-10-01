@@ -103,87 +103,89 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
             defaultMessage: "{learnBallerina}"
         }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
     }
-    return (
-        <>
-        {!isStmtEditor ?
+    let exprEditor =
         (
         < FormControl data-testid="custom-expression-form" className={formClasses.wizardFormControl}>
-        {!isCodeEditorActive ?
-            (
-                <div className={formClasses.formWrapper}>
+            {!isCodeEditorActive ?
+                (
                     <div className={formClasses.formWrapper}>
-                        <div className={formClasses.formTitleWrapper}>
-                            <div className={formClasses.mainTitleWrapper}>
-                                <LogoCircleIcon />
-                                <Typography variant="h4">
-                                    <Box paddingTop={2} paddingBottom={2}>
-                                        <FormattedMessage
-                                            id="lowcode.develop.configForms.customStatement.title"
-                                            defaultMessage="Other"
+                        <div className={formClasses.formWrapper}>
+                            <div className={formClasses.formTitleWrapper}>
+                                <div className={formClasses.mainTitleWrapper}>
+                                    <LogoCircleIcon />
+                                    <Typography variant="h4">
+                                        <Box paddingTop={2} paddingBottom={2}>
+                                            <FormattedMessage
+                                                id="lowcode.develop.configForms.customStatement.title"
+                                                defaultMessage="Other"
+                                            />
+                                        </Box>
+                                    </Typography>
+                                    <div style={{ marginLeft: "auto", marginRight: 0 }}>
+                                        <ButtonWithIcon
+                                            icon={<EditIcon/>}
+                                            onClick={handleStmtEditorButtonClick}
                                         />
-                                    </Box>
-                                </Typography>
-                                <div style={{ marginLeft: "auto", marginRight: 0 }}>
-                                    <ButtonWithIcon
-                                        icon={<EditIcon/>}
-                                        onClick={handleStmtEditorButtonClick}
-                                    />
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div className="exp-wrapper">
-                            <ExpressionEditor
-                                model={{ name: "statement", value: expression }}
-                                customProps={{
-                                    validate: validateExpression,
-                                    tooltipTitle: customStatementTooltipMessages.title,
-                                    tooltipActionText: customStatementTooltipMessages.actionText,
-                                    tooltipActionLink: customStatementTooltipMessages.actionLink,
-                                    interactive: true,
-                                    customTemplate: {
-                                        defaultCodeSnippet: '',
-                                        targetColumn: 1,
-                                    },
-                                }}
-                                onChange={onExpressionChange}
-                            />
+                            <div className="exp-wrapper">
+                                <ExpressionEditor
+                                    model={{ name: "statement", value: expression }}
+                                    customProps={{
+                                        validate: validateExpression,
+                                        tooltipTitle: customStatementTooltipMessages.title,
+                                        tooltipActionText: customStatementTooltipMessages.actionText,
+                                        tooltipActionLink: customStatementTooltipMessages.actionLink,
+                                        interactive: true,
+                                        customTemplate: {
+                                            defaultCodeSnippet: '',
+                                            targetColumn: 1,
+                                        },
+                                    }}
+                                    onChange={onExpressionChange}
+                                />
 
+                            </div>
+                        </div>
+                        <div className={overlayClasses.buttonWrapper}>
+                            <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
+                            <PrimaryButton
+                                dataTestId={"custom-expression-save-btn"}
+                                text={saveCustomStatementButtonLabel}
+                                disabled={isMutationInProgress || !isFormValid}
+                                fullWidth={false}
+                                onClick={onSaveBtnClick}
+                            />
                         </div>
                     </div>
-                    <div className={overlayClasses.buttonWrapper}>
-                        <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
-                        <PrimaryButton
-                            dataTestId={"custom-expression-save-btn"}
-                            text={saveCustomStatementButtonLabel}
-                            disabled={isMutationInProgress || !isFormValid}
-                            fullWidth={false}
-                            onClick={onSaveBtnClick}
+                )
+                :
+                null
+            }
+        </FormControl>
+        );
+
+    if (isStmtEditor) {
+        exprEditor =
+            (
+            <FormControl data-testid="property-form" className={formClasses.stmtEditorFormControl}>
+                {!isCodeEditorActive ? (
+                    <div>
+                        <ViewContainer
+                            kind="DefaultBoolean"
+                            label="Variable Statement"
+                            formArgs={formArgs}
+                            onCancel={handleStmtEditorCancel}
                         />
                     </div>
-                </div>
-            )
-            :
-            null
-        }
-    </FormControl>
-    )
-    :
-    (
-    <FormControl data-testid="property-form" className={formClasses.stmtEditorFormControl}>
-            {!isCodeEditorActive ? (
-                <div>
-                    <ViewContainer
-                        kind="DefaultBoolean"
-                        label="Variable Statement"
-                        formArgs={formArgs}
-                        onCancel={handleStmtEditorCancel}
-                    />
-                </div>
-            ) : null}
-        </FormControl>
-    )
+                ) : null}
+            </FormControl>
+            );
     }
-    </>
+
+    return (
+        exprEditor
     );
 }
 

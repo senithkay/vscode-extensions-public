@@ -125,9 +125,9 @@ export function AddLogConfig(props: LogConfigProps) {
             defaultMessage: "{learnBallerina}"
         }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
     }
-    return (
-        <>
-        { !isStmtEditor ? (
+
+    let exprEditor =
+        (
         <FormControl data-testid="log-form" className={formClasses.wizardFormControl}>
             {!isCodeEditorActive ?
                 (
@@ -192,24 +192,28 @@ export function AddLogConfig(props: LogConfigProps) {
                 null
             }
         </FormControl>
-        )
-        :
-        (
-        <FormControl data-testid="property-form" className={formClasses.stmtEditorFormControl}>
-            {!isCodeEditorActive ? (
-                <div>
-                    <ViewContainer
-                        kind="DefaultBoolean"
-                        label="Variable Statement"
-                        formArgs={formArgs}
-                        onCancel={handleStmtEditorCancel}
-                    />
-                </div>
-            ) : null}
-        </FormControl>
-        )
+        );
+
+    if (isStmtEditor) {
+        exprEditor =
+            (
+            <FormControl data-testid="property-form" className={formClasses.stmtEditorFormControl}>
+                {!isCodeEditorActive ? (
+                    <div>
+                        <ViewContainer
+                            kind="DefaultBoolean"
+                            label="Variable Statement"
+                            formArgs={formArgs}
+                            onCancel={handleStmtEditorCancel}
+                        />
+                    </div>
+                ) : null}
+            </FormControl>
+            );
     }
-    </>
+
+    return (
+        exprEditor
     );
 }
 

@@ -99,9 +99,9 @@ export function AddReturnForm(props: ReturnFormProps) {
     };
 
     const containsMainFunction = triggerType && (triggerType === "Manual" || triggerType === "Schedule"); // todo: this is not working due to triggerType is blank.
-    return (
-        <>
-        {!isStmtEditor ? (
+
+    let exprEditor =
+        (
         <FormControl data-testid="return-form" className={classes.wizardFormControl}>
             {!isCodeEditorActive ?
                 (
@@ -161,24 +161,28 @@ export function AddReturnForm(props: ReturnFormProps) {
                 null
             }
         </FormControl>
-        )
-        :
-        (
+        );
+
+    if (isStmtEditor) {
+        exprEditor =
+            (
             <FormControl data-testid="property-form" className={classes.stmtEditorFormControl}>
-            {!isCodeEditorActive ? (
-                <div>
-                    <ViewContainer
-                        kind="DefaultBoolean"
-                        label="Variable Statement"
-                        formArgs={formArgs}
-                        onCancel={handleStmtEditorCancel}
-                    />
-                </div>
-            ) : null}
-        </FormControl>
-        )
+                {!isCodeEditorActive ? (
+                    <div>
+                        <ViewContainer
+                            kind="DefaultBoolean"
+                            label="Variable Statement"
+                            formArgs={formArgs}
+                            onCancel={handleStmtEditorCancel}
+                        />
+                    </div>
+                ) : null}
+            </FormControl>
+            );
     }
-    </>
+
+    return (
+        exprEditor
     );
 }
 

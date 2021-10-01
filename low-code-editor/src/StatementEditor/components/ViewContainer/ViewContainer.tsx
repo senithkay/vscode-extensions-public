@@ -19,19 +19,20 @@ import {STNode} from "@ballerina/syntax-tree";
 import {wizardStyles} from "../../../Diagram/components/ConfigForms/style";
 import {PrimaryButton} from "../../../Diagram/components/Portals/ConfigForm/Elements/Button/PrimaryButton";
 import {SecondaryButton} from "../../../Diagram/components/Portals/ConfigForm/Elements/Button/SecondaryButton";
+import { VariableUserInputs } from '../../models/definitions';
 import { ModelContext } from '../../store/model-context'
 import {getDefaultModel} from "../../utils";
 import {LeftPane} from '../LeftPane';
 import {RightPane} from '../RightPane';
 
+
 import {statementEditorStyles} from "./styles";
-import { variableUserInputs } from '../../models/definitions';
 
 interface ViewProps {
     kind: string,
     label: string,
     formArgs: any,
-    userInputs?: variableUserInputs,
+    userInputs?: VariableUserInputs,
     onCancel: () => void
 }
 

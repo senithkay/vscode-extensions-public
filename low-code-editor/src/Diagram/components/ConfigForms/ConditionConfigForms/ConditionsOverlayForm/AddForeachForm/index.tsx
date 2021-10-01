@@ -200,9 +200,7 @@ export function AddForeachForm(props: ForeachProps) {
     };
 
 
-    return (
-        <>
-        {!isStmtEditor ?
+    let exprEditor =
         (
         <FormControl data-testid="foreach-form" className={classes.wizardFormControl}>
             {!isCodeEditorActive ?
@@ -259,9 +257,11 @@ export function AddForeachForm(props: ForeachProps) {
                 null
             }
         </FormControl>
-        )
-        :
-        (
+        );
+
+    if (isStmtEditor) {
+        exprEditor =
+            (
             <FormControl data-testid="property-form" className={classes.stmtEditorFormControl}>
             {!isCodeEditorActive ? (
                 <div>
@@ -273,11 +273,13 @@ export function AddForeachForm(props: ForeachProps) {
                     />
                 </div>
             ) : null}
-        </FormControl>
-        )
-        }
-        </>
+            </FormControl>
+            );
+    }
 
+    return (
+        exprEditor
     );
+
 }
 

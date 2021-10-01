@@ -20,7 +20,7 @@ import {SuggestionItem} from "../../utils/utils";
 import {ExpressionComponent} from '../Expression';
 import {Suggestions} from '../Suggestions';
 import {statementEditorStyles} from "../ViewContainer/styles";
-import { variableUserInputs } from "../../models/definitions";
+import { VariableUserInputs } from "../../models/definitions";
 import { Diagnostics } from "../Diagnostics";
 
 interface ModelProps {
@@ -28,7 +28,7 @@ interface ModelProps {
     kind: string,
     label: string,
     currentModel: { model: STNode },
-    userInputs?: variableUserInputs
+    userInputs?: VariableUserInputs
 }
 
 export function LeftPane(props: ModelProps) {

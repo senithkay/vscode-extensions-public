@@ -94,8 +94,7 @@ export interface Unary {
     operand: Expression
 }
 
-
-export interface variableUserInputs {
+export interface VariableUserInputs {
     selectedType: string
     otherType?: string
     varName?: string

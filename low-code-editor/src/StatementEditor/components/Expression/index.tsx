@@ -14,16 +14,16 @@ import React from "react";
 
 import { STNode } from "@ballerina/syntax-tree";
 
+import { VariableUserInputs } from "../../models/definitions";
 import { getExpressionTypeComponent } from "../../utils";
 import { SuggestionItem } from "../../utils/utils";
 import { VariableStatement } from "../Statements/VariableStatement";
-import { variableUserInputs } from "../../models/definitions";
 
 interface ExpressionComponentProps {
     model: STNode
     callBack: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void
     isRoot: boolean,
-    userInputs?: variableUserInputs
+    userInputs?: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }
 

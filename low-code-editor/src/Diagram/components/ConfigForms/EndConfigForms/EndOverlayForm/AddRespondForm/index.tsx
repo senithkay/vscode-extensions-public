@@ -20,6 +20,7 @@ import cn from "classnames";
 import { CloseRounded, EditIcon, RespondIcon } from "../../../../../../assets/icons";
 import { httpResponse, PrimitiveBalType, WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
+import { ViewContainer } from "../../../../../../StatementEditor/components/ViewContainer/ViewContainer";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { ButtonWithIcon } from "../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import { PrimaryButton } from "../../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
@@ -28,7 +29,6 @@ import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/Expression
 import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { EndConfig, RespondConfig } from "../../../../Portals/ConfigForm/types";
 import { wizardStyles } from "../../../style";
-import { ViewContainer } from "../../../../../../StatementEditor/components/ViewContainer/ViewContainer";
 
 interface RespondFormProps {
     config: EndConfig;
@@ -157,9 +157,8 @@ export function AddRespondForm(props: RespondFormProps) {
     );
     const disableSave = (isMutationInProgress || !validForm || !validStatusCode);
 
-    return (
-        <>
-        {!isStmtEditor ? (
+    let exprEditor =
+        (
         <FormControl data-testid="respond-form" className={cn(formClasses.wizardFormControl)}>
             {!isCodeEditorActive ?
                 (
@@ -232,23 +231,27 @@ export function AddRespondForm(props: RespondFormProps) {
                 null
             }
         </FormControl>
-        )
-        :
-        (
+        );
+
+    if (isStmtEditor) {
+        exprEditor =
+            (
             <FormControl data-testid="property-form" className={formClasses.stmtEditorFormControl}>
-            {!isCodeEditorActive ? (
-                <div>
-                    <ViewContainer
-                        kind="DefaultBoolean"
-                        label="Variable Statement"
-                        formArgs={formArgs}
-                        onCancel={handleStmtEditorCancel}
-                    />
-                </div>
-            ) : null}
-        </FormControl>
-        )
-        }
-        </>
+                {!isCodeEditorActive ? (
+                    <div>
+                        <ViewContainer
+                            kind="DefaultBoolean"
+                            label="Variable Statement"
+                            formArgs={formArgs}
+                            onCancel={handleStmtEditorCancel}
+                        />
+                    </div>
+                ) : null}
+            </FormControl>
+            );
+    }
+
+    return (
+        exprEditor
     );
 }

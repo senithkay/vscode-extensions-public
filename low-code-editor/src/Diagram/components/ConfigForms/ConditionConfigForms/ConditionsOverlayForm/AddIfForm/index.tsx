@@ -123,9 +123,7 @@ export function AddIfForm(props: IfProps) {
         defaultMessage: "Cancel"
     });
 
-    return (
-        <>
-        {!isStmtEditor ?
+    let exprEditor =
         (
         <FormControl data-testid="if-form" className={classes.wizardFormControl}>
             {!isCodeEditorActive ?
@@ -174,11 +172,14 @@ export function AddIfForm(props: IfProps) {
                 null
             }
         </FormControl>
-        )
-        :
-        (
+        );
+
+    if (isStmtEditor) {
+        exprEditor =
+            (
             <FormControl data-testid="property-form" className={classes.stmtEditorFormControl}>
             {!isCodeEditorActive ?
+            // tslint:disable-next-line:jsx-no-multiline-js
             (
                 <div>
                     <ViewContainer
@@ -189,10 +190,12 @@ export function AddIfForm(props: IfProps) {
                     />
                 </div>
             ) : null}
-        </FormControl>
-        )
-        }
-        </>
+            </FormControl>
+            );
+    }
+
+    return (
+        exprEditor
     );
 }
 

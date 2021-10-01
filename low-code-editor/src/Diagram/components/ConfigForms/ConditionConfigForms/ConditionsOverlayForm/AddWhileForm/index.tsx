@@ -114,9 +114,8 @@ export function AddWhileForm(props: WhileProps) {
         defaultMessage: "Cancel"
     });
 
-    return (
-        <>
-        {!isStmtEditor ?
+
+    let exprEditor =
         (
         <FormControl data-testid="while-form" className={classes.wizardFormControl}>
             <div className={classes.formWrapper}>
@@ -159,9 +158,11 @@ export function AddWhileForm(props: WhileProps) {
                 </div>
             </div>
         </FormControl>
-        )
-        :
-        (
+        );
+
+    if (isStmtEditor) {
+        exprEditor =
+            (
             <FormControl data-testid="property-form" className={classes.stmtEditorFormControl}>
                 <div>
                     <ViewContainer
@@ -171,10 +172,12 @@ export function AddWhileForm(props: WhileProps) {
                         onCancel={handleStmtEditorCancel}
                     />
                 </div>
-        </FormControl>
-        )
-        }
-        </>
+            </FormControl>
+            );
+    }
+
+    return (
+        exprEditor
     );
 }
 
