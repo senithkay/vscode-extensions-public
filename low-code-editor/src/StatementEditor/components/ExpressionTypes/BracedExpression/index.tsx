@@ -18,15 +18,17 @@ import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { SuggestionItem } from "../../../utils/utils";
 import { ExpressionComponent } from "../../Expression";
 import { statementEditorStyles } from "../../ViewContainer/styles";
+import { VariableUserInputs } from "../../../models/definitions";
 
 interface BracedExprProps {
     model: STNode
     callBack: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void
+    userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }
 
 export function BracedExpressionC(props: BracedExprProps) {
-    const { model, callBack, diagnosticHandler } = props;
+    const { model, callBack, userInputs, diagnosticHandler } = props;
     let expression: any;
     let expressionComponent: any;
 
@@ -35,7 +37,7 @@ export function BracedExpressionC(props: BracedExprProps) {
     if (model.kind === 'BracedExpression') {
         const bracedExpModel = model as BracedExpression;
         expression = bracedExpModel.expression;
-        expressionComponent = <ExpressionComponent model={expression} callBack={callBack} isRoot={false} diagnosticHandler={diagnosticHandler} />;
+        expressionComponent = <ExpressionComponent model={expression} callBack={callBack} isRoot={false} userInputs={userInputs} diagnosticHandler={diagnosticHandler} />;
     }
 
     const onClickOnExpression = (event: any) => {

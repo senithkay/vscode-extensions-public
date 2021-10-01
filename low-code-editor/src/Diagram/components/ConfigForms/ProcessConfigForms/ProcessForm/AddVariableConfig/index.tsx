@@ -65,6 +65,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     let modelType;
     let variableName: string = '';
     let varExpression;
+    const formField: string = 'Expression';
 
     const existingProperty = config && config.model;
     if (existingProperty && STKindChecker.isLocalVarDecl(config.model)) {
@@ -256,7 +257,8 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             selectedType,
             otherType,
             varName,
-            variableExpression
+            variableExpression,
+            formField
     };
 
     let exprEditor =

@@ -17,10 +17,12 @@ import { BooleanLiteral, STNode } from "@ballerina/syntax-tree";
 import * as c from "../../../../constants";
 import { getSuggestionsBasedOnExpressionKind } from "../../../../utils";
 import { SuggestionItem } from "../../../../utils/utils";
+import { VariableUserInputs } from "../../../../models/definitions";
 
 interface LiteralProps {
     model: STNode
     callBack: (suggestions: SuggestionItem[], model: STNode) => void
+    userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }
 

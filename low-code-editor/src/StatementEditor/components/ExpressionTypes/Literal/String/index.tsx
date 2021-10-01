@@ -20,22 +20,25 @@ import { ModelContext } from "../../../../store/model-context";
 import { SuggestionItem } from "../../../../utils/utils";
 import { statementEditorStyles } from "../../../ViewContainer/styles";
 import { InputEditor } from "../../../InputEditor";
+import { VariableUserInputs } from "../../../../models/definitions";
 
 interface LiteralProps {
     model: STNode
-    callBack: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void,
+    callBack: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void
+    userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }
 
 export function StringLiteralC(props: LiteralProps) {
     const overlayClasses = statementEditorStyles();
-    const { model, callBack, diagnosticHandler } = props;
+    const { model, callBack, userInputs, diagnosticHandler } = props;
     const ctx = useContext(ModelContext);
 
     const inputEditorProps = {
         statementType: model.kind,
         model,
         callBack,
+        userInputs,
         diagnosticHandler
     };
 

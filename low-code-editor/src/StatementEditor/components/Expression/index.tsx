@@ -30,7 +30,7 @@ interface ExpressionComponentProps {
 export function ExpressionComponent(props: ExpressionComponentProps) {
     const {model, callBack, isRoot, userInputs, diagnosticHandler} = props;
 
-    const component = getExpressionTypeComponent(model, callBack, diagnosticHandler);
+    const component = getExpressionTypeComponent(model, callBack, userInputs, diagnosticHandler);
 
     return (
         // <IfStatement

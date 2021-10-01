@@ -24,12 +24,14 @@ import { ModelContext } from "../../store/model-context";
 import { addExpression, SuggestionItem } from "../../utils/utils";
 import { visitor as CodeGenVisitor } from "../Visitors/codeGenVisitor";
 import { EditorCancelContext } from "../../store/form-cancel-context";
+import { VariableUserInputs } from "../../models/definitions";
 
 export interface InputEditorProps {
     model: STNode,
     callBack: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void,
     statementType: any,
-    diagnosticHandler: (diagnostics: string) => void
+    diagnosticHandler: (diagnostics: string) => void,
+    userInputs: VariableUserInputs
 }
 
 export function InputEditor(props: InputEditorProps) {
@@ -54,7 +56,7 @@ export function InputEditor(props: InputEditorProps) {
         diagnostic: [],
     });
 
-    const { model, callBack, statementType, diagnosticHandler } = props;
+    const { model, callBack, statementType, diagnosticHandler, userInputs } = props;
     const modelCtx = useContext(ModelContext);
     const onCancelCtx = useContext(EditorCancelContext);
 
@@ -73,11 +75,9 @@ export function InputEditor(props: InputEditorProps) {
     const defaultValue = useRef(value);
 
     const targetPosition = getTargetPosition(targetPositionDraft, syntaxTree);
-    // TODO: Need to get the model-name from the input form
-    const textLabel = "modelKind"
+    const textLabel = userInputs && userInputs.formField ? userInputs.formField : "modelName"
     const varName = "temp_" + (textLabel).replace(/[^A-Z0-9]+/ig, "");
-    // TODO: Need to get the varType from the input form
-    const varType = "int";
+    const varType = userInputs.selectedType;
     const defaultCodeSnippet = varType + " " + varName + " = ;";
     const snippetTargetPosition = defaultCodeSnippet.length;
     const isCustomTemplate = false;
@@ -141,7 +141,7 @@ export function InputEditor(props: InputEditorProps) {
         const newCodeSnippet: string = addToTargetPosition(defaultCodeSnippet, (snippetTargetPosition - 1), currentContent);
         newModel = addToTargetLine((currentFile.content), targetPosition, newCodeSnippet, EOL);
 
-        inputEditorState.name = "ModelName";
+        inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
         inputEditorState.content = newModel;
         inputEditorState.uri = monaco.Uri.file(currentFile.path).toString();
 
@@ -176,7 +176,7 @@ export function InputEditor(props: InputEditorProps) {
         // tslint:disable-next-line:no-console
         console.log("==========REVERTING-CONTENT")
         if (inputEditorState?.uri) {
-            inputEditorState.name = "modelName";
+            inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
             inputEditorState.content = (currentFile.content);
             inputEditorState.uri = inputEditorState?.uri;
 

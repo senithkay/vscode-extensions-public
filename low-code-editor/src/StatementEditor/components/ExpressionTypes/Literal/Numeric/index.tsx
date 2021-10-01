@@ -17,20 +17,23 @@ import { STNode } from "@ballerina/syntax-tree";
 
 import { SuggestionItem } from "../../../../utils/utils";
 import { InputEditor } from "../../../InputEditor";
+import { VariableUserInputs } from "../../../../models/definitions";
 
 interface LiteralProps {
     model: STNode
     callBack: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void;
+    userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }
 
 export function NumericLiteralC(props: LiteralProps) {
-    const { model, callBack, diagnosticHandler } = props;
-
+    const { model, callBack, userInputs, diagnosticHandler } = props;
+    console.log("=============NUMERIC-LITERAL", userInputs.variableExpression)
     const inputEditorProps = {
         statementType: model.kind,
         model,
         callBack,
+        userInputs,
         diagnosticHandler
     };
 

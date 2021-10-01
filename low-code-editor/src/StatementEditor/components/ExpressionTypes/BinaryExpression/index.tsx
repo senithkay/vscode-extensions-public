@@ -18,15 +18,17 @@ import { getKindBasedOnOperator, getOperatorSuggestions, getSuggestionsBasedOnEx
 import { SuggestionItem } from "../../../utils/utils";
 import { ExpressionComponent } from "../../Expression";
 import { statementEditorStyles } from "../../ViewContainer/styles";
+import { VariableUserInputs } from "../../../models/definitions";
 
 interface BinaryProps {
     model: STNode
     callBack: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void
+    userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }
 
 export function BinaryExpressionC(props: BinaryProps) {
-    const { model, callBack, diagnosticHandler } = props;
+    const { model, callBack, userInputs, diagnosticHandler } = props;
     let lhsExpression: any;
     let rhsExpression: any;
     let lhs: any;
@@ -42,8 +44,8 @@ export function BinaryExpressionC(props: BinaryProps) {
         lhsExpression = binaryExpModel.lhsExpr;
         rhsExpression = binaryExpModel.rhsExpr;
         operator = binaryExpModel.operator.value;
-        lhs = <ExpressionComponent model={lhsExpression} callBack={callBack} isRoot={false} diagnosticHandler={diagnosticHandler} />;
-        rhs = <ExpressionComponent model={rhsExpression} callBack={callBack} isRoot={false} diagnosticHandler={diagnosticHandler} />;
+        lhs = <ExpressionComponent model={lhsExpression} callBack={callBack} isRoot={false} userInputs={userInputs} diagnosticHandler={diagnosticHandler} />;
+        rhs = <ExpressionComponent model={rhsExpression} callBack={callBack} isRoot={false} userInputs={userInputs} diagnosticHandler={diagnosticHandler} />;
     }
 
     const kind = getKindBasedOnOperator(operatorKind);
