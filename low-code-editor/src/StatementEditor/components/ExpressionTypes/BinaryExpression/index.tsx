@@ -14,11 +14,11 @@ import React from "react";
 
 import { BinaryExpression, STNode } from "@ballerina/syntax-tree";
 
+import { VariableUserInputs } from "../../../models/definitions";
 import { getKindBasedOnOperator, getOperatorSuggestions, getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { SuggestionItem } from "../../../utils/utils";
 import { ExpressionComponent } from "../../Expression";
 import { statementEditorStyles } from "../../ViewContainer/styles";
-import { VariableUserInputs } from "../../../models/definitions";
 
 interface BinaryProps {
     model: STNode

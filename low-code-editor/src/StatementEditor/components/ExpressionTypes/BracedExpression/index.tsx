@@ -15,11 +15,11 @@ import React from "react";
 import { BracedExpression, STNode } from "@ballerina/syntax-tree";
 
 import * as c from "../../../constants";
+import { VariableUserInputs } from "../../../models/definitions";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { SuggestionItem } from "../../../utils/utils";
 import { ExpressionComponent } from "../../Expression";
 import { statementEditorStyles } from "../../ViewContainer/styles";
-import { VariableUserInputs } from "../../../models/definitions";
 
 interface BracedExprProps {
     model: STNode
