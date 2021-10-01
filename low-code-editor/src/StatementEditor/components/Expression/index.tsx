@@ -12,22 +12,23 @@
  */
 import React from "react";
 
-import {STNode} from "@ballerina/syntax-tree";
+import { STNode } from "@ballerina/syntax-tree";
 
-import {getExpressionTypeComponent} from "../../utils";
-import {SuggestionItem} from "../../utils/utils";
-import {VariableStatement} from "../Statements/VariableStatement";
+import { getExpressionTypeComponent } from "../../utils";
+import { SuggestionItem } from "../../utils/utils";
+import { VariableStatement } from "../Statements/VariableStatement";
 
 interface ExpressionComponentProps {
     model: STNode
     callBack: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void
     isRoot: boolean
+    diagnosticHandler: (diagnostics: string) => void
 }
 
 export function ExpressionComponent(props: ExpressionComponentProps) {
-    const {model, callBack, isRoot} = props;
+    const { model, callBack, isRoot, diagnosticHandler } = props;
 
-    const component = getExpressionTypeComponent(model, callBack);
+    const component = getExpressionTypeComponent(model, callBack, diagnosticHandler);
 
     return (
         // <IfStatement

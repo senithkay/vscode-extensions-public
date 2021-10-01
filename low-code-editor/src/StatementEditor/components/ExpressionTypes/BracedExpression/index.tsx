@@ -12,20 +12,21 @@
  */
 import React from "react";
 
-import {BracedExpression, STNode} from "@ballerina/syntax-tree";
+import { BracedExpression, STNode } from "@ballerina/syntax-tree";
 
-import {getSuggestionsBasedOnExpressionKind} from "../../../utils";
-import {SuggestionItem} from "../../../utils/utils";
-import {ExpressionComponent} from "../../Expression";
-import {statementEditorStyles} from "../../ViewContainer/styles";
+import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
+import { SuggestionItem } from "../../../utils/utils";
+import { ExpressionComponent } from "../../Expression";
+import { statementEditorStyles } from "../../ViewContainer/styles";
 
 interface BracedExprProps {
     model: STNode
     callBack: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void
+    diagnosticHandler: (diagnostics: string) => void
 }
 
 export function BracedExpressionC(props: BracedExprProps) {
-    const {model, callBack} = props;
+    const { model, callBack, diagnosticHandler } = props;
     let expression: any;
     let expressionComponent: any;
 
@@ -34,7 +35,7 @@ export function BracedExpressionC(props: BracedExprProps) {
     if (model.kind === 'BracedExpression') {
         const bracedExpModel = model as BracedExpression;
         expression = bracedExpModel.expression;
-        expressionComponent = <ExpressionComponent model={expression} callBack={callBack} isRoot={false}/>;
+        expressionComponent = <ExpressionComponent model={expression} callBack={callBack} isRoot={false} diagnosticHandler={diagnosticHandler} />;
     }
 
     const onClickOnExpression = (event: any) => {
