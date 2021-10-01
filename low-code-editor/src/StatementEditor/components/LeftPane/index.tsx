@@ -24,12 +24,13 @@ interface ModelProps {
     model: STNode,
     kind: string,
     label: string,
-    currentModel: { model: STNode }
+    currentModel: { model: STNode },
+    userInputs?: any
 }
 
 export function LeftPane(props: ModelProps) {
     const overlayClasses = statementEditorStyles();
-    const {model, kind, label, currentModel} = props;
+    const {model, kind, label, currentModel, userInputs} = props;
 
     const [suggestionList, setSuggestionsList] = useState(getSuggestionsBasedOnExpressionKind(kind));
     const [, setIsSuggestionClicked] = useState(false);
@@ -53,7 +54,7 @@ export function LeftPane(props: ModelProps) {
             <h3 className={overlayClasses.AppLeftPaneHeading}>{label}</h3>
             <div className={overlayClasses.AppStatementTemplateEditor}>
                 <div className={overlayClasses.AppStatementTemplateEditorInner}>
-                    <ExpressionComponent model={model} callBack={onClickExpressionButton} isRoot={true}/>
+                    <ExpressionComponent model={model} callBack={onClickExpressionButton} isRoot={true} userInputs={userInputs}/>
                 </div>
             </div>
             <div className={overlayClasses.AppContextSensitivePane}>

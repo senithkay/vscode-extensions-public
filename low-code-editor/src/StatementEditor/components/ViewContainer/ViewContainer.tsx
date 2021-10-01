@@ -26,11 +26,12 @@ interface ViewProps {
     kind: string,
     label: string,
     formArgs: any,
-    config: any
+    config: any,
+    userInputs?: any
 }
 
 export function ViewContainer(props: ViewProps) {
-    const {kind, label, formArgs} = props;
+    const {kind, label, formArgs, userInputs} = props;
 
     const defaultModel = getDefaultModel(kind);
 
@@ -52,6 +53,7 @@ export function ViewContainer(props: ViewProps) {
                     currentModel={currentModel}
                     kind={kind}
                     label={label}
+                    userInputs={userInputs}
                 />
             </ModelContext.Provider>
             <div className={overlayClasses.vl}/>

@@ -20,14 +20,15 @@ import {SuggestionItem} from "../../../utils/utils";
 import {statementEditorStyles} from "../../ViewContainer/styles";
 
 interface VariableStatementProps {
-    model: STNode
-    callBack: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void
-    isRoot: boolean
-    component: ReactNode
+    model: STNode,
+    callBack: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void,
+    isRoot: boolean,
+    component: ReactNode,
+    userInputs?: any
 }
 
 export function VariableStatement(props: VariableStatementProps) {
-    const {model, callBack, isRoot, component} = props;
+    const {model, callBack, isRoot, component, userInputs} = props;
 
     const overlayClasses = statementEditorStyles();
 
@@ -35,12 +36,20 @@ export function VariableStatement(props: VariableStatementProps) {
         event.stopPropagation()
         callBack(getSuggestionsBasedOnExpressionKind(c.DEFAULT_BOOL), model, false) // Need to change this to get suggestions for variable
     };
-
+    let type: string = "var";
+    let varName: string = "x";
+    if(userInputs){
+        type = (userInputs.selectedType === "other") ? userInputs.otherType : userInputs.selectedType;
+        if (userInputs.varName){
+            varName = userInputs.varName;
+        }
+    }
+    
     return (
         isRoot ? (
             <span>
                 <span className={`${overlayClasses.AppExpressionBlock} ${overlayClasses.AppExpressionBlockDisabled}`}>
-                    {"var x = "}
+                    {type+" "+varName+" = "}
                 </span>
                 <button
                     className={overlayClasses.AppTemplateButton}

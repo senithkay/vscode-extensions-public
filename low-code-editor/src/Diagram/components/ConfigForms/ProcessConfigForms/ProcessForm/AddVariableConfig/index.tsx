@@ -249,6 +249,13 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     // todo: Support other data types
     const variableTypes: string[] = ["var", "int", "float", "decimal", "boolean", "string", "json", "xml", "error", "any", "anydata", "other"];
 
+    const userInputs = {
+            selectedType: selectedType,
+            otherType: otherType,
+            varName: varName,
+            variableExpression: variableExpression
+    };
+
     let exprEditor = <FormControl data-testid="property-form" className={classes.wizardFormControl}>
         {!isCodeEditorActive ?
             (
@@ -351,6 +358,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                         label="Variable Statement"
                         formArgs={formArgs}
                         config={config}
+                        userInputs={userInputs}
                     />
                     <div className={overlayClasses.buttonWrapper}>
                         <SecondaryButton text={cancelVariableButtonText} fullWidth={false} onClick={handleStmtEditorCancel}/>

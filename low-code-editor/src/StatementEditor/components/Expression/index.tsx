@@ -21,11 +21,12 @@ import {VariableStatement} from "../Statements/VariableStatement";
 interface ExpressionComponentProps {
     model: STNode
     callBack: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void
-    isRoot: boolean
+    isRoot: boolean,
+    userInputs?: any
 }
 
 export function ExpressionComponent(props: ExpressionComponentProps) {
-    const {model, callBack, isRoot} = props;
+    const {model, callBack, isRoot, userInputs} = props;
 
     const component = getExpressionTypeComponent(model, callBack);
 
@@ -41,6 +42,7 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
             callBack={callBack}
             isRoot={isRoot}
             component={component}
+            userInputs={userInputs}
         />
     );
 }
