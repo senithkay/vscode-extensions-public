@@ -28,11 +28,13 @@ export function Panel(props: any) {
             <DiagramOverlayContainer
             >
                 <div className="panel">
-                    <ButtonWithIcon
-                        className="panel-close-button"
-                        onClick={onClose}
-                        icon={<CloseRounded fontSize="small" />}
-                    />
+                    <div className={'top-control-container'}>
+                        <ButtonWithIcon
+                            className="panel-close-button"
+                            onClick={onClose}
+                            icon={<CloseRounded fontSize="small" />}
+                        />
+                    </div>
                     <div className="panel-form-wrapper">
                         {children}
                     </div>
