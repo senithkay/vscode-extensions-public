@@ -45,7 +45,6 @@ let overviewDataProvider: PackageOverviewDataProvider;
 let diagramElement: DiagramOptions | undefined = undefined;
 let ballerinaExtension: BallerinaExtension;
 let webviewRPCHandler: WebViewRPCHandler;
-let currentColumn: ViewColumn | undefined;
 let currentDocumentURI: Uri;
 
 export async function showDiagramEditor(startLine: number, startColumn: number, kind: string, name: string,
@@ -140,11 +139,12 @@ class DiagramPanel {
 		this.webviewPanel.onDidDispose(() => this.dispose(), null, this.disposables);
 	}
 
-	public static create(columns: ViewColumn) {
-		ballerinaExtension.setDiagramActiveContext(true);
-		if (DiagramPanel.currentPanel && currentColumn === columns) {
+	public static create(viewColumn: ViewColumn) {
+		if (DiagramPanel.currentPanel && DiagramPanel.currentPanel.webviewPanel.viewColumn
+			&& DiagramPanel.currentPanel.webviewPanel.viewColumn == viewColumn) {
 			DiagramPanel.currentPanel.webviewPanel.reveal();
 			DiagramPanel.currentPanel.update();
+			ballerinaExtension.setDiagramActiveContext(true);
 			return;
 		} else if (DiagramPanel.currentPanel) {
 			DiagramPanel.currentPanel.dispose();
@@ -153,10 +153,10 @@ class DiagramPanel {
 		const panel = window.createWebviewPanel(
 			'ballerinaDiagram',
 			"Ballerina Diagram",
-			{ viewColumn: columns, preserveFocus: false },
+			{ viewColumn, preserveFocus: false },
 			getCommonWebViewOptions()
 		);
-		currentColumn = columns;
+		ballerinaExtension.setDiagramActiveContext(true);
 		panel.iconPath = {
 			light: Uri.file(join(ballerinaExtension.context!.extensionPath, 'resources/images/icons/design-view.svg')),
 			dark: Uri.file(join(ballerinaExtension.context!.extensionPath,
