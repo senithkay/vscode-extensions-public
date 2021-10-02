@@ -19,10 +19,16 @@
 import { BallerinaExtension, ConstructIdentifier } from "../core";
 import { showDiagramEditor } from '../diagram';
 import { sendTelemetryEvent, CMP_PACKAGE_VIEW, TM_EVENT_OPEN_PACKAGE_OVERVIEW } from "../telemetry";
-import { commands, window } from 'vscode';
-import { CMP_KIND, TREE_COLLAPSE_COMMAND, TREE_ELEMENT_EXECUTE_COMMAND, TREE_REFRESH_COMMAND } from "./model";
-import { PackageOverviewDataProvider } from "./tree-data-provider";
+import { commands, Uri, window } from 'vscode';
+import {
+    CMP_KIND, TREE_ELEMENT_EXECUTE_COMMAND, OUTLINE_TREE_REFRESH_COMMAND, EXPLORER_TREE_REFRESH_COMMAND,
+    EXPLORER_ITEM_KIND, EXPLORER_TREE_NEW_FILE_COMMAND, EXPLORER_TREE_NEW_FOLDER_COMMAND, ExplorerTreeItem
+} from "./model";
+import { PackageOverviewDataProvider } from "./outline-tree-data-provider";
 import { SessionDataProvider } from "./session-tree-data-provider";
+import { ExplorerDataProvider } from "./explorer-tree-data-provider";
+import { existsSync, mkdirSync, open } from 'fs';
+import { join } from 'path';
 
 export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverviewDataProvider {
 
@@ -30,29 +36,53 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
 
     const packageTreeDataProvider = new PackageOverviewDataProvider(ballerinaExtInstance);
     window.createTreeView('ballerinaPackageTreeView', {
-        treeDataProvider: packageTreeDataProvider
+        treeDataProvider: packageTreeDataProvider, showCollapseAll: true
     });
 
-    commands.registerCommand(TREE_REFRESH_COMMAND, () =>
+    commands.registerCommand(OUTLINE_TREE_REFRESH_COMMAND, () =>
         packageTreeDataProvider.refresh()
     );
-
-    commands.registerCommand(TREE_COLLAPSE_COMMAND, () => {
-        commands.executeCommand('workbench.actions.treeView.ballerinaPackageTreeView.collapseAll');
-    });
 
     if (!ballerinaExtInstance.isSwanLake()) {
         return packageTreeDataProvider;
     }
 
+    const explorerDataProvider = new ExplorerDataProvider(ballerinaExtInstance);
+    ballerinaExtInstance.context!.subscriptions.push(window.createTreeView('ballerinaExplorerTreeView', {
+        treeDataProvider: explorerDataProvider, showCollapseAll: true
+    }));
+
+    commands.registerCommand(EXPLORER_TREE_REFRESH_COMMAND, () =>
+        explorerDataProvider.refresh()
+    );
+
+    commands.registerCommand(EXPLORER_TREE_NEW_FILE_COMMAND, async (item: ExplorerTreeItem) => {
+        const name = await window.showInputBox({ placeHolder: 'Enter file name...' });
+        if (name && name.trim().length > 0) {
+            open(join(item.getUri().fsPath, name), 'w', () => { });
+            explorerDataProvider.refresh();
+        }
+    });
+
+    commands.registerCommand(EXPLORER_TREE_NEW_FOLDER_COMMAND, async (item: ExplorerTreeItem) => {
+        const name = await window.showInputBox({ placeHolder: 'Enter folder name...' });
+        if (name && name.trim().length > 0) {
+            const filePath = join(item.getUri().fsPath, name);
+            if (!existsSync(filePath)) {
+                mkdirSync(filePath);
+            }
+            explorerDataProvider.refresh();
+        }
+    });
+
     const sessionTreeDataProvider = new SessionDataProvider(ballerinaExtInstance);
     window.createTreeView('sessionExplorer', {
-        treeDataProvider: sessionTreeDataProvider
+        treeDataProvider: sessionTreeDataProvider, showCollapseAll: true
     });
 
     commands.registerCommand(TREE_ELEMENT_EXECUTE_COMMAND, (filePath: string, kind: string, startLine: number,
         startColumn: number, name: string) => {
-        ballerinaExtInstance.diagramTreeElementClicked({
+        ballerinaExtInstance.getDocumentContext().diagramTreeElementClicked({
             filePath,
             kind,
             startLine,
@@ -61,15 +91,18 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
         });
     });
 
-    ballerinaExtInstance.onDiagramTreeElementClicked((construct: ConstructIdentifier) => {
+    ballerinaExtInstance.getDocumentContext().onDiagramTreeElementClicked((construct: ConstructIdentifier) => {
         if (construct.kind === CMP_KIND.FUNCTION || construct.kind === CMP_KIND.RESOURCE ||
             construct.kind == CMP_KIND.RECORD || construct.kind == CMP_KIND.OBJECT || construct.kind == CMP_KIND.TYPE
             || construct.kind == CMP_KIND.CLASS || construct.kind == CMP_KIND.ENUM ||
             construct.kind == CMP_KIND.CONSTANT || construct.kind == CMP_KIND.METHOD ||
             construct.kind == CMP_KIND.LISTENER || construct.kind == CMP_KIND.MODULE_LEVEL_VAR ||
-            construct.kind == CMP_KIND.SERVICE) {
+            construct.kind == CMP_KIND.SERVICE || construct.kind == EXPLORER_ITEM_KIND.BAL_FILE) {
             showDiagramEditor(construct.startLine, construct.startColumn, construct.kind, construct.name,
                 construct.filePath);
+            ballerinaExtInstance.getDocumentContext().setLatestDocument(Uri.file(construct.filePath));
+            packageTreeDataProvider.refresh();
+            explorerDataProvider.refresh();
         }
     });
     return packageTreeDataProvider;

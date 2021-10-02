@@ -26,7 +26,7 @@
         "onLanguage:ballerina",
         "onCommand:ballerina.showExamples",
         "workspaceContains:Ballerina.toml",
-        "onView:ballerinaPackageTreeView"
+        "onView:ballerinaExplorerTreeView"
     ],
     "contributes": {
         "languages": [
@@ -263,11 +263,27 @@
                 }
             },
             {
-                "command": "ballerina.collapsePackageTree",
-                "title": "Collapse Diagrams",
+                "command": "ballerina.refreshExplorerTree",
+                "title": "Refresh",
                 "icon": {
-                    "light": "./resources/images/icons/collapse.svg",
-                    "dark": "./resources/images/icons/collapse-inverse.svg"
+                    "light": "./resources/images/icons/refresh.svg",
+                    "dark": "./resources/images/icons/refresh-inverse.svg"
+                }
+            },
+            {
+                "command": "ballerina.newFileExplorerTree",
+                "title": "New File",
+                "icon": {
+                    "light": "./resources/images/icons/new-file.svg",
+                    "dark": "./resources/images/icons/new-file-inverse.svg"
+                }
+            },
+            {
+                "command": "ballerina.newFolderExplorerTree",
+                "title": "New Folder",
+                "icon": {
+                    "light": "./resources/images/icons/new-folder.svg",
+                    "dark": "./resources/images/icons/new-folder-inverse.svg"
                 }
             },
             {
@@ -280,6 +296,15 @@
                 "category": "Ballerina"
             },
             {
+                "command": "ballerina.show.source",
+                "title": "Show Source",
+                "icon": {
+                    "dark": "./resources/images/icons/source-view-inverse.svg",
+                    "light": "./resources/images/icons/source-view.svg"
+                },
+                "category": "Ballerina"
+            },
+            {
                 "command": "ballerina.pasteAsRecord",
                 "title": "Paste JSON as Record",
                 "category": "Ballerina"
@@ -288,14 +313,19 @@
         "views": {
             "diagram-explorer": [
                 {
-                    "id": "ballerinaPackageTreeView",
-                    "name": "Diagrams",
+                    "id": "ballerinaExplorerTreeView",
+                    "name": "Explorer",
                     "contextualTitle": "Diagram Explorer"
+                },
+                {
+                    "id": "ballerinaPackageTreeView",
+                    "name": "Outline",
+                    "contextualTitle": "Package Outline"
                 },
                 {
                     "id": "sessionExplorer",
                     "name": "Choreo Session Details",
-                    "contextualTitle": "Diagram Explorer"
+                    "contextualTitle": "Choreo Session"
                 }
             ]
         },
@@ -316,6 +346,10 @@
             {
                 "view": "ballerinaPackageTreeView",
                 "contents": "No Ballerina packages found.\n[Go to File Explorer](command:workbench.files.action.focusFilesExplorer)"
+            },
+            {
+                "view": "ballerinaExplorerTreeView",
+                "contents": "No files found in your workspace.\n[Go to File Explorer](command:workbench.files.action.focusFilesExplorer)"
             }
         ],
         "menus": {
@@ -326,8 +360,8 @@
                     "group": "navigation"
                 },
                 {
-                    "command": "ballerina.collapsePackageTree",
-                    "when": "view == ballerinaPackageTreeView",
+                    "command": "ballerina.refreshExplorerTree",
+                    "when": "view == ballerinaExplorerTreeView",
                     "group": "navigation"
                 }
             ],
@@ -336,6 +370,23 @@
                     "when": "resourceLangId == ballerina",
                     "command": "ballerina.show.diagram",
                     "group": "navigation"
+                },
+                {
+                    "when": "isBallerinaDiagram",
+                    "command": "ballerina.show.source",
+                    "group": "navigation"
+                }
+            ],
+            "view/item/context": [
+                {
+                    "command": "ballerina.newFileExplorerTree",
+                    "when": "view == ballerinaExplorerTreeView && viewItem == folder",
+                    "group": "inline"
+                },
+                {
+                    "command": "ballerina.newFolderExplorerTree",
+                    "when": "view == ballerinaExplorerTreeView && viewItem == folder",
+                    "group": "inline"
                 }
             ]
         }

@@ -18,9 +18,8 @@
  */
 
 import {
-    workspace, window, commands, languages, Uri,
-    ConfigurationChangeEvent, extensions,
-    Extension, ExtensionContext, IndentAction, WebviewPanel, OutputChannel, StatusBarItem, StatusBarAlignment, TextDocument
+    workspace, window, commands, languages, Uri, ConfigurationChangeEvent, extensions, Extension, ExtensionContext,
+    IndentAction, OutputChannel, StatusBarItem, StatusBarAlignment
 } from "vscode";
 import {
     INVALID_HOME_MSG, INSTALL_BALLERINA, DOWNLOAD_BALLERINA, MISSING_SERVER_CAPABILITY, ERROR, COMMAND_NOT_FOUND,
@@ -80,19 +79,12 @@ export class BallerinaExtension {
     public langClient?: ExtendedLangClient;
     public context?: ExtensionContext;
     private sdkVersion: StatusBarItem;
-    private diagramTreeElementClickedCallbacks: Array<(construct: ConstructIdentifier) => void> = [];
-    private editorChangesCallbacks: Array<(change: Change) => void> = [];
-    private currentDocument: TextDocument | undefined;
-
-    private webviewPanels: {
-        [name: string]: WebviewPanel;
-    };
+    private documentContext: DocumentContext;
 
     constructor() {
         this.ballerinaHome = '';
         this.ballerinaCmd = '';
         this.ballerinaVersion = '';
-        this.webviewPanels = {};
         this.sdkVersion = window.createStatusBarItem(StatusBarAlignment.Left, 100);
         this.sdkVersion.text = `Ballerina SDK: Detecting`;
         this.sdkVersion.command = `ballerina.showLogs`;
@@ -110,6 +102,7 @@ export class BallerinaExtension {
             revealOutputChannelOn: RevealOutputChannelOn.Never,
         };
         this.telemetryReporter = createTelemetryReporter(this);
+        this.documentContext = new DocumentContext();
     }
 
     setContext(context: ExtensionContext) {
@@ -489,18 +482,6 @@ export class BallerinaExtension {
         return <boolean>workspace.getConfiguration().get(OVERRIDE_BALLERINA_HOME);
     }
 
-    public addWebviewPanel(name: string, panel: WebviewPanel) {
-        this.webviewPanels[name] = panel;
-
-        panel.onDidDispose(() => {
-            delete this.webviewPanels[name];
-        });
-    }
-
-    public getWebviewPanels() {
-        return this.webviewPanels;
-    }
-
     public getID(): string {
         return this.extension.id;
     }
@@ -529,6 +510,23 @@ export class BallerinaExtension {
         return this.swanLake;
     }
 
+    public getDocumentContext(): DocumentContext {
+        return this.documentContext;
+    }
+
+    public setDiagramActiveContext(value: boolean) {
+        commands.executeCommand('setContext', 'isBallerinaDiagram', value);
+    }
+}
+
+/**
+ * Class keeps data related to text and diagram document changes.
+ */
+class DocumentContext {
+    private diagramTreeElementClickedCallbacks: Array<(construct: ConstructIdentifier) => void> = [];
+    private editorChangesCallbacks: Array<(change: Change) => void> = [];
+    private latestDocument: Uri | undefined;
+
     public diagramTreeElementClicked(construct: ConstructIdentifier): void {
         this.diagramTreeElementClickedCallbacks.forEach((callback) => {
             callback(construct);
@@ -549,12 +547,12 @@ export class BallerinaExtension {
         });
     }
 
-    public setCurrentDocument(document: TextDocument) {
-        this.currentDocument = document;
+    public setLatestDocument(uri: Uri | undefined) {
+        this.latestDocument = uri;
     }
 
-    public getCurrentDocument(): TextDocument | undefined {
-        return this.currentDocument;
+    public getLatestDocument(): Uri | undefined {
+        return this.latestDocument;
     }
 }
 
