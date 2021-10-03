@@ -106,6 +106,11 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     // on top of typed context
     const missingProps: any = {};
 
+    const selectedPosition = {
+        startLine,
+        startColumn
+    }
+
     return (
         <MuiThemeProvider theme={theme}>
             <div className={classes.lowCodeContainer}>
@@ -113,10 +118,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                     <DiagramGenErrorBoundary>
                         <LowCodeEditor
                             {...missingProps}
-                            selectedPosition={{
-                                startLine,
-                                startColumn
-                            }}
+                            selectedPosition={selectedPosition}
                             isReadOnly={false}
                             syntaxTree={syntaxTree}
                             zoomStatus={zoomStatus}

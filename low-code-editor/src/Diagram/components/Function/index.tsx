@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useState } from "react";
+import React, { useContext, useRef, useState } from "react";
 
 import { FunctionBodyBlock, FunctionDefinition, STKindChecker } from "@ballerina/syntax-tree";
 import classNames from "classnames";
@@ -20,6 +20,7 @@ import { v4 as uuid } from 'uuid';
 import { Context } from "../../../Contexts/Diagram";
 import { Provider as FunctionProvider } from "../../../Contexts/Function";
 import { useStyles } from "../../styles";
+import { isFunctionSelected } from "../../utils/diagram-util";
 import { BlockViewState, FunctionViewState } from "../../view-state";
 import { Canvas } from "../Canvas";
 import { End } from "../End";
@@ -30,7 +31,6 @@ import { WorkerLine } from "../WorkerLine";
 import { FunctionSignature } from "./FunctionSignature";
 import PanAndZoom from "./PanAndZoom";
 import "./style.scss";
-import { isFunctionSelected } from "../../utils/diagram-util";
 
 export const FUNCTION_PLUS_MARGIN_TOP = 7.5;
 export const FUNCTION_PLUS_MARGIN_BOTTOM = 7.5;
@@ -61,12 +61,18 @@ export function Function(props: FunctionProps) {
 
     const [diagramExpanded, setDiagramExpanded] = useState(isFunctionSelected(selectedPosition, model));
 
+    const containerRef = useRef(null);
+
     const onExpandClick = () => {
         setDiagramExpanded(!diagramExpanded);
     }
 
     React.useEffect(() => {
-        setDiagramExpanded(isFunctionSelected(selectedPosition, model));
+        const isSelected = isFunctionSelected(selectedPosition, model);
+        setDiagramExpanded(isSelected);
+        if (isSelected) {
+            containerRef.current.scrollIntoView();
+        }
     }, [selectedPosition])
 
     let component: JSX.Element;
@@ -116,6 +122,7 @@ export function Function(props: FunctionProps) {
 
     return (
         <div
+            ref={containerRef}
             className={
                 classNames(
                     {
