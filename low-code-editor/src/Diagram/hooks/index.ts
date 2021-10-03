@@ -5,6 +5,17 @@ import { STKindChecker, STNode } from "@ballerina/syntax-tree";
 import { Context } from "../../Contexts/Diagram";
 import { SelectedPosition } from "../../types";
 
+/**
+ * A custom hook for diagram components which returns a boolean indicating if a given
+ * STNode is the one which is selected for viewing in diagram navigator (eg: tree view
+ * in vscode or breadcrumbs).
+ * Additonaly, it knows how to scroll into the diagram for the given node, if a ref
+ * object for the container is provided.
+ *
+ * @param node STNode to check against.
+ * @param containerRef Container ref to scroll to, if the passed node is selected.
+ * @returns Returns true if the passed node is the currently selected node for viewing
+ */
 export function useSelectedStatus(node: STNode, containerRef?: React.MutableRefObject<any>): boolean {
     const {
         props: { selectedPosition }
