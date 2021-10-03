@@ -19,8 +19,8 @@ import { v4 as uuid } from 'uuid';
 
 import { Context } from "../../../Contexts/Diagram";
 import { Provider as FunctionProvider } from "../../../Contexts/Function";
+import { useSelectedStatus } from "../../hooks";
 import { useStyles } from "../../styles";
-import { isFunctionSelected } from "../../utils/diagram-util";
 import { BlockViewState, FunctionViewState } from "../../view-state";
 import { Canvas } from "../Canvas";
 import { End } from "../End";
@@ -31,7 +31,6 @@ import { WorkerLine } from "../WorkerLine";
 import { FunctionSignature } from "./FunctionSignature";
 import PanAndZoom from "./PanAndZoom";
 import "./style.scss";
-import { useSelectedStatus } from "../../hooks";
 
 export const FUNCTION_PLUS_MARGIN_TOP = 7.5;
 export const FUNCTION_PLUS_MARGIN_BOTTOM = 7.5;
@@ -50,7 +49,6 @@ export function Function(props: FunctionProps) {
             isWaitingOnWorkspace,
             isReadOnly,
             isCodeEditorActive,
-            selectedPosition
         }
     } = useContext(Context);
 

@@ -176,8 +176,3 @@ export function isVarTypeDescriptor(model: STNode) : boolean {
     }
 }
 
-export function isFunctionSelected(selectedPosition: SelectedPosition, fn: FunctionDefinition): boolean {
-    return selectedPosition.startLine === fn.functionName.position?.startLine
-        && selectedPosition.startColumn === fn.functionName.position?.startColumn;
-
-}

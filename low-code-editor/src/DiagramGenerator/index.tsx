@@ -19,7 +19,7 @@ import messages from '../lang/en.json';
 import { CirclePreloader } from "../PreLoader/CirclePreloader";
 
 import { DiagramGenErrorBoundary } from "./ErrorBoundrary";
-import { getLowcodeST, getSyntaxTree } from "./generatorUtil";
+import { getDefaultSelectedPosition, getLowcodeST, getSyntaxTree } from "./generatorUtil";
 import { useGeneratorStyles } from "./styles";
 import { theme } from "./theme";
 import { EditorProps } from "./vscode/Diagram";
@@ -106,11 +106,12 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     // on top of typed context
     const missingProps: any = {};
 
-    const selectedPosition = {
-        startLine,
-        startColumn
-    }
-
+    const selectedPosition = startColumn === 0 && startLine === 0 // TODO: change to use undefined for unselection
+        ? getDefaultSelectedPosition(syntaxTree)
+        : {
+            startLine,
+            startColumn
+        }
     return (
         <MuiThemeProvider theme={theme}>
             <div className={classes.lowCodeContainer}>
