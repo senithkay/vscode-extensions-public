@@ -202,12 +202,25 @@ export interface BallerinaConnectorInfo extends Connector {
     documentation?: string;
     displayAnnotation?: any;
 }
-export interface BallerinaConnectorsResponse {
-    connectors: Connector[];
-}
 
-export interface BallerinaConnectorResponse extends Connector{
-    connector: BallerinaConnectorInfo;
+export interface BallerinaConnectorsRequest {
+    file: string;
+    query?: string;
+    packageName: string;
+    connector?: string;
+    description?: string;
+    template?: string;
+    keyword?: string;
+    ballerinaVersion?: string;
+    platform?: boolean;
+    userPackages?: boolean;
+    limit?: number;
+    offset?: number;
+    sort?: string;
+}
+export interface BallerinaConnectorsResponse {
+    central: Connector[];
+    local?: Connector[];
     error?: string;
 }
 
@@ -215,6 +228,9 @@ export interface BallerinaConnectorResponse extends Connector{
 export interface BallerinaConnectorRequest extends Connector {
 }
 
+export interface BallerinaConnectorResponse extends BallerinaConnectorInfo {
+    error?: string;
+}
 export interface Package {
     organization: string;
     name: string;
@@ -224,6 +240,7 @@ export interface Package {
     URL?: string;
     balaVersion?: string;
     digest?: string;
+    summary?: string;
     readme?: string;
     template?: boolean;
     licenses?: any[];
@@ -273,7 +290,7 @@ export interface IBallerinaLangClient {
 
     getConnector: (params: BallerinaConnectorRequest) => Thenable<BallerinaConnectorResponse>;
 
-    getConnectors: () => Thenable<BallerinaConnectorsResponse>;
+    getConnectors: (params: BallerinaConnectorsRequest) => Thenable<BallerinaConnectorsResponse>;
 
     goToSource: (params: GoToSourceParams) => void;
 
