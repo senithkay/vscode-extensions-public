@@ -14,7 +14,7 @@ export async function getSyntaxTree(filePath: string, langClient: DiagramEditorL
     return resp.syntaxTree;
 }
 
-export function getLowcodeST(payload: any, startLine: string, startColumn: string) {
+export function getLowcodeST(payload: any) {
     const modulePart: ModulePart = payload;
     const members: STNode[] = modulePart?.members || [];
     // let responseST: STNode;

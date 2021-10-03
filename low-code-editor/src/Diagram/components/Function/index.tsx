@@ -30,6 +30,7 @@ import { WorkerLine } from "../WorkerLine";
 import { FunctionSignature } from "./FunctionSignature";
 import PanAndZoom from "./PanAndZoom";
 import "./style.scss";
+import { isFunctionSelected } from "../../utils/diagram-util";
 
 export const FUNCTION_PLUS_MARGIN_TOP = 7.5;
 export const FUNCTION_PLUS_MARGIN_BOTTOM = 7.5;
@@ -47,7 +48,8 @@ export function Function(props: FunctionProps) {
         props: {
             isWaitingOnWorkspace,
             isReadOnly,
-            isCodeEditorActive
+            isCodeEditorActive,
+            selectedPosition
         }
     } = useContext(Context);
 
@@ -56,11 +58,16 @@ export function Function(props: FunctionProps) {
     const viewState: FunctionViewState = model.viewState;
     const isInitPlusAvailable: boolean = viewState.initPlus !== undefined;
     const isExpressionFuncBody: boolean = STKindChecker.isExpressionFunctionBody(model.functionBody);
-    const [diagramExpanded, setDiagramExpanded] = useState(false);
+
+    const [diagramExpanded, setDiagramExpanded] = useState(isFunctionSelected(selectedPosition, model));
 
     const onExpandClick = () => {
         setDiagramExpanded(!diagramExpanded);
     }
+
+    React.useEffect(() => {
+        setDiagramExpanded(isFunctionSelected(selectedPosition, model));
+    }, [selectedPosition])
 
     let component: JSX.Element;
 

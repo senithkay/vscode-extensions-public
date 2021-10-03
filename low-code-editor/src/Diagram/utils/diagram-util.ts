@@ -1,8 +1,9 @@
 
-import { STKindChecker, STNode, traversNode } from "@ballerina/syntax-tree";
+import { FunctionDefinition, STKindChecker, STNode, traversNode } from "@ballerina/syntax-tree";
 
 import { WizardType } from "../../ConfigurationSpec/types";
 import { ConfigOverlayFormStatus, ConfigPanelStatus, DiagramSize, STSymbolInfo } from "../../Definitions";
+import { SelectedPosition } from "../../types";
 import { ConditionConfig } from "../components/Portals/ConfigForm/types";
 import { getVaribaleNamesFromVariableDefList } from "../components/Portals/utils";
 import { BlockViewState, FunctionViewState } from "../view-state";
@@ -173,4 +174,10 @@ export function isVarTypeDescriptor(model: STNode) : boolean {
     } else {
         return false;
     }
+}
+
+export function isFunctionSelected(selectedPosition: SelectedPosition, fn: FunctionDefinition): boolean {
+    return selectedPosition.startLine === fn.functionName.position?.startLine
+        && selectedPosition.startColumn === fn.functionName.position?.startColumn;
+
 }
