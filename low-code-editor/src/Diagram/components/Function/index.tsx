@@ -31,6 +31,7 @@ import { WorkerLine } from "../WorkerLine";
 import { FunctionSignature } from "./FunctionSignature";
 import PanAndZoom from "./PanAndZoom";
 import "./style.scss";
+import { useSelectedStatus } from "../../hooks";
 
 export const FUNCTION_PLUS_MARGIN_TOP = 7.5;
 export const FUNCTION_PLUS_MARGIN_BOTTOM = 7.5;
@@ -59,21 +60,17 @@ export function Function(props: FunctionProps) {
     const isInitPlusAvailable: boolean = viewState.initPlus !== undefined;
     const isExpressionFuncBody: boolean = STKindChecker.isExpressionFunctionBody(model.functionBody);
 
-    const [diagramExpanded, setDiagramExpanded] = useState(isFunctionSelected(selectedPosition, model));
-
     const containerRef = useRef(null);
+    const isSelected = useSelectedStatus(model, containerRef);
+    const [diagramExpanded, setDiagramExpanded] = useState(isSelected);
+
+    React.useEffect(() => {
+        setDiagramExpanded(isSelected);
+    }, [isSelected])
 
     const onExpandClick = () => {
         setDiagramExpanded(!diagramExpanded);
     }
-
-    React.useEffect(() => {
-        const isSelected = isFunctionSelected(selectedPosition, model);
-        setDiagramExpanded(isSelected);
-        if (isSelected) {
-            containerRef.current.scrollIntoView();
-        }
-    }, [selectedPosition])
 
     let component: JSX.Element;
 
