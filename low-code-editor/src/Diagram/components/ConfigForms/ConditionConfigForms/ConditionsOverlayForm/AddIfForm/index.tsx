@@ -118,27 +118,28 @@ export function AddIfForm(props: IfProps) {
                 // tslint:disable-next-line:jsx-no-multiline-js
                 (
                     <div className={classes.formWrapper}>
-                        <div className={classes.formWrapper}>
-                            <div className={classes.formTitleWrapper}>
-                                <div className={classes.mainTitleWrapper}>
-                                    <div className={classes.iconWrapper}>
-                                        <IfIcon />
+                        <div className={classes.formFeilds}>
+                            <div className={classes.formWrapper}>
+                                <div className={classes.formTitleWrapper}>
+                                    <div className={classes.mainTitleWrapper}>
+                                        <div className={classes.iconWrapper}>
+                                            <IfIcon />
+                                        </div>
+                                        <Typography variant="h4">
+                                            <Box paddingTop={2} paddingBottom={2}>
+                                                <FormattedMessage
+                                                    id="lowcode.develop.configForms.if.title"
+                                                    defaultMessage="If"
+                                                />
+                                            </Box>
+                                        </Typography>
                                     </div>
-                                    <Typography variant="h4">
-                                        <Box paddingTop={2} paddingBottom={2}>
-                                            <FormattedMessage
-                                                id="lowcode.develop.configForms.if.title"
-                                                defaultMessage="If"
-                                            />
-                                        </Box>
-                                    </Typography>
+                                </div>
+                                <div className="exp-wrapper">
+                                    <ExpressionEditor {...expElementProps} />
                                 </div>
                             </div>
-                            <div className="exp-wrapper">
-                                <ExpressionEditor {...expElementProps} />
-                            </div>
                         </div>
-                        <div className={classes.saveSpace} />
                         <div className={classes.formSave}>
                             <div className={overlayClasses.buttonWrapper}>
                                 <SecondaryButton text={cancelIfButtonLabel} fullWidth={false} onClick={onCancel} />

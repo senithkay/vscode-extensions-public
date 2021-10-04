@@ -150,52 +150,53 @@ export function AddRespondForm(props: RespondFormProps) {
             {!isCodeEditorActive ?
                 (
                     <div className={formClasses.formWrapper}>
-                        <div className={formClasses.formTitleWrapper}>
-                            <div className={formClasses.mainTitleWrapper}>
-                                <RespondIcon />
-                                <Typography variant="h4">
-                                    <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.Respond.title" defaultMessage="Respond" /></Box>
-                                </Typography>
+                        <div className={formClasses.formFeilds}>
+                            <div className={formClasses.formTitleWrapper}>
+                                <div className={formClasses.mainTitleWrapper}>
+                                    <RespondIcon />
+                                    <Typography variant="h4">
+                                        <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.Respond.title" defaultMessage="Respond" /></Box>
+                                    </Typography>
+                                </div>
                             </div>
-                        </div>
-                        <div className={formClasses.formWrapper}>
-                            <div className="exp-wrapper product-tour-payload-jsonpayload">
-                                <ExpressionEditor
-                                    model={{
-                                        name: "respond expression",
-                                        value: respondFormConfig.respondExpression,
-                                        type: PrimitiveBalType.Union,
-                                        fields: [
-                                            {
-                                                type: PrimitiveBalType.String
-                                            },
-                                            {
-                                                type: PrimitiveBalType.Xml
-                                            },
-                                            {
-                                                type: PrimitiveBalType.Json
-                                            },
-                                            {
-                                                type: PrimitiveBalType.Record,
-                                                typeInfo: httpResponse
-                                            }
-                                        ]
-                                    }}
-                                    customProps={{
-                                        validate: validateExpression,
-                                        tooltipTitle: respondStatementTooltipMessages.title,
-                                        tooltipActionText: respondStatementTooltipMessages.actionText,
-                                        tooltipActionLink: respondStatementTooltipMessages.actionLink,
-                                        interactive: true,
-                                        statementType: [PrimitiveBalType.String, PrimitiveBalType.Xml, PrimitiveBalType.Json, httpResponse]
-                                    }}
-                                    onChange={onExpressionChange}
-                                />
-                            </div>
+                            <div className={formClasses.formWrapper}>
+                                <div className="exp-wrapper product-tour-payload-jsonpayload">
+                                    <ExpressionEditor
+                                        model={{
+                                            name: "respond expression",
+                                            value: respondFormConfig.respondExpression,
+                                            type: PrimitiveBalType.Union,
+                                            fields: [
+                                                {
+                                                    type: PrimitiveBalType.String
+                                                },
+                                                {
+                                                    type: PrimitiveBalType.Xml
+                                                },
+                                                {
+                                                    type: PrimitiveBalType.Json
+                                                },
+                                                {
+                                                    type: PrimitiveBalType.Record,
+                                                    typeInfo: httpResponse
+                                                }
+                                            ]
+                                        }}
+                                        customProps={{
+                                            validate: validateExpression,
+                                            tooltipTitle: respondStatementTooltipMessages.title,
+                                            tooltipActionText: respondStatementTooltipMessages.actionText,
+                                            tooltipActionLink: respondStatementTooltipMessages.actionLink,
+                                            interactive: true,
+                                            statementType: [PrimitiveBalType.String, PrimitiveBalType.Xml, PrimitiveBalType.Json, httpResponse]
+                                        }}
+                                        onChange={onExpressionChange}
+                                    />
+                                </div>
 
-                            {(!config.model) ? statusCodeComp : null}
+                                {(!config.model) ? statusCodeComp : null}
+                            </div>
                         </div>
-                        <div className={formClasses.saveSpace} />
                         <div className={formClasses.formSave}>
                             <div className={overlayClasses.buttonWrapper}>
                                 <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />

@@ -106,28 +106,29 @@ export function AddWhileForm(props: WhileProps) {
 
         <FormControl data-testid="while-form" className={classes.wizardFormControl}>
             <div className={classes.formWrapper}>
-                <div className={classes.formWrapper}>
-                    <div className={classes.formTitleWrapper}>
-                        <div className={classes.mainTitleWrapper}>
-                            <div className={classes.iconWrapper}>
-                                {/* todo add foreach icon*/}
-                                <IfIcon />
+                <div className={classes.formFeilds}>
+                    <div className={classes.formWrapper}>
+                        <div className={classes.formTitleWrapper}>
+                            <div className={classes.mainTitleWrapper}>
+                                <div className={classes.iconWrapper}>
+                                    {/* todo add foreach icon*/}
+                                    <IfIcon />
+                                </div>
+                                <Typography variant="h4">
+                                    <Box paddingTop={2} paddingBottom={2}>
+                                        <FormattedMessage
+                                            id="lowcode.develop.configForms.while.title"
+                                            defaultMessage="While"
+                                        />
+                                    </Box>
+                                </Typography>
                             </div>
-                            <Typography variant="h4">
-                                <Box paddingTop={2} paddingBottom={2}>
-                                    <FormattedMessage
-                                        id="lowcode.develop.configForms.while.title"
-                                        defaultMessage="While"
-                                    />
-                                </Box>
-                            </Typography>
+                        </div>
+                        <div className="exp-wrapper">
+                            <ExpressionEditor {...expElementProps} />
                         </div>
                     </div>
-                    <div className="exp-wrapper">
-                        <ExpressionEditor {...expElementProps} />
-                    </div>
                 </div>
-                <div className={classes.saveSpace} />
                 <div className={classes.formSave}>
                     <div className={overlayClasses.buttonWrapper}>
                         <SecondaryButton text={cancelWhileButtonLabel} fullWidth={false} onClick={onCancel} />

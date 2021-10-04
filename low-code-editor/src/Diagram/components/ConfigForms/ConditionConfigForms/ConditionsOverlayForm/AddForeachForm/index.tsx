@@ -194,37 +194,38 @@ export function AddForeachForm(props: ForeachProps) {
             {!isCodeEditorActive ?
                 (
                     <div className={classes.formWrapper}>
-                        <div className={classes.formWrapper}>
-                            <div className={classes.formTitleWrapper}>
-                                <div className={classes.mainTitleWrapper}>
-                                    <div className={classes.iconWrapper}>
-                                        <ForEachIcon />
+                        <div className={classes.formFeilds}>
+                            <div className={classes.formWrapper}>
+                                <div className={classes.formTitleWrapper}>
+                                    <div className={classes.mainTitleWrapper}>
+                                        <div className={classes.iconWrapper}>
+                                            <ForEachIcon />
+                                        </div>
+                                        <Typography variant="h4">
+                                            <Box paddingTop={2} paddingBottom={2}>
+                                                <FormattedMessage
+                                                    id="lowcode.develop.configForms.foreach.title"
+                                                    defaultMessage="Foreach"
+                                                />
+                                            </Box>
+                                        </Typography>
                                     </div>
-                                    <Typography variant="h4">
-                                        <Box paddingTop={2} paddingBottom={2}>
-                                            <FormattedMessage
-                                                id="lowcode.develop.configForms.foreach.title"
-                                                defaultMessage="Foreach"
-                                            />
-                                        </Box>
-                                    </Typography>
+                                </div>
+                                <FormTextInput
+                                    customProps={{
+                                        validate: validateNameValue,
+                                    }}
+                                    onChange={onVariableNameChange}
+                                    defaultValue={conditionExpression.variable}
+                                    label={currentValueVariableLabel}
+                                    placeholder={""}
+                                    errorMessage={invalidConnectionErrorMessage}
+                                />
+                                <div className="exp-wrapper">
+                                    <ExpressionEditor {...expElementProps} />
                                 </div>
                             </div>
-                            <FormTextInput
-                                customProps={{
-                                    validate: validateNameValue,
-                                }}
-                                onChange={onVariableNameChange}
-                                defaultValue={conditionExpression.variable}
-                                label={currentValueVariableLabel}
-                                placeholder={""}
-                                errorMessage={invalidConnectionErrorMessage}
-                            />
-                            <div className="exp-wrapper">
-                                <ExpressionEditor {...expElementProps} />
-                            </div>
                         </div>
-                        <div className={classes.saveSpace} />
                         <div className={classes.formSave}>
                             <div className={overlayClasses.buttonWrapper}>
                                 <SecondaryButton text={cancelForEachButtonLabel} fullWidth={false} onClick={onCancel} />

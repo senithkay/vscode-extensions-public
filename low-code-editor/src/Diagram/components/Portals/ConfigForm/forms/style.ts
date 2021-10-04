@@ -491,5 +491,8 @@ export const useStyles = makeStyles((theme: Theme) =>
         saveSpace: {
             height: '50px',
         },
+        formFeilds: {
+            marginBottom: '50px',
+        }
     }),
 );

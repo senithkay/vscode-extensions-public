@@ -93,41 +93,42 @@ export function AddReturnForm(props: ReturnFormProps) {
             {!isCodeEditorActive ?
                 (
                     <div className={classes.formWrapper}>
-                        <div className={classes.formTitleWrapper}>
-                            <div className={classes.mainTitleWrapper}>
-                                <div className={classes.iconWrapper}>
-                                    <ReturnIcon />
+                        <div className={classes.formFeilds}>
+                            <div className={classes.formTitleWrapper}>
+                                <div className={classes.mainTitleWrapper}>
+                                    <div className={classes.iconWrapper}>
+                                        <ReturnIcon />
+                                    </div>
+                                    <Typography variant="h4">
+                                        <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.Return.title" defaultMessage="Return" /></Box>
+                                    </Typography>
                                 </div>
-                                <Typography variant="h4">
-                                    <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.Return.title" defaultMessage="Return" /></Box>
-                                </Typography>
-                            </div>
 
-                            <div className={classes.formWrapper}>
-                                {
-                                    // containsMainFunction ?
-                                    (
-                                        <div className="exp-wrapper">
-                                            <ExpressionEditor
-                                                model={{ name: "return expression", type: "var", value: config.expression }}
-                                                customProps={{
-                                                    validate: validateExpression,
-                                                    tooltipTitle: returnStatementTooltipMessages.title,
-                                                    tooltipActionText: returnStatementTooltipMessages.actionText,
-                                                    tooltipActionLink: returnStatementTooltipMessages.actionLink,
-                                                    interactive: true,
-                                                    statementType: 'var'
-                                                }}
-                                                onChange={onReturnValueChange}
-                                            />
-                                        </div>
-                                    )
-                                    // : null
-                                }
+                                <div className={classes.formWrapper}>
+                                    {
+                                        // containsMainFunction ?
+                                        (
+                                            <div className="exp-wrapper">
+                                                <ExpressionEditor
+                                                    model={{ name: "return expression", type: "var", value: config.expression }}
+                                                    customProps={{
+                                                        validate: validateExpression,
+                                                        tooltipTitle: returnStatementTooltipMessages.title,
+                                                        tooltipActionText: returnStatementTooltipMessages.actionText,
+                                                        tooltipActionLink: returnStatementTooltipMessages.actionLink,
+                                                        interactive: true,
+                                                        statementType: 'var'
+                                                    }}
+                                                    onChange={onReturnValueChange}
+                                                />
+                                            </div>
+                                        )
+                                        // : null
+                                    }
 
+                                </div>
                             </div>
                         </div>
-                        <div className={classes.saveSpace} />
                         <div className={classes.formSave}>
                             <div className={overlayClasses.buttonWrapper}>
                                 <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />

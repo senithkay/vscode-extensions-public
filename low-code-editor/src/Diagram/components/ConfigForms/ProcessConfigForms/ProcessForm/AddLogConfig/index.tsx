@@ -118,44 +118,45 @@ export function AddLogConfig(props: LogConfigProps) {
             {!isCodeEditorActive ?
                 (
                     <div className={formClasses.formWrapper}>
-                        <div className={formClasses.formWrapper}>
-                            <div className={formClasses.formTitleWrapper}>
-                                <div className={formClasses.mainTitleWrapper}>
-                                    <div className={formClasses.iconWrapper}>
-                                        <LogIcon />
+                        <div className={formClasses.formFeilds}>
+                            <div className={formClasses.formWrapper}>
+                                <div className={formClasses.formTitleWrapper}>
+                                    <div className={formClasses.mainTitleWrapper}>
+                                        <div className={formClasses.iconWrapper}>
+                                            <LogIcon />
+                                        </div>
+                                        <Typography variant="h4">
+                                            <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.log.title" defaultMessage="Log" /></Box>
+                                        </Typography>
                                     </div>
-                                    <Typography variant="h4">
-                                        <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.log.title" defaultMessage="Log" /></Box>
-                                    </Typography>
+                                </div>
+                                <SelectDropdownWithButton
+                                    defaultValue={logType}
+                                    onChange={onTypeChange}
+                                    customProps={{
+                                        disableCreateNew: true,
+                                        values: logTypes
+                                    }}
+                                    placeholder=""
+                                    label="Type"
+                                />
+                                <div className="exp-wrapper">
+                                    <ExpressionEditor
+                                        model={{ name: "expression", type: 'string' }}
+                                        customProps={{
+                                            validate: validateExpression,
+                                            tooltipTitle: logTooltipMessages.title,
+                                            tooltipActionText: logTooltipMessages.actionText,
+                                            tooltipActionLink: logTooltipMessages.actionLink,
+                                            interactive: true,
+                                            statementType: 'string'
+                                        }}
+                                        onChange={onExpressionChange}
+                                        defaultValue={expression}
+                                    />
                                 </div>
                             </div>
-                            <SelectDropdownWithButton
-                                defaultValue={logType}
-                                onChange={onTypeChange}
-                                customProps={{
-                                    disableCreateNew: true,
-                                    values: logTypes
-                                }}
-                                placeholder=""
-                                label="Type"
-                            />
-                            <div className="exp-wrapper">
-                                <ExpressionEditor
-                                    model={{ name: "expression", type: 'string' }}
-                                    customProps={{
-                                        validate: validateExpression,
-                                        tooltipTitle: logTooltipMessages.title,
-                                        tooltipActionText: logTooltipMessages.actionText,
-                                        tooltipActionLink: logTooltipMessages.actionLink,
-                                        interactive: true,
-                                        statementType: 'string'
-                                    }}
-                                    onChange={onExpressionChange}
-                                    defaultValue={expression}
-                                />
-                            </div>
                         </div>
-                        <div className={formClasses.saveSpace} />
                         <div className={formClasses.formSave}>
                             <div className={overlayClasses.buttonWrapper}>
                                 <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />

@@ -96,39 +96,40 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
             {!isCodeEditorActive ?
                 (
                     <div className={formClasses.formWrapper}>
-                        <div className={formClasses.formWrapper}>
-                            <div className={formClasses.formTitleWrapper}>
-                                <div className={formClasses.mainTitleWrapper}>
-                                    <LogoCircleIcon />
-                                    <Typography variant="h4">
-                                        <Box paddingTop={2} paddingBottom={2}>
-                                            <FormattedMessage
-                                                id="lowcode.develop.configForms.customStatement.title"
-                                                defaultMessage="Other"
-                                            />
-                                        </Box>
-                                    </Typography>
+                        <div className={formClasses.formFeilds}>
+                            <div className={formClasses.formWrapper}>
+                                <div className={formClasses.formTitleWrapper}>
+                                    <div className={formClasses.mainTitleWrapper}>
+                                        <LogoCircleIcon />
+                                        <Typography variant="h4">
+                                            <Box paddingTop={2} paddingBottom={2}>
+                                                <FormattedMessage
+                                                    id="lowcode.develop.configForms.customStatement.title"
+                                                    defaultMessage="Other"
+                                                />
+                                            </Box>
+                                        </Typography>
+                                    </div>
+                                </div>
+                                <div className="exp-wrapper">
+                                    <ExpressionEditor
+                                        model={{ name: "statement", value: expression }}
+                                        customProps={{
+                                            validate: validateExpression,
+                                            tooltipTitle: customStatementTooltipMessages.title,
+                                            tooltipActionText: customStatementTooltipMessages.actionText,
+                                            tooltipActionLink: customStatementTooltipMessages.actionLink,
+                                            interactive: true,
+                                            customTemplate: {
+                                                defaultCodeSnippet: '',
+                                                targetColumn: 1,
+                                            },
+                                        }}
+                                        onChange={onExpressionChange}
+                                    />
                                 </div>
                             </div>
-                            <div className="exp-wrapper">
-                                <ExpressionEditor
-                                    model={{ name: "statement", value: expression }}
-                                    customProps={{
-                                        validate: validateExpression,
-                                        tooltipTitle: customStatementTooltipMessages.title,
-                                        tooltipActionText: customStatementTooltipMessages.actionText,
-                                        tooltipActionLink: customStatementTooltipMessages.actionLink,
-                                        interactive: true,
-                                        customTemplate: {
-                                            defaultCodeSnippet: '',
-                                            targetColumn: 1,
-                                        },
-                                    }}
-                                    onChange={onExpressionChange}
-                                />
-                            </div>
                         </div>
-                        <div className={formClasses.saveSpace} />
                         <div className={formClasses.formSave}>
                             <div className={overlayClasses.buttonWrapper}>
                                 <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
