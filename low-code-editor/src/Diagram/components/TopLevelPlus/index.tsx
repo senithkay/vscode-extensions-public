@@ -66,11 +66,11 @@ export const TopLevelPlus = (props: PlusProps) => {
                                 onClose={handlePlusOptionsClose}
                                 targetPosition={targetPosition}
                             />
+                            {isPlusOptionsVisible && <OverlayBackground />}
                         </DiagramOverlay>
                     </DiagramOverlayContainer>
                 )
             }
-            {isPlusOptionsVisible && <OverlayBackground />}
         </div>
     );
 };
