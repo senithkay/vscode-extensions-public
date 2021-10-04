@@ -22,7 +22,11 @@
  * Test explorer implemntation.
  */
 import { getCurrentBallerinaProject } from '../utils/project-utils';
-import { CancellationToken, debug, DebugConfiguration, Position, Range, RelativePattern, TestController, TestItem, TestItemCollection, TestMessage, TestRunProfileKind, TestRunRequest, tests, TextDocument, Uri, window, workspace, WorkspaceFolder } from 'vscode';
+import {
+  CancellationToken, debug, DebugConfiguration, Position, Range, RelativePattern,
+  TestController, TestItem, TestItemCollection, TestMessage, TestRunProfileKind, TestRunRequest,
+  tests, TextDocument, Uri, window, workspace, WorkspaceFolder
+} from 'vscode';
 import { BallerinaExtension, ExecutorPosition, ExtendedLangClient, LANGUAGE, } from "../core";
 import { BALLERINA_COMMANDS } from '../project';
 import fileUriToPath from 'file-uri-to-path';
@@ -82,7 +86,6 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
       const startTime = Date.now();
       run.appendOutput(`Running Tests\r\n`);
 
-      let EndTime;
       if (request.profile?.kind == TestRunProfileKind.Run) {
         let testNames = "";
         for (const { test, } of queue) {
@@ -99,11 +102,12 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
         } catch {
           // exception.
         } finally {
-          EndTime = Date.now();
-          testsJson = await readTestJson(path.join(rootPath!, TEST_RESULTS_PATH).toString());
+          const EndTime = Date.now();
           if (!testsJson) {
+            run.end();
             return;
           }
+          testsJson = await readTestJson(path.join(rootPath!, TEST_RESULTS_PATH).toString());
 
           const moduleStatus = testsJson["moduleStatus"];
           const testResults = moduleStatus[0]["tests"];
@@ -119,8 +123,7 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
                 run.passed(test, timeElapsed);
               } else if (testResult.status === TEST_STATUS.FAILED) {
                 // test failed
-                let testMessage: TestMessage;
-                testMessage = new TestMessage(testResult.failureMessage);
+                const testMessage: TestMessage = new TestMessage(testResult.failureMessage);
                 run.failed(test, testMessage, timeElapsed);
               }
             }
@@ -128,10 +131,13 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
         }
       } else if (request.profile?.kind == TestRunProfileKind.Debug) {
         for (const { test, } of queue) {
-          // Debugs tests.
-          await startDebugging(window.activeTextEditor!.document.uri, true, ballerinaExtInstance.getBallerinaCmd(),
-            ballerinaExtInstance.getBallerinaHome(), [test.label]);
+          if (window.activeTextEditor) {
+            // Debugs tests.
+            await startDebugging(window.activeTextEditor.document.uri, true,
+              ballerinaExtInstance.getBallerinaCmd(),
+              ballerinaExtInstance.getBallerinaHome(), [test.label]);
 
+          }
         }
       }
       run.appendOutput(`Tests Completed\r\n`);
@@ -185,9 +191,12 @@ async function runCommand(command, pathToRun: string | undefined) {
       const lastIndex = pathToRun.lastIndexOf(path.sep);
       pathToRun = pathToRun.slice(0, lastIndex);
     }
-    child_process.exec(`${command}`, { cwd: pathToRun }, (err, stdout, stderr) => {
+    child_process.exec(`${command}`, { cwd: pathToRun }, async (err, stdout, stderr) => {
       if (err) {
         log('error: ' + err);
+        await window.showInformationMessage(
+          err.message
+        );
         reject(err);
       } else {
         resolve("OK");
