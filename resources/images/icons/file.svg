@@ -1,0 +1,40 @@
+<?xml version="1.0" standalone="no"?>
+<!--
+ ~   Copyright 2021, WSO2 Inc. (http://www.wso2.com)
+ ~
+ ~   Licensed under the Apache License, Version 2.0 (the "License");
+ ~   you may not use this file except in compliance with the License.
+ ~   You may obtain a copy of the License at
+ ~
+ ~        http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~   Unless required by applicable law or agreed to in writing, software
+ ~   distributed under the License is distributed on an "AS IS" BASIS,
+ ~   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~   See the License for the specific language governing permissions and
+ ~   limitations under the License.
+-->
+<svg version="1.0" xmlns="http://www.w3.org/2000/svg"
+ width="1024.000000pt" height="1024.000000pt" viewBox="0 0 1024.000000 1024.000000"
+ preserveAspectRatio="xMidYMid meet">
+    <g transform="translate(0.000000,1024.000000) scale(0.100000,-0.100000)"
+    fill="#000000" stroke="none">
+        <path d="M1792 9464 c-179 -48 -329 -192 -385 -369 l-22 -70 0 -3935 0 -3935
+        22 -70 c50 -157 177 -294 333 -358 l55 -22 3224 -3 c3574 -2 3280 -8 3407 63
+        139 78 252 238 274 390 7 47 10 840 7 2440 -2 2231 -4 2374 -20 2444 -31 127
+        -76 252 -133 370 -114 239 -49 168 -1403 1522 -1341 1340 -1283 1286 -1506
+        1395 -133 64 -256 106 -392 133 -100 21 -123 21 -1755 20 -1398 0 -1661 -3
+        -1706 -15z m3250 -1966 l3 -1243 22 -66 c43 -126 154 -254 272 -314 115 -58
+        44 -55 1393 -55 l1238 0 0 -2190 0 -2190 -2925 0 -2925 0 0 3650 0 3650 1460
+        0 1460 0 2 -1242z m1583 -98 l840 -840 -843 0 -842 0 0 840 c0 462 1 840 3
+        840 1 0 380 -378 842 -840z"/>
+        <path d="M2942 5073 c-18 -9 -45 -32 -60 -51 l-27 -35 -3 -241 c-2 -153 1
+        -254 7 -278 14 -44 67 -93 118 -107 53 -15 4083 -15 4136 0 45 12 100 58 116
+        97 8 20 11 104 9 280 -3 276 -3 275 -72 326 l-27 21 -2082 2 c-1912 2 -2085 1
+        -2115 -14z"/>
+        <path d="M2939 3607 c-27 -15 -52 -38 -66 -63 -22 -37 -23 -49 -23 -282 0
+        -263 1 -272 57 -324 15 -15 41 -32 56 -37 20 -8 656 -11 2086 -11 l2058 0 44
+        23 c27 15 53 38 67 63 22 38 22 45 20 294 -3 251 -3 256 -27 289 -13 18 -42
+        42 -65 52 -40 18 -114 19 -2102 19 l-2061 0 -44 -23z"/>
+    </g>
+</svg>

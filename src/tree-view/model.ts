@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { TreeItem, TreeItemCollapsibleState } from "vscode";
+import { FileType, TreeItem, TreeItemCollapsibleState, Uri, WorkspaceFolder } from "vscode";
 import { join } from 'path';
 
 export enum CMP_KIND {
@@ -45,12 +45,58 @@ export enum CMP_KIND {
     LISTENER = "listener",
     LISTENER_LABEL = "listener_label",
     MODULE_LEVEL_VAR = "module_level_variable",
-    MODULE_LEVEL_VAR_LABEL = "module_level_variable_label"
+    MODULE_LEVEL_VAR_LABEL = "module_level_variable_label",
+    ENTRY_POINT_LABEL = 'entry_point_label'
+}
+
+export enum EXPLORER_ITEM_KIND {
+    BAL_FILE = 'ballerina_file',
+    TOML_FILE = 'toml_file',
+    OTHER_FILE = 'other_file',
+    FOLDER = 'folder'
+}
+
+export enum FILE_EXTENSION {
+    BAL = '.bal',
+    TOML = '.toml'
 }
 
 export const TREE_ELEMENT_EXECUTE_COMMAND: string = 'ballerina.executeTreeElement';
-export const TREE_REFRESH_COMMAND: string = 'ballerina.refreshPackageTree';
-export const TREE_COLLAPSE_COMMAND: string = 'ballerina.collapsePackageTree';
+export const OUTLINE_TREE_REFRESH_COMMAND: string = 'ballerina.refreshPackageTree';
+export const EXPLORER_TREE_REFRESH_COMMAND: string = 'ballerina.refreshExplorerTree';
+export const EXPLORER_TREE_NEW_FILE_COMMAND: string = 'ballerina.newFileExplorerTree';
+export const EXPLORER_TREE_NEW_FOLDER_COMMAND: string = 'ballerina.newFolderExplorerTree';
+
+export class ExplorerTreeItem extends TreeItem {
+    private folder: WorkspaceFolder | undefined;
+    private uri: Uri;
+    private type: FileType;
+    private kind: string;
+
+    constructor(public readonly label: string, public readonly collapsibleState:
+        TreeItemCollapsibleState, kind: string, uri: Uri, type: FileType) {
+        super(label, collapsibleState);
+        this.uri = uri;
+        this.type = type
+        this.kind = kind;
+    }
+
+    getFolder(): WorkspaceFolder | undefined {
+        return this.folder
+    }
+
+    getUri(): Uri {
+        return this.uri;
+    }
+
+    getFileType(): FileType {
+        return this.type;
+    }
+
+    getKind(): string {
+        return this.kind;
+    }
+}
 
 export class PackageTreeItem extends TreeItem {
     private kind: string;
@@ -156,6 +202,7 @@ export interface ChildrenData {
     listeners?: Leaf[];
     moduleVariables?: Leaf[];
     methods?: Leaf[];
+    entryPoint?: Leaf[]
 }
 
 export interface Package {

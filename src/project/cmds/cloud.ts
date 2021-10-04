@@ -27,8 +27,9 @@ import {
 import { getCurrentBallerinaProject } from "../../utils/project-utils";
 import { PALETTE_COMMANDS, PROJECT_TYPE } from "./cmd-runner";
 import * as fs from 'fs';
+import { sep } from 'path';
 
-const CLOUD_CONFIG_FILE_NAME = "/Cloud.toml";
+const CLOUD_CONFIG_FILE_NAME = `${sep}Cloud.toml`;
 const CLOUD_TOML_DEFAULT_CONTENT = `# This file contains most used configerations supported by Ballerina Code to Cloud
 # All the fields are optional. If these fields are not specified, default value will be taken from the compiler.
 # Full Code to Cloud specification can be accssed from https://github.com/ballerina-platform/ballerina-spec/blob/master/c2c/code-to-cloud-spec.md

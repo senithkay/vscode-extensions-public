@@ -26,7 +26,7 @@
         "onLanguage:ballerina",
         "onCommand:ballerina.showExamples",
         "workspaceContains:Ballerina.toml",
-        "onView:ballerinaPackageTreeView"
+        "onView:ballerinaExplorerTreeView"
     ],
     "contributes": {
         "languages": [
@@ -267,11 +267,27 @@
                 }
             },
             {
-                "command": "ballerina.collapsePackageTree",
-                "title": "Collapse Diagrams",
+                "command": "ballerina.refreshExplorerTree",
+                "title": "Refresh",
                 "icon": {
-                    "light": "./resources/images/icons/collapse.svg",
-                    "dark": "./resources/images/icons/collapse-inverse.svg"
+                    "light": "./resources/images/icons/refresh.svg",
+                    "dark": "./resources/images/icons/refresh-inverse.svg"
+                }
+            },
+            {
+                "command": "ballerina.newFileExplorerTree",
+                "title": "New File",
+                "icon": {
+                    "light": "./resources/images/icons/new-file.svg",
+                    "dark": "./resources/images/icons/new-file-inverse.svg"
+                }
+            },
+            {
+                "command": "ballerina.newFolderExplorerTree",
+                "title": "New Folder",
+                "icon": {
+                    "light": "./resources/images/icons/new-folder.svg",
+                    "dark": "./resources/images/icons/new-folder-inverse.svg"
                 }
             },
             {
@@ -291,6 +307,15 @@
                     "light": "./resources/images/icons/debug.svg"
                 },
                 "category": "Ballerina"
+            },  
+            {
+                "command": "ballerina.show.source",
+                "title": "Show Source",
+                "icon": {
+                    "dark": "./resources/images/icons/source-view-inverse.svg",
+                    "light": "./resources/images/icons/source-view.svg"
+                },
+                "category": "Ballerina"
             },
             {
                 "command": "ballerina.pasteAsRecord",
@@ -301,14 +326,19 @@
         "views": {
             "diagram-explorer": [
                 {
-                    "id": "sessionExplorer",
-                    "name": "Choreo Session Details",
+                    "id": "ballerinaExplorerTreeView",
+                    "name": "Explorer",
                     "contextualTitle": "Diagram Explorer"
                 },
                 {
                     "id": "ballerinaPackageTreeView",
-                    "name": "Diagrams",
-                    "contextualTitle": "Diagram Explorer"
+                    "name": "Outline",
+                    "contextualTitle": "Package Outline"
+                },
+                {
+                    "id": "sessionExplorer",
+                    "name": "Choreo Session Details",
+                    "contextualTitle": "Choreo Session"
                 }
             ]
         },
@@ -324,7 +354,15 @@
         "viewsWelcome": [
             {
                 "view": "sessionExplorer",
-                "contents": "No Choreo sessions found.\n[Sign In](command:ballerina.choreo.signin)\nRefer to our docs to learn more about [Choreo](https://wso2.com/choreo/)."
+                "contents": "No Choreo sessions found.\n[Sign In](command:ballerina.choreo.signin)\nRefer to our documentation to learn more about [Choreo](https://wso2.com/choreo/)."
+            },
+            {
+                "view": "ballerinaPackageTreeView",
+                "contents": "No Ballerina packages found.\n[Go to File Explorer](command:workbench.files.action.focusFilesExplorer)"
+            },
+            {
+                "view": "ballerinaExplorerTreeView",
+                "contents": "No files found in your workspace.\n[Go to File Explorer](command:workbench.files.action.focusFilesExplorer)"
             }
         ],
         "menus": {
@@ -335,8 +373,8 @@
                     "group": "navigation"
                 },
                 {
-                    "command": "ballerina.collapsePackageTree",
-                    "when": "view == ballerinaPackageTreeView",
+                    "command": "ballerina.refreshExplorerTree",
+                    "when": "view == ballerinaExplorerTreeView",
                     "group": "navigation"
                 }
             ],
@@ -345,6 +383,23 @@
                     "when": "resourceLangId == ballerina",
                     "command": "ballerina.show.diagram",
                     "group": "navigation"
+                },
+                {
+                    "when": "isBallerinaDiagram",
+                    "command": "ballerina.show.source",
+                    "group": "navigation"
+                }
+            ],
+            "view/item/context": [
+                {
+                    "command": "ballerina.newFileExplorerTree",
+                    "when": "view == ballerinaExplorerTreeView && viewItem == folder",
+                    "group": "inline"
+                },
+                {
+                    "command": "ballerina.newFolderExplorerTree",
+                    "when": "view == ballerinaExplorerTreeView && viewItem == folder",
+                    "group": "inline"
                 }
             ],
             "editor/title/run": [
@@ -385,7 +440,7 @@
     },
     "dependencies": {
         "@types/vscode": "^1.59.0",
-        "@wso2-enterprise/ballerina-low-code-editor": "^1.1.1",
+        "@wso2-enterprise/ballerina-low-code-editor": "^1.1.2",
         "file-uri-to-path": "^2.0.0",
         "glob": "^7.1.7",
         "monaco-languageclient": "^0.13.0",
