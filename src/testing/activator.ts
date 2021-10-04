@@ -194,7 +194,7 @@ async function runCommand(command, pathToRun: string | undefined) {
     child_process.exec(`${command}`, { cwd: pathToRun }, async (err, stdout, stderr) => {
       if (err) {
         log(`error: ${err}`);
-        await window.showInformationMessage(
+        window.showInformationMessage(
           err.message
         );
         reject(err);
