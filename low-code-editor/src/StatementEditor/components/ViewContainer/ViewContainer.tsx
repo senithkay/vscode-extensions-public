@@ -46,7 +46,15 @@ export function ViewContainer(props: ViewProps) {
     const intl = useIntl();
 
     const defaultModel = getDefaultModel(kind);
+    const [initialModel] = useState({...defaultModel});
+
     const [onCancelClicked, setOnCancel] = useState(false);
+
+    useEffect(() => {
+        return () => {
+            Object.assign(defaultModel, initialModel);
+        };
+    }, [])
 
     const currentModel: { model: STNode } = {
         model: defaultModel
