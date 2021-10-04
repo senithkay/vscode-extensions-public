@@ -22,7 +22,7 @@ import { addToTargetLine, addToTargetPosition, getDiagnosticMessage, getFiltered
 import * as c from "../../constants";
 import { ModelContext } from "../../store/model-context";
 import { addExpression, SuggestionItem } from "../../utils/utils";
-import { visitor as CodeGenVisitor } from "../Visitors/codeGenVisitor";
+import { visitor as CodeGenVisitor } from "../../visitors/code-gen-visitor";
 import { FormContext } from "../../store/form-context";
 import { VariableUserInputs } from "../../models/definitions";
 import { statementEditorStyles } from "../ViewContainer/styles";
