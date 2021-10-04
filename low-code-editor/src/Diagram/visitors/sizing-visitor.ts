@@ -301,6 +301,13 @@ class SizingVisitor implements Visitor {
 
         viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2 + DefaultConfig.functionHeaderHeight;
         viewState.bBox.w = (trigger.w > bodyViewState.bBox.w ? trigger.w : bodyViewState.bBox.w) + DefaultConfig.serviceFrontPadding + DefaultConfig.serviceRearPadding + allEndpoints.size * 150 * 2;
+
+        if (viewState.initPlus && viewState.initPlus.selectedComponent === "PROCESS") {
+            viewState.bBox.h += PLUS_HOLDER_STATEMENT_HEIGHT;
+            if (viewState.bBox.w < PLUS_HOLDER_WIDTH) {
+                viewState.bBox.w = PLUS_HOLDER_WIDTH;
+            }
+        }
     }
 
     public beginVisitObjectMethodDefinition(node: ObjectMethodDefinition) {
@@ -361,6 +368,13 @@ class SizingVisitor implements Visitor {
         }
 
         viewState.wrapper.h = viewState.bBox.h;
+
+        if (viewState.initPlus && viewState.initPlus.selectedComponent === "PROCESS") {
+            viewState.bBox.h += PLUS_HOLDER_STATEMENT_HEIGHT;
+            if (viewState.bBox.w < PLUS_HOLDER_WIDTH) {
+                viewState.bBox.w = PLUS_HOLDER_WIDTH;
+            }
+        }
     }
 
     public endVisitFunctionDefinition(node: FunctionDefinition) {
@@ -388,8 +402,12 @@ class SizingVisitor implements Visitor {
         viewState.bBox.w = (trigger.w > bodyViewState.bBox.w ? trigger.w : bodyViewState.bBox.w)
             + DefaultConfig.serviceFrontPadding + DefaultConfig.serviceRearPadding + allEndpoints.size * 150 * 2;
 
-        // viewState.wrapper.h = viewState.bBox.h;
-        // this.endVisitFunctionTypeNode(node);
+        if (viewState.initPlus && viewState.initPlus.selectedComponent === "PROCESS") {
+            viewState.bBox.h += PLUS_HOLDER_STATEMENT_HEIGHT;
+            if (viewState.bBox.w < PLUS_HOLDER_WIDTH) {
+                viewState.bBox.w = PLUS_HOLDER_WIDTH;
+            }
+        }
     }
 
     public endVisitObjectMethodDefinition(node: ObjectMethodDefinition) {
@@ -415,6 +433,13 @@ class SizingVisitor implements Visitor {
         viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2 + DefaultConfig.functionHeaderHeight;
         viewState.bBox.w = (trigger.w > bodyViewState.bBox.w ? trigger.w : bodyViewState.bBox.w)
             + DefaultConfig.serviceFrontPadding + DefaultConfig.serviceRearPadding + allEndpoints.size * 150 * 2;
+
+        if (viewState.initPlus && viewState.initPlus.selectedComponent === "PROCESS") {
+            viewState.bBox.h += PLUS_HOLDER_STATEMENT_HEIGHT;
+            if (viewState.bBox.w < PLUS_HOLDER_WIDTH) {
+                viewState.bBox.w = PLUS_HOLDER_WIDTH;
+            }
+        }
     }
 
     public beginVisitFunctionBodyBlock(node: FunctionBodyBlock) {
