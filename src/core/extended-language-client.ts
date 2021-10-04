@@ -168,6 +168,9 @@ export class ExtendedLangClient extends LanguageClient {
     syntaxTreeModify(params: BallerinaSyntaxTreeModifyRequest): Thenable<BallerinaSyntaxTreeResponse> {
         return this.sendRequest<BallerinaSyntaxTreeResponse>("ballerinaDocument/syntaxTreeModify", params);
     }
+    getActionInvocations(params: BallerinaProjectParams): Promise<string> {
+        return this.sendRequest("performanceAnalyzer/getEndpoints", params);
+    }
     getDiagnostics(params: BallerinaProjectParams): Promise<PublishDiagnosticsParams[]> {
         return this.sendRequest<PublishDiagnosticsParams[]>("ballerinaDocument/diagnostics", params);
     }
