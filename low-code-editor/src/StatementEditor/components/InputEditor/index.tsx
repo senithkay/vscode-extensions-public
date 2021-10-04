@@ -193,6 +193,7 @@ export function InputEditor(props: InputEditorProps) {
             inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
             inputEditorState.content = (currentFile.content);
             inputEditorState.uri = inputEditorState?.uri;
+            formCtx.onChange("");
 
             await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
                 await langClient.didChange({
