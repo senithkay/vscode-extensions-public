@@ -20,7 +20,12 @@ import { DiagramOverlayContainer } from "../Portals/Overlay";
 
 import "./style.scss";
 
-export function Panel(props: any) {
+interface PanelProps {
+    children: React.ReactNode,
+    onClose: () => void;
+}
+
+export function Panel(props: PanelProps) {
     const { children, onClose } = props;
 
     return (
@@ -28,11 +33,13 @@ export function Panel(props: any) {
             <DiagramOverlayContainer
             >
                 <div className="panel">
-                    <ButtonWithIcon
-                        className="panel-close-button"
-                        onClick={onClose}
-                        icon={<CloseRounded fontSize="small" />}
-                    />
+                    <div className={'top-control-container'}>
+                        <ButtonWithIcon
+                            className="panel-close-button"
+                            onClick={onClose}
+                            icon={<CloseRounded fontSize="small" />}
+                        />
+                    </div>
                     <div className="panel-form-wrapper">
                         {children}
                     </div>

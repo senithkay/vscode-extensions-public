@@ -11,13 +11,15 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline object-literal-shorthand align
-import React from "react";
+import React, { useState } from "react";
 
 import { STKindChecker, STNode } from "@ballerina/syntax-tree";
 
 import { DraftInsertPosition } from "../../../view-state/draft";
+import { FormGenerator } from "../../FormGenerator";
 import { Margin } from "../index";
 import { ModuleLevelPlusOptions } from "../ModuleLevelPlusOptions";
+import { PlusOptionRenderer } from "../PlusOptionRenderer";
 
 export interface PlusOptionsProps {
     kind: string
@@ -26,21 +28,72 @@ export interface PlusOptionsProps {
     targetPosition?: DraftInsertPosition;
 }
 
+export interface PlusMenuEntry {
+    name: string,
+    type: string,
+}
+
+const moduleLevelEntries: PlusMenuEntry[] = [
+    { name: 'Service', type: 'ServiceDeclaration' },
+    { name: 'Variable', type: 'ModuleVarDecl' },
+    { name: 'Listener', type: 'ListenerDeclaration' },
+    { name: 'Type Definition', type: 'TypeDefinition' },
+    { name: 'Class', type: 'ClassDefinition' },
+    { name: 'Constant', type: 'ConstDeclaration' },
+    { name: 'Function', type: 'FunctionDefinition' }
+];
+
+const classMemberEntries: PlusMenuEntry[] = [
+    { name: 'Variable', type: 'ObjectField' },
+    { name: 'Resource', type: 'ResourceAccessorDefinition' },
+    { name: 'Function', type: 'ObjectMethodDefinition' }
+]
+
 export const PlusOptionsSelector = (props: PlusOptionsProps) => {
     const { onClose, targetPosition, kind } = props;
+    const [selectedOption, setSelectedOption] = useState<PlusMenuEntry>(undefined);
 
-    let menu;
+    let menuEntries: PlusMenuEntry[] = [];
+
+    const handleOnClose = () => {
+        setSelectedOption(undefined);
+        onClose();
+    }
+
+    const onOptionSelect = (option: PlusMenuEntry) => {
+        setSelectedOption(option)
+    }
 
     switch (kind) {
         case 'ModulePart':
-            menu = (<ModuleLevelPlusOptions onClose={onClose} targetPosition={targetPosition} />);
+            menuEntries = moduleLevelEntries;
+            break;
+        case 'ServiceDeclaration':
+            menuEntries = classMemberEntries;
             break;
         default:
     }
 
     return (
         <>
-            {menu}
+            {
+                !selectedOption && (
+                    <PlusOptionRenderer
+                        entries={menuEntries}
+                        onClose={handleOnClose}
+                        onOptionSelect={onOptionSelect}
+                        targetPosition={targetPosition}
+                    />
+                )
+            }
+            {
+                selectedOption && (
+                    <FormGenerator
+                        configOverlayFormStatus={{ formType: selectedOption.type, isLoading: false, formArgs: {} }}
+                        onCancel={handleOnClose}
+                    />
+                )
+            }
         </>
     );
 };
