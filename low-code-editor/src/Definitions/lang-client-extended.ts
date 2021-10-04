@@ -27,17 +27,6 @@ export interface STModification {
     isImport?: boolean;
 }
 
-export interface BallerinaSyntaxTreeModifyRequest {
-    documentIdentifier: { uri: string; };
-    astModifications: STModification[];
-}
-
-export interface BallerinaSyntaxTreeResponse {
-    syntaxTree: any;
-    parseSuccess: boolean;
-    source: string;
-}
-
 export interface Connector {
     id?: string;
     name: string;
