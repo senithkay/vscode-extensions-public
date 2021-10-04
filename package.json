@@ -237,6 +237,10 @@
             {
                 "command": "ballerina.project.run",
                 "title": "Run",
+                "icon": {
+                    "dark": "./resources/images/icons/start-inverse.svg",
+                    "light": "./resources/images/icons/start.svg"
+                },
                 "category": "Ballerina"
             },
             {
@@ -276,24 +280,6 @@
                 "icon": {
                     "dark": "./resources/images/icons/design-view-inverse.svg",
                     "light": "./resources/images/icons/design-view.svg"
-                },
-                "category": "Ballerina"
-            },
-            {
-                "command": "ballerina.project.run",
-                "title": "Run project in terminal",
-                "icon": {
-                    "dark": "./resources/images/icons/start-inverse.svg",
-                    "light": "./resources/images/icons/start.svg"
-                },
-                "category": "Ballerina"
-            },
-            {
-                "command": "ballerina.project.run-icon",
-                "title": "Run project in terminal",
-                "icon": {
-                    "dark": "./resources/images/icons/start-inverse.svg",
-                    "light": "./resources/images/icons/start.svg"
                 },
                 "category": "Ballerina"
             },
@@ -363,7 +349,7 @@
             ],
             "editor/title/run": [
                 {
-                    "command": "ballerina.project.run-icon",
+                    "command": "ballerina.project.run",
                     "group": "navigation@0",
                     "title": "Run project in terminal",
                     "when": "resourceLangId == ballerina"

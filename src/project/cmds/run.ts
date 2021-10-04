@@ -30,9 +30,6 @@ function activateRunCommand() {
     commands.registerCommand(PALETTE_COMMANDS.RUN, async (...args: any[]) => {
         await run(args);
     });
-    commands.registerCommand(PALETTE_COMMANDS.RUNICON, async (...args: any[]) => {
-        await run([]);
-    });
 
     async function run(args: any[]) {
         try {

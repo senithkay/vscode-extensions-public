@@ -28,7 +28,6 @@ export enum PALETTE_COMMANDS {
     DOC = 'ballerina.project.doc',
     FOCUS_OVERVIEW = 'ballerinaPackageTreeView.focus',
     RUN = 'ballerina.project.run',
-    RUNICON = 'ballerina.project.run-icon',
     SAVE_ALL = 'workbench.action.files.saveFiles',
     TEST = 'ballerina.project.test',
     PASTE_JSON_AS_RECORD = 'ballerina.pasteAsRecord'
@@ -68,7 +67,11 @@ export function runCommand(file: BallerinaProject | string, executor: string, cm
     let argsList = '';
     if (args && args.length > 0) {
         args.forEach((arg) => {
-            argsList += arg.concat(' ');
+            try {
+                argsList += arg.concat(' ');
+            } catch (e) {
+                // error
+            }
         });
     }
     let commandText;
