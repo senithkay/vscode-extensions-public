@@ -23,7 +23,7 @@ import * as c from "../../constants";
 import { ModelContext } from "../../store/model-context";
 import { addExpression, SuggestionItem } from "../../utils/utils";
 import { visitor as CodeGenVisitor } from "../Visitors/codeGenVisitor";
-import { EditorCancelContext } from "../../store/form-cancel-context";
+import { FormContext } from "../../store/form-context";
 import { VariableUserInputs } from "../../models/definitions";
 
 export interface InputEditorProps {
@@ -58,7 +58,7 @@ export function InputEditor(props: InputEditorProps) {
 
     const { model, callBack, statementType, diagnosticHandler, userInputs } = props;
     const modelCtx = useContext(ModelContext);
-    const onCancelCtx = useContext(EditorCancelContext);
+    const formCtx = useContext(FormContext);
 
     let literalModel: StringLiteral | NumericLiteral;
     let value: any;
@@ -84,7 +84,7 @@ export function InputEditor(props: InputEditorProps) {
 
     // InputEditor start
     const handleOnFocus = async (currentContent: string, EOL: string) => {
-        let initContent: string = null;
+        let initContent: string;
         const newCodeSnippet: string = addToTargetPosition(defaultCodeSnippet, (snippetTargetPosition - 1), currentContent);
         initContent = addToTargetLine((currentFile.content), targetPosition, newCodeSnippet, EOL);
 
@@ -124,14 +124,16 @@ export function InputEditor(props: InputEditorProps) {
         // tslint:disable-next-line:no-console
         console.log("============HANDLING DIAGNOSTICS==============");
 
+        const codeSnippet = CodeGenVisitor.getCodeSnippet();
+        const hasDiagnostic = !inputEditorState.diagnostic.length // true if there are no diagnostics
+
+        formCtx.onChange(codeSnippet);
+        formCtx.validate("", !hasDiagnostic, false);
+
         // TODO: Need to obtain the default value as a prop
-        return (
-            <>
-                {!CodeGenVisitor.getCodeSnippet().includes(' expression ') ?
-                    diagnosticHandler(getDiagnosticMessage(inputEditorState.diagnostic, varType)) :
-                    null}
-            </>
-        );
+        if (!CodeGenVisitor.getCodeSnippet().includes(' expression ')) {
+            diagnosticHandler(getDiagnosticMessage(inputEditorState.diagnostic, varType))
+        }
     }
 
 
@@ -196,7 +198,7 @@ export function InputEditor(props: InputEditorProps) {
         }
     }
 
-    if (onCancelCtx.onCancelled) {
+    if (formCtx.onCancel) {
         revertContent();
     }
 

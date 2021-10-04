@@ -62,11 +62,19 @@ export function LeftPane(props: ModelProps) {
             <h3 className={overlayClasses.AppLeftPaneHeading}>{label}</h3>
             <div className={overlayClasses.AppStatementTemplateEditor}>
                 <div className={overlayClasses.AppStatementTemplateEditorInner}>
-                    <ExpressionComponent model={model} callBack={onClickExpressionButton} isRoot={true} userInputs={userInputs} diagnosticHandler={diagnosticHandler}/>
+                    <ExpressionComponent
+                        model={model}
+                        callBack={onClickExpressionButton}
+                        isRoot={true}
+                        userInputs={userInputs}
+                        diagnosticHandler={diagnosticHandler}
+                    />
                 </div>
             </div>
             <div className={overlayClasses.AppDiagnosticsPane}>
-                <Diagnostics message={diagnosticList} />
+                <Diagnostics
+                    message={diagnosticList}
+                />
             </div>
             <div className={overlayClasses.AppContextSensitivePane}>
                 <Suggestions
