@@ -131,7 +131,7 @@ export function InputEditor(props: InputEditorProps) {
         formCtx.validate("", !hasDiagnostic, false);
 
         // TODO: Need to obtain the default value as a prop
-        if (!CodeGenVisitor.getCodeSnippet().includes('expression')) {
+        if (!CodeGenVisitor.getCodeSnippet().includes(' expression ')) {
             diagnosticHandler(getDiagnosticMessage(inputEditorState.diagnostic, varType))
         }
     }
