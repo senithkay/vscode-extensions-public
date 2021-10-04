@@ -140,7 +140,7 @@ export function AddRespondForm(props: RespondFormProps) {
                 customProps={{ validate: statusCodeValidateExpression, statementType: PrimitiveBalType.Int }}
                 onChange={onStatusCodeChange}
             />
-            {!validStatusCode ? <p className={formClasses.invalidCode}> <FormattedMessage id="lowcode.develop.configForms.Respond.invalidCodeError" defaultMessage="Invalid status code"/></p> : null}
+            {!validStatusCode ? <p className={formClasses.invalidCode}> <FormattedMessage id="lowcode.develop.configForms.Respond.invalidCodeError" defaultMessage="Invalid status code" /></p> : null}
         </>
     );
     const disableSave = (isMutationInProgress || !validForm || !validStatusCode);
@@ -154,7 +154,7 @@ export function AddRespondForm(props: RespondFormProps) {
                             <div className={formClasses.mainTitleWrapper}>
                                 <RespondIcon />
                                 <Typography variant="h4">
-                                    <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.Respond.title" defaultMessage="Respond"/></Box>
+                                    <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.Respond.title" defaultMessage="Respond" /></Box>
                                 </Typography>
                             </div>
                         </div>
@@ -195,16 +195,19 @@ export function AddRespondForm(props: RespondFormProps) {
 
                             {(!config.model) ? statusCodeComp : null}
                         </div>
-                        <div className={overlayClasses.buttonWrapper}>
-                            <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
-                            <PrimaryButton
-                                dataTestId="save-btn"
-                                className="product-tour-save"
-                                text={saveRespondButtonLabel}
-                                disabled={disableSave}
-                                fullWidth={false}
-                                onClick={onSaveWithTour}
-                            />
+                        <div className={formClasses.saveSpace} />
+                        <div className={formClasses.formSave}>
+                            <div className={overlayClasses.buttonWrapper}>
+                                <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
+                                <PrimaryButton
+                                    dataTestId="save-btn"
+                                    className="product-tour-save"
+                                    text={saveRespondButtonLabel}
+                                    disabled={disableSave}
+                                    fullWidth={false}
+                                    onClick={onSaveWithTour}
+                                />
+                            </div>
                         </div>
                     </div>
                 )
