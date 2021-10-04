@@ -13,11 +13,12 @@
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline jsx-no-lambda
 import React from "react";
 
-import {STNode} from "@ballerina/syntax-tree";
+import { STNode } from "@ballerina/syntax-tree";
 
 import * as c from "../../constants";
-import {addExpression, addOperator, SuggestionItem} from "../../utils/utils";
-import {statementEditorStyles} from "../ViewContainer/styles";
+import { SuggestionItem } from "../../models/definitions";
+import { addExpression, addOperator } from "../../utils/utils";
+import { statementEditorStyles } from "../ViewContainer/styles";
 
 interface SuggestionsProps {
     model: STNode

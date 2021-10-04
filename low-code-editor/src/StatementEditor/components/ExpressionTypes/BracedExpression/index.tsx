@@ -10,12 +10,12 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-wrap-multiline
 import React from "react";
 
 import { BracedExpression, STNode } from "@ballerina/syntax-tree";
 
-import { VariableUserInputs } from "../../../models/definitions";
-import { SuggestionItem } from "../../../utils/utils";
+import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
 import { ExpressionComponent } from "../../Expression";
 
 interface BracedExprProps {
@@ -33,7 +33,13 @@ export function BracedExpressionC(props: BracedExprProps) {
     if (model.kind === 'BracedExpression') {
         const bracedExpModel = model as BracedExpression;
         expression = bracedExpModel.expression;
-        expressionComponent = <ExpressionComponent model={expression} callBack={callBack} isRoot={false} userInputs={userInputs} diagnosticHandler={diagnosticHandler} />;
+        expressionComponent = <ExpressionComponent
+            model={expression}
+            callBack={callBack}
+            isRoot={false}
+            userInputs={userInputs}
+            diagnosticHandler={diagnosticHandler}
+        />;
     }
 
     return (

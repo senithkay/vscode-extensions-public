@@ -10,18 +10,16 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: ordered-imports
 import React, { useState } from "react";
 
 import { STNode } from "@ballerina/syntax-tree";
 
-import {getSuggestionsBasedOnExpressionKind} from "../../utils";
-import {SuggestionItem} from "../../utils/utils";
-import {ExpressionComponent} from '../Expression';
-import {Suggestions} from '../Suggestions';
-import {statementEditorStyles} from "../ViewContainer/styles";
-import { VariableUserInputs } from "../../models/definitions";
+import { SuggestionItem, VariableUserInputs } from "../../models/definitions";
+import { getSuggestionsBasedOnExpressionKind } from "../../utils";
 import { Diagnostics } from "../Diagnostics";
+import { ExpressionComponent } from '../Expression';
+import { Suggestions } from '../Suggestions';
+import { statementEditorStyles } from "../ViewContainer/styles";
 
 interface ModelProps {
     model: STNode,

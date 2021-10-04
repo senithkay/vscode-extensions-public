@@ -10,14 +10,14 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-wrap-multiline
 import React from "react";
 
 import { BinaryExpression, STNode } from "@ballerina/syntax-tree";
 
-import { VariableUserInputs } from "../../../models/definitions";
+import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
 import { getKindBasedOnOperator, getOperatorSuggestions, getSuggestionsBasedOnExpressionKind } from "../../../utils";
-import { SuggestionItem } from "../../../utils/utils";
-import { ExpressionComponent } from "../../Expression";
+import { ExpressionComponent} from "../../Expression";
 import { statementEditorStyles } from "../../ViewContainer/styles";
 
 interface BinaryProps {
@@ -28,7 +28,7 @@ interface BinaryProps {
 }
 
 export function BinaryExpressionC(props: BinaryProps) {
-    const { model, callBack, userInputs, diagnosticHandler } = props;
+    const {model, callBack, userInputs, diagnosticHandler} = props;
     let lhsExpression: any;
     let rhsExpression: any;
     let lhs: any;
@@ -44,8 +44,20 @@ export function BinaryExpressionC(props: BinaryProps) {
         lhsExpression = binaryExpModel.lhsExpr;
         rhsExpression = binaryExpModel.rhsExpr;
         operator = binaryExpModel.operator.value;
-        lhs = <ExpressionComponent model={lhsExpression} callBack={callBack} isRoot={false} userInputs={userInputs} diagnosticHandler={diagnosticHandler} />;
-        rhs = <ExpressionComponent model={rhsExpression} callBack={callBack} isRoot={false} userInputs={userInputs} diagnosticHandler={diagnosticHandler} />;
+        lhs = <ExpressionComponent
+            model={lhsExpression}
+            callBack={callBack}
+            isRoot={false}
+            userInputs={userInputs}
+            diagnosticHandler={diagnosticHandler}
+        />;
+        rhs = <ExpressionComponent
+            model={rhsExpression}
+            callBack={callBack}
+            isRoot={false}
+            userInputs={userInputs}
+            diagnosticHandler={diagnosticHandler}
+        />;
     }
 
     const kind = getKindBasedOnOperator(operatorKind);

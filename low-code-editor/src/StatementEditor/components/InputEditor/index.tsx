@@ -21,10 +21,10 @@ import { ExpressionEditorLangClientInterface } from "../../../Definitions";
 import { addToTargetLine, addToTargetPosition, getDiagnosticMessage, getFilteredDiagnostics, getTargetPosition } from "../../../Diagram/components/Portals/ConfigForm/Elements/ExpressionEditor/utils";
 import * as c from "../../constants";
 import { ModelContext } from "../../store/model-context";
-import { addExpression, SuggestionItem } from "../../utils/utils";
+import { addExpression } from "../../utils/utils";
 import { visitor as CodeGenVisitor } from "../../visitors/code-gen-visitor";
 import { FormContext } from "../../store/form-context";
-import { VariableUserInputs } from "../../models/definitions";
+import { SuggestionItem, VariableUserInputs } from "../../models/definitions";
 import { statementEditorStyles } from "../ViewContainer/styles";
 
 export interface InputEditorProps {
@@ -65,7 +65,7 @@ export function InputEditor(props: InputEditorProps) {
     let value: any;
     let kind: any;
 
-    if (model.kind === "StringLiteral") {
+    if (model.kind === c.STRING_LITERAL) {
         literalModel = model as StringLiteral;
         kind = c.STRING_LITERAL;
     } else {
@@ -134,7 +134,7 @@ export function InputEditor(props: InputEditorProps) {
 
     // InputEditor onChange
     const handleContentChange = async (currentContent: string, EOL: string) => {
-        let newModel: string = null;
+        let newModel: string;
         const newCodeSnippet: string = addToTargetPosition(defaultCodeSnippet, (snippetTargetPosition - 1), currentContent);
         newModel = addToTargetLine((currentFile.content), targetPosition, newCodeSnippet, EOL);
 
@@ -212,13 +212,13 @@ export function InputEditor(props: InputEditorProps) {
     }
 
     if (formCtx.onCancel) {
-        revertContent();
+        const ignore = revertContent();
     }
 
     useEffect(() => {
         CodeGenVisitor.clearCodeSnippet();
         traversNode(modelCtx.statementModel, CodeGenVisitor);
-        handleOnFocus(CodeGenVisitor.getCodeSnippet(), "");
+        const ignore = handleOnFocus(CodeGenVisitor.getCodeSnippet(), "");
     }, [statementType]);
 
     useEffect(() => {
@@ -230,7 +230,7 @@ export function InputEditor(props: InputEditorProps) {
             addExpression(model, kind, value);
             callBack([], model, false);
 
-            handleOnOutFocus();
+            const ignore = handleOnOutFocus();
         }
     };
 
@@ -241,7 +241,7 @@ export function InputEditor(props: InputEditorProps) {
 
             CodeGenVisitor.clearCodeSnippet();
             traversNode(modelCtx.statementModel, CodeGenVisitor);
-            handleContentChange(CodeGenVisitor.getCodeSnippet(), "")
+            const ignore = handleContentChange(CodeGenVisitor.getCodeSnippet(), "")
         }
     };
 

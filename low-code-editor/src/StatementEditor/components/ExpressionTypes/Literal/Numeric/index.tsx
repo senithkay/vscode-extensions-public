@@ -15,8 +15,7 @@ import React from "react";
 
 import { STNode } from "@ballerina/syntax-tree";
 
-import { VariableUserInputs } from "../../../../models/definitions";
-import { SuggestionItem } from "../../../../utils/utils";
+import { SuggestionItem, VariableUserInputs } from "../../../../models/definitions";
 import { InputEditor } from "../../../InputEditor";
 
 interface LiteralProps {
