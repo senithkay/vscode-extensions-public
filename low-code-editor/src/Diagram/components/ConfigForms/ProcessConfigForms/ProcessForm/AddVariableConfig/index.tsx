@@ -101,6 +101,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     const [variableExpression, setVariableExpression] = useState<string>(varExpression);
     const [editorFocus, setEditorFocus] = useState<boolean>(false);
     const [isStmtEditor, setIsStmtEditor] = useState(false);
+    const [isStringType, setIsStringType] = useState(false);
 
     if (defaultVarName === undefined) {
         setDefaultVarName(variableName);
@@ -121,6 +122,12 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
 
     const handleTypeChange = (type: string) => {
         setSelectedType(type);
+        if (type === "string") {
+            setIsStringType(true);
+        } else {
+            setIsStringType(false);
+        }
+
         setValidExpresssionValue(false);
         if (type !== "other") {
             setOtherType(undefined);
@@ -273,11 +280,10 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                                         <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.variable.title" defaultMessage="Variable" /></Box>
                                     </Typography>
                                     <div style={{marginLeft: "auto", marginRight: 0}}>
-                                                    <ButtonWithIcon
-                                                        icon={<EditIcon/>}
-                                                        onClick={handleStmtEditorButtonClick}
-                                                    />
-                                            </div>
+                                        <button className={overlayClasses.statementEditor} onClick={handleStmtEditorButtonClick} disabled={!isStringType}>
+                                            Statement Editor
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
 

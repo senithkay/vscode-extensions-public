@@ -142,11 +142,9 @@ export function AddLogConfig(props: LogConfigProps) {
                                         <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.log.title" defaultMessage="Log"/></Box>
                                     </Typography>
                                     <div style={{marginLeft: "auto", marginRight: 0}}>
-                                            <ButtonWithIcon
-                                                icon={<EditIcon/>}
-                                                onClick={handleStmtEditorButtonClick}
-                                                disabled={true}
-                                            />
+                                        <button className={overlayClasses.statementEditor} onClick={handleStmtEditorButtonClick} disabled={true}>
+                                            Statement Editor
+                                        </button>
                                     </div>
                                 </div>
                             </div>

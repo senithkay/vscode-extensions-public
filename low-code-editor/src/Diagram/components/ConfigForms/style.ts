@@ -135,6 +135,16 @@ export const wizardStyles = makeStyles(() =>
                 color: "#fff",
                 textDecoration: "none",
             }
-        }
+        },
+        statementEditor: {
+            opacity: 0.5,
+            border: 0,
+            background: "none",
+            padding: 0,
+            fontFamily: "arial, sans-seriff",
+            color: "#00517a",
+            textDecoration: "underline",
+            cursor: "pointer"
+        },
     }),
 );

@@ -122,11 +122,9 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                                         </Box>
                                     </Typography>
                                     <div style={{ marginLeft: "auto", marginRight: 0 }}>
-                                        <ButtonWithIcon
-                                            icon={<EditIcon/>}
-                                            onClick={handleStmtEditorButtonClick}
-                                            disabled={true}
-                                        />
+                                        <button className={overlayClasses.statementEditor} onClick={handleStmtEditorButtonClick} disabled={true}>
+                                            Statement Editor
+                                        </button>
                                     </div>
                                 </div>
                             </div>

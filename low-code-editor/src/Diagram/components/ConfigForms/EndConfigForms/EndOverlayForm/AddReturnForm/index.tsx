@@ -115,12 +115,10 @@ export function AddReturnForm(props: ReturnFormProps) {
                                     <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.Return.title" defaultMessage="Return"/></Box>
                                 </Typography>
                                 <div style={{ marginLeft: "auto", marginRight: 0 }}>
-                                            <ButtonWithIcon
-                                                icon={<EditIcon/>}
-                                                onClick={handleStmtEditorButtonClick}
-                                                disabled={true}
-                                            />
-                                    </div>
+                                    <button className={overlayClasses.statementEditor} onClick={handleStmtEditorButtonClick} disabled={true}>
+                                        Statement Editor
+                                    </button>
+                                </div>
                             </div>
 
                             <div className={classes.formWrapper}>
