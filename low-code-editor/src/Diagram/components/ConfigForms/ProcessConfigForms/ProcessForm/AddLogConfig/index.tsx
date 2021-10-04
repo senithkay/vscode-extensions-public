@@ -125,7 +125,7 @@ export function AddLogConfig(props: LogConfigProps) {
                                         <LogIcon />
                                     </div>
                                     <Typography variant="h4">
-                                        <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.log.title" defaultMessage="Log"/></Box>
+                                        <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.log.title" defaultMessage="Log" /></Box>
                                     </Typography>
                                 </div>
                             </div>
@@ -155,15 +155,18 @@ export function AddLogConfig(props: LogConfigProps) {
                                 />
                             </div>
                         </div>
-                        <div className={overlayClasses.buttonWrapper}>
-                            <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
-                            <PrimaryButton
-                                dataTestId={"log-save-btn"}
-                                text={saveLogButtonLabel}
-                                disabled={isMutationInProgress || !isFormValid}
-                                fullWidth={false}
-                                onClick={onSaveBtnClick}
-                            />
+                        <div className={formClasses.saveSpace} />
+                        <div className={formClasses.formSave}>
+                            <div className={overlayClasses.buttonWrapper}>
+                                <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
+                                <PrimaryButton
+                                    dataTestId={"log-save-btn"}
+                                    text={saveLogButtonLabel}
+                                    disabled={isMutationInProgress || !isFormValid}
+                                    fullWidth={false}
+                                    onClick={onSaveBtnClick}
+                                />
+                            </div>
                         </div>
                     </div>
                 )

@@ -128,15 +128,18 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                                 />
                             </div>
                         </div>
-                        <div className={overlayClasses.buttonWrapper}>
-                            <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
-                            <PrimaryButton
-                                dataTestId={"custom-expression-save-btn"}
-                                text={saveCustomStatementButtonLabel}
-                                disabled={isMutationInProgress || !isFormValid}
-                                fullWidth={false}
-                                onClick={onSaveBtnClick}
-                            />
+                        <div className={formClasses.saveSpace} />
+                        <div className={formClasses.formSave}>
+                            <div className={overlayClasses.buttonWrapper}>
+                                <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
+                                <PrimaryButton
+                                    dataTestId={"custom-expression-save-btn"}
+                                    text={saveCustomStatementButtonLabel}
+                                    disabled={isMutationInProgress || !isFormValid}
+                                    fullWidth={false}
+                                    onClick={onSaveBtnClick}
+                                />
+                            </div>
                         </div>
                     </div>
                 )
