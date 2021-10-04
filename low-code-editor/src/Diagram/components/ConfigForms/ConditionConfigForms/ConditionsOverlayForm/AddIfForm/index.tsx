@@ -29,6 +29,7 @@ import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { ViewContainer } from "../../../../../../StatementEditor/components/ViewContainer/ViewContainer";
+import { StatementEditorButton } from "../../../../Portals/ConfigForm/Elements/Button/StatementEditorButton";
 
 interface IfProps {
     condition: ConditionConfig;
@@ -145,11 +146,7 @@ export function AddIfForm(props: IfProps) {
                                         </Box>
                                     </Typography>
                                     <div style={{ marginLeft: "auto", marginRight: 0 }}>
-                                            <ButtonWithIcon
-                                                icon={<EditIcon/>}
-                                                onClick={handleStmtEditorButtonClick}
-                                                disabled={true}
-                                            />
+                                        <StatementEditorButton onClick={handleStmtEditorButtonClick} disabled={true} />
                                     </div>
                                 </div>
                             </div>

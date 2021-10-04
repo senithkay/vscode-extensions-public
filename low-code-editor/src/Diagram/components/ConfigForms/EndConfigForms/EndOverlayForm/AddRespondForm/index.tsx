@@ -25,6 +25,7 @@ import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/consta
 import { ButtonWithIcon } from "../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import { PrimaryButton } from "../../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
 import { SecondaryButton } from "../../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
+import { StatementEditorButton } from "../../../../Portals/ConfigForm/Elements/Button/StatementEditorButton";
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { EndConfig, RespondConfig } from "../../../../Portals/ConfigForm/types";
@@ -170,12 +171,8 @@ export function AddRespondForm(props: RespondFormProps) {
                                     <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.Respond.title" defaultMessage="Respond"/></Box>
                                 </Typography>
                                 <div style={{ marginLeft: "auto", marginRight: 0 }}>
-                                            <ButtonWithIcon
-                                                icon={<EditIcon/>}
-                                                onClick={handleStmtEditorButtonClick}
-                                                disabled={true}
-                                            />
-                                    </div>
+                                    <StatementEditorButton onClick={handleStmtEditorButtonClick} disabled={true} />
+                                </div>
                             </div>
                         </div>
                         <div className={formClasses.formWrapper}>

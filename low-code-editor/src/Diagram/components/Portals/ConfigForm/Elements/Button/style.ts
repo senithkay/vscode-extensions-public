@@ -158,7 +158,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             border: "0px solid",
             borderColor: "none",
             backgroundColor: "#fff",
-            color: "#5667d5",
+            color: "#6070d6",
             fontSize: 13,
             height: 30,
             borderRadius: 0,
@@ -188,6 +188,28 @@ export const useStyles = makeStyles((theme: Theme) =>
             opacity: 0.5,
             background: '#fff !important',
             color: '#5467d5 !important'
-        }
+        },
+        statementEditorBtn: {
+            textTransform: "capitalize",
+            border: 0,
+            background: "none",
+            padding: 0,
+            fontFamily: "arial, sans-seriff",
+            color: "#6070d6 !important",
+            fontSize: 13,
+            textDecoration: "underline",
+            cursor: "pointer",
+            "&:hover , &:focus, &:active": {
+                backgroundColor: "#fff",
+                color: "#6070d6",
+                boxShadow: "none",
+                cursor: "pointer",
+            },
+            "&:disabled": {
+                opacity: 0.5,
+                background: '#fff !important',
+                color: '#5467d5 !important'
+            },
+        },
     })
 );

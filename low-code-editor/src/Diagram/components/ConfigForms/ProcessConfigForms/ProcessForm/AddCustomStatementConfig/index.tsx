@@ -29,6 +29,7 @@ import { CloseRounded, EditIcon } from "../../../../../../assets/icons";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import LogoCircleIcon from "../../../../../../assets/icons/LogoCircle";
 import { ViewContainer } from "../../../../../../StatementEditor/components/ViewContainer/ViewContainer";
+import { StatementEditorButton } from "../../../../Portals/ConfigForm/Elements/Button/StatementEditorButton";
 
 interface LogConfigProps {
     config: ProcessConfig;
@@ -122,11 +123,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                                         </Box>
                                     </Typography>
                                     <div style={{ marginLeft: "auto", marginRight: 0 }}>
-                                        <ButtonWithIcon
-                                            icon={<EditIcon/>}
-                                            onClick={handleStmtEditorButtonClick}
-                                            disabled={true}
-                                        />
+                                        <StatementEditorButton onClick={handleStmtEditorButtonClick} disabled={true} />
                                     </div>
                                 </div>
                             </div>

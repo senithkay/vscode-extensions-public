@@ -30,6 +30,7 @@ import { CloseRounded, ReturnIcon, EditIcon } from "../../../../../../assets/ico
 import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { ViewContainer } from "../../../../../../StatementEditor/components/ViewContainer/ViewContainer";
+import { StatementEditorButton } from "../../../../Portals/ConfigForm/Elements/Button/StatementEditorButton";
 
 interface ReturnFormProps {
     config: EndConfig;
@@ -115,12 +116,8 @@ export function AddReturnForm(props: ReturnFormProps) {
                                     <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.Return.title" defaultMessage="Return"/></Box>
                                 </Typography>
                                 <div style={{ marginLeft: "auto", marginRight: 0 }}>
-                                            <ButtonWithIcon
-                                                icon={<EditIcon/>}
-                                                onClick={handleStmtEditorButtonClick}
-                                                disabled={true}
-                                            />
-                                    </div>
+                                    <StatementEditorButton onClick={handleStmtEditorCancel} disabled={true} />
+                                </div>
                             </div>
 
                             <div className={classes.formWrapper}>
