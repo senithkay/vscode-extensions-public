@@ -127,15 +127,18 @@ export function AddWhileForm(props: WhileProps) {
                         <ExpressionEditor {...expElementProps} />
                     </div>
                 </div>
-                <div className={overlayClasses.buttonWrapper}>
-                    <SecondaryButton text={cancelWhileButtonLabel} fullWidth={false} onClick={onCancel} />
-                    <PrimaryButton
-                        dataTestId={"while-save-btn"}
-                        text={saveWhileButtonLabel}
-                        disabled={isMutationInProgress || isInvalid}
-                        fullWidth={false}
-                        onClick={handleOnSaveClick}
-                    />
+                <div className={classes.saveSpace} />
+                <div className={classes.formSave}>
+                    <div className={overlayClasses.buttonWrapper}>
+                        <SecondaryButton text={cancelWhileButtonLabel} fullWidth={false} onClick={onCancel} />
+                        <PrimaryButton
+                            dataTestId={"while-save-btn"}
+                            text={saveWhileButtonLabel}
+                            disabled={isMutationInProgress || isInvalid}
+                            fullWidth={false}
+                            onClick={handleOnSaveClick}
+                        />
+                    </div>
                 </div>
             </div>
         </FormControl>

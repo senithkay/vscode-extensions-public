@@ -138,15 +138,18 @@ export function AddIfForm(props: IfProps) {
                                 <ExpressionEditor {...expElementProps} />
                             </div>
                         </div>
-                        <div className={overlayClasses.buttonWrapper}>
-                            <SecondaryButton text={cancelIfButtonLabel} fullWidth={false} onClick={onCancel} />
-                            <PrimaryButton
-                                dataTestId={"if-save-btn"}
-                                text={saveIfConditionButtonLabel}
-                                disabled={isMutationInProgress || isInvalid}
-                                fullWidth={false}
-                                onClick={handleOnSaveClick}
-                            />
+                        <div className={classes.saveSpace} />
+                        <div className={classes.formSave}>
+                            <div className={overlayClasses.buttonWrapper}>
+                                <SecondaryButton text={cancelIfButtonLabel} fullWidth={false} onClick={onCancel} />
+                                <PrimaryButton
+                                    dataTestId={"if-save-btn"}
+                                    text={saveIfConditionButtonLabel}
+                                    disabled={isMutationInProgress || isInvalid}
+                                    fullWidth={false}
+                                    onClick={handleOnSaveClick}
+                                />
+                            </div>
                         </div>
                     </div>
                 )

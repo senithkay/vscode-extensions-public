@@ -143,7 +143,7 @@ export function AddForeachForm(props: ForeachProps) {
                 id: "lowcode.develop.configForms.forEach.expressionEditor.tooltip.actionTitle",
                 defaultMessage: "{learnBallerina}"
             }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
-    },
+        },
         currentValueVariable: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.forEach.currentValueVariable.tooltip.title",
@@ -206,7 +206,7 @@ export function AddForeachForm(props: ForeachProps) {
                                                 id="lowcode.develop.configForms.foreach.title"
                                                 defaultMessage="Foreach"
                                             />
-                                    </Box>
+                                        </Box>
                                     </Typography>
                                 </div>
                             </div>
@@ -224,14 +224,17 @@ export function AddForeachForm(props: ForeachProps) {
                                 <ExpressionEditor {...expElementProps} />
                             </div>
                         </div>
-                        <div className={overlayClasses.buttonWrapper}>
-                            <SecondaryButton text={cancelForEachButtonLabel} fullWidth={false} onClick={onCancel} />
-                            <PrimaryButton
-                                text={saveForEachButtonLabel}
-                                disabled={isMutationInProgress || isInvalid}
-                                fullWidth={false}
-                                onClick={handleSave}
-                            />
+                        <div className={classes.saveSpace} />
+                        <div className={classes.formSave}>
+                            <div className={overlayClasses.buttonWrapper}>
+                                <SecondaryButton text={cancelForEachButtonLabel} fullWidth={false} onClick={onCancel} />
+                                <PrimaryButton
+                                    text={saveForEachButtonLabel}
+                                    disabled={isMutationInProgress || isInvalid}
+                                    fullWidth={false}
+                                    onClick={handleSave}
+                                />
+                            </div>
                         </div>
                     </div>
                 )
