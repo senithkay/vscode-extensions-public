@@ -13,7 +13,7 @@ export interface EditorState {
     filePath: string;
     langClient: DiagramEditorLangClientInterface;
     startColumn: number;
-    startLine: string;
+    startLine: number;
     lastUpdatedAt: string;
 }
 
