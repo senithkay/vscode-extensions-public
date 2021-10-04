@@ -160,6 +160,21 @@ export const statementEditorStyles = makeStyles(() =>
                 color: 'white'
             }
         },
+        InputEditorTemplate: {
+            position: 'relative',
+            minWidth: '20px',
+            backgroundColor: '#ffffff',
+            color: 'rgb(0, 0, 255)',
+            textAlign: 'center',
+            display: 'inline-block',
+            fontSize: '16px',
+            marginLeft: '2px',
+            marginTop: '1px',
+            '&:hover': {
+                backgroundColor: '#5567D5',
+                color: 'white'
+            }
+        },
         AppAddNewExpressionButton: {
             backgroundColor: '#f7f8fb',
             border: '#6830e9',

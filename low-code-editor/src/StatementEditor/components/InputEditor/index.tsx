@@ -25,6 +25,7 @@ import { addExpression, SuggestionItem } from "../../utils/utils";
 import { visitor as CodeGenVisitor } from "../Visitors/codeGenVisitor";
 import { FormContext } from "../../store/form-context";
 import { VariableUserInputs } from "../../models/definitions";
+import { statementEditorStyles } from "../ViewContainer/styles";
 
 export interface InputEditorProps {
     model: STNode,
@@ -53,6 +54,8 @@ export function InputEditor(props: InputEditorProps) {
         uri: undefined,
         diagnostic: [],
     });
+
+    const overlayClasses = statementEditorStyles();
 
     const { model, callBack, statementType, diagnosticHandler, userInputs } = props;
     const modelCtx = useContext(ModelContext);
@@ -190,6 +193,7 @@ export function InputEditor(props: InputEditorProps) {
             inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
             inputEditorState.content = (currentFile.content);
             inputEditorState.uri = inputEditorState?.uri;
+            formCtx.onChange("");
 
             await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
                 await langClient.didChange({
@@ -254,6 +258,7 @@ export function InputEditor(props: InputEditorProps) {
 
     return (
         <span
+            className={overlayClasses.InputEditorTemplate}
             onKeyDown={inputEnterHandler}
             contentEditable={true}
             suppressContentEditableWarning={true}

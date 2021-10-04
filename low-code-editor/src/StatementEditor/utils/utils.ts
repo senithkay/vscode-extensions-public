@@ -50,13 +50,13 @@ export function addExpression(model: any, kind: string, value?: any) {
         if (value) {
             Object.assign(model, createStringLiteral(value));
         } else {
-            Object.assign(model, createStringLiteral("expression"));
+            Object.assign(model, createStringLiteral(""));
         }
     } else if (kind === c.NUMERIC_LITERAL) {
         if (value) {
             Object.assign(model, createNumericLiteral(value));
         } else {
-            Object.assign(model, createNumericLiteral("expression"));
+            Object.assign(model, createNumericLiteral(""));
         }
     } else {
         // tslint:disable-next-line:no-console
