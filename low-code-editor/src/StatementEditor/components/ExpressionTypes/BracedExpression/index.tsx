@@ -20,13 +20,13 @@ import { ExpressionComponent } from "../../Expression";
 
 interface BracedExprProps {
     model: STNode
-    callBack: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void
+    expressionHandler: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }
 
 export function BracedExpressionC(props: BracedExprProps) {
-    const { model, callBack, userInputs, diagnosticHandler } = props;
+    const { model, expressionHandler, userInputs, diagnosticHandler } = props;
     let expression: any;
     let expressionComponent: any;
 
@@ -35,7 +35,7 @@ export function BracedExpressionC(props: BracedExprProps) {
         expression = bracedExpModel.expression;
         expressionComponent = <ExpressionComponent
             model={expression}
-            callBack={callBack}
+            expressionHandler={expressionHandler}
             isRoot={false}
             userInputs={userInputs}
             diagnosticHandler={diagnosticHandler}

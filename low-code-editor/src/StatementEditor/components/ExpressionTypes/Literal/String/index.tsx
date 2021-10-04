@@ -19,18 +19,18 @@ import { InputEditor } from "../../../InputEditor";
 
 interface LiteralProps {
     model: STNode
-    callBack: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void
+    expressionHandler: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }
 
 export function StringLiteralC(props: LiteralProps) {
-    const { model, callBack, userInputs, diagnosticHandler } = props;
+    const { model, expressionHandler, userInputs, diagnosticHandler } = props;
 
     const inputEditorProps = {
         statementType: model.kind,
         model,
-        callBack,
+        expressionHandler,
         userInputs,
         diagnosticHandler
     };

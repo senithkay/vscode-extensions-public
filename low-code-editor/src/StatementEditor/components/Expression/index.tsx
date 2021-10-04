@@ -20,22 +20,22 @@ import { VariableStatement } from "../Statements/VariableStatement";
 
 interface ExpressionComponentProps {
     model: STNode
-    callBack: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void
+    expressionHandler: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void
     isRoot: boolean,
     userInputs?: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }
 
 export function ExpressionComponent(props: ExpressionComponentProps) {
-    const {model, callBack, isRoot, userInputs, diagnosticHandler} = props;
+    const {model, expressionHandler, isRoot, userInputs, diagnosticHandler} = props;
 
-    const component = getExpressionTypeComponent(model, callBack, userInputs, diagnosticHandler);
+    const component = getExpressionTypeComponent(model, expressionHandler, userInputs, diagnosticHandler);
 
     return (
         // TODO: Render the relevant component based on the statement type
         <VariableStatement
             model={model}
-            callBack={callBack}
+            expressionHandler={expressionHandler}
             isRoot={isRoot}
             component={component}
             userInputs={userInputs}

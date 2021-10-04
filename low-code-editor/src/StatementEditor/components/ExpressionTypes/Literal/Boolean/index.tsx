@@ -18,7 +18,7 @@ import { SuggestionItem, VariableUserInputs } from "../../../../models/definitio
 
 interface LiteralProps {
     model: STNode
-    callBack: (suggestions: SuggestionItem[], model: STNode) => void
+    expressionHandler: (suggestions: SuggestionItem[], model: STNode) => void
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }

@@ -22,13 +22,13 @@ import { statementEditorStyles } from "../../ViewContainer/styles";
 
 interface BinaryProps {
     model: STNode
-    callBack: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void
+    expressionHandler: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }
 
 export function BinaryExpressionC(props: BinaryProps) {
-    const {model, callBack, userInputs, diagnosticHandler} = props;
+    const {model, expressionHandler, userInputs, diagnosticHandler} = props;
     let lhsExpression: any;
     let rhsExpression: any;
     let lhs: any;
@@ -46,14 +46,14 @@ export function BinaryExpressionC(props: BinaryProps) {
         operator = binaryExpModel.operator.value;
         lhs = <ExpressionComponent
             model={lhsExpression}
-            callBack={callBack}
+            expressionHandler={expressionHandler}
             isRoot={false}
             userInputs={userInputs}
             diagnosticHandler={diagnosticHandler}
         />;
         rhs = <ExpressionComponent
             model={rhsExpression}
-            callBack={callBack}
+            expressionHandler={expressionHandler}
             isRoot={false}
             userInputs={userInputs}
             diagnosticHandler={diagnosticHandler}
@@ -64,17 +64,17 @@ export function BinaryExpressionC(props: BinaryProps) {
 
     const onClickOperator = (event: any) => {
         event.stopPropagation()
-        callBack(getOperatorSuggestions(kind), model, true)
+        expressionHandler(getOperatorSuggestions(kind), model, true)
     }
 
     const onClickOnLhsExpression = (event: any) => {
         event.stopPropagation()
-        callBack(getSuggestionsBasedOnExpressionKind(kind), lhsExpression, false)
+        expressionHandler(getSuggestionsBasedOnExpressionKind(kind), lhsExpression, false)
     };
 
     const onClickOnRhsExpression = (event: any) => {
         event.stopPropagation()
-        callBack(getSuggestionsBasedOnExpressionKind(kind), rhsExpression, false)
+        expressionHandler(getSuggestionsBasedOnExpressionKind(kind), rhsExpression, false)
     };
 
     return (

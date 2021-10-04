@@ -21,21 +21,21 @@ import { statementEditorStyles } from "../../ViewContainer/styles";
 
 interface VariableStatementProps {
     model: STNode,
-    callBack: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void,
+    expressionHandler: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void,
     isRoot: boolean,
     component: ReactNode,
     userInputs?: VariableUserInputs
 }
 
 export function VariableStatement(props: VariableStatementProps) {
-    const {model, callBack, isRoot, component, userInputs} = props;
+    const {model, expressionHandler, isRoot, component, userInputs} = props;
 
     const overlayClasses = statementEditorStyles();
 
     const onClickOnRootExpression = (event: any) => {
         event.stopPropagation()
         // TODO:  Change this to get suggestions for given types
-        callBack(getSuggestionsBasedOnExpressionKind(c.DEFAULT_STRING), model, false)
+        expressionHandler(getSuggestionsBasedOnExpressionKind(c.DEFAULT_STRING), model, false)
     };
 
     let type: string = "var";

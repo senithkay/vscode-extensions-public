@@ -24,21 +24,21 @@ interface SuggestionsProps {
     model: STNode
     suggestions: SuggestionItem[],
     operator: boolean,
-    callBack: (model: STNode) => void
+    suggestionHandler: (model: STNode) => void
 }
 
 export function Suggestions(props: SuggestionsProps) {
     const overlayClasses = statementEditorStyles();
-    const {model, suggestions, callBack} = props;
+    const {model, suggestions, suggestionHandler} = props;
 
     const onClickExpressionSuggestion = (kind: string) => {
         addExpression(model, kind);
-        callBack(model);
+        suggestionHandler(model);
     }
 
     const onClickOperatorSuggestion = (operator: SuggestionItem) => {
         addOperator(model, operator);
-        callBack(model);
+        suggestionHandler(model);
     }
 
     return (

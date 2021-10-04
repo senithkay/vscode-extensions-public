@@ -38,14 +38,14 @@ export function LeftPane(props: ModelProps) {
     const [, setIsSuggestionClicked] = useState(false);
     const [isOperator, setIsOperator] = useState(false);
 
-    const onClickExpressionButton = (suggestions: SuggestionItem[], cModel: STNode, operator: boolean) => {
+    const expressionHandler = (suggestions: SuggestionItem[], cModel: STNode, operator: boolean) => {
         currentModel.model = cModel
         setSuggestionsList(suggestions)
         setIsSuggestionClicked(false)
         setIsOperator(operator)
     }
 
-    const onClickSuggestionButton = () => {
+    const suggestionHandler = () => {
         setIsSuggestionClicked(prevState => {
             return !prevState;
         });
@@ -62,7 +62,7 @@ export function LeftPane(props: ModelProps) {
                 <div className={overlayClasses.AppStatementTemplateEditorInner}>
                     <ExpressionComponent
                         model={model}
-                        callBack={onClickExpressionButton}
+                        expressionHandler={expressionHandler}
                         isRoot={true}
                         userInputs={userInputs}
                         diagnosticHandler={diagnosticHandler}
@@ -79,7 +79,7 @@ export function LeftPane(props: ModelProps) {
                     model={currentModel.model}
                     suggestions={suggestionList}
                     operator={isOperator}
-                    callBack={onClickSuggestionButton}
+                    suggestionHandler={suggestionHandler}
                 />
             </div>
 

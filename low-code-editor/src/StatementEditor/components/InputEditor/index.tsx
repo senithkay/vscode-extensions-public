@@ -29,7 +29,7 @@ import { statementEditorStyles } from "../ViewContainer/styles";
 
 export interface InputEditorProps {
     model: STNode,
-    callBack: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void,
+    expressionHandler: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void,
     statementType: any,
     diagnosticHandler: (diagnostics: string) => void,
     userInputs: VariableUserInputs
@@ -57,7 +57,7 @@ export function InputEditor(props: InputEditorProps) {
 
     const overlayClasses = statementEditorStyles();
 
-    const { model, callBack, statementType, diagnosticHandler, userInputs } = props;
+    const { model, expressionHandler, statementType, diagnosticHandler, userInputs } = props;
     const modelCtx = useContext(ModelContext);
     const formCtx = useContext(FormContext);
 
@@ -212,7 +212,7 @@ export function InputEditor(props: InputEditorProps) {
     }
 
     if (formCtx.onCancel) {
-        const ignore = revertContent();
+        revertContent().then();
     }
 
     useEffect(() => {
@@ -228,7 +228,7 @@ export function InputEditor(props: InputEditorProps) {
     const inputBlurHandler = () => {
         if (defaultValue.current !== "") {
             addExpression(model, kind, value);
-            callBack([], model, false);
+            expressionHandler([], model, false);
 
             const ignore = handleOnOutFocus();
         }
@@ -237,7 +237,7 @@ export function InputEditor(props: InputEditorProps) {
     const inputEnterHandler = (event: React.KeyboardEvent<HTMLSpanElement>) => {
         if (event.code === "Enter" || event.code === "Tab") {
             addExpression(model, kind, event.currentTarget.textContent);
-            callBack([], model, false);
+            expressionHandler([], model, false);
 
             CodeGenVisitor.clearCodeSnippet();
             traversNode(modelCtx.statementModel, CodeGenVisitor);
@@ -248,7 +248,7 @@ export function InputEditor(props: InputEditorProps) {
 
     const inputChangeHandler = (event: React.KeyboardEvent<HTMLSpanElement>) => {
         addExpression(model, kind, event.currentTarget.textContent ? event.currentTarget.textContent : "");
-        callBack([], model, false);
+        expressionHandler([], model, false);
         CodeGenVisitor.clearCodeSnippet();
         traversNode(modelCtx.statementModel, CodeGenVisitor);
         debouncedContentChange(CodeGenVisitor.getCodeSnippet(), "");
