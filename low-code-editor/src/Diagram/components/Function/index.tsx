@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useState } from "react";
+import React, { useContext, useRef, useState } from "react";
 
 import { FunctionBodyBlock, FunctionDefinition, STKindChecker } from "@ballerina/syntax-tree";
 import classNames from "classnames";
@@ -19,6 +19,7 @@ import { v4 as uuid } from 'uuid';
 
 import { Context } from "../../../Contexts/Diagram";
 import { Provider as FunctionProvider } from "../../../Contexts/Function";
+import { useSelectedStatus } from "../../hooks";
 import { useStyles } from "../../styles";
 import { BlockViewState, FunctionViewState } from "../../view-state";
 import { Canvas } from "../Canvas";
@@ -47,7 +48,7 @@ export function Function(props: FunctionProps) {
         props: {
             isWaitingOnWorkspace,
             isReadOnly,
-            isCodeEditorActive
+            isCodeEditorActive,
         }
     } = useContext(Context);
 
@@ -56,7 +57,14 @@ export function Function(props: FunctionProps) {
     const viewState: FunctionViewState = model.viewState;
     const isInitPlusAvailable: boolean = viewState.initPlus !== undefined;
     const isExpressionFuncBody: boolean = STKindChecker.isExpressionFunctionBody(model.functionBody);
-    const [diagramExpanded, setDiagramExpanded] = useState(false);
+
+    const containerRef = useRef(null);
+    const isSelected = useSelectedStatus(model, containerRef);
+    const [diagramExpanded, setDiagramExpanded] = useState(isSelected);
+
+    React.useEffect(() => {
+        setDiagramExpanded(isSelected);
+    }, [isSelected])
 
     const onExpandClick = () => {
         setDiagramExpanded(!diagramExpanded);
@@ -109,6 +117,7 @@ export function Function(props: FunctionProps) {
 
     return (
         <div
+            ref={containerRef}
             className={
                 classNames(
                     {

@@ -27,8 +27,6 @@ export {
     BallerinaRecordResponse,
     BallerinaSTModifyRequest,
     BallerinaSTModifyResponse,
-    BallerinaSyntaxTreeModifyRequest,
-    BallerinaSyntaxTreeResponse,
     GetSyntaxTreeParams,
     GetSyntaxTreeResponse,
     TriggerModifyRequest,
