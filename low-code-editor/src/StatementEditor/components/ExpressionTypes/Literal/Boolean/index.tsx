@@ -12,9 +12,8 @@
  */
 import React from "react";
 
-import { BooleanLiteral, STNode } from "@ballerina/syntax-tree";
+import {BooleanLiteral, STKindChecker, STNode} from "@ballerina/syntax-tree";
 
-import { BOOLEAN_LITERAL } from "../../../../constants";
 import { SuggestionItem, VariableUserInputs } from "../../../../models/definitions";
 
 interface LiteralProps {
@@ -28,7 +27,7 @@ export function BooleanLiteralC(props: LiteralProps) {
     const { model } = props;
     let value: any;
 
-    if (model.kind === BOOLEAN_LITERAL) {
+    if (STKindChecker.isBooleanLiteral(model)) {
         const literalModel: BooleanLiteral = model as BooleanLiteral;
         value = literalModel.literalToken.value;
     }

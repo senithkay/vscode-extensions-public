@@ -13,7 +13,7 @@
 // tslint:disable: jsx-wrap-multiline
 import React from "react";
 
-import { BracedExpression, STNode } from "@ballerina/syntax-tree";
+import {BracedExpression, STKindChecker, STNode} from "@ballerina/syntax-tree";
 
 import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
 import { ExpressionComponent } from "../../Expression";
@@ -30,7 +30,7 @@ export function BracedExpressionC(props: BracedExprProps) {
     let expression: any;
     let expressionComponent: any;
 
-    if (model.kind === 'BracedExpression') {
+    if (STKindChecker.isBracedExpression(model)) {
         const bracedExpModel = model as BracedExpression;
         expression = bracedExpModel.expression;
         expressionComponent = <ExpressionComponent

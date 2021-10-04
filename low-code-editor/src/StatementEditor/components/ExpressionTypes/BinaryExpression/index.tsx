@@ -13,7 +13,7 @@
 // tslint:disable: jsx-wrap-multiline
 import React from "react";
 
-import { BinaryExpression, STNode } from "@ballerina/syntax-tree";
+import {BinaryExpression, STKindChecker, STNode} from "@ballerina/syntax-tree";
 
 import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
 import { getKindBasedOnOperator, getOperatorSuggestions, getSuggestionsBasedOnExpressionKind } from "../../../utils";
@@ -38,7 +38,7 @@ export function BinaryExpressionC(props: BinaryProps) {
 
     const overlayClasses = statementEditorStyles();
 
-    if (model.kind === 'BinaryExpression') {
+    if (STKindChecker.isBinaryExpression(model)) {
         const binaryExpModel = model as BinaryExpression;
         operatorKind = binaryExpModel.operator.kind;
         lhsExpression = binaryExpModel.lhsExpr;

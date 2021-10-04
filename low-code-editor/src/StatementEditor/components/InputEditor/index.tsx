@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js ordered-imports
 import React, { useContext, useEffect, useRef, useState } from "react";
 
-import { NumericLiteral, STNode, StringLiteral, traversNode } from "@ballerina/syntax-tree";
+import {NumericLiteral, STKindChecker, STNode, StringLiteral, traversNode} from "@ballerina/syntax-tree";
 import debounce from "lodash.debounce";
 import { monaco } from "react-monaco-editor";
 import { Context } from "../../../Contexts/Diagram";
@@ -65,7 +65,7 @@ export function InputEditor(props: InputEditorProps) {
     let value: any;
     let kind: any;
 
-    if (model.kind === c.STRING_LITERAL) {
+    if (STKindChecker.isStringLiteral(model)) {
         literalModel = model as StringLiteral;
         kind = c.STRING_LITERAL;
     } else {
