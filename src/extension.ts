@@ -80,11 +80,11 @@ export function activate(context: ExtensionContext): Promise<any> {
         // Enable Ballerina Project related features
         activateProjectFeatures();
         activateEditorSupport(ballerinaExtInstance);
-        activateTesting(ballerinaExtInstance);
 
         if (ballerinaExtInstance.isSwanLake()) {
             // Enable Ballerina Telemetry listener
             activateTelemetryListener(ballerinaExtInstance);
+            activateTesting(ballerinaExtInstance);
         }
 
         ballerinaExtInstance.onReady().then(() => {

@@ -193,7 +193,7 @@ async function runCommand(command, pathToRun: string | undefined) {
     }
     child_process.exec(`${command}`, { cwd: pathToRun }, async (err, stdout, stderr) => {
       if (err) {
-        log('error: ' + err);
+        log(`error: ${err}`);
         await window.showInformationMessage(
           err.message
         );
@@ -249,8 +249,12 @@ async function createTests(controller: TestController, uri: Uri, ballerinaExtIns
       uri: uri.toString()
     }
   }).then(response => {
+    if (!response.executorPositions) {
+      return;
+    }
+
     let positions: ExecutorPosition[] = [];
-    response.executorPositions!.forEach(position => {
+    response.executorPositions.forEach(position => {
       if (position.kind === EXEC_POSITION_TYPE.TEST) {
         positions.push(position);
       }
