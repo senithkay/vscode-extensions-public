@@ -306,15 +306,18 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                                 />
                             </div>
                         </div>
-                        <div className={overlayClasses.buttonWrapper}>
-                            <SecondaryButton text={cancelVariableButtonText} fullWidth={false} onClick={onCancel} />
-                            <PrimaryButton
-                                dataTestId="save-btn"
-                                text={saveVariableButtonText}
-                                disabled={isMutationInProgress || !validForm}
-                                fullWidth={false}
-                                onClick={handleSave}
-                            />
+                        <div className={classes.saveSpace}/>
+                        <div className={classes.formSave}>
+                            <div className={overlayClasses.buttonWrapper}>
+                                <SecondaryButton text={cancelVariableButtonText} fullWidth={false} onClick={onCancel} />
+                                <PrimaryButton
+                                    dataTestId="save-btn"
+                                    text={saveVariableButtonText}
+                                    disabled={isMutationInProgress || !validForm}
+                                    fullWidth={false}
+                                    onClick={handleSave}
+                                />
+                            </div>
                         </div>
                     </div>
                 )

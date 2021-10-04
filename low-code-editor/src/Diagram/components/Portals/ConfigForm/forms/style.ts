@@ -480,5 +480,16 @@ export const useStyles = makeStyles((theme: Theme) =>
                 }
             }
         },
+        formSave: {
+            position: 'fixed',
+            width: '300px',
+            right: '20px',
+            bottom: '0',
+            padding: '10px',
+            backgroundColor: '#fff',
+        },
+        saveSpace: {
+            height: '50px',
+        },
     }),
 );
