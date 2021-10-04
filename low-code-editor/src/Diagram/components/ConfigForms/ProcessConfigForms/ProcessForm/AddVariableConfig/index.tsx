@@ -27,6 +27,7 @@ import { getAllVariables } from "../../../../../utils/mixins";
 import { ButtonWithIcon } from "../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import { PrimaryButton } from "../../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
 import { SecondaryButton } from "../../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
+import { StatementEditorButton } from "../../../../Portals/ConfigForm/Elements/Button/StatementEditorButton";
 import { SelectDropdownWithButton } from "../../../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { FormTextInput } from "../../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
@@ -280,9 +281,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                                         <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.variable.title" defaultMessage="Variable" /></Box>
                                     </Typography>
                                     <div style={{marginLeft: "auto", marginRight: 0}}>
-                                        <button className={overlayClasses.statementEditor} onClick={handleStmtEditorButtonClick} disabled={!isStringType}>
-                                            Statement Editor
-                                        </button>
+                                        <StatementEditorButton onClick={handleStmtEditorButtonClick} disabled={!isStringType} />
                                     </div>
                                 </div>
                             </div>

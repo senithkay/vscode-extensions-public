@@ -32,6 +32,7 @@ import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { ViewContainer } from "../../../../../../StatementEditor/components/ViewContainer/ViewContainer";
+import { StatementEditorButton } from "../../../../Portals/ConfigForm/Elements/Button/StatementEditorButton";
 
 interface LogConfigProps {
     config: ProcessConfig;
@@ -142,9 +143,7 @@ export function AddLogConfig(props: LogConfigProps) {
                                         <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.log.title" defaultMessage="Log"/></Box>
                                     </Typography>
                                     <div style={{marginLeft: "auto", marginRight: 0}}>
-                                        <button className={overlayClasses.statementEditor} onClick={handleStmtEditorButtonClick} disabled={true}>
-                                            Statement Editor
-                                        </button>
+                                        <StatementEditorButton onClick={handleStmtEditorButtonClick} disabled={true} />
                                     </div>
                                 </div>
                             </div>

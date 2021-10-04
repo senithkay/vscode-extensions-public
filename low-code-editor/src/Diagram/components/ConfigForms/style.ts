@@ -127,24 +127,5 @@ export const wizardStyles = makeStyles(() =>
             float: "right",
             marginTop: "0.75rem"
         },
-        buttonLink: {
-            color: "#fff",
-            padding: "0.25rem",
-            textDecoration: "underline",
-            "&:hover": {
-                color: "#fff",
-                textDecoration: "none",
-            }
-        },
-        statementEditor: {
-            opacity: 0.5,
-            border: 0,
-            background: "none",
-            padding: 0,
-            fontFamily: "arial, sans-seriff",
-            color: "#00517a",
-            textDecoration: "underline",
-            cursor: "pointer"
-        },
     }),
 );
