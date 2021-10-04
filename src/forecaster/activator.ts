@@ -82,7 +82,6 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
     }
 }
 
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 async function getPerformance(data: string, analyzeType: ANALYZETYPE): Promise<JSON> {
     return new Promise((resolve, reject) => {
 
