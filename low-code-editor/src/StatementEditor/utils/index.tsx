@@ -46,7 +46,7 @@ export function getOperatorSuggestions(kind: string): SuggestionItem[] {
 
 export function getExpressionTypeComponent(
             expression: STNode,
-            callBack: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void,
+            expressionHandler: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void,
             userInputs: VariableUserInputs,
             diagnosticHandler: (diagnostics: string) => void
         ) : ReactNode {
@@ -58,7 +58,7 @@ export function getExpressionTypeComponent(
 
     return <ExprTypeComponent
         model={expression}
-        callBack={callBack}
+        expressionHandler={expressionHandler}
         userInputs={userInputs}
         diagnosticHandler={diagnosticHandler}
     />;
