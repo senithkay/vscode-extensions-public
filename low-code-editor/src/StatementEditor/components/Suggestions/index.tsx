@@ -13,31 +13,32 @@
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline jsx-no-lambda
 import React from "react";
 
-import {STNode} from "@ballerina/syntax-tree";
+import { STNode } from "@ballerina/syntax-tree";
 
 import * as c from "../../constants";
-import {addExpression, addOperator, SuggestionItem} from "../../utils/utils";
-import {statementEditorStyles} from "../ViewContainer/styles";
+import { SuggestionItem } from "../../models/definitions";
+import { addExpression, addOperator } from "../../utils/utils";
+import { statementEditorStyles } from "../ViewContainer/styles";
 
 interface SuggestionsProps {
     model: STNode
     suggestions: SuggestionItem[],
     operator: boolean,
-    callBack: (model: STNode) => void
+    suggestionHandler: (model: STNode) => void
 }
 
 export function Suggestions(props: SuggestionsProps) {
     const overlayClasses = statementEditorStyles();
-    const {model, suggestions, callBack} = props;
+    const {model, suggestions, suggestionHandler} = props;
 
     const onClickExpressionSuggestion = (kind: string) => {
         addExpression(model, kind);
-        callBack(model);
+        suggestionHandler(model);
     }
 
     const onClickOperatorSuggestion = (operator: SuggestionItem) => {
         addOperator(model, operator);
-        callBack(model);
+        suggestionHandler(model);
     }
 
     return (

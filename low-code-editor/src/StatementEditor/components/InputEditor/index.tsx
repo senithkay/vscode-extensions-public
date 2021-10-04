@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js ordered-imports
 import React, { useContext, useEffect, useRef, useState } from "react";
 
-import { NumericLiteral, STNode, StringLiteral, traversNode } from "@ballerina/syntax-tree";
+import {NumericLiteral, STKindChecker, STNode, StringLiteral, traversNode} from "@ballerina/syntax-tree";
 import debounce from "lodash.debounce";
 import { monaco } from "react-monaco-editor";
 import { Context } from "../../../Contexts/Diagram";
@@ -21,15 +21,15 @@ import { ExpressionEditorLangClientInterface } from "../../../Definitions";
 import { addToTargetLine, addToTargetPosition, getDiagnosticMessage, getFilteredDiagnostics, getTargetPosition } from "../../../Diagram/components/Portals/ConfigForm/Elements/ExpressionEditor/utils";
 import * as c from "../../constants";
 import { ModelContext } from "../../store/model-context";
-import { addExpression, SuggestionItem } from "../../utils/utils";
-import { visitor as CodeGenVisitor } from "../Visitors/codeGenVisitor";
+import { addExpression } from "../../utils/utils";
+import { visitor as CodeGenVisitor } from "../../visitors/code-gen-visitor";
 import { FormContext } from "../../store/form-context";
-import { VariableUserInputs } from "../../models/definitions";
+import { SuggestionItem, VariableUserInputs } from "../../models/definitions";
 import { statementEditorStyles } from "../ViewContainer/styles";
 
 export interface InputEditorProps {
     model: STNode,
-    callBack: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void,
+    expressionHandler: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void,
     statementType: any,
     diagnosticHandler: (diagnostics: string) => void,
     userInputs: VariableUserInputs
@@ -57,7 +57,7 @@ export function InputEditor(props: InputEditorProps) {
 
     const overlayClasses = statementEditorStyles();
 
-    const { model, callBack, statementType, diagnosticHandler, userInputs } = props;
+    const { model, expressionHandler, statementType, diagnosticHandler, userInputs } = props;
     const modelCtx = useContext(ModelContext);
     const formCtx = useContext(FormContext);
 
@@ -65,7 +65,7 @@ export function InputEditor(props: InputEditorProps) {
     let value: any;
     let kind: any;
 
-    if (model.kind === "StringLiteral") {
+    if (STKindChecker.isStringLiteral(model)) {
         literalModel = model as StringLiteral;
         kind = c.STRING_LITERAL;
     } else {
@@ -134,7 +134,7 @@ export function InputEditor(props: InputEditorProps) {
 
     // InputEditor onChange
     const handleContentChange = async (currentContent: string, EOL: string) => {
-        let newModel: string = null;
+        let newModel: string;
         const newCodeSnippet: string = addToTargetPosition(defaultCodeSnippet, (snippetTargetPosition - 1), currentContent);
         newModel = addToTargetLine((currentFile.content), targetPosition, newCodeSnippet, EOL);
 
@@ -212,13 +212,13 @@ export function InputEditor(props: InputEditorProps) {
     }
 
     if (formCtx.onCancel) {
-        revertContent();
+        revertContent().then();
     }
 
     useEffect(() => {
         CodeGenVisitor.clearCodeSnippet();
         traversNode(modelCtx.statementModel, CodeGenVisitor);
-        handleOnFocus(CodeGenVisitor.getCodeSnippet(), "");
+        const ignore = handleOnFocus(CodeGenVisitor.getCodeSnippet(), "");
     }, [statementType]);
 
     useEffect(() => {
@@ -228,27 +228,27 @@ export function InputEditor(props: InputEditorProps) {
     const inputBlurHandler = () => {
         if (defaultValue.current !== "") {
             addExpression(model, kind, value);
-            callBack([], model, false);
+            expressionHandler([], model, false);
 
-            handleOnOutFocus();
+            const ignore = handleOnOutFocus();
         }
     };
 
     const inputEnterHandler = (event: React.KeyboardEvent<HTMLSpanElement>) => {
         if (event.code === "Enter" || event.code === "Tab") {
             addExpression(model, kind, event.currentTarget.textContent);
-            callBack([], model, false);
+            expressionHandler([], model, false);
 
             CodeGenVisitor.clearCodeSnippet();
             traversNode(modelCtx.statementModel, CodeGenVisitor);
-            handleContentChange(CodeGenVisitor.getCodeSnippet(), "")
+            const ignore = handleContentChange(CodeGenVisitor.getCodeSnippet(), "")
         }
     };
 
 
     const inputChangeHandler = (event: React.KeyboardEvent<HTMLSpanElement>) => {
         addExpression(model, kind, event.currentTarget.textContent ? event.currentTarget.textContent : "");
-        callBack([], model, false);
+        expressionHandler([], model, false);
         CodeGenVisitor.clearCodeSnippet();
         traversNode(modelCtx.statementModel, CodeGenVisitor);
         debouncedContentChange(CodeGenVisitor.getCodeSnippet(), "");

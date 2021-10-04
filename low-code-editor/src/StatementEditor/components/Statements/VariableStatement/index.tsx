@@ -10,32 +10,32 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, {ReactNode} from "react";
+import React, { ReactNode } from "react";
 
-import {STNode} from "@ballerina/syntax-tree";
+import { STNode } from "@ballerina/syntax-tree";
 
 import * as c from "../../../constants";
-import { VariableUserInputs } from "../../../models/definitions";
-import {getSuggestionsBasedOnExpressionKind} from "../../../utils";
-import {SuggestionItem} from "../../../utils/utils";
-import {statementEditorStyles} from "../../ViewContainer/styles";
+import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
+import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
+import { statementEditorStyles } from "../../ViewContainer/styles";
 
 interface VariableStatementProps {
     model: STNode,
-    callBack: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void,
+    expressionHandler: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void,
     isRoot: boolean,
     component: ReactNode,
     userInputs?: VariableUserInputs
 }
 
 export function VariableStatement(props: VariableStatementProps) {
-    const {model, callBack, isRoot, component, userInputs} = props;
+    const {model, expressionHandler, isRoot, component, userInputs} = props;
 
     const overlayClasses = statementEditorStyles();
 
     const onClickOnRootExpression = (event: any) => {
         event.stopPropagation()
-        callBack(getSuggestionsBasedOnExpressionKind(c.DEFAULT_STRING), model, false) // Need to change this to get suggestions for given types
+        // TODO:  Change this to get suggestions for given types
+        expressionHandler(getSuggestionsBasedOnExpressionKind(c.DEFAULT_STRING), model, false)
     };
 
     let type: string = "var";

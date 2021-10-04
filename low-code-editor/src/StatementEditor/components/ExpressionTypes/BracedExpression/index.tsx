@@ -10,30 +10,36 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-wrap-multiline
 import React from "react";
 
-import { BracedExpression, STNode } from "@ballerina/syntax-tree";
+import {BracedExpression, STKindChecker, STNode} from "@ballerina/syntax-tree";
 
-import { VariableUserInputs } from "../../../models/definitions";
-import { SuggestionItem } from "../../../utils/utils";
+import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
 import { ExpressionComponent } from "../../Expression";
 
 interface BracedExprProps {
     model: STNode
-    callBack: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void
+    expressionHandler: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }
 
 export function BracedExpressionC(props: BracedExprProps) {
-    const { model, callBack, userInputs, diagnosticHandler } = props;
+    const { model, expressionHandler, userInputs, diagnosticHandler } = props;
     let expression: any;
     let expressionComponent: any;
 
-    if (model.kind === 'BracedExpression') {
+    if (STKindChecker.isBracedExpression(model)) {
         const bracedExpModel = model as BracedExpression;
         expression = bracedExpModel.expression;
-        expressionComponent = <ExpressionComponent model={expression} callBack={callBack} isRoot={false} userInputs={userInputs} diagnosticHandler={diagnosticHandler} />;
+        expressionComponent = <ExpressionComponent
+            model={expression}
+            expressionHandler={expressionHandler}
+            isRoot={false}
+            userInputs={userInputs}
+            diagnosticHandler={diagnosticHandler}
+        />;
     }
 
     return (

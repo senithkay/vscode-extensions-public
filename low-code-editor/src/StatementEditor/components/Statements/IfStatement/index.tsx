@@ -10,30 +10,30 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, {ReactNode} from "react";
+import React, { ReactNode } from "react";
 
-import {STNode} from "@ballerina/syntax-tree"
+import { STNode } from "@ballerina/syntax-tree"
 
 import * as c from "../../../constants";
-import {getSuggestionsBasedOnExpressionKind} from "../../../utils";
-import {SuggestionItem} from "../../../utils/utils";
-import {statementEditorStyles} from "../../ViewContainer/styles";
+import { SuggestionItem } from "../../../models/definitions";
+import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
+import { statementEditorStyles } from "../../ViewContainer/styles";
 
 interface IfStatementProps {
     model: STNode
-    callBack: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void
+    expressionHandler: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void
     isRoot: boolean
     component: ReactNode
 }
 
 export function IfStatement(props: IfStatementProps) {
-    const {model, callBack, isRoot, component} = props;
+    const {model, expressionHandler, isRoot, component} = props;
 
     const overlayClasses = statementEditorStyles();
 
     const onClickOnRootExpression = (event: any) => {
         event.stopPropagation()
-        callBack(getSuggestionsBasedOnExpressionKind(c.DEFAULT_BOOL), model, false)
+        expressionHandler(getSuggestionsBasedOnExpressionKind(c.DEFAULT_BOOL), model, false)
     };
 
     return (

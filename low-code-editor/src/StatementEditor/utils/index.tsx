@@ -10,20 +10,19 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-wrap-multiline
 import React, { ReactNode } from 'react';
 
 import { STNode } from "@ballerina/syntax-tree";
 
 import * as expressionTypeComponents from '../components/ExpressionTypes';
-import { VariableUserInputs } from '../models/definitions';
+import { SuggestionItem, VariableUserInputs } from '../models/definitions';
 
 import { DefaultModelsByKind } from "./sample-model";
 import {
     ExpressionKindByOperator,
     ExpressionSuggestionsByKind,
-    OperatorsForExpressionKind,
-    SuggestionItem,
-    TypesForExpressionKind
+    OperatorsForExpressionKind
 } from "./utils";
 
 export function getDefaultModel(kind: string): STNode {
@@ -38,10 +37,6 @@ export function getKindBasedOnOperator(operator: string): string {
     return ExpressionKindByOperator[operator];
 }
 
-export function getTypesBasedOnExpressionKind(kind: string): string[] {
-    return TypesForExpressionKind[kind];
-}
-
 export function getOperatorSuggestions(kind: string): SuggestionItem[] {
     if (kind in OperatorsForExpressionKind) {
         return OperatorsForExpressionKind[kind];
@@ -49,20 +44,22 @@ export function getOperatorSuggestions(kind: string): SuggestionItem[] {
     return []; // we can remove the empty array return if we only set the operator prop to true for the expressions with operators
 }
 
-export function getExpressionTypeComponent(expression: STNode, callBack: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void, userInputs: VariableUserInputs, diagnosticHandler: (diagnostics: string) => void): ReactNode {
+export function getExpressionTypeComponent(
+            expression: STNode,
+            expressionHandler: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void,
+            userInputs: VariableUserInputs,
+            diagnosticHandler: (diagnostics: string) => void
+        ) : ReactNode {
     const ExprTypeComponent = (expressionTypeComponents as any)[expression.kind];
 
     if (!ExprTypeComponent) {
         return null;
     }
 
-    return <ExprTypeComponent model={expression} callBack={callBack} userInputs={userInputs} diagnosticHandler={diagnosticHandler} />;
+    return <ExprTypeComponent
+        model={expression}
+        expressionHandler={expressionHandler}
+        userInputs={userInputs}
+        diagnosticHandler={diagnosticHandler}
+    />;
 }
-
-// export function getSuggestionBasedOnExpressionType(Type: string[]): string[] {
-//    var typesArray: string[] = [];
-//    Type.map(type => (
-//       typesArray = typesArray.concat(ExpressionSuggestionByType[type])))
-//    return typesArray;
-// }
-

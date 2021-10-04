@@ -10,34 +10,27 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js ordered-imports
-import React, { useContext } from "react";
+import React from "react";
 
 import { STNode } from "@ballerina/syntax-tree";
 
-import * as c from "../../../../constants";
-import { ModelContext } from "../../../../store/model-context";
-import { SuggestionItem } from "../../../../utils/utils";
-import { statementEditorStyles } from "../../../ViewContainer/styles";
+import { SuggestionItem, VariableUserInputs } from "../../../../models/definitions";
 import { InputEditor } from "../../../InputEditor";
-import { VariableUserInputs } from "../../../../models/definitions";
 
 interface LiteralProps {
     model: STNode
-    callBack: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void
+    expressionHandler: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }
 
 export function StringLiteralC(props: LiteralProps) {
-    const overlayClasses = statementEditorStyles();
-    const { model, callBack, userInputs, diagnosticHandler } = props;
-    const ctx = useContext(ModelContext);
+    const { model, expressionHandler, userInputs, diagnosticHandler } = props;
 
     const inputEditorProps = {
         statementType: model.kind,
         model,
-        callBack,
+        expressionHandler,
         userInputs,
         diagnosticHandler
     };

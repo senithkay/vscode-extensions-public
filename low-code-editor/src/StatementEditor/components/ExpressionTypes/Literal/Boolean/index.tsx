@@ -12,40 +12,29 @@
  */
 import React from "react";
 
-import { BooleanLiteral, STNode } from "@ballerina/syntax-tree";
+import {BooleanLiteral, STKindChecker, STNode} from "@ballerina/syntax-tree";
 
-import * as c from "../../../../constants";
-import { VariableUserInputs } from "../../../../models/definitions";
-import { getSuggestionsBasedOnExpressionKind } from "../../../../utils";
-import { SuggestionItem } from "../../../../utils/utils";
+import { SuggestionItem, VariableUserInputs } from "../../../../models/definitions";
 
 interface LiteralProps {
     model: STNode
-    callBack: (suggestions: SuggestionItem[], model: STNode) => void
+    expressionHandler: (suggestions: SuggestionItem[], model: STNode) => void
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }
 
 export function BooleanLiteralC(props: LiteralProps) {
-    const { model, callBack } = props;
+    const { model } = props;
     let value: any;
 
-    const onClickOnExpression = (event: any) => {
-        event.stopPropagation()
-        callBack(getSuggestionsBasedOnExpressionKind(c.STRING_LITERAL), model)
-    };
-
-    if (model.kind === "BooleanLiteral") {
+    if (STKindChecker.isBooleanLiteral(model)) {
         const literalModel: BooleanLiteral = model as BooleanLiteral;
         value = literalModel.literalToken.value;
     }
 
     return (
-        <span className="App-expression-block App-expression-block-element">
-            {/* <input type="text" id="literal" name="literal" onClick={(e) => onClickOnExpression(e)} className="literal-input"></input> */}
-            <button className="template-button" onClick={onClickOnExpression}>
-                {value}
-            </button>
-        </span>
+        <button>
+            {value}
+        </button>
     );
 }

@@ -42,18 +42,6 @@ class CodeGenVisitor implements Visitor {
         this.codeSnippet = this.codeSnippet + bracedExprNode.closeParen.value + " ";
     }
 
-    // public beginVisitNumericLiteral(node: STNode, parent?: STNode) {
-    //     if (node.kind === "DecimalIntegerLiteralToken" || node.kind === "PlusToken") {
-    //         this.codeSnippet = this.codeSnippet + node.value + " ";
-    //     }
-    // }
-    //
-    // public beginVisitPlusToken(node: STNode, parent?: STNode) {
-    //     if (node.kind === "DecimalIntegerLiteralToken" || node.kind === "PlusToken") {
-    //         this.codeSnippet = this.codeSnippet + node.value + " ";
-    //     }
-    // }
-
     getCodeSnippet() {
         return this.codeSnippet;
     }
