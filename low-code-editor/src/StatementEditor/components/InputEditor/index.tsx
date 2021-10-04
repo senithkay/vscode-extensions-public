@@ -38,11 +38,9 @@ export function InputEditor(props: InputEditorProps) {
     const {
         state: { targetPosition: targetPositionDraft },
         props: {
-            currentApp,
             currentFile,
             langServerURL,
             syntaxTree,
-            diagnostics: mainDiagnostics,
         },
         api: {
             ls: { getExpressionEditorLangClient }
@@ -88,12 +86,9 @@ export function InputEditor(props: InputEditorProps) {
         const newCodeSnippet: string = addToTargetPosition(defaultCodeSnippet, (snippetTargetPosition - 1), currentContent);
         initContent = addToTargetLine((currentFile.content), targetPosition, newCodeSnippet, EOL);
 
-        inputEditorState.name = "ModelName";
+        inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
         inputEditorState.content = initContent;
         inputEditorState.uri = monaco.Uri.file(currentFile.path).toString();
-
-        // tslint:disable-next-line:no-console
-        console.log("=========HANDLE-ON-FOCUS-CONTENT", inputEditorState.content)
 
         const langClient = await getExpressionEditorLangClient(langServerURL);
         langClient.didChange({
@@ -121,14 +116,11 @@ export function InputEditor(props: InputEditorProps) {
     }
 
     const handleDiagnostic = () => {
-        // tslint:disable-next-line:no-console
-        console.log("============HANDLING DIAGNOSTICS==============");
-
         const codeSnippet = CodeGenVisitor.getCodeSnippet();
         const hasDiagnostic = !inputEditorState.diagnostic.length // true if there are no diagnostics
 
         formCtx.onChange(codeSnippet);
-        formCtx.validate("", !hasDiagnostic, false);
+        formCtx.validate(userInputs.formField, !hasDiagnostic, false);
 
         // TODO: Need to obtain the default value as a prop
         if (!CodeGenVisitor.getCodeSnippet().includes(' expression ')) {
@@ -147,8 +139,7 @@ export function InputEditor(props: InputEditorProps) {
         inputEditorState.content = newModel;
         inputEditorState.uri = monaco.Uri.file(currentFile.path).toString();
 
-        // tslint:disable-next-line:no-console
-        console.log("=========HANDLE-ON-CHANGE-CONTENT", inputEditorState.content)
+        formCtx.onChange(currentContent);
 
         const langClient = await getExpressionEditorLangClient(langServerURL);
         langClient.didChange({
@@ -173,10 +164,28 @@ export function InputEditor(props: InputEditorProps) {
         })
     }
 
+    // InputEditor outFocus
+    const handleOnOutFocus = async () => {
+        inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
+        inputEditorState.content = currentFile.content;
+        inputEditorState.uri = monaco.Uri.file(currentFile.path).toString();
+
+        const langClient = await getExpressionEditorLangClient(langServerURL);
+        langClient.didChange({
+            contentChanges: [
+                {
+                    text: inputEditorState.content
+                }
+            ],
+            textDocument: {
+                uri: inputEditorState.uri,
+                version: 1
+            }
+        });
+    }
+
     // Revert file changes
     const revertContent = async () => {
-        // tslint:disable-next-line:no-console
-        console.log("==========REVERTING-CONTENT")
         if (inputEditorState?.uri) {
             inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
             inputEditorState.content = (currentFile.content);
@@ -217,9 +226,7 @@ export function InputEditor(props: InputEditorProps) {
             addExpression(model, kind, value);
             callBack([], model, false);
 
-            CodeGenVisitor.clearCodeSnippet();
-            traversNode(modelCtx.statementModel, CodeGenVisitor);
-            handleContentChange(CodeGenVisitor.getCodeSnippet(), "")
+            handleOnOutFocus();
         }
     };
 
