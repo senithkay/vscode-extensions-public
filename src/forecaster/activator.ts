@@ -61,6 +61,16 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
                     }
                 }
             }).then(async response => {
+                if (response.type === 'error') {
+                    if (response.message === 'AUTHENTICATION_ERROR') {
+                        // Choreo Auth Error
+                        return;
+                    } else if (response.message === 'CONNECTION_ERROR') {
+                        // Internet Connection Error
+                        return;
+                    }
+                    return;
+                }
                 addPerformanceLabels(response, pos);
             }).catch(error => {
                 log(error);

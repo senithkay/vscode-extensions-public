@@ -155,6 +155,8 @@ export interface PerformanceAnalyzerGraphRequest {
 }
 
 export interface PerformanceAnalyzerGraphResponse {
+    message: string;
+    type: any;
     sequenceDiagramData: SequenceGraphPoint[];
     graphData: GraphPoint[];
     realtimeData: GraphPoint;
