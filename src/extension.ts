@@ -26,6 +26,7 @@ import { activateDebugConfigProvider } from './debugger';
 import { activate as activateProjectFeatures } from './project';
 import { activate as activateEditorSupport } from './editor-support';
 import { activate as activatePackageOverview, PackageOverviewDataProvider } from './tree-view';
+import { activate as activateTesting } from './testing/activator';
 import { StaticFeature, DocumentSelector, ServerCapabilities, InitializeParams } from 'vscode-languageclient';
 import { ExtendedClientCapabilities, ExtendedLangClient } from './core/extended-language-client';
 import { debug, log } from './utils';
@@ -83,6 +84,7 @@ export function activate(context: ExtensionContext): Promise<any> {
         if (ballerinaExtInstance.isSwanLake()) {
             // Enable Ballerina Telemetry listener
             activateTelemetryListener(ballerinaExtInstance);
+            activateTesting(ballerinaExtInstance);
         }
 
         ballerinaExtInstance.onReady().then(() => {

@@ -67,7 +67,11 @@ export function runCommand(file: BallerinaProject | string, executor: string, cm
     let argsList = '';
     if (args && args.length > 0) {
         args.forEach((arg) => {
-            argsList += arg.concat(' ');
+            try {
+                argsList += arg.concat(' ');
+            } catch (e) {
+                // error
+            }
         });
     }
     let commandText;

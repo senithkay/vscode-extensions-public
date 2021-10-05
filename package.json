@@ -14,7 +14,7 @@
         "theme": "light"
     },
     "engines": {
-        "vscode": "^1.57.0"
+        "vscode": "^1.59.0"
     },
     "categories": [
         "Programming Languages",
@@ -237,6 +237,10 @@
             {
                 "command": "ballerina.project.run",
                 "title": "Run",
+                "icon": {
+                    "dark": "./resources/images/icons/start-inverse.svg",
+                    "light": "./resources/images/icons/start.svg"
+                },
                 "category": "Ballerina"
             },
             {
@@ -295,6 +299,15 @@
                 },
                 "category": "Ballerina"
             },
+            {
+                "command": "ballerina.source.debug",
+                "title": "Debug project in terminal",
+                "icon": {
+                    "dark": "./resources/images/icons/debug-inverse.svg",
+                    "light": "./resources/images/icons/debug.svg"
+                },
+                "category": "Ballerina"
+            },  
             {
                 "command": "ballerina.show.source",
                 "title": "Show Source",
@@ -388,6 +401,27 @@
                     "when": "view == ballerinaExplorerTreeView && viewItem == folder",
                     "group": "inline"
                 }
+            ],
+            "editor/title/run": [
+                {
+                    "command": "ballerina.project.run",
+                    "group": "navigation@0",
+                    "title": "Run project in terminal",
+                    "when": "resourceLangId == ballerina"
+                },
+                {
+                    "command": "ballerina.source.debug",
+                    "group": "navigation@1",
+                    "title": "Debug project in terminal",
+                    "when": "resourceLangId == ballerina"
+                }
+            ],
+            "explorer/context": [
+                {
+                    "command": "ballerina.project.run",
+                    "group": "Ballerina",
+                    "when": "resourceLangId == ballerina"
+                }
             ]
         }
     },
@@ -405,7 +439,7 @@
         "lint": "tslint --fix 'src/**/*{.ts,.tsx}'"
     },
     "dependencies": {
-        "@types/vscode": "^1.57.0",
+        "@types/vscode": "^1.59.0",
         "@wso2-enterprise/ballerina-low-code-editor": "^1.1.2",
         "file-uri-to-path": "^2.0.0",
         "glob": "^7.1.7",
@@ -422,7 +456,7 @@
         "@types/mocha": "^8.2.2",
         "@types/node": "^15.12.2",
         "@types/tcp-port-used": "^1.0.0",
-        "@types/vscode": "^1.57.0",
+        "@types/vscode": "^1.59.0",
         "chai": "^4.3.4",
         "cross-env": "^7.0.3",
         "decache": "^4.6.0",
