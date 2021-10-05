@@ -28,7 +28,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { CloseRounded, EditIcon } from "../../../../../../assets/icons";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import LogoCircleIcon from "../../../../../../assets/icons/LogoCircle";
-import { ViewContainer } from "../../../../../../StatementEditor/components/ViewContainer/ViewContainer";
+import { ViewContainer } from "../../../../Portals/ConfigForm/Elements/StatementEditor/components/ViewContainer/ViewContainer";
 import { StatementEditorButton } from "../../../../Portals/ConfigForm/Elements/Button/StatementEditorButton";
 
 interface LogConfigProps {

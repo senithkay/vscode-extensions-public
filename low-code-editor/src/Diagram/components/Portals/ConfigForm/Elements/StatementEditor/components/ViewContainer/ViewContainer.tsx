@@ -16,9 +16,9 @@ import { useIntl } from "react-intl";
 
 import { STNode } from "@ballerina/syntax-tree";
 
-import { wizardStyles } from "../../../Diagram/components/ConfigForms/style";
-import { PrimaryButton } from "../../../Diagram/components/Portals/ConfigForm/Elements/Button/PrimaryButton";
-import { SecondaryButton } from "../../../Diagram/components/Portals/ConfigForm/Elements/Button/SecondaryButton";
+import { wizardStyles } from "../../../../../../ConfigForms/style";
+import { PrimaryButton } from "../../../Button/PrimaryButton";
+import { SecondaryButton } from "../../../Button/SecondaryButton";
 import { VariableUserInputs } from '../../models/definitions';
 import { FormContext } from '../../store/form-context';
 import { ModelContext } from '../../store/model-context'
