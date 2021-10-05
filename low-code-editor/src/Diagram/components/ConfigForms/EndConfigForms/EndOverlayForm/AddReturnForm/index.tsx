@@ -29,7 +29,7 @@ import { CloseRounded, ReturnIcon, EditIcon } from "../../../../../../assets/ico
 
 import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
-import { ViewContainer } from "../../../../../../StatementEditor/components/ViewContainer/ViewContainer";
+import { ViewContainer } from "../../../../Portals/ConfigForm/Elements/StatementEditor/components/ViewContainer/ViewContainer";
 import { StatementEditorButton } from "../../../../Portals/ConfigForm/Elements/Button/StatementEditorButton";
 
 interface ReturnFormProps {

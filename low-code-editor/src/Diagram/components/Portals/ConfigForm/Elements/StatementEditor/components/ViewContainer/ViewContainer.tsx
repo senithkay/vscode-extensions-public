@@ -16,9 +16,9 @@ import { useIntl } from "react-intl";
 
 import { STNode } from "@ballerina/syntax-tree";
 
-import { wizardStyles } from "../../../Diagram/components/ConfigForms/style";
-import { PrimaryButton } from "../../../Diagram/components/Portals/ConfigForm/Elements/Button/PrimaryButton";
-import { SecondaryButton } from "../../../Diagram/components/Portals/ConfigForm/Elements/Button/SecondaryButton";
+import { wizardStyles } from "../../../../../../ConfigForms/style";
+import { PrimaryButton } from "../../../Button/PrimaryButton";
+import { SecondaryButton } from "../../../Button/SecondaryButton";
 import { VariableUserInputs } from '../../models/definitions';
 import { FormContext } from '../../store/form-context';
 import { ModelContext } from '../../store/model-context'
@@ -45,21 +45,14 @@ export function ViewContainer(props: ViewProps) {
     const { kind, label, formArgs, userInputs, validate, isMutationInProgress, validForm, onCancel, onSave, onChange } = props;
     const intl = useIntl();
 
+    const stmtModel = formArgs.model ? formArgs.model.initializer : getDefaultModel(kind);
 
-    const defaultModel = formArgs.model ? formArgs.model.initializer : getDefaultModel(kind);
-
-    const [initialModel] = useState({...defaultModel});
+    const [model] = useState({...stmtModel});
 
     const [onCancelClicked, setOnCancel] = useState(false);
 
-    useEffect(() => {
-        return () => {
-            Object.assign(defaultModel, initialModel);
-        };
-    }, [])
-
     const currentModel: { model: STNode } = {
-        model: defaultModel
+        model
     }
 
     const onCancelHandler = () => {
@@ -90,7 +83,7 @@ export function ViewContainer(props: ViewProps) {
             <div className={overlayClasses.AppContentPane}>
                 <ModelContext.Provider
                     value={{
-                        statementModel: defaultModel
+                        statementModel: model
                     }}
                 >
                     <FormContext.Provider
@@ -102,7 +95,7 @@ export function ViewContainer(props: ViewProps) {
                         }}
                     >
                         <LeftPane
-                            model={defaultModel}
+                            model={model}
                             currentModel={currentModel}
                             kind={kind}
                             label={label}
