@@ -482,7 +482,8 @@
         "webpack-cli": "^3.3.3",
         "yarn": "^1.22.11",
         "express": "^4.17.1",
-        "keytar": "^7.7.0"
+        "keytar": "^7.7.0",
+        "axios": "0.22.0"
     },
     "extensionPack": [
         "be5invis.toml"
