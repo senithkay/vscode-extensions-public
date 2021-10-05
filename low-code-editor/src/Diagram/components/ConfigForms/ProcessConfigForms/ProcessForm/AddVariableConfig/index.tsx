@@ -22,9 +22,7 @@ import { PrimitiveBalType, WizardType } from "../../../../../../ConfigurationSpe
 import { Context } from "../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { getAllVariables } from "../../../../../utils/mixins";
-import { ButtonWithIcon } from "../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
-import { PrimaryButton } from "../../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
-import { SecondaryButton } from "../../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
+import { ButtonPanel } from "../../../../Portals/ConfigForm/Elements/ButtonPanel";
 import { SelectDropdownWithButton } from "../../../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { FormTextInput } from "../../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
@@ -306,18 +304,14 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                                 </div>
                             </div>
                         </div>
-                        <div className={classes.formSave}>
-                            <div className={overlayClasses.buttonWrapper}>
-                                <SecondaryButton text={cancelVariableButtonText} fullWidth={false} onClick={onCancel} />
-                                <PrimaryButton
-                                    dataTestId="save-btn"
-                                    text={saveVariableButtonText}
-                                    disabled={isMutationInProgress || !validForm}
-                                    fullWidth={false}
-                                    onClick={handleSave}
-                                />
-                            </div>
-                        </div>
+                        <ButtonPanel
+                            cancelText={cancelVariableButtonText}
+                            saveText={saveVariableButtonText}
+                            isMutationInProgress={isMutationInProgress}
+                            validForm={validForm}
+                            handleSave={handleSave}
+                            onCancel={onCancel}
+                        />
                     </div>
                 )
                 :

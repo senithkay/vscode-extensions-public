@@ -23,8 +23,6 @@ import { FormField } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
 import { getAllVariables } from "../../../../../utils/mixins";
 import { ButtonWithIcon } from "../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
-import { PrimaryButton } from "../../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
-import { SecondaryButton } from "../../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { FormTextInput } from "../../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
 import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
@@ -33,6 +31,7 @@ import { genVariableName } from "../../../../Portals/utils";
 import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
+import { ButtonPanel } from "../../../../Portals/ConfigForm/Elements/ButtonPanel";
 
 interface Iterations {
     start?: string;
@@ -226,17 +225,14 @@ export function AddForeachForm(props: ForeachProps) {
                                 </div>
                             </div>
                         </div>
-                        <div className={classes.formSave}>
-                            <div className={overlayClasses.buttonWrapper}>
-                                <SecondaryButton text={cancelForEachButtonLabel} fullWidth={false} onClick={onCancel} />
-                                <PrimaryButton
-                                    text={saveForEachButtonLabel}
-                                    disabled={isMutationInProgress || isInvalid}
-                                    fullWidth={false}
-                                    onClick={handleSave}
-                                />
-                            </div>
-                        </div>
+                        <ButtonPanel
+                            cancelText={cancelForEachButtonLabel}
+                            saveText={saveForEachButtonLabel}
+                            isMutationInProgress={isMutationInProgress}
+                            validForm={!isInvalid}
+                            handleSave={handleSave}
+                            onCancel={onCancel}
+                        />
                     </div>
                 )
                 :

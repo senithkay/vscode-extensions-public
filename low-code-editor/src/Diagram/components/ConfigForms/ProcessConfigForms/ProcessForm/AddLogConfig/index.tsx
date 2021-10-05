@@ -22,8 +22,6 @@ import { CloseRounded, LogIcon } from "../../../../../../assets/icons";
 import { WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
 import { ButtonWithIcon } from "../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
-import { PrimaryButton } from "../../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
-import { SecondaryButton } from "../../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
 import { SelectDropdownWithButton } from "../../../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms/style";
@@ -31,6 +29,7 @@ import { LogConfig, ProcessConfig } from "../../../../Portals/ConfigForm/types";
 import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
+import { ButtonPanel } from "../../../../Portals/ConfigForm/Elements/ButtonPanel";
 
 interface LogConfigProps {
     config: ProcessConfig;
@@ -157,18 +156,14 @@ export function AddLogConfig(props: LogConfigProps) {
                                 </div>
                             </div>
                         </div>
-                        <div className={formClasses.formSave}>
-                            <div className={overlayClasses.buttonWrapper}>
-                                <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
-                                <PrimaryButton
-                                    dataTestId={"log-save-btn"}
-                                    text={saveLogButtonLabel}
-                                    disabled={isMutationInProgress || !isFormValid}
-                                    fullWidth={false}
-                                    onClick={onSaveBtnClick}
-                                />
-                            </div>
-                        </div>
+                        <ButtonPanel
+                            cancelText="Cancel"
+                            saveText={saveLogButtonLabel}
+                            isMutationInProgress={isMutationInProgress}
+                            validForm={!!isFormValid}
+                            handleSave={onSaveBtnClick}
+                            onCancel={onCancel}
+                        />
                     </div>
                 )
                 :

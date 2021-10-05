@@ -20,14 +20,13 @@ import { CloseRounded, IfIcon } from "../../../../../../assets/icons";
 import { FormField } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
 import { ButtonWithIcon } from "../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
-import { PrimaryButton } from "../../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
-import { SecondaryButton } from "../../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { ConditionConfig, FormElementProps } from "../../../../Portals/ConfigForm/types";
 import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
+import { ButtonPanel } from "../../../../Portals/ConfigForm/Elements/ButtonPanel";
 
 interface IfProps {
     condition: ConditionConfig;
@@ -140,18 +139,14 @@ export function AddIfForm(props: IfProps) {
                                 </div>
                             </div>
                         </div>
-                        <div className={classes.formSave}>
-                            <div className={overlayClasses.buttonWrapper}>
-                                <SecondaryButton text={cancelIfButtonLabel} fullWidth={false} onClick={onCancel} />
-                                <PrimaryButton
-                                    dataTestId={"if-save-btn"}
-                                    text={saveIfConditionButtonLabel}
-                                    disabled={isMutationInProgress || isInvalid}
-                                    fullWidth={false}
-                                    onClick={handleOnSaveClick}
-                                />
-                            </div>
-                        </div>
+                        <ButtonPanel
+                            cancelText={cancelIfButtonLabel}
+                            saveText={saveIfConditionButtonLabel}
+                            isMutationInProgress={isMutationInProgress}
+                            validForm={!isInvalid}
+                            handleSave={handleOnSaveClick}
+                            onCancel={onCancel}
+                        />
                     </div>
                 )
                 :

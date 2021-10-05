@@ -22,8 +22,7 @@ import { httpResponse, PrimitiveBalType, WizardType } from "../../../../../../Co
 import { Context } from "../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { ButtonWithIcon } from "../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
-import { PrimaryButton } from "../../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
-import { SecondaryButton } from "../../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
+import { ButtonPanel } from "../../../../Portals/ConfigForm/Elements/ButtonPanel";
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { EndConfig, RespondConfig } from "../../../../Portals/ConfigForm/types";
@@ -197,19 +196,14 @@ export function AddRespondForm(props: RespondFormProps) {
                                 {(!config.model) ? statusCodeComp : null}
                             </div>
                         </div>
-                        <div className={formClasses.formSave}>
-                            <div className={overlayClasses.buttonWrapper}>
-                                <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
-                                <PrimaryButton
-                                    dataTestId="save-btn"
-                                    className="product-tour-save"
-                                    text={saveRespondButtonLabel}
-                                    disabled={disableSave}
-                                    fullWidth={false}
-                                    onClick={onSaveWithTour}
-                                />
-                            </div>
-                        </div>
+                        <ButtonPanel
+                            cancelText="Cancel"
+                            saveText={saveRespondButtonLabel}
+                            isMutationInProgress={isMutationInProgress}
+                            validForm={validForm}
+                            handleSave={onSaveWithTour}
+                            onCancel={onCancel}
+                        />
                     </div>
                 )
                 :

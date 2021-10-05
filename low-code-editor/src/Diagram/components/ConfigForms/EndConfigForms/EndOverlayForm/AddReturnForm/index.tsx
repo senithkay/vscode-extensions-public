@@ -18,8 +18,6 @@ import { Box, FormControl, Typography } from "@material-ui/core";
 
 import { Context } from "../../../../../../Contexts/Diagram";
 import { ButtonWithIcon } from "../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
-import { PrimaryButton } from "../../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
-import { SecondaryButton } from "../../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { EndConfig } from "../../../../Portals/ConfigForm/types";
@@ -29,6 +27,7 @@ import { CloseRounded, ReturnIcon } from "../../../../../../assets/icons";
 
 import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
+import { ButtonPanel } from "../../../../Portals/ConfigForm/Elements/ButtonPanel";
 
 interface ReturnFormProps {
     config: EndConfig;
@@ -129,17 +128,14 @@ export function AddReturnForm(props: ReturnFormProps) {
                                 </div>
                             </div>
                         </div>
-                        <div className={classes.formSave}>
-                            <div className={overlayClasses.buttonWrapper}>
-                                <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
-                                <PrimaryButton
-                                    text={saveReturnButtonLabel}
-                                    disabled={isButtonDisabled}
-                                    fullWidth={false}
-                                    onClick={onReturnExpressionSave}
-                                />
-                            </div>
-                        </div>
+                        <ButtonPanel
+                            cancelText="Cancel"
+                            saveText={saveReturnButtonLabel}
+                            isMutationInProgress={isMutationInProgress}
+                            validForm={isValidValue}
+                            handleSave={onReturnExpressionSave}
+                            onCancel={onCancel}
+                        />
                     </div>
                 )
                 :

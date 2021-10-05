@@ -17,8 +17,6 @@ import { Box, FormControl, Typography } from "@material-ui/core";
 import { WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
 import { ButtonWithIcon } from "../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
-import { PrimaryButton } from "../../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
-import { SecondaryButton } from "../../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { CustomExpressionConfig, ProcessConfig } from "../../../../Portals/ConfigForm/types";
@@ -28,6 +26,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { CloseRounded } from "../../../../../../assets/icons";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import LogoCircleIcon from "../../../../../../assets/icons/LogoCircle";
+import { ButtonPanel } from "../../../../Portals/ConfigForm/Elements/ButtonPanel";
 
 interface LogConfigProps {
     config: ProcessConfig;
@@ -130,18 +129,14 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                                 </div>
                             </div>
                         </div>
-                        <div className={formClasses.formSave}>
-                            <div className={overlayClasses.buttonWrapper}>
-                                <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
-                                <PrimaryButton
-                                    dataTestId={"custom-expression-save-btn"}
-                                    text={saveCustomStatementButtonLabel}
-                                    disabled={isMutationInProgress || !isFormValid}
-                                    fullWidth={false}
-                                    onClick={onSaveBtnClick}
-                                />
-                            </div>
-                        </div>
+                        <ButtonPanel
+                            cancelText="Cancel"
+                            saveText={saveCustomStatementButtonLabel}
+                            isMutationInProgress={isMutationInProgress}
+                            validForm={isFormValid}
+                            handleSave={onSaveBtnClick}
+                            onCancel={onCancel}
+                        />
                     </div>
                 )
                 :
