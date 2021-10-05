@@ -36,7 +36,18 @@ interface FormTextInputProps {
 }
 
 export function FormTextInput(props: FormElementProps<FormTextInputProps>) {
-    const { index, customProps, onChange, defaultValue, label, placeholder, errorMessage, dataTestId, size = "medium", disabled } = props;
+    const {
+        index,
+        customProps,
+        onChange,
+        defaultValue,
+        label,
+        placeholder,
+        errorMessage,
+        dataTestId,
+        size = "medium",
+        disabled
+    } = props;
     const formClasses = useFormStyles();
     const textFieldClasses = useTextInputStyles();
     const defaultText: string = defaultValue ? defaultValue : "";
@@ -52,7 +63,6 @@ export function FormTextInput(props: FormElementProps<FormTextInputProps>) {
 
     // to render invalid variable
     const [isInvalid, setIsInvalid] = useState(customProps?.isErrored);
-
     const [errorMsg, setErrorMsg] = useState(errorMessage);
 
     useEffect(() => {
@@ -96,8 +106,15 @@ export function FormTextInput(props: FormElementProps<FormTextInputProps>) {
                         <div className={textFieldClasses.inputWrapper}>
                             <div className={textFieldClasses.inputWrapper}>
                                 <div className={textFieldClasses.labelWrapper}>
-                                    <FormHelperText className={formClasses.inputLabelForRequired}>{textLabel}</FormHelperText>
-                                    <FormHelperText className={formClasses.optionalLabel}><FormattedMessage id="lowcode.develop.elements.textField.formTextInput.optional.label" defaultMessage="Optional"/></FormHelperText>
+                                    <FormHelperText className={formClasses.inputLabelForRequired}>
+                                        {textLabel}
+                                    </FormHelperText>
+                                    <FormHelperText className={formClasses.optionalLabel}>
+                                        <FormattedMessage
+                                            id="lowcode.develop.elements.textField.formTextInput.optional.label"
+                                            defaultMessage="Optional"
+                                        />
+                                    </FormHelperText>
                                 </div>
 
                             </div>
@@ -110,7 +127,9 @@ export function FormTextInput(props: FormElementProps<FormTextInputProps>) {
                     ) : (
                         <div className={textFieldClasses.inputWrapper}>
                             <div className={textFieldClasses.labelWrapper}>
-                                <FormHelperText className={formClasses.inputLabelForRequired}>{textLabel}</FormHelperText>
+                                <FormHelperText className={formClasses.inputLabelForRequired}>
+                                    {textLabel}
+                                </FormHelperText>
                                 <FormHelperText className={formClasses.starLabelForRequired}>*</FormHelperText>
                             </div>
                             {customProps?.tooltipTitle &&
@@ -133,7 +152,8 @@ export function FormTextInput(props: FormElementProps<FormTextInputProps>) {
                         root: textFieldClasses.textFeild,
                         error: textFieldClasses.errorField,
                     },
-                    startAdornment: customProps?.startAdornment ? <InputAdornment position="start">{customProps.startAdornment}</InputAdornment> : null
+                    startAdornment: customProps?.startAdornment ?
+                        <InputAdornment position="start">{customProps.startAdornment}</InputAdornment> : null
                 }}
                 placeholder={placeholder}
                 fullWidth={true}

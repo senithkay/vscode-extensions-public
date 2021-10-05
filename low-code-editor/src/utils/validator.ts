@@ -123,7 +123,7 @@ export function validatePath(text: string) {
     }
 }
 
-export function isPathDuplicated (resources: Resource[]) : boolean {
+export function isPathDuplicated(resources: Resource[]): boolean {
     const resourceSignatures: string[] = [];
     let isDuplicated = false;
     resources.forEach((res: any) => {
@@ -140,7 +140,12 @@ export function isPathDuplicated (resources: Resource[]) : boolean {
     return isDuplicated;
 }
 
-export function isAllEmpty (emptyFields: Map<string, boolean>): boolean {
+export function isServicePathValid(servicePath: string): boolean {
+    const servicePathRegex = /^((\/)?([a-zA-Z0-9_-]+)?)+\/?/g;
+    return servicePath === "" || servicePathRegex.test(servicePath);
+}
+
+export function isAllEmpty(emptyFields: Map<string, boolean>): boolean {
     let result = true
     emptyFields.forEach((isEmpty, key) => {
         if (!isEmpty) {
@@ -151,7 +156,7 @@ export function isAllEmpty (emptyFields: Map<string, boolean>): boolean {
 }
 
 export function isAllValid(validFields: Map<string, boolean>, emptyFields: Map<string, boolean>,
-                           isAllChildrenOptional: boolean, isOptional: boolean, isRoot: boolean): boolean {
+    isAllChildrenOptional: boolean, isOptional: boolean, isRoot: boolean): boolean {
     let result = true;
     const allEmpty = isAllEmpty(emptyFields);
     if (!isRoot && isOptional && allEmpty) {
@@ -169,7 +174,7 @@ export function isAllValid(validFields: Map<string, boolean>, emptyFields: Map<s
     return result;
 }
 
-export function isAllOptional (fields: FormField[]): boolean {
+export function isAllOptional(fields: FormField[]): boolean {
     let result = true;
     if (fields && fields.length > 0) {
         fields.map((field: any, index: any) => {
