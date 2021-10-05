@@ -22,6 +22,8 @@ import { commands, ExtensionContext, languages, Range, window } from "vscode";
 import { BallerinaExtension, ExtendedLangClient, LANGUAGE, PerformanceAnalyzerGraphResponse } from "../core";
 import { ExecutorCodeLensProvider } from "./codelens-provider";
 import { log } from "../utils";
+import keytar = require("keytar");
+import { CHOREO_SERVICE_NAME, CHOREO_ACCESS_TOKEN, CHOREO_COOKIE } from "../project/cmds/choreo-signin";
 
 let langClient: ExtendedLangClient;
 
@@ -43,6 +45,16 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
         const activeEditor = window.activeTextEditor;
         const uri = activeEditor?.document.uri.fsPath.toString();
 
+        const choreoToken = await keytar.getPassword(CHOREO_SERVICE_NAME, CHOREO_ACCESS_TOKEN);
+        const choreoCookie = await keytar.getPassword(CHOREO_SERVICE_NAME, CHOREO_COOKIE);
+
+        if (!choreoToken || !choreoCookie) {
+            window.showInformationMessage(
+                "Please sign in to Choreo to use this feature"
+              );
+            return;  
+        }
+
         if (uri && langClient && args.length > 0) {
             const pos: Range = args[0];
             // add codelenses to endpoints
@@ -59,11 +71,16 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
                         line: pos.end.line,
                         character: pos.end.character
                     }
-                }
+                },
+                choreoToken: `Bearer ${choreoToken}`,
+                choreoCookie: choreoCookie,
             }).then(async response => {
                 if (response.type === 'error') {
                     if (response.message === 'AUTHENTICATION_ERROR') {
                         // Choreo Auth Error
+                        window.showInformationMessage(
+                            "Choreo Authentication error."
+                          );
                         return;
                     } else if (response.message === 'CONNECTION_ERROR') {
                         // Internet Connection Error

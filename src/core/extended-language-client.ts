@@ -151,6 +151,8 @@ export interface ExecutorPosition {
 export interface PerformanceAnalyzerGraphRequest {
     documentIdentifier: DocumentIdentifier;
     range: Range;
+    choreoToken: String;
+    choreoCookie: String;
 }
 
 export interface PerformanceAnalyzerGraphResponse {
