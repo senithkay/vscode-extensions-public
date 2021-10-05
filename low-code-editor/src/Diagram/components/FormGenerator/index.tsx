@@ -25,7 +25,7 @@ export interface FormGeneratorProps {
     targetPosition?: DraftUpdatePosition;
     onCancel?: () => void;
     onSave?: (modifications: STModification[]) => void;
-    configOverlayFormStatus: ConfigOverlayFormStatus; // FixMe : There are lot of unwanted properties passed through 
+    configOverlayFormStatus: ConfigOverlayFormStatus; // FixMe : There are lot of unwanted properties passed through
     // this model clean up or remove this
 }
 

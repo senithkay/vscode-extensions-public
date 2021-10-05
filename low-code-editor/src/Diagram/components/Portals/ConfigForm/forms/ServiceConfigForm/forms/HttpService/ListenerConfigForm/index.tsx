@@ -25,7 +25,6 @@ interface ListenerConfigFormProps {
     onDefinitionModeChange: (mode: string[]) => void;
     onNameChange: (name: string) => void;
     onPortChange: (name: string) => void;
-    // updateListenerDefinitionMode: (mode: string) => void;
 }
 
 export function ListenerConfigForm(props: ListenerConfigFormProps) {
@@ -36,7 +35,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
         <>
             <CheckBoxGroup
                 values={["Define Inline"]}
-                defaultValues={isDefinedInline ? ["Define Inline"] : []}
+                defaultValues={isDefinedInline ? ['Define Inline'] : []}
                 onChange={onDefinitionModeChange}
             />
             {
