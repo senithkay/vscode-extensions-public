@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js, ordered-imports
+// tslint:disable: jsx-no-multiline-js ordered-imports
 import React, { useContext, useState } from "react";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
@@ -175,21 +175,19 @@ export function AddIfForm(props: IfProps) {
     if (isStmtEditor) {
         exprEditor =
             (
-            <FormControl data-testid="property-form" className={classes.stmtEditorFormControl}>
-            {!isCodeEditorActive ?
-            // tslint:disable-next-line:jsx-no-multiline-js
-            (
-                <div>
-                    // TODO: Send proper props according to the form type
-                    <ViewContainer
-                        kind="DefaultBoolean"
-                        label="Variable Statement"
-                        formArgs={formArgs}
-                        onCancel={handleStmtEditorCancel}
-                    />
-                </div>
-            ) : null}
-            </FormControl>
+                <FormControl data-testid="property-form">
+                    {!isCodeEditorActive ? (
+                        <div>
+                            // TODO: Send proper props according to the form type
+                            <ViewContainer
+                                kind="DefaultBoolean"
+                                label="Variable Statement"
+                                formArgs={formArgs}
+                                onCancel={handleStmtEditorCancel}
+                            />
+                        </div>
+                    ) : null}
+                </FormControl>
             );
     }
 

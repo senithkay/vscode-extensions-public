@@ -164,19 +164,19 @@ export function AddReturnForm(props: ReturnFormProps) {
     if (isStmtEditor) {
         exprEditor =
             (
-            <FormControl data-testid="property-form" className={classes.stmtEditorFormControl}>
-                {!isCodeEditorActive ? (
-                    <div>
-                        // TODO: Send proper props according to the form type
-                        <ViewContainer
-                            kind="DefaultBoolean"
-                            label="Variable Statement"
-                            formArgs={formArgs}
-                            onCancel={handleStmtEditorCancel}
-                        />
-                    </div>
-                ) : null}
-            </FormControl>
+                <FormControl data-testid="property-form">
+                    {!isCodeEditorActive ? (
+                        <div>
+                            // TODO: Send proper props according to the form type
+                            <ViewContainer
+                                kind="DefaultBoolean"
+                                label="Variable Statement"
+                                formArgs={formArgs}
+                                onCancel={handleStmtEditorCancel}
+                            />
+                        </div>
+                    ) : null}
+                </FormControl>
             );
     }
 

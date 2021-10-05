@@ -20,7 +20,6 @@ import { Box, FormControl, Typography } from "@material-ui/core";
 import { CloseRounded, EditIcon, PropertyIcon } from "../../../../../../assets/icons";
 import { PrimitiveBalType, WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
-import { statementEditorStyles } from "../../../../../../StatementEditor/components/ViewContainer/styles";
 import { ViewContainer } from "../../../../../../StatementEditor/components/ViewContainer/ViewContainer";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { getAllVariables } from "../../../../../utils/mixins";
@@ -50,7 +49,6 @@ const defaultValues = [defaultJsonVal, defaultXmlVal];
 export function AddVariableConfig(props: AddVariableConfigProps) {
     const classes = useStyles();
     const overlayClasses = wizardStyles();
-    const statementEditorClasses = statementEditorStyles();
     const intl = useIntl();
     const { config, formArgs, onCancel, onSave } = props;
 
@@ -357,7 +355,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             </FormControl >;
 
     if (isStmtEditor) {
-        exprEditor = <FormControl data-testid="property-form" className={classes.stmtEditorFormControl}>
+        exprEditor = <FormControl data-testid="property-form">
             {!isCodeEditorActive ? (
                 <div>
                     <ViewContainer

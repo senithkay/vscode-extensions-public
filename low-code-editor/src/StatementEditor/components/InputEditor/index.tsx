@@ -55,11 +55,12 @@ export function InputEditor(props: InputEditorProps) {
         diagnostic: [],
     });
 
-    const overlayClasses = statementEditorStyles();
-
     const { model, expressionHandler, statementType, diagnosticHandler, userInputs } = props;
+
     const modelCtx = useContext(ModelContext);
     const formCtx = useContext(FormContext);
+
+    const overlayClasses = statementEditorStyles();
 
     let literalModel: StringLiteral | NumericLiteral;
     let value: any;
@@ -83,7 +84,16 @@ export function InputEditor(props: InputEditorProps) {
     const snippetTargetPosition = defaultCodeSnippet.length;
     const isCustomTemplate = false;
 
-    // InputEditor start
+    useEffect(() => {
+        CodeGenVisitor.clearCodeSnippet();
+        traversNode(modelCtx.statementModel, CodeGenVisitor);
+        const ignore = handleOnFocus(CodeGenVisitor.getCodeSnippet(), "");
+    }, [statementType]);
+
+    useEffect(() => {
+        handleDiagnostic();
+    }, [inputEditorState.diagnostic])
+
     const handleOnFocus = async (currentContent: string, EOL: string) => {
         let initContent: string;
         const newCodeSnippet: string = addToTargetPosition(defaultCodeSnippet, (snippetTargetPosition - 1), currentContent);
@@ -114,8 +124,6 @@ export function InputEditor(props: InputEditorProps) {
             ...inputEditorState,
             diagnostic: diagResp[0]?.diagnostics ? getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) : []
         })
-
-
     }
 
     const handleDiagnostic = () => {
@@ -131,8 +139,6 @@ export function InputEditor(props: InputEditorProps) {
         }
     }
 
-
-    // InputEditor onChange
     const handleContentChange = async (currentContent: string, EOL: string) => {
         let newModel: string;
         const newCodeSnippet: string = addToTargetPosition(defaultCodeSnippet, (snippetTargetPosition - 1), currentContent);
@@ -167,7 +173,6 @@ export function InputEditor(props: InputEditorProps) {
         })
     }
 
-    // InputEditor outFocus
     const handleOnOutFocus = async () => {
         inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
         inputEditorState.content = currentFile.content;
@@ -187,7 +192,6 @@ export function InputEditor(props: InputEditorProps) {
         });
     }
 
-    // Revert file changes
     const revertContent = async () => {
         if (inputEditorState?.uri) {
             inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
@@ -215,16 +219,6 @@ export function InputEditor(props: InputEditorProps) {
         revertContent().then();
     }
 
-    useEffect(() => {
-        CodeGenVisitor.clearCodeSnippet();
-        traversNode(modelCtx.statementModel, CodeGenVisitor);
-        const ignore = handleOnFocus(CodeGenVisitor.getCodeSnippet(), "");
-    }, [statementType]);
-
-    useEffect(() => {
-        handleDiagnostic();
-    }, [inputEditorState.diagnostic])
-
     const inputBlurHandler = () => {
         if (defaultValue.current !== "") {
             addExpression(model, kind, value);
@@ -244,7 +238,6 @@ export function InputEditor(props: InputEditorProps) {
             const ignore = handleContentChange(CodeGenVisitor.getCodeSnippet(), "")
         }
     };
-
 
     const inputChangeHandler = (event: React.KeyboardEvent<HTMLSpanElement>) => {
         addExpression(model, kind, event.currentTarget.textContent ? event.currentTarget.textContent : "");
