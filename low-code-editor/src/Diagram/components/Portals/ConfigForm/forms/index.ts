@@ -16,10 +16,10 @@ import { ProcessConfigForm } from "../../../ConfigForms/ProcessConfigForms";
 
 import { APIConfigForm } from "./APIConfigForm";
 import { ConnectorInitForm } from "./ConnectorInitForm";
+import { FunctionConfigForm } from './FunctionConfigForm'; // TODO: need to rename
 import { ScheduleConfigForm } from "./ScheduleConfigForm";
 import { ServiceConfigForm } from './ServiceConfigForm';
 import { WebhookConfigForm } from "./WebhookConfigForm";
-import { FunctionConfigForm } from './FunctionConfigForm'; // TODO: need to rename
 
 export { WebhookConfigForm as webhookConfig };
 export { ScheduleConfigForm as scheduleConfig };
