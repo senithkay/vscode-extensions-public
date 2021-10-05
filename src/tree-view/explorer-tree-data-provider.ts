@@ -23,7 +23,6 @@ import { ExplorerTreeItem, EXPLORER_ITEM_KIND, FILE_EXTENSION, TREE_ELEMENT_EXEC
 import * as fs from 'fs';
 import * as path from 'path';
 import { BAL_TOML } from "../project";
-import { WorkspaceFolder } from "vscode-languageserver-protocol";
 
 /**
  * Tree data provider for explorer view.

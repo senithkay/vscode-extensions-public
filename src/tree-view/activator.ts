@@ -22,12 +22,13 @@ import { sendTelemetryEvent, CMP_PACKAGE_VIEW, TM_EVENT_OPEN_PACKAGE_OVERVIEW } 
 import { commands, Uri, window, workspace } from 'vscode';
 import {
     CMP_KIND, TREE_ELEMENT_EXECUTE_COMMAND, OUTLINE_TREE_REFRESH_COMMAND, EXPLORER_TREE_REFRESH_COMMAND,
-    EXPLORER_ITEM_KIND, EXPLORER_TREE_NEW_FILE_COMMAND, EXPLORER_TREE_NEW_FOLDER_COMMAND, ExplorerTreeItem, EXPLORER_TREE_NEW_MODULE_COMMAND
+    EXPLORER_ITEM_KIND, EXPLORER_TREE_NEW_FILE_COMMAND, EXPLORER_TREE_NEW_FOLDER_COMMAND, ExplorerTreeItem,
+    EXPLORER_TREE_NEW_MODULE_COMMAND, EXPLRER_TREE_DELETE_FILE_COMMAND
 } from "./model";
 import { PackageOverviewDataProvider } from "./outline-tree-data-provider";
 import { SessionDataProvider } from "./session-tree-data-provider";
 import { ExplorerDataProvider } from "./explorer-tree-data-provider";
-import { existsSync, mkdirSync, open } from 'fs';
+import { existsSync, mkdirSync, open, rm, rmdir } from 'fs';
 import { join } from 'path';
 import { BALLERINA_COMMANDS, runCommand } from "../project";
 
@@ -74,6 +75,19 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
             }
             explorerDataProvider.refresh();
         }
+    });
+
+    commands.registerCommand(EXPLRER_TREE_DELETE_FILE_COMMAND, async (item: ExplorerTreeItem) => {
+        const deleteAction = 'Delete';
+        const cancelAction = 'Cancel';
+        window.showWarningMessage(`Are you sure you want to delete ${item.getUri().fsPath}?`,
+            cancelAction, deleteAction).then((selection) => {
+                if (deleteAction === selection) {
+                    item.getKind() == 'folder' ? rmdir(item.getUri().fsPath, { recursive: true }, () => { }) :
+                        rm(item.getUri().fsPath, () => { });
+                    explorerDataProvider.refresh();
+                }
+            });
     });
 
     commands.registerCommand(EXPLORER_TREE_NEW_MODULE_COMMAND, async () => {
