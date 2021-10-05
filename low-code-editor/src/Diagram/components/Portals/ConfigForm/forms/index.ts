@@ -13,6 +13,9 @@
 import { ConditionConfigForm } from "../../../ConfigForms/ConditionConfigForms";
 import { EndConfigForm } from "../../../ConfigForms/EndConfigForms";
 import { ProcessConfigForm } from "../../../ConfigForms/ProcessConfigForms";
+import { ConnectorConfigWizard } from "../../../ConnectorConfigWizard";
+import { ConnectorForm } from "../../../ConnectorConfigWizard/Components/ConnectorForm";
+import { APIOptions } from "../../Overlay/Elements/PlusHolder/PlusElementOptions/APIOptions";
 
 import { APIConfigForm } from "./APIConfigForm";
 import { ConnectorInitForm } from "./ConnectorInitForm";
@@ -28,6 +31,8 @@ export { ConditionConfigForm as ForEach };
 export { ConditionConfigForm as While };
 export { ProcessConfigForm as Variable };
 export { ProcessConfigForm as Log };
+export { APIOptions as ConnectorList };
+export { ConnectorForm as Connector };
 export { ProcessConfigForm as Custom };
 export { ProcessConfigForm as DataMapper };
 export { EndConfigForm as Return };

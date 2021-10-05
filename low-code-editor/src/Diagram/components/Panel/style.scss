@@ -39,15 +39,20 @@
     .panel-form-wrapper {
         padding: 1.75rem;
         margin-right: 1px;
+        max-width: 350px;
     } 
+
+    .close-btn-wrap{
+        display: flex;
+        justify-content: flex-end;
+        width: 100%;
+        padding: 5px 5px 0 !important ;
+    }
 
     .panel-close-button {
         width: 12px;
         height: 12px;
         padding: 13px;
-        left: 280px;
-        margin-top: 5px !important ;
-        position: relative;
         font-size: 16px;
         stroke-width: 1px;
         stroke: #cbcedb;

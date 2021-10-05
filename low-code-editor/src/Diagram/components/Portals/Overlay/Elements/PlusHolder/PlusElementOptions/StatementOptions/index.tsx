@@ -226,6 +226,26 @@ export function StatementOptions(props: StatementOptionsProps) {
             </Tooltip>
         )
     }
+    const connectorStatement: StatementComponent = {
+        name: "connector",
+        category: 'process',
+        component:
+            (
+                <Tooltip
+                    title={plusHolderStatementTooltipMessages.logStatement.title}
+                    placement="left"
+                    arrow={true}
+                    interactive={true}
+                >
+                    <div className="sub-option enabled" data-testid="addConnector" onClick={onSelectStatement.bind(undefined, "Connector")}>
+                        <div className="icon-wrapper">
+                            <LogIcon />
+                        </div>
+                        <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.connector.title" defaultMessage="Connector" /></div>
+                    </div>
+                </Tooltip>
+            )
+    }
 
     const returnStm: StatementComponent = {
         name: "return",
@@ -330,6 +350,7 @@ export function StatementOptions(props: StatementOptionsProps) {
     statements.push(respondStm);
     statements.push(datamappingStatement);
     statements.push(customStatement);
+    statements.push(connectorStatement);
 
     const initStatements: Statements = {
         statement: statements,

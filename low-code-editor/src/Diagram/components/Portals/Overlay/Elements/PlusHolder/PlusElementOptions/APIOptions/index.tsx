@@ -31,6 +31,7 @@ import {
     START_EXISTING_CONNECTOR_ADD_INSIGHTS
 } from "../../../../../../../models";
 import { addConnectorListToCache, getConnectorListFromCache } from "../../../../../../../utils/st-util";
+import { FormGeneratorProps } from "../../../../../../FormGenerator";
 import { getConnectorIconSVG, getExistingConnectorIconSVG, getFormattedModuleName } from "../../../../../utils";
 import { APIHeightStates } from "../../PlusElements";
 import "../../style.scss";
@@ -57,8 +58,8 @@ export interface ExisitingConnctorComponent {
     component: ReactNode;
     key: string;
 }
-
-export function APIOptions(props: APIOptionsProps) {
+// TODO: need to fix props passing in FormGenerator
+export function APIOptions(props: FormGeneratorProps) {
     const {
         props: { langServerURL, stSymbolInfo, currentFile },
         api: {
@@ -73,7 +74,7 @@ export function APIOptions(props: APIOptionsProps) {
             }
         }
     } = useContext(Context);
-    const { onSelect, collapsed } = props;
+    const { onSelect, collapsed } = props.configOverlayFormStatus.formArgs as APIOptionsProps;
     const [selectedContName, setSelectedContName] = useState("");
     const [centralConnectors, setCentralConnectors] = useState<Connector[]>();
     const [localConnectors, setLocalConnectors] = useState<Connector[]>();
@@ -257,7 +258,7 @@ export function APIOptions(props: APIOptionsProps) {
     const existingConnectorComponents: ReactNode[] = getExistingConnectorComponents();
 
     return (
-        <div onWheel={preventDiagramScrolling} className="connector-option-holder" >
+        <div onWheel={preventDiagramScrolling} className="connector-option-holder element-options no-margin" >
             { isExistingConnectors &&
                 (
                     <>
