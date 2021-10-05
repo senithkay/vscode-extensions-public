@@ -80,6 +80,7 @@ export function ViewContainer(props: ViewProps) {
 
     return (
         <div className={overlayClasses.App}>
+            <div className={overlayClasses.titleLine}/>
             <div className={overlayClasses.AppContentPane}>
                 <ModelContext.Provider
                     value={{

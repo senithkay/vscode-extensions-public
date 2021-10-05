@@ -358,6 +358,13 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         exprEditor = <FormControl data-testid="property-form">
             {!isCodeEditorActive ? (
                 <div>
+                    <div className={classes.formTitleWrapper}>
+                        <div className={classes.mainTitleWrapper}>
+                            <Typography variant="h4">
+                                <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.statementEditor.title" defaultMessage="Statement Editor" /></Box>
+                            </Typography>
+                        </div>
+                    </div>
                     <ViewContainer
                         kind="DefaultString" // TODO: Derive the kind from the user input
                         label="Variable Statement"

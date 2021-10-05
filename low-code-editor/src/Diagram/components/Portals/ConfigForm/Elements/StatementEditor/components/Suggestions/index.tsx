@@ -48,7 +48,7 @@ export function Suggestions(props: SuggestionsProps) {
                 (
                     (suggestion.kind === "PlusToken") ?
                     <button
-                        className={overlayClasses.AppSuggestionButtons}
+                        className={overlayClasses.suggestionButton}
                         key={index}
                         onClick={() => onClickOperatorSuggestion(suggestion)}
                     >
@@ -56,7 +56,7 @@ export function Suggestions(props: SuggestionsProps) {
                     </button>
                     :
                     <button
-                        className={overlayClasses.AppSuggestionButtons}
+                        className={overlayClasses.suggestionButton}
                         key={index}
                         onClick={() => onClickOperatorSuggestion(suggestion)}
                         disabled={true}
@@ -69,7 +69,7 @@ export function Suggestions(props: SuggestionsProps) {
                 (
                     (suggestion.value === c.ARITHMETIC  || suggestion.value === c.STRING_LITERAL) ?
                     <button
-                        className={overlayClasses.AppSuggestionButtons}
+                        className={overlayClasses.suggestionButton}
                         key={index}
                         onClick={() => onClickExpressionSuggestion(suggestion.value)}
                     >
@@ -77,7 +77,7 @@ export function Suggestions(props: SuggestionsProps) {
                     </button>
                     :
                     <button
-                        className={overlayClasses.AppSuggestionButtons}
+                        className={overlayClasses.suggestionButton}
                         key={index}
                         onClick={() => onClickExpressionSuggestion(suggestion.value)}
                         disabled={true}

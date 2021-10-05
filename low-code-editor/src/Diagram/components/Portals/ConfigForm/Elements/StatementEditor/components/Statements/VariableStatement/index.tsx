@@ -54,7 +54,7 @@ export function VariableStatement(props: VariableStatementProps) {
                     {type + " " + varName + " = "}
                 </span>
                 <button
-                    className={overlayClasses.AppTemplateButton}
+                    className={overlayClasses.expressionElement}
                     onClick={onClickOnRootExpression}
                 >
                     {component}

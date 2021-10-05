@@ -43,7 +43,7 @@ export function IfStatement(props: IfStatementProps) {
                     {"if"}
                 </span>
                 <button
-                    className={overlayClasses.AppTemplateButton}
+                    className={overlayClasses.expressionElement}
                     onClick={onClickOnRootExpression}
                 >
                     {component}
