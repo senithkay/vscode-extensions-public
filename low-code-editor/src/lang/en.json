@@ -508,5 +508,6 @@
     "lowcode.develop.moduleConstruct.HTTP.selectListener": "Select listener :",
     "lowcode.develop.moduleConstruct.HTTP.typeServiceBasePath": "Service Base Path :",
     "lowcode.develop.connectorForms.HTTP.listenerPortNumber": "Listener Port :",
-    "lowcode.develop.connectorForms.HTTP.listenerName": "Listener Name :"
+    "lowcode.develop.connectorForms.HTTP.listenerName": "Listener Name :",
+    "lowcode.develop.connectorForms.HTTP.configureNewListener": "Configure Listener :"
 }

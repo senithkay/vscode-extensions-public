@@ -10,6 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
 import React, { useReducer } from "react";
 import { FormattedMessage } from "react-intl";
 
@@ -21,6 +22,7 @@ import { PrimaryButton } from "../../../../../../../../components/Buttons/Primar
 import { useDiagramContext } from "../../../../../../../../Contexts/Diagram";
 import { STModification } from "../../../../../../../../Definitions";
 import { isServicePathValid } from "../../../../../../../../utils/validator";
+import { createImportStatement, createServiceDeclartion } from "../../../../../../../utils/modification-util";
 import { DraftUpdatePosition } from "../../../../../../../view-state/draft";
 import { SecondaryButton } from "../../../../Elements/Button/SecondaryButton";
 import { SelectDropdownWithButton } from "../../../../Elements/DropDown/SelectDropdownWithButton";
@@ -28,7 +30,6 @@ import { FormTextInput } from "../../../../Elements/TextField/FormTextInput";
 import { useStyles as useFormStyles } from "../../../style";
 
 import { ListenerConfigForm } from "./ListenerConfigForm";
-import { createServiceDeclartion } from "../../../../../../../utils/modification-util";
 
 interface HttpServiceFormProps {
     model?: STNode;
@@ -119,8 +120,14 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         .map(([key, value]) => key);
 
     const listenerSelectionCustomProps = {
-        disableCreateNew: false, values: listenerList,
+        disableCreateNew: false, values: listenerList || [],
     }
+
+    React.useEffect(() => {
+        if (listenerList.length === 0) {
+            dispatch({ type: ServiceConfigActionTypes.CREATE_NEW_LISTENER });
+        }
+    }, []);
 
     const onListenerSelect = (listenerName: string) => {
         if (listenerName === 'Create New') {
@@ -135,7 +142,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
     }
 
     const handleListenerDefModeChange = (mode: string[]) => {
-        dispatch({ type: ServiceConfigActionTypes.DEFINE_LISTENER_INLINE, payload: mode.length > 0 })
+        dispatch({ type: ServiceConfigActionTypes.DEFINE_LISTENER_INLINE, payload: mode.length === 0 })
     }
 
     const onListenerNameChange = (listenerName: string) => {
@@ -143,11 +150,15 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
     }
 
     const onListenerPortChange = (listenerPort: string) => {
-        dispatch({ type: ServiceConfigActionTypes.SET_LISTENER_NAME, payload: listenerPort })
+        dispatch({ type: ServiceConfigActionTypes.SET_LISTENER_PORT, payload: listenerPort })
     }
 
     const handleOnSave = () => {
-        onSave([createServiceDeclartion(state, targetPosition)]);
+
+        onSave([
+            createImportStatement('ballerina', 'http', { column: 0, line: 0 }),
+            createServiceDeclartion(state, targetPosition)
+        ]);
         onCancel();
     }
 
@@ -164,24 +175,36 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
 
     const saveBtnDisabled = isServiceConfigValid(state);
 
-
     return (
         <>
             <div className={formClasses.labelWrapper}>
                 <FormHelperText className={formClasses.inputLabelForRequired}>
-                    <FormattedMessage
-                        id="lowcode.develop.connectorForms.HTTP.selectlListener"
-                        defaultMessage="Select Listener :"
-                    />
+                    {
+                        listenerList.length > 0 ?
+                            (
+                                <FormattedMessage
+                                    id="lowcode.develop.connectorForms.HTTP.selectlListener"
+                                    defaultMessage="Select Listener :"
+                                />
+                            )
+                            : (
+                                <FormattedMessage
+                                    id="lowcode.develop.connectorForms.HTTP.configureNewListener"
+                                    defaultMessage="Configure Listener :"
+                                />
+                            )
+                    }
                 </FormHelperText>
                 <FormHelperText className={formClasses.starLabelForRequired}>*</FormHelperText>
             </div>
-            <SelectDropdownWithButton
-                customProps={listenerSelectionCustomProps}
-                onChange={onListenerSelect}
-                placeholder="Select Property"
-                defaultValue={!state.createNewListener ? state.listenerConfig.listenerName : 'Create New'}
-            />
+            {listenerList.length > 0 && (
+                <SelectDropdownWithButton
+                    customProps={listenerSelectionCustomProps}
+                    onChange={onListenerSelect}
+                    placeholder="Select Property"
+                    defaultValue={!state.createNewListener ? state.listenerConfig.listenerName : 'Create New'}
+                />
+            )}
             {state.createNewListener && listenerConfigForm}
             <div className={formClasses.labelWrapper}>
                 <FormHelperText className={formClasses.inputLabelForRequired}>
@@ -197,11 +220,8 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
                 onChange={onBasePathChange}
                 customProps={{
                     validate: isServicePathValid,
-                    // isErrored: resProps.isPathDuplicated || duplicatedPathsInEdit,
-                    // startAdornment: '/'
+                    startAdornment: '/'
                 }}
-            // errorMessage={resProps.isPathDuplicated || duplicatedPathsInEdit ? pathDuplicateErrorMessage : isValidPath ? "" : pathErrorMessage}
-            // placeholder={pathPlaceholder}
             />
             <div className={formClasses.wizardBtnHolder}>
                 <SecondaryButton

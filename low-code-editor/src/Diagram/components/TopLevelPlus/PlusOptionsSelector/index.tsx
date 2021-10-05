@@ -64,9 +64,8 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
     }
 
     const handleOnSave = (modifications: STModification[]) => {
-        // todo: handle save logic
-        console.log('modification >>>', modifications);
         modifyDiagram(modifications);
+        onClose();
     }
 
 
