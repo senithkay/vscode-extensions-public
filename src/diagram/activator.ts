@@ -34,9 +34,8 @@ import {
 import { PackageOverviewDataProvider } from '../tree-view';
 import { PALETTE_COMMANDS } from '../project';
 import { sep } from "path";
-import { DiagramOptions } from './model';
+import { DiagramOptions, Member, SyntaxTree } from './model';
 import { readFileSync, writeFileSync } from 'fs';
-import fileUriToPath from 'file-uri-to-path';
 
 const NO_DIAGRAM_VIEWS: string = 'No Ballerina diagram views found!';
 
@@ -250,10 +249,7 @@ export async function refreshDiagramForEditorChange(change: Change) {
 			}
 		}).then(response => {
 			if (response.parseSuccess && response.syntaxTree) {
-				diagramElement = {
-					isDiagram: true, fileUri: change.fileUri, startLine: change.startLine,
-					startColumn: change.startColumn
-				};
+				diagramElement = getChangedElement(response.syntaxTree, change);
 			}
 		});
 	}
@@ -291,7 +287,7 @@ function performDidOpen() {
 		return;
 	}
 	if (tempUri && currentDocumentURI !== tempUri!) {
-		const content: string = readFileSync(fileUriToPath(tempUri.toString()), { encoding: 'utf-8' });
+		const content: string = readFileSync(tempUri.fsPath, { encoding: 'utf-8' });
 		langClient.didOpen({
 			textDocument: {
 				uri: tempUri.toString(),
@@ -302,4 +298,54 @@ function performDidOpen() {
 		});
 		currentDocumentURI = tempUri;
 	}
+}
+
+function getChangedElement(st: SyntaxTree, change: Change): DiagramOptions {
+	if (!st.members) {
+		return { isDiagram: false };
+	}
+
+	const member: Member[] = st.members.filter(member => {
+		return isWithinRange(member, change);
+	});
+
+	if (member.length == 0) {
+		return { isDiagram: false };
+	}
+
+	if (member[0].kind === 'FunctionDefinition') {
+		return {
+			isDiagram: true, fileUri: change.fileUri, startLine: member[0].functionName?.position.startLine,
+			startColumn: member[0].functionName?.position.startColumn
+		};
+	} else if (member[0].kind === 'ServiceDeclaration') {
+		for (let ri = 0; ri < member[0].members.length; ri++) {
+			const resource = member[0].members[ri];
+			if (isWithinRange(resource, change)) {
+				return {
+					isDiagram: true, fileUri: change.fileUri, startLine: resource.functionName?.position.startLine,
+					startColumn: resource.functionName?.position.startColumn
+				};
+			}
+		}
+		return {
+			isDiagram: true, fileUri: change.fileUri, startLine: member[0].position.startLine,
+			startColumn: member[0].position.startColumn
+		};
+
+	} else if (member[0].kind === 'ListenerDeclaration' || member[0].kind === 'ModuleVarDecl' ||
+		member[0].kind === 'TypeDefinition' || member[0].kind === 'ConstDeclaration' ||
+		member[0].kind === 'EnumDeclaration' || member[0].kind === 'ClassDefinition') {
+		return {
+			isDiagram: true, fileUri: change.fileUri, startLine: member[0].position.startLine,
+			startColumn: member[0].position.startColumn
+		};
+	}
+	return { isDiagram: false };
+}
+
+function isWithinRange(member: Member, change: Change) {
+	return (member.position.startLine < change.startLine || (member.position.startLine === change.startLine &&
+		member.position.startColumn <= change.startColumn)) && (member.position.endLine > change.startLine ||
+			(member.position.endLine === change.startLine && member.position.endColumn >= change.startColumn));
 }
