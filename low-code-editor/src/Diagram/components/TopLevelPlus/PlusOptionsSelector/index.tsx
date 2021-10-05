@@ -53,7 +53,7 @@ const classMemberEntries: PlusMenuEntry[] = [
 
 export const PlusOptionsSelector = (props: PlusOptionsProps) => {
     const { onClose, targetPosition, kind } = props;
-    const { props: { stSymbolInfo } } = useDiagramContext();
+    const { props: { stSymbolInfo }, api: { code: { modifyDiagram } } } = useDiagramContext();
     const [selectedOption, setSelectedOption] = useState<PlusMenuEntry>(undefined);
 
     let menuEntries: PlusMenuEntry[] = [];
@@ -65,6 +65,8 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
 
     const handleOnSave = (modifications: STModification[]) => {
         // todo: handle save logic
+        console.log('modification >>>', modifications);
+        modifyDiagram(modifications);
     }
 
 

@@ -141,7 +141,7 @@ export function isPathDuplicated(resources: Resource[]): boolean {
 }
 
 export function isServicePathValid(servicePath: string): boolean {
-    const servicePathRegex = /^((\/)?([a-zA-Z0-9_-]+)?)+\/?/g;
+    const servicePathRegex = /^\/?[\S\w-\/]+$/g;
     return servicePath === "" || servicePathRegex.test(servicePath);
 }
 
@@ -156,7 +156,7 @@ export function isAllEmpty(emptyFields: Map<string, boolean>): boolean {
 }
 
 export function isAllValid(validFields: Map<string, boolean>, emptyFields: Map<string, boolean>,
-    isAllChildrenOptional: boolean, isOptional: boolean, isRoot: boolean): boolean {
+                           isAllChildrenOptional: boolean, isOptional: boolean, isRoot: boolean): boolean {
     let result = true;
     const allEmpty = isAllEmpty(emptyFields);
     if (!isRoot && isOptional && allEmpty) {

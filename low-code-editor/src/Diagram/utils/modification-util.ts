@@ -14,6 +14,7 @@ import { DraftUpdateStatement } from "../../api/models";
 import { FormField } from "../../ConfigurationSpec/types";
 import { STModification } from "../../Definitions/lang-client-extended";
 import { HeaderObjectConfig } from "../components/ConnectorExtensions/HTTPWizard/HTTPHeaders";
+import { HTTPServiceConfigState } from "../components/Portals/ConfigForm/forms/ServiceConfigForm/forms/HttpService";
 import { getFormattedModuleName, getParams } from "../components/Portals/utils";
 import { DraftInsertPosition, DraftUpdatePosition } from "../view-state/draft";
 /* tslint:disable ordered-imports */
@@ -143,8 +144,8 @@ export function updatePropertyStatement(property: string, targetPosition: DraftU
 }
 
 export function updateResourceSignature(method: string, path: string, queryParam: string, payload: string,
-                                        isCaller: boolean, isRequest: boolean, addReturn: string,
-                                        targetPosition: DraftUpdateStatement): STModification {
+    isCaller: boolean, isRequest: boolean, addReturn: string,
+    targetPosition: DraftUpdateStatement): STModification {
     const resourceSignature: STModification = {
         startLine: targetPosition.startLine,
         startColumn: targetPosition.startColumn,
@@ -158,7 +159,7 @@ export function updateResourceSignature(method: string, path: string, queryParam
             "PAYLOAD": payload,
             "ADD_CALLER": isCaller,
             "ADD_REQUEST": isRequest,
-            "ADD_RETURN": ((addReturn) ?  addReturn + "|error?" : "error?")
+            "ADD_RETURN": ((addReturn) ? addReturn + "|error?" : "error?")
         }
     };
 
@@ -484,6 +485,49 @@ export function createCheckedPayloadFunctionInvocation(variable: string, type: s
     return checkedPayloadInvo;
 }
 
+export function createServiceDeclartion(config: HTTPServiceConfigState, targetPosition: DraftUpdatePosition): STModification {
+    const { serviceBasePath, listenerConfig: { formVar, listenerName, listenerPort }, createNewListener } = config;
+
+    const modification: STModification = {
+        startLine: targetPosition.startLine,
+        endLine: targetPosition.startLine,
+        startColumn: 0,
+        endColumn: 0,
+        type: ''
+    };
+
+    if (createNewListener && formVar) {
+        return {
+            ...modification,
+            type: 'SERVICE_AND_LISTENER_DECLARATION',
+            config: {
+                'LISTENER_NAME': listenerName,
+                'PORT': listenerPort,
+                'BASE_PATH': serviceBasePath,
+            }
+        }
+    } else if (createNewListener && !formVar) {
+        return {
+            ...modification,
+            type: 'SERVICE_DECLARATION_WITH_NEW_INLINE_LISTENER',
+            config: {
+                'PORT': listenerPort,
+                'BASE_PATH': serviceBasePath,
+            }
+        }
+
+    } else {
+        return {
+            ...modification,
+            type: 'SERVICE_DECLARATION_WITH_SHARED_LISTENER',
+            config: {
+                'LISTENER_NAME': listenerName,
+                'BASE_PATH': serviceBasePath,
+            }
+        }
+    }
+}
+
 export function updateCheckedPayloadFunctionInvocation(variable: string, type: string, response: string, payload: string, targetPosition: DraftUpdatePosition): STModification {
     const checkedPayloadInvo: STModification = {
         startLine: targetPosition.startLine,
@@ -515,7 +559,7 @@ export function removeStatement(targetPosition: DraftUpdatePosition): STModifica
 }
 
 export function createHeaderObjectDeclaration(headerObject: HeaderObjectConfig[], requestName: string, operation: string,
-                                              message: FormField, targetPosition: DraftInsertPosition, modifications: STModification[]) {
+    message: FormField, targetPosition: DraftInsertPosition, modifications: STModification[]) {
     if (operation !== "forward") {
         let httpRequest: string = "http:Request ";
         httpRequest += requestName;
@@ -556,7 +600,7 @@ export function createHeaderObjectDeclaration(headerObject: HeaderObjectConfig[]
 }
 
 export function updateHeaderObjectDeclaration(headerObject: HeaderObjectConfig[], requestName: string, operation: string,
-                                              message: FormField, targetPosition: DraftUpdatePosition): STModification {
+    message: FormField, targetPosition: DraftUpdatePosition): STModification {
     let headerDecl: string = "";
     if (operation !== "forward") {
         if (operation === "post" || operation === "put" || operation === "delete" || operation === "patch") {

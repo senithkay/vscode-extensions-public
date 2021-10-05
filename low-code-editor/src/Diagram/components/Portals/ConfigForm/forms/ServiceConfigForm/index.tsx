@@ -26,20 +26,21 @@ import { ServiceTypeSelector } from "./ServiceTypeSelector";
 interface ServiceConfigFormProps {
     model?: STNode;
     targetPosition?: DraftUpdatePosition;
-    onClose: () => void;
+    onCancel: () => void;
     onSave: (modifications: STModification[]) => void;
 }
 
 export function ServiceConfigForm(props: ServiceConfigFormProps) {
     const formClasses = useFormStyles();
-    const { model, targetPosition, onSave, onClose } = props;
+    const { model, targetPosition, onSave, onCancel } = props;
     const [serviceType, setServiceType] = useState<string>(undefined);
+
 
     let configForm = <div />;
 
     switch (serviceType) {
         case 'HTTP':
-            configForm = <HttpServiceForm onSave={onSave} onCancel={onClose} model={model} targetPosition={targetPosition} />
+            configForm = <HttpServiceForm onSave={onSave} onCancel={onCancel} model={model} targetPosition={targetPosition} />
             break;
 
     }

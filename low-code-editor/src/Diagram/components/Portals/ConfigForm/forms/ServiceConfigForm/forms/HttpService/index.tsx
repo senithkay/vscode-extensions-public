@@ -28,6 +28,7 @@ import { FormTextInput } from "../../../../Elements/TextField/FormTextInput";
 import { useStyles as useFormStyles } from "../../../style";
 
 import { ListenerConfigForm } from "./ListenerConfigForm";
+import { createServiceDeclartion } from "../../../../../../../utils/modification-util";
 
 interface HttpServiceFormProps {
     model?: STNode;
@@ -39,7 +40,7 @@ interface HttpServiceFormProps {
 const HTTP_MODULE_QUALIFIER = 'http';
 const CREATE_NEW_LISTENER_OPTION = 'Create New'
 
-interface HTTPServiceConfigState {
+export interface HTTPServiceConfigState {
     serviceBasePath: string;
     listenerConfig: {
         formVar: boolean,
@@ -106,9 +107,10 @@ const defaultState: HTTPServiceConfigState = {
 
 export function HttpServiceForm(props: HttpServiceFormProps) {
     const formClasses = useFormStyles();
-    const { model, targetPosition } = props;
+    const { model, targetPosition, onCancel, onSave } = props;
     const { props: { stSymbolInfo } } = useDiagramContext();
     const [state, dispatch] = useReducer(serviceConfigReducer, defaultState);
+
 
     const listenerList = Array.from(stSymbolInfo.listeners)
         .filter(([key, value]) =>
@@ -144,6 +146,11 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         dispatch({ type: ServiceConfigActionTypes.SET_LISTENER_NAME, payload: listenerPort })
     }
 
+    const handleOnSave = () => {
+        onSave([createServiceDeclartion(state, targetPosition)]);
+        onCancel();
+    }
+
     const listenerConfigForm = (
         <div className={classNames(formClasses.groupedForm, formClasses.marginTB)}>
             <ListenerConfigForm
@@ -155,7 +162,8 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         </div>
     );
 
-    // const saveBtnDisabled = 
+    const saveBtnDisabled = isServiceConfigValid(state);
+
 
     return (
         <>
@@ -199,15 +207,34 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
                 <SecondaryButton
                     text="Cancel"
                     fullWidth={false}
-                // onClick={onCancel}
+                    onClick={onCancel}
                 />
                 <PrimaryButton
                     text="Save"
-                    // disabled={}
+                    disabled={!saveBtnDisabled}
                     fullWidth={false}
-                // onClick={onSave}
+                    onClick={handleOnSave}
                 />
             </div>
         </>
     )
+}
+
+function isServiceConfigValid(config: HTTPServiceConfigState): boolean {
+    const { createNewListener, serviceBasePath, listenerConfig: { formVar: fromVar, listenerName, listenerPort } } = config;
+
+    const servicePathValidity = serviceBasePath.length === 0 || isServicePathValid(serviceBasePath);
+    const portNumberRegex = /^\d+$/;
+    const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
+
+    if (createNewListener && fromVar) {
+        return servicePathValidity
+            && listenerPort.length > 0 && portNumberRegex.test(listenerPort)
+            && listenerName.length > 0 && nameRegex.test(listenerName);
+    } else if (createNewListener && !fromVar) {
+        return servicePathValidity
+            && listenerPort.length > 0 && portNumberRegex.test(listenerPort)
+    } else {
+        return serviceBasePath && listenerName.length > 0;
+    }
 }
