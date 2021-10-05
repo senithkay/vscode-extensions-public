@@ -81,7 +81,7 @@ export class ChoreoOAuth {
 
                     // To bypass the self signed server error.
                     process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
-                    axios({
+                    await axios({
                         method: "post",
                         url: CHOREO_AUTH_TOKEN_URL,
                         headers: {
@@ -135,7 +135,7 @@ export class ChoreoOAuth {
                 vscode.window.showErrorMessage(`Choreo Login Failed: ` + err);
             }
             const htmlFilePath = vscode.Uri.file(
-                path.join(this.context.extensionPath, "resources", "pages", "choreo-login-" + status + ".html"),
+                path.join(this.context.extensionPath, "resources", "pages", "choreo-login-" + status + ".html")
             );
             const successHtml = fs.readFileSync(htmlFilePath.fsPath, "utf8");
             res.send(successHtml);
@@ -150,7 +150,7 @@ function getCookie(name: string, cookie: string) {
     if (parts.length === 2) {
         return name + "=" + parts.pop()?.split(';').shift();
     }
-  }
+}
 
 async function activate(context: vscode.ExtensionContext) {
     commands.registerCommand(PALETTE_COMMANDS.CHOREO_SIGNIN, async () => {

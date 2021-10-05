@@ -32,6 +32,7 @@ export enum PALETTE_COMMANDS {
     TEST = 'ballerina.project.test',
     PASTE_JSON_AS_RECORD = 'ballerina.pasteAsRecord',
     CHOREO_SIGNIN = 'ballerina.choreo.signin',
+    CHOREO_SIGNOUT = 'ballerina.choreo.signout'
 }
 
 export enum BALLERINA_COMMANDS {
