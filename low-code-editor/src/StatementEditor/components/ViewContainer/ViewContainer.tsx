@@ -42,10 +42,12 @@ interface ViewProps {
 }
 
 export function ViewContainer(props: ViewProps) {
-    const { kind, label, userInputs, validate, isMutationInProgress, validForm, onCancel, onSave, onChange } = props;
+    const { kind, label, formArgs, userInputs, validate, isMutationInProgress, validForm, onCancel, onSave, onChange } = props;
     const intl = useIntl();
 
-    const defaultModel = getDefaultModel(kind);
+
+    const defaultModel = formArgs.model ? formArgs.model.initializer : getDefaultModel(kind);
+
     const [initialModel] = useState({...defaultModel});
 
     const [onCancelClicked, setOnCancel] = useState(false);

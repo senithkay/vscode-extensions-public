@@ -101,7 +101,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     const [variableExpression, setVariableExpression] = useState<string>(varExpression);
     const [editorFocus, setEditorFocus] = useState<boolean>(false);
     const [isStmtEditor, setIsStmtEditor] = useState(false);
-    const [isStringType, setIsStringType] = useState(false);
+    const [isStringType, setIsStringType] = useState(initialModelType === 'string');
 
     if (defaultVarName === undefined) {
         setDefaultVarName(variableName);
