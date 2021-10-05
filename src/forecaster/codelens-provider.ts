@@ -23,12 +23,8 @@ import {
     ProviderResult, Range, TextDocument, window, workspace
 } from 'vscode';
 import { BAL_TOML } from '../project';
-import { log } from '../utils';
-import { DataLabel, FORECAST_PERFORMANCE_COMMAND as FORECAST_PERFORMANCE_COMMAND, SHOW_GRAPH_COMMAND } from './activator';
-
-enum ANALYZE_TYPE {
-    ADVANCED = "advanced",
-}
+import { FORECAST_PERFORMANCE_COMMAND as FORECAST_PERFORMANCE_COMMAND, SHOW_GRAPH_COMMAND } from './activator';
+import { CurrentResource, DataLabel, Member, SyntaxTree } from './model';
 
 enum CODELENSE_TYPE {
     ENDPOINT,
@@ -47,6 +43,8 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
 
     static onDidChangeCodeLenses: any;
     private static dataLabels: DataLabel[] = [];
+    private static currentResource: CurrentResource|undefined;
+    private static graphData: JSON;
 
     constructor(extensionInstance: BallerinaExtension) {
         ExecutorCodeLensProvider.onDidChangeCodeLenses = this._onDidChangeCodeLenses;
@@ -67,8 +65,16 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
     }
 
     public static addDataLabels(data: DataLabel[]) {
-        ExecutorCodeLensProvider.dataLabels = data;
-        ExecutorCodeLensProvider.onDidChangeCodeLenses.fire();
+        this.dataLabels = data;
+        this.onDidChangeCodeLenses.fire();
+    }
+
+    public static setCurrentResource(currentResource: CurrentResource|undefined) {
+        this.currentResource = currentResource;
+    }
+
+    public static setGraphData(graphData: JSON) {
+        this.graphData = graphData;
     }
 
     provideCodeLenses(_document: TextDocument, _token: CancellationToken): ProviderResult<any[]> {
@@ -78,33 +84,48 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
     private async getCodeLensList(): Promise<CodeLens[]> {
         let codeLenses: CodeLens[] = [];
         const activeEditor = window.activeTextEditor;
-        const uri = activeEditor?.document.uri.fsPath.toString();
+        const uri = activeEditor?.document.uri.toString();
 
         if (uri && langClient) {
-            // add codelenses to endpoints
-            await langClient.getActionInvocations({
+            // add codelenses to resources
+            await langClient.getSyntaxTree({
                 documentIdentifier: {
                     uri: uri
                 }
             }).then(async response => {
-                if (response) {
-                    const json = JSON.parse(response);
-                    log(json);
-                    for (let endpoint in json.endpoints) {
-                        const pos = json.endpoints[endpoint].pos;
-                        if (pos.filePath == window.activeTextEditor!.document.fileName.split("/").pop()) {
-                            const startLine = pos.startLine;
-                            const endLine = pos.endLine;
+                const syntaxTree: SyntaxTree = response.syntaxTree;
+                if (!syntaxTree.members) {
+                    return codeLenses;
+                }
+                const members: Member[] = syntaxTree.members;
+                for(let i = 0; i < members.length; i++) {
+                    if (members[i].kind === 'ServiceDeclaration') {
+                        for (let ri = 0; ri < members[i].members.length; ri++) {
+                            const serviceMembers: Member[] = members[i].members;
+                            if (serviceMembers[ri].kind === 'ResourceAccessorDefinition') {
+                            const pos = serviceMembers[ri].position;
+
+                            let latency = "";
+                            const currentResource = ExecutorCodeLensProvider.currentResource;
+                            if (currentResource && 
+                                currentResource.getPosition.start.line == pos.startLine &&
+                                currentResource.getPosition.end.line == pos.endLine &&
+                                currentResource.getPosition.start.character == pos.startColumn &&
+                                currentResource.getPosition.end.character == pos.endColumn) {
+                                    latency = currentResource.getLatency.toString();
+                                    ExecutorCodeLensProvider.setCurrentResource(undefined);
+                                }
+
+                            const range:Range = new Range(pos.startLine, pos.startColumn,
+                                pos.endLine, pos.endColumn);
 
                             codeLenses.push(this.createCodeLens(CODELENSE_TYPE.ENDPOINT,
-                                startLine.line, startLine.offset,
-                                endLine.line, endLine.offset, response, ANALYZE_TYPE.ADVANCED));
+                                pos.startLine, pos.startColumn,
+                                pos.endLine, pos.endColumn, range, latency));
+                            }
                         }
                     }
-
                 }
-            }, _error => {
-                return codeLenses;
             });
         }
 
@@ -118,8 +139,8 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
 
                     codeLenses.push(this.createCodeLens(CODELENSE_TYPE.INVOCATION,
                         startLine.line, startLine.character,
-                        endLine.line, endLine.character, "response", ANALYZE_TYPE.ADVANCED,
-                        label.getLabel.toString()));
+                        endLine.line, endLine.character, 
+                        ExecutorCodeLensProvider.graphData, label.getLabel.toString()));
                 }
             }
 
@@ -129,15 +150,15 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
     }
 
     private createCodeLens(type: CODELENSE_TYPE, startLine, startColumn, endLine, endColumn,
-        data, execType: ANALYZE_TYPE, latency = ""): CodeLens {
+        data, latency = "null"): CodeLens {
 
         const codeLens = new CodeLens(new Range(startLine, startColumn, endLine, endColumn));
         codeLens.command = {
-            title: type == CODELENSE_TYPE.ENDPOINT ? "View Performance" : `Forecasted latency: ${latency} ms`,
+            title: latency == "" ? "View Performance" : `Forecasted latency: ${latency} ms`,
             tooltip: type == CODELENSE_TYPE.ENDPOINT ? "Forecast performance using AI" :
                 `Click here to view the performance graph.`,
             command: type == CODELENSE_TYPE.ENDPOINT ? FORECAST_PERFORMANCE_COMMAND : SHOW_GRAPH_COMMAND,
-            arguments: type == CODELENSE_TYPE.ENDPOINT ? [data, execType] : [data]
+            arguments: [data]
         };
         return codeLens;
     }
