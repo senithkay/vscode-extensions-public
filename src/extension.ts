@@ -29,6 +29,7 @@ import { activate as activatePackageOverview, PackageOverviewDataProvider } from
 import { activate as activateTesting } from './testing/activator';
 import { StaticFeature, DocumentSelector, ServerCapabilities, InitializeParams } from 'vscode-languageclient';
 import { ExtendedClientCapabilities, ExtendedLangClient } from './core/extended-language-client';
+import { activate as activatePerformanceForecaster } from './forecaster';
 import { debug, log } from './utils';
 
 let langClient: ExtendedLangClient;
@@ -80,6 +81,7 @@ export function activate(context: ExtensionContext): Promise<any> {
         // Enable Ballerina Project related features
         activateProjectFeatures();
         activateEditorSupport(ballerinaExtInstance);
+        activatePerformanceForecaster(ballerinaExtInstance);
 
         if (ballerinaExtInstance.isSwanLake()) {
             // Enable Ballerina Telemetry listener
