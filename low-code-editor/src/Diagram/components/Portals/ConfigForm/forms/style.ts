@@ -27,13 +27,6 @@ export const useStyles = makeStyles((theme: Theme) =>
                 margin: '0 !important',
             }
         },
-        stmtEditorFormControl: {
-            width: "100%",
-            height: "100%",
-            "& .MuiFormControl-marginNormal": {
-                margin: '0 !important',
-            },
-        },
         fullWidth: {
             width: "100%",
             "& .MuiFormControl-marginNormal": {
@@ -401,7 +394,6 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         formWrapper: {
             width: '100%',
-            height: '85%',
             flexDirection: "row"
         },
         oauthWrapper: {

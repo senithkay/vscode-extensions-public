@@ -234,18 +234,19 @@ export function AddRespondForm(props: RespondFormProps) {
     if (isStmtEditor) {
         exprEditor =
             (
-            <FormControl data-testid="property-form" className={formClasses.stmtEditorFormControl}>
-                {!isCodeEditorActive ? (
-                    <div>
-                        <ViewContainer
-                            kind="DefaultBoolean"
-                            label="Variable Statement"
-                            formArgs={formArgs}
-                            onCancel={handleStmtEditorCancel}
-                        />
-                    </div>
-                ) : null}
-            </FormControl>
+                <FormControl data-testid="property-form">
+                    {!isCodeEditorActive ? (
+                        <div>
+                            // TODO: Send proper props according to the form type
+                            <ViewContainer
+                                kind="DefaultBoolean"
+                                label="Variable Statement"
+                                formArgs={formArgs}
+                                onCancel={handleStmtEditorCancel}
+                            />
+                        </div>
+                    ) : null}
+                </FormControl>
             );
     }
 

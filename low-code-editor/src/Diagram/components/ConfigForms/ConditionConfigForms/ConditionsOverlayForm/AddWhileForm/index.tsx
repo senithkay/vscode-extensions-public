@@ -161,16 +161,17 @@ export function AddWhileForm(props: WhileProps) {
     if (isStmtEditor) {
         exprEditor =
             (
-            <FormControl data-testid="property-form" className={classes.stmtEditorFormControl}>
-                <div>
-                    <ViewContainer
-                        kind="DefaultBoolean"
-                        label="Variable Statement"
-                        formArgs={formArgs}
-                        onCancel={handleStmtEditorCancel}
-                    />
-                </div>
-            </FormControl>
+                <FormControl data-testid="property-form">
+                    <div>
+                        // TODO: Send proper props according to the form type
+                        <ViewContainer
+                            kind="DefaultBoolean"
+                            label="Variable Statement"
+                            formArgs={formArgs}
+                            onCancel={handleStmtEditorCancel}
+                        />
+                    </div>
+                </FormControl>
             );
     }
 
