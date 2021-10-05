@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 Inc. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -19,11 +19,13 @@ export const recordStyles = makeStyles((theme: Theme) =>
             width: "100%",
             border: "1px solid #EEEEEE",
             backgroundColor: "#F7F8FB",
-            padding: theme.spacing(2),
-            borderRadius: 4
+            padding: `15.5px 24px`,
+            marginTop: 15.5
         },
         itemWrapper: {
             display: 'flex',
+            marginLeft: 24,
+            marginRight: 24
         },
         itemLabel: {
             background: 'white',
@@ -41,6 +43,8 @@ export const recordStyles = makeStyles((theme: Theme) =>
         },
         addFieldBtn: {
             outline: "none",
+            marginLeft: 24,
+            marginTop: 10,
             color: "#5567D5",
             fontSize: 12,
             letterSpacing: 0,
@@ -57,6 +61,21 @@ export const recordStyles = makeStyles((theme: Theme) =>
             "& .MuiSvgIcon-root": {
                 height: '18px !important',
             }
+        },
+        recordEditorWrapper: {
+            boxSizing: "border-box",
+            width: "100%",
+            border: "1px solid #EEEEEE",
+            borderRadius: 4
+        },
+        buttonWrapper: {
+            height: 'auto',
+            display: 'flex',
+            justifyContent: 'flex-end',
+            width: '100%',
+            zIndex: 100,
+            paddingTop: '2rem',
+            paddingRight: 24
         },
     }),
 );

@@ -13,14 +13,16 @@
 // tslint:disable: jsx-no-multiline-js
 import React  from 'react';
 
-import { STNode } from "@ballerina/syntax-tree";
+import {RecordTypeDesc, STKindChecker, STNode, TypeDefinition} from "@ballerina/syntax-tree";
 
 import { DraftInsertPosition } from "../../../view-state/draft";
 
+import { Record } from "./Record";
 import { RecordFromJson } from "./RecordFromJson";
+import { getRecordModel } from "./utils";
 
 export interface RecordEditorProps {
-    model?: STNode;
+    model?: TypeDefinition;
     targetPosition?: DraftInsertPosition;
     onCancel?: () => void;
 }
@@ -28,11 +30,19 @@ export interface RecordEditorProps {
 export function RecordEditor(props: RecordEditorProps) {
     const { model, targetPosition, onCancel } = props;
 
+    const recordModel = (STKindChecker.isRecordTypeDesc(model.typeDescriptor) && (targetPosition === undefined)) ?
+        getRecordModel(model.typeDescriptor as RecordTypeDesc, model.typeName.value, false) : null;
+
     return (
         <div>
             {targetPosition && (
                 <div>
                     <RecordFromJson onCancel={onCancel} targetPosition={targetPosition} />
+                </div>
+            )}
+            {model && (
+                <div>
+                    <Record recordModel={recordModel} onCancel={onCancel} onSave={null} />
                 </div>
             )}
         </div>

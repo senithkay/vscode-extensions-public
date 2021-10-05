@@ -20,6 +20,8 @@ import DeleteButton from "../../../assets/icons/DeleteButton";
 import EditButton from "../../../assets/icons/EditButton";
 import RecordIcon from "../../../assets/icons/RecordIcon";
 import { ComponentExpandButton } from "../ComponentExpandButton";
+import { RecordEditor } from "../ConfigForms/RecordEditor";
+import { DiagramOverlay, DiagramOverlayContainer } from "../Portals/Overlay";
 import { TopLevelPlus } from "../TopLevelPlus";
 
 import "./style.scss";
@@ -36,6 +38,7 @@ export function TypeDefinitionComponent(props: TypeDefComponentProps) {
 
     const [isEditable, setIsEditable] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
+    const [formEditInProgress, setFormEditInProgress] = useState(false);
 
     const handleMouseEnter = () => {
         setIsEditable(true);
@@ -45,6 +48,12 @@ export function TypeDefinitionComponent(props: TypeDefComponentProps) {
     };
     const onExpandClick = () => {
         setIsExpanded(!isExpanded);
+    };
+    const handleEditButtonClick = () => {
+        setFormEditInProgress(true);
+    };
+    const handleEditClose = () => {
+        setFormEditInProgress(false);
     };
 
     const component: JSX.Element[] = [];
@@ -85,7 +94,7 @@ export function TypeDefinitionComponent(props: TypeDefComponentProps) {
                     </div>
                     {isEditable && (
                         <div className="record-amendment-options">
-                            <div className="record-edit">
+                            <div className="record-edit" onClick={handleEditButtonClick}>
                                 <EditButton />
                             </div>
                             <div className="record-delete">
@@ -147,14 +156,30 @@ export function TypeDefinitionComponent(props: TypeDefComponentProps) {
     // ToDo : need to fix plus here
     component.push(
         // TODO: Commented until all top level pluses sorted out
-        // <TopLevelPlus
-        //     margin={{top: RECORD_PLUS_OFFSET, bottom: RECORD_PLUS_OFFSET, left: RECORD_MARGIN_LEFT}}
-        //     targetPosition={{line: model.position.endLine + 1, column: model.position.endColumn}}
-        // />
+        <TopLevelPlus
+            margin={{top: RECORD_PLUS_OFFSET, bottom: RECORD_PLUS_OFFSET, left: RECORD_MARGIN_LEFT}}
+            targetPosition={{line: model.position.endLine + 1, column: model.position.endColumn}}
+        />
     )
+
+    if (formEditInProgress) {
+        component.push(
+            <DiagramOverlayContainer divId={"edit-div"} forceRender={formEditInProgress}>
+                <DiagramOverlay
+                    position={{x: 0, y: 0}}
+                    stylePosition='relative'
+                >
+                    <div style={{height: "auto", width: "290px", background: "#fff", border: "1px solid #e6e7ec"}}>
+                        <RecordEditor onCancel={handleEditClose} model={model}/>
+                    </div>
+                </DiagramOverlay>
+            </DiagramOverlayContainer>
+        )
+    }
 
     return (
         <>
+            <div id={"edit-div"} />
             {component}
         </>
     );
