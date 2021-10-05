@@ -19,6 +19,7 @@ import { ConnectorInitForm } from "./ConnectorInitForm";
 import { ScheduleConfigForm } from "./ScheduleConfigForm";
 import { ServiceConfigForm } from './ServiceConfigForm';
 import { WebhookConfigForm } from "./WebhookConfigForm";
+import { FunctionConfigForm } from './FunctionConfigForm'; // TODO: need to rename
 
 export { WebhookConfigForm as webhookConfig };
 export { ScheduleConfigForm as scheduleConfig };
@@ -34,3 +35,4 @@ export { ProcessConfigForm as DataMapper };
 export { EndConfigForm as Return };
 export { EndConfigForm as Respond };
 export { ServiceConfigForm as ServiceDeclaration };
+export { FunctionConfigForm as FunctionDefinition };
