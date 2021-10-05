@@ -259,6 +259,11 @@
                 "category": "Ballerina"
             },
             {
+                "command": "ballerina.choreo.signin",
+                "title": "Choreo Sign In",
+                "category": "Ballerina"
+            },
+            {
                 "command": "ballerina.refreshPackageTree",
                 "title": "Refresh",
                 "icon": {
@@ -337,8 +342,8 @@
                 },
                 {
                     "id": "sessionExplorer",
-                    "name": "Choreo Session Details",
-                    "contextualTitle": "Choreo Session"
+                    "name": "Choreo",
+                    "contextualTitle": "Choreo Session Details"
                 }
             ]
         },
@@ -354,7 +359,7 @@
         "viewsWelcome": [
             {
                 "view": "sessionExplorer",
-                "contents": "No Choreo sessions found.\n[Sign In](command:ballerina.choreo.signin)\nRefer to our documentation to learn more about [Choreo](https://wso2.com/choreo/)."
+                "contents": "Sign In to enable Choreo Features.\n[Sign In](command:ballerina.choreo.signin)\n[Try Anonymously](command:ballerina.choreo.signin)\nRefer to our documentation to learn more about [Choreo](https://wso2.com/choreo/)."
             },
             {
                 "view": "ballerinaPackageTreeView",
@@ -475,7 +480,10 @@
         "vscode-debugadapter-testsupport": "^1.44.0",
         "webpack": "^4.46.0",
         "webpack-cli": "^3.3.3",
-        "yarn": "^1.22.11"
+        "yarn": "^1.22.11",
+        "express": "^4.17.1",
+        "keytar": "^7.7.0",
+        "axios": "0.22.0"
     },
     "extensionPack": [
         "be5invis.toml"
