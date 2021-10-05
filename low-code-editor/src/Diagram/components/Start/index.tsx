@@ -17,6 +17,8 @@ import {
     FunctionBodyBlock,
     FunctionDefinition,
     ModulePart,
+    ObjectMethodDefinition,
+    ResourceAccessorDefinition,
     STKindChecker,
 } from "@ballerina/syntax-tree";
 
@@ -42,7 +44,7 @@ import "./style.scss";
 import { TriggerUpdatedSVG, UPDATE_TRIGGER_SVG_HEIGHT } from "./TriggerUpdatedSVG";
 
 export interface StartButtonProps {
-    model: FunctionDefinition | ModulePart;
+    model: FunctionDefinition | ModulePart | ObjectMethodDefinition | ResourceAccessorDefinition;
 }
 
 export function StartButton(props: StartButtonProps) {
@@ -76,11 +78,13 @@ export function StartButton(props: StartButtonProps) {
         }
     }, [triggerUpdated]);
 
+    const isFunctionKind = model && (STKindChecker.isResourceAccessorDefinition(model)
+        || STKindChecker.isObjectMethodDefinition(model)
+        || STKindChecker.isFunctionDefinition(model));
 
     const [activeTriggerType, setActiveTriggerType] = useState<TriggerType>(triggerType);
     const [dropDownC, setdropDownC] = useState<ReactNode>(undefined);
-    const [showDropDownC, setShowDropDownC] = useState(!STKindChecker.isFunctionDefinition(model)
-        && !isMutationProgress);
+    const [showDropDownC, setShowDropDownC] = useState(!isFunctionKind && !isMutationProgress);
 
     const viewState = model.viewState;
     const cx = viewState.trigger.cx;
@@ -141,9 +145,8 @@ export function StartButton(props: StartButtonProps) {
     }, [])
 
     let block: FunctionBodyBlock;
-    if (model as FunctionDefinition) {
-        const funcModel = model as FunctionDefinition;
-        block = funcModel.functionBody as FunctionBodyBlock;
+    if (model && isFunctionKind) {
+        block = model.functionBody as FunctionBodyBlock;
     }
 
     let triggerText: string;
