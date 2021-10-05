@@ -13,6 +13,7 @@
 import { ConditionConfigForm } from "../../../ConfigForms/ConditionConfigForms";
 import { EndConfigForm } from "../../../ConfigForms/EndConfigForms";
 import { ProcessConfigForm } from "../../../ConfigForms/ProcessConfigForms";
+import { RecordEditor } from "../../../ConfigForms/RecordEditor";
 
 import { APIConfigForm } from "./APIConfigForm";
 import { ConnectorInitForm } from "./ConnectorInitForm";
@@ -32,3 +33,4 @@ export { ProcessConfigForm as Custom };
 export { ProcessConfigForm as DataMapper };
 export { EndConfigForm as Return };
 export { EndConfigForm as Respond };
+export { RecordEditor as RecordEditor };
