@@ -30,7 +30,9 @@ export enum PALETTE_COMMANDS {
     RUN = 'ballerina.project.run',
     SAVE_ALL = 'workbench.action.files.saveFiles',
     TEST = 'ballerina.project.test',
-    PASTE_JSON_AS_RECORD = 'ballerina.pasteAsRecord'
+    PASTE_JSON_AS_RECORD = 'ballerina.pasteAsRecord',
+    CHOREO_SIGNIN = 'ballerina.choreo.signin',
+    CHOREO_SIGNOUT = 'ballerina.choreo.signout'
 }
 
 export enum BALLERINA_COMMANDS {
@@ -67,7 +69,11 @@ export function runCommand(file: BallerinaProject | string, executor: string, cm
     let argsList = '';
     if (args && args.length > 0) {
         args.forEach((arg) => {
-            argsList += arg.concat(' ');
+            try {
+                argsList += arg.concat(' ');
+            } catch (e) {
+                // error
+            }
         });
     }
     let commandText;

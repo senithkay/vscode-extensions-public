@@ -21,7 +21,6 @@ import { ClientCapabilities, LanguageClient } from "vscode-languageclient";
 import { DocumentSymbol, DocumentSymbolParams, SymbolInformation } from "monaco-languageclient";
 import {
     DidOpenParams, DidCloseParams, DidChangeParams, GetSyntaxTreeParams, GetSyntaxTreeResponse,
-    BallerinaSyntaxTreeModifyRequest, BallerinaSyntaxTreeResponse,
     BallerinaConnectorsResponse, BallerinaConnectorRequest, BallerinaConnectorResponse, BallerinaRecordRequest,
     BallerinaRecordResponse, BallerinaSTModifyRequest, BallerinaSTModifyResponse, TriggerModifyRequest,
     PublishDiagnosticsParams,
@@ -183,20 +182,17 @@ export class ExtendedLangClient extends LanguageClient {
     isInitialized: boolean = true;
 
     didOpen(params: DidOpenParams): void {
-        this.sendRequest("textDocument/didOpen", params);
+        this.sendNotification("textDocument/didOpen", params);
     }
     registerPublishDiagnostics(): void {
         this.onNotification("textDocument/publishDiagnostics", (notification: any) => {
         });
     }
     didClose(params: DidCloseParams): void {
-        this.sendRequest("textDocument/didClose", params);
+        this.sendNotification("textDocument/didClose", params);
     }
     didChange(params: DidChangeParams): void {
-        this.sendRequest("textDocument/didChange", params);
-    }
-    syntaxTreeModify(params: BallerinaSyntaxTreeModifyRequest): Thenable<BallerinaSyntaxTreeResponse> {
-        return this.sendRequest<BallerinaSyntaxTreeResponse>("ballerinaDocument/syntaxTreeModify", params);
+        this.sendNotification("textDocument/didChange", params);
     }
     getActionInvocations(params: BallerinaProjectParams): Promise<string> {
         return this.sendRequest("performanceAnalyzer/getEndpoints", params);
@@ -213,8 +209,8 @@ export class ExtendedLangClient extends LanguageClient {
     getType(params: ExpressionTypeRequest): Promise<ExpressionTypeResponse> {
         return this.sendRequest("ballerinaSymbol/type", params);
     }
-    getConnectors(): Thenable<BallerinaConnectorsResponse> {
-        return this.sendRequest<BallerinaConnectorsResponse>("ballerinaConnector/connectors");
+    getConnectors(query:string): Thenable<BallerinaConnectorsResponse> {
+        return this.sendRequest<BallerinaConnectorsResponse>("ballerinaConnector/connectors", query);
     }
     getConnector(params: BallerinaConnectorRequest): Thenable<BallerinaConnectorResponse> {
         return this.sendRequest<BallerinaConnectorResponse>("ballerinaConnector/connector", params);

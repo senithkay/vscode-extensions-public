@@ -14,7 +14,7 @@
         "theme": "light"
     },
     "engines": {
-        "vscode": "^1.57.0"
+        "vscode": "^1.59.0"
     },
     "categories": [
         "Programming Languages",
@@ -26,7 +26,7 @@
         "onLanguage:ballerina",
         "onCommand:ballerina.showExamples",
         "workspaceContains:Ballerina.toml",
-        "onView:ballerinaPackageTreeView"
+        "onView:ballerinaExplorerTreeView"
     ],
     "contributes": {
         "languages": [
@@ -237,6 +237,10 @@
             {
                 "command": "ballerina.project.run",
                 "title": "Run",
+                "icon": {
+                    "dark": "./resources/images/icons/start-inverse.svg",
+                    "light": "./resources/images/icons/start.svg"
+                },
                 "category": "Ballerina"
             },
             {
@@ -255,6 +259,11 @@
                 "category": "Ballerina"
             },
             {
+                "command": "ballerina.choreo.signin",
+                "title": "Choreo Sign In",
+                "category": "Ballerina"
+            },
+            {
                 "command": "ballerina.refreshPackageTree",
                 "title": "Refresh",
                 "icon": {
@@ -263,11 +272,27 @@
                 }
             },
             {
-                "command": "ballerina.collapsePackageTree",
-                "title": "Collapse Diagrams",
+                "command": "ballerina.refreshExplorerTree",
+                "title": "Refresh",
                 "icon": {
-                    "light": "./resources/images/icons/collapse.svg",
-                    "dark": "./resources/images/icons/collapse-inverse.svg"
+                    "light": "./resources/images/icons/refresh.svg",
+                    "dark": "./resources/images/icons/refresh-inverse.svg"
+                }
+            },
+            {
+                "command": "ballerina.newFileExplorerTree",
+                "title": "New File",
+                "icon": {
+                    "light": "./resources/images/icons/new-file.svg",
+                    "dark": "./resources/images/icons/new-file-inverse.svg"
+                }
+            },
+            {
+                "command": "ballerina.newFolderExplorerTree",
+                "title": "New Folder",
+                "icon": {
+                    "light": "./resources/images/icons/new-folder.svg",
+                    "dark": "./resources/images/icons/new-folder-inverse.svg"
                 }
             },
             {
@@ -280,6 +305,24 @@
                 "category": "Ballerina"
             },
             {
+                "command": "ballerina.source.debug",
+                "title": "Debug project in terminal",
+                "icon": {
+                    "dark": "./resources/images/icons/debug-inverse.svg",
+                    "light": "./resources/images/icons/debug.svg"
+                },
+                "category": "Ballerina"
+            },  
+            {
+                "command": "ballerina.show.source",
+                "title": "Show Source",
+                "icon": {
+                    "dark": "./resources/images/icons/source-view-inverse.svg",
+                    "light": "./resources/images/icons/source-view.svg"
+                },
+                "category": "Ballerina"
+            },
+            {
                 "command": "ballerina.pasteAsRecord",
                 "title": "Paste JSON as Record",
                 "category": "Ballerina"
@@ -288,14 +331,19 @@
         "views": {
             "diagram-explorer": [
                 {
-                    "id": "sessionExplorer",
-                    "name": "Choreo Session Details",
+                    "id": "ballerinaExplorerTreeView",
+                    "name": "Explorer",
                     "contextualTitle": "Diagram Explorer"
                 },
                 {
                     "id": "ballerinaPackageTreeView",
-                    "name": "Diagrams",
-                    "contextualTitle": "Diagram Explorer"
+                    "name": "Outline",
+                    "contextualTitle": "Package Outline"
+                },
+                {
+                    "id": "sessionExplorer",
+                    "name": "Choreo",
+                    "contextualTitle": "Choreo Session Details"
                 }
             ]
         },
@@ -311,7 +359,15 @@
         "viewsWelcome": [
             {
                 "view": "sessionExplorer",
-                "contents": "No Choreo sessions found.\n[Sign In](command:ballerina.choreo.signin)\nRefer to our docs to learn more about [Choreo](https://wso2.com/choreo/)."
+                "contents": "Sign In to enable Choreo Features.\n[Sign In](command:ballerina.choreo.signin)\n[Try Anonymously](command:ballerina.choreo.signin)\nRefer to our documentation to learn more about [Choreo](https://wso2.com/choreo/)."
+            },
+            {
+                "view": "ballerinaPackageTreeView",
+                "contents": "No Ballerina packages found.\n[Go to File Explorer](command:workbench.files.action.focusFilesExplorer)"
+            },
+            {
+                "view": "ballerinaExplorerTreeView",
+                "contents": "No files found in your workspace.\n[Go to File Explorer](command:workbench.files.action.focusFilesExplorer)"
             }
         ],
         "menus": {
@@ -322,8 +378,8 @@
                     "group": "navigation"
                 },
                 {
-                    "command": "ballerina.collapsePackageTree",
-                    "when": "view == ballerinaPackageTreeView",
+                    "command": "ballerina.refreshExplorerTree",
+                    "when": "view == ballerinaExplorerTreeView",
                     "group": "navigation"
                 }
             ],
@@ -332,6 +388,44 @@
                     "when": "resourceLangId == ballerina",
                     "command": "ballerina.show.diagram",
                     "group": "navigation"
+                },
+                {
+                    "when": "isBallerinaDiagram",
+                    "command": "ballerina.show.source",
+                    "group": "navigation"
+                }
+            ],
+            "view/item/context": [
+                {
+                    "command": "ballerina.newFileExplorerTree",
+                    "when": "view == ballerinaExplorerTreeView && viewItem == folder",
+                    "group": "inline"
+                },
+                {
+                    "command": "ballerina.newFolderExplorerTree",
+                    "when": "view == ballerinaExplorerTreeView && viewItem == folder",
+                    "group": "inline"
+                }
+            ],
+            "editor/title/run": [
+                {
+                    "command": "ballerina.project.run",
+                    "group": "navigation@0",
+                    "title": "Run project in terminal",
+                    "when": "resourceLangId == ballerina"
+                },
+                {
+                    "command": "ballerina.source.debug",
+                    "group": "navigation@1",
+                    "title": "Debug project in terminal",
+                    "when": "resourceLangId == ballerina"
+                }
+            ],
+            "explorer/context": [
+                {
+                    "command": "ballerina.project.run",
+                    "group": "Ballerina",
+                    "when": "resourceLangId == ballerina"
                 }
             ]
         }
@@ -350,8 +444,8 @@
         "lint": "tslint --fix 'src/**/*{.ts,.tsx}'"
     },
     "dependencies": {
-        "@types/vscode": "^1.57.0",
-        "@wso2-enterprise/ballerina-low-code-editor": "^1.1.1",
+        "@types/vscode": "^1.59.0",
+        "@wso2-enterprise/ballerina-low-code-editor": "^1.1.2",
         "file-uri-to-path": "^2.0.0",
         "glob": "^7.1.7",
         "monaco-languageclient": "^0.13.0",
@@ -367,7 +461,7 @@
         "@types/mocha": "^8.2.2",
         "@types/node": "^15.12.2",
         "@types/tcp-port-used": "^1.0.0",
-        "@types/vscode": "^1.57.0",
+        "@types/vscode": "^1.59.0",
         "chai": "^4.3.4",
         "cross-env": "^7.0.3",
         "decache": "^4.6.0",
@@ -386,7 +480,10 @@
         "vscode-debugadapter-testsupport": "^1.44.0",
         "webpack": "^4.46.0",
         "webpack-cli": "^3.3.3",
-        "yarn": "^1.22.11"
+        "yarn": "^1.22.11",
+        "express": "^4.17.1",
+        "keytar": "^7.7.0",
+        "axios": "0.22.0"
     },
     "extensionPack": [
         "be5invis.toml"

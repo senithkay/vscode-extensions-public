@@ -157,8 +157,8 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
             });
             drawDiagram({
                 filePath: ${JSON.stringify(ballerinaFilePath)},
-                startLine: ${JSON.stringify(startLine.toString())},
-                startColumn: ${JSON.stringify(startColumn.toString())},
+                startLine: ${startLine},
+                startColumn: ${startColumn},
                 lastUpdatedAt: (new Date()).toISOString()
             });
         }
