@@ -36,7 +36,7 @@ export const RecordPlusOption = (props: RecordPlusOptionProps) => {
 
     const [isRecordFromVisible, setIsRecordFromVisible] = useState(false);
 
-    const endConfigFormOverlayState: ConfigOverlayFormStatus = {
+    const configOverlayFormStatus: ConfigOverlayFormStatus = {
         formArgs: {
             targetPosition: {
                 line: (targetPosition as any).startLine - 1 , column: (targetPosition as any).startColumn
@@ -84,7 +84,7 @@ export const RecordPlusOption = (props: RecordPlusOptionProps) => {
                 <FormGenerator
                     onCancel={onClose}
                     onSave={onClose}
-                    configOverlayFormStatus={endConfigFormOverlayState}
+                    configOverlayFormStatus={configOverlayFormStatus}
                 />
             )}
         </>
