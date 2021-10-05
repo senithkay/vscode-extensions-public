@@ -18,6 +18,7 @@ import { FormHelperText, MenuItem, Select } from "@material-ui/core";
 import AddRounded from "@material-ui/icons/AddRounded";
 import classNames from "classnames";
 
+import { AddIcon } from "../../../../../../../assets/icons";
 import { TooltipIcon } from "../../../../../../../components/Tooltip";
 import { useStyles as useFormStyles } from "../../../forms/style";
 import { FormElementProps } from "../../../types";
@@ -46,10 +47,10 @@ export function SelectDropdownWithButton(props: FormElementProps<SelectDropdownP
     const { values, disableCreateNew, optional, className,
             clearSelection, onOpenSelect, onCloseSelect } = customProps;
 
-    const [connector, setConnector] = React.useState(defaultValue);
+    // const [connector, setConnector] = React.useState(defaultValue);
 
     const handleChange = (event: any) => {
-        setConnector(event.target.value);
+        // setConnector(event.target.value);
         if (onChange && event.target.value) {
             onChange(event.target.value);
         }
@@ -74,15 +75,15 @@ export function SelectDropdownWithButton(props: FormElementProps<SelectDropdownP
     }
 
     React.useEffect(() => {
-        setConnector(defaultValue);
+        // setConnector(defaultValue);
     }, [defaultValue]);
 
     if (clearSelection) {
-        setConnector("");
+        // setConnector("");
         customProps.clearSelection = false;
     }
 
-    const  preventDiagramScrolling = (e: SyntheticEvent) => {
+    const preventDiagramScrolling = (e: SyntheticEvent) => {
         e.stopPropagation();
     }
 
@@ -90,53 +91,53 @@ export function SelectDropdownWithButton(props: FormElementProps<SelectDropdownP
         <>
             {label ?
                 (customProps && optional ?
-                        (
-                            <div className={textFieldClasses.selectOperationTextWrapper}>
+                    (
+                        <div className={textFieldClasses.selectOperationTextWrapper}>
                             <div className={formClasses.labelWrapper}>
                                 <FormHelperText className={formClasses.inputLabelForRequired}>{label}</FormHelperText>
-                                <FormHelperText className={formClasses.optionalLabel}><FormattedMessage id="lowcode.develop.elements.dropDown.selectDropDownWithButton.optional.label" defaultMessage="Optional"/></FormHelperText>
+                                <FormHelperText className={formClasses.optionalLabel}><FormattedMessage id="lowcode.develop.elements.dropDown.selectDropDownWithButton.optional.label" defaultMessage="Optional" /></FormHelperText>
                             </div>
-                            {customProps?.tooltipTitle  &&
+                            {customProps?.tooltipTitle &&
                                 (
                                     <div>
-                                    <TooltipIcon
-                                        title={customProps?.tooltipTitle}
-                                        interactive={customProps?.interactive || true}
-                                        actionText={customProps?.tooltipActionText}
-                                        actionLink={customProps?.tooltipActionLink}
-                                        arrow={true}
-                                    />
+                                        <TooltipIcon
+                                            title={customProps?.tooltipTitle}
+                                            interactive={customProps?.interactive || true}
+                                            actionText={customProps?.tooltipActionText}
+                                            actionLink={customProps?.tooltipActionLink}
+                                            arrow={true}
+                                        />
                                     </div>
                                 )
                             }
-                            </div>
-                        ) : (
-                            <div className={textFieldClasses.selectOperationTextWrapper}>
+                        </div>
+                    ) : (
+                        <div className={textFieldClasses.selectOperationTextWrapper}>
                             <div className={formClasses.labelWrapper}>
                                 <FormHelperText className={formClasses.inputLabelForRequired}>{label}</FormHelperText>
                                 <FormHelperText className={formClasses.starLabelForRequired}>*</FormHelperText>
                             </div>
-                            {customProps?.tooltipTitle  &&
+                            {customProps?.tooltipTitle &&
                                 (
                                     <div>
-                                    <TooltipIcon
-                                        title={customProps?.tooltipTitle}
-                                        interactive={customProps?.interactive || true}
-                                        actionText={customProps?.tooltipActionText}
-                                        actionLink={customProps?.tooltipActionLink}
-                                        arrow={true}
-                                    />
+                                        <TooltipIcon
+                                            title={customProps?.tooltipTitle}
+                                            interactive={customProps?.interactive || true}
+                                            actionText={customProps?.tooltipActionText}
+                                            actionLink={customProps?.tooltipActionLink}
+                                            arrow={true}
+                                        />
                                     </div>
                                 )
                             }
-                            </div>
-                        )
+                        </div>
+                    )
                 ) : null
             }
 
             <Select
                 data-testid={placeholder + values[0]}
-                value={connector}
+                value={defaultValue}
                 disableUnderline={true}
                 onChange={handleChange}
                 onOpen={onOpenSelect}
@@ -162,12 +163,20 @@ export function SelectDropdownWithButton(props: FormElementProps<SelectDropdownP
                         </MenuItem>
                     ) : (
                         <MenuItem value="" disabled={true}>
-                            <span className="TextSpan"><FormattedMessage id="lowcode.develop.elements.dropDown.selectDropDownWithButton.menuItem.noItems.text" defaultMessage="No items to select"/></span>
+                            <span className="TextSpan"><FormattedMessage id="lowcode.develop.elements.dropDown.selectDropDownWithButton.menuItem.noItems.text" defaultMessage="No items to select" /></span>
                         </MenuItem>
                     )
                 }
                 {menuItems}
-                {!disableCreateNew && <LinkButton onClick={handleCreateNewClick} startIcon={<AddRounded/>} text="Create New" />}
+                {!disableCreateNew
+                    &&
+                    (
+                        <MenuItem value="Create New">
+                            {defaultValue === "Create New" ? null : <AddIcon />}
+                            <span className="TextSpan">Create New</span>
+                        </MenuItem>
+                    )
+                }
             </Select>
         </>
     );

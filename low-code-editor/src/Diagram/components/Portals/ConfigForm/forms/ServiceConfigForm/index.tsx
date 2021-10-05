@@ -22,25 +22,25 @@ import { useStyles as useFormStyles } from "../style";
 
 import { HttpServiceForm } from "./forms/HttpService";
 import { ServiceTypeSelector } from "./ServiceTypeSelector";
-// import './style.scss';
 
 interface ServiceConfigFormProps {
     model?: STNode;
     targetPosition?: DraftUpdatePosition;
-    onClose: () => void;
+    onCancel: () => void;
     onSave: (modifications: STModification[]) => void;
 }
 
 export function ServiceConfigForm(props: ServiceConfigFormProps) {
     const formClasses = useFormStyles();
-    const { model, targetPosition } = props;
+    const { model, targetPosition, onSave, onCancel } = props;
     const [serviceType, setServiceType] = useState<string>(undefined);
+
 
     let configForm = <div />;
 
     switch (serviceType) {
         case 'HTTP':
-            configForm = <HttpServiceForm />
+            configForm = <HttpServiceForm onSave={onSave} onCancel={onCancel} model={model} targetPosition={targetPosition} />
             break;
 
     }
@@ -51,7 +51,7 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
                 <div className={formClasses.mainTitleWrapper}>
                     <ServiceIcon color={'#CBCEDB'} />
                     <Typography variant="h4">
-                        <Box paddingTop={2} paddingBottom={2}>Service</Box>
+                        <Box paddingTop={2} paddingBottom={2} paddingLeft={15}>Service</Box>
                     </Typography>
                 </div>
             </div>

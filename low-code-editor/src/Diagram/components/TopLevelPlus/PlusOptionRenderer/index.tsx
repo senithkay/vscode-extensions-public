@@ -14,7 +14,7 @@ import React from "react";
 
 import { ClickAwayListener } from "@material-ui/core";
 
-import { DraftInsertPosition } from "../../../view-state/draft";
+import { DraftInsertPosition, DraftUpdatePosition } from "../../../view-state/draft";
 import { getConstructIcon } from "../../Portals/utils";
 import { PlusMenuEntry } from "../PlusOptionsSelector";
 
@@ -24,7 +24,7 @@ interface PlusOptionRendererProps {
     entries: PlusMenuEntry[];
     onClose: () => void;
     onOptionSelect: (entry: PlusMenuEntry) => void;
-    targetPosition: DraftInsertPosition;
+    targetPosition: DraftUpdatePosition;
 }
 
 export function PlusOptionRenderer(props: PlusOptionRendererProps) {

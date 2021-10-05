@@ -15,7 +15,9 @@ import React, { useState } from "react";
 
 import { STKindChecker, STNode } from "@ballerina/syntax-tree";
 
-import { DraftInsertPosition } from "../../../view-state/draft";
+import { useDiagramContext } from "../../../../Contexts/Diagram";
+import { STModification } from "../../../../Definitions";
+import { DraftInsertPosition, DraftUpdatePosition } from "../../../view-state/draft";
 import { FormGenerator } from "../../FormGenerator";
 import { Margin } from "../index";
 import { ModuleLevelPlusOptions } from "../ModuleLevelPlusOptions";
@@ -25,7 +27,7 @@ export interface PlusOptionsProps {
     kind: string
     margin?: Margin;
     onClose: () => void;
-    targetPosition?: DraftInsertPosition;
+    targetPosition?: DraftUpdatePosition;
 }
 
 export interface PlusMenuEntry {
@@ -51,6 +53,7 @@ const classMemberEntries: PlusMenuEntry[] = [
 
 export const PlusOptionsSelector = (props: PlusOptionsProps) => {
     const { onClose, targetPosition, kind } = props;
+    const { props: { stSymbolInfo }, api: { code: { modifyDiagram } } } = useDiagramContext();
     const [selectedOption, setSelectedOption] = useState<PlusMenuEntry>(undefined);
 
     let menuEntries: PlusMenuEntry[] = [];
@@ -59,6 +62,14 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
         setSelectedOption(undefined);
         onClose();
     }
+
+    const handleOnSave = (modifications: STModification[]) => {
+        // todo: handle save logic
+        console.log('modification >>>', modifications);
+        modifyDiagram(modifications);
+    }
+
+
 
     const onOptionSelect = (option: PlusMenuEntry) => {
         setSelectedOption(option)
@@ -89,8 +100,10 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
             {
                 selectedOption && (
                     <FormGenerator
-                        configOverlayFormStatus={{ formType: selectedOption.type, isLoading: false, formArgs: {} }}
+                        targetPosition={targetPosition}
+                        configOverlayFormStatus={{ formType: selectedOption.type, isLoading: false, formArgs: { stSymbolInfo } }}
                         onCancel={handleOnClose}
+                        onSave={handleOnSave}
                     />
                 )
             }

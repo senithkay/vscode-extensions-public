@@ -17,13 +17,17 @@ export const useStyles = makeStyles(() =>
         overlayBackground: {
             background: '#e6e7ec6e',
             position: 'fixed',
-            zIndex: 1
+            zIndex: 1,
+            top: '-100rem',
+            left: '-100rem'
         },
 
         confirmationOverlayBackground: {
             background: '#e6e7ec6e',
             position: 'fixed',
-            zIndex: 2
+            zIndex: 2,
+            top: 0,
+            left: 0
         },
     }),
 );
