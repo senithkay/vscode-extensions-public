@@ -51,7 +51,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                             </FormHelperText>
                         </div>
                         <FormTextInput
-                            dataTestId="service-base-path"
+                            dataTestId="listener-name"
                             onChange={onNameChange}
                             customProps={{
                             }}
@@ -68,9 +68,9 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                 </FormHelperText>
             </div>
             <FormTextInput
-                dataTestId="service-base-path"
+                dataTestId="listener-port"
                 // defaultValue={serviceBasePath}
-                onChange={onNameChange}
+                onChange={onPortChange}
                 customProps={{
                     // validate: isServicePathValid,
                     // isErrored: resProps.isPathDuplicated || duplicatedPathsInEdit,
