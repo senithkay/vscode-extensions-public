@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 // tslint:disable: jsx-wrap-multiline
 import React, { ReactNode, useContext, useEffect, useState } from "react";
-import { FormattedMessage, useIntl } from "react-intl";
+import { useIntl } from "react-intl";
 
 import {
   CaptureBindingPattern,
@@ -26,11 +26,9 @@ import classNames from "classnames";
 const GITHUB_CONNECTOR = "GitHub";
 import {
   AiSuggestionsReq,
-  AiSuggestionsRes,
   ConnectionDetails,
   OauthProviderConfig,
 } from "../../../../../api/models";
-import { CloseRounded } from "../../../../../assets/icons";
 import {
   ActionConfig,
   ConnectorConfig,
@@ -67,9 +65,7 @@ import {
 } from "../../../../utils/modification-util";
 import { DraftInsertPosition } from "../../../../view-state/draft";
 import { FormGeneratorProps } from "../../../FormGenerator";
-import { ButtonWithIcon } from "../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import {
-  addAiSuggestion,
   genVariableName,
   getActionReturnType,
   getAllVariablesForAi,
@@ -321,7 +317,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
   config.name =
     connector && isNewConnectorInitWizard && !config.name
       ? genVariableName(
-          getFormattedModuleName(connector.package.name) + "Endpoint",
+          getFormattedModuleName(connector.moduleName || connector.package.name) + "Endpoint",
           getAllVariables(symbolInfo)
         )
       : config.name;
@@ -404,7 +400,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
   const onManualConnection = () => {
     setConfigName(
       genVariableName(
-        getFormattedModuleName(connector.package.name) + "Endpoint",
+        getFormattedModuleName(connector.moduleName || connector.package.name) + "Endpoint",
         getAllVariables(symbolInfo)
       )
     );
@@ -474,7 +470,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
   const handleClientOnSave = () => {
     const modifications: STModification[] = [];
     const isInitReturnError = getInitReturnType(functionDefInfo);
-    const moduleName = getFormattedModuleName(connector.package.name);
+    const moduleName = getFormattedModuleName(connector.moduleName || connector.package.name);
     const event: LowcodeEvent = {
       type: EVENT_TYPE_AZURE_APP_INSIGHTS,
       name: FINISH_CONNECTOR_INIT_ADD_INSIGHTS,
@@ -803,7 +799,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
       config.action.name,
       functionDefInfo
     );
-    const moduleName = getFormattedModuleName(connector.package.name);
+    const moduleName = getFormattedModuleName(connector.moduleName || connector.package.name);
     const event: LowcodeEvent = {
       type: EVENT_TYPE_AZURE_APP_INSIGHTS,
       name: FINISH_CONNECTOR_ACTION_ADD_INSIGHTS,
@@ -1101,7 +1097,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
   // only one client will be create for each module
   const handleSingleFormOnSave = () => {
     const modifications: STModification[] = [];
-    const moduleName = getFormattedModuleName(connector.package.name);
+    const moduleName = getFormattedModuleName(connector.moduleName || connector.package.name);
     const existingEndpointName = getModuleVariable(symbolInfo, connectorInfo);
     const isInitReturnError = getInitReturnType(functionDefInfo);
     const currentActionReturnType = getActionReturnType(
@@ -1291,7 +1287,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
 
   const onSave = (sourceModifications: STModification[]) => {
     const isInitReturnError = getInitReturnType(functionDefInfo);
-    const moduleName = getFormattedModuleName(connector.package.name);
+    const moduleName = getFormattedModuleName(connector.moduleName || connector.package.name);
     if (sourceModifications) {
       // Modifications for special Connectors
       modifyDiagram(sourceModifications);

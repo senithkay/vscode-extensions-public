@@ -29,8 +29,6 @@ import {
 	BallerinaRecordResponse,
 	BallerinaSTModifyRequest,
 	BallerinaSTModifyResponse,
-	BallerinaSyntaxTreeModifyRequest,
-	BallerinaSyntaxTreeResponse,
 	JsonToRecordRequest,
 	JsonToRecordResponse,
 	TriggerModifyRequest,
@@ -70,9 +68,6 @@ export interface DiagramEditorLangClientInterface extends BaseLangClientInterfac
 	getRecord: (
 		params: BallerinaRecordRequest
 	) => Thenable<BallerinaRecordResponse>;
-	astModify: (
-		params: BallerinaSTModifyRequest
-	) => Thenable<BallerinaSTModifyResponse>;
 	stModify: (
 		params: BallerinaSTModifyRequest
 	) => Thenable<BallerinaSTModifyResponse>;

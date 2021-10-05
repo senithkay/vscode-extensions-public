@@ -15,6 +15,7 @@ import React, { useState } from "react"
 
 import { ServiceDeclaration } from "@ballerina/syntax-tree";
 
+import { useSelectedStatus } from "../../hooks";
 import { getSTComponent } from "../../utils";
 import { TopLevelPlus } from "../TopLevelPlus";
 
@@ -32,11 +33,16 @@ export interface ServiceProps {
 export function Service(props: ServiceProps) {
     const { model } = props;
 
-    const [isExpanded, setIsExpanded] = useState(false);
+    const isSelected = useSelectedStatus(model);
+    const [isExpanded, setIsExpanded] = useState(isSelected);
 
     const onExpandClick = () => {
         setIsExpanded(!isExpanded);
     }
+
+    React.useEffect(() => {
+        setIsExpanded(isSelected);
+    }, [isSelected])
 
     const children: JSX.Element[] = []
 

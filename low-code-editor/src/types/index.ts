@@ -206,10 +206,16 @@ export interface LowCodeEditorProperties {
     isCodeChangeInProgress: boolean;
     isReadOnly: boolean;
     zoomStatus: ZoomStatus;
+    selectedPosition?: SelectedPosition;
 }
 
 export interface FunctionProperties {
     overlayId: string;
+}
+
+export interface SelectedPosition {
+    startLine: number;
+    startColumn: number;
 }
 
 export interface LowCodeEditorContext {
