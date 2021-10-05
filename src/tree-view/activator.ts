@@ -19,16 +19,17 @@
 import { BallerinaExtension, ConstructIdentifier } from "../core";
 import { showDiagramEditor } from '../diagram';
 import { sendTelemetryEvent, CMP_PACKAGE_VIEW, TM_EVENT_OPEN_PACKAGE_OVERVIEW } from "../telemetry";
-import { commands, Uri, window } from 'vscode';
+import { commands, Uri, window, workspace } from 'vscode';
 import {
     CMP_KIND, TREE_ELEMENT_EXECUTE_COMMAND, OUTLINE_TREE_REFRESH_COMMAND, EXPLORER_TREE_REFRESH_COMMAND,
-    EXPLORER_ITEM_KIND, EXPLORER_TREE_NEW_FILE_COMMAND, EXPLORER_TREE_NEW_FOLDER_COMMAND, ExplorerTreeItem
+    EXPLORER_ITEM_KIND, EXPLORER_TREE_NEW_FILE_COMMAND, EXPLORER_TREE_NEW_FOLDER_COMMAND, ExplorerTreeItem, EXPLORER_TREE_NEW_MODULE_COMMAND
 } from "./model";
 import { PackageOverviewDataProvider } from "./outline-tree-data-provider";
 import { SessionDataProvider } from "./session-tree-data-provider";
 import { ExplorerDataProvider } from "./explorer-tree-data-provider";
 import { existsSync, mkdirSync, open } from 'fs';
 import { join } from 'path';
+import { BALLERINA_COMMANDS, runCommand } from "../project";
 
 export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverviewDataProvider {
 
@@ -72,6 +73,39 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
                 mkdirSync(filePath);
             }
             explorerDataProvider.refresh();
+        }
+    });
+
+    commands.registerCommand(EXPLORER_TREE_NEW_MODULE_COMMAND, async () => {
+        // try {
+        const workspaceFolderProjects = workspace.workspaceFolders?.filter(folder => {
+            return existsSync(join(folder.uri.fsPath, 'Ballerina.toml'));
+        });
+
+        if (!workspaceFolderProjects || workspaceFolderProjects.length == 0) {
+            window.showErrorMessage('No Ballerina Projects identified at the workspace root.');
+            return;
+        }
+        let userSelection;
+        if (workspaceFolderProjects.length > 1) {
+            let projectOptions: { label: string, id: string, uri: Uri }[] = [];
+            workspaceFolderProjects.forEach(project => {
+                projectOptions.push({
+                    label: project.name,
+                    id: project.name,
+                    uri: project.uri
+                });
+            })
+
+            userSelection = await window.showQuickPick(projectOptions, { placeHolder: 'Select the project...' });
+        } else {
+            userSelection = { uri: workspaceFolderProjects[0].uri }
+        }
+
+        const moduleName = await window.showInputBox({ placeHolder: 'Enter module name' });
+        if (userSelection && moduleName && moduleName.trim().length > 0) {
+            runCommand(userSelection.uri.fsPath, ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.ADD,
+                moduleName);
         }
     });
 

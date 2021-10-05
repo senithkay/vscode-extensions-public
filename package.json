@@ -264,6 +264,15 @@
                 "category": "Ballerina"
             },
             {
+                "command": "ballerina.new.module",
+                "title": "Add Module",
+                "category": "Ballerina",
+                "icon": {
+                    "light": "./resources/images/icons/new-module.svg",
+                    "dark": "./resources/images/icons/new-module-inverse.svg"
+                }
+            },
+            {
                 "command": "ballerina.refreshPackageTree",
                 "title": "Refresh",
                 "icon": {
@@ -312,7 +321,7 @@
                     "light": "./resources/images/icons/debug.svg"
                 },
                 "category": "Ballerina"
-            },  
+            },
             {
                 "command": "ballerina.show.source",
                 "title": "Show Source",
@@ -332,7 +341,7 @@
             "diagram-explorer": [
                 {
                     "id": "ballerinaExplorerTreeView",
-                    "name": "Explorer",
+                    "name": "Diagram Explorer",
                     "contextualTitle": "Diagram Explorer"
                 },
                 {
@@ -379,6 +388,11 @@
                 },
                 {
                     "command": "ballerina.refreshExplorerTree",
+                    "when": "view == ballerinaExplorerTreeView",
+                    "group": "navigation"
+                },
+                {
+                    "command": "ballerina.new.module",
                     "when": "view == ballerinaExplorerTreeView",
                     "group": "navigation"
                 }

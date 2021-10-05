@@ -23,6 +23,7 @@ import { ExplorerTreeItem, EXPLORER_ITEM_KIND, FILE_EXTENSION, TREE_ELEMENT_EXEC
 import * as fs from 'fs';
 import * as path from 'path';
 import { BAL_TOML } from "../project";
+import { WorkspaceFolder } from "vscode-languageserver-protocol";
 
 /**
  * Tree data provider for explorer view.
@@ -124,18 +125,12 @@ export class ExplorerDataProvider implements TreeDataProvider<ExplorerTreeItem> 
             return [];
         }
 
-        const workspaceFolder = workspace.workspaceFolders.filter(folder => folder.uri.scheme === 'file')[0];
-        if (workspaceFolder) {
-            const children = await this.readDirectory(workspaceFolder.uri);
-            children.sort((a, b) => {
-                if (a[1] === b[1]) {
-                    return a[0].localeCompare(b[0]);
-                }
-                return a[1] === FileType.Directory ? -1 : 1;
-            });
-            return this.addChildrenTreeItems(children, workspaceFolder.uri.fsPath, files);
+        for (let i = 0; i < workspace.workspaceFolders.length; i++) {
+            const workspaceFolder = workspace.workspaceFolders[i];
+            files.push(new ExplorerTreeItem(workspaceFolder.name, TreeItemCollapsibleState.Expanded,
+                EXPLORER_ITEM_KIND.FOLDER, workspaceFolder.uri, FileType.Directory));
         }
-        return [];
+        return files;
     }
 
     refresh(): void {

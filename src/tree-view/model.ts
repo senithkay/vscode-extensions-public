@@ -66,6 +66,7 @@ export const OUTLINE_TREE_REFRESH_COMMAND: string = 'ballerina.refreshPackageTre
 export const EXPLORER_TREE_REFRESH_COMMAND: string = 'ballerina.refreshExplorerTree';
 export const EXPLORER_TREE_NEW_FILE_COMMAND: string = 'ballerina.newFileExplorerTree';
 export const EXPLORER_TREE_NEW_FOLDER_COMMAND: string = 'ballerina.newFolderExplorerTree';
+export const EXPLORER_TREE_NEW_MODULE_COMMAND: string = 'ballerina.new.module';
 
 export class ExplorerTreeItem extends TreeItem {
     private folder: WorkspaceFolder | undefined;
