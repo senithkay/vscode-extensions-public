@@ -204,7 +204,7 @@ export interface BallerinaConnectorInfo extends Connector {
 }
 
 export interface BallerinaConnectorsRequest {
-    file: string;
+    targetFile?: string;
     query?: string;
     packageName: string;
     connector?: string;

@@ -227,7 +227,7 @@ export function APIOptions(props: APIOptionsProps) {
         getDiagramEditorLangClient(langServerURL).then(
           (langClient: DiagramEditorLangClientInterface) => {
             const request: BallerinaConnectorsRequest = {
-                file: currentFile.path,
+                targetFile: currentFile.path,
                 packageName: selectedContName
             };
 
