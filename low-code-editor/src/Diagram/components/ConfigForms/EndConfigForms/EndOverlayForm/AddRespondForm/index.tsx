@@ -237,6 +237,7 @@ export function AddRespondForm(props: RespondFormProps) {
             <FormControl data-testid="property-form" className={formClasses.stmtEditorFormControl}>
                 {!isCodeEditorActive ? (
                     <div>
+                        // TODO: Send proper props according to the form type
                         <ViewContainer
                             kind="DefaultBoolean"
                             label="Variable Statement"

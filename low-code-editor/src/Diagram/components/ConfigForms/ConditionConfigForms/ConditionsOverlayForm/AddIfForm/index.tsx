@@ -180,6 +180,7 @@ export function AddIfForm(props: IfProps) {
             // tslint:disable-next-line:jsx-no-multiline-js
             (
                 <div>
+                    // TODO: Send proper props according to the form type
                     <ViewContainer
                         kind="DefaultBoolean"
                         label="Variable Statement"
