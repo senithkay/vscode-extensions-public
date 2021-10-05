@@ -19,7 +19,7 @@
 
 import { CurrentResource, DataLabel } from "./model";
 import { commands, ExtensionContext, languages, Range, window } from "vscode";
-import { BallerinaExtension, ExtendedLangClient, LANGUAGE } from "../core";
+import { BallerinaExtension, ExtendedLangClient, LANGUAGE, PerformanceAnalyzerGraphResponse } from "../core";
 import { ExecutorCodeLensProvider } from "./codelens-provider";
 import { log } from "../utils";
 
@@ -61,8 +61,7 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
                     }
                 }
             }).then(async response => {
-                const graphData = JSON.parse(response);
-                addPerformanceLabels(graphData, pos);
+                addPerformanceLabels(response, pos);
             }).catch(error => {
                 log(error);
             });
@@ -76,32 +75,37 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
     }
 }
 
-function addPerformanceLabels(graphData: JSON, currentResourcePos: Range) {
-    const sequenceDiagramData = graphData["sequenceDiagramData"];
-    const realtimeData = graphData["realtimeData"];
-    const first = sequenceDiagramData[0];
-    const values = first["values"];
-
-    let dataLabels: DataLabel[] = [];
-    for (let i = 0; i < values.length; i++) {
-        const name = values[i]["name"].replace("(", "").replace(")", "").split("/");
-        const latency = values[i]["latency"];
-        const file = name[0];
-        const pos = name[1].split(",");
-        const start = pos[0].split(":");
-        const end = pos[1].split(":");
-        const range = new Range(parseInt(start[0]), parseInt(start[1]),
-            parseInt(end[0]), parseInt(end[1]));
-        const dataLabel = new DataLabel(file, range, latency)
-        dataLabels.push(dataLabel);
-
+function addPerformanceLabels(graphData: PerformanceAnalyzerGraphResponse, currentResourcePos: Range) {
+    if (!graphData || !currentResourcePos) {
+        return;
     }
+    const sequenceDiagramData = graphData.sequenceDiagramData;
+    const realtimeData = graphData.realtimeData;
+    if (sequenceDiagramData && realtimeData) {
+        const first = sequenceDiagramData[0];
+        const values = first.values;
 
-    const currentResource: CurrentResource = new CurrentResource(currentResourcePos,
-        realtimeData["latency"]);
+        let dataLabels: DataLabel[] = [];
+        for (let i = 0; i < values.length; i++) {
+            const name = values[i].name.replace("(", "").replace(")", "").split("/");
+            const latency = values[i].latency;
+            const file = name[0];
+            const pos = name[1].split(",");
+            const start = pos[0].split(":");
+            const end = pos[1].split(":");
+            const range = new Range(parseInt(start[0]), parseInt(start[1]),
+                parseInt(end[0]), parseInt(end[1]));
+            const dataLabel = new DataLabel(file, range, latency)
+            dataLabels.push(dataLabel);
 
-    ExecutorCodeLensProvider.setCurrentResource(currentResource);
-    ExecutorCodeLensProvider.setGraphData(graphData);
+        }
 
-    ExecutorCodeLensProvider.addDataLabels(dataLabels);
+        const currentResource: CurrentResource = new CurrentResource(currentResourcePos,
+            realtimeData.latency);
+
+        ExecutorCodeLensProvider.setCurrentResource(currentResource);
+        ExecutorCodeLensProvider.setGraphData(graphData);
+
+        ExecutorCodeLensProvider.addDataLabels(dataLabels);
+    }
 }

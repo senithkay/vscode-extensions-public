@@ -17,7 +17,7 @@
  *
  */
 
-import { BallerinaExtension, ExtendedLangClient, LANGUAGE } from '../core';
+import { BallerinaExtension, ExtendedLangClient, LANGUAGE, PerformanceAnalyzerGraphResponse } from '../core';
 import {
     CancellationToken, CodeLens, CodeLensProvider, Event, EventEmitter,
     ProviderResult, Range, TextDocument, window, workspace
@@ -44,7 +44,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
     static onDidChangeCodeLenses: any;
     private static dataLabels: DataLabel[] = [];
     private static currentResource: CurrentResource|undefined;
-    private static graphData: JSON;
+    private static graphData: PerformanceAnalyzerGraphResponse;
 
     constructor(extensionInstance: BallerinaExtension) {
         ExecutorCodeLensProvider.onDidChangeCodeLenses = this._onDidChangeCodeLenses;
@@ -73,7 +73,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
         this.currentResource = currentResource;
     }
 
-    public static setGraphData(graphData: JSON) {
+    public static setGraphData(graphData: PerformanceAnalyzerGraphResponse) {
         this.graphData = graphData;
     }
 
