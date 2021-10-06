@@ -541,7 +541,7 @@ export class BallerinaExtension {
         this.choreoSessionTreeProvider = choreoSessionTreeProvider;
     }
 
-    public getChoreoSessionTreeProvider(): SessionDataProvider | undefined{
+    public getChoreoSessionTreeProvider(): SessionDataProvider | undefined {
         return this.choreoSessionTreeProvider;
     }
 }

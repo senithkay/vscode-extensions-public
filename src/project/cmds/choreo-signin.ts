@@ -47,7 +47,7 @@ const PATH_GET_AUTH_CODE = `${CHOREO_LOGIN_URL}?response_type=code&nonce=auth&pr
 export class ChoreoOAuth {
     public app: express.Express;
     public server!: Server;
-    public extension : BallerinaExtension;
+    public extension: BallerinaExtension;
 
     constructor(public port: number, extension) {
         this.app = express();
