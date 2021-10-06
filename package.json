@@ -264,6 +264,15 @@
                 "category": "Ballerina"
             },
             {
+                "command": "ballerina.new.module",
+                "title": "Add Module",
+                "category": "Ballerina",
+                "icon": {
+                    "light": "./resources/images/icons/new-module.svg",
+                    "dark": "./resources/images/icons/new-module-inverse.svg"
+                }
+            },
+            {
                 "command": "ballerina.refreshPackageTree",
                 "title": "Refresh",
                 "icon": {
@@ -296,6 +305,14 @@
                 }
             },
             {
+                "command": "ballerina.deleteFileExplorerTree",
+                "title": "Delete",
+                "icon": {
+                    "light": "./resources/images/icons/delete.svg",
+                    "dark": "./resources/images/icons/delete-inverse.svg"
+                }
+            },
+            {
                 "command": "ballerina.show.diagram",
                 "title": "Show Diagram",
                 "icon": {
@@ -312,7 +329,7 @@
                     "light": "./resources/images/icons/debug.svg"
                 },
                 "category": "Ballerina"
-            },  
+            },
             {
                 "command": "ballerina.show.source",
                 "title": "Show Source",
@@ -332,7 +349,7 @@
             "diagram-explorer": [
                 {
                     "id": "ballerinaExplorerTreeView",
-                    "name": "Explorer",
+                    "name": "Diagram Explorer",
                     "contextualTitle": "Diagram Explorer"
                 },
                 {
@@ -381,6 +398,11 @@
                     "command": "ballerina.refreshExplorerTree",
                     "when": "view == ballerinaExplorerTreeView",
                     "group": "navigation"
+                },
+                {
+                    "command": "ballerina.new.module",
+                    "when": "view == ballerinaExplorerTreeView",
+                    "group": "navigation"
                 }
             ],
             "editor/title": [
@@ -399,12 +421,17 @@
                 {
                     "command": "ballerina.newFileExplorerTree",
                     "when": "view == ballerinaExplorerTreeView && viewItem == folder",
-                    "group": "inline"
+                    "group": "inline@0"
                 },
                 {
                     "command": "ballerina.newFolderExplorerTree",
                     "when": "view == ballerinaExplorerTreeView && viewItem == folder",
-                    "group": "inline"
+                    "group": "inline@1"
+                },
+                {
+                    "command": "ballerina.deleteFileExplorerTree",
+                    "when": "view == ballerinaExplorerTreeView && viewItem == file || viewItem == folder",
+                    "group": "inline@2"
                 }
             ],
             "editor/title/run": [

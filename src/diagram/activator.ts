@@ -321,7 +321,7 @@ function getChangedElement(st: SyntaxTree, change: Change): DiagramOptions {
 	} else if (member[0].kind === 'ServiceDeclaration') {
 		for (let ri = 0; ri < member[0].members.length; ri++) {
 			const resource = member[0].members[ri];
-			if (isWithinRange(resource, change)) {
+			if (resource.kind === 'ResourceAccessorDefinition' && isWithinRange(resource, change)) {
 				return {
 					isDiagram: true, fileUri: change.fileUri, startLine: resource.functionName?.position.startLine,
 					startColumn: resource.functionName?.position.startColumn
