@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 // tslint:disable: jsx-wrap-multiline
 import React, { ReactNode, useContext, useEffect, useState } from "react";
-import { FormattedMessage, useIntl } from "react-intl";
+import { useIntl } from "react-intl";
 
 import {
   CaptureBindingPattern,
@@ -26,11 +26,9 @@ import classNames from "classnames";
 const GITHUB_CONNECTOR = "GitHub";
 import {
   AiSuggestionsReq,
-  AiSuggestionsRes,
   ConnectionDetails,
   OauthProviderConfig,
 } from "../../../../../api/models";
-import { CloseRounded } from "../../../../../assets/icons";
 import {
   ActionConfig,
   ConnectorConfig,
@@ -66,9 +64,8 @@ import {
   updatePropertyStatement,
 } from "../../../../utils/modification-util";
 import { DraftInsertPosition } from "../../../../view-state/draft";
-import { ButtonWithIcon } from "../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
+import { FormGeneratorProps } from "../../../FormGenerator";
 import {
-  addAiSuggestion,
   genVariableName,
   getActionReturnType,
   getAllVariablesForAi,
@@ -129,7 +126,7 @@ export interface ConnectorConfigWizardProps {
   isAction?: boolean;
 }
 
-export function ConnectorForm(props: ConnectorConfigWizardProps) {
+export function ConnectorForm(props: FormGeneratorProps) {
   const wizardClasses = wizardStyles();
   const intl = useIntl();
   const {
@@ -172,17 +169,18 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     onClose,
     selectedConnector,
     isAction,
-  } = props;
+  } = props.configOverlayFormStatus.formArgs as ConnectorConfigWizardProps;
   const {
     connector,
     functionDefInfo,
     connectorConfig,
     wizardType,
     model,
+    isLoading: isConnectorLoading,
   } = configWizardArgs;
 
   let isOauthConnector = false;
-  const connectorName = connector.displayName || connector.package.name;
+  const connectorName = connector?.moduleName || connector?.package.name;
   configurations.configList?.forEach((configuration) => {
     // TODO: need to find proper way to identify auth enable connector
     if (
@@ -259,7 +257,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
       setIsLoading(false);
       return;
     } else if (
-      connector.package.organization === defaultOrgs.WSO2
+      connector?.package.organization === defaultOrgs.WSO2
     ) {
       setFormState(FormStates.SingleForm);
       setIsLoading(false);
@@ -317,9 +315,9 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
 
   // managing name set by the non oauth connectors
   config.name =
-    isNewConnectorInitWizard && !config.name
+    connector && isNewConnectorInitWizard && !config.name
       ? genVariableName(
-          getFormattedModuleName(connector.package.name) + "Endpoint",
+          getFormattedModuleName(connector.moduleName || connector.package.name) + "Endpoint",
           getAllVariables(symbolInfo)
         )
       : config.name;
@@ -402,7 +400,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
   const onManualConnection = () => {
     setConfigName(
       genVariableName(
-        getFormattedModuleName(connector.package.name) + "Endpoint",
+        getFormattedModuleName(connector.moduleName || connector.package.name) + "Endpoint",
         getAllVariables(symbolInfo)
       )
     );
@@ -472,7 +470,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
   const handleClientOnSave = () => {
     const modifications: STModification[] = [];
     const isInitReturnError = getInitReturnType(functionDefInfo);
-    const moduleName = getFormattedModuleName(connector.package.name);
+    const moduleName = getFormattedModuleName(connector.moduleName || connector.package.name);
     const event: LowcodeEvent = {
       type: EVENT_TYPE_AZURE_APP_INSIGHTS,
       name: FINISH_CONNECTOR_INIT_ADD_INSIGHTS,
@@ -604,7 +602,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                 response.status === 500 ? response.data.code : response.status;
               setResponseStatus(apiResponseStatus);
               if (apiResponseStatus === 200 || apiResponseStatus === 201) {
-                dispatchGetAllConfiguration(userInfo.selectedOrgHandle);
+                dispatchGetAllConfiguration(userInfo?.selectedOrgHandle);
                 configSource = getOauthParamsFromConnection(
                   connectorName.toLocaleLowerCase(),
                   response.data,
@@ -790,7 +788,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     if (modifications.length > 0) {
       modifyDiagram(modifications);
       onClose();
-      dispatchGetAllConfiguration(userInfo.selectedOrgHandle);
+      dispatchGetAllConfiguration(userInfo?.selectedOrgHandle);
     }
   };
 
@@ -801,7 +799,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
       config.action.name,
       functionDefInfo
     );
-    const moduleName = getFormattedModuleName(connector.package.name);
+    const moduleName = getFormattedModuleName(connector.moduleName || connector.package.name);
     const event: LowcodeEvent = {
       type: EVENT_TYPE_AZURE_APP_INSIGHTS,
       name: FINISH_CONNECTOR_ACTION_ADD_INSIGHTS,
@@ -879,7 +877,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
                 response.status === 500 ? response.data.code : response.status;
               setResponseStatus(apiResponseStatus);
               if (apiResponseStatus === 200 || apiResponseStatus === 201) {
-                dispatchGetAllConfiguration(userInfo.selectedOrgHandle);
+                dispatchGetAllConfiguration(userInfo?.selectedOrgHandle);
                 configSource = getOauthParamsFromConnection(
                   connectorName.toLocaleLowerCase(),
                   response.data,
@@ -1087,7 +1085,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
           if (modifications.length > 0) {
             modifyDiagram(modifications);
             onClose();
-            dispatchGetAllConfiguration(userInfo.selectedOrgHandle);
+            dispatchGetAllConfiguration(userInfo?.selectedOrgHandle);
           }
         }
       }
@@ -1099,7 +1097,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
   // only one client will be create for each module
   const handleSingleFormOnSave = () => {
     const modifications: STModification[] = [];
-    const moduleName = getFormattedModuleName(connector.package.name);
+    const moduleName = getFormattedModuleName(connector.moduleName || connector.package.name);
     const existingEndpointName = getModuleVariable(symbolInfo, connectorInfo);
     const isInitReturnError = getInitReturnType(functionDefInfo);
     const currentActionReturnType = getActionReturnType(
@@ -1263,16 +1261,18 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
     !isOauthConnector || isManualConnection || !isNewConnection;
 
   useEffect(() => {
-    const varAi: { [key: string]: any } = getAllVariablesForAi(symbolInfo);
-    let allFormFields: FormField[] = [];
-    Array.from(functionDefInfo.keys()).forEach((key: string) => {
-      allFormFields = allFormFields.concat(functionDefInfo.get(key).parameters);
-    });
-    const aiSuggestionsReq: AiSuggestionsReq = {
-      userID: userInfo?.user?.email,
-      mapFrom: [varAi],
-      mapTo: [getMapTo(allFormFields, model ? model.position : targetPosition)],
-    };
+    if (connector) {
+      const varAi: { [key: string]: any } = getAllVariablesForAi(symbolInfo);
+      let allFormFields: FormField[] = [];
+      Array.from(functionDefInfo.keys()).forEach((key: string) => {
+        allFormFields = allFormFields.concat(functionDefInfo.get(key).parameters);
+      });
+      const aiSuggestionsReq: AiSuggestionsReq = {
+        userID: userInfo?.user?.email,
+        mapFrom: [varAi],
+        mapTo: [getMapTo(allFormFields, model ? model.position : targetPosition)],
+      };
+    }
     // TODO: fix AI suggestion issue with vscode implementation
     // getAiSuggestions(aiSuggestionsReq).then((res: AiSuggestionsRes) => {
     //   res.suggestedMappings.forEach((schema: string) => {
@@ -1287,7 +1287,7 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
 
   const onSave = (sourceModifications: STModification[]) => {
     const isInitReturnError = getInitReturnType(functionDefInfo);
-    const moduleName = getFormattedModuleName(connector.package.name);
+    const moduleName = getFormattedModuleName(connector.moduleName || connector.package.name);
     if (sourceModifications) {
       // Modifications for special Connectors
       modifyDiagram(sourceModifications);
@@ -1434,11 +1434,11 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
       connectorComponent = (
         <div className={wizardClasses.fullWidth}>
           <div className={wizardClasses.topTitleWrapper}>
-            <ButtonWithIcon
+            {/* <ButtonWithIcon
               className={wizardClasses.closeBtnAutoGen}
               onClick={handleFormClose}
               icon={<CloseRounded fontSize="small" />}
-            />
+            /> */}
             <div className={wizardClasses.titleWrapper}>
               <div className={wizardClasses.connectorIconWrapper}>
                 {getConnectorIcon(
@@ -1447,10 +1447,6 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
               </div>
               <Typography className={wizardClasses.configTitle} variant="h4">
                 {connectorName}
-                <FormattedMessage
-                  id="lowcode.develop.connectorForms.title"
-                  defaultMessage=" Connection"
-                />
               </Typography>
             </div>
             <Divider variant="fullWidth" />
@@ -1558,12 +1554,12 @@ export function ConnectorForm(props: ConnectorConfigWizardProps) {
 
   return (
     <>
-      {isLoading && (
+      {(isLoading || isConnectorLoading) && (
         <div className={wizardClasses.loaderWrapper}>
           <TextPreloaderVertical position="relative" />
         </div>
       )}
-      {!isLoading && (
+      {!(isLoading || isConnectorLoading) && (
         <div className={wizardClasses.mainApiWrapper}>{connectorComponent}</div>
       )}
     </>

@@ -85,18 +85,6 @@ export function Diagram() {
         setIsErrorDetailsOpen(diagramErrors);
     }, [diagramErrors, diagramWarnings])
 
-    React.useEffect(() => {
-          getDiagramEditorLangClient(langServerURL).then(
-            (langClient: DiagramEditorLangClientInterface) => {
-              langClient
-                .getConnectors("")
-                .then((response: BallerinaConnectorsResponse) => {
-                  addConnectorListToCache(response.connectors);
-                });
-            }
-          );
-    }, [langServerURL]);
-
     const openErrorDialog = () => {
         setIsErrorStateDialogOpen(true);
         setIsErrorDetailsOpen(true);
