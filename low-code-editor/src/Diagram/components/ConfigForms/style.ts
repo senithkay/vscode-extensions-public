@@ -118,7 +118,6 @@ export const wizardStyles = makeStyles(() =>
             justifyContent: 'flex-end',
             width: '100%',
             zIndex: 100,
-            paddingTop: '2rem',
         },
         expWrapper: {
             width: '100%',
@@ -127,14 +126,5 @@ export const wizardStyles = makeStyles(() =>
             float: "right",
             marginTop: "0.75rem"
         },
-        buttonLink: {
-            color: "#fff",
-            padding: "0.25rem",
-            textDecoration: "underline",
-            "&:hover": {
-                color: "#fff",
-                textDecoration: "none",
-            }
-        }
     }),
 );

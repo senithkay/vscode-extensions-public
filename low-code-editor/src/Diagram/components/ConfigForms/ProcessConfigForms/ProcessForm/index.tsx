@@ -36,7 +36,7 @@ interface ProcessFormProps {
 
 export function ProcessForm(props: ProcessFormProps) {
     const { config, onCancel, onSave, configOverlayFormStatus } = props;
-    const { isLoading, error, formType } = configOverlayFormStatus;
+    const { isLoading, error, formType, formArgs } = configOverlayFormStatus;
     const {
         api: {
             panNZoom: {
@@ -87,10 +87,10 @@ export function ProcessForm(props: ProcessFormProps) {
     } else {
         return (
             <>
-                {formType === "Variable" && <AddVariableConfig config={config} onSave={onSave} onCancel={onCancel} />}
-                {formType === "Log" && <AddLogConfig config={config} onSave={onSave} onCancel={onCancel} />}
+                {formType === "Variable" && <AddVariableConfig config={config} formArgs={formArgs} onSave={onSave} onCancel={onCancel} />}
+                {formType === "Log" && <AddLogConfig config={config} formArgs={formArgs} onSave={onSave} onCancel={onCancel} />}
                 {formType === "DataMapper" && <AddDataMappingConfig processConfig={config} onSave={onSave} onCancel={onCancel} />}
-                {(formType === "Custom" || formType === "Call") && <AddCustomStatementConfig config={config} onSave={onSave} onCancel={onCancel} />}
+                {(formType === "Custom" || formType === "Call") && <AddCustomStatementConfig config={config} formArgs={formArgs} onSave={onSave} onCancel={onCancel} />}
             </>
         );
     }

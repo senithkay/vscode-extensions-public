@@ -19,6 +19,7 @@ import { APIOptions } from "../../Overlay/Elements/PlusHolder/PlusElementOptions
 
 import { APIConfigForm } from "./APIConfigForm";
 import { ConnectorInitForm } from "./ConnectorInitForm";
+import { FunctionConfigForm } from './FunctionConfigForm'; // TODO: need to rename
 import { ScheduleConfigForm } from "./ScheduleConfigForm";
 import { ServiceConfigForm } from './ServiceConfigForm';
 import { WebhookConfigForm } from "./WebhookConfigForm";
@@ -39,4 +40,5 @@ export { ProcessConfigForm as DataMapper };
 export { EndConfigForm as Return };
 export { EndConfigForm as Respond };
 export { ServiceConfigForm as ServiceDeclaration };
+export { FunctionConfigForm as FunctionDefinition };
 export { RecordEditor as RecordEditor };
