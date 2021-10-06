@@ -56,10 +56,10 @@ export function LeftPane(props: ModelProps) {
     }
 
     return (
-        <div className={overlayClasses.AppLeftPane}>
-            <h3 className={overlayClasses.AppLeftPaneHeading}>{label}</h3>
-            <div className={overlayClasses.AppStatementTemplateEditor}>
-                <div className={overlayClasses.AppStatementTemplateEditorInner}>
+        <div className={overlayClasses.leftPane}>
+            <span className={overlayClasses.subHeader}>{label}</span>
+            <div className={overlayClasses.templateEditor}>
+                <div className={overlayClasses.templateEditorInner}>
                     <ExpressionComponent
                         model={model}
                         expressionHandler={expressionHandler}
@@ -69,12 +69,14 @@ export function LeftPane(props: ModelProps) {
                     />
                 </div>
             </div>
-            <div className={overlayClasses.AppDiagnosticsPane}>
+            <div className={overlayClasses.leftPaneDivider} />
+            <div className={overlayClasses.diagnosticsPane}>
                 <Diagnostics
                     message={diagnosticList}
                 />
             </div>
-            <div className={overlayClasses.AppContextSensitivePane}>
+            <span className={overlayClasses.subHeader}>Expression</span>
+            <div className={overlayClasses.contextSensitivePane}>
                 <Suggestions
                     model={currentModel.model}
                     suggestions={suggestionList}

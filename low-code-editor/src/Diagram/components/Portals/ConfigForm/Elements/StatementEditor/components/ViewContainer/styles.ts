@@ -15,167 +15,179 @@ import { createStyles, makeStyles } from '@material-ui/core/styles';
 
 export const statementEditorStyles = makeStyles(() =>
     createStyles({
-        App: {
+        stmtEditor: {
             display: "flex",
             flexDirection: 'column',
             backgroundColor: '#fff',
             width: 700,
             height: 700
         },
+        titleLine: {
+            height: '1px',
+            width: 700,
+            opacity: 0.43,
+            backgroundColor: '#D8D8D8',
+        },
+        leftPaneDivider: {
+            height: '1px',
+            width: '393px',
+            opacity: 0.43,
+            backgroundColor: '#D8D8D8'
+        },
+        subHeader: {
+            height: '14px',
+            width: '146px',
+            color: '#1D2028',
+            fontFamily: 'Gilmer,sans-serif',
+            fontSize: '13px',
+            letterSpacing: 0,
+            lineHeight: '14px',
+            paddingTop: '10px'
+        },
+        codeLine: {
+            height: '24px',
+            width: '15px',
+            color: '#0095FF',
+            fontFamily: "Droid Sans Mono",
+            fontSize: '12px',
+            letterSpacing: 0,
+            lineHeight: '24px',
+        },
         vl: {
-            borderLeft: '3px solid #959ee1',
+            borderLeft: '1px solid #E6E7EC',
             height: '100%',
             left: '60%',
             marginLeft: '-3px',
             top: '2%',
             bottom: '10%'
         },
-        AppRightPane: {
+        rightPane: {
             display: 'flex',
             flexDirection: 'column',
             width: '40%',
             height: '100%'
         },
-        AppLeftPane: {
+        leftPane: {
             display: 'flex',
             flexDirection: 'column',
             backgroundColor: '#fff',
             width: '60%',
             height: '100%'
         },
-        AppContentPane: {
+        contentPane: {
             display: 'flex',
             flexDirection: 'row',
             backgroundColor: '#fff',
             width: '100%',
             height: '90%'
         },
-        AppBottomPane: {
+        bottomPane: {
             display: 'flex',
             flexDirection: 'column',
             backgroundColor: '#fff',
             width: '100%',
             height: '10%'
         },
-        AppRightPaneBlock: {
-            backgroundColor: '#fff',
+        rightPaneBlock: {
+            // backgroundColor: '#00ff00',
             display: 'flex',
             position: 'relative',
-            left: '5%',
-            height: '25%',
+            // left: '5%',
+            height: '50%',
             width: '100%'
         },
-        AppRightPaneHeading: {
-            fontFamily: 'Gilmer,sans-serif',
-            marginLeft: '5px'
-        },
-        AppLeftPaneHeading: {
-            fontFamily: 'Gilmer,sans-serif',
-            textAlign: 'left'
-        },
-        AppStatementTemplateEditor: {
+        templateEditor: {
             position: 'relative',
             height: '30%',
-            width: '90%',
-            // backgroundColor: '#f7f8fb',
-            borderColor: '#959ee1',
-            borderRadius: '20px',
-            borderStyle: 'solid',
+            width: '95%',
             display: 'flex'
         },
-        AppStatementTemplateEditorInner: {
+        templateEditorInner: {
             position: 'relative',
-            left: '5%',
-            top: '5%',
+            top: '12%',
             height: '93%',
-            width: '93%',
+            width: '100%',
             overflowY: 'scroll'
         },
-        AppContextSensitivePane: {
-            // backgroundColor: '#f7f8fb',
-            borderColor: '#b9bac1',
-            borderRadius: '20px',
-            borderStyle: 'solid',
+        contextSensitivePane: {
             display: 'flex',
             position: 'relative',
-            top: '5%',
             height: '55%',
             width: '90%',
+            top: '5%'
         },
-        AppDiagnosticsPane: {
+        diagnosticsPane: {
             color: '#ea4c4d',
             display: 'flex',
             height: '5%',
             paddingLeft: '5%'
         },
-        AppSuggestionBlock: {
-            // backgroundColor: '#f7f8fb',
-            display: 'inline-block',
-            position: 'relative',
-            left: '5%',
-            top: '5%',
-            height: '90%',
-            width: '90%',
-            overflowY: 'scroll'
-        },
-        AppSuggestionButtons: {
-            padding: '6px 16px',
-            fontSize: '0.875rem',
-            minWidth: '64px',
+        suggestionButton: {
             boxSizing: 'border-box',
-            borderColor: '#808bc7',
-            borderRadius: '10px',
-            borderStyle: 'solid',
-            lineHeight: '1.75',
-            height: '40px',
+            height: '29px',
+            border: '1px solid #CBCEDB',
+            borderRadius: '4px',
+            backgroundColor: 'rgba(255,255,255,0.5)',
+            minWidth: '70px',
             marginLeft: '2%',
             marginTop: '3%',
+            color: '#40404B',
+            fontSize: '12px',
+            letterSpacing: 0,
+            lineHeight: '24px',
             '&:hover': {
-                backgroundColor: '#5567D5',
+                backgroundColor: '#8e9bdc',
                 color: 'white'
+            },
+            '&:disabled': {
+                backgroundColor: 'rgba(0,0,0,0.1)',
+                color: '#404040',
             }
         },
-        AppExpressionBlock: {
+        expressionBlock: {
             position: 'relative',
             paddingRight: '10px'
         },
-        AppExpressionBlockDisabled: {
-            color: 'rgba(12, 11, 11, 0.63)'
+        expressionBlockDisabled: {
+            height: '24px',
+            width: '15px',
+            color: '#0095FF',
+            fontFamily: "Droid Sans Mono",
+            fontSize: '12px',
+            letterSpacing: 0,
+            lineHeight: '24px',
         },
-        AppTemplateButton: {
+        expressionElement: {
+            boxSizing: 'border-box',
+            border: '1px solid #A6B3FF',
+            borderRadius: '8px',
             position: 'relative',
             width: 'fit-content',
             backgroundColor: '#ffffff',
-            color: 'rgb(0, 0, 255)',
-            textAlign: 'center',
-            display: 'inline-block',
-            fontSize: '16px',
-            borderRadius: '10px',
             marginLeft: '2px',
             marginTop: '1px',
-            borderColor: '#808bc7',
-            borderStyle: 'dotted',
             '&:hover': {
-                backgroundColor: '#5567D5',
-                color: 'white'
+                backgroundColor: '#d7dcfc',
+                color: '#fff'
             }
         },
-        InputEditorTemplate: {
-            position: 'relative',
+        inputEditorTemplate: {
+            // color: '#05A26B',
+            color: '#5567D5',
             minWidth: '20px',
-            backgroundColor: '#ffffff',
-            color: 'rgb(0, 0, 255)',
-            textAlign: 'center',
+            fontSize: '13px',
+            letterSpacing: 0,
             display: 'inline-block',
-            fontSize: '16px',
+            lineHeight: '24px',
+            position: 'relative',
             marginLeft: '2px',
             marginTop: '1px',
             '&:hover': {
-                backgroundColor: '#5567D5',
-                color: 'white'
+                backgroundColor: '#d7dcfc',
+                color: '#fff'
             }
         },
-        AppAddNewExpressionButton: {
+        addNewExpressionButton: {
             backgroundColor: '#f7f8fb',
             border: '#6830e9',
             borderStyle: 'solid',
@@ -185,10 +197,32 @@ export const statementEditorStyles = makeStyles(() =>
             margin: '4px 2px',
             borderRadius: '50%'
         },
-        AppExpressionBlockElement: {
-            color: '#490cd6',
-            marginLeft: '10px',
-            display: 'inline-block'
+        rhsShortcutPanel: {
+            display: 'flex',
+            flexDirection: 'row',
+            height: '8%',
+            width: '90%',
+            marginLeft: '5%'
         },
+        shortcutTab: {
+            boxSizing: 'border-box',
+            height: '100%',
+            width: '30%',
+            color: '#8D91A3',
+            fontSize: '13px',
+            letterSpacing: 0,
+            lineHeight: '14px',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            borderBottom: '1px solid #DCDEE4'
+        },
+        shortcutsDivider: {
+            height: '1px',
+            marginLeft: '5%',
+            width: '90%',
+            opacity: 0.52,
+            backgroundColor: '#DCDEE4'
+        }
     }),
 );

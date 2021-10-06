@@ -23,11 +23,10 @@ import { Context } from "../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { getAllVariables } from "../../../../../utils/mixins";
 import { ButtonWithIcon } from "../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
-import { PrimaryButton } from "../../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
-import { SecondaryButton } from "../../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
 import { StatementEditorButton } from "../../../../Portals/ConfigForm/Elements/Button/StatementEditorButton";
 import { SelectDropdownWithButton } from "../../../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
+import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
 import { ViewContainer } from "../../../../Portals/ConfigForm/Elements/StatementEditor/components/ViewContainer/ViewContainer";
 import { FormTextInput } from "../../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
 import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
@@ -268,10 +267,11 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     };
 
     let exprEditor =
-            <FormControl data-testid="property-form" className={classes.wizardFormControl}>
-                {!isCodeEditorActive ?
-                    (
-                        <div>
+        <FormControl data-testid="property-form" className={classes.wizardFormControl}>
+            {!isCodeEditorActive ?
+                (
+                    <div>
+                        <div className={classes.formFeilds}>
                             <div className={classes.formTitleWrapper}>
                                 <div className={classes.mainTitleWrapper}>
                                     <div className={classes.iconWrapper}>
@@ -285,8 +285,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                                     </div>
                                 </div>
                             </div>
-
-
                             <div className={classes.activeWrapper}>
                                 <SelectDropdownWithButton
                                     defaultValue={selectedType === "other" ? "other" : modelType}
@@ -337,27 +335,33 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                                     />
                                 </div>
                             </div>
-                            <div className={overlayClasses.buttonWrapper}>
-                                <SecondaryButton text={cancelVariableButtonText} fullWidth={false} onClick={onCancel} />
-                                <PrimaryButton
-                                    dataTestId="save-btn"
-                                    text={saveVariableButtonText}
-                                    disabled={isMutationInProgress || !validForm}
-                                    fullWidth={false}
-                                    onClick={handleSave}
-                                />
-                            </div>
                         </div>
-                    )
-                    :
-                    null
-                }
-            </FormControl >;
+                        <FormActionButtons
+                            cancelBtnText={cancelVariableButtonText}
+                            saveBtnText={saveVariableButtonText}
+                            isMutationInProgress={isMutationInProgress}
+                            validForm={validForm}
+                            onSave={handleSave}
+                            onCancel={onCancel}
+                        />
+                    </div>
+                )
+                :
+                null
+            }
+        </FormControl >;
 
     if (isStmtEditor) {
         exprEditor = <FormControl data-testid="property-form">
             {!isCodeEditorActive ? (
                 <div>
+                    <div className={classes.formTitleWrapper}>
+                        <div className={classes.mainTitleWrapper}>
+                            <Typography variant="h4">
+                                <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.statementEditor.title" defaultMessage="Statement Editor" /></Box>
+                            </Typography>
+                        </div>
+                    </div>
                     <ViewContainer
                         kind="DefaultString" // TODO: Derive the kind from the user input
                         label="Variable Statement"

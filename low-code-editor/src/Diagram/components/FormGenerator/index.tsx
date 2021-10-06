@@ -12,29 +12,35 @@
  */
 import React from "react";
 
-import { ConfigOverlayFormStatus } from "../../../Definitions";
+import { STNode } from "@ballerina/syntax-tree";
+
+import { DraftInsertPosition } from "../../..";
+import { ConfigOverlayFormStatus, STModification } from "../../../Definitions";
+import { DraftUpdatePosition } from "../../view-state/draft";
 import { Panel } from "../Panel";
 import { getForm } from "../Portals/utils";
 
 export interface FormGeneratorProps {
+    model?: STNode;
+    targetPosition?: DraftUpdatePosition;
     onCancel?: () => void;
-    onSave?: () => void;
-    configOverlayFormStatus?: ConfigOverlayFormStatus;
+    onSave?: (modifications: STModification[]) => void;
+    configOverlayFormStatus: ConfigOverlayFormStatus; // FixMe : There are lot of unwanted properties passed through
+    // this model clean up or remove this
 }
 
 export function FormGenerator(props: FormGeneratorProps) {
-    const { onCancel, onSave, configOverlayFormStatus } = props;
+    const { onCancel, configOverlayFormStatus, ...restProps } = props;
     const { formArgs, formType } = configOverlayFormStatus;
-    const args = { onCancel, onSave, configOverlayFormStatus }
+    const args = { onCancel, configOverlayFormStatus, ...restProps }// FixMe: Sort out form args
 
     return (
         <Panel
             onClose={onCancel}
         >
-                <div className="form-generator">
-                    {getForm(formType, args)}
-                </div>
-
+            <div className="form-generator">
+                {getForm(formType, args)}
+            </div>
         </Panel>
     );
 }

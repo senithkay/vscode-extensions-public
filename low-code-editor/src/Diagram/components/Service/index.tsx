@@ -15,6 +15,7 @@ import React, { useState } from "react"
 
 import { ServiceDeclaration } from "@ballerina/syntax-tree";
 
+import { useSelectedStatus } from "../../hooks";
 import { getSTComponent } from "../../utils";
 import { TopLevelPlus } from "../TopLevelPlus";
 
@@ -24,7 +25,6 @@ import "./style.scss";
 export const DEFAULT_SERVICE_WIDTH: number = 500;
 export const SERVICE_MARGIN_LEFT: number = 24.5;
 export const SERVICE_PLUS_OFFSET: number = 7.5;
-
 export interface ServiceProps {
     model: ServiceDeclaration;
 }
@@ -32,11 +32,16 @@ export interface ServiceProps {
 export function Service(props: ServiceProps) {
     const { model } = props;
 
-    const [isExpanded, setIsExpanded] = useState(false);
+    const isSelected = useSelectedStatus(model);
+    const [isExpanded, setIsExpanded] = useState(isSelected);
 
     const onExpandClick = () => {
         setIsExpanded(!isExpanded);
     }
+
+    React.useEffect(() => {
+        setIsExpanded(isSelected);
+    }, [isSelected])
 
     const children: JSX.Element[] = []
 
@@ -46,7 +51,7 @@ export function Service(props: ServiceProps) {
                 <TopLevelPlus kind={model.kind} targetPosition={member.position} />
                 {getSTComponent(member)}
             </div>
-        )
+        );
     });
 
     return (

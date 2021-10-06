@@ -15,7 +15,6 @@ import React, { useContext, useState } from "react";
 import { useIntl } from "react-intl";
 
 import { LocalVarDecl, STNode } from "@ballerina/syntax-tree";
-// import { pan as acpan } from 'store/actions/preference';
 
 import {
   ConnectorConfig,
@@ -27,19 +26,18 @@ import {
   BallerinaConnectorInfo,
   Connector,
 } from "../../../Definitions/lang-client-extended";
-import { TextPreloaderVertical } from "../../../PreLoader/TextPreloaderVertical";
 // import { closeConfigOverlayForm configOverlayFormPrepareStart } from "../../$store/actions";
 import { DraftInsertPosition } from "../../view-state/draft";
 import { DefaultConfig } from "../../visitors/default";
+import { FormGenerator } from "../FormGenerator";
 import {
-  DiagramOverlay,
-  DiagramOverlayContainer,
   DiagramOverlayPosition,
 } from "../Portals/Overlay";
 import { fetchConnectorInfo } from "../Portals/utils";
 
-import { ConnectorForm } from "./Components/ConnectorForm";
 import { wizardStyles } from "./style";
+// import { pan as acpan } from 'store/actions/preference';
+
 
 export interface ConfigWizardState {
   isLoading: boolean;
@@ -86,7 +84,6 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
       },
       configPanel: {
         closeConfigOverlayForm: dispatchOverlayClose,
-        configOverlayFormPrepareStart: dispatchOverlayOpen,
       }
     }
   } = useContext(Context);
@@ -112,7 +109,6 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
   const [wizardState, setWizardState] = useState<ConfigWizardState>(
     initWizardState
   );
-  const classes = wizardStyles();
 
   const intl = useIntl();
   const connectionErrorMsgText = intl.formatMessage({
@@ -120,7 +116,6 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
     defaultMessage: "Something went wrong. Couldn't load the connection.",
   });
 
-  const currentAppid = currentApp?.id;
 
   React.useEffect(() => {
     fitToScreen();
@@ -156,32 +151,25 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
   };
 
   return (
-    <div>
-      <DiagramOverlayContainer>
-        {!isCodeEditorActive ? (
-          <DiagramOverlay
-            className={classes.configWizardContainer}
-            position={position}
-          >
-            <>
-              {wizardState.isLoading ? (
-                <div className={classes.loaderWrapper}>
-                  <TextPreloaderVertical position="relative" />
-                </div>
-              ) : (
-                <ConnectorForm
-                  selectedConnector={selectedConnector}
-                  targetPosition={targetPosition}
-                  configWizardArgs={wizardState}
-                  connectorInfo={connectorInfo}
-                  isAction={isAction}
-                  onClose={handleClose}
+        <div>
+            { !isCodeEditorActive ? (
+                <FormGenerator
+                    onCancel={handleClose}
+                    // onSave={onSave}
+                    configOverlayFormStatus={ {
+                        formType: "Connector",
+                        formArgs: {
+                            selectedConnector,
+                            targetPosition,
+                            configWizardArgs: wizardState,
+                            connectorInfo,
+                            isAction,
+                            onClose: handleClose,
+                        },
+                        isLoading: true,
+                    } }
                 />
-              )}
-            </>
-          </DiagramOverlay>
-        ) : null}
-      </DiagramOverlayContainer>
-    </div>
-  );
+            ) : null }
+        </div>
+    );
 }

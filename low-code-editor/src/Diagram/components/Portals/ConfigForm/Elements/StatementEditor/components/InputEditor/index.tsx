@@ -288,7 +288,7 @@ export function InputEditor(props: InputEditorProps) {
 
     return (
         <span
-            className={overlayClasses.InputEditorTemplate}
+            className={overlayClasses.inputEditorTemplate}
             onKeyDown={inputEnterHandler}
             contentEditable={true}
             suppressContentEditableWarning={true}

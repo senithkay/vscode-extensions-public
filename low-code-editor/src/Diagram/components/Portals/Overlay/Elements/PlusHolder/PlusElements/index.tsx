@@ -12,21 +12,17 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext, useState } from "react";
-import { FormattedMessage, useIntl } from "react-intl";
+import { useIntl } from "react-intl";
 
 import { LocalVarDecl } from "@ballerina/syntax-tree";
 import CloseIcon from '@material-ui/icons/Close';
-import cn from "classnames";
 
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from '../../..';
-import Tooltip from "../../../../../../../components/Tooltip";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { useFunctionContext } from "../../../../../../../Contexts/Function";
 import { BallerinaConnectorInfo } from "../../../../../../../Definitions/lang-client-extended";
-import { API_TAB_SELECTION_INSIGHTS, EVENT_TYPE_AZURE_APP_INSIGHTS, LowcodeEvent } from "../../../../../../models";
 import { PlusViewState } from "../../../../../../view-state/plus";
 import { OverlayBackground } from "../../../../../OverlayBackground";
-import { APIOptions } from "../PlusElementOptions/APIOptions";
 import { StatementOptions } from "../PlusElementOptions/StatementOptions";
 import "../style.scss";
 
@@ -59,7 +55,7 @@ export const PLUS_HOLDER_API_HEIGHT_COLLAPSED = 321;
 export const EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED = 660;
 
 export function PlusElements(props: PlusElementsProps) {
-    const { position, onClose, onChange, onComponentClick, initPlus, viewState, setAPIholderHeight } = props;
+    const { position, onClose, onChange, onComponentClick, initPlus, viewState } = props;
     const {
         actions: { diagramRedraw },
         props: { isCodeEditorActive, stSymbolInfo, syntaxTree },
@@ -84,28 +80,13 @@ export function PlusElements(props: PlusElementsProps) {
 
     const [selectedItem, setSelectedItem] = useState("STATEMENT");
 
-    const handleStatementClick = () => {
-        setSelectedItem("STATEMENT");
-        if (onComponentClick) {
-            onComponentClick("STATEMENT");
-        }
-    };
-    const handleAPIClick = () => {
-        const event: LowcodeEvent = {
-            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
-            name: API_TAB_SELECTION_INSIGHTS,
-        };
-        onEvent(event);
-        setSelectedItem("APIS");
-        if (onComponentClick) {
-            onComponentClick("APIS");
-        }
-        // todo: handle dispatch for tour
-        // dispatchGoToNextTourStep("DIAGRAM_CLICK_API");
-    };
 
     const onStatementTypeSelect = (processType: string) => {
-        onChange("STATEMENT", processType);
+        if (processType === "Connector"){
+            onChange("APIS", "New", null);
+        }else{
+            onChange("STATEMENT", processType);
+        }
         if (processType === "Respond") {
             // todo: handle the dispatch for the tour
             // dispatchGoToNextTourStep("DIAGRAM_ADD_RESPOND");
@@ -116,59 +97,11 @@ export function PlusElements(props: PlusElementsProps) {
         }
     };
 
-    const onAPITypeSelect = (connector: BallerinaConnectorInfo, selectedConnector: LocalVarDecl) => {
-        if (selectedConnector) {
-            onChange("APIS", "Existing", connector, true, selectedConnector);
-        } else {
-            onChange("APIS", "New", connector);
-        }
 
-        // todo: handle tour step
-        // dispatchGoToNextTourStep("DIAGRAM_ADD_HTTP");
-    };
 
-    const setApiHeight = (value: APIHeightStates) => {
-        if (value === APIHeightStates.SelectConnectors) {
-            viewState.isAPICallsExistingCreateCollapsed = false;
-        } else if (value === APIHeightStates.ExistingConnectors) {
-            viewState.isAPICallsExistingCollapsed = false;
-        } else if (value === APIHeightStates.SelectConnectorsColapsed) {
-            viewState.isAPICallsExistingCreateCollapsed = true;
-        } else if (value === APIHeightStates.ExistingConnectorsColapsed) {
-            viewState.isAPICallsExistingCollapsed = true;
-        }
-        diagramRedraw(syntaxTree);
-    }
-
-    let component: React.ReactNode = null;
-    switch (selectedItem) {
-        case "STATEMENT": {
-            component = (<StatementOptions onSelect={onStatementTypeSelect} viewState={viewState} />);
-            break;
-        }
-        case "APIS": {
-            component = (<APIOptions collapsed={setApiHeight} onSelect={onAPITypeSelect} />);
-            break;
-        }
-    }
     const plusContainer = initPlus ? "initPlus-container" : "plus-container";
     const exitingApiCall = viewState.isAPICallsExisting ? "existing-holder-class" : "holder-wrapper-large"
-    const holderClass = selectedItem !== "APIS" ? "holder-wrapper" : exitingApiCall;
 
-    const plusHolderUITooltipMessages = {
-        statementsPlusHolder: {
-            title: intl.formatMessage({
-                id: "lowcode.develop.configForms.plusHolder.plusElements.statements.tooltip.title",
-                defaultMessage: "A collection of code fragments that can be added to your application."
-            })
-        },
-        APIsPlusHolder: {
-            title: intl.formatMessage({
-                id: "lowcode.develop.configForms.plusHolder.plusElements.connections.tooltip.title",
-                defaultMessage: "A collection of API calls that helps you to integrate your application to external services."
-            })
-        },
-    }
 
     const plusHolder: ReactNode = (
         <div className="holder-wrapper-large">
@@ -180,35 +113,8 @@ export function PlusElements(props: PlusElementsProps) {
                         </button>
                     ) : null
             }
-            <div className="holder-options">
-                <Tooltip
-                    title={plusHolderUITooltipMessages.statementsPlusHolder.title}
-                    interactive={true}
-                    placement="bottom"
-                    arrow={true}
-                >
-                    <div className="options" onClick={handleStatementClick}>
-                        <div className={cn("statement-title", { active: selectedItem === "STATEMENT" })} data-testid={"statement-options"}>
-                            <FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.title" defaultMessage="Statements" />
-                        </div>
-                    </div>
-                </Tooltip>
-                <div className="options">
-
-                    <Tooltip
-                        title={plusHolderUITooltipMessages.APIsPlusHolder.title}
-                        interactive={true}
-                        placement="bottom"
-                        arrow={true}
-                    >
-                        <div className={cn("api-title", "product-tour-api-title", { active: selectedItem === "APIS" })} onClick={handleAPIClick} data-testid={"api-options"}>
-                            <FormattedMessage id="lowcode.develop.plusHolder.plusElements.connections.title" defaultMessage="API Calls" />
-                        </div>
-                    </Tooltip>
-                </div>
-            </div>
             <div className="element-options">
-                {component}
+                <StatementOptions onSelect={onStatementTypeSelect} viewState={viewState} />
             </div>
         </div>
     );

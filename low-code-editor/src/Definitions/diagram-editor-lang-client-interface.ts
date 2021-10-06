@@ -22,14 +22,13 @@ import { PublishDiagnosticsParams } from "./expression-editor-lang-client-interf
 import {
 	BallerinaConnectorRequest,
 	BallerinaConnectorResponse,
+	BallerinaConnectorsRequest,
 	BallerinaConnectorsResponse,
 	BallerinaProjectParams,
 	BallerinaRecordRequest,
 	BallerinaRecordResponse,
 	BallerinaSTModifyRequest,
 	BallerinaSTModifyResponse,
-	BallerinaSyntaxTreeModifyRequest,
-	BallerinaSyntaxTreeResponse,
 	JsonToRecordRequest,
 	JsonToRecordResponse,
 	TriggerModifyRequest,
@@ -57,19 +56,15 @@ export interface GetSyntaxTreeResponse {
 }
 
 export interface DiagramEditorLangClientInterface extends BaseLangClientInterface {
-	syntaxTreeModify: (
-		params: BallerinaSyntaxTreeModifyRequest
-	) => Thenable<BallerinaSyntaxTreeResponse>;
-	getConnectors: (query: string) => Thenable<BallerinaConnectorsResponse>;
+	getConnectors: (
+		params: BallerinaConnectorsRequest
+	) => Thenable<BallerinaConnectorsResponse>;
 	getConnector: (
 		params: BallerinaConnectorRequest
 	) => Thenable<BallerinaConnectorResponse>;
 	getRecord: (
 		params: BallerinaRecordRequest
 	) => Thenable<BallerinaRecordResponse>;
-	astModify: (
-		params: BallerinaSTModifyRequest
-	) => Thenable<BallerinaSTModifyResponse>;
 	stModify: (
 		params: BallerinaSTModifyRequest
 	) => Thenable<BallerinaSTModifyResponse>;
