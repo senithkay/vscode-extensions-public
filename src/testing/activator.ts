@@ -103,17 +103,19 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
           // exception.
         } finally {
           const EndTime = Date.now();
+
+          testsJson = await readTestJson(path.join(rootPath!, TEST_RESULTS_PATH).toString());
           if (!testsJson) {
             run.end();
             return;
           }
-          testsJson = await readTestJson(path.join(rootPath!, TEST_RESULTS_PATH).toString());
 
           const moduleStatus = testsJson["moduleStatus"];
           const testResults = moduleStatus[0]["tests"];
           const timeElapsed = (EndTime - startTime) / queue.length;
 
           for (const { test, } of queue) {
+            let found = false;
             for (const testResult of testResults) {
               if (test.label !== testResult.name) {
                 continue;
@@ -121,12 +123,20 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
 
               if (testResult.status === TEST_STATUS.PASSED) {
                 run.passed(test, timeElapsed);
+                found = true;
               } else if (testResult.status === TEST_STATUS.FAILED) {
                 // test failed
                 const testMessage: TestMessage = new TestMessage(testResult.failureMessage);
                 run.failed(test, testMessage, timeElapsed);
+                found = true;
               }
             }
+            if (found) {
+              continue;
+            }
+            // test failed
+            const testMessage: TestMessage = new TestMessage("");
+            run.failed(test, testMessage, timeElapsed);
           }
         }
       } else if (request.profile?.kind == TestRunProfileKind.Debug) {
@@ -209,9 +219,13 @@ async function runCommand(command, pathToRun: string | undefined) {
  * Run terminal command.
  * @param file File path of the json.
  */
-async function readTestJson(file): Promise<JSON> {
-  let rawdata = fs.readFileSync(file);
-  return JSON.parse(rawdata);
+async function readTestJson(file): Promise<JSON | undefined> {
+  try {
+    let rawdata = fs.readFileSync(file);
+    return JSON.parse(rawdata);
+  } catch {
+    return undefined;
+  }
 }
 
 async function startDebugging(uri: Uri, testDebug: boolean, ballerinaCmd: string, ballerinaHome: string, args: any[])

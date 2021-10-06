@@ -18,12 +18,15 @@
  */
 
 import { CurrentResource, DataLabel } from "./model";
-import { commands, ExtensionContext, languages, Range, window } from "vscode";
+import { commands,ViewColumn, ExtensionContext, languages, Range, window, WebviewPanel } from "vscode";
 import { BallerinaExtension, ExtendedLangClient, LANGUAGE, PerformanceAnalyzerGraphResponse } from "../core";
 import { ExecutorCodeLensProvider } from "./codelens-provider";
 import { log } from "../utils";
 import keytar = require("keytar");
 import { CHOREO_SERVICE_NAME, CHOREO_ACCESS_TOKEN, CHOREO_COOKIE } from "../project/cmds/choreo-signin";
+import { WebViewRPCHandler, WebViewMethod, getCommonWebViewOptions } from '../utils';
+import { render } from './render';
+
 
 let langClient: ExtendedLangClient;
 
@@ -120,6 +123,9 @@ function addPerformanceLabels(graphData: PerformanceAnalyzerGraphResponse, curre
     const first = sequenceDiagramData[0];
     const values = first.values;
 
+    const currentResource: CurrentResource = new CurrentResource(currentResourcePos,
+        realtimeData.latency);
+        
     let dataLabels: DataLabel[] = [];
     for (let i = 0; i < values.length; i++) {
         const name = values[i].name.replace("(", "").replace(")", "").split("/");
@@ -132,13 +138,47 @@ function addPerformanceLabels(graphData: PerformanceAnalyzerGraphResponse, curre
             parseInt(end[0]), parseInt(end[1]));
         const dataLabel = new DataLabel(file, range, latency);
         dataLabels.push(dataLabel);
+        ExecutorCodeLensProvider.setCurrentResource(currentResource);
+        ExecutorCodeLensProvider.setGraphData(graphData);
+        ExecutorCodeLensProvider.addDataLabels(dataLabels);
+        showPerformanceGraph(graphData.graphData);
     }
-
-    const currentResource: CurrentResource = new CurrentResource(currentResourcePos,
-        realtimeData.latency);
 
     ExecutorCodeLensProvider.setCurrentResource(currentResource);
     ExecutorCodeLensProvider.setGraphData(graphData);
 
     ExecutorCodeLensProvider.addDataLabels(dataLabels);
+}
+
+let performanceGraphPanel: WebviewPanel | undefined;
+
+
+function showPerformanceGraph(data): void {
+    if (performanceGraphPanel) {
+        performanceGraphPanel.reveal();
+        return;
+    }
+    // Create and show a new webview
+    performanceGraphPanel = window.createWebviewPanel(
+        'ballerinaExamples',
+        "Performance Forecast",
+        { viewColumn: ViewColumn.Beside, preserveFocus: true },
+        getCommonWebViewOptions()
+    );
+    const remoteMethods: WebViewMethod[] = [
+        {
+            methodName: "openExample",
+            handler: (args: any[]): Thenable<any> => {
+                return Promise.resolve();
+            }
+        }
+    ];
+    WebViewRPCHandler.create(performanceGraphPanel, langClient, remoteMethods);
+    const html = render(data);
+    if (performanceGraphPanel && html) {
+        performanceGraphPanel.webview.html = html;
+    }
+    performanceGraphPanel.onDidDispose(() => {
+        performanceGraphPanel = undefined;
+    });
 }
