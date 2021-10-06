@@ -27,6 +27,7 @@ interface ListenerConfigFormProps {
     onPortChange: (name: string) => void;
 }
 
+// FixMe: show validation messages to listenerName and listenerPort
 export function ListenerConfigForm(props: ListenerConfigFormProps) {
     const formClasses = useFormStyles();
     const { isDefinedInline, onDefinitionModeChange, onNameChange, onPortChange } = props;
@@ -52,8 +53,6 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                         <FormTextInput
                             dataTestId="listener-name"
                             onChange={onNameChange}
-                            customProps={{
-                            }}
                         />
                     </>
                 )
@@ -68,17 +67,8 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
             </div>
             <FormTextInput
                 dataTestId="listener-port"
-                // defaultValue={serviceBasePath}
                 onChange={onPortChange}
-                customProps={{
-                    // validate: isServicePathValid,
-                    // isErrored: resProps.isPathDuplicated || duplicatedPathsInEdit,
-                    // startAdornment: '/'
-                }}
-            // errorMessage={resProps.isPathDuplicated || duplicatedPathsInEdit ? pathDuplicateErrorMessage : isValidPath ? "" : pathErrorMessage}
-            // placeholder={pathPlaceholder}
             />
-
         </>
     )
 }

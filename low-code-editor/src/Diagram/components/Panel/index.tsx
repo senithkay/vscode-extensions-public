@@ -21,7 +21,7 @@ import { DiagramOverlayContainer } from "../Portals/Overlay";
 import "./style.scss";
 
 interface PanelProps {
-    children: React.ReactNode,
+    children: JSX.Element,
     onClose: () => void;
 }
 

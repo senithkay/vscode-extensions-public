@@ -1,0 +1,68 @@
+/*
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ * the WSO2 Commercial License available at http://wso2.com/licenses.
+ * For specific language governing the permissions and limitations under
+ * this license, please see the license as well as any agreement you’ve
+ * entered into with WSO2 governing the purchase of this software and any
+ * associated services.
+ */
+export interface HTTPServiceConfigState {
+    serviceBasePath: string;
+    listenerConfig: {
+        formVar: boolean,
+        listenerName: string,
+        listenerPort: string,
+    }
+    createNewListener: boolean;
+}
+
+export enum ServiceConfigActionTypes {
+    SET_PATH,
+    SET_LISTENER_NAME,
+    SET_LISTENER_PORT,
+    CREATE_NEW_LISTENER,
+    SELECT_EXISTING_LISTENER,
+    DEFINE_LISTENER_INLINE
+}
+
+export type ServiceConfigActions =
+    { type: ServiceConfigActionTypes.SET_PATH, payload: string }
+    | { type: ServiceConfigActionTypes.CREATE_NEW_LISTENER }
+    | { type: ServiceConfigActionTypes.SET_LISTENER_NAME, payload: string }
+    | { type: ServiceConfigActionTypes.SET_LISTENER_PORT, payload: string }
+    | { type: ServiceConfigActionTypes.SELECT_EXISTING_LISTENER, payload: string }
+    | { type: ServiceConfigActionTypes.DEFINE_LISTENER_INLINE, payload: boolean }
+
+
+export function serviceConfigReducer(
+                                state: HTTPServiceConfigState, action: ServiceConfigActions): HTTPServiceConfigState {
+
+    switch (action.type) {
+        case ServiceConfigActionTypes.SET_PATH:
+            return { ...state, serviceBasePath: action.payload };
+        case ServiceConfigActionTypes.SET_LISTENER_NAME:
+            return { ...state, listenerConfig: { ...state.listenerConfig, listenerName: action.payload } };
+        case ServiceConfigActionTypes.SET_LISTENER_PORT:
+            return { ...state, listenerConfig: { ...state.listenerConfig, listenerPort: action.payload } };
+        case ServiceConfigActionTypes.CREATE_NEW_LISTENER:
+            return {
+                ...state,
+                createNewListener: true,
+                listenerConfig: { formVar: false, listenerName: '', listenerPort: '' }
+            };
+        case ServiceConfigActionTypes.SELECT_EXISTING_LISTENER:
+            return {
+                ...state,
+                createNewListener: false,
+                listenerConfig: { formVar: true, listenerName: action.payload, listenerPort: '' }
+            };
+        case ServiceConfigActionTypes.DEFINE_LISTENER_INLINE:
+            return { ...state, listenerConfig: { ...state.listenerConfig, formVar: action.payload } };
+        default:
+            return state;
+    }
+}
