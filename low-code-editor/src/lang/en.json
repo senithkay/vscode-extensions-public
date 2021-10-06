@@ -230,6 +230,7 @@
     "lowcode.develop.configForms.returnStatementTooltipMessages.expressionEditor.tooltip.actionTitle": "{learnBallerina}",
     "lowcode.develop.configForms.returnStatementTooltipMessages.expressionEditor.tooltip.title": "Enter a Ballerina expression",
     "lowcode.develop.configForms.saveConnectionButton.text": "Save",
+    "lowcode.develop.configForms.statementEditor.title": "Statement Editor",
     "lowcode.develop.configForms.variable.addVariable.name.label": "Name",
     "lowcode.develop.configForms.variable.addVariable.placeholder": "Enter variable name",
     "lowcode.develop.configForms.variable.cancelButton.text": "Cancel",

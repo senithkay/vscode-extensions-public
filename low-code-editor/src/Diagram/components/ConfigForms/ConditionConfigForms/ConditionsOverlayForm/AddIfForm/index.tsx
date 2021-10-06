@@ -10,12 +10,12 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js, ordered-imports
+// tslint:disable: jsx-no-multiline-js ordered-imports
 import React, { useContext, useState } from "react";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
 
-import { CloseRounded, IfIcon } from "../../../../../../assets/icons";
+import { CloseRounded, IfIcon, EditIcon } from "../../../../../../assets/icons";
 
 import { FormField } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
@@ -27,9 +27,12 @@ import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
+import { ViewContainer } from "../../../../Portals/ConfigForm/Elements/StatementEditor/components/ViewContainer/ViewContainer";
+import { StatementEditorButton } from "../../../../Portals/ConfigForm/Elements/Button/StatementEditorButton";
 
 interface IfProps {
     condition: ConditionConfig;
+    formArgs: any;
     onCancel: () => void;
     onSave: () => void;
 }
@@ -44,13 +47,14 @@ export function AddIfForm(props: IfProps) {
             isMutationProgress: isMutationInProgress
         }
     } = useContext(Context);
-    const { condition, onCancel, onSave } = props;
+    const { condition, formArgs, onCancel, onSave } = props;
     const classes = useStyles();
     const overlayClasses = wizardStyles();
     const intl = useIntl();
 
     const [isInvalid, setIsInvalid] = useState(true);
     const [conditionState, setConditionState] = useState(condition);
+    const [isStmtEditor, setIsStmtEditor] = useState(false);
 
     const handleExpEditorChange = (value: string) => {
         // condition.conditionExpression = value;
@@ -101,6 +105,14 @@ export function AddIfForm(props: IfProps) {
         onSave();
     }
 
+    const handleStmtEditorButtonClick = () => {
+        setIsStmtEditor(true);
+    };
+
+    const handleStmtEditorCancel = () => {
+        setIsStmtEditor(false);
+    };
+
     const saveIfConditionButtonLabel = intl.formatMessage({
         id: "lowcode.develop.configForms.if.saveButton.label",
         defaultMessage: "Save"
@@ -111,48 +123,74 @@ export function AddIfForm(props: IfProps) {
         defaultMessage: "Cancel"
     });
 
-    return (
-        <FormControl data-testid="if-form" className={classes.wizardFormControl}>
-            {!isCodeEditorActive ?
-                // tslint:disable-next-line:jsx-no-multiline-js
-                (
-                    <div className={classes.formWrapper}>
-                        <div className={classes.formFeilds}>
-                            <div className={classes.formWrapper}>
-                                <div className={classes.formTitleWrapper}>
-                                    <div className={classes.mainTitleWrapper}>
-                                        <div className={classes.iconWrapper}>
-                                            <IfIcon />
+    let exprEditor =
+        (
+            <FormControl data-testid="if-form" className={classes.wizardFormControl}>
+                {!isCodeEditorActive ?
+                    // tslint:disable-next-line:jsx-no-multiline-js
+                    (
+                        <div className={classes.formWrapper}>
+                            <div className={classes.formFeilds}>
+                                <div className={classes.formWrapper}>
+                                    <div className={classes.formTitleWrapper}>
+                                        <div className={classes.mainTitleWrapper}>
+                                            <div className={classes.iconWrapper}>
+                                                <IfIcon />
+                                            </div>
+                                            <Typography variant="h4">
+                                                <Box paddingTop={2} paddingBottom={2}>
+                                                    <FormattedMessage
+                                                        id="lowcode.develop.configForms.if.title"
+                                                        defaultMessage="If"
+                                                    />
+                                                </Box>
+                                            </Typography>
+                                            <div style={{marginLeft: "auto", marginRight: 0}}>
+                                                <StatementEditorButton onClick={handleStmtEditorButtonClick} disabled={true} />
+                                            </div>
                                         </div>
-                                        <Typography variant="h4">
-                                            <Box paddingTop={2} paddingBottom={2}>
-                                                <FormattedMessage
-                                                    id="lowcode.develop.configForms.if.title"
-                                                    defaultMessage="If"
-                                                />
-                                            </Box>
-                                        </Typography>
+                                    </div>
+                                    <div className="exp-wrapper">
+                                        <ExpressionEditor {...expElementProps} />
                                     </div>
                                 </div>
-                                <div className="exp-wrapper">
-                                    <ExpressionEditor {...expElementProps} />
-                                </div>
                             </div>
+                            <FormActionButtons
+                                cancelBtnText={cancelIfButtonLabel}
+                                saveBtnText={saveIfConditionButtonLabel}
+                                isMutationInProgress={isMutationInProgress}
+                                validForm={!isInvalid}
+                                onSave={handleOnSaveClick}
+                                onCancel={onCancel}
+                            />
                         </div>
-                        <FormActionButtons
-                            cancelBtnText={cancelIfButtonLabel}
-                            saveBtnText={saveIfConditionButtonLabel}
-                            isMutationInProgress={isMutationInProgress}
-                            validForm={!isInvalid}
-                            onSave={handleOnSaveClick}
-                            onCancel={onCancel}
-                        />
-                    </div>
-                )
-                :
-                null
-            }
-        </FormControl>
+                    )
+                    :
+                    null
+                }
+            </FormControl>
+        );
+
+    if (isStmtEditor) {
+        exprEditor =
+            (
+                <FormControl data-testid="property-form">
+                    {!isCodeEditorActive ? (
+                        <div>
+                            // TODO: Send proper props according to the form type
+                            <ViewContainer
+                                kind="DefaultBoolean"
+                                label="Variable Statement"
+                                formArgs={formArgs}
+                                onCancel={handleStmtEditorCancel}
+                            />
+                        </div>
+                    ) : null}
+                </FormControl>
+            );
+    }
+
+    return (
+        exprEditor
     );
 }
-
