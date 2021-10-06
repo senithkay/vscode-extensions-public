@@ -17,7 +17,11 @@ import {NumericLiteral, STKindChecker, STNode, StringLiteral, traversNode} from 
 import debounce from "lodash.debounce";
 import { monaco } from "react-monaco-editor";
 import { Context } from "../../../../../../../../Contexts/Diagram";
-import { ExpressionEditorLangClientInterface } from "../../../../../../../../Definitions";
+import {
+    CompletionParams,
+    CompletionResponse,
+    ExpressionEditorLangClientInterface
+} from "../../../../../../../../Definitions";
 import { addToTargetLine, addToTargetPosition, getDiagnosticMessage, getFilteredDiagnostics, getTargetPosition } from "../../../ExpressionEditor/utils";
 import * as c from "../../constants";
 import { ModelContext } from "../../store/model-context";
@@ -26,6 +30,7 @@ import { visitor as CodeGenVisitor } from "../../visitors/code-gen-visitor";
 import { FormContext } from "../../store/form-context";
 import { SuggestionItem, VariableUserInputs } from "../../models/definitions";
 import { statementEditorStyles } from "../ViewContainer/styles";
+import { acceptedCompletionKind } from "./constants";
 
 export interface InputEditorProps {
     model: STNode,
@@ -88,6 +93,7 @@ export function InputEditor(props: InputEditorProps) {
         CodeGenVisitor.clearCodeSnippet();
         traversNode(modelCtx.statementModel, CodeGenVisitor);
         const ignore = handleOnFocus(CodeGenVisitor.getCodeSnippet(), "");
+        getCompletions("");
     }, [statementType]);
 
     useEffect(() => {
@@ -213,6 +219,37 @@ export function InputEditor(props: InputEditorProps) {
                 });
             });
         }
+    }
+
+    const getCompletions = async (codeSnippet:string) => {
+        console.log("====CODE-SNIPPET", codeSnippet)
+        const completionParams: CompletionParams = {
+            textDocument: {
+                uri: inputEditorState?.uri
+            },
+            context: {
+                triggerKind: 1
+            },
+            position: {
+                character: ((CodeGenVisitor.getCodeSnippet().length - 1) + (snippetTargetPosition - 1)),
+                line: targetPosition.startLine
+            }
+        }
+
+        getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
+            langClient.getCompletion(completionParams).then((values: CompletionResponse[]) => {
+                const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (
+                    (!completionResponse.kind || acceptedCompletionKind.includes(completionResponse.kind)) &&
+                    completionResponse.label !== varName &&
+                    completionResponse.detail === varType &&
+                    ((completionResponse.label.replace(/["]+/g, '')).includes(codeSnippet.slice(0,-1))) &&
+                    !(completionResponse.label.includes("main"))
+                ));
+                console.log("====FILTERED-COMPLETION", filteredCompletionItem)
+
+
+            });
+        });
     }
 
     if (formCtx.onCancel) {
