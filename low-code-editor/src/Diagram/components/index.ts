@@ -45,4 +45,4 @@ export { Function as ObjectMethodDefinition };
 export { ModulePartComponent as ModulePart };
 export { While as WhileStatement };
 export { ClassComponent as ClassDefinition }
-export {EnumDeclarationComponent as EnumDeclaration}
+export { EnumDeclarationComponent as EnumDeclaration }

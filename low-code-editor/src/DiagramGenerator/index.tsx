@@ -19,7 +19,7 @@ import messages from '../lang/en.json';
 import { CirclePreloader } from "../PreLoader/CirclePreloader";
 
 import { DiagramGenErrorBoundary } from "./ErrorBoundrary";
-import { getLowcodeST, getSyntaxTree } from "./generatorUtil";
+import { getDefaultSelectedPosition, getLowcodeST, getSyntaxTree } from "./generatorUtil";
 import { useGeneratorStyles } from "./styles";
 import { theme } from "./theme";
 import { EditorProps } from "./vscode/Diagram";
@@ -34,12 +34,7 @@ const MAX_ZOOM = 2;
 const MIN_ZOOM = 0.6;
 
 export function DiagramGenerator(props: DiagramGeneratorProps) {
-    const { langClient, filePath, startLine: stLine, startColumn, lastUpdatedAt, scale, panX, panY } = props;
-    // FIXME Improve line passing properly without having to do toString()
-    // Moving existing code from wrapper inside for the moment for refactoring purposes
-    const startLine = stLine.toString();
-    const startCharacter = startColumn.toString();
-
+    const { langClient, filePath, startLine, startColumn, lastUpdatedAt, scale, panX, panY } = props;
     const classes = useGeneratorStyles();
     const defaultScale = scale ? Number(scale) : 1;
     const defaultPanX = panX ? Number(panX) : 0;
@@ -59,7 +54,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         (async () => {
             try {
                 const genSyntaxTree = await getSyntaxTree(filePath, langClient);
-                const vistedSyntaxTree: STNode = getLowcodeST(genSyntaxTree, startLine, startCharacter);
+                const vistedSyntaxTree: STNode = getLowcodeST(genSyntaxTree);
                 if (!vistedSyntaxTree) {
                     return (<div><h1>Parse error...!</h1></div>);
                 }
@@ -111,6 +106,12 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     // on top of typed context
     const missingProps: any = {};
 
+    const selectedPosition = startColumn === 0 && startLine === 0 // TODO: change to use undefined for unselection
+        ? getDefaultSelectedPosition(syntaxTree)
+        : {
+            startLine,
+            startColumn
+        }
     return (
         <MuiThemeProvider theme={theme}>
             <div className={classes.lowCodeContainer}>
@@ -118,6 +119,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                     <DiagramGenErrorBoundary>
                         <LowCodeEditor
                             {...missingProps}
+                            selectedPosition={selectedPosition}
                             isReadOnly={false}
                             syntaxTree={syntaxTree}
                             zoomStatus={zoomStatus}
@@ -162,7 +164,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                             }
                                         });
                                         if (parseSuccess) {
-                                            const vistedSyntaxTree: STNode = getLowcodeST(newST, startLine, startCharacter);
+                                            const vistedSyntaxTree: STNode = getLowcodeST(newST);
                                             setSyntaxTree(vistedSyntaxTree);
                                             setFileContent(source);
                                             props.updateFileContent(filePath, source);

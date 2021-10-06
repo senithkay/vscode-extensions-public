@@ -224,7 +224,7 @@ export const wizardStyles = makeStyles((theme: Theme) =>
         },
         loaderWrapper: {
             height: "100%",
-            width: "100%",
+            width: 301,
             display: 'flex',
         },
         connectionNameWrapper: {

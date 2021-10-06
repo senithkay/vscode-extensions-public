@@ -16,18 +16,18 @@ export const useStyles = makeStyles(() =>
     createStyles({
         overlayBackground: {
             background: '#e6e7ec6e',
-            top: '-250rem;',
             position: 'fixed',
             zIndex: 1,
-            left: '-250rem',
+            top: '-100rem',
+            left: '-100rem'
         },
 
         confirmationOverlayBackground: {
-            background: 'rgba(255,255,255,0.9)',
-            top: '-250rem;',
+            background: '#e6e7ec6e',
             position: 'fixed',
             zIndex: 2,
-            left: '-250rem',
+            top: 0,
+            left: 0
         },
     }),
 );

@@ -15,6 +15,7 @@ import React, { useEffect, useRef, useState } from "react";
 
 import { STNode } from "@ballerina/syntax-tree";
 
+import { DraftUpdateStatement } from "../../../api/models";
 import TopLevelPlusIcon from "../../../assets/icons/TopLevelPlusIcon";
 import { DraftInsertPosition } from "../../view-state/draft";
 import { OverlayBackground } from "../OverlayBackground";
@@ -37,7 +38,7 @@ export interface PlusProps {
     kind: string,
     initPlus?: boolean;
     margin?: Margin;
-    targetPosition?: DraftInsertPosition;
+    targetPosition?: DraftUpdateStatement;
 }
 
 export const TopLevelPlus = (props: PlusProps) => {
@@ -66,11 +67,11 @@ export const TopLevelPlus = (props: PlusProps) => {
                                 onClose={handlePlusOptionsClose}
                                 targetPosition={targetPosition}
                             />
+                            {isPlusOptionsVisible && <OverlayBackground />}
                         </DiagramOverlay>
                     </DiagramOverlayContainer>
                 )
             }
-            {isPlusOptionsVisible && <OverlayBackground />}
         </div>
     );
 };

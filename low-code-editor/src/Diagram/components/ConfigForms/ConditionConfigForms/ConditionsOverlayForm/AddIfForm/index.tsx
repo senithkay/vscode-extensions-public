@@ -20,14 +20,13 @@ import { CloseRounded, IfIcon, EditIcon } from "../../../../../../assets/icons";
 import { FormField } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
 import { ButtonWithIcon } from "../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
-import { PrimaryButton } from "../../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
-import { SecondaryButton } from "../../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { ConditionConfig, FormElementProps } from "../../../../Portals/ConfigForm/types";
 import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
+import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
 import { ViewContainer } from "../../../../Portals/ConfigForm/Elements/StatementEditor/components/ViewContainer/ViewContainer";
 import { StatementEditorButton } from "../../../../Portals/ConfigForm/Elements/Button/StatementEditorButton";
 
@@ -126,50 +125,47 @@ export function AddIfForm(props: IfProps) {
 
     let exprEditor =
         (
-        <FormControl data-testid="if-form" className={classes.wizardFormControl}>
-            {!isCodeEditorActive ?
-                // tslint:disable-next-line:jsx-no-multiline-js
-                (
-                    <div className={classes.formWrapper}>
+            <FormControl data-testid="if-form" className={classes.wizardFormControl}>
+                {!isCodeEditorActive ?
+                    // tslint:disable-next-line:jsx-no-multiline-js
+                    (
                         <div className={classes.formWrapper}>
-                            <div className={classes.formTitleWrapper}>
-                                <div className={classes.mainTitleWrapper}>
-                                    <div className={classes.iconWrapper}>
-                                        <IfIcon />
+                            <div className={classes.formFeilds}>
+                                <div className={classes.formWrapper}>
+                                    <div className={classes.formTitleWrapper}>
+                                        <div className={classes.mainTitleWrapper}>
+                                            <div className={classes.iconWrapper}>
+                                                <IfIcon />
+                                            </div>
+                                            <Typography variant="h4">
+                                                <Box paddingTop={2} paddingBottom={2}>
+                                                    <FormattedMessage
+                                                        id="lowcode.develop.configForms.if.title"
+                                                        defaultMessage="If"
+                                                    />
+                                                </Box>
+                                            </Typography>
+                                        </div>
                                     </div>
-                                    <Typography variant="h4">
-                                        <Box paddingTop={2} paddingBottom={2}>
-                                            <FormattedMessage
-                                                id="lowcode.develop.configForms.if.title"
-                                                defaultMessage="If"
-                                            />
-                                        </Box>
-                                    </Typography>
-                                    <div style={{ marginLeft: "auto", marginRight: 0 }}>
-                                        <StatementEditorButton onClick={handleStmtEditorButtonClick} disabled={true} />
+                                    <div className="exp-wrapper">
+                                        <ExpressionEditor {...expElementProps} />
                                     </div>
                                 </div>
                             </div>
-                            <div className="exp-wrapper">
-                                <ExpressionEditor {...expElementProps} />
-                            </div>
-                        </div>
-                        <div className={overlayClasses.buttonWrapper}>
-                            <SecondaryButton text={cancelIfButtonLabel} fullWidth={false} onClick={onCancel} />
-                            <PrimaryButton
-                                dataTestId={"if-save-btn"}
-                                text={saveIfConditionButtonLabel}
-                                disabled={isMutationInProgress || isInvalid}
-                                fullWidth={false}
-                                onClick={handleOnSaveClick}
+                            <FormActionButtons
+                                cancelBtnText={cancelIfButtonLabel}
+                                saveBtnText={saveIfConditionButtonLabel}
+                                isMutationInProgress={isMutationInProgress}
+                                validForm={!isInvalid}
+                                onSave={handleOnSaveClick}
+                                onCancel={onCancel}
                             />
                         </div>
-                    </div>
-                )
-                :
-                null
-            }
-        </FormControl>
+                    )
+                    :
+                    null
+                }
+            </FormControl>
         );
 
     if (isStmtEditor) {
@@ -195,4 +191,3 @@ export function AddIfForm(props: IfProps) {
         exprEditor
     );
 }
-

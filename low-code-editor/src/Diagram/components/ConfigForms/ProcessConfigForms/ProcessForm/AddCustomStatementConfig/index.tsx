@@ -17,8 +17,6 @@ import { Box, FormControl, Typography } from "@material-ui/core";
 import { WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
 import { ButtonWithIcon } from "../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
-import { PrimaryButton } from "../../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
-import { SecondaryButton } from "../../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { CustomExpressionConfig, ProcessConfig } from "../../../../Portals/ConfigForm/types";
@@ -28,6 +26,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { CloseRounded, EditIcon } from "../../../../../../assets/icons";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import LogoCircleIcon from "../../../../../../assets/icons/LogoCircle";
+import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
 import { ViewContainer } from "../../../../Portals/ConfigForm/Elements/StatementEditor/components/ViewContainer/ViewContainer";
 import { StatementEditorButton } from "../../../../Portals/ConfigForm/Elements/Button/StatementEditorButton";
 
@@ -106,62 +105,58 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
     }
     let exprEditor =
         (
-        < FormControl data-testid="custom-expression-form" className={formClasses.wizardFormControl}>
-            {!isCodeEditorActive ?
-                (
-                    <div className={formClasses.formWrapper}>
+            <FormControl data-testid="custom-expression-form" className={formClasses.wizardFormControl}>
+                {!isCodeEditorActive ?
+                    (
                         <div className={formClasses.formWrapper}>
-                            <div className={formClasses.formTitleWrapper}>
-                                <div className={formClasses.mainTitleWrapper}>
-                                    <LogoCircleIcon />
-                                    <Typography variant="h4">
-                                        <Box paddingTop={2} paddingBottom={2}>
-                                            <FormattedMessage
-                                                id="lowcode.develop.configForms.customStatement.title"
-                                                defaultMessage="Other"
-                                            />
-                                        </Box>
-                                    </Typography>
-                                    <div style={{ marginLeft: "auto", marginRight: 0 }}>
-                                        <StatementEditorButton onClick={handleStmtEditorButtonClick} disabled={true} />
+                            <div className={formClasses.formFeilds}>
+                                <div className={formClasses.formWrapper}>
+                                    <div className={formClasses.formTitleWrapper}>
+                                        <div className={formClasses.mainTitleWrapper}>
+                                            <LogoCircleIcon />
+                                            <Typography variant="h4">
+                                                <Box paddingTop={2} paddingBottom={2}>
+                                                    <FormattedMessage
+                                                        id="lowcode.develop.configForms.customStatement.title"
+                                                        defaultMessage="Other"
+                                                    />
+                                                </Box>
+                                            </Typography>
+                                        </div>
+                                    </div>
+                                    <div className="exp-wrapper">
+                                        <ExpressionEditor
+                                            model={{ name: "statement", value: expression }}
+                                            customProps={{
+                                                validate: validateExpression,
+                                                tooltipTitle: customStatementTooltipMessages.title,
+                                                tooltipActionText: customStatementTooltipMessages.actionText,
+                                                tooltipActionLink: customStatementTooltipMessages.actionLink,
+                                                interactive: true,
+                                                customTemplate: {
+                                                    defaultCodeSnippet: '',
+                                                    targetColumn: 1,
+                                                },
+                                            }}
+                                            onChange={onExpressionChange}
+                                        />
                                     </div>
                                 </div>
                             </div>
-                            <div className="exp-wrapper">
-                                <ExpressionEditor
-                                    model={{ name: "statement", value: expression }}
-                                    customProps={{
-                                        validate: validateExpression,
-                                        tooltipTitle: customStatementTooltipMessages.title,
-                                        tooltipActionText: customStatementTooltipMessages.actionText,
-                                        tooltipActionLink: customStatementTooltipMessages.actionLink,
-                                        interactive: true,
-                                        customTemplate: {
-                                            defaultCodeSnippet: '',
-                                            targetColumn: 1,
-                                        },
-                                    }}
-                                    onChange={onExpressionChange}
-                                />
-
-                            </div>
-                        </div>
-                        <div className={overlayClasses.buttonWrapper}>
-                            <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
-                            <PrimaryButton
-                                dataTestId={"custom-expression-save-btn"}
-                                text={saveCustomStatementButtonLabel}
-                                disabled={isMutationInProgress || !isFormValid}
-                                fullWidth={false}
-                                onClick={onSaveBtnClick}
+                            <FormActionButtons
+                                cancelBtnText="Cancel"
+                                saveBtnText={saveCustomStatementButtonLabel}
+                                isMutationInProgress={isMutationInProgress}
+                                validForm={isFormValid}
+                                onSave={onSaveBtnClick}
+                                onCancel={onCancel}
                             />
                         </div>
-                    </div>
-                )
-                :
-                null
-            }
-        </FormControl>
+                    )
+                    :
+                    null
+                }
+            </FormControl>
         );
 
     if (isStmtEditor) {
@@ -187,4 +182,3 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         exprEditor
     );
 }
-
