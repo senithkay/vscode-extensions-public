@@ -4,7 +4,7 @@ import { InitializeParams, InitializeResult,
     Location, TextDocumentPositionParams } from "vscode-languageserver-protocol";
 
 import { BallerinaASTNode, BallerinaEndpoint, BallerinaSourceFragment } from "./ast-models";
-import { ASTDidChangeParams, ASTDidChangeResponse, BallerinaConnectorRequest, BallerinaConnectorResponse, BallerinaConnectorsResponse, BallerinaExampleListParams,
+import { ASTDidChangeParams, ASTDidChangeResponse, BallerinaConnectorRequest, BallerinaConnectorResponse, BallerinaConnectorsRequest, BallerinaConnectorsResponse, BallerinaExampleListParams,
     BallerinaExampleListResponse, BallerinaProject, BallerinaRecordRequest, BallerinaRecordResponse, DidOpenParams, GetASTParams, GetASTResponse,
     GetBallerinaProjectParams, GetProjectASTParams, GetProjectASTResponse, GetSyntaxTreeParams,
     GetSyntaxTreeResponse, GoToSourceParams, IBallerinaLangClient, RevealRangeParams } from "./model";
@@ -81,7 +81,7 @@ export class BallerinaLangClient implements IBallerinaLangClient {
     }
 
 
-    public getConnectors(): Thenable<BallerinaConnectorsResponse> {
+    public getConnectors(params: BallerinaConnectorsRequest): Thenable<BallerinaConnectorsResponse> {
         return this.lsConnection.sendRequest<BallerinaConnectorsResponse>("ballerinaConnector/connectors");
     }
 
