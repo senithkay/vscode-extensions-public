@@ -280,6 +280,9 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                                     <Typography variant="h4">
                                         <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.variable.title" defaultMessage="Variable" /></Box>
                                     </Typography>
+                                    <div style={{marginLeft: "auto", marginRight: 0}}>
+                                        <StatementEditorButton onClick={handleStmtEditorButtonClick} disabled={!isStringType} />
+                                    </div>
                                 </div>
                             </div>
                             <div className={classes.activeWrapper}>

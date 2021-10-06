@@ -135,6 +135,9 @@ export function AddWhileForm(props: WhileProps) {
                                             />
                                         </Box>
                                     </Typography>
+                                    <div style={{marginLeft: "auto", marginRight: 0}}>
+                                        <StatementEditorButton onClick={handleStmtEditorButtonClick} disabled={true} />
+                                    </div>
                                 </div>
                             </div>
                             <div className="exp-wrapper">

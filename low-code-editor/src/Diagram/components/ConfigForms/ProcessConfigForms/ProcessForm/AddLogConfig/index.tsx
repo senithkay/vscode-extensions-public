@@ -141,6 +141,9 @@ export function AddLogConfig(props: LogConfigProps) {
                                             <Typography variant="h4">
                                                 <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.log.title" defaultMessage="Log" /></Box>
                                             </Typography>
+                                            <div style={{marginLeft: "auto", marginRight: 0}}>
+                                                <StatementEditorButton onClick={handleStmtEditorButtonClick} disabled={true} />
+                                            </div>
                                         </div>
                                     </div>
                                     <SelectDropdownWithButton
