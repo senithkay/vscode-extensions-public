@@ -18,8 +18,6 @@ import { Box, FormControl, Typography } from "@material-ui/core";
 
 import { Context } from "../../../../../../Contexts/Diagram";
 import { ButtonWithIcon } from "../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
-import { PrimaryButton } from "../../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
-import { SecondaryButton } from "../../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { EndConfig } from "../../../../Portals/ConfigForm/types";
@@ -29,6 +27,7 @@ import { CloseRounded, ReturnIcon } from "../../../../../../assets/icons";
 
 import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
+import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
 
 interface ReturnFormProps {
     config: EndConfig;
@@ -93,19 +92,20 @@ export function AddReturnForm(props: ReturnFormProps) {
             {!isCodeEditorActive ?
                 (
                     <div className={classes.formWrapper}>
-                        <div className={classes.formTitleWrapper}>
-                            <div className={classes.mainTitleWrapper}>
-                                <div className={classes.iconWrapper}>
-                                    <ReturnIcon />
+                        <div className={classes.formFeilds}>
+                            <div className={classes.formTitleWrapper}>
+                                <div className={classes.mainTitleWrapper}>
+                                    <div className={classes.iconWrapper}>
+                                        <ReturnIcon />
+                                    </div>
+                                    <Typography variant="h4">
+                                        <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.Return.title" defaultMessage="Return" /></Box>
+                                    </Typography>
                                 </div>
-                                <Typography variant="h4">
-                                    <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.Return.title" defaultMessage="Return"/></Box>
-                                </Typography>
-                            </div>
 
-                            <div className={classes.formWrapper}>
-                                {
-                                    // containsMainFunction ?
+                                <div className={classes.formWrapper}>
+                                    {
+                                        // containsMainFunction ?
                                         (
                                             <div className="exp-wrapper">
                                                 <ExpressionEditor
@@ -123,19 +123,19 @@ export function AddReturnForm(props: ReturnFormProps) {
                                             </div>
                                         )
                                         // : null
-                                }
+                                    }
 
+                                </div>
                             </div>
                         </div>
-                        <div className={overlayClasses.buttonWrapper}>
-                            <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
-                            <PrimaryButton
-                                text={saveReturnButtonLabel}
-                                disabled={isButtonDisabled}
-                                fullWidth={false}
-                                onClick={onReturnExpressionSave}
-                            />
-                        </div>
+                        <FormActionButtons
+                            cancelBtnText="Cancel"
+                            saveBtnText={saveReturnButtonLabel}
+                            isMutationInProgress={isMutationInProgress}
+                            validForm={isValidValue}
+                            onSave={onReturnExpressionSave}
+                            onCancel={onCancel}
+                        />
                     </div>
                 )
                 :

@@ -503,5 +503,8 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginBottom: "15px",
             padding: "5px 0"
         },
+        formFeilds: {
+            marginBottom: '50px',
+        }
     }),
 );
