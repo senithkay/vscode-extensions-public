@@ -30,8 +30,8 @@ import { FormTextInput } from "../../../../Elements/TextField/FormTextInput";
 import { useStyles as useFormStyles } from "../../../style";
 
 import { ListenerConfigForm } from "./ListenerConfigForm";
-import { HTTPServiceConfigState, ServiceConfigActionTypes, serviceConfigReducer } from "./util/reducer";
 import { isServiceConfigValid } from "./util";
+import { HTTPServiceConfigState, ServiceConfigActionTypes, serviceConfigReducer } from "./util/reducer";
 
 interface HttpServiceFormProps {
     model?: STNode;
