@@ -34,10 +34,11 @@ interface PathSegmentEditorProps {
     segment?: QueryParam,
     onSave?: (segment: QueryParam) => void;
     onCancel?: () => void;
+    types?: string[];
 }
 
 export function QueryParamSegmentEditor(props: PathSegmentEditorProps) {
-    const { segment, onSave, id, onCancel } = props;
+    const { segment, onSave, id, onCancel, types } = props;
     const classes = useStyles();
     const { props: { stSymbolInfo } } = useContext(Context);
     const initValue: QueryParam = segment ? { ...segment } : {
@@ -102,7 +103,7 @@ export function QueryParamSegmentEditor(props: PathSegmentEditorProps) {
                             defaultValue={segmentState?.type}
                             customProps={
                                 {
-                                    values: queryParamTypes,
+                                    values: types || queryParamTypes,
                                     disableCreateNew: true,
                                 }
                             }

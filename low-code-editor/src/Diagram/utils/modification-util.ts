@@ -671,3 +671,20 @@ export async function InsertorDelete(modifications: STModification[]): Promise<S
     }
     return stModifications;
 }
+
+export function createFunctionSignature(name: string, parameters: string, returnTypes: string, targetPosition: DraftInsertPosition): STModification {
+    const functionStatement: STModification = {
+        startLine: targetPosition.line,
+        startColumn: 0,
+        endLine: targetPosition.line,
+        endColumn: 0,
+        type: "FUNCTION_DEFINITION",
+        config: {
+            "NAME": name,
+            "PARAMETERS": parameters,
+            "RETURN_TYPE": returnTypes
+        }
+    };
+
+    return functionStatement;
+}
