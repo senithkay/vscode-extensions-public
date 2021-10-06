@@ -22,8 +22,8 @@ import { httpResponse, PrimitiveBalType, WizardType } from "../../../../../../Co
 import { Context } from "../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { ButtonWithIcon } from "../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
-import { ButtonPanel } from "../../../../Portals/ConfigForm/Elements/ButtonPanel";
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
+import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
 import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { EndConfig, RespondConfig } from "../../../../Portals/ConfigForm/types";
 import { wizardStyles } from "../../../style";
@@ -196,12 +196,12 @@ export function AddRespondForm(props: RespondFormProps) {
                                 {(!config.model) ? statusCodeComp : null}
                             </div>
                         </div>
-                        <ButtonPanel
+                        <FormActionButtons
                             cancelBtnText="Cancel"
                             saveBtnText={saveRespondButtonLabel}
                             isMutationInProgress={isMutationInProgress}
                             validForm={validForm}
-                            handleSave={onSaveWithTour}
+                            onSave={onSaveWithTour}
                             onCancel={onCancel}
                         />
                     </div>

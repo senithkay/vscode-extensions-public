@@ -29,7 +29,7 @@ import { LogConfig, ProcessConfig } from "../../../../Portals/ConfigForm/types";
 import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
-import { ButtonPanel } from "../../../../Portals/ConfigForm/Elements/ButtonPanel";
+import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
 
 interface LogConfigProps {
     config: ProcessConfig;
@@ -156,12 +156,12 @@ export function AddLogConfig(props: LogConfigProps) {
                                 </div>
                             </div>
                         </div>
-                        <ButtonPanel
+                        <FormActionButtons
                             cancelBtnText="Cancel"
                             saveBtnText={saveLogButtonLabel}
                             isMutationInProgress={isMutationInProgress}
                             validForm={!!isFormValid}
-                            handleSave={onSaveBtnClick}
+                            onSave={onSaveBtnClick}
                             onCancel={onCancel}
                         />
                     </div>

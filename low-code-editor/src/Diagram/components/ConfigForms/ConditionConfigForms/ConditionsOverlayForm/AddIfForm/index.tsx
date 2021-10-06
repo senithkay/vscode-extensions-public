@@ -26,7 +26,7 @@ import { ConditionConfig, FormElementProps } from "../../../../Portals/ConfigFor
 import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
-import { ButtonPanel } from "../../../../Portals/ConfigForm/Elements/ButtonPanel";
+import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
 
 interface IfProps {
     condition: ConditionConfig;
@@ -139,12 +139,12 @@ export function AddIfForm(props: IfProps) {
                                 </div>
                             </div>
                         </div>
-                        <ButtonPanel
+                        <FormActionButtons
                             cancelBtnText={cancelIfButtonLabel}
                             saveBtnText={saveIfConditionButtonLabel}
                             isMutationInProgress={isMutationInProgress}
                             validForm={!isInvalid}
-                            handleSave={handleOnSaveClick}
+                            onSave={handleOnSaveClick}
                             onCancel={onCancel}
                         />
                     </div>

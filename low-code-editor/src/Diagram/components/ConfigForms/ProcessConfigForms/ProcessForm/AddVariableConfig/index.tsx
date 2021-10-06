@@ -22,9 +22,9 @@ import { PrimitiveBalType, WizardType } from "../../../../../../ConfigurationSpe
 import { Context } from "../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { getAllVariables } from "../../../../../utils/mixins";
-import { ButtonPanel } from "../../../../Portals/ConfigForm/Elements/ButtonPanel";
 import { SelectDropdownWithButton } from "../../../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
+import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
 import { FormTextInput } from "../../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
 import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { ProcessConfig } from "../../../../Portals/ConfigForm/types";
@@ -304,12 +304,12 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                                 </div>
                             </div>
                         </div>
-                        <ButtonPanel
+                        <FormActionButtons
                             cancelBtnText={cancelVariableButtonText}
                             saveBtnText={saveVariableButtonText}
                             isMutationInProgress={isMutationInProgress}
                             validForm={validForm}
-                            handleSave={handleSave}
+                            onSave={handleSave}
                             onCancel={onCancel}
                         />
                     </div>

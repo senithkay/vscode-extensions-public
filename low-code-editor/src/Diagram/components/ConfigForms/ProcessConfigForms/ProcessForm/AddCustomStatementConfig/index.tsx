@@ -26,7 +26,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { CloseRounded } from "../../../../../../assets/icons";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import LogoCircleIcon from "../../../../../../assets/icons/LogoCircle";
-import { ButtonPanel } from "../../../../Portals/ConfigForm/Elements/ButtonPanel";
+import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
 
 interface LogConfigProps {
     config: ProcessConfig;
@@ -129,12 +129,12 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                                 </div>
                             </div>
                         </div>
-                        <ButtonPanel
+                        <FormActionButtons
                             cancelBtnText="Cancel"
                             saveBtnText={saveCustomStatementButtonLabel}
                             isMutationInProgress={isMutationInProgress}
                             validForm={isFormValid}
-                            handleSave={onSaveBtnClick}
+                            onSave={onSaveBtnClick}
                             onCancel={onCancel}
                         />
                     </div>

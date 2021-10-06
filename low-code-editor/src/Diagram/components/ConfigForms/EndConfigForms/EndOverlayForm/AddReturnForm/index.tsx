@@ -27,7 +27,7 @@ import { CloseRounded, ReturnIcon } from "../../../../../../assets/icons";
 
 import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
-import { ButtonPanel } from "../../../../Portals/ConfigForm/Elements/ButtonPanel";
+import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
 
 interface ReturnFormProps {
     config: EndConfig;
@@ -128,12 +128,12 @@ export function AddReturnForm(props: ReturnFormProps) {
                                 </div>
                             </div>
                         </div>
-                        <ButtonPanel
+                        <FormActionButtons
                             cancelBtnText="Cancel"
                             saveBtnText={saveReturnButtonLabel}
                             isMutationInProgress={isMutationInProgress}
                             validForm={isValidValue}
-                            handleSave={onReturnExpressionSave}
+                            onSave={onReturnExpressionSave}
                             onCancel={onCancel}
                         />
                     </div>

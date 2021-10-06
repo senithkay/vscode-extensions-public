@@ -17,18 +17,18 @@ import { SecondaryButton } from "../Button/SecondaryButton";
 
 import { useStyles } from "./style";
 
-export interface ButtonPanelProps {
+export interface FormActionButtonsProps {
     cancelBtnText?: string;
     saveBtnText?: string;
     isMutationInProgress?: boolean;
     validForm?: boolean;
-    handleSave?: () => void,
+    onSave?: () => void,
     onCancel?: () => void
 }
 
-export function ButtonPanel(props: ButtonPanelProps) {
+export function FormActionButtons(props: FormActionButtonsProps) {
     const classes = useStyles();
-    const { cancelBtnText, saveBtnText, isMutationInProgress, validForm, handleSave, onCancel } = props;
+    const { cancelBtnText, saveBtnText, isMutationInProgress, validForm, onSave, onCancel } = props;
     return (
         <div className={classes.formSave}>
             <div className={classes.buttonWrapper}>
@@ -38,7 +38,7 @@ export function ButtonPanel(props: ButtonPanelProps) {
                     text={saveBtnText}
                     disabled={isMutationInProgress || !validForm}
                     fullWidth={false}
-                    onClick={handleSave}
+                    onClick={onSave}
                 />
             </div>
         </div>

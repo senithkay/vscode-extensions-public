@@ -31,7 +31,7 @@ import { genVariableName } from "../../../../Portals/utils";
 import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
-import { ButtonPanel } from "../../../../Portals/ConfigForm/Elements/ButtonPanel";
+import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
 
 interface Iterations {
     start?: string;
@@ -225,12 +225,12 @@ export function AddForeachForm(props: ForeachProps) {
                                 </div>
                             </div>
                         </div>
-                        <ButtonPanel
+                        <FormActionButtons
                             cancelBtnText={cancelForEachButtonLabel}
                             saveBtnText={saveForEachButtonLabel}
                             isMutationInProgress={isMutationInProgress}
                             validForm={!isInvalid}
-                            handleSave={handleSave}
+                            onSave={handleSave}
                             onCancel={onCancel}
                         />
                     </div>
