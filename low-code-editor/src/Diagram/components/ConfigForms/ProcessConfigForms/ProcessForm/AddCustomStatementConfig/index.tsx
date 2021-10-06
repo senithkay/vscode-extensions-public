@@ -130,8 +130,8 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                             </div>
                         </div>
                         <ButtonPanel
-                            cancelText="Cancel"
-                            saveText={saveCustomStatementButtonLabel}
+                            cancelBtnText="Cancel"
+                            saveBtnText={saveCustomStatementButtonLabel}
                             isMutationInProgress={isMutationInProgress}
                             validForm={isFormValid}
                             handleSave={onSaveBtnClick}

@@ -140,8 +140,8 @@ export function AddIfForm(props: IfProps) {
                             </div>
                         </div>
                         <ButtonPanel
-                            cancelText={cancelIfButtonLabel}
-                            saveText={saveIfConditionButtonLabel}
+                            cancelBtnText={cancelIfButtonLabel}
+                            saveBtnText={saveIfConditionButtonLabel}
                             isMutationInProgress={isMutationInProgress}
                             validForm={!isInvalid}
                             handleSave={handleOnSaveClick}

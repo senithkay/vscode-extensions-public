@@ -305,8 +305,8 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                             </div>
                         </div>
                         <ButtonPanel
-                            cancelText={cancelVariableButtonText}
-                            saveText={saveVariableButtonText}
+                            cancelBtnText={cancelVariableButtonText}
+                            saveBtnText={saveVariableButtonText}
                             isMutationInProgress={isMutationInProgress}
                             validForm={validForm}
                             handleSave={handleSave}

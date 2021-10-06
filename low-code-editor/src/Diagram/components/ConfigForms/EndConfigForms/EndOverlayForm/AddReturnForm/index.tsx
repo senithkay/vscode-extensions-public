@@ -129,8 +129,8 @@ export function AddReturnForm(props: ReturnFormProps) {
                             </div>
                         </div>
                         <ButtonPanel
-                            cancelText="Cancel"
-                            saveText={saveReturnButtonLabel}
+                            cancelBtnText="Cancel"
+                            saveBtnText={saveReturnButtonLabel}
                             isMutationInProgress={isMutationInProgress}
                             validForm={isValidValue}
                             handleSave={onReturnExpressionSave}

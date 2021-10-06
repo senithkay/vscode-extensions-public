@@ -197,8 +197,8 @@ export function AddRespondForm(props: RespondFormProps) {
                             </div>
                         </div>
                         <ButtonPanel
-                            cancelText="Cancel"
-                            saveText={saveRespondButtonLabel}
+                            cancelBtnText="Cancel"
+                            saveBtnText={saveRespondButtonLabel}
                             isMutationInProgress={isMutationInProgress}
                             validForm={validForm}
                             handleSave={onSaveWithTour}

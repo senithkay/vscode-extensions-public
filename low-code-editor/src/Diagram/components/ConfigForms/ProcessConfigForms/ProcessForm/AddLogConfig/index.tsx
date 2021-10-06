@@ -157,8 +157,8 @@ export function AddLogConfig(props: LogConfigProps) {
                             </div>
                         </div>
                         <ButtonPanel
-                            cancelText="Cancel"
-                            saveText={saveLogButtonLabel}
+                            cancelBtnText="Cancel"
+                            saveBtnText={saveLogButtonLabel}
                             isMutationInProgress={isMutationInProgress}
                             validForm={!!isFormValid}
                             handleSave={onSaveBtnClick}

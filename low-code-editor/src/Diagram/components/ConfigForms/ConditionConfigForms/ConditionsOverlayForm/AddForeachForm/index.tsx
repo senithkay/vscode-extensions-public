@@ -226,8 +226,8 @@ export function AddForeachForm(props: ForeachProps) {
                             </div>
                         </div>
                         <ButtonPanel
-                            cancelText={cancelForEachButtonLabel}
-                            saveText={saveForEachButtonLabel}
+                            cancelBtnText={cancelForEachButtonLabel}
+                            saveBtnText={saveForEachButtonLabel}
                             isMutationInProgress={isMutationInProgress}
                             validForm={!isInvalid}
                             handleSave={handleSave}

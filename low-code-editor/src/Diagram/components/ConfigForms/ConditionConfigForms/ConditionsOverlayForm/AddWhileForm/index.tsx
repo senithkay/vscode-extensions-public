@@ -129,8 +129,8 @@ export function AddWhileForm(props: WhileProps) {
                     </div>
                 </div>
                 <ButtonPanel
-                    cancelText={cancelWhileButtonLabel}
-                    saveText={saveWhileButtonLabel}
+                    cancelBtnText={cancelWhileButtonLabel}
+                    saveBtnText={saveWhileButtonLabel}
                     isMutationInProgress={isMutationInProgress}
                     validForm={!isInvalid}
                     handleSave={handleOnSaveClick}
