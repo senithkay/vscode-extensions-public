@@ -15,43 +15,63 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Event, ProviderResult, TreeDataProvider, TreeItem, TreeItemCollapsibleState } from "vscode";
+import { Event, EventEmitter, ProviderResult, TreeDataProvider, TreeItem, TreeItemCollapsibleState } from "vscode";
 import { join } from "path";
-import { BallerinaExtension } from "../core";
+import { BallerinaExtension, ChoreoSession } from "../core";
 
 export class SessionDataProvider implements TreeDataProvider<TreeItem> {
-    private ballerinaExtension;
+    private ballerinaExtension: BallerinaExtension;
+
     constructor(ballerinaExtension: BallerinaExtension) {
         this.ballerinaExtension = ballerinaExtension;
     }
-    onDidChangeTreeData?: Event<void | TreeItem | null | undefined> | undefined;
+
+    private _onDidChangeTreeData: EventEmitter<TreeItem | undefined> = new EventEmitter<TreeItem | undefined>();
+    readonly onDidChangeTreeData: Event<TreeItem | undefined> = this._onDidChangeTreeData.event;
+
     getTreeItem(element: TreeItem): TreeItem | Thenable<TreeItem> {
         return element;
     }
+
     getChildren(element?: TreeItem): ProviderResult<TreeItem[]> {
-        //TODO: Update choreo sessions details
         let treeItems: TreeItem[] = [];
         if (!element) {
-            const name = '';
-            const loggedSessionItem = new TreeItem(`Logged in as ${name}`, TreeItemCollapsibleState.None);
-            loggedSessionItem.iconPath = {
-                light: join(this.ballerinaExtension.extension.extensionPath, 'resources', 'images', 'icons', 'user.svg'),
-                dark: join(this.ballerinaExtension.extension.extensionPath, 'resources', 'images', 'icons', 'user-inverse.svg')
-            }
-            // treeItems.push(loggedSessionItem);
 
+            return this.getSessionDetails();
+        }
+        return treeItems;
+    }
+
+    getSessionDetails(): TreeItem[] {
+        let treeItems: TreeItem[] = [];
+        const choreoSession: ChoreoSession = this.ballerinaExtension.getChoreoSession();
+        if (choreoSession.loginStatus) {
+            let session = new TreeItem(`Logged in as ${choreoSession.choreoUser}`, TreeItemCollapsibleState.None);
+            session.iconPath = {
+                light: join(this.ballerinaExtension.extension.extensionPath,
+                    'resources', 'images', 'icons', 'user.svg'),
+                dark: join(this.ballerinaExtension.extension.extensionPath,
+                    'resources', 'images', 'icons', 'user-inverse.svg')
+            }
+            treeItems.push(session);
             const signoutItem = new TreeItem("Sign out from Choreo...", TreeItemCollapsibleState.None);
             signoutItem.iconPath = {
-                light: join(this.ballerinaExtension.extension.extensionPath, 'resources', 'images', 'icons', 'signout.svg'),
-                dark: join(this.ballerinaExtension.extension.extensionPath, 'resources', 'images', 'icons', 'signout-inverse.svg')
+                light: join(this.ballerinaExtension.extension.extensionPath,
+                    'resources', 'images', 'icons', 'signout.svg'),
+                dark: join(this.ballerinaExtension.extension.extensionPath,
+                    'resources', 'images', 'icons', 'signout-inverse.svg')
             }
             signoutItem.command = {
                 command: 'ballerina.choreo.signout',
                 title: "Sign out",
                 arguments: []
             };
-            // treeItems.push(signoutItem);
+            treeItems.push(signoutItem);
         }
         return treeItems;
+    }
+
+    refresh(): void {
+        this._onDidChangeTreeData.fire(undefined);
     }
 }
