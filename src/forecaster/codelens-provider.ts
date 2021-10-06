@@ -25,6 +25,7 @@ import {
 import { BAL_TOML } from '../project';
 import { FORECAST_PERFORMANCE_COMMAND as FORECAST_PERFORMANCE_COMMAND, SHOW_GRAPH_COMMAND } from './activator';
 import { CurrentResource, DataLabel, Member, SyntaxTree } from './model';
+import path from 'path';
 
 enum CODELENSE_TYPE {
     ENDPOINT,
@@ -132,7 +133,8 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
         // add codelenses to actions invocations
         for (let i = 0; i < ExecutorCodeLensProvider.dataLabels.length; i++) {
             const label = ExecutorCodeLensProvider.dataLabels[i];
-            if (label.getFile == window.activeTextEditor!.document.fileName.split("/").pop()) {
+            if (window.activeTextEditor && 
+                label.getFile == window.activeTextEditor.document.fileName.split(path.sep).pop()) {
                 const startLine = label.getRange.start;
                 const endLine = label.getRange.end;
 

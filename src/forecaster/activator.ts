@@ -113,6 +113,10 @@ function addPerformanceLabels(graphData: PerformanceAnalyzerGraphResponse, curre
         return;
     }
 
+    if (sequenceDiagramData.length == 0) {
+        return;
+    }
+
     const first = sequenceDiagramData[0];
     const values = first.values;
 
@@ -126,9 +130,8 @@ function addPerformanceLabels(graphData: PerformanceAnalyzerGraphResponse, curre
         const end = pos[1].split(":");
         const range = new Range(parseInt(start[0]), parseInt(start[1]),
             parseInt(end[0]), parseInt(end[1]));
-        const dataLabel = new DataLabel(file, range, latency)
+        const dataLabel = new DataLabel(file, range, latency);
         dataLabels.push(dataLabel);
-
     }
 
     const currentResource: CurrentResource = new CurrentResource(currentResourcePos,
