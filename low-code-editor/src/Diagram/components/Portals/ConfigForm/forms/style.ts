@@ -253,7 +253,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             display: 'flex',
             flexDirection: 'row',
             alignItems: 'center',
-            margin: '-1rem 0.55rem 0 0',
+            margin: '-2.25rem 0.55rem 0 0',
             "& img": {
                 marginRight: '1rem'
             }
@@ -480,5 +480,31 @@ export const useStyles = makeStyles((theme: Theme) =>
                 }
             }
         },
+        addPropertyBtn: {
+            outline: "none",
+            width: "max-content",
+            color: "#5567D5",
+            fontSize: 12,
+            letterSpacing: 0,
+            lineHeight: "16px",
+            cursor: "pointer",
+            background: "#fff",
+            border: "1px solid #5567d55c",
+            padding: "4px 8px",
+            borderRadius: 8,
+            display: "flex",
+            alignItems: "center",
+            "& .MuiSvgIcon-root": {
+                height: '18px !important',
+            }
+        },
+        sectionSeparator: {
+            borderBottom: "1px solid #D8D8D8",
+            marginBottom: "15px",
+            padding: "5px 0"
+        },
+        formFeilds: {
+            marginBottom: '50px',
+        }
     }),
 );

@@ -22,10 +22,9 @@ import { httpResponse, PrimitiveBalType, WizardType } from "../../../../../../Co
 import { Context } from "../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { ButtonWithIcon } from "../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
-import { PrimaryButton } from "../../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
-import { SecondaryButton } from "../../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
 import { StatementEditorButton } from "../../../../Portals/ConfigForm/Elements/Button/StatementEditorButton";
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
+import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
 import { ViewContainer } from "../../../../Portals/ConfigForm/Elements/StatementEditor/components/ViewContainer/ViewContainer";
 import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { EndConfig, RespondConfig } from "../../../../Portals/ConfigForm/types";
@@ -153,82 +152,81 @@ export function AddRespondForm(props: RespondFormProps) {
                 customProps={{ validate: statusCodeValidateExpression, statementType: PrimitiveBalType.Int }}
                 onChange={onStatusCodeChange}
             />
-            {!validStatusCode ? <p className={formClasses.invalidCode}> <FormattedMessage id="lowcode.develop.configForms.Respond.invalidCodeError" defaultMessage="Invalid status code"/></p> : null}
+            {!validStatusCode ? <p className={formClasses.invalidCode}> <FormattedMessage id="lowcode.develop.configForms.Respond.invalidCodeError" defaultMessage="Invalid status code" /></p> : null}
         </>
     );
     const disableSave = (isMutationInProgress || !validForm || !validStatusCode);
 
     let exprEditor =
         (
-        <FormControl data-testid="respond-form" className={cn(formClasses.wizardFormControl)}>
-            {!isCodeEditorActive ?
-                (
-                    <div className={formClasses.formWrapper}>
-                        <div className={formClasses.formTitleWrapper}>
-                            <div className={formClasses.mainTitleWrapper}>
-                                <RespondIcon />
-                                <Typography variant="h4">
-                                    <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.Respond.title" defaultMessage="Respond"/></Box>
-                                </Typography>
-                                <div style={{ marginLeft: "auto", marginRight: 0 }}>
-                                    <StatementEditorButton onClick={handleStmtEditorButtonClick} disabled={true} />
+            <FormControl data-testid="respond-form" className={cn(formClasses.wizardFormControl)}>
+                {!isCodeEditorActive ?
+                    (
+                        <div className={formClasses.formWrapper}>
+                            <div className={formClasses.formFeilds}>
+                                <div className={formClasses.formTitleWrapper}>
+                                    <div className={formClasses.mainTitleWrapper}>
+                                        <RespondIcon />
+                                        <Typography variant="h4">
+                                            <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.Respond.title" defaultMessage="Respond" /></Box>
+                                        </Typography>
+                                        <div style={{marginLeft: "auto", marginRight: 0}}>
+                                            <StatementEditorButton onClick={handleStmtEditorButtonClick} disabled={true} />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className={formClasses.formWrapper}>
+                                    <div className="exp-wrapper product-tour-payload-jsonpayload">
+                                        <ExpressionEditor
+                                            model={{
+                                                name: "respond expression",
+                                                value: respondFormConfig.respondExpression,
+                                                type: PrimitiveBalType.Union,
+                                                fields: [
+                                                    {
+                                                        type: PrimitiveBalType.String
+                                                    },
+                                                    {
+                                                        type: PrimitiveBalType.Xml
+                                                    },
+                                                    {
+                                                        type: PrimitiveBalType.Json
+                                                    },
+                                                    {
+                                                        type: PrimitiveBalType.Record,
+                                                        typeInfo: httpResponse
+                                                    }
+                                                ]
+                                            }}
+                                            customProps={{
+                                                validate: validateExpression,
+                                                tooltipTitle: respondStatementTooltipMessages.title,
+                                                tooltipActionText: respondStatementTooltipMessages.actionText,
+                                                tooltipActionLink: respondStatementTooltipMessages.actionLink,
+                                                interactive: true,
+                                                statementType: [PrimitiveBalType.String, PrimitiveBalType.Xml, PrimitiveBalType.Json, httpResponse]
+                                            }}
+                                            onChange={onExpressionChange}
+                                        />
+                                    </div>
+
+                                    {(!config.model) ? statusCodeComp : null}
                                 </div>
                             </div>
-                        </div>
-                        <div className={formClasses.formWrapper}>
-                            <div className="exp-wrapper product-tour-payload-jsonpayload">
-                                <ExpressionEditor
-                                    model={{
-                                        name: "respond expression",
-                                        value: respondFormConfig.respondExpression,
-                                        type: PrimitiveBalType.Union,
-                                        fields: [
-                                            {
-                                                type: PrimitiveBalType.String
-                                            },
-                                            {
-                                                type: PrimitiveBalType.Xml
-                                            },
-                                            {
-                                                type: PrimitiveBalType.Json
-                                            },
-                                            {
-                                                type: PrimitiveBalType.Record,
-                                                typeInfo: httpResponse
-                                            }
-                                        ]
-                                    }}
-                                    customProps={{
-                                        validate: validateExpression,
-                                        tooltipTitle: respondStatementTooltipMessages.title,
-                                        tooltipActionText: respondStatementTooltipMessages.actionText,
-                                        tooltipActionLink: respondStatementTooltipMessages.actionLink,
-                                        interactive: true,
-                                        statementType: [PrimitiveBalType.String, PrimitiveBalType.Xml, PrimitiveBalType.Json, httpResponse]
-                                    }}
-                                    onChange={onExpressionChange}
-                                />
-                            </div>
-
-                            {(!config.model) ? statusCodeComp : null}
-                        </div>
-                        <div className={overlayClasses.buttonWrapper}>
-                            <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
-                            <PrimaryButton
-                                dataTestId="save-btn"
-                                className="product-tour-save"
-                                text={saveRespondButtonLabel}
-                                disabled={disableSave}
-                                fullWidth={false}
-                                onClick={onSaveWithTour}
+                            <FormActionButtons
+                                cancelBtnText="Cancel"
+                                saveBtnText={saveRespondButtonLabel}
+                                isMutationInProgress={isMutationInProgress}
+                                validForm={validForm}
+                                onSave={onSaveWithTour}
+                                onCancel={onCancel}
                             />
                         </div>
-                    </div>
-                )
-                :
-                null
-            }
-        </FormControl>
+                    )
+                    :
+                    null
+                }
+            </FormControl>
         );
 
     if (isStmtEditor) {

@@ -15,24 +15,26 @@ import React  from 'react';
 
 import { STNode } from "@ballerina/syntax-tree";
 
-import { DraftInsertPosition } from "../../../view-state/draft";
+import { ConfigOverlayFormStatus } from "../../../../Definitions";
 
 import { RecordFromJson } from "./RecordFromJson";
 
 export interface RecordEditorProps {
     model?: STNode;
-    targetPosition?: DraftInsertPosition;
+    configOverlayFormStatus: ConfigOverlayFormStatus;
     onCancel?: () => void;
+    onSave?: () => void;
 }
 
 export function RecordEditor(props: RecordEditorProps) {
-    const { model, targetPosition, onCancel } = props;
+    const { onCancel, onSave, configOverlayFormStatus } = props;
+    const { formArgs, formType } = configOverlayFormStatus;
 
     return (
         <div>
-            {targetPosition && (
+            {formArgs.targetPosition && (
                 <div>
-                    <RecordFromJson onCancel={onCancel} targetPosition={targetPosition} />
+                    <RecordFromJson onCancel={onCancel} onSave={onSave} targetPosition={formArgs.targetPosition} />
                 </div>
             )}
         </div>

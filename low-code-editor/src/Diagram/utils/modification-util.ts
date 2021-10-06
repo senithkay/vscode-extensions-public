@@ -14,6 +14,7 @@ import { DraftUpdateStatement } from "../../api/models";
 import { FormField } from "../../ConfigurationSpec/types";
 import { STModification } from "../../Definitions/lang-client-extended";
 import { HeaderObjectConfig } from "../components/ConnectorExtensions/HTTPWizard/HTTPHeaders";
+import { HTTPServiceConfigState } from "../components/Portals/ConfigForm/forms/ServiceConfigForm/forms/HttpService/util/reducer";
 import { getFormattedModuleName, getParams } from "../components/Portals/utils";
 import { DraftInsertPosition, DraftUpdatePosition } from "../view-state/draft";
 /* tslint:disable ordered-imports */
@@ -158,7 +159,7 @@ export function updateResourceSignature(method: string, path: string, queryParam
             "PAYLOAD": payload,
             "ADD_CALLER": isCaller,
             "ADD_REQUEST": isRequest,
-            "ADD_RETURN": ((addReturn) ?  addReturn + "|error?" : "error?")
+            "ADD_RETURN": ((addReturn) ? addReturn + "|error?" : "error?")
         }
     };
 
@@ -484,6 +485,49 @@ export function createCheckedPayloadFunctionInvocation(variable: string, type: s
     return checkedPayloadInvo;
 }
 
+export function createServiceDeclartion(config: HTTPServiceConfigState, targetPosition: DraftUpdatePosition): STModification {
+    const { serviceBasePath, listenerConfig: { formVar, listenerName, listenerPort }, createNewListener } = config;
+
+    const modification: STModification = {
+        startLine: targetPosition.startLine,
+        endLine: targetPosition.startLine,
+        startColumn: 0,
+        endColumn: 0,
+        type: ''
+    };
+
+    if (createNewListener && formVar) {
+        return {
+            ...modification,
+            type: 'SERVICE_AND_LISTENER_DECLARATION',
+            config: {
+                'LISTENER_NAME': listenerName,
+                'PORT': listenerPort,
+                'BASE_PATH': serviceBasePath,
+            }
+        }
+    } else if (createNewListener && !formVar) {
+        return {
+            ...modification,
+            type: 'SERVICE_DECLARATION_WITH_NEW_INLINE_LISTENER',
+            config: {
+                'PORT': listenerPort,
+                'BASE_PATH': serviceBasePath,
+            }
+        }
+
+    } else {
+        return {
+            ...modification,
+            type: 'SERVICE_DECLARATION_WITH_SHARED_LISTENER',
+            config: {
+                'LISTENER_NAME': listenerName,
+                'BASE_PATH': serviceBasePath,
+            }
+        }
+    }
+}
+
 export function updateCheckedPayloadFunctionInvocation(variable: string, type: string, response: string, payload: string, targetPosition: DraftUpdatePosition): STModification {
     const checkedPayloadInvo: STModification = {
         startLine: targetPosition.startLine,
@@ -626,4 +670,21 @@ export async function InsertorDelete(modifications: STModification[]): Promise<S
         stModifications.push(stModification);
     }
     return stModifications;
+}
+
+export function createFunctionSignature(name: string, parameters: string, returnTypes: string, targetPosition: DraftInsertPosition): STModification {
+    const functionStatement: STModification = {
+        startLine: targetPosition.line,
+        startColumn: 0,
+        endLine: targetPosition.line,
+        endColumn: 0,
+        type: "FUNCTION_DEFINITION",
+        config: {
+            "NAME": name,
+            "PARAMETERS": parameters,
+            "RETURN_TYPE": returnTypes
+        }
+    };
+
+    return functionStatement;
 }

@@ -23,8 +23,6 @@ import { FormField } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
 import { getAllVariables } from "../../../../../utils/mixins";
 import { ButtonWithIcon } from "../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
-import { PrimaryButton } from "../../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
-import { SecondaryButton } from "../../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { FormTextInput } from "../../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
 import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
@@ -33,6 +31,7 @@ import { genVariableName } from "../../../../Portals/utils";
 import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
+import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
 import { ViewContainer } from "../../../../Portals/ConfigForm/Elements/StatementEditor/components/ViewContainer/ViewContainer";
 import { StatementEditorButton } from "../../../../Portals/ConfigForm/Elements/Button/StatementEditorButton";
 
@@ -155,7 +154,7 @@ export function AddForeachForm(props: ForeachProps) {
                 id: "lowcode.develop.configForms.forEach.expressionEditor.tooltip.actionTitle",
                 defaultMessage: "{learnBallerina}"
             }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
-    },
+        },
         currentValueVariable: {
             title: intl.formatMessage({
                 id: "lowcode.develop.configForms.forEach.currentValueVariable.tooltip.title",
@@ -203,58 +202,59 @@ export function AddForeachForm(props: ForeachProps) {
 
     let exprEditor =
         (
-        <FormControl data-testid="foreach-form" className={classes.wizardFormControl}>
-            {!isCodeEditorActive ?
-                (
-                    <div className={classes.formWrapper}>
+            <FormControl data-testid="foreach-form" className={classes.wizardFormControl}>
+                {!isCodeEditorActive ?
+                    (
                         <div className={classes.formWrapper}>
-                            <div className={classes.formTitleWrapper}>
-                                <div className={classes.mainTitleWrapper}>
-                                    <div className={classes.iconWrapper}>
-                                        <ForEachIcon />
+                            <div className={classes.formFeilds}>
+                                <div className={classes.formWrapper}>
+                                    <div className={classes.formTitleWrapper}>
+                                        <div className={classes.mainTitleWrapper}>
+                                            <div className={classes.iconWrapper}>
+                                                <ForEachIcon />
+                                            </div>
+                                            <Typography variant="h4">
+                                                <Box paddingTop={2} paddingBottom={2}>
+                                                    <FormattedMessage
+                                                        id="lowcode.develop.configForms.foreach.title"
+                                                        defaultMessage="Foreach"
+                                                    />
+                                                </Box>
+                                            </Typography>
+                                            <div style={{marginLeft: "auto", marginRight: 0}}>
+                                                <StatementEditorButton onClick={handleStmtEditorButtonClick} disabled={true} />
+                                            </div>
+                                        </div>
                                     </div>
-                                    <Typography variant="h4">
-                                        <Box paddingTop={2} paddingBottom={2}>
-                                            <FormattedMessage
-                                                id="lowcode.develop.configForms.foreach.title"
-                                                defaultMessage="Foreach"
-                                            />
-                                    </Box>
-                                    </Typography>
-                                    <div style={{ marginLeft: "auto", marginRight: 0 }}>
-                                        <StatementEditorButton onClick={handleStmtEditorButtonClick} disabled={true} />
+                                    <FormTextInput
+                                        customProps={{
+                                            validate: validateNameValue,
+                                        }}
+                                        onChange={onVariableNameChange}
+                                        defaultValue={conditionExpression.variable}
+                                        label={currentValueVariableLabel}
+                                        placeholder={""}
+                                        errorMessage={invalidConnectionErrorMessage}
+                                    />
+                                    <div className="exp-wrapper">
+                                        <ExpressionEditor {...expElementProps} />
                                     </div>
                                 </div>
                             </div>
-                            <FormTextInput
-                                customProps={{
-                                    validate: validateNameValue,
-                                }}
-                                onChange={onVariableNameChange}
-                                defaultValue={conditionExpression.variable}
-                                label={currentValueVariableLabel}
-                                placeholder={""}
-                                errorMessage={invalidConnectionErrorMessage}
-                            />
-                            <div className="exp-wrapper">
-                                <ExpressionEditor {...expElementProps} />
-                            </div>
-                        </div>
-                        <div className={overlayClasses.buttonWrapper}>
-                            <SecondaryButton text={cancelForEachButtonLabel} fullWidth={false} onClick={onCancel} />
-                            <PrimaryButton
-                                text={saveForEachButtonLabel}
-                                disabled={isMutationInProgress || isInvalid}
-                                fullWidth={false}
-                                onClick={handleSave}
+                            <FormActionButtons
+                                cancelBtnText={cancelForEachButtonLabel}
+                                saveBtnText={saveForEachButtonLabel}
+                                isMutationInProgress={isMutationInProgress}
+                                validForm={!isInvalid}
+                                onSave={handleSave}
+                                onCancel={onCancel}
                             />
                         </div>
-                    </div>
-                )
-                :
-                null
-            }
-        </FormControl>
+                    )
+                    :
+                    null
+                }
+            </FormControl>
         );
 
     if (isStmtEditor) {
@@ -279,6 +279,5 @@ export function AddForeachForm(props: ForeachProps) {
     return (
         exprEditor
     );
-
 }
 

@@ -14,8 +14,10 @@
 import React, { useState } from "react";
 
 import RecordIcon from "../../../../assets/icons/RecordIcon";
+import { ConfigOverlayFormStatus } from "../../../../Definitions";
 import { DraftInsertPosition } from "../../../view-state/draft";
 import { RecordEditor } from "../../ConfigForms/RecordEditor";
+import { FormGenerator } from "../../FormGenerator";
 import { DiagramOverlay, DiagramOverlayContainer } from "../../Portals/Overlay";
 
 import "./style.scss";
@@ -33,6 +35,16 @@ export const RecordPlusOption = (props: RecordPlusOptionProps) => {
     const {isSelected, targetPosition, onClose} = props;
 
     const [isRecordFromVisible, setIsRecordFromVisible] = useState(false);
+
+    const configOverlayFormStatus: ConfigOverlayFormStatus = {
+        formArgs: {
+            targetPosition: {
+                line: (targetPosition as any).startLine - 1 , column: (targetPosition as any).startColumn
+            }
+        },
+        formType: "RecordEditor",
+        isLoading: false
+    }
 
     const handleJsonFormClick = () => {
         setIsRecordFromVisible(true);
@@ -68,18 +80,12 @@ export const RecordPlusOption = (props: RecordPlusOptionProps) => {
                     </div>
                 </DiagramOverlay>
             </DiagramOverlayContainer>
-            {/* todo: Integrate with new config pannel */}
             {isRecordFromVisible && (
-                <DiagramOverlayContainer divId={recordFromJsonDiv} forceRender={isRecordFromVisible}>
-                    <DiagramOverlay
-                        position={{x: 0, y: 0}}
-                        stylePosition='relative'
-                    >
-                        <div style={{height: "auto", width: "290px", background: "#fff", border: "1px solid #e6e7ec"}}>
-                            <RecordEditor onCancel={onClose} targetPosition={targetPosition}/>
-                        </div>
-                    </DiagramOverlay>
-                </DiagramOverlayContainer>
+                <FormGenerator
+                    onCancel={onClose}
+                    onSave={onClose}
+                    configOverlayFormStatus={configOverlayFormStatus}
+                />
             )}
         </>
     );

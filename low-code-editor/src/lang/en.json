@@ -505,5 +505,10 @@
     "lowcode.testCase.createForm.testCaseName.label": "Test Case Name",
     "lowcode.testCase.createForm.testCaseName.tooltip.instructions": "A valid test case name:",
     "lowcode.testCase.createForm.testCaseName.tooltip.instructions.bulletPoint1": "Should contain at least two characters.",
-    "lowcode.testCase.createForm.testCaseName.tooltip.instructions.bulletPoint2": "Cannot begin with a number or a special character."
+    "lowcode.testCase.createForm.testCaseName.tooltip.instructions.bulletPoint2": "Cannot begin with a number or a special character.",
+    "lowcode.develop.moduleConstruct.HTTP.selectListener": "Select listener :",
+    "lowcode.develop.moduleConstruct.HTTP.typeServiceBasePath": "Service Base Path :",
+    "lowcode.develop.connectorForms.HTTP.listenerPortNumber": "Listener Port :",
+    "lowcode.develop.connectorForms.HTTP.listenerName": "Listener Name :",
+    "lowcode.develop.connectorForms.HTTP.configureNewListener": "Configure Listener :"
 }
