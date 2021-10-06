@@ -150,11 +150,11 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
     toggleDiagramOverlay();
   };
 
-    return (
+  return (
         <div>
             { !isCodeEditorActive ? (
                 <FormGenerator
-                    onCancel={ handleClose }
+                    onCancel={handleClose}
                     // onSave={onSave}
                     configOverlayFormStatus={ {
                         formType: "Connector",
