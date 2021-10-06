@@ -68,7 +68,13 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
     const returnType = returnTypes
       .map((item) => `${item.type}${item.isOptional ? "?" : ""}`)
       .join("|");
-    const returnTypeStr = returnType ? `returns ${returnType}` : "";
+    let returnTypeStr = returnType ? `returns ${returnType}` : "";
+
+    // If none of the types are optional, append `|error?` to the return types
+    if (returnTypeStr && returnTypes.every((item) => !item.isOptional)) {
+      returnTypeStr = `${returnTypeStr}|error?`;
+    }
+
     const modification = createFunctionSignature(
       functionName,
       parametersStr,
