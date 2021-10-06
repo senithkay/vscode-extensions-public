@@ -196,9 +196,6 @@ export class ExtendedLangClient extends LanguageClient {
     didChange(params: DidChangeParams): void {
         this.sendNotification("textDocument/didChange", params);
     }
-    getActionInvocations(params: BallerinaProjectParams): Promise<string> {
-        return this.sendRequest("performanceAnalyzer/getEndpoints", params);
-    }
     getPerformaceGraphData(params: PerformanceAnalyzerGraphRequest): Promise<PerformanceAnalyzerGraphResponse> {
         return this.sendRequest("performanceAnalyzer/getGraphData", params);
     }
