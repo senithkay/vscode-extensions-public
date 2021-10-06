@@ -18,7 +18,7 @@
  */
 
 import { CurrentResource, DataLabel } from "./model";
-import { commands,ViewColumn, ExtensionContext, languages, Range, window, WebviewPanel } from "vscode";
+import { commands, ViewColumn, ExtensionContext, languages, Range, window, WebviewPanel } from "vscode";
 import { BallerinaExtension, ExtendedLangClient, LANGUAGE, PerformanceAnalyzerGraphResponse } from "../core";
 import { ExecutorCodeLensProvider } from "./codelens-provider";
 import { log } from "../utils";
@@ -123,9 +123,6 @@ function addPerformanceLabels(graphData: PerformanceAnalyzerGraphResponse, curre
     const first = sequenceDiagramData[0];
     const values = first.values;
 
-    const currentResource: CurrentResource = new CurrentResource(currentResourcePos,
-        realtimeData.latency);
-        
     let dataLabels: DataLabel[] = [];
     for (let i = 0; i < values.length; i++) {
         const name = values[i].name.replace("(", "").replace(")", "").split("/");
@@ -138,16 +135,14 @@ function addPerformanceLabels(graphData: PerformanceAnalyzerGraphResponse, curre
             parseInt(end[0]), parseInt(end[1]));
         const dataLabel = new DataLabel(file, range, latency);
         dataLabels.push(dataLabel);
-        ExecutorCodeLensProvider.setCurrentResource(currentResource);
-        ExecutorCodeLensProvider.setGraphData(graphData);
-        ExecutorCodeLensProvider.addDataLabels(dataLabels);
-        showPerformanceGraph(graphData.graphData);
     }
 
+    const currentResource: CurrentResource = new CurrentResource(currentResourcePos,
+        realtimeData.latency);
     ExecutorCodeLensProvider.setCurrentResource(currentResource);
     ExecutorCodeLensProvider.setGraphData(graphData);
-
     ExecutorCodeLensProvider.addDataLabels(dataLabels);
+    showPerformanceGraph(graphData.graphData);
 }
 
 let performanceGraphPanel: WebviewPanel | undefined;
