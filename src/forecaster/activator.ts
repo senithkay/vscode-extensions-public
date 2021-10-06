@@ -18,12 +18,15 @@
  */
 
 import { CurrentResource, DataLabel } from "./model";
-import { commands, ExtensionContext, languages, Range, window } from "vscode";
+import { commands,ViewColumn, ExtensionContext, languages, Range, window, WebviewPanel } from "vscode";
 import { BallerinaExtension, ExtendedLangClient, LANGUAGE, PerformanceAnalyzerGraphResponse } from "../core";
 import { ExecutorCodeLensProvider } from "./codelens-provider";
 import { log } from "../utils";
 import keytar = require("keytar");
 import { CHOREO_SERVICE_NAME, CHOREO_ACCESS_TOKEN, CHOREO_COOKIE } from "../project/cmds/choreo-signin";
+import { WebViewRPCHandler, WebViewMethod, getCommonWebViewOptions } from '../utils';
+import { render } from './render';
+
 
 let langClient: ExtendedLangClient;
 
@@ -132,7 +135,40 @@ function addPerformanceLabels(graphData: PerformanceAnalyzerGraphResponse, curre
 
         ExecutorCodeLensProvider.setCurrentResource(currentResource);
         ExecutorCodeLensProvider.setGraphData(graphData);
-
         ExecutorCodeLensProvider.addDataLabels(dataLabels);
+        showPerformanceGraph(graphData.graphData);
     }
+}
+
+let performanceGraphPanel: WebviewPanel | undefined;
+
+
+function showPerformanceGraph(data): void {
+    if (performanceGraphPanel) {
+        performanceGraphPanel.reveal();
+        return;
+    }
+    // Create and show a new webview
+    performanceGraphPanel = window.createWebviewPanel(
+        'ballerinaExamples',
+        "Performance Forecast",
+        { viewColumn: ViewColumn.Beside, preserveFocus: true },
+        getCommonWebViewOptions()
+    );
+    const remoteMethods: WebViewMethod[] = [
+        {
+            methodName: "openExample",
+            handler: (args: any[]): Thenable<any> => {
+                return Promise.resolve();
+            }
+        }
+    ];
+    WebViewRPCHandler.create(performanceGraphPanel, langClient, remoteMethods);
+    const html = render(data);
+    if (performanceGraphPanel && html) {
+        performanceGraphPanel.webview.html = html;
+    }
+    performanceGraphPanel.onDidDispose(() => {
+        performanceGraphPanel = undefined;
+    });
 }

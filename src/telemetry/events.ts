@@ -22,6 +22,7 @@ export const TM_EVENT_EXTENSION_INIT = "ballerina.extension.init";
 
 // events for opening custom views
 export const TM_EVENT_OPEN_EXAMPLES = "open.examples";
+export const TM_EVENT_OPEN_PERFORMANCE = "open.performance";
 export const TM_EVENT_OPEN_DIAGRAM = "open.diagram";
 export const TM_EVENT_OPEN_PACKAGE_OVERVIEW = "open.project.overview.via.tree.view";
 export const TM_EVENT_OPEN_NETWORK_LOGS = "open.network.logs";

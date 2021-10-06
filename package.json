@@ -343,6 +343,11 @@
                 "command": "ballerina.pasteAsRecord",
                 "title": "Paste JSON as Record",
                 "category": "Ballerina"
+            },
+            {
+                "command": "ballerina.performanceForecast",
+                "title": "Performance Forecast",
+                "category": "Ballerina"
             }
         ],
         "views": {
@@ -472,7 +477,6 @@
     },
     "dependencies": {
         "@types/vscode": "^1.59.0",
-        "@wso2-enterprise/ballerina-low-code-editor": "^1.1.2",
         "file-uri-to-path": "^2.0.0",
         "glob": "^7.1.7",
         "monaco-languageclient": "^0.13.0",
