@@ -45,6 +45,7 @@ export interface Package {
     URL?: string;
     balaVersion?: string;
     digest?: string;
+    summary?: string;
     readme?: string;
     template?: boolean;
     licenses?: any[];
@@ -71,16 +72,33 @@ export interface BallerinaConnectorInfo extends Connector {
     displayAnnotation?: any;
 }
 
-export interface BallerinaConnectorsResponse {
-    connectors: Connector[];
+export interface BallerinaConnectorsRequest {
+    targetFile?: string;
+    query?: string;
+    packageName: string;
+    connector?: string;
+    description?: string;
+    template?: string;
+    keyword?: string;
+    ballerinaVersion?: string;
+    platform?: boolean;
+    userPackages?: boolean;
+    limit?: number;
+    offset?: number;
+    sort?: string;
 }
-export interface BallerinaConnectorResponse extends Connector{
-    connector: BallerinaConnectorInfo;
+export interface BallerinaConnectorsResponse {
+    central: Connector[];
+    local?: Connector[];
     error?: string;
 }
 
 // tslint:disable-next-line: no-empty-interface
 export interface BallerinaConnectorRequest extends Connector {
+}
+
+export interface BallerinaConnectorResponse extends BallerinaConnectorInfo {
+    error?: string;
 }
 
 export interface BallerinaRecordResponse {

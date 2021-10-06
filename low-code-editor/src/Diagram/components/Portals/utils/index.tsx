@@ -651,11 +651,11 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
         const langClient: DiagramEditorLangClientInterface = await getDiagramEditorLangClient(langServerURL);
         if (connector) {
             const connectorResp = await langClient.getConnector(connector);
-            if (connectorResp.connector) {
-                cachedConnector = connectorResp.connector;
-                connector.moduleName = connectorResp.connector.moduleName;
+            if (connectorResp) {
+                cachedConnector = connectorResp as BallerinaConnectorInfo;
+                connector = cachedConnector;
                 // save form fields in browser cache
-                await addConnectorToCache(connectorResp.connector);
+                await addConnectorToCache(cachedConnector);
             }
         }
     }

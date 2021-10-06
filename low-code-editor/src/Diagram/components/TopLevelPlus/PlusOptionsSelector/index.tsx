@@ -68,8 +68,6 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
         onClose();
     }
 
-
-
     const onOptionSelect = (option: PlusMenuEntry) => {
         setSelectedOption(option)
     }

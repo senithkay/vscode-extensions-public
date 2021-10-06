@@ -30,6 +30,8 @@ import { FormTextInput } from "../../../../Elements/TextField/FormTextInput";
 import { useStyles as useFormStyles } from "../../../style";
 
 import { ListenerConfigForm } from "./ListenerConfigForm";
+import { isServiceConfigValid } from "./util";
+import { HTTPServiceConfigState, ServiceConfigActionTypes, serviceConfigReducer } from "./util/reducer";
 
 interface HttpServiceFormProps {
     model?: STNode;
@@ -39,62 +41,7 @@ interface HttpServiceFormProps {
 }
 
 const HTTP_MODULE_QUALIFIER = 'http';
-const CREATE_NEW_LISTENER_OPTION = 'Create New'
 
-export interface HTTPServiceConfigState {
-    serviceBasePath: string;
-    listenerConfig: {
-        formVar: boolean,
-        listenerName: string,
-        listenerPort: string,
-    }
-    createNewListener: boolean;
-}
-
-enum ServiceConfigActionTypes {
-    SET_PATH,
-    SET_LISTENER_NAME,
-    SET_LISTENER_PORT,
-    CREATE_NEW_LISTENER,
-    SELECT_EXISTING_LISTENER,
-    DEFINE_LISTENER_INLINE
-}
-
-type ServiceConfigActions =
-    { type: ServiceConfigActionTypes.SET_PATH, payload: string }
-    | { type: ServiceConfigActionTypes.CREATE_NEW_LISTENER }
-    | { type: ServiceConfigActionTypes.SET_LISTENER_NAME, payload: string }
-    | { type: ServiceConfigActionTypes.SET_LISTENER_PORT, payload: string }
-    | { type: ServiceConfigActionTypes.SELECT_EXISTING_LISTENER, payload: string }
-    | { type: ServiceConfigActionTypes.DEFINE_LISTENER_INLINE, payload: boolean }
-
-
-function serviceConfigReducer(state: HTTPServiceConfigState, action: ServiceConfigActions): HTTPServiceConfigState {
-    switch (action.type) {
-        case ServiceConfigActionTypes.SET_PATH:
-            return { ...state, serviceBasePath: action.payload };
-        case ServiceConfigActionTypes.SET_LISTENER_NAME:
-            return { ...state, listenerConfig: { ...state.listenerConfig, listenerName: action.payload } };
-        case ServiceConfigActionTypes.SET_LISTENER_PORT:
-            return { ...state, listenerConfig: { ...state.listenerConfig, listenerPort: action.payload } };
-        case ServiceConfigActionTypes.CREATE_NEW_LISTENER:
-            return {
-                ...state,
-                createNewListener: true,
-                listenerConfig: { formVar: false, listenerName: '', listenerPort: '' }
-            };
-        case ServiceConfigActionTypes.SELECT_EXISTING_LISTENER:
-            return {
-                ...state,
-                createNewListener: false,
-                listenerConfig: { formVar: true, listenerName: action.payload, listenerPort: '' }
-            };
-        case ServiceConfigActionTypes.DEFINE_LISTENER_INLINE:
-            return { ...state, listenerConfig: { ...state.listenerConfig, formVar: action.payload } };
-        default:
-            return state;
-    }
-}
 
 const defaultState: HTTPServiceConfigState = {
     serviceBasePath: '',
@@ -154,12 +101,10 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
     }
 
     const handleOnSave = () => {
-
         onSave([
             createImportStatement('ballerina', 'http', { column: 0, line: 0 }),
             createServiceDeclartion(state, targetPosition)
         ]);
-        onCancel();
     }
 
     const listenerConfigForm = (
@@ -238,23 +183,4 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
             </div>
         </>
     )
-}
-
-function isServiceConfigValid(config: HTTPServiceConfigState): boolean {
-    const { createNewListener, serviceBasePath, listenerConfig: { formVar: fromVar, listenerName, listenerPort } } = config;
-
-    const servicePathValidity = serviceBasePath.length === 0 || isServicePathValid(serviceBasePath);
-    const portNumberRegex = /^\d+$/;
-    const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
-
-    if (createNewListener && fromVar) {
-        return servicePathValidity
-            && listenerPort.length > 0 && portNumberRegex.test(listenerPort)
-            && listenerName.length > 0 && nameRegex.test(listenerName);
-    } else if (createNewListener && !fromVar) {
-        return servicePathValidity
-            && listenerPort.length > 0 && portNumberRegex.test(listenerPort)
-    } else {
-        return serviceBasePath && listenerName.length > 0;
-    }
 }

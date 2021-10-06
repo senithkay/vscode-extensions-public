@@ -30,6 +30,10 @@ interface ServiceConfigFormProps {
     onSave: (modifications: STModification[]) => void;
 }
 
+export enum ServiceTypes {
+    HTTP = 'HTTP'
+}
+
 export function ServiceConfigForm(props: ServiceConfigFormProps) {
     const formClasses = useFormStyles();
     const { model, targetPosition, onSave, onCancel } = props;
@@ -39,7 +43,7 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
     let configForm = <div />;
 
     switch (serviceType) {
-        case 'HTTP':
+        case ServiceTypes.HTTP:
             configForm = <HttpServiceForm onSave={onSave} onCancel={onCancel} model={model} targetPosition={targetPosition} />
             break;
 

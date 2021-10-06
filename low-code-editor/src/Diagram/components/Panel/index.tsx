@@ -21,7 +21,7 @@ import { DiagramOverlayContainer } from "../Portals/Overlay";
 import "./style.scss";
 
 interface PanelProps {
-    children: React.ReactNode,
+    children: JSX.Element,
     onClose: () => void;
 }
 
@@ -33,7 +33,7 @@ export function Panel(props: PanelProps) {
             <DiagramOverlayContainer
             >
                 <div className="panel">
-                    <div className={'top-control-container'}>
+                    <div className="close-btn-wrap">
                         <ButtonWithIcon
                             className="panel-close-button"
                             onClick={onClose}
