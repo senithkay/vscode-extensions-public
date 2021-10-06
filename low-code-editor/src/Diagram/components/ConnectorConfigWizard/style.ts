@@ -167,7 +167,7 @@ export const wizardStyles = makeStyles((theme: Theme) =>
             marginLeft: 110,
         },
         mainApiWrapper: {
-            // width: 300
+            maxWidth: 301
         },
         marginLR: {
             margin: "0 1rem"
