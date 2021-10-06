@@ -30,6 +30,7 @@ import { activate as activateTesting } from './testing/activator';
 import { activate as activateChoreoSignIn } from './project/cmds/choreo-signin';
 import { StaticFeature, DocumentSelector, ServerCapabilities, InitializeParams } from 'vscode-languageclient';
 import { ExtendedClientCapabilities, ExtendedLangClient } from './core/extended-language-client';
+import { activate as activatePerformanceForecaster } from './forecaster';
 import { debug, log } from './utils';
 
 let langClient: ExtendedLangClient;
@@ -81,6 +82,8 @@ export function activate(context: ExtensionContext): Promise<any> {
         // Enable Ballerina Project related features
         activateProjectFeatures();
         activateEditorSupport(ballerinaExtInstance);
+        // Enable performance forecaster
+        activatePerformanceForecaster(ballerinaExtInstance);
         // Enable the Choreo Signin
         activateChoreoSignIn(context);
 

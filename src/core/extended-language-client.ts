@@ -149,6 +149,38 @@ export interface ExecutorPosition {
     name: string;
 }
 
+export interface PerformanceAnalyzerGraphRequest {
+    documentIdentifier: DocumentIdentifier;
+    range: Range;
+    choreoToken: String;
+    choreoCookie: String;
+}
+
+export interface PerformanceAnalyzerGraphResponse {
+    message: string;
+    type: any;
+    sequenceDiagramData: SequenceGraphPoint[];
+    graphData: GraphPoint[];
+    realtimeData: GraphPoint;
+}
+
+export interface GraphPoint {
+    concurrency: String;
+    latency: String;
+    tps: String;
+}
+
+export interface SequenceGraphPoint {
+    concurrency: String;
+    values: SequenceGraphPointValue[];
+}
+
+export interface SequenceGraphPointValue {
+    name: String;
+    latency: String;
+    tps: String;
+}
+
 export class ExtendedLangClient extends LanguageClient {
     isInitialized: boolean = true;
 
@@ -164,6 +196,9 @@ export class ExtendedLangClient extends LanguageClient {
     }
     didChange(params: DidChangeParams): void {
         this.sendNotification("textDocument/didChange", params);
+    }
+    getPerformaceGraphData(params: PerformanceAnalyzerGraphRequest): Promise<PerformanceAnalyzerGraphResponse> {
+        return this.sendRequest("performanceAnalyzer/getGraphData", params);
     }
     getDiagnostics(params: BallerinaProjectParams): Promise<PublishDiagnosticsParams[]> {
         return this.sendRequest<PublishDiagnosticsParams[]>("ballerinaDocument/diagnostics", params);
