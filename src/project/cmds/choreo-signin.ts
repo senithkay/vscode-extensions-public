@@ -19,7 +19,7 @@
 import vscode, { commands, window } from "vscode";
 import { PALETTE_COMMANDS } from "./cmd-runner";
 import { CMP_PROJECT_ADD, sendTelemetryException } from "../../telemetry";
-import { ballerinaExtInstance } from "../../core";
+import { BallerinaExtension, ballerinaExtInstance, ChoreoSession } from "../../core";
 import { Server } from "http";
 import express from "express";
 import * as fs from "fs";
@@ -47,12 +47,12 @@ const PATH_GET_AUTH_CODE = `${CHOREO_LOGIN_URL}?response_type=code&nonce=auth&pr
 export class ChoreoOAuth {
     public app: express.Express;
     public server!: Server;
-    public context;
+    public extension : BallerinaExtension;
 
-    constructor(public port: number, context) {
+    constructor(public port: number, extension) {
         this.app = express();
         this.app.use(express.json(), express.urlencoded({ extended: false }));
-        this.context = context;
+        this.extension = extension;
     }
 
     /**
@@ -90,36 +90,28 @@ export class ChoreoOAuth {
                         data: jsonPayload
                     }).then(async (response) => {
                         if (response.data && response.headers) {
-                            keytar.setPassword(CHOREO_SERVICE_NAME, CHOREO_ACCESS_TOKEN,
+                            await keytar.setPassword(CHOREO_SERVICE_NAME, CHOREO_ACCESS_TOKEN,
                                 String(response.data["token"]));
-                            keytar.setPassword(CHOREO_SERVICE_NAME, CHOREO_DISPLAY_NAME,
+                            await keytar.setPassword(CHOREO_SERVICE_NAME, CHOREO_DISPLAY_NAME,
                                 String(response.data["displayName"]));
-                            keytar.setPassword(CHOREO_SERVICE_NAME, CHOREO_COOKIE,
+                            await keytar.setPassword(CHOREO_SERVICE_NAME, CHOREO_COOKIE,
                                 String(getCookie("cwatf", response.headers["set-cookie"][0])));
 
-                            const choreoToken = keytar.getPassword(CHOREO_SERVICE_NAME, CHOREO_ACCESS_TOKEN);
-                            choreoToken.then((result) => {
-                                console.debug("Choreo Access Token: " + result);
-                            });
-
-                            const choreoDisplayName = keytar.getPassword(CHOREO_SERVICE_NAME, CHOREO_DISPLAY_NAME);
-                            choreoDisplayName.then((result) => {
-                                console.debug("Choreo Display Name: " + result);
-                            });
-
-                            const choreoCookie = keytar.getPassword(CHOREO_SERVICE_NAME, CHOREO_COOKIE);
-                            choreoCookie.then((result) => {
-                                console.debug("Choreo Cookie: " + result);
-                            });
-
-                            if (choreoToken != null && choreoDisplayName != null && choreoCookie != null) {
-                                status = "success";
-                                // Show the sucess message in vscode.
-                                vscode.window.showInformationMessage(`Successfully Logged into Choreo!`);
-                            } else {
-                                vscode.window.showErrorMessage(`Choreo Login Failed: Error while retrieving`
+                            await getChoreoKeytarSession().then((result) => {
+                                this.extension.setChoreoSession(result);
+                                if (result.loginStatus) {
+                                    status = "success";
+                                    console.debug("Choreo Authentication User: " + result.choreoUser);
+                                    console.debug("Choreo Authentication Token: " + result.choreoToken);
+                                    console.debug("Choreo Authentication Cookie: " + result.choreoCookie);
+                                    // Show the sucess message in vscode.
+                                    vscode.window.showInformationMessage(`Successfully Logged into Choreo!`);
+                                    this.extension.getChoreoSessionTreeProvider()?.refresh();
+                                } else {
+                                    vscode.window.showErrorMessage(`Choreo Login Failed: Error while retrieving`
                                     + ` the authentication token details!`);
-                            }
+                                }
+                            });
                         } else {
                             vscode.window.showErrorMessage(`Choreo Login Failed: Error while retreiving `
                                 + `the authentication token details!`);
@@ -135,12 +127,42 @@ export class ChoreoOAuth {
                 vscode.window.showErrorMessage(`Choreo Login Failed: ` + err);
             }
             const htmlFilePath = vscode.Uri.file(
-                path.join(this.context.extensionPath, "resources", "pages", "choreo-login-" + status + ".html")
+                path.join(this.extension.context!.extensionPath, "resources", "pages", "choreo-login-" + status + ".html")
             );
             const successHtml = fs.readFileSync(htmlFilePath.fsPath, "utf8");
             res.send(successHtml);
             this.server.close();
         });
+    }
+}
+
+export async function getChoreoKeytarSession(): Promise<ChoreoSession> {
+    let choreoToken: string | null = null;
+    await keytar.getPassword(CHOREO_SERVICE_NAME, CHOREO_ACCESS_TOKEN).then((result) => {
+        choreoToken = result;
+    });
+
+    let choreoUser: string | null = null;
+    await keytar.getPassword(CHOREO_SERVICE_NAME, CHOREO_DISPLAY_NAME).then((result) => {
+        choreoUser = result;
+    });
+
+    let choreoCookie: string | null = null;
+    await keytar.getPassword(CHOREO_SERVICE_NAME, CHOREO_COOKIE).then((result) => {
+        choreoCookie = result;
+    });
+
+    if (choreoToken != null && choreoUser != null && choreoCookie != null) {
+        return {
+            loginStatus: true,
+            choreoUser: choreoUser,
+            choreoToken: choreoToken,
+            choreoCookie: choreoCookie
+        };
+    } else {
+        return {
+            loginStatus: false
+        };
     }
 }
 
@@ -152,14 +174,14 @@ function getCookie(name: string, cookie: string) {
     }
 }
 
-async function activate(context: vscode.ExtensionContext) {
+async function activate(extension: BallerinaExtension) {
     commands.registerCommand(PALETTE_COMMANDS.CHOREO_SIGNIN, async () => {
         try {
             vscode.commands.executeCommand(
                 VS_CODE_MESSAGE_COMMAND_OPEN,
                 vscode.Uri.parse(PATH_GET_AUTH_CODE)
             );
-            await new ChoreoOAuth(9000, context).StartProcess();
+            await new ChoreoOAuth(9000, extension).StartProcess();
         } catch (error) {
             if (error instanceof Error) {
                 sendTelemetryException(ballerinaExtInstance, error, CMP_PROJECT_ADD);

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { BallerinaExtension, ConstructIdentifier } from "../core";
+import { BallerinaExtension, ChoreoSession, ConstructIdentifier } from "../core";
 import { showDiagramEditor } from '../diagram';
 import { sendTelemetryEvent, CMP_PACKAGE_VIEW, TM_EVENT_OPEN_PACKAGE_OVERVIEW } from "../telemetry";
 import { commands, Uri, window, workspace } from 'vscode';
@@ -31,6 +31,7 @@ import { ExplorerDataProvider } from "./explorer-tree-data-provider";
 import { existsSync, mkdirSync, open, rm, rmdir } from 'fs';
 import { join } from 'path';
 import { BALLERINA_COMMANDS, runCommand } from "../project";
+import { getChoreoKeytarSession } from "../project/cmds/choreo-signin";
 
 export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverviewDataProvider {
 
@@ -127,6 +128,16 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
     window.createTreeView('sessionExplorer', {
         treeDataProvider: sessionTreeDataProvider, showCollapseAll: true
     });
+
+    const choreoSession: ChoreoSession = ballerinaExtInstance.getChoreoSession();
+    ballerinaExtInstance.setChoreoSessionTreeProvider(sessionTreeDataProvider);
+    if (!choreoSession.loginStatus) {
+        getChoreoKeytarSession().then((result) => {
+            ballerinaExtInstance.setChoreoSession(result);
+            sessionTreeDataProvider.refresh();
+        });
+    }
+    sessionTreeDataProvider.refresh();
 
     commands.registerCommand(TREE_ELEMENT_EXECUTE_COMMAND, (filePath: string, kind: string, startLine: number,
         startColumn: number, name: string) => {

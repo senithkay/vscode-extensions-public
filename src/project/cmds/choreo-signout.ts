@@ -16,10 +16,10 @@
  * under the License.
  *
  */
-import vscode, { commands, window } from "vscode";
+import { commands, window } from "vscode";
 import { PALETTE_COMMANDS } from "./cmd-runner";
 import { CMP_PROJECT_ADD, sendTelemetryException } from "../../telemetry";
-import { ballerinaExtInstance } from "../../core";
+import { BallerinaExtension, ballerinaExtInstance } from "../../core";
 import keytar = require("keytar");
 
 const CHOREO_SERVICE_NAME = "wso2.ballerina.choreo";
@@ -27,12 +27,17 @@ const CHOREO_ACCESS_TOKEN = "access.token";
 const CHOREO_DISPLAY_NAME = "display.name";
 const CHOREO_COOKIE = "cookie";
 
-async function activate(context: vscode.ExtensionContext) {
+async function activate(extension: BallerinaExtension) {
     commands.registerCommand(PALETTE_COMMANDS.CHOREO_SIGNOUT, async () => {
         try {
             await keytar.deletePassword(CHOREO_SERVICE_NAME, CHOREO_ACCESS_TOKEN);
             await keytar.deletePassword(CHOREO_SERVICE_NAME, CHOREO_DISPLAY_NAME);
             await keytar.deletePassword(CHOREO_SERVICE_NAME, CHOREO_COOKIE);
+            extension.setChoreoSession({
+                loginStatus: false
+            });
+            extension.getChoreoSessionTreeProvider()?.refresh();
+            window.showInformationMessage('Successfully signed out from Choreo!');
         } catch (error) {
             if (error instanceof Error) {
                 sendTelemetryException(ballerinaExtInstance, error, CMP_PROJECT_ADD);
