@@ -56,9 +56,6 @@ export interface GetSyntaxTreeResponse {
 }
 
 export interface DiagramEditorLangClientInterface extends BaseLangClientInterface {
-	syntaxTreeModify: (
-		params: BallerinaSyntaxTreeModifyRequest
-	) => Thenable<BallerinaSyntaxTreeResponse>;
 	getConnectors: (
 		params: BallerinaConnectorsRequest
 	) => Thenable<BallerinaConnectorsResponse>;
