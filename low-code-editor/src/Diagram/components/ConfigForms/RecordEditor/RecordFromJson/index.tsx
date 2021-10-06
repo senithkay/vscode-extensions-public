@@ -40,6 +40,7 @@ interface RecordState {
 export interface RecordFromJsonProps {
     targetPosition: DraftInsertPosition;
     onCancel: () => void;
+    onSave: () => void;
 }
 
 const reducer = (state: RecordState, action: {type: string, payload: any }) => {
@@ -66,7 +67,7 @@ const reducer = (state: RecordState, action: {type: string, payload: any }) => {
 }
 
 export function RecordFromJson(formProps: RecordFromJsonProps) {
-    const { targetPosition, onCancel } = formProps;
+    const { targetPosition, onCancel, onSave } = formProps;
     const overlayClasses = wizardStyles();
     const classes = useStyles();
 
@@ -122,7 +123,7 @@ export function RecordFromJson(formProps: RecordFromJsonProps) {
                 )];
                 code.modifyDiagram(modifications);
                 dispatchFromState({type: 'jsonConversionSuccess', payload: recordString});
-                onCancel();
+                onSave();
             })();
         }
     }, [formState.isLoading]);
