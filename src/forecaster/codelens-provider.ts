@@ -25,6 +25,7 @@ import {
 import { BAL_TOML } from '../project';
 import { FORECAST_PERFORMANCE_COMMAND as FORECAST_PERFORMANCE_COMMAND, SHOW_GRAPH_COMMAND } from './activator';
 import { CurrentResource, DataLabel, Member, SyntaxTree } from './model';
+import path from 'path';
 
 enum CODELENSE_TYPE {
     ENDPOINT,
@@ -43,7 +44,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
 
     static onDidChangeCodeLenses: any;
     private static dataLabels: DataLabel[] = [];
-    private static currentResource: CurrentResource|undefined;
+    private static currentResource: CurrentResource | undefined;
     private static graphData: PerformanceAnalyzerGraphResponse;
 
     constructor(extensionInstance: BallerinaExtension) {
@@ -69,7 +70,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
         this.onDidChangeCodeLenses.fire();
     }
 
-    public static setCurrentResource(currentResource: CurrentResource|undefined) {
+    public static setCurrentResource(currentResource: CurrentResource | undefined) {
         this.currentResource = currentResource;
     }
 
@@ -98,30 +99,30 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
                     return codeLenses;
                 }
                 const members: Member[] = syntaxTree.members;
-                for(let i = 0; i < members.length; i++) {
+                for (let i = 0; i < members.length; i++) {
                     if (members[i].kind === 'ServiceDeclaration') {
                         for (let ri = 0; ri < members[i].members.length; ri++) {
                             const serviceMembers: Member[] = members[i].members;
                             if (serviceMembers[ri].kind === 'ResourceAccessorDefinition') {
-                            const pos = serviceMembers[ri].position;
+                                const pos = serviceMembers[ri].position;
 
-                            let latency = "";
-                            const currentResource = ExecutorCodeLensProvider.currentResource;
-                            if (currentResource && 
-                                currentResource.getPosition.start.line == pos.startLine &&
-                                currentResource.getPosition.end.line == pos.endLine &&
-                                currentResource.getPosition.start.character == pos.startColumn &&
-                                currentResource.getPosition.end.character == pos.endColumn) {
+                                let latency = "";
+                                const currentResource = ExecutorCodeLensProvider.currentResource;
+                                if (currentResource &&
+                                    currentResource.getPosition.start.line == pos.startLine &&
+                                    currentResource.getPosition.end.line == pos.endLine &&
+                                    currentResource.getPosition.start.character == pos.startColumn &&
+                                    currentResource.getPosition.end.character == pos.endColumn) {
                                     latency = currentResource.getLatency.toString();
                                     ExecutorCodeLensProvider.setCurrentResource(undefined);
                                 }
 
-                            const range:Range = new Range(pos.startLine, pos.startColumn,
-                                pos.endLine, pos.endColumn);
+                                const range: Range = new Range(pos.startLine, pos.startColumn,
+                                    pos.endLine, pos.endColumn);
 
-                            codeLenses.push(this.createCodeLens(CODELENSE_TYPE.ENDPOINT,
-                                pos.startLine, pos.startColumn,
-                                pos.endLine, pos.endColumn, range, latency));
+                                codeLenses.push(this.createCodeLens(CODELENSE_TYPE.ENDPOINT,
+                                    pos.startLine, pos.startColumn,
+                                    pos.endLine, pos.endColumn, range, latency));
                             }
                         }
                     }
@@ -129,21 +130,19 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
             });
         }
 
-        if (ExecutorCodeLensProvider.dataLabels.length > 0) {
-            // add codelenses to actions invocations
-            for (let i = 0; i < ExecutorCodeLensProvider.dataLabels.length; i++) {
-                const label = ExecutorCodeLensProvider.dataLabels[i];
-                if (label.getFile == window.activeTextEditor!.document.fileName.split("/").pop()) {
-                    const startLine = label.getRange.start;
-                    const endLine = label.getRange.end;
+        // add codelenses to actions invocations
+        for (let i = 0; i < ExecutorCodeLensProvider.dataLabels.length; i++) {
+            const label = ExecutorCodeLensProvider.dataLabels[i];
+            if (window.activeTextEditor && 
+                label.getFile == window.activeTextEditor.document.fileName.split(path.sep).pop()) {
+                const startLine = label.getRange.start;
+                const endLine = label.getRange.end;
 
-                    codeLenses.push(this.createCodeLens(CODELENSE_TYPE.INVOCATION,
-                        startLine.line, startLine.character,
-                        endLine.line, endLine.character, 
-                        ExecutorCodeLensProvider.graphData, label.getLabel.toString()));
-                }
+                codeLenses.push(this.createCodeLens(CODELENSE_TYPE.INVOCATION,
+                    startLine.line, startLine.character,
+                    endLine.line, endLine.character,
+                    ExecutorCodeLensProvider.graphData, label.getLabel.toString()));
             }
-
         }
 
         return codeLenses;

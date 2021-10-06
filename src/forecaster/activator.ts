@@ -18,7 +18,7 @@
  */
 
 import { CurrentResource, DataLabel } from "./model";
-import { commands,ViewColumn, ExtensionContext, languages, Range, window, WebviewPanel } from "vscode";
+import { commands, ViewColumn, ExtensionContext, languages, Range, window, WebviewPanel } from "vscode";
 import { BallerinaExtension, ExtendedLangClient, LANGUAGE, PerformanceAnalyzerGraphResponse } from "../core";
 import { ExecutorCodeLensProvider } from "./codelens-provider";
 import { log } from "../utils";
@@ -54,8 +54,8 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
         if (!choreoToken || !choreoCookie) {
             window.showInformationMessage(
                 "Please sign in to Choreo to use this feature"
-              );
-            return;  
+            );
+            return;
         }
 
         if (uri && langClient && args.length > 0) {
@@ -83,7 +83,7 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
                         // Choreo Auth Error
                         window.showInformationMessage(
                             "Choreo Authentication error."
-                          );
+                        );
                         return;
                     } else if (response.message === 'CONNECTION_ERROR') {
                         // Internet Connection Error
@@ -111,33 +111,38 @@ function addPerformanceLabels(graphData: PerformanceAnalyzerGraphResponse, curre
     }
     const sequenceDiagramData = graphData.sequenceDiagramData;
     const realtimeData = graphData.realtimeData;
-    if (sequenceDiagramData && realtimeData) {
-        const first = sequenceDiagramData[0];
-        const values = first.values;
 
-        let dataLabels: DataLabel[] = [];
-        for (let i = 0; i < values.length; i++) {
-            const name = values[i].name.replace("(", "").replace(")", "").split("/");
-            const latency = values[i].latency;
-            const file = name[0];
-            const pos = name[1].split(",");
-            const start = pos[0].split(":");
-            const end = pos[1].split(":");
-            const range = new Range(parseInt(start[0]), parseInt(start[1]),
-                parseInt(end[0]), parseInt(end[1]));
-            const dataLabel = new DataLabel(file, range, latency)
-            dataLabels.push(dataLabel);
-
-        }
-
-        const currentResource: CurrentResource = new CurrentResource(currentResourcePos,
-            realtimeData.latency);
-
-        ExecutorCodeLensProvider.setCurrentResource(currentResource);
-        ExecutorCodeLensProvider.setGraphData(graphData);
-        ExecutorCodeLensProvider.addDataLabels(dataLabels);
-        showPerformanceGraph(graphData.graphData);
+    if (!sequenceDiagramData || !realtimeData) {
+        return;
     }
+
+    if (sequenceDiagramData.length == 0) {
+        return;
+    }
+
+    const first = sequenceDiagramData[0];
+    const values = first.values;
+
+    let dataLabels: DataLabel[] = [];
+    for (let i = 0; i < values.length; i++) {
+        const name = values[i].name.replace("(", "").replace(")", "").split("/");
+        const latency = values[i].latency;
+        const file = name[0];
+        const pos = name[1].split(",");
+        const start = pos[0].split(":");
+        const end = pos[1].split(":");
+        const range = new Range(parseInt(start[0]), parseInt(start[1]),
+            parseInt(end[0]), parseInt(end[1]));
+        const dataLabel = new DataLabel(file, range, latency);
+        dataLabels.push(dataLabel);
+    }
+
+    const currentResource: CurrentResource = new CurrentResource(currentResourcePos,
+        realtimeData.latency);
+    ExecutorCodeLensProvider.setCurrentResource(currentResource);
+    ExecutorCodeLensProvider.setGraphData(graphData);
+    ExecutorCodeLensProvider.addDataLabels(dataLabels);
+    showPerformanceGraph(graphData.graphData);
 }
 
 let performanceGraphPanel: WebviewPanel | undefined;
