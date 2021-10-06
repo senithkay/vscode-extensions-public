@@ -343,6 +343,11 @@
                 "command": "ballerina.pasteAsRecord",
                 "title": "Paste JSON as Record",
                 "category": "Ballerina"
+            },
+            {
+                "command": "ballerina.performanceForecast",
+                "title": "Performance Forecast",
+                "category": "Ballerina"
             }
         ],
         "views": {

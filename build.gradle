@@ -23,6 +23,7 @@ configurations {
     ballerinaTools
 }
 
+
 task installDeps() {
     doFirst {
         exec {
