@@ -65,6 +65,7 @@ export function FormAutocomplete(props: AutocompleteProps) {
 
             <Autocomplete
                 data-testid={dataTestId}
+                disablePortal={true}
                 id="combo-box-demo"
                 options={itemList}
                 getOptionLabel={getItemLabel}
