@@ -14,7 +14,8 @@
 import React from "react";
 
 import { List, ListItem, Typography } from "@material-ui/core";
-import { } from "@material-ui/core/ListItem"
+
+import { ServiceTypes } from "..";
 
 interface ServiceTypeSelectorProps {
     onSelect: (type: string) => void;
@@ -23,9 +24,7 @@ interface ServiceTypeSelectorProps {
 export function ServiceTypeSelector(props: ServiceTypeSelectorProps) {
     const { onSelect } = props;
 
-    const supportedTypes = ['HTTP'];
-
-    const types = supportedTypes.map(type => {
+    const types = Object.values(ServiceTypes).map(type => {
         const handleOnSelect = () => {
             onSelect(type);
         }
@@ -45,7 +44,6 @@ export function ServiceTypeSelector(props: ServiceTypeSelectorProps) {
 
         )
     })
-
 
     return (
         <>
