@@ -20,7 +20,12 @@ import { DiagramOverlayContainer } from "../Portals/Overlay";
 
 import "./style.scss";
 
-export function Panel(props: any) {
+interface PanelProps {
+    children: JSX.Element,
+    onClose: () => void;
+}
+
+export function Panel(props: PanelProps) {
     const { children, onClose } = props;
 
     return (

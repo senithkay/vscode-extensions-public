@@ -25,7 +25,6 @@ import "./style.scss";
 export const DEFAULT_SERVICE_WIDTH: number = 500;
 export const SERVICE_MARGIN_LEFT: number = 24.5;
 export const SERVICE_PLUS_OFFSET: number = 7.5;
-
 export interface ServiceProps {
     model: ServiceDeclaration;
 }
@@ -52,7 +51,7 @@ export function Service(props: ServiceProps) {
                 <TopLevelPlus kind={model.kind} targetPosition={member.position} />
                 {getSTComponent(member)}
             </div>
-        )
+        );
     });
 
     return (

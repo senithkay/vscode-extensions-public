@@ -63,7 +63,7 @@ export function FunctionSignature(props: FunctionSignatureProps) {
                     <>
                         {i !== 0 ? '&' : ''}
                         {param.paramName.value}
-                        <span ><sub>{(param.typeName as any)?.name?.value}</sub></span>
+                        <sub>{(param.typeName as any)?.name?.value}</sub>
                     </>
                 ));
             });

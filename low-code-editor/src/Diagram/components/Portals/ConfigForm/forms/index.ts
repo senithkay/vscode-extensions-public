@@ -20,6 +20,7 @@ import { APIOptions } from "../../Overlay/Elements/PlusHolder/PlusElementOptions
 import { APIConfigForm } from "./APIConfigForm";
 import { ConnectorInitForm } from "./ConnectorInitForm";
 import { ScheduleConfigForm } from "./ScheduleConfigForm";
+import { ServiceConfigForm } from './ServiceConfigForm';
 import { WebhookConfigForm } from "./WebhookConfigForm";
 
 export { WebhookConfigForm as webhookConfig };
@@ -37,4 +38,5 @@ export { ProcessConfigForm as Custom };
 export { ProcessConfigForm as DataMapper };
 export { EndConfigForm as Return };
 export { EndConfigForm as Respond };
+export { ServiceConfigForm as ServiceDeclaration };
 export { RecordEditor as RecordEditor };

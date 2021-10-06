@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useReducer } from "react";
+import React, { useContext, useReducer } from "react";
 
 import { STNode } from "@ballerina/syntax-tree";
 
@@ -149,3 +149,5 @@ export const Provider: React.FC<LowCodeEditorProps> = (props) => {
         </Context.Provider>
     );
 }
+
+export const useDiagramContext = () => useContext(Context)
