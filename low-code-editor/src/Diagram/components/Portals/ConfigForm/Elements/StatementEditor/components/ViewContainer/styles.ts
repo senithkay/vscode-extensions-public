@@ -197,11 +197,12 @@ export const statementEditorStyles = makeStyles(() =>
             margin: '4px 2px',
             borderRadius: '50%'
         },
-        shortcutPanel: {
+        rhsShortcutPanel: {
             display: 'flex',
             flexDirection: 'row',
             height: '8%',
-            width: '100%'
+            width: '90%',
+            marginLeft: '5%'
         },
         shortcutTab: {
             boxSizing: 'border-box',
