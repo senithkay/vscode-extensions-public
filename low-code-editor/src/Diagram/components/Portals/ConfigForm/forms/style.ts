@@ -480,5 +480,8 @@ export const useStyles = makeStyles((theme: Theme) =>
                 }
             }
         },
+        formFeilds: {
+            marginBottom: '50px',
+        }
     }),
 );

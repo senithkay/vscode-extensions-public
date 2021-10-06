@@ -118,7 +118,6 @@ export const wizardStyles = makeStyles(() =>
             justifyContent: 'flex-end',
             width: '100%',
             zIndex: 100,
-            paddingTop: '2rem',
         },
         expWrapper: {
             width: '100%',
