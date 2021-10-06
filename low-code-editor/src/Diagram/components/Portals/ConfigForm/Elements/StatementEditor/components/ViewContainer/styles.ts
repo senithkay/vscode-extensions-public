@@ -15,7 +15,7 @@ import { createStyles, makeStyles } from '@material-ui/core/styles';
 
 export const statementEditorStyles = makeStyles(() =>
     createStyles({
-        App: {
+        stmtEditor: {
             display: "flex",
             flexDirection: 'column',
             backgroundColor: '#fff',
@@ -28,7 +28,7 @@ export const statementEditorStyles = makeStyles(() =>
             opacity: 0.43,
             backgroundColor: '#D8D8D8',
         },
-        rectangleCopy12: {
+        leftPaneDivider: {
             height: '1px',
             width: '393px',
             opacity: 0.43,
@@ -61,34 +61,34 @@ export const statementEditorStyles = makeStyles(() =>
             top: '2%',
             bottom: '10%'
         },
-        AppRightPane: {
+        rightPane: {
             display: 'flex',
             flexDirection: 'column',
             width: '40%',
             height: '100%'
         },
-        AppLeftPane: {
+        leftPane: {
             display: 'flex',
             flexDirection: 'column',
             backgroundColor: '#fff',
             width: '60%',
             height: '100%'
         },
-        AppContentPane: {
+        contentPane: {
             display: 'flex',
             flexDirection: 'row',
             backgroundColor: '#fff',
             width: '100%',
             height: '90%'
         },
-        AppBottomPane: {
+        bottomPane: {
             display: 'flex',
             flexDirection: 'column',
             backgroundColor: '#fff',
             width: '100%',
             height: '10%'
         },
-        AppRightPaneBlock: {
+        rightPaneBlock: {
             // backgroundColor: '#00ff00',
             display: 'flex',
             position: 'relative',
@@ -96,48 +96,31 @@ export const statementEditorStyles = makeStyles(() =>
             height: '50%',
             width: '100%'
         },
-        AppRightPaneHeading: {
-            fontFamily: 'Gilmer,sans-serif',
-            marginLeft: '5px'
-        },
-        AppLeftPaneHeading: {
-            fontFamily: 'Gilmer,sans-serif',
-            textAlign: 'left'
-        },
-        AppStatementTemplateEditor: {
+        templateEditor: {
             position: 'relative',
             height: '30%',
             width: '95%',
             display: 'flex'
         },
-        AppStatementTemplateEditorInner: {
+        templateEditorInner: {
             position: 'relative',
             top: '12%',
             height: '93%',
             width: '100%',
             overflowY: 'scroll'
         },
-        AppContextSensitivePane: {
+        contextSensitivePane: {
             display: 'flex',
             position: 'relative',
             height: '55%',
             width: '90%',
             top: '5%'
         },
-        AppDiagnosticsPane: {
+        diagnosticsPane: {
             color: '#ea4c4d',
             display: 'flex',
             height: '5%',
             paddingLeft: '5%'
-        },
-        AppSuggestionBlock: {
-            display: 'inline-block',
-            position: 'relative',
-            left: '5%',
-            top: '5%',
-            height: '90%',
-            width: '90%',
-            overflowY: 'scroll'
         },
         suggestionButton: {
             boxSizing: 'border-box',
@@ -153,7 +136,7 @@ export const statementEditorStyles = makeStyles(() =>
             letterSpacing: 0,
             lineHeight: '24px',
             '&:hover': {
-                backgroundColor: '#5567D5',
+                backgroundColor: '#8e9bdc',
                 color: 'white'
             },
             '&:disabled': {
@@ -161,11 +144,11 @@ export const statementEditorStyles = makeStyles(() =>
                 color: '#404040',
             }
         },
-        AppExpressionBlock: {
+        expressionBlock: {
             position: 'relative',
             paddingRight: '10px'
         },
-        AppExpressionBlockDisabled: {
+        expressionBlockDisabled: {
             height: '24px',
             width: '15px',
             color: '#0095FF',
@@ -184,12 +167,13 @@ export const statementEditorStyles = makeStyles(() =>
             marginLeft: '2px',
             marginTop: '1px',
             '&:hover': {
-                backgroundColor: '#5567D5',
-                color: 'white'
+                backgroundColor: '#d7dcfc',
+                color: '#fff'
             }
         },
-        InputEditorTemplate: {
-            color: '#05A26B',
+        inputEditorTemplate: {
+            // color: '#05A26B',
+            color: '#5567D5',
             minWidth: '20px',
             fontSize: '13px',
             letterSpacing: 0,
@@ -199,11 +183,11 @@ export const statementEditorStyles = makeStyles(() =>
             marginLeft: '2px',
             marginTop: '1px',
             '&:hover': {
-                backgroundColor: '#5567D5',
-                color: 'white'
+                backgroundColor: '#d7dcfc',
+                color: '#fff'
             }
         },
-        AppAddNewExpressionButton: {
+        addNewExpressionButton: {
             backgroundColor: '#f7f8fb',
             border: '#6830e9',
             borderStyle: 'solid',
@@ -213,17 +197,11 @@ export const statementEditorStyles = makeStyles(() =>
             margin: '4px 2px',
             borderRadius: '50%'
         },
-        AppExpressionBlockElement: {
-            color: '#490cd6',
-            marginLeft: '10px',
-            display: 'inline-block'
-        },
         shortcutPanel: {
             display: 'flex',
             flexDirection: 'row',
             height: '8%',
-            width: '100%',
-            // backgroundColor: '#00ff00',
+            width: '100%'
         },
         shortcutTab: {
             boxSizing: 'border-box',

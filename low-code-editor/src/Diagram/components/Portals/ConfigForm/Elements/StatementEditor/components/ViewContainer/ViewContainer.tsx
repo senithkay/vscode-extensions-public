@@ -79,9 +79,9 @@ export function ViewContainer(props: ViewProps) {
     });
 
     return (
-        <div className={overlayClasses.App}>
+        <div className={overlayClasses.stmtEditor}>
             <div className={overlayClasses.titleLine}/>
-            <div className={overlayClasses.AppContentPane}>
+            <div className={overlayClasses.contentPane}>
                 <ModelContext.Provider
                     value={{
                         statementModel: model
@@ -107,7 +107,7 @@ export function ViewContainer(props: ViewProps) {
                 <div className={overlayClasses.vl} />
                 <RightPane />
             </div>
-            <div className={overlayClasses.AppBottomPane}>
+            <div className={overlayClasses.bottomPane}>
                 <div className={wizardStylesClasses.buttonWrapper}>
                     <SecondaryButton
                         text={cancelVariableButtonText}

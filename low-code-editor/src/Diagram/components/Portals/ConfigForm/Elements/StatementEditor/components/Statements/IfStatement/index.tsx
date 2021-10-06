@@ -39,7 +39,7 @@ export function IfStatement(props: IfStatementProps) {
     return (
         isRoot ? (
             <span>
-                <span className={`${overlayClasses.AppExpressionBlock} ${overlayClasses.AppExpressionBlockDisabled}`}>
+                <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
                     {"if"}
                 </span>
                 <button
@@ -48,13 +48,13 @@ export function IfStatement(props: IfStatementProps) {
                 >
                     {component}
                 </button>
-                <span className={`${overlayClasses.AppExpressionBlock} ${overlayClasses.AppExpressionBlockDisabled}`}>
+                <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
                     &nbsp;{"{"}
                     <br/>
                     &nbsp;&nbsp;&nbsp;{"..."}
                     <br/>
                     {"} "}
-                    <button className={overlayClasses.AppAddNewExpressionButton}> + </button>
+                    <button className={overlayClasses.addNewExpressionButton}> + </button>
                     {" else {"}
                     <br/>
                     &nbsp;&nbsp;&nbsp;{"..."}
