@@ -46,20 +46,11 @@ export function Suggestions(props: SuggestionsProps) {
             {suggestions.map((suggestion: SuggestionItem, index: number) => (
                 (suggestion.kind) ?
                 (
-                    (suggestion.kind === "PlusToken") ?
                     <button
-                        className={overlayClasses.AppSuggestionButtons}
+                        className={overlayClasses.suggestionButton}
                         key={index}
                         onClick={() => onClickOperatorSuggestion(suggestion)}
-                    >
-                        {suggestion.value}
-                    </button>
-                    :
-                    <button
-                        className={overlayClasses.AppSuggestionButtons}
-                        key={index}
-                        onClick={() => onClickOperatorSuggestion(suggestion)}
-                        disabled={true}
+                        disabled={suggestion.kind !== "PlusToken"}
                     >
                         {suggestion.value}
                     </button>
@@ -67,20 +58,11 @@ export function Suggestions(props: SuggestionsProps) {
                 )
                 :
                 (
-                    (suggestion.value === c.ARITHMETIC  || suggestion.value === c.STRING_LITERAL) ?
                     <button
-                        className={overlayClasses.AppSuggestionButtons}
+                        className={overlayClasses.suggestionButton}
                         key={index}
                         onClick={() => onClickExpressionSuggestion(suggestion.value)}
-                    >
-                        {suggestion.value}
-                    </button>
-                    :
-                    <button
-                        className={overlayClasses.AppSuggestionButtons}
-                        key={index}
-                        onClick={() => onClickExpressionSuggestion(suggestion.value)}
-                        disabled={true}
+                        disabled={(suggestion.value !== c.ARITHMETIC  && suggestion.value !== c.STRING_LITERAL)}
                     >
                         {suggestion.value}
                     </button>

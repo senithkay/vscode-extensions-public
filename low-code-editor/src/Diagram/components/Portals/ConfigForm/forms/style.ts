@@ -253,7 +253,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             display: 'flex',
             flexDirection: 'row',
             alignItems: 'center',
-            margin: '-2.25rem 0.55rem 0 0',
+            margin: '-1rem 0.55rem 0 0',
             "& img": {
                 marginRight: '1rem'
             }

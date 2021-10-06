@@ -50,16 +50,16 @@ export function VariableStatement(props: VariableStatementProps) {
     return (
         isRoot ? (
             <span>
-                <span className={`${overlayClasses.AppExpressionBlock} ${overlayClasses.AppExpressionBlockDisabled}`}>
+                <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
                     {type + " " + varName + " = "}
                 </span>
                 <button
-                    className={overlayClasses.AppTemplateButton}
+                    className={overlayClasses.expressionElement}
                     onClick={onClickOnRootExpression}
                 >
                     {component}
                 </button>
-                <span className={`${overlayClasses.AppExpressionBlock} ${overlayClasses.AppExpressionBlockDisabled}`}>
+                <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
                     {" ;"}
                 </span>
             </span>

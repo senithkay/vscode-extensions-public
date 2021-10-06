@@ -80,19 +80,19 @@ export function BinaryExpressionC(props: BinaryProps) {
     return (
         <span>
             <button
-                className={overlayClasses.AppTemplateButton}
+                className={overlayClasses.expressionElement}
                 onClick={onClickOnLhsExpression}
             >
                 {lhs}
             </button>
             <button
-                className={overlayClasses.AppTemplateButton}
+                className={overlayClasses.expressionElement}
                 onClick={onClickOperator}
             >
                 {operator ? operator : "operator"}
             </button>
             <button
-                className={overlayClasses.AppTemplateButton}
+                className={overlayClasses.expressionElement}
                 onClick={onClickOnRhsExpression}
             >
                 {rhs}
