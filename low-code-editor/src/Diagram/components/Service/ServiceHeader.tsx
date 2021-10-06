@@ -13,7 +13,10 @@
 import React, { useContext } from "react"
 
 import { ListenerDeclaration, ServiceDeclaration, STKindChecker } from "@ballerina/syntax-tree";
+import classNames from "classnames";
 
+import DeleteButton from "../../../assets/icons/DeleteButton";
+import EditButton from "../../../assets/icons/EditButton";
 import ServiceIcon from "../../../assets/icons/ServiceIcon";
 import { Context as DiagramContext } from '../../../Contexts/Diagram'
 import { ComponentExpandButton } from "../ComponentExpandButton";
@@ -83,7 +86,17 @@ export function ServiceHeader(props: ServiceHeaderProps) {
                     {listeningOnText.length > 0 ? `listening on ${listeningOnText}` : ''}
                 </div>
             </div>
-            <ComponentExpandButton isExpanded={isExpanded} onClick={onExpandClick} />
+            <div className={'service-amendment-options'}>
+                <div className={classNames('service-amendment-option', 'show-on-hover')}>
+                    <EditButton />
+                </div>
+                <div className={classNames('service-amendment-option', 'show-on-hover')}>
+                    <DeleteButton />
+                </div>
+                <div className={'service-amendment-option'}>
+                    <ComponentExpandButton isExpanded={isExpanded} onClick={onExpandClick} />
+                </div>
+            </div>
         </div >
     );
 }
