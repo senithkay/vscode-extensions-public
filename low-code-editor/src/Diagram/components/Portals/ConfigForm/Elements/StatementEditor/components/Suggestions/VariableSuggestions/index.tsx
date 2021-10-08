@@ -16,8 +16,8 @@ import React from "react";
 import { STNode } from "@ballerina/syntax-tree";
 
 import { SuggestionItem } from "../../../models/definitions";
-import { statementEditorStyles } from "../../ViewContainer/styles";
 import { addVariableSuggestion } from "../../../utils/utils";
+import { statementEditorStyles } from "../../ViewContainer/styles";
 
 interface VariableSuggestionsProps {
     model: STNode

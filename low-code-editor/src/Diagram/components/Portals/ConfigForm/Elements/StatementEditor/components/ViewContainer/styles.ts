@@ -196,11 +196,11 @@ export const statementEditorStyles = makeStyles(() =>
             position: 'relative',
             marginLeft: '2px',
             marginTop: '1px',
-            boxSizing:'border-box',
-            border:' 1px #36B475',
+            boxSizing: 'border-box',
+            border: ' 1px #36B475',
             borderStyle: 'solid',
-            borderRadius:'3px',
-            padding:'3%'
+            borderRadius: '3px',
+            padding: '3%'
         },
         addNewExpressionButton: {
             backgroundColor: '#f7f8fb',

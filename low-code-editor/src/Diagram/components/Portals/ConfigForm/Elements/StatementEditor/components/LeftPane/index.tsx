@@ -18,9 +18,9 @@ import { SuggestionItem, VariableUserInputs } from "../../models/definitions";
 import { getSuggestionsBasedOnExpressionKind } from "../../utils";
 import { Diagnostics } from "../Diagnostics";
 import { ExpressionComponent } from '../Expression';
-import { statementEditorStyles } from "../ViewContainer/styles";
-import { VariableSuggestions } from "../Suggestions/VariableSuggestions";
 import { ExpressionSuggestions } from "../Suggestions/ExpressionSuggestions";
+import { VariableSuggestions } from "../Suggestions/VariableSuggestions";
+import { statementEditorStyles } from "../ViewContainer/styles";
 
 interface ModelProps {
     model: STNode,

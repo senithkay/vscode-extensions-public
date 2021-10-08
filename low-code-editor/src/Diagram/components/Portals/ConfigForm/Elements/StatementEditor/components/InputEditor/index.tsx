@@ -242,7 +242,6 @@ export function InputEditor(props: InputEditorProps) {
             }
         }
 
-        //console.log("===before completion model-kind", model.kind)
         const acceptedDataType: string[] = getDataTypeOnExpressionKind(model.kind);
 
         getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
@@ -251,12 +250,11 @@ export function InputEditor(props: InputEditorProps) {
                     (!completionResponse.kind || acceptedCompletionKind.includes(completionResponse.kind)) &&
                     ((varType === "string") ? completionResponse.detail === varType : acceptedDataType.includes(completionResponse.detail)) &&
                     completionResponse.label !== varName &&
-                    //completionResponse.detail === varType &&
                     ((completionResponse.label.replace(/["]+/g, '')).includes(codeSnippet)) &&
                     !(completionResponse.label.includes("main"))
                 ));
 
-                const variableSuggestions: SuggestionItem[] = filteredCompletionItem.map(function (obj) {
+                const variableSuggestions: SuggestionItem[] = filteredCompletionItem.map((obj) => {
                     return { value: obj.label, kind: obj.detail }
                 });
 

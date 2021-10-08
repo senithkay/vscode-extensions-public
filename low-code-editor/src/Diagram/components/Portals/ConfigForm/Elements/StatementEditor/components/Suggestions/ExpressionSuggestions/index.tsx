@@ -17,8 +17,8 @@ import { STNode } from "@ballerina/syntax-tree";
 
 import * as c from "../../../constants";
 import { SuggestionItem } from "../../../models/definitions";
-import { statementEditorStyles } from "../../ViewContainer/styles";
 import { addExpression, addOperator } from "../../../utils/utils";
+import { statementEditorStyles } from "../../ViewContainer/styles";
 
 interface ExpressionSuggestionsProps {
     model: STNode
@@ -29,7 +29,7 @@ interface ExpressionSuggestionsProps {
 
 export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
     const overlayClasses = statementEditorStyles();
-    const { model, suggestions, suggestionHandler, operator } = props;
+    const { model, suggestions, suggestionHandler } = props;
 
     const onClickExpressionSuggestion = (kind: string) => {
         addExpression(model, kind);
@@ -72,5 +72,4 @@ export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
                 ))}
         </div>
     );
-
 }

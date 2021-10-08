@@ -13,7 +13,7 @@
 import { BinaryExpression, BracedExpression, NumericLiteral, STNode, StringLiteral } from "@ballerina/syntax-tree";
 
 import * as c from "../constants";
-import {SuggestionItem} from "../models/definitions";
+import { SuggestionItem } from "../models/definitions";
 
 export function addOperator(model: STNode, operator: SuggestionItem) {
     const expression: any = model;
@@ -347,7 +347,7 @@ export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = 
 
 export const DataTypeByExpressionKind: { [key: string]: string[] } = {
     StringLiteral: ["string"],
-    NumericLiteral: ["int","float","decimal"],
-    Arithmetic: ["string","int","float","decimal"],
-    BracedExpression: ["string","int","float","decimal"]
+    NumericLiteral: ["int", "float", "decimal"],
+    Arithmetic: ["string", "int", "float", "decimal"],
+    BracedExpression: ["string", "int", "float", "decimal"]
 }
