@@ -24,7 +24,7 @@ interface ExpressionSuggestionsProps {
     model: STNode
     suggestions?: SuggestionItem[],
     operator: boolean,
-    suggestionHandler: (model: STNode) => void
+    suggestionHandler: () => void
 }
 
 export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
@@ -33,12 +33,12 @@ export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
 
     const onClickExpressionSuggestion = (kind: string) => {
         addExpression(model, kind);
-        suggestionHandler(model);
+        suggestionHandler();
     }
 
     const onClickOperatorSuggestion = (operator: SuggestionItem) => {
         addOperator(model, operator);
-        suggestionHandler(model);
+        suggestionHandler();
     }
 
     return (

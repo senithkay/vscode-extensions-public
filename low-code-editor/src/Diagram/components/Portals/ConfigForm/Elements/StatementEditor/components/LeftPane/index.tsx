@@ -30,11 +30,13 @@ interface ModelProps {
     label: string,
     currentModel: { model: STNode },
     userInputs?: VariableUserInputs
+    currentModelHandler: (model: STNode) => void
 }
 
 export function LeftPane(props: ModelProps) {
     const overlayClasses = statementEditorStyles();
-    const { model, kind, label, currentModel, userInputs } = props;
+    const { model, kind, label, currentModel, userInputs, currentModelHandler } = props;
+    // console.log(`=============== model received by the LeftPane: ${JSON.stringify(model)}`);
 
     const [suggestionList, setSuggestionsList] = useState(getSuggestionsBasedOnExpressionKind(kind));
     const [diagnosticList, setDiagnostic] = useState("");
@@ -43,7 +45,7 @@ export function LeftPane(props: ModelProps) {
     const [variableList, setVariableList] = useState([]);
 
     const expressionHandler = (cModel: STNode, operator: boolean, suggestionsList: { variableSuggestions?: SuggestionItem[], expressionSuggestions?: SuggestionItem[] }) => {
-        currentModel.model = cModel
+        currentModelHandler(cModel);
         if (suggestionsList.expressionSuggestions) {
             setSuggestionsList(suggestionsList.expressionSuggestions)
         }
