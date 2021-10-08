@@ -819,7 +819,7 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
     if (formField) {
         switch (formField.typeName) {
             case "union":
-                formField?.members.forEach(field => {
+                formField?.members?.forEach(field => {
                     const returnTypeResponse = getFormFieldReturnType(field, depth + 1);
                     const returnType = returnTypeResponse.returnType;
                     response.hasError = returnTypeResponse.hasError || response.hasError;

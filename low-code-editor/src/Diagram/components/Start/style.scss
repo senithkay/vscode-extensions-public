@@ -12,6 +12,7 @@
  */
 .start-wrapper {
     user-select: none;
+    font-family: inherit;
 
     .start-button {
         .start-button-rect {
@@ -28,7 +29,6 @@
 
         text .start-text {
             fill: #5567d5;
-            font-family: "Gilmer", sans-serif;
             font-size: 10px;
             font-weight: 600;
             letter-spacing: 0.5;
