@@ -13,22 +13,22 @@
 // tslint:disable: jsx-wrap-multiline
 import React from "react";
 
-import {BinaryExpression, STKindChecker, STNode} from "@ballerina/syntax-tree";
+import { BinaryExpression, STKindChecker, STNode } from "@ballerina/syntax-tree";
 
 import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
 import { getKindBasedOnOperator, getOperatorSuggestions, getSuggestionsBasedOnExpressionKind } from "../../../utils";
-import { ExpressionComponent} from "../../Expression";
+import { ExpressionComponent } from "../../Expression";
 import { statementEditorStyles } from "../../ViewContainer/styles";
 
 interface BinaryProps {
     model: STNode
-    expressionHandler: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void
+    expressionHandler: (model: STNode, operator: boolean, variableSuggestions?: SuggestionItem[], suggestions?: SuggestionItem[]) => void
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }
 
 export function BinaryExpressionC(props: BinaryProps) {
-    const {model, expressionHandler, userInputs, diagnosticHandler} = props;
+    const { model, expressionHandler, userInputs, diagnosticHandler } = props;
     let lhsExpression: any;
     let rhsExpression: any;
     let lhs: any;
@@ -64,17 +64,17 @@ export function BinaryExpressionC(props: BinaryProps) {
 
     const onClickOperator = (event: any) => {
         event.stopPropagation()
-        expressionHandler(getOperatorSuggestions(kind), model, true)
+        expressionHandler(model, true, [], getOperatorSuggestions(kind))
     }
 
     const onClickOnLhsExpression = (event: any) => {
         event.stopPropagation()
-        expressionHandler(getSuggestionsBasedOnExpressionKind(kind), lhsExpression, false)
+        expressionHandler(lhsExpression, false, null, getSuggestionsBasedOnExpressionKind(kind))
     };
 
     const onClickOnRhsExpression = (event: any) => {
         event.stopPropagation()
-        expressionHandler(getSuggestionsBasedOnExpressionKind(kind), rhsExpression, false)
+        expressionHandler(rhsExpression, false, null, getSuggestionsBasedOnExpressionKind(kind))
     };
 
     return (

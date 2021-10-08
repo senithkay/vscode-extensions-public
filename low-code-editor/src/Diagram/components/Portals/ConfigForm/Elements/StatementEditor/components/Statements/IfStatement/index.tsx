@@ -21,19 +21,19 @@ import { statementEditorStyles } from "../../ViewContainer/styles";
 
 interface IfStatementProps {
     model: STNode
-    expressionHandler: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void
+    expressionHandler: (model: STNode, operator: boolean, variableSuggestions?: SuggestionItem[], suggestions?: SuggestionItem[]) => void
     isRoot: boolean
     component: ReactNode
 }
 
 export function IfStatement(props: IfStatementProps) {
-    const {model, expressionHandler, isRoot, component} = props;
+    const { model, expressionHandler, isRoot, component } = props;
 
     const overlayClasses = statementEditorStyles();
 
     const onClickOnRootExpression = (event: any) => {
         event.stopPropagation()
-        expressionHandler(getSuggestionsBasedOnExpressionKind(c.DEFAULT_BOOL), model, false)
+        expressionHandler(model, false, null, getSuggestionsBasedOnExpressionKind(c.DEFAULT_BOOL))
     };
 
     return (

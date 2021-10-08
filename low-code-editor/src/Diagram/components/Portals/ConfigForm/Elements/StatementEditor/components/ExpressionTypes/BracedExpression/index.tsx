@@ -13,14 +13,14 @@
 // tslint:disable: jsx-wrap-multiline
 import React from "react";
 
-import {BracedExpression, STKindChecker, STNode} from "@ballerina/syntax-tree";
+import { BracedExpression, STKindChecker, STNode } from "@ballerina/syntax-tree";
 
 import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
 import { ExpressionComponent } from "../../Expression";
 
 interface BracedExprProps {
     model: STNode
-    expressionHandler: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void
+    expressionHandler: (model: STNode, operator: boolean, variableSuggestions?: SuggestionItem[], suggestions?: SuggestionItem[]) => void
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }

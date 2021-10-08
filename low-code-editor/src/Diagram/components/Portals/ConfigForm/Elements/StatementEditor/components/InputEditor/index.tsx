@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js ordered-imports
 import React, { useContext, useEffect, useRef, useState } from "react";
 
-import {NumericLiteral, STKindChecker, STNode, StringLiteral, traversNode} from "@ballerina/syntax-tree";
+import { NumericLiteral, STKindChecker, STNode, StringLiteral, traversNode } from "@ballerina/syntax-tree";
 import debounce from "lodash.debounce";
 import { monaco } from "react-monaco-editor";
 import { Context } from "../../../../../../../../Contexts/Diagram";
@@ -22,19 +22,26 @@ import {
     CompletionResponse,
     ExpressionEditorLangClientInterface
 } from "../../../../../../../../Definitions";
-import { addToTargetLine, addToTargetPosition, getDiagnosticMessage, getFilteredDiagnostics, getTargetPosition } from "../../../ExpressionEditor/utils";
+import {
+    addToTargetLine,
+    addToTargetPosition,
+    getDiagnosticMessage,
+    getFilteredDiagnostics,
+    getTargetPosition
+} from "../../../ExpressionEditor/utils";
 import * as c from "../../constants";
 import { ModelContext } from "../../store/model-context";
-import { addExpression } from "../../utils/utils";
+import { addExpression, addVariableSuggestion } from "../../utils/utils";
 import { visitor as CodeGenVisitor } from "../../visitors/code-gen-visitor";
 import { FormContext } from "../../store/form-context";
 import { SuggestionItem, VariableUserInputs } from "../../models/definitions";
 import { statementEditorStyles } from "../ViewContainer/styles";
 import { acceptedCompletionKind } from "./constants";
+import { getDataTypeOnExpressionKind } from "../../utils";
 
 export interface InputEditorProps {
     model: STNode,
-    expressionHandler: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void,
+    expressionHandler: (model: STNode, operator: boolean, variableSuggestions?: SuggestionItem[], suggestions?: SuggestionItem[]) => void,
     statementType: any,
     diagnosticHandler: (diagnostics: string) => void,
     userInputs: VariableUserInputs
@@ -93,7 +100,7 @@ export function InputEditor(props: InputEditorProps) {
         CodeGenVisitor.clearCodeSnippet();
         traversNode(modelCtx.statementModel, CodeGenVisitor);
         const ignore = handleOnFocus(CodeGenVisitor.getCodeSnippet(), "");
-        getCompletions("");
+        getContextBasedCompletions("");
     }, [statementType]);
 
     useEffect(() => {
@@ -140,7 +147,7 @@ export function InputEditor(props: InputEditorProps) {
         formCtx.validate(userInputs.formField, !hasDiagnostic, false);
 
         // TODO: Need to obtain the default value as a prop
-        if (!CodeGenVisitor.getCodeSnippet().includes(' expression ')) {
+        if (!CodeGenVisitor.getCodeSnippet().includes('expression')) {
             diagnosticHandler(getDiagnosticMessage(inputEditorState.diagnostic, varType))
         }
     }
@@ -221,8 +228,7 @@ export function InputEditor(props: InputEditorProps) {
         }
     }
 
-    const getCompletions = async (codeSnippet:string) => {
-        console.log("====CODE-SNIPPET", codeSnippet)
+    const getContextBasedCompletions = async (codeSnippet: string) => {
         const completionParams: CompletionParams = {
             textDocument: {
                 uri: inputEditorState?.uri
@@ -231,23 +237,30 @@ export function InputEditor(props: InputEditorProps) {
                 triggerKind: 1
             },
             position: {
-                character: ((CodeGenVisitor.getCodeSnippet().length - 1) + (snippetTargetPosition - 1)),
+                character: (codeSnippet.length + (snippetTargetPosition - 1)),
                 line: targetPosition.startLine
             }
         }
+
+        //console.log("===before completion model-kind", model.kind)
+        const acceptedDataType: string[] = getDataTypeOnExpressionKind(model.kind);
 
         getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
             langClient.getCompletion(completionParams).then((values: CompletionResponse[]) => {
                 const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (
                     (!completionResponse.kind || acceptedCompletionKind.includes(completionResponse.kind)) &&
+                    ((varType === "string") ? completionResponse.detail === varType : acceptedDataType.includes(completionResponse.detail)) &&
                     completionResponse.label !== varName &&
-                    completionResponse.detail === varType &&
-                    ((completionResponse.label.replace(/["]+/g, '')).includes(codeSnippet.slice(0,-1))) &&
+                    //completionResponse.detail === varType &&
+                    ((completionResponse.label.replace(/["]+/g, '')).includes(codeSnippet)) &&
                     !(completionResponse.label.includes("main"))
                 ));
-                console.log("====FILTERED-COMPLETION", filteredCompletionItem)
 
+                const variableSuggestions: SuggestionItem[] = filteredCompletionItem.map(function (obj) {
+                    return { value: obj.label, kind: obj.detail }
+                });
 
+                expressionHandler(model, false, variableSuggestions);
             });
         });
     }
@@ -259,7 +272,7 @@ export function InputEditor(props: InputEditorProps) {
     const inputBlurHandler = () => {
         if (defaultValue.current !== "") {
             addExpression(model, kind, value);
-            expressionHandler([], model, false);
+            expressionHandler(model, false, null, []);
 
             const ignore = handleOnOutFocus();
         }
@@ -268,20 +281,22 @@ export function InputEditor(props: InputEditorProps) {
     const inputEnterHandler = (event: React.KeyboardEvent<HTMLSpanElement>) => {
         if (event.code === "Enter" || event.code === "Tab") {
             addExpression(model, kind, event.currentTarget.textContent);
-            expressionHandler([], model, false);
+            expressionHandler(model, false, null, []);
 
             CodeGenVisitor.clearCodeSnippet();
             traversNode(modelCtx.statementModel, CodeGenVisitor);
             const ignore = handleContentChange(CodeGenVisitor.getCodeSnippet(), "")
+            getContextBasedCompletions(event.currentTarget.textContent);
         }
     };
 
     const inputChangeHandler = (event: React.KeyboardEvent<HTMLSpanElement>) => {
         addExpression(model, kind, event.currentTarget.textContent ? event.currentTarget.textContent : "");
-        expressionHandler([], model, false);
+        expressionHandler(model, false, null, []);
         CodeGenVisitor.clearCodeSnippet();
         traversNode(modelCtx.statementModel, CodeGenVisitor);
         debouncedContentChange(CodeGenVisitor.getCodeSnippet(), "");
+        getContextBasedCompletions(event.currentTarget.textContent);
     };
 
     const debouncedContentChange = debounce(handleContentChange, 500);

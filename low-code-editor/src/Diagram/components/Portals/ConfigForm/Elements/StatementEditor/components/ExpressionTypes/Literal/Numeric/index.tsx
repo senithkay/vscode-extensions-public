@@ -20,7 +20,7 @@ import { InputEditor } from "../../../InputEditor";
 
 interface LiteralProps {
     model: STNode
-    expressionHandler: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void;
+    expressionHandler: (model: STNode, operator: boolean, variableSuggestions?: SuggestionItem[], suggestions?: SuggestionItem[]) => void;
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }

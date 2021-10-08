@@ -18,8 +18,9 @@ import { SuggestionItem, VariableUserInputs } from "../../models/definitions";
 import { getSuggestionsBasedOnExpressionKind } from "../../utils";
 import { Diagnostics } from "../Diagnostics";
 import { ExpressionComponent } from '../Expression';
-import { Suggestions } from '../Suggestions';
 import { statementEditorStyles } from "../ViewContainer/styles";
+import { VariableSuggestions } from "../Suggestions/VariableSuggestions";
+import { ExpressionSuggestions } from "../Suggestions/ExpressionSuggestions";
 
 interface ModelProps {
     model: STNode,
@@ -31,18 +32,24 @@ interface ModelProps {
 
 export function LeftPane(props: ModelProps) {
     const overlayClasses = statementEditorStyles();
-    const {model, kind, label, currentModel, userInputs} = props;
+    const { model, kind, label, currentModel, userInputs } = props;
 
     const [suggestionList, setSuggestionsList] = useState(getSuggestionsBasedOnExpressionKind(kind));
     const [diagnosticList, setDiagnostic] = useState("");
     const [, setIsSuggestionClicked] = useState(false);
     const [isOperator, setIsOperator] = useState(false);
+    const [variableList, setVariableList] = useState([]);
 
-    const expressionHandler = (suggestions: SuggestionItem[], cModel: STNode, operator: boolean) => {
+    const expressionHandler = (cModel: STNode, operator: boolean, variableSuggestions?: SuggestionItem[], suggestions?: SuggestionItem[]) => {
         currentModel.model = cModel
-        setSuggestionsList(suggestions)
+        if (suggestions) {
+            setSuggestionsList(suggestions)
+        }
         setIsSuggestionClicked(false)
         setIsOperator(operator)
+        if (variableSuggestions) {
+            setVariableList(variableSuggestions)
+        }
     }
 
     const suggestionHandler = () => {
@@ -69,15 +76,23 @@ export function LeftPane(props: ModelProps) {
                     />
                 </div>
             </div>
-            <div className={overlayClasses.leftPaneDivider} />
+            <div className={overlayClasses.leftPaneDivider}/>
             <div className={overlayClasses.diagnosticsPane}>
                 <Diagnostics
                     message={diagnosticList}
                 />
             </div>
+            <span className={overlayClasses.subHeader}>Variables</span>
+            <div className={overlayClasses.contextSensitivePane}>
+                <VariableSuggestions
+                    model={currentModel.model}
+                    variableSuggestions={variableList}
+                    suggestionHandler={suggestionHandler}
+                />
+            </div>
             <span className={overlayClasses.subHeader}>Expression</span>
             <div className={overlayClasses.contextSensitivePane}>
-                <Suggestions
+                <ExpressionSuggestions
                     model={currentModel.model}
                     suggestions={suggestionList}
                     operator={isOperator}
