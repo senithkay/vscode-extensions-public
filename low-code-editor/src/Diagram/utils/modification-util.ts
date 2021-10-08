@@ -13,6 +13,7 @@
 import { DraftUpdateStatement } from "../../api/models";
 import { FormField } from "../../ConfigurationSpec/types";
 import { STModification } from "../../Definitions/lang-client-extended";
+import { ListenerConfig } from "../components/ConfigForms/ListenerConfigForm/util/types";
 import { HeaderObjectConfig } from "../components/ConnectorExtensions/HTTPWizard/HTTPHeaders";
 import { HTTPServiceConfigState } from "../components/Portals/ConfigForm/forms/ServiceConfigForm/forms/HttpService/util/reducer";
 import { getFormattedModuleName, getParams } from "../components/Portals/utils";
@@ -524,6 +525,27 @@ export function createServiceDeclartion(config: HTTPServiceConfigState, targetPo
                 'LISTENER_NAME': listenerName,
                 'BASE_PATH': serviceBasePath,
             }
+        }
+    }
+}
+
+export function createListenerDeclartion(config: ListenerConfig, targetPosition: DraftUpdatePosition): STModification {
+    const { listenerName, listenerPort } = config;
+
+    const modification: STModification = {
+        startLine: targetPosition.startLine,
+        endLine: targetPosition.startLine,
+        startColumn: 0,
+        endColumn: 0,
+        type: ''
+    };
+
+    return {
+        ...modification,
+        type: 'LISTENER_DECLARATION',
+        config: {
+            'LISTENER_NAME': listenerName,
+            'PORT': listenerPort
         }
     }
 }

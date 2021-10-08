@@ -12,6 +12,7 @@
  */
 import { ConditionConfigForm } from "../../../ConfigForms/ConditionConfigForms";
 import { EndConfigForm } from "../../../ConfigForms/EndConfigForms";
+import { ListenerConfigForm } from "../../../ConfigForms/ListenerConfigForm";
 import { ProcessConfigForm } from "../../../ConfigForms/ProcessConfigForms";
 import { RecordEditor } from "../../../ConfigForms/RecordEditor";
 import { ConnectorForm } from "../../../ConnectorConfigWizard/Components/ConnectorForm";
@@ -42,3 +43,4 @@ export { EndConfigForm as Respond };
 export { ServiceConfigForm as ServiceDeclaration };
 export { FunctionConfigForm as FunctionDefinition };
 export { RecordEditor as RecordEditor };
+export { ListenerConfigForm as ListenerDeclaration };
