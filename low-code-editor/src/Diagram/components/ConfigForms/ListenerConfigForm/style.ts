@@ -10,9 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: ordered-imports
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import { formCreateSvg } from '../../../../assets';
 
 export const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -31,7 +29,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             fontSize: 14,
             textTransform: 'capitalize',
             display: 'inline-block',
-            lineHeight: '35px'
+            lineHeight: 35
         },
         wizardBtnHolder: {
             display: "flex",
