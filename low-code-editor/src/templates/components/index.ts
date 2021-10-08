@@ -48,5 +48,5 @@ service /{{{ BASE_PATH }}} on {{{ LISTENER_NAME }}} {
 }`, FUNCTION_DEFINITION: `
 function {{{ NAME }}} ({{{ PARAMETERS }}}) {{{ RETURN_TYPE }}} {
 
-}`
+}`, FUNCTION_DEFINITION_SIGNATURE: `{{{ NAME }}} ({{{ PARAMETERS }}}) {{{ RETURN_TYPE }}}`
 }

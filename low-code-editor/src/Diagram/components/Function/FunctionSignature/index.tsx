@@ -11,150 +11,249 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React from 'react';
+import React, { useState } from "react";
 
-import { FunctionDefinition, IdentifierToken, ObjectMethodDefinition, RequiredParam, ResourceAccessorDefinition, STKindChecker } from "@ballerina/syntax-tree";
-import classNames from 'classnames';
+import {
+  FunctionDefinition,
+  IdentifierToken,
+  ObjectMethodDefinition,
+  RequiredParam,
+  ResourceAccessorDefinition,
+  STKindChecker,
+} from "@ballerina/syntax-tree";
+import classNames from "classnames";
 
-import FunctionIcon from '../../../../assets/icons/FunctionIcon';
-import { FunctionViewState } from '../../../view-state';
-import { ComponentExpandButton } from '../../ComponentExpandButton';
-import '../style.scss';
+import DeleteButton from "../../../../assets/icons/DeleteButton";
+import EditButton from "../../../../assets/icons/EditButton";
+import FunctionIcon from "../../../../assets/icons/FunctionIcon";
+import { useDiagramContext } from "../../../../Contexts/Diagram";
+import { STModification } from "../../../../Definitions";
+import { FunctionViewState } from "../../../view-state";
+import { ComponentExpandButton } from "../../ComponentExpandButton";
+import { FormGenerator } from "../../FormGenerator";
+import "../style.scss";
 
 interface FunctionSignatureProps {
-    model: FunctionDefinition | ResourceAccessorDefinition | ObjectMethodDefinition;
-    onExpandClick: () => void;
-    isExpanded: boolean;
+  model:
+    | FunctionDefinition
+    | ResourceAccessorDefinition
+    | ObjectMethodDefinition;
+  onExpandClick: () => void;
+  isExpanded: boolean;
 }
 
 export function FunctionSignature(props: FunctionSignatureProps) {
-    const { model, onExpandClick, isExpanded } = props;
-    const viewState: FunctionViewState = model.viewState as FunctionViewState;
+  const { model, onExpandClick, isExpanded } = props;
+  const viewState: FunctionViewState = model.viewState as FunctionViewState;
+  const component: JSX.Element[] = [];
 
-    const component: JSX.Element[] = [];
+  const {
+    props: { stSymbolInfo, selectedPosition },
+    api: {
+      code: { modifyDiagram },
+    },
+  } = useDiagramContext();
+  const [showForm, setShowForm] = useState(false);
 
-    const rectProps = {
-        x: viewState.bBox.cx,
-        y: viewState.bBox.cy,
-        width: viewState.bBox.w,
-        height: viewState.bBox.h,
-    };
+  const [isEditable, setIsEditable] = useState(false);
+  const handleMouseEnter = () => {
+    setIsEditable(true);
+  };
+  const handleMouseLeave = () => {
+    setIsEditable(false);
+  };
 
-    if (STKindChecker.isResourceAccessorDefinition(model)) {
-        const functionSignature = model.functionSignature;
+  // FIXME: need to refactor form generator away from this component!
+  const showFormGenerator = () => setShowForm(true);
+  const hideFormGenerator = () => setShowForm(false);
 
-        let pathConstruct = '';
+  const onHideFormGenerator = (modifications: STModification[]) => {
+    modifyDiagram(modifications);
+    setShowForm(false);
+  };
 
-        model.relativeResourcePath.forEach(resourceMember => {
-            pathConstruct += resourceMember.source ? resourceMember.source : resourceMember.value;
-        });
+  const rectProps = {
+    x: viewState.bBox.cx,
+    y: viewState.bBox.cy,
+    width: viewState.bBox.w,
+    height: viewState.bBox.h,
+  };
 
-        const queryParamComponents: JSX.Element[] = [];
-        const otherParamComponents: JSX.Element[] = [];
+  if (STKindChecker.isResourceAccessorDefinition(model)) {
+    const functionSignature = model.functionSignature;
 
-        functionSignature.parameters
-            .filter(param => !STKindChecker.isCommaToken(param))
-            .filter((param) => STKindChecker.isRequiredParam(param)
-                && (STKindChecker.isStringTypeDesc(param.typeName) || STKindChecker.isIntTypeDesc(param.typeName)
-                    || STKindChecker.isBooleanTypeDesc(param.typeName) || STKindChecker.isFloatTypeDesc(param.typeName)
-                    || STKindChecker.isDecimalTypeDesc(param.typeName)))
-            .forEach((param: RequiredParam, i) => {
-                queryParamComponents.push((
-                    <>
-                        {i !== 0 ? '&' : ''}
-                        {param.paramName.value}
-                        <sub>{(param.typeName as any)?.name?.value}</sub>
-                    </>
-                ));
-            });
+    let pathConstruct = "";
 
-        functionSignature.parameters
-            .filter(param => !STKindChecker.isCommaToken(param))
-            .filter((param) => STKindChecker.isRequiredParam(param)
-                && !(STKindChecker.isStringTypeDesc(param.typeName) || STKindChecker.isIntTypeDesc(param.typeName)
-                    || STKindChecker.isBooleanTypeDesc(param.typeName) || STKindChecker.isFloatTypeDesc(param.typeName)
-                    || STKindChecker.isDecimalTypeDesc(param.typeName)))
-            .forEach((param: RequiredParam, i) => {
-                otherParamComponents.push(
-                    <span className={'param'} >{param.source}</span>
-                )
-            });
+    model.relativeResourcePath.forEach((resourceMember) => {
+      pathConstruct += resourceMember.source
+        ? resourceMember.source
+        : resourceMember.value;
+    });
 
-        component.push((
-            <div
-                className={
-                    classNames(
-                        'function-signature',
-                        STKindChecker.isResourceAccessorDefinition(model) ? model.functionName.value : ''
-                    )
-                }
-            >
-                <div
-                    className={
-                        classNames(
-                            'resource-badge',
-                            STKindChecker.isResourceAccessorDefinition(model) ? model.functionName.value : ''
-                        )
-                    }
-                >
-                    <p className={'text'}>{model.functionName.value.toUpperCase()}</p>
-                </div>
-                <div className="param-wrapper">
-                    <div className={'param-container'} >
-                        <p className={'path-text'} >
-                            {pathConstruct === '.' ? '/' : pathConstruct}{queryParamComponents.length > 0 ? '?' : ''}{queryParamComponents}
-                        </p>
-                    </div>
-                    <div className={'param-container'} >
-                        <p className={'path-text'} >{otherParamComponents}</p>
-                    </div>
-                </div>
-                <ComponentExpandButton isExpanded={isExpanded} onClick={onExpandClick} />
+    const queryParamComponents: JSX.Element[] = [];
+    const otherParamComponents: JSX.Element[] = [];
+
+    functionSignature.parameters
+      .filter((param) => !STKindChecker.isCommaToken(param))
+      .filter(
+        (param) =>
+          STKindChecker.isRequiredParam(param) &&
+          (STKindChecker.isStringTypeDesc(param.typeName) ||
+            STKindChecker.isIntTypeDesc(param.typeName) ||
+            STKindChecker.isBooleanTypeDesc(param.typeName) ||
+            STKindChecker.isFloatTypeDesc(param.typeName) ||
+            STKindChecker.isDecimalTypeDesc(param.typeName))
+      )
+      .forEach((param: RequiredParam, i) => {
+        queryParamComponents.push(
+          <>
+            {i !== 0 ? "&" : ""}
+            {param.paramName.value}
+            <sub>{(param.typeName as any)?.name?.value}</sub>
+          </>
+        );
+      });
+
+    functionSignature.parameters
+      .filter((param) => !STKindChecker.isCommaToken(param))
+      .filter(
+        (param) =>
+          STKindChecker.isRequiredParam(param) &&
+          !(
+            STKindChecker.isStringTypeDesc(param.typeName) ||
+            STKindChecker.isIntTypeDesc(param.typeName) ||
+            STKindChecker.isBooleanTypeDesc(param.typeName) ||
+            STKindChecker.isFloatTypeDesc(param.typeName) ||
+            STKindChecker.isDecimalTypeDesc(param.typeName)
+          )
+      )
+      .forEach((param: RequiredParam, i) => {
+        otherParamComponents.push(
+          <span className={"param"}>{param.source}</span>
+        );
+      });
+
+    component.push(
+      <div
+        className={classNames(
+          "function-signature",
+          STKindChecker.isResourceAccessorDefinition(model)
+            ? model.functionName.value
+            : ""
+        )}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        <div
+          className={classNames(
+            "resource-badge",
+            STKindChecker.isResourceAccessorDefinition(model)
+              ? model.functionName.value
+              : ""
+          )}
+        >
+          <p className={"text"}>{model.functionName.value.toUpperCase()}</p>
+        </div>
+        <div className="param-wrapper">
+          <div className={"param-container"}>
+            <p className={"path-text"}>
+              {pathConstruct === "." ? "/" : pathConstruct}
+              {queryParamComponents.length > 0 ? "?" : ""}
+              {queryParamComponents}
+            </p>
+          </div>
+          <div className={"param-container"}>
+            <p className={"path-text"}>{otherParamComponents}</p>
+          </div>
+        </div>
+        {isEditable && (
+          <div className="function-hover-options">
+            <div className="function-icon">
+              <EditButton onClick={showFormGenerator} />
             </div>
-        ));
-    } else {
-        const functionSignature = model.functionSignature;
-        const functionName: IdentifierToken = model.functionName as IdentifierToken;
-
-        const params: JSX.Element[] = [];
-        functionSignature.parameters
-            .filter(param => !STKindChecker.isCommaToken(param))
-            .forEach((param: RequiredParam, i) => {
-                params.push(
-                    <span className={'param'} >{param.source}</span>
-                )
-            })
-
-        component.push((
-            <div
-                className={
-                    classNames(
-                        'function-signature',
-                        STKindChecker.isResourceAccessorDefinition(model) ? model.functionName.value : ''
-                    )
-                }
-            >
-                <div className={'function-icon'}>
-                    <FunctionIcon />
-                </div>
-
-                <div className="param-wrapper">
-                    <div className={'param-container'} >
-                        <p className={'path-text'}>{functionName.value}</p>
-                    </div>
-                    <div className={'param-container'} >
-                        <p className={'path-text'}>{params}</p>
-                    </div>
-                </div>
-
-                <ComponentExpandButton isExpanded={isExpanded} onClick={onExpandClick} />
+            <div className="function-icon">
+              <DeleteButton />
             </div>
-        ));
-    }
+            <div className="function-icon">
+              <ComponentExpandButton
+                isExpanded={isExpanded}
+                onClick={onExpandClick}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  } else {
+    const functionSignature = model.functionSignature;
+    const functionName: IdentifierToken = model.functionName as IdentifierToken;
 
-    return (
-        <>
-            {component}
-        </>
-    )
+    const params: JSX.Element[] = [];
+    functionSignature.parameters
+      .filter((param) => !STKindChecker.isCommaToken(param))
+      .forEach((param: RequiredParam, i) => {
+        params.push(<span className={"param"}>{param.source}</span>);
+      });
+
+    component.push(
+      <div
+        className={classNames(
+          "function-signature",
+          STKindChecker.isResourceAccessorDefinition(model)
+            ? model.functionName.value
+            : ""
+        )}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        <div className={"function-icon"}>
+          <FunctionIcon />
+        </div>
+
+        <div className="param-wrapper">
+          <div className={"param-container"}>
+            <p className={"path-text"}>{functionName.value}</p>
+          </div>
+          <div className={"param-container"}>
+            <p className={"path-text"}>{params}</p>
+          </div>
+        </div>
+        {isEditable && (
+          <div className="function-hover-options">
+            <div className="function-icon">
+              <EditButton onClick={showFormGenerator} />
+            </div>
+            <div className="function-icon">
+              <DeleteButton />
+            </div>
+            <div className="function-icon">
+              <ComponentExpandButton
+                isExpanded={isExpanded}
+                onClick={onExpandClick}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <>
+      {component}
+      {showForm && (
+        <FormGenerator
+          model={model}
+          targetPosition={model.position}
+          configOverlayFormStatus={{
+            formType: model.kind,
+            isLoading: false,
+            formArgs: { stSymbolInfo },
+          }}
+          onCancel={hideFormGenerator}
+          onSave={onHideFormGenerator}
+        />
+      )}
+    </>
+  );
 }

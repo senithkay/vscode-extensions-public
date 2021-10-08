@@ -198,7 +198,7 @@
         .param-wrapper {
             display: flex;
             flex-direction: row;
-            width: 93%;
+            flex: 1;
 
             .param-container {
                 width: auto;
@@ -212,6 +212,22 @@
                             margin-left: 24px;
                         }
                     }
+                }
+            }
+        }
+
+        .function-hover-options {
+            display: flex;
+            align-items: center;
+
+            .function-icon {
+                width: 20px;
+                text-align: center;
+                padding-left: 5px;
+                display: flex;
+
+                &:hover {
+                    cursor: pointer;
                 }
             }
         }
