@@ -59,11 +59,15 @@ export function ViewContainer(props: ViewProps) {
 
     const [model] = useState({ ...stmtModel });
 
+    const [currentModel, setCurrentModel] = useState({model});
+
     const [onCancelClicked, setOnCancel] = useState(false);
 
-    const currentModel: { model: STNode } = {
-        model
-    }
+    const currentModelHandler = (cModel: STNode) => {
+        setCurrentModel({
+            model: cModel
+        });
+    };
 
     const onCancelHandler = () => {
         setOnCancel(true);
@@ -109,6 +113,7 @@ export function ViewContainer(props: ViewProps) {
                         kind={kind}
                         label={label}
                         userInputs={userInputs}
+                        currentModelHandler={currentModelHandler}
                     />
                 </StatementEditorContext.Provider>
                 <div className={overlayClasses.vl}/>

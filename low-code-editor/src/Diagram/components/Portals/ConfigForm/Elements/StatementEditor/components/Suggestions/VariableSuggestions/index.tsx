@@ -22,16 +22,18 @@ import { statementEditorStyles } from "../../ViewContainer/styles";
 interface VariableSuggestionsProps {
     model: STNode
     variableSuggestions?: SuggestionItem[],
-    suggestionHandler: (model: STNode) => void
+    suggestionHandler: () => void
 }
 
 export function VariableSuggestions(props: VariableSuggestionsProps) {
     const overlayClasses = statementEditorStyles();
     const { model, variableSuggestions, suggestionHandler } = props;
+    // console.log(`===== model received by the VariableSuggestions when rendering: ${JSON.stringify(model)}`);
 
     const onClickVariableSuggestion = (suggestion: SuggestionItem) => {
+        // console.log(`===== model received by the VariableSuggestions on click: ${JSON.stringify(model)}`);
         addVariableSuggestion(model, suggestion);
-        suggestionHandler(model);
+        suggestionHandler();
     }
 
     return (

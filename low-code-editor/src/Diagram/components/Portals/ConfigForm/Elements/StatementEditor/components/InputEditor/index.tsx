@@ -94,10 +94,16 @@ export function InputEditor(props: InputEditorProps) {
         value = literalModel.literalToken.value;
     } else if (STKindChecker.isSimpleNameReference(model)) {
         literalModel = model as SimpleNameReference;
+        kind = "testRefValue";
         value = literalModel.name.value;
     }
 
     const defaultValue = useRef(value);
+
+    if (kind === "testRefValue") {
+        defaultValue.current = value;
+        kind = c.STRING_LITERAL;
+    }
 
     const targetPosition = getTargetPosition(targetPositionDraft, syntaxTree);
     const textLabel = userInputs && userInputs.formField ? userInputs.formField : "modelName"
@@ -240,6 +246,7 @@ export function InputEditor(props: InputEditorProps) {
     }
 
     const getContextBasedCompletions = async (codeSnippet: string) => {
+        // console.log(`===== model received by the inputEditor: ${JSON.stringify(model)}`);
         const completionParams: CompletionParams = {
             textDocument: {
                 uri: inputEditorState?.uri
@@ -269,8 +276,7 @@ export function InputEditor(props: InputEditorProps) {
                     return { value: obj.label, kind: obj.detail }
                 });
 
-                suggestionCtx.expressionHandler(model, false, { variableSuggestions })
-
+                suggestionCtx.expressionHandler(model, false, variableSuggestions, undefined);
             });
         });
     }
@@ -282,7 +288,7 @@ export function InputEditor(props: InputEditorProps) {
     const inputBlurHandler = () => {
         if (defaultValue.current !== "") {
             addExpression(model, kind, value);
-            suggestionCtx.expressionHandler(model, false, { expressionSuggestions: [] })
+            // expressionHandler(model, false, null, []);
 
             const ignore = handleOnOutFocus();
         }
@@ -291,7 +297,7 @@ export function InputEditor(props: InputEditorProps) {
     const inputEnterHandler = (event: React.KeyboardEvent<HTMLSpanElement>) => {
         if (event.code === "Enter" || event.code === "Tab") {
             addExpression(model, kind, event.currentTarget.textContent);
-            suggestionCtx.expressionHandler(model, false, { expressionSuggestions: [] })
+            // expressionHandler(model, false, null, []);
 
             CodeGenVisitor.clearCodeSnippet();
             traversNode(stmtCtx.modelCtx.statementModel, CodeGenVisitor);
@@ -302,7 +308,7 @@ export function InputEditor(props: InputEditorProps) {
 
     const inputChangeHandler = (event: React.KeyboardEvent<HTMLSpanElement>) => {
         addExpression(model, kind, event.currentTarget.textContent ? event.currentTarget.textContent : "");
-        suggestionCtx.expressionHandler(model, false, { expressionSuggestions: [] })
+        // expressionHandler(model, false, null, []);
         CodeGenVisitor.clearCodeSnippet();
         traversNode(stmtCtx.modelCtx.statementModel, CodeGenVisitor);
         debouncedContentChange(CodeGenVisitor.getCodeSnippet(), "");
@@ -318,7 +324,7 @@ export function InputEditor(props: InputEditorProps) {
             contentEditable={true}
             suppressContentEditableWarning={true}
             onBlur={inputBlurHandler}
-            onInput={inputChangeHandler}
+            onChange={inputChangeHandler}
             dangerouslySetInnerHTML={{ __html: defaultValue.current }}
         />
     )
