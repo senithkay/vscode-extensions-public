@@ -21,7 +21,7 @@ const leafKind = ['PlusToken', 'MinusToken', 'AsteriskToken', 'SlashToken', 'Per
     'DoubleEqualToken', 'NotEqualToken', 'TrippleEqualToken', 'NotDoubleEqualToken',
     'LogicalAndToken', 'LogicalOrToken',
     'DoubleDotLtToken',
-    'DecimalIntegerLiteralToken', 'StringLiteralToken'];
+    'DecimalIntegerLiteralToken', 'StringLiteralToken', 'IdentifierToken'];
 
 class CodeGenVisitor implements Visitor {
     private codeSnippet: string = "";
