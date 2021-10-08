@@ -27,6 +27,7 @@ import { SelectDropdownWithButton } from "../../Portals/ConfigForm/Elements/Drop
 import { FormTextInput } from "../../Portals/ConfigForm/Elements/TextField/FormTextInput";
 
 import { useStyles } from "./style";
+import { isListenerConfigValid } from "./util";
 import { ListenerConfig } from "./util/types";
 
 interface ListenerConfigFormProps {
@@ -47,7 +48,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
     const formClasses = useStyles();
     const { targetPosition, onCancel, onSave } = props;
     const [config, setCofig] = useState(defaultState);
-    const saveBtnDisabled: boolean = false;
+    const saveBtnEnabled = isListenerConfigValid(config);
 
     const onListenerNameChange = (listenerName: string) => {
         setCofig({
@@ -65,7 +66,6 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
             listenerType: 'http'
         });
     }
-
 
     const handleOnSave = () => {
         onSave([
@@ -137,7 +137,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                 />
                 <PrimaryButton
                     text="Save"
-                    disabled={saveBtnDisabled}
+                    disabled={!saveBtnEnabled}
                     fullWidth={false}
                     onClick={handleOnSave}
                 />
