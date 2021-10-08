@@ -17,7 +17,7 @@ import Button from '@material-ui/core/Button';
 import { Theme, withStyles } from '@material-ui/core/styles';
 
 export interface StatementEditorButtonProps {
-    onClick?: (param?: any) => void,
+    onClick?: () => void,
     disabled?: boolean;
 }
 
