@@ -25,6 +25,16 @@ export function addOperator(model: STNode, operator: SuggestionItem) {
     }
 }
 
+export function addVariableSuggestion(model: STNode, suggestion: SuggestionItem) {
+    const initialKeys = Object.keys(model);
+    initialKeys.forEach((key) => {
+        delete model[key];
+    });
+    if (suggestion.kind === "string") {
+        Object.assign(model, createStringLiteral(suggestion.value));
+    }
+}
+
 export function addExpression(model: any, kind: string, value?: any) {
     const initialKeys = Object.keys(model);
     initialKeys.forEach((key) => {
