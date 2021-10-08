@@ -13,7 +13,14 @@
 // tslint:disable: jsx-no-multiline-js ordered-imports
 import React, { useContext, useEffect, useRef, useState } from "react";
 
-import { NumericLiteral, STKindChecker, STNode, StringLiteral, traversNode } from "@ballerina/syntax-tree";
+import {
+    IdentifierToken,
+    NumericLiteral, SimpleNameReference,
+    STKindChecker,
+    STNode,
+    StringLiteral,
+    traversNode
+} from "@ballerina/syntax-tree";
 import debounce from "lodash.debounce";
 import { monaco } from "react-monaco-editor";
 import { Context } from "../../../../../../../../Contexts/Diagram";
@@ -73,18 +80,23 @@ export function InputEditor(props: InputEditorProps) {
 
     const overlayClasses = statementEditorStyles();
 
-    let literalModel: StringLiteral | NumericLiteral;
+    let literalModel: StringLiteral | NumericLiteral | SimpleNameReference;
     let value: any;
     let kind: any;
 
     if (STKindChecker.isStringLiteral(model)) {
         literalModel = model as StringLiteral;
         kind = c.STRING_LITERAL;
-    } else {
+        value = literalModel.literalToken.value;
+    } else if (STKindChecker.isNumericLiteral(model)) {
         literalModel = model as NumericLiteral;
         kind = c.NUMERIC_LITERAL;
+        value = literalModel.literalToken.value;
+    } else if (STKindChecker.isSimpleNameReference(model)) {
+        literalModel = model as SimpleNameReference;
+        value = literalModel.name.value;
     }
-    value = literalModel.literalToken.value;
+
     const defaultValue = useRef(value);
 
     const targetPosition = getTargetPosition(targetPositionDraft, syntaxTree);
