@@ -187,6 +187,21 @@ export const statementEditorStyles = makeStyles(() =>
                 color: '#fff'
             }
         },
+        dataTypeTemplate: {
+            // color: '#05A26B',
+            color: '#05A26B',
+            fontSize: '10px',
+            letterSpacing: '-0.2px',
+            lineHeight: '24px',
+            position: 'relative',
+            marginLeft: '2px',
+            marginTop: '1px',
+            boxSizing:'border-box',
+            border:' 1px #36B475',
+            borderStyle: 'solid',
+            borderRadius:'3px',
+            padding:'3%'
+        },
         addNewExpressionButton: {
             backgroundColor: '#f7f8fb',
             border: '#6830e9',
