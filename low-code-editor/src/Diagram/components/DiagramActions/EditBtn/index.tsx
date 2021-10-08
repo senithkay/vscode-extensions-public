@@ -13,10 +13,9 @@
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
 import React, { useContext } from "react";
 
-import { STNode } from "@ballerina/syntax-tree";
+import { NodePosition, STNode } from "@ballerina/syntax-tree";
 
-import { Context } from "../../../../Contexts/Diagram"
-import { DraftUpdatePosition } from "../../../view-state/draft";
+import { Context } from "../../../../Contexts/Diagram";
 
 import { EditSVG } from "./EditSVG";
 import "./style.scss";
@@ -42,7 +41,7 @@ export function EditBtn(props: EditBtnProps) {
     const { cx, cy, onHandleEdit, model, isButtonDisabled } = props;
     const onEditClick = () => {
         if (!isButtonDisabled) {
-            const targetPos = targetPosition as DraftUpdatePosition;
+            const targetPos = targetPosition as NodePosition;
             if (model &&
                 (targetPos?.startLine !== model.position.startLine
                     || targetPos?.startColumn !== model.position.startColumn)) {

@@ -164,8 +164,8 @@ export function While(props: WhileProps) {
     const onWhileHeadClick = () => {
         const conditionExpression = conditionExpr.expression.source;
         const position = {
-            column: model.position.startColumn,
-            line: model.position.startLine
+            startColumn: model.position.startColumn,
+            startLine: model.position.startLine
         };
         setConfigWizardOpen(true);
         const conditionConfigState = getConditionConfig("While", position, WizardType.EXISTING, undefined, {

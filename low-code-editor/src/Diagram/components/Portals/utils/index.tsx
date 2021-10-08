@@ -16,11 +16,11 @@ import {
     ActionStatement,
     CaptureBindingPattern, CheckAction,
     CheckExpression,
-    ImplicitNewExpression, ListConstructor, LocalVarDecl, MappingConstructor, NamedArg, NumericLiteral,
+    ImplicitNewExpression, ListConstructor, LocalVarDecl, MappingConstructor, NamedArg, NodePosition, NumericLiteral,
     ParenthesizedArgList,
     PositionalArg, RemoteMethodCallAction, RequiredParam, SimpleNameReference, SpecificField,
     STKindChecker,
-    STNode, StringLiteral, traversNode, TypeCastExpression
+    STNode, StringLiteral, TypeCastExpression
 } from "@ballerina/syntax-tree";
 import { Avatar, colors } from "@material-ui/core";
 import { DocumentSymbol, SymbolInformation } from "monaco-languageclient";
@@ -40,7 +40,6 @@ import {
     isSTActionInvocation
 } from "../../../utils/st-util";
 import { StatementViewState } from "../../../view-state";
-import { DraftInsertPosition } from "../../../view-state/draft";
 import * as ConnectorIcons from "../../Connector/Icon";
 import { ConfigWizardState } from "../../ConnectorConfigWizard";
 import * as ConnectorExtension from "../../ConnectorExtensions";
@@ -612,7 +611,7 @@ function getSymbolKind(kind: number): string {
     return symbolKind[kind]
 }
 
-export function getMapTo(_formFields: FormField[], targetPosition: DraftInsertPosition): { [key: string]: any } {
+export function getMapTo(_formFields: FormField[], targetPosition: NodePosition): { [key: string]: any } {
     const mapTo: { [key: string]: any } = {};
 
     function iterateFormFields(formFields: FormField[]) {
@@ -623,7 +622,7 @@ export function getMapTo(_formFields: FormField[], targetPosition: DraftInsertPo
                 if (formField.name && formField.typeName) {
                     mapTo[formField.name] = {
                         "type": formField.typeName,
-                        "position": targetPosition.line,
+                        "position": targetPosition.startLine,
                         "isUsed": 0
                     }
                 }

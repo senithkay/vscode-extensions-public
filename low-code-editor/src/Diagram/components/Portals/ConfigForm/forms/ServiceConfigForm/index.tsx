@@ -12,12 +12,11 @@
  */
 import React, { useState } from "react";
 
-import { STNode } from "@ballerina/syntax-tree";
+import { NodePosition, STNode } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 
 import { ServiceIcon } from "../../../../../../assets/icons";
 import { STModification } from "../../../../../../Definitions";
-import { DraftUpdatePosition } from "../../../../../view-state/draft";
 import { useStyles as useFormStyles } from "../style";
 
 import { HttpServiceForm } from "./forms/HttpService";
@@ -25,7 +24,7 @@ import { ServiceTypeSelector } from "./ServiceTypeSelector";
 
 interface ServiceConfigFormProps {
     model?: STNode;
-    targetPosition?: DraftUpdatePosition;
+    targetPosition?: NodePosition;
     onCancel: () => void;
     onSave: (modifications: STModification[]) => void;
 }

@@ -18,6 +18,7 @@ import { useIntl } from "react-intl";
 import {
   CaptureBindingPattern,
   LocalVarDecl,
+  NodePosition,
   STKindChecker,
 } from "@ballerina/syntax-tree";
 import { Divider, Typography } from "@material-ui/core";
@@ -63,7 +64,6 @@ import {
   createPropertyStatement,
   updatePropertyStatement,
 } from "../../../../utils/modification-util";
-import { DraftInsertPosition } from "../../../../view-state/draft";
 import { FormGeneratorProps } from "../../../FormGenerator";
 import {
   genVariableName,
@@ -119,7 +119,7 @@ enum ConnectionAction {
 
 export interface ConnectorConfigWizardProps {
   connectorInfo: BallerinaConnectorInfo;
-  targetPosition: DraftInsertPosition;
+  targetPosition: NodePosition;
   configWizardArgs?: ConfigWizardState;
   onClose: () => void;
   selectedConnector: LocalVarDecl;
@@ -517,8 +517,8 @@ export function ConnectorForm(props: FormGeneratorProps) {
           const addConfigurableVars = createPropertyStatement(
             connectorConfigurables,
             {
-              column: 0,
-              line: syntaxTree?.configurablePosition?.startLine || 1,
+              startColumn: 0,
+              startLine: syntaxTree?.configurablePosition?.startLine || 1,
             }
           );
           modifications.push(addConfigurableVars);
@@ -541,8 +541,8 @@ export function ConnectorForm(props: FormGeneratorProps) {
           const addConfigurableVars = createPropertyStatement(
             connectorConfigurables,
             {
-              column: 0,
-              line: syntaxTree?.configurablePosition?.startLine || 1,
+              startColumn: 0,
+              startLine: syntaxTree?.configurablePosition?.startLine || 1,
             }
           );
           modifications.push(addConfigurableVars);
@@ -635,8 +635,8 @@ export function ConnectorForm(props: FormGeneratorProps) {
                 const addConfigurableVars = createPropertyStatement(
                   connectorConfigurables,
                   {
-                    column: 0,
-                    line: syntaxTree?.configurablePosition?.startLine || 1,
+                    startColumn: 0,
+                    startLine: syntaxTree?.configurablePosition?.startLine || 1,
                   }
                 );
                 modifications.push(addConfigurableVars);
@@ -662,8 +662,8 @@ export function ConnectorForm(props: FormGeneratorProps) {
                 const addConfigurableVars = createPropertyStatement(
                   connectorConfigurables,
                   {
-                    column: 0,
-                    line: syntaxTree?.configurablePosition?.startLine || 1,
+                    startColumn: 0,
+                    startLine: syntaxTree?.configurablePosition?.startLine || 1,
                   }
                 );
                 modifications.push(addConfigurableVars);
@@ -761,8 +761,8 @@ export function ConnectorForm(props: FormGeneratorProps) {
             const addConfigurableVars = createPropertyStatement(
               connectorConfigurables,
               {
-                column: 0,
-                line: syntaxTree?.configurablePosition?.startLine || 1,
+                startColumn: 0,
+                startLine: syntaxTree?.configurablePosition?.startLine || 1,
               }
             );
             modifications.push(addConfigurableVars);
@@ -902,8 +902,8 @@ export function ConnectorForm(props: FormGeneratorProps) {
                   const addConfigurableVars = createPropertyStatement(
                     connectorConfigurables,
                     {
-                      column: 0,
-                      line: syntaxTree?.configurablePosition?.startLine || 1,
+                      startColumn: 0,
+                      startLine: syntaxTree?.configurablePosition?.startLine || 1,
                     }
                   );
                   modifications.push(addConfigurableVars);
@@ -1007,8 +1007,8 @@ export function ConnectorForm(props: FormGeneratorProps) {
               const addConfigurableVarsInvoke = createPropertyStatement(
                 connectorConfigurablesInvoke,
                 {
-                  column: 0,
-                  line: syntaxTree?.configurablePosition?.startLine || 1,
+                  startColumn: 0,
+                  startLine: syntaxTree?.configurablePosition?.startLine || 1,
                 }
               );
               modifications.push(addConfigurableVarsInvoke);
@@ -1218,7 +1218,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
         const addImport: STModification = createImportStatement(
           typeInfo.orgName,
           typeInfo.modName,
-          { column: 0, line: 0 }
+          { startColumn: 0, startLine: 0 }
         );
         // check already exists modification statements
         const existsMod = modifications.find(

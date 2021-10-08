@@ -284,8 +284,8 @@ export function IfElse(props: IfElseProps) {
             const conditionExpression = STKindChecker.isBracedExpression(conditionExpr) ?
                 conditionExpr.expression.source : conditionExpr.source;
             const position = {
-                column: model.position.startColumn,
-                line: model.position.startLine
+                startColumn: model.position.startColumn,
+                startLine: model.position.startLine
             };
             setConfigWizardOpen(true);
             const conditionConfigState = getConditionConfig("If", position, WizardType.EXISTING, undefined, {

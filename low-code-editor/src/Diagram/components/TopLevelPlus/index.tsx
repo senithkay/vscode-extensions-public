@@ -13,11 +13,9 @@
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline object-literal-shorthand align
 import React, { useEffect, useRef, useState } from "react";
 
-import { STNode } from "@ballerina/syntax-tree";
+import { NodePosition } from "@ballerina/syntax-tree";
 
-import { DraftUpdateStatement } from "../../../api/models";
 import TopLevelPlusIcon from "../../../assets/icons/TopLevelPlusIcon";
-import { DraftInsertPosition } from "../../view-state/draft";
 import { OverlayBackground } from "../OverlayBackground";
 import { DiagramOverlay, DiagramOverlayContainer } from "../Portals/Overlay";
 
@@ -38,7 +36,7 @@ export interface PlusProps {
     kind: string,
     initPlus?: boolean;
     margin?: Margin;
-    targetPosition?: DraftUpdateStatement;
+    targetPosition?: NodePosition;
 }
 
 export const TopLevelPlus = (props: PlusProps) => {

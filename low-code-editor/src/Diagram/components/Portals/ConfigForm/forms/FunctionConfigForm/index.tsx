@@ -14,7 +14,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
-import { STNode } from "@ballerina/syntax-tree";
+import { NodePosition, STNode } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 
 import { AddIcon, FunctionIcon } from "../../../../../../assets/icons";
@@ -22,7 +22,6 @@ import ConfigPanel, { Section } from "../../../../../../components/ConfigPanel";
 import { useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { STModification } from "../../../../../../Definitions";
 import { createFunctionSignature } from "../../../../../utils/modification-util";
-import { DraftUpdatePosition } from "../../../../../view-state/draft";
 import { QueryParamItem as FunctionParamItem } from "../../../Overlay/Elements/DropDown/ApiConfigureWizard/components/queryParamEditor/queryParamItem";
 import { QueryParamSegmentEditor as FunctionParamSegmentEditor } from "../../../Overlay/Elements/DropDown/ApiConfigureWizard/components/queryParamEditor/segmentEditor";
 import { ReturnTypeItem } from "../../../Overlay/Elements/DropDown/ApiConfigureWizard/components/ReturnTypeEditor/ReturnTypeItem";
@@ -39,7 +38,7 @@ import { useStyles as useFormStyles } from "../style";
 
 interface FunctionConfigFormProps {
   model?: STNode;
-  targetPosition?: DraftUpdatePosition;
+  targetPosition?: NodePosition;
   onCancel: () => void;
   onSave: (modifications: STModification[]) => void;
 }
@@ -79,7 +78,7 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
       functionName,
       parametersStr,
       returnTypeStr,
-      { line: targetPosition.startLine, column: 0 }
+      { startLine: targetPosition.startLine, startColumn: 0 }
     );
     onSave([modification]);
   };

@@ -14,7 +14,7 @@
 import React, { useReducer } from "react";
 import { FormattedMessage } from "react-intl";
 
-import { ListenerDeclaration, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { ListenerDeclaration, NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import { FormHelperText } from "@material-ui/core";
 import classNames from "classnames";
 
@@ -23,7 +23,6 @@ import { useDiagramContext } from "../../../../../../../../Contexts/Diagram";
 import { STModification } from "../../../../../../../../Definitions";
 import { isServicePathValid } from "../../../../../../../../utils/validator";
 import { createImportStatement, createServiceDeclartion } from "../../../../../../../utils/modification-util";
-import { DraftUpdatePosition } from "../../../../../../../view-state/draft";
 import { SecondaryButton } from "../../../../Elements/Button/SecondaryButton";
 import { SelectDropdownWithButton } from "../../../../Elements/DropDown/SelectDropdownWithButton";
 import { FormTextInput } from "../../../../Elements/TextField/FormTextInput";
@@ -35,7 +34,7 @@ import { HTTPServiceConfigState, ServiceConfigActionTypes, serviceConfigReducer 
 
 interface HttpServiceFormProps {
     model?: STNode;
-    targetPosition?: DraftUpdatePosition;
+    targetPosition?: NodePosition;
     onCancel: () => void;
     onSave: (modifications: STModification[]) => void;
 }
@@ -102,7 +101,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
 
     const handleOnSave = () => {
         onSave([
-            createImportStatement('ballerina', 'http', { column: 0, line: 0 }),
+            createImportStatement('ballerina', 'http', { startColumn: 0, startLine: 0 }),
             createServiceDeclartion(state, targetPosition)
         ]);
     }

@@ -70,7 +70,7 @@ export function DraftFieldForm(props: DraftFieldFormProps) {
             // ignored
         }
 
-        const modificationStatement = updatePropertyStatement(statementString, draftFieldViewState.draftInsertPosition);
+        const modificationStatement = updatePropertyStatement(statementString, draftFieldViewState.NodePosition);
 
         dispatchMutations([modificationStatement]);
     }

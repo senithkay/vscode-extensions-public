@@ -140,6 +140,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                                                     defaultCodeSnippet: '',
                                                     targetColumn: 1,
                                                 },
+                                                editPosition: config?.targetPosition
                                             }}
                                             onChange={onExpressionChange}
                                         />
