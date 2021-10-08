@@ -344,3 +344,10 @@ export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = 
         { value: c.CONDITIONAL }
     ]
 }
+
+export const DataTypeByExpressionKind: { [key: string]: string[] } = {
+    StringLiteral: ["string"],
+    NumericLiteral: ["int","float","decimal"],
+    Arithmetic: ["string","int","float","decimal"],
+    BracedExpression: ["string","int","float","decimal"]
+}
