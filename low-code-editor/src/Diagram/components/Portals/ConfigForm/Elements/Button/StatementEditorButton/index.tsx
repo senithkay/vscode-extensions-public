@@ -14,9 +14,7 @@
 import * as React from "react";
 
 import Button from '@material-ui/core/Button';
-import Typography from '@material-ui/core/Typography';
-
-import { useStyles } from "../style";
+import { Theme, withStyles } from '@material-ui/core/styles';
 
 export interface StatementEditorButtonProps {
     onClick?: (param?: any) => void,
@@ -24,18 +22,40 @@ export interface StatementEditorButtonProps {
 }
 
 export function StatementEditorButton(props: StatementEditorButtonProps) {
-    const classes = useStyles();
     const { onClick, disabled } = props;
 
+    const EditorButton = withStyles((theme: Theme) => ({
+        root: {
+            textTransform: "capitalize",
+            border: 0,
+            background: "none",
+            padding: 0,
+            fontFamily: "arial, sans-seriff",
+            color: theme.palette.primary.main,
+            fontSize: 13,
+            textDecoration: "underline",
+            cursor: "pointer",
+            "&:hover , &:focus, &:active": {
+                backgroundColor: "#fff",
+                color: theme.palette.primary.dark,
+                boxShadow: "none",
+                cursor: "pointer",
+            },
+            '&:disabled': {
+                opacity: 0.5,
+                background: '#fff',
+                color: theme.palette.primary.light,
+              },
+        },
+      }))(Button) as typeof Button;
+
     return (
-        <Button
-            classes={{
-                root: classes.statementEditorBtn,
-            }}
-            onClick={onClick}
-            disabled={disabled}
-        >
-             Statement Editor
-        </Button>
+            <EditorButton
+                onClick={onClick}
+                disabled={disabled}
+            >
+                Statement Editor
+            </EditorButton>
     );
 }
+
