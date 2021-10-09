@@ -10,7 +10,6 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 import { FormattedMessage } from "react-intl";
 
@@ -96,10 +95,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                         </FormHelperText>
                     </div>
                     <SelectDropdownWithButton
-                        customProps={{
-                            values: ['HTTP'],
-                            disableCreateNew: true,
-                        }}
+                        customProps={{values: ['HTTP'], disableCreateNew: true }}
                         defaultValue={'HTTP'}
                         placeholder="Select Type"
                     />
