@@ -14,7 +14,7 @@
 import React, { useReducer } from "react";
 import { FormattedMessage } from "react-intl";
 
-import { ListenerDeclaration, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { ListenerDeclaration, ServiceDeclaration, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import { FormHelperText } from "@material-ui/core";
 import classNames from "classnames";
 
@@ -30,11 +30,11 @@ import { FormTextInput } from "../../../../Elements/TextField/FormTextInput";
 import { useStyles as useFormStyles } from "../../../style";
 
 import { ListenerConfigForm } from "./ListenerConfigForm";
-import { isServiceConfigValid } from "./util";
+import { getFormStateFromST, isServiceConfigValid } from "./util";
 import { HTTPServiceConfigState, ServiceConfigActionTypes, serviceConfigReducer } from "./util/reducer";
 
 interface HttpServiceFormProps {
-    model?: STNode;
+    model?: ServiceDeclaration;
     targetPosition?: DraftUpdatePosition;
     onCancel: () => void;
     onSave: (modifications: STModification[]) => void;
@@ -43,21 +43,12 @@ interface HttpServiceFormProps {
 const HTTP_MODULE_QUALIFIER = 'http';
 
 
-const defaultState: HTTPServiceConfigState = {
-    serviceBasePath: '',
-    createNewListener: false,
-    listenerConfig: {
-        formVar: false,
-        listenerName: '',
-        listenerPort: ''
-    }
-}
 
 export function HttpServiceForm(props: HttpServiceFormProps) {
     const formClasses = useFormStyles();
     const { model, targetPosition, onCancel, onSave } = props;
     const { props: { stSymbolInfo } } = useDiagramContext();
-    const [state, dispatch] = useReducer(serviceConfigReducer, defaultState);
+    const [state, dispatch] = useReducer(serviceConfigReducer, getFormStateFromST(model, stSymbolInfo));
 
 
     const listenerList = Array.from(stSymbolInfo.listeners)

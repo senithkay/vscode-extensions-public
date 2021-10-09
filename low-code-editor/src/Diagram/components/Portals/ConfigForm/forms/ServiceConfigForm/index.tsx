@@ -33,7 +33,7 @@ interface ServiceConfigFormProps {
 }
 
 export enum ServiceTypes {
-    http = 'HTTP'
+    HTTP = 'http'
 }
 
 export function ServiceConfigForm(props: ServiceConfigFormProps) {
@@ -45,7 +45,7 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
     let configForm = <div />;
 
     switch (serviceType) {
-        case ServiceTypes.http:
+        case ServiceTypes.HTTP:
             configForm = <HttpServiceForm onSave={onSave} onCancel={onCancel} model={model} targetPosition={targetPosition} />
             break;
 

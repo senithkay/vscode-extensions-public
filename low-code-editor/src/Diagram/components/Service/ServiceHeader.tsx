@@ -93,7 +93,7 @@ export function ServiceHeader(props: ServiceHeaderProps) {
     }
 
     const handleEditBtnCancel = () => {
-        setIsDeleteBtnClicked(false);
+        setIsEditBtnClicked(false);
     }
 
     const handleDeleteConfirm = () => {
@@ -148,8 +148,8 @@ export function ServiceHeader(props: ServiceHeaderProps) {
                 <FormGenerator
                     model={model}
                     configOverlayFormStatus={{ formType: model.kind, isLoading: false }}
-                    onCancel={() => {}}
-                    onSave={() => {}}
+                    onCancel={handleEditBtnCancel}
+                    onSave={handleEditBtnCancel}
                 />
             )}
         </div >

@@ -11,6 +11,8 @@
  * associated services.
  */
 
+import { ServiceDeclaration } from "@ballerina/syntax-tree";
+import { STSymbolInfo } from "../../../../../../../../..";
 import { isServicePathValid } from "../../../../../../../../../utils/validator";
 
 import { HTTPServiceConfigState } from "./reducer";
@@ -32,4 +34,23 @@ export function isServiceConfigValid(config: HTTPServiceConfigState): boolean {
     } else {
         return serviceBasePath && listenerName.length > 0;
     }
+}
+
+export function getFormStateFromST(model: ServiceDeclaration, symbolInfo: STSymbolInfo): HTTPServiceConfigState {
+
+    const state: HTTPServiceConfigState = {
+        serviceBasePath: '',
+        createNewListener: false,
+        listenerConfig: {
+            formVar: false,
+            listenerName: '',
+            listenerPort: ''
+        }
+    }
+
+    if (model) {
+
+    }
+
+    return state;
 }

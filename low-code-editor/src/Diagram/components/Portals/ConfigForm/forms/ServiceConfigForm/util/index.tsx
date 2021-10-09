@@ -27,7 +27,7 @@ export function getServiceTypeFromModel(model: ServiceDeclaration, symbolInfo: S
             } else if (STKindChecker.isSimpleNameReference(listenerExpression)) {
                 const listenerNode: ListenerDeclaration
                     = symbolInfo.listeners.get(listenerExpression.name.value) as ListenerDeclaration;
-                if (STKindChecker.isQualifiedNameReference(listenerNode)) {
+                if (STKindChecker.isQualifiedNameReference(listenerNode.typeDescriptor)) {
                     return listenerNode.typeDescriptor.modulePrefix.value;
                 } else {
                     return undefined;
