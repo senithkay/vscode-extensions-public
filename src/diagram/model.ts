@@ -22,7 +22,6 @@ import { Uri } from 'vscode';
 export interface DiagramOptions {
     startLine?: number;
     startColumn?: number;
-    filePath?: string;
     isDiagram: boolean;
     fileUri?: Uri;
 }
