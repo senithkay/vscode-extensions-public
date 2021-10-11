@@ -58,9 +58,10 @@ export function DeleteConfirmDialog(props: DeleteConfirmDialogProps) {
                         position={position}
                     >
                         <p>{message}</p>
-
-                        <Button variant="contained" className="cancelbtn" onClick={onCancel}>{cancelButtonText}</Button>
-                        <Button data-testid="delete-logic-block-btn" variant="contained" className="deletebtn" onClick={onConfirm}>{removeButtonText}</Button>
+                        <div className={'action-button-container'}>
+                            <Button variant="contained" className="cancelbtn" onClick={onCancel}>{cancelButtonText}</Button>
+                            <Button data-testid="delete-logic-block-btn" variant="contained" className="deletebtn" onClick={onConfirm}>{removeButtonText}</Button>
+                        </div>
 
                     </DiagramOverlay>
                 </DiagramOverlayContainer>

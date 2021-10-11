@@ -17,13 +17,16 @@
     background-color: #fff;
     box-shadow: 0 5px 10px 0 rgba(102, 103, 133, 0.27);
     padding: 22px;
-    text-align: right;
     color: #222228;
     font-weight: 500;
     font-size: 15px;
     letter-spacing: 0;
     line-height: 24px;
     position: absolute !important;
+
+    .action-button-container {
+        text-align: right;
+    }
 
     button {
         margin-top: 5px;
