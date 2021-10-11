@@ -10,8 +10,15 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: no-empty
 import React from 'react';
 
-export const ModelContext = React.createContext({
-    statementModel: null
+export const StatementEditorContext = React.createContext({
+    modelCtx: { statementModel: null },
+    formCtx: {
+        onCancel: false,
+        onSave: () => {},
+        onChange: (p: string) => {},
+        validate: (fieldName: string, isInvalid: boolean, isEmpty: boolean) => {}
+    }
 });
