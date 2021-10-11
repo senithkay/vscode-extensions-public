@@ -28,7 +28,7 @@ import { StartButton } from "../Start";
 import { WorkerBody } from "../WorkerBody";
 import { WorkerLine } from "../WorkerLine";
 
-import { FunctionSignature } from "./FunctionSignature";
+import { FunctionHeader } from "./FunctionHeader";
 import PanAndZoom from "./PanAndZoom";
 import "./style.scss";
 
@@ -130,7 +130,7 @@ export function Function(props: FunctionProps) {
                 )
             }
         >
-            <FunctionSignature isExpanded={diagramExpanded} model={model} onExpandClick={onExpandClick} />
+            <FunctionHeader isExpanded={diagramExpanded} model={model} onExpandClick={onExpandClick} />
             {diagramExpanded && functionBody}
         </div>
     );

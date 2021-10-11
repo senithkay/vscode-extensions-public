@@ -57,8 +57,8 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
   const {
     props: { syntaxTree },
     api: {
-      code: { modifyDiagram }
-    }
+      code: { modifyDiagram },
+    },
   } = useDiagramContext();
   const existingFunctionNames = useRef([]);
   const disableSaveBtn =
@@ -109,7 +109,6 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
   const onSaveNewParam = (param: QueryParam) => {
     setParameters([...parameters, param]);
     setAddingNewParam(false);
-
   };
   const onDeleteParam = (paramItem: QueryParam) =>
     setParameters(parameters.filter((item) => item.id !== paramItem.id));
@@ -178,9 +177,12 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
       <div className={formClasses.sectionSeparator}>
         <Section title={"Function Name"}>
           <FormTextInput
-            key={existingFunctionNames?.current?.toString()}
             dataTestId="function-name"
-            defaultValue={functionName}
+            defaultValue={
+              model && STKindChecker.isFunctionDefinition(model)
+                ? model?.functionName?.value
+                : functionName
+            }
             onChange={onFunctionNameChange}
             placeholder="Enter function name"
             customProps={{
@@ -206,6 +208,7 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
               onCancel={closeNewParamView}
               types={functionParamTypes}
               onSave={onSaveNewParam}
+              params={parameters}
             />
           ) : (
             <span

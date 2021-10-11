@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from "react";
+import React from "react";
 
 import {
   FunctionDefinition,
@@ -23,17 +23,15 @@ import {
 } from "@ballerina/syntax-tree";
 import classNames from "classnames";
 
-import DeleteButton from "../../../../assets/icons/DeleteButton";
-import EditButton from "../../../../assets/icons/EditButton";
-import FunctionIcon from "../../../../assets/icons/FunctionIcon";
-import { useDiagramContext } from "../../../../Contexts/Diagram";
-import { STModification } from "../../../../Definitions";
-import { FunctionViewState } from "../../../view-state";
-import { ComponentExpandButton } from "../../ComponentExpandButton";
-import { FormGenerator } from "../../FormGenerator";
-import "../style.scss";
+import FunctionIcon from "../../../assets/icons/FunctionIcon";
+import { useDiagramContext } from "../../../Contexts/Diagram";
+import { removeStatement } from "../../utils/modification-util";
+import { FunctionViewState } from "../../view-state";
+import { HeaderActions } from "../HeaderActions";
 
-interface FunctionSignatureProps {
+import "./style.scss";
+
+interface FunctionHeaderProps {
   model:
     | FunctionDefinition
     | ResourceAccessorDefinition
@@ -42,34 +40,20 @@ interface FunctionSignatureProps {
   isExpanded: boolean;
 }
 
-export function FunctionSignature(props: FunctionSignatureProps) {
+export function FunctionHeader(props: FunctionHeaderProps) {
   const { model, onExpandClick, isExpanded } = props;
   const viewState: FunctionViewState = model.viewState as FunctionViewState;
   const component: JSX.Element[] = [];
 
   const {
-    props: { stSymbolInfo, selectedPosition },
     api: {
       code: { modifyDiagram },
     },
   } = useDiagramContext();
-  const [showForm, setShowForm] = useState(false);
 
-  const [isEditable, setIsEditable] = useState(false);
-  const handleMouseEnter = () => {
-    setIsEditable(true);
-  };
-  const handleMouseLeave = () => {
-    setIsEditable(false);
-  };
-
-  // FIXME: need to refactor form generator away from this component!
-  const showFormGenerator = () => setShowForm(true);
-  const hideFormGenerator = () => setShowForm(false);
-
-  const onHideFormGenerator = (modifications: STModification[]) => {
-    modifyDiagram(modifications);
-    setShowForm(false);
+  const onDeleteClick = () => {
+    const modification = removeStatement(model.position);
+    modifyDiagram([modification]);
   };
 
   const rectProps = {
@@ -141,8 +125,6 @@ export function FunctionSignature(props: FunctionSignatureProps) {
             ? model.functionName.value
             : ""
         )}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
       >
         <div
           className={classNames(
@@ -166,22 +148,13 @@ export function FunctionSignature(props: FunctionSignatureProps) {
             <p className={"path-text"}>{otherParamComponents}</p>
           </div>
         </div>
-        {isEditable && (
-          <div className="function-hover-options">
-            <div className="function-icon">
-              <EditButton onClick={showFormGenerator} />
-            </div>
-            <div className="function-icon">
-              <DeleteButton />
-            </div>
-            <div className="function-icon">
-              <ComponentExpandButton
-                isExpanded={isExpanded}
-                onClick={onExpandClick}
-              />
-            </div>
-          </div>
-        )}
+        <HeaderActions
+          model={model}
+          deleteText="Are you sure you want to delete function?"
+          isExpanded={isExpanded}
+          onExpandClick={onExpandClick}
+          onConfirmDelete={onDeleteClick}
+        />
       </div>
     );
   } else {
@@ -203,8 +176,6 @@ export function FunctionSignature(props: FunctionSignatureProps) {
             ? model.functionName.value
             : ""
         )}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
       >
         <div className={"function-icon"}>
           <FunctionIcon />
@@ -218,42 +189,16 @@ export function FunctionSignature(props: FunctionSignatureProps) {
             <p className={"path-text"}>{params}</p>
           </div>
         </div>
-        {isEditable && (
-          <div className="function-hover-options">
-            <div className="function-icon">
-              <EditButton onClick={showFormGenerator} />
-            </div>
-            <div className="function-icon">
-              <DeleteButton />
-            </div>
-            <div className="function-icon">
-              <ComponentExpandButton
-                isExpanded={isExpanded}
-                onClick={onExpandClick}
-              />
-            </div>
-          </div>
-        )}
+        <HeaderActions
+          model={model}
+          deleteText="Are you sure you want to delete function?"
+          isExpanded={isExpanded}
+          onExpandClick={onExpandClick}
+          onConfirmDelete={onDeleteClick}
+        />
       </div>
     );
   }
 
-  return (
-    <>
-      {component}
-      {showForm && (
-        <FormGenerator
-          model={model}
-          targetPosition={model.position}
-          configOverlayFormStatus={{
-            formType: model.kind,
-            isLoading: false,
-            formArgs: { stSymbolInfo },
-          }}
-          onCancel={hideFormGenerator}
-          onSave={onHideFormGenerator}
-        />
-      )}
-    </>
-  );
+  return <div>{component}</div>;
 }
