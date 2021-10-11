@@ -16,6 +16,7 @@ import { ServiceDeclaration, STNode } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 
 import { ServiceIcon } from "../../../../../../assets/icons";
+import { useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { STModification } from "../../../../../../Definitions";
 import { DraftUpdatePosition } from "../../../../../view-state/draft";
 import { useStyles as useFormStyles } from "../style";
@@ -23,13 +24,12 @@ import { useStyles as useFormStyles } from "../style";
 import { HttpServiceForm } from "./forms/HttpService";
 import { ServiceTypeSelector } from "./ServiceTypeSelector";
 import { getServiceTypeFromModel } from "./util";
-import { useDiagramContext } from "../../../../../../Contexts/Diagram";
 
 interface ServiceConfigFormProps {
     model?: ServiceDeclaration;
     targetPosition?: DraftUpdatePosition;
     onCancel: () => void;
-    onSave: (modifications: STModification[]) => void;
+    onSave: () => void;
 }
 
 export enum ServiceTypes {

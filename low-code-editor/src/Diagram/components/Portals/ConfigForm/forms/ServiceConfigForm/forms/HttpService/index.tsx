@@ -37,7 +37,7 @@ interface HttpServiceFormProps {
     model?: ServiceDeclaration;
     targetPosition?: DraftUpdatePosition;
     onCancel: () => void;
-    onSave: (modifications: STModification[]) => void;
+    onSave: () => void;
 }
 
 const HTTP_MODULE_QUALIFIER = 'http';
@@ -47,7 +47,7 @@ const HTTP_MODULE_QUALIFIER = 'http';
 export function HttpServiceForm(props: HttpServiceFormProps) {
     const formClasses = useFormStyles();
     const { model, targetPosition, onCancel, onSave } = props;
-    const { props: { stSymbolInfo } } = useDiagramContext();
+    const { props: { stSymbolInfo }, api: { code: { modifyDiagram } } } = useDiagramContext();
     const [state, dispatch] = useReducer(serviceConfigReducer, getFormStateFromST(model, stSymbolInfo));
 
 
@@ -92,10 +92,11 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
     }
 
     const handleOnSave = () => {
-        onSave([
+        modifyDiagram([
             createImportStatement('ballerina', 'http', { column: 0, line: 0 }),
             createServiceDeclartion(state, targetPosition)
         ]);
+        onSave();
     }
 
     const listenerConfigForm = (
