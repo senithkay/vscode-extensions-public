@@ -10,9 +10,10 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { RecordTypeDesc } from "@ballerina/syntax-tree";
+import {RecordTypeDesc, STKindChecker} from "@ballerina/syntax-tree";
 
 import { DiagramEditorLangClientInterface, JsonToRecordResponse, STSymbolInfo } from "../../../../../Definitions";
+import { RecordModel, SimpleField } from "../types";
 
 export async function convertToRecord(json: string, lsUrl: string, ls?: any): Promise<string> {
     const langClient: DiagramEditorLangClientInterface = await ls.getDiagramEditorLangClient(lsUrl);
@@ -33,4 +34,30 @@ export function getRecordPrefix(symbolInfo: STSymbolInfo): string {
         }
     }
     return null
+}
+
+export function getRecordModel(typeDesc: RecordTypeDesc, name: string, isInline: boolean, type?: string): RecordModel {
+    const recordModel: RecordModel = {name, fields: [], isInline, type};
+    if (typeDesc.fields.length > 0) {
+        typeDesc.fields.forEach((field) => {
+            if (STKindChecker.isRecordFieldWithDefaultValue(field.typeName)) {
+                // when there is a inline record with a default value
+            } else if (STKindChecker.isRecordTypeDesc(field.typeName)) {
+                // when there is a inline record
+                const subRecModels = getRecordModel(field.typeName, field.fieldName.value, true, "record");
+                recordModel.fields.push(subRecModels);
+            } else {
+                // when there is a simple field or when there is a referenced record
+                const recField: SimpleField = {
+                    name: field.fieldName.value,
+                    type: field.typeName.source.trim(),
+                    isOptional: STKindChecker.isRecordField(field) ? (field.questionMarkToken !== undefined) : false,
+                }
+                recordModel.fields.push(recField);
+            }
+        })
+        return recordModel;
+    } else {
+        return null;
+    }
 }

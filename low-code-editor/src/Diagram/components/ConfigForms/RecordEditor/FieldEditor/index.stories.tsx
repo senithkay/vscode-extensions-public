@@ -10,18 +10,22 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-export interface SimpleField {
-    name: string;
-    type: string;
-    isOptional: boolean;
-    value?: string;
-}
+import React from 'react';
 
-export interface RecordModel {
-    name: string;
-    type?: string;
-    fields: Field[];
-    isInline?: boolean;
-}
+// tslint:disable-next-line: no-submodule-imports
+import { Story } from '@storybook/react/types-6-0';
 
-export declare type Field = SimpleField | RecordModel;
+import { FieldEditor, FieldEditorProps } from "./index";
+
+export default {
+    title: 'Low Code Editor/Form/Record/Field Editor',
+    component: FieldEditor,
+};
+
+const Template: Story<FieldEditorProps> = (args: FieldEditorProps) =>
+    <FieldEditor {...args} />;
+
+export const FieldEditorComponent = Template.bind({});
+FieldEditorComponent.args = {
+
+};
