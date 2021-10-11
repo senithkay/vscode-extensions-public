@@ -25,6 +25,7 @@ import { getDefaultModel } from "../../utils";
 import { LeftPane } from '../LeftPane';
 import { RightPane } from '../RightPane';
 
+import { InputEditorContextProvider } from "../../store/input-editor-context";
 import { statementEditorStyles } from "./styles";
 
 interface ViewProps {
@@ -107,14 +108,16 @@ export function ViewContainer(props: ViewProps) {
                         }
                     }}
                 >
-                    <LeftPane
-                        model={model}
-                        currentModel={currentModel}
-                        kind={kind}
-                        label={label}
-                        userInputs={userInputs}
-                        currentModelHandler={currentModelHandler}
-                    />
+                    <InputEditorContextProvider>
+                        <LeftPane
+                            model={model}
+                            currentModel={currentModel}
+                            kind={kind}
+                            label={label}
+                            userInputs={userInputs}
+                            currentModelHandler={currentModelHandler}
+                        />
+                    </InputEditorContextProvider>
                 </StatementEditorContext.Provider>
                 <div className={overlayClasses.vl}/>
                 <RightPane/>
