@@ -16,7 +16,7 @@ import { FormattedMessage } from "react-intl";
 import { STNode } from "@ballerina/syntax-tree";
 import { Box, FormControl, FormHelperText, Typography } from "@material-ui/core";
 
-import { ListenerIcon } from "../../../../assets/icons";
+import { ListenerFormIcon } from "../../../../assets/icons";
 import { PrimaryButton } from "../../../../components/Buttons/PrimaryButton";
 import { STModification } from "../../../../Definitions";
 import { createImportStatement, createListenerDeclartion } from "../../../utils/modification-util";
@@ -77,7 +77,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
         <FormControl data-testid="log-form" className={formClasses.wizardFormControl}>
             <div className={formClasses.formTitleWrapper}>
                 <div className={formClasses.mainTitleWrapper}>
-                    <ListenerIcon color={'#CBCEDB'} />
+                    <ListenerFormIcon />
                     <Typography variant="h4">
                         <Box paddingTop={2} paddingBottom={2} paddingLeft={15}>Listener</Box>
                     </Typography>

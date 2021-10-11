@@ -29,7 +29,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             fontSize: 14,
             textTransform: 'capitalize',
             display: 'inline-block',
-            lineHeight: 35
+            lineHeight: 4
         },
         wizardBtnHolder: {
             display: "flex",
