@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 
 import {
   FunctionDefinition,
@@ -28,9 +28,11 @@ import EditButton from "../../../../assets/icons/EditButton";
 import FunctionIcon from "../../../../assets/icons/FunctionIcon";
 import { useDiagramContext } from "../../../../Contexts/Diagram";
 import { STModification } from "../../../../Definitions";
+import { removeStatement } from "../../../utils/modification-util";
 import { FunctionViewState } from "../../../view-state";
 import { ComponentExpandButton } from "../../ComponentExpandButton";
 import { FormGenerator } from "../../FormGenerator";
+import { DeleteConfirmDialog } from "../../Portals/Overlay/Elements/DeleteConfirmDialog";
 import "../style.scss";
 
 interface FunctionSignatureProps {
@@ -53,7 +55,8 @@ export function FunctionSignature(props: FunctionSignatureProps) {
       code: { modifyDiagram },
     },
   } = useDiagramContext();
-  const [showForm, setShowForm] = useState(false);
+
+  const actionRef = useRef(null);
 
   const [isEditable, setIsEditable] = useState(false);
   const handleMouseEnter = () => {
@@ -64,12 +67,23 @@ export function FunctionSignature(props: FunctionSignatureProps) {
   };
 
   // FIXME: need to refactor form generator away from this component!
+  const [showForm, setShowForm] = useState(false);
   const showFormGenerator = () => setShowForm(true);
   const hideFormGenerator = () => setShowForm(false);
 
   const onHideFormGenerator = (modifications: STModification[]) => {
     modifyDiagram(modifications);
     setShowForm(false);
+  };
+
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const onShowDelete = () => setShowDeleteDialog(true);
+  const onHideDelete = () => setShowDeleteDialog(false);
+
+  const onDeleteClick = () => {
+    const modification = removeStatement(model.position);
+    modifyDiagram([modification]);
+    onHideDelete();
   };
 
   const rectProps = {
@@ -143,6 +157,7 @@ export function FunctionSignature(props: FunctionSignatureProps) {
         )}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
+        ref={actionRef}
       >
         <div
           className={classNames(
@@ -172,7 +187,7 @@ export function FunctionSignature(props: FunctionSignatureProps) {
               <EditButton onClick={showFormGenerator} />
             </div>
             <div className="function-icon">
-              <DeleteButton />
+              <DeleteButton onClick={onShowDelete} />
             </div>
             <div className="function-icon">
               <ComponentExpandButton
@@ -205,6 +220,7 @@ export function FunctionSignature(props: FunctionSignatureProps) {
         )}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
+        ref={actionRef}
       >
         <div className={"function-icon"}>
           <FunctionIcon />
@@ -224,7 +240,7 @@ export function FunctionSignature(props: FunctionSignatureProps) {
               <EditButton onClick={showFormGenerator} />
             </div>
             <div className="function-icon">
-              <DeleteButton />
+              <DeleteButton onClick={onShowDelete} />
             </div>
             <div className="function-icon">
               <ComponentExpandButton
@@ -239,7 +255,7 @@ export function FunctionSignature(props: FunctionSignatureProps) {
   }
 
   return (
-    <>
+    <div ref={actionRef}>
       {component}
       {showForm && (
         <FormGenerator
@@ -254,6 +270,24 @@ export function FunctionSignature(props: FunctionSignatureProps) {
           onSave={onHideFormGenerator}
         />
       )}
-    </>
+      {showDeleteDialog && (
+        <g>
+          <DeleteConfirmDialog
+            position={{
+              x: actionRef.current
+                ? actionRef.current.offsetLeft +
+                  actionRef.current.offsetWidth -
+                  400
+                : 0,
+              y: actionRef.current ? actionRef.current.offsetTop - 60 : 0,
+            }}
+            onConfirm={onDeleteClick}
+            onCancel={onHideDelete}
+            message="Are you sure you want to delete function?"
+            removeText="Delete"
+          />
+        </g>
+      )}
+    </div>
   );
 }

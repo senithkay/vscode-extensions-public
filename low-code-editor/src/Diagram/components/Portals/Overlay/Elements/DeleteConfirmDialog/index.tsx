@@ -24,6 +24,7 @@ import "./style.scss";
 export interface DeleteConfirmDialogProps {
     position: DiagramOverlayPosition;
     message?: string;
+    removeText?: string;
     onConfirm?: () => void;
     onCancel?: () => void;
 }
@@ -42,6 +43,8 @@ export function DeleteConfirmDialog(props: DeleteConfirmDialogProps) {
         defaultMessage: "Cancel"
     });
 
+    const { removeText = removeButtonText } = props;
+
     return (
         <ClickAwayListener
             mouseEvent="onMouseDown"
@@ -49,17 +52,17 @@ export function DeleteConfirmDialog(props: DeleteConfirmDialogProps) {
             onClickAway={onCancel}
         >
             <div>
-                <DiagramOverlayContainer
-                    divId={overlayId}
-                >
+                <DiagramOverlayContainer >
                     <DiagramOverlay
                         className="delete-container"
                         position={position}
                     >
                         <p>{message}</p>
 
-                        <Button variant="contained" className="cancelbtn" onClick={onCancel}>{cancelButtonText}</Button>
-                        <Button data-testid="delete-logic-block-btn" variant="contained" className="deletebtn" onClick={onConfirm}>{removeButtonText}</Button>
+                        <div className="delete-button-container">
+                            <Button variant="contained" className="cancelbtn" onClick={onCancel}>{cancelButtonText}</Button>
+                            <Button data-testid="delete-logic-block-btn" variant="contained" className="deletebtn" onClick={onConfirm}>{removeText}</Button>
+                        </div>
 
                     </DiagramOverlay>
                 </DiagramOverlayContainer>
