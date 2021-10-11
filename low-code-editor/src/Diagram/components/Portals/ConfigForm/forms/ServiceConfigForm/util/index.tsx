@@ -12,6 +12,7 @@
  */
 
 import { ListenerDeclaration, ServiceDeclaration, STKindChecker } from "@ballerina/syntax-tree";
+
 import { STSymbolInfo } from "../../../../../../..";
 
 export function getServiceTypeFromModel(model: ServiceDeclaration, symbolInfo: STSymbolInfo): string {
