@@ -12,12 +12,14 @@
  */
 export interface HTTPServiceConfigState {
     serviceBasePath: string;
-    listenerConfig: {
-        formVar: boolean,
-        listenerName: string,
-        listenerPort: string,
-    }
+    listenerConfig: ListenerConfigFormState
+}
+
+export interface ListenerConfigFormState {
     createNewListener: boolean;
+    fromVar: boolean,
+    listenerName: string,
+    listenerPort: string,
 }
 
 export enum ServiceConfigActionTypes {
@@ -39,7 +41,7 @@ export type ServiceConfigActions =
 
 
 export function serviceConfigReducer(
-                                state: HTTPServiceConfigState, action: ServiceConfigActions): HTTPServiceConfigState {
+    state: HTTPServiceConfigState, action: ServiceConfigActions): HTTPServiceConfigState {
 
     switch (action.type) {
         case ServiceConfigActionTypes.SET_PATH:
@@ -51,17 +53,23 @@ export function serviceConfigReducer(
         case ServiceConfigActionTypes.CREATE_NEW_LISTENER:
             return {
                 ...state,
-                createNewListener: true,
-                listenerConfig: { formVar: false, listenerName: '', listenerPort: '' }
+                listenerConfig: {
+                    ...state.listenerConfig,
+                    createNewListener: true,
+                }
             };
         case ServiceConfigActionTypes.SELECT_EXISTING_LISTENER:
             return {
                 ...state,
-                createNewListener: false,
-                listenerConfig: { formVar: true, listenerName: action.payload, listenerPort: '' }
+                listenerConfig: {
+                    ...state.listenerConfig,
+                    createNewListener: false,
+                    listenerName: action.payload,
+                    listenerPort: ''
+                }
             };
         case ServiceConfigActionTypes.DEFINE_LISTENER_INLINE:
-            return { ...state, listenerConfig: { ...state.listenerConfig, formVar: action.payload } };
+            return { ...state, listenerConfig: { ...state.listenerConfig, fromVar: action.payload } };
         default:
             return state;
     }

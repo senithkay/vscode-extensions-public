@@ -43,7 +43,7 @@ interface FunctionConfigFormProps {
   model?: STNode;
   targetPosition?: DraftUpdatePosition;
   onCancel: () => void;
-  onSave: (modifications: STModification[]) => void;
+  onSave: () => void;
 }
 
 export function FunctionConfigForm(props: FunctionConfigFormProps) {
@@ -56,6 +56,9 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
   const [addingNewReturnType, setAddingNewReturnType] = useState(false);
   const {
     props: { syntaxTree },
+    api: {
+      code: { modifyDiagram }
+    }
   } = useDiagramContext();
   const existingFunctionNames = useRef([]);
   const disableSaveBtn =
@@ -94,8 +97,8 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
         })
       );
     }
-
-    onSave(modifications);
+    modifyDiagram(modifications);
+    onSave();
   };
 
   const onFunctionNameChange = (name: string) => setFunctionName(name);
@@ -106,6 +109,7 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
   const onSaveNewParam = (param: QueryParam) => {
     setParameters([...parameters, param]);
     setAddingNewParam(false);
+
   };
   const onDeleteParam = (paramItem: QueryParam) =>
     setParameters(parameters.filter((item) => item.id !== paramItem.id));
