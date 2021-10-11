@@ -13,9 +13,9 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from "react";
 
-import Button from '@material-ui/core/Button';
-import Typography from '@material-ui/core/Typography';
+import {IconButton} from "@material-ui/core";
 
+import { EditIcon } from "../../../../../../../assets";
 import { useStyles } from "../style";
 
 export interface StatementEditorButtonProps {
@@ -28,14 +28,14 @@ export function StatementEditorButton(props: StatementEditorButtonProps) {
     const { onClick, disabled } = props;
 
     return (
-        <Button
+        <IconButton
             classes={{
                 root: classes.statementEditorBtn,
             }}
             onClick={onClick}
             disabled={disabled}
         >
-             Statement Editor
-        </Button>
+            <img src={EditIcon}/>
+        </IconButton>
     );
 }

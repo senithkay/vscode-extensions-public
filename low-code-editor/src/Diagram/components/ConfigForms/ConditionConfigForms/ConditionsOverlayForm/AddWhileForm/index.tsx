@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js, ordered-imports
 import React, { useContext, useState } from "react";
 
-import { Box, FormControl, Typography } from "@material-ui/core";
+import {Box, FormControl, Grid, Typography} from "@material-ui/core";
 
 import { CloseRounded, IfIcon, EditIcon } from "../../../../../../assets/icons";
 
@@ -29,6 +29,7 @@ import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/consta
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
 import { ViewContainer } from "../../../../Portals/ConfigForm/Elements/StatementEditor/components/ViewContainer/ViewContainer";
 import { StatementEditorButton } from "../../../../Portals/ConfigForm/Elements/Button/StatementEditorButton";
+import classnames from "classnames";
 
 interface WhileProps {
     condition: ConditionConfig;
@@ -121,12 +122,8 @@ export function AddWhileForm(props: WhileProps) {
                 <div className={classes.formWrapper}>
                     <div className={classes.formFeilds}>
                         <div className={classes.formWrapper}>
-                            <div className={classes.formTitleWrapper}>
-                                <div className={classes.mainTitleWrapper}>
-                                    <div className={classes.iconWrapper}>
-                                        {/* todo add foreach icon*/}
-                                        <IfIcon />
-                                    </div>
+                            <Grid xs={12}  container={true} className={classes.formTitleWrapper}>
+                                <Grid xs={6} item={true} className={classes.mainTitleWrapper}>
                                     <Typography variant="h4">
                                         <Box paddingTop={2} paddingBottom={2}>
                                             <FormattedMessage
@@ -135,14 +132,32 @@ export function AddWhileForm(props: WhileProps) {
                                             />
                                         </Box>
                                     </Typography>
-                                    <div style={{marginLeft: "auto", marginRight: 0}}>
-                                        <StatementEditorButton onClick={handleStmtEditorButtonClick} disabled={true} />
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="exp-wrapper">
-                                <ExpressionEditor {...expElementProps} />
-                            </div>
+                                </Grid>
+                                <Grid xs={6} item={true} className={classes.statementEditor}>
+                                    <StatementEditorButton onClick={handleStmtEditorButtonClick} disabled={true} />
+                                </Grid>
+                            </Grid>
+                            <Grid container={true} className={classes.codeWrapper}>
+                                <Grid item={true} xs={2}>
+                                    <Typography variant='body2' className={classnames(classes.startCode, classes.code)}>while</Typography>
+                                </Grid>
+                                <Grid item={true} xs={9}>
+                                    <ExpressionEditor {...expElementProps} />
+                                </Grid>
+                                <Grid item={true} xs={1}>
+                                    <Typography variant='body2' className={classnames(classes.endCode, classes.code)}>{`{`}</Typography>
+                                </Grid>
+                            </Grid>
+                            <Grid container={true} className={classes.codeWrapper}>
+                                <Grid item={true} xs={2}>
+                                    <Typography variant='body2' className={classnames(classes.middleCode, classes.code)}>...</Typography>
+                                </Grid>
+                            </Grid>
+                            <Grid container={true} className={classes.codeWrapper}>
+                                <Grid item={true} xs={2}>
+                                    <Typography variant='body2' className={classnames(classes.endCode, classes.code)}>{`}`}</Typography>
+                                </Grid>
+                            </Grid>
                         </div>
                     </div>
                     <FormActionButtons

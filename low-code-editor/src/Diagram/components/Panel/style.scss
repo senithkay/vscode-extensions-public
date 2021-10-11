@@ -10,16 +10,15 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
- .panel {
+.panel {
     position: fixed;
     top: 0;
     right: 0;
     height: 100vh;
     width: fit-content;
-    background-color: #ffffff;
+    background-color: #fff;
     margin-left: auto;
     margin-right: 0;
-    box-shadow: inset 1px 0 0 0 #e6e7ec;
     z-index: 200;
     box-shadow: 0 5px 10px 0 rgba(102, 103, 133, 0.27);
     overflow: scroll;
@@ -47,7 +46,10 @@
         display: flex;
         justify-content: flex-end;
         width: 100%;
-        padding: 5px 5px 0 !important ;
+        padding: 5px 5px 0 !important;
+        height: 48px;
+        align-items: center;
+        border-bottom: 1px solid #d8d8d8;
     }
 
     .panel-close-button {
@@ -59,6 +61,8 @@
         stroke: #cbcedb;
         opacity: 1;
         fill: #cbcedb;
+        display: flex;
+        align-items: center;
     }
 }
 
@@ -67,7 +71,7 @@
     height: 150vh;
     top: 0;
     width: 100vw;
-    background-color: #ffffff;
+    background-color: #fff;
     opacity: 0.5;
-    z-index: 100
+    z-index: 100;
 }
