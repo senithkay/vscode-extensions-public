@@ -11,11 +11,12 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline jsx-no-lambda
-import React from "react";
+import React, { useContext } from "react";
 
 import { STNode } from "@ballerina/syntax-tree";
 
 import { SuggestionItem } from "../../../models/definitions";
+import { InputEditorContext } from "../../../store/input-editor-context";
 import { addVariableSuggestion } from "../../../utils/utils";
 import { statementEditorStyles } from "../../ViewContainer/styles";
 
@@ -28,11 +29,12 @@ interface VariableSuggestionsProps {
 export function VariableSuggestions(props: VariableSuggestionsProps) {
     const overlayClasses = statementEditorStyles();
     const { model, variableSuggestions, suggestionHandler } = props;
-    // console.log(`===== model received by the VariableSuggestions when rendering: ${JSON.stringify(model)}`);
+
+    const inputEditorCtx = useContext(InputEditorContext);
 
     const onClickVariableSuggestion = (suggestion: SuggestionItem) => {
-        // console.log(`===== model received by the VariableSuggestions on click: ${JSON.stringify(model)}`);
         addVariableSuggestion(model, suggestion);
+        inputEditorCtx.onVariableSelection(suggestion.value);
         suggestionHandler();
     }
 
