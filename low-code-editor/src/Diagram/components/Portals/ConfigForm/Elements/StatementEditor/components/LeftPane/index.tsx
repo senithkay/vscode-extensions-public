@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js object-literal-shorthand
+// tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
 import { STNode } from "@ballerina/syntax-tree";
@@ -68,7 +68,7 @@ export function LeftPane(props: ModelProps) {
         <div className={overlayClasses.leftPane}>
             <SuggestionsContext.Provider
                 value={{
-                    expressionHandler: expressionHandler
+                    expressionHandler
                 }}
             >
                 <span className={overlayClasses.subHeader}>{label}</span>

@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js ordered-imports object-literal-shorthand
+// tslint:disable: jsx-no-multiline-js ordered-imports
 import React, { useContext, useEffect, useRef, useState } from "react";
 
 import { NumericLiteral, STKindChecker, STNode, StringLiteral, traversNode } from "@ballerina/syntax-tree";
@@ -89,7 +89,7 @@ export function InputEditor(props: InputEditorProps) {
 
     const targetPosition = getTargetPosition(targetPositionDraft, syntaxTree);
     const textLabel = userInputs && userInputs.formField ? userInputs.formField : "modelName"
-    const varName = "temp_" + (textLabel).replace(/[^A-Z0-9]+/ig, "");
+    const varName = userInputs && userInputs.varName ? userInputs.varName : "temp_" + (textLabel).replace(/[^A-Z0-9]+/ig, "");
     const varType = userInputs.selectedType;
     const defaultCodeSnippet = varType + " " + varName + " = ;";
     const snippetTargetPosition = defaultCodeSnippet.length;
@@ -257,7 +257,7 @@ export function InputEditor(props: InputEditorProps) {
                     return { value: obj.label, kind: obj.detail }
                 });
 
-                suggestionCtx.expressionHandler(model, false, { variableSuggestions: variableSuggestions })
+                suggestionCtx.expressionHandler(model, false, { variableSuggestions })
 
             });
         });
