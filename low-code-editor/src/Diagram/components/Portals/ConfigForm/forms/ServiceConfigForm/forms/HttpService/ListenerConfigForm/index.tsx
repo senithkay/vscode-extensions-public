@@ -17,46 +17,82 @@ import { FormattedMessage } from "react-intl";
 import { FormHelperText } from "@material-ui/core";
 
 import CheckBoxGroup from "../../../../../Elements/CheckBox";
+import { SelectDropdownWithButton } from "../../../../../Elements/DropDown/SelectDropdownWithButton";
 import { FormTextInput } from "../../../../../Elements/TextField/FormTextInput";
 import { useStyles as useFormStyles } from "../../../../style";
+import { ListenerConfigFormState, ServiceConfigActions, ServiceConfigActionTypes } from "../util/reducer";
 
 interface ListenerConfigFormProps {
-    isDefinedInline: boolean
-    onDefinitionModeChange: (mode: string[]) => void;
-    onNameChange: (name: string) => void;
-    onPortChange: (name: string) => void;
+    configState: ListenerConfigFormState
+    actionDispatch: (action: ServiceConfigActions) => void;
+    listenerList: string[]
 }
 
 // FixMe: show validation messages to listenerName and listenerPort
 export function ListenerConfigForm(props: ListenerConfigFormProps) {
     const formClasses = useFormStyles();
-    const { isDefinedInline, onDefinitionModeChange, onNameChange, onPortChange } = props;
+    const { configState: state, actionDispatch, listenerList } = props;
 
-    return (
+    const listenerSelectionCustomProps = {
+        disableCreateNew: false, values: listenerList || [],
+    }
+
+    const handleListenerDefModeChange = (mode: string[]) => {
+        actionDispatch({ type: ServiceConfigActionTypes.DEFINE_LISTENER_INLINE, payload: mode.length === 0 })
+    }
+
+    const onListenerNameChange = (listenerName: string) => {
+        actionDispatch({ type: ServiceConfigActionTypes.SET_LISTENER_NAME, payload: listenerName })
+    }
+
+    const onListenerPortChange = (listenerPort: string) => {
+        actionDispatch({ type: ServiceConfigActionTypes.SET_LISTENER_PORT, payload: listenerPort })
+    }
+
+    const onListenerSelect = (listenerName: string) => {
+        if (listenerName === 'Create New') {
+            actionDispatch({ type: ServiceConfigActionTypes.CREATE_NEW_LISTENER });
+        } else {
+            actionDispatch({ type: ServiceConfigActionTypes.SELECT_EXISTING_LISTENER, payload: listenerName });
+        }
+    }
+
+    const listenerSelector = (
         <>
-            <CheckBoxGroup
-                values={["Define Inline"]}
-                defaultValues={isDefinedInline ? ['Define Inline'] : []}
-                onChange={onDefinitionModeChange}
+            <FormHelperText className={formClasses.inputLabelForRequired}>
+                <FormattedMessage
+                    id="lowcode.develop.connectorForms.HTTP.selectlListener"
+                    defaultMessage="Select Listener :"
+                />
+            </FormHelperText>
+            <SelectDropdownWithButton
+                customProps={listenerSelectionCustomProps}
+                onChange={onListenerSelect}
+                placeholder="Select Property"
+                defaultValue={!state.createNewListener ? state.listenerName : 'Create New'}
             />
-            {
-                !isDefinedInline && (
-                    <>
-                        <div className={formClasses.labelWrapper}>
-                            <FormHelperText className={formClasses.inputLabelForRequired}>
-                                <FormattedMessage
-                                    id="lowcode.develop.connectorForms.HTTP.listenerName"
-                                    defaultMessage="Listener Name :"
-                                />
-                            </FormHelperText>
-                        </div>
-                        <FormTextInput
-                            dataTestId="listener-name"
-                            onChange={onNameChange}
-                        />
-                    </>
-                )
-            }
+        </>
+    )
+
+    const listenerNameInputComponent = (
+        <>
+            <div className={formClasses.labelWrapper}>
+                <FormHelperText className={formClasses.inputLabelForRequired}>
+                    <FormattedMessage
+                        id="lowcode.develop.connectorForms.HTTP.listenerName"
+                        defaultMessage="Listener Name :"
+                    />
+                </FormHelperText>
+            </div>
+            <FormTextInput
+                dataTestId="listener-name"
+                onChange={onListenerNameChange}
+            />
+        </>
+    )
+
+    const listenerPortInputComponent = (
+        <>
             <div className={formClasses.labelWrapper}>
                 <FormHelperText className={formClasses.inputLabelForRequired}>
                     <FormattedMessage
@@ -67,8 +103,21 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
             </div>
             <FormTextInput
                 dataTestId="listener-port"
-                onChange={onPortChange}
+                onChange={onListenerPortChange}
             />
+        </>
+    )
+
+    return (
+        <>
+            <CheckBoxGroup
+                values={["Define Inline"]}
+                defaultValues={state.fromVar ? [] : ['Define Inline']}
+                onChange={handleListenerDefModeChange}
+            />
+            {state.fromVar && listenerSelector}
+            {state.fromVar && state.createNewListener && [listenerNameInputComponent, listenerPortInputComponent]}
+            {!state.fromVar && listenerPortInputComponent}
         </>
     )
 }

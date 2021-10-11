@@ -144,8 +144,8 @@ export function updatePropertyStatement(property: string, targetPosition: DraftU
 }
 
 export function updateResourceSignature(method: string, path: string, queryParam: string, payload: string,
-                                        isCaller: boolean, isRequest: boolean, addReturn: string,
-                                        targetPosition: DraftUpdateStatement): STModification {
+    isCaller: boolean, isRequest: boolean, addReturn: string,
+    targetPosition: DraftUpdateStatement): STModification {
     const resourceSignature: STModification = {
         startLine: targetPosition.startLine,
         startColumn: targetPosition.startColumn,
@@ -486,7 +486,7 @@ export function createCheckedPayloadFunctionInvocation(variable: string, type: s
 }
 
 export function createServiceDeclartion(config: HTTPServiceConfigState, targetPosition: DraftUpdatePosition): STModification {
-    const { serviceBasePath, listenerConfig: { formVar, listenerName, listenerPort }, createNewListener } = config;
+    const { serviceBasePath, listenerConfig: { fromVar, listenerName, listenerPort, createNewListener } } = config;
 
     const modification: STModification = {
         startLine: targetPosition.startLine,
@@ -496,7 +496,7 @@ export function createServiceDeclartion(config: HTTPServiceConfigState, targetPo
         type: ''
     };
 
-    if (createNewListener && formVar) {
+    if (createNewListener && fromVar) {
         return {
             ...modification,
             type: 'SERVICE_AND_LISTENER_DECLARATION',
@@ -506,7 +506,7 @@ export function createServiceDeclartion(config: HTTPServiceConfigState, targetPo
                 'BASE_PATH': serviceBasePath,
             }
         }
-    } else if (createNewListener && !formVar) {
+    } else if (!fromVar) {
         return {
             ...modification,
             type: 'SERVICE_DECLARATION_WITH_NEW_INLINE_LISTENER',
@@ -559,7 +559,7 @@ export function removeStatement(targetPosition: DraftUpdatePosition): STModifica
 }
 
 export function createHeaderObjectDeclaration(headerObject: HeaderObjectConfig[], requestName: string, operation: string,
-                                              message: FormField, targetPosition: DraftInsertPosition, modifications: STModification[]) {
+    message: FormField, targetPosition: DraftInsertPosition, modifications: STModification[]) {
     if (operation !== "forward") {
         let httpRequest: string = "http:Request ";
         httpRequest += requestName;
@@ -600,7 +600,7 @@ export function createHeaderObjectDeclaration(headerObject: HeaderObjectConfig[]
 }
 
 export function updateHeaderObjectDeclaration(headerObject: HeaderObjectConfig[], requestName: string, operation: string,
-                                              message: FormField, targetPosition: DraftUpdatePosition): STModification {
+    message: FormField, targetPosition: DraftUpdatePosition): STModification {
     let headerDecl: string = "";
     if (operation !== "forward") {
         if (operation === "post" || operation === "put" || operation === "delete" || operation === "patch") {

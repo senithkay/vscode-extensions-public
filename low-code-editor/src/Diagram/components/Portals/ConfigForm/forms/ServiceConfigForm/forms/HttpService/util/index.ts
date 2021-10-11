@@ -12,13 +12,15 @@
  */
 
 import { ServiceDeclaration } from "@ballerina/syntax-tree";
+import { debug } from "webpack";
+
 import { STSymbolInfo } from "../../../../../../../../..";
 import { isServicePathValid } from "../../../../../../../../../utils/validator";
 
 import { HTTPServiceConfigState } from "./reducer";
 
 export function isServiceConfigValid(config: HTTPServiceConfigState): boolean {
-    const { createNewListener, serviceBasePath, listenerConfig: { formVar: fromVar, listenerName, listenerPort } } = config;
+    const { serviceBasePath, listenerConfig: { createNewListener, fromVar, listenerName, listenerPort } } = config;
 
     const servicePathValidity = serviceBasePath.length === 0 || isServicePathValid(serviceBasePath);
     const portNumberRegex = /^\d+$/;
@@ -28,28 +30,30 @@ export function isServiceConfigValid(config: HTTPServiceConfigState): boolean {
         return servicePathValidity
             && listenerPort.length > 0 && portNumberRegex.test(listenerPort)
             && listenerName.length > 0 && nameRegex.test(listenerName);
-    } else if (createNewListener && !fromVar) {
+    } else if (!fromVar) {
         return servicePathValidity
             && listenerPort.length > 0 && portNumberRegex.test(listenerPort)
     } else {
-        return serviceBasePath && listenerName.length > 0;
+        return servicePathValidity && listenerName.length > 0;
     }
+
+
 }
 
 export function getFormStateFromST(model: ServiceDeclaration, symbolInfo: STSymbolInfo): HTTPServiceConfigState {
 
     const state: HTTPServiceConfigState = {
         serviceBasePath: '',
-        createNewListener: false,
         listenerConfig: {
-            formVar: false,
+            createNewListener: false,
+            fromVar: true,
             listenerName: '',
             listenerPort: ''
         }
     }
 
     if (model) {
-
+        debugger;
     }
 
     return state;

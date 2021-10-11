@@ -24,9 +24,10 @@ interface ServiceTypeSelectorProps {
 export function ServiceTypeSelector(props: ServiceTypeSelectorProps) {
     const { onSelect } = props;
 
-    const types = Object.keys(ServiceTypes).map(type => {
+    const types = Object.keys(ServiceTypes).map((type, i) => {
+        const values = Object.values(ServiceTypes);
         const handleOnSelect = () => {
-            onSelect(type);
+            onSelect(values[i]);
         }
 
         return (

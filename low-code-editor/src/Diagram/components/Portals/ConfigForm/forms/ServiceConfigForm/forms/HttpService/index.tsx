@@ -42,14 +42,11 @@ interface HttpServiceFormProps {
 
 const HTTP_MODULE_QUALIFIER = 'http';
 
-
-
 export function HttpServiceForm(props: HttpServiceFormProps) {
     const formClasses = useFormStyles();
     const { model, targetPosition, onCancel, onSave } = props;
     const { props: { stSymbolInfo }, api: { code: { modifyDiagram } } } = useDiagramContext();
     const [state, dispatch] = useReducer(serviceConfigReducer, getFormStateFromST(model, stSymbolInfo));
-
 
     const listenerList = Array.from(stSymbolInfo.listeners)
         .filter(([key, value]) =>
@@ -57,9 +54,6 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
             && (value as ListenerDeclaration).typeDescriptor.modulePrefix.value === HTTP_MODULE_QUALIFIER)
         .map(([key, value]) => key);
 
-    const listenerSelectionCustomProps = {
-        disableCreateNew: false, values: listenerList || [],
-    }
 
     React.useEffect(() => {
         if (listenerList.length === 0) {
@@ -67,28 +61,8 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         }
     }, []);
 
-    const onListenerSelect = (listenerName: string) => {
-        if (listenerName === 'Create New') {
-            dispatch({ type: ServiceConfigActionTypes.CREATE_NEW_LISTENER });
-        } else {
-            dispatch({ type: ServiceConfigActionTypes.SELECT_EXISTING_LISTENER, payload: listenerName });
-        }
-    }
-
     const onBasePathChange = (path: string) => {
         dispatch({ type: ServiceConfigActionTypes.SET_PATH, payload: path })
-    }
-
-    const handleListenerDefModeChange = (mode: string[]) => {
-        dispatch({ type: ServiceConfigActionTypes.DEFINE_LISTENER_INLINE, payload: mode.length === 0 })
-    }
-
-    const onListenerNameChange = (listenerName: string) => {
-        dispatch({ type: ServiceConfigActionTypes.SET_LISTENER_NAME, payload: listenerName })
-    }
-
-    const onListenerPortChange = (listenerPort: string) => {
-        dispatch({ type: ServiceConfigActionTypes.SET_LISTENER_PORT, payload: listenerPort })
     }
 
     const handleOnSave = () => {
@@ -99,50 +73,26 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         onSave();
     }
 
-    const listenerConfigForm = (
-        <div className={classNames(formClasses.groupedForm, formClasses.marginTB)}>
-            <ListenerConfigForm
-                isDefinedInline={!state.listenerConfig.formVar}
-                onDefinitionModeChange={handleListenerDefModeChange}
-                onNameChange={onListenerNameChange}
-                onPortChange={onListenerPortChange}
-            />
-        </div>
-    );
-
     const saveBtnDisabled = isServiceConfigValid(state);
 
     return (
         <>
             <div className={formClasses.labelWrapper}>
                 <FormHelperText className={formClasses.inputLabelForRequired}>
-                    {
-                        listenerList.length > 0 ?
-                            (
-                                <FormattedMessage
-                                    id="lowcode.develop.connectorForms.HTTP.selectlListener"
-                                    defaultMessage="Select Listener :"
-                                />
-                            )
-                            : (
-                                <FormattedMessage
-                                    id="lowcode.develop.connectorForms.HTTP.configureNewListener"
-                                    defaultMessage="Configure Listener :"
-                                />
-                            )
-                    }
+                    <FormattedMessage
+                        id="lowcode.develop.connectorForms.HTTP.configureNewListener"
+                        defaultMessage="Configure Listener :"
+                    />
                 </FormHelperText>
                 <FormHelperText className={formClasses.starLabelForRequired}>*</FormHelperText>
             </div>
-            {listenerList.length > 0 && (
-                <SelectDropdownWithButton
-                    customProps={listenerSelectionCustomProps}
-                    onChange={onListenerSelect}
-                    placeholder="Select Property"
-                    defaultValue={!state.createNewListener ? state.listenerConfig.listenerName : 'Create New'}
+            <div className={classNames(formClasses.groupedForm, formClasses.marginTB)}>
+                <ListenerConfigForm
+                    configState={state.listenerConfig}
+                    actionDispatch={dispatch}
+                    listenerList={listenerList}
                 />
-            )}
-            {state.createNewListener && listenerConfigForm}
+            </div>
             <div className={formClasses.labelWrapper}>
                 <FormHelperText className={formClasses.inputLabelForRequired}>
                     <FormattedMessage
