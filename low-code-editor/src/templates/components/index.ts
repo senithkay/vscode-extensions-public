@@ -45,8 +45,13 @@ service /{{{ BASE_PATH }}} on new http:Listener({{{ PORT }}}) {
 service /{{{ BASE_PATH }}} on {{{ LISTENER_NAME }}} {
     resource function get .(http:Caller caller) returns error? {
     }
-}`, LISTENER_DECLARATION:  `
-listener http:Listener {{{ LISTENER_NAME }}} = new ({{{ PORT }}});`,
+}`,
+    LISTENER_DECLARATION:  `
+listener http:Listener {{{ LISTENER_NAME }}} = new ({{{ PORT }}});
+`,
+    LISTENER_DECLARATION_UPDATE: `
+listener http:Listener {{{ LISTENER_NAME }}} = new ({{{ PORT }}});
+`,
     FUNCTION_DEFINITION: `
 function {{{ NAME }}} ({{{ PARAMETERS }}}) {{{ RETURN_TYPE }}} {
 

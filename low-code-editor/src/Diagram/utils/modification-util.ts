@@ -550,6 +550,24 @@ export function createListenerDeclartion(config: ListenerConfig, targetPosition:
     }
 }
 
+export function updateListenerDeclartion(config: ListenerConfig, targetPosition: DraftUpdatePosition): STModification {
+    const { listenerName, listenerPort } = config;
+
+    const modification: STModification = {
+        ...targetPosition,
+        type: ''
+    };
+
+    return {
+        ...modification,
+        type: 'LISTENER_DECLARATION_UPDATE',
+        config: {
+            'LISTENER_NAME': listenerName,
+            'PORT': listenerPort
+        }
+    }
+}
+
 export function updateCheckedPayloadFunctionInvocation(variable: string, type: string, response: string, payload: string, targetPosition: DraftUpdatePosition): STModification {
     const checkedPayloadInvo: STModification = {
         startLine: targetPosition.startLine,

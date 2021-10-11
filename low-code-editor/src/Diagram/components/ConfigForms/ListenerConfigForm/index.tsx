@@ -13,13 +13,14 @@
 import React, { useState } from "react";
 import { FormattedMessage } from "react-intl";
 
-import { STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { ListenerDeclaration, NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import { Box, FormControl, FormHelperText, Typography } from "@material-ui/core";
 
 import { ListenerFormIcon } from "../../../../assets/icons";
 import { PrimaryButton } from "../../../../components/Buttons/PrimaryButton";
+import { useDiagramContext } from "../../../../Contexts/Diagram";
 import { STModification } from "../../../../Definitions";
-import { createImportStatement, createListenerDeclartion } from "../../../utils/modification-util";
+import { createImportStatement, createListenerDeclartion, updateListenerDeclartion } from "../../../utils/modification-util";
 import { DraftUpdatePosition } from "../../../view-state/draft";
 import { SecondaryButton } from "../../Portals/ConfigForm/Elements/Button/SecondaryButton";
 import { SelectDropdownWithButton } from "../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
@@ -30,24 +31,25 @@ import { isListenerConfigValid } from "./util";
 import { ListenerConfig } from "./util/types";
 
 interface ListenerConfigFormProps {
-    model?: STNode;
+    model?: ListenerDeclaration;
     targetPosition?: DraftUpdatePosition;
     onCancel: () => void;
-    onSave: (modifications: STModification[]) => void;
+    onSave: () => void;
 }
 
 let defaultState: ListenerConfig = {
     listenerName: '',
     listenerPort: '',
-    listenerType: 'http'
+    listenerType: 'HTTP'
 }
 
 // FixMe: show validation messages to listenerName and listenerPort
 export function ListenerConfigForm(props: ListenerConfigFormProps) {
     const formClasses = useStyles();
     const { model, targetPosition, onCancel, onSave } = props;
+    const { api: { code: { modifyDiagram } } } = useDiagramContext();
 
-    if (STKindChecker.isListenerDeclaration(model)) {
+    if (model && STKindChecker.isListenerDeclaration(model)) {
         defaultState = {
             listenerName: model.variableName.value,
             listenerPort: model.initializer.parenthesizedArgList.arguments[0].source,
@@ -75,10 +77,29 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
     }
 
     const handleOnSave = () => {
-        onSave([
-            createImportStatement('ballerina', 'http', { column: 0, line: 0 }),
-            createListenerDeclartion(config, targetPosition)
-        ]);
+        if (model) {
+            const modelPosition = model.position as NodePosition;
+            const updatePosition = {
+                startLine: modelPosition.startLine,
+                startColumn: 0,
+                endLine: modelPosition.endLine,
+                endColumn: modelPosition.endColumn
+            };
+
+            modifyDiagram([
+                updateListenerDeclartion(
+                    config,
+                    updatePosition
+                )
+            ]);
+            onSave();
+        } else {
+            modifyDiagram([
+                createImportStatement('ballerina', 'http', { column: 0, line: 0 }),
+                createListenerDeclartion(config, targetPosition)
+            ]);
+            onSave();
+        }
     }
 
     return (
