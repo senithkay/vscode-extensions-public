@@ -103,6 +103,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
             </div>
             <FormTextInput
                 dataTestId="listener-port"
+                defaultValue={state.listenerPort}
                 onChange={onListenerPortChange}
             />
         </>

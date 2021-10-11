@@ -14,7 +14,7 @@
 import React, { useReducer } from "react";
 import { FormattedMessage } from "react-intl";
 
-import { ListenerDeclaration, ServiceDeclaration, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { ListenerDeclaration, NodePosition, ServiceDeclaration, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import { FormHelperText } from "@material-ui/core";
 import classNames from "classnames";
 
@@ -22,7 +22,7 @@ import { PrimaryButton } from "../../../../../../../../components/Buttons/Primar
 import { useDiagramContext } from "../../../../../../../../Contexts/Diagram";
 import { STModification } from "../../../../../../../../Definitions";
 import { isServicePathValid } from "../../../../../../../../utils/validator";
-import { createImportStatement, createServiceDeclartion } from "../../../../../../../utils/modification-util";
+import { createImportStatement, createServiceDeclartion, updateServiceDeclartion } from "../../../../../../../utils/modification-util";
 import { DraftUpdatePosition } from "../../../../../../../view-state/draft";
 import { SecondaryButton } from "../../../../Elements/Button/SecondaryButton";
 import { SelectDropdownWithButton } from "../../../../Elements/DropDown/SelectDropdownWithButton";
@@ -66,10 +66,28 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
     }
 
     const handleOnSave = () => {
-        modifyDiagram([
-            createImportStatement('ballerina', 'http', { column: 0, line: 0 }),
-            createServiceDeclartion(state, targetPosition)
-        ]);
+        if (model) {
+            const modelPosition = model.position as NodePosition;
+            const openBracePosition = model.openBraceToken.position as NodePosition;
+            const updatePosition = {
+                startLine: modelPosition.startLine,
+                startColumn: 0,
+                endLine: openBracePosition.startLine,
+                endColumn: openBracePosition.startColumn - 1
+            };
+
+            modifyDiagram([
+                updateServiceDeclartion(
+                    state,
+                    updatePosition
+                )
+            ]);
+        } else {
+            modifyDiagram([
+                createImportStatement('ballerina', 'http', { column: 0, line: 0 }),
+                createServiceDeclartion(state, targetPosition)
+            ]);
+        }
         onSave();
     }
 

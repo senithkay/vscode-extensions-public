@@ -528,6 +528,46 @@ export function createServiceDeclartion(config: HTTPServiceConfigState, targetPo
     }
 }
 
+export function updateServiceDeclartion(config: HTTPServiceConfigState, targetPosition: DraftUpdatePosition): STModification {
+    const { serviceBasePath, listenerConfig: { fromVar, listenerName, listenerPort, createNewListener } } = config;
+
+    const modification: STModification = {
+        ...targetPosition,
+        type: ''
+    };
+
+    if (createNewListener && fromVar) {
+        return {
+            ...modification,
+            type: 'SERVICE_WITH_LISTENER_DECLARATION_UPDATE',
+            config: {
+                'LISTENER_NAME': listenerName,
+                'PORT': listenerPort,
+                'BASE_PATH': serviceBasePath,
+            }
+        }
+    } else if (!fromVar) {
+        return {
+            ...modification,
+            type: 'SERVICE_DECLARATION_WITH_INLINE_LISTENER_UPDATE',
+            config: {
+                'PORT': listenerPort,
+                'BASE_PATH': serviceBasePath,
+            }
+        }
+
+    } else {
+        return {
+            ...modification,
+            type: 'SERVICE_DECLARATION_WITH_SHARED_LISTENER_UPDATE',
+            config: {
+                'LISTENER_NAME': listenerName,
+                'BASE_PATH': serviceBasePath,
+            }
+        }
+    }
+}
+
 export function updateCheckedPayloadFunctionInvocation(variable: string, type: string, response: string, payload: string, targetPosition: DraftUpdatePosition): STModification {
     const checkedPayloadInvo: STModification = {
         startLine: targetPosition.startLine,

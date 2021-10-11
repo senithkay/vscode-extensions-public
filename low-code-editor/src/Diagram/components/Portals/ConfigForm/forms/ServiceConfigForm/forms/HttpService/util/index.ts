@@ -11,7 +11,7 @@
  * associated services.
  */
 
-import { ServiceDeclaration } from "@ballerina/syntax-tree";
+import { ServiceDeclaration, STKindChecker } from "@ballerina/syntax-tree";
 import { debug } from "webpack";
 
 import { STSymbolInfo } from "../../../../../../../../..";
@@ -53,7 +53,34 @@ export function getFormStateFromST(model: ServiceDeclaration, symbolInfo: STSymb
     }
 
     if (model) {
-        debugger;
+        // debugger;
+        const serviceListenerExpression = model.expressions.length > 0 && model.expressions[0];
+        const servicePath = model.absoluteResourcePath.map(pathSegments => pathSegments.value).join();
+
+        if (STKindChecker.isSimpleNameReference(serviceListenerExpression)) {
+
+            return {
+                ...state,
+                serviceBasePath: servicePath === '/' ? '' : servicePath,
+                listenerConfig: {
+                    ...state.listenerConfig,
+                    fromVar: true,
+                    listenerName: serviceListenerExpression.name.value
+                }
+            }
+        } else if (STKindChecker.isExplicitNewExpression(serviceListenerExpression)) {
+            return {
+                ...state,
+                serviceBasePath: servicePath === '/' ? '' : servicePath,
+                listenerConfig: {
+                    ...state.listenerConfig,
+                    fromVar: false,
+                    listenerPort: serviceListenerExpression.parenthesizedArgList.arguments.length > 0
+                        && serviceListenerExpression.parenthesizedArgList.arguments[0].source,
+
+                }
+            }
+        }
     }
 
     return state;
