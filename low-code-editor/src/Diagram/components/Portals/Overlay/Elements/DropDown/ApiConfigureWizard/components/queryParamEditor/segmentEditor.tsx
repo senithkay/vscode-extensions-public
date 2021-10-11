@@ -67,7 +67,7 @@ export function QueryParamSegmentEditor(props: PathSegmentEditorProps) {
 
     const validateNameValue = (value: string) => {
         if (value) {
-            if(params && params.some(item=>item.name === value)){
+            if (params && params.some(item => item.name === value)){
                 setParamError(`${value} already exists`);
                 return false;
             }else{
