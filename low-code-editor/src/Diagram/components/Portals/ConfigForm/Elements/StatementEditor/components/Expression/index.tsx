@@ -14,28 +14,26 @@ import React from "react";
 
 import { STNode } from "@ballerina/syntax-tree";
 
-import { SuggestionItem, VariableUserInputs } from "../../models/definitions";
+import { VariableUserInputs } from "../../models/definitions";
 import { getExpressionTypeComponent } from "../../utils";
 import { VariableStatement } from "../Statements/VariableStatement";
 
 interface ExpressionComponentProps {
     model: STNode
-    expressionHandler: (model: STNode, operator: boolean, variableSuggestions?: SuggestionItem[], suggestions?: SuggestionItem[]) => void
     isRoot: boolean,
     userInputs?: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }
 
 export function ExpressionComponent(props: ExpressionComponentProps) {
-    const { model, expressionHandler, isRoot, userInputs, diagnosticHandler } = props;
+    const { model, isRoot, userInputs, diagnosticHandler } = props;
 
-    const component = getExpressionTypeComponent(model, expressionHandler, userInputs, diagnosticHandler);
+    const component = getExpressionTypeComponent(model, userInputs, diagnosticHandler);
 
     return (
         // TODO: Render the relevant component based on the statement type
         <VariableStatement
             model={model}
-            expressionHandler={expressionHandler}
             isRoot={isRoot}
             component={component}
             userInputs={userInputs}

@@ -10,30 +10,19 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
-import React from "react";
+// tslint:disable: no-empty
+import React from 'react';
 
 import { STNode } from "@ballerina/syntax-tree";
 
-import { VariableUserInputs } from "../../../../models/definitions";
-import { InputEditor } from "../../../InputEditor";
+import { SuggestionItem } from "../models/definitions";
 
-interface LiteralProps {
-    model: STNode
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
-}
+export const SuggestionsContext = React.createContext({
+    expressionHandler: (model: STNode,
+                        operator: boolean,
+                        suggestionsList: {
+                            expressionSuggestions?: SuggestionItem[],
+                            variableSuggestions?: SuggestionItem[]
+                        }) => {}
 
-export function NumericLiteralC(props: LiteralProps) {
-    const { model, userInputs, diagnosticHandler } = props;
-    const inputEditorProps = {
-        statementType: model.kind,
-        model,
-        userInputs,
-        diagnosticHandler
-    };
-
-    return (
-        <InputEditor {...inputEditorProps} />
-    );
-}
+});

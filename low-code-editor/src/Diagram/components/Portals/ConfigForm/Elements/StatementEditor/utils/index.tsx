@@ -51,7 +51,6 @@ export function getDataTypeOnExpressionKind(kind: string): string[] {
 
 export function getExpressionTypeComponent(
     expression: STNode,
-    expressionHandler: (model: STNode, operator: boolean, variableSuggestions?: SuggestionItem[], suggestions?: SuggestionItem[]) => void,
     userInputs: VariableUserInputs,
     diagnosticHandler: (diagnostics: string) => void
 ): ReactNode {
@@ -63,7 +62,6 @@ export function getExpressionTypeComponent(
 
     return <ExprTypeComponent
         model={expression}
-        expressionHandler={expressionHandler}
         userInputs={userInputs}
         diagnosticHandler={diagnosticHandler}
     />;

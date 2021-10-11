@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js ordered-imports
+// tslint:disable: jsx-no-multiline-js ordered-imports object-literal-shorthand
 import React, { useContext, useEffect, useRef, useState } from "react";
 
 import { NumericLiteral, STKindChecker, STNode, StringLiteral, traversNode } from "@ballerina/syntax-tree";
@@ -31,17 +31,18 @@ import {
 } from "../../../ExpressionEditor/utils";
 import * as c from "../../constants";
 import { ModelContext } from "../../store/model-context";
-import { addExpression, addVariableSuggestion } from "../../utils/utils";
+import { addExpression } from "../../utils/utils";
 import { visitor as CodeGenVisitor } from "../../visitors/code-gen-visitor";
 import { FormContext } from "../../store/form-context";
 import { SuggestionItem, VariableUserInputs } from "../../models/definitions";
 import { statementEditorStyles } from "../ViewContainer/styles";
 import { acceptedCompletionKind } from "./constants";
 import { getDataTypeOnExpressionKind } from "../../utils";
+import { StatementEditorContext } from "../../store/statement-editor-context";
+import { SuggestionsContext } from "../../store/suggestions-context";
 
 export interface InputEditorProps {
     model: STNode,
-    expressionHandler: (model: STNode, operator: boolean, variableSuggestions?: SuggestionItem[], suggestions?: SuggestionItem[]) => void,
     statementType: any,
     diagnosticHandler: (diagnostics: string) => void,
     userInputs: VariableUserInputs
@@ -67,10 +68,10 @@ export function InputEditor(props: InputEditorProps) {
         diagnostic: [],
     });
 
-    const { model, expressionHandler, statementType, diagnosticHandler, userInputs } = props;
+    const { model, statementType, diagnosticHandler, userInputs } = props;
 
-    const modelCtx = useContext(ModelContext);
-    const formCtx = useContext(FormContext);
+    const stmtCtx = useContext(StatementEditorContext);
+    const suggestionCtx = useContext(SuggestionsContext);
 
     const overlayClasses = statementEditorStyles();
 
@@ -98,7 +99,7 @@ export function InputEditor(props: InputEditorProps) {
 
     useEffect(() => {
         CodeGenVisitor.clearCodeSnippet();
-        traversNode(modelCtx.statementModel, CodeGenVisitor);
+        traversNode(stmtCtx.modelCtx.statementModel, CodeGenVisitor);
         const ignore = handleOnFocus(CodeGenVisitor.getCodeSnippet(), "");
         getContextBasedCompletions("");
     }, [statementType]);
@@ -143,8 +144,8 @@ export function InputEditor(props: InputEditorProps) {
         const codeSnippet = CodeGenVisitor.getCodeSnippet();
         const hasDiagnostic = !inputEditorState.diagnostic.length // true if there are no diagnostics
 
-        formCtx.onChange(codeSnippet);
-        formCtx.validate(userInputs.formField, !hasDiagnostic, false);
+        stmtCtx.formCtx.onChange(codeSnippet);
+        stmtCtx.formCtx.validate(userInputs.formField, !hasDiagnostic, false);
 
         // TODO: Need to obtain the default value as a prop
         if (!CodeGenVisitor.getCodeSnippet().includes('expression')) {
@@ -161,7 +162,7 @@ export function InputEditor(props: InputEditorProps) {
         inputEditorState.content = newModel;
         inputEditorState.uri = monaco.Uri.file(currentFile.path).toString();
 
-        formCtx.onChange(currentContent);
+        stmtCtx.formCtx.onChange(currentContent);
 
         const langClient = await getExpressionEditorLangClient(langServerURL);
         langClient.didChange({
@@ -210,7 +211,7 @@ export function InputEditor(props: InputEditorProps) {
             inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
             inputEditorState.content = (currentFile.content);
             inputEditorState.uri = inputEditorState?.uri;
-            formCtx.onChange("");
+            stmtCtx.formCtx.onChange("");
 
             await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
                 await langClient.didChange({
@@ -250,7 +251,7 @@ export function InputEditor(props: InputEditorProps) {
                     (!completionResponse.kind || acceptedCompletionKind.includes(completionResponse.kind)) &&
                     ((varType === "string") ? completionResponse.detail === varType : acceptedDataType.includes(completionResponse.detail)) &&
                     completionResponse.label !== varName &&
-                    ((completionResponse.label.replace(/["]+/g, '')).includes(codeSnippet)) &&
+                    ((completionResponse.label.replace(/["]+/g, '')).startsWith(codeSnippet)) &&
                     !(completionResponse.label.includes("main"))
                 ));
 
@@ -258,19 +259,20 @@ export function InputEditor(props: InputEditorProps) {
                     return { value: obj.label, kind: obj.detail }
                 });
 
-                expressionHandler(model, false, variableSuggestions);
+                suggestionCtx.expressionHandler(model, false, { variableSuggestions: variableSuggestions })
+
             });
         });
     }
 
-    if (formCtx.onCancel) {
+    if (stmtCtx.formCtx.onCancel) {
         revertContent().then();
     }
 
     const inputBlurHandler = () => {
         if (defaultValue.current !== "") {
             addExpression(model, kind, value);
-            expressionHandler(model, false, null, []);
+            suggestionCtx.expressionHandler(model, false, { expressionSuggestions: [] })
 
             const ignore = handleOnOutFocus();
         }
@@ -279,10 +281,10 @@ export function InputEditor(props: InputEditorProps) {
     const inputEnterHandler = (event: React.KeyboardEvent<HTMLSpanElement>) => {
         if (event.code === "Enter" || event.code === "Tab") {
             addExpression(model, kind, event.currentTarget.textContent);
-            expressionHandler(model, false, null, []);
+            suggestionCtx.expressionHandler(model, false, { expressionSuggestions: [] })
 
             CodeGenVisitor.clearCodeSnippet();
-            traversNode(modelCtx.statementModel, CodeGenVisitor);
+            traversNode(stmtCtx.modelCtx.statementModel, CodeGenVisitor);
             const ignore = handleContentChange(CodeGenVisitor.getCodeSnippet(), "")
             getContextBasedCompletions(event.currentTarget.textContent);
         }
@@ -290,9 +292,9 @@ export function InputEditor(props: InputEditorProps) {
 
     const inputChangeHandler = (event: React.KeyboardEvent<HTMLSpanElement>) => {
         addExpression(model, kind, event.currentTarget.textContent ? event.currentTarget.textContent : "");
-        expressionHandler(model, false, null, []);
+        suggestionCtx.expressionHandler(model, false, { expressionSuggestions: [] })
         CodeGenVisitor.clearCodeSnippet();
-        traversNode(modelCtx.statementModel, CodeGenVisitor);
+        traversNode(stmtCtx.modelCtx.statementModel, CodeGenVisitor);
         debouncedContentChange(CodeGenVisitor.getCodeSnippet(), "");
         getContextBasedCompletions(event.currentTarget.textContent);
     };

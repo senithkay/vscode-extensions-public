@@ -15,18 +15,17 @@ import React from "react";
 
 import { BracedExpression, STKindChecker, STNode } from "@ballerina/syntax-tree";
 
-import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
+import { VariableUserInputs } from "../../../models/definitions";
 import { ExpressionComponent } from "../../Expression";
 
 interface BracedExprProps {
     model: STNode
-    expressionHandler: (model: STNode, operator: boolean, variableSuggestions?: SuggestionItem[], suggestions?: SuggestionItem[]) => void
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }
 
 export function BracedExpressionC(props: BracedExprProps) {
-    const { model, expressionHandler, userInputs, diagnosticHandler } = props;
+    const { model, userInputs, diagnosticHandler } = props;
     let expression: any;
     let expressionComponent: any;
 
@@ -35,7 +34,6 @@ export function BracedExpressionC(props: BracedExprProps) {
         expression = bracedExpModel.expression;
         expressionComponent = <ExpressionComponent
             model={expression}
-            expressionHandler={expressionHandler}
             isRoot={false}
             userInputs={userInputs}
             diagnosticHandler={diagnosticHandler}

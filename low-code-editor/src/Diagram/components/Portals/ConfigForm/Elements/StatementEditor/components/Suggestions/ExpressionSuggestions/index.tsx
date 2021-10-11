@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline jsx-no-lambda
-import React from "react";
+import React, { useContext } from "react";
 
 import { STNode } from "@ballerina/syntax-tree";
 

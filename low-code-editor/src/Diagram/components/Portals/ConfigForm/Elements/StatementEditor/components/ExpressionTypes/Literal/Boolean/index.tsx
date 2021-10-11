@@ -14,11 +14,10 @@ import React from "react";
 
 import {BooleanLiteral, STKindChecker, STNode} from "@ballerina/syntax-tree";
 
-import { SuggestionItem, VariableUserInputs } from "../../../../models/definitions";
+import { VariableUserInputs } from "../../../../models/definitions";
 
 interface LiteralProps {
     model: STNode
-    expressionHandler: (suggestions: SuggestionItem[], model: STNode) => void
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }

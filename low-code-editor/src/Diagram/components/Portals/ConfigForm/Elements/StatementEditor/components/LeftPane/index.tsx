@@ -10,11 +10,13 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js object-literal-shorthand
 import React, { useState } from "react";
 
 import { STNode } from "@ballerina/syntax-tree";
 
 import { SuggestionItem, VariableUserInputs } from "../../models/definitions";
+import { SuggestionsContext } from "../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../utils";
 import { Diagnostics } from "../Diagnostics";
 import { ExpressionComponent } from '../Expression';
@@ -40,15 +42,15 @@ export function LeftPane(props: ModelProps) {
     const [isOperator, setIsOperator] = useState(false);
     const [variableList, setVariableList] = useState([]);
 
-    const expressionHandler = (cModel: STNode, operator: boolean, variableSuggestions?: SuggestionItem[], suggestions?: SuggestionItem[]) => {
+    const expressionHandler = (cModel: STNode, operator: boolean, suggestionsList: { variableSuggestions?: SuggestionItem[], expressionSuggestions?: SuggestionItem[] }) => {
         currentModel.model = cModel
-        if (suggestions) {
-            setSuggestionsList(suggestions)
+        if (suggestionsList.expressionSuggestions) {
+            setSuggestionsList(suggestionsList.expressionSuggestions)
         }
         setIsSuggestionClicked(false)
         setIsOperator(operator)
-        if (variableSuggestions) {
-            setVariableList(variableSuggestions)
+        if (suggestionsList.variableSuggestions) {
+            setVariableList(suggestionsList.variableSuggestions)
         }
     }
 
@@ -64,18 +66,23 @@ export function LeftPane(props: ModelProps) {
 
     return (
         <div className={overlayClasses.leftPane}>
-            <span className={overlayClasses.subHeader}>{label}</span>
-            <div className={overlayClasses.templateEditor}>
-                <div className={overlayClasses.templateEditorInner}>
-                    <ExpressionComponent
-                        model={model}
-                        expressionHandler={expressionHandler}
-                        isRoot={true}
-                        userInputs={userInputs}
-                        diagnosticHandler={diagnosticHandler}
-                    />
+            <SuggestionsContext.Provider
+                value={{
+                    expressionHandler: expressionHandler
+                }}
+            >
+                <span className={overlayClasses.subHeader}>{label}</span>
+                <div className={overlayClasses.templateEditor}>
+                    <div className={overlayClasses.templateEditorInner}>
+                        <ExpressionComponent
+                            model={model}
+                            isRoot={true}
+                            userInputs={userInputs}
+                            diagnosticHandler={diagnosticHandler}
+                        />
+                    </div>
                 </div>
-            </div>
+            </SuggestionsContext.Provider>
             <div className={overlayClasses.leftPaneDivider}/>
             <div className={overlayClasses.diagnosticsPane}>
                 <Diagnostics
@@ -99,7 +106,6 @@ export function LeftPane(props: ModelProps) {
                     suggestionHandler={suggestionHandler}
                 />
             </div>
-
         </div>
     );
 }
