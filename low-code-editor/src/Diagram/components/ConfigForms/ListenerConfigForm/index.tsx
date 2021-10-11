@@ -13,7 +13,7 @@
 import React, { useState } from "react";
 import { FormattedMessage } from "react-intl";
 
-import { STNode } from "@ballerina/syntax-tree";
+import { STKindChecker, STNode } from "@ballerina/syntax-tree";
 import { Box, FormControl, FormHelperText, Typography } from "@material-ui/core";
 
 import { ListenerFormIcon } from "../../../../assets/icons";
@@ -36,7 +36,7 @@ interface ListenerConfigFormProps {
     onSave: (modifications: STModification[]) => void;
 }
 
-const defaultState: ListenerConfig = {
+let defaultState: ListenerConfig = {
     listenerName: '',
     listenerPort: '',
     listenerType: 'http'
@@ -45,7 +45,16 @@ const defaultState: ListenerConfig = {
 // FixMe: show validation messages to listenerName and listenerPort
 export function ListenerConfigForm(props: ListenerConfigFormProps) {
     const formClasses = useStyles();
-    const { targetPosition, onCancel, onSave } = props;
+    const { model, targetPosition, onCancel, onSave } = props;
+
+    if (STKindChecker.isListenerDeclaration(model)) {
+        defaultState = {
+            listenerName: model.variableName.value,
+            listenerPort: model.initializer.parenthesizedArgList.arguments[0].source,
+            listenerType: model.typeDescriptor.modulePrefix.value.toUpperCase()
+        };
+    }
+
     const [config, setCofig] = useState(defaultState);
     const saveBtnEnabled = isListenerConfigValid(config);
 
@@ -53,16 +62,15 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
         setCofig({
             listenerName,
             listenerPort: config.listenerPort,
-            listenerType: 'http'
+            listenerType: config.listenerType
         });
     }
 
     const onListenerPortChange = (listenerPort: string) => {
-        config.listenerPort = listenerPort;
         setCofig({
             listenerName: config.listenerName,
             listenerPort,
-            listenerType: 'http'
+            listenerType: config.listenerType
         });
     }
 
@@ -96,7 +104,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                     </div>
                     <SelectDropdownWithButton
                         customProps={{values: ['HTTP'], disableCreateNew: true }}
-                        defaultValue={'HTTP'}
+                        defaultValue={config.listenerType}
                         placeholder="Select Type"
                     />
                     <div className={formClasses.labelWrapper}>
@@ -109,6 +117,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                     </div>
                     <FormTextInput
                         dataTestId="listener-name"
+                        defaultValue={config.listenerName}
                         onChange={onListenerNameChange}
                     />
                     <div className={formClasses.labelWrapper}>
@@ -121,6 +130,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                     </div>
                     <FormTextInput
                         dataTestId="listener-port"
+                        defaultValue={config.listenerPort}
                         onChange={onListenerPortChange}
                     />
                 </>
