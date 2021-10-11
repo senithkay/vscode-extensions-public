@@ -30,10 +30,8 @@ import {
     getTargetPosition
 } from "../../../ExpressionEditor/utils";
 import * as c from "../../constants";
-import { ModelContext } from "../../store/model-context";
 import { addExpression } from "../../utils/utils";
 import { visitor as CodeGenVisitor } from "../../visitors/code-gen-visitor";
-import { FormContext } from "../../store/form-context";
 import { SuggestionItem, VariableUserInputs } from "../../models/definitions";
 import { statementEditorStyles } from "../ViewContainer/styles";
 import { acceptedCompletionKind } from "./constants";
