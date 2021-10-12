@@ -36,8 +36,6 @@ export function isServiceConfigValid(config: HTTPServiceConfigState): boolean {
     } else {
         return servicePathValidity && listenerName.length > 0;
     }
-
-
 }
 
 export function getFormStateFromST(model: ServiceDeclaration, symbolInfo: STSymbolInfo): HTTPServiceConfigState {
