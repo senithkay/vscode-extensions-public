@@ -203,7 +203,7 @@ export function APIOptions(props: FormGeneratorProps) {
     }
 
     const getConnector = (moduleName: string, name: string): BallerinaConnectorInfo => {
-        Array.from(centralConnectors).forEach(element => {
+        centralConnectors.forEach(element => {
             const existingConnector = element as BallerinaConnectorInfo;
             const formattedModuleName = getFormattedModuleName(existingConnector.package.name);
             if (formattedModuleName === moduleName && existingConnector.name === name) {
