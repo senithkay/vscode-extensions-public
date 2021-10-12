@@ -49,7 +49,7 @@ export class CurrentResource {
     private position: Range;
     private latency: String;
 
-    constructor (position: Range, latency: String) {
+    constructor(position: Range, latency: String) {
         this.position = position;
         this.latency = latency;
     }
@@ -67,11 +67,13 @@ export class DataLabel {
     private file: String;
     private range: Range;
     private label: String;
+    private resourceRange: Range;
 
-    constructor(file: String, range: Range, name: String) {
+    constructor(file: String, range: Range, name: String, resourceRange: Range) {
         this.file = file;
         this.range = range;
         this.label = name;
+        this.resourceRange = resourceRange;
     }
 
     public get getFile(): String {
@@ -84,6 +86,10 @@ export class DataLabel {
 
     public get getLabel(): String {
         return this.label;
+    }
+
+    public get getResourceRange(): Range {
+        return this.resourceRange;
     }
 
 }
