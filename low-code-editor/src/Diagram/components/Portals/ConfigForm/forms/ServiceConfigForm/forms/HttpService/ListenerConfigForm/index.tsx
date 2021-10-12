@@ -21,17 +21,21 @@ import { SelectDropdownWithButton } from "../../../../../Elements/DropDown/Selec
 import { FormTextInput } from "../../../../../Elements/TextField/FormTextInput";
 import { useStyles as useFormStyles } from "../../../../style";
 import { ListenerConfigFormState, ServiceConfigActions, ServiceConfigActionTypes } from "../util/reducer";
+import ExpressionEditor from "../../../../../Elements/ExpressionEditor";
+import { FormElementProps } from "../../../../../types";
+import { NodePosition } from "@ballerina/syntax-tree";
 
 interface ListenerConfigFormProps {
     configState: ListenerConfigFormState
     actionDispatch: (action: ServiceConfigActions) => void;
-    listenerList: string[]
+    listenerList: string[];
+    targetPosition: NodePosition;
 }
 
 // FixMe: show validation messages to listenerName and listenerPort
 export function ListenerConfigForm(props: ListenerConfigFormProps) {
     const formClasses = useFormStyles();
-    const { configState: state, actionDispatch, listenerList } = props;
+    const { configState: state, actionDispatch, listenerList, targetPosition } = props;
 
     const listenerSelectionCustomProps = {
         disableCreateNew: false, values: listenerList || [],
@@ -55,6 +59,10 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
         } else {
             actionDispatch({ type: ServiceConfigActionTypes.SELECT_EXISTING_LISTENER, payload: listenerName });
         }
+    }
+
+    const validateField = (fieldName: string, isInvalidFromField: boolean) => {
+        actionDispatch({ type: ServiceConfigActionTypes.UPDATE_INVALID_CONFIG_STATUS, payload: isInvalidFromField });
     }
 
     const listenerSelector = (
@@ -91,20 +99,32 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
         </>
     )
 
+    const portNumberExpressionEditorProps: FormElementProps = {
+        model: {
+            name: "listenerPort",
+            displayName: "Listener Port",
+            typeName: "int"
+        },
+        customProps: {
+            validate: validateField,
+            interactive: true,
+            statementType: 'int',
+            editPosition: { 
+                startLine: targetPosition.startLine, 
+                endLine: targetPosition.startLine, 
+                startColumn: 0, 
+                endColumn: 0 
+            }
+        },
+        onChange: onListenerPortChange,
+        defaultValue: state.listenerPort,
+    };
+
     const listenerPortInputComponent = (
         <>
-            <div className={formClasses.labelWrapper}>
-                <FormHelperText className={formClasses.inputLabelForRequired}>
-                    <FormattedMessage
-                        id="lowcode.develop.connectorForms.HTTP.listenerPortNumber"
-                        defaultMessage="Listener Port :"
-                    />
-                </FormHelperText>
-            </div>
-            <FormTextInput
-                dataTestId="listener-port"
-                defaultValue={state.listenerPort}
-                onChange={onListenerPortChange}
+            <ExpressionEditor
+                {...portNumberExpressionEditorProps}
+
             />
         </>
     )

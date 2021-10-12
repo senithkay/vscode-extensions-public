@@ -14,24 +14,22 @@
 import React, { useReducer } from "react";
 import { FormattedMessage } from "react-intl";
 
-import { ListenerDeclaration, NodePosition, ServiceDeclaration, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { ListenerDeclaration, NodePosition, ServiceDeclaration, STKindChecker } from "@ballerina/syntax-tree";
 import { FormHelperText } from "@material-ui/core";
 import classNames from "classnames";
 
 import { PrimaryButton } from "../../../../../../../../components/Buttons/PrimaryButton";
 import { useDiagramContext } from "../../../../../../../../Contexts/Diagram";
-import { STModification } from "../../../../../../../../Definitions";
 import { isServicePathValid } from "../../../../../../../../utils/validator";
 import { createImportStatement, createServiceDeclartion, updateServiceDeclartion } from "../../../../../../../utils/modification-util";
 import { DraftUpdatePosition } from "../../../../../../../view-state/draft";
 import { SecondaryButton } from "../../../../Elements/Button/SecondaryButton";
-import { SelectDropdownWithButton } from "../../../../Elements/DropDown/SelectDropdownWithButton";
 import { FormTextInput } from "../../../../Elements/TextField/FormTextInput";
 import { useStyles as useFormStyles } from "../../../style";
 
 import { ListenerConfigForm } from "./ListenerConfigForm";
 import { getFormStateFromST, isServiceConfigValid } from "./util";
-import { HTTPServiceConfigState, ServiceConfigActionTypes, serviceConfigReducer } from "./util/reducer";
+import { ServiceConfigActionTypes, serviceConfigReducer } from "./util/reducer";
 
 interface HttpServiceFormProps {
     model?: ServiceDeclaration;
@@ -91,7 +89,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         onSave();
     }
 
-    const saveBtnDisabled = isServiceConfigValid(state);
+    const saveBtnDisabled = isServiceConfigValid(state) && !state.hasInvalidConfig;
 
     return (
         <>
@@ -109,6 +107,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
                     configState={state.listenerConfig}
                     actionDispatch={dispatch}
                     listenerList={listenerList}
+                    targetPosition={model ? model.position : targetPosition}
                 />
             </div>
             <div className={formClasses.labelWrapper}>
@@ -136,7 +135,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
                 />
                 <PrimaryButton
                     text="Save"
-                    disabled={!saveBtnDisabled}
+                    disabled={saveBtnDisabled}
                     fullWidth={false}
                     onClick={handleOnSave}
                 />
