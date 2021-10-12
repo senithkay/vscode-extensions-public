@@ -53,7 +53,6 @@ const classMemberEntries: PlusMenuEntry[] = [
 
 export const PlusOptionsSelector = (props: PlusOptionsProps) => {
     const { onClose, targetPosition, kind } = props;
-    const { props: { stSymbolInfo }, api: { code: { modifyDiagram } } } = useDiagramContext();
     const [selectedOption, setSelectedOption] = useState<PlusMenuEntry>(undefined);
 
     let menuEntries: PlusMenuEntry[] = [];
@@ -63,8 +62,7 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
         onClose();
     }
 
-    const handleOnSave = (modifications: STModification[]) => {
-        modifyDiagram(modifications);
+    const handleOnSave = () => {
         onClose();
     }
 
@@ -98,7 +96,7 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
                 selectedOption && (
                     <FormGenerator
                         targetPosition={targetPosition}
-                        configOverlayFormStatus={{ formType: selectedOption.type, isLoading: false, formArgs: { stSymbolInfo } }}
+                        configOverlayFormStatus={{ formType: selectedOption.type, isLoading: false }}
                         onCancel={handleOnClose}
                         onSave={handleOnSave}
                     />

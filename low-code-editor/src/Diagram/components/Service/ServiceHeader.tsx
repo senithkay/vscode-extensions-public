@@ -10,13 +10,22 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useContext } from "react"
+
+// tslint:disable: jsx-no-multiline-js
+import React, { useContext, useRef, useState } from "react"
 
 import { ListenerDeclaration, ServiceDeclaration, STKindChecker } from "@ballerina/syntax-tree";
+import classNames from "classnames";
 
+import DeleteButton from "../../../assets/icons/DeleteButton";
+import EditButton from "../../../assets/icons/EditButton";
 import ServiceIcon from "../../../assets/icons/ServiceIcon";
 import { Context as DiagramContext } from '../../../Contexts/Diagram'
+import { createWhileStatement, removeStatement } from "../../utils/modification-util";
 import { ComponentExpandButton } from "../ComponentExpandButton";
+import { FormGenerator } from "../FormGenerator";
+import { DeleteConfirmDialog } from "../Portals/Overlay/Elements";
+import { PlusOptionsSelector } from "../TopLevelPlus/PlusOptionsSelector";
 
 import "./style.scss";
 
@@ -43,7 +52,11 @@ export interface ServiceHeaderProps {
 
 export function ServiceHeader(props: ServiceHeaderProps) {
     const { model, isExpanded, onExpandClick } = props;
-    const { props: { stSymbolInfo } } = useContext(DiagramContext);
+    const { props: { stSymbolInfo }, api: { code: { modifyDiagram } } } = useContext(DiagramContext);
+    const deleteBtnRef = useRef(null);
+
+    const [isDeleteBtnClicked, setIsDeleteBtnClicked] = useState(false);
+    const [isEditBtnClicked, setIsEditBtnClicked] = useState(false);
 
     let servicePath = '';
 
@@ -67,6 +80,28 @@ export function ServiceHeader(props: ServiceHeaderProps) {
         }
     }
 
+    const handleCancelDeleteBtn = () => {
+        setIsDeleteBtnClicked(false);
+    }
+
+    const handleDeleteBtnClick = () => {
+        setIsDeleteBtnClicked(true);
+    }
+
+    const handleEditBtnClick = () => {
+        setIsEditBtnClicked(true);
+    }
+
+    const handleEditBtnCancel = () => {
+        setIsEditBtnClicked(false);
+    }
+
+    const handleDeleteConfirm = () => {
+        modifyDiagram([
+            removeStatement(model.position)
+        ]);
+    }
+
     return (
         <div className={'service-header'}>
             <div className={'header-segement-container'}>
@@ -83,7 +118,40 @@ export function ServiceHeader(props: ServiceHeaderProps) {
                     {listeningOnText.length > 0 ? `listening on ${listeningOnText}` : ''}
                 </div>
             </div>
-            <ComponentExpandButton isExpanded={isExpanded} onClick={onExpandClick} />
+            <div className={'service-amendment-options'}>
+                <div className={classNames('service-amendment-option', 'show-on-hover')}>
+                    <EditButton onClick={handleEditBtnClick} />
+                </div>
+                <div className={classNames('service-amendment-option', 'show-on-hover')}>
+                    <div ref={deleteBtnRef}>
+                        <DeleteButton onClick={handleDeleteBtnClick} />
+                    </div>
+                </div>
+                <div className={'service-amendment-option'}>
+                    <ComponentExpandButton isExpanded={isExpanded} onClick={onExpandClick} />
+                </div>
+            </div>
+            {isDeleteBtnClicked && (
+                <DeleteConfirmDialog
+                    onCancel={handleCancelDeleteBtn}
+                    onConfirm={handleDeleteConfirm}
+                    position={
+                        deleteBtnRef.current ?
+                            { x: deleteBtnRef.current.offsetLeft - 272, y: deleteBtnRef.current.offsetTop }
+                            : { x: 0, y: 0 }
+                    }
+                    message={'Delete this Service?'}
+                    isFunctionMember={false}
+                />
+            )}
+            {isEditBtnClicked && (
+                <FormGenerator
+                    model={model}
+                    configOverlayFormStatus={{ formType: model.kind, isLoading: false }}
+                    onCancel={handleEditBtnCancel}
+                    onSave={handleEditBtnCancel}
+                />
+            )}
         </div >
     );
 }
