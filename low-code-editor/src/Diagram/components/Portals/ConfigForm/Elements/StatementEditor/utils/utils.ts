@@ -66,6 +66,8 @@ export function addExpression(model: any, kind: string, value?: any) {
         } else {
             Object.assign(model, createNumericLiteral(""));
         }
+    } else if (kind === c.SIMPLE_NAME_REFERENCE) {
+        Object.assign(model, createSimpleNameReference(value));
     } else {
         // tslint:disable-next-line:no-console
         console.log(`Unsupported kind. (${kind})`);
