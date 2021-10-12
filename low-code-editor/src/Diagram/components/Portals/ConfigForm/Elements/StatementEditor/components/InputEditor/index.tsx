@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { monaco } from "react-monaco-editor";
 
 import {
@@ -39,17 +39,15 @@ import {
 } from "../../../ExpressionEditor/utils";
 import * as c from "../../constants";
 import { SuggestionItem, VariableUserInputs } from "../../models/definitions";
-import { FormContext } from "../../store/form-context";
 import { InputEditorContext } from "../../store/input-editor-context";
-import { ModelContext } from "../../store/model-context";
+import { StatementEditorContext } from "../../store/statement-editor-context";
+import { SuggestionsContext } from "../../store/suggestions-context";
 import { getDataTypeOnExpressionKind } from "../../utils";
 import { addExpression } from "../../utils/utils";
 import { visitor as CodeGenVisitor } from "../../visitors/code-gen-visitor";
 import { statementEditorStyles } from "../ViewContainer/styles";
 
 import { acceptedCompletionKind } from "./constants";
-import { StatementEditorContext } from "../../store/statement-editor-context";
-import { SuggestionsContext } from "../../store/suggestions-context";
 
 export interface InputEditorProps {
     model: STNode,
@@ -72,7 +70,6 @@ export function InputEditor(props: InputEditorProps) {
     } = useContext(Context);
 
     const [isEditing, setIsEditing] = useState(false);
-    const [userInput, setUserInput] = useState('expression');
     const [inputEditorState, setInputEditorState] = useState({
         name: undefined,
         content: undefined,
@@ -105,6 +102,7 @@ export function InputEditor(props: InputEditorProps) {
         kind = c.SIMPLE_NAME_REFERENCE;
         value = literalModel.name.value;
     }
+    const [userInput, setUserInput] = useState(value);
 
     const targetPosition = getTargetPosition(targetPositionDraft, syntaxTree);
     const textLabel = userInputs && userInputs.formField ? userInputs.formField : "modelName"
@@ -135,6 +133,12 @@ export function InputEditor(props: InputEditorProps) {
             handleOnOutFocus().then();
         });
     }, [inputEditorCtx.userInput]);
+
+    useEffect(() => {
+        if (userInput === '') {
+            setIsEditing(true);
+        }
+    }, [isEditing]);
 
     const handleOnFocus = async (currentContent: string, EOL: string) => {
         let initContent: string;
@@ -287,7 +291,7 @@ export function InputEditor(props: InputEditorProps) {
                     return { value: obj.label, kind: obj.detail }
                 });
 
-                suggestionCtx.expressionHandler(model, false, variableSuggestions, undefined);
+                suggestionCtx.expressionHandler(model, false, { variableSuggestions });
             });
         });
     }
@@ -300,7 +304,7 @@ export function InputEditor(props: InputEditorProps) {
         setIsEditing(false);
         if (userInput !== "") {
             addExpression(model, kind, value);
-            suggestionCtx.expressionHandler(model, false, null, null);
+            suggestionCtx.expressionHandler(model, false, { expressionSuggestions: [] });
 
             const ignore = handleOnOutFocus();
         }
@@ -309,7 +313,6 @@ export function InputEditor(props: InputEditorProps) {
     const inputEnterHandler = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === "Enter" || event.key === "Tab" || event.key === "Escape") {
             addExpression(model, kind, userInput);
-            // expressionHandler(model, false, null, []);
 
             CodeGenVisitor.clearCodeSnippet();
             traversNode(stmtCtx.modelCtx.statementModel, CodeGenVisitor);
@@ -333,15 +336,9 @@ export function InputEditor(props: InputEditorProps) {
         setIsEditing(true);
     };
 
-    const onEditEnd = () => {
+    const handleEditEnd = () => {
         setIsEditing(false);
     }
-
-    useEffect(() => {
-        if (userInput === '') {
-            setIsEditing(true);
-        }
-    }, [isEditing]);
 
     return isEditing ?
         (
@@ -358,7 +355,7 @@ export function InputEditor(props: InputEditorProps) {
             <div
                 className={overlayClasses.inputEditorTemplate}
                 onDoubleClick={handleDoubleClick}
-                onBlur={onEditEnd}
+                onBlur={handleEditEnd}
             >
                 {userInput}
             </div>

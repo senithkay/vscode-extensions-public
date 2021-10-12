@@ -36,7 +36,6 @@ interface ModelProps {
 export function LeftPane(props: ModelProps) {
     const overlayClasses = statementEditorStyles();
     const { model, kind, label, currentModel, userInputs, currentModelHandler } = props;
-    // console.log(`=============== model received by the LeftPane: ${JSON.stringify(model)}`);
 
     const [suggestionList, setSuggestionsList] = useState(getSuggestionsBasedOnExpressionKind(kind));
     const [diagnosticList, setDiagnostic] = useState("");
