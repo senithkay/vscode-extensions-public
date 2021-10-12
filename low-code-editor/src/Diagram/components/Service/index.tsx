@@ -58,10 +58,6 @@ export function Service(props: ServiceProps) {
         <>
             <div className={'service'} >
                 <ServiceHeader model={model} isExpanded={isExpanded} onExpandClick={onExpandClick} />
-                {/* initial plus inside a resource function */}
-                {/* <TopLevelPlus
-                    margin={{ top: SERVICE_PLUS_OFFSET, bottom: SERVICE_PLUS_OFFSET, left: FUNCTION_PLUS_MARGIN_LEFT }}
-                /> */}
                 <div className={'content-container'}>
                     {isExpanded && (
                         <>
@@ -71,9 +67,6 @@ export function Service(props: ServiceProps) {
                     )}
                 </div>
             </div>
-            {/* <TopLevelPlus
-                margin={{ top: SERVICE_PLUS_OFFSET, bottom: SERVICE_PLUS_OFFSET, left: SERVICE_MARGIN_LEFT }}
-            /> */}
         </>
     );
 }
