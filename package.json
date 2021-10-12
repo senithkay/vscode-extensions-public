@@ -373,7 +373,7 @@
             "activitybar": [
                 {
                     "id": "diagram-explorer",
-                    "title": "Ballerina",
+                    "title": "Ballerina Low-Code",
                     "icon": "resources/images/icons/tab.svg"
                 }
             ]
