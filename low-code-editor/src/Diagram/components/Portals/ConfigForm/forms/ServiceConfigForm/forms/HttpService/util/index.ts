@@ -53,15 +53,16 @@ export function getFormStateFromST(model: ServiceDeclaration, symbolInfo: STSymb
     }
 
     if (model) {
-        // debugger;
         const serviceListenerExpression = model.expressions.length > 0 && model.expressions[0];
-        const servicePath = model.absoluteResourcePath.map(pathSegments => pathSegments.value).join();
+        const servicePath = model.absoluteResourcePath
+                                    .map((pathSegments, i) => i === 0 ? '' : pathSegments.value)
+                                    .join('');
 
         if (STKindChecker.isSimpleNameReference(serviceListenerExpression)) {
 
             return {
                 ...state,
-                serviceBasePath: servicePath === '/' ? '' : servicePath,
+                serviceBasePath: servicePath,
                 listenerConfig: {
                     ...state.listenerConfig,
                     fromVar: true,
@@ -71,7 +72,7 @@ export function getFormStateFromST(model: ServiceDeclaration, symbolInfo: STSymb
         } else if (STKindChecker.isExplicitNewExpression(serviceListenerExpression)) {
             return {
                 ...state,
-                serviceBasePath: servicePath === '/' ? '' : servicePath,
+                serviceBasePath: servicePath,
                 listenerConfig: {
                     ...state.listenerConfig,
                     fromVar: false,
