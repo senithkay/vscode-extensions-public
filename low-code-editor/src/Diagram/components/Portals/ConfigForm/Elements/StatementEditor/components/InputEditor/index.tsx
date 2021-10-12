@@ -334,18 +334,25 @@ export function InputEditor(props: InputEditorProps) {
     };
 
     const onEditEnd = () => {
-        setIsEditing(false)
+        setIsEditing(false);
     }
+
+    useEffect(() => {
+        if (userInput === '') {
+            setIsEditing(true);
+        }
+    }, [isEditing]);
 
     return isEditing ?
         (
             <input
-                // value={text}
+                value={userInput}
                 className={overlayClasses.inputEditorTemplate}
                 onKeyDown={inputEnterHandler}
                 onBlur={inputBlurHandler}
                 onInput={inputChangeHandler}
                 autoFocus={true}
+                style={{maxWidth: userInput === '' ? '10px' : 'fit-content'}}
             />
         ) : (
             <div
