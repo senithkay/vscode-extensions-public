@@ -15,7 +15,6 @@ import React from "react";
 
 import {
   FunctionDefinition,
-  IdentifierToken,
   ObjectMethodDefinition,
   RequiredParam,
   STKindChecker,
@@ -48,16 +47,6 @@ export function FunctionHeader(props: FunctionHeaderProps) {
     modifyDiagram([modification]);
   };
 
-  const functionSignature = model.functionSignature;
-  const functionName: IdentifierToken = model.functionName as IdentifierToken;
-
-  const params: JSX.Element[] = [];
-  functionSignature.parameters
-    .filter((param) => !STKindChecker.isCommaToken(param))
-    .forEach((param: RequiredParam, i) => {
-      params.push(<span className={"param"}>{param.source}</span>);
-    });
-
   return (
     <div className="function-signature">
       <div className={"function-icon"}>
@@ -66,10 +55,18 @@ export function FunctionHeader(props: FunctionHeaderProps) {
 
       <div className="param-wrapper">
         <div className={"param-container"}>
-          <p className={"path-text"}>{functionName.value}</p>
+          <p className={"path-text"}>{model?.functionName?.value}</p>
         </div>
         <div className={"param-container"}>
-          <p className={"path-text"}>{params}</p>
+          <p className={"path-text"}>
+            {model?.functionSignature?.parameters
+              .filter((param) => !STKindChecker.isCommaToken(param))
+              .map((param: RequiredParam, i) => (
+                <span key={i} className={"param"}>
+                  {param.source}
+                </span>
+              ))}
+          </p>
         </div>
       </div>
       <HeaderActions

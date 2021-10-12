@@ -13,18 +13,15 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import {
-  AnyTypeDesc,
-  RequiredParam,
-  ResourceAccessorDefinition,
-  STKindChecker,
-} from "@ballerina/syntax-tree";
+import { ResourceAccessorDefinition } from "@ballerina/syntax-tree";
 import classNames from "classnames";
 
 import { useDiagramContext } from "../../../Contexts/Diagram";
 import { removeStatement } from "../../utils/modification-util";
 import { HeaderActions } from "../HeaderActions";
 
+import { ResourceOtherParams } from "./ResourceOtherParams";
+import { ResourceQueryParams } from "./ResourceQueryParams";
 import "./style.scss";
 
 interface ResourceHeaderProps {
@@ -47,74 +44,17 @@ export function ResourceHeader(props: ResourceHeaderProps) {
     modifyDiagram([modification]);
   };
 
-  const functionSignature = model.functionSignature;
-  let pathConstruct = "";
-
-  model.relativeResourcePath.forEach((resourceMember) => {
-    pathConstruct += resourceMember.source
-      ? resourceMember.source
-      : resourceMember.value;
-  });
-
-  const queryParamComponents: JSX.Element[] = [];
-  const otherParamComponents: JSX.Element[] = [];
-
-  functionSignature.parameters
-    .filter((param) => !STKindChecker.isCommaToken(param))
-    .filter(
-      (param) =>
-        STKindChecker.isRequiredParam(param) &&
-        (STKindChecker.isStringTypeDesc(param.typeName) ||
-          STKindChecker.isIntTypeDesc(param.typeName) ||
-          STKindChecker.isBooleanTypeDesc(param.typeName) ||
-          STKindChecker.isFloatTypeDesc(param.typeName) ||
-          STKindChecker.isDecimalTypeDesc(param.typeName))
-    )
-    .forEach((param: RequiredParam, i) => {
-      queryParamComponents.push(
-        <>
-          {i !== 0 ? "&" : ""}
-          {param.paramName.value}
-          <sub>{(param.typeName as AnyTypeDesc)?.name?.value}</sub>
-        </>
-      );
-    });
-
-  functionSignature.parameters
-    .filter((param) => !STKindChecker.isCommaToken(param))
-    .filter(
-      (param) =>
-        STKindChecker.isRequiredParam(param) &&
-        !(
-          STKindChecker.isStringTypeDesc(param.typeName) ||
-          STKindChecker.isIntTypeDesc(param.typeName) ||
-          STKindChecker.isBooleanTypeDesc(param.typeName) ||
-          STKindChecker.isFloatTypeDesc(param.typeName) ||
-          STKindChecker.isDecimalTypeDesc(param.typeName)
-        )
-    )
-    .forEach((param: RequiredParam, i) => {
-      otherParamComponents.push(
-        <span className={"param"}>{param.source}</span>
-      );
-    });
-
   return (
     <div className={classNames("function-signature", model.functionName.value)}>
       <div className={classNames("resource-badge", model.functionName.value)}>
         <p className={"text"}>{model.functionName.value.toUpperCase()}</p>
       </div>
       <div className="param-wrapper">
-        <div className={"param-container"}>
-          <p className={"path-text"}>
-            {pathConstruct === "." ? "/" : pathConstruct}
-            {queryParamComponents.length > 0 ? "?" : ""}
-            {queryParamComponents}
-          </p>
-        </div>
-        <div className={"param-container"}>
-          <p className={"path-text"}>{otherParamComponents}</p>
-        </div>
+        <ResourceQueryParams
+          parameters={model.functionSignature.parameters}
+          relativeResourcePath={model.relativeResourcePath}
+        />
+        <ResourceOtherParams parameters={model.functionSignature.parameters} />
       </div>
       <HeaderActions
         model={model}
