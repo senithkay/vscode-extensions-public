@@ -176,7 +176,7 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
         const children: ChildrenData = parent.getChildrenData();
         if (parent.getKind() == CMP_KIND.DEFAULT_MODULE && (children.services && children.services.length > 0
             || children.functions && children.functions.filter(f => f.name === 'main').length === 1)) {
-            components.push(new PackageTreeItem('EntryPoints', '', TreeItemCollapsibleState.Collapsed,
+            components.push(new PackageTreeItem('EntryPoints', '', TreeItemCollapsibleState.Expanded,
                 CMP_KIND.ENTRY_POINT_LABEL, parent.getFilePath(), this.extensionPath, false, parent,
                 parent.getChildrenData(), -1, -1, parent.getIsSingleFile()));
         }
@@ -306,9 +306,9 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
         projectPackage.name = projectPackage.name === '.' ?
             documentName.replace('.bal', '').split(sep).pop()!.toString() : projectPackage.name;
         if (projectPackage.name) {
-            moduleItems.push(new PackageTreeItem(projectPackage.name, '',
-                TreeItemCollapsibleState.Collapsed, CMP_KIND.DEFAULT_MODULE, fileUriToPath(projectPackage.filePath),
-                this.extensionPath, true, null, {}, -1, -1, isSingleFile));
+            moduleItems.push(new PackageTreeItem(projectPackage.name, '', TreeItemCollapsibleState.Expanded,
+                CMP_KIND.DEFAULT_MODULE, fileUriToPath(projectPackage.filePath), this.extensionPath, true, null, {},
+                -1, -1, isSingleFile));
             this.getModuleStructure(moduleItems[0], moduleItems, projectPackage.modules);
         }
         return moduleItems;

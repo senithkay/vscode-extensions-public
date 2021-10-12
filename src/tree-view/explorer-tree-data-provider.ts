@@ -42,9 +42,9 @@ export class ExplorerDataProvider implements TreeDataProvider<ExplorerTreeItem> 
             }
         });
         workspace.onDidChangeTextDocument(activatedTextEditor => {
-            ballerinaExtension.setDiagramActiveContext(false);
             if (activatedTextEditor && activatedTextEditor.document.languageId === LANGUAGE.BALLERINA ||
                 activatedTextEditor.document.fileName.endsWith(BAL_TOML)) {
+                ballerinaExtension.setDiagramActiveContext(false);
                 this.refresh();
             }
         });
