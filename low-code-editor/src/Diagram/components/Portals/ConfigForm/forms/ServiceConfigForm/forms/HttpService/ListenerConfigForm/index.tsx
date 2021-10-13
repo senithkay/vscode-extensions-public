@@ -14,16 +14,16 @@
 import React from "react";
 import { FormattedMessage } from "react-intl";
 
+import { NodePosition } from "@ballerina/syntax-tree";
 import { FormHelperText } from "@material-ui/core";
 
 import CheckBoxGroup from "../../../../../Elements/CheckBox";
 import { SelectDropdownWithButton } from "../../../../../Elements/DropDown/SelectDropdownWithButton";
+import ExpressionEditor from "../../../../../Elements/ExpressionEditor";
 import { FormTextInput } from "../../../../../Elements/TextField/FormTextInput";
+import { FormElementProps } from "../../../../../types";
 import { useStyles as useFormStyles } from "../../../../style";
 import { ListenerConfigFormState, ServiceConfigActions, ServiceConfigActionTypes } from "../util/reducer";
-import ExpressionEditor from "../../../../../Elements/ExpressionEditor";
-import { FormElementProps } from "../../../../../types";
-import { NodePosition } from "@ballerina/syntax-tree";
 
 interface ListenerConfigFormProps {
     configState: ListenerConfigFormState
@@ -62,7 +62,6 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
     }
 
     const validateField = (fieldName: string, isInvalidFromField: boolean) => {
-        console.log(isInvalidFromField);
         actionDispatch({ type: ServiceConfigActionTypes.UPDATE_INVALID_CONFIG_STATUS, payload: isInvalidFromField });
     }
 
@@ -110,11 +109,11 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
             validate: validateField,
             interactive: true,
             statementType: 'int',
-            editPosition: { 
-                startLine: targetPosition.startLine, 
-                endLine: targetPosition.startLine, 
-                startColumn: 0, 
-                endColumn: 0 
+            editPosition: {
+                startLine: targetPosition.startLine,
+                endLine: targetPosition.startLine,
+                startColumn: 0,
+                endColumn: 0
             }
         },
         onChange: onListenerPortChange,
