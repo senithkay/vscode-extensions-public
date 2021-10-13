@@ -18,7 +18,7 @@ import { VariableUserInputs } from "../../models/definitions";
 import { getExpressionTypeComponent } from "../../utils";
 import { VariableStatement } from "../Statements/VariableStatement";
 
-interface ExpressionComponentProps {
+export interface ExpressionComponentProps {
     model: STNode
     isRoot: boolean,
     userInputs?: VariableUserInputs

@@ -20,12 +20,12 @@ import { wizardStyles } from "../../../../../../ConfigForms/style";
 import { PrimaryButton } from "../../../Button/PrimaryButton";
 import { SecondaryButton } from "../../../Button/SecondaryButton";
 import { VariableUserInputs } from '../../models/definitions';
+import { InputEditorContextProvider } from "../../store/input-editor-context";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { getDefaultModel } from "../../utils";
 import { LeftPane } from '../LeftPane';
 import { RightPane } from '../RightPane';
 
-import { InputEditorContextProvider } from "../../store/input-editor-context";
 import { statementEditorStyles } from "./styles";
 
 interface ViewProps {
