@@ -22,7 +22,7 @@ export interface FormGeneratorProps {
     model?: STNode;
     targetPosition?: NodePosition;
     onCancel?: () => void;
-    onSave?: (modifications: STModification[]) => void;
+    onSave?: () => void;
     configOverlayFormStatus: ConfigOverlayFormStatus; // FixMe : There are lot of unwanted properties passed through
     // this model clean up or remove this
 }

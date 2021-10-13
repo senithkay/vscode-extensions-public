@@ -76,27 +76,22 @@ export function APIOptions(props: FormGeneratorProps) {
     } = useContext(Context);
     const { onSelect, collapsed } = props.configOverlayFormStatus.formArgs as APIOptionsProps;
     const [selectedContName, setSelectedContName] = useState("");
-    const [centralConnectors, setCentralConnectors] = useState<Connector[]>();
-    const [localConnectors, setLocalConnectors] = useState<Connector[]>();
+    const [centralConnectors, setCentralConnectors] = useState<Connector[]>([]);
+    const [localConnectors, setLocalConnectors] = useState<Connector[]>([]);
     const [showConnectorLoader, setShowConnectorLoader] = useState(true);
-
-    React.useEffect(() => {
-      if (selectedContName === "") {
-        const connectorList = getConnectorListFromCache();
-        // if (connectorList.length > 0) {
-        //     setCentralConnectors(connectorList);
-        //     setShowConnectorLoader(false);
-        //     return;
-        // }else{
-        // }
-        fetchConnectors();
-      }
-    }, [langServerURL]);
 
     const [isToggledExistingConnector, setToggledExistingConnector] = useState(true);
     const [isToggledSelectConnector, setToggledSelectConnector] = useState(true);
 
     const isExistingConnectors = stSymbolInfo.endpoints && Array.from(stSymbolInfo.endpoints).length > 0;
+
+    React.useEffect(() => {
+        fetchConnectors();
+    }, []);
+
+    let centralConnectorComponents : ReactNode[] = [];
+    let localConnectorComponents : ReactNode[] = [];
+    let existingConnectorComponents : ReactNode[] = [];
 
     const toggleExistingCon = () => {
         setToggledExistingConnector(!isToggledExistingConnector);
@@ -182,19 +177,36 @@ export function APIOptions(props: FormGeneratorProps) {
                 moduleName = value.typedBindingPattern.typeDescriptor?.modulePrefix?.value;
                 name = value.typedBindingPattern.typeDescriptor?.identifier?.value;
             }
+            const orgName = value.typedBindingPattern.bindingPattern.typeData?.typeSymbol?.moduleID?.orgName;
             if (moduleName && name) {
                 const existConnector = getConnector(moduleName, name);
                 const component: ReactNode = (
-                    <div className="existing-connect-option" key={key} onClick={onSelectExistingConnector.bind(this, existConnector, value)} data-testid={key.toLowerCase()}>
-                        <div className="existing-connector-details product-tour-add-http">
-                            <div className="existing-connector-icon">
-                                {getExistingConnectorIconSVG(`${existConnector.moduleName}_${existConnector.package.name}`)}
+                    <>
+                        { existConnector && (
+                            <div className="existing-connect-option" key={key} onClick={onSelectExistingConnector.bind(this, existConnector, value)} data-testid={key.toLowerCase()}>
+                                <div className="existing-connector-details product-tour-add-http">
+                                    <div className="existing-connector-icon">
+                                        {getExistingConnectorIconSVG(`${existConnector.moduleName}_${existConnector.package.name}`)}
+                                    </div>
+                                    <div className="existing-connector-name">
+                                        {key}
+                                    </div>
+                                </div>
                             </div>
-                            <div className="existing-connector-name">
-                                {key}
+                        ) }
+                        { !existConnector && (
+                            <div className="existing-connect-option" key={key} data-testid={key.toLowerCase()}>
+                                <div className="existing-connector-details product-tour-add-http">
+                                    <div className="existing-connector-icon">
+                                        {getExistingConnectorIconSVG(`${moduleName}_${orgName}`)}
+                                    </div>
+                                    <div className="existing-connector-name">
+                                        {key}
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
+                        ) }
+                    </>
                 );
                 componentList.push(component);
             }
@@ -203,7 +215,7 @@ export function APIOptions(props: FormGeneratorProps) {
     }
 
     const getConnector = (moduleName: string, name: string): BallerinaConnectorInfo => {
-        Array.from(centralConnectors).forEach(element => {
+        centralConnectors.forEach(element => {
             const existingConnector = element as BallerinaConnectorInfo;
             const formattedModuleName = getFormattedModuleName(existingConnector.package.name);
             if (formattedModuleName === moduleName && existingConnector.name === name) {
@@ -253,9 +265,11 @@ export function APIOptions(props: FormGeneratorProps) {
         e.stopPropagation();
     }
 
-    const centralConnectorComponents : ReactNode[]  = getConnectorComponents(centralConnectors);
-    const localConnectorComponents : ReactNode[] = getConnectorComponents(localConnectors);
-    const existingConnectorComponents: ReactNode[] = getExistingConnectorComponents();
+    if (!showConnectorLoader) {
+        centralConnectorComponents = getConnectorComponents(centralConnectors);
+        localConnectorComponents = getConnectorComponents(localConnectors);
+        existingConnectorComponents = getExistingConnectorComponents();
+    }
 
     return (
         <div onWheel={preventDiagramScrolling} className="connector-option-holder element-options no-margin" >
@@ -283,7 +297,12 @@ export function APIOptions(props: FormGeneratorProps) {
                             { isToggledExistingConnector &&
                                 (
                                     <div className="existing-connector-wrapper">
-                                        {existingConnectorComponents}
+                                        { showConnectorLoader && (
+                                            <div className="full-wrapper center-wrapper">
+                                                <CirclePreloader position="relative" />
+                                            </div>
+                                        ) }
+                                        {!showConnectorLoader && existingConnectorComponents}
                                     </div>
                                 )
                             }

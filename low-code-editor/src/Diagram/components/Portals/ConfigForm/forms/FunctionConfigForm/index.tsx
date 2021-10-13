@@ -40,7 +40,7 @@ interface FunctionConfigFormProps {
   model?: STNode;
   targetPosition?: NodePosition;
   onCancel: () => void;
-  onSave: (modifications: STModification[]) => void;
+  onSave: () => void;
 }
 
 export function FunctionConfigForm(props: FunctionConfigFormProps) {
@@ -53,6 +53,9 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
   const [addingNewReturnType, setAddingNewReturnType] = useState(false);
   const {
     props: { syntaxTree },
+    api: {
+      code: { modifyDiagram }
+    }
   } = useDiagramContext();
   const existingFunctionNames = (syntaxTree as any).members.map(
     (member: any) => member.functionName.value
@@ -80,7 +83,8 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
       returnTypeStr,
       { startLine: targetPosition.startLine, startColumn: 0 }
     );
-    onSave([modification]);
+    modifyDiagram([modification])
+    onSave();
   };
 
   return (

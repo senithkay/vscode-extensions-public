@@ -488,7 +488,7 @@ export function createCheckedPayloadFunctionInvocation(variable: string, type: s
 }
 
 export function createServiceDeclartion(config: HTTPServiceConfigState, targetPosition: NodePosition): STModification {
-    const { serviceBasePath, listenerConfig: { formVar, listenerName, listenerPort }, createNewListener } = config;
+    const { serviceBasePath, listenerConfig: { fromVar, listenerName, listenerPort, createNewListener } } = config;
 
     const modification: STModification = {
         startLine: targetPosition.startLine,
@@ -498,7 +498,7 @@ export function createServiceDeclartion(config: HTTPServiceConfigState, targetPo
         type: ''
     };
 
-    if (createNewListener && formVar) {
+    if (createNewListener && fromVar) {
         return {
             ...modification,
             type: 'SERVICE_AND_LISTENER_DECLARATION',
@@ -508,7 +508,7 @@ export function createServiceDeclartion(config: HTTPServiceConfigState, targetPo
                 'BASE_PATH': serviceBasePath,
             }
         }
-    } else if (createNewListener && !formVar) {
+    } else if (!fromVar) {
         return {
             ...modification,
             type: 'SERVICE_DECLARATION_WITH_NEW_INLINE_LISTENER',
@@ -522,6 +522,46 @@ export function createServiceDeclartion(config: HTTPServiceConfigState, targetPo
         return {
             ...modification,
             type: 'SERVICE_DECLARATION_WITH_SHARED_LISTENER',
+            config: {
+                'LISTENER_NAME': listenerName,
+                'BASE_PATH': serviceBasePath,
+            }
+        }
+    }
+}
+
+export function updateServiceDeclartion(config: HTTPServiceConfigState, targetPosition: NodePosition): STModification {
+    const { serviceBasePath, listenerConfig: { fromVar, listenerName, listenerPort, createNewListener } } = config;
+
+    const modification: STModification = {
+        ...targetPosition,
+        type: ''
+    };
+
+    if (createNewListener && fromVar) {
+        return {
+            ...modification,
+            type: 'SERVICE_WITH_LISTENER_DECLARATION_UPDATE',
+            config: {
+                'LISTENER_NAME': listenerName,
+                'PORT': listenerPort,
+                'BASE_PATH': serviceBasePath,
+            }
+        }
+    } else if (!fromVar) {
+        return {
+            ...modification,
+            type: 'SERVICE_DECLARATION_WITH_INLINE_LISTENER_UPDATE',
+            config: {
+                'PORT': listenerPort,
+                'BASE_PATH': serviceBasePath,
+            }
+        }
+
+    } else {
+        return {
+            ...modification,
+            type: 'SERVICE_DECLARATION_WITH_SHARED_LISTENER_UPDATE',
             config: {
                 'LISTENER_NAME': listenerName,
                 'BASE_PATH': serviceBasePath,

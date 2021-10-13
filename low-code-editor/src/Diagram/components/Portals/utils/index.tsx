@@ -645,6 +645,10 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
     let functionDefInfo: Map<string, FunctionDefinitionInfo> = new Map();
     const connectorConfig = new ConnectorConfig();
 
+    if ((connector as BallerinaConnectorInfo).functions?.length > 0){
+        cachedConnector = connector as BallerinaConnectorInfo;
+    }
+
     if (!cachedConnector) {
         // generate form fields form connector syntax tree
         const langClient: DiagramEditorLangClientInterface = await getDiagramEditorLangClient(langServerURL);
