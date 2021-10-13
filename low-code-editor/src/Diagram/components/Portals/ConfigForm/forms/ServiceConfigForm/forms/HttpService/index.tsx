@@ -89,7 +89,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         onSave();
     }
 
-    const saveBtnDisabled = !isServiceConfigValid(state) && state.hasInvalidConfig;
+    const saveBtnDisabled = !isServiceConfigValid(state) || state.hasInvalidConfig;
 
     return (
         <>

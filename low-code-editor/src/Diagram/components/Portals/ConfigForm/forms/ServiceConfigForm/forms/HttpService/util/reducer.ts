@@ -59,6 +59,8 @@ export function serviceConfigReducer(
                 listenerConfig: {
                     ...state.listenerConfig,
                     createNewListener: true,
+                    listenerName: '',
+                    listenerPort: ''
                 },
                 hasInvalidConfig: true
             };
