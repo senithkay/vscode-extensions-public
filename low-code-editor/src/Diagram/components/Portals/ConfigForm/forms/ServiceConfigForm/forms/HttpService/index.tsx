@@ -20,22 +20,19 @@ import classNames from "classnames";
 
 import { PrimaryButton } from "../../../../../../../../components/Buttons/PrimaryButton";
 import { useDiagramContext } from "../../../../../../../../Contexts/Diagram";
-import { STModification } from "../../../../../../../../Definitions";
 import { isServicePathValid } from "../../../../../../../../utils/validator";
 import { createImportStatement, createServiceDeclartion, updateServiceDeclartion } from "../../../../../../../utils/modification-util";
-import { DraftUpdatePosition } from "../../../../../../../view-state/draft";
 import { SecondaryButton } from "../../../../Elements/Button/SecondaryButton";
-import { SelectDropdownWithButton } from "../../../../Elements/DropDown/SelectDropdownWithButton";
 import { FormTextInput } from "../../../../Elements/TextField/FormTextInput";
 import { useStyles as useFormStyles } from "../../../style";
 
 import { ListenerConfigForm } from "./ListenerConfigForm";
 import { getFormStateFromST, isServiceConfigValid } from "./util";
-import { HTTPServiceConfigState, ServiceConfigActionTypes, serviceConfigReducer } from "./util/reducer";
+import { ServiceConfigActionTypes, serviceConfigReducer } from "./util/reducer";
 
 interface HttpServiceFormProps {
     model?: ServiceDeclaration;
-    targetPosition?: DraftUpdatePosition;
+    targetPosition?: NodePosition;
     onCancel: () => void;
     onSave: () => void;
 }
@@ -84,7 +81,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
             ]);
         } else {
             modifyDiagram([
-                createImportStatement('ballerina', 'http', { column: 0, line: 0 }),
+                createImportStatement('ballerina', 'http', { startColumn: 0, startLine: 0 }),
                 createServiceDeclartion(state, targetPosition)
             ]);
         }

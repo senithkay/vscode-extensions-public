@@ -10,13 +10,14 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { DraftUpdatePosition } from "../../../view-state/draft";
+import { NodePosition } from "@ballerina/syntax-tree";
+
 import { JsonFieldTypes } from "../components/forms/DraftFieldForm";
 
 import { DataMapperViewState } from ".";
 
 export class DraftFieldViewstate extends DataMapperViewState {
-    public draftInsertPosition: DraftUpdatePosition;
+    public NodePosition: NodePosition;
     public precededByComma: boolean;
     public fieldType: JsonFieldTypes;
 }

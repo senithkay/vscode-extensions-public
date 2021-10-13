@@ -63,7 +63,6 @@ export { visitor as positionVisitor } from "./Diagram/visitors/positioning-visit
 export { visitor as sizingVisitor } from "./Diagram/visitors/sizing-visitor";
 export { cleanLocalSymbols, cleanModuleLevelSymbols, getSymbolInfo, visitor as SymbolVisitor } from "./Diagram/visitors/symbol-finder-visitor";
 export { BlockViewState } from './Diagram/view-state';
-export { DraftInsertPosition } from './Diagram/view-state/draft';
 export { ConfigPanel, CONFIG_PANEL_PORTAL_DIV_ID } from "./Diagram/components/ConfigPanel";
 export { getTriggerSource, getSampleSource } from "./Diagram/utils/template-utils";
 export { InsertorDelete, createPropertyStatement } from "./Diagram/utils/modification-util";

@@ -13,6 +13,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext } from "react";
 
+import { NodePosition } from "@ballerina/syntax-tree";
+
 import { ConnectorConfig, FormField, WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from "../../../../../../Contexts/Diagram";
 import { Connector, STModification } from "../../../../../../Definitions/lang-client-extended";
@@ -21,7 +23,6 @@ import {
     createImportStatement,
     createObjectDeclaration
 } from "../../../../../utils/modification-util";
-import { DraftInsertPosition } from "../../../../../view-state/draft";
 import { getConnectorComponent, getParams } from "../../../utils";
 
 import { Wizard } from "./Wizard";
@@ -32,7 +33,7 @@ import { Wizard } from "./Wizard";
 export interface ConnectorInitFormProps {
     connector: Connector;
     typeDef: any;
-    targetPosition: DraftInsertPosition;
+    targetPosition: NodePosition;
     wizardType: WizardType;
     fieldsForFunctions: Map<string, FormField[]>;
     config?: ConnectorConfig;

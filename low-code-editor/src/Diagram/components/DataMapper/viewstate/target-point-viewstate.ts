@@ -11,12 +11,12 @@
  * associated services.
  */
 
-import { DraftUpdatePosition } from "../../../view-state/draft";
+import { NodePosition } from "@ballerina/syntax-tree";
 
 import { DataMapperViewState } from "./data-mapper-viewstate";
 
 export class TargetPointViewState extends DataMapperViewState {
-    public position: DraftUpdatePosition;
+    public position: NodePosition;
     public value: string;
     public type: string;
     public unionType: string;

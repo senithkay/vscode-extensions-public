@@ -13,6 +13,7 @@
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline object-literal-shorthand align
 import React, { useState } from "react";
 
+import { NodePosition } from "@ballerina/syntax-tree";
 import { ClickAwayListener } from "@material-ui/core";
 
 import ClassIcon from "../../../../assets/icons/ClassIcon";
@@ -20,7 +21,6 @@ import ConstantIcon from "../../../../assets/icons/ConstantIcon";
 import ListenerIcon from "../../../../assets/icons/ListenerIcon";
 import ServiceIcon from "../../../../assets/icons/ServiceIcon";
 import VariableIcon from "../../../../assets/icons/VariableIcon";
-import { DraftInsertPosition } from "../../../view-state/draft";
 import { Margin } from "../index";
 import { RecordPlusOption } from "../RecordPlusOption";
 
@@ -29,7 +29,7 @@ import "./style.scss";
 export interface ModuleLevelPlusOptionsProps {
     margin?: Margin;
     onClose: () => void;
-    targetPosition: DraftInsertPosition;
+    targetPosition: NodePosition;
 }
 
 export const ModuleLevelPlusOptions = (props: ModuleLevelPlusOptionsProps) => {
