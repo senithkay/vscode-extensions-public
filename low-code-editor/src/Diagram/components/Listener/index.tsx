@@ -34,10 +34,19 @@ export interface ListenerProps {
 
 export function ListenerC(props: ListenerProps) {
     const { model } = props;
-    const { props: { stSymbolInfo }, api: { code: { modifyDiagram } } } = useContext(DiagramContext);
+    const {
+        props: {
+            stSymbolInfo
+        },
+        api: {
+            code: {
+                modifyDiagram
+            }
+        }
+    } = useContext(DiagramContext);
 
     const [isEditable, setIsEditable] = useState(false);
-    const [isEditBtnClicked, setIsEditBtnClicked] = useState(false);
+    const [editingEnabled, setEditingEnabled] = useState(false);
 
     const listenerModel: ListenerDeclaration = model as ListenerDeclaration;
     const listenerName = listenerModel.variableName.value;
@@ -61,11 +70,11 @@ export function ListenerC(props: ListenerProps) {
     }
 
     const handleEditBtnClick = () => {
-        setIsEditBtnClicked(true);
+        setEditingEnabled(true);
     }
 
     const handleEditBtnCancel = () => {
-        setIsEditBtnClicked(false);
+        setEditingEnabled(false);
     }
 
     return (
@@ -93,7 +102,7 @@ export function ListenerC(props: ListenerProps) {
                             </div>
                         </div>
                     )}
-                    {isEditBtnClicked && (
+                    {editingEnabled && (
                         <FormGenerator
                             model={model}
                             configOverlayFormStatus={{ formType: model.kind, isLoading: false }}

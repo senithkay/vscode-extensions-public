@@ -531,16 +531,23 @@ export function createServiceDeclartion(config: HTTPServiceConfigState, targetPo
     }
 }
 
-export function createListenerDeclartion(config: ListenerConfig, targetPosition: NodePosition): STModification {
+export function createListenerDeclartion(config: ListenerConfig, targetPosition: NodePosition, isNew: boolean): STModification {
     const { listenerName, listenerPort } = config;
-
-    const modification: STModification = {
-        startLine: targetPosition.startLine,
-        endLine: targetPosition.startLine,
-        startColumn: 0,
-        endColumn: 0,
-        type: ''
-    };
+    let modification: STModification;
+    if (isNew) {
+        modification = {
+            startLine: targetPosition.startLine,
+            endLine: targetPosition.startLine,
+            startColumn: 0,
+            endColumn: 0,
+            type: ''
+        };
+    } else {
+        modification = {
+            ...targetPosition,
+            type: ''
+        };
+    }
 
     return {
         ...modification,
@@ -552,23 +559,6 @@ export function createListenerDeclartion(config: ListenerConfig, targetPosition:
     }
 }
 
-export function updateListenerDeclartion(config: ListenerConfig, targetPosition: NodePosition): STModification {
-    const { listenerName, listenerPort } = config;
-
-    const modification: STModification = {
-        ...targetPosition,
-        type: ''
-    };
-
-    return {
-        ...modification,
-        type: 'LISTENER_DECLARATION_UPDATE',
-        config: {
-            'LISTENER_NAME': listenerName,
-            'PORT': listenerPort
-        }
-    }
-}
 export function updateServiceDeclartion(config: HTTPServiceConfigState, targetPosition: NodePosition): STModification {
     const { serviceBasePath, listenerConfig: { fromVar, listenerName, listenerPort, createNewListener } } = config;
 

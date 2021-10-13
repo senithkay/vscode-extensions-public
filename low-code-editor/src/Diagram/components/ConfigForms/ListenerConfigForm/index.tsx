@@ -20,7 +20,7 @@ import { ListenerFormIcon } from "../../../../assets/icons";
 import { PrimaryButton } from "../../../../components/Buttons/PrimaryButton";
 import { useDiagramContext } from "../../../../Contexts/Diagram";
 import { STModification } from "../../../../Definitions";
-import { createImportStatement, createListenerDeclartion, updateListenerDeclartion } from "../../../utils/modification-util";
+import { createImportStatement, createListenerDeclartion } from "../../../utils/modification-util";
 import { SecondaryButton } from "../../Portals/ConfigForm/Elements/Button/SecondaryButton";
 import { SelectDropdownWithButton } from "../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
 import { FormTextInput } from "../../Portals/ConfigForm/Elements/TextField/FormTextInput";
@@ -36,17 +36,12 @@ interface ListenerConfigFormProps {
     onSave: () => void;
 }
 
-let defaultState: ListenerConfig = {
-    listenerName: '',
-    listenerPort: '',
-    listenerType: 'HTTP'
-}
-
 // FixMe: show validation messages to listenerName and listenerPort
 export function ListenerConfigForm(props: ListenerConfigFormProps) {
     const formClasses = useStyles();
     const { model, targetPosition, onCancel, onSave } = props;
     const { api: { code: { modifyDiagram } } } = useDiagramContext();
+    let defaultState: ListenerConfig;
 
     if (model && STKindChecker.isListenerDeclaration(model)) {
         defaultState = {
@@ -54,9 +49,15 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
             listenerPort: model.initializer.parenthesizedArgList.arguments[0].source,
             listenerType: model.typeDescriptor.modulePrefix.value.toUpperCase()
         };
+    } else {
+        defaultState = {
+            listenerName: '',
+            listenerPort: '',
+            listenerType: 'HTTP'
+        }
     }
 
-    const [config, setCofig] = useState(defaultState);
+    const [config, setCofig] = useState<ListenerConfig>(defaultState);
     const saveBtnEnabled = isListenerConfigValid(config);
 
     const onListenerNameChange = (listenerName: string) => {
@@ -76,7 +77,9 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
     }
 
     const handleOnSave = () => {
+        let isNewListener: boolean;
         if (model) {
+            isNewListener = false;
             const modelPosition = model.position as NodePosition;
             const updatePosition = {
                 startLine: modelPosition.startLine,
@@ -86,15 +89,17 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
             };
 
             modifyDiagram([
-                updateListenerDeclartion(
+                createListenerDeclartion(
                     config,
-                    updatePosition
+                    updatePosition,
+                    isNewListener
                 )
             ]);
         } else {
+            isNewListener = true;
             modifyDiagram([
                 createImportStatement('ballerina', 'http', { startColumn: 0, startLine: 0 }),
-                createListenerDeclartion(config, targetPosition)
+                createListenerDeclartion(config, targetPosition, isNewListener)
             ]);
         }
         onSave();
@@ -122,7 +127,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                         </FormHelperText>
                     </div>
                     <SelectDropdownWithButton
-                        customProps={{values: ['HTTP'], disableCreateNew: true }}
+                        customProps={{ values: ['HTTP'], disableCreateNew: true }}
                         defaultValue={config.listenerType}
                         placeholder="Select Type"
                     />
