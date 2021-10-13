@@ -20,7 +20,7 @@ import {
   STKindChecker,
 } from "@ballerina/syntax-tree";
 
-import ServiceIcon from "../../../assets/icons/ServiceIcon";
+import { ServiceIconLight } from "../../../assets/icons/ServiceIcon";
 import { Context as DiagramContext } from "../../../Contexts/Diagram";
 import { removeStatement } from "../../utils/modification-util";
 import { HeaderActions } from "../HeaderActions";
@@ -93,7 +93,7 @@ export function ServiceHeader(props: ServiceHeaderProps) {
     <div className={"service-header"}>
       <div className={"header-segement-container"}>
         <div className={"header-segment"}>
-          <ServiceIcon color={"#CBCEDB"} />
+          <ServiceIconLight />
         </div>
         <div className={"header-segment"}>{serviceType}</div>
         <div className={"header-segment-path"}>{servicePath}</div>
