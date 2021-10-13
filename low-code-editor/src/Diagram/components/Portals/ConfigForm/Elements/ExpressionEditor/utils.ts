@@ -17,9 +17,6 @@ import { ExpEditorExpandSvg, ExpEditorCollapseSvg } from "../../../../../../asse
 
 import * as monaco from 'monaco-editor';
 
-import { ExpressionEditorState } from '../../../../../../Definitions';
-import { DraftUpdatePosition } from '../../../../../view-state/draft';
-
 import {
     FormField,
     NonPrimitiveBal,
@@ -80,7 +77,7 @@ export function getCurrentSyntaxTree(state: any): STNode {
     return state?.syntaxTree
 }
 
-export function getTargetPosition(targetPosition: any, syntaxTree: any): DraftUpdatePosition {
+export function getTargetPosition(targetPosition: any, syntaxTree: any): NodePosition {
     if (targetPosition?.line) {
         return {
             startLine: targetPosition?.line,

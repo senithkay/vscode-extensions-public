@@ -483,19 +483,7 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
             break;
         case 'ballerinax_sfdc_Client':
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
-                if (key === INIT) {
-                    // TODO: update this tooltip assignment with source code documentation values
-                    value.parameters.find(fields => fields.name === "salesforceConfig").fields.
-                        find(fields => fields.name === CLIENT_CONFIG).fields.
-                            find(fields => fields.typeInfo?.name === "OAuth2RefreshTokenGrantConfig").fields.forEach(subFields => {
-                                if (subFields.name === "refreshUrl") subFields.tooltip = tooltipMessages.salesforce.refreshTokenURL;
-                                if (subFields.name === "refreshToken") subFields.tooltip = tooltipMessages.salesforce.refreshToken;
-                                if (subFields.name === "clientId") subFields.tooltip = tooltipMessages.salesforce.clientID;
-                                if (subFields.name === "clientSecret") subFields.tooltip = tooltipMessages.salesforce.clientSecret;
-                    });
-                    value.parameters.find(fields => fields.name === "salesforceConfig").fields.
-                        find(fields => fields.name === "baseUrl").tooltip = tooltipMessages.salesforce.baseURL;
-                } else if (key === "createJob") {
+                if (key === "createJob") {
                     value.parameters.forEach(field => {
                         if (field.name === "operation"){
                             // HACK: use hardcoded FormFields until ENUM fix from lang-server

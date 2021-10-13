@@ -1,5 +1,7 @@
 import React from "react";
 
+import { NodePosition } from "@ballerina/syntax-tree";
+
 import * as stComponents from '../components';
 import { ActionProcessor } from "../components/ActionInvocation/ActionProcess";
 import { ConnectorProcess } from "../components/Connector/ConnectorProcess";
@@ -9,7 +11,7 @@ import { DataProcessor } from "../components/Processor";
 import { Respond } from "../components/Respond";
 import { Statement } from "../components/Statement";
 import { BlockViewState } from "../view-state";
-import { DraftInsertPosition, DraftStatementViewState } from "../view-state/draft";
+import { DraftStatementViewState } from "../view-state/draft";
 
 export function getSTComponents(nodeArray: any): React.ReactNode[] {
     // Convert to array
@@ -38,11 +40,11 @@ export function getSTComponent(node: any): React.ReactElement {
     return <ChildComp model={node} />;
 }
 
-export function getDraftComponent(viewState: BlockViewState, state: any, insertComponentStart: (position: DraftInsertPosition) => void): React.ReactNode[] {
+export function getDraftComponent(viewState: BlockViewState, state: any, insertComponentStart: (position: NodePosition) => void): React.ReactNode[] {
 
-    const targetPosition: DraftInsertPosition = viewState.draft[1]?.targetPosition;
+    const targetPosition: NodePosition = viewState.draft[1]?.targetPosition;
     if (targetPosition &&
-        (targetPosition.column !== state.targetPosition?.column || targetPosition.line !== state.targetPosition?.line)) {
+        (targetPosition.startColumn !== state.targetPosition?.startColumn || targetPosition.startLine !== state.targetPosition?.startLine)) {
         insertComponentStart(targetPosition);
     }
     const draft: [number, DraftStatementViewState] = viewState.draft;

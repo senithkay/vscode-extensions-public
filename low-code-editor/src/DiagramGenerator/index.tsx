@@ -1,13 +1,13 @@
 import * as React from "react";
 import { IntlProvider } from "react-intl";
 
-import { FunctionDefinition, ModulePart, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { FunctionDefinition, ModulePart, NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import Grid from "@material-ui/core/Grid";
 import { MuiThemeProvider } from "@material-ui/core/styles";
 import { StringValueNode } from "graphql";
 import cloneDeep from "lodash.clonedeep";
 
-import LowCodeEditor, { BlockViewState, DraftInsertPosition, getSymbolInfo, InsertorDelete } from "..";
+import LowCodeEditor, { BlockViewState, getSymbolInfo, InsertorDelete } from "..";
 import { AiSuggestionsReq, ModelCodePosition, OauthProviderConfig } from "../api/models";
 import "../assets/fonts/Glimer/glimer.css";
 import { WizardType } from "../ConfigurationSpec/types";
@@ -248,7 +248,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                     zoomOut
                                 },
                                 configPanel: {
-                                    dispactchConfigOverlayForm: (type: string, targetPosition: DraftInsertPosition,
+                                    dispactchConfigOverlayForm: (type: string, targetPosition: NodePosition,
                                                                  wizardType: WizardType, blockViewState?: BlockViewState, config?: ConditionConfig,
                                                                  symbolInfo?: STSymbolInfo, model?: STNode) => undefined,
                                     closeConfigOverlayForm: () => undefined,

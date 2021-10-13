@@ -14,6 +14,8 @@
 // tslint:disable: jsx-wrap-multiline
 import React, { useContext } from "react";
 
+import { NodePosition } from "@ballerina/syntax-tree";
+
 import { WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
 import { STModification } from "../../../../../../Definitions/lang-client-extended";
@@ -22,14 +24,13 @@ import {
     createIfStatement, updateForEachCondition,
     updateIfStatementCondition
 } from "../../../../../utils/modification-util";
-import { DraftInsertPosition } from "../../../../../view-state/draft";
 import { ConditionConfig, ForeachConfig } from "../../types";
 
 import { Wizard } from "./Wizard";
 
 export interface ConditionFormProps {
     type: string;
-    targetPosition: DraftInsertPosition;
+    targetPosition: NodePosition;
     wizardType: WizardType;
     config?: ConditionConfig;
     scopeSymbols?: string[];

@@ -1,5 +1,5 @@
 
-import { FunctionDefinition, STKindChecker, STNode, traversNode } from "@ballerina/syntax-tree";
+import { FunctionDefinition, NodePosition, STKindChecker, STNode, traversNode } from "@ballerina/syntax-tree";
 
 import { WizardType } from "../../ConfigurationSpec/types";
 import { ConfigOverlayFormStatus, ConfigPanelStatus, DiagramSize, STSymbolInfo } from "../../Definitions";
@@ -7,7 +7,6 @@ import { SelectedPosition } from "../../types";
 import { ConditionConfig } from "../components/Portals/ConfigForm/types";
 import { getVaribaleNamesFromVariableDefList } from "../components/Portals/utils";
 import { BlockViewState, FunctionViewState } from "../view-state";
-import { DraftInsertPosition } from "../view-state/draft";
 import { visitor as initVisitor } from "../visitors/init-visitor";
 import { visitor as positionVisitor } from "../visitors/positioning-visitor";
 import { visitor as sizingVisitor } from "../visitors/sizing-visitor";
@@ -47,7 +46,7 @@ export function recalculateSizingAndPositioning(st: STNode): STNode {
 
 export function getOverlayFormConfig(
     type: string,
-    targetPosition: DraftInsertPosition,
+    targetPosition: NodePosition,
     wizardType: WizardType,
     blockViewState?: BlockViewState,
     config?: ConditionConfig,
@@ -102,7 +101,7 @@ export function getOverlayFormConfig(
 
 export function getConditionConfig(
     type: string,
-    targetPosition: DraftInsertPosition,
+    targetPosition: NodePosition,
     wizardType: WizardType,
     blockViewState?: BlockViewState,
     config?: ConditionConfig,

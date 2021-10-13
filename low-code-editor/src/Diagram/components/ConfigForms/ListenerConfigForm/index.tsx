@@ -21,7 +21,6 @@ import { PrimaryButton } from "../../../../components/Buttons/PrimaryButton";
 import { useDiagramContext } from "../../../../Contexts/Diagram";
 import { STModification } from "../../../../Definitions";
 import { createImportStatement, createListenerDeclartion, updateListenerDeclartion } from "../../../utils/modification-util";
-import { DraftUpdatePosition } from "../../../view-state/draft";
 import { SecondaryButton } from "../../Portals/ConfigForm/Elements/Button/SecondaryButton";
 import { SelectDropdownWithButton } from "../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
 import { FormTextInput } from "../../Portals/ConfigForm/Elements/TextField/FormTextInput";
@@ -32,7 +31,7 @@ import { ListenerConfig } from "./util/types";
 
 interface ListenerConfigFormProps {
     model?: ListenerDeclaration;
-    targetPosition?: DraftUpdatePosition;
+    targetPosition?: NodePosition;
     onCancel: () => void;
     onSave: () => void;
 }
@@ -92,14 +91,13 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                     updatePosition
                 )
             ]);
-            onSave();
         } else {
             modifyDiagram([
-                createImportStatement('ballerina', 'http', { column: 0, line: 0 }),
+                createImportStatement('ballerina', 'http', { startColumn: 0, startLine: 0 }),
                 createListenerDeclartion(config, targetPosition)
             ]);
-            onSave();
         }
+        onSave();
     }
 
     return (

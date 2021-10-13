@@ -15,6 +15,7 @@ import {
     AssignmentStatement,
     FieldAccess,
     LocalVarDecl,
+    NodePosition,
     OptionalFieldAccess,
     SimpleNameReference,
     SpecificField,
@@ -22,7 +23,6 @@ import {
     Visitor
 } from "@ballerina/syntax-tree";
 
-import { DraftUpdatePosition } from "../../../view-state/draft";
 import { ConnectionViewState, FieldViewState, SourcePointViewState, TargetPointViewState } from "../viewstate";
 
 
@@ -380,7 +380,7 @@ export class DataMapperMappingVisitor implements Visitor {
         return name;
     }
 
-    _generateConnection(reference: string, targetName: string, position: DraftUpdatePosition): ConnectionViewState {
+    _generateConnection(reference: string, targetName: string, position: NodePosition): ConnectionViewState {
         const sourcePointVS = this.sourcePoints.get(reference);
         const targetPointVS = this.targetPoints.get(targetName);
 

@@ -15,13 +15,12 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useRef, useState } from 'react';
 
-import { STNode } from "@ballerina/syntax-tree";
+import { NodePosition, STNode } from "@ballerina/syntax-tree";
 import classNames from 'classnames';
 
 import Tooltip from '../../../../../../components/Tooltip';
 import { PrimitiveBalType } from '../../../../../../ConfigurationSpec/types';
 import { removeStatement } from '../../../../../../Diagram/utils/modification-util';
-import { DraftUpdatePosition } from '../../../../../../Diagram/view-state/draft';
 import { DefaultConfig } from '../../../../../../Diagram/visitors/default';
 import { DeleteSVG } from '../../../../DiagramActions/DeleteBtn/DeleteSVG';
 import { Context as DataMapperContext } from '../../../context/DataMapperViewContext';
@@ -39,7 +38,7 @@ interface ValueTypeProps {
     offSetCorrection: number;
     removeInputType?: (model: STNode) => void;
     isJsonField?: boolean;
-    commaPosition?: DraftUpdatePosition;
+    commaPosition?: NodePosition;
     isLastField?: boolean;
 }
 
@@ -107,7 +106,7 @@ export function ValueType(props: ValueTypeProps) {
     const handleJsonFieldDelete = (evt: any) => {
         const modifications = []
         if (isLastField) {
-            const draftUpdatePosition: DraftUpdatePosition = {
+            const draftUpdatePosition: NodePosition = {
                 startLine: commaPosition ? commaPosition.startLine : model.position?.startLine,
                 endLine: model.position?.endLine,
                 startColumn: commaPosition ? commaPosition.startColumn : model.position?.startColumn,
@@ -118,7 +117,7 @@ export function ValueType(props: ValueTypeProps) {
 
         } else {
 
-            const draftUpdatePosition: DraftUpdatePosition = {
+            const draftUpdatePosition: NodePosition = {
                 startLine: model.position?.startLine,
                 endLine: commaPosition ? commaPosition.endLine : model.position?.endLine,
                 startColumn: model.position?.startColumn,

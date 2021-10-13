@@ -12,9 +12,9 @@
  */
 import React from "react";
 
+import { NodePosition } from "@ballerina/syntax-tree";
 import { ClickAwayListener } from "@material-ui/core";
 
-import { DraftInsertPosition, DraftUpdatePosition } from "../../../view-state/draft";
 import { getConstructIcon } from "../../Portals/utils";
 import { PlusMenuEntry } from "../PlusOptionsSelector";
 
@@ -24,7 +24,7 @@ interface PlusOptionRendererProps {
     entries: PlusMenuEntry[];
     onClose: () => void;
     onOptionSelect: (entry: PlusMenuEntry) => void;
-    targetPosition: DraftUpdatePosition;
+    targetPosition: NodePosition;
 }
 
 export function PlusOptionRenderer(props: PlusOptionRendererProps) {

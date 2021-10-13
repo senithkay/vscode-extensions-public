@@ -10,6 +10,8 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { NodePosition } from "@ballerina/syntax-tree";
+
 import { DraftUpdateStatement } from "../../api/models";
 import { FormField } from "../../ConfigurationSpec/types";
 import { STModification } from "../../Definitions/lang-client-extended";
@@ -17,15 +19,15 @@ import { ListenerConfig } from "../components/ConfigForms/ListenerConfigForm/uti
 import { HeaderObjectConfig } from "../components/ConnectorExtensions/HTTPWizard/HTTPHeaders";
 import { HTTPServiceConfigState } from "../components/Portals/ConfigForm/forms/ServiceConfigForm/forms/HttpService/util/reducer";
 import { getFormattedModuleName, getParams } from "../components/Portals/utils";
-import { DraftInsertPosition, DraftUpdatePosition } from "../view-state/draft";
+
 /* tslint:disable ordered-imports */
 import { getInsertComponentSource } from "./template-utils";
 
-export function createIfStatement(conditionExpression: string, targetPosition: DraftInsertPosition): STModification {
+export function createIfStatement(conditionExpression: string, targetPosition: NodePosition): STModification {
     const ifStatement: STModification = {
-        startLine: targetPosition.line,
+        startLine: targetPosition.startLine,
         startColumn: 0,
-        endLine: targetPosition.line,
+        endLine: targetPosition.startLine,
         endColumn: 0,
         type: "IF_STATEMENT",
         config: {
@@ -36,7 +38,7 @@ export function createIfStatement(conditionExpression: string, targetPosition: D
     return ifStatement;
 }
 
-export function updateIfStatementCondition(conditionExpression: string, targetPosition: DraftUpdatePosition): STModification {
+export function updateIfStatementCondition(conditionExpression: string, targetPosition: NodePosition): STModification {
     const updatedIfStatement: STModification = {
         startLine: targetPosition.startLine,
         startColumn: targetPosition.startColumn,
@@ -51,11 +53,11 @@ export function updateIfStatementCondition(conditionExpression: string, targetPo
     return updatedIfStatement;
 }
 
-export function createForeachStatement(collection: string, variableName: string, targetPosition: DraftInsertPosition): STModification {
+export function createForeachStatement(collection: string, variableName: string, targetPosition: NodePosition): STModification {
     const foreachStatement: STModification = {
-        startLine: targetPosition.line,
+        startLine: targetPosition.startLine,
         startColumn: 0,
-        endLine: targetPosition.line,
+        endLine: targetPosition.startLine,
         endColumn: 0,
         type: "FOREACH_STATEMENT",
         config: {
@@ -68,7 +70,7 @@ export function createForeachStatement(collection: string, variableName: string,
     return foreachStatement;
 }
 
-export function updateForEachCondition(collection: string, variableName: string, targetPosition: DraftUpdatePosition): STModification {
+export function updateForEachCondition(collection: string, variableName: string, targetPosition: NodePosition): STModification {
     const foreachStatement: STModification = {
         startLine: targetPosition.startLine,
         startColumn: targetPosition.startColumn,
@@ -84,11 +86,11 @@ export function updateForEachCondition(collection: string, variableName: string,
     return foreachStatement;
 }
 
-export function createWhileStatement(conditionExpression: string, targetPosition: DraftInsertPosition): STModification {
+export function createWhileStatement(conditionExpression: string, targetPosition: NodePosition): STModification {
     const ifStatement: STModification = {
-        startLine: targetPosition.line,
+        startLine: targetPosition.startLine,
         startColumn: 0,
-        endLine: targetPosition.line,
+        endLine: targetPosition.startLine,
         endColumn: 0,
         type: "WHILE_STATEMENT",
         config: {
@@ -99,7 +101,7 @@ export function createWhileStatement(conditionExpression: string, targetPosition
     return ifStatement;
 }
 
-export function updateWhileStatementCondition(conditionExpression: string, targetPosition: DraftUpdatePosition): STModification {
+export function updateWhileStatementCondition(conditionExpression: string, targetPosition: NodePosition): STModification {
     const updatedIfStatement: STModification = {
         startLine: targetPosition.startLine,
         startColumn: targetPosition.startColumn,
@@ -114,11 +116,11 @@ export function updateWhileStatementCondition(conditionExpression: string, targe
     return updatedIfStatement;
 }
 
-export function createPropertyStatement(property: string, targetPosition: DraftInsertPosition): STModification {
+export function createPropertyStatement(property: string, targetPosition: NodePosition): STModification {
     const propertyStatement: STModification = {
-        startLine: targetPosition.line,
+        startLine: targetPosition.startLine,
         startColumn: 0,
-        endLine: targetPosition.line,
+        endLine: targetPosition.startLine,
         endColumn: 0,
         type: "PROPERTY_STATEMENT",
         config: {
@@ -129,7 +131,7 @@ export function createPropertyStatement(property: string, targetPosition: DraftI
     return propertyStatement;
 }
 
-export function updatePropertyStatement(property: string, targetPosition: DraftUpdatePosition): STModification {
+export function updatePropertyStatement(property: string, targetPosition: NodePosition): STModification {
     const propertyStatement: STModification = {
         startLine: targetPosition.startLine,
         startColumn: targetPosition.startColumn,
@@ -167,11 +169,11 @@ export function updateResourceSignature(method: string, path: string, queryParam
     return resourceSignature;
 }
 
-export function createLogStatement(type: string, logExpr: string, targetPosition: DraftInsertPosition): STModification {
+export function createLogStatement(type: string, logExpr: string, targetPosition: NodePosition): STModification {
     const propertyStatement: STModification = {
-        startLine: targetPosition.line,
+        startLine: targetPosition.startLine,
         startColumn: 0,
-        endLine: targetPosition.line,
+        endLine: targetPosition.startLine,
         endColumn: 0,
         type: "LOG_STATEMENT",
         config: {
@@ -183,7 +185,7 @@ export function createLogStatement(type: string, logExpr: string, targetPosition
     return propertyStatement;
 }
 
-export function updateLogStatement(type: string, logExpr: string, targetPosition: DraftUpdatePosition): STModification {
+export function updateLogStatement(type: string, logExpr: string, targetPosition: NodePosition): STModification {
     const propertyStatement: STModification = {
         startLine: targetPosition.startLine,
         startColumn: targetPosition.startColumn,
@@ -199,11 +201,11 @@ export function updateLogStatement(type: string, logExpr: string, targetPosition
     return propertyStatement;
 }
 
-export function createReturnStatement(returnExpr: string, targetPosition: DraftInsertPosition): STModification {
+export function createReturnStatement(returnExpr: string, targetPosition: NodePosition): STModification {
     const returnStatement: STModification = {
-        startLine: targetPosition.line,
+        startLine: targetPosition.startLine,
         startColumn: 0,
-        endLine: targetPosition.line,
+        endLine: targetPosition.startLine,
         endColumn: 0,
         type: "RETURN_STATEMENT",
         config: {
@@ -214,7 +216,7 @@ export function createReturnStatement(returnExpr: string, targetPosition: DraftI
     return returnStatement;
 }
 
-export function updateReturnStatement(returnExpr: string, targetPosition: DraftUpdatePosition): STModification {
+export function updateReturnStatement(returnExpr: string, targetPosition: NodePosition): STModification {
     const returnStatement: STModification = {
         startLine: targetPosition.startLine,
         startColumn: targetPosition.startColumn,
@@ -229,7 +231,7 @@ export function updateReturnStatement(returnExpr: string, targetPosition: DraftU
     return returnStatement;
 }
 
-export function createImportStatement(org: string, module: string, targetPosition: DraftInsertPosition): STModification {
+export function createImportStatement(org: string, module: string, targetPosition: NodePosition): STModification {
     const moduleName = module;
     const formattedName = getFormattedModuleName(module);
     let moduleNameStr = org + "/" + module;
@@ -253,11 +255,11 @@ export function createImportStatement(org: string, module: string, targetPositio
     return importStatement;
 }
 
-export function createObjectDeclaration(type: string, variableName: string, params: string[], targetPosition: DraftInsertPosition): STModification {
+export function createObjectDeclaration(type: string, variableName: string, params: string[], targetPosition: NodePosition): STModification {
     const objectDeclaration: STModification = {
-        startLine: targetPosition.line,
+        startLine: targetPosition.startLine,
         startColumn: 0,
-        endLine: targetPosition.line,
+        endLine: targetPosition.startLine,
         endColumn: 0,
         type: "DECLARATION",
         config: {
@@ -269,7 +271,7 @@ export function createObjectDeclaration(type: string, variableName: string, para
     return objectDeclaration;
 }
 
-export function updateObjectDeclaration(type: string, variableName: string, params: string[], targetPosition: DraftUpdatePosition): STModification {
+export function updateObjectDeclaration(type: string, variableName: string, params: string[], targetPosition: NodePosition): STModification {
     const objectDeclaration: STModification = {
         startLine: targetPosition.startLine,
         startColumn: targetPosition.startColumn,
@@ -285,11 +287,11 @@ export function updateObjectDeclaration(type: string, variableName: string, para
     return objectDeclaration;
 }
 
-export function createRemoteServiceCall(type: string, variable: string, callerName: string, functionName: string, params: string[], targetPosition: DraftInsertPosition): STModification {
+export function createRemoteServiceCall(type: string, variable: string, callerName: string, functionName: string, params: string[], targetPosition: NodePosition): STModification {
     const remoteServiceCall: STModification = {
-        startLine: targetPosition.line,
+        startLine: targetPosition.startLine,
         startColumn: 0,
-        endLine: targetPosition.line,
+        endLine: targetPosition.startLine,
         endColumn: 0,
         type: "REMOTE_SERVICE_CALL",
         config: {
@@ -304,7 +306,7 @@ export function createRemoteServiceCall(type: string, variable: string, callerNa
     return remoteServiceCall;
 }
 
-export function updateRemoteServiceCall(type: string, variable: string, callerName: string, functionName: string, params: string[], targetPosition: DraftUpdatePosition): STModification {
+export function updateRemoteServiceCall(type: string, variable: string, callerName: string, functionName: string, params: string[], targetPosition: NodePosition): STModification {
     const remoteServiceCall: STModification = {
         startLine: targetPosition.startLine,
         startColumn: targetPosition.startColumn,
@@ -323,11 +325,11 @@ export function updateRemoteServiceCall(type: string, variable: string, callerNa
     return remoteServiceCall;
 }
 
-export function createCheckedRemoteServiceCall(type: string, variable: string, callerName: string, functionName: string, params: string[], targetPosition: DraftInsertPosition): STModification {
+export function createCheckedRemoteServiceCall(type: string, variable: string, callerName: string, functionName: string, params: string[], targetPosition: NodePosition): STModification {
     const checkedRemoteServiceCall: STModification = {
-        startLine: targetPosition.line,
+        startLine: targetPosition.startLine,
         startColumn: 0,
-        endLine: targetPosition.line,
+        endLine: targetPosition.startLine,
         endColumn: 0,
         type: "REMOTE_SERVICE_CALL_CHECK",
         config: {
@@ -342,7 +344,7 @@ export function createCheckedRemoteServiceCall(type: string, variable: string, c
     return checkedRemoteServiceCall;
 }
 
-export function updateCheckedRemoteServiceCall(type: string, variable: string, callerName: string, functionName: string, params: string[], targetPosition: DraftUpdatePosition): STModification {
+export function updateCheckedRemoteServiceCall(type: string, variable: string, callerName: string, functionName: string, params: string[], targetPosition: NodePosition): STModification {
     const checkedRemoteServiceCall: STModification = {
         startLine: targetPosition.startLine,
         startColumn: targetPosition.startColumn,
@@ -361,7 +363,7 @@ export function updateCheckedRemoteServiceCall(type: string, variable: string, c
     return checkedRemoteServiceCall;
 }
 
-export function createServiceCallForPayload(type: string, variable: string, callerName: string, functionName: string, params: string[], targetPosition: DraftInsertPosition): STModification {
+export function createServiceCallForPayload(type: string, variable: string, callerName: string, functionName: string, params: string[], targetPosition: NodePosition): STModification {
     let statement = "http:Response $varName = <http:Response>check $callerName->$functionName($parameters);";
     statement = statement
         .replace("$parameters", params.toString())
@@ -369,9 +371,9 @@ export function createServiceCallForPayload(type: string, variable: string, call
         .replace("$callerName", callerName)
         .replace("$functionName", functionName);
     const modification: STModification = {
-        startLine: targetPosition.line,
+        startLine: targetPosition.startLine,
         startColumn: 0,
-        endLine: targetPosition.line,
+        endLine: targetPosition.startLine,
         endColumn: 0,
         type: "PROPERTY_STATEMENT",
         config: {
@@ -381,7 +383,7 @@ export function createServiceCallForPayload(type: string, variable: string, call
     return modification;
 }
 
-export function updateServiceCallForPayload(type: string, variable: string, callerName: string, functionName: string, params: string[], targetPosition: DraftUpdatePosition): STModification {
+export function updateServiceCallForPayload(type: string, variable: string, callerName: string, functionName: string, params: string[], targetPosition: NodePosition): STModification {
     let statement = "http:Response $varName = <http:Response>check $callerName->$functionName($parameters);";
     statement = statement
         .replace("$parameters", params.toString())
@@ -401,11 +403,11 @@ export function updateServiceCallForPayload(type: string, variable: string, call
     return modification;
 }
 
-export function createRespond(type: string, variable: string, callerName: string, expression: string, targetPosition: DraftInsertPosition): STModification {
+export function createRespond(type: string, variable: string, callerName: string, expression: string, targetPosition: NodePosition): STModification {
     const respond: STModification = {
-        startLine: targetPosition.line,
+        startLine: targetPosition.startLine,
         startColumn: 0,
-        endLine: targetPosition.line,
+        endLine: targetPosition.startLine,
         endColumn: 0,
         type: "RESPOND",
         config: {
@@ -419,11 +421,11 @@ export function createRespond(type: string, variable: string, callerName: string
     return respond;
 }
 
-export function createCheckedRespond(callerName: string, expression: string, targetPosition: DraftInsertPosition): STModification {
+export function createCheckedRespond(callerName: string, expression: string, targetPosition: NodePosition): STModification {
     const checkedRespond: STModification = {
-        startLine: targetPosition.line,
+        startLine: targetPosition.startLine,
         startColumn: 0,
-        endLine: targetPosition.line,
+        endLine: targetPosition.startLine,
         endColumn: 0,
         type: "RESPOND_WITH_CHECK",
         config: {
@@ -435,7 +437,7 @@ export function createCheckedRespond(callerName: string, expression: string, tar
     return checkedRespond;
 }
 
-export function updateCheckedRespond(callerName: string, expression: string, targetPosition: DraftUpdatePosition): STModification {
+export function updateCheckedRespond(callerName: string, expression: string, targetPosition: NodePosition): STModification {
     const checkedRespond: STModification = {
         startLine: targetPosition.startLine,
         startColumn: targetPosition.startColumn,
@@ -451,11 +453,11 @@ export function updateCheckedRespond(callerName: string, expression: string, tar
     return checkedRespond;
 }
 
-export function createTypeGuard(variable: string, type: string, statement: string, targetPosition: DraftInsertPosition): STModification {
+export function createTypeGuard(variable: string, type: string, statement: string, targetPosition: NodePosition): STModification {
     const typeGuard: STModification = {
-        startLine: targetPosition.line,
+        startLine: targetPosition.startLine,
         startColumn: 0,
-        endLine: targetPosition.line,
+        endLine: targetPosition.startLine,
         endColumn: 0,
         type: "TYPE_GUARD_IF",
         config: {
@@ -468,11 +470,11 @@ export function createTypeGuard(variable: string, type: string, statement: strin
     return typeGuard;
 }
 
-export function createCheckedPayloadFunctionInvocation(variable: string, type: string, response: string, payload: string, targetPosition: DraftInsertPosition): STModification {
+export function createCheckedPayloadFunctionInvocation(variable: string, type: string, response: string, payload: string, targetPosition: NodePosition): STModification {
     const checkedPayloadInvo: STModification = {
-        startLine: targetPosition.line,
+        startLine: targetPosition.startLine,
         startColumn: 0,
-        endLine: targetPosition.line,
+        endLine: targetPosition.startLine,
         endColumn: 0,
         type: "CHECKED_PAYLOAD_FUNCTION_INVOCATION",
         config: {
@@ -486,7 +488,7 @@ export function createCheckedPayloadFunctionInvocation(variable: string, type: s
     return checkedPayloadInvo;
 }
 
-export function createServiceDeclartion(config: HTTPServiceConfigState, targetPosition: DraftUpdatePosition): STModification {
+export function createServiceDeclartion(config: HTTPServiceConfigState, targetPosition: NodePosition): STModification {
     const { serviceBasePath, listenerConfig: { fromVar, listenerName, listenerPort, createNewListener } } = config;
 
     const modification: STModification = {
@@ -529,7 +531,7 @@ export function createServiceDeclartion(config: HTTPServiceConfigState, targetPo
     }
 }
 
-export function createListenerDeclartion(config: ListenerConfig, targetPosition: DraftUpdatePosition): STModification {
+export function createListenerDeclartion(config: ListenerConfig, targetPosition: NodePosition): STModification {
     const { listenerName, listenerPort } = config;
 
     const modification: STModification = {
@@ -550,7 +552,7 @@ export function createListenerDeclartion(config: ListenerConfig, targetPosition:
     }
 }
 
-export function updateListenerDeclartion(config: ListenerConfig, targetPosition: DraftUpdatePosition): STModification {
+export function updateListenerDeclartion(config: ListenerConfig, targetPosition: NodePosition): STModification {
     const { listenerName, listenerPort } = config;
 
     const modification: STModification = {
@@ -567,7 +569,7 @@ export function updateListenerDeclartion(config: ListenerConfig, targetPosition:
         }
     }
 }
-export function updateServiceDeclartion(config: HTTPServiceConfigState, targetPosition: DraftUpdatePosition): STModification {
+export function updateServiceDeclartion(config: HTTPServiceConfigState, targetPosition: NodePosition): STModification {
     const { serviceBasePath, listenerConfig: { fromVar, listenerName, listenerPort, createNewListener } } = config;
 
     const modification: STModification = {
@@ -607,7 +609,7 @@ export function updateServiceDeclartion(config: HTTPServiceConfigState, targetPo
     }
 }
 
-export function updateCheckedPayloadFunctionInvocation(variable: string, type: string, response: string, payload: string, targetPosition: DraftUpdatePosition): STModification {
+export function updateCheckedPayloadFunctionInvocation(variable: string, type: string, response: string, payload: string, targetPosition: NodePosition): STModification {
     const checkedPayloadInvo: STModification = {
         startLine: targetPosition.startLine,
         startColumn: targetPosition.startColumn,
@@ -625,7 +627,7 @@ export function updateCheckedPayloadFunctionInvocation(variable: string, type: s
     return checkedPayloadInvo;
 }
 
-export function removeStatement(targetPosition: DraftUpdatePosition): STModification {
+export function removeStatement(targetPosition: NodePosition): STModification {
     const removeLine: STModification = {
         startLine: targetPosition.startLine,
         startColumn: targetPosition.startColumn,
@@ -638,7 +640,7 @@ export function removeStatement(targetPosition: DraftUpdatePosition): STModifica
 }
 
 export function createHeaderObjectDeclaration(headerObject: HeaderObjectConfig[], requestName: string, operation: string,
-                                              message: FormField, targetPosition: DraftInsertPosition, modifications: STModification[]) {
+                                              message: FormField, targetPosition: NodePosition, modifications: STModification[]) {
     if (operation !== "forward") {
         let httpRequest: string = "http:Request ";
         httpRequest += requestName;
@@ -648,9 +650,9 @@ export function createHeaderObjectDeclaration(headerObject: HeaderObjectConfig[]
             httpRequest += payload;
         }
         const requestGeneration: STModification = {
-            startLine: targetPosition.line,
+            startLine: targetPosition.startLine,
             startColumn: 0,
-            endLine: targetPosition.line,
+            endLine: targetPosition.startLine,
             endColumn: 0,
             type: "PROPERTY_STATEMENT",
             config: {
@@ -665,9 +667,9 @@ export function createHeaderObjectDeclaration(headerObject: HeaderObjectConfig[]
         headerStmt = headerStmt.replace("$key", header.objectKey);
         headerStmt = headerStmt.replace("$value", header.objectValue);
         const headerObjectDeclaration: STModification = {
-            startLine: targetPosition.line,
+            startLine: targetPosition.startLine,
             startColumn: 0,
-            endLine: targetPosition.line,
+            endLine: targetPosition.startLine,
             endColumn: 0,
             type: "PROPERTY_STATEMENT",
             config: {
@@ -679,7 +681,7 @@ export function createHeaderObjectDeclaration(headerObject: HeaderObjectConfig[]
 }
 
 export function updateHeaderObjectDeclaration(headerObject: HeaderObjectConfig[], requestName: string, operation: string,
-                                              message: FormField, targetPosition: DraftUpdatePosition): STModification {
+                                              message: FormField, targetPosition: NodePosition): STModification {
     let headerDecl: string = "";
     if (operation !== "forward") {
         if (operation === "post" || operation === "put" || operation === "delete" || operation === "patch") {
@@ -751,11 +753,11 @@ export async function InsertorDelete(modifications: STModification[]): Promise<S
     return stModifications;
 }
 
-export function createFunctionSignature(name: string, parameters: string, returnTypes: string, targetPosition: DraftInsertPosition): STModification {
+export function createFunctionSignature(name: string, parameters: string, returnTypes: string, targetPosition: NodePosition): STModification {
     const functionStatement: STModification = {
-        startLine: targetPosition.line,
+        startLine: targetPosition.startLine,
         startColumn: 0,
-        endLine: targetPosition.line,
+        endLine: targetPosition.startLine,
         endColumn: 0,
         type: "FUNCTION_DEFINITION",
         config: {

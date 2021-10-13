@@ -314,7 +314,7 @@ export function ScheduleConfigureWizard(props: ScheduleConfigureWizardProps) {
       });
       const commentModification = createPropertyStatement(
         `// Schedule: ${scheduledComp}: ${saveSelectedCron}\n`,
-        { line: syntaxTree.position.startLine, column: 0 });
+        { startLine: syntaxTree.position.startLine, startColumn: 0 });
       modifyDiagram([commentModification]);
     }
   };

@@ -156,7 +156,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
 
     return (
         <>
-            { !connector && (
+            { !model && !connector && (
                 <FormGenerator
                     onCancel={onWizardClose}
                     // onSave={onSave}
@@ -169,7 +169,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
                     } }
                 />
             ) }
-            { connector && (
+            { (model || connector) && (
                 <g className={connectorWrapper}>
                     <ConnectorProcessSVG
                         x={viewState.bBox.cx - CONNECTOR_PROCESS_SVG_WIDTH / 2}

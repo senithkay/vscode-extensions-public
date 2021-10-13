@@ -18,10 +18,10 @@ import { FunctionDefinitionInfo } from "../ConfigurationSpec/types";
 export type STModificationConfig = {};
 
 export interface STModification {
-    startLine: number;
-    startColumn: number;
-    endLine: number;
-    endColumn: number;
+    startLine?: number;
+    startColumn?: number;
+    endLine?: number;
+    endColumn?: number;
     type: string;
     config?: any;
     isImport?: boolean;
