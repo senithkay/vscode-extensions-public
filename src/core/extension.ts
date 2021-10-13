@@ -42,6 +42,7 @@ import {
     TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED
 } from "../telemetry";
 import { BALLERINA_COMMANDS, runCommand } from "../project";
+import { SessionDataProvider } from "../tree-view/session-tree-data-provider";
 const any = require('promise.any');
 
 const SWAN_LAKE_REGEX = /(s|S)wan( |-)(l|L)ake/g;
@@ -68,6 +69,13 @@ export interface Change {
     startColumn: number;
 }
 
+export interface ChoreoSession {
+    loginStatus: boolean;
+    choreoUser?: string;
+    choreoToken?: string;
+    choreoCookie?: string;
+}
+
 export class BallerinaExtension {
     public telemetryReporter: TelemetryReporter;
     public ballerinaHome: string;
@@ -80,6 +88,8 @@ export class BallerinaExtension {
     public context?: ExtensionContext;
     private sdkVersion: StatusBarItem;
     private documentContext: DocumentContext;
+    private choreoSession: ChoreoSession;
+    private choreoSessionTreeProvider: SessionDataProvider | undefined;
 
     constructor() {
         this.ballerinaHome = '';
@@ -103,6 +113,7 @@ export class BallerinaExtension {
         };
         this.telemetryReporter = createTelemetryReporter(this);
         this.documentContext = new DocumentContext();
+        this.choreoSession = { loginStatus: false };
     }
 
     setContext(context: ExtensionContext) {
@@ -516,6 +527,22 @@ export class BallerinaExtension {
 
     public setDiagramActiveContext(value: boolean) {
         commands.executeCommand('setContext', 'isBallerinaDiagram', value);
+    }
+
+    public setChoreoSession(choreoSession: ChoreoSession) {
+        this.choreoSession = choreoSession;
+    }
+
+    public getChoreoSession(): ChoreoSession {
+        return this.choreoSession;
+    }
+
+    public setChoreoSessionTreeProvider(choreoSessionTreeProvider: SessionDataProvider) {
+        this.choreoSessionTreeProvider = choreoSessionTreeProvider;
+    }
+
+    public getChoreoSessionTreeProvider(): SessionDataProvider | undefined {
+        return this.choreoSessionTreeProvider;
     }
 }
 

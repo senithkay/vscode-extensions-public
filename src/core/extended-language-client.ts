@@ -28,7 +28,8 @@ import {
     CompletionParams,
     CompletionResponse,
     ExpressionTypeRequest,
-    ExpressionTypeResponse
+    ExpressionTypeResponse,
+    BallerinaConnectorsRequest
 } from "@wso2-enterprise/ballerina-low-code-editor/build/Definitions";
 
 export const BALLERINA_LANG_ID = "ballerina";
@@ -196,9 +197,6 @@ export class ExtendedLangClient extends LanguageClient {
     didChange(params: DidChangeParams): void {
         this.sendNotification("textDocument/didChange", params);
     }
-    getActionInvocations(params: BallerinaProjectParams): Promise<string> {
-        return this.sendRequest("performanceAnalyzer/getEndpoints", params);
-    }
     getPerformaceGraphData(params: PerformanceAnalyzerGraphRequest): Promise<PerformanceAnalyzerGraphResponse> {
         return this.sendRequest("performanceAnalyzer/getGraphData", params);
     }
@@ -211,8 +209,8 @@ export class ExtendedLangClient extends LanguageClient {
     getType(params: ExpressionTypeRequest): Promise<ExpressionTypeResponse> {
         return this.sendRequest("ballerinaSymbol/type", params);
     }
-    getConnectors(query:string): Thenable<BallerinaConnectorsResponse> {
-        return this.sendRequest<BallerinaConnectorsResponse>("ballerinaConnector/connectors", query);
+    getConnectors(params: BallerinaConnectorsRequest): Thenable<BallerinaConnectorsResponse> {
+        return this.sendRequest<BallerinaConnectorsResponse>("ballerinaConnector/connectors", params);
     }
     getConnector(params: BallerinaConnectorRequest): Thenable<BallerinaConnectorResponse> {
         return this.sendRequest<BallerinaConnectorResponse>("ballerinaConnector/connector", params);

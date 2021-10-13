@@ -17,37 +17,26 @@
  *
  */
 
-import { Uri } from 'vscode';
-
-export interface DiagramOptions {
-    startLine?: number;
-    startColumn?: number;
-    isDiagram: boolean;
-    fileUri?: Uri;
-}
-
-export interface SyntaxTree {
-    members: Member[];
-}
-
-export interface Member {
-    kind: string;
-    position: Position;
-    functionName?: {
-        value: string;
-        position: Position;
-    };
-    members: Member[];
-    relativeResourcePath?: ResourcePath[];
-}
-
-interface Position {
-    startLine: number;
-    startColumn: number;
-    endLine: number;
-    endColumn: number;
-}
-
-interface ResourcePath {
-    value: string;
-}
+import { getLibraryWebViewContent, WebViewOptions, getComposerWebViewOptions } from '../utils';
+ 
+ export function render(data: any)
+     : string {
+ 
+     const body = `<div id="performance" class="performance-container" />`;
+     const bodyCss = "performance";
+     const styles = ``;
+     const scripts = `
+             function loadedScript() {
+                     window.webViews.renderPerformance(${JSON.stringify(data)});
+             }
+         `;
+ 
+     const webViewOptions: WebViewOptions = {
+         ...getComposerWebViewOptions("WebViews"),
+         body, scripts, styles, bodyCss
+     };
+ 
+     return getLibraryWebViewContent(webViewOptions);
+ }
+ 
+ 

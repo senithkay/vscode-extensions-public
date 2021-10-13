@@ -149,9 +149,10 @@ class DiagramPanel {
 			DiagramPanel.currentPanel.dispose();
 		}
 
+		const fileName: string | undefined = getCurrentFileName();
 		const panel = window.createWebviewPanel(
 			'ballerinaDiagram',
-			"Ballerina Diagram",
+			fileName ? `${fileName} Diagram` : `Ballerina Diagram`,
 			{ viewColumn, preserveFocus: false },
 			getCommonWebViewOptions()
 		);
@@ -235,6 +236,13 @@ class DiagramPanel {
 			}
 		}
 	}
+
+	public updateTitle(title: string) {
+		if (this.webviewPanel.title === title) {
+			return;
+		}
+		this.webviewPanel.title = title;
+	}
 }
 
 export async function refreshDiagramForEditorChange(change: Change) {
@@ -263,6 +271,8 @@ export async function refreshDiagramForEditorChange(change: Change) {
 function callUpdateDiagramMethod() {
 	performDidOpen();
 	let ballerinaFilePath = diagramElement!.fileUri!.fsPath;
+	const fileName: string | undefined = getCurrentFileName();
+	DiagramPanel.currentPanel?.updateTitle(fileName ? `${fileName} Diagram` : `Ballerina Diagram`);
 	if (isWindows()) {
 		ballerinaFilePath = '/' + ballerinaFilePath.split(sep).join("/");
 	}
@@ -276,17 +286,18 @@ function callUpdateDiagramMethod() {
 
 function performDidOpen() {
 	let tempUri: Uri | undefined;
-	if (diagramElement!.filePath) {
-		tempUri = Uri.file(diagramElement!.filePath!);
-	} else if (diagramElement!.fileUri) {
+	if (diagramElement!.fileUri) {
 		tempUri = diagramElement?.fileUri!;
+	}
+	if (!tempUri) {
+		return;
 	}
 	ballerinaExtension.getDocumentContext().setLatestDocument(tempUri);
 	const doc = workspace.textDocuments.find((doc) => doc.uri === tempUri);
 	if (doc) {
 		return;
 	}
-	if (tempUri && currentDocumentURI !== tempUri!) {
+	if (currentDocumentURI !== tempUri!) {
 		const content: string = readFileSync(tempUri.fsPath, { encoding: 'utf-8' });
 		langClient.didOpen({
 			textDocument: {
@@ -321,7 +332,7 @@ function getChangedElement(st: SyntaxTree, change: Change): DiagramOptions {
 	} else if (member[0].kind === 'ServiceDeclaration') {
 		for (let ri = 0; ri < member[0].members.length; ri++) {
 			const resource = member[0].members[ri];
-			if (isWithinRange(resource, change)) {
+			if (resource.kind === 'ResourceAccessorDefinition' && isWithinRange(resource, change)) {
 				return {
 					isDiagram: true, fileUri: change.fileUri, startLine: resource.functionName?.position.startLine,
 					startColumn: resource.functionName?.position.startColumn
@@ -348,4 +359,11 @@ function isWithinRange(member: Member, change: Change) {
 	return (member.position.startLine < change.startLine || (member.position.startLine === change.startLine &&
 		member.position.startColumn <= change.startColumn)) && (member.position.endLine > change.startLine ||
 			(member.position.endLine === change.startLine && member.position.endColumn >= change.startColumn));
+}
+
+function getCurrentFileName(): string | undefined {
+	if (!diagramElement || !diagramElement!.fileUri) {
+		return undefined;
+	}
+	return diagramElement!.fileUri!.fsPath.split(sep).pop();
 }
