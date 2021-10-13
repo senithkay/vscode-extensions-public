@@ -102,7 +102,6 @@ export function Function(props: FunctionProps) {
             !viewState.initPlus.isTriggerDropdown && (
               <WorkerLine viewState={viewState} />
             )}
-          {/* <FunctionSignature model={model} onExpandClick={onExpandClick} /> */}
         </>
 
         {!isInitPlusAvailable && <WorkerLine viewState={viewState} />}
