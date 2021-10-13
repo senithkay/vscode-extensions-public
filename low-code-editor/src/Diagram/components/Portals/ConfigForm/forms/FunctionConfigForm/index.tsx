@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useRef, useState } from "react";
 
-import { STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 
 import { AddIcon, FunctionIcon } from "../../../../../../assets/icons";
@@ -24,7 +24,6 @@ import {
   createFunctionSignature,
   updateFunctionSignature,
 } from "../../../../../utils/modification-util";
-import { DraftUpdatePosition } from "../../../../../view-state/draft";
 import { QueryParamItem as FunctionParamItem } from "../../../Overlay/Elements/DropDown/ApiConfigureWizard/components/queryParamEditor/queryParamItem";
 import { QueryParamSegmentEditor as FunctionParamSegmentEditor } from "../../../Overlay/Elements/DropDown/ApiConfigureWizard/components/queryParamEditor/segmentEditor";
 import { ReturnTypeItem } from "../../../Overlay/Elements/DropDown/ApiConfigureWizard/components/ReturnTypeEditor/ReturnTypeItem";
@@ -41,7 +40,7 @@ import { useStyles as useFormStyles } from "../style";
 
 interface FunctionConfigFormProps {
   model?: STNode;
-  targetPosition?: DraftUpdatePosition;
+  targetPosition?: NodePosition;
   onCancel: () => void;
   onSave: () => void;
 }
@@ -92,8 +91,8 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
       // Create new function if model does not exist
       modifications.push(
         createFunctionSignature(functionName, parametersStr, returnTypeStr, {
-          line: targetPosition.startLine,
-          column: 0,
+          startLine: targetPosition.startLine,
+          startColumn: 0,
         })
       );
     }

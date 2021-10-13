@@ -189,27 +189,5 @@ export const useStyles = makeStyles((theme: Theme) =>
             background: '#fff !important',
             color: '#5467d5 !important'
         },
-        statementEditorBtn: {
-            textTransform: "capitalize",
-            border: 0,
-            background: "none",
-            padding: 0,
-            fontFamily: "arial, sans-seriff",
-            color: "#6070d6 !important",
-            fontSize: 13,
-            textDecoration: "underline",
-            cursor: "pointer",
-            "&:hover , &:focus, &:active": {
-                backgroundColor: "#fff",
-                color: "#6070d6",
-                boxShadow: "none",
-                cursor: "pointer",
-            },
-            "&:disabled": {
-                opacity: 0.5,
-                background: '#fff !important',
-                color: '#5467d5 !important'
-            },
-        },
     })
 );

@@ -453,8 +453,8 @@ export function GitHubConfigureForm(props: GitHubConfigureFormProps) {
                   "clientSecretKey"
                 )} = ?;`,
             {
-              column: 0,
-              line: initialConfigurable?.position?.startLine - 1 || 1,
+              startColumn: 0,
+              startLine: initialConfigurable?.position?.startLine - 1 || 1,
             }
           )
         );
