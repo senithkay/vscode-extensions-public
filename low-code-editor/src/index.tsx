@@ -49,6 +49,7 @@ export {
     STSymbolInfo,
     ConfigOverlayFormStatus as ConfigOverlayFormStatusDef
 } from "./Definitions";
+export { AnalyzerRequestPayload } from "./api/models";
 export { Diagram } from "./Diagram";
 export {
     getDiagnosticsFromVisitor,
@@ -56,11 +57,13 @@ export {
     getLowCodeSTFn,
     getLowCodeSTFnSelected,
     sizingAndPositioningST,
-    recalculateSizingAndPositioningST
+    recalculateSizingAndPositioningST,
+    getAnalyzerRequestPayload
 } from './Diagram/utils/st-util';
 export { visitor as initVisitor } from "./Diagram/visitors/init-visitor";
 export { visitor as positionVisitor } from "./Diagram/visitors/positioning-visitor";
 export { visitor as sizingVisitor } from "./Diagram/visitors/sizing-visitor";
+export { AnalyzePayloadVisitor } from "./Diagram/visitors/analyze-payload-visitor";
 export { cleanLocalSymbols, cleanModuleLevelSymbols, getSymbolInfo, visitor as SymbolVisitor } from "./Diagram/visitors/symbol-finder-visitor";
 export { BlockViewState } from './Diagram/view-state';
 export { ConfigPanel, CONFIG_PANEL_PORTAL_DIV_ID } from "./Diagram/components/ConfigPanel";
