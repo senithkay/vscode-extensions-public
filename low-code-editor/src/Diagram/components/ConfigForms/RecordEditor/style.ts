@@ -24,12 +24,11 @@ export const recordStyles = makeStyles((theme: Theme) =>
         },
         itemWrapper: {
             display: 'flex',
-            marginLeft: 24,
-            marginRight: 24
+            margin: 10
         },
         itemLabel: {
             background: 'white',
-            padding: 10,
+            padding: 7,
             borderRadius: 5,
             border: '1px solid #dee0e7',
             margin: '1rem 0 0.25rem',
@@ -56,17 +55,26 @@ export const recordStyles = makeStyles((theme: Theme) =>
             borderRadius: 8
         },
         addFieldBtnWrap: {
+            margin: 10,
+            color: "#5567D5",
+            fontSize: 12,
             display: "flex",
             alignItems: "center",
+            cursor: "pointer",
             "& .MuiSvgIcon-root": {
                 height: '18px !important',
             }
         },
         recordEditorWrapper: {
+            minWidth: 200,
+            margin: 10,
+            padding: 10,
             boxSizing: "border-box",
-            width: "100%",
             border: "1px solid #EEEEEE",
             borderRadius: 4
+        },
+        recordCode: {
+            color: '#0095FF'
         },
         buttonWrapper: {
             height: 'auto',

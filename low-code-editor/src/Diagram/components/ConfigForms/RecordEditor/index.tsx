@@ -11,32 +11,48 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React  from 'react';
+import React from 'react';
 
-import { STNode } from "@ballerina/syntax-tree";
+import { RecordTypeDesc, STKindChecker, TypeDefinition } from "@ballerina/syntax-tree";
 
+import { FormState, Provider as RecordEditorProvider } from "../../../../Contexts/RecordEditor";
 import { ConfigOverlayFormStatus } from "../../../../Definitions";
 
+import { Record } from "./Record";
 import { RecordFromJson } from "./RecordFromJson";
+import { RecordModel } from "./types";
+import { getRecordModel } from "./utils";
 
 export interface RecordEditorProps {
-    model?: STNode;
+    model?: TypeDefinition;
     configOverlayFormStatus: ConfigOverlayFormStatus;
     onCancel?: () => void;
     onSave?: () => void;
 }
 
 export function RecordEditor(props: RecordEditorProps) {
-    const { onCancel, onSave, configOverlayFormStatus } = props;
+    const { onCancel, onSave, configOverlayFormStatus, model } = props;
     const { formArgs, formType } = configOverlayFormStatus;
 
+    let recordModel: RecordModel;
+    if (model && STKindChecker.isTypeDefinition(model)) {
+        const typeName = model.typeName.value;
+        const typeDesc = model.typeDescriptor as RecordTypeDesc;
+        recordModel = getRecordModel(typeDesc, typeName, true, "record")
+    }
+
     return (
-        <div>
-            {formArgs.targetPosition && (
-                <div>
-                    <RecordFromJson onCancel={onCancel} onSave={onSave} targetPosition={formArgs.targetPosition} />
-                </div>
+        <RecordEditorProvider state={{recordModel, currentForm: FormState.ADD_FIELD}}>
+            {formArgs?.targetPosition && (
+                <RecordFromJson onCancel={onCancel} onSave={onSave} targetPosition={formArgs.targetPosition} />
             )}
-        </div>
+            {model && (
+                <Record
+                    recordModel={recordModel}
+                    onSave={null}
+                    onCancel={null}
+                />
+            )}
+        </RecordEditorProvider>
     );
 }

@@ -10,22 +10,31 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from 'react';
 
-// tslint:disable-next-line: no-submodule-imports
-import { Story } from '@storybook/react/types-6-0';
+.code-panel {
+  position: fixed;
+  top: 0;
+  right: 310px;
+  height: 100vh;
+  width: fit-content;
+  background-color: #ffffff;
+  margin-left: auto;
+  margin-right: 0;
+  box-shadow: inset 1px 0 0 0 #e6e7ec;
+  z-index: 200;
+  box-shadow: 0 5px 10px 0 rgba(102, 103, 133, 0.27);
+  overflow: scroll;
 
-import { FieldEditor, FieldEditorProps } from "./index";
+  &::-webkit-scrollbar {
+    width: 3px;
+  }
 
-export default {
-    title: 'Low Code Editor/Form/Record/Field Editor',
-    component: FieldEditor,
-};
+  &::-webkit-scrollbar-thumb {
+    background: #e6e7ec;
+    border-radius: 2px;
+  }
 
-const Template: Story<FieldEditorProps> = (args: FieldEditorProps) =>
-    <FieldEditor {...args} />;
-
-export const FieldEditorComponent = Template.bind({});
-FieldEditorComponent.args = {
-    addedFields: [],
-};
+  &::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+}

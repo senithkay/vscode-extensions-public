@@ -40,6 +40,7 @@ export function getRecordModel(typeDesc: RecordTypeDesc, name: string, isInline:
     const recordModel: RecordModel = {name, fields: [], isInline, type};
     if (typeDesc.fields.length > 0) {
         typeDesc.fields.forEach((field) => {
+            // FIXME: Handle array type desc
             if (STKindChecker.isRecordFieldWithDefaultValue(field.typeName)) {
                 // when there is a inline record with a default value
             } else if (STKindChecker.isRecordTypeDesc(field.typeName)) {
@@ -51,7 +52,9 @@ export function getRecordModel(typeDesc: RecordTypeDesc, name: string, isInline:
                 const recField: SimpleField = {
                     name: field.fieldName.value,
                     type: field.typeName.source.trim(),
-                    isOptional: STKindChecker.isRecordField(field) ? (field.questionMarkToken !== undefined) : false,
+                    isFieldOptional: STKindChecker.isRecordField(field) ? (field.questionMarkToken !== undefined) : false,
+                    // FIXME: need to map field type optionality
+                    isFieldTypeOptional: false
                 }
                 recordModel.fields.push(recField);
             }

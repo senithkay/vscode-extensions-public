@@ -21,6 +21,7 @@ import EditButton from "../../../assets/icons/EditButton";
 import RecordIcon from "../../../assets/icons/RecordIcon";
 import { ComponentExpandButton } from "../ComponentExpandButton";
 import { RecordEditor } from "../ConfigForms/RecordEditor";
+import { FormGenerator } from "../FormGenerator";
 import { DiagramOverlay, DiagramOverlayContainer } from "../Portals/Overlay";
 import { TopLevelPlus } from "../TopLevelPlus";
 
@@ -153,27 +154,14 @@ export function TypeDefinitionComponent(props: TypeDefComponentProps) {
         )
     }
 
-    // ToDo : need to fix plus here
-    component.push(
-        // TODO: Commented until all top level pluses sorted out
-        <TopLevelPlus
-            margin={{top: RECORD_PLUS_OFFSET, bottom: RECORD_PLUS_OFFSET, left: RECORD_MARGIN_LEFT}}
-            targetPosition={{line: model.position.endLine + 1, column: model.position.endColumn}}
-        />
-    )
-
     if (formEditInProgress) {
         component.push(
-            <DiagramOverlayContainer divId={"edit-div"} forceRender={formEditInProgress}>
-                <DiagramOverlay
-                    position={{x: 0, y: 0}}
-                    stylePosition='relative'
-                >
-                    <div style={{height: "auto", width: "290px", background: "#fff", border: "1px solid #e6e7ec"}}>
-                        <RecordEditor onCancel={handleEditClose} model={model}/>
-                    </div>
-                </DiagramOverlay>
-            </DiagramOverlayContainer>
+            <FormGenerator
+                model={model}
+                configOverlayFormStatus={{ formType: model.kind, isLoading: false }}
+                onCancel={handleEditClose}
+                onSave={handleEditClose}
+            />
         )
     }
 

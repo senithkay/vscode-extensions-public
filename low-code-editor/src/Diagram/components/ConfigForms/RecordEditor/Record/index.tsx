@@ -11,15 +11,15 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, {ReactNode, useRef, useState} from 'react';
+import React, { useContext } from 'react';
 
-import { AddIcon } from "../../../../../assets/icons";
-import { PrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
-import { SecondaryButton } from "../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
-import { FieldEditor } from "../FieldEditor";
-import { FieldItem } from "../FieldItem";
+import { Box, FormControl, Typography } from "@material-ui/core";
+
+import { Context } from "../../../../../Contexts/RecordEditor";
+import { useStyles } from "../../../Portals/ConfigForm/forms/style";
+import { CodePanel } from "../CodePanel";
 import { recordStyles } from "../style";
-import { RecordModel, SimpleField } from "../types";
+import { RecordModel } from "../types";
 
 export interface RecordProps {
     recordModel: RecordModel;
@@ -28,63 +28,25 @@ export interface RecordProps {
 }
 
 export function Record(props: RecordProps) {
-    const { recordModel, onSave, onCancel } = props;
+    const { recordModel } = props;
+
+    const { state, callBacks } = useContext(Context);
     const recordClasses = recordStyles();
-
-    const [isFieldAddInProgress, setIsFieldAddInProgress] = useState(false);
-    const recordModelRef = useRef(recordModel);
-
-    const handleCancel = () => {
-        setIsFieldAddInProgress(false);
-    };
-
-    const handleAddField = () => {
-        setIsFieldAddInProgress(true);
-    };
-    const handleSaveField = (field: SimpleField) => {
-        recordModelRef.current.fields.push(field);
-    };
-
-    const fieldItems: ReactNode[] = [];
-    recordModelRef.current.fields.forEach((field: SimpleField) => {
-        fieldItems.push(<FieldItem field={field} onDeleteClick={null} onEditCLick={null} />)
-    })
+    const classes = useStyles();
 
     return (
-        <div className={recordClasses.recordEditorWrapper}>
-            {fieldItems}
-            {!isFieldAddInProgress && (
-                <div>
-                    <button
-                        onClick={handleAddField}
-                        className={recordClasses.addFieldBtn}
-                    >
-                        <div className={recordClasses.addFieldBtnWrap}>
-                            <AddIcon />
-                            <p>Add Field</p>
-                        </div>
-                    </button>
-                </div>
-            )}
-
-            {isFieldAddInProgress && (
-                <FieldEditor
-                    addedFields={recordModelRef.current.fields}
-                    onSaveFiled={handleSaveField}
-                    onCancel={handleCancel}
-                />
-            )}
-
-            <div className={recordClasses.buttonWrapper}>
-                <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
-                <PrimaryButton
-                    dataTestId={"record-from-json-save-btn"}
-                    text={"Save"}
-                    // disabled={isMutationInProgress || !isFormValid}
-                    fullWidth={false}
-                    onClick={null}
-                />
+        <>
+            <div>
+                {/* TODO add forms here */}
+                <FormControl data-testid="record-form" className={classes.wizardFormControl}>
+                    <div className={classes.formTitleWrapper}>
+                        <Typography variant="h4">
+                            <Box paddingTop={2} paddingBottom={2}>Create record</Box>
+                        </Typography>
+                    </div>
+                </FormControl>
             </div>
-        </div>
+            <CodePanel recordModel={recordModel} />
+        </>
     );
 }

@@ -39,7 +39,8 @@ export function FieldEditor(props: FieldEditorProps) {
     const [selectedType, setSelectedType] = useState("");
     const [name, setName] = useState("");
     const [isValidName, setIsValidName] = useState(false);
-    const [isOptional, setIsOptional] = useState(false);
+    const [isFieldOptional, setIsFieldOptional] = useState(false);
+    const [isTypeOptional, setIsTypeOptional] = useState(false);
 
     const handleTypeSelect = (typeSelected: string) => {
         setSelectedType(typeSelected);
@@ -59,17 +60,24 @@ export function FieldEditor(props: FieldEditorProps) {
         return !isNameAlreadyExists;
     };
 
-    const handleOptionalChange = (text: string[]) => {
+    const handleOptionalFieldChange = (text: string[]) => {
         if (text) {
-            setIsOptional(text.length > 1);
+            setIsFieldOptional(text.length > 1);
+        }
+    };
+
+    const handleOptionalTypeChange = (text: string[]) => {
+        if (text) {
+            setIsTypeOptional(text.length > 1);
         }
     };
 
     const handleRecordAdd = () => {
         const field: SimpleField = {
             name,
-            isOptional,
-            type: selectedType,
+            isFieldOptional,
+            isFieldTypeOptional: isTypeOptional,
+            type: selectedType
         };
         onSaveFiled(field);
         onCancel();
@@ -88,6 +96,12 @@ export function FieldEditor(props: FieldEditorProps) {
                 errorMessage={!isValidName ? "Variable name already exists" : null}
                 placeholder={"Enter field name"}
             />
+            <CheckBoxGroup
+                testId="is-optional-field"
+                values={["Is optional ?"]}
+                defaultValues={isFieldOptional ? ["Is optional ?"] : []}
+                onChange={handleOptionalFieldChange}
+            />
             <SelectDropdownWithButton
                 dataTestId="field-type"
                 defaultValue={selectedType}
@@ -104,8 +118,8 @@ export function FieldEditor(props: FieldEditorProps) {
             <CheckBoxGroup
                 testId="is-optional-field"
                 values={["Is optional ?"]}
-                defaultValues={isOptional ? ["Is optional ?"] : []}
-                onChange={handleOptionalChange}
+                defaultValues={isTypeOptional ? ["Is optional ?"] : []}
+                onChange={handleOptionalTypeChange}
             />
 
             {(selectedType === "record") && (

@@ -27,5 +27,41 @@ const Template: Story<RecordProps> = (args: RecordProps) =>
 
 export const RecordComponent = Template.bind({});
 RecordComponent.args = {
-
+    recordModel: {
+        name: "Organization",
+        type: "record",
+        isInline: true,
+        fields: [
+            {
+                isFieldOptional: false,
+                isFieldTypeOptional: false,
+                name: "name",
+                type: "string"
+            }, {
+                isFieldOptional: false,
+                isFieldTypeOptional: false,
+                name: "id",
+                type: "int"
+            }, {
+                isFieldOptional: false,
+                isFieldTypeOptional: false,
+                name: "address",
+                type: "record",
+                fields: [
+                    {
+                        isFieldOptional: false,
+                        isFieldTypeOptional: false,
+                        name: "city",
+                        type: "string"
+                    },
+                    {
+                        isFieldOptional: true,
+                        isFieldTypeOptional: false,
+                        name: "province",
+                        type: "string"
+                    }
+                ]
+            }
+        ]
+    }
 };

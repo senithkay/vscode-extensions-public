@@ -41,4 +41,4 @@ export { EndConfigForm as Return };
 export { EndConfigForm as Respond };
 export { ServiceConfigForm as ServiceDeclaration };
 export { FunctionConfigForm as FunctionDefinition };
-export { RecordEditor as RecordEditor };
+export { RecordEditor as TypeDefinition };

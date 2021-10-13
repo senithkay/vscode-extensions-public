@@ -13,7 +13,8 @@
 export interface SimpleField {
     name: string;
     type: string;
-    isOptional: boolean;
+    isFieldOptional: boolean;
+    isFieldTypeOptional: boolean;
     value?: string;
 }
 
