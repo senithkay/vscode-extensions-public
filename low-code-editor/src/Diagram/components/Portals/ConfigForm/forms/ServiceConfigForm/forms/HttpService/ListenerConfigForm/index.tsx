@@ -62,6 +62,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
     }
 
     const validateField = (fieldName: string, isInvalidFromField: boolean) => {
+        console.log(isInvalidFromField);
         actionDispatch({ type: ServiceConfigActionTypes.UPDATE_INVALID_CONFIG_STATUS, payload: isInvalidFromField });
     }
 

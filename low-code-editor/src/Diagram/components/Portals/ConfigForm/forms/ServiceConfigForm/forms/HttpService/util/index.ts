@@ -23,17 +23,22 @@ export function isServiceConfigValid(config: HTTPServiceConfigState): boolean {
     const { serviceBasePath, listenerConfig: { createNewListener, fromVar, listenerName, listenerPort } } = config;
 
     const servicePathValidity = serviceBasePath.length === 0 || isServicePathValid(serviceBasePath);
-    // const portNumberRegex = /^\d+$/;
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 
     if (createNewListener && fromVar) {
+        console.log('isInValidConfig >>>', servicePathValidity
+            && listenerPort.length > 0
+            && listenerName.length > 0 && nameRegex.test(listenerName))
         return servicePathValidity
             && listenerPort.length > 0
             && listenerName.length > 0 && nameRegex.test(listenerName);
     } else if (!fromVar) {
+        console.log('isInValidConfig >>>', servicePathValidity
+            && listenerPort.length > 0)
         return servicePathValidity
             && listenerPort.length > 0
     } else {
+        console.log('isInValidConfig >>>', servicePathValidity && listenerName.length > 0)
         return servicePathValidity && listenerName.length > 0;
     }
 
