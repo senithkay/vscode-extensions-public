@@ -730,3 +730,20 @@ export function createFunctionSignature(name: string, parameters: string, return
 
     return functionStatement;
 }
+
+export function updateFunctionSignature(name: string, parameters: string, returnTypes: string, targetPosition: NodePosition): STModification {
+    const functionStatement: STModification = {
+        startLine: targetPosition.startLine,
+        startColumn: targetPosition.startColumn,
+        endLine: targetPosition.endLine,
+        endColumn: targetPosition.endColumn,
+        type: "FUNCTION_DEFINITION_SIGNATURE",
+        config: {
+            "NAME": name,
+            "PARAMETERS": parameters,
+            "RETURN_TYPE": returnTypes
+        }
+    };
+
+    return functionStatement;
+}
