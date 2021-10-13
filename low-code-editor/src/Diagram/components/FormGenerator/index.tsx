@@ -12,19 +12,17 @@
  */
 import React from "react";
 
-import { STNode } from "@ballerina/syntax-tree";
+import { NodePosition, STNode } from "@ballerina/syntax-tree";
 
-import { DraftInsertPosition } from "../../..";
 import { ConfigOverlayFormStatus, STModification } from "../../../Definitions";
-import { DraftUpdatePosition } from "../../view-state/draft";
 import { Panel } from "../Panel";
 import { getForm } from "../Portals/utils";
 
 export interface FormGeneratorProps {
     model?: STNode;
-    targetPosition?: DraftUpdatePosition;
+    targetPosition?: NodePosition;
     onCancel?: () => void;
-    onSave?: (modifications: STModification[]) => void;
+    onSave?: () => void;
     configOverlayFormStatus: ConfigOverlayFormStatus; // FixMe : There are lot of unwanted properties passed through
     // this model clean up or remove this
 }

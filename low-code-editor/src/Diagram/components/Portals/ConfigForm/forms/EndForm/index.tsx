@@ -14,20 +14,19 @@
 // tslint:disable: jsx-wrap-multiline
 import React, { useContext } from "react";
 
-import { STNode } from "@ballerina/syntax-tree";
+import { NodePosition, STNode } from "@ballerina/syntax-tree";
 
 import { WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram"
 import { STModification } from "../../../../../../Definitions/lang-client-extended";
 import { createCheckedRespond, createReturnStatement, updateCheckedRespond, updateReturnStatement } from "../../../../../utils/modification-util";
-import { DraftInsertPosition } from "../../../../../view-state/draft";
 import { EndConfig, RespondConfig } from "../../types";
 
 import { Wizard } from "./Wizard";
 
 export interface AddEndFormProps {
     type: string;
-    targetPosition: DraftInsertPosition;
+    targetPosition: NodePosition;
     scopeSymbols?: string[];
     onCancel: () => void;
     model?: STNode;

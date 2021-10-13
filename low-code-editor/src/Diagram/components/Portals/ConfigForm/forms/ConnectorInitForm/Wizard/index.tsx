@@ -12,6 +12,7 @@
  */
 import React, { useState } from "react";
 
+import { NodePosition } from "@ballerina/syntax-tree";
 import Step from "@material-ui/core/Step";
 import StepConnector from "@material-ui/core/StepConnector";
 import StepLabel from "@material-ui/core/StepLabel";
@@ -22,8 +23,8 @@ import clsx from "clsx";
 
 import { ConnectorConfig, FormField } from "../../../../../../../ConfigurationSpec/types";
 import { Connector, STModification } from "../../../../../../../Definitions/lang-client-extended";
-import { DraftInsertPosition } from "../../../../../../view-state/draft";
 import { SelectConnectionForm } from "../../../../../ConnectorConfigWizard/Components/SelectExistingConnection";
+
 
 import { SelectInputOutputForm } from "./SelectInputOutputForm";
 import { SelectOperationForm } from "./SelectOperationForm";
@@ -36,7 +37,7 @@ interface WizardProps {
     onSave: (sourceModifications: STModification[]) => void;
     connector: Connector;
     isNewConnectorInitWizard: boolean;
-    targetPosition: DraftInsertPosition;
+    targetPosition: NodePosition;
 }
 
 enum InitFormState {

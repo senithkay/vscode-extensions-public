@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ModulePart, STNode } from '@ballerina/syntax-tree';
+import { ModulePart, NodePosition, STNode } from '@ballerina/syntax-tree';
 import { ComponentMeta, ComponentStory } from '@storybook/react';
 
 import { AiSuggestionsReq, ModelCodePosition, OauthProviderConfig } from '../api/models';
@@ -10,7 +10,7 @@ import { ConditionConfig } from '../Diagram/components/Portals/ConfigForm/types'
 import { LowcodeEvent, TriggerType } from '../Diagram/models';
 import { sizingAndPositioningST } from '../DiagramGenerator/generatorUtil';
 
-import LowCodeEditor, { BlockViewState, DiagramEditorLangClientInterface, DraftInsertPosition, LowCodeEditorProps } from './../index';
+import LowCodeEditor, { BlockViewState, LowCodeEditorProps } from './../index';
 import syntaxTree from "./data/st-raw.json"
 
 export default {
@@ -129,7 +129,7 @@ const lowCodeEditorArgs: LowCodeEditorProps = {
         zoomOut: () => undefined,
     },
     configPanel: {
-        dispactchConfigOverlayForm: (type: string, targetPosition: DraftInsertPosition,
+        dispactchConfigOverlayForm: (type: string, targetPosition: NodePosition,
                                      wizardType: WizardType, blockViewState?: BlockViewState, config?: ConditionConfig,
                                      symbolInfo?: STSymbolInfo, model?: STNode) => undefined,
         closeConfigOverlayForm: () => undefined,

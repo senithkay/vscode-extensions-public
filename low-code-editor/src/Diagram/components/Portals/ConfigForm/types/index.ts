@@ -10,13 +10,12 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { STNode } from "@ballerina/syntax-tree";
+import { NodePosition, STNode } from "@ballerina/syntax-tree";
 import { Diagnostic } from "monaco-languageclient";
 
 import { AppInfo, ApplicationFile } from "../../../../../api/models";
 import { FormField, WizardType } from "../../../../../ConfigurationSpec/types";
 import { ExpressionEditorState } from "../../../../../Definitions";
-import { DraftUpdatePosition } from "../../../../view-state/draft";
 import { GenerationType } from "../../../ConfigForms/ProcessConfigForms/ProcessForm/AddDataMappingConfig/OutputTypeSelector";
 
 export interface FormElementProps<T = {}> extends FormElementEvents {
@@ -55,7 +54,7 @@ export interface ConditionConfig {
     type: string;
     conditionExpression?: string | ForeachConfig;
     scopeSymbols?: string[];
-    conditionPosition?: DraftUpdatePosition;
+    conditionPosition?: NodePosition;
     model?: STNode
 }
 
@@ -71,6 +70,7 @@ export interface ProcessConfig {
     scopeSymbols?: string[];
     model?: STNode;
     wizardType?: WizardType;
+    targetPosition?: NodePosition;
 }
 
 export interface LogConfig {

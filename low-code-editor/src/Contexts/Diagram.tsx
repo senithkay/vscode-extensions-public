@@ -12,11 +12,10 @@
  */
 import React, { useContext, useReducer } from "react";
 
-import { STNode } from "@ballerina/syntax-tree";
+import { NodePosition, STNode } from "@ballerina/syntax-tree";
 
 import { DataMapperConfig } from "../Diagram/components/Portals/ConfigForm/types";
 import { recalculateSizingAndPositioning, sizingAndPositioning } from "../Diagram/utils/diagram-util";
-import { DraftInsertPosition } from "../Diagram/view-state/draft";
 import { LowCodeEditorContext, LowCodeEditorProps, LowCodeEditorState } from "../types";
 
 const reducer = (state: LowCodeEditorState, action: any) => {
@@ -89,7 +88,7 @@ const diagramRedraw = (dispatch: any) => {
 }
 
 const insertComponentStart = (dispatch: any) => {
-    return (payload: DraftInsertPosition) => {
+    return (payload: NodePosition) => {
         dispatch({ type: 'INSERT_COMPONENT_START', payload })
     }
 }

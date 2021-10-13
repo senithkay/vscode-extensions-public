@@ -259,6 +259,34 @@ export interface Organization {
     uuid: string;
 }
 
+export interface AnalyzerEndPoint {
+    pkgID: string;
+    name: string;
+    baseUrl: string;
+    pos: string;
+}
+
+export interface AnalyzerEndPointData {
+    endPointPayload: { [s: string]: AnalyzerEndPoint; };
+}
+
+export interface AnalyzerRequestPayload {
+    endpoints: { [s: string]: AnalyzerEndPoint };
+    actionInvocations: AnalyzerAction;
+}
+
+export interface AnalyzerAction {
+    length?: number;
+    nextNode?: AnalyzerAction;
+    endPointRef?: string;
+    name?: string;
+    path?: string;
+    pos?: string;
+    ifBody?: AnalyzerAction;
+    elseBody?: AnalyzerAction;
+    forBody?: AnalyzerAction;
+}
+
 export interface TimeRange {
     from: Date;
     to: Date;

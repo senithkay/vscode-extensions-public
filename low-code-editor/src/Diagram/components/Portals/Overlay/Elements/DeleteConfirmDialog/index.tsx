@@ -26,11 +26,12 @@ export interface DeleteConfirmDialogProps {
     message?: string;
     onConfirm?: () => void;
     onCancel?: () => void;
+    isFunctionMember?: boolean;
 }
 
 export function DeleteConfirmDialog(props: DeleteConfirmDialogProps) {
     const intl = useIntl();
-    const { position, onConfirm, onCancel } = props;
+    const { position, onConfirm, onCancel, isFunctionMember = true } = props;
     const { message = "Remove this logic block?" } = props;
     const { overlayId } = useFunctionContext();
     const removeButtonText = intl.formatMessage({
@@ -50,16 +51,17 @@ export function DeleteConfirmDialog(props: DeleteConfirmDialogProps) {
         >
             <div>
                 <DiagramOverlayContainer
-                    divId={overlayId}
+                    divId={isFunctionMember ? overlayId : 'canvas-overlay'}
                 >
                     <DiagramOverlay
                         className="delete-container"
                         position={position}
                     >
                         <p>{message}</p>
-
-                        <Button variant="contained" className="cancelbtn" onClick={onCancel}>{cancelButtonText}</Button>
-                        <Button data-testid="delete-logic-block-btn" variant="contained" className="deletebtn" onClick={onConfirm}>{removeButtonText}</Button>
+                        <div className={'action-button-container'}>
+                            <Button variant="contained" className="cancelbtn" onClick={onCancel}>{cancelButtonText}</Button>
+                            <Button data-testid="delete-logic-block-btn" variant="contained" className="deletebtn" onClick={onConfirm}>{removeButtonText}</Button>
+                        </div>
 
                     </DiagramOverlay>
                 </DiagramOverlayContainer>

@@ -11,7 +11,8 @@
  * associated services.
  */
 
-import { DraftUpdatePosition } from "../Diagram/view-state/draft";
+import { NodePosition } from "@ballerina/syntax-tree";
+
 
 export enum PrimitiveBalType {
     String = "string",
@@ -128,7 +129,7 @@ export class ConnectorConfig {
     public subExitingConnection?: string;
     public isNewConnector?: boolean;
     public responsePayloadMap?: ResponsePayloadMap;
-    public initPosition?: DraftUpdatePosition;
+    public initPosition?: NodePosition;
     public isReturnError?: boolean;
     public isConnectionNameUpdated?: boolean;
 }
