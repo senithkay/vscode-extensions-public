@@ -12,20 +12,22 @@
  */
 // tslint:disable: jsx-no-multiline-js
 // tslint:disable: jsx-wrap-multiline
-import React, { useState } from "react"
+import React, { useContext, useState } from "react"
 
 import { MethodDeclaration, ObjectField, ObjectTypeDesc, STKindChecker, TypeDefinition } from "@ballerina/syntax-tree";
+import { Button } from "@material-ui/core";
 
 import DeleteButton from "../../../assets/icons/DeleteButton";
 import EditButton from "../../../assets/icons/EditButton";
 import RecordIcon from "../../../assets/icons/RecordIcon";
+import { Context as DiagramContext } from "../../../Contexts/Diagram";
+import { removeStatement } from "../../utils/modification-util";
 import { ComponentExpandButton } from "../ComponentExpandButton";
+import { OverlayBackground } from "../OverlayBackground";
+import { DiagramOverlayContainer } from "../Portals/Overlay";
 import { RecordDefinitionComponent } from "../RecordDefinion";
 
 import "./style.scss";
-
-export const RECORD_MARGIN_LEFT: number = 24.5;
-export const RECORD_PLUS_OFFSET: number = 7.5;
 
 export interface TypeDefComponentProps {
     model: TypeDefinition;
@@ -33,9 +35,20 @@ export interface TypeDefComponentProps {
 
 export function TypeDefinitionComponent(props: TypeDefComponentProps) {
     const { model } = props;
+    const {
+        props: {
+            stSymbolInfo
+        },
+        api: {
+            code: {
+                modifyDiagram
+            }
+        }
+    } = useContext(DiagramContext);
 
     const [isEditable, setIsEditable] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
+    const [editingEnabled, setEditingEnabled] = useState(false);
 
     const handleMouseEnter = () => {
         setIsEditable(true);
@@ -46,6 +59,25 @@ export function TypeDefinitionComponent(props: TypeDefComponentProps) {
     const onExpandClick = () => {
         setIsExpanded(!isExpanded);
     };
+
+    const handleDeleteBtnClick = () => {
+        modifyDiagram([
+            removeStatement(model.position)
+        ]);
+    }
+
+    const handleEditBtnClick = () => {
+        setEditingEnabled(true);
+    }
+
+    const handleEditBtnCancel = () => {
+        setEditingEnabled(false);
+    }
+
+    const handleEditBtnConfirm = () => {
+        const targetposition = model.position;
+        // Move to code
+    }
 
     const component: JSX.Element[] = [];
 
@@ -76,51 +108,67 @@ export function TypeDefinitionComponent(props: TypeDefComponentProps) {
             }
         }
         component.push(
-            <div className="type-comp" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
-                <div className="type-header" >
-                    <div className="type-content">
-                        <div className="type-icon">
-                            <RecordIcon />
-                        </div>
-                        <div className="type-type">
-                            {type}
-                        </div>
-                        <div className="type-name">
-                            {varName}
-                        </div>
-                    </div>
-                    {isEditable && (
-                        <div className="type-amendment-options">
-                            <div className="type-edit">
-                                <EditButton />
+            <div>
+                <div className="type-comp" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+                    <div className="type-header" >
+                        <div className="type-content">
+                            <div className="type-icon">
+                                <RecordIcon />
                             </div>
-                            <div className="type-delete">
-                                <DeleteButton />
+                            <div className="type-type">
+                                {type}
                             </div>
-                            {typeFields && (
-                                <div className="type-expand">
-                                    <ComponentExpandButton isExpanded={isExpanded} onClick={onExpandClick} />
+                            <div className="type-name">
+                                {varName}
+                            </div>
+                        </div>
+                        {isEditable && (
+                            <div className="type-amendment-options">
+                                <div className="type-edit">
+                                    <EditButton onClick={handleEditBtnClick} />
                                 </div>
-                            )}
-                        </div>
+                                <div className="type-delete">
+                                    <DeleteButton onClick={handleDeleteBtnClick} />
+                                </div>
+                                {typeFields && (
+                                    <div className="type-expand">
+                                        <ComponentExpandButton isExpanded={isExpanded} onClick={onExpandClick} />
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                    <div className="type-separator" />
+                    {isExpanded && typeFields && (
+                        <>
+                            <div className="type-fields" >
+                                {typeFields.map(typefield => (
+                                    <div className="type-field" key={typefield[1]}>
+                                        <div className="type-field-type">
+                                            {typefield[0]}
+                                        </div>
+                                        <div className="type-field-name">
+                                            {typefield[1]};
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </>
                     )}
                 </div>
-                <div className="type-separator" />
-                {isExpanded && typeFields && (
-                    <>
-                        <div className="type-fields" >
-                            {typeFields.map(recordfield => (
-                                <div className="type-field" key={recordfield[1]}>
-                                    <div className="type-field-type">
-                                        {recordfield[0]}
-                                    </div>
-                                    <div className="type-field-name">
-                                        {recordfield[1]};
-                                    </div>
+                {editingEnabled && (
+                    <DiagramOverlayContainer>
+                        <div className="container-wrapper">
+                            <div className="confirm-container" >
+                                <p>Diagram editing for this is unsupported. Move to code?</p>
+                                <div className={'action-button-container'}>
+                                    <Button variant="contained" className="cancelbtn" onClick={handleEditBtnCancel}>No</Button>
+                                    <Button variant="contained" className="confirmbtn" onClick={handleEditBtnConfirm}>Yes</Button>
                                 </div>
-                            ))}
+                            </div>
                         </div>
-                    </>
+                        <OverlayBackground />
+                    </DiagramOverlayContainer>
                 )}
             </div>
         )
