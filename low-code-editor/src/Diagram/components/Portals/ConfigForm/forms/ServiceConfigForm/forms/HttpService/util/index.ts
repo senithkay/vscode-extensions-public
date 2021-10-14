@@ -11,12 +11,16 @@
  * associated services.
  */
 
+import { ServiceDeclaration, STKindChecker } from "@ballerina/syntax-tree";
+import { debug } from "webpack";
+
+import { STSymbolInfo } from "../../../../../../../../..";
 import { isServicePathValid } from "../../../../../../../../../utils/validator";
 
 import { HTTPServiceConfigState } from "./reducer";
 
 export function isServiceConfigValid(config: HTTPServiceConfigState): boolean {
-    const { createNewListener, serviceBasePath, listenerConfig: { formVar: fromVar, listenerName, listenerPort } } = config;
+    const { serviceBasePath, listenerConfig: { createNewListener, fromVar, listenerName, listenerPort } } = config;
 
     const servicePathValidity = serviceBasePath.length === 0 || isServicePathValid(serviceBasePath);
     const portNumberRegex = /^\d+$/;
@@ -26,10 +30,57 @@ export function isServiceConfigValid(config: HTTPServiceConfigState): boolean {
         return servicePathValidity
             && listenerPort.length > 0 && portNumberRegex.test(listenerPort)
             && listenerName.length > 0 && nameRegex.test(listenerName);
-    } else if (createNewListener && !fromVar) {
+    } else if (!fromVar) {
         return servicePathValidity
             && listenerPort.length > 0 && portNumberRegex.test(listenerPort)
     } else {
-        return serviceBasePath && listenerName.length > 0;
+        return servicePathValidity && listenerName.length > 0;
     }
+}
+
+export function getFormStateFromST(model: ServiceDeclaration, symbolInfo: STSymbolInfo): HTTPServiceConfigState {
+
+    const state: HTTPServiceConfigState = {
+        serviceBasePath: '',
+        listenerConfig: {
+            createNewListener: false,
+            fromVar: true,
+            listenerName: '',
+            listenerPort: ''
+        }
+    }
+
+    if (model) {
+        const serviceListenerExpression = model.expressions.length > 0 && model.expressions[0];
+        const servicePath = model.absoluteResourcePath
+                                    .map((pathSegments, i) => i === 0 ? '' : pathSegments.value)
+                                    .join('');
+
+        if (STKindChecker.isSimpleNameReference(serviceListenerExpression)) {
+
+            return {
+                ...state,
+                serviceBasePath: servicePath,
+                listenerConfig: {
+                    ...state.listenerConfig,
+                    fromVar: true,
+                    listenerName: serviceListenerExpression.name.value
+                }
+            }
+        } else if (STKindChecker.isExplicitNewExpression(serviceListenerExpression)) {
+            return {
+                ...state,
+                serviceBasePath: servicePath,
+                listenerConfig: {
+                    ...state.listenerConfig,
+                    fromVar: false,
+                    listenerPort: serviceListenerExpression.parenthesizedArgList.arguments.length > 0
+                        && serviceListenerExpression.parenthesizedArgList.arguments[0].source,
+
+                }
+            }
+        }
+    }
+
+    return state;
 }

@@ -14,9 +14,8 @@
 // tslint:disable: jsx-wrap-multiline
 import React, { useContext } from "react";
 
-import { STNode } from "@ballerina/syntax-tree";
+import { NodePosition, STNode } from "@ballerina/syntax-tree";
 
-import { WizardType } from "../../../../ConfigurationSpec/types";
 import { Context } from "../../../../Contexts/Diagram";
 import { ConfigOverlayFormStatus } from "../../../../Definitions";
 import { STModification } from "../../../../Definitions/lang-client-extended";
@@ -28,7 +27,6 @@ import {
     updateLogStatement,
     updatePropertyStatement
 } from "../../../utils/modification-util";
-import { DraftInsertPosition } from "../../../view-state/draft";
 import { generateInlineRecordForJson, getDefaultValueForType } from "../../DataMapper/util";
 import { CustomExpressionConfig, DataMapperConfig, LogConfig, ProcessConfig } from "../../Portals/ConfigForm/types";
 import { DiagramOverlayPosition } from "../../Portals/Overlay";
@@ -38,7 +36,7 @@ import { GenerationType } from "./ProcessForm/AddDataMappingConfig/OutputTypeSel
 
 export interface AddProcessFormProps {
     type: string;
-    targetPosition: DraftInsertPosition;
+    targetPosition: NodePosition;
     scopeSymbols?: string[];
     onCancel: () => void;
     onSave: () => void;
@@ -58,13 +56,14 @@ export function ProcessConfigForm(props: any) {
         props: { currentApp, stSymbolInfo }
     } = useContext(Context);
 
-    const { onCancel, onSave, configOverlayFormStatus } = props as AddProcessFormProps;
+    const { onCancel, onSave, configOverlayFormStatus, targetPosition } = props as AddProcessFormProps;
     const { formArgs, formType } = configOverlayFormStatus;
 
     const processConfig: ProcessConfig = {
         type: formType,
         scopeSymbols: [],
-        model: formArgs?.model
+        model: formArgs?.model,
+        targetPosition
     };
 
     const onSaveClick = () => {

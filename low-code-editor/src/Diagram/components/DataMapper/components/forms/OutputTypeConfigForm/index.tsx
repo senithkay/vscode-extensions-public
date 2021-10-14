@@ -17,14 +17,13 @@
 
 import React, { useContext, useEffect, useState } from 'react';
 
-import { CaptureBindingPattern, LocalVarDecl, STKindChecker, STNode } from '@ballerina/syntax-tree';
+import { CaptureBindingPattern, LocalVarDecl, NodePosition, STKindChecker, STNode } from '@ballerina/syntax-tree';
 
 import { FormField, PrimitiveBalType, WizardType } from '../../../../../../ConfigurationSpec/types';
 import { Context as DiagramContext } from '../../../../../../Contexts/Diagram';
 import { STModification } from '../../../../../../Definitions';
 import { getAllVariables } from '../../../../../utils/mixins';
 import { createPropertyStatement, updatePropertyStatement } from '../../../../../utils/modification-util';
-import { DraftInsertPosition } from '../../../../../view-state/draft';
 import { wizardStyles } from "../../../../ConfigForms/style";
 import { FormAutocomplete } from '../../../../Portals/ConfigForm/Elements/Autocomplete';
 import { PrimaryButton } from '../../../../Portals/ConfigForm/Elements/Button/PrimaryButton';
@@ -47,7 +46,7 @@ export enum GenerationType {
 export function OutputTypeConfigForm() {
     const { state: diagramState, props: { currentApp, stSymbolInfo: symbolInfo } } = useContext(DiagramContext);
     const { targetPosition } = diagramState;
-    const targetpos = targetPosition as DraftInsertPosition;
+    const targetpos = targetPosition as NodePosition;
     const {
         state: {
             dataMapperConfig,
@@ -327,7 +326,7 @@ export function OutputTypeConfigForm() {
         const modifications: STModification[] = [];
 
         if (isSaved) {
-            config.outputType.startLine = outputSTNode ? outputSTNode.position.startLine : targetpos.line;
+            config.outputType.startLine = outputSTNode ? outputSTNode.position.startLine : targetpos.startLine;
             const defaultReturn = getDefaultValueForType(config.outputType, stSymbolInfo.recordTypeDescriptions, "");
 
             let outputType = '';
@@ -350,7 +349,7 @@ export function OutputTypeConfigForm() {
             const dataMapperFunction: STModification = updatePropertyStatement(variableDefString, outputSTNode.position);
             modifications.push(dataMapperFunction);
         } else {
-            config.outputType.startLine = targetpos.line;
+            config.outputType.startLine = targetpos.startLine;
             const defaultReturn = getDefaultValueForType(config.outputType, stSymbolInfo.recordTypeDescriptions, "");
 
             let outputType = '';

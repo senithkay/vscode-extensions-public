@@ -18,6 +18,7 @@ import {
     CallStatement,
     FunctionCall,
     LocalVarDecl,
+    NodePosition,
     PositionalArg,
     QualifiedNameReference,
     STKindChecker,
@@ -29,7 +30,7 @@ import { WizardType } from "../../../ConfigurationSpec/types";
 import { Context } from "../../../Contexts/Diagram";
 import { getOverlayFormConfig, getRandomInt } from "../../utils/diagram-util";
 import { BlockViewState, StatementViewState } from "../../view-state";
-import { DraftInsertPosition, DraftStatementViewState } from "../../view-state/draft";
+import { DraftStatementViewState } from "../../view-state/draft";
 import { DefaultConfig } from "../../visitors/default";
 import { Assignment } from "../Assignment";
 import { ProcessConfigForm } from "../ConfigForms/ProcessConfigForms";
@@ -184,9 +185,9 @@ export function DataProcessor(props: ProcessorProps) {
     // let exsitingWizard: ReactNode = null;
     const onProcessClick = () => {
         if (processType !== "PROCESS") {
-            const position: DraftInsertPosition = {
-                column: model.position.startColumn,
-                line: model.position.startLine
+            const position: NodePosition = {
+                startColumn: model.position.startColumn,
+                startLine: model.position.startLine
             };
             const config = {
                 type: processType

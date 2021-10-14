@@ -15,7 +15,7 @@
 // tslint:disable: ordered-imports
 import React, { useContext } from "react";
 
-import { STNode } from "@ballerina/syntax-tree";
+import { NodePosition, STNode } from "@ballerina/syntax-tree";
 
 import { Context } from "../../../../Contexts/Diagram";
 
@@ -28,7 +28,6 @@ import {
     updatePropertyStatement,
     updateReturnStatement
 } from "../../../utils/modification-util";
-import { DraftInsertPosition } from "../../../view-state/draft";
 import { EndConfig, RespondConfig } from "../../Portals/ConfigForm/types";
 import { DiagramOverlayPosition } from "../../Portals/Overlay";
 import { genVariableName } from "../../Portals/utils";
@@ -38,7 +37,7 @@ import { EVENT_TYPE_AZURE_APP_INSIGHTS, FINISH_STATEMENT_ADD_INSIGHTS, LowcodeEv
 
 export interface AddEndFormProps {
     type: string;
-    targetPosition: DraftInsertPosition;
+    targetPosition: NodePosition;
     scopeSymbols?: string[];
     onCancel: () => void;
     onSave: () => void;

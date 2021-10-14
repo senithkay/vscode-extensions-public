@@ -47,6 +47,16 @@
                 color: #8d91a3;
             }
         }
+
+        .show-on-hover {
+            display: none;
+        }
+
+        &:hover {
+            .show-on-hover {
+                display: block;
+            }
+        }
     }
 
     .content-container {
@@ -54,11 +64,15 @@
         flex-direction: column;
         overflow-y: auto;
 
+        .plus-container {
+            margin-left: 10px;
+        }
+
         .service-member {
             margin: 5px 10px 5px 10px;
 
             .plus-container {
-                margin-left: 0px;
+                margin-left: 0;
             }
         }
 
@@ -68,10 +82,6 @@
 
         .service-member:last-of-type {
             margin: 5px 10px 10px 10px;
-        }
-
-        .plus-container {
-            margin-left: 10px;
         }
     }
 }

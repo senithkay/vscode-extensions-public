@@ -13,10 +13,10 @@
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline object-literal-shorthand align
 import React, { useState } from "react";
 
+import { NodePosition } from "@ballerina/syntax-tree";
+
 import RecordIcon from "../../../../assets/icons/RecordIcon";
 import { ConfigOverlayFormStatus } from "../../../../Definitions";
-import { DraftInsertPosition } from "../../../view-state/draft";
-import { RecordEditor } from "../../ConfigForms/RecordEditor";
 import { FormGenerator } from "../../FormGenerator";
 import { DiagramOverlay, DiagramOverlayContainer } from "../../Portals/Overlay";
 
@@ -27,7 +27,7 @@ const recordFromJsonDiv = "record-from-json";
 
 export interface RecordPlusOptionProps {
     isSelected: boolean;
-    targetPosition: DraftInsertPosition;
+    targetPosition: NodePosition;
     onClose: () => void;
 }
 
@@ -44,7 +44,7 @@ export const RecordPlusOption = (props: RecordPlusOptionProps) => {
         },
         formType: "RecordEditor",
         isLoading: false
-    }
+    };
 
     const handleJsonFormClick = () => {
         setIsRecordFromVisible(true);

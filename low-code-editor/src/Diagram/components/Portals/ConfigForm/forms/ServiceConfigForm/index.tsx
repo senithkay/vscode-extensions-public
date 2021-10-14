@@ -12,33 +12,33 @@
  */
 import React, { useState } from "react";
 
-import { STNode } from "@ballerina/syntax-tree";
+import { NodePosition, ServiceDeclaration } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 
 import { ServiceIcon } from "../../../../../../assets/icons";
-import { STModification } from "../../../../../../Definitions";
-import { DraftUpdatePosition } from "../../../../../view-state/draft";
+import { useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { useStyles as useFormStyles } from "../style";
 
 import { HttpServiceForm } from "./forms/HttpService";
 import { ServiceTypeSelector } from "./ServiceTypeSelector";
+import { getServiceTypeFromModel } from "./util";
 
 interface ServiceConfigFormProps {
-    model?: STNode;
-    targetPosition?: DraftUpdatePosition;
+    model?: ServiceDeclaration;
+    targetPosition?: NodePosition;
     onCancel: () => void;
-    onSave: (modifications: STModification[]) => void;
+    onSave: () => void;
 }
 
 export enum ServiceTypes {
-    HTTP = 'HTTP'
+    HTTP = 'http'
 }
 
 export function ServiceConfigForm(props: ServiceConfigFormProps) {
     const formClasses = useFormStyles();
     const { model, targetPosition, onSave, onCancel } = props;
-    const [serviceType, setServiceType] = useState<string>(undefined);
-
+    const { props: { stSymbolInfo } } = useDiagramContext();
+    const [serviceType, setServiceType] = useState<string>(getServiceTypeFromModel(model, stSymbolInfo));
 
     let configForm = <div />;
 
@@ -64,7 +64,6 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
                 {!serviceType && <ServiceTypeSelector onSelect={setServiceType} />}
                 {serviceType && configForm}
             </div>
-
         </FormControl>
     )
 }
