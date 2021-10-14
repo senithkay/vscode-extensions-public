@@ -16,6 +16,8 @@ export interface ServiceIconProps {
     color?: string
 }
 
+export const ServiceIconLight = () => <ServiceIcon color="#CBCEDB"/>
+
 export default function ServiceIcon(props: ServiceIconProps) {
     return (
         <svg width="18px" height="18px" viewBox="0 0 18 18" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">

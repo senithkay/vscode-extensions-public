@@ -14,7 +14,7 @@
 import React, { useContext, useState } from "react";
 import { FormattedMessage } from "react-intl";
 
-import { CaptureBindingPattern, CheckAction, LocalVarDecl, PositionalArg, RemoteMethodCallAction, SimpleNameReference, STNode, TypeCastExpression } from "@ballerina/syntax-tree";
+import { CaptureBindingPattern, CheckAction, LocalVarDecl, NodePosition, PositionalArg, RemoteMethodCallAction, SimpleNameReference, STNode, TypeCastExpression } from "@ballerina/syntax-tree";
 import Typography from "@material-ui/core/Typography";
 import { CloseRounded } from "@material-ui/icons";
 
@@ -44,8 +44,6 @@ import {
     updatePropertyStatement,
     updateServiceCallForPayload
 } from "../../../utils/modification-util";
-import { DraftInsertPosition, DraftUpdatePosition } from "../../../view-state/draft";
-import { SelectConnectionForm } from "../../ConnectorConfigWizard/Components/SelectExistingConnection";
 import { wizardStyles } from "../../ConnectorConfigWizard/style";
 import { ButtonWithIcon } from "../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import { genVariableName, getConnectorIcon, getParams } from "../../Portals/utils";
@@ -63,7 +61,7 @@ interface WizardProps {
     onClose?: () => void;
     connector: Connector;
     isNewConnectorInitWizard: boolean;
-    targetPosition: DraftInsertPosition;
+    targetPosition: NodePosition;
     model?: STNode,
     selectedConnector?: LocalVarDecl;
     isAction?: boolean;
@@ -392,7 +390,7 @@ export function HTTPWizard(props: WizardProps) {
                             if (!headerObject[0]?.requestName) {
                                 modifications.push(createPropertyStatement(
                                     `http:Request ${requestNameGen} = new;\n`,
-                                    { line: startLine, column: 0 }
+                                    { startLine, startColumn: 0 }
                                 ));
                             }
 
@@ -406,7 +404,7 @@ export function HTTPWizard(props: WizardProps) {
                         }
 
                         if (headerObject.length > 0) {
-                            const updatePosition: DraftUpdatePosition = {
+                            const updatePosition: NodePosition = {
                                 startLine,
                                 startColumn,
                                 endColumn,
@@ -447,7 +445,7 @@ export function HTTPWizard(props: WizardProps) {
                                     connectorConfig.action.fields[3]?.value,
                                     connectorConfig.action.name,
                                     connectorConfig.action.fields[3],
-                                    { line: model.position.startLine, column: 0 },
+                                    { startLine: model.position.startLine, startColumn: 0 },
                                     modifications
                                 );
                             } else {
@@ -456,7 +454,7 @@ export function HTTPWizard(props: WizardProps) {
                                     requestNameGen,
                                     connectorConfig.action.name,
                                     connectorConfig.action.fields[1],
-                                    { line: model.position.startLine, column: 0 },
+                                    { startLine: model.position.startLine, startColumn: 0 },
                                     modifications
                                 );
                             }
@@ -473,7 +471,7 @@ export function HTTPWizard(props: WizardProps) {
                                 connectorConfig.action.fields[3]?.value,
                                 connectorConfig.action.name,
                                 connectorConfig.action.fields[3],
-                                { line: model.position.startLine - 1, column: 0 },
+                                { startLine: model.position.startLine - 1, startColumn: 0 },
                                 modifications
                             );
                         } else {
@@ -482,7 +480,7 @@ export function HTTPWizard(props: WizardProps) {
                                 requestNameGen,
                                 connectorConfig.action.name,
                                 connectorConfig.action.fields[1],
-                                { line: model.position.startLine - 1, column: 0 },
+                                { startLine: model.position.startLine - 1, startColumn: 0 },
                                 modifications
                             );
                         }
@@ -535,7 +533,7 @@ export function HTTPWizard(props: WizardProps) {
                             getPayloadReturnType(),
                             connectorConfig.action.returnVariableName,
                             connectorConfig.responsePayloadMap.payloadTypes.get(connectorConfig.responsePayloadMap.selectedPayloadType),
-                            { line: model.position.startLine + 1, column: 0 }
+                            { startLine: model.position.startLine + 1, startColumn: 0 }
                         );
                         modifications.push(addPayload);
                     }

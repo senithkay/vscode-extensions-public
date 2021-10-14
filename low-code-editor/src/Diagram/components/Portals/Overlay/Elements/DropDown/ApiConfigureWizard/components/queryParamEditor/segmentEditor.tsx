@@ -34,11 +34,12 @@ interface PathSegmentEditorProps {
     segment?: QueryParam,
     onSave?: (segment: QueryParam) => void;
     onCancel?: () => void;
+    params?: QueryParam[],
     types?: string[];
 }
 
 export function QueryParamSegmentEditor(props: PathSegmentEditorProps) {
-    const { segment, onSave, id, onCancel, types } = props;
+    const { segment, onSave, id, onCancel, types, params } = props;
     const classes = useStyles();
     const { props: { stSymbolInfo } } = useContext(Context);
     const initValue: QueryParam = segment ? { ...segment } : {
@@ -66,11 +67,16 @@ export function QueryParamSegmentEditor(props: PathSegmentEditorProps) {
 
     const validateNameValue = (value: string) => {
         if (value) {
-            const varValidationResponse = checkVariableName("query param name", value,
-                "", stSymbolInfo);
-            if (varValidationResponse?.error) {
-                setParamError(varValidationResponse.message);
+            if (params && params.some(item => item.name === value)){
+                setParamError(`${value} already exists`);
                 return false;
+            }else{
+                const varValidationResponse = checkVariableName("query param name", value,
+                "", stSymbolInfo);
+                if (varValidationResponse?.error) {
+                    setParamError(varValidationResponse.message);
+                    return false;
+                }
             }
         }
         setParamError("");

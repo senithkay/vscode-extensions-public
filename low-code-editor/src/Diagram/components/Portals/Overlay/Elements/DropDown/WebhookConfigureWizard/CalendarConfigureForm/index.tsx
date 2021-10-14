@@ -248,7 +248,7 @@ export function CalendarConfigureForm(props: CalendarConfigureFormProps) {
                 configurable string ${getKeyFromConnection(activeConnection, 'clientSecretKey')} = ?;
                 configurable string ${getKeyFromConnection(activeConnection, 'refreshTokenKey')} = ?;
                 configurable string ${getKeyFromConnection(activeConnection, 'tokenEpKey')} = ?;`,
-                    {column: 0, line: initialConfigurable?.position?.startLine - 1 || 1}));
+                    {startColumn: 0, startLine: initialConfigurable?.position?.startLine - 1 || 1}));
             }
             const clientId = getKeyFromCalConnection('clientIdKey');
             const clientSecret = getKeyFromCalConnection('clientSecretKey');

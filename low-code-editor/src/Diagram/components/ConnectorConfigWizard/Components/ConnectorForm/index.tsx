@@ -18,6 +18,7 @@ import { useIntl } from "react-intl";
 import {
   CaptureBindingPattern,
   LocalVarDecl,
+  NodePosition,
   STKindChecker,
 } from "@ballerina/syntax-tree";
 import { Divider, Typography } from "@material-ui/core";
@@ -63,7 +64,6 @@ import {
   createPropertyStatement,
   updatePropertyStatement,
 } from "../../../../utils/modification-util";
-import { DraftInsertPosition } from "../../../../view-state/draft";
 import { FormGeneratorProps } from "../../../FormGenerator";
 import {
   genVariableName,
@@ -119,7 +119,7 @@ enum ConnectionAction {
 
 export interface ConnectorConfigWizardProps {
   connectorInfo: BallerinaConnectorInfo;
-  targetPosition: DraftInsertPosition;
+  targetPosition: NodePosition;
   configWizardArgs?: ConfigWizardState;
   onClose: () => void;
   selectedConnector: LocalVarDecl;
@@ -180,7 +180,9 @@ export function ConnectorForm(props: FormGeneratorProps) {
   } = configWizardArgs;
 
   let isOauthConnector = false;
+  // TODO:  need to update connector name with display annotation
   const connectorName = connector?.moduleName || connector?.package.name;
+  const connectorModule = connector?.moduleName || connector?.package.name;
   configurations.configList?.forEach((configuration) => {
     // TODO: need to find proper way to identify auth enable connector
     if (
@@ -317,7 +319,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
   config.name =
     connector && isNewConnectorInitWizard && !config.name
       ? genVariableName(
-          getFormattedModuleName(connector.moduleName || connector.package.name) + "Endpoint",
+          getFormattedModuleName(connectorModule) + "Endpoint",
           getAllVariables(symbolInfo)
         )
       : config.name;
@@ -341,7 +343,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
   const onCreateNew = () => {
     setConfigName(
       genVariableName(
-        connector.moduleName + "Endpoint",
+        connectorModule + "Endpoint",
         getAllVariables(symbolInfo)
       )
     );
@@ -351,7 +353,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
     } else {
       setConfigName(
         genVariableName(
-          connector.moduleName + "Endpoint",
+          connectorModule + "Endpoint",
           getAllVariables(symbolInfo)
         )
       );
@@ -400,7 +402,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
   const onManualConnection = () => {
     setConfigName(
       genVariableName(
-        getFormattedModuleName(connector.moduleName || connector.package.name) + "Endpoint",
+        getFormattedModuleName(connectorModule) + "Endpoint",
         getAllVariables(symbolInfo)
       )
     );
@@ -470,7 +472,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
   const handleClientOnSave = () => {
     const modifications: STModification[] = [];
     const isInitReturnError = getInitReturnType(functionDefInfo);
-    const moduleName = getFormattedModuleName(connector.moduleName || connector.package.name);
+    const moduleName = getFormattedModuleName(connectorModule);
     const event: LowcodeEvent = {
       type: EVENT_TYPE_AZURE_APP_INSIGHTS,
       name: FINISH_CONNECTOR_INIT_ADD_INSIGHTS,
@@ -506,7 +508,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
         // new connector client initialization
         const addImport: STModification = createImportStatement(
           connector.package.organization,
-          connector.moduleName,
+          connectorModule,
           targetPosition
         );
         modifications.push(addImport);
@@ -515,8 +517,8 @@ export function ConnectorForm(props: FormGeneratorProps) {
           const addConfigurableVars = createPropertyStatement(
             connectorConfigurables,
             {
-              column: 0,
-              line: syntaxTree?.configurablePosition?.startLine || 1,
+              startColumn: 0,
+              startLine: syntaxTree?.configurablePosition?.startLine || 1,
             }
           );
           modifications.push(addConfigurableVars);
@@ -539,8 +541,8 @@ export function ConnectorForm(props: FormGeneratorProps) {
           const addConfigurableVars = createPropertyStatement(
             connectorConfigurables,
             {
-              column: 0,
-              line: syntaxTree?.configurablePosition?.startLine || 1,
+              startColumn: 0,
+              startLine: syntaxTree?.configurablePosition?.startLine || 1,
             }
           );
           modifications.push(addConfigurableVars);
@@ -624,7 +626,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
               // tslint:disable-next-line: no-shadowed-variable
               const addImport: STModification = createImportStatement(
                 connector.package.organization,
-                connector.moduleName,
+                connectorModule,
                 targetPosition
               );
               modifications.push(addImport);
@@ -633,8 +635,8 @@ export function ConnectorForm(props: FormGeneratorProps) {
                 const addConfigurableVars = createPropertyStatement(
                   connectorConfigurables,
                   {
-                    column: 0,
-                    line: syntaxTree?.configurablePosition?.startLine || 1,
+                    startColumn: 0,
+                    startLine: syntaxTree?.configurablePosition?.startLine || 1,
                   }
                 );
                 modifications.push(addConfigurableVars);
@@ -652,7 +654,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
               // new connector client initialization
               const addImport: STModification = createImportStatement(
                 connector.package.organization,
-                connector.moduleName,
+                connectorModule,
                 targetPosition
               );
               modifications.push(addImport);
@@ -660,8 +662,8 @@ export function ConnectorForm(props: FormGeneratorProps) {
                 const addConfigurableVars = createPropertyStatement(
                   connectorConfigurables,
                   {
-                    column: 0,
-                    line: syntaxTree?.configurablePosition?.startLine || 1,
+                    startColumn: 0,
+                    startLine: syntaxTree?.configurablePosition?.startLine || 1,
                   }
                 );
                 modifications.push(addConfigurableVars);
@@ -750,7 +752,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
           // new connector client initialization
           const addImport: STModification = createImportStatement(
             connector.package.organization,
-            connector.moduleName,
+            connectorModule,
             targetPosition
           );
           modifications.push(addImport);
@@ -759,8 +761,8 @@ export function ConnectorForm(props: FormGeneratorProps) {
             const addConfigurableVars = createPropertyStatement(
               connectorConfigurables,
               {
-                column: 0,
-                line: syntaxTree?.configurablePosition?.startLine || 1,
+                startColumn: 0,
+                startLine: syntaxTree?.configurablePosition?.startLine || 1,
               }
             );
             modifications.push(addConfigurableVars);
@@ -799,7 +801,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
       config.action.name,
       functionDefInfo
     );
-    const moduleName = getFormattedModuleName(connector.moduleName || connector.package.name);
+    const moduleName = getFormattedModuleName(connectorModule);
     const event: LowcodeEvent = {
       type: EVENT_TYPE_AZURE_APP_INSIGHTS,
       name: FINISH_CONNECTOR_ACTION_ADD_INSIGHTS,
@@ -891,7 +893,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
                 );
                 const addImport: STModification = createImportStatement(
                   connector.package.organization,
-                  connector.moduleName,
+                  connectorModule,
                   targetPosition
                 );
                 modifications.push(addImport);
@@ -900,8 +902,8 @@ export function ConnectorForm(props: FormGeneratorProps) {
                   const addConfigurableVars = createPropertyStatement(
                     connectorConfigurables,
                     {
-                      column: 0,
-                      line: syntaxTree?.configurablePosition?.startLine || 1,
+                      startColumn: 0,
+                      startLine: syntaxTree?.configurablePosition?.startLine || 1,
                     }
                   );
                   modifications.push(addConfigurableVars);
@@ -996,7 +998,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
             );
             const addImport: STModification = createImportStatement(
               connector.package.organization,
-              connector.moduleName,
+              connectorModule,
               targetPosition
             );
             modifications.push(addImport);
@@ -1005,8 +1007,8 @@ export function ConnectorForm(props: FormGeneratorProps) {
               const addConfigurableVarsInvoke = createPropertyStatement(
                 connectorConfigurablesInvoke,
                 {
-                  column: 0,
-                  line: syntaxTree?.configurablePosition?.startLine || 1,
+                  startColumn: 0,
+                  startLine: syntaxTree?.configurablePosition?.startLine || 1,
                 }
               );
               modifications.push(addConfigurableVarsInvoke);
@@ -1027,7 +1029,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
           } else if (config.connectorInit && config.connectorInit.length > 0) {
             const addImport: STModification = createImportStatement(
               connector.package.organization,
-              connector.moduleName,
+              connectorModule,
               targetPosition
             );
             modifications.push(addImport);
@@ -1097,7 +1099,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
   // only one client will be create for each module
   const handleSingleFormOnSave = () => {
     const modifications: STModification[] = [];
-    const moduleName = getFormattedModuleName(connector.moduleName || connector.package.name);
+    const moduleName = getFormattedModuleName(connectorModule);
     const existingEndpointName = getModuleVariable(symbolInfo, connectorInfo);
     const isInitReturnError = getInitReturnType(functionDefInfo);
     const currentActionReturnType = getActionReturnType(
@@ -1137,7 +1139,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
           // new connector client initialization
           const addImport: STModification = createImportStatement(
             connector.package.organization,
-            connector.moduleName,
+            connectorModule,
             targetPosition
           );
           modifications.push(addImport);
@@ -1216,7 +1218,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
         const addImport: STModification = createImportStatement(
           typeInfo.orgName,
           typeInfo.modName,
-          { column: 0, line: 0 }
+          { startColumn: 0, startLine: 0 }
         );
         // check already exists modification statements
         const existsMod = modifications.find(
@@ -1287,7 +1289,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
 
   const onSave = (sourceModifications: STModification[]) => {
     const isInitReturnError = getInitReturnType(functionDefInfo);
-    const moduleName = getFormattedModuleName(connector.moduleName || connector.package.name);
+    const moduleName = getFormattedModuleName(connectorModule);
     if (sourceModifications) {
       // Modifications for special Connectors
       modifyDiagram(sourceModifications);
@@ -1329,7 +1331,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
           // Add an import.
           const addImport: STModification = createImportStatement(
             connector.package.organization,
-            connector.moduleName,
+            connectorModule,
             targetPosition
           );
           modifications.push(addImport);
@@ -1414,9 +1416,9 @@ export function ConnectorForm(props: FormGeneratorProps) {
   let connectorComponent: ReactNode = null;
 
   if (functionDefInfo) {
-    if (connector.moduleName === "http") {
+    if (connectorModule === "http") {
       connectorComponent = getConnectorComponent(
-        connector.moduleName + connector.name,
+        connectorModule + connector.name,
         {
           functionDefinitions: functionDefInfo,
           connectorConfig: config,
@@ -1441,9 +1443,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
             /> */}
             <div className={wizardClasses.titleWrapper}>
               <div className={wizardClasses.connectorIconWrapper}>
-                {getConnectorIcon(
-                  `${connector.package.name}_${connector.name}`
-                )}
+                {getConnectorIcon(connectorName)}
               </div>
               <Typography className={wizardClasses.configTitle} variant="h4">
                 {connectorName}

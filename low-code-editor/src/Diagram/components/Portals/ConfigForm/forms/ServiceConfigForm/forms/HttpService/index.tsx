@@ -14,51 +14,36 @@
 import React, { useReducer } from "react";
 import { FormattedMessage } from "react-intl";
 
-import { ListenerDeclaration, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { ListenerDeclaration, NodePosition, ServiceDeclaration, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import { FormHelperText } from "@material-ui/core";
 import classNames from "classnames";
 
 import { PrimaryButton } from "../../../../../../../../components/Buttons/PrimaryButton";
 import { useDiagramContext } from "../../../../../../../../Contexts/Diagram";
-import { STModification } from "../../../../../../../../Definitions";
 import { isServicePathValid } from "../../../../../../../../utils/validator";
-import { createImportStatement, createServiceDeclartion } from "../../../../../../../utils/modification-util";
-import { DraftUpdatePosition } from "../../../../../../../view-state/draft";
+import { createImportStatement, createServiceDeclartion, updateServiceDeclartion } from "../../../../../../../utils/modification-util";
 import { SecondaryButton } from "../../../../Elements/Button/SecondaryButton";
-import { SelectDropdownWithButton } from "../../../../Elements/DropDown/SelectDropdownWithButton";
 import { FormTextInput } from "../../../../Elements/TextField/FormTextInput";
 import { useStyles as useFormStyles } from "../../../style";
 
 import { ListenerConfigForm } from "./ListenerConfigForm";
-import { isServiceConfigValid } from "./util";
-import { HTTPServiceConfigState, ServiceConfigActionTypes, serviceConfigReducer } from "./util/reducer";
+import { getFormStateFromST, isServiceConfigValid } from "./util";
+import { ServiceConfigActionTypes, serviceConfigReducer } from "./util/reducer";
 
 interface HttpServiceFormProps {
-    model?: STNode;
-    targetPosition?: DraftUpdatePosition;
+    model?: ServiceDeclaration;
+    targetPosition?: NodePosition;
     onCancel: () => void;
-    onSave: (modifications: STModification[]) => void;
+    onSave: () => void;
 }
 
 const HTTP_MODULE_QUALIFIER = 'http';
 
-
-const defaultState: HTTPServiceConfigState = {
-    serviceBasePath: '',
-    createNewListener: false,
-    listenerConfig: {
-        formVar: false,
-        listenerName: '',
-        listenerPort: ''
-    }
-}
-
 export function HttpServiceForm(props: HttpServiceFormProps) {
     const formClasses = useFormStyles();
     const { model, targetPosition, onCancel, onSave } = props;
-    const { props: { stSymbolInfo } } = useDiagramContext();
-    const [state, dispatch] = useReducer(serviceConfigReducer, defaultState);
-
+    const { props: { stSymbolInfo }, api: { code: { modifyDiagram } } } = useDiagramContext();
+    const [state, dispatch] = useReducer(serviceConfigReducer, getFormStateFromST(model, stSymbolInfo));
 
     const listenerList = Array.from(stSymbolInfo.listeners)
         .filter(([key, value]) =>
@@ -66,9 +51,6 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
             && (value as ListenerDeclaration).typeDescriptor.modulePrefix.value === HTTP_MODULE_QUALIFIER)
         .map(([key, value]) => key);
 
-    const listenerSelectionCustomProps = {
-        disableCreateNew: false, values: listenerList || [],
-    }
 
     React.useEffect(() => {
         if (listenerList.length === 0) {
@@ -76,47 +58,35 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         }
     }, []);
 
-    const onListenerSelect = (listenerName: string) => {
-        if (listenerName === 'Create New') {
-            dispatch({ type: ServiceConfigActionTypes.CREATE_NEW_LISTENER });
-        } else {
-            dispatch({ type: ServiceConfigActionTypes.SELECT_EXISTING_LISTENER, payload: listenerName });
-        }
-    }
-
     const onBasePathChange = (path: string) => {
         dispatch({ type: ServiceConfigActionTypes.SET_PATH, payload: path })
     }
 
-    const handleListenerDefModeChange = (mode: string[]) => {
-        dispatch({ type: ServiceConfigActionTypes.DEFINE_LISTENER_INLINE, payload: mode.length === 0 })
-    }
-
-    const onListenerNameChange = (listenerName: string) => {
-        dispatch({ type: ServiceConfigActionTypes.SET_LISTENER_NAME, payload: listenerName })
-    }
-
-    const onListenerPortChange = (listenerPort: string) => {
-        dispatch({ type: ServiceConfigActionTypes.SET_LISTENER_PORT, payload: listenerPort })
-    }
-
     const handleOnSave = () => {
-        onSave([
-            createImportStatement('ballerina', 'http', { column: 0, line: 0 }),
-            createServiceDeclartion(state, targetPosition)
-        ]);
-    }
+        if (model) {
+            const modelPosition = model.position as NodePosition;
+            const openBracePosition = model.openBraceToken.position as NodePosition;
+            const updatePosition = {
+                startLine: modelPosition.startLine,
+                startColumn: 0,
+                endLine: openBracePosition.startLine,
+                endColumn: openBracePosition.startColumn - 1
+            };
 
-    const listenerConfigForm = (
-        <div className={classNames(formClasses.groupedForm, formClasses.marginTB)}>
-            <ListenerConfigForm
-                isDefinedInline={!state.listenerConfig.formVar}
-                onDefinitionModeChange={handleListenerDefModeChange}
-                onNameChange={onListenerNameChange}
-                onPortChange={onListenerPortChange}
-            />
-        </div>
-    );
+            modifyDiagram([
+                updateServiceDeclartion(
+                    state,
+                    updatePosition
+                )
+            ]);
+        } else {
+            modifyDiagram([
+                createImportStatement('ballerina', 'http', { startColumn: 0, startLine: 0 }),
+                createServiceDeclartion(state, targetPosition)
+            ]);
+        }
+        onSave();
+    }
 
     const saveBtnDisabled = isServiceConfigValid(state);
 
@@ -124,33 +94,20 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         <>
             <div className={formClasses.labelWrapper}>
                 <FormHelperText className={formClasses.inputLabelForRequired}>
-                    {
-                        listenerList.length > 0 ?
-                            (
-                                <FormattedMessage
-                                    id="lowcode.develop.connectorForms.HTTP.selectlListener"
-                                    defaultMessage="Select Listener :"
-                                />
-                            )
-                            : (
-                                <FormattedMessage
-                                    id="lowcode.develop.connectorForms.HTTP.configureNewListener"
-                                    defaultMessage="Configure Listener :"
-                                />
-                            )
-                    }
+                    <FormattedMessage
+                        id="lowcode.develop.connectorForms.HTTP.configureNewListener"
+                        defaultMessage="Configure Listener :"
+                    />
                 </FormHelperText>
                 <FormHelperText className={formClasses.starLabelForRequired}>*</FormHelperText>
             </div>
-            {listenerList.length > 0 && (
-                <SelectDropdownWithButton
-                    customProps={listenerSelectionCustomProps}
-                    onChange={onListenerSelect}
-                    placeholder="Select Property"
-                    defaultValue={!state.createNewListener ? state.listenerConfig.listenerName : 'Create New'}
+            <div className={classNames(formClasses.groupedForm, formClasses.marginTB)}>
+                <ListenerConfigForm
+                    configState={state.listenerConfig}
+                    actionDispatch={dispatch}
+                    listenerList={listenerList}
                 />
-            )}
-            {state.createNewListener && listenerConfigForm}
+            </div>
             <div className={formClasses.labelWrapper}>
                 <FormHelperText className={formClasses.inputLabelForRequired}>
                     <FormattedMessage

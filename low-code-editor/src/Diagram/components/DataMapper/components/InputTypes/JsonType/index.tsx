@@ -15,13 +15,12 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useRef, useState } from 'react';
 
-import { AssignmentStatement, LocalVarDecl, MappingConstructor, RecordTypeDesc, SpecificField, STKindChecker, STNode } from '@ballerina/syntax-tree';
+import { AssignmentStatement, LocalVarDecl, MappingConstructor, NodePosition, RecordTypeDesc, SpecificField, STKindChecker, STNode } from '@ballerina/syntax-tree';
 import classNames from 'classnames';
 
 import Tooltip from '../../../../../../components/Tooltip';
 import { PrimitiveBalType } from '../../../../../../ConfigurationSpec/types';
 import { removeStatement } from '../../../../../../Diagram/utils/modification-util';
-import { DraftUpdatePosition } from '../../../../../../Diagram/view-state/draft';
 import { DefaultConfig } from '../../../../../../Diagram/visitors/default';
 import { DeleteSVG } from '../../../../DiagramActions/DeleteBtn/DeleteSVG';
 import { Context as DataMapperViewContext } from '../../../context/DataMapperViewContext';
@@ -44,7 +43,7 @@ interface JsonTypeProps {
     draftFieldViewstate?: DraftFieldViewstate;
     isTarget?: boolean;
     removeInputType?: (model: STNode) => void;
-    commaPosition?: DraftUpdatePosition;
+    commaPosition?: NodePosition;
     isLastField?: boolean;
 }
 
@@ -92,16 +91,16 @@ export function JsonType(props: JsonTypeProps) {
                 STKindChecker.isCommaToken(expression.fields[expression.fields.length - 1]) :
                 true
 
-            draftVS.draftInsertPosition = {
+            draftVS.NodePosition = {
                 startLine: undefined,
                 endLine: undefined,
                 startColumn: undefined,
                 endColumn: undefined
             };
-            draftVS.draftInsertPosition.startLine = closeBracePosition.endLine;
-            draftVS.draftInsertPosition.startColumn = closeBracePosition.endColumn - 1;
-            draftVS.draftInsertPosition.endLine = closeBracePosition.endLine;
-            draftVS.draftInsertPosition.endColumn = closeBracePosition.endColumn - 1;
+            draftVS.NodePosition.startLine = closeBracePosition.endLine;
+            draftVS.NodePosition.startColumn = closeBracePosition.endColumn - 1;
+            draftVS.NodePosition.endLine = closeBracePosition.endLine;
+            draftVS.NodePosition.endColumn = closeBracePosition.endColumn - 1;
         }
 
         viewState.draftViewState = draftVS;
@@ -269,7 +268,7 @@ export function JsonType(props: JsonTypeProps) {
     const handleJsonFieldDelete = (evt: any) => {
         const modifications = []
         if (isLastField) {
-            const draftUpdatePosition: DraftUpdatePosition = {
+            const draftUpdatePosition: NodePosition = {
                 startLine: commaPosition ? commaPosition.startLine : model.position?.startLine,
                 endLine: model.position?.endLine,
                 startColumn: commaPosition ? commaPosition.startColumn : model.position?.startColumn,
@@ -280,7 +279,7 @@ export function JsonType(props: JsonTypeProps) {
 
         } else {
 
-            const draftUpdatePosition: DraftUpdatePosition = {
+            const draftUpdatePosition: NodePosition = {
                 startLine: model.position?.startLine,
                 endLine: commaPosition ? commaPosition.endLine : model.position?.endLine,
                 startColumn: model.position?.startColumn,

@@ -13,21 +13,19 @@
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline object-literal-shorthand align
 import React, { useState } from "react";
 
-import { STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { NodePosition } from "@ballerina/syntax-tree";
 
 import { useDiagramContext } from "../../../../Contexts/Diagram";
 import { STModification } from "../../../../Definitions";
-import { DraftInsertPosition, DraftUpdatePosition } from "../../../view-state/draft";
 import { FormGenerator } from "../../FormGenerator";
 import { Margin } from "../index";
-import { ModuleLevelPlusOptions } from "../ModuleLevelPlusOptions";
 import { PlusOptionRenderer } from "../PlusOptionRenderer";
 
 export interface PlusOptionsProps {
     kind: string
     margin?: Margin;
     onClose: () => void;
-    targetPosition?: DraftUpdatePosition;
+    targetPosition?: NodePosition;
 }
 
 export interface PlusMenuEntry {
@@ -42,7 +40,8 @@ const moduleLevelEntries: PlusMenuEntry[] = [
     { name: 'Type Definition', type: 'TypeDefinition' },
     { name: 'Class', type: 'ClassDefinition' },
     { name: 'Constant', type: 'ConstDeclaration' },
-    { name: 'Function', type: 'FunctionDefinition' }
+    { name: 'Function', type: 'FunctionDefinition' },
+    { name: 'Other', type: 'Custom'}
 ];
 
 const classMemberEntries: PlusMenuEntry[] = [
@@ -53,7 +52,6 @@ const classMemberEntries: PlusMenuEntry[] = [
 
 export const PlusOptionsSelector = (props: PlusOptionsProps) => {
     const { onClose, targetPosition, kind } = props;
-    const { props: { stSymbolInfo }, api: { code: { modifyDiagram } } } = useDiagramContext();
     const [selectedOption, setSelectedOption] = useState<PlusMenuEntry>(undefined);
 
     let menuEntries: PlusMenuEntry[] = [];
@@ -63,8 +61,7 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
         onClose();
     }
 
-    const handleOnSave = (modifications: STModification[]) => {
-        modifyDiagram(modifications);
+    const handleOnSave = () => {
         onClose();
     }
 
@@ -98,7 +95,7 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
                 selectedOption && (
                     <FormGenerator
                         targetPosition={targetPosition}
-                        configOverlayFormStatus={{ formType: selectedOption.type, isLoading: false, formArgs: { stSymbolInfo } }}
+                        configOverlayFormStatus={{ formType: selectedOption.type, isLoading: false }}
                         onCancel={handleOnClose}
                         onSave={handleOnSave}
                     />
