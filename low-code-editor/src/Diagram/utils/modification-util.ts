@@ -147,8 +147,8 @@ export function updatePropertyStatement(property: string, targetPosition: NodePo
 }
 
 export function updateResourceSignature(method: string, path: string, queryParam: string, payload: string,
-    isCaller: boolean, isRequest: boolean, addReturn: string,
-    targetPosition: DraftUpdateStatement): STModification {
+                                        isCaller: boolean, isRequest: boolean, addReturn: string,
+                                        targetPosition: DraftUpdateStatement): STModification {
     const resourceSignature: STModification = {
         startLine: targetPosition.startLine,
         startColumn: targetPosition.startColumn,
@@ -621,7 +621,7 @@ export function removeStatement(targetPosition: NodePosition): STModification {
 }
 
 export function createHeaderObjectDeclaration(headerObject: HeaderObjectConfig[], requestName: string, operation: string,
-    message: FormField, targetPosition: NodePosition, modifications: STModification[]) {
+                                              message: FormField, targetPosition: NodePosition, modifications: STModification[]) {
     if (operation !== "forward") {
         let httpRequest: string = "http:Request ";
         httpRequest += requestName;
@@ -662,7 +662,7 @@ export function createHeaderObjectDeclaration(headerObject: HeaderObjectConfig[]
 }
 
 export function updateHeaderObjectDeclaration(headerObject: HeaderObjectConfig[], requestName: string, operation: string,
-    message: FormField, targetPosition: NodePosition): STModification {
+                                              message: FormField, targetPosition: NodePosition): STModification {
     let headerDecl: string = "";
     if (operation !== "forward") {
         if (operation === "post" || operation === "put" || operation === "delete" || operation === "patch") {
