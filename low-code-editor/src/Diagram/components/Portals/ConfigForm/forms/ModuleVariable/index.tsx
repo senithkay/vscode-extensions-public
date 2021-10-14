@@ -10,13 +10,15 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from 'react';
+import React, { useReducer } from 'react';
 import { FormattedMessage } from 'react-intl';
 
 import { NodePosition, ServiceDeclaration } from '@ballerina/syntax-tree';
 import { Box, FormControl, FormHelperText, Typography } from '@material-ui/core';
 
 import { VariableIcon } from '../../../../../../assets/icons';
+import { useDiagramContext } from '../../../../../../Contexts/Diagram';
+import { createModuleVarDecl } from '../../../../../utils/modification-util';
 import { PrimaryButton } from '../../Elements/Button/PrimaryButton';
 import { SecondaryButton } from '../../Elements/Button/SecondaryButton';
 import CheckBoxGroup from '../../Elements/CheckBox';
@@ -39,14 +41,162 @@ enum VariableQualifiers {
     CONFIGURABLE = 'configurable',
 }
 
+export interface ModuleVariableFormState {
+    isPublic: boolean;
+    varType: string;
+    varName: string;
+    varValue: string;
+    varQualifier: string;
+    isExpressionValid: boolean;
+}
+
+export enum ModuleVarFormActionTypes {
+    UPDATE_ACCESS_MODIFIER,
+    SET_VAR_TYPE,
+    SET_VAR_NAME,
+    SET_VAR_VALUE,
+    SET_VAR_QUALIFIER,
+    UPDATE_EXPRESSION_VALIDITY,
+    RESET_VARIABLE_TYPE
+}
+
+export type ModuleVarFormAction =
+    { type: ModuleVarFormActionTypes.UPDATE_ACCESS_MODIFIER, payload: boolean }
+    | { type: ModuleVarFormActionTypes.SET_VAR_TYPE, payload: string }
+    | { type: ModuleVarFormActionTypes.SET_VAR_NAME, payload: string }
+    | { type: ModuleVarFormActionTypes.SET_VAR_VALUE, payload: string }
+    | { type: ModuleVarFormActionTypes.SET_VAR_QUALIFIER, payload: string }
+    | { type: ModuleVarFormActionTypes.UPDATE_EXPRESSION_VALIDITY, payload: boolean }
+    | { type: ModuleVarFormActionTypes.RESET_VARIABLE_TYPE };
+
+export function moduleVarFormReducer(state: ModuleVariableFormState, action: ModuleVarFormAction): ModuleVariableFormState {
+    switch (action.type) {
+        case ModuleVarFormActionTypes.UPDATE_ACCESS_MODIFIER:
+            return { ...state, isPublic: action.payload };
+        case ModuleVarFormActionTypes.SET_VAR_NAME:
+            return { ...state, varName: action.payload };
+        case ModuleVarFormActionTypes.SET_VAR_VALUE:
+            return { ...state, varValue: action.payload };
+        case ModuleVarFormActionTypes.SET_VAR_TYPE:
+            return { ...state, varType: action.payload, varValue: '' };
+        case ModuleVarFormActionTypes.SET_VAR_QUALIFIER:
+            return { ...state, varQualifier: action.payload };
+        case ModuleVarFormActionTypes.UPDATE_EXPRESSION_VALIDITY:
+            return { ...state, isExpressionValid: action.payload };
+        case ModuleVarFormActionTypes.RESET_VARIABLE_TYPE:
+            return { ...state, varType: '', varValue: '' };
+    }
+}
+
+const defaultFormState: ModuleVariableFormState = {
+    isPublic: false,
+    varType: 'int',
+    varName: '',
+    varValue: '',
+    varQualifier: '',
+    isExpressionValid: true,
+}
+
+const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
+
+export function isFormConfigValid(config: ModuleVariableFormState): boolean {
+    const { varName, varValue, isExpressionValid } = config;
+
+    return varName.length > 0 && nameRegex.test(varName) && varValue.length > 0 && isExpressionValid;
+}
+
 export function ModuleVariableForm(props: ModuleVariableFormProps) {
     const formClasses = useFormStyles();
-    const { onSave, onCancel } = props;
-    const variableTypes: string[] = ["var", "int", "float", "boolean", "string", "json", "xml"];
+    const { api: { code: { modifyDiagram } } } = useDiagramContext();
+    const { onSave, onCancel, targetPosition } = props;
+    const [state, dispatch] = useReducer(moduleVarFormReducer, defaultFormState);
+    const variableTypes: string[] = ["int", "float", "boolean", "string", "json", "xml"];
+
+    if (!state.isPublic) {
+        variableTypes.unshift('var');
+    }
 
     const handleOnSave = () => {
+        modifyDiagram([
+            createModuleVarDecl(state, targetPosition)
+        ]);
         onSave();
     }
+
+    const onAccessModifierChange = (modifierList: string[]) => {
+        dispatch({ type: ModuleVarFormActionTypes.UPDATE_ACCESS_MODIFIER, payload: modifierList.length > 0 });
+        if (modifierList.length > 0 && state.varType === 'var') {
+            // var type  cannot be public
+            dispatch({ type: ModuleVarFormActionTypes.RESET_VARIABLE_TYPE });
+        }
+    }
+
+    const onVarTypeChange = (type: string) => {
+        dispatch({ type: ModuleVarFormActionTypes.SET_VAR_TYPE, payload: type });
+    }
+
+    const onValueChange = (value: string) => {
+        dispatch({ type: ModuleVarFormActionTypes.SET_VAR_VALUE, payload: value });
+    }
+
+    const updateExpressionValidity = (fieldName: string, isInValid: boolean) => {
+        dispatch({ type: ModuleVarFormActionTypes.UPDATE_EXPRESSION_VALIDITY, payload: !isInValid });
+    }
+
+    const handleOnVarNameChange = (value: string) => {
+        dispatch({ type: ModuleVarFormActionTypes.SET_VAR_NAME, payload: value });
+    }
+
+    const handleOnVariableQualifierSelect = (value: string) => {
+        dispatch({
+            type: ModuleVarFormActionTypes.SET_VAR_QUALIFIER,
+            payload: value === VariableQualifiers.NONE ? '' : value
+        })
+    }
+
+    const validateNameValue = (value: string) => {
+        if (value && value !== '') {
+            return nameRegex.test(value);
+        }
+        return true;
+    };
+
+    const expressionEditorConfig = {
+        model: {
+            name: "valueExpression",
+            displayName: "Value Expression",
+            typeName: state.varType
+        },
+        customProps: {
+            validate: updateExpressionValidity,
+            interactive: true,
+            statementType: state.varType,
+            editPosition: {
+                startLine: targetPosition.startLine,
+                endLine: targetPosition.startLine,
+                startColumn: 0,
+                endColumn: 0
+            }
+        },
+        onChange: onValueChange,
+        defaultValue: state.varValue,
+    };
+
+    const disableSaveBtn: boolean = !isFormConfigValid(state);
+
+    const typeSelectorCustomProps = {
+        disableCreateNew: true,
+        values: variableTypes,
+    };
+
+    const variableNameTextFieldCustomProps = {
+        validate: validateNameValue
+    };
+
+    const variableQualifierSelectorCustomProps = {
+        collection: Object.values(VariableQualifiers),
+        disabled: false
+    };
 
     return (
         <FormControl data-testid="module-variable-config-form" className={formClasses.wizardFormControl}>
@@ -68,50 +218,38 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
             </div>
             <CheckBoxGroup
                 values={["public"]}
-                defaultValues={['']}
-                onChange={() => { }}
+                defaultValues={state.isPublic ? ['public'] : []}
+                onChange={onAccessModifierChange}
             />
             <SelectDropdownWithButton
-                defaultValue={''}
-                customProps={{
-                    disableCreateNew: true,
-                    values: variableTypes,
-                    onOpenSelect: () => { },
-                    onCloseSelect: () => { },
-                }}
+                defaultValue={state.varType}
+                customProps={typeSelectorCustomProps}
                 label={"Select type"}
-                onChange={() => { }}
+                onChange={onVarTypeChange}
             />
             <FormTextInput
-                customProps={{
-                    // validate: validateNameValue
-                }}
-                defaultValue={''}
-                onChange={() => { }}
+                customProps={variableNameTextFieldCustomProps}
+                defaultValue={state.varName}
+                onChange={handleOnVarNameChange}
                 label={"Variable Name"}
                 errorMessage={"Invalid Variable Name"}
                 placeholder={"Enter Variable Name"}
             />
             <ExpressionEditor
-                model={{ name: "Value expression", type: 'int' }}
-                customProps={{ validate: () => { } }}
-                onChange={() => { }}
+                {...expressionEditorConfig}
             />
             <div className={formClasses.labelWrapper}>
                 <FormHelperText className={formClasses.inputLabelForRequired}>
                     <FormattedMessage
                         id="lowcode.develop.configForms.ModuleVarDecl.variableQualifier"
-                        defaultMessage="Variable Qualifiers :"
+                        defaultMessage="Select Variable Qualifier :"
                     />
                 </FormHelperText>
             </div>
             <RadioControl
-                onChange={() => { }}
-                defaultValue={''}
-                customProps={{
-                    collection: Object.values(VariableQualifiers),
-                    disabled: false
-                }}
+                onChange={handleOnVariableQualifierSelect}
+                defaultValue={state.varQualifier === '' ? VariableQualifiers.NONE : state.varQualifier}
+                customProps={variableQualifierSelectorCustomProps}
             />
             <div className={formClasses.wizardBtnHolder}>
                 <SecondaryButton
@@ -121,7 +259,7 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
                 />
                 <PrimaryButton
                     text="Save"
-                    disabled={false}
+                    disabled={disableSaveBtn}
                     fullWidth={false}
                     onClick={handleOnSave}
                 />
