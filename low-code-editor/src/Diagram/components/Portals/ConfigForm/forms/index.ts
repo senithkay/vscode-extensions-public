@@ -13,7 +13,7 @@
 import { ConditionConfigForm } from "../../../ConfigForms/ConditionConfigForms";
 import { EndConfigForm } from "../../../ConfigForms/EndConfigForms";
 import { ProcessConfigForm } from "../../../ConfigForms/ProcessConfigForms";
-import { RecordEditor } from "../../../ConfigForms/RecordEditor";
+import { TypeDefinitionConfigForm } from "../../../ConfigForms/TypeDefinitionConfigForm";
 import { ConnectorForm } from "../../../ConnectorConfigWizard/Components/ConnectorForm";
 import { APIOptions } from "../../Overlay/Elements/PlusHolder/PlusElementOptions/APIOptions";
 
@@ -41,4 +41,4 @@ export { EndConfigForm as Return };
 export { EndConfigForm as Respond };
 export { ServiceConfigForm as ServiceDeclaration };
 export { FunctionConfigForm as FunctionDefinition };
-export { RecordEditor as TypeDefinition };
+export { TypeDefinitionConfigForm as TypeDefinition };
