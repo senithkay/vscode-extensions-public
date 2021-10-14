@@ -14,7 +14,7 @@
 import React, { useContext, useState } from "react";
 import { useIntl } from "react-intl";
 
-import { LocalVarDecl, STNode } from "@ballerina/syntax-tree";
+import { LocalVarDecl, NodePosition, STNode } from "@ballerina/syntax-tree";
 
 import {
   ConnectorConfig,
@@ -27,7 +27,6 @@ import {
   Connector,
 } from "../../../Definitions/lang-client-extended";
 // import { closeConfigOverlayForm configOverlayFormPrepareStart } from "../../$store/actions";
-import { DraftInsertPosition } from "../../view-state/draft";
 import { DefaultConfig } from "../../visitors/default";
 import { FormGenerator } from "../FormGenerator";
 import {
@@ -51,7 +50,7 @@ export interface ConfigWizardState {
 export interface ConnectorConfigWizardProps {
   position: DiagramOverlayPosition;
   connectorInfo: BallerinaConnectorInfo;
-  targetPosition: DraftInsertPosition;
+  targetPosition: NodePosition;
   model?: STNode;
   onClose: () => void;
   selectedConnector?: LocalVarDecl;

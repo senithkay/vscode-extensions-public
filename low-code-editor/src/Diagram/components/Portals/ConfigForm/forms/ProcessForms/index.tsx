@@ -14,7 +14,7 @@
 // tslint:disable: jsx-wrap-multiline
 import React, { useContext } from "react";
 
-import { STNode } from "@ballerina/syntax-tree";
+import { NodePosition, STNode } from "@ballerina/syntax-tree";
 
 import { WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from "../../../../../../Contexts/Diagram";
@@ -26,14 +26,13 @@ import {
     updateLogStatement,
     updatePropertyStatement
 } from "../../../../../utils/modification-util";
-import { DraftInsertPosition } from "../../../../../view-state/draft";
 import { CustomExpressionConfig, LogConfig, ProcessConfig } from "../../types";
 
 import { Wizard } from "./Wizard";
 
 export interface AddProcessFormProps {
     type: string;
-    targetPosition: DraftInsertPosition;
+    targetPosition: NodePosition;
     scopeSymbols?: string[];
     onCancel: () => void;
     model?: STNode;
@@ -53,7 +52,8 @@ export function ProcessConfigForm(props: any) {
         type,
         scopeSymbols,
         model,
-        wizardType
+        wizardType,
+        targetPosition
     };
 
     const onCancelClick = () => {

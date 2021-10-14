@@ -10,8 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-
-import { DraftUpdatePosition } from "../../../view-state/draft";
+import { NodePosition } from "@ballerina/syntax-tree";
 
 import { SourcePointViewState, TargetPointViewState } from ".";
 
@@ -20,11 +19,11 @@ export class ConnectionViewState {
     public x2: number;
     public y1: number;
     public y2: number;
-    public targetPosition: DraftUpdatePosition;
+    public targetPosition: NodePosition;
     public targetType: string;
     public targetUnionType: string;
 
-    constructor(sourcePointVS: SourcePointViewState, targetPointVS: TargetPointViewState, targetPosition: DraftUpdatePosition) {
+    constructor(sourcePointVS: SourcePointViewState, targetPointVS: TargetPointViewState, targetPosition: NodePosition) {
         this.x1 = sourcePointVS.bBox.x;
         this.x2 = targetPointVS.bBox.x;
         this.y1 = sourcePointVS.bBox.y;

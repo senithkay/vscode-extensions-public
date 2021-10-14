@@ -14,7 +14,7 @@
 // TODO Refactor this file.
 // Should move these to ../Definitions/*
 
-import { ModulePart, STNode } from "@ballerina/syntax-tree";
+import { ModulePart, NodePosition, STNode } from "@ballerina/syntax-tree";
 import { Diagnostic } from "monaco-languageclient";
 
 import { BlockViewState } from "..";
@@ -25,7 +25,6 @@ import { BallerinaConnectorInfo, Connector, STModification } from "../Definition
 import { ConditionConfig, DataMapperConfig } from "../Diagram/components/Portals/ConfigForm/types";
 import { LowcodeEvent, TriggerType } from "../Diagram/models";
 import { Warning } from "../Diagram/utils/st-util";
-import { DraftInsertPosition, DraftUpdatePosition } from "../Diagram/view-state/draft";
 
 import {
     APIViewState, AppViewState, ConnectionData, Feedback, GSpreadsheet, HomeViewState, LinkerState, Notification, OauthProviderConfigState,
@@ -72,14 +71,14 @@ export interface LowCodeEditorState {
     isDataMapperShown: boolean;
     isConfigOverlayFormOpen: boolean;
     dataMapperConfig: DataMapperConfig;
-    targetPosition: DraftInsertPosition | DraftUpdatePosition; // FIXME check and remove usage of update position if not used anymore
+    targetPosition: NodePosition; // FIXME check and remove usage of update position if not used anymore
 }
 
 export interface LowCodeEditorActions {
     updateState: (payload: LowCodeEditorState) => void;
     diagramCleanDraw: (payload: STNode) => void;
     diagramRedraw: (payload: STNode) => void;
-    insertComponentStart: (payload: DraftInsertPosition) => void;
+    insertComponentStart: (payload: NodePosition) => void;
     editorComponentStart: (payload: STNode) => void;
     dataMapperStart: (dataMapperConfig: DataMapperConfig) => void;
     toggleDiagramOverlay: () => void;
@@ -170,7 +169,7 @@ export interface LowCodeEditorAPI {
         zoomOut: () => void;
     };
     configPanel: {
-        dispactchConfigOverlayForm: (type: string, targetPosition: DraftInsertPosition,
+        dispactchConfigOverlayForm: (type: string, targetPosition: NodePosition,
                                      wizardType: WizardType, blockViewState?: BlockViewState, config?: ConditionConfig,
                                      symbolInfo?: STSymbolInfo, model?: STNode) => void;
         closeConfigOverlayForm: () => void;

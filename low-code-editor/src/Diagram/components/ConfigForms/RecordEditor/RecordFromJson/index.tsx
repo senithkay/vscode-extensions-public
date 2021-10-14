@@ -13,13 +13,13 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useReducer } from 'react';
 
+import { NodePosition } from '@ballerina/syntax-tree';
 import { Box, FormControl, FormHelperText, Typography } from "@material-ui/core";
 
 import { Context } from "../../../../../Contexts/Diagram";
 import { STModification } from "../../../../../Definitions";
 import { TextPreloaderVertical } from "../../../../../PreLoader/TextPreloaderVertical";
 import { createPropertyStatement } from "../../../../utils/modification-util";
-import { DraftInsertPosition } from "../../../../view-state/draft";
 import { PrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
 import { SecondaryButton } from "../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
 import { FormTextArea } from "../../../Portals/ConfigForm/Elements/TextField/FormTextArea";
@@ -38,7 +38,7 @@ interface RecordState {
 }
 
 export interface RecordFromJsonProps {
-    targetPosition: DraftInsertPosition;
+    targetPosition: NodePosition;
     onCancel: () => void;
     onSave: () => void;
 }

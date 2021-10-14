@@ -19,7 +19,7 @@ import { APIOptions } from "../../Overlay/Elements/PlusHolder/PlusElementOptions
 
 import { APIConfigForm } from "./APIConfigForm";
 import { ConnectorInitForm } from "./ConnectorInitForm";
-import { FunctionConfigForm } from './FunctionConfigForm'; // TODO: need to rename
+import { FunctionConfigForm } from './FunctionConfigForm';
 import { ScheduleConfigForm } from "./ScheduleConfigForm";
 import { ServiceConfigForm } from './ServiceConfigForm';
 import { WebhookConfigForm } from "./WebhookConfigForm";

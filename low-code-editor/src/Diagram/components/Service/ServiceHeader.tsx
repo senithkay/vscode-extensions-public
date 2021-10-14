@@ -12,20 +12,18 @@
  */
 
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useRef, useState } from "react"
+import React, { useContext } from "react";
 
-import { ListenerDeclaration, ServiceDeclaration, STKindChecker } from "@ballerina/syntax-tree";
-import classNames from "classnames";
+import {
+  ListenerDeclaration,
+  ServiceDeclaration,
+  STKindChecker,
+} from "@ballerina/syntax-tree";
 
-import DeleteButton from "../../../assets/icons/DeleteButton";
-import EditButton from "../../../assets/icons/EditButton";
-import ServiceIcon from "../../../assets/icons/ServiceIcon";
-import { Context as DiagramContext } from '../../../Contexts/Diagram'
-import { createWhileStatement, removeStatement } from "../../utils/modification-util";
-import { ComponentExpandButton } from "../ComponentExpandButton";
-import { FormGenerator } from "../FormGenerator";
-import { DeleteConfirmDialog } from "../Portals/Overlay/Elements";
-import { PlusOptionsSelector } from "../TopLevelPlus/PlusOptionsSelector";
+import { ServiceIconLight } from "../../../assets/icons/ServiceIcon";
+import { Context as DiagramContext } from "../../../Contexts/Diagram";
+import { removeStatement } from "../../utils/modification-util";
+import { HeaderActions } from "../HeaderActions";
 
 import "./style.scss";
 
@@ -45,113 +43,71 @@ export const SERVICE_PATH_TEXT_PADDING_LEFT: number = 15;
 export const SERVICE_LISTENER_AND_PATH_GAP: number = 100;
 
 export interface ServiceHeaderProps {
-    model: ServiceDeclaration
-    isExpanded: boolean;
-    onExpandClick: () => void;
+  model: ServiceDeclaration;
+  isExpanded: boolean;
+  onExpandClick: () => void;
 }
 
 export function ServiceHeader(props: ServiceHeaderProps) {
-    const { model, isExpanded, onExpandClick } = props;
-    const { props: { stSymbolInfo }, api: { code: { modifyDiagram } } } = useContext(DiagramContext);
-    const deleteBtnRef = useRef(null);
+  const { model, isExpanded, onExpandClick } = props;
+  const {
+    props: { stSymbolInfo },
+    api: {
+      code: { modifyDiagram },
+    },
+  } = useContext(DiagramContext);
 
-    const [isDeleteBtnClicked, setIsDeleteBtnClicked] = useState(false);
-    const [isEditBtnClicked, setIsEditBtnClicked] = useState(false);
+  let servicePath = "";
 
-    let servicePath = '';
+  model.absoluteResourcePath.forEach((pathSegment) => {
+    servicePath += pathSegment.value;
+  });
 
-    model.absoluteResourcePath.forEach(pathSegment => {
-        servicePath += pathSegment.value;
-    });
+  let serviceType = "";
+  let listeningOnText = "";
 
-    let serviceType = "";
-    let listeningOnText = "";
-
-    if (STKindChecker.isExplicitNewExpression(model.expressions[0])) {
-        if (STKindChecker.isQualifiedNameReference(model.expressions[0].typeDescriptor)) {
-            serviceType = model.expressions[0].typeDescriptor.modulePrefix.value.toUpperCase();
-            listeningOnText = model.expressions[0].source;
-        }
-    } else if (STKindChecker.isSimpleNameReference(model.expressions[0])) {
-        const listenerNode: ListenerDeclaration = stSymbolInfo.listeners.get(model.expressions[0].name.value) as ListenerDeclaration;
-        if (STKindChecker.isQualifiedNameReference(listenerNode.typeDescriptor)) {
-            serviceType = listenerNode.typeDescriptor.modulePrefix.value.toUpperCase();
-            listeningOnText = model.expressions[0].source;
-        }
+  if (STKindChecker.isExplicitNewExpression(model.expressions[0])) {
+    if (
+      STKindChecker.isQualifiedNameReference(
+        model.expressions[0].typeDescriptor
+      )
+    ) {
+      serviceType = model.expressions[0].typeDescriptor.modulePrefix.value.toUpperCase();
+      listeningOnText = model.expressions[0].source;
     }
-
-    const handleCancelDeleteBtn = () => {
-        setIsDeleteBtnClicked(false);
+  } else if (STKindChecker.isSimpleNameReference(model.expressions[0])) {
+    const listenerNode: ListenerDeclaration = stSymbolInfo.listeners.get(
+      model.expressions[0].name.value
+    ) as ListenerDeclaration;
+    if (STKindChecker.isQualifiedNameReference(listenerNode.typeDescriptor)) {
+      serviceType = listenerNode.typeDescriptor.modulePrefix.value.toUpperCase();
+      listeningOnText = model.expressions[0].source;
     }
+  }
 
-    const handleDeleteBtnClick = () => {
-        setIsDeleteBtnClicked(true);
-    }
+  const handleDeleteConfirm = () => {
+    modifyDiagram([removeStatement(model.position)]);
+  };
 
-    const handleEditBtnClick = () => {
-        setIsEditBtnClicked(true);
-    }
-
-    const handleEditBtnCancel = () => {
-        setIsEditBtnClicked(false);
-    }
-
-    const handleDeleteConfirm = () => {
-        modifyDiagram([
-            removeStatement(model.position)
-        ]);
-    }
-
-    return (
-        <div className={'service-header'}>
-            <div className={'header-segement-container'}>
-                <div className={'header-segment'}>
-                    <ServiceIcon color={'#CBCEDB'} />
-                </div>
-                <div className={'header-segment'}>
-                    {serviceType}
-                </div>
-                <div className={'header-segment-path'}>
-                    {servicePath}
-                </div>
-                <div className={'header-segment-listener'}>
-                    {listeningOnText.length > 0 ? `listening on ${listeningOnText}` : ''}
-                </div>
-            </div>
-            <div className={'service-amendment-options'}>
-                <div className={classNames('service-amendment-option', 'show-on-hover')}>
-                    <EditButton onClick={handleEditBtnClick} />
-                </div>
-                <div className={classNames('service-amendment-option', 'show-on-hover')}>
-                    <div ref={deleteBtnRef}>
-                        <DeleteButton onClick={handleDeleteBtnClick} />
-                    </div>
-                </div>
-                <div className={'service-amendment-option'}>
-                    <ComponentExpandButton isExpanded={isExpanded} onClick={onExpandClick} />
-                </div>
-            </div>
-            {isDeleteBtnClicked && (
-                <DeleteConfirmDialog
-                    onCancel={handleCancelDeleteBtn}
-                    onConfirm={handleDeleteConfirm}
-                    position={
-                        deleteBtnRef.current ?
-                            { x: deleteBtnRef.current.offsetLeft - 272, y: deleteBtnRef.current.offsetTop }
-                            : { x: 0, y: 0 }
-                    }
-                    message={'Delete this Service?'}
-                    isFunctionMember={false}
-                />
-            )}
-            {isEditBtnClicked && (
-                <FormGenerator
-                    model={model}
-                    configOverlayFormStatus={{ formType: model.kind, isLoading: false }}
-                    onCancel={handleEditBtnCancel}
-                    onSave={handleEditBtnCancel}
-                />
-            )}
-        </div >
-    );
+  return (
+    <div className={"service-header"}>
+      <div className={"header-segement-container"}>
+        <div className={"header-segment"}>
+          <ServiceIconLight />
+        </div>
+        <div className={"header-segment"}>{serviceType}</div>
+        <div className={"header-segment-path"}>{servicePath}</div>
+        <div className={"header-segment-listener"}>
+          {listeningOnText.length > 0 ? `listening on ${listeningOnText}` : ""}
+        </div>
+      </div>
+      <HeaderActions
+        model={model}
+        deleteText="Delete this Service?"
+        isExpanded={isExpanded}
+        onExpandClick={onExpandClick}
+        onConfirmDelete={handleDeleteConfirm}
+      />
+    </div>
+  );
 }

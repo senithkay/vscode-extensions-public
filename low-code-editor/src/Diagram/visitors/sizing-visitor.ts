@@ -888,8 +888,8 @@ class SizingVisitor implements Visitor {
             draft.connector = plusViewState.draftConnector;
             draft.selectedConnector = plusViewState.draftSelectedConnector;
             draft.targetPosition = {
-                line: node.position.endLine, // todo: can't find the equivalent to position
-                column: node.position.endColumn - 1
+                startLine: node.position.endLine, // todo: can't find the equivalent to position
+                startColumn: node.position.endColumn - 1
             };
             blockViewState.draft = [node.statements.length, draft];
             plusViewState.draftAdded = undefined;
@@ -966,8 +966,8 @@ class SizingVisitor implements Visitor {
                                 draft.selectedConnector = plusForIndex.draftSelectedConnector;
 
                                 draft.targetPosition = {
-                                    line: element.position.startLine, // todo: position?
-                                    column: element.position.startColumn
+                                    startLine: element.position.startLine, // todo: position?
+                                    startColumn: element.position.startColumn
                                 };
                                 blockViewState.draft = [index, draft];
                                 plusForIndex.draftAdded = undefined;
@@ -1034,8 +1034,8 @@ class SizingVisitor implements Visitor {
                         draft.selectedConnector = plusForIndex.draftSelectedConnector;
 
                         draft.targetPosition = {
-                            line: element.position.startLine, // todo:position?
-                            column: element.position.startColumn
+                            startLine: element.position.startLine, // todo:position?
+                            startColumn: element.position.startColumn
                         };
                         blockViewState.draft = [index, draft];
                         plusForIndex.draftAdded = undefined;

@@ -11,14 +11,19 @@
  * associated services.
  */
 
-import { NodePosition } from "@ballerina/syntax-tree";
+.header-amendment-options {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border-bottom: 1px #e6e7ec solid;
 
-import { DataMapperViewState } from "./data-mapper-viewstate";
+    .amendment-option {
+        width: 25px;
+        text-align: center;
+        padding-right: 5px;
 
-export class TargetPointViewState extends DataMapperViewState {
-    public position: NodePosition;
-    public value: string;
-    public type: string;
-    public unionType: string;
-    public isOptionalType: boolean;
+        &:hover {
+            cursor: pointer;
+        }
+    }
 }

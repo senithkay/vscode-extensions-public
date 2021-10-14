@@ -13,14 +13,13 @@
 // tslint:disable: jsx-no-multiline-js  jsx-wrap-multiline
 import React, { ReactNode, useContext, useState } from "react"
 
-import { CaptureBindingPattern, ForeachStatement, STKindChecker, STNode, TypedBindingPattern } from "@ballerina/syntax-tree";
+import { CaptureBindingPattern, ForeachStatement, NodePosition, STKindChecker, STNode, TypedBindingPattern } from "@ballerina/syntax-tree";
 
 import { WizardType } from "../../../ConfigurationSpec/types";
 import { Context } from "../../../Contexts/Diagram";
 import { getDraftComponent, getSTComponents } from "../../utils";
 import { getConditionConfig, getRandomInt } from "../../utils/diagram-util";
 import { BlockViewState, ForEachViewState } from "../../view-state";
-import { DraftInsertPosition, DraftUpdatePosition } from "../../view-state/draft";
 import { DefaultConfig } from "../../visitors/default";
 import { Collapse } from "../Collapse";
 import { CONDITION_ASSIGNMENT_NAME_WIDTH, ContitionAssignment } from "../ContitionAssignment";
@@ -165,12 +164,12 @@ export function ForEach(props: ForeachProps) {
             model: modelForeach
         }
 
-        const position: DraftInsertPosition = {
-            column: model.position.startColumn,
-            line: model.position.startLine
+        const position: NodePosition = {
+            startColumn: model.position.startColumn,
+            startLine: model.position.startLine
         };
 
-        const conditionUpdatePosition: DraftUpdatePosition = {
+        const conditionUpdatePosition: NodePosition = {
             /*
             * As we are replacing the whole condition including the variable and the iteration condition different
             * components of the model are used to generate the update position

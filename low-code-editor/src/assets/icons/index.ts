@@ -46,3 +46,4 @@ export { default as ObjectMethodDefinition } from './FunctionIcon';
 export { default as FunctionDefinition } from './FunctionIcon';
 export { default as ResourceIcon } from './ResourceIcon';
 export { default as ResourceAccessorDefinition } from './ResourceIcon';
+export { default as Custom } from "./Custom";
