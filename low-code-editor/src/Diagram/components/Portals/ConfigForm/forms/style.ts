@@ -250,9 +250,9 @@ export const useStyles = makeStyles((theme: Theme) =>
             textTransform: 'capitalize'
         },
         mainTitleWrapper: {
-            display: 'flex',
+            display: 'inline-flex',
             alignItems: 'center',
-            width: '100%'
+            width: '20%'
         },
         iconWrapper: {
             marginRight: '1rem'
@@ -507,7 +507,8 @@ export const useStyles = makeStyles((theme: Theme) =>
             width: '100%'
         },
         codeWrapper: {
-            width: '100%'
+            width: '100%',
+            display: 'inline-flex'
         },
         code: {
             display: 'flex',
@@ -527,9 +528,19 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         statementEditor: {
             alignItems: 'center',
-            display: 'flex',
+            display: 'inline-flex',
             justifyContent: 'flex-end',
-            paddingRight: theme.spacing(1)
+            paddingRight: theme.spacing(1),
+            width: '80%'
+        },
+        start: {
+            width: '15%'
+        },
+        middle: {
+            width: '80%'
+        },
+        end: {
+            width: '5%'
         }
     }),
 );

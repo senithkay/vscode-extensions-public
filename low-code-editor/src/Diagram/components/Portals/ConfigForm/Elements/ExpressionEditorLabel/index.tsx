@@ -27,7 +27,7 @@ import { useStyles as useTextInputStyles } from "../TextField/style";
 import { getExampleForType, truncateText, variableNameMaxLength } from "./utils";
 
 export function ExpressionEditorLabel(props: FormElementProps<ExpressionEditorProps>) {
-    const { model, customProps } = props;
+    const { model, customProps, hideLabelTooltips } = props;
 
     const formClasses = useFormStyles();
     const textFieldClasses = useTextInputStyles();
@@ -52,6 +52,53 @@ export function ExpressionEditorLabel(props: FormElementProps<ExpressionEditorPr
 
     return (
         <>
+            {!hideLabelTooltips && !customProps?.hideTextLabel && textLabel ?
+                (model && model.optional ?
+                        (
+                            <div className={textFieldClasses.inputWrapper}>
+                                <div className={textFieldClasses.inputWrapper}>
+                                    <div className={textFieldClasses.labelWrapper}>
+                                        <FormHelperText className={formClasses.inputLabelForRequired}>{textLabel}</FormHelperText>
+                                        {!customProps?.subEditor && <FormHelperText className={formClasses.optionalLabel}><FormattedMessage id="lowcode.develop.elements.expressionEditor.optional.label" defaultMessage="Optional"/></FormHelperText>}
+                                    </div>
+                                    {(customProps?.tooltipTitle || model?.tooltip) &&
+                                    (
+                                        <div>
+                                            <TooltipIcon
+                                                title={customProps?.tooltipTitle || model?.tooltip}
+                                                interactive={customProps?.interactive || true}
+                                                actionText={customProps?.tooltipActionText}
+                                                actionLink={customProps?.tooltipActionLink}
+                                                arrow={true}
+                                                typeExamples={getExampleForType(model)}
+                                            />
+                                        </div>
+                                    )
+                                    }
+                                </div>
+                            </div>
+                        ) : (
+                            <div className={textFieldClasses.inputWrapper}>
+                                <div className={textFieldClasses.labelWrapper}>
+                                    <FormHelperText className={formClasses.inputLabelForRequired}>{textLabel}</FormHelperText>
+                                    <FormHelperText className={formClasses.starLabelForRequired}>*</FormHelperText>
+                                </div>
+                                {(customProps?.tooltipTitle || model?.tooltip) &&
+                                (
+                                    <TooltipIcon
+                                        title={model?.tooltip}
+                                        interactive={customProps?.interactive || true}
+                                        actionText={customProps?.tooltipActionText || model?.tooltipActionText}
+                                        actionLink={customProps?.tooltipActionLink || model?.tooltipActionLink}
+                                        arrow={true}
+                                        typeExamples={getExampleForType(model)}
+                                    />
+                                )
+                                }
+                            </div>
+                        )
+                ) : null
+            }
             {typeString && (
                 <TooltipCodeSnippet disabled={typeString?.length <= variableNameMaxLength} content={typeString} placement="right" arrow={true}>
                     <div className={textFieldClasses.codeWrapper}>

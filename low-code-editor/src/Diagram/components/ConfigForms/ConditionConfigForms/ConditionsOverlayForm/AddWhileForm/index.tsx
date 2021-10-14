@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js, ordered-imports
 import React, { useContext, useState } from "react";
 
-import {Box, FormControl, Grid, Typography} from "@material-ui/core";
+import {Box, FormControl, Typography} from "@material-ui/core";
 
 import { CloseRounded, IfIcon, EditIcon } from "../../../../../../assets/icons";
 
@@ -30,6 +30,7 @@ import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormA
 import { ViewContainer } from "../../../../Portals/ConfigForm/Elements/StatementEditor/components/ViewContainer/ViewContainer";
 import { StatementEditorButton } from "../../../../Portals/ConfigForm/Elements/Button/StatementEditorButton";
 import classnames from "classnames";
+import {WhileForm} from "./WhileForm";
 
 interface WhileProps {
     condition: ConditionConfig;
@@ -115,51 +116,15 @@ export function AddWhileForm(props: WhileProps) {
         defaultMessage: "Cancel"
     });
 
+    const statementEditor = <StatementEditorButton onClick={handleStmtEditorButtonClick} disabled={true} />;
+    const expressionEditor =  <ExpressionEditor {...expElementProps} hideLabelTooltips={true} />;
+
 
     let exprEditor =
         (
             <FormControl data-testid="while-form" className={classes.wizardFormControl}>
                 <div className={classes.formWrapper}>
-                    <div className={classes.formFeilds}>
-                        <div className={classes.formWrapper}>
-                            <Grid xs={12}  container={true} className={classes.formTitleWrapper}>
-                                <Grid xs={6} item={true} className={classes.mainTitleWrapper}>
-                                    <Typography variant="h4">
-                                        <Box paddingTop={2} paddingBottom={2}>
-                                            <FormattedMessage
-                                                id="lowcode.develop.configForms.while.title"
-                                                defaultMessage="While"
-                                            />
-                                        </Box>
-                                    </Typography>
-                                </Grid>
-                                <Grid xs={6} item={true} className={classes.statementEditor}>
-                                    <StatementEditorButton onClick={handleStmtEditorButtonClick} disabled={true} />
-                                </Grid>
-                            </Grid>
-                            <Grid container={true} className={classes.codeWrapper}>
-                                <Grid item={true} xs={2}>
-                                    <Typography variant='body2' className={classnames(classes.startCode, classes.code)}>while</Typography>
-                                </Grid>
-                                <Grid item={true} xs={9}>
-                                    <ExpressionEditor {...expElementProps} />
-                                </Grid>
-                                <Grid item={true} xs={1}>
-                                    <Typography variant='body2' className={classnames(classes.endCode, classes.code)}>{`{`}</Typography>
-                                </Grid>
-                            </Grid>
-                            <Grid container={true} className={classes.codeWrapper}>
-                                <Grid item={true} xs={2}>
-                                    <Typography variant='body2' className={classnames(classes.middleCode, classes.code)}>...</Typography>
-                                </Grid>
-                            </Grid>
-                            <Grid container={true} className={classes.codeWrapper}>
-                                <Grid item={true} xs={2}>
-                                    <Typography variant='body2' className={classnames(classes.endCode, classes.code)}>{`}`}</Typography>
-                                </Grid>
-                            </Grid>
-                        </div>
-                    </div>
+                    <WhileForm statementEditor={statementEditor} expressionEditor={expressionEditor}/>
                     <FormActionButtons
                         cancelBtnText={cancelWhileButtonLabel}
                         saveBtnText={saveWhileButtonLabel}

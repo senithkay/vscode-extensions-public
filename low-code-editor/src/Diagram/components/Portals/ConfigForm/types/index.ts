@@ -41,6 +41,7 @@ export interface FormElementProps<T = {}> extends FormElementEvents {
     dataTestId?: string;
     currentValue?: string;
     tooltip?: string;
+    hideLabelTooltips?: boolean;
 }
 
 export interface FormElementEvents {
