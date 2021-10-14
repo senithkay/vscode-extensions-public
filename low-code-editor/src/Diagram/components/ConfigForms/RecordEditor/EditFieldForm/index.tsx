@@ -26,13 +26,7 @@ import { wizardStyles } from "../../style";
 import { recordStyles } from "../style";
 import { SimpleField } from "../types";
 
-export interface FieldEditorProps {
-    onSaveFiled?: (field: SimpleField) => void;
-    onCancel?: () => void;
-}
-
-export function EditFieldForm(props: FieldEditorProps) {
-    const { onSaveFiled, onCancel } = props;
+export function EditFieldForm() {
 
     const { state, callBacks } = useContext(Context);
 
@@ -72,11 +66,10 @@ export function EditFieldForm(props: FieldEditorProps) {
     };
 
     const validateNameValue = (value: string) => {
-        // TODO: Add name validations
-        // const isNameAlreadyExists = addedFields.find(field => (field.name === value));
-        // setIsValidName(!isNameAlreadyExists);
-        // return !isNameAlreadyExists;
-        return true;
+        // TODO: Add name validations for same record name in updating
+        const isNameAlreadyExists = state.currentRecord.fields.find(field => (field.name === value));
+        setIsValidName(!isNameAlreadyExists);
+        return !isNameAlreadyExists;
     };
 
     const handleOptionalFieldChange = (text: string[]) => {
@@ -111,6 +104,8 @@ export function EditFieldForm(props: FieldEditorProps) {
         callBacks.onUpdateModel(state.recordModel);
         callBacks.onChangeFormState(FormState.UPDATE_FIELD);
     }
+
+    const isSaveButtonDisabled = !isValidName || (selectedType === "") || (name === "");
 
     return (
         <FormControl data-testid="record-form" className={classes.wizardFormControl}>
@@ -156,14 +151,11 @@ export function EditFieldForm(props: FieldEditorProps) {
                 onChange={handleOptionalTypeChange}
             />
 
-            {/*{(selectedType === "record") && (*/}
-            {/*    <Record onSave={null} onCancel={handleRecordClose} recordModel={null} />*/}
-            {/*)}*/}
             <div className={overlayClasses.buttonWrapper}>
-                <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
                 <PrimaryButton
                     dataTestId={"record-from-json-save-btn"}
                     text={isFieldUpdate ? "Update" : "Add"}
+                    disabled={isSaveButtonDisabled}
                     fullWidth={false}
                     onClick={handleFieldAdd}
                 />

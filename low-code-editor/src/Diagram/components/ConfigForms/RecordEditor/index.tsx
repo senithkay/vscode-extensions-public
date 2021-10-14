@@ -16,29 +16,37 @@ import React from 'react';
 import { RecordTypeDesc, STKindChecker, TypeDefinition } from "@ballerina/syntax-tree";
 
 import { FormState, Provider as RecordEditorProvider } from "../../../../Contexts/RecordEditor";
-import { ConfigOverlayFormStatus } from "../../../../Definitions";
 
 import { Record } from "./Record";
-import { RecordFromJson } from "./RecordFromJson";
 import { RecordModel } from "./types";
 import { getRecordModel } from "./utils";
 
 export interface RecordEditorProps {
+    name: string;
+    isNewModel: boolean;
     model?: TypeDefinition;
-    configOverlayFormStatus: ConfigOverlayFormStatus;
     onCancel?: () => void;
     onSave?: () => void;
 }
 
 export function RecordEditor(props: RecordEditorProps) {
-    const { onCancel, onSave, configOverlayFormStatus, model } = props;
-    const { formArgs, formType } = configOverlayFormStatus;
+    const { isNewModel, name, onCancel, onSave, model } = props;
 
     let recordModel: RecordModel;
     if (model && STKindChecker.isTypeDefinition(model)) {
         const typeName = model.typeName.value;
         const typeDesc = model.typeDescriptor as RecordTypeDesc;
         recordModel = getRecordModel(typeDesc, typeName, true, "record")
+    } else if (isNewModel) {
+        recordModel = {
+            name,
+            isClosed: false,
+            isOptional: false,
+            isArray: false,
+            fields: [],
+            type: "record",
+            isInline: true,
+        }
     }
 
     return (
@@ -49,10 +57,7 @@ export function RecordEditor(props: RecordEditorProps) {
                 currentRecord: recordModel
             }}
         >
-            {formArgs?.targetPosition && (
-                <RecordFromJson onCancel={onCancel} onSave={onSave} targetPosition={formArgs.targetPosition} />
-            )}
-            {model && (
+            {recordModel && (
                 <Record
                     recordModel={recordModel}
                     onSave={null}

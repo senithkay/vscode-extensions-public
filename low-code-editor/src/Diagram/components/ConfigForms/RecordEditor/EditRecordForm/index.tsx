@@ -39,7 +39,6 @@ export function EditRecordForm(props: FieldEditorProps) {
     const recordClasses = recordStyles();
 
     const handleNameChange = (inputText: string) => {
-        // setName(inputText);
         state.currentRecord.name = inputText;
         callBacks.onUpdateModel(state.recordModel);
     };
@@ -89,7 +88,7 @@ export function EditRecordForm(props: FieldEditorProps) {
                 customProps={{
                     validate: validateNameValue,
                 }}
-                defaultValue={name}
+                defaultValue={state.currentRecord.name}
                 onChange={handleNameChange}
                 label={"Field name"}
                 errorMessage={!/*isValidName*/ false ? "Variable name already exists" : null}

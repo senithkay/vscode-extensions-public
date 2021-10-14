@@ -13,7 +13,7 @@
 import {RecordTypeDesc, STKindChecker} from "@ballerina/syntax-tree";
 
 import { DiagramEditorLangClientInterface, JsonToRecordResponse, STSymbolInfo } from "../../../../../Definitions";
-import { RecordModel, SimpleField } from "../types";
+import { Field, RecordModel, SimpleField } from "../types";
 
 export async function convertToRecord(json: string, lsUrl: string, ls?: any): Promise<string> {
     const langClient: DiagramEditorLangClientInterface = await ls.getDiagramEditorLangClient(lsUrl);
@@ -37,7 +37,8 @@ export function getRecordPrefix(symbolInfo: STSymbolInfo): string {
 }
 
 export function getRecordModel(typeDesc: RecordTypeDesc, name: string, isInline: boolean, type?: string): RecordModel {
-    const recordModel: RecordModel = {name, fields: [], isInline, type};
+    const recordModel: RecordModel = {name, fields: [], isInline, type, isClosed:
+            STKindChecker.isOpenBracePipeToken(typeDesc.bodyStartDelimiter)};
     if (typeDesc.fields.length > 0) {
         typeDesc.fields.forEach((field) => {
             // FIXME: Handle array type desc
@@ -54,7 +55,7 @@ export function getRecordModel(typeDesc: RecordTypeDesc, name: string, isInline:
                     type: field.typeName.source.trim(),
                     isFieldOptional: STKindChecker.isRecordField(field) ? (field.questionMarkToken !== undefined) : false,
                     // FIXME: need to map field type optionality
-                    isFieldTypeOptional: false
+                    isFieldTypeOptional: false,
                 }
                 recordModel.fields.push(recField);
             }
@@ -63,4 +64,28 @@ export function getRecordModel(typeDesc: RecordTypeDesc, name: string, isInline:
     } else {
         return null;
     }
+}
+
+export function getGeneratedCode(model: Field, isTypeDef: boolean): string {
+    let codeGenerated = "";
+    if (model.type === "record") {
+        const recordModel = model as RecordModel;
+        // TODO: handle type reference fields
+        const recordBegin = `record {${recordModel.isClosed ? "|" : ""}`;
+        let fieldCode = "";
+        if (recordModel?.fields.length > 0) {
+            recordModel.fields.forEach((field) => {
+                fieldCode += getGeneratedCode(field, false);
+            });
+        }
+        const recordEnd = isTypeDef ? `${recordModel.isClosed ? "|" : ""}};` :
+            `${recordModel.isClosed ? "|" : ""}}${recordModel.isArray ? "[]" :
+                ""} ${recordModel.name}${recordModel.isOptional ? "?" : ""};`;
+        codeGenerated = recordBegin + fieldCode + recordEnd;
+    } else {
+        const fieldModel = model as SimpleField;
+        codeGenerated = `${fieldModel.type}${fieldModel.isFieldTypeOptional ? "?" :
+            ""}${fieldModel.isArray ? "[]" : ""} ${fieldModel.name};`;
+    }
+    return codeGenerated;
 }

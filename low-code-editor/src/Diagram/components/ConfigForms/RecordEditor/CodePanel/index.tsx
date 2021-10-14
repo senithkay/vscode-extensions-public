@@ -15,9 +15,11 @@ import React, {useContext} from "react";
 
 import { Context } from "../../../../../Contexts/RecordEditor";
 import { OverlayBackground } from "../../../OverlayBackground";
+import { PrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
 import { DiagramOverlayContainer } from "../../../Portals/Overlay";
 import { RecordField } from "../RecordField";
 import { RecordModel } from "../types";
+import { getGeneratedCode } from "../utils";
 
 import "./style.scss";
 
@@ -29,12 +31,23 @@ export function CodePanel(props: CodePanelProps) {
     const { recordModel } = props;
     const { state, callBacks } = useContext(Context);
 
+    const handleRecordSave = () => {
+        console.log(">>>" + getGeneratedCode(state.recordModel, true));
+    }
+
     return (
         <div>
             <DiagramOverlayContainer
             >
                 <div className="code-panel">
                     <RecordField recordModel={state.recordModel} />
+                    <PrimaryButton
+                        dataTestId={"record-from-json-save-btn"}
+                        text={"Add"}
+                        // disabled={isMutationInProgress || !isFormValid}
+                        fullWidth={false}
+                        onClick={handleRecordSave}
+                    />
                 </div>
                 <OverlayBackground/>
             </DiagramOverlayContainer>

@@ -16,6 +16,7 @@ export interface SimpleField {
     isFieldOptional: boolean;
     isFieldTypeOptional: boolean;
     value?: string;
+    isArray?: boolean;
 }
 
 export interface RecordModel {

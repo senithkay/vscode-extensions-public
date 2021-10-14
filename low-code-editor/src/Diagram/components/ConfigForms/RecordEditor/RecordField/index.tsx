@@ -39,7 +39,7 @@ export function RecordField(props: CodePanelProps) {
 
     const handleFieldDelete = (field: SimpleField) => {
         const index = recordModel.fields.indexOf(field);
-        if (index) {
+        if (index !== -1) {
             recordModel.fields.splice(index, 1);
             callBacks.onUpdateModel(state.recordModel);
         }
