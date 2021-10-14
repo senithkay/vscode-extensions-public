@@ -16,6 +16,7 @@ import React from 'react';
 import {Story} from '@storybook/react/types-6-0';
 
 import {StatementEditorButton} from "../../../../Portals/ConfigForm/Elements/Button/StatementEditorButton";
+import {useStyles} from "../../../../Portals/ConfigForm/forms/style";
 
 import {WhileForm, WhileFormProps} from "./WhileForm";
 
@@ -25,11 +26,15 @@ export default {
     component: WhileForm,
 };
 
-const Template: Story<WhileFormProps> = (args: WhileFormProps) => (
-    <div style={{width: '20%'}}>
-        <WhileForm {...args}/>
-    </div>
-)
+
+const Template: Story<WhileFormProps> = (args: WhileFormProps) => {
+    const classes = useStyles();
+    return(
+        <div className={classes.storyStyle}>
+            <WhileForm {...args}/>
+        </div>
+    );
+}
 
 export const While = Template.bind({});
 While.args = {

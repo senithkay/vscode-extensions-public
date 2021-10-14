@@ -541,6 +541,9 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         end: {
             width: '5%'
+        },
+        storyStyle: {
+            width: '20%'
         }
     }),
 );
