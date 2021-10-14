@@ -534,12 +534,16 @@ export const useStyles = makeStyles((theme: Theme) =>
             width: '80%'
         },
         start: {
+            height: 'fit-content',
+            paddingTop: theme.spacing(3.625),
             width: '15%'
         },
         middle: {
             width: '80%'
         },
         end: {
+            height: 'fit-content',
+            paddingTop: theme.spacing(3.625),
             width: '5%'
         },
         storyStyle: {

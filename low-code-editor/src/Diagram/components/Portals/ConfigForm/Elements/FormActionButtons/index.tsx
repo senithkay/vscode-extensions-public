@@ -32,14 +32,18 @@ export function FormActionButtons(props: FormActionButtonsProps) {
     return (
         <div className={classes.formSave}>
             <div className={classes.buttonWrapper}>
-                <GreyButton text={cancelBtnText} fullWidth={false} onClick={onCancel}/>
-                <PrimaryButtonSquare
-                    data-testid="save-btn"
-                    text={saveBtnText}
-                    disabled={isMutationInProgress || !validForm}
-                    fullWidth={false}
-                    onClick={onSave}
-                />
+                <div className={classes.spaceBetween}>
+                    <GreyButton text={cancelBtnText} fullWidth={false} onClick={onCancel}/>
+                </div>
+                <div className={classes.spaceBetween}>
+                    <PrimaryButtonSquare
+                        data-testid="save-btn"
+                        text={saveBtnText}
+                        disabled={isMutationInProgress || !validForm}
+                        fullWidth={false}
+                        onClick={onSave}
+                    />
+                </div>
             </div>
         </div>
     );
