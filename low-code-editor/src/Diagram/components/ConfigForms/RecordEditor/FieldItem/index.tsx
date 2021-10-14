@@ -19,20 +19,21 @@ import { ButtonWithIcon } from "../../../Portals/ConfigForm/Elements/Button/Butt
 import { recordStyles } from "../style";
 import { SimpleField } from "../types";
 
-interface RecordItemProps {
+interface FieldItemProps {
     field: SimpleField;
     onEditCLick?: () => void;
-    onDeleteClick?: (fieldName: string) => void;
+    onDeleteClick?: (field: SimpleField) => void;
 }
 
-export function FieldItem(props: RecordItemProps) {
+export function FieldItem(props: FieldItemProps) {
     const { field, onDeleteClick, onEditCLick } = props;
 
     const recordClasses = recordStyles();
 
-    const segmentLabel = `${field.type} ${field.name} ${field.isFieldOptional ? "?" : ""}`;
+    const segmentLabel = `${field.type} ${field.isFieldTypeOptional ? "?" :
+        ""} ${field.name} ${field.isFieldOptional ? "?" : ""}`;
     const handleDelete = () => {
-        onDeleteClick(field.name);
+        onDeleteClick(field);
     };
 
     return (

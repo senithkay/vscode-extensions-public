@@ -42,7 +42,13 @@ export function RecordEditor(props: RecordEditorProps) {
     }
 
     return (
-        <RecordEditorProvider state={{recordModel, currentForm: FormState.ADD_FIELD}}>
+        <RecordEditorProvider
+            state={{
+                recordModel,
+                currentForm: FormState.EDIT_RECORD_FORM,
+                currentRecord: recordModel
+            }}
+        >
             {formArgs?.targetPosition && (
                 <RecordFromJson onCancel={onCancel} onSave={onSave} targetPosition={formArgs.targetPosition} />
             )}

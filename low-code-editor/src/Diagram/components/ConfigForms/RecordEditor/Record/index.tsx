@@ -13,12 +13,12 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from 'react';
 
-import { Box, FormControl, Typography } from "@material-ui/core";
-
-import { Context } from "../../../../../Contexts/RecordEditor";
-import { useStyles } from "../../../Portals/ConfigForm/forms/style";
-import { CodePanel } from "../CodePanel";
-import { recordStyles } from "../style";
+import { Context, FormState } from "../../../../../Contexts/RecordEditor";
+import { useStyles} from "../../../Portals/ConfigForm/forms/style";
+import { CodePanel} from "../CodePanel";
+import { EditFieldForm } from "../EditFieldForm";
+import { EditRecordForm } from "../EditRecordForm";
+import { recordStyles} from "../style";
 import { RecordModel } from "../types";
 
 export interface RecordProps {
@@ -38,13 +38,12 @@ export function Record(props: RecordProps) {
         <>
             <div>
                 {/* TODO add forms here */}
-                <FormControl data-testid="record-form" className={classes.wizardFormControl}>
-                    <div className={classes.formTitleWrapper}>
-                        <Typography variant="h4">
-                            <Box paddingTop={2} paddingBottom={2}>Create record</Box>
-                        </Typography>
-                    </div>
-                </FormControl>
+                {(state.currentForm === FormState.EDIT_RECORD_FORM) && (
+                    <EditRecordForm />
+                )}
+                {(state.currentForm === FormState.ADD_FIELD || state.currentForm === FormState.UPDATE_FIELD) && (
+                    <EditFieldForm />
+                )}
             </div>
             <CodePanel recordModel={recordModel} />
         </>

@@ -23,6 +23,9 @@ export interface RecordModel {
     type?: string;
     fields: Field[];
     isInline?: boolean;
+    isOptional?: boolean;
+    isArray?: boolean;
+    isClosed?: boolean;
 }
 
 export declare type Field = SimpleField | RecordModel;

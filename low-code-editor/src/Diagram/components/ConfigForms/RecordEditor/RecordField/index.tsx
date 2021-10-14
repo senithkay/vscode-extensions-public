@@ -11,13 +11,15 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, useRef, useState } from "react";
+import React, {ReactNode, useContext, useEffect, useState} from "react";
 
 import { Typography } from "@material-ui/core";
+import { CloseRounded } from "@material-ui/icons";
 import classnames from "classnames";
 
 import { AddIcon } from "../../../../../assets/icons";
-import { FieldEditor } from "../FieldEditor";
+import { Context, FormState } from "../../../../../Contexts/RecordEditor";
+import { ButtonWithIcon } from "../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import { FieldItem } from "../FieldItem";
 import { recordStyles } from "../style";
 import { RecordModel, SimpleField } from "../types";
@@ -31,25 +33,66 @@ export function RecordField(props: CodePanelProps) {
 
     const recordClasses = recordStyles();
 
-    // const recordModelRef = useRef(recordModel);
+    const { state, callBacks } = useContext(Context);
+
     const [isFieldAddInProgress, setIsFieldAddInProgress] = useState(false);
 
-    const handleCancel = () => {
-        setIsFieldAddInProgress(false);
+    const handleFieldDelete = (field: SimpleField) => {
+        const index = recordModel.fields.indexOf(field);
+        if (index) {
+            recordModel.fields.splice(index, 1);
+            callBacks.onUpdateModel(state.recordModel);
+        }
     };
 
     const handleAddField = () => {
+        callBacks.onChangeFormState(FormState.ADD_FIELD);
+        callBacks.onUpdateCurrentField(undefined);
+        callBacks.onUpdateCurrentRecord(recordModel);
         setIsFieldAddInProgress(true);
     };
 
     const fieldItems: ReactNode[] = [];
     recordModel.fields.forEach((field: SimpleField | RecordModel) => {
         if (field.type !== "record") {
-            fieldItems.push(<FieldItem field={field as SimpleField} onDeleteClick={null} onEditCLick={null} />)
+            fieldItems.push(
+                <FieldItem
+                    field={field as SimpleField}
+                    onDeleteClick={handleFieldDelete}
+                    onEditCLick={null}
+                />
+            )
         } else {
             fieldItems.push(<RecordField recordModel={field as RecordModel} />)
         }
     });
+
+    if (isFieldAddInProgress) {
+        // Adding draft field
+        fieldItems.push(
+            <div className={recordClasses.itemWrapper}>
+                <div className={recordClasses.itemLabel}>
+                    <ButtonWithIcon
+                        onClick={null}
+                        icon={<CloseRounded fontSize="small" />}
+                        className={recordClasses.iconBtn}
+                    />
+                </div>
+            </div>
+        )
+    }
+
+    const recordBegin = `record { ${recordModel.isClosed ? "|" : ""}`;
+
+    const recordEnd = `${recordModel.isClosed ? "| " : ""}} ${recordModel.isArray ? "[] " : " "}${
+        recordModel.name}${recordModel.isOptional ? " ?" : ""};`;
+
+    useEffect(() => {
+        // Checks whether add from is completed and reset field addition
+        if ((state.currentForm !== FormState.ADD_FIELD) || (state.currentRecord.name !== recordModel.name)) {
+            setIsFieldAddInProgress(false);
+        }
+    }, [state.currentForm, state.currentRecord?.name]);
 
     return (
         <div>
@@ -58,9 +101,8 @@ export function RecordField(props: CodePanelProps) {
                     variant='body2'
                     className={classnames(recordClasses.recordCode)}
                 >
-                    {`record {`}
+                    {recordBegin}
                 </Typography>
-                {/*<p className={classes.startCode}> record {"{"} </p>*/}
                 {fieldItems}
                 {!isFieldAddInProgress && (
                     <div className={recordClasses.addFieldBtnWrap} onClick={handleAddField}>
@@ -68,19 +110,11 @@ export function RecordField(props: CodePanelProps) {
                         <p>Add Field</p>
                     </div>
                 )}
-
-                {isFieldAddInProgress && (
-                    <FieldEditor
-                        addedFields={recordModel.fields}
-                        onSaveFiled={handleAddField}
-                        onCancel={handleCancel}
-                    />
-                )}
                 <Typography
                     variant='body2'
                     className={classnames(recordClasses.recordCode)}
                 >
-                    {`} ${recordModel.name};`}
+                    {recordEnd}
                 </Typography>
             </div>
         </div>
