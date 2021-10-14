@@ -26,11 +26,11 @@ import "./style.scss";
 export const RECORD_MARGIN_LEFT: number = 24.5;
 export const RECORD_PLUS_OFFSET: number = 7.5;
 
-export interface TypeDefComponentProps {
+export interface RecordDefComponentProps {
     model: TypeDefinition;
 }
 
-export function TypeDefinitionComponent(props: TypeDefComponentProps) {
+export function RecordDefinitionComponent(props: RecordDefComponentProps) {
     const { model } = props;
 
     const [isEditable, setIsEditable] = useState(false);
