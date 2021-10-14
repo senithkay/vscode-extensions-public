@@ -22,14 +22,14 @@ import { commands, ViewColumn, ExtensionContext, languages, Range, window, Webvi
 import { BallerinaExtension, ExtendedLangClient, LANGUAGE, PerformanceAnalyzerGraphResponse } from "../core";
 import { ExecutorCodeLensProvider } from "./codelens-provider";
 import { log } from "../utils";
-import keytar = require("keytar");
-import { CHOREO_SERVICE_NAME, CHOREO_ACCESS_TOKEN, CHOREO_COOKIE } from "../project/cmds/choreo-signin";
 import { WebViewRPCHandler, WebViewMethod, getCommonWebViewOptions } from '../utils';
 import { render } from './render';
 
 
 let langClient: ExtendedLangClient;
 let graphDatas;
+let extension: BallerinaExtension;
+
 
 export const SHOW_GRAPH_COMMAND = "ballerina.forecast.performance.showGraph";
 
@@ -43,6 +43,7 @@ export enum ANALYZETYPE {
 export async function activate(ballerinaExtInstance: BallerinaExtension) {
     const context = <ExtensionContext>ballerinaExtInstance.context;
     langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
+    extension = ballerinaExtInstance;
 
     const getEndpoints = commands.registerCommand(SHOW_GRAPH_COMMAND, async (...args: any[]) => {
         const activeEditor = window.activeTextEditor;
@@ -64,8 +65,8 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
 
 export async function createPerformanceGraphAndCodeLenses(uri: string | undefined, pos: Range) {
 
-    const choreoToken = await keytar.getPassword(CHOREO_SERVICE_NAME, CHOREO_ACCESS_TOKEN);
-    const choreoCookie = await keytar.getPassword(CHOREO_SERVICE_NAME, CHOREO_COOKIE);
+    const choreoToken = extension.getChoreoSession().choreoToken;
+    const choreoCookie = extension.getChoreoSession().choreoCookie;
 
     if (!choreoToken || !choreoCookie) {
         window.showInformationMessage(
