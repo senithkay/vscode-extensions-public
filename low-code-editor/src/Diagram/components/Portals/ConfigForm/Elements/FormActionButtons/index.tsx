@@ -12,13 +12,8 @@
  */
 import * as React from "react";
 
-import {Button, Grid} from "@material-ui/core";
-import Typography from "@material-ui/core/Typography";
-
 import {GreyButton} from "../../../../../../components/Buttons/GreyButton";
 import {PrimaryButtonSquare} from "../../../../../../components/Buttons/PrimaryButtonSquare";
-import { PrimaryButton } from "../Button/PrimaryButton";
-import { SecondaryButton } from "../Button/SecondaryButton";
 
 import { useStyles } from "./style";
 
@@ -36,11 +31,11 @@ export function FormActionButtons(props: FormActionButtonsProps) {
     const { cancelBtnText, saveBtnText, isMutationInProgress, validForm, onSave, onCancel } = props;
     return (
         <div className={classes.formSave}>
-            <Grid container={true} className={classes.buttonWrapper} spacing={1}>
-                <Grid item={true}>
+            <div className={classes.buttonWrapper}>
+                <div>
                     <GreyButton text={cancelBtnText} fullWidth={false} onClick={onCancel} />
-                </Grid>
-                <Grid item={true}>
+                </div>
+                <div>
                     <PrimaryButtonSquare
                         data-testid="save-btn"
                         text={saveBtnText}
@@ -48,8 +43,8 @@ export function FormActionButtons(props: FormActionButtonsProps) {
                         fullWidth={false}
                         onClick={onSave}
                     />
-                </Grid>
-            </Grid>
+                </div>
+            </div>
         </div>
     );
 }

@@ -23,7 +23,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         buttonWrapper: {
             height: 'auto',
-            display: 'flex',
+            display: 'inline-flex',
             justifyContent: 'flex-end',
             width: '100%',
             zIndex: 100,
