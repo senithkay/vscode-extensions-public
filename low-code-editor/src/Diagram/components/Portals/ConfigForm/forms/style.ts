@@ -545,9 +545,6 @@ export const useStyles = makeStyles((theme: Theme) =>
             height: 'fit-content',
             paddingTop: theme.spacing(3.625),
             width: '5%'
-        },
-        storyStyle: {
-            width: '20%'
         }
     }),
 );

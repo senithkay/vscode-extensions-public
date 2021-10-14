@@ -15,33 +15,126 @@ import React from 'react';
 // tslint:disable-next-line: no-submodule-imports
 import {Story} from '@storybook/react/types-6-0';
 
-import {StatementEditorButton} from "../../../../Portals/ConfigForm/Elements/Button/StatementEditorButton";
-import {useStyles} from "../../../../Portals/ConfigForm/forms/style";
+import {
+    ConnectionDetails
+} from "../../../../../../api/models";
+import { Provider as LowCodeEditorProvider } from "../../../../../../Contexts/Diagram";
 
-import {WhileForm, WhileFormProps} from "./WhileForm";
+import {AddWhileForm, WhileProps } from "./index";
 
 
 export default {
     title: 'Low Code Editor/Diagram/Statements/While',
-    component: WhileForm,
+    component: AddWhileForm,
 };
 
+// tslint:disable-next-line:no-empty
+const dummyFunction = (arg: any) => {} ;
+// tslint:disable-next-line:no-empty
+const dummyFunctionWithoutArgs =  () => {};
 
-const Template: Story<WhileFormProps> = (args: WhileFormProps) => {
-    const classes = useStyles();
+const api = {
+    tour: { goToNextTourStep: dummyFunction },
+    helpPanel: {openConnectorHelp: dummyFunction},
+    notifications: {},
+    ls: {},
+    insights: { trackTriggerSelection: dummyFunction},
+    code: {
+        modifyDiagram: dummyFunction,
+        onMutate: dummyFunction,
+        modifyTrigger: dummyFunction,
+        setCodeLocationToHighlight: dummyFunction
+    },
+    connections: {
+        getAllConnections: async (orgHandle: string): Promise<ConnectionDetails[]> => {
+            const completions: ConnectionDetails[] = [];
+            return completions;
+        }},
+    ai: {},
+    splitPanel: {
+        maximize: dummyFunction,
+        minimize: dummyFunction,
+        setPrimaryRatio: dummyFunction,
+        setSecondaryRatio: dummyFunction,
+        handleRightPanelContent: dummyFunction
+    },
+    data: {
+        getGsheetList: async (): Promise<any> => ([]),
+    },
+    oauth: {
+        // tslint:disable-next-line:no-empty
+        dispatchGetAllConfiguration:  async (): Promise<void> => {},
+    },
+    panNZoom: {
+        pan: dummyFunction,
+        fitToScreen: dummyFunctionWithoutArgs,
+        zoomIn: dummyFunctionWithoutArgs,
+        zoomOut: dummyFunctionWithoutArgs,
+    },
+    configPanel: {
+        dispactchConfigOverlayForm: dummyFunction,
+        closeConfigOverlayForm: dummyFunctionWithoutArgs,
+        configOverlayFormPrepareStart: dummyFunctionWithoutArgs,
+        closeConfigPanel: dummyFunctionWithoutArgs,
+    }
+}
+
+
+const props = {
+    api,
+    // @ts-ignore
+    currentAppType: undefined,
+    currentApp: {
+        workingFile: "/apps/username/apName/project/choreo.bal",
+        id: 1,
+        name: '',
+        displayName: '',
+        org: '',
+        organizationId: 0,
+        // @ts-ignore
+        template: undefined,
+        createdAt: ''
+    },
+    currentFile: {
+        // @ts-ignore
+        type: undefined,
+        path: '',
+        size: 3,
+        content: ''
+    },
+    // @ts-ignore
+    syntaxTree: undefined,
+    // @ts-ignore
+    originalSyntaxTree: undefined,
+    // @ts-ignore
+    stSymbolInfo: undefined,
+    langServerURL: '',
+    // @ts-ignore
+    configOverlayFormStatus: undefined,
+    // @ts-ignore
+    configPanelStatus: undefined,
+    isCodeEditorActive: false,
+    isPerformanceViewOpen: false,
+    isLoadingSuccess: false,
+    isWaitingOnWorkspace: false,
+    isMutationProgress: false,
+    isCodeChangeInProgress: false,
+    isReadOnly: false,
+    // @ts-ignore
+    zoomStatus: undefined
+}
+
+const Template: Story<WhileProps> = (args: WhileProps) => {
     return(
-        <div className={classes.storyStyle}>
-            <WhileForm {...args}/>
-        </div>
+        <LowCodeEditorProvider {...props} >
+            <AddWhileForm {...args}/>
+        </LowCodeEditorProvider>
     );
 }
 
 export const While = Template.bind({});
 While.args = {
-    statementEditor: <StatementEditorButton/>,
-    expressionEditor: (
-        <div className="exp-container">
-            <input/>
-        </div>
-    )
+    condition: {
+        type: ''
+    }
 };

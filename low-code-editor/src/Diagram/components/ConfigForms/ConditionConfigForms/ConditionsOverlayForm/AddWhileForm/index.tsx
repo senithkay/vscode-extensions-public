@@ -30,9 +30,8 @@ import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormA
 import { ViewContainer } from "../../../../Portals/ConfigForm/Elements/StatementEditor/components/ViewContainer/ViewContainer";
 import { StatementEditorButton } from "../../../../Portals/ConfigForm/Elements/Button/StatementEditorButton";
 import classnames from "classnames";
-import {WhileForm} from "./WhileForm";
 
-interface WhileProps {
+export interface WhileProps {
     condition: ConditionConfig;
     formArgs: any;
     onCancel: () => void;
@@ -116,15 +115,50 @@ export function AddWhileForm(props: WhileProps) {
         defaultMessage: "Cancel"
     });
 
-    const statementEditor = <StatementEditorButton onClick={handleStmtEditorButtonClick} disabled={true} />;
-    const expressionEditor =  <ExpressionEditor {...expElementProps} hideLabelTooltips={true} />;
-
-
     let exprEditor =
         (
             <FormControl data-testid="while-form" className={classes.wizardFormControl}>
                 <div className={classes.formWrapper}>
-                    <WhileForm statementEditor={statementEditor} expressionEditor={expressionEditor}/>
+                    <div className={classes.formFeilds}>
+                        <div className={classes.formWrapper}>
+                            <div className={classes.formTitleWrapper}>
+                                <div className={classes.mainTitleWrapper}>
+                                    <Typography variant="h4">
+                                        <Box paddingTop={2} paddingBottom={2}>
+                                            <FormattedMessage
+                                                id="lowcode.develop.configForms.while.title"
+                                                defaultMessage="While"
+                                            />
+                                        </Box>
+                                    </Typography>
+                                </div>
+                                <div className={classes.statementEditor}>
+                                    <StatementEditorButton onClick={handleStmtEditorButtonClick} disabled={true} />
+                                </div>
+                            </div>
+                            <div className={classes.codeWrapper}>
+                                <div className={classes.start}>
+                                    <Typography variant='body2' className={classnames(classes.startCode, classes.code)}>while</Typography>
+                                </div>
+                                <div className={classes.middle}>
+                                    <ExpressionEditor {...expElementProps} hideLabelTooltips={true} />
+                                </div>
+                                <div className={classes.end}>
+                                    <Typography variant='body2' className={classnames(classes.endCode, classes.code)}>{`{`}</Typography>
+                                </div>
+                            </div>
+                            <div className={classes.codeWrapper}>
+                                <div>
+                                    <Typography variant='body2' className={classnames(classes.middleCode, classes.code)}>...</Typography>
+                                </div>
+                            </div>
+                            <div className={classes.codeWrapper}>
+                                <div>
+                                    <Typography variant='body2' className={classnames(classes.endCode, classes.code)}>{`}`}</Typography>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <FormActionButtons
                         cancelBtnText={cancelWhileButtonLabel}
                         saveBtnText={saveWhileButtonLabel}
