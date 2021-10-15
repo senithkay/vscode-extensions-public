@@ -20,7 +20,7 @@ import { Button } from "@material-ui/core";
 
 import DeleteButton from "../../../assets/icons/DeleteButton";
 import EditButton from "../../../assets/icons/EditButton";
-import RecordIcon from "../../../assets/icons/RecordIcon";
+import EnumIcon from "../../../assets/icons/EnumIcon";
 import { Context as DiagramContext } from "../../../Contexts/Diagram";
 import { removeStatement } from "../../utils/modification-util";
 import { ComponentExpandButton } from "../ComponentExpandButton";
@@ -106,7 +106,7 @@ export function EnumDeclarationComponent(props: EnumDeclarationComponentProps) {
                 <div className="enum-header" >
                     <div className="enum-content">
                         <div className="enum-icon">
-                            <RecordIcon />
+                            <EnumIcon />
                         </div>
                         <div className="enum-type">
                             Enum
