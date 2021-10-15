@@ -161,7 +161,14 @@ export interface PerformanceAnalyzerGraphResponse {
     type: any;
     sequenceDiagramData: SequenceGraphPoint[];
     graphData: GraphPoint[];
-    realtimeData: GraphPoint;
+}
+
+export interface PerformanceAnalyzerRealtimeResponse {
+    message: string;
+    type: any;
+    concurrency: String;
+    latency: String;
+    tps: String;
 }
 
 export interface GraphPoint {
@@ -199,6 +206,9 @@ export class ExtendedLangClient extends LanguageClient {
     }
     getPerformaceGraphData(params: PerformanceAnalyzerGraphRequest): Promise<PerformanceAnalyzerGraphResponse> {
         return this.sendRequest("performanceAnalyzer/getGraphData", params);
+    }
+    getRealtimePerformaceData(params: PerformanceAnalyzerGraphRequest): Promise<PerformanceAnalyzerRealtimeResponse> {
+        return this.sendRequest("performanceAnalyzer/getRealtimeData", params);
     }
     getDiagnostics(params: BallerinaProjectParams): Promise<PublishDiagnosticsParams[]> {
         return this.sendRequest<PublishDiagnosticsParams[]>("ballerinaDocument/diagnostics", params);

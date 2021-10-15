@@ -19,7 +19,7 @@
 
 import { DataLabel } from "./model";
 import { commands, ViewColumn, ExtensionContext, languages, Range, window, WebviewPanel } from "vscode";
-import { BallerinaExtension, ExtendedLangClient, LANGUAGE, PerformanceAnalyzerGraphResponse } from "../core";
+import { BallerinaExtension, ExtendedLangClient, LANGUAGE, PerformanceAnalyzerGraphResponse, PerformanceAnalyzerRealtimeResponse } from "../core";
 import { ExecutorCodeLensProvider } from "./codelens-provider";
 import { log } from "../utils";
 import { WebViewRPCHandler, WebViewMethod, getCommonWebViewOptions } from '../utils';
@@ -35,6 +35,7 @@ export const SHOW_GRAPH_COMMAND = "ballerina.forecast.performance.showGraph";
 
 export enum ANALYZETYPE {
     ADVANCED = "advanced",
+    REALTIME = "realtime",
 }
 
 /**
@@ -49,10 +50,12 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
         const activeEditor = window.activeTextEditor;
         const uri = activeEditor?.document.uri.fsPath.toString();
         ExecutorCodeLensProvider.dataLabels = [];
-        await createPerformanceGraphAndCodeLenses(uri, args[0]);
-        if (graphDatas) {
-            showPerformanceGraph(graphDatas);
+
+        if (args.length < 2) {
+            return;
         }
+        await createPerformanceGraphAndCodeLenses(uri, args[0], ANALYZETYPE.ADVANCED, args[1]);
+        ExecutorCodeLensProvider.onDidChangeCodeLenses.fire();
 
     });
     context.subscriptions.push(getEndpoints);
@@ -63,7 +66,8 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
     }
 }
 
-export async function createPerformanceGraphAndCodeLenses(uri: string | undefined, pos: Range) {
+export async function createPerformanceGraphAndCodeLenses(uri: string | undefined, pos: Range
+    , type: ANALYZETYPE, graphData: PerformanceAnalyzerRealtimeResponse | undefined) {
 
     const choreoToken = extension.getChoreoSession().choreoToken;
     const choreoCookie = extension.getChoreoSession().choreoCookie;
@@ -76,52 +80,97 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
     }
 
     if (uri && langClient && pos) {
-        // add codelenses to endpoints
-        await langClient.getPerformaceGraphData({
-            documentIdentifier: {
-                uri: uri
-            },
-            range: {
-                start: {
-                    line: pos.start.line,
-                    character: pos.start.character,
+        if (type == ANALYZETYPE.REALTIME) {
+            // add codelenses to resources
+            await langClient.getRealtimePerformaceData({
+                documentIdentifier: {
+                    uri: uri
                 },
-                end: {
-                    line: pos.end.line,
-                    character: pos.end.character
-                }
-            },
-            choreoToken: `Bearer ${choreoToken}`,
-            choreoCookie: choreoCookie,
-        }).then(async (response) => {
-            if (response.type === 'error') {
-                if (response.message === 'AUTHENTICATION_ERROR') {
-                    // Choreo Auth Error
-                    window.showInformationMessage(
-                        "Choreo Authentication error."
-                    );
+                range: {
+                    start: {
+                        line: pos.start.line,
+                        character: pos.start.character,
+                    },
+                    end: {
+                        line: pos.end.line,
+                        character: pos.end.character
+                    }
+                },
+                choreoToken: `Bearer ${choreoToken}`,
+                choreoCookie: choreoCookie,
+            }).then(async (response) => {
+                if (response.type === 'error') {
+                    if (response.message === 'AUTHENTICATION_ERROR') {
+                        // Choreo Auth Error
+                        window.showInformationMessage(
+                            "Choreo Authentication error."
+                        );
+                        return;
+                    } else if (response.message === 'CONNECTION_ERROR') {
+                        // Internet Connection Error
+                        return;
+                    }
                     return;
-                } else if (response.message === 'CONNECTION_ERROR') {
-                    // Internet Connection Error
+                }
+                addRealTimePerformanceLabels(response, uri, pos);
+            }).catch(error => {
+                log(error);
+            });
+        } else {
+            // add code lenses to invocations
+            await langClient.getPerformaceGraphData({
+                documentIdentifier: {
+                    uri: uri
+                },
+                range: {
+                    start: {
+                        line: pos.start.line,
+                        character: pos.start.character,
+                    },
+                    end: {
+                        line: pos.end.line,
+                        character: pos.end.character
+                    }
+                },
+                choreoToken: `Bearer ${choreoToken}`,
+                choreoCookie: choreoCookie,
+            }).then(async (response) => {
+                if (response.type === 'error') {
+                    if (response.message === 'AUTHENTICATION_ERROR') {
+                        // Choreo Auth Error
+                        window.showInformationMessage(
+                            "Choreo Authentication error."
+                        );
+                        return;
+                    } else if (response.message === 'CONNECTION_ERROR') {
+                        // Internet Connection Error
+                        return;
+                    }
                     return;
                 }
-                return;
-            }
-            addPerformanceLabels(response, pos);
-        }).catch(error => {
-            log(error);
-        });
+
+                if (graphData) {
+                    addRealTimePerformanceLabels(graphData, uri, pos);
+                    addPerformanceLabels(response, pos, graphData);
+                }
+                if (graphDatas) {
+                    showPerformanceGraph(graphDatas);
+                }
+            }).catch(error => {
+                log(error);
+            });
+        }
     }
 }
 
-function addPerformanceLabels(graphData: PerformanceAnalyzerGraphResponse, currentResourcePos: Range) {
+function addPerformanceLabels(graphData: PerformanceAnalyzerGraphResponse, currentResourcePos: Range,
+    realtimeData: PerformanceAnalyzerRealtimeResponse) {
     if (!graphData || !currentResourcePos) {
         return;
     }
     const sequenceDiagramData = graphData.sequenceDiagramData;
-    const realtimeData = graphData.realtimeData;
 
-    if (!sequenceDiagramData || !realtimeData) {
+    if (!sequenceDiagramData) {
         return;
     }
 
@@ -142,18 +191,23 @@ function addPerformanceLabels(graphData: PerformanceAnalyzerGraphResponse, curre
         const end = pos[1].split(":");
         const range = new Range(parseInt(start[0]), parseInt(start[1]),
             parseInt(end[0]), parseInt(end[1]));
-        const dataLabel = new DataLabel(file, range, latency, currentResourcePos);
+        const dataLabel = new DataLabel(file, range, latency, currentResourcePos, realtimeData);
         ExecutorCodeLensProvider.addDataLabel(dataLabel);
 
     }
-
-    if (file) {
-        // add resource latency
-        const dataLabel = new DataLabel(file, currentResourcePos, realtimeData.latency, currentResourcePos);
-        ExecutorCodeLensProvider.addDataLabel(dataLabel);
-    }
-
     graphDatas = graphData.graphData;
+}
+
+function addRealTimePerformanceLabels(graphData: PerformanceAnalyzerRealtimeResponse,
+    file: String, currentResourcePos: Range) {
+    if (!graphData || !currentResourcePos || !file) {
+        return;
+    }
+
+    // add resource latency
+    const dataLabel = new DataLabel(file, currentResourcePos, graphData.latency, currentResourcePos, graphData);
+    ExecutorCodeLensProvider.addDataLabel(dataLabel);
+
 }
 
 let performanceGraphPanel: WebviewPanel | undefined;

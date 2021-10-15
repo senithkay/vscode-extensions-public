@@ -26,9 +26,10 @@ import { BAL_TOML } from '../project';
 import { createPerformanceGraphAndCodeLenses, SHOW_GRAPH_COMMAND } from './activator';
 import { DataLabel, Member, SyntaxTree } from './model';
 import path from 'path';
+import { ANALYZETYPE } from '.';
 
 enum CODELENSE_TYPE {
-    ENDPOINT,
+    RESOURCE,
     INVOCATION
 }
 
@@ -95,14 +96,15 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
         for (let i = 0; i < ExecutorCodeLensProvider.dataLabels.length; i++) {
             const label = ExecutorCodeLensProvider.dataLabels[i];
             if (window.activeTextEditor &&
-                label.getFile == window.activeTextEditor.document.fileName.split(path.sep).pop()) {
+                (label.getFile == window.activeTextEditor.document.fileName ||
+                    label.getFile == window.activeTextEditor.document.fileName.split(path.sep).pop())) {
                 const startLine = label.getRange.start;
                 const endLine = label.getRange.end;
 
                 codeLenses.push(this.createCodeLens(CODELENSE_TYPE.INVOCATION,
                     startLine.line, startLine.character,
                     endLine.line, endLine.character,
-                    label.getResourceRange, label.getLabel.toString()));
+                    [label.getResourcePos, label.getData], label.getLabel.toString()));
             }
         }
 
@@ -110,15 +112,15 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
     }
 
     private createCodeLens(type: CODELENSE_TYPE, startLine, startColumn, endLine, endColumn,
-        data, latency = "null"): CodeLens {
+        data: any[], latency = "null"): CodeLens {
 
         const codeLens = new CodeLens(new Range(startLine, startColumn, endLine, endColumn));
         codeLens.command = {
             title: latency == "" ? "View Performance" : `Forecasted latency: ${latency} ms`,
-            tooltip: type == CODELENSE_TYPE.ENDPOINT ? "Forecast performance using AI" :
+            tooltip: type == CODELENSE_TYPE.RESOURCE ? "Forecast performance using AI" :
                 `Click here to view the performance graph.`,
             command: SHOW_GRAPH_COMMAND,
-            arguments: [data]
+            arguments: data
         };
         return codeLens;
     }
@@ -152,7 +154,7 @@ async function findResources(uri: Uri | undefined) {
                                 const range: Range = new Range(pos.startLine, pos.startColumn,
                                     pos.endLine, pos.endColumn);
 
-                                await createPerformanceGraphAndCodeLenses(uri.fsPath, range);
+                                await createPerformanceGraphAndCodeLenses(uri.fsPath, range, ANALYZETYPE.REALTIME, undefined);
                             }
                         }
                     }
