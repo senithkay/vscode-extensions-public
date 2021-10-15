@@ -29,114 +29,14 @@ import { RadioControl } from '../../Elements/RadioControl/FormRadioControl';
 import { FormTextInput } from '../../Elements/TextField/FormTextInput';
 import { useStyles as useFormStyles } from "../style";
 
+import { getFormConfigFromModel, isFormConfigValid, ModuleVarNameRegex, VariableQualifiers } from './util';
+import { ModuleVarFormActionTypes, moduleVarFormReducer } from './util/reducer';
+
 interface ModuleVariableFormProps {
     model?: ModuleVarDecl;
     targetPosition?: NodePosition;
     onCancel: () => void;
     onSave: () => void;
-}
-
-enum VariableQualifiers {
-    NONE = 'None',
-    FINAL = 'final',
-    CONFIGURABLE = 'configurable',
-}
-
-export interface ModuleVariableFormState {
-    isPublic: boolean;
-    varType: string;
-    varName: string;
-    varValue: string;
-    varQualifier: string;
-    isExpressionValid: boolean;
-}
-
-export enum ModuleVarFormActionTypes {
-    UPDATE_ACCESS_MODIFIER,
-    SET_VAR_TYPE,
-    SET_VAR_NAME,
-    SET_VAR_VALUE,
-    SET_VAR_QUALIFIER,
-    UPDATE_EXPRESSION_VALIDITY,
-    RESET_VARIABLE_TYPE
-}
-
-export type ModuleVarFormAction =
-    { type: ModuleVarFormActionTypes.UPDATE_ACCESS_MODIFIER, payload: boolean }
-    | { type: ModuleVarFormActionTypes.SET_VAR_TYPE, payload: string }
-    | { type: ModuleVarFormActionTypes.SET_VAR_NAME, payload: string }
-    | { type: ModuleVarFormActionTypes.SET_VAR_VALUE, payload: string }
-    | { type: ModuleVarFormActionTypes.SET_VAR_QUALIFIER, payload: string }
-    | { type: ModuleVarFormActionTypes.UPDATE_EXPRESSION_VALIDITY, payload: boolean }
-    | { type: ModuleVarFormActionTypes.RESET_VARIABLE_TYPE };
-
-export function moduleVarFormReducer(state: ModuleVariableFormState, action: ModuleVarFormAction): ModuleVariableFormState {
-    switch (action.type) {
-        case ModuleVarFormActionTypes.UPDATE_ACCESS_MODIFIER:
-            return { ...state, isPublic: action.payload };
-        case ModuleVarFormActionTypes.SET_VAR_NAME:
-            return { ...state, varName: action.payload };
-        case ModuleVarFormActionTypes.SET_VAR_VALUE:
-            return { ...state, varValue: action.payload };
-        case ModuleVarFormActionTypes.SET_VAR_TYPE:
-            return { ...state, varType: action.payload, varValue: '' };
-        case ModuleVarFormActionTypes.SET_VAR_QUALIFIER:
-            return { ...state, varQualifier: action.payload };
-        case ModuleVarFormActionTypes.UPDATE_EXPRESSION_VALIDITY:
-            return { ...state, isExpressionValid: action.payload };
-        case ModuleVarFormActionTypes.RESET_VARIABLE_TYPE:
-            return { ...state, varType: '', varValue: '' };
-    }
-}
-
-const defaultFormState: ModuleVariableFormState = {
-    isPublic: false,
-    varType: 'int',
-    varName: '',
-    varValue: '',
-    varQualifier: '',
-    isExpressionValid: true,
-}
-
-const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
-
-export function isFormConfigValid(config: ModuleVariableFormState): boolean {
-    const { varName, varValue, isExpressionValid } = config;
-
-    return varName.length > 0 && nameRegex.test(varName) && varValue.length > 0 && isExpressionValid;
-}
-
-export function getFormConfigFromModel(model: any): ModuleVariableFormState {
-    // FixMe: model is set to any type due to missing properties in ST interface
-    let varQualifier = '';
-    let typeKind = 'int';
-
-    if (model.qualifiers.length > 0) {
-        if (STKindChecker.isConfigurableKeyword(model.qualifiers[0])) {
-            varQualifier = VariableQualifiers.CONFIGURABLE;
-        } else if (STKindChecker.isFinalKeyword(model.qualifiers[0])) {
-            varQualifier = VariableQualifiers.FINAL;
-        }
-    }
-
-    const typeData = model.initializer.typeData;
-
-    if (typeData) {
-        const typeSymbol = typeData.typeSymbol;
-        if (typeSymbol) {
-            typeKind = typeSymbol.typeKind;
-        }
-    }
-
-    return {
-        isPublic: model.visibilityQualifier && STKindChecker.isPublicKeyword(model.visibilityQualifier),
-        varType: typeKind,
-        varName: ((model.typedBindingPattern as TypedBindingPattern)
-            .bindingPattern as CaptureBindingPattern).variableName.value,
-        varValue: model.initializer.source,
-        varQualifier,
-        isExpressionValid: true,
-    };
 }
 
 export function ModuleVariableForm(props: ModuleVariableFormProps) {
@@ -194,7 +94,7 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
 
     const validateNameValue = (value: string) => {
         if (value && value !== '') {
-            return nameRegex.test(value);
+            return ModuleVarNameRegex.test(value);
         }
         return true;
     };
