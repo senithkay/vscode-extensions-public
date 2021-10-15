@@ -20,7 +20,7 @@ import { APIOptions } from "../../Overlay/Elements/PlusHolder/PlusElementOptions
 import { APIConfigForm } from "./APIConfigForm";
 import { ConnectorInitForm } from "./ConnectorInitForm";
 import { FunctionConfigForm } from './FunctionConfigForm';
-import { ModuleVariableForm } from './ModuleVariable';
+import { ModuleVariableForm } from './ModuleVariableForm';
 import { ScheduleConfigForm } from "./ScheduleConfigForm";
 import { ServiceConfigForm } from './ServiceConfigForm';
 import { WebhookConfigForm } from "./WebhookConfigForm";
