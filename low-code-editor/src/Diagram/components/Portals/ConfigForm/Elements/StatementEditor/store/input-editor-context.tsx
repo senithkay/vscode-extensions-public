@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: no-empty
+// tslint:disable: no-empty jsx-no-multiline-js
 import React, { useState } from 'react';
 
 export const InputEditorContext = React.createContext({
