@@ -27,6 +27,7 @@ export const PerformanceForcast = ({ name, data }: PerformanceForcastProps) => {
                         width={500}
                         height={300}
                         data={data}
+                        syncId="performance"
                         margin={{
                             top: 5,
                             right: 30,
@@ -61,6 +62,7 @@ export const PerformanceForcast = ({ name, data }: PerformanceForcastProps) => {
                         width={500}
                         height={300}
                         data={data}
+                        syncId="performance"
                         margin={{
                             top: 5,
                             right: 30,
