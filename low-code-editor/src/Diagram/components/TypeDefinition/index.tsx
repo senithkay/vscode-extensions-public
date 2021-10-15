@@ -15,7 +15,6 @@
 import React, { useContext, useState } from "react"
 
 import { MethodDeclaration, ObjectField, ObjectTypeDesc, STKindChecker, TypeDefinition } from "@ballerina/syntax-tree";
-import { Button } from "@material-ui/core";
 
 import DeleteButton from "../../../assets/icons/DeleteButton";
 import EditButton from "../../../assets/icons/EditButton";
@@ -23,9 +22,8 @@ import RecordIcon from "../../../assets/icons/RecordIcon";
 import { Context as DiagramContext } from "../../../Contexts/Diagram";
 import { removeStatement } from "../../utils/modification-util";
 import { ComponentExpandButton } from "../ComponentExpandButton";
-import { OverlayBackground } from "../OverlayBackground";
-import { DiagramOverlayContainer } from "../Portals/Overlay";
 import { RecordDefinitionComponent } from "../RecordDefinion";
+import { UnsupportedConfirmButtons } from "../UnsupportedConfirmButtons";
 
 import "./style.scss";
 
@@ -76,6 +74,7 @@ export function TypeDefinitionComponent(props: TypeDefComponentProps) {
 
     const handleEditBtnConfirm = () => {
         const targetposition = model.position;
+        setEditingEnabled(false);
         // Move to code
     }
 
@@ -156,20 +155,7 @@ export function TypeDefinitionComponent(props: TypeDefComponentProps) {
                         </>
                     )}
                 </div>
-                {editingEnabled && (
-                    <DiagramOverlayContainer>
-                        <div className="container-wrapper">
-                            <div className="confirm-container" >
-                                <p>Diagram editing for this is unsupported. Move to code?</p>
-                                <div className={'action-button-container'}>
-                                    <Button variant="contained" className="cancelbtn" onClick={handleEditBtnCancel}>No</Button>
-                                    <Button variant="contained" className="confirmbtn" onClick={handleEditBtnConfirm}>Yes</Button>
-                                </div>
-                            </div>
-                        </div>
-                        <OverlayBackground />
-                    </DiagramOverlayContainer>
-                )}
+                {editingEnabled && <UnsupportedConfirmButtons onConfirm={handleEditBtnConfirm} onCancel={handleEditBtnCancel} />}
             </div>
         )
     }

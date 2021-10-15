@@ -30,9 +30,6 @@ import { UnsupportedConfirmButtons } from "../UnsupportedConfirmButtons";
 
 import "./style.scss";
 
-export const RECORD_MARGIN_LEFT: number = 24.5;
-export const RECORD_PLUS_OFFSET: number = 7.5;
-
 export interface EnumDeclarationComponentProps {
     model: EnumDeclaration;
 }
