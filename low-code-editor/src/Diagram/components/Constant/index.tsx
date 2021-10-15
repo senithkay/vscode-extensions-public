@@ -11,13 +11,16 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from "react"
+import React, { useContext, useState } from "react"
 
 import { ConstDeclaration, STNode } from "@ballerina/syntax-tree";
 
 import ConstantIcon from "../../../assets/icons/ConstantIcon";
 import DeleteButton from "../../../assets/icons/DeleteButton";
 import EditButton from "../../../assets/icons/EditButton";
+import { Context as DiagramContext } from "../../../Contexts/Diagram";
+import { removeStatement } from "../../utils/modification-util";
+import { UnsupportedConfirmButtons } from "../UnsupportedConfirmButtons";
 
 import "./style.scss";
 
@@ -32,8 +35,19 @@ export interface ConstantProps {
 
 export function Constant(props: ConstantProps) {
     const { model } = props;
+    const {
+        props: {
+            stSymbolInfo
+        },
+        api: {
+            code: {
+                modifyDiagram
+            }
+        }
+    } = useContext(DiagramContext);
 
     const [isEditable, setIsEditable] = useState(false);
+    const [editingEnabled, setEditingEnabled] = useState(false);
 
     const constModel: ConstDeclaration = model as ConstDeclaration;
     const varType = "const";
@@ -47,6 +61,26 @@ export function Constant(props: ConstantProps) {
     const handleMouseLeave = () => {
         setIsEditable(false);
     };
+
+    const handleDeleteBtnClick = () => {
+        modifyDiagram([
+            removeStatement(model.position)
+        ]);
+    }
+
+    const handleEditBtnClick = () => {
+        setEditingEnabled(true);
+    }
+
+    const handleEditBtnCancel = () => {
+        setEditingEnabled(false);
+    }
+
+    const handleEditBtnConfirm = () => {
+        const targetposition = model.position;
+        setEditingEnabled(false);
+        // Move to code
+    }
 
     return (
         <div>
@@ -64,20 +98,21 @@ export function Constant(props: ConstantProps) {
                         {varType}
                     </p>
                     <p className={"moduleVariableNameText"}>
-                        {`${varName} = ${varValue}`}
+                        {varName}
                     </p>
                     {isEditable && (
                         <>
                             <div className={"editBtnWrapper"}>
-                                <EditButton />
+                                <EditButton onClick={handleEditBtnClick} />
                             </div>
                             <div className={"deleteBtnWrapper"}>
-                                <DeleteButton />
+                                <DeleteButton onClick={handleDeleteBtnClick} />
                             </div>
                         </>
                     )}
                 </div>
             </div>
+            {editingEnabled && <UnsupportedConfirmButtons onConfirm={handleEditBtnConfirm} onCancel={handleEditBtnCancel} />}
         </div>
     );
 }
