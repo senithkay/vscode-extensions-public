@@ -31,10 +31,11 @@ import "./style.scss";
 
 export interface CodePanelProps {
     recordModel: RecordModel;
+    onSave: (typeDesc: string, recModel: RecordModel) => void;
 }
 
 export function CodePanel(props: CodePanelProps) {
-    const { recordModel } = props;
+    const { recordModel, onSave } = props;
     const { state, callBacks } = useContext(Context);
 
     const classes = useStyles();
@@ -43,7 +44,8 @@ export function CodePanel(props: CodePanelProps) {
 
     const handleRecordSave = () => {
         console.log(">>>" + getGeneratedCode(state.recordModel, true));
-    }
+        onSave(getGeneratedCode(state.recordModel, true), state.recordModel);
+    };
 
     return (
         <div>

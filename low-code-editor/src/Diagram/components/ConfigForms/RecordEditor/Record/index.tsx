@@ -23,12 +23,12 @@ import { RecordModel } from "../types";
 
 export interface RecordProps {
     recordModel: RecordModel;
-    onSave: () => void;
+    onSave: (typeDesc: string, recModel: RecordModel) => void;
     onCancel: () => void;
 }
 
 export function Record(props: RecordProps) {
-    const { recordModel } = props;
+    const { recordModel, onSave } = props;
 
     const { state, callBacks } = useContext(Context);
     const recordClasses = recordStyles();
@@ -45,7 +45,7 @@ export function Record(props: RecordProps) {
                     <EditFieldForm />
                 )}
             </div>
-            <CodePanel recordModel={recordModel} />
+            <CodePanel recordModel={recordModel} onSave={onSave} />
         </>
     );
 }

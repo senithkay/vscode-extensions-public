@@ -20,10 +20,7 @@ import DeleteButton from "../../../assets/icons/DeleteButton";
 import EditButton from "../../../assets/icons/EditButton";
 import RecordIcon from "../../../assets/icons/RecordIcon";
 import { ComponentExpandButton } from "../ComponentExpandButton";
-import { RecordEditor } from "../ConfigForms/RecordEditor";
 import { FormGenerator } from "../FormGenerator";
-import { DiagramOverlay, DiagramOverlayContainer } from "../Portals/Overlay";
-import { TopLevelPlus } from "../TopLevelPlus";
 
 import "./style.scss";
 

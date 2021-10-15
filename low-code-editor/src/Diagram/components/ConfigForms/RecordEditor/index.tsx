@@ -24,13 +24,14 @@ import { getRecordModel } from "./utils";
 export interface RecordEditorProps {
     name: string;
     isNewModel: boolean;
+    existingModel: RecordModel;
     model?: TypeDefinition;
     onCancel?: () => void;
-    onSave?: () => void;
+    onSave?: (typeDesc: string, recModel: RecordModel) => void;
 }
 
 export function RecordEditor(props: RecordEditorProps) {
-    const { isNewModel, name, onCancel, onSave, model } = props;
+    const { isNewModel, existingModel, name, onCancel, onSave, model } = props;
 
     let recordModel: RecordModel;
     if (model && STKindChecker.isTypeDefinition(model)) {
@@ -38,6 +39,8 @@ export function RecordEditor(props: RecordEditorProps) {
         const typeDesc = model.typeDescriptor as RecordTypeDesc;
         recordModel = getRecordModel(typeDesc, typeName, true, "record");
         recordModel.isActive = true;
+    } else if (existingModel) {
+        recordModel = existingModel;
     } else if (isNewModel) {
         recordModel = {
             name,
@@ -62,7 +65,7 @@ export function RecordEditor(props: RecordEditorProps) {
             {recordModel && (
                 <Record
                     recordModel={recordModel}
-                    onSave={null}
+                    onSave={onSave}
                     onCancel={null}
                 />
             )}

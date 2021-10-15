@@ -730,3 +730,31 @@ export function createFunctionSignature(name: string, parameters: string, return
 
     return functionStatement;
 }
+
+export function mutateTypeDefinition(typeName: string, typeDesc: string, targetPosition: NodePosition,
+                                     isNew: boolean): STModification {
+    let modification: STModification;
+    if (isNew) {
+        modification = {
+            startLine: targetPosition.startLine,
+            endLine: targetPosition.startLine,
+            startColumn: 0,
+            endColumn: 0,
+            type: ''
+        };
+    } else {
+        modification = {
+            ...targetPosition,
+            type: ''
+        };
+    }
+
+    return {
+        ...modification,
+        type: 'TYPE_DEFINITION',
+        config: {
+            'TYPE_NAME': typeName,
+            'TYPE_DESCRIPTOR': typeDesc
+        }
+    }
+}

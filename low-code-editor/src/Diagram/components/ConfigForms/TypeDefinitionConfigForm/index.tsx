@@ -16,13 +16,17 @@ import React, { useState } from "react";
 import { NodePosition, STKindChecker, TypeDefinition } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 
+import EditButton from "../../../../assets/icons/EditButton";
 import { PrimaryButton } from "../../../../components/Buttons/PrimaryButton";
 import { useDiagramContext } from "../../../../Contexts/Diagram";
+import { mutateTypeDefinition } from "../../../utils/modification-util";
 import { SecondaryButton } from "../../Portals/ConfigForm/Elements/Button/SecondaryButton";
 import { SelectDropdownWithButton } from "../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
 import { FormTextInput } from "../../Portals/ConfigForm/Elements/TextField/FormTextInput";
 import { useStyles as useFormStyles } from "../../Portals/ConfigForm/forms/style";
 import { RecordEditor } from "../RecordEditor";
+import { recordStyles } from "../RecordEditor/style";
+import { RecordModel } from "../RecordEditor/types";
 
 interface TypeDefFormProps {
     model?: TypeDefinition;
@@ -33,8 +37,10 @@ interface TypeDefFormProps {
 
 // FixMe: show validation messages to listenerName and listenerPort
 export function TypeDefinitionConfigForm(props: TypeDefFormProps) {
-    const formClasses = useFormStyles();
     const { model, targetPosition, onCancel, onSave } = props;
+
+    const formClasses = useFormStyles();
+    const recordClasses = recordStyles();
 
     const { api: { code: { modifyDiagram } } } = useDiagramContext();
 
@@ -59,6 +65,7 @@ export function TypeDefinitionConfigForm(props: TypeDefFormProps) {
     const [type, setType] = useState(defaultType);
     const [isValidName, setIsValidName] = useState(defaultType);
     const [typeDescConfigs, setTypeDescConfigs] = useState(defaultTypeDescConfig);
+    const [typeDescModel, setTypeDescModel] = useState<RecordModel>(undefined);
     const [isTypeDescConfigsProgress, setIsTypeDescConfigsProgress] = useState(false);
 
     const handleNameChange = (nameValue: string) => {
@@ -74,8 +81,32 @@ export function TypeDefinitionConfigForm(props: TypeDefFormProps) {
     };
 
     const handleOnSave = () => {
-        if (isTypeDescConfigsProgress) {
-            // TODO: Add mutation
+        if (isTypeDescConfigsProgress || typeDescConfigs) {
+            let isNewTypeDesc: boolean;
+            if (model) {
+                isNewTypeDesc = false;
+                const modelPosition = model.position as NodePosition;
+                const updatePosition = {
+                    startLine: modelPosition.startLine,
+                    startColumn: 0,
+                    endLine: modelPosition.endLine,
+                    endColumn: modelPosition.endColumn
+                };
+
+                modifyDiagram([
+                    mutateTypeDefinition(
+                        name,
+                        typeDescConfigs,
+                        updatePosition,
+                        isNewTypeDesc
+                    )
+                ]);
+            } else {
+                isNewTypeDesc = true;
+                modifyDiagram([
+                    mutateTypeDefinition(name, typeDescConfigs, targetPosition, isNewTypeDesc)
+                ]);
+            }
             onSave();
         } else {
             setIsTypeDescConfigsProgress(true);
@@ -89,6 +120,16 @@ export function TypeDefinitionConfigForm(props: TypeDefFormProps) {
         // return !isNameAlreadyExists;
         return true;
     };
+
+    const handleRecordEdit = () => {
+        setIsTypeDescConfigsProgress(true);
+    };
+
+    const handleEditorComplete = (typeDesc: string, recModel: RecordModel) => {
+        setIsTypeDescConfigsProgress(false);
+        setTypeDescConfigs(typeDesc);
+        setTypeDescModel(recModel);
+    }
 
     const buttonText = (type === "record" && !isTypeDescConfigsProgress) ? "Continue" : "Save";
 
@@ -138,6 +179,18 @@ export function TypeDefinitionConfigForm(props: TypeDefFormProps) {
                         placeholder="Select Type"
                         onChange={handleTypeSelect}
                     />
+                    {typeDescConfigs && (
+                        <div className={recordClasses.activeItemContentWrapper}>
+                            <div className={recordClasses.itemLabel}>
+                                {typeDescConfigs.substring(0, 10)}
+                            </div>
+                            <div className={recordClasses.btnWrapper}>
+                                <div className={recordClasses.actionBtnWrapper} onClick={handleRecordEdit}>
+                                    <EditButton />
+                                </div>
+                            </div>
+                        </div>
+                    )}
                     <div className={formClasses.wizardBtnHolder}>
                         <SecondaryButton
                             text="Cancel"
@@ -156,7 +209,8 @@ export function TypeDefinitionConfigForm(props: TypeDefFormProps) {
                 <RecordEditor
                     name={name}
                     isNewModel={(targetPosition !== undefined) && (targetPosition !== null)}
-                    onSave={handleOnSave}
+                    existingModel={typeDescModel}
+                    onSave={handleEditorComplete}
                     model={model}
                     onCancel={null}
                 />

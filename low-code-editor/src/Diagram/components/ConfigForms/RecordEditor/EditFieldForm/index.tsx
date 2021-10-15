@@ -112,6 +112,14 @@ export function EditFieldForm() {
         setIsTypeOptional(false);
     };
 
+    const updateFields = () => {
+        setSelectedType(state.currentField.type);
+        setName(state.currentField.name);
+        setIsFieldOptional(state.currentField.isFieldOptional);
+        setIsValidName(true);
+        setIsTypeOptional(state.currentField.isFieldTypeOptional);
+    };
+
     const isSaveButtonDisabled = !isValidName || (selectedType === "") || (name === "");
 
     useEffect(() => {
@@ -122,8 +130,10 @@ export function EditFieldForm() {
     }, [state.currentForm]);
 
     useEffect(() => {
-        resetFields()
-    }, [state.currentRecord]);
+        if (state?.currentField) {
+            updateFields();
+        }
+    }, [state.currentRecord, state?.currentField]);
 
     return (
         <FormControl data-testid="record-form" className={classes.wizardFormControl}>
