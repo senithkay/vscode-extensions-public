@@ -33,6 +33,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-editor/build/Definitions";
 
 export const BALLERINA_LANG_ID = "ballerina";
+const NOT_SUPPORTED = {};
 
 enum EXTENDED_APIS {
     DOCUMENT_ST_NODE = 'ballerinaDocument/syntaxTreeNode',
@@ -258,54 +259,54 @@ export class ExtendedLangClient extends LanguageClient {
     }
     getDiagnostics(params: BallerinaProjectParams): Promise<PublishDiagnosticsParams[]> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_DIAGNOSTICS)) {
-            Promise.resolve({});
+            Promise.resolve(NOT_SUPPORTED);
         }
-        return this.sendRequest<PublishDiagnosticsParams[]>(`${EXTENDED_APIS.DOCUMENT_DIAGNOSTICS}`, params);
+        return this.sendRequest<PublishDiagnosticsParams[]>(EXTENDED_APIS.DOCUMENT_DIAGNOSTICS, params);
     }
     getCompletion(params: CompletionParams): Promise<CompletionResponse[]> {
         return this.sendRequest("textDocument/completion", params);
     }
     getType(params: ExpressionTypeRequest): Promise<ExpressionTypeResponse> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.SYMBOL_TYPE)) {
-            Promise.resolve({});
+            Promise.resolve(NOT_SUPPORTED);
         }
-        return this.sendRequest(`${EXTENDED_APIS.SYMBOL_TYPE}`, params);
+        return this.sendRequest(EXTENDED_APIS.SYMBOL_TYPE, params);
     }
     getConnectors(params: BallerinaConnectorsRequest): Thenable<BallerinaConnectorsResponse> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.CONNECTOR_CONNECTORS)) {
-            Promise.resolve({});
+            Promise.resolve(NOT_SUPPORTED);
         }
-        return this.sendRequest<BallerinaConnectorsResponse>(`${EXTENDED_APIS.CONNECTOR_CONNECTORS}`, params);
+        return this.sendRequest<BallerinaConnectorsResponse>(EXTENDED_APIS.CONNECTOR_CONNECTORS, params);
     }
     getConnector(params: BallerinaConnectorRequest): Thenable<BallerinaConnectorResponse> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.CONNECTOR_CONNECTOR)) {
-            Promise.resolve({});
+            Promise.resolve(NOT_SUPPORTED);
         }
-        return this.sendRequest<BallerinaConnectorResponse>(`${EXTENDED_APIS.CONNECTOR_CONNECTOR}`, params);
+        return this.sendRequest<BallerinaConnectorResponse>(EXTENDED_APIS.CONNECTOR_CONNECTOR, params);
     }
     getRecord(params: BallerinaRecordRequest): Thenable<BallerinaRecordResponse> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.CONNECTOR_RECORD)) {
-            Promise.resolve({});
+            Promise.resolve(NOT_SUPPORTED);
         }
-        return this.sendRequest<BallerinaRecordResponse>(`${EXTENDED_APIS.CONNECTOR_RECORD}`, params);
+        return this.sendRequest<BallerinaRecordResponse>(EXTENDED_APIS.CONNECTOR_RECORD, params);
     }
     astModify(params: BallerinaSTModifyRequest): Thenable<BallerinaSTModifyResponse> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_AST_MODIFY)) {
-            Promise.resolve({});
+            Promise.resolve(NOT_SUPPORTED);
         }
-        return this.sendRequest<BallerinaSTModifyResponse>(`${EXTENDED_APIS.DOCUMENT_AST_MODIFY}`, params);
+        return this.sendRequest<BallerinaSTModifyResponse>(EXTENDED_APIS.DOCUMENT_AST_MODIFY, params);
     }
     stModify(params: BallerinaSTModifyRequest): Thenable<BallerinaSTModifyResponse> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_ST_MODIFY)) {
-            Promise.resolve({});
+            Promise.resolve(NOT_SUPPORTED);
         }
-        return this.sendRequest<BallerinaSTModifyResponse>(`${EXTENDED_APIS.DOCUMENT_ST_MODIFY}`, params);
+        return this.sendRequest<BallerinaSTModifyResponse>(EXTENDED_APIS.DOCUMENT_ST_MODIFY, params);
     }
     triggerModify(params: TriggerModifyRequest): Thenable<BallerinaSTModifyResponse> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_TRIGGER_MODIFY)) {
-            Promise.resolve({});
+            Promise.resolve(NOT_SUPPORTED);
         }
-        return this.sendRequest<BallerinaSTModifyResponse>(`${EXTENDED_APIS.DOCUMENT_TRIGGER_MODIFY}`, params);
+        return this.sendRequest<BallerinaSTModifyResponse>(EXTENDED_APIS.DOCUMENT_TRIGGER_MODIFY, params);
     }
 
     public getDocumentSymbol(params: DocumentSymbolParams): Thenable<DocumentSymbol[] | SymbolInformation[] | null> {
@@ -328,51 +329,51 @@ export class ExtendedLangClient extends LanguageClient {
 
     getSyntaxTree(req: GetSyntaxTreeParams): Thenable<GetSyntaxTreeResponse> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_ST)) {
-            Promise.resolve({});
+            Promise.resolve(NOT_SUPPORTED);
         }
-        return this.sendRequest(`${EXTENDED_APIS.DOCUMENT_ST}`, req);
+        return this.sendRequest(EXTENDED_APIS.DOCUMENT_ST, req);
     }
 
     fetchExamples(args: BallerinaExampleListRequest = {}): Thenable<BallerinaExampleListResponse> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.EXAMPLE_LIST)) {
-            Promise.resolve({});
+            Promise.resolve(NOT_SUPPORTED);
         }
-        return this.sendRequest(`${EXTENDED_APIS.EXAMPLE_LIST}`, args);
+        return this.sendRequest(EXTENDED_APIS.EXAMPLE_LIST, args);
     }
 
     getBallerinaProject(params: GetBallerinaProjectParams): Thenable<BallerinaProject> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.PACKAGE_METADATA)) {
-            Promise.resolve({});
+            Promise.resolve(NOT_SUPPORTED);
         }
-        return this.sendRequest(`${EXTENDED_APIS.PACKAGE_METADATA}`, params);
+        return this.sendRequest(EXTENDED_APIS.PACKAGE_METADATA, params);
     }
 
     getBallerinaProjectComponents(params: GetBallerinaPackagesParams): Thenable<BallerinaProjectComponents> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.PACKAGE_COMPONENTS)) {
-            Promise.resolve({});
+            Promise.resolve(NOT_SUPPORTED);
         }
-        return this.sendRequest(`${EXTENDED_APIS.PACKAGE_COMPONENTS}`, params);
+        return this.sendRequest(EXTENDED_APIS.PACKAGE_COMPONENTS, params);
     }
 
     getSyntaxTreeNode(params: SyntaxTreeNodeRequestParams): Thenable<SyntaxTreeNodeResponse> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_ST_NODE)) {
-            Promise.resolve({});
+            Promise.resolve(NOT_SUPPORTED);
         }
-        return this.sendRequest(`${EXTENDED_APIS.DOCUMENT_ST_NODE}`, params);
+        return this.sendRequest(EXTENDED_APIS.DOCUMENT_ST_NODE, params);
     }
 
     getExecutorPositions(params: GetBallerinaProjectParams): Thenable<ExecutorPositionsResponse> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_EXECUTOR_POSITIONS)) {
-            Promise.resolve({});
+            Promise.resolve(NOT_SUPPORTED);
         }
-        return this.sendRequest(`${EXTENDED_APIS.DOCUMENT_EXECUTOR_POSITIONS}`, params);
+        return this.sendRequest(EXTENDED_APIS.DOCUMENT_EXECUTOR_POSITIONS, params);
     }
 
-    getRecordsFromJson(params: JsonToRecordRequestParams): Thenable<JsonToRecordResponse> {
+    convertJsonToRecord(params: JsonToRecordRequestParams): Thenable<JsonToRecordResponse> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.JSON_TO_RECORD_CONVERT)) {
-            Promise.resolve({});
+            Promise.resolve(NOT_SUPPORTED);
         }
-        return this.sendRequest(`${EXTENDED_APIS.JSON_TO_RECORD_CONVERT}`, params);
+        return this.sendRequest(EXTENDED_APIS.JSON_TO_RECORD_CONVERT, params);
     }
 
     initBalServices(params: BallerinaInitializeParams): Thenable<BallerinaInitializeResult> {

@@ -91,7 +91,6 @@ export class BallerinaExtension {
     private documentContext: DocumentContext;
     private choreoSession: ChoreoSession;
     private choreoSessionTreeProvider: SessionDataProvider | undefined;
-    private ballerinaExtendedServices: Set<String>;
 
     constructor() {
         this.ballerinaHome = '';
@@ -116,7 +115,6 @@ export class BallerinaExtension {
         this.telemetryReporter = createTelemetryReporter(this);
         this.documentContext = new DocumentContext();
         this.choreoSession = { loginStatus: false };
-        this.ballerinaExtendedServices = new Set();
     }
 
     setContext(context: ExtensionContext) {
@@ -190,9 +188,7 @@ export class BallerinaExtension {
                         log(message);
                         this.showPluginActivationError();
                     } else if (stateChangeEvent.newState === LS_STATE.Running) {
-                        if (this.langClient) {
-                            this.langClient.registerExtendedAPICapabilities();
-                        }
+                        this.langClient?.registerExtendedAPICapabilities();
                         sendTelemetryEvent(this, TM_EVENT_EXTENSION_INIT, CMP_EXTENSION_CORE);
                     }
                 });
