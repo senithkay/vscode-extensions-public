@@ -29,6 +29,8 @@ import { render } from './render';
 let langClient: ExtendedLangClient;
 let graphDatas: GraphData;
 let extension: BallerinaExtension;
+const CHOREO_AUTH_ERR = "Choreo Authentication error.";
+const NETWORK_ERR = "Network error. Please check you internet connection.";
 
 
 export const SHOW_GRAPH_COMMAND = "ballerina.forecast.performance.showGraph";
@@ -105,16 +107,7 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
                 choreoCookie: choreoCookie,
             }).then(async (response) => {
                 if (response.type === 'error') {
-                    if (response.message === 'AUTHENTICATION_ERROR') {
-                        // Choreo Auth Error
-                        window.showInformationMessage(
-                            "Choreo Authentication error."
-                        );
-                        return;
-                    } else if (response.message === 'CONNECTION_ERROR') {
-                        // Internet Connection Error
-                        return;
-                    }
+                    checkErrors(response);
                     return;
                 }
                 if (!name) {
@@ -144,16 +137,7 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
                 choreoCookie: choreoCookie,
             }).then(async (response) => {
                 if (response.type === 'error') {
-                    if (response.message === 'AUTHENTICATION_ERROR') {
-                        // Choreo Auth Error
-                        window.showInformationMessage(
-                            "Choreo Authentication error."
-                        );
-                        return;
-                    } else if (response.message === 'CONNECTION_ERROR') {
-                        // Internet Connection Error
-                        return;
-                    }
+                    checkErrors(response);
                     return;
                 }
 
@@ -172,6 +156,20 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
             }).catch(error => {
                 log(error);
             });
+        }
+    }
+
+    function checkErrors(response: PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse) {
+        if (response.message === 'AUTHENTICATION_ERROR') {
+            // Choreo Auth Error
+            window.showInformationMessage(
+                CHOREO_AUTH_ERR
+            );
+        } else if (response.message === 'CONNECTION_ERROR') {
+            // Internet Connection Error
+            window.showInformationMessage(
+                NETWORK_ERR
+            );
         }
     }
 }
