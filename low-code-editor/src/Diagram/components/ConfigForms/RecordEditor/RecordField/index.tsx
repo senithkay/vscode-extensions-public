@@ -11,20 +11,17 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, {ReactNode, useContext, useEffect, useState} from "react";
+import React, { ReactNode, useContext, useEffect, useState } from "react";
 
 import { Typography } from "@material-ui/core";
-import { CloseRounded } from "@material-ui/icons";
 import classnames from "classnames";
 
 import { AddIcon } from "../../../../../assets/icons";
+import DeleteButton from "../../../../../assets/icons/DeleteButton";
 import { Context, FormState } from "../../../../../Contexts/RecordEditor";
-import { ButtonWithIcon } from "../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import { FieldItem } from "../FieldItem";
 import { recordStyles } from "../style";
 import { RecordModel, SimpleField } from "../types";
-import EditButton from "../../../../../assets/icons/EditButton";
-import DeleteButton from "../../../../../assets/icons/DeleteButton";
 
 export interface CodePanelProps {
     recordModel: RecordModel;
@@ -63,12 +60,19 @@ export function RecordField(props: CodePanelProps) {
         const index = recordModel.fields.indexOf(field);
         if (index !== -1) {
             recordModel.fields.splice(index, 1);
+
+            // Changes the active state to selected record model
+            state.currentRecord.isActive = false;
+            recordModel.isActive = true;
+
             callBacks.onUpdateModel(state.recordModel);
+            callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
         }
     };
 
     const handleDraftFieldDelete = () => {
         setIsFieldAddInProgress(false);
+        callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
     }
 
     const handleAddField = () => {

@@ -11,19 +11,17 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
 import { Box, FormControl, Typography } from "@material-ui/core";
 
 import { Context, FormState } from "../../../../../Contexts/RecordEditor";
 import { PrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
-import { SecondaryButton } from "../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
 import CheckBoxGroup from "../../../Portals/ConfigForm/Elements/CheckBox";
 import { SelectDropdownWithButton } from "../../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
 import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { wizardStyles } from "../../style";
-import { recordStyles } from "../style";
 import { SimpleField } from "../types";
 
 export function EditFieldForm() {
@@ -32,7 +30,6 @@ export function EditFieldForm() {
 
     const overlayClasses = wizardStyles();
     const classes = useStyles();
-    const recordClasses = recordStyles();
 
     const isFieldUpdate = state.currentForm === FormState.UPDATE_FIELD;
     let type = "";
@@ -91,7 +88,8 @@ export function EditFieldForm() {
                 name,
                 isFieldOptional,
                 isFieldTypeOptional: isTypeOptional,
-                type: selectedType
+                type: selectedType,
+                isActive: true
             };
             state.currentRecord.fields.push(field);
             callBacks.onUpdateCurrentField(field);
@@ -100,12 +98,32 @@ export function EditFieldForm() {
             state.currentField.isFieldOptional = isFieldOptional;
             state.currentField.isFieldTypeOptional = isTypeOptional
             state.currentField.type = selectedType;
+            state.currentField.isActive = true;
         }
         callBacks.onUpdateModel(state.recordModel);
         callBacks.onChangeFormState(FormState.UPDATE_FIELD);
     }
 
+    const resetFields = () => {
+        setSelectedType("");
+        setName("");
+        setIsFieldOptional(false);
+        setIsValidName(false);
+        setIsTypeOptional(false);
+    };
+
     const isSaveButtonDisabled = !isValidName || (selectedType === "") || (name === "");
+
+    useEffect(() => {
+        // Checks whether add from is completed and reset field addition
+        if (state.currentForm === FormState.ADD_FIELD) {
+            resetFields();
+        }
+    }, [state.currentForm]);
+
+    useEffect(() => {
+        resetFields()
+    }, [state.currentRecord]);
 
     return (
         <FormControl data-testid="record-form" className={classes.wizardFormControl}>
@@ -118,6 +136,7 @@ export function EditFieldForm() {
                 dataTestId="field-name"
                 customProps={{
                     validate: validateNameValue,
+                    clearInput: (name === "")
                 }}
                 defaultValue={name}
                 onChange={handleNameChange}
