@@ -77,9 +77,8 @@ export function ClassHeader(props: ClassHeaderProps) {
                 <div className="header-segment" >
                     <ClassIcon />
                 </div>
-                <div className="header-segment">
-                    {model.className.value}
-                </div>
+                <div className={"header-segment"}>Class</div>
+                <div className={"header-segment-path"}>{model.className.value}</div>
             </div>
             {isEditable && (
                 <div className="class-amendment-options">
