@@ -26,6 +26,7 @@ import { removeStatement } from "../../utils/modification-util";
 import { ComponentExpandButton } from "../ComponentExpandButton";
 import { OverlayBackground } from "../OverlayBackground";
 import { DiagramOverlayContainer } from "../Portals/Overlay";
+import { UnsupportedConfirmButtons } from "../UnsupportedConfirmButtons";
 
 import "./style.scss";
 
@@ -71,6 +72,7 @@ export function EnumDeclarationComponent(props: EnumDeclarationComponentProps) {
 
     const handleEditBtnConfirm = () => {
         const targetposition = model.position;
+        setEditingEnabled(false);
         // Move to code
     }
 
@@ -129,20 +131,7 @@ export function EnumDeclarationComponent(props: EnumDeclarationComponentProps) {
                     </>
                 )}
             </div>
-            {editingEnabled && (
-                <DiagramOverlayContainer>
-                    <div className="container-wrapper">
-                        <div className="confirm-container" >
-                            <p>Diagram editing for this is unsupported. Move to code?</p>
-                            <div className={'action-button-container'}>
-                                <Button variant="contained" className="cancelbtn" onClick={handleEditBtnCancel}>No</Button>
-                                <Button variant="contained" className="confirmbtn" onClick={handleEditBtnConfirm}>Yes</Button>
-                            </div>
-                        </div>
-                    </div>
-                    <OverlayBackground />
-                </DiagramOverlayContainer>
-            )}
+            {editingEnabled && <UnsupportedConfirmButtons onConfirm={handleEditBtnConfirm} onCancel={handleEditBtnCancel} />}
         </div>
     );
 }
