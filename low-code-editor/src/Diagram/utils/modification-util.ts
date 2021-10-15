@@ -16,6 +16,7 @@ import { DraftUpdateStatement } from "../../api/models";
 import { FormField } from "../../ConfigurationSpec/types";
 import { STModification } from "../../Definitions/lang-client-extended";
 import { HeaderObjectConfig } from "../components/ConnectorExtensions/HTTPWizard/HTTPHeaders";
+import { ModuleVariableFormState } from "../components/Portals/ConfigForm/forms/ModuleVariableForm/util";
 import { HTTPServiceConfigState } from "../components/Portals/ConfigForm/forms/ServiceConfigForm/forms/HttpService/util/reducer";
 import { getFormattedModuleName, getParams } from "../components/Portals/utils";
 
@@ -485,6 +486,44 @@ export function createCheckedPayloadFunctionInvocation(variable: string, type: s
     };
 
     return checkedPayloadInvo;
+}
+
+export function createModuleVarDecl(config: ModuleVariableFormState, targetPosition: NodePosition): STModification {
+    const { isPublic, varName, varQualifier, varType, varValue } = config;
+
+    return {
+        startLine: targetPosition.startLine,
+        endLine: targetPosition.startLine,
+        startColumn: 0,
+        endColumn: 0,
+        type: 'MODULE_VAR_DECL_WITH_INIT',
+        config: {
+            'ACCESS_MODIFIER': isPublic ? 'public' : '',
+            'VAR_QUALIFIER': varQualifier,
+            'VAR_TYPE': varType,
+            'VAR_NAME': varName,
+            'VAR_VALUE': varValue
+        }
+    }
+}
+
+export function updateModuleVarDecl(config: ModuleVariableFormState, targetPosition: NodePosition): STModification {
+    const { isPublic, varName, varQualifier, varType, varValue } = config;
+
+    return {
+        startLine: targetPosition.startLine,
+        endLine: targetPosition.endLine,
+        startColumn: targetPosition.startColumn,
+        endColumn: targetPosition.endColumn,
+        type: 'MODULE_VAR_DECL_WITH_INIT',
+        config: {
+            'ACCESS_MODIFIER': isPublic ? 'public' : '',
+            'VAR_QUALIFIER': varQualifier,
+            'VAR_TYPE': varType,
+            'VAR_NAME': varName,
+            'VAR_VALUE': varValue
+        }
+    }
 }
 
 export function createServiceDeclartion(config: HTTPServiceConfigState, targetPosition: NodePosition): STModification {
