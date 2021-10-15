@@ -13,12 +13,13 @@
 import React, { useReducer } from 'react';
 import { FormattedMessage } from 'react-intl';
 
-import { NodePosition, ServiceDeclaration } from '@ballerina/syntax-tree';
+import { CaptureBindingPattern, ModuleVarDecl, NodePosition, ServiceDeclaration, STKindChecker, TypedBindingPattern } from '@ballerina/syntax-tree';
 import { Box, FormControl, FormHelperText, Typography } from '@material-ui/core';
 
 import { VariableIcon } from '../../../../../../assets/icons';
 import { useDiagramContext } from '../../../../../../Contexts/Diagram';
-import { createModuleVarDecl } from '../../../../../utils/modification-util';
+import { STModification } from '../../../../../../Definitions';
+import { createModuleVarDecl, updateModuleVarDecl } from '../../../../../utils/modification-util';
 import { PrimaryButton } from '../../Elements/Button/PrimaryButton';
 import { SecondaryButton } from '../../Elements/Button/SecondaryButton';
 import CheckBoxGroup from '../../Elements/CheckBox';
@@ -29,7 +30,7 @@ import { FormTextInput } from '../../Elements/TextField/FormTextInput';
 import { useStyles as useFormStyles } from "../style";
 
 interface ModuleVariableFormProps {
-    model?: ServiceDeclaration;
+    model?: ModuleVarDecl;
     targetPosition?: NodePosition;
     onCancel: () => void;
     onSave: () => void;
@@ -105,11 +106,44 @@ export function isFormConfigValid(config: ModuleVariableFormState): boolean {
     return varName.length > 0 && nameRegex.test(varName) && varValue.length > 0 && isExpressionValid;
 }
 
+export function getFormConfigFromModel(model: any): ModuleVariableFormState {
+    // FixMe: model is set to any type due to missing properties in ST interface
+    let varQualifier = '';
+    let typeKind = 'int';
+
+    if (model.qualifiers.length > 0) {
+        if (STKindChecker.isConfigurableKeyword(model.qualifiers[0])) {
+            varQualifier = VariableQualifiers.CONFIGURABLE;
+        } else if (STKindChecker.isFinalKeyword(model.qualifiers[0])) {
+            varQualifier = VariableQualifiers.FINAL;
+        }
+    }
+
+    const typeData = model.initializer.typeData;
+
+    if (typeData) {
+        const typeSymbol = typeData.typeSymbol;
+        if (typeSymbol) {
+            typeKind = typeSymbol.typeKind;
+        }
+    }
+
+    return {
+        isPublic: model.visibilityQualifier && STKindChecker.isPublicKeyword(model.visibilityQualifier),
+        varType: typeKind,
+        varName: ((model.typedBindingPattern as TypedBindingPattern)
+            .bindingPattern as CaptureBindingPattern).variableName.value,
+        varValue: model.initializer.source,
+        varQualifier,
+        isExpressionValid: true,
+    };
+}
+
 export function ModuleVariableForm(props: ModuleVariableFormProps) {
     const formClasses = useFormStyles();
     const { api: { code: { modifyDiagram } } } = useDiagramContext();
-    const { onSave, onCancel, targetPosition } = props;
-    const [state, dispatch] = useReducer(moduleVarFormReducer, defaultFormState);
+    const { onSave, onCancel, targetPosition, model } = props;
+    const [state, dispatch] = useReducer(moduleVarFormReducer, getFormConfigFromModel(model));
     const variableTypes: string[] = ["int", "float", "boolean", "string", "json", "xml"];
 
     if (!state.isPublic) {
@@ -117,9 +151,13 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
     }
 
     const handleOnSave = () => {
-        modifyDiagram([
-            createModuleVarDecl(state, targetPosition)
-        ]);
+        const modifications: STModification[] = []
+        if (model) {
+            modifications.push(updateModuleVarDecl(state, model.position));
+        } else {
+            modifications.push(createModuleVarDecl(state, targetPosition));
+        }
+        modifyDiagram(modifications);
         onSave();
     }
 
@@ -172,8 +210,8 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
             interactive: true,
             statementType: state.varType,
             editPosition: {
-                startLine: targetPosition.startLine,
-                endLine: targetPosition.startLine,
+                startLine: model ? model.position.startLine : targetPosition.startLine,
+                endLine: model ? model.position.startLine : targetPosition.startLine,
                 startColumn: 0,
                 endColumn: 0
             }

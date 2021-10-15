@@ -507,6 +507,25 @@ export function createModuleVarDecl(config: ModuleVariableFormState, targetPosit
     }
 }
 
+export function updateModuleVarDecl(config: ModuleVariableFormState, targetPosition: NodePosition): STModification {
+    const { isPublic, varName, varQualifier, varType, varValue } = config;
+
+    return {
+        startLine: targetPosition.startLine,
+        endLine: targetPosition.endLine,
+        startColumn: targetPosition.startColumn,
+        endColumn: targetPosition.endColumn,
+        type: 'MODULE_VAR_DECL_WITH_INIT',
+        config: {
+            'ACCESS_MODIFIER': isPublic ? 'public' : '',
+            'VAR_QUALIFIER': varQualifier,
+            'VAR_TYPE': varType,
+            'VAR_NAME': varName,
+            'VAR_VALUE': varValue
+        }
+    }
+}
+
 export function createServiceDeclartion(config: HTTPServiceConfigState, targetPosition: NodePosition): STModification {
     const { serviceBasePath, listenerConfig: { fromVar, listenerName, listenerPort, createNewListener } } = config;
 
