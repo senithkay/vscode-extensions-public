@@ -14,6 +14,26 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
 export const recordStyles = makeStyles((theme: Theme) =>
     createStyles({
+        recordFieldWrapper: {
+            marginLeft: 10,
+            height: "85%",
+            overflow: "scroll",
+            "&::-webkit-scrollbar": {
+                width: 3
+            },
+            "&::-webkit-scrollbar-thumb": {
+                background: "#e6e7ec",
+                borderRadius: 2
+            },
+            "&::-webkit-scrollbar-track": {
+                backgroundColor: "transparent"
+            }
+        },
+        recordConfigTitleWrapper: {
+            width: "auto",
+            marginLeft: 20,
+            marginTop: 20
+        },
         fieldEditorWrapper: {
             boxSizing: "border-box",
             width: "100%",

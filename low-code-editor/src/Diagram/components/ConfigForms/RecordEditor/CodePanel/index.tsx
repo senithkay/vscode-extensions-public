@@ -11,13 +11,19 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, {useContext} from "react";
+import React, { useContext } from "react";
+
+import { Box, Typography } from "@material-ui/core";
 
 import { Context } from "../../../../../Contexts/RecordEditor";
 import { OverlayBackground } from "../../../OverlayBackground";
 import { PrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
+import { SecondaryButton } from "../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
+import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { DiagramOverlayContainer } from "../../../Portals/Overlay";
+import { wizardStyles } from "../../style";
 import { RecordField } from "../RecordField";
+import { recordStyles } from "../style";
 import { RecordModel } from "../types";
 import { getGeneratedCode } from "../utils";
 
@@ -31,6 +37,10 @@ export function CodePanel(props: CodePanelProps) {
     const { recordModel } = props;
     const { state, callBacks } = useContext(Context);
 
+    const classes = useStyles();
+    const overlayClasses = wizardStyles();
+    const recordClasses = recordStyles();
+
     const handleRecordSave = () => {
         console.log(">>>" + getGeneratedCode(state.recordModel, true));
     }
@@ -40,14 +50,24 @@ export function CodePanel(props: CodePanelProps) {
             <DiagramOverlayContainer
             >
                 <div className="code-panel">
-                    <RecordField recordModel={state.recordModel} />
-                    <PrimaryButton
-                        dataTestId={"record-from-json-save-btn"}
-                        text={"Add"}
-                        // disabled={isMutationInProgress || !isFormValid}
-                        fullWidth={false}
-                        onClick={handleRecordSave}
-                    />
+                    <div className={recordClasses.recordConfigTitleWrapper}>
+                        <Typography variant="h4">
+                            <Box paddingTop={2} paddingBottom={2}>{"Record Configuration"}</Box>
+                        </Typography>
+                    </div>
+                    <div className={recordClasses.recordFieldWrapper}>
+                        <RecordField recordModel={state.recordModel} />
+                    </div>
+                    <div className={overlayClasses.buttonWrapper}>
+                        <SecondaryButton text="Cancel" fullWidth={false} onClick={null} />
+                        <PrimaryButton
+                            dataTestId={"record-from-json-save-btn"}
+                            text={"Save"}
+                            // disabled={!isSaveButtonEnabled}
+                            fullWidth={false}
+                            onClick={handleRecordSave}
+                        />
+                    </div>
                 </div>
                 <OverlayBackground/>
             </DiagramOverlayContainer>
