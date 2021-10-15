@@ -19,7 +19,7 @@
 
 import { DataLabel } from "./model";
 import { commands, ViewColumn, ExtensionContext, languages, Range, window, WebviewPanel } from "vscode";
-import { BallerinaExtension, ExtendedLangClient, LANGUAGE, PerformanceAnalyzerGraphResponse, PerformanceAnalyzerRealtimeResponse } from "../core";
+import { BallerinaExtension, ExtendedLangClient, GraphPoint, LANGUAGE, PerformanceAnalyzerGraphResponse, PerformanceAnalyzerRealtimeResponse } from "../core";
 import { ExecutorCodeLensProvider } from "./codelens-provider";
 import { log } from "../utils";
 import { WebViewRPCHandler, WebViewMethod, getCommonWebViewOptions } from '../utils';
@@ -27,7 +27,7 @@ import { render } from './render';
 
 
 let langClient: ExtendedLangClient;
-let graphDatas;
+let graphDatas: GraphData;
 let extension: BallerinaExtension;
 
 
@@ -36,6 +36,11 @@ export const SHOW_GRAPH_COMMAND = "ballerina.forecast.performance.showGraph";
 export enum ANALYZETYPE {
     ADVANCED = "advanced",
     REALTIME = "realtime",
+}
+
+export interface GraphData {
+    name: String,
+    graphData: GraphPoint[];
 }
 
 /**
@@ -51,10 +56,10 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
         const uri = activeEditor?.document.uri.fsPath.toString();
         ExecutorCodeLensProvider.dataLabels = [];
 
-        if (args.length < 2) {
+        if (args.length < 3) {
             return;
         }
-        await createPerformanceGraphAndCodeLenses(uri, args[0], ANALYZETYPE.ADVANCED, args[1]);
+        await createPerformanceGraphAndCodeLenses(uri, args[0], ANALYZETYPE.ADVANCED, args[1], args[2]);
         ExecutorCodeLensProvider.onDidChangeCodeLenses.fire();
 
     });
@@ -67,7 +72,7 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
 }
 
 export async function createPerformanceGraphAndCodeLenses(uri: string | undefined, pos: Range
-    , type: ANALYZETYPE, graphData: PerformanceAnalyzerRealtimeResponse | undefined) {
+    , type: ANALYZETYPE, name: String | undefined, graphData: PerformanceAnalyzerRealtimeResponse | undefined) {
 
     const choreoToken = extension.getChoreoSession().choreoToken;
     const choreoCookie = extension.getChoreoSession().choreoCookie;
@@ -112,7 +117,10 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
                     }
                     return;
                 }
-                addRealTimePerformanceLabels(response, uri, pos);
+                if (!name) {
+                    return;
+                }
+                addRealTimePerformanceLabels(response, uri, name, pos);
             }).catch(error => {
                 log(error);
             });
@@ -149,13 +157,18 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
                     return;
                 }
 
-                if (graphData) {
-                    addRealTimePerformanceLabels(graphData, uri, pos);
-                    addPerformanceLabels(response, pos, graphData);
+                if (!graphData || !name) {
+                    return;
                 }
-                if (graphDatas) {
-                    showPerformanceGraph(graphDatas);
+
+                addRealTimePerformanceLabels(graphData, uri, name, pos);
+                addPerformanceLabels(response, name, pos, graphData);
+
+                if (!graphDatas) {
+                    return;
                 }
+                showPerformanceGraph(graphDatas);
+
             }).catch(error => {
                 log(error);
             });
@@ -163,7 +176,7 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
     }
 }
 
-function addPerformanceLabels(graphData: PerformanceAnalyzerGraphResponse, currentResourcePos: Range,
+function addPerformanceLabels(graphData: PerformanceAnalyzerGraphResponse, currentResourceName: String, currentResourcePos: Range,
     realtimeData: PerformanceAnalyzerRealtimeResponse) {
     if (!graphData || !currentResourcePos) {
         return;
@@ -191,21 +204,21 @@ function addPerformanceLabels(graphData: PerformanceAnalyzerGraphResponse, curre
         const end = pos[1].split(":");
         const range = new Range(parseInt(start[0]), parseInt(start[1]),
             parseInt(end[0]), parseInt(end[1]));
-        const dataLabel = new DataLabel(file, range, latency, currentResourcePos, realtimeData);
+        const dataLabel = new DataLabel(file, range, latency, currentResourceName, currentResourcePos, realtimeData);
         ExecutorCodeLensProvider.addDataLabel(dataLabel);
 
     }
-    graphDatas = graphData.graphData;
+    graphDatas = { name: currentResourceName, graphData: graphData.graphData };
 }
 
 function addRealTimePerformanceLabels(graphData: PerformanceAnalyzerRealtimeResponse,
-    file: String, currentResourcePos: Range) {
+    file: String, currentResourceName: String, currentResourcePos: Range) {
     if (!graphData || !currentResourcePos || !file) {
         return;
     }
 
     // add resource latency
-    const dataLabel = new DataLabel(file, currentResourcePos, graphData.latency, currentResourcePos, graphData);
+    const dataLabel = new DataLabel(file, currentResourcePos, graphData.latency, currentResourceName, currentResourcePos, graphData);
     ExecutorCodeLensProvider.addDataLabel(dataLabel);
 
 }
@@ -213,12 +226,12 @@ function addRealTimePerformanceLabels(graphData: PerformanceAnalyzerRealtimeResp
 let performanceGraphPanel: WebviewPanel | undefined;
 
 
-function showPerformanceGraph(data): void {
+function showPerformanceGraph(data: GraphData): void {
 
     // Create and show a new webview
     performanceGraphPanel = window.createWebviewPanel(
         'ballerinaExamples',
-        "Performance Forecast",
+        `Performance Forecast of ${data.name}`,
         { viewColumn: ViewColumn.Beside, preserveFocus: true },
         getCommonWebViewOptions()
     );
@@ -231,7 +244,7 @@ function showPerformanceGraph(data): void {
         }
     ];
     WebViewRPCHandler.create(performanceGraphPanel, langClient, remoteMethods);
-    const html = render(data);
+    const html = render({ name: data.name, data: data.graphData });
     if (performanceGraphPanel && html) {
         performanceGraphPanel.webview.html = html;
     }

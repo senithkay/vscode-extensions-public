@@ -10,12 +10,14 @@ export interface DataPoint {
 }
 
 export interface PerformanceForcastProps {
+    name: String,
     data: DataPoint[]
 }
 
-export const PerformanceForcast = ({ data }: PerformanceForcastProps) => {
+export const PerformanceForcast = ({ name, data }: PerformanceForcastProps) => {
     return (
         <div className="performance-forcast">
+            <h1 className="center">Performance Graph - {name}</h1>
             <div className="diagram">
                 <div className="y-label">
 

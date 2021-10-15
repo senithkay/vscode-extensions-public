@@ -67,13 +67,15 @@ export class DataLabel {
     private file: String;
     private range: Range;
     private label: String;
+    private resourceName: String;
     private resourcePos: Range;
     private data: any;
 
-    constructor(file: String, range: Range, name: String, resourcePos: Range, data: any) {
+    constructor(file: String, range: Range, label: String, resourceName: String, resourcePos: Range, data: any) {
         this.file = file;
         this.range = range;
-        this.label = name;
+        this.label = label;
+        this.resourceName = resourceName;
         this.resourcePos = resourcePos;
         this.data = data;
     }
@@ -88,6 +90,10 @@ export class DataLabel {
 
     public get getLabel(): String {
         return this.label;
+    }
+
+    public get getResourceName(): String {
+        return this.resourceName;
     }
 
     public get getResourcePos(): Range {

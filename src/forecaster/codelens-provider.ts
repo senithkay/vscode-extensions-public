@@ -104,7 +104,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
                 codeLenses.push(this.createCodeLens(CODELENSE_TYPE.INVOCATION,
                     startLine.line, startLine.character,
                     endLine.line, endLine.character,
-                    [label.getResourcePos, label.getData], label.getLabel.toString()));
+                    [label.getResourcePos, label.getResourceName, label.getData], label.getLabel.toString()));
             }
         }
 
@@ -146,15 +146,20 @@ async function findResources(uri: Uri | undefined) {
                 const members: Member[] = syntaxTree.members;
                 for (let i = 0; i < members.length; i++) {
                     if (members[i].kind === 'ServiceDeclaration') {
+                        const serviceMembers: Member[] = members[i].members;
                         for (let ri = 0; ri < members[i].members.length; ri++) {
-                            const serviceMembers: Member[] = members[i].members;
-                            if (serviceMembers[ri].kind === 'ResourceAccessorDefinition') {
-                                const pos = serviceMembers[ri].position;
+                            const serviceMember: Member = serviceMembers[ri];
+                            if (serviceMember.kind === 'ResourceAccessorDefinition') {
+                                const pos = serviceMember.position;
 
                                 const range: Range = new Range(pos.startLine, pos.startColumn,
                                     pos.endLine, pos.endColumn);
 
-                                await createPerformanceGraphAndCodeLenses(uri.fsPath, range, ANALYZETYPE.REALTIME, undefined);
+                                if (!serviceMember.functionName || !serviceMember.relativeResourcePath) {
+                                    continue;
+                                }
+                                await createPerformanceGraphAndCodeLenses(uri.fsPath, range, ANALYZETYPE.REALTIME,
+                                    `${serviceMember.functionName.value} ${serviceMember.relativeResourcePath[0].value}`, undefined);
                             }
                         }
                     }
