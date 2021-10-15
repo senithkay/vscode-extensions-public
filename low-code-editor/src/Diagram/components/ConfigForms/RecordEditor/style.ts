@@ -22,23 +22,53 @@ export const recordStyles = makeStyles((theme: Theme) =>
             padding: `15.5px 24px`,
             marginTop: 15.5
         },
-        itemWrapper: {
-            display: 'flex',
-            margin: 10
-        },
-        itemLabel: {
+        itemContentWrapper: {
             background: 'white',
             padding: 7,
             borderRadius: 5,
-            border: '1px solid #dee0e7',
+            border: '1px solid #E6E7EC',
             margin: '1rem 0 0.25rem',
-            justifyContent: 'space-between',
+            flexDirection: 'row',
             display: 'flex',
             width: '100%',
-            alignItems: 'center',
+            justifyContent: 'center',
+        },
+        activeItemContentWrapper: {
+            background: 'white',
+            padding: 7,
+            borderRadius: 5,
+            border: '1px solid #A6B3FF',
+            margin: '1rem 0 0.25rem',
+            flexDirection: 'row',
+            display: 'flex',
+            width: '100%',
+            justifyContent: 'center',
+        },
+        itemWrapper: {
+            display: 'flex',
+            flexDirection: `row`,
+            margin: 10
+        },
+        itemLabel: {
+            width: "80%"
+        },
+        btnWrapper: {
+            display: "flex",
+            flexDirection: "row",
+            width: "20%",
+            alignItems: "center"
+        },
+        actionBtnWrapper: {
+            cursor: "pointer",
+            width: 25
         },
         iconBtn: {
             padding: 0
+        },
+        draftBtnWrapper: {
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center"
         },
         addFieldBtn: {
             outline: "none",
@@ -70,7 +100,15 @@ export const recordStyles = makeStyles((theme: Theme) =>
             margin: 10,
             padding: 10,
             boxSizing: "border-box",
-            border: "1px solid #EEEEEE",
+            border: "1px solid #E6E7EC",
+            borderRadius: 4
+        },
+        activeRecordEditorWrapper: {
+            minWidth: 200,
+            margin: 10,
+            padding: 10,
+            boxSizing: "border-box",
+            border: "1px solid #A6B3FF",
             borderRadius: 4
         },
         recordCode: {

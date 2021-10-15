@@ -36,7 +36,8 @@ export function RecordEditor(props: RecordEditorProps) {
     if (model && STKindChecker.isTypeDefinition(model)) {
         const typeName = model.typeName.value;
         const typeDesc = model.typeDescriptor as RecordTypeDesc;
-        recordModel = getRecordModel(typeDesc, typeName, true, "record")
+        recordModel = getRecordModel(typeDesc, typeName, true, "record");
+        recordModel.isActive = true;
     } else if (isNewModel) {
         recordModel = {
             name,
@@ -46,6 +47,7 @@ export function RecordEditor(props: RecordEditorProps) {
             fields: [],
             type: "record",
             isInline: true,
+            isActive: true
         }
     }
 

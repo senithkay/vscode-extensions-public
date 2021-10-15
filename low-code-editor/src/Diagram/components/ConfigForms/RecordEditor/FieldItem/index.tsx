@@ -13,15 +13,14 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { CloseRounded } from "@material-ui/icons";
-
-import { ButtonWithIcon } from "../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
+import DeleteButton from "../../../../../assets/icons/DeleteButton";
+import EditButton from "../../../../../assets/icons/EditButton";
 import { recordStyles } from "../style";
 import { SimpleField } from "../types";
 
 interface FieldItemProps {
     field: SimpleField;
-    onEditCLick?: () => void;
+    onEditCLick?: (field: SimpleField) => void;
     onDeleteClick?: (field: SimpleField) => void;
 }
 
@@ -32,19 +31,29 @@ export function FieldItem(props: FieldItemProps) {
 
     const segmentLabel = `${field.type} ${field.isFieldTypeOptional ? "?" :
         ""} ${field.name} ${field.isFieldOptional ? "?" : ""}`;
+
     const handleDelete = () => {
         onDeleteClick(field);
     };
 
+    const handleEdit = () => {
+        onEditCLick(field);
+    };
+
     return (
         <div className={recordClasses.itemWrapper}>
-            <div className={recordClasses.itemLabel}>
-                {segmentLabel}
-                <ButtonWithIcon
-                    onClick={handleDelete}
-                    icon={<CloseRounded fontSize="small" />}
-                    className={recordClasses.iconBtn}
-                />
+            <div className={field.isActive ? recordClasses.activeItemContentWrapper : recordClasses.itemContentWrapper}>
+                <div className={recordClasses.itemLabel}>
+                    {segmentLabel}
+                </div>
+                <div className={recordClasses.btnWrapper}>
+                    <div className={recordClasses.actionBtnWrapper} onClick={handleEdit}>
+                        <EditButton />
+                    </div>
+                    <div className={recordClasses.actionBtnWrapper} onClick={handleDelete}>
+                        <DeleteButton />
+                    </div>
+                </div>
             </div>
         </div>
     );

@@ -23,6 +23,8 @@ import { ButtonWithIcon } from "../../../Portals/ConfigForm/Elements/Button/Butt
 import { FieldItem } from "../FieldItem";
 import { recordStyles } from "../style";
 import { RecordModel, SimpleField } from "../types";
+import EditButton from "../../../../../assets/icons/EditButton";
+import DeleteButton from "../../../../../assets/icons/DeleteButton";
 
 export interface CodePanelProps {
     recordModel: RecordModel;
@@ -37,6 +39,26 @@ export function RecordField(props: CodePanelProps) {
 
     const [isFieldAddInProgress, setIsFieldAddInProgress] = useState(false);
 
+    const handleFieldEdit = (field: SimpleField) => {
+        const index = recordModel.fields.indexOf(field);
+        if (index !== -1) {
+            // Changes the active state to selected record model
+            state.currentRecord.isActive = false;
+            recordModel.isActive = true;
+
+            // Changes the active state to selected field
+            if (state.currentField) {
+                state.currentField.isActive = false;
+            }
+            field.isActive = true;
+
+            callBacks.onUpdateCurrentField(field);
+            callBacks.onUpdateCurrentRecord(recordModel);
+            callBacks.onUpdateModel(state.recordModel);
+            callBacks.onChangeFormState(FormState.UPDATE_FIELD);
+        }
+    }
+
     const handleFieldDelete = (field: SimpleField) => {
         const index = recordModel.fields.indexOf(field);
         if (index !== -1) {
@@ -45,10 +67,24 @@ export function RecordField(props: CodePanelProps) {
         }
     };
 
+    const handleDraftFieldDelete = () => {
+        setIsFieldAddInProgress(false);
+    }
+
     const handleAddField = () => {
+        // Changes the active state to selected record model
+        state.currentRecord.isActive = false;
+        recordModel.isActive = true;
+
+        // Changes the active state to selected field
+        if (state.currentField) {
+            state.currentField.isActive = false;
+        }
+
         callBacks.onChangeFormState(FormState.ADD_FIELD);
         callBacks.onUpdateCurrentField(undefined);
         callBacks.onUpdateCurrentRecord(recordModel);
+        callBacks.onUpdateModel(state.recordModel);
         setIsFieldAddInProgress(true);
     };
 
@@ -59,7 +95,7 @@ export function RecordField(props: CodePanelProps) {
                 <FieldItem
                     field={field as SimpleField}
                     onDeleteClick={handleFieldDelete}
-                    onEditCLick={null}
+                    onEditCLick={handleFieldEdit}
                 />
             )
         } else {
@@ -71,12 +107,12 @@ export function RecordField(props: CodePanelProps) {
         // Adding draft field
         fieldItems.push(
             <div className={recordClasses.itemWrapper}>
-                <div className={recordClasses.itemLabel}>
-                    <ButtonWithIcon
-                        onClick={null}
-                        icon={<CloseRounded fontSize="small" />}
-                        className={recordClasses.iconBtn}
-                    />
+                <div className={recordClasses.activeItemContentWrapper}>
+                    <div className={recordClasses.draftBtnWrapper} onClick={handleDraftFieldDelete}>
+                        <div className={recordClasses.actionBtnWrapper}>
+                            <DeleteButton/>
+                        </div>
+                    </div>
                 </div>
             </div>
         )
@@ -96,7 +132,10 @@ export function RecordField(props: CodePanelProps) {
 
     return (
         <div>
-            <div className={recordClasses.recordEditorWrapper}>
+            <div
+                className={recordModel.isActive ? recordClasses.activeRecordEditorWrapper :
+                    recordClasses.recordEditorWrapper}
+            >
                 <Typography
                     variant='body2'
                     className={classnames(recordClasses.recordCode)}
