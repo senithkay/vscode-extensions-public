@@ -48,6 +48,14 @@ export function EnumDeclarationComponent(props: EnumDeclarationComponentProps) {
     } = useContext(DiagramContext);
     const [isExpanded, setIsExpanded] = useState(false);
     const [editingEnabled, setEditingEnabled] = useState(false);
+    const [isEditable, setIsEditable] = useState(false);
+
+    const handleMouseEnter = () => {
+        setIsEditable(true);
+    };
+    const handleMouseLeave = () => {
+        setIsEditable(false);
+    };
 
     const onExpandClick = () => {
         setIsExpanded(!isExpanded);
@@ -94,7 +102,7 @@ export function EnumDeclarationComponent(props: EnumDeclarationComponentProps) {
 
     return (
         <div>
-            <div className="enum-comp">
+            <div className="enum-comp" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 <div className="enum-header" >
                     <div className="enum-content">
                         <div className="enum-icon">
@@ -107,17 +115,19 @@ export function EnumDeclarationComponent(props: EnumDeclarationComponentProps) {
                             {model.identifier.value}
                         </div>
                     </div>
-                    <div className="enum-amendment-options">
-                        <div className="enum-edit">
-                            <EditButton onClick={handleEditBtnClick} />
+                    {isEditable && (
+                        <div className="enum-amendment-options">
+                            <div className="enum-edit">
+                                <EditButton onClick={handleEditBtnClick} />
+                            </div>
+                            <div className="enum-delete">
+                                <DeleteButton onClick={handleDeleteBtnClick} />
+                            </div>
+                            <div className="enum-expand">
+                                <ComponentExpandButton isExpanded={isExpanded} onClick={onExpandClick} />
+                            </div>
                         </div>
-                        <div className="enum-delete">
-                            <DeleteButton onClick={handleDeleteBtnClick} />
-                        </div>
-                        <div className="enum-expand">
-                            <ComponentExpandButton isExpanded={isExpanded} onClick={onExpandClick} />
-                        </div>
-                    </div>
+                    )}
                 </div>
                 <div className="enum-separator" />
                 {isExpanded && (
