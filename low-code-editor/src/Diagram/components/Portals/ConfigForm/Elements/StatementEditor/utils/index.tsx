@@ -20,6 +20,7 @@ import { SuggestionItem, VariableUserInputs } from '../models/definitions';
 
 import { DefaultModelsByKind } from "./sample-model";
 import {
+    DataTypeByExpressionKind,
     ExpressionKindByOperator,
     ExpressionSuggestionsByKind,
     OperatorsForExpressionKind
@@ -44,12 +45,15 @@ export function getOperatorSuggestions(kind: string): SuggestionItem[] {
     return []; // we can remove the empty array return if we only set the operator prop to true for the expressions with operators
 }
 
+export function getDataTypeOnExpressionKind(kind: string): string[] {
+    return DataTypeByExpressionKind[kind];
+}
+
 export function getExpressionTypeComponent(
-            expression: STNode,
-            expressionHandler: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void,
-            userInputs: VariableUserInputs,
-            diagnosticHandler: (diagnostics: string) => void
-        ) : ReactNode {
+    expression: STNode,
+    userInputs: VariableUserInputs,
+    diagnosticHandler: (diagnostics: string) => void
+): ReactNode {
     const ExprTypeComponent = (expressionTypeComponents as any)[expression.kind];
 
     if (!ExprTypeComponent) {
@@ -58,7 +62,6 @@ export function getExpressionTypeComponent(
 
     return <ExprTypeComponent
         model={expression}
-        expressionHandler={expressionHandler}
         userInputs={userInputs}
         diagnosticHandler={diagnosticHandler}
     />;

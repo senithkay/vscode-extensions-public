@@ -20,8 +20,7 @@ import { wizardStyles } from "../../../../../../ConfigForms/style";
 import { PrimaryButton } from "../../../Button/PrimaryButton";
 import { SecondaryButton } from "../../../Button/SecondaryButton";
 import { VariableUserInputs } from '../../models/definitions';
-import { FormContext } from '../../store/form-context';
-import { ModelContext } from '../../store/model-context'
+import { StatementEditorContext } from "../../store/statement-editor-context";
 import { getDefaultModel } from "../../utils";
 import { LeftPane } from '../LeftPane';
 import { RightPane } from '../RightPane';
@@ -42,12 +41,23 @@ interface ViewProps {
 }
 
 export function ViewContainer(props: ViewProps) {
-    const { kind, label, formArgs, userInputs, validate, isMutationInProgress, validForm, onCancel, onSave, onChange } = props;
+    const {
+        kind,
+        label,
+        formArgs,
+        userInputs,
+        validate,
+        isMutationInProgress,
+        validForm,
+        onCancel,
+        onSave,
+        onChange
+    } = props;
     const intl = useIntl();
 
     const stmtModel = formArgs.model ? formArgs.model.initializer : getDefaultModel(kind);
 
-    const [model] = useState({...stmtModel});
+    const [model] = useState({ ...stmtModel });
 
     const [onCancelClicked, setOnCancel] = useState(false);
 
@@ -82,30 +92,27 @@ export function ViewContainer(props: ViewProps) {
         <div className={overlayClasses.stmtEditor}>
             <div className={overlayClasses.titleLine}/>
             <div className={overlayClasses.contentPane}>
-                <ModelContext.Provider
+                <StatementEditorContext.Provider
                     value={{
-                        statementModel: model
-                    }}
-                >
-                    <FormContext.Provider
-                        value={{
+                        modelCtx: { statementModel: model },
+                        formCtx: {
                             onCancel: onCancelClicked,
                             onSave,
                             onChange,
                             validate
-                        }}
-                    >
-                        <LeftPane
-                            model={model}
-                            currentModel={currentModel}
-                            kind={kind}
-                            label={label}
-                            userInputs={userInputs}
-                        />
-                    </FormContext.Provider>
-                </ModelContext.Provider>
-                <div className={overlayClasses.vl} />
-                <RightPane />
+                        }
+                    }}
+                >
+                    <LeftPane
+                        model={model}
+                        currentModel={currentModel}
+                        kind={kind}
+                        label={label}
+                        userInputs={userInputs}
+                    />
+                </StatementEditorContext.Provider>
+                <div className={overlayClasses.vl}/>
+                <RightPane/>
             </div>
             <div className={overlayClasses.bottomPane}>
                 <div className={wizardStylesClasses.buttonWrapper}>

@@ -10,15 +10,18 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
 import { STNode } from "@ballerina/syntax-tree";
 
 import { SuggestionItem, VariableUserInputs } from "../../models/definitions";
+import { SuggestionsContext } from "../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../utils";
 import { Diagnostics } from "../Diagnostics";
 import { ExpressionComponent } from '../Expression';
-import { Suggestions } from '../Suggestions';
+import { ExpressionSuggestions } from "../Suggestions/ExpressionSuggestions";
+import { VariableSuggestions } from "../Suggestions/VariableSuggestions";
 import { statementEditorStyles } from "../ViewContainer/styles";
 
 interface ModelProps {
@@ -31,18 +34,24 @@ interface ModelProps {
 
 export function LeftPane(props: ModelProps) {
     const overlayClasses = statementEditorStyles();
-    const {model, kind, label, currentModel, userInputs} = props;
+    const { model, kind, label, currentModel, userInputs } = props;
 
     const [suggestionList, setSuggestionsList] = useState(getSuggestionsBasedOnExpressionKind(kind));
     const [diagnosticList, setDiagnostic] = useState("");
     const [, setIsSuggestionClicked] = useState(false);
     const [isOperator, setIsOperator] = useState(false);
+    const [variableList, setVariableList] = useState([]);
 
-    const expressionHandler = (suggestions: SuggestionItem[], cModel: STNode, operator: boolean) => {
+    const expressionHandler = (cModel: STNode, operator: boolean, suggestionsList: { variableSuggestions?: SuggestionItem[], expressionSuggestions?: SuggestionItem[] }) => {
         currentModel.model = cModel
-        setSuggestionsList(suggestions)
+        if (suggestionsList.expressionSuggestions) {
+            setSuggestionsList(suggestionsList.expressionSuggestions)
+        }
         setIsSuggestionClicked(false)
         setIsOperator(operator)
+        if (suggestionsList.variableSuggestions) {
+            setVariableList(suggestionsList.variableSuggestions)
+        }
     }
 
     const suggestionHandler = () => {
@@ -57,34 +66,46 @@ export function LeftPane(props: ModelProps) {
 
     return (
         <div className={overlayClasses.leftPane}>
-            <span className={overlayClasses.subHeader}>{label}</span>
-            <div className={overlayClasses.templateEditor}>
-                <div className={overlayClasses.templateEditorInner}>
-                    <ExpressionComponent
-                        model={model}
-                        expressionHandler={expressionHandler}
-                        isRoot={true}
-                        userInputs={userInputs}
-                        diagnosticHandler={diagnosticHandler}
-                    />
+            <SuggestionsContext.Provider
+                value={{
+                    expressionHandler
+                }}
+            >
+                <span className={overlayClasses.subHeader}>{label}</span>
+                <div className={overlayClasses.templateEditor}>
+                    <div className={overlayClasses.templateEditorInner}>
+                        <ExpressionComponent
+                            model={model}
+                            isRoot={true}
+                            userInputs={userInputs}
+                            diagnosticHandler={diagnosticHandler}
+                        />
+                    </div>
                 </div>
-            </div>
-            <div className={overlayClasses.leftPaneDivider} />
+            </SuggestionsContext.Provider>
+            <div className={overlayClasses.leftPaneDivider}/>
             <div className={overlayClasses.diagnosticsPane}>
                 <Diagnostics
                     message={diagnosticList}
                 />
             </div>
+            <span className={overlayClasses.subHeader}>Variables</span>
+            <div className={overlayClasses.contextSensitivePane}>
+                <VariableSuggestions
+                    model={currentModel.model}
+                    variableSuggestions={variableList}
+                    suggestionHandler={suggestionHandler}
+                />
+            </div>
             <span className={overlayClasses.subHeader}>Expression</span>
             <div className={overlayClasses.contextSensitivePane}>
-                <Suggestions
+                <ExpressionSuggestions
                     model={currentModel.model}
                     suggestions={suggestionList}
                     operator={isOperator}
                     suggestionHandler={suggestionHandler}
                 />
             </div>
-
         </div>
     );
 }

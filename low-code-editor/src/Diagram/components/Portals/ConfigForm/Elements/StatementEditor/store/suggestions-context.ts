@@ -10,8 +10,19 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: no-empty
 import React from 'react';
 
-export const ModelContext = React.createContext({
-    statementModel: null
+import { STNode } from "@ballerina/syntax-tree";
+
+import { SuggestionItem } from "../models/definitions";
+
+export const SuggestionsContext = React.createContext({
+    expressionHandler: (model: STNode,
+                        operator: boolean,
+                        suggestionsList: {
+                            expressionSuggestions?: SuggestionItem[],
+                            variableSuggestions?: SuggestionItem[]
+                        }) => {}
+
 });

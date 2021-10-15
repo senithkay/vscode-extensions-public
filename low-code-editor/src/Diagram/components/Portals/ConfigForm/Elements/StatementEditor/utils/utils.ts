@@ -13,7 +13,7 @@
 import { BinaryExpression, BracedExpression, NumericLiteral, STNode, StringLiteral } from "@ballerina/syntax-tree";
 
 import * as c from "../constants";
-import {SuggestionItem} from "../models/definitions";
+import { SuggestionItem } from "../models/definitions";
 
 export function addOperator(model: STNode, operator: SuggestionItem) {
     const expression: any = model;
@@ -22,6 +22,16 @@ export function addOperator(model: STNode, operator: SuggestionItem) {
     } else {
         expression.operator.value = operator.value;
         expression.operator.kind = operator.kind;
+    }
+}
+
+export function addVariableSuggestion(model: STNode, suggestion: SuggestionItem) {
+    const initialKeys = Object.keys(model);
+    initialKeys.forEach((key) => {
+        delete model[key];
+    });
+    if (suggestion.kind === "string") {
+        Object.assign(model, createStringLiteral(suggestion.value));
     }
 }
 
@@ -333,4 +343,11 @@ export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = 
         { value: c.ARITHMETIC },
         { value: c.CONDITIONAL }
     ]
+}
+
+export const DataTypeByExpressionKind: { [key: string]: string[] } = {
+    StringLiteral: ["string"],
+    NumericLiteral: ["int", "float", "decimal"],
+    Arithmetic: ["string", "int", "float", "decimal"],
+    BracedExpression: ["string", "int", "float", "decimal"]
 }
