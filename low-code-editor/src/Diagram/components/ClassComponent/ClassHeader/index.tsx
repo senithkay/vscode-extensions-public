@@ -14,11 +14,12 @@
 import React, { useContext, useState } from 'react';
 
 import { ClassDefinition } from '@ballerina/syntax-tree';
+import classNames from 'classnames';
 
 import ClassIcon from '../../../../assets/icons/ClassIcon';
 import DeleteButton from '../../../../assets/icons/DeleteButton';
 import EditButton from '../../../../assets/icons/EditButton';
-import { Context as DiagramContext } from '../../../../Contexts/Diagram';
+import { useDiagramContext } from '../../../../Contexts/Diagram';
 import { removeStatement } from '../../../utils/modification-util';
 import { ComponentExpandButton } from '../../ComponentExpandButton';
 import { UnsupportedConfirmButtons } from '../../UnsupportedConfirmButtons';
@@ -32,24 +33,11 @@ interface ClassHeaderProps {
 export function ClassHeader(props: ClassHeaderProps) {
     const { model, onExpandClick, isExpanded } = props;
     const {
-        props: {
-            stSymbolInfo
-        },
         api: {
-            code: {
-                modifyDiagram
-            }
-        }
-    } = useContext(DiagramContext);
+            code: { modifyDiagram },
+        },
+    } = useDiagramContext();
     const [editingEnabled, setEditingEnabled] = useState(false);
-    const [isEditable, setIsEditable] = useState(false);
-
-    const handleMouseEnter = () => {
-        setIsEditable(true);
-    };
-    const handleMouseLeave = () => {
-        setIsEditable(false);
-    };
 
     const handleDeleteBtnClick = () => {
         modifyDiagram([
@@ -72,7 +60,7 @@ export function ClassHeader(props: ClassHeaderProps) {
     }
 
     return (
-        <div className={'class-component-header'} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+        <div className={'class-component-header'}>
             <div className={'header-segement-container'}>
                 <div className="header-segment" >
                     <ClassIcon />
@@ -80,16 +68,14 @@ export function ClassHeader(props: ClassHeaderProps) {
                 <div className={"header-segment"}>Class</div>
                 <div className={"header-segment-path"}>{model.className.value}</div>
             </div>
-            {isEditable && (
-                <div className="class-amendment-options">
-                    <div className="class-component-edit">
-                        <EditButton onClick={handleEditBtnClick} />
-                    </div>
-                    <div className="class-component-delete">
-                        <DeleteButton onClick={handleDeleteBtnClick} />
-                    </div>
+            <div className="class-amendment-options">
+                <div className={classNames("class-component-edit", "show-on-hover")}>
+                    <EditButton onClick={handleEditBtnClick} />
                 </div>
-            )}
+                <div className={classNames("class-component-delete", "show-on-hover")}>
+                    <DeleteButton onClick={handleDeleteBtnClick} />
+                </div>
+            </div>
             <ComponentExpandButton isExpanded={isExpanded} onClick={onExpandClick} />
             {editingEnabled && <UnsupportedConfirmButtons onConfirm={handleEditBtnConfirm} onCancel={handleEditBtnCancel} />}
         </div >

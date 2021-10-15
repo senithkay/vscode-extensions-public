@@ -47,6 +47,16 @@
             }
         }
 
+        .show-on-hover {
+            display: none;
+        }
+
+        &:hover {
+            .show-on-hover {
+                display: block;
+            }
+        }
+
         .class-amendment-options {
             display: flex;
             align-items: right;

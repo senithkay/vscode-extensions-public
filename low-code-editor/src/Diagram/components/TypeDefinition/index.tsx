@@ -19,7 +19,7 @@ import { MethodDeclaration, ObjectField, ObjectTypeDesc, STKindChecker, TypeDefi
 import DeleteButton from "../../../assets/icons/DeleteButton";
 import EditButton from "../../../assets/icons/EditButton";
 import RecordIcon from "../../../assets/icons/RecordIcon";
-import { Context as DiagramContext } from "../../../Contexts/Diagram";
+import { useDiagramContext } from "../../../Contexts/Diagram";
 import { removeStatement } from "../../utils/modification-util";
 import { ComponentExpandButton } from "../ComponentExpandButton";
 import { RecordDefinitionComponent } from "../RecordDefinion";
@@ -34,15 +34,10 @@ export interface TypeDefComponentProps {
 export function TypeDefinitionComponent(props: TypeDefComponentProps) {
     const { model } = props;
     const {
-        props: {
-            stSymbolInfo
-        },
         api: {
-            code: {
-                modifyDiagram
-            }
-        }
-    } = useContext(DiagramContext);
+          code: { modifyDiagram },
+        },
+      } = useDiagramContext();
 
     const [isEditable, setIsEditable] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);

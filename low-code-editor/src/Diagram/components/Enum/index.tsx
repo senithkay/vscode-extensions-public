@@ -16,17 +16,11 @@
 import React, { useContext, useState } from "react"
 
 import { EnumDeclaration, EnumMember, STKindChecker } from "@ballerina/syntax-tree";
-import { Button } from "@material-ui/core";
 
-import DeleteButton from "../../../assets/icons/DeleteButton";
-import EditButton from "../../../assets/icons/EditButton";
 import EnumIcon from "../../../assets/icons/EnumIcon";
-import { Context as DiagramContext } from "../../../Contexts/Diagram";
+import { useDiagramContext } from "../../../Contexts/Diagram";
 import { removeStatement } from "../../utils/modification-util";
-import { ComponentExpandButton } from "../ComponentExpandButton";
-import { OverlayBackground } from "../OverlayBackground";
-import { DiagramOverlayContainer } from "../Portals/Overlay";
-import { UnsupportedConfirmButtons } from "../UnsupportedConfirmButtons";
+import { HeaderActions } from "../HeaderActions";
 
 import "./style.scss";
 
@@ -37,47 +31,24 @@ export interface EnumDeclarationComponentProps {
 export function EnumDeclarationComponent(props: EnumDeclarationComponentProps) {
     const { model } = props;
     const {
-        props: {
-            stSymbolInfo
-        },
         api: {
-            code: {
-                modifyDiagram
-            }
-        }
-    } = useContext(DiagramContext);
+            code: { modifyDiagram },
+        },
+    } = useDiagramContext();
     const [isExpanded, setIsExpanded] = useState(false);
-    const [editingEnabled, setEditingEnabled] = useState(false);
-    const [isEditable, setIsEditable] = useState(false);
-
-    const handleMouseEnter = () => {
-        setIsEditable(true);
-    };
-    const handleMouseLeave = () => {
-        setIsEditable(false);
-    };
 
     const onExpandClick = () => {
         setIsExpanded(!isExpanded);
     }
 
-    const handleDeleteBtnClick = () => {
+    const handleDeleteConfirm = () => {
         modifyDiagram([
             removeStatement(model.position)
         ]);
     }
 
-    const handleEditBtnClick = () => {
-        setEditingEnabled(true);
-    }
-
-    const handleEditBtnCancel = () => {
-        setEditingEnabled(false);
-    }
-
     const handleEditBtnConfirm = () => {
         const targetposition = model.position;
-        setEditingEnabled(false);
         // Move to code
     }
 
@@ -102,7 +73,7 @@ export function EnumDeclarationComponent(props: EnumDeclarationComponentProps) {
 
     return (
         <div>
-            <div className="enum-comp" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+            <div className="enum-comp">
                 <div className="enum-header" >
                     <div className="enum-content">
                         <div className="enum-icon">
@@ -115,19 +86,14 @@ export function EnumDeclarationComponent(props: EnumDeclarationComponentProps) {
                             {model.identifier.value}
                         </div>
                     </div>
-                    {isEditable && (
-                        <div className="enum-amendment-options">
-                            <div className="enum-edit">
-                                <EditButton onClick={handleEditBtnClick} />
-                            </div>
-                            <div className="enum-delete">
-                                <DeleteButton onClick={handleDeleteBtnClick} />
-                            </div>
-                            <div className="enum-expand">
-                                <ComponentExpandButton isExpanded={isExpanded} onClick={onExpandClick} />
-                            </div>
-                        </div>
-                    )}
+                    <HeaderActions
+                        model={model}
+                        deleteText="Delete this Enum?"
+                        isExpanded={isExpanded}
+                        onExpandClick={onExpandClick}
+                        onConfirmDelete={handleDeleteConfirm}
+                        onConfirmEdit={handleEditBtnConfirm}
+                    />
                 </div>
                 <div className="enum-separator" />
                 {isExpanded && (
@@ -138,7 +104,6 @@ export function EnumDeclarationComponent(props: EnumDeclarationComponentProps) {
                     </>
                 )}
             </div>
-            {editingEnabled && <UnsupportedConfirmButtons onConfirm={handleEditBtnConfirm} onCancel={handleEditBtnCancel} />}
         </div>
     );
 }

@@ -14,11 +14,12 @@
 import React, { useContext, useState } from "react"
 
 import { ConstDeclaration, STNode } from "@ballerina/syntax-tree";
+import classNames from "classnames";
 
 import ConstantIcon from "../../../assets/icons/ConstantIcon";
 import DeleteButton from "../../../assets/icons/DeleteButton";
 import EditButton from "../../../assets/icons/EditButton";
-import { Context as DiagramContext } from "../../../Contexts/Diagram";
+import { useDiagramContext } from "../../../Contexts/Diagram";
 import { removeStatement } from "../../utils/modification-util";
 import { UnsupportedConfirmButtons } from "../UnsupportedConfirmButtons";
 
@@ -36,31 +37,17 @@ export interface ConstantProps {
 export function Constant(props: ConstantProps) {
     const { model } = props;
     const {
-        props: {
-            stSymbolInfo
-        },
         api: {
-            code: {
-                modifyDiagram
-            }
-        }
-    } = useContext(DiagramContext);
+            code: { modifyDiagram },
+        },
+    } = useDiagramContext();
 
-    const [isEditable, setIsEditable] = useState(false);
     const [editingEnabled, setEditingEnabled] = useState(false);
 
     const constModel: ConstDeclaration = model as ConstDeclaration;
     const varType = "const";
     const varName = constModel.variableName.value;
     const varValue = constModel.initializer.source.trim();
-
-    const handleMouseEnter = () => {
-        setIsEditable(true);
-    };
-
-    const handleMouseLeave = () => {
-        setIsEditable(false);
-    };
 
     const handleDeleteBtnClick = () => {
         modifyDiagram([
@@ -86,8 +73,6 @@ export function Constant(props: ConstantProps) {
         <div>
             <div
                 className={"moduleVariableContainer"}
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
                 data-test-id="const"
             >
                 <div className={"moduleVariableWrapper"}>
@@ -100,16 +85,12 @@ export function Constant(props: ConstantProps) {
                     <p className={"moduleVariableNameText"}>
                         {varName}
                     </p>
-                    {isEditable && (
-                        <>
-                            <div className={"editBtnWrapper"}>
-                                <EditButton onClick={handleEditBtnClick} />
-                            </div>
-                            <div className={"deleteBtnWrapper"}>
-                                <DeleteButton onClick={handleDeleteBtnClick} />
-                            </div>
-                        </>
-                    )}
+                    <div className={classNames("editBtnWrapper", "show-on-hover")}>
+                        <EditButton onClick={handleEditBtnClick} />
+                    </div>
+                    <div className={classNames("deleteBtnWrapper", "show-on-hover")}>
+                        <DeleteButton onClick={handleDeleteBtnClick} />
+                    </div>
                 </div>
             </div>
             {editingEnabled && <UnsupportedConfirmButtons onConfirm={handleEditBtnConfirm} onCancel={handleEditBtnCancel} />}
