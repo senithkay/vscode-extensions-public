@@ -10,7 +10,14 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { BinaryExpression, BracedExpression, NumericLiteral, STNode, StringLiteral } from "@ballerina/syntax-tree";
+import {
+    BinaryExpression,
+    BracedExpression,
+    NumericLiteral,
+    SimpleNameReference,
+    STNode,
+    StringLiteral
+} from "@ballerina/syntax-tree";
 
 import * as c from "../constants";
 import { SuggestionItem } from "../models/definitions";
@@ -31,7 +38,7 @@ export function addVariableSuggestion(model: STNode, suggestion: SuggestionItem)
         delete model[key];
     });
     if (suggestion.kind === "string") {
-        Object.assign(model, createStringLiteral(suggestion.value));
+        Object.assign(model, createSimpleNameReference(suggestion.value));
     }
 }
 
@@ -59,6 +66,8 @@ export function addExpression(model: any, kind: string, value?: any) {
         } else {
             Object.assign(model, createNumericLiteral(""));
         }
+    } else if (kind === c.SIMPLE_NAME_REFERENCE) {
+        Object.assign(model, createSimpleNameReference(value));
     } else {
         // tslint:disable-next-line:no-console
         console.log(`Unsupported kind. (${kind})`);
@@ -204,6 +213,19 @@ function createNumericLiteral(value: string): NumericLiteral {
         },
         "source": ""
     };
+}
+
+function createSimpleNameReference(value: string): SimpleNameReference {
+    return {
+        "kind": "SimpleNameReference",
+        "name": {
+            "kind": "IdentifierToken",
+            "isToken": true,
+            "value": value,
+            "source": "",
+        },
+        "source": ""
+    }
 }
 
 export const ExpressionKindByOperator: { [key: string]: string } = {

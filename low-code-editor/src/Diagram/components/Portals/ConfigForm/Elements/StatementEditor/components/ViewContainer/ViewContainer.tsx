@@ -20,7 +20,7 @@ import { wizardStyles } from "../../../../../../ConfigForms/style";
 import { PrimaryButton } from "../../../Button/PrimaryButton";
 import { SecondaryButton } from "../../../Button/SecondaryButton";
 import { VariableUserInputs } from '../../models/definitions';
-import { StatementEditorContext } from "../../store/statement-editor-context";
+import { StatementEditorContextProvider } from "../../store/statement-editor-context";
 import { getDefaultModel } from "../../utils";
 import { LeftPane } from '../LeftPane';
 import { RightPane } from '../RightPane';
@@ -59,11 +59,15 @@ export function ViewContainer(props: ViewProps) {
 
     const [model] = useState({ ...stmtModel });
 
+    const [currentModel, setCurrentModel] = useState({model});
+
     const [onCancelClicked, setOnCancel] = useState(false);
 
-    const currentModel: { model: STNode } = {
-        model
-    }
+    const currentModelHandler = (cModel: STNode) => {
+        setCurrentModel({
+            model: cModel
+        });
+    };
 
     const onCancelHandler = () => {
         setOnCancel(true);
@@ -92,25 +96,21 @@ export function ViewContainer(props: ViewProps) {
         <div className={overlayClasses.stmtEditor}>
             <div className={overlayClasses.titleLine}/>
             <div className={overlayClasses.contentPane}>
-                <StatementEditorContext.Provider
-                    value={{
-                        modelCtx: { statementModel: model },
-                        formCtx: {
-                            onCancel: onCancelClicked,
-                            onSave,
-                            onChange,
-                            validate
-                        }
-                    }}
+                <StatementEditorContextProvider
+                    model={model}
+                    onCancelClicked={onCancelClicked}
+                    onSave={onSave}
+                    onChange={onChange}
+                    validate={validate}
                 >
                     <LeftPane
-                        model={model}
                         currentModel={currentModel}
                         kind={kind}
                         label={label}
                         userInputs={userInputs}
+                        currentModelHandler={currentModelHandler}
                     />
-                </StatementEditorContext.Provider>
+                </StatementEditorContextProvider>
                 <div className={overlayClasses.vl}/>
                 <RightPane/>
             </div>

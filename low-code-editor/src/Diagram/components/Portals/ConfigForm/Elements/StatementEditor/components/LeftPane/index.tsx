@@ -11,11 +11,12 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 
 import { STNode } from "@ballerina/syntax-tree";
 
 import { SuggestionItem, VariableUserInputs } from "../../models/definitions";
+import { StatementEditorContext } from "../../store/statement-editor-context";
 import { SuggestionsContext } from "../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../utils";
 import { Diagnostics } from "../Diagnostics";
@@ -25,16 +26,18 @@ import { VariableSuggestions } from "../Suggestions/VariableSuggestions";
 import { statementEditorStyles } from "../ViewContainer/styles";
 
 interface ModelProps {
-    model: STNode,
     kind: string,
     label: string,
     currentModel: { model: STNode },
     userInputs?: VariableUserInputs
+    currentModelHandler: (model: STNode) => void
 }
 
 export function LeftPane(props: ModelProps) {
     const overlayClasses = statementEditorStyles();
-    const { model, kind, label, currentModel, userInputs } = props;
+    const { kind, label, currentModel, userInputs, currentModelHandler } = props;
+
+    const stmtCtx = useContext(StatementEditorContext);
 
     const [suggestionList, setSuggestionsList] = useState(getSuggestionsBasedOnExpressionKind(kind));
     const [diagnosticList, setDiagnostic] = useState("");
@@ -43,7 +46,7 @@ export function LeftPane(props: ModelProps) {
     const [variableList, setVariableList] = useState([]);
 
     const expressionHandler = (cModel: STNode, operator: boolean, suggestionsList: { variableSuggestions?: SuggestionItem[], expressionSuggestions?: SuggestionItem[] }) => {
-        currentModel.model = cModel
+        currentModelHandler(cModel);
         if (suggestionsList.expressionSuggestions) {
             setSuggestionsList(suggestionsList.expressionSuggestions)
         }
@@ -75,7 +78,7 @@ export function LeftPane(props: ModelProps) {
                 <div className={overlayClasses.templateEditor}>
                     <div className={overlayClasses.templateEditorInner}>
                         <ExpressionComponent
-                            model={model}
+                            model={stmtCtx.modelCtx.statementModel}
                             isRoot={true}
                             userInputs={userInputs}
                             diagnosticHandler={diagnosticHandler}

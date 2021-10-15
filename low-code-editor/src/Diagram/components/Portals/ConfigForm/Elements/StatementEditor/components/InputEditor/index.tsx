@@ -10,12 +10,20 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js ordered-imports
-import React, { useContext, useEffect, useRef, useState } from "react";
-
-import { NumericLiteral, STKindChecker, STNode, StringLiteral, traversNode } from "@ballerina/syntax-tree";
-import debounce from "lodash.debounce";
+// tslint:disable: jsx-no-multiline-js
+import React, { useContext, useEffect, useState } from "react";
 import { monaco } from "react-monaco-editor";
+
+import {
+    NumericLiteral,
+    SimpleNameReference,
+    STKindChecker,
+    STNode,
+    StringLiteral,
+    traversNode
+} from "@ballerina/syntax-tree";
+import debounce from "lodash.debounce";
+
 import { Context } from "../../../../../../../../Contexts/Diagram";
 import {
     CompletionParams,
@@ -30,14 +38,16 @@ import {
     getTargetPosition
 } from "../../../ExpressionEditor/utils";
 import * as c from "../../constants";
-import { addExpression } from "../../utils/utils";
-import { visitor as CodeGenVisitor } from "../../visitors/code-gen-visitor";
 import { SuggestionItem, VariableUserInputs } from "../../models/definitions";
-import { statementEditorStyles } from "../ViewContainer/styles";
-import { acceptedCompletionKind } from "./constants";
-import { getDataTypeOnExpressionKind } from "../../utils";
+import { InputEditorContext } from "../../store/input-editor-context";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { SuggestionsContext } from "../../store/suggestions-context";
+import { getDataTypeOnExpressionKind } from "../../utils";
+import { addExpression } from "../../utils/utils";
+import { visitor as CodeGenVisitor } from "../../visitors/code-gen-visitor";
+import { statementEditorStyles } from "../ViewContainer/styles";
+
+import { acceptedCompletionKind } from "./constants";
 
 export interface InputEditorProps {
     model: STNode,
@@ -59,6 +69,7 @@ export function InputEditor(props: InputEditorProps) {
         }
     } = useContext(Context);
 
+    const [isEditing, setIsEditing] = useState(false);
     const [inputEditorState, setInputEditorState] = useState({
         name: undefined,
         content: undefined,
@@ -68,24 +79,30 @@ export function InputEditor(props: InputEditorProps) {
 
     const { model, statementType, diagnosticHandler, userInputs } = props;
 
+    const inputEditorCtx = useContext(InputEditorContext);
     const stmtCtx = useContext(StatementEditorContext);
     const suggestionCtx = useContext(SuggestionsContext);
 
     const overlayClasses = statementEditorStyles();
 
-    let literalModel: StringLiteral | NumericLiteral;
+    let literalModel: StringLiteral | NumericLiteral | SimpleNameReference;
     let value: any;
     let kind: any;
 
     if (STKindChecker.isStringLiteral(model)) {
         literalModel = model as StringLiteral;
         kind = c.STRING_LITERAL;
-    } else {
+        value = literalModel.literalToken.value;
+    } else if (STKindChecker.isNumericLiteral(model)) {
         literalModel = model as NumericLiteral;
         kind = c.NUMERIC_LITERAL;
+        value = literalModel.literalToken.value;
+    } else if (STKindChecker.isSimpleNameReference(model)) {
+        literalModel = model as SimpleNameReference;
+        kind = c.SIMPLE_NAME_REFERENCE;
+        value = literalModel.name.value;
     }
-    value = literalModel.literalToken.value;
-    const defaultValue = useRef(value);
+    const [userInput, setUserInput] = useState(value);
 
     const targetPosition = getTargetPosition(targetPositionDraft, syntaxTree);
     const textLabel = userInputs && userInputs.formField ? userInputs.formField : "modelName"
@@ -98,13 +115,30 @@ export function InputEditor(props: InputEditorProps) {
     useEffect(() => {
         CodeGenVisitor.clearCodeSnippet();
         traversNode(stmtCtx.modelCtx.statementModel, CodeGenVisitor);
-        const ignore = handleOnFocus(CodeGenVisitor.getCodeSnippet(), "");
-        getContextBasedCompletions("");
+        handleOnFocus(CodeGenVisitor.getCodeSnippet(), "").then(() => {
+            handleOnOutFocus().then();
+        })
+        getContextBasedCompletions(userInput === 'expression' ? "" : userInput);
     }, [statementType]);
 
     useEffect(() => {
         handleDiagnostic();
-    }, [inputEditorState.diagnostic])
+    }, [inputEditorState.diagnostic]);
+
+    useEffect(() => {
+        setUserInput(value);
+        CodeGenVisitor.clearCodeSnippet();
+        traversNode(stmtCtx.modelCtx.statementModel, CodeGenVisitor);
+        handleContentChange(CodeGenVisitor.getCodeSnippet(), "").then(() => {
+            handleOnOutFocus().then();
+        });
+    }, [inputEditorCtx.userInput]);
+
+    useEffect(() => {
+        if (userInput === '') {
+            setIsEditing(true);
+        }
+    }, [isEditing]);
 
     const handleOnFocus = async (currentContent: string, EOL: string) => {
         let initContent: string;
@@ -257,8 +291,7 @@ export function InputEditor(props: InputEditorProps) {
                     return { value: obj.label, kind: obj.detail }
                 });
 
-                suggestionCtx.expressionHandler(model, false, { variableSuggestions })
-
+                suggestionCtx.expressionHandler(model, false, { variableSuggestions });
             });
         });
     }
@@ -268,46 +301,63 @@ export function InputEditor(props: InputEditorProps) {
     }
 
     const inputBlurHandler = () => {
-        if (defaultValue.current !== "") {
+        setIsEditing(false);
+        if (userInput !== "") {
             addExpression(model, kind, value);
-            suggestionCtx.expressionHandler(model, false, { expressionSuggestions: [] })
+            suggestionCtx.expressionHandler(model, false, { expressionSuggestions: [] });
 
             const ignore = handleOnOutFocus();
         }
     };
 
-    const inputEnterHandler = (event: React.KeyboardEvent<HTMLSpanElement>) => {
-        if (event.code === "Enter" || event.code === "Tab") {
-            addExpression(model, kind, event.currentTarget.textContent);
-            suggestionCtx.expressionHandler(model, false, { expressionSuggestions: [] })
+    const inputEnterHandler = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        if (event.key === "Enter" || event.key === "Tab" || event.key === "Escape") {
+            addExpression(model, kind, userInput);
 
             CodeGenVisitor.clearCodeSnippet();
             traversNode(stmtCtx.modelCtx.statementModel, CodeGenVisitor);
             const ignore = handleContentChange(CodeGenVisitor.getCodeSnippet(), "")
-            getContextBasedCompletions(event.currentTarget.textContent);
+            getContextBasedCompletions(userInput);
         }
     };
 
-    const inputChangeHandler = (event: React.KeyboardEvent<HTMLSpanElement>) => {
-        addExpression(model, kind, event.currentTarget.textContent ? event.currentTarget.textContent : "");
-        suggestionCtx.expressionHandler(model, false, { expressionSuggestions: [] })
+    const inputChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
+        addExpression(model, kind, event.target.value ? event.target.value : "");
         CodeGenVisitor.clearCodeSnippet();
         traversNode(stmtCtx.modelCtx.statementModel, CodeGenVisitor);
         debouncedContentChange(CodeGenVisitor.getCodeSnippet(), "");
-        getContextBasedCompletions(event.currentTarget.textContent);
+        getContextBasedCompletions(event.target.value);
+        setUserInput(event.target.value);
     };
 
     const debouncedContentChange = debounce(handleContentChange, 500);
 
-    return (
-        <span
-            className={overlayClasses.inputEditorTemplate}
-            onKeyDown={inputEnterHandler}
-            contentEditable={true}
-            suppressContentEditableWarning={true}
-            onBlur={inputBlurHandler}
-            onInput={inputChangeHandler}
-            dangerouslySetInnerHTML={{ __html: defaultValue.current }}
-        />
-    )
+    const handleDoubleClick = () => {
+        setIsEditing(true);
+    };
+
+    const handleEditEnd = () => {
+        setIsEditing(false);
+    }
+
+    return isEditing ?
+        (
+            <input
+                value={userInput}
+                className={overlayClasses.inputEditorTemplate}
+                onKeyDown={inputEnterHandler}
+                onBlur={inputBlurHandler}
+                onInput={inputChangeHandler}
+                autoFocus={true}
+                style={{maxWidth: userInput === '' ? '10px' : 'fit-content'}}
+            />
+        ) : (
+            <div
+                className={overlayClasses.inputEditorTemplate}
+                onDoubleClick={handleDoubleClick}
+                onBlur={handleEditEnd}
+            >
+                {userInput}
+            </div>
+        );
 }
