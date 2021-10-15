@@ -210,9 +210,6 @@ export function AddForeachForm(props: ForeachProps) {
                                 <div className={classes.formWrapper}>
                                     <div className={classes.formTitleWrapper}>
                                         <div className={classes.mainTitleWrapper}>
-                                            <div className={classes.iconWrapper}>
-                                                <ForEachIcon />
-                                            </div>
                                             <Typography variant="h4">
                                                 <Box paddingTop={2} paddingBottom={2}>
                                                     <FormattedMessage
@@ -221,9 +218,9 @@ export function AddForeachForm(props: ForeachProps) {
                                                     />
                                                 </Box>
                                             </Typography>
-                                            <div style={{marginLeft: "auto", marginRight: 0}}>
-                                                <StatementEditorButton onClick={handleStmtEditorButtonClick} disabled={true} />
-                                            </div>
+                                        </div>
+                                        <div className={classes.statementEditor}>
+                                            <StatementEditorButton onClick={handleStmtEditorButtonClick} disabled={true} />
                                         </div>
                                     </div>
                                     <FormTextInput

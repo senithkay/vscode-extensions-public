@@ -113,7 +113,6 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                                 <div className={formClasses.formWrapper}>
                                     <div className={formClasses.formTitleWrapper}>
                                         <div className={formClasses.mainTitleWrapper}>
-                                            <LogoCircleIcon />
                                             <Typography variant="h4">
                                                 <Box paddingTop={2} paddingBottom={2}>
                                                     <FormattedMessage
@@ -122,9 +121,9 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                                                     />
                                                 </Box>
                                             </Typography>
-                                            <div style={{marginLeft: "auto", marginRight: 0}}>
-                                                <StatementEditorButton onClick={handleStmtEditorButtonClick} disabled={true} />
-                                            </div>
+                                        </div>
+                                        <div className={formClasses.statementEditor}>
+                                            <StatementEditorButton onClick={handleStmtEditorButtonClick} disabled={true} />
                                         </div>
                                     </div>
                                     <div className="exp-wrapper">
