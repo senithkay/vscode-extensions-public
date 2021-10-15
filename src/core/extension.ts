@@ -522,10 +522,7 @@ export class BallerinaExtension {
 
     public isBallerinaLowCodeMode(): boolean {
         let isBallerinaLowCodeMode = <boolean>workspace.getConfiguration().get(BALLERINA_LOW_CODE_MODE);
-        if (!isBallerinaLowCodeMode && process.env.LOW_CODE_MODE === 'true') {
-            return true;
-        }
-        return isBallerinaLowCodeMode;
+        return isBallerinaLowCodeMode || (process.env.LOW_CODE_MODE === 'true');
     }
 
     public isSwanLake(): boolean {
