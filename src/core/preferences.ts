@@ -18,7 +18,8 @@
  */
 
 export const BALLERINA_HOME = "ballerina.home";
-export const OVERRIDE_BALLERINA_HOME = "ballerina.plugin.dev.mod";
+export const OVERRIDE_BALLERINA_HOME = "ballerina.pluginDevMode";
 export const ENABLE_TELEMETRY = "ballerina.enableTelemetry";
 export const ENABLE_ALL_CODELENS = "ballerina.codeLens.all.enabled";
 export const ENABLE_EXECUTOR_CODELENS = "ballerina.codeLens.executor.enabled";
+export const BALLERINA_LOW_CODE_MODE = "ballerina.lowCodeMode";

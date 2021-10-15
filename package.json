@@ -63,7 +63,7 @@
             "type": "object",
             "title": "Ballerina",
             "properties": {
-                "ballerina.plugin.dev.mod": {
+                "ballerina.pluginDevMode": {
                     "type": "boolean",
                     "default": false,
                     "description": "Enable plugin development mode."
@@ -117,6 +117,11 @@
                     "type": "boolean",
                     "default": true,
                     "markdownDescription": "Enable Ballerina telemetry."
+                },
+                "ballerina.lowCodeMode": {
+                    "type": "boolean",
+                    "default": false,
+                    "markdownDescription": "Enable Ballerina low-code mode."
                 }
             }
         },
