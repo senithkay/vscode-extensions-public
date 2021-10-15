@@ -11,7 +11,7 @@
  * associated services.
  */
 
-import { STKindChecker } from "@ballerina/syntax-tree";
+import { CaptureBindingPattern, STKindChecker, TypedBindingPattern } from "@ballerina/syntax-tree";
 
 export const ModuleVarNameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 
@@ -61,6 +61,8 @@ export function getFormConfigFromModel(model: any): ModuleVariableFormState {
 
         defaultFormState.isPublic = model.visibilityQualifier && STKindChecker.isPublicKeyword(model.visibilityQualifier);
         defaultFormState.varValue = model.initializer.source;
+        defaultFormState.varName = ((model.typedBindingPattern as TypedBindingPattern)
+            .bindingPattern as CaptureBindingPattern).variableName.value;
 
         return defaultFormState;
     }
