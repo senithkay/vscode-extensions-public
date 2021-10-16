@@ -12,7 +12,6 @@
  */
 import { NodePosition } from "@ballerina/syntax-tree";
 
-import { DraftUpdateStatement } from "../../api/models";
 import { FormField } from "../../ConfigurationSpec/types";
 import { STModification } from "../../Definitions/lang-client-extended";
 import { HeaderObjectConfig } from "../components/ConnectorExtensions/HTTPWizard/HTTPHeaders";
@@ -145,9 +144,27 @@ export function updatePropertyStatement(property: string, targetPosition: NodePo
     return propertyStatement;
 }
 
-export function updateResourceSignature(method: string, path: string, queryParam: string, payload: string,
-                                        isCaller: boolean, isRequest: boolean, addReturn: string,
-                                        targetPosition: DraftUpdateStatement): STModification {
+export function createResource(method: string, path: string, queryParam: string, payload: string, isCaller: boolean, isRequest: boolean, addReturn: string, targetPosition: NodePosition): STModification {
+    const resource: STModification = {
+        startLine: targetPosition.startLine,
+        startColumn: 0,
+        endLine: targetPosition.startLine,
+        endColumn: 0,
+        type: "RESOURCE",
+        config: {
+            "METHOD": method,
+            "PATH": path,
+            "QUERY_PARAM": queryParam,
+            "PAYLOAD": payload,
+            "ADD_CALLER": isCaller,
+            "ADD_REQUEST": isRequest,
+            "ADD_RETURN": addReturn
+        }
+    };
+    return resource;
+}
+
+export function updateResourceSignature(method: string, path: string, queryParam: string, payload: string, isCaller: boolean, isRequest: boolean, addReturn: string, targetPosition: NodePosition): STModification {
     const resourceSignature: STModification = {
         startLine: targetPosition.startLine,
         startColumn: targetPosition.startColumn,
@@ -161,7 +178,7 @@ export function updateResourceSignature(method: string, path: string, queryParam
             "PAYLOAD": payload,
             "ADD_CALLER": isCaller,
             "ADD_REQUEST": isRequest,
-            "ADD_RETURN": ((addReturn) ? addReturn + "|error?" : "error?")
+            "ADD_RETURN": addReturn
         }
     };
 
@@ -600,8 +617,7 @@ export function removeStatement(targetPosition: NodePosition): STModification {
     return removeLine;
 }
 
-export function createHeaderObjectDeclaration(headerObject: HeaderObjectConfig[], requestName: string, operation: string,
-                                              message: FormField, targetPosition: NodePosition, modifications: STModification[]) {
+export function createHeaderObjectDeclaration(headerObject: HeaderObjectConfig[], requestName: string, operation: string, message: FormField, targetPosition: NodePosition, modifications: STModification[]) {
     if (operation !== "forward") {
         let httpRequest: string = "http:Request ";
         httpRequest += requestName;
@@ -641,8 +657,7 @@ export function createHeaderObjectDeclaration(headerObject: HeaderObjectConfig[]
     });
 }
 
-export function updateHeaderObjectDeclaration(headerObject: HeaderObjectConfig[], requestName: string, operation: string,
-                                              message: FormField, targetPosition: NodePosition): STModification {
+export function updateHeaderObjectDeclaration(headerObject: HeaderObjectConfig[], requestName: string, operation: string, message: FormField, targetPosition: NodePosition): STModification {
     let headerDecl: string = "";
     if (operation !== "forward") {
         if (operation === "post" || operation === "put" || operation === "delete" || operation === "patch") {
