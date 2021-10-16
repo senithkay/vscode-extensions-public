@@ -35,7 +35,7 @@ export function TypeDefinitionComponent(props: TypeDefComponentProps) {
     const { model } = props;
     const {
         api: {
-          code: { modifyDiagram },
+            code: { modifyDiagram, gotoSource },
         },
       } = useDiagramContext();
 
@@ -70,7 +70,7 @@ export function TypeDefinitionComponent(props: TypeDefComponentProps) {
     const handleEditBtnConfirm = () => {
         const targetposition = model.position;
         setEditingEnabled(false);
-        // Move to code
+        gotoSource({ startLine: targetposition.startLine, startColumn: targetposition.startColumn });
     }
 
     const component: JSX.Element[] = [];
