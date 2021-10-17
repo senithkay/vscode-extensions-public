@@ -231,11 +231,13 @@ export interface SequenceGraphPointValue {
 
 export class ExtendedLangClient extends LanguageClient {
     private ballerinaExtendedServices: Set<String> | undefined;
+    private isDynamicRegistrationSupported: boolean;
     isInitialized: boolean = true;
 
     constructor(id: string, name: string, serverOptions: ServerOptions, clientOptions: LanguageClientOptions,
         forceDebug?: boolean) {
         super(id, name, serverOptions, clientOptions, forceDebug);
+        this.isDynamicRegistrationSupported = true;
     }
 
     didOpen(params: DidOpenParams): void {
@@ -376,11 +378,15 @@ export class ExtendedLangClient extends LanguageClient {
         return this.sendRequest(EXTENDED_APIS.JSON_TO_RECORD_CONVERT, params);
     }
 
-    initBalServices(params: BallerinaInitializeParams): Thenable<BallerinaInitializeResult> {
+    initBalServices(params: BallerinaInitializeParams): Promise<BallerinaInitializeResult> {
         return this.sendRequest("initBalServices", params);
     }
 
     async registerExtendedAPICapabilities() {
+        if (!this.isDynamicRegistrationSupported) {
+            return;
+        }
+
         await this.initBalServices({
             ballerinaClientCapabilities: [
                 {
@@ -407,13 +413,18 @@ export class ExtendedLangClient extends LanguageClient {
                     }
                 })
             })
+        }).catch(_error => {
+            this.isDynamicRegistrationSupported = false;
         });
     }
 
     isExtendedServiceSupported(serviceName: string): boolean {
+        if (!this.isDynamicRegistrationSupported) {
+            return true;
+        }
         if (!this.ballerinaExtendedServices) {
             this.registerExtendedAPICapabilities();
         }
-        return this.ballerinaExtendedServices!.has(serviceName);
+        return this.ballerinaExtendedServices?.has(serviceName) || true;
     }
 }
