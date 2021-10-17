@@ -128,6 +128,22 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
     window.createTreeView('sessionExplorer', {
         treeDataProvider: sessionTreeDataProvider, showCollapseAll: true
     });
+    workspace.onDidChangeTextDocument(_listener => {
+        if (ballerinaExtInstance.getCodeServerContext().codeServerEnv
+            && ballerinaExtInstance.getCodeServerContext().alwaysShowInfo) {
+            const commit = "Commit Changes";
+            const stopPopup = "Don't show this message";
+            window.showInformationMessage('Push your project changes and try out in the Choreo development ' +
+                'environment. Do you want to push your changes? ', commit, stopPopup).then((selection) => {
+                    if (commit === selection) {
+                        commands.executeCommand('git.commitAll');
+                    }
+                    if (stopPopup === selection) {
+                        ballerinaExtInstance.getCodeServerContext().alwaysShowInfo = false;
+                    }
+                });
+        }
+    });
 
     const choreoSession: ChoreoSession = ballerinaExtInstance.getChoreoSession();
     ballerinaExtInstance.setChoreoSessionTreeProvider(sessionTreeDataProvider);

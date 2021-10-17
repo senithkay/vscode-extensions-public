@@ -123,7 +123,8 @@ export class BallerinaExtension {
         this.choreoSession = { loginStatus: false };
         this.codeServerContext = {
             codeServerEnv: process.env.CODE_SERVER_ENV === 'true',
-            manageChoreoRedirectUri: process.env.MANAGE_CHOROE_URI
+            manageChoreoRedirectUri: process.env.MANAGE_CHOROE_URI,
+            alwaysShowInfo: true
         }
     }
 

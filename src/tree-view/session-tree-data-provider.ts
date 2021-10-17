@@ -56,7 +56,7 @@ export class SessionDataProvider implements TreeDataProvider<TreeItem> {
             treeItems.push(session);
 
             if (this.ballerinaExtension.getCodeServerContext().codeServerEnv) {
-                const commit = new TreeItem(`Push Changes to Choreo`, TreeItemCollapsibleState.None);
+                const commit = new TreeItem(`Push Changes to Choreo...`, TreeItemCollapsibleState.None);
                 commit.command = { command: 'git.commitAll', title: 'Commit Changes' };
                 commit.iconPath = {
                     light: join(this.ballerinaExtension.extension.extensionPath,
@@ -65,7 +65,7 @@ export class SessionDataProvider implements TreeDataProvider<TreeItem> {
                         'resources', 'images', 'icons', 'commit-inverse.svg')
                 }
                 treeItems.push(commit);
-                const manage = new TreeItem(`Deploy and Manage`, TreeItemCollapsibleState.None);
+                const manage = new TreeItem(`Deploy and Manage in Choreo...`, TreeItemCollapsibleState.None);
                 manage.command = {
                     command: 'vscode.open', title: 'Open Choreo Manage Portal',
                     arguments: [Uri.parse(this.ballerinaExtension.getCodeServerContext().manageChoreoRedirectUri!)]
