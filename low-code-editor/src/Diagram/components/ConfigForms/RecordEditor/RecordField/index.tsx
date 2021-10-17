@@ -122,10 +122,12 @@ export function RecordField(props: CodePanelProps) {
         )
     }
 
-    const recordBegin = `record { ${recordModel.isClosed ? "|" : ""}`;
+    const recordBegin = `${recordModel.isTypeDefinition ? `type ${recordModel.name} ` :
+        ""}record { ${recordModel.isClosed ? "|" : ""}`;
 
-    const recordEnd = `${recordModel.isClosed ? "| " : ""}} ${recordModel.isArray ? "[] " : " "}${
-        recordModel.name}${recordModel.isOptional ? " ?" : ""};`;
+    const recordProperties = `${recordModel.isArray ? "[] " : " "}${recordModel.name}${recordModel.isOptional ? " ?" :
+        ""}`
+    const recordEnd = `${recordModel.isClosed ? "| " : ""}} ${recordModel.isTypeDefinition ? "" : recordProperties};`;
 
     useEffect(() => {
         // Checks whether add from is completed and reset field addition

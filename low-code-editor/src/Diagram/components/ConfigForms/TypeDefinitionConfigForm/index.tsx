@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
-import { NodePosition, STKindChecker, TypeDefinition } from "@ballerina/syntax-tree";
+import { NodePosition, RecordTypeDesc, STKindChecker, TypeDefinition } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 
 import EditButton from "../../../../assets/icons/EditButton";
@@ -27,6 +27,7 @@ import { useStyles as useFormStyles } from "../../Portals/ConfigForm/forms/style
 import { RecordEditor } from "../RecordEditor";
 import { recordStyles } from "../RecordEditor/style";
 import { RecordModel } from "../RecordEditor/types";
+import { getGeneratedCode, getRecordModel } from "../RecordEditor/utils";
 
 interface TypeDefFormProps {
     model?: TypeDefinition;
@@ -48,11 +49,28 @@ export function TypeDefinitionConfigForm(props: TypeDefFormProps) {
     let defaultVisibility: string;
     let defaultType: string;
     let defaultTypeDescConfig: string;
+    let defaultRecordModel: RecordModel;
     if (model && STKindChecker.isTypeDefinition(model)) {
         defaultName = model.typeName.value;
         defaultVisibility = "public";
-        defaultType = "int";
-        defaultTypeDescConfig = "";
+        if (STKindChecker.isRecordTypeDesc(model.typeDescriptor)) {
+            defaultType = "record";
+            defaultRecordModel = getRecordModel(model.typeDescriptor, model.typeName.value, true,
+                "record");
+            defaultTypeDescConfig = getGeneratedCode(defaultRecordModel, true);
+        } else if (STKindChecker.isIntTypeDesc(model.typeDescriptor)) {
+            defaultType = "int";
+            defaultTypeDescConfig = model.typeDescriptor.source.substring(0, 20);
+        } else if (STKindChecker.isBooleanTypeDesc(model.typeDescriptor)) {
+            defaultType = "boolean";
+            defaultTypeDescConfig = model.typeDescriptor.source.substring(0, 20);
+        } else if (STKindChecker.isStringTypeDesc(model.typeDescriptor)) {
+            defaultType = "string";
+            defaultTypeDescConfig = model.typeDescriptor.source.substring(0, 20);
+        } else {
+            defaultType = "";
+            defaultTypeDescConfig = model.typeDescriptor.source.substring(0, 20);
+        }
     } else {
         defaultName = "";
         defaultVisibility = "";
@@ -65,7 +83,7 @@ export function TypeDefinitionConfigForm(props: TypeDefFormProps) {
     const [type, setType] = useState(defaultType);
     const [isValidName, setIsValidName] = useState(defaultType);
     const [typeDescConfigs, setTypeDescConfigs] = useState(defaultTypeDescConfig);
-    const [typeDescModel, setTypeDescModel] = useState<RecordModel>(undefined);
+    const [typeDescModel, setTypeDescModel] = useState<RecordModel>(defaultRecordModel);
     const [isTypeDescConfigsProgress, setIsTypeDescConfigsProgress] = useState(false);
 
     const handleNameChange = (nameValue: string) => {
@@ -182,7 +200,7 @@ export function TypeDefinitionConfigForm(props: TypeDefFormProps) {
                     {typeDescConfigs && (
                         <div className={recordClasses.activeItemContentWrapper}>
                             <div className={recordClasses.itemLabel}>
-                                {typeDescConfigs.substring(0, 10)}
+                                {typeDescConfigs.substring(0, 20)}
                             </div>
                             <div className={recordClasses.btnWrapper}>
                                 <div className={recordClasses.actionBtnWrapper} onClick={handleRecordEdit}>
@@ -211,7 +229,8 @@ export function TypeDefinitionConfigForm(props: TypeDefFormProps) {
                     isNewModel={(targetPosition !== undefined) && (targetPosition !== null)}
                     existingModel={typeDescModel}
                     onSave={handleEditorComplete}
-                    model={model}
+                    model={model?.typeDescriptor as RecordTypeDesc}
+                    isTypeDefinition={true}
                     onCancel={null}
                 />
             )}

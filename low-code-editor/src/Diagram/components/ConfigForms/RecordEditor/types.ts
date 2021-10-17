@@ -29,6 +29,7 @@ export interface RecordModel {
     isArray?: boolean;
     isClosed?: boolean;
     isActive?: boolean;
+    isTypeDefinition?: boolean;
 }
 
 export declare type Field = SimpleField | RecordModel;

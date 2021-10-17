@@ -25,19 +25,18 @@ export interface RecordEditorProps {
     name: string;
     isNewModel: boolean;
     existingModel: RecordModel;
-    model?: TypeDefinition;
+    model?: RecordTypeDesc;
+    isTypeDefinition?: boolean;
     onCancel?: () => void;
     onSave?: (typeDesc: string, recModel: RecordModel) => void;
 }
 
 export function RecordEditor(props: RecordEditorProps) {
-    const { isNewModel, existingModel, name, onCancel, onSave, model } = props;
+    const { isNewModel, existingModel, name, onCancel, onSave, model, isTypeDefinition } = props;
 
     let recordModel: RecordModel;
-    if (model && STKindChecker.isTypeDefinition(model)) {
-        const typeName = model.typeName.value;
-        const typeDesc = model.typeDescriptor as RecordTypeDesc;
-        recordModel = getRecordModel(typeDesc, typeName, true, "record");
+    if (model && STKindChecker.isRecordTypeDesc(model)) {
+        recordModel = getRecordModel(model, name, true, "record");
         recordModel.isActive = true;
     } else if (existingModel) {
         recordModel = existingModel;
@@ -53,6 +52,7 @@ export function RecordEditor(props: RecordEditorProps) {
             isActive: true
         }
     }
+    recordModel.isTypeDefinition = isTypeDefinition;
 
     return (
         <RecordEditorProvider
