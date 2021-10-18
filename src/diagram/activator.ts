@@ -19,7 +19,7 @@
 
 import {
 	commands, window, Uri, ViewColumn, ExtensionContext, WebviewPanel, Disposable, workspace, WorkspaceEdit, Range,
-	Position
+	Position, TextDocumentShowOptions
 } from 'vscode';
 import * as _ from 'lodash';
 import { render } from './renderer';
@@ -35,7 +35,7 @@ import { PackageOverviewDataProvider } from '../tree-view';
 import { PALETTE_COMMANDS } from '../project';
 import { sep } from "path";
 import { DiagramOptions, Member, SyntaxTree } from './model';
-import { readFileSync, writeFileSync } from 'fs';
+import { existsSync, readFileSync, writeFileSync } from 'fs';
 
 const NO_DIAGRAM_VIEWS: string = 'No Ballerina diagram views found!';
 
@@ -208,6 +208,24 @@ class DiagramPanel {
 						writeFileSync(filePath, fileContent);
 					}
 					return false;
+				}
+			},
+			{
+				methodName: "gotoSource",
+				handler: async (args: any[]): Promise<boolean> => {
+					const filePath = args[0];
+					const position: { startLine: number, startColumn: number } = args[1];
+					if (!existsSync(filePath)) {
+						return false;
+					}
+					const showOptions: TextDocumentShowOptions = {
+						preserveFocus: false,
+						preview: false,
+						viewColumn: ViewColumn.Two,
+						selection: new Range(position.startLine, position.startColumn, position.startLine!, position.startColumn!)
+					};
+					const status = commands.executeCommand('vscode.open', Uri.file(filePath), showOptions);
+					return !status ? false : true;
 				}
 			}
 		];
