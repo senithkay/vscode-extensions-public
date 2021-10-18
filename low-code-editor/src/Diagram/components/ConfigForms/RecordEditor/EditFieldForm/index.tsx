@@ -37,18 +37,21 @@ export function EditFieldForm() {
     let nameValidity = false;
     let fieldOptianality = false;
     let typeOptianality = false;
+    let defaultVal = "";
     if (isFieldUpdate) {
         type = state.currentField.type;
         fieldName = state.currentField.name;
         nameValidity = true;
         fieldOptianality = state.currentField.isFieldOptional;
         typeOptianality = state.currentField.isFieldTypeOptional;
+        defaultVal = state.currentField.value;
     }
     const [selectedType, setSelectedType] = useState(type);
     const [name, setName] = useState(fieldName);
     const [isValidName, setIsValidName] = useState(nameValidity);
     const [isFieldOptional, setIsFieldOptional] = useState(fieldOptianality);
     const [isTypeOptional, setIsTypeOptional] = useState(typeOptianality);
+    const [defaultValue, setDefaultValue] = useState(defaultVal);
 
     const handleTypeSelect = (typeSelected: string) => {
         setSelectedType(typeSelected);
@@ -62,9 +65,14 @@ export function EditFieldForm() {
         setName(inputText);
     };
 
+    const handleDefaultValueChange = (inputText: string) => {
+        setDefaultValue(inputText);
+    };
+
     const validateNameValue = (value: string) => {
         // TODO: Add name validations for same record name in updating
-        const isNameAlreadyExists = state.currentRecord.fields.find(field => (field.name === value));
+        const isNameAlreadyExists = state.currentRecord.fields.find(field => (field.name === value)) &&
+            !(state.currentField?.name === value);
         setIsValidName(!isNameAlreadyExists);
         return !isNameAlreadyExists;
     };
@@ -73,6 +81,7 @@ export function EditFieldForm() {
         if (text) {
             setIsFieldOptional(text.length > 0);
         }
+        setDefaultValue("");
     };
 
     const handleOptionalTypeChange = (text: string[]) => {
@@ -89,7 +98,8 @@ export function EditFieldForm() {
                 isFieldOptional,
                 isFieldTypeOptional: isTypeOptional,
                 type: selectedType,
-                isActive: true
+                isActive: true,
+                value: defaultValue
             };
             state.currentRecord.fields.push(field);
             callBacks.onUpdateCurrentField(field);
@@ -99,6 +109,7 @@ export function EditFieldForm() {
             state.currentField.isFieldTypeOptional = isTypeOptional
             state.currentField.type = selectedType;
             state.currentField.isActive = true;
+            state.currentField.value = defaultValue;
         }
         callBacks.onUpdateModel(state.recordModel);
         callBacks.onChangeFormState(FormState.UPDATE_FIELD);
@@ -179,6 +190,18 @@ export function EditFieldForm() {
                 defaultValues={isTypeOptional ? ["Is optional ?"] : []}
                 onChange={handleOptionalTypeChange}
             />
+            {!isFieldOptional && (
+                <FormTextInput
+                    dataTestId="field-value"
+                    customProps={{
+                        optional: true,
+                    }}
+                    defaultValue={defaultValue}
+                    onChange={handleDefaultValueChange}
+                    label={"Default value"}
+                    placeholder={"Enter default value"}
+                />
+            )}
 
             <div className={overlayClasses.buttonWrapper}>
                 <PrimaryButton

@@ -29,8 +29,8 @@ export function FieldItem(props: FieldItemProps) {
 
     const recordClasses = recordStyles();
 
-    const segmentLabel = `${field.type} ${field.isFieldTypeOptional ? "?" :
-        ""} ${field.name} ${field.isFieldOptional ? "?" : ""}`;
+    const segmentLabel = `${field.type}${field.isFieldTypeOptional ? "?" :
+        ""} ${field.name}${field.isFieldOptional ? "?" : ""}`;
 
     const handleDelete = () => {
         onDeleteClick(field);

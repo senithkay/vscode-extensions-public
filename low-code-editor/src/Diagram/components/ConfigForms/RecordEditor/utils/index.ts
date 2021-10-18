@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import {RecordTypeDesc, STKindChecker} from "@ballerina/syntax-tree";
+import { RecordTypeDesc, STKindChecker } from "@ballerina/syntax-tree";
 
 import { DiagramEditorLangClientInterface, JsonToRecordResponse, STSymbolInfo } from "../../../../../Definitions";
 import { Field, RecordModel, SimpleField } from "../types";
@@ -33,7 +33,7 @@ export function getRecordPrefix(symbolInfo: STSymbolInfo): string {
             return `${typeSymbol.moduleID.orgName}/${typeSymbol.moduleID.moduleName}:${typeSymbol.moduleID.version}:`;
         }
     }
-    return null
+    return null;
 }
 
 export function getRecordModel(typeDesc: RecordTypeDesc, name: string, isInline: boolean, type?: string): RecordModel {
@@ -48,14 +48,29 @@ export function getRecordModel(typeDesc: RecordTypeDesc, name: string, isInline:
                 // when there is a inline record
                 const subRecModels = getRecordModel(field.typeName, field.fieldName.value, true, "record");
                 recordModel.fields.push(subRecModels);
+            } else if (STKindChecker.isOptionalTypeDesc(field.typeName)) {
+                const recField: SimpleField = {
+                    name: field.fieldName.value,
+                    type: field.typeName.typeDescriptor.source.trim(),
+                    isFieldOptional: STKindChecker.isRecordField(field) ? (field.questionMarkToken !== undefined) :
+                        false,
+                    isFieldTypeOptional: true,
+                }
+                if (STKindChecker.isRecordFieldWithDefaultValue(field)) {
+                    recField.value = field.expression.literalToken.value;
+                }
+                recordModel.fields.push(recField);
             } else {
                 // when there is a simple field or when there is a referenced record
                 const recField: SimpleField = {
                     name: field.fieldName.value,
                     type: field.typeName.source.trim(),
-                    isFieldOptional: STKindChecker.isRecordField(field) ? (field.questionMarkToken !== undefined) : false,
-                    // FIXME: need to map field type optionality
+                    isFieldOptional: STKindChecker.isRecordField(field) ? (field.questionMarkToken !== undefined) :
+                        false,
                     isFieldTypeOptional: false,
+                }
+                if (STKindChecker.isRecordFieldWithDefaultValue(field)) {
+                    recField.value = field.expression.literalToken.value;
                 }
                 recordModel.fields.push(recField);
             }
@@ -67,7 +82,7 @@ export function getRecordModel(typeDesc: RecordTypeDesc, name: string, isInline:
 }
 
 export function getGeneratedCode(model: Field, isTypeDef: boolean): string {
-    let codeGenerated = "";
+    let codeGenerated: string;
     if (model.type === "record") {
         const recordModel = model as RecordModel;
         // TODO: handle type reference fields
@@ -85,7 +100,8 @@ export function getGeneratedCode(model: Field, isTypeDef: boolean): string {
     } else {
         const fieldModel = model as SimpleField;
         codeGenerated = `${fieldModel.type}${fieldModel.isFieldTypeOptional ? "?" :
-            ""}${fieldModel.isArray ? "[]" : ""} ${fieldModel.name};`;
+            ""}${fieldModel.isArray ? "[]" : ""} ${fieldModel.name}${fieldModel.isFieldOptional ? "?" : ""} ${
+            fieldModel.value ? ` = ${fieldModel.value}` : ""};`;
     }
     return codeGenerated;
 }
