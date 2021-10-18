@@ -23,7 +23,7 @@ import { returnTypes } from "../../util";
 
 import { useStyles } from './style';
 
-interface PathSegmentEditorProps {
+interface ReturnTypeSegmentEditorProps {
     id?: number;
     showDefaultError?: boolean;
     segment?: ReturnType,
@@ -31,7 +31,7 @@ interface PathSegmentEditorProps {
     onCancel?: () => void;
 }
 
-export function ReturnTypeSegmentEditor(props: PathSegmentEditorProps) {
+export function ReturnTypeSegmentEditor(props: ReturnTypeSegmentEditorProps) {
     const { segment, showDefaultError, onSave, id, onCancel } = props;
     const classes = useStyles();
 

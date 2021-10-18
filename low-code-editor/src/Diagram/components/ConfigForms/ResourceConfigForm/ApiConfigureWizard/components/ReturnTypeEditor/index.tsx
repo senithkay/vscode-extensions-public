@@ -25,14 +25,14 @@ import { ReturnTypeItem } from "./ReturnTypeItem";
 import { ReturnTypeSegmentEditor } from "./SegmentEditor";
 import { useStyles } from './style';
 
-interface PathEditorProps {
+interface ReturnTypeEditorProps {
     returnTypeString?: string;
     defaultValue?: string;
     isCaller?: boolean;
     onChange?: (text: string) => void;
 }
 
-export function ReturnTypeEditor(props: PathEditorProps) {
+export function ReturnTypeEditor(props: ReturnTypeEditorProps) {
     const { returnTypeString, defaultValue, isCaller, onChange } = props;
 
     const initReturnType: ReturnTypeCollection = {

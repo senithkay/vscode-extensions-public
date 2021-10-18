@@ -23,14 +23,14 @@ import { convertPayloadStringToPayload, payloadTypes } from "../../util";
 
 import { useStyles } from './style';
 
-interface PayloadProps {
+interface PayloadEditorProps {
     payload?: string,
     disabled?: boolean,
     onChange?: (segment: Payload) => void;
     onError: (isError?: boolean) => void;
 }
 
-export function PayloadEditor(props: PayloadProps) {
+export function PayloadEditor(props: PayloadEditorProps) {
     const { payload, disabled, onChange, onError } = props;
     const { props: { stSymbolInfo } } = useContext(Context);
     const segment: Payload = convertPayloadStringToPayload(payload ? payload : "");
