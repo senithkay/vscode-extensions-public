@@ -47,8 +47,6 @@ export function PayloadEditor(props: PayloadEditorProps) {
     }
 
     const [segmentState, setSegmentState] = useState<Payload>(initValue);
-
-    const [defaultPayloadVarName, setDefaultPayloadVarName] = useState<string>(segmentState.name);
     const [payloadVarNameError, setPayloadVarNameError] = useState<string>("");
 
     useEffect(() => {
@@ -85,7 +83,7 @@ export function PayloadEditor(props: PayloadEditorProps) {
 
     const validatePayloadNameValue = (value: string) => {
         const varValidationResponse = checkVariableName("payload name", value,
-            defaultPayloadVarName, stSymbolInfo);
+            segmentState.name, stSymbolInfo);
         setPayloadVarNameError(varValidationResponse.message);
         if (varValidationResponse?.error) {
             onError(true);
@@ -116,7 +114,7 @@ export function PayloadEditor(props: PayloadEditorProps) {
                             <SelectDropdownWithButton
                                 disabled={disabled}
                                 defaultValue={segmentState?.type ? segmentState?.type : "json"}
-                                customProps={{values: payloadTypeArray, disableCreateNew: true}}
+                                customProps={{ values: payloadTypeArray, disableCreateNew: true }}
                                 onChange={onChangeSegmentType}
                             />
                         </Grid>
@@ -125,7 +123,7 @@ export function PayloadEditor(props: PayloadEditorProps) {
                                 dataTestId="api-extract-segment"
                                 disabled={disabled}
                                 defaultValue={segmentState?.name}
-                                customProps={{validate: validatePayloadNameValue}}
+                                customProps={{ validate: validatePayloadNameValue }}
                                 onChange={onChangeSegmentName}
                                 errorMessage={payloadVarNameError}
                             />

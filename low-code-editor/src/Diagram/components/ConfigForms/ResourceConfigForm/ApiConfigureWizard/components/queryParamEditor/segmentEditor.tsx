@@ -25,7 +25,7 @@ import { queryParamTypes } from "../../util";
 
 import { useStyles } from './style';
 
-interface PathSegmentEditorProps {
+interface QueryParamSegmentEditorProps {
     id?: number;
     segment?: QueryParam,
     onSave?: (segment: QueryParam) => void;
@@ -33,7 +33,7 @@ interface PathSegmentEditorProps {
     types?: string[];
 }
 
-export function QueryParamSegmentEditor(props: PathSegmentEditorProps) {
+export function QueryParamSegmentEditor(props: QueryParamSegmentEditorProps) {
     const { segment, onSave, id, onCancel, types } = props;
     const classes = useStyles();
     const { props: { stSymbolInfo } } = useContext(Context);

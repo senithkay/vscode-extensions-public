@@ -21,13 +21,13 @@ import { QueryParamItem } from "./queryParamItem";
 import { QueryParamSegmentEditor } from "./segmentEditor";
 import { useStyles } from './style';
 
-interface PathEditorProps {
+interface QueryParamEditorProps {
     queryParams?: string;
     defaultValue?: string;
     onChange?: (text: string) => void;
 }
 
-export function QueryParamEditor(props: PathEditorProps) {
+export function QueryParamEditor(props: QueryParamEditorProps) {
     const { queryParams, onChange } = props;
     const queryParamCollection: QueryParamCollection = convertQueryParamStringToSegments(queryParams ? queryParams : "");
     const classes = useStyles();
