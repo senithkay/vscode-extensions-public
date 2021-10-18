@@ -46,6 +46,7 @@ import {
 } from "../telemetry";
 import { BALLERINA_COMMANDS, runCommand } from "../project";
 import { SessionDataProvider } from "../tree-view/session-tree-data-provider";
+
 const any = require('promise.any');
 
 const SWAN_LAKE_REGEX = /(s|S)wan( |-)(l|L)ake/g;
@@ -202,6 +203,7 @@ export class BallerinaExtension {
                         log(message);
                         this.showPluginActivationError();
                     } else if (stateChangeEvent.newState === LS_STATE.Running) {
+                        this.langClient?.registerExtendedAPICapabilities();
                         sendTelemetryEvent(this, TM_EVENT_EXTENSION_INIT, CMP_EXTENSION_CORE);
                     }
                 });
