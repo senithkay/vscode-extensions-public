@@ -79,6 +79,12 @@ export interface ChoreoSession {
     choreoCookie?: string;
 }
 
+interface CodeServerContext {
+    codeServerEnv: boolean;
+    manageChoreoRedirectUri?: string;
+    alwaysShowInfo?: boolean;
+}
+
 export class BallerinaExtension {
     public telemetryReporter: TelemetryReporter;
     public ballerinaHome: string;
@@ -93,6 +99,7 @@ export class BallerinaExtension {
     private documentContext: DocumentContext;
     private choreoSession: ChoreoSession;
     private choreoSessionTreeProvider: SessionDataProvider | undefined;
+    private codeServerContext: CodeServerContext;
 
     constructor() {
         this.ballerinaHome = '';
@@ -117,6 +124,11 @@ export class BallerinaExtension {
         this.telemetryReporter = createTelemetryReporter(this);
         this.documentContext = new DocumentContext();
         this.choreoSession = { loginStatus: false };
+        this.codeServerContext = {
+            codeServerEnv: process.env.CODE_SERVER_ENV === 'true',
+            manageChoreoRedirectUri: process.env.MANAGE_CHOROE_URI,
+            alwaysShowInfo: true
+        }
     }
 
     setContext(context: ExtensionContext) {
@@ -551,6 +563,10 @@ export class BallerinaExtension {
 
     public getChoreoSessionTreeProvider(): SessionDataProvider | undefined {
         return this.choreoSessionTreeProvider;
+    }
+
+    public getCodeServerContext(): CodeServerContext {
+        return this.codeServerContext;
     }
 }
 
