@@ -14,9 +14,11 @@ import React from 'react';
 
 // tslint:disable-next-line: no-submodule-imports
 import { Story } from '@storybook/react/types-6-0';
-import { ExpressionSuggestions, ExpressionSuggestionsProps } from "./index";
-import stModel from "../../Expression/data/st-model-raw.json";
+
 import { SuggestionItem } from "../../../models/definitions";
+import stModel from "../../Expression/data/st-model-raw.json";
+
+import { ExpressionSuggestions, ExpressionSuggestionsProps } from "./index";
 
 export default {
     title: 'Low Code Editor/StatementEditor/ExpressionSuggestions',
@@ -26,11 +28,11 @@ export default {
 const Template: Story<ExpressionSuggestionsProps> = (args: ExpressionSuggestionsProps) =>
     <ExpressionSuggestions {...args} />;
 
-const TemplateOperator: Story<ExpressionSuggestionsProps> = (args: ExpressionSuggestionsProps) =>
-    <ExpressionSuggestions {...args} />;
+const expressionSuggestions: SuggestionItem[] = [{ value: "StringLiteral" },
+    { value: "Conditional" },
+    { value: "StringTemplate" },
+    { value: "Arithmetic" }]
 
-
-const expressionSuggestions: SuggestionItem[] = [{ value: "StringLiteral" }, { value: "Conditional" }, { value: "StringTemplate" }, { value: "Arithmetic" }]
 const operatorSuggestions: SuggestionItem[] = [{ value: "+", kind: "PlusToken" },
     { value: "-", kind: "MinusToken" },
     { value: "*", kind: "AsteriskToken" },
@@ -38,6 +40,7 @@ const operatorSuggestions: SuggestionItem[] = [{ value: "+", kind: "PlusToken" }
     { value: "%", kind: "PercentToken" }]
 
 export const ExpressionSuggestionDefault = Template.bind({});
+
 ExpressionSuggestionDefault.args = {
     model: stModel,
     suggestions: expressionSuggestions,
@@ -45,7 +48,8 @@ ExpressionSuggestionDefault.args = {
     suggestionHandler: ("")
 };
 
-export const OperatorSuggestion = TemplateOperator.bind({});
+export const OperatorSuggestion = Template.bind({});
+
 OperatorSuggestion.args = {
     model: stModel,
     suggestions: operatorSuggestions,
