@@ -20,7 +20,7 @@ import { InputEditorContext } from "../../../store/input-editor-context";
 import { addVariableSuggestion } from "../../../utils/utils";
 import { statementEditorStyles } from "../../ViewContainer/styles";
 
-interface VariableSuggestionsProps {
+export interface VariableSuggestionsProps {
     model: STNode
     variableSuggestions?: SuggestionItem[],
     suggestionHandler: () => void
