@@ -10,30 +10,28 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js  no-submodule-imports no-empty
 import React from 'react';
 
-// tslint:disable-next-line: no-submodule-imports
 import { Story } from '@storybook/react/types-6-0';
 
-import stModel from "./data/st-model-raw.json"
-
-import { ExpressionComponent, ExpressionComponentProps } from "./index";
+import { ConnectionDetails } from "../../../../../../../../api/models";
 import { Provider as LowCodeEditorProvider } from "../../../../../../../../Contexts/Diagram";
 import { InputEditorContextProvider } from "../../store/input-editor-context";
-import { ConnectionDetails } from "../../../../../../../../api/models";
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
+
+import stModel from "./data/st-model-raw.json";
+import varDeclStringLiteral from "./data/varDecl-StringLiteral.json";
+import { ExpressionComponent, ExpressionComponentProps } from "./index";
 
 export default {
     title: 'Low Code Editor/StatementEditor/StatementRenderer',
     component: ExpressionComponent,
 };
 
-// tslint:disable-next-line:no-empty
-const dummyFunction = (arg: any) => {
-};
-// tslint:disable-next-line:no-empty
-const dummyFunctionWithoutArgs = () => {
-};
+const dummyFunction = (arg: any) => {};
+
+const dummyFunctionWithoutArgs = () => {};
 
 const api = {
     tour: { goToNextTourStep: dummyFunction },
@@ -65,7 +63,6 @@ const api = {
         getGsheetList: async (): Promise<any> => ([]),
     },
     oauth: {
-        // tslint:disable-next-line:no-empty
         dispatchGetAllConfiguration: async (): Promise<void> => {
         },
     },
@@ -128,26 +125,6 @@ const props = {
     zoomStatus: undefined
 }
 
-const fileType: "File" | "Folder" = "File";
-const initialContext = {
-    diagnostics: [] as any,
-    targetPosition: {
-        endColumn: 22,
-        endLine: 10,
-        startColumn: 4,
-        startLine: 10,
-    },
-    currentFile: {
-        type: fileType,
-        path: "",
-        size: 1,
-        content: "CnB1YmxpYyBmdW5jdGlvbiBtYWluKCkgcmV0dXJucyBlcnJvcj8gewoKfQo="
-
-    },
-    langServerURL: '',
-    syntaxTree: stModel,
-}
-
 const inputEditorContextProps: any = {
     userInputs: {
         "selectedType": "string",
@@ -167,34 +144,41 @@ const statementEditorContextProps = {
     validate: dummyFunction
 }
 
-const Template: Story<ExpressionComponentProps> = (args: ExpressionComponentProps) =>
-    // <LowCodeEditorProvider currentApp={undefined} api={undefined} currentAppType={'Schedule'} originalSyntaxTree={undefined}
-    //           stSymbolInfo={undefined}
-    //           configOverlayFormStatus={undefined} configPanelStatus={undefined} isCodeEditorActive={false}
-    //           isPerformanceViewOpen={false} isLoadingSuccess={false} isWaitingOnWorkspace={false}
-    //           isMutationProgress={false} isCodeChangeInProgress={false} isReadOnly={false}
-    //           zoomStatus={undefined} {...initialContext} >
+const Template: Story<ExpressionComponentProps> = (args: ExpressionComponentProps) => (
     <LowCodeEditorProvider {...props} >
         <StatementEditorContextProvider {...statementEditorContextProps}>
             <InputEditorContextProvider {...inputEditorContextProps}>
-
                 <ExpressionComponent {...args} />
-
             </InputEditorContextProvider>
         </StatementEditorContextProvider>
-    </LowCodeEditorProvider>;
+    </LowCodeEditorProvider>
+);
 
+const dummyDiagnosticHandler = () => {};
 
-const dummyDiagnosticHandler = () => {
-};
 export const StmtRendererComponent = Template.bind({});
+
+export const VarDeclStringLiteral = Template.bind({});
+
 StmtRendererComponent.args = {
     model: stModel,
     isRoot: true,
     userInputs: {
         "selectedType": "string",
-        "varName": "ga",
+        "varName": "name",
         "variableExpression": "(expression+expression)",
+        "formField": "Expression"
+    },
+    diagnosticHandler: dummyDiagnosticHandler
+};
+
+VarDeclStringLiteral.args = {
+    model: varDeclStringLiteral,
+    isRoot: true,
+    userInputs: {
+        "selectedType": "string",
+        "varName": "name",
+        "variableExpression": "expression",
         "formField": "Expression"
     },
     diagnosticHandler: dummyDiagnosticHandler

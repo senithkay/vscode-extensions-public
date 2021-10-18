@@ -11,15 +11,20 @@
         "value": "string",
         "isMissing": false,
         "position": {
-          "startLine": 6,
-          "startColumn": 8,
-          "endLine": 6,
-          "endColumn": 14
+          "startLine": 3,
+          "startColumn": 4,
+          "endLine": 3,
+          "endColumn": 10
         },
         "leadingMinutiae": [
           {
+            "kind": "END_OF_LINE_MINUTIAE",
+            "minutiae": "\n",
+            "isInvalid": false
+          },
+          {
             "kind": "WHITESPACE_MINUTIAE",
-            "minutiae": "        ",
+            "minutiae": "    ",
             "isInvalid": false
           }
         ],
@@ -31,12 +36,17 @@
           }
         ]
       },
-      "source": "        string ",
+      "source": "\n    string ",
       "syntaxDiagnostics": [],
       "leadingMinutiae": [
         {
+          "kind": "END_OF_LINE_MINUTIAE",
+          "minutiae": "\n",
+          "isInvalid": false
+        },
+        {
           "kind": "WHITESPACE_MINUTIAE",
-          "minutiae": "        ",
+          "minutiae": "    ",
           "isInvalid": false
         }
       ],
@@ -48,10 +58,10 @@
         }
       ],
       "position": {
-        "startLine": 6,
-        "startColumn": 8,
-        "endLine": 6,
-        "endColumn": 14
+        "startLine": 3,
+        "startColumn": 4,
+        "endLine": 3,
+        "endColumn": 10
       },
       "typeData": {
         "typeSymbol": {
@@ -92,10 +102,10 @@
         "value": "name",
         "isMissing": false,
         "position": {
-          "startLine": 6,
-          "startColumn": 15,
-          "endLine": 6,
-          "endColumn": 19
+          "startLine": 3,
+          "startColumn": 11,
+          "endLine": 3,
+          "endColumn": 15
         },
         "leadingMinutiae": [],
         "trailingMinutiae": [
@@ -117,10 +127,10 @@
         }
       ],
       "position": {
-        "startLine": 6,
-        "startColumn": 15,
-        "endLine": 6,
-        "endColumn": 19
+        "startLine": 3,
+        "startColumn": 11,
+        "endLine": 3,
+        "endColumn": 15
       },
       "typeData": {
         "typeSymbol": {
@@ -131,8 +141,8 @@
         "symbol": {
           "deprecated": false,
           "moduleID": {
-            "orgName": "madusha",
-            "moduleName": "svc",
+            "orgName": "laughinghorsejqdaa",
+            "moduleName": "ls_check",
             "version": "0.1.0"
           },
           "kind": "VARIABLE"
@@ -140,12 +150,17 @@
         "diagnostics": []
       }
     },
-    "source": "        string name ",
+    "source": "\n    string name ",
     "syntaxDiagnostics": [],
     "leadingMinutiae": [
       {
+        "kind": "END_OF_LINE_MINUTIAE",
+        "minutiae": "\n",
+        "isInvalid": false
+      },
+      {
         "kind": "WHITESPACE_MINUTIAE",
-        "minutiae": "        ",
+        "minutiae": "    ",
         "isInvalid": false
       }
     ],
@@ -157,10 +172,10 @@
       }
     ],
     "position": {
-      "startLine": 6,
-      "startColumn": 8,
-      "endLine": 6,
-      "endColumn": 19
+      "startLine": 3,
+      "startColumn": 4,
+      "endLine": 3,
+      "endColumn": 15
     },
     "typeData": {
       "typeSymbol": {
@@ -171,8 +186,8 @@
       "symbol": {
         "deprecated": false,
         "moduleID": {
-          "orgName": "madusha",
-          "moduleName": "svc",
+          "orgName": "laughinghorsejqdaa",
+          "moduleName": "ls_check",
           "version": "0.1.0"
         },
         "kind": "VARIABLE"
@@ -186,10 +201,10 @@
     "value": "=",
     "isMissing": false,
     "position": {
-      "startLine": 6,
-      "startColumn": 20,
-      "endLine": 6,
-      "endColumn": 21
+      "startLine": 3,
+      "startColumn": 16,
+      "endLine": 3,
+      "endColumn": 17
     },
     "leadingMinutiae": [],
     "trailingMinutiae": [
@@ -201,121 +216,38 @@
     ]
   },
   "initializer": {
-    "kind": "BracedExpression",
-    "source": "",
-    "closeParen": {
-      "kind": "CloseParenToken",
+    "kind": "StringLiteral",
+    "literalToken": {
+      "kind": "StringLiteralToken",
       "isToken": true,
-      "value": ")",
-      "source": "",
+      "value": "expression",
+      "isMissing": false,
       "position": {
-        "startLine": 4,
+        "startLine": 3,
         "startColumn": 18,
-        "endLine": 4,
-        "endColumn": 19
-      }
+        "endLine": 3,
+        "endColumn": 30
+      },
+      "leadingMinutiae": [],
+      "trailingMinutiae": []
     },
-    "expression": {
-      "kind": "BinaryExpression",
-      "lhsExpr": {
-        "kind": "StringLiteral",
-        "literalToken": {
-          "kind": "StringLiteralToken",
-          "isToken": true,
-          "value": "expression",
-          "source": "",
-          "position": {
-            "startLine": 4,
-            "startColumn": 11,
-            "endLine": 4,
-            "endColumn": 13
-          }
-        },
-        "source": "",
-        "position": {
-          "startLine": 4,
-          "startColumn": 11,
-          "endLine": 4,
-          "endColumn": 13
-        },
-        "typeData": {
-          "typeSymbol": {
-            "typeKind": "int",
-            "kind": "TYPE",
-            "signature": "int"
-          },
-          "diagnostics": []
-        }
-      },
-      "operator": {
-        "kind": "PlusToken",
-        "isToken": true,
-        "value": "+",
-        "source": "",
-        "position": {
-          "startLine": 4,
-          "startColumn": 14,
-          "endLine": 4,
-          "endColumn": 15
-        }
-      },
-      "rhsExpr": {
-        "kind": "StringLiteral",
-        "literalToken": {
-          "kind": "StringLiteralToken",
-          "isToken": true,
-          "value": "expression",
-          "source": "",
-          "position": {
-            "startLine": 4,
-            "startColumn": 16,
-            "endLine": 4,
-            "endColumn": 18
-          }
-        },
-        "source": "",
-        "position": {
-          "startLine": 4,
-          "startColumn": 16,
-          "endLine": 4,
-          "endColumn": 18
-        },
-        "typeData": {
-          "typeSymbol": {
-            "typeKind": "int",
-            "kind": "TYPE",
-            "signature": "int"
-          },
-          "diagnostics": []
-        }
-      },
-      "source": "",
-      "position": {
-        "startLine": 4,
-        "startColumn": 11,
-        "endLine": 4,
-        "endColumn": 18
-      },
-      "typeData": {
-        "typeSymbol": {
-          "typeKind": "boolean",
-          "kind": "TYPE",
-          "signature": "boolean"
-        },
-        "diagnostics": []
-      }
+    "source": "",
+    "syntaxDiagnostics": [],
+    "leadingMinutiae": [],
+    "trailingMinutiae": [],
+    "position": {
+      "startLine": 3,
+      "startColumn": 18,
+      "endLine": 3,
+      "endColumn": 30
     },
-    "openParen": {
-      "kind": "OpenParenToken",
-      "isToken": true,
-      "value": "(",
-      "source": "",
-      "position": {
-        "startLine": 4,
-        "startColumn": 11,
-        "endLine": 4,
-        "endColumn": 12
-      }
+    "typeData": {
+      "typeSymbol": {
+        "typeKind": "string",
+        "kind": "TYPE",
+        "signature": "string"
+      },
+      "diagnostics": []
     }
   },
   "semicolonToken": {
@@ -324,10 +256,10 @@
     "value": ";",
     "isMissing": false,
     "position": {
-      "startLine": 6,
-      "startColumn": 28,
-      "endLine": 6,
-      "endColumn": 29
+      "startLine": 3,
+      "startColumn": 30,
+      "endLine": 3,
+      "endColumn": 31
     },
     "leadingMinutiae": [],
     "trailingMinutiae": [
@@ -338,12 +270,17 @@
       }
     ]
   },
-  "source": "        string name = ;\n",
+  "source": "\n    string name = ;\n",
   "syntaxDiagnostics": [],
   "leadingMinutiae": [
     {
+      "kind": "END_OF_LINE_MINUTIAE",
+      "minutiae": "\n",
+      "isInvalid": false
+    },
+    {
       "kind": "WHITESPACE_MINUTIAE",
-      "minutiae": "        ",
+      "minutiae": "    ",
       "isInvalid": false
     }
   ],
@@ -355,10 +292,10 @@
     }
   ],
   "position": {
-    "startLine": 6,
-    "startColumn": 8,
-    "endLine": 6,
-    "endColumn": 29
+    "startLine": 3,
+    "startColumn": 4,
+    "endLine": 3,
+    "endColumn": 31
   },
   "typeData": {
     "typeSymbol": {
@@ -369,8 +306,8 @@
     "symbol": {
       "deprecated": false,
       "moduleID": {
-        "orgName": "madusha",
-        "moduleName": "svc",
+        "orgName": "laughinghorsejqdaa",
+        "moduleName": "ls_check",
         "version": "0.1.0"
       },
       "kind": "VARIABLE"
