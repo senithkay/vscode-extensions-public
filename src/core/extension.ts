@@ -28,14 +28,14 @@ import {
 } from "./messages";
 import { join, sep } from 'path';
 import { exec, spawnSync } from 'child_process';
-import { LanguageClientOptions, State as LS_STATE, RevealOutputChannelOn, ServerOptions } from "vscode-languageclient";
+import { LanguageClientOptions, State as LS_STATE, RevealOutputChannelOn, ServerOptions } from "vscode-languageclient/node";
 import { getServerOptions } from '../server/server';
 import { ExtendedLangClient } from './extended-language-client';
 import { debug, log, getOutputChannel, outputChannel, isWindows } from '../utils';
 import { AssertionError } from "assert";
 import {
     BALLERINA_HOME, BALLERINA_LOW_CODE_MODE, ENABLE_ALL_CODELENS, ENABLE_EXECUTOR_CODELENS, ENABLE_TELEMETRY,
-    OVERRIDE_BALLERINA_HOME
+    ENABLE_SEMANTIC_HIGHLIGHTING, OVERRIDE_BALLERINA_HOME
 }
     from "./preferences";
 import TelemetryReporter from "vscode-extension-telemetry";
@@ -121,6 +121,9 @@ export class BallerinaExtension {
             synchronize: { configurationSection: LANGUAGE.BALLERINA },
             outputChannel: getOutputChannel(),
             revealOutputChannelOn: RevealOutputChannelOn.Never,
+            initializationOptions: {
+                "enableSemanticHighlighting": <string>workspace.getConfiguration().get(ENABLE_SEMANTIC_HIGHLIGHTING)
+            }
         };
         this.telemetryReporter = createTelemetryReporter(this);
         this.documentContext = new DocumentContext();
