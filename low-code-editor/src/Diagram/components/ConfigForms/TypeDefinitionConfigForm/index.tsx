@@ -36,7 +36,7 @@ interface TypeDefFormProps {
     onSave: () => void;
 }
 
-// FixMe: show validation messages to listenerName and listenerPort
+// FixMe: show validation messages to type definition name
 export function TypeDefinitionConfigForm(props: TypeDefFormProps) {
     const { model, targetPosition, onCancel, onSave } = props;
 

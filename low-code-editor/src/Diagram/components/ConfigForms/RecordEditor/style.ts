@@ -67,7 +67,9 @@ export const recordStyles = makeStyles((theme: Theme) =>
         itemWrapper: {
             display: 'flex',
             flexDirection: `row`,
-            margin: 10
+            marginLeft: 10,
+            marginRight: 10,
+            minWidth: 200
         },
         itemLabel: {
             width: "80%"

@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
-import { RecordTypeDesc, STKindChecker, TypeDefinition } from "@ballerina/syntax-tree";
+import { RecordTypeDesc, STKindChecker } from "@ballerina/syntax-tree";
 
 import { FormState, Provider as RecordEditorProvider } from "../../../../Contexts/RecordEditor";
 
