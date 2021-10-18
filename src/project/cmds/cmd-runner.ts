@@ -27,6 +27,7 @@ export enum PALETTE_COMMANDS {
     CLOUD = 'ballerina.create.cloud',
     DOC = 'ballerina.project.doc',
     FOCUS_OVERVIEW = 'ballerinaPackageTreeView.focus',
+    FOCUS_EXPLORER = 'ballerinaExplorerTreeView.focus',
     RUN = 'ballerina.project.run',
     SAVE_ALL = 'workbench.action.files.saveFiles',
     TEST = 'ballerina.project.test',

@@ -30,7 +30,7 @@ import { SessionDataProvider } from "./session-tree-data-provider";
 import { ExplorerDataProvider } from "./explorer-tree-data-provider";
 import { existsSync, mkdirSync, open, rm, rmdir } from 'fs';
 import { join } from 'path';
-import { BALLERINA_COMMANDS, runCommand } from "../project";
+import { BALLERINA_COMMANDS, PALETTE_COMMANDS, runCommand } from "../project";
 import { getChoreoKeytarSession } from "../project/cmds/choreo-signin";
 
 export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverviewDataProvider {
@@ -164,5 +164,10 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
             explorerDataProvider.refresh();
         }
     });
+
+    if (ballerinaExtInstance.isBallerinaLowCodeMode()) {
+        commands.executeCommand(PALETTE_COMMANDS.FOCUS_EXPLORER);
+    }
+
     return packageTreeDataProvider;
 }
