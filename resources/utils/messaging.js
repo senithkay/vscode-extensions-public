@@ -252,6 +252,20 @@ function getLangClient() {
                     resolve(resp);
                 });
             })
+        },
+        getSTForStatement: (params) => {
+            return new Promise((resolve, _reject) => {
+                webViewRPCHandler.invokeRemoteMethod('getSTForStatement', [params], (resp) => {
+                    resolve(resp);
+                });
+            })
+        },
+        getSTForExpression: (params) => {
+            return new Promise((resolve, _reject) => {
+                webViewRPCHandler.invokeRemoteMethod('getSTForExpression', [params], (resp) => {
+                    resolve(resp);
+                });
+            })
         }
     }
 }

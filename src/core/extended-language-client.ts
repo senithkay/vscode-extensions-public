@@ -149,6 +149,14 @@ export interface ExecutorPosition {
     name: string;
 }
 
+export interface PartialSTRequestParams {
+    codeSnippet: string;
+}
+
+export interface PartialSTResponse {
+    syntaxTree: any;
+}
+
 export class ExtendedLangClient extends LanguageClient {
     isInitialized: boolean = true;
 
@@ -254,5 +262,13 @@ export class ExtendedLangClient extends LanguageClient {
 
     getRecordsFromJson(params: JsonToRecordRequestParams): Thenable<JsonToRecordResponse> {
         return this.sendRequest("jsonToRecord/convert", params);
+    }
+
+    getSTForStatement(params: PartialSTRequestParams): Thenable<PartialSTResponse> {
+        return this.sendRequest("partialParser/getSTForStatement", params);
+    }
+
+    getSTForExpression(params: PartialSTRequestParams): Thenable<PartialSTResponse> {
+        return this.sendRequest("partialParser/getSTForExpression", params);
     }
 }
