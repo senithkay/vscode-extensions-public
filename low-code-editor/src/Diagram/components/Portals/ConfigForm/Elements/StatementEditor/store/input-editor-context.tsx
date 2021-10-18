@@ -13,12 +13,17 @@
 // tslint:disable: no-empty jsx-no-multiline-js
 import React, { useState } from 'react';
 
-export const InputEditorContext = React.createContext({
+export interface InputEditorCtx {
+    userInput: string,
+    onVariableSelection: (value: string) => void
+}
+
+export const InputEditorContext = React.createContext<InputEditorCtx>({
     userInput: "",
     onVariableSelection: (value: string) => {}
 });
 
-export const InputEditorContextProvider = (props: any) => {
+export const InputEditorContextProvider: React.FC = (props) => {
     const [userInput, setUserInput] = useState("");
 
     const variableHandler = (value: string) => {
