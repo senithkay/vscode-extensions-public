@@ -20,7 +20,7 @@ import { SuggestionItem } from "../../../models/definitions";
 import { addExpression, addOperator } from "../../../utils/utils";
 import { statementEditorStyles } from "../../ViewContainer/styles";
 
-interface ExpressionSuggestionsProps {
+export interface ExpressionSuggestionsProps {
     model: STNode
     suggestions?: SuggestionItem[],
     operator: boolean,
