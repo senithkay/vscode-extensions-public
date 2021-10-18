@@ -53,14 +53,8 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
         workspace.onDidOpenTextDocument(async (document) => {
             if (document.languageId === LANGUAGE.BALLERINA || document.fileName.endsWith(BAL_TOML)) {
                 const uri = document.uri;
+                await this.addCodeLenses(uri);
 
-                if (!ExecutorCodeLensProvider.isProccessing) {
-                    ExecutorCodeLensProvider.isProccessing = true;
-                    ExecutorCodeLensProvider.dataLabels = [];
-                    await findResources(uri);
-                    this._onDidChangeCodeLenses.fire();
-                    ExecutorCodeLensProvider.isProccessing = false;
-                }
             }
         });
 
@@ -69,16 +63,19 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
                 activatedTextEditor.document.fileName.endsWith(BAL_TOML)) {
                 const activeEditor = window.activeTextEditor;
                 const uri = activeEditor?.document.uri;
-
-                if (!ExecutorCodeLensProvider.isProccessing) {
-                    ExecutorCodeLensProvider.isProccessing = true;
-                    ExecutorCodeLensProvider.dataLabels = [];
-                    await findResources(uri);
-                    this._onDidChangeCodeLenses.fire();
-                    ExecutorCodeLensProvider.isProccessing = false;
-                }
+                await this.addCodeLenses(uri);
             }
         });
+    }
+
+    private async addCodeLenses(uri: Uri | undefined) {
+        if (!ExecutorCodeLensProvider.isProccessing) {
+            ExecutorCodeLensProvider.isProccessing = true;
+            ExecutorCodeLensProvider.dataLabels = [];
+            await findResources(uri);
+            this._onDidChangeCodeLenses.fire();
+            ExecutorCodeLensProvider.isProccessing = false;
+        }
     }
 
     public static addDataLabel(data: DataLabel) {
@@ -128,43 +125,42 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
 }
 
 async function findResources(uri: Uri | undefined) {
-    if (uri && langClient) {
-        // add codelenses to resources
-        await langClient.onReady().then(async () => {
-            await langClient.getSyntaxTree({
-                documentIdentifier: {
-                    uri: uri.toString()
-                }
-            }).then(async (response) => {
-                const syntaxTree: SyntaxTree = response.syntaxTree;
-                if (!syntaxTree) {
-                    return;
-                }
-                if (!syntaxTree.members) {
-                    return;
-                }
-                const members: Member[] = syntaxTree.members;
-                for (let i = 0; i < members.length; i++) {
-                    if (members[i].kind === 'ServiceDeclaration') {
-                        const serviceMembers: Member[] = members[i].members;
-                        for (let ri = 0; ri < members[i].members.length; ri++) {
-                            const serviceMember: Member = serviceMembers[ri];
-                            if (serviceMember.kind === 'ResourceAccessorDefinition') {
-                                const pos = serviceMember.position;
+    if (!uri || !langClient) {
+        return;
+    }
 
-                                const range: Range = new Range(pos.startLine, pos.startColumn,
-                                    pos.endLine, pos.endColumn);
+    // add codelenses to resources
+    await langClient.onReady().then(async () => {
+        await langClient.getSyntaxTree({
+            documentIdentifier: {
+                uri: uri.toString()
+            }
+        }).then(async (response) => {
+            const syntaxTree: SyntaxTree = response.syntaxTree;
+            if (!syntaxTree || !syntaxTree.members) {
+                return;
+            }
+            const members: Member[] = syntaxTree.members;
+            for (let i = 0; i < members.length; i++) {
+                if (members[i].kind === 'ServiceDeclaration') {
+                    const serviceMembers: Member[] = members[i].members;
+                    for (let ri = 0; ri < members[i].members.length; ri++) {
+                        const serviceMember: Member = serviceMembers[ri];
+                        if (serviceMember.kind === 'ResourceAccessorDefinition') {
+                            const pos = serviceMember.position;
 
-                                if (!serviceMember.functionName || !serviceMember.relativeResourcePath) {
-                                    continue;
-                                }
-                                await createPerformanceGraphAndCodeLenses(uri.fsPath, range, ANALYZETYPE.REALTIME,
-                                    `${serviceMember.functionName.value} ${serviceMember.relativeResourcePath[0].value}`, undefined);
+                            const range: Range = new Range(pos.startLine, pos.startColumn,
+                                pos.endLine, pos.endColumn);
+
+                            if (!serviceMember.functionName || !serviceMember.relativeResourcePath) {
+                                continue;
                             }
+                            await createPerformanceGraphAndCodeLenses(uri.fsPath, range, ANALYZETYPE.REALTIME,
+                                `${serviceMember.functionName.value} ${serviceMember.relativeResourcePath[0].value}`, undefined);
                         }
                     }
                 }
-            });
+            }
         });
-    }
+    });
 }
