@@ -27,7 +27,7 @@ import { RightPane } from '../RightPane';
 
 import { statementEditorStyles } from "./styles";
 
-interface ViewProps {
+export interface ViewProps {
     kind: string,
     label: string,
     formArgs: any,
