@@ -15,7 +15,7 @@
 // Should move these to ../Definitions/*
 
 import { ModulePart, NodePosition, STNode } from "@ballerina/syntax-tree";
-import { Diagnostic } from "monaco-languageclient";
+import { Diagnostic } from "vscode-languageserver-protocol";
 
 import { BlockViewState } from "..";
 import { WizardType } from "../ConfigurationSpec/types";

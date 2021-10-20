@@ -22,8 +22,8 @@ import {
     STKindChecker,
     STNode, StringLiteral, TypeCastExpression
 } from "@ballerina/syntax-tree";
-import { Avatar } from "@material-ui/core";
-import { DocumentSymbol, SymbolInformation } from "monaco-languageclient";
+import { Avatar, colors } from "@material-ui/core";
+import { DocumentSymbol, SymbolInformation } from "vscode-languageserver-protocol";
 
 import * as ConstructIcons from "../../../../assets/icons"
 import {

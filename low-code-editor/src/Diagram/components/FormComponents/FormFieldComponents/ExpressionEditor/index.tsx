@@ -20,7 +20,7 @@ import { FormHelperText, LinearProgress } from "@material-ui/core";
 import classNames from "classnames";
 import debounce from "lodash.debounce";
 import * as monaco from 'monaco-editor'
-import { CompletionItemKind, InsertTextFormat, Range } from "monaco-languageclient";
+import { CompletionItemKind, InsertTextFormat, Range } from "vscode-languageserver-protocol";
 
 import grammar from "../../../../../ballerina.monarch.json";
 import { TooltipCodeSnippet } from "../../../../../components/Tooltip";

@@ -11,7 +11,7 @@
  * associated services.
  */
 import { STNode } from "@ballerina/syntax-tree";
-import { Diagnostic } from "monaco-languageclient";
+import { Diagnostic } from "vscode-languageserver-protocol";
 
 import { BaseLangClientInterface } from "./base-lang-client-interface";
 import { BallerinaProjectParams } from "./lang-client-extended";

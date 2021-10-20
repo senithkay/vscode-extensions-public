@@ -3,11 +3,11 @@
     "workspaces": [
       "form-field-generator",
       "lang-service",
-      "low-code-editor",
-      "syntax-tree"
+      "syntax-tree",
+      "low-code-editor"
     ],
     "scripts": {
-        "prebuil2d": "npm i --legacy-peer-deps",
+        "prebuild": "npm i --legacy-peer-deps",
         "build": "tsc --build"
     }
   }        

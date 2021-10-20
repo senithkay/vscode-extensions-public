@@ -11,7 +11,7 @@
  * associated services.
  */
 import { NodePosition, STNode } from "@ballerina/syntax-tree";
-import { Diagnostic } from "monaco-languageclient";
+import { Diagnostic } from "vscode-languageserver-protocol";
 
 import { FormField, WizardType } from "../../../../ConfigurationSpec/types";
 import { ExpressionEditorState } from "../../../../Definitions";

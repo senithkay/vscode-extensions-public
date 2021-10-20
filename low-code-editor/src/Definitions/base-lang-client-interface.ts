@@ -11,7 +11,7 @@
  * associated services.
  */
 
-import { InitializeParams, InitializeResult } from "monaco-languageclient";
+import { InitializeParams, InitializeResult } from "vscode-languageserver-protocol";
 
 export interface DidOpenParams {
     textDocument: {
