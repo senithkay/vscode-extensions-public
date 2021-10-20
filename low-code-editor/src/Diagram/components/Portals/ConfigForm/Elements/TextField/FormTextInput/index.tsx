@@ -83,11 +83,8 @@ export function FormTextInput(props: FormElementProps<FormTextInputProps>) {
                 : true;
         }
         setIsInvalid(!checkValidity);
-    }, [defaultValue, customProps?.isErrored]);
-
-    useEffect(() => {
-        setInputValue(defaultValue);
-    }, [defaultValue]);
+        setInputValue(defaultValue ? defaultValue : "");
+    }, [defaultValue, customProps?.isErrored])
 
     const handleOnChange = (event: any) => {
         event.stopPropagation();

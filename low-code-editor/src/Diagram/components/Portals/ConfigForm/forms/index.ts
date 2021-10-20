@@ -13,13 +13,14 @@
 import { ConditionConfigForm } from "../../../ConfigForms/ConditionConfigForms";
 import { EndConfigForm } from "../../../ConfigForms/EndConfigForms";
 import { ProcessConfigForm } from "../../../ConfigForms/ProcessConfigForms";
+import { ApiConfigureWizard } from "../../../ConfigForms/ResourceConfigForm/ApiConfigureWizard";
 import { TypeDefinitionConfigForm } from "../../../ConfigForms/TypeDefinitionConfigForm";
 import { ConnectorForm } from "../../../ConnectorConfigWizard/Components/ConnectorForm";
 import { APIOptions } from "../../Overlay/Elements/PlusHolder/PlusElementOptions/APIOptions";
 
 import { APIConfigForm } from "./APIConfigForm";
 import { ConnectorInitForm } from "./ConnectorInitForm";
-import { FunctionConfigForm } from './FunctionConfigForm'; // TODO: need to rename
+import { FunctionConfigForm } from './FunctionConfigForm';
 import { ScheduleConfigForm } from "./ScheduleConfigForm";
 import { ServiceConfigForm } from './ServiceConfigForm';
 import { WebhookConfigForm } from "./WebhookConfigForm";
@@ -41,4 +42,5 @@ export { EndConfigForm as Return };
 export { EndConfigForm as Respond };
 export { ServiceConfigForm as ServiceDeclaration };
 export { FunctionConfigForm as FunctionDefinition };
+export { ApiConfigureWizard as ResourceAccessorDefinition}
 export { TypeDefinitionConfigForm as TypeDefinition };
