@@ -1,0 +1,13 @@
+{
+    "name": "ballerina-low-code-editor-packages",
+    "workspaces": [
+      "form-field-generator",
+      "lang-service",
+      "low-code-editor",
+      "syntax-tree"
+    ],
+    "scripts": {
+        "prebuil2d": "npm i --legacy-peer-deps",
+        "build": "tsc --build"
+    }
+  }        

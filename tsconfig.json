@@ -1,0 +1,18 @@
+{
+    "files": [],
+    "references": [
+      {
+        "path": "./form-field-generator/tsconfig.ref.json"
+      },
+      {
+        "path": "./lang-service/tsconfig.ref.json"
+      },
+      {
+        "path": "./low-code-editor/tsconfig.ref.json"
+      },
+      {
+        "path": "./syntax-tree/tsconfig.ref.json"
+      },
+    ],
+  }
+  

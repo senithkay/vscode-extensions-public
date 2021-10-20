@@ -9,6 +9,7 @@
     "target": "es2019",
     "jsx": "react",
     "outDir": "lib",
+    "rootDir": "./src",
     "downlevelIteration": true
   },
   "include": [
