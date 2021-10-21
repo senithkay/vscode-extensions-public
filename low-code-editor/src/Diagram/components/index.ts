@@ -20,9 +20,10 @@ import { IfElse } from './IfElse';
 import { Listener } from './Listener';
 import { ModulePartComponent } from "./ModulePart";
 import { ModuleVariable } from './ModuleVariable';
+import { RecordDefinitionComponent } from "./RecordDefinion";
 import { Service } from "./Service";
 import { Statement } from "./Statement";
-import { TypeDefinitionComponent } from "./TypeDefinion";
+import { TypeDefinitionComponent } from './TypeDefinition';
 import { While } from './While';
 
 export { IfElse as IfElseStatement };
