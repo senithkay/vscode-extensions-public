@@ -33,6 +33,44 @@
             .header-segment {
                 margin-right: 15px;
             }
+
+            .header-segment-path {
+                margin-right: 4px;
+                font-weight: 300;
+                color: #8d91a3;
+            }
+
+            .header-segment-listener {
+                margin-right: 15px;
+                font-weight: 300;
+                color: #8d91a3;
+            }
+        }
+
+        .show-on-hover {
+            display: none;
+        }
+
+        &:hover {
+            .show-on-hover {
+                display: block;
+            }
+        }
+
+        .class-amendment-options {
+            display: flex;
+            align-items: right;
+
+            .class-component-edit,
+            .class-component-delete {
+                width: 25px;
+                text-align: center;
+                padding-right: 5px;
+
+                &:hover {
+                    cursor: pointer;
+                }
+            }
         }
     }
 

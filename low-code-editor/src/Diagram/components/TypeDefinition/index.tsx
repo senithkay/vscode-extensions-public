@@ -15,17 +15,15 @@
 import React, { useContext, useState } from "react"
 
 import { MethodDeclaration, ObjectField, ObjectTypeDesc, STKindChecker, TypeDefinition } from "@ballerina/syntax-tree";
-import { Button } from "@material-ui/core";
 
 import DeleteButton from "../../../assets/icons/DeleteButton";
 import EditButton from "../../../assets/icons/EditButton";
 import RecordIcon from "../../../assets/icons/RecordIcon";
-import { Context as DiagramContext } from "../../../Contexts/Diagram";
+import { useDiagramContext } from "../../../Contexts/Diagram";
 import { removeStatement } from "../../utils/modification-util";
 import { ComponentExpandButton } from "../ComponentExpandButton";
-import { OverlayBackground } from "../OverlayBackground";
-import { DiagramOverlayContainer } from "../Portals/Overlay";
 import { RecordDefinitionComponent } from "../RecordDefinion";
+import { UnsupportedConfirmButtons } from "../UnsupportedConfirmButtons";
 
 import "./style.scss";
 
@@ -36,15 +34,10 @@ export interface TypeDefComponentProps {
 export function TypeDefinitionComponent(props: TypeDefComponentProps) {
     const { model } = props;
     const {
-        props: {
-            stSymbolInfo
-        },
         api: {
-            code: {
-                modifyDiagram
-            }
-        }
-    } = useContext(DiagramContext);
+            code: { modifyDiagram, gotoSource },
+        },
+      } = useDiagramContext();
 
     const [isEditable, setIsEditable] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
@@ -76,7 +69,8 @@ export function TypeDefinitionComponent(props: TypeDefComponentProps) {
 
     const handleEditBtnConfirm = () => {
         const targetposition = model.position;
-        // Move to code
+        setEditingEnabled(false);
+        gotoSource({ startLine: targetposition.startLine, startColumn: targetposition.startColumn });
     }
 
     const component: JSX.Element[] = [];
@@ -156,20 +150,7 @@ export function TypeDefinitionComponent(props: TypeDefComponentProps) {
                         </>
                     )}
                 </div>
-                {editingEnabled && (
-                    <DiagramOverlayContainer>
-                        <div className="container-wrapper">
-                            <div className="confirm-container" >
-                                <p>Diagram editing for this is unsupported. Move to code?</p>
-                                <div className={'action-button-container'}>
-                                    <Button variant="contained" className="cancelbtn" onClick={handleEditBtnCancel}>No</Button>
-                                    <Button variant="contained" className="confirmbtn" onClick={handleEditBtnConfirm}>Yes</Button>
-                                </div>
-                            </div>
-                        </div>
-                        <OverlayBackground />
-                    </DiagramOverlayContainer>
-                )}
+                {editingEnabled && <UnsupportedConfirmButtons onConfirm={handleEditBtnConfirm} onCancel={handleEditBtnCancel} />}
             </div>
         )
     }
