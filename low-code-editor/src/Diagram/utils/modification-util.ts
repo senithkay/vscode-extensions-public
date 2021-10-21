@@ -14,9 +14,8 @@ import { NodePosition } from "@ballerina/syntax-tree";
 
 import { FormField } from "../../ConfigurationSpec/types";
 import { STModification } from "../../Definitions/lang-client-extended";
-import { ListenerConfig } from "../components/ConfigForms/ListenerConfigForm/util/types";
-import { HeaderObjectConfig } from "../components/ConnectorExtensions/HTTPWizard/HTTPHeaders";
 import { HTTPServiceConfigState } from "../components/ConfigForms/ServiceConfigForm/forms/HttpService/util/reducer";
+import { HeaderObjectConfig } from "../components/ConnectorExtensions/HTTPWizard/HTTPHeaders";
 import { getFormattedModuleName, getParams } from "../components/Portals/utils";
 
 /* tslint:disable ordered-imports */
