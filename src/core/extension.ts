@@ -28,12 +28,15 @@ import {
 } from "./messages";
 import { join, sep } from 'path';
 import { exec, spawnSync } from 'child_process';
-import { LanguageClientOptions, State as LS_STATE, RevealOutputChannelOn, ServerOptions } from "vscode-languageclient";
+import { LanguageClientOptions, State as LS_STATE, RevealOutputChannelOn, ServerOptions } from "vscode-languageclient/node";
 import { getServerOptions } from '../server/server';
 import { ExtendedLangClient } from './extended-language-client';
 import { debug, log, getOutputChannel, outputChannel, isWindows } from '../utils';
 import { AssertionError } from "assert";
-import { BALLERINA_HOME, ENABLE_ALL_CODELENS, ENABLE_EXECUTOR_CODELENS, ENABLE_TELEMETRY, OVERRIDE_BALLERINA_HOME }
+import {
+    BALLERINA_HOME, BALLERINA_LOW_CODE_MODE, ENABLE_ALL_CODELENS, ENABLE_EXECUTOR_CODELENS, ENABLE_TELEMETRY,
+    ENABLE_SEMANTIC_HIGHLIGHTING, OVERRIDE_BALLERINA_HOME
+}
     from "./preferences";
 import TelemetryReporter from "vscode-extension-telemetry";
 import {
@@ -43,6 +46,7 @@ import {
 } from "../telemetry";
 import { BALLERINA_COMMANDS, runCommand } from "../project";
 import { SessionDataProvider } from "../tree-view/session-tree-data-provider";
+
 const any = require('promise.any');
 
 const SWAN_LAKE_REGEX = /(s|S)wan( |-)(l|L)ake/g;
@@ -76,6 +80,12 @@ export interface ChoreoSession {
     choreoCookie?: string;
 }
 
+interface CodeServerContext {
+    codeServerEnv: boolean;
+    manageChoreoRedirectUri?: string;
+    alwaysShowInfo?: boolean;
+}
+
 export class BallerinaExtension {
     public telemetryReporter: TelemetryReporter;
     public ballerinaHome: string;
@@ -90,6 +100,7 @@ export class BallerinaExtension {
     private documentContext: DocumentContext;
     private choreoSession: ChoreoSession;
     private choreoSessionTreeProvider: SessionDataProvider | undefined;
+    private codeServerContext: CodeServerContext;
 
     constructor() {
         this.ballerinaHome = '';
@@ -110,10 +121,18 @@ export class BallerinaExtension {
             synchronize: { configurationSection: LANGUAGE.BALLERINA },
             outputChannel: getOutputChannel(),
             revealOutputChannelOn: RevealOutputChannelOn.Never,
+            initializationOptions: {
+                "enableSemanticHighlighting": <string>workspace.getConfiguration().get(ENABLE_SEMANTIC_HIGHLIGHTING)
+            }
         };
         this.telemetryReporter = createTelemetryReporter(this);
         this.documentContext = new DocumentContext();
         this.choreoSession = { loginStatus: false };
+        this.codeServerContext = {
+            codeServerEnv: process.env.CODE_SERVER_ENV === 'true',
+            manageChoreoRedirectUri: process.env.MANAGE_CHOROE_URI,
+            alwaysShowInfo: true
+        }
     }
 
     setContext(context: ExtensionContext) {
@@ -187,6 +206,7 @@ export class BallerinaExtension {
                         log(message);
                         this.showPluginActivationError();
                     } else if (stateChangeEvent.newState === LS_STATE.Running) {
+                        this.langClient?.registerExtendedAPICapabilities();
                         sendTelemetryEvent(this, TM_EVENT_EXTENSION_INIT, CMP_EXTENSION_CORE);
                     }
                 });
@@ -517,6 +537,11 @@ export class BallerinaExtension {
         return <boolean>workspace.getConfiguration().get(ENABLE_EXECUTOR_CODELENS);
     }
 
+    public isBallerinaLowCodeMode(): boolean {
+        let isBallerinaLowCodeMode = <boolean>workspace.getConfiguration().get(BALLERINA_LOW_CODE_MODE);
+        return isBallerinaLowCodeMode || (process.env.LOW_CODE_MODE === 'true');
+    }
+
     public isSwanLake(): boolean {
         return this.swanLake;
     }
@@ -543,6 +568,10 @@ export class BallerinaExtension {
 
     public getChoreoSessionTreeProvider(): SessionDataProvider | undefined {
         return this.choreoSessionTreeProvider;
+    }
+
+    public getCodeServerContext(): CodeServerContext {
+        return this.codeServerContext;
     }
 }
 
