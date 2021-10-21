@@ -26,6 +26,9 @@ import { ExtendedLangClient } from "../core";
 
 let performanceGraphPanel: WebviewPanel | undefined;
 export function showPerformanceGraph(langClient: ExtendedLangClient, data: GraphData): void {
+    if (performanceGraphPanel) {
+        performanceGraphPanel.dispose();
+    }
 
     // Create and show a new webview
     performanceGraphPanel = window.createWebviewPanel(

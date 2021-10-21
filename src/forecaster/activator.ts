@@ -82,15 +82,15 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
 export async function createPerformanceGraphAndCodeLenses(uri: string | undefined, pos: Range,
     type: ANALYZETYPE, name: String | undefined, realtimeData: PerformanceAnalyzerRealtimeResponse | undefined) {
 
-    const choreoToken = extension.getChoreoSession().choreoToken;
-    const choreoCookie = extension.getChoreoSession().choreoCookie;
-
-    if (!choreoToken || !choreoCookie) {
+    if (!extension.getChoreoSession().loginStatus) {
         window.showInformationMessage(
-            "Please sign in to Choreo to use this feature"
+            "Please sign in to Choreo to view performance predictions."
         );
         return;
     }
+
+    const choreoToken = extension.getChoreoSession().choreoToken!;
+    const choreoCookie = extension.getChoreoSession().choreoCookie!;
 
     if (!uri || !langClient || !pos) {
         return;
@@ -101,7 +101,7 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
         // add codelenses to resources
         await langClient.getRealtimePerformaceData({
             documentIdentifier: {
-                uri: uri
+                uri
             },
             range: {
                 start: {
@@ -134,7 +134,7 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
         // add code lenses to invocations
         await langClient.getPerformaceGraphData({
             documentIdentifier: {
-                uri: uri
+                uri
             },
             range: {
                 start: {
