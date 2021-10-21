@@ -16,6 +16,7 @@
 import React, { useContext, useState } from "react"
 
 import { EnumDeclaration, EnumMember, STKindChecker } from "@ballerina/syntax-tree";
+import { Button } from "@material-ui/core";
 
 import EnumIcon from "../../../assets/icons/EnumIcon";
 import { useDiagramContext } from "../../../Contexts/Diagram";
@@ -36,6 +37,7 @@ export function EnumDeclarationComponent(props: EnumDeclarationComponentProps) {
         },
     } = useDiagramContext();
     const [isExpanded, setIsExpanded] = useState(false);
+    const [editingEnabled, setEditingEnabled] = useState(false);
 
     const onExpandClick = () => {
         setIsExpanded(!isExpanded);

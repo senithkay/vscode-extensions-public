@@ -12,8 +12,10 @@
  */
 import { ConditionConfigForm } from "../../../ConfigForms/ConditionConfigForms";
 import { EndConfigForm } from "../../../ConfigForms/EndConfigForms";
+import { ListenerConfigForm } from "../../../ConfigForms/ListenerConfigForm";
 import { ProcessConfigForm } from "../../../ConfigForms/ProcessConfigForms";
 import { RecordEditor } from "../../../ConfigForms/RecordEditor";
+import { ApiConfigureWizard } from "../../../ConfigForms/ResourceConfigForm/ApiConfigureWizard";
 import { ConnectorForm } from "../../../ConnectorConfigWizard/Components/ConnectorForm";
 import { APIOptions } from "../../Overlay/Elements/PlusHolder/PlusElementOptions/APIOptions";
 
@@ -42,3 +44,5 @@ export { EndConfigForm as Respond };
 export { ServiceConfigForm as ServiceDeclaration };
 export { FunctionConfigForm as FunctionDefinition };
 export { RecordEditor as RecordEditor };
+export { ListenerConfigForm as ListenerDeclaration };
+export { ApiConfigureWizard as ResourceAccessorDefinition}
