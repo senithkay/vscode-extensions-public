@@ -26,7 +26,7 @@ import { showPerformanceGraph } from "./performanceGraphPanel";
 
 const CHOREO_AUTH_ERR = "Choreo Authentication error.";
 const NETWORK_ERR = "Network error. Please check you internet connection.";
-export let langClient: ExtendedLangClient;
+let langClient: ExtendedLangClient;
 let uiData: GraphData;
 let extension: BallerinaExtension;
 let currentGraphData: PerformanceAnalyzerGraphResponse;
@@ -168,7 +168,7 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
             if (!uiData) {
                 return;
             }
-            showPerformanceGraph(uiData);
+            showPerformanceGraph(langClient, uiData);
 
         }).catch(error => {
             log(error);

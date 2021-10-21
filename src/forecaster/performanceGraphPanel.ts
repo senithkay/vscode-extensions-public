@@ -20,11 +20,12 @@
 import { ViewColumn, window, WebviewPanel } from "vscode";
 import { WebViewRPCHandler, getCommonWebViewOptions } from '../utils';
 import { render } from './render';
-import { GraphData, langClient } from "./activator";
+import { GraphData } from "./activator";
 import { updateCodeLenses } from ".";
+import { ExtendedLangClient } from "../core";
 
 let performanceGraphPanel: WebviewPanel | undefined;
-export function showPerformanceGraph(data: GraphData): void {
+export function showPerformanceGraph(langClient: ExtendedLangClient, data: GraphData): void {
 
     // Create and show a new webview
     performanceGraphPanel = window.createWebviewPanel(
