@@ -520,7 +520,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         if (monacoRef.current) {
             // Show & hide configurable options icon in the expression editor based on the model type
             const configurableWidget: monaco.editor.IContentWidget = createContentWidget(CONFIGURABLE_WIDGET_ID);
-            if (configurableTypes.includes(varType) && expressionInjectables && expressionEditorState?.name === model?.name){
+            if (configurableTypes.includes(varType) && expressionInjectables){
                 monacoRef.current.editor.addContentWidget(configurableWidget);
             }else{
                 monacoRef.current.editor.removeContentWidget(configurableWidget);
