@@ -22,45 +22,41 @@ import {
     STKindChecker,
     STNode, StringLiteral, TypeCastExpression
 } from "@ballerina/syntax-tree";
-import { Avatar, colors } from "@material-ui/core";
+import { Avatar } from "@material-ui/core";
 import { DocumentSymbol, SymbolInformation } from "monaco-languageclient";
 
 import { ConnectionDetails } from "../../../../api/models";
 import * as ConstructIcons from "../../../../assets/icons"
-import { ActionConfig, ConnectorConfig, FormField, FormFieldReturnType, FunctionDefinitionInfo, ManualConfigType, PrimitiveBalType, WizardType } from "../../../../ConfigurationSpec/types";
+import {
+    ActionConfig,
+    ConnectorConfig,
+    FormField,
+    FormFieldReturnType,
+    FunctionDefinitionInfo,
+    PrimitiveBalType,
+    WizardType
+} from "../../../../ConfigurationSpec/types";
 import { DiagramEditorLangClientInterface, STSymbolInfo } from "../../../../Definitions";
 import { BallerinaConnectorInfo, Connector } from "../../../../Definitions/lang-client-extended";
-import { filterCodeGenFunctions, filterConnectorFunctions } from "../../../utils/connector-form-util";
+import { filterConnectorFunctions } from "../../../utils/connector-form-util";
 import { getAllVariables as retrieveVariables } from "../../../utils/mixins";
 import {
     addConnectorToCache,
-    getConnectorDefFromCache,
     getConnectorFromCache,
-    getFormFieldFromFileCache,
     isSTActionInvocation
 } from "../../../utils/st-util";
 import { StatementViewState } from "../../../view-state";
+import * as Forms from "../../ConfigForms";
 import * as ConnectorIcons from "../../Connector/Icon";
 import { DefaultConnectorIcon } from "../../Connector/Icon/DefaultConnectorIcon";
 import { ConfigWizardState } from "../../ConnectorConfigWizard";
 import * as ConnectorExtension from "../../ConnectorExtensions";
 import * as Elements from "../ConfigForm/Elements";
 import { getUnionFormFieldName } from "../ConfigForm/Elements/Union";
-import * as Forms from "../ConfigForm/forms";
 import { FormElementProps } from "../ConfigForm/types";
 import * as OverlayElement from "../Overlay/Elements";
 
 import { keywords, symbolKind } from "./constants";
-
-const receivedRecords: Map<string, STNode> = new Map();
-// in order to ignore classes, object and enum type references
-const ignoreList = [
-    // sl alpha5
-    'ballerina/oauth2:1.1.0-alpha8:HttpVersion',
-    'ballerina/oauth2:1.1.0-alpha8:CredentialBearer',
-    'ballerina/oauth2:1.1.0-alpha8:ClientConfiguration',
-    'ballerina/oauth2:1.1.0-alpha8:ClientCredentialsGrantConfig',
-];
 
 export function getOverlayElement(
     type: string,
