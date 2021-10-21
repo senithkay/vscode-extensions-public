@@ -48,21 +48,6 @@
             }
         }
 
-        .service-amendment-options {
-            display: flex;
-            align-items: center;
-
-            .service-amendment-option {
-                width: 25px;
-                text-align: center;
-                padding-right: 5px;
-
-                &:hover {
-                    cursor: pointer;
-                }
-            }
-        }
-
         .show-on-hover {
             display: none;
         }

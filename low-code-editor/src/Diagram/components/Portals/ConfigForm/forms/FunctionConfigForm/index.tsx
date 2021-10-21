@@ -10,18 +10,20 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-lambda
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
-import { NodePosition, STNode } from "@ballerina/syntax-tree";
+import { NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 
 import { AddIcon, FunctionIcon } from "../../../../../../assets/icons";
 import ConfigPanel, { Section } from "../../../../../../components/ConfigPanel";
 import { useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { STModification } from "../../../../../../Definitions";
-import { createFunctionSignature } from "../../../../../utils/modification-util";
+import {
+  createFunctionSignature,
+  updateFunctionSignature,
+} from "../../../../../utils/modification-util";
 import { QueryParamItem as FunctionParamItem } from "../../../Overlay/Elements/DropDown/ApiConfigureWizard/components/queryParamEditor/queryParamItem";
 import { QueryParamSegmentEditor as FunctionParamSegmentEditor } from "../../../Overlay/Elements/DropDown/ApiConfigureWizard/components/queryParamEditor/segmentEditor";
 import { ReturnTypeItem } from "../../../Overlay/Elements/DropDown/ApiConfigureWizard/components/ReturnTypeEditor/ReturnTypeItem";
@@ -45,7 +47,7 @@ interface FunctionConfigFormProps {
 
 export function FunctionConfigForm(props: FunctionConfigFormProps) {
   const formClasses = useFormStyles();
-  const { targetPosition, onSave, onCancel } = props;
+  const { targetPosition, model, onSave, onCancel } = props;
   const [functionName, setFunctionName] = useState("");
   const [parameters, setParameters] = useState<QueryParam[]>([]);
   const [returnTypes, setReturnTypes] = useState<ReturnType[]>([]);
@@ -54,14 +56,12 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
   const {
     props: { syntaxTree },
     api: {
-      code: { modifyDiagram }
-    }
+      code: { modifyDiagram },
+    },
   } = useDiagramContext();
-  const existingFunctionNames = (syntaxTree as any).members.map(
-    (member: any) => member.functionName.value
-  );
+  const existingFunctionNames = useRef([]);
   const disableSaveBtn =
-    !!!functionName || existingFunctionNames.includes(functionName);
+    !!!functionName || existingFunctionNames?.current?.includes(functionName);
 
   const handleOnSave = () => {
     const parametersStr = parameters
@@ -74,18 +74,88 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
 
     // If none of the types are optional, append `|error?` to the return types
     if (returnTypeStr && returnTypes.every((item) => !item.isOptional)) {
+      // FIXME: if `error` type is selected, it would become `error|error?`
       returnTypeStr = `${returnTypeStr}|error?`;
     }
 
-    const modification = createFunctionSignature(
-      functionName,
-      parametersStr,
-      returnTypeStr,
-      { startLine: targetPosition.startLine, startColumn: 0 }
-    );
-    modifyDiagram([modification])
+    const modifications: STModification[] = [];
+    if (model && STKindChecker.isFunctionDefinition(model)) {
+      // Perform update if model exists
+      modifications.push(
+        updateFunctionSignature(functionName, parametersStr, returnTypeStr, {
+          ...model?.functionSignature?.position,
+          startColumn: model?.functionName?.position?.startColumn,
+        })
+      );
+    } else {
+      // Create new function if model does not exist
+      modifications.push(
+        createFunctionSignature(functionName, parametersStr, returnTypeStr, {
+          startLine: targetPosition.startLine,
+          startColumn: 0,
+        })
+      );
+    }
+    modifyDiagram(modifications);
     onSave();
   };
+
+  const onFunctionNameChange = (name: string) => setFunctionName(name);
+
+  // Param related functions
+  const openNewParamView = () => setAddingNewParam(true);
+  const closeNewParamView = () => setAddingNewParam(false);
+  const onSaveNewParam = (param: QueryParam) => {
+    setParameters([...parameters, param]);
+    setAddingNewParam(false);
+  };
+  const onDeleteParam = (paramItem: QueryParam) =>
+    setParameters(parameters.filter((item) => item.id !== paramItem.id));
+
+  // Return type related functions
+  const openNewReturnTypeView = () => setAddingNewReturnType(true);
+  const closeNewReturnTypeView = () => setAddingNewReturnType(false);
+  const onDeleteReturnType = (returnItem: ReturnType) =>
+    setReturnTypes(returnTypes.filter((item) => item.id !== returnItem.id));
+  const onSaveNewReturnType = (item: ReturnType) => {
+    setReturnTypes([...returnTypes, item]);
+    setAddingNewReturnType(false);
+  };
+
+  useEffect(() => {
+    // Getting all function names for function name validation
+    existingFunctionNames.current = (syntaxTree as any).members
+      .filter((member: any) => STKindChecker.isFunctionDefinition(member))
+      .map((member: any) => member.functionName.value);
+
+    if (model && STKindChecker.isFunctionDefinition(model)) {
+      // Populating field values if trying to edit
+      existingFunctionNames.current = existingFunctionNames.current.filter(
+        (name) => name !== model.functionName.value
+      );
+      setFunctionName(model.functionName.value);
+      const editParams: QueryParam[] = model.functionSignature.parameters
+        .filter((param) => STKindChecker.isRequiredParam(param))
+        .map((param: any, index) => ({
+          id: index,
+          name: param.paramName.value,
+          type: param.typeName.name.value,
+        }));
+      setParameters(editParams);
+
+      const returnArr = model?.functionSignature?.returnTypeDesc?.type?.source.split(
+        "|"
+      );
+      if (returnArr) {
+        const returnParams: ReturnType[] = returnArr.map((item, index) => ({
+          id: index,
+          isOptional: item.trim().endsWith("?"),
+          type: item.trim().replace("?", ""),
+        }));
+        setReturnTypes(returnParams);
+      }
+    }
+  }, [model]);
 
   return (
     <FormControl
@@ -107,11 +177,15 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
         <Section title={"Function Name"}>
           <FormTextInput
             dataTestId="function-name"
-            defaultValue={functionName}
-            onChange={(text: string) => setFunctionName(text)}
+            defaultValue={
+              model && STKindChecker.isFunctionDefinition(model)
+                ? model?.functionName?.value
+                : functionName
+            }
+            onChange={onFunctionNameChange}
             placeholder="Enter function name"
             customProps={{
-              isErrored: existingFunctionNames.includes(functionName),
+              isErrored: existingFunctionNames.current?.includes(functionName),
             }}
             errorMessage="Function name already exists"
           />
@@ -124,26 +198,20 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
             <FunctionParamItem
               key={param.id}
               queryParam={param}
-              onDelete={(paramItem: QueryParam) =>
-                setParameters(
-                  parameters.filter((item) => item.id !== paramItem.id)
-                )
-              }
+              onDelete={onDeleteParam}
             />
           ))}
           {addingNewParam ? (
             <FunctionParamSegmentEditor
               id={parameters.length}
-              onCancel={() => setAddingNewParam(false)}
+              onCancel={closeNewParamView}
               types={functionParamTypes}
-              onSave={(param: QueryParam) => {
-                setParameters([...parameters, param]);
-                setAddingNewParam(false);
-              }}
+              onSave={onSaveNewParam}
+              params={parameters}
             />
           ) : (
             <span
-              onClick={() => setAddingNewParam(true)}
+              onClick={openNewParamView}
               className={formClasses.addPropertyBtn}
             >
               <AddIcon />
@@ -159,26 +227,19 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
             <ReturnTypeItem
               key={returnType.id}
               returnType={returnType}
-              onDelete={(returnItem: ReturnType) =>
-                setReturnTypes(
-                  returnTypes.filter((item) => item.id !== returnItem.id)
-                )
-              }
+              onDelete={onDeleteReturnType}
             />
           ))}
           {addingNewReturnType ? (
             <ReturnTypeSegmentEditor
               id={returnTypes.length}
               showDefaultError={false}
-              onCancel={() => setAddingNewReturnType(false)}
-              onSave={(item: ReturnType) => {
-                setReturnTypes([...returnTypes, item]);
-                setAddingNewReturnType(false);
-              }}
+              onCancel={closeNewReturnTypeView}
+              onSave={onSaveNewReturnType}
             />
           ) : (
             <span
-              onClick={() => setAddingNewReturnType(true)}
+              onClick={openNewReturnTypeView}
               className={formClasses.addPropertyBtn}
             >
               <AddIcon />

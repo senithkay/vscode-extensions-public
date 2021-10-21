@@ -16,18 +16,20 @@ export const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         formSave: {
             position: 'fixed',
-            width: '300px',
-            right: '20px',
-            bottom: '0',
-            padding: '10px',
+            width: theme.spacing(37.5),
+            right: theme.spacing(2.5),
+            padding: theme.spacing(1.25),
             backgroundColor: '#fff',
         },
         buttonWrapper: {
             height: 'auto',
-            display: 'flex',
+            display: 'inline-flex',
             justifyContent: 'flex-end',
             width: '100%',
             zIndex: 100,
         },
+        spaceBetween: {
+            padding: theme.spacing(1)
+        }
     })
 );

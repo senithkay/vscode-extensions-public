@@ -15,12 +15,13 @@ import { EndConfigForm } from "../../../ConfigForms/EndConfigForms";
 import { ListenerConfigForm } from "../../../ConfigForms/ListenerConfigForm";
 import { ProcessConfigForm } from "../../../ConfigForms/ProcessConfigForms";
 import { RecordEditor } from "../../../ConfigForms/RecordEditor";
+import { ApiConfigureWizard } from "../../../ConfigForms/ResourceConfigForm/ApiConfigureWizard";
 import { ConnectorForm } from "../../../ConnectorConfigWizard/Components/ConnectorForm";
 import { APIOptions } from "../../Overlay/Elements/PlusHolder/PlusElementOptions/APIOptions";
 
 import { APIConfigForm } from "./APIConfigForm";
 import { ConnectorInitForm } from "./ConnectorInitForm";
-import { FunctionConfigForm } from './FunctionConfigForm'; // TODO: need to rename
+import { FunctionConfigForm } from './FunctionConfigForm';
 import { ScheduleConfigForm } from "./ScheduleConfigForm";
 import { ServiceConfigForm } from './ServiceConfigForm';
 import { WebhookConfigForm } from "./WebhookConfigForm";
@@ -44,3 +45,4 @@ export { ServiceConfigForm as ServiceDeclaration };
 export { FunctionConfigForm as FunctionDefinition };
 export { RecordEditor as RecordEditor };
 export { ListenerConfigForm as ListenerDeclaration };
+export { ApiConfigureWizard as ResourceAccessorDefinition}
