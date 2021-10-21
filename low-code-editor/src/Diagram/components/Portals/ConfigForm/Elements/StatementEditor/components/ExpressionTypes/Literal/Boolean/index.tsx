@@ -10,30 +10,36 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from "react";
+import React, { useContext } from "react";
 
-import {BooleanLiteral, STKindChecker, STNode} from "@ballerina/syntax-tree";
+import { BooleanLiteral } from "@ballerina/syntax-tree";
 
 import { VariableUserInputs } from "../../../../models/definitions";
+import { SuggestionsContext } from "../../../../store/suggestions-context";
+import { getSuggestionsBasedOnExpressionKind } from "../../../../utils";
+import { statementEditorStyles } from "../../../ViewContainer/styles";
 
-interface LiteralProps {
-    model: STNode
+interface BooleanLiteralProps {
+    model: BooleanLiteral
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }
 
-export function BooleanLiteralC(props: LiteralProps) {
+export function BooleanLiteralC(props: BooleanLiteralProps) {
     const { model } = props;
-    let value: any;
 
-    if (STKindChecker.isBooleanLiteral(model)) {
-        const literalModel: BooleanLiteral = model as BooleanLiteral;
-        value = literalModel.literalToken.value;
-    }
+    const overlayClasses = statementEditorStyles();
+    const suggestionCtx = useContext(SuggestionsContext);
+
+    const onClickOnBooleanLiteral = (event: any) => {
+        event.stopPropagation()
+        suggestionCtx.expressionHandler(model, false,
+            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(model.kind) })
+    };
 
     return (
-        <button>
-            {value}
+        <button className={overlayClasses.expressionElement} onClick={onClickOnBooleanLiteral}>
+            {model.literalToken.value}
         </button>
     );
 }
