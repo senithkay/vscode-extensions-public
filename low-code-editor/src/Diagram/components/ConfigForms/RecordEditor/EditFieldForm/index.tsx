@@ -15,12 +15,15 @@ import React, { useEffect, useState } from 'react';
 
 import { Box, FormControl, Typography } from "@material-ui/core";
 
+import { FormField } from "../../../../../ConfigurationSpec/types";
 import { FormState, useRecordEditorContext } from "../../../../../Contexts/RecordEditor";
 import { PrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
 import CheckBoxGroup from "../../../Portals/ConfigForm/Elements/CheckBox";
 import { SelectDropdownWithButton } from "../../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
+import ExpressionEditor from "../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
+import { FormElementProps } from "../../../Portals/ConfigForm/types";
 import { wizardStyles } from "../../style";
 import { SimpleField } from "../types";
 
@@ -35,6 +38,7 @@ export function EditFieldForm() {
     let type = "int";
     let fieldName = "";
     let nameValidity = false;
+    let defaultValValidity = true;
     let fieldOptianality = false;
     let typeOptianality = false;
     let defaultVal = "";
@@ -42,6 +46,7 @@ export function EditFieldForm() {
         type = state.currentField.type;
         fieldName = state.currentField.name;
         nameValidity = true;
+        defaultValValidity = true;
         fieldOptianality = state.currentField.isFieldOptional;
         typeOptianality = state.currentField.isFieldTypeOptional;
         defaultVal = state.currentField.value;
@@ -52,9 +57,13 @@ export function EditFieldForm() {
     const [isFieldOptional, setIsFieldOptional] = useState(fieldOptianality);
     const [isTypeOptional, setIsTypeOptional] = useState(typeOptianality);
     const [defaultValue, setDefaultValue] = useState(defaultVal);
+    const [validDefaultValue, setValidDefaultValue] = useState(defaultValValidity);
+    // const [editorFocus, setEditorFocus] = useState(false);
 
     const handleTypeSelect = (typeSelected: string) => {
         setSelectedType(typeSelected);
+        setDefaultValue("");
+        // setEditorFocus(true);
     };
 
     const handleNameChange = (inputText: string) => {
@@ -72,6 +81,10 @@ export function EditFieldForm() {
         setIsValidName(!isNameAlreadyExists);
         return !isNameAlreadyExists;
     };
+
+    const validateDefaultValue = (fName: string, isInvalidFromField: boolean) => {
+        setValidDefaultValue(!isInvalidFromField);
+    }
 
     const handleOptionalFieldChange = (text: string[]) => {
         if (text) {
@@ -117,6 +130,7 @@ export function EditFieldForm() {
         setIsFieldOptional(false);
         setIsValidName(false);
         setIsTypeOptional(false);
+        setValidDefaultValue(true);
     };
 
     const updateFields = () => {
@@ -127,7 +141,38 @@ export function EditFieldForm() {
         setIsTypeOptional(state.currentField.isFieldTypeOptional);
     };
 
-    const isSaveButtonDisabled = !isValidName || (selectedType === "") || (name === "");
+    // const revertEditorFocus = () => {
+    //     setEditorFocus(false);
+    // };
+    //
+    // const focusEditor = () => {
+    //     setEditorFocus(true);
+    // };
+
+    const formField: FormField = {
+        name: "defaultValue",
+        optional: true,
+        displayName: "Default Value",
+        typeName: selectedType,
+        value: defaultValue
+    }
+    const defaultValueProps: FormElementProps = {
+        model: formField,
+        customProps: {
+            validate: validateDefaultValue,
+            // tooltipTitle: whileStatementTooltipMessages.title,
+            // tooltipActionText: whileStatementTooltipMessages.actionText,
+            // tooltipActionLink: whileStatementTooltipMessages.actionLink,
+            // interactive: true,
+            statementType: formField.typeName,
+            // focus: editorFocus,
+            // revertFocus: revertEditorFocus,
+        },
+        onChange: handleDefaultValueChange,
+        defaultValue
+    };
+
+    const isSaveButtonDisabled = !isValidName || (selectedType === "") || (name === "") || (!isFieldOptional && !validDefaultValue);
 
     useEffect(() => {
         // Checks whether add from is completed and reset field addition
@@ -187,16 +232,7 @@ export function EditFieldForm() {
                 onChange={handleOptionalTypeChange}
             />
             {!isFieldOptional && (
-                <FormTextInput
-                    dataTestId="field-value"
-                    customProps={{
-                        optional: true,
-                    }}
-                    defaultValue={defaultValue}
-                    onChange={handleDefaultValueChange}
-                    label={"Default value"}
-                    placeholder={"Enter default value"}
-                />
+                <ExpressionEditor {...defaultValueProps} />
             )}
 
             <div className={overlayClasses.buttonWrapper}>
