@@ -177,7 +177,7 @@ export function AddIfForm(props: IfProps) {
                             // TODO: Send proper props according to the form type
                             <ViewContainer
                                 kind="DefaultBoolean"
-                                label="Variable Statement"
+                                label="If-else Statement"
                                 formArgs={formArgs}
                                 onCancel={handleStmtEditorCancel}
                             />
