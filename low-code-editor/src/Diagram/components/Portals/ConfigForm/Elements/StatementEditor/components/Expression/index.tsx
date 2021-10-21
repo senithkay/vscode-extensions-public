@@ -16,7 +16,6 @@ import { STNode } from "@ballerina/syntax-tree";
 
 import { VariableUserInputs } from "../../models/definitions";
 import { getExpressionTypeComponent } from "../../utils";
-import { VariableStatement } from "../Statements/VariableStatement";
 
 export interface ExpressionComponentProps {
     model: STNode
@@ -31,12 +30,6 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
     const component = getExpressionTypeComponent(model, userInputs, diagnosticHandler);
 
     return (
-        // TODO: Render the relevant component based on the statement type
-        <VariableStatement
-            model={model}
-            isRoot={isRoot}
-            component={component}
-            userInputs={userInputs}
-        />
+        <span>{component}</span>
     );
 }

@@ -16,8 +16,8 @@ import { BracedExpressionC } from './BracedExpression';
 import { BooleanLiteralC } from './Literal/Boolean';
 import { NumericLiteralC } from './Literal/Numeric';
 import { StringLiteralC } from './Literal/String';
-import { SimpleNameReferenceC } from './NameReference';
 import { LocalVarDeclC } from './LocalVarDecl';
+import { SimpleNameReferenceC } from './NameReference';
 import { TypedBindingPatternC } from './TypedBindingPattern';
 import { StringTypeDescC } from './TypeDescriptor';
 
