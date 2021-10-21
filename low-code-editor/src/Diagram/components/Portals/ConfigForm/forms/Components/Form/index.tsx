@@ -16,19 +16,21 @@ import { FormField } from "../../../../../../../ConfigurationSpec/types";
 import {isAllValid} from "../../../../../../../utils/validator";
 import { useStyles } from "../../../../../ConfigPanel/styles";
 import FormAccordion from "../../../../../FormAccordion";
+import { ExpressionInjectablesProps } from "../../../../../FormGenerator";
 import { getFormElement } from "../../../../utils";
 import { FormElementProps } from "../../../types";
 
 export interface FormProps {
     fields: FormField[];
     onValidate?: (isRequiredFieldsFilled: boolean) => void;
-    size?: "small" | "medium"
+    size?: "small" | "medium",
+    expressionInjectables?: ExpressionInjectablesProps;
 }
 
 const isAllOptionalFields = (recordFields: FormField[]): boolean => recordFields?.every(field => field.optional || (field.fields && isAllOptionalFields(field.fields)));
 
 export function Form(props: FormProps) {
-    const { fields, onValidate } = props;
+    const { fields, onValidate, expressionInjectables } = props;
 
     const classes = useStyles();
     const elements: ReactNode[] = [];
@@ -59,7 +61,8 @@ export function Form(props: FormProps) {
                 index,
                 customProps: {
                     validate: validateField,
-                    tooltipTitle: field.tooltip
+                    tooltipTitle: field.tooltip,
+                    expressionInjectables,
                 },
             };
 

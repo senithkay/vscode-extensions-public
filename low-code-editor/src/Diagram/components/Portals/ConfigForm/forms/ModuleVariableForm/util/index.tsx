@@ -42,7 +42,7 @@ export function getFormConfigFromModel(model: any): ModuleVariableFormState {
     }
 
     if (model) {
-        if (model.qualifiers.length > 0) {
+        if (model?.qualifiers?.length > 0) {
             if (STKindChecker.isConfigurableKeyword(model.qualifiers[0])) {
                 defaultFormState.varQualifier = VariableQualifiers.CONFIGURABLE;
             } else if (STKindChecker.isFinalKeyword(model.qualifiers[0])) {
@@ -50,7 +50,7 @@ export function getFormConfigFromModel(model: any): ModuleVariableFormState {
             }
         }
 
-        const typeData = model.initializer.typeData;
+        const typeData = model?.initializer?.typeData;
 
         if (typeData) {
             const typeSymbol = typeData.typeSymbol;
@@ -60,9 +60,9 @@ export function getFormConfigFromModel(model: any): ModuleVariableFormState {
         }
 
         defaultFormState.isPublic = model.visibilityQualifier && STKindChecker.isPublicKeyword(model.visibilityQualifier);
-        defaultFormState.varValue = model.initializer.source;
+        defaultFormState.varValue = model.initializer?.source;
         defaultFormState.varName = ((model.typedBindingPattern as TypedBindingPattern)
-            .bindingPattern as CaptureBindingPattern).variableName.value;
+            ?.bindingPattern as CaptureBindingPattern)?.variableName?.value;
 
         return defaultFormState;
     }
@@ -73,6 +73,7 @@ export function getFormConfigFromModel(model: any): ModuleVariableFormState {
 
 export function isFormConfigValid(config: ModuleVariableFormState): boolean {
     const { varName, varValue, isExpressionValid } = config;
+    const isConfigurable = config.varQualifier === VariableQualifiers.CONFIGURABLE;
 
-    return varName.length > 0 && ModuleVarNameRegex.test(varName) && varValue.length > 0 && isExpressionValid;
+    return varName?.length > 0 && ModuleVarNameRegex.test(varName) && (isConfigurable || varValue?.length > 0) && isExpressionValid;
 }

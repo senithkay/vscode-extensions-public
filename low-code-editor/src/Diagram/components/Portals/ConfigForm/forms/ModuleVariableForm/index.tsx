@@ -1,3 +1,4 @@
+// tslint:disable: jsx-no-multiline-js
 /*
  * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
@@ -18,8 +19,9 @@ import { Box, FormControl, FormHelperText, Typography } from '@material-ui/core'
 
 import { VariableIcon } from '../../../../../../assets/icons';
 import { useDiagramContext } from '../../../../../../Contexts/Diagram';
-import { STModification } from '../../../../../../Definitions';
+import { ConfigOverlayFormStatus, STModification } from '../../../../../../Definitions';
 import { createModuleVarDecl, updateModuleVarDecl } from '../../../../../utils/modification-util';
+import { InjectableItem } from '../../../../FormGenerator';
 import { PrimaryButton } from '../../Elements/Button/PrimaryButton';
 import { SecondaryButton } from '../../Elements/Button/SecondaryButton';
 import CheckBoxGroup from '../../Elements/CheckBox';
@@ -29,7 +31,7 @@ import { RadioControl } from '../../Elements/RadioControl/FormRadioControl';
 import { FormTextInput } from '../../Elements/TextField/FormTextInput';
 import { useStyles as useFormStyles } from "../style";
 
-import { getFormConfigFromModel, isFormConfigValid, ModuleVarNameRegex, VariableQualifiers } from './util';
+import { getFormConfigFromModel, isFormConfigValid, ModuleVariableFormState, ModuleVarNameRegex, VariableQualifiers } from './util';
 import { ModuleVarFormActionTypes, moduleVarFormReducer } from './util/reducer';
 
 interface ModuleVariableFormProps {
@@ -37,28 +39,63 @@ interface ModuleVariableFormProps {
     targetPosition?: NodePosition;
     onCancel: () => void;
     onSave: () => void;
+    configOverlayFormStatus?: ConfigOverlayFormStatus;
 }
 
 export function ModuleVariableForm(props: ModuleVariableFormProps) {
     const formClasses = useFormStyles();
     const { api: { code: { modifyDiagram } } } = useDiagramContext();
-    const { onSave, onCancel, targetPosition, model } = props;
+    const { onSave, onCancel, targetPosition, model, configOverlayFormStatus } = props;
     const [state, dispatch] = useReducer(moduleVarFormReducer, getFormConfigFromModel(model));
+    const isConfigurable = state.varQualifier === VariableQualifiers.CONFIGURABLE;
     const variableTypes: string[] = ["int", "float", "boolean", "string", "json", "xml"];
+
+    const { updateInjectables, updateParentConfigurable, configurableId } = configOverlayFormStatus?.formArgs || {};
+    const isOnlyConfigurableForm = !!updateInjectables;
 
     if (!state.isPublic) {
         variableTypes.unshift('var');
     }
 
     const handleOnSave = () => {
-        const modifications: STModification[] = []
-        if (model) {
-            modifications.push(updateModuleVarDecl(state, model.position));
-        } else {
-            modifications.push(createModuleVarDecl(state, targetPosition));
+        if (isOnlyConfigurableForm && updateParentConfigurable){
+            const modification = createModuleVarDecl({
+                ...state,
+                varValue: state.varValue || '?',
+            }, targetPosition);
+            const editItemIndex = updateInjectables?.list.findIndex((item: InjectableItem) => item.id === configurableId);
+            let newInjectableList = updateInjectables?.list;
+            const newInjectable = {
+                id: configurableId,
+                name: state.varName,
+                value: state.varValue,
+                modification,
+              }
+            if (editItemIndex >= 0){
+                newInjectableList[editItemIndex] = newInjectable;
+            }else{
+                newInjectableList = [...newInjectableList, newInjectable]
+            }
+            updateInjectables?.setInjectables(newInjectableList);
+            setTimeout(() => {
+                updateParentConfigurable(state.varName);
+                onCancel();
+            }, 250)
+
+        }else{
+            const modifyState: ModuleVariableFormState = {
+                ...state,
+                varValue: isConfigurable ? '?' : state.varValue
+            }
+            const modifications: STModification[] = []
+            if (model) {
+                modifications.push(updateModuleVarDecl(modifyState, model.position));
+            } else {
+                modifications.push(createModuleVarDecl(modifyState, targetPosition));
+            }
+            modifyDiagram(modifications);
+            onSave();
         }
-        modifyDiagram(modifications);
-        onSave();
     }
 
     const onAccessModifierChange = (modifierList: string[]) => {
@@ -102,16 +139,17 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
     const expressionEditorConfig = {
         model: {
             name: "valueExpression",
-            displayName: "Value Expression",
-            typeName: state.varType
+            displayName: isOnlyConfigurableForm ? "Default Value" : "Value Expression",
+            typeName: state.varType,
+            optional: isConfigurable ? true : false,
         },
         customProps: {
             validate: updateExpressionValidity,
             interactive: true,
             statementType: state.varType,
             editPosition: {
-                startLine: model ? model.position.startLine : targetPosition.startLine,
-                endLine: model ? model.position.startLine : targetPosition.startLine,
+                startLine: model ? model?.position?.startLine : targetPosition.startLine,
+                endLine: model ? model?.position?.startLine : targetPosition.startLine,
                 startColumn: 0,
                 endColumn: 0
             }
@@ -133,7 +171,7 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
 
     const variableQualifierSelectorCustomProps = {
         collection: Object.values(VariableQualifiers),
-        disabled: false
+        disabled: isOnlyConfigurableForm
     };
 
     return (
@@ -141,9 +179,11 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
             <div className={formClasses.formTitleWrapper}>
                 <div className={formClasses.mainTitleWrapper}>
                     <VariableIcon />
-                    <Typography variant="h4">
-                        <Box paddingTop={2} paddingBottom={2} paddingLeft={15}>Variable</Box>
-                    </Typography>
+                    <Box textAlign="center" flex={1} paddingTop={2} paddingBottom={2} >
+                        <Typography variant="h4">
+                            {isOnlyConfigurableForm ? 'Configurable' : 'Variable'}
+                        </Typography>
+                    </Box>
                 </div>
             </div>
             <div className={formClasses.labelWrapper}>
@@ -164,6 +204,7 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
                 customProps={typeSelectorCustomProps}
                 label={"Select type"}
                 onChange={onVarTypeChange}
+                disabled={isOnlyConfigurableForm}
             />
             <FormTextInput
                 customProps={variableNameTextFieldCustomProps}
@@ -176,19 +217,23 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
             <ExpressionEditor
                 {...expressionEditorConfig}
             />
-            <div className={formClasses.labelWrapper}>
-                <FormHelperText className={formClasses.inputLabelForRequired}>
-                    <FormattedMessage
-                        id="lowcode.develop.configForms.ModuleVarDecl.variableQualifier"
-                        defaultMessage="Select Variable Qualifier :"
+            {!isOnlyConfigurableForm && (
+                <>
+                    <div className={formClasses.labelWrapper}>
+                        <FormHelperText className={formClasses.inputLabelForRequired}>
+                            <FormattedMessage
+                                id="lowcode.develop.configForms.ModuleVarDecl.variableQualifier"
+                                defaultMessage="Select Variable Qualifier :"
+                            />
+                        </FormHelperText>
+                    </div>
+                    <RadioControl
+                        onChange={handleOnVariableQualifierSelect}
+                        defaultValue={state.varQualifier === '' ? VariableQualifiers.NONE : state.varQualifier}
+                        customProps={variableQualifierSelectorCustomProps}
                     />
-                </FormHelperText>
-            </div>
-            <RadioControl
-                onChange={handleOnVariableQualifierSelect}
-                defaultValue={state.varQualifier === '' ? VariableQualifiers.NONE : state.varQualifier}
-                customProps={variableQualifierSelectorCustomProps}
-            />
+                </>
+            )}
             <div className={formClasses.wizardBtnHolder}>
                 <SecondaryButton
                     text="Cancel"
@@ -196,7 +241,7 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
                     onClick={onCancel}
                 />
                 <PrimaryButton
-                    text="Save"
+                    text={isOnlyConfigurableForm ? "Add" : "Save"}
                     disabled={disableSaveBtn}
                     fullWidth={false}
                     onClick={handleOnSave}

@@ -13,7 +13,7 @@
 // tslint:disable: ordered-imports
 import { FunctionDefinition, NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import { Diagnostic, Range } from "monaco-languageclient";
-import { ExpEditorExpandSvg, ExpEditorCollapseSvg } from "../../../../../../assets";
+import { ExpEditorExpandSvg, ExpEditorCollapseSvg, EditIcon, editVariableNameSvg } from "../../../../../../assets";
 
 import * as monaco from 'monaco-editor';
 
@@ -34,10 +34,13 @@ import {
     UNDEFINED_SYMBOL_ERR_CODE,
     DIAGNOSTIC_MAX_LENGTH,
     SUGGEST_CAST_MAP,
+    CONFIGURABLE_WIDGET_ID,
 } from "./constants";
 import "./style.scss";
 import { ExpressionEditorHintProps, HintType } from "../ExpressionEditorHint";
 import MonacoEditor from "react-monaco-editor";
+import { InsertorDelete } from "../../../../../utils/modification-util";
+import { InjectableItem } from "../../../../FormGenerator";
 
 
 // return true if there is any diagnostic of severity === 1
@@ -309,6 +312,19 @@ export function checkIfStringExist(varType: string): boolean {
     return types.includes("string")
 }
 
+/** Inject StModifications into the expression editor modal  */
+export const addInjectables = async (oldModelValue: string, injectables?: InjectableItem[]): Promise<string> => {
+    const modelContent: string[] = oldModelValue.split(/\n/g) || [];
+    if (injectables){
+        const modifications = await InsertorDelete(injectables.map(item => item.modification))
+        for (const item of modifications){
+            const source = item.config?.STATEMENT || ''
+            modelContent[item.startLine] = addToTargetPosition(modelContent[item.startLine], item.startColumn, source, item.endColumn);
+        }
+    }
+    return modelContent.join('\n');
+}
+
 /**
  * Helper function to add import statements to a given code.
  * Import statements are only added if a given type is a non primitive type and if already not imported.
@@ -362,6 +378,9 @@ export function createContentWidget(id: string): monaco.editor.IContentWidget {
                 } else if (id === COLLAPSE_WIDGET_ID) {
                     this.domNode.className = "collapse-icon";
                     this.domNode.innerHTML = `<img src="${ExpEditorCollapseSvg}"/>`;
+                }else if (id === CONFIGURABLE_WIDGET_ID) {
+                    this.domNode.className = "configurable-icon";
+                    this.domNode.innerHTML = `<img src="${editVariableNameSvg}"/>`;
                 }
             }
             return this.domNode;
