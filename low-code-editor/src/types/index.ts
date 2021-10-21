@@ -118,7 +118,8 @@ export interface LowCodeEditorAPI {
         dispatchFileChange?: (content: string, callback?: () => void) => Promise<void>;
         hasConfigurables?: (templateST: ModulePart) => boolean;
         // Reuse go-to-def from LangServer?
-        setCodeLocationToHighlight: (position: ModelCodePosition) => void,
+        setCodeLocationToHighlight: (position: ModelCodePosition) => void;
+        gotoSource: (position: { startLine: number, startColumn: number }) => void;
     }
     connections: {
         createManualConnection?: (orgHandle: string, displayName: string, connectorName: string,
