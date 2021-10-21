@@ -1,9 +1,9 @@
 import { ChildProcess, spawn } from "child_process";
 import * as path from "path";
 import * as treekill from "tree-kill";
-import { toSocket } from "vscode-ws-jsonrpc";
+import { toSocket } from "@codingame/monaco-jsonrpc";
 // tslint:disable-next-line:no-submodule-imports
-import * as serverRPC from "vscode-ws-jsonrpc/lib/server";
+import * as serverRPC from "@codingame/monaco-jsonrpc/lib/server";
 import { Server } from "ws";
 
 export function spawnStdioServer(ballerinaHome: string): ChildProcess {

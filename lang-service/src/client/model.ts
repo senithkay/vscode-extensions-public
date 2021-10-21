@@ -258,7 +258,7 @@ export interface Package {
     icon?: string;
     pullCount?: number;
     createdDate?: number;
-    modules?: any[];   
+    modules?: any[];
 }
 
 export interface Connector {
