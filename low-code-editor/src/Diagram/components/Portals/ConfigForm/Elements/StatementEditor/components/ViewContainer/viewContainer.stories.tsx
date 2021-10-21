@@ -19,7 +19,11 @@ import { ConnectionDetails } from "../../../../../../../../api/models";
 import { Provider as LowCodeEditorProvider } from "../../../../../../../../Contexts/Diagram";
 import { InputEditorContextProvider } from "../../store/input-editor-context";
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
-import stModel from "../Expression/data/st-model-raw.json";
+import foreachModel from "../StatementRenderer/data/foreach-st-model.json";
+import ifElseModel from "../StatementRenderer/data/ifelse-st-model.json";
+import stModel from "../StatementRenderer/data/st-model-raw.json";
+import stringModel from "../StatementRenderer/data/varDecl-stringLiteral-model.json";
+import whileStmtModel from "../StatementRenderer/data/while-st-model.json";
 
 import { ViewContainer, ViewProps } from "./ViewContainer";
 
@@ -157,12 +161,93 @@ const Template: Story<ViewProps> = (args: ViewProps) => (
 
 export const ViewContainerDefault = Template.bind({});
 
+export const ViewContainerVarDeclString = Template.bind({});
+
+export const ViewContainerWhileStmt = Template.bind({});
+
+export const ViewContainerForeachStmt = Template.bind({});
+
+export const ViewContainerIfElseStmt = Template.bind({});
+
+
 ViewContainerDefault.args = {
     kind: "DefaultString",
     label: "Variable Statement",
     formArgs: { model: stModel },
     userInputs: {
         "selectedType": "string",
+        "varName": "ga",
+        "variableExpression": "(expression+expression)",
+        "formField": "Expression"
+    },
+    validate: dummyFunction,
+    isMutationInProgress: false,
+    validForm: true,
+    onCancel: dummyFunctionWithoutArgs,
+    onSave: dummyFunctionWithoutArgs,
+    onChange: dummyFunction
+}
+
+ViewContainerWhileStmt.args = {
+    kind: "DefaultBoolean",
+    label: "While Statement",
+    formArgs: { model: whileStmtModel },
+    userInputs: {
+        "selectedType": "boolean",
+        "varName": "ga",
+        "variableExpression": "(expression)",
+        "formField": "Expression"
+    },
+    validate: dummyFunction,
+    isMutationInProgress: false,
+    validForm: true,
+    onCancel: dummyFunctionWithoutArgs,
+    onSave: dummyFunctionWithoutArgs,
+    onChange: dummyFunction
+}
+
+ViewContainerForeachStmt.args = {
+    kind: "DefaultString",
+    label: "Foreach Statement",
+    formArgs: { model: foreachModel },
+    userInputs: {
+        "selectedType": "var",
+        "varName": "item",
+        "variableExpression": "expression",
+        "formField": "Expression"
+    },
+    validate: dummyFunction,
+    isMutationInProgress: false,
+    validForm: true,
+    onCancel: dummyFunctionWithoutArgs,
+    onSave: dummyFunctionWithoutArgs,
+    onChange: dummyFunction
+}
+
+ViewContainerVarDeclString.args = {
+    kind: "DefaultString",
+    label: "Variable Statement",
+    formArgs: { model: stringModel },
+    userInputs: {
+        "selectedType": "string",
+        "varName": "ga",
+        "variableExpression": "(expression+expression)",
+        "formField": "Expression"
+    },
+    validate: dummyFunction,
+    isMutationInProgress: false,
+    validForm: true,
+    onCancel: dummyFunctionWithoutArgs,
+    onSave: dummyFunctionWithoutArgs,
+    onChange: dummyFunction
+}
+
+ViewContainerIfElseStmt.args = {
+    kind: "DefaultBoolean",
+    label: "If-else Statement",
+    formArgs: { model: ifElseModel },
+    userInputs: {
+        "selectedType": "boolean",
         "varName": "ga",
         "variableExpression": "(expression+expression)",
         "formField": "Expression"
