@@ -53,7 +53,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
         workspace.onDidOpenTextDocument(async (document) => {
             if (document.languageId === LANGUAGE.BALLERINA || document.fileName.endsWith(BAL_TOML)) {
                 const uri = document.uri;
-                await this.addCodeLenses(uri);
+                await ExecutorCodeLensProvider.addCodeLenses(uri);
 
             }
         });
@@ -63,17 +63,17 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
                 activatedTextEditor.document.fileName.endsWith(BAL_TOML)) {
                 const activeEditor = window.activeTextEditor;
                 const uri = activeEditor?.document.uri;
-                await this.addCodeLenses(uri);
+                await ExecutorCodeLensProvider.addCodeLenses(uri);
             }
         });
     }
 
-    private async addCodeLenses(uri: Uri | undefined) {
+    public static async addCodeLenses(uri: Uri | undefined) {
         if (!ExecutorCodeLensProvider.isProccessing) {
             ExecutorCodeLensProvider.isProccessing = true;
             ExecutorCodeLensProvider.dataLabels = [];
             await findResources(uri);
-            this._onDidChangeCodeLenses.fire();
+            ExecutorCodeLensProvider.onDidChangeCodeLenses.fire();
             ExecutorCodeLensProvider.isProccessing = false;
         }
     }

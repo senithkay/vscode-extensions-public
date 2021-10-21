@@ -165,10 +165,11 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
             addRealTimePerformanceLabels();
             addPerformanceLabels(1);
 
-            if (!uiData) {
+            if (!uiData || !currentFile) {
                 return;
             }
-            showPerformanceGraph(langClient, uiData);
+
+            showPerformanceGraph(langClient, uiData, currentFile.uri);
 
         }).catch(error => {
             log(error);

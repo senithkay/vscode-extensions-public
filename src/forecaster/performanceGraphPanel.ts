@@ -17,15 +17,17 @@
  *
  */
 
-import { ViewColumn, window, WebviewPanel } from "vscode";
+import { ViewColumn, window, WebviewPanel, Uri } from "vscode";
 import { WebViewRPCHandler, getCommonWebViewOptions } from '../utils';
 import { render } from './render';
 import { GraphData } from "./activator";
 import { updateCodeLenses } from ".";
 import { ExtendedLangClient } from "../core";
+import { ExecutorCodeLensProvider } from "./codelens-provider";
 
 let performanceGraphPanel: WebviewPanel | undefined;
-export function showPerformanceGraph(langClient: ExtendedLangClient, data: GraphData): void {
+
+export function showPerformanceGraph(langClient: ExtendedLangClient, data: GraphData, currentFileUri: Uri): void {
     if (performanceGraphPanel) {
         performanceGraphPanel.dispose();
     }
@@ -56,5 +58,6 @@ export function showPerformanceGraph(langClient: ExtendedLangClient, data: Graph
     }
     performanceGraphPanel.onDidDispose(() => {
         performanceGraphPanel = undefined;
+        ExecutorCodeLensProvider.addCodeLenses(currentFileUri);
     });
 }
