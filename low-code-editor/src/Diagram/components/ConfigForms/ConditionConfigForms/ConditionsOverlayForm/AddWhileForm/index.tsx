@@ -179,8 +179,9 @@ export function AddWhileForm(props: WhileProps) {
                         // TODO: Send proper props according to the form type
                         <ViewContainer
                             kind="DefaultBoolean"
-                            label="Variable Statement"
+                            label="While Statement"
                             formArgs={formArgs}
+                            isMutationInProgress={isMutationInProgress}
                             onCancel={handleStmtEditorCancel}
                         />
                     </div>
