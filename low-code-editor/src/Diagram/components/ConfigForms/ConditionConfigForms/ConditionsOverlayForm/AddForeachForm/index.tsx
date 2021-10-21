@@ -262,8 +262,8 @@ export function AddForeachForm(props: ForeachProps) {
                         <div>
                             // TODO: Send proper props according to the form type
                             <ViewContainer
-                                kind="DefaultBoolean"
-                                label="Variable Statement"
+                                kind="DefaultString"
+                                label="Foreach Statement"
                                 formArgs={formArgs}
                                 onCancel={handleStmtEditorCancel}
                             />
