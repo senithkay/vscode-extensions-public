@@ -38,7 +38,7 @@ export function Constant(props: ConstantProps) {
     const { model } = props;
     const {
         api: {
-            code: { modifyDiagram },
+            code: { modifyDiagram, gotoSource },
         },
     } = useDiagramContext();
 
@@ -66,7 +66,7 @@ export function Constant(props: ConstantProps) {
     const handleEditBtnConfirm = () => {
         const targetposition = model.position;
         setEditingEnabled(false);
-        // Move to code
+        gotoSource({ startLine: targetposition.startLine, startColumn: targetposition.startColumn });
     }
 
     return (

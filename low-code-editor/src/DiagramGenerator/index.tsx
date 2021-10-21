@@ -183,6 +183,9 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                     dispatchFileChange: (content: string, callback?: () => undefined) => Promise.resolve(),
                                     hasConfigurables: (templateST: ModulePart) => false,
                                     setCodeLocationToHighlight: (position: ModelCodePosition) => undefined,
+                                    gotoSource: (position: { startLine: number, startColumn: number }) => {
+                                        props.gotoSource(filePath, position);
+                                    }
                                 },
                                 connections: {
                                     createManualConnection: (orgHandle: string, displayName: string, connectorName: string,

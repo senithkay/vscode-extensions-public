@@ -33,7 +33,7 @@ export function EnumDeclarationComponent(props: EnumDeclarationComponentProps) {
     const { model } = props;
     const {
         api: {
-            code: { modifyDiagram },
+            code: { modifyDiagram, gotoSource },
         },
     } = useDiagramContext();
     const [isExpanded, setIsExpanded] = useState(false);
@@ -51,7 +51,7 @@ export function EnumDeclarationComponent(props: EnumDeclarationComponentProps) {
 
     const handleEditBtnConfirm = () => {
         const targetposition = model.position;
-        // Move to code
+        gotoSource({ startLine: targetposition.startLine, startColumn: targetposition.startColumn });
     }
 
     const members: JSX.Element[] = model.enumMemberList

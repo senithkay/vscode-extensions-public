@@ -34,7 +34,7 @@ export function ClassHeader(props: ClassHeaderProps) {
     const { model, onExpandClick, isExpanded } = props;
     const {
         api: {
-            code: { modifyDiagram },
+            code: { modifyDiagram, gotoSource },
         },
     } = useDiagramContext();
     const [editingEnabled, setEditingEnabled] = useState(false);
@@ -56,7 +56,7 @@ export function ClassHeader(props: ClassHeaderProps) {
     const handleEditBtnConfirm = () => {
         const targetposition = model.position;
         setEditingEnabled(false);
-        // Move to code
+        gotoSource({ startLine: targetposition.startLine, startColumn: targetposition.startColumn });
     }
 
     return (
