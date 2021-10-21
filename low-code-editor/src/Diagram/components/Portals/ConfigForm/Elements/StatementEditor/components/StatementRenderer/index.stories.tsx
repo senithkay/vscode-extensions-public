@@ -29,7 +29,7 @@ import whileModel from "./data/while-st-model.json";
 import { StatementRenderer, StatementRendererProps } from "./index";
 
 export default {
-    title: 'Low Code Editor/StatementEditor/StatementRendererNew',
+    title: 'Low Code Editor/StatementEditor/StatementRenderer',
     component: StatementRenderer,
 };
 

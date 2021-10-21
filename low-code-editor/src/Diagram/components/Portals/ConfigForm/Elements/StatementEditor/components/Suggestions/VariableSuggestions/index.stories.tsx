@@ -16,7 +16,7 @@ import React from 'react';
 import { Story } from '@storybook/react/types-6-0';
 
 import { SuggestionItem } from "../../../models/definitions";
-import stModel from "../../Expression/data/st-model-raw.json";
+import stModel from "../../StatementRenderer/data/st-model-raw.json";
 
 import { VariableSuggestions, VariableSuggestionsProps } from "./index";
 
