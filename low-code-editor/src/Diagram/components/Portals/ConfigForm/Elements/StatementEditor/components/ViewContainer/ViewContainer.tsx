@@ -55,11 +55,11 @@ export function ViewContainer(props: ViewProps) {
     } = props;
     const intl = useIntl();
 
-    const stmtModel = formArgs.model ? formArgs.model.initializer : getDefaultModel(kind);
+    const stmtModel = formArgs.model ? formArgs.model : getDefaultModel(kind);
 
     const [model] = useState({ ...stmtModel });
 
-    const [currentModel, setCurrentModel] = useState({model});
+    const [currentModel, setCurrentModel] = useState({ model });
 
     const [onCancelClicked, setOnCancel] = useState(false);
 
@@ -133,4 +133,3 @@ export function ViewContainer(props: ViewProps) {
         </div>
     )
 }
-

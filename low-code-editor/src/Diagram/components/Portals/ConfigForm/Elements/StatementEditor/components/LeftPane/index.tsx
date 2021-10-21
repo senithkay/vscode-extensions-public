@@ -20,7 +20,7 @@ import { StatementEditorContext } from "../../store/statement-editor-context";
 import { SuggestionsContext } from "../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../utils";
 import { Diagnostics } from "../Diagnostics";
-import { ExpressionComponent } from '../Expression';
+import { StatementRenderer } from "../StatementRenderer";
 import { ExpressionSuggestions } from "../Suggestions/ExpressionSuggestions";
 import { VariableSuggestions } from "../Suggestions/VariableSuggestions";
 import { statementEditorStyles } from "../ViewContainer/styles";
@@ -77,9 +77,8 @@ export function LeftPane(props: ModelProps) {
                 <span className={overlayClasses.subHeader}>{label}</span>
                 <div className={overlayClasses.templateEditor}>
                     <div className={overlayClasses.templateEditorInner}>
-                        <ExpressionComponent
+                        <StatementRenderer
                             model={stmtCtx.modelCtx.statementModel}
-                            isRoot={true}
                             userInputs={userInputs}
                             diagnosticHandler={diagnosticHandler}
                         />

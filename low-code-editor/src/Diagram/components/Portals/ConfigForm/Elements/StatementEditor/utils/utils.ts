@@ -293,7 +293,20 @@ export const OperatorsForExpressionKind: { [key: string]: SuggestionItem[] } = {
 }
 
 export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = {
-    StringLiteral: [],
+    BooleanLiteral: [
+        {value: c.RELATIONAL},
+        {value: c.EQUALITY},
+        {value: c.LOGICAL},
+        {value: c.TYPE_CHECK},
+        {value: c.CONDITIONAL},
+        {value: c.UNARY}
+    ],
+    StringLiteral: [
+        {value: c.STRING_LITERAL},
+        {value: c.CONDITIONAL},
+        {value: c.STRING_TEMPLATE},
+        {value: c.ARITHMETIC}
+    ],
     NumericLiteral: [],
     Relational: [
         {value: c.ARITHMETIC},
