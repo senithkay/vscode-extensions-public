@@ -11,41 +11,31 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext } from 'react';
+import React from 'react';
 
-import { Context, FormState } from "../../../../../Contexts/RecordEditor";
-import { useStyles} from "../../../Portals/ConfigForm/forms/style";
+import { FormState, useRecordEditorContext } from "../../../../../Contexts/RecordEditor";
 import { CodePanel} from "../CodePanel";
 import { EditFieldForm } from "../EditFieldForm";
 import { EditRecordForm } from "../EditRecordForm";
-import { recordStyles} from "../style";
-import { RecordModel } from "../types";
+import { EditTypeDefForm } from "../EditTypeDefForm";
 
-export interface RecordProps {
-    recordModel: RecordModel;
-    onSave: (typeDesc: string, recModel: RecordModel) => void;
-    onCancel: () => void;
-}
-
-export function Record(props: RecordProps) {
-    const { recordModel, onSave } = props;
-
-    const { state, callBacks } = useContext(Context);
-    const recordClasses = recordStyles();
-    const classes = useStyles();
+export function Record() {
+    const { state } = useRecordEditorContext();
 
     return (
         <>
             <div>
-                {/* TODO add forms here */}
-                {(state.currentForm === FormState.EDIT_RECORD_FORM) && (
+                {(state.currentForm === FormState.EDIT_RECORD_FORM && state.currentRecord.isTypeDefinition) && (
+                    <EditTypeDefForm />
+                )}
+                {(state.currentForm === FormState.EDIT_RECORD_FORM && !state.currentRecord?.isTypeDefinition) && (
                     <EditRecordForm />
                 )}
                 {(state.currentForm === FormState.ADD_FIELD || state.currentForm === FormState.UPDATE_FIELD) && (
                     <EditFieldForm />
                 )}
             </div>
-            <CodePanel recordModel={recordModel} onSave={onSave} />
+            <CodePanel />
         </>
     );
 }

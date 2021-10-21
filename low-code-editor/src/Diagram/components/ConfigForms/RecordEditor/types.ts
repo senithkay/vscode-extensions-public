@@ -30,6 +30,7 @@ export interface RecordModel {
     isClosed?: boolean;
     isActive?: boolean;
     isTypeDefinition?: boolean;
+    isPublic?: boolean;
 }
 
 export declare type Field = SimpleField | RecordModel;

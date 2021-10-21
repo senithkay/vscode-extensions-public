@@ -763,8 +763,8 @@ export function updateFunctionSignature(name: string, parameters: string, return
     return functionStatement;
 }
 
-export function mutateTypeDefinition(typeName: string, typeDesc: string, targetPosition: NodePosition,
-                                     isNew: boolean): STModification {
+export function mutateTypeDefinition(typeName: string, typeDesc: string, targetPosition: NodePosition, isNew: boolean,
+                                     accessModifier?: string): STModification {
     let modification: STModification;
     if (isNew) {
         modification = {
@@ -785,6 +785,7 @@ export function mutateTypeDefinition(typeName: string, typeDesc: string, targetP
         ...modification,
         type: 'TYPE_DEFINITION',
         config: {
+            'ACCESS_MODIFIER': accessModifier,
             'TYPE_NAME': typeName,
             'TYPE_DESCRIPTOR': typeDesc
         }

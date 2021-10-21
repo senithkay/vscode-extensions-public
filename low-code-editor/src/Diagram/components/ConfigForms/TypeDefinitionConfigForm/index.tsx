@@ -226,12 +226,12 @@ export function TypeDefinitionConfigForm(props: TypeDefFormProps) {
             ) : (
                 <RecordEditor
                     name={name}
-                    isNewModel={(targetPosition !== undefined) && (targetPosition !== null)}
+                    targetPosition={targetPosition}
                     existingModel={typeDescModel}
                     onSave={handleEditorComplete}
                     model={model?.typeDescriptor as RecordTypeDesc}
                     isTypeDefinition={true}
-                    onCancel={null}
+                    onCancel={onCancel}
                 />
             )}
         </>

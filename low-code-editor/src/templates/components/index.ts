@@ -60,5 +60,5 @@ service /{{{ BASE_PATH }}} on new http:Listener({{{ PORT }}})`,
     SERVICE_DECLARATION_WITH_SHARED_LISTENER_UPDATE: `
 service /{{{ BASE_PATH }}} on {{{ LISTENER_NAME }}}`,
     TYPE_DEFINITION: `
-type {{{ TYPE_NAME }}} {{{ TYPE_DESCRIPTOR }}}`
+{{#if ACCESS_MODIFIER }}{{{ ACCESS_MODIFIER }}} {{/if}}type {{{ TYPE_NAME }}} {{{ TYPE_DESCRIPTOR }}}`
 }

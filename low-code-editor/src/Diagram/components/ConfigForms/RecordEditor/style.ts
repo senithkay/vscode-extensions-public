@@ -15,7 +15,9 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 export const recordStyles = makeStyles((theme: Theme) =>
     createStyles({
         recordFieldWrapper: {
-            marginLeft: 10,
+            marginLeft: 20,
+            marginRight: 20,
+            marginTop: 20,
             height: "85%",
             overflow: "scroll",
             "&::-webkit-scrollbar": {
@@ -31,8 +33,13 @@ export const recordStyles = makeStyles((theme: Theme) =>
         },
         recordConfigTitleWrapper: {
             width: "auto",
+            height: 47,
             marginLeft: 20,
-            marginTop: 20
+        },
+        recordTitleSeparator: {
+            width: "100%",
+            height: 1,
+            borderTop: "1px solid #d8d8d8"
         },
         fieldEditorWrapper: {
             boxSizing: "border-box",
@@ -44,31 +51,26 @@ export const recordStyles = makeStyles((theme: Theme) =>
         },
         itemContentWrapper: {
             background: 'white',
-            padding: 7,
-            borderRadius: 5,
-            border: '1px solid #E6E7EC',
-            margin: '1rem 0 0.25rem',
+            marginLeft: 10,
+            marginRight: 10,
+            margin: `5px 0`,
             flexDirection: 'row',
             display: 'flex',
             width: '100%',
-            justifyContent: 'center',
+            color: '#0095FF',
         },
         activeItemContentWrapper: {
             background: 'white',
-            padding: 7,
             borderRadius: 5,
             border: '1px solid #A6B3FF',
-            margin: '1rem 0 0.25rem',
+            padding: 10,
             flexDirection: 'row',
             display: 'flex',
-            width: '100%',
-            justifyContent: 'center',
+            width: '100%'
         },
         itemWrapper: {
             display: 'flex',
             flexDirection: `row`,
-            marginLeft: 10,
-            marginRight: 10,
             minWidth: 200
         },
         itemLabel: {
@@ -88,9 +90,13 @@ export const recordStyles = makeStyles((theme: Theme) =>
             padding: 0
         },
         draftBtnWrapper: {
+            width: "100%",
             display: "flex",
             flexDirection: "row",
-            alignItems: "center"
+            padding: 10,
+            borderRadius: 5,
+            border: "1px solid #A6B3FF",
+            justifyContent: "center"
         },
         addFieldBtn: {
             outline: "none",
@@ -107,7 +113,7 @@ export const recordStyles = makeStyles((theme: Theme) =>
             borderRadius: 8
         },
         addFieldBtnWrap: {
-            margin: 10,
+            margin: `10px 10px 10px 5px`,
             color: "#5567D5",
             fontSize: 12,
             display: "flex",
@@ -119,15 +125,10 @@ export const recordStyles = makeStyles((theme: Theme) =>
         },
         recordEditorWrapper: {
             minWidth: 200,
-            margin: 10,
-            padding: 10,
-            boxSizing: "border-box",
-            border: "1px solid #E6E7EC",
-            borderRadius: 4
+            margin: `5px 10px`
         },
         activeRecordEditorWrapper: {
             minWidth: 200,
-            margin: 10,
             padding: 10,
             boxSizing: "border-box",
             border: "1px solid #A6B3FF",

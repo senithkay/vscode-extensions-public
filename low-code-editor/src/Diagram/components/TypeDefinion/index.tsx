@@ -155,7 +155,7 @@ export function TypeDefinitionComponent(props: TypeDefComponentProps) {
         component.push(
             <FormGenerator
                 model={model}
-                configOverlayFormStatus={{ formType: model.kind, isLoading: false }}
+                configOverlayFormStatus={{ formType: "RecordEditor", isLoading: false }}
                 onCancel={handleEditClose}
                 onSave={handleEditClose}
             />

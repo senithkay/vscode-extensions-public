@@ -111,18 +111,17 @@ export function RecordField(props: CodePanelProps) {
         // Adding draft field
         fieldItems.push(
             <div className={recordClasses.itemWrapper}>
-                <div className={recordClasses.activeItemContentWrapper}>
-                    <div className={recordClasses.draftBtnWrapper} onClick={handleDraftFieldDelete}>
-                        <div className={recordClasses.actionBtnWrapper}>
-                            <DeleteButton/>
-                        </div>
+                <div className={recordClasses.draftBtnWrapper} onClick={handleDraftFieldDelete}>
+                    <div className={recordClasses.actionBtnWrapper}>
+                        <DeleteButton/>
                     </div>
                 </div>
             </div>
         )
     }
 
-    const recordBegin = `${recordModel.isTypeDefinition ? `type ${recordModel.name} ` :
+    const accessModifier = `${recordModel.isPublic ? "public " : ""}`;
+    const recordBegin = `${recordModel.isTypeDefinition ? `${accessModifier}type ${recordModel.name} ` :
         ""}record { ${recordModel.isClosed ? "|" : ""}`;
 
     const recordProperties = `${recordModel.isArray ? "[] " : " "}${recordModel.name}${recordModel.isOptional ? " ?" :

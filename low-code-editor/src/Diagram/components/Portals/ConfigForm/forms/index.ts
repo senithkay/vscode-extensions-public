@@ -13,6 +13,7 @@
 import { ConditionConfigForm } from "../../../ConfigForms/ConditionConfigForms";
 import { EndConfigForm } from "../../../ConfigForms/EndConfigForms";
 import { ProcessConfigForm } from "../../../ConfigForms/ProcessConfigForms";
+import { RecordEditor } from "../../../ConfigForms/RecordEditor";
 import { ApiConfigureWizard } from "../../../ConfigForms/ResourceConfigForm/ApiConfigureWizard";
 import { TypeDefinitionConfigForm } from "../../../ConfigForms/TypeDefinitionConfigForm";
 import { ConnectorForm } from "../../../ConnectorConfigWizard/Components/ConnectorForm";
@@ -44,3 +45,4 @@ export { ServiceConfigForm as ServiceDeclaration };
 export { FunctionConfigForm as FunctionDefinition };
 export { ApiConfigureWizard as ResourceAccessorDefinition}
 export { TypeDefinitionConfigForm as TypeDefinition };
+export { RecordEditor as RecordEditor };

@@ -122,9 +122,9 @@ export function FieldEditor(props: FieldEditorProps) {
                 onChange={handleOptionalTypeChange}
             />
 
-            {(selectedType === "record") && (
-                <Record onSave={null} onCancel={handleRecordClose} recordModel={null} />
-            )}
+            {/*{(selectedType === "record") && (*/}
+            {/*    <Record onSave={null} onCancel={handleRecordClose} recordModel={null} />*/}
+            {/*)}*/}
             <div className={overlayClasses.buttonWrapper}>
                 <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
                 <PrimaryButton

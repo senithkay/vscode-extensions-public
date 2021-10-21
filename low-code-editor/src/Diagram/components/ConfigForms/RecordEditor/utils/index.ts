@@ -75,10 +75,8 @@ export function getRecordModel(typeDesc: RecordTypeDesc, name: string, isInline:
                 recordModel.fields.push(recField);
             }
         })
-        return recordModel;
-    } else {
-        return null;
     }
+    return recordModel;
 }
 
 export function getGeneratedCode(model: Field, isTypeDef: boolean): string {

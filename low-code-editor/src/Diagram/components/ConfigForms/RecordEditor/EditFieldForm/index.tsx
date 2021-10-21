@@ -11,11 +11,11 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { Box, FormControl, Typography } from "@material-ui/core";
 
-import { Context, FormState } from "../../../../../Contexts/RecordEditor";
+import { FormState, useRecordEditorContext } from "../../../../../Contexts/RecordEditor";
 import { PrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
 import CheckBoxGroup from "../../../Portals/ConfigForm/Elements/CheckBox";
 import { SelectDropdownWithButton } from "../../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
@@ -26,13 +26,13 @@ import { SimpleField } from "../types";
 
 export function EditFieldForm() {
 
-    const { state, callBacks } = useContext(Context);
+    const { state, callBacks } = useRecordEditorContext();
 
     const overlayClasses = wizardStyles();
     const classes = useStyles();
 
     const isFieldUpdate = state.currentForm === FormState.UPDATE_FIELD;
-    let type = "";
+    let type = "int";
     let fieldName = "";
     let nameValidity = false;
     let fieldOptianality = false;
@@ -55,10 +55,6 @@ export function EditFieldForm() {
 
     const handleTypeSelect = (typeSelected: string) => {
         setSelectedType(typeSelected);
-    };
-
-    const handleRecordClose = () => {
-        setSelectedType("");
     };
 
     const handleNameChange = (inputText: string) => {
@@ -116,7 +112,7 @@ export function EditFieldForm() {
     }
 
     const resetFields = () => {
-        setSelectedType("");
+        setSelectedType("int");
         setName("");
         setIsFieldOptional(false);
         setIsValidName(false);

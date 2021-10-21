@@ -15,14 +15,14 @@ import React from 'react';
 // tslint:disable-next-line: no-submodule-imports
 import { Story } from '@storybook/react/types-6-0';
 
-import { Record, RecordProps } from "./index";
+import { Record } from "./index";
 
 export default {
     title: 'Low Code Editor/Form/Record/Record',
     component: Record,
 };
 
-const Template: Story<RecordProps> = (args: RecordProps) =>
+const Template: Story<any> = (args: any) =>
     <Record {...args} />;
 
 export const RecordComponent = Template.bind({});

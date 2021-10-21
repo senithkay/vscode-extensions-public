@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React from "react";
+import React, { useState } from "react";
 
 import DeleteButton from "../../../../../assets/icons/DeleteButton";
 import EditButton from "../../../../../assets/icons/EditButton";
@@ -29,8 +29,10 @@ export function FieldItem(props: FieldItemProps) {
 
     const recordClasses = recordStyles();
 
+    const [isFieldActionsVisible, setIsFieldActionsVisible] = useState(false);
+
     const segmentLabel = `${field.type}${field.isFieldTypeOptional ? "?" :
-        ""} ${field.name}${field.isFieldOptional ? "?" : ""}`;
+        ""} ${field.name}${field.isFieldOptional ? "?" : ""}${field.value ? ` = ${field.value}` : ""};`;
 
     const handleDelete = () => {
         onDeleteClick(field);
@@ -40,20 +42,30 @@ export function FieldItem(props: FieldItemProps) {
         onEditCLick(field);
     };
 
+    const handleMouseEnter = () => {
+        setIsFieldActionsVisible(true);
+    };
+
+    const handleMouseLeave = () => {
+        setIsFieldActionsVisible(false);
+    };
+
     return (
-        <div className={recordClasses.itemWrapper}>
+        <div className={recordClasses.itemWrapper} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
             <div className={field.isActive ? recordClasses.activeItemContentWrapper : recordClasses.itemContentWrapper}>
                 <div className={recordClasses.itemLabel}>
                     {segmentLabel}
                 </div>
-                <div className={recordClasses.btnWrapper}>
-                    <div className={recordClasses.actionBtnWrapper} onClick={handleEdit}>
-                        <EditButton />
+                {isFieldActionsVisible && (
+                    <div className={recordClasses.btnWrapper}>
+                        <div className={recordClasses.actionBtnWrapper} onClick={handleEdit}>
+                            <EditButton />
+                        </div>
+                        <div className={recordClasses.actionBtnWrapper} onClick={handleDelete}>
+                            <DeleteButton />
+                        </div>
                     </div>
-                    <div className={recordClasses.actionBtnWrapper} onClick={handleDelete}>
-                        <DeleteButton />
-                    </div>
-                </div>
+                )}
             </div>
         </div>
     );

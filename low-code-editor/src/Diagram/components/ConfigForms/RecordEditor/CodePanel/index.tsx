@@ -11,40 +11,64 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext } from "react";
+import React from "react";
 
+import { NodePosition } from "@ballerina/syntax-tree";
 import { Box, Typography } from "@material-ui/core";
 
-import { Context } from "../../../../../Contexts/RecordEditor";
+import { useDiagramContext } from "../../../../../Contexts/Diagram";
+import { useRecordEditorContext} from "../../../../../Contexts/RecordEditor";
+import { mutateTypeDefinition } from "../../../../utils/modification-util";
 import { OverlayBackground } from "../../../OverlayBackground";
 import { PrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
 import { SecondaryButton } from "../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
-import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { DiagramOverlayContainer } from "../../../Portals/Overlay";
 import { wizardStyles } from "../../style";
 import { RecordField } from "../RecordField";
 import { recordStyles } from "../style";
-import { RecordModel } from "../types";
 import { getGeneratedCode } from "../utils";
 
 import "./style.scss";
 
-export interface CodePanelProps {
-    recordModel: RecordModel;
-    onSave: (typeDesc: string, recModel: RecordModel) => void;
-}
+export function CodePanel() {
+    const { state } = useRecordEditorContext();
+    const { api: { code: { modifyDiagram } } } = useDiagramContext();
 
-export function CodePanel(props: CodePanelProps) {
-    const { recordModel, onSave } = props;
-    const { state, callBacks } = useContext(Context);
-
-    const classes = useStyles();
     const overlayClasses = wizardStyles();
     const recordClasses = recordStyles();
 
     const handleRecordSave = () => {
-        console.log(">>>" + getGeneratedCode(state.recordModel, true));
-        onSave(getGeneratedCode(state.recordModel, true), state.recordModel);
+        if (state.recordModel.isTypeDefinition) {
+            const isNewTypeDesc = (state.targetPosition !== undefined);
+            const accessModifier = state.recordModel.isPublic ? "public" : null;
+            if (!isNewTypeDesc) {
+                const modelPosition = state.sourceModel.position as NodePosition;
+                const updatePosition = {
+                    startLine: modelPosition.startLine,
+                    startColumn: 0,
+                    endLine: modelPosition.endLine,
+                    endColumn: modelPosition.endColumn
+                };
+
+                modifyDiagram([
+                    mutateTypeDefinition(
+                        state.recordModel.name,
+                        getGeneratedCode(state.recordModel, true),
+                        updatePosition,
+                        isNewTypeDesc,
+                        accessModifier
+                    )
+                ]);
+            } else {
+                modifyDiagram([
+                    mutateTypeDefinition(state.recordModel.name, getGeneratedCode(state.recordModel, true),
+                        state.targetPosition, isNewTypeDesc, accessModifier)
+                ]);
+            }
+            state.onCancel();
+        } else {
+            state.onSave(getGeneratedCode(state.recordModel, true), state.recordModel);
+        }
     };
 
     return (
@@ -57,6 +81,7 @@ export function CodePanel(props: CodePanelProps) {
                             <Box paddingTop={2} paddingBottom={2}>{"Record Configuration"}</Box>
                         </Typography>
                     </div>
+                    <div className={recordClasses.recordTitleSeparator} />
                     <div className={recordClasses.recordFieldWrapper}>
                         <RecordField recordModel={state.recordModel} />
                     </div>
@@ -65,7 +90,6 @@ export function CodePanel(props: CodePanelProps) {
                         <PrimaryButton
                             dataTestId={"record-from-json-save-btn"}
                             text={"Save"}
-                            // disabled={!isSaveButtonEnabled}
                             fullWidth={false}
                             onClick={handleRecordSave}
                         />

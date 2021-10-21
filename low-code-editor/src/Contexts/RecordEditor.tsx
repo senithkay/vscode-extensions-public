@@ -13,6 +13,8 @@
 
 import React, { useContext, useReducer } from "react";
 
+import { NodePosition, RecordTypeDesc, TypeDefinition } from "@ballerina/syntax-tree";
+
 import { RecordModel, SimpleField } from "../Diagram/components/ConfigForms/RecordEditor/types";
 
 export enum FormState {
@@ -28,6 +30,10 @@ export interface RecordEditorState {
     currentRecord?: RecordModel;
     currentField?: SimpleField;
     currentForm?: FormState;
+    targetPosition?: NodePosition;
+    sourceModel?: TypeDefinition | RecordTypeDesc;
+    onCancel?: () => void;
+    onSave?: (typeDesc: string, recModel: RecordModel) => void;
 }
 
 export interface RecordEditorProps {
@@ -81,6 +87,10 @@ export const Provider: React.FC<RecordEditorProps> = (props) => {
         recordModel: state.recordModel,
         currentRecord: state.currentRecord,
         currentField: state.currentField,
+        sourceModel: state.sourceModel,
+        targetPosition: state.targetPosition,
+        onSave: state.onSave,
+        onCancel: state.onCancel
     });
 
     const updateModel = (recordModel: RecordModel) => {
