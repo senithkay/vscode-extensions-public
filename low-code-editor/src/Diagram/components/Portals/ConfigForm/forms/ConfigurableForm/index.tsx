@@ -12,15 +12,16 @@
  */
 import React, { useReducer, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { v4 as uuid } from "uuid";
 
 import { CaptureBindingPattern, ModuleVarDecl, NodePosition, ServiceDeclaration, STKindChecker, TypedBindingPattern } from '@ballerina/syntax-tree';
 import { Box, FormControl, FormHelperText, Typography } from '@material-ui/core';
+import { v4 as uuid } from "uuid";
 
 import { ConfigurableIcon } from '../../../../../../assets/icons';
 import { useDiagramContext } from '../../../../../../Contexts/Diagram';
 import { ConfigOverlayFormStatus, STModification } from '../../../../../../Definitions';
 import { createModuleVarDecl, updateModuleVarDecl } from '../../../../../utils/modification-util';
+import { InjectableItem } from '../../../../FormGenerator';
 import { PrimaryButton } from '../../Elements/Button/PrimaryButton';
 import { SecondaryButton } from '../../Elements/Button/SecondaryButton';
 import CheckBoxGroup from '../../Elements/CheckBox';
@@ -28,12 +29,11 @@ import { SelectDropdownWithButton } from '../../Elements/DropDown/SelectDropdown
 import ExpressionEditor from '../../Elements/ExpressionEditor';
 import { RadioControl } from '../../Elements/RadioControl/FormRadioControl';
 import { FormTextInput } from '../../Elements/TextField/FormTextInput';
+import { ModuleVariableFormState } from '../ModuleVariableForm/util';
 import { useStyles as useFormStyles } from "../style";
 
 import { getFormConfigFromModel, isFormConfigValid, ModuleVarNameRegex, VariableQualifiers } from './util';
 import { ModuleVarFormActionTypes, moduleVarFormReducer } from './util/reducer';
-import { ModuleVariableFormState } from '../ModuleVariableForm/util';
-import { InjectableItem } from '../../../../FormGenerator';
 
 const variableTypes: string[] = ["int", "float", "boolean", "string", "xml"];
 interface ConfigurableFormProps {
@@ -54,11 +54,12 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
     const isFromExpressionEditor = !!updateInjectables;
 
     const handleOnSave = () => {
+        const modifyState: ModuleVariableFormState = {
+            ...state,
+            varValue: state.hasDefaultValue ? state.varValue : '?',
+        }
         if (isFromExpressionEditor && updateParentConfigurable){
-            const modification = createModuleVarDecl({
-                ...state,
-                varValue: state.varValue || '?',
-            }, targetPosition);
+            const modification = createModuleVarDecl(modifyState, targetPosition);
             const editItemIndex = updateInjectables?.list.findIndex((item: InjectableItem) => item.id === configurableId);
             let newInjectableList = updateInjectables?.list;
             const newInjectable = {
@@ -79,11 +80,6 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
             }, 250)
 
         }else{
-
-            const modifyState: ModuleVariableFormState = {
-                ...state,
-                varValue: state.varValue || '?',
-            }
             const modifications: STModification[] = []
             if (model) {
                 modifications.push(updateModuleVarDecl(modifyState, model.position));
@@ -97,6 +93,10 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
 
     const onAccessModifierChange = (modifierList: string[]) => {
         dispatch({ type: ModuleVarFormActionTypes.UPDATE_ACCESS_MODIFIER, payload: modifierList.length > 0 });
+    }
+
+    const onHasDefaultValChange = (defaultValList: string[]) => {
+        dispatch({ type: ModuleVarFormActionTypes.SET_DEFAULT_INCLUDED, payload: defaultValList.length > 0 });
     }
 
     const onVarTypeChange = (type: string) => {
@@ -142,6 +142,7 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
                 defaultCodeSnippet: `configurable ${state.varType} temp_var_${uuid().replaceAll('-', '_')} = ;`,
                 targetColumn: 62 + state.varType.length,
             },
+            hideTextLabel: true
         },
         onChange: onValueChange,
         defaultValue: state.varValue,
@@ -204,9 +205,24 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
                 errorMessage={"Invalid Configurable Name"}
                 placeholder={"Enter Configurable Name"}
             />
-            <ExpressionEditor
-                {...expressionEditorConfig}
+            <div className={formClasses.labelWrapper}>
+                <FormHelperText className={formClasses.inputLabelForRequired}>
+                    <FormattedMessage
+                        id="lowcode.develop.configForms.ModuleVarDecl.defaultValueIncluded"
+                        defaultMessage="Default Value :"
+                    />
+                </FormHelperText>
+            </div>
+            <CheckBoxGroup
+                values={["Include Default Value"]}
+                defaultValues={state.hasDefaultValue ? ['Include Default Value'] : []}
+                onChange={onHasDefaultValChange}
             />
+            <div hidden={!state.hasDefaultValue}>
+                <ExpressionEditor
+                    {...expressionEditorConfig}
+                />
+            </div>
             <div className={formClasses.wizardBtnHolder}>
                 <SecondaryButton
                     text="Cancel"

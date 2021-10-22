@@ -11,7 +11,7 @@
  * associated services.
  */
 
-import { ModuleVariableFormState } from ".";
+import { ModuleConfigurableFormState } from ".";
 
 export enum ModuleVarFormActionTypes {
     UPDATE_ACCESS_MODIFIER,
@@ -19,6 +19,7 @@ export enum ModuleVarFormActionTypes {
     SET_VAR_NAME,
     SET_VAR_VALUE,
     SET_VAR_QUALIFIER,
+    SET_DEFAULT_INCLUDED,
     UPDATE_EXPRESSION_VALIDITY,
     RESET_VARIABLE_TYPE
 }
@@ -30,9 +31,10 @@ export type ModuleVarFormAction =
     | { type: ModuleVarFormActionTypes.SET_VAR_VALUE, payload: string }
     | { type: ModuleVarFormActionTypes.SET_VAR_QUALIFIER, payload: string }
     | { type: ModuleVarFormActionTypes.UPDATE_EXPRESSION_VALIDITY, payload: boolean }
+    | { type: ModuleVarFormActionTypes.SET_DEFAULT_INCLUDED, payload: boolean}
     | { type: ModuleVarFormActionTypes.RESET_VARIABLE_TYPE };
 
-export function moduleVarFormReducer(state: ModuleVariableFormState, action: ModuleVarFormAction): ModuleVariableFormState {
+export function moduleVarFormReducer(state: ModuleConfigurableFormState, action: ModuleVarFormAction): ModuleConfigurableFormState {
     switch (action.type) {
         case ModuleVarFormActionTypes.UPDATE_ACCESS_MODIFIER:
             return { ...state, isPublic: action.payload };
@@ -46,6 +48,8 @@ export function moduleVarFormReducer(state: ModuleVariableFormState, action: Mod
             return { ...state, varQualifier: action.payload };
         case ModuleVarFormActionTypes.UPDATE_EXPRESSION_VALIDITY:
             return { ...state, isExpressionValid: action.payload };
+        case ModuleVarFormActionTypes.SET_DEFAULT_INCLUDED:
+                return { ...state, hasDefaultValue: action.payload };
         case ModuleVarFormActionTypes.RESET_VARIABLE_TYPE:
             return { ...state, varType: '', varValue: '' };
     }

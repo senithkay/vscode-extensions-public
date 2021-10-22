@@ -15,13 +15,14 @@ import { CaptureBindingPattern, STKindChecker, TypedBindingPattern } from "@ball
 
 export const ModuleVarNameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 
-export interface ModuleVariableFormState {
+export interface ModuleConfigurableFormState {
     isPublic: boolean;
     varType: string;
     varName: string;
     varValue: string;
     varQualifier: string;
     isExpressionValid: boolean;
+    hasDefaultValue: boolean;
 }
 
 export enum VariableQualifiers {
@@ -30,15 +31,16 @@ export enum VariableQualifiers {
     CONFIGURABLE = 'configurable',
 }
 
-export function getFormConfigFromModel(model: any): ModuleVariableFormState {
+export function getFormConfigFromModel(model: any): ModuleConfigurableFormState {
     // FixMe: model is set to any type due to missing properties in ST interface
-    const defaultFormState: ModuleVariableFormState = {
+    const defaultFormState: ModuleConfigurableFormState = {
         isPublic: false,
         varType: 'int',
         varName: '',
         varValue: '',
         varQualifier: 'configurable',
         isExpressionValid: true,
+        hasDefaultValue: false,
     }
 
     if (model) {
@@ -60,6 +62,7 @@ export function getFormConfigFromModel(model: any): ModuleVariableFormState {
         }
 
         defaultFormState.isPublic = model.visibilityQualifier && STKindChecker.isPublicKeyword(model.visibilityQualifier);
+        defaultFormState.hasDefaultValue =  !!model.initializer.source;
         defaultFormState.varValue = model.initializer.source;
         defaultFormState.varName = ((model.typedBindingPattern as TypedBindingPattern)
             .bindingPattern as CaptureBindingPattern).variableName.value;
@@ -71,8 +74,8 @@ export function getFormConfigFromModel(model: any): ModuleVariableFormState {
 }
 
 
-export function isFormConfigValid(config: ModuleVariableFormState): boolean {
-    const { varName, varValue, isExpressionValid } = config;
+export function isFormConfigValid(config: ModuleConfigurableFormState): boolean {
+    const { varName, varValue, isExpressionValid, hasDefaultValue } = config;
 
-    return varName?.length > 0 && ModuleVarNameRegex.test(varName) && varValue?.length > 0 && isExpressionValid;
+    return varName?.length > 0 && ModuleVarNameRegex.test(varName) && (!hasDefaultValue || (varValue?.length > 0  && isExpressionValid));
 }

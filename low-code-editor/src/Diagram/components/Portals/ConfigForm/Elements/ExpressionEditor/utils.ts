@@ -13,7 +13,7 @@
 // tslint:disable: ordered-imports
 import { FunctionDefinition, NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import { Diagnostic, Range } from "monaco-languageclient";
-import { ExpEditorExpandSvg, ExpEditorCollapseSvg, EditIcon, editVariableNameSvg } from "../../../../../../assets";
+import { ExpEditorExpandSvg, ExpEditorCollapseSvg, EditIcon, ConfigurableIconSvg } from "../../../../../../assets";
 
 import * as monaco from 'monaco-editor';
 
@@ -380,7 +380,7 @@ export function createContentWidget(id: string): monaco.editor.IContentWidget {
                     this.domNode.innerHTML = `<img src="${ExpEditorCollapseSvg}"/>`;
                 }else if (id === CONFIGURABLE_WIDGET_ID) {
                     this.domNode.className = "configurable-icon";
-                    this.domNode.innerHTML = `<img src="${editVariableNameSvg}"/>`;
+                    this.domNode.innerHTML = `<img src="${ConfigurableIconSvg}"/>`;
                 }
             }
             return this.domNode;
