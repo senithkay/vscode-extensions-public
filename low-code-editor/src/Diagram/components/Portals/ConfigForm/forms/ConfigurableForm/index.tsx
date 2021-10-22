@@ -20,8 +20,8 @@ import { v4 as uuid } from "uuid";
 import { ConfigurableIcon } from '../../../../../../assets/icons';
 import { useDiagramContext } from '../../../../../../Contexts/Diagram';
 import { ConfigOverlayFormStatus, STModification } from '../../../../../../Definitions';
-import { createModuleVarDecl, updateModuleVarDecl } from '../../../../../utils/modification-util';
 import { InjectableItem } from '../../../../FormGenerator';
+import { createConfigurableDecl, createModuleVarDecl, updateConfigurableVarDecl, updateModuleVarDecl } from '../../../../../utils/modification-util';
 import { PrimaryButton } from '../../Elements/Button/PrimaryButton';
 import { SecondaryButton } from '../../Elements/Button/SecondaryButton';
 import CheckBoxGroup from '../../Elements/CheckBox';
@@ -32,8 +32,8 @@ import { FormTextInput } from '../../Elements/TextField/FormTextInput';
 import { ModuleVariableFormState } from '../ModuleVariableForm/util';
 import { useStyles as useFormStyles } from "../style";
 
-import { getFormConfigFromModel, isFormConfigValid, ModuleVarNameRegex, VariableQualifiers } from './util';
-import { ModuleVarFormActionTypes, moduleVarFormReducer } from './util/reducer';
+import { getFormConfigFromModel, isFormConfigValid, ConfigurableFormState, ModuleVarNameRegex, VariableQualifiers } from './util';
+import { ConfigurableFormActionTypes, moduleVarFormReducer } from './util/reducer';
 
 const variableTypes: string[] = ["int", "float", "boolean", "string", "xml"];
 interface ConfigurableFormProps {
@@ -54,12 +54,12 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
     const isFromExpressionEditor = !!updateInjectables;
 
     const handleOnSave = () => {
-        const modifyState: ModuleVariableFormState = {
+        const modifyState: ConfigurableFormState = {
             ...state,
             varValue: state.hasDefaultValue ? state.varValue : '?',
         }
         if (isFromExpressionEditor && updateParentConfigurable){
-            const modification = createModuleVarDecl(modifyState, targetPosition);
+            const modification = createConfigurableDecl(modifyState, targetPosition);
             const editItemIndex = updateInjectables?.list.findIndex((item: InjectableItem) => item.id === configurableId);
             let newInjectableList = updateInjectables?.list;
             const newInjectable = {
@@ -82,9 +82,9 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
         }else{
             const modifications: STModification[] = []
             if (model) {
-                modifications.push(updateModuleVarDecl(modifyState, model.position));
+                modifications.push(updateConfigurableVarDecl(modifyState, model.position));
             } else {
-                modifications.push(createModuleVarDecl(modifyState, targetPosition));
+                modifications.push(createConfigurableDecl(modifyState, targetPosition));
             }
             modifyDiagram(modifications);
             onSave();
@@ -92,27 +92,27 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
     }
 
     const onAccessModifierChange = (modifierList: string[]) => {
-        dispatch({ type: ModuleVarFormActionTypes.UPDATE_ACCESS_MODIFIER, payload: modifierList.length > 0 });
+        dispatch({ type: ConfigurableFormActionTypes.UPDATE_ACCESS_MODIFIER, payload: modifierList.length > 0 });
     }
 
     const onHasDefaultValChange = (defaultValList: string[]) => {
-        dispatch({ type: ModuleVarFormActionTypes.SET_DEFAULT_INCLUDED, payload: defaultValList.length > 0 });
+        dispatch({ type: ConfigurableFormActionTypes.SET_DEFAULT_INCLUDED, payload: defaultValList.length > 0 });
     }
 
     const onVarTypeChange = (type: string) => {
-        dispatch({ type: ModuleVarFormActionTypes.SET_VAR_TYPE, payload: type });
+        dispatch({ type: ConfigurableFormActionTypes.SET_VAR_TYPE, payload: type });
     }
 
     const onValueChange = (value: string) => {
-        dispatch({ type: ModuleVarFormActionTypes.SET_VAR_VALUE, payload: value });
+        dispatch({ type: ConfigurableFormActionTypes.SET_VAR_VALUE, payload: value });
     }
 
     const updateExpressionValidity = (fieldName: string, isInValid: boolean) => {
-        dispatch({ type: ModuleVarFormActionTypes.UPDATE_EXPRESSION_VALIDITY, payload: !isInValid });
+        dispatch({ type: ConfigurableFormActionTypes.UPDATE_EXPRESSION_VALIDITY, payload: !isInValid });
     }
 
     const handleOnVarNameChange = (value: string) => {
-        dispatch({ type: ModuleVarFormActionTypes.SET_VAR_NAME, payload: value });
+        dispatch({ type: ConfigurableFormActionTypes.SET_VAR_NAME, payload: value });
     }
 
     const validateNameValue = (value: string) => {

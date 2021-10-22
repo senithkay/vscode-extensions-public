@@ -11,46 +11,42 @@
  * associated services.
  */
 
-import { ModuleConfigurableFormState } from ".";
+import { ConfigurableFormState } from ".";
 
-export enum ModuleVarFormActionTypes {
+export enum ConfigurableFormActionTypes {
     UPDATE_ACCESS_MODIFIER,
     SET_VAR_TYPE,
     SET_VAR_NAME,
     SET_VAR_VALUE,
-    SET_VAR_QUALIFIER,
     SET_DEFAULT_INCLUDED,
     UPDATE_EXPRESSION_VALIDITY,
     RESET_VARIABLE_TYPE
 }
 
 export type ModuleVarFormAction =
-    { type: ModuleVarFormActionTypes.UPDATE_ACCESS_MODIFIER, payload: boolean }
-    | { type: ModuleVarFormActionTypes.SET_VAR_TYPE, payload: string }
-    | { type: ModuleVarFormActionTypes.SET_VAR_NAME, payload: string }
-    | { type: ModuleVarFormActionTypes.SET_VAR_VALUE, payload: string }
-    | { type: ModuleVarFormActionTypes.SET_VAR_QUALIFIER, payload: string }
-    | { type: ModuleVarFormActionTypes.UPDATE_EXPRESSION_VALIDITY, payload: boolean }
-    | { type: ModuleVarFormActionTypes.SET_DEFAULT_INCLUDED, payload: boolean}
-    | { type: ModuleVarFormActionTypes.RESET_VARIABLE_TYPE };
+    { type: ConfigurableFormActionTypes.UPDATE_ACCESS_MODIFIER, payload: boolean }
+    | { type: ConfigurableFormActionTypes.SET_VAR_TYPE, payload: string }
+    | { type: ConfigurableFormActionTypes.SET_VAR_NAME, payload: string }
+    | { type: ConfigurableFormActionTypes.SET_VAR_VALUE, payload: string }
+    | { type: ConfigurableFormActionTypes.UPDATE_EXPRESSION_VALIDITY, payload: boolean }
+       | { type: ConfigurableFormActionTypes.SET_DEFAULT_INCLUDED, payload: boolean}
+    | { type: ConfigurableFormActionTypes.RESET_VARIABLE_TYPE };
 
-export function moduleVarFormReducer(state: ModuleConfigurableFormState, action: ModuleVarFormAction): ModuleConfigurableFormState {
+export function moduleVarFormReducer(state: ConfigurableFormState, action: ModuleVarFormAction): ConfigurableFormState {
     switch (action.type) {
-        case ModuleVarFormActionTypes.UPDATE_ACCESS_MODIFIER:
+        case ConfigurableFormActionTypes.UPDATE_ACCESS_MODIFIER:
             return { ...state, isPublic: action.payload };
-        case ModuleVarFormActionTypes.SET_VAR_NAME:
+        case ConfigurableFormActionTypes.SET_VAR_NAME:
             return { ...state, varName: action.payload };
-        case ModuleVarFormActionTypes.SET_VAR_VALUE:
+        case ConfigurableFormActionTypes.SET_VAR_VALUE:
             return { ...state, varValue: action.payload };
-        case ModuleVarFormActionTypes.SET_VAR_TYPE:
+        case ConfigurableFormActionTypes.SET_VAR_TYPE:
             return { ...state, varType: action.payload, varValue: '' };
-        case ModuleVarFormActionTypes.SET_VAR_QUALIFIER:
-            return { ...state, varQualifier: action.payload };
-        case ModuleVarFormActionTypes.UPDATE_EXPRESSION_VALIDITY:
+        case ConfigurableFormActionTypes.UPDATE_EXPRESSION_VALIDITY:
             return { ...state, isExpressionValid: action.payload };
-        case ModuleVarFormActionTypes.SET_DEFAULT_INCLUDED:
+        case ConfigurableFormActionTypes.SET_DEFAULT_INCLUDED:
                 return { ...state, hasDefaultValue: action.payload };
-        case ModuleVarFormActionTypes.RESET_VARIABLE_TYPE:
+        case ConfigurableFormActionTypes.RESET_VARIABLE_TYPE:
             return { ...state, varType: '', varValue: '' };
     }
 }

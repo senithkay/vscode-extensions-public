@@ -21,6 +21,7 @@ import DeleteButton from "../../../assets/icons/DeleteButton";
 import EditButton from "../../../assets/icons/EditButton";
 import { useDiagramContext } from "../../../Contexts/Diagram";
 import { removeStatement } from "../../utils/modification-util";
+import { FormGenerator } from "../FormGenerator";
 import { UnsupportedConfirmButtons } from "../UnsupportedConfirmButtons";
 
 import "./style.scss";
@@ -42,7 +43,8 @@ export function Constant(props: ConstantProps) {
         },
     } = useDiagramContext();
 
-    const [editingEnabled, setEditingEnabled] = useState(false);
+    const [deleteBtnEnabled, setDeleteBtnEnabled] = useState(false);
+    const [editBtnEnabled, setEditBtnEnabled] = useState(false);
 
     const constModel: ConstDeclaration = model as ConstDeclaration;
     const varType = "const";
@@ -56,16 +58,16 @@ export function Constant(props: ConstantProps) {
     }
 
     const handleEditBtnClick = () => {
-        setEditingEnabled(true);
+        setEditBtnEnabled(true);
     }
 
     const handleEditBtnCancel = () => {
-        setEditingEnabled(false);
+        setEditBtnEnabled(false);
     }
 
     const handleEditBtnConfirm = () => {
         const targetposition = model.position;
-        setEditingEnabled(false);
+        setDeleteBtnEnabled(false);
         gotoSource({ startLine: targetposition.startLine, startColumn: targetposition.startColumn });
     }
 
@@ -93,7 +95,17 @@ export function Constant(props: ConstantProps) {
                     </div>
                 </div>
             </div>
-            {editingEnabled && <UnsupportedConfirmButtons onConfirm={handleEditBtnConfirm} onCancel={handleEditBtnCancel} />}
+            {deleteBtnEnabled && <UnsupportedConfirmButtons onConfirm={handleEditBtnConfirm} onCancel={handleEditBtnCancel} />}
+            {
+                editBtnEnabled && (
+                    <FormGenerator
+                        model={model}
+                        configOverlayFormStatus={{ formType: model.kind, isLoading: false }}
+                        onCancel={handleEditBtnCancel}
+                        onSave={handleEditBtnCancel}
+                    />
+                )
+            }
         </div>
     );
 }
