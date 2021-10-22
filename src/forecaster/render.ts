@@ -18,25 +18,23 @@
  */
 
 import { getLibraryWebViewContent, WebViewOptions, getComposerWebViewOptions } from '../utils';
- 
- export function render(data: any)
-     : string {
- 
-     const body = `<div id="performance" class="performance-container" />`;
-     const bodyCss = "performance";
-     const styles = ``;
-     const scripts = `
+
+export function render(data: any)
+    : string {
+
+    const body = `<div id="performance" class="performance-container" />`;
+    const bodyCss = "performance";
+    const styles = ``;
+    const scripts = `
              function loadedScript() {
-                     window.webViews.renderPerformance(${JSON.stringify(data)});
+                window.webViews.renderPerformance(${JSON.stringify(data)});
              }
          `;
- 
-     const webViewOptions: WebViewOptions = {
-         ...getComposerWebViewOptions("WebViews"),
-         body, scripts, styles, bodyCss
-     };
- 
-     return getLibraryWebViewContent(webViewOptions);
- }
- 
- 
+
+    const webViewOptions: WebViewOptions = {
+        ...getComposerWebViewOptions("WebViews"),
+        body, scripts, styles, bodyCss
+    };
+
+    return getLibraryWebViewContent(webViewOptions);
+}

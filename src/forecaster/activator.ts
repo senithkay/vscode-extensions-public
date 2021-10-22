@@ -17,24 +17,34 @@
  *
  */
 
-import { CurrentResource, DataLabel } from "./model";
-import { commands, ViewColumn, ExtensionContext, languages, Range, window, WebviewPanel } from "vscode";
-import { BallerinaExtension, ExtendedLangClient, LANGUAGE, PerformanceAnalyzerGraphResponse } from "../core";
+import { DataLabel } from "./model";
+import { commands, ExtensionContext, languages, Range, TextDocument, ViewColumn, window } from "vscode";
+import { BallerinaExtension, ExtendedLangClient, GraphPoint, LANGUAGE, PerformanceAnalyzerGraphResponse, PerformanceAnalyzerRealtimeResponse } from "../core";
 import { ExecutorCodeLensProvider } from "./codelens-provider";
 import { log } from "../utils";
-import keytar = require("keytar");
-import { CHOREO_SERVICE_NAME, CHOREO_ACCESS_TOKEN, CHOREO_COOKIE } from "../project/cmds/choreo-signin";
-import { WebViewRPCHandler, WebViewMethod, getCommonWebViewOptions } from '../utils';
-import { render } from './render';
+import { showPerformanceGraph } from "./performanceGraphPanel";
 
-
+const CHOREO_AUTH_ERR = "Choreo Authentication error.";
+const NETWORK_ERR = "Network error. Please check you internet connection.";
 let langClient: ExtendedLangClient;
+let uiData: GraphData;
+let extension: BallerinaExtension;
+let advancedData: PerformanceAnalyzerGraphResponse;
+let currentResourceName: String;
+let currentResourcePos: Range;
+let currentFile: TextDocument | undefined;
+let currentFileUri: String | undefined;
 
-export const FORECAST_PERFORMANCE_COMMAND = "ballerina.forecast.performance";
 export const SHOW_GRAPH_COMMAND = "ballerina.forecast.performance.showGraph";
 
 export enum ANALYZETYPE {
     ADVANCED = "advanced",
+    REALTIME = "realtime",
+}
+
+export interface GraphData {
+    name: String,
+    graphData: GraphPoint[];
 }
 
 /**
@@ -43,59 +53,22 @@ export enum ANALYZETYPE {
 export async function activate(ballerinaExtInstance: BallerinaExtension) {
     const context = <ExtensionContext>ballerinaExtInstance.context;
     langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
+    extension = ballerinaExtInstance;
 
-    const getEndpoints = commands.registerCommand(FORECAST_PERFORMANCE_COMMAND, async (...args: any[]) => {
+    const getEndpoints = commands.registerCommand(SHOW_GRAPH_COMMAND, async (...args: any[]) => {
         const activeEditor = window.activeTextEditor;
+        const document = activeEditor?.document;
         const uri = activeEditor?.document.uri.fsPath.toString();
+        currentFile = document;
+        currentFileUri = uri;
+        ExecutorCodeLensProvider.dataLabels = [];
 
-        const choreoToken = await keytar.getPassword(CHOREO_SERVICE_NAME, CHOREO_ACCESS_TOKEN);
-        const choreoCookie = await keytar.getPassword(CHOREO_SERVICE_NAME, CHOREO_COOKIE);
-
-        if (!choreoToken || !choreoCookie) {
-            window.showInformationMessage(
-                "Please sign in to Choreo to use this feature"
-            );
+        if (args.length < 2) {
             return;
         }
+        await createPerformanceGraphAndCodeLenses(uri, args[0], ANALYZETYPE.ADVANCED, args[1]);
+        ExecutorCodeLensProvider.onDidChangeCodeLenses.fire();
 
-        if (uri && langClient && args.length > 0) {
-            const pos: Range = args[0];
-            // add codelenses to endpoints
-            await langClient.getPerformaceGraphData({
-                documentIdentifier: {
-                    uri: uri
-                },
-                range: {
-                    start: {
-                        line: pos.start.line,
-                        character: pos.start.character,
-                    },
-                    end: {
-                        line: pos.end.line,
-                        character: pos.end.character
-                    }
-                },
-                choreoToken: `Bearer ${choreoToken}`,
-                choreoCookie: choreoCookie,
-            }).then(async response => {
-                if (response.type === 'error') {
-                    if (response.message === 'AUTHENTICATION_ERROR') {
-                        // Choreo Auth Error
-                        window.showInformationMessage(
-                            "Choreo Authentication error."
-                        );
-                        return;
-                    } else if (response.message === 'CONNECTION_ERROR') {
-                        // Internet Connection Error
-                        return;
-                    }
-                    return;
-                }
-                addPerformanceLabels(response, pos);
-            }).catch(error => {
-                log(error);
-            });
-        }
     });
     context.subscriptions.push(getEndpoints);
 
@@ -105,14 +78,123 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
     }
 }
 
-function addPerformanceLabels(graphData: PerformanceAnalyzerGraphResponse, currentResourcePos: Range) {
-    if (!graphData || !currentResourcePos) {
+export async function createPerformanceGraphAndCodeLenses(uri: string | undefined, pos: Range,
+    type: ANALYZETYPE, name: String | undefined) {
+
+    if (!extension.getChoreoSession().loginStatus) {
+        window.showInformationMessage(
+            "Please sign in to Choreo to view performance predictions."
+        );
         return;
     }
-    const sequenceDiagramData = graphData.sequenceDiagramData;
-    const realtimeData = graphData.realtimeData;
 
-    if (!sequenceDiagramData || !realtimeData) {
+    const choreoToken = extension.getChoreoSession().choreoToken!;
+    const choreoCookie = extension.getChoreoSession().choreoCookie!;
+
+    if (!uri || !langClient || !pos) {
+        return;
+    }
+
+    currentFileUri = uri;
+    if (type == ANALYZETYPE.REALTIME) {
+        // add codelenses to resources
+        await langClient.getRealtimePerformaceData({
+            documentIdentifier: {
+                uri
+            },
+            range: {
+                start: {
+                    line: pos.start.line,
+                    character: pos.start.character,
+                },
+                end: {
+                    line: pos.end.line,
+                    character: pos.end.character
+                }
+            },
+            choreoToken: `Bearer ${choreoToken}`,
+            choreoCookie: choreoCookie,
+        }).then(async (response) => {
+            if (response.type === 'error') {
+                checkErrors(response);
+                return;
+            }
+            if (!name) {
+                return;
+            }
+            currentResourceName = name;
+            currentResourcePos = pos;
+            addRealTimePerformanceLabels(response);
+        }).catch(error => {
+            log(error);
+        });
+    } else {
+        // add code lenses to invocations
+        await langClient.getPerformaceGraphData({
+            documentIdentifier: {
+                uri
+            },
+            range: {
+                start: {
+                    line: pos.start.line,
+                    character: pos.start.character,
+                },
+                end: {
+                    line: pos.end.line,
+                    character: pos.end.character
+                }
+            },
+            choreoToken: `Bearer ${choreoToken}`,
+            choreoCookie: choreoCookie,
+        }).then(async (response) => {
+            if (response.type === 'error') {
+                checkErrors(response);
+                return;
+            }
+
+            if (!name) {
+                return;
+            }
+
+            advancedData = response;
+            currentResourceName = name;
+            currentResourcePos = pos;
+            addPerformanceLabels(1);
+
+            if (!uiData || !currentFile) {
+                return;
+            }
+
+            showPerformanceGraph(langClient, uiData, currentFile.uri);
+
+        }).catch(error => {
+            log(error);
+        });
+    }
+
+    function checkErrors(response: PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse) {
+        if (response.message === 'AUTHENTICATION_ERROR') {
+            // Choreo Auth Error
+            window.showInformationMessage(
+                CHOREO_AUTH_ERR
+            );
+        } else if (response.message === 'CONNECTION_ERROR') {
+            // Internet Connection Error
+            window.showInformationMessage(
+                NETWORK_ERR
+            );
+        }
+    }
+}
+
+function addPerformanceLabels(concurrency: number) {
+    if (!advancedData || !currentResourcePos || !currentResourceName) {
+        return;
+    }
+    const sequenceDiagramData = advancedData.sequenceDiagramData;
+    const graphData = advancedData.graphData;
+
+    if (!sequenceDiagramData) {
         return;
     }
 
@@ -120,60 +202,68 @@ function addPerformanceLabels(graphData: PerformanceAnalyzerGraphResponse, curre
         return;
     }
 
-    const first = sequenceDiagramData[0];
-    const values = first.values;
+    switch (concurrency) {
+        case 1: {
+            concurrency = 0;
+            break;
+        }
+        case 25: {
+            concurrency = 1;
+            break;
+        }
+        case 50: {
+            concurrency = 2;
+            break;
+        }
+        case 75: {
+            concurrency = 3;
+            break;
+        }
+        case 100: {
+            concurrency = 4;
+            break;
+        }
+    }
+    let data = sequenceDiagramData[concurrency];
+    const values = data.values;
+    addRealTimePerformanceLabels(graphData[concurrency]);
 
-    let dataLabels: DataLabel[] = [];
+    let file;
     for (let i = 0; i < values.length; i++) {
         const name = values[i].name.replace("(", "").replace(")", "").split("/");
         const latency = values[i].latency;
-        const file = name[0];
+        file = name[0];
         const pos = name[1].split(",");
         const start = pos[0].split(":");
         const end = pos[1].split(":");
         const range = new Range(parseInt(start[0]), parseInt(start[1]),
             parseInt(end[0]), parseInt(end[1]));
-        const dataLabel = new DataLabel(file, range, latency);
-        dataLabels.push(dataLabel);
-    }
+        const dataLabel = new DataLabel(file, range, latency, currentResourceName, currentResourcePos, null);
+        ExecutorCodeLensProvider.addDataLabel(dataLabel);
 
-    const currentResource: CurrentResource = new CurrentResource(currentResourcePos,
-        realtimeData.latency);
-    ExecutorCodeLensProvider.setCurrentResource(currentResource);
-    ExecutorCodeLensProvider.setGraphData(graphData);
-    ExecutorCodeLensProvider.addDataLabels(dataLabels);
-    showPerformanceGraph(graphData.graphData);
+    }
+    uiData = { name: currentResourceName, graphData: advancedData.graphData };
 }
 
-let performanceGraphPanel: WebviewPanel | undefined;
-
-
-function showPerformanceGraph(data): void {
-    if (performanceGraphPanel) {
-        performanceGraphPanel.reveal();
+function addRealTimePerformanceLabels(data: GraphPoint) {
+    if (!data || !currentResourcePos || !currentFileUri) {
         return;
     }
-    // Create and show a new webview
-    performanceGraphPanel = window.createWebviewPanel(
-        'ballerinaExamples',
-        "Performance Forecast",
-        { viewColumn: ViewColumn.Beside, preserveFocus: true },
-        getCommonWebViewOptions()
-    );
-    const remoteMethods: WebViewMethod[] = [
-        {
-            methodName: "openExample",
-            handler: (args: any[]): Thenable<any> => {
-                return Promise.resolve();
-            }
-        }
-    ];
-    WebViewRPCHandler.create(performanceGraphPanel, langClient, remoteMethods);
-    const html = render(data);
-    if (performanceGraphPanel && html) {
-        performanceGraphPanel.webview.html = html;
+
+    // add resource latency
+    const dataLabel = new DataLabel(currentFileUri, currentResourcePos, data.latency,
+        currentResourceName, currentResourcePos, null);
+    ExecutorCodeLensProvider.addDataLabel(dataLabel);
+
+}
+
+export function updateCodeLenses(concurrency: number) {
+    ExecutorCodeLensProvider.dataLabels = [];
+    addPerformanceLabels(concurrency);
+    ExecutorCodeLensProvider.onDidChangeCodeLenses.fire();
+
+    if (!currentFile) {
+        return;
     }
-    performanceGraphPanel.onDidDispose(() => {
-        performanceGraphPanel = undefined;
-    });
+    window.showTextDocument(currentFile, ViewColumn.One);
 }
