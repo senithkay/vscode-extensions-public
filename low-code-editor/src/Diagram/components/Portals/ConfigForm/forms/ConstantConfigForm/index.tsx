@@ -10,10 +10,10 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useReducer } from "react"
+import React, { useContext, useReducer } from "react"
 
-import { ConstDeclaration, NodePosition } from "@ballerina/syntax-tree"
-import { Box, FormControl, Typography } from "@material-ui/core";
+import { ConstDeclaration, NodePosition, STKindChecker } from "@ballerina/syntax-tree"
+import { Box, FormControl, FormHelperText, Typography } from "@material-ui/core";
 import { v4 as uuid } from 'uuid';
 
 import { ConstantIcon } from "../../../../../../assets/icons";
@@ -24,6 +24,10 @@ import { SelectDropdownWithButton } from "../../Elements/DropDown/SelectDropdown
 import ExpressionEditor from "../../Elements/ExpressionEditor";
 import { FormTextInput } from "../../Elements/TextField/FormTextInput";
 import { useStyles as useFormStyles } from "../style";
+import { FormattedMessage } from "react-intl";
+import { STModification } from "../../../../../../Definitions";
+import { useDiagramContext } from "../../../../../../Contexts/Diagram";
+import { createConstDeclaration, updateConstDeclaration } from "../../../../../utils/modification-util";
 
 
 interface ConstantConfigFormProps {
@@ -33,10 +37,10 @@ interface ConstantConfigFormProps {
     onSave: () => void;
 }
 
-
 const ConstantVarNameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 
 export interface ConstantConfigFormState {
+    isPublic: boolean;
     isTypeDefined: boolean;
     constantName: string;
     constantValue: string;
@@ -49,7 +53,8 @@ export enum ConstantConfigFormActionTypes {
     SET_CONSTANT_VALUE,
     SET_CONSTANT_TYPE,
     TOGGLE_INCLUDE_TYPE,
-    UPDATE_EXPRESSION_VALIDITY
+    UPDATE_EXPRESSION_VALIDITY,
+    TOGGLE_ACCESS_MODIFIER,
 }
 
 type ConstantConfigFormActions =
@@ -57,7 +62,8 @@ type ConstantConfigFormActions =
     | { type: ConstantConfigFormActionTypes.SET_CONSTANT_VALUE, payload: string }
     | { type: ConstantConfigFormActionTypes.SET_CONSTANT_TYPE, payload: string }
     | { type: ConstantConfigFormActionTypes.TOGGLE_INCLUDE_TYPE }
-    | { type: ConstantConfigFormActionTypes.UPDATE_EXPRESSION_VALIDITY, paylaod: boolean };
+    | { type: ConstantConfigFormActionTypes.UPDATE_EXPRESSION_VALIDITY, paylaod: boolean }
+    | { type: ConstantConfigFormActionTypes.TOGGLE_ACCESS_MODIFIER };
 
 export function constantConfigFormReducer(state: ConstantConfigFormState, action: ConstantConfigFormActions): ConstantConfigFormState {
     switch (action.type) {
@@ -71,18 +77,13 @@ export function constantConfigFormReducer(state: ConstantConfigFormState, action
             return { ...state, constantType: '', isTypeDefined: !state.isTypeDefined, constantValue: '' }
         case ConstantConfigFormActionTypes.UPDATE_EXPRESSION_VALIDITY:
             return { ...state, isExpressionValid: action.paylaod }
+        case ConstantConfigFormActionTypes.TOGGLE_ACCESS_MODIFIER:
+            return { ...state, isPublic: !state.isPublic }
         default:
             return state;
     }
 }
 
-const defaultConstantFormState: ConstantConfigFormState = {
-    isTypeDefined: false,
-    constantName: '',
-    constantType: '',
-    constantValue: '',
-    isExpressionValid: false
-}
 
 export function isFormConfigValid(config: ConstantConfigFormState): boolean {
     const { constantValue, constantName, constantType, isTypeDefined, isExpressionValid } = config;
@@ -96,10 +97,38 @@ export function isFormConfigValid(config: ConstantConfigFormState): boolean {
     }
 }
 
+export function generateConfigFromModel(model: ConstDeclaration): ConstantConfigFormState {
+    const defaultConstantFormState: ConstantConfigFormState = {
+        isPublic: false,
+        isTypeDefined: false,
+        constantName: '',
+        constantType: '',
+        constantValue: '',
+        isExpressionValid: false
+    }
+
+    if (model) {
+        defaultConstantFormState.isPublic = model.visibilityQualifier
+            && STKindChecker.isPublicKeyword(model.visibilityQualifier);
+        defaultConstantFormState.isTypeDefined = model.typeDescriptor !== undefined;
+
+        if (defaultConstantFormState.isTypeDefined) {
+            defaultConstantFormState.constantType = model.typeDescriptor.typeData.symbol?.typeKind;
+        }
+
+        defaultConstantFormState.constantValue = model.initializer.source;
+        defaultConstantFormState.constantName = model.variableName.value;
+        defaultConstantFormState.isExpressionValid = true;
+    }
+
+    return defaultConstantFormState;
+}
+
 export function ConstantConfigForm(props: ConstantConfigFormProps) {
     const formClasses = useFormStyles();
+    const { api: { code: { modifyDiagram } } } = useDiagramContext();
     const { model, targetPosition, onCancel, onSave } = props;
-    const [config, dispatch] = useReducer(constantConfigFormReducer, defaultConstantFormState)
+    const [config, dispatch] = useReducer(constantConfigFormReducer, generateConfigFromModel(model));
 
     const variableTypes: string[] = ["int", "float", "byte", "boolean", "string"];
 
@@ -120,6 +149,10 @@ export function ConstantConfigForm(props: ConstantConfigFormProps) {
 
     const handleTypeEnableToggle = () => {
         dispatch({ type: ConstantConfigFormActionTypes.TOGGLE_INCLUDE_TYPE });
+    }
+
+    const handleAccessModifierChange = () => {
+        dispatch({ type: ConstantConfigFormActionTypes.TOGGLE_ACCESS_MODIFIER });
     }
 
     const handleTypeChange = (type: string) => {
@@ -174,7 +207,15 @@ export function ConstantConfigForm(props: ConstantConfigFormProps) {
     );
 
     const handleOnSave = () => {
+        const modifications: STModification[] = [];
 
+        if (model) {
+            modifications.push(createConstDeclaration(config, model.position));
+        } else {
+            modifications.push(updateConstDeclaration(config, targetPosition));
+        }
+
+        modifyDiagram(modifications);
         onSave();
     }
 
@@ -191,6 +232,19 @@ export function ConstantConfigForm(props: ConstantConfigFormProps) {
 
                 </div>
             </div>
+            <div className={formClasses.labelWrapper}>
+                <FormHelperText className={formClasses.inputLabelForRequired}>
+                    <FormattedMessage
+                        id="lowcode.develop.configForms.ConstDecl.accessModifier"
+                        defaultMessage="Access Modifier :"
+                    />
+                </FormHelperText>
+            </div>
+            <CheckBoxGroup
+                values={["public"]}
+                defaultValues={config.isPublic ? ["public"] : []}
+                onChange={handleAccessModifierChange}
+            />
             <FormTextInput
                 customProps={variableNameTextFieldCustomProps}
                 defaultValue={config.constantName}

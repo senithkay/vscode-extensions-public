@@ -17,6 +17,7 @@ import { STModification } from "../../Definitions/lang-client-extended";
 import { ListenerConfig } from "../components/ConfigForms/ListenerConfigForm/util/types";
 import { HeaderObjectConfig } from "../components/ConnectorExtensions/HTTPWizard/HTTPHeaders";
 import { ConfigurableFormState } from "../components/Portals/ConfigForm/forms/ConfigurableForm/util";
+import { ConstantConfigFormState } from "../components/Portals/ConfigForm/forms/ConstantConfigForm";
 import { ModuleVariableFormState } from "../components/Portals/ConfigForm/forms/ModuleVariableForm/util";
 import { HTTPServiceConfigState } from "../components/Portals/ConfigForm/forms/ServiceConfigForm/forms/HttpService/util/reducer";
 import { getFormattedModuleName, getParams } from "../components/Portals/utils";
@@ -579,6 +580,42 @@ export function updateConfigurableVarDecl(config: ConfigurableFormState, targetP
             'VAR_TYPE': varType,
             'VAR_NAME': varName,
             'VAR_VALUE': varValue
+        }
+    }
+}
+
+export function createConstDeclaration(config: ConstantConfigFormState, targetPosition: NodePosition): STModification {
+    const { isPublic, constantName, constantType, constantValue } = config;
+
+    return {
+        startLine: targetPosition.startLine,
+        endLine: targetPosition.startLine,
+        startColumn: 0,
+        endColumn: 0,
+        type: 'CONSTANT_DECLARATION',
+        config: {
+            'ACCESS_MODIFIER': isPublic ? 'public' : '',
+            'CONST_TYPE': constantType,
+            'CONST_NAME': constantName,
+            'CONST_VALUE': constantValue
+        }
+    }
+}
+
+export function updateConstDeclaration(config: ConstantConfigFormState, targetPosition: NodePosition): STModification {
+    const { isPublic, constantName, constantType, constantValue } = config;
+
+    return {
+        startLine: targetPosition.startLine,
+        endLine: targetPosition.startLine,
+        startColumn: targetPosition.startColumn,
+        endColumn: targetPosition.endColumn,
+        type: 'CONSTANT_DECLARATION',
+        config: {
+            'ACCESS_MODIFIER': isPublic ? 'public' : '',
+            'CONST_TYPE': constantType,
+            'CONST_NAME': constantName,
+            'CONST_VALUE': constantValue
         }
     }
 }

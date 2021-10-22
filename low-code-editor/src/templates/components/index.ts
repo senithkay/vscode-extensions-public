@@ -63,5 +63,7 @@ service /{{{ BASE_PATH }}} on new http:Listener({{{ PORT }}})`,
     SERVICE_DECLARATION_WITH_SHARED_LISTENER_UPDATE: `
 service /{{{ BASE_PATH }}} on {{{ LISTENER_NAME }}}`,
     MODULE_VAR_DECL_WITH_INIT: `
-{{{ACCESS_MODIFIER}}} {{{VAR_QUALIFIER}}} {{{VAR_TYPE}}} {{{VAR_NAME}}} = {{{VAR_VALUE}}};`
+{{{ACCESS_MODIFIER}}} {{{VAR_QUALIFIER}}} {{{VAR_TYPE}}} {{{VAR_NAME}}} = {{{VAR_VALUE}}};`,
+    CONSTANT_DECLARATION: `
+{{{ACCESS_MODIFIER}}} const {{{CONST_TYPE}}} {{{CONST_NAME}}} = {{{CONST_VALUE}}};`
 }
