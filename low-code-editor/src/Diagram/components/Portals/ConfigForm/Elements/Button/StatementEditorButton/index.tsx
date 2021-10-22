@@ -13,11 +13,9 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from "react";
 
-import {IconButton} from "@material-ui/core";
 import Button from '@material-ui/core/Button';
 import { Theme, withStyles } from '@material-ui/core/styles';
 
-import {EditIcon} from "../../../../../../../assets";
 
 export interface StatementEditorButtonProps {
     onClick?: () => void,
@@ -50,14 +48,14 @@ export function StatementEditorButton(props: StatementEditorButtonProps) {
                 color: theme.palette.primary.light,
               },
         },
-      }))(IconButton) as typeof Button;
+      }))(Button) as typeof Button;
 
     return (
             <EditorButton
                 onClick={onClick}
                 disabled={disabled}
             >
-                <img src={EditIcon}/>
+                Statement Editor
             </EditorButton>
     );
 }
