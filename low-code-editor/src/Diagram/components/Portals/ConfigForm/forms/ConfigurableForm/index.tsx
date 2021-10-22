@@ -19,7 +19,7 @@ import { Box, FormControl, FormHelperText, Typography } from '@material-ui/core'
 
 import { ConfigurableIcon } from '../../../../../../assets/icons';
 import { useDiagramContext } from '../../../../../../Contexts/Diagram';
-import { STModification } from '../../../../../../Definitions';
+import { ConfigOverlayFormStatus, STModification } from '../../../../../../Definitions';
 import { createModuleVarDecl, updateModuleVarDecl } from '../../../../../utils/modification-util';
 import { PrimaryButton } from '../../Elements/Button/PrimaryButton';
 import { SecondaryButton } from '../../Elements/Button/SecondaryButton';
@@ -32,30 +32,67 @@ import { useStyles as useFormStyles } from "../style";
 
 import { getFormConfigFromModel, isFormConfigValid, ModuleVarNameRegex, VariableQualifiers } from './util';
 import { ModuleVarFormActionTypes, moduleVarFormReducer } from './util/reducer';
+import { ModuleVariableFormState } from '../ModuleVariableForm/util';
+import { InjectableItem } from '../../../../FormGenerator';
 
+const variableTypes: string[] = ["int", "float", "boolean", "string", "xml"];
 interface ConfigurableFormProps {
     model?: ModuleVarDecl;
     targetPosition?: NodePosition;
     onCancel: () => void;
     onSave: () => void;
+    configOverlayFormStatus?: ConfigOverlayFormStatus;
 }
 
 export function ConfigurableForm(props: ConfigurableFormProps) {
     const formClasses = useFormStyles();
     const { api: { code: { modifyDiagram } } } = useDiagramContext();
-    const { onSave, onCancel, targetPosition, model } = props;
+    const { onSave, onCancel, targetPosition, model, configOverlayFormStatus } = props;
     const [state, dispatch] = useReducer(moduleVarFormReducer, getFormConfigFromModel(model));
-    const variableTypes: string[] = ["int", "float", "boolean", "string", "json", "xml"];
+
+    const { updateInjectables, updateParentConfigurable, configurableId } = configOverlayFormStatus?.formArgs || {};
+    const isFromExpressionEditor = !!updateInjectables;
 
     const handleOnSave = () => {
-        const modifications: STModification[] = []
-        if (model) {
-            modifications.push(updateModuleVarDecl(state, model.position));
-        } else {
-            modifications.push(createModuleVarDecl(state, targetPosition));
+        if (isFromExpressionEditor && updateParentConfigurable){
+            const modification = createModuleVarDecl({
+                ...state,
+                varValue: state.varValue || '?',
+            }, targetPosition);
+            const editItemIndex = updateInjectables?.list.findIndex((item: InjectableItem) => item.id === configurableId);
+            let newInjectableList = updateInjectables?.list;
+            const newInjectable = {
+                id: configurableId,
+                name: state.varName,
+                value: state.varValue,
+                modification,
+              }
+            if (editItemIndex >= 0){
+                newInjectableList[editItemIndex] = newInjectable;
+            }else{
+                newInjectableList = [...newInjectableList, newInjectable]
+            }
+            updateInjectables?.setInjectables(newInjectableList);
+            setTimeout(() => {
+                updateParentConfigurable(state.varName);
+                onCancel();
+            }, 250)
+
+        }else{
+
+            const modifyState: ModuleVariableFormState = {
+                ...state,
+                varValue: state.varValue || '?',
+            }
+            const modifications: STModification[] = []
+            if (model) {
+                modifications.push(updateModuleVarDecl(modifyState, model.position));
+            } else {
+                modifications.push(createModuleVarDecl(modifyState, targetPosition));
+            }
+            modifyDiagram(modifications);
+            onSave();
         }
-        modifyDiagram(modifications);
-        onSave();
     }
 
     const onAccessModifierChange = (modifierList: string[]) => {
@@ -131,11 +168,14 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
             <div className={formClasses.formTitleWrapper}>
                 <div className={formClasses.mainTitleWrapper}>
                     <ConfigurableIcon />
-                    <Typography variant="h4">
-                        <Box paddingTop={2} paddingBottom={2} paddingLeft={15}>Configurable</Box>
-                    </Typography>
+                    <Box textAlign="center" flex={1} paddingTop={2} paddingBottom={2} >
+                        <Typography variant="h4">
+                            {isFromExpressionEditor ? 'Add Configurable' : 'Configurable'}
+                        </Typography>
+                    </Box>
                 </div>
             </div>
+
             <div className={formClasses.labelWrapper}>
                 <FormHelperText className={formClasses.inputLabelForRequired}>
                     <FormattedMessage
@@ -152,8 +192,9 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
             <SelectDropdownWithButton
                 defaultValue={state.varType}
                 customProps={typeSelectorCustomProps}
-                label={"Select type"}
+                label={isFromExpressionEditor ? "type" : "Select type"}
                 onChange={onVarTypeChange}
+                disabled={isFromExpressionEditor}
             />
             <FormTextInput
                 customProps={variableNameTextFieldCustomProps}

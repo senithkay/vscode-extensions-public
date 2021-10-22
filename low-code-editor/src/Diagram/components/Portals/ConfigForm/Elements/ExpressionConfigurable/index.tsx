@@ -92,7 +92,7 @@ export function ExpressionConfigurable(props: ExpressionConfigurableProps) {
       {showConfigurableView && (
         <FormGenerator
           configOverlayFormStatus={{
-            formType: "ModuleVarDecl",
+            formType: "Configurable",
             isLoading: false,
             formArgs: {
               stSymbolInfo,

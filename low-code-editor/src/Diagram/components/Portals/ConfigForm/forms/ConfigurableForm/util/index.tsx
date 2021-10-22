@@ -42,7 +42,7 @@ export function getFormConfigFromModel(model: any): ModuleVariableFormState {
     }
 
     if (model) {
-        if (model.qualifiers.length > 0) {
+        if (model?.qualifiers?.length > 0) {
             if (STKindChecker.isConfigurableKeyword(model.qualifiers[0])) {
                 defaultFormState.varQualifier = VariableQualifiers.CONFIGURABLE;
             } else if (STKindChecker.isFinalKeyword(model.qualifiers[0])) {
@@ -74,5 +74,5 @@ export function getFormConfigFromModel(model: any): ModuleVariableFormState {
 export function isFormConfigValid(config: ModuleVariableFormState): boolean {
     const { varName, varValue, isExpressionValid } = config;
 
-    return varName.length > 0 && ModuleVarNameRegex.test(varName) && varValue.length > 0 && isExpressionValid;
+    return varName?.length > 0 && ModuleVarNameRegex.test(varName) && varValue?.length > 0 && isExpressionValid;
 }

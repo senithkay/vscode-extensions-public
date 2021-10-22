@@ -152,6 +152,7 @@ export function SelectDropdownWithButton(props: FormElementProps<SelectDropdownP
                         horizontal: "left",
                     }
                 }}
+                IconComponent={disabled ? ()=><span/> : undefined}
             >
                 {
                     values?.length > 0 ? (
