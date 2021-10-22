@@ -51,7 +51,8 @@ enum EXTENDED_APIS {
     PACKAGE_METADATA = 'ballerinaPackage/metadata',
     JSON_TO_RECORD_CONVERT = 'jsonToRecord/convert',
     EXAMPLE_LIST = 'ballerinaExample/list',
-    PERF_ANALYZER_GRAPH_DATA = 'performanceAnalyzer/getGraphData'
+    PERF_ANALYZER_GRAPH_DATA = 'performanceAnalyzer/getGraphData',
+    PERF_ANALYZER_REALTIME_DATA = 'performanceAnalyzer/getRealtimeData'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -267,7 +268,10 @@ export class ExtendedLangClient extends LanguageClient {
         return this.sendRequest(EXTENDED_APIS.PERF_ANALYZER_GRAPH_DATA, params);
     }
     getRealtimePerformaceData(params: PerformanceAnalyzerGraphRequest): Promise<PerformanceAnalyzerRealtimeResponse> {
-        return this.sendRequest("performanceAnalyzer/getRealtimeData", params);
+        if (!this.isExtendedServiceSupported(EXTENDED_APIS.PERF_ANALYZER_REALTIME_DATA)) {
+            Promise.resolve(NOT_SUPPORTED);
+        }
+        return this.sendRequest(EXTENDED_APIS.PERF_ANALYZER_REALTIME_DATA, params);
     }
     getDiagnostics(params: BallerinaProjectParams): Promise<PublishDiagnosticsParams[]> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_DIAGNOSTICS)) {
@@ -410,7 +414,7 @@ export class ExtendedLangClient extends LanguageClient {
                 },
                 { name: EXTENDED_APIS_ORG.EXAMPLE, list: true },
                 { name: EXTENDED_APIS_ORG.JSON_TO_RECORD, convert: true },
-                { name: EXTENDED_APIS_ORG.PERF_ANALYZER, getGraphData: true }
+                { name: EXTENDED_APIS_ORG.PERF_ANALYZER, getGraphData: true, getRealtimeData: true }
             ]
         }).then(response => {
             this.ballerinaExtendedServices = new Set();
