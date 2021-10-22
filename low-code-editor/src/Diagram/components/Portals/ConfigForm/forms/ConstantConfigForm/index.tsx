@@ -11,12 +11,16 @@
  * associated services.
  */
 import React, { useContext, useReducer } from "react"
+import { FormattedMessage } from "react-intl";
 
 import { ConstDeclaration, NodePosition, STKindChecker } from "@ballerina/syntax-tree"
 import { Box, FormControl, FormHelperText, Typography } from "@material-ui/core";
 import { v4 as uuid } from 'uuid';
 
 import { ConstantIcon } from "../../../../../../assets/icons";
+import { useDiagramContext } from "../../../../../../Contexts/Diagram";
+import { STModification } from "../../../../../../Definitions";
+import { createConstDeclaration, updateConstDeclaration } from "../../../../../utils/modification-util";
 import { PrimaryButton } from "../../Elements/Button/PrimaryButton";
 import { SecondaryButton } from "../../Elements/Button/SecondaryButton";
 import CheckBoxGroup from "../../Elements/CheckBox";
@@ -24,10 +28,9 @@ import { SelectDropdownWithButton } from "../../Elements/DropDown/SelectDropdown
 import ExpressionEditor from "../../Elements/ExpressionEditor";
 import { FormTextInput } from "../../Elements/TextField/FormTextInput";
 import { useStyles as useFormStyles } from "../style";
-import { FormattedMessage } from "react-intl";
-import { STModification } from "../../../../../../Definitions";
-import { useDiagramContext } from "../../../../../../Contexts/Diagram";
-import { createConstDeclaration, updateConstDeclaration } from "../../../../../utils/modification-util";
+
+import { ConstantVarNameRegex, generateConfigFromModel, isFormConfigValid } from "./util";
+import { ConstantConfigFormActionTypes, constantConfigFormReducer } from "./util/reducer";
 
 
 interface ConstantConfigFormProps {
@@ -37,92 +40,7 @@ interface ConstantConfigFormProps {
     onSave: () => void;
 }
 
-const ConstantVarNameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 
-export interface ConstantConfigFormState {
-    isPublic: boolean;
-    isTypeDefined: boolean;
-    constantName: string;
-    constantValue: string;
-    constantType: string;
-    isExpressionValid: boolean;
-}
-
-export enum ConstantConfigFormActionTypes {
-    SET_CONSTANT_NAME,
-    SET_CONSTANT_VALUE,
-    SET_CONSTANT_TYPE,
-    TOGGLE_INCLUDE_TYPE,
-    UPDATE_EXPRESSION_VALIDITY,
-    TOGGLE_ACCESS_MODIFIER,
-}
-
-type ConstantConfigFormActions =
-    { type: ConstantConfigFormActionTypes.SET_CONSTANT_NAME, payload: string }
-    | { type: ConstantConfigFormActionTypes.SET_CONSTANT_VALUE, payload: string }
-    | { type: ConstantConfigFormActionTypes.SET_CONSTANT_TYPE, payload: string }
-    | { type: ConstantConfigFormActionTypes.TOGGLE_INCLUDE_TYPE }
-    | { type: ConstantConfigFormActionTypes.UPDATE_EXPRESSION_VALIDITY, paylaod: boolean }
-    | { type: ConstantConfigFormActionTypes.TOGGLE_ACCESS_MODIFIER };
-
-export function constantConfigFormReducer(state: ConstantConfigFormState, action: ConstantConfigFormActions): ConstantConfigFormState {
-    switch (action.type) {
-        case ConstantConfigFormActionTypes.SET_CONSTANT_NAME:
-            return { ...state, constantName: action.payload }
-        case ConstantConfigFormActionTypes.SET_CONSTANT_VALUE:
-            return { ...state, constantValue: action.payload }
-        case ConstantConfigFormActionTypes.SET_CONSTANT_TYPE:
-            return { ...state, constantType: action.payload }
-        case ConstantConfigFormActionTypes.TOGGLE_INCLUDE_TYPE:
-            return { ...state, constantType: '', isTypeDefined: !state.isTypeDefined, constantValue: '' }
-        case ConstantConfigFormActionTypes.UPDATE_EXPRESSION_VALIDITY:
-            return { ...state, isExpressionValid: action.paylaod }
-        case ConstantConfigFormActionTypes.TOGGLE_ACCESS_MODIFIER:
-            return { ...state, isPublic: !state.isPublic }
-        default:
-            return state;
-    }
-}
-
-
-export function isFormConfigValid(config: ConstantConfigFormState): boolean {
-    const { constantValue, constantName, constantType, isTypeDefined, isExpressionValid } = config;
-    if (isTypeDefined) {
-        return constantName.length > 0 && ConstantVarNameRegex.test(constantName) && constantType.length > 0
-            && isExpressionValid && constantValue.length > 0;
-
-    } else {
-        return constantName.length > 0 && ConstantVarNameRegex.test(constantName) && isExpressionValid
-            && constantValue.length > 0;
-    }
-}
-
-export function generateConfigFromModel(model: ConstDeclaration): ConstantConfigFormState {
-    const defaultConstantFormState: ConstantConfigFormState = {
-        isPublic: false,
-        isTypeDefined: false,
-        constantName: '',
-        constantType: '',
-        constantValue: '',
-        isExpressionValid: false
-    }
-
-    if (model) {
-        defaultConstantFormState.isPublic = model.visibilityQualifier
-            && STKindChecker.isPublicKeyword(model.visibilityQualifier);
-        defaultConstantFormState.isTypeDefined = model.typeDescriptor !== undefined;
-
-        if (defaultConstantFormState.isTypeDefined) {
-            defaultConstantFormState.constantType = model.typeDescriptor.typeData.symbol?.typeKind;
-        }
-
-        defaultConstantFormState.constantValue = model.initializer.source;
-        defaultConstantFormState.constantName = model.variableName.value;
-        defaultConstantFormState.isExpressionValid = true;
-    }
-
-    return defaultConstantFormState;
-}
 
 export function ConstantConfigForm(props: ConstantConfigFormProps) {
     const formClasses = useFormStyles();
@@ -210,9 +128,9 @@ export function ConstantConfigForm(props: ConstantConfigFormProps) {
         const modifications: STModification[] = [];
 
         if (model) {
-            modifications.push(createConstDeclaration(config, model.position));
+            modifications.push(updateConstDeclaration(config, model.position));
         } else {
-            modifications.push(updateConstDeclaration(config, targetPosition));
+            modifications.push(createConstDeclaration(config, targetPosition));
         }
 
         modifyDiagram(modifications);

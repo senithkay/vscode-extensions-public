@@ -17,7 +17,7 @@ import { STModification } from "../../Definitions/lang-client-extended";
 import { ListenerConfig } from "../components/ConfigForms/ListenerConfigForm/util/types";
 import { HeaderObjectConfig } from "../components/ConnectorExtensions/HTTPWizard/HTTPHeaders";
 import { ConfigurableFormState } from "../components/Portals/ConfigForm/forms/ConfigurableForm/util";
-import { ConstantConfigFormState } from "../components/Portals/ConfigForm/forms/ConstantConfigForm";
+import { ConstantConfigFormState } from "../components/Portals/ConfigForm/forms/ConstantConfigForm/util";
 import { ModuleVariableFormState } from "../components/Portals/ConfigForm/forms/ModuleVariableForm/util";
 import { HTTPServiceConfigState } from "../components/Portals/ConfigForm/forms/ServiceConfigForm/forms/HttpService/util/reducer";
 import { getFormattedModuleName, getParams } from "../components/Portals/utils";
