@@ -31,17 +31,26 @@ export interface PlusOptionsProps {
 export interface PlusMenuEntry {
     name: string,
     type: string,
+    subMenu?: PlusMenuEntry[]
 }
 
 const moduleLevelEntries: PlusMenuEntry[] = [
     { name: 'Service', type: 'ServiceDeclaration' },
-    { name: 'Variable', type: 'ModuleVarDecl' },
+    {
+        name: 'Variable',
+        type: 'VariableIcon',
+        subMenu: [
+            { name: 'Constant', type: 'ConstDeclaration'},
+            { name: 'Module Variable', type: 'ModuleVarDecl' },
+            { name: 'Configurable', type: 'Configurable' }
+        ]
+    },
     { name: 'Listener', type: 'ListenerDeclaration' },
     { name: 'Type Definition', type: 'TypeDefinition' },
     { name: 'Class', type: 'ClassDefinition' },
     { name: 'Constant', type: 'ConstDeclaration' },
     { name: 'Function', type: 'FunctionDefinition' },
-    { name: 'Other', type: 'Custom'}
+    { name: 'Other', type: 'Custom' }
 ];
 
 const classMemberEntries: PlusMenuEntry[] = [

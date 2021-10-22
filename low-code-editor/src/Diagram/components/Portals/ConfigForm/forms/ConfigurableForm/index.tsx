@@ -1,4 +1,3 @@
-// tslint:disable: jsx-no-multiline-js
 /*
  * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
@@ -11,17 +10,17 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useReducer } from 'react';
+import React, { useReducer, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
+import { v4 as uuid } from "uuid";
 
 import { CaptureBindingPattern, ModuleVarDecl, NodePosition, ServiceDeclaration, STKindChecker, TypedBindingPattern } from '@ballerina/syntax-tree';
 import { Box, FormControl, FormHelperText, Typography } from '@material-ui/core';
 
-import { VariableIcon } from '../../../../../../assets/icons';
+import { ConfigurableIcon } from '../../../../../../assets/icons';
 import { useDiagramContext } from '../../../../../../Contexts/Diagram';
-import { ConfigOverlayFormStatus, STModification } from '../../../../../../Definitions';
+import { STModification } from '../../../../../../Definitions';
 import { createModuleVarDecl, updateModuleVarDecl } from '../../../../../utils/modification-util';
-import { InjectableItem } from '../../../../FormGenerator';
 import { PrimaryButton } from '../../Elements/Button/PrimaryButton';
 import { SecondaryButton } from '../../Elements/Button/SecondaryButton';
 import CheckBoxGroup from '../../Elements/CheckBox';
@@ -31,27 +30,22 @@ import { RadioControl } from '../../Elements/RadioControl/FormRadioControl';
 import { FormTextInput } from '../../Elements/TextField/FormTextInput';
 import { useStyles as useFormStyles } from "../style";
 
-import { getFormConfigFromModel, isFormConfigValid, ModuleVariableFormState, ModuleVarNameRegex, VariableQualifiers } from './util';
+import { getFormConfigFromModel, isFormConfigValid, ModuleVarNameRegex, VariableQualifiers } from './util';
 import { ModuleVarFormActionTypes, moduleVarFormReducer } from './util/reducer';
 
-interface ModuleVariableFormProps {
+interface ConfigurableFormProps {
     model?: ModuleVarDecl;
     targetPosition?: NodePosition;
     onCancel: () => void;
     onSave: () => void;
 }
 
-export function ModuleVariableForm(props: ModuleVariableFormProps) {
+export function ConfigurableForm(props: ConfigurableFormProps) {
     const formClasses = useFormStyles();
     const { api: { code: { modifyDiagram } } } = useDiagramContext();
     const { onSave, onCancel, targetPosition, model } = props;
     const [state, dispatch] = useReducer(moduleVarFormReducer, getFormConfigFromModel(model));
-    const isConfigurable = state.varQualifier === VariableQualifiers.CONFIGURABLE;
     const variableTypes: string[] = ["int", "float", "boolean", "string", "json", "xml"];
-
-    if (!state.isPublic) {
-        variableTypes.unshift('var');
-    }
 
     const handleOnSave = () => {
         const modifications: STModification[] = []
@@ -66,10 +60,6 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
 
     const onAccessModifierChange = (modifierList: string[]) => {
         dispatch({ type: ModuleVarFormActionTypes.UPDATE_ACCESS_MODIFIER, payload: modifierList.length > 0 });
-        if (modifierList.length > 0 && state.varType === 'var') {
-            // var type  cannot be public
-            dispatch({ type: ModuleVarFormActionTypes.RESET_VARIABLE_TYPE });
-        }
     }
 
     const onVarTypeChange = (type: string) => {
@@ -88,13 +78,6 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
         dispatch({ type: ModuleVarFormActionTypes.SET_VAR_NAME, payload: value });
     }
 
-    const handleOnVariableQualifierSelect = (value: string) => {
-        dispatch({
-            type: ModuleVarFormActionTypes.SET_VAR_QUALIFIER,
-            payload: value === VariableQualifiers.NONE ? '' : value
-        })
-    }
-
     const validateNameValue = (value: string) => {
         if (value && value !== '') {
             return ModuleVarNameRegex.test(value);
@@ -106,23 +89,28 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
         model: {
             name: "valueExpression",
             displayName: "Value Expression",
-            typeName: state.varType,
-            optional: isConfigurable ? true : false,
+            typeName: state.varType
         },
         customProps: {
             validate: updateExpressionValidity,
             interactive: true,
             statementType: state.varType,
             editPosition: {
-                startLine: model ? model?.position?.startLine : targetPosition.startLine,
-                endLine: model ? model?.position?.startLine : targetPosition.startLine,
+                startLine: model ? model.position.startLine : targetPosition.startLine,
+                endLine: model ? model.position.startLine : targetPosition.startLine,
                 startColumn: 0,
                 endColumn: 0
-            }
+            },
+            customTemplate: {
+                defaultCodeSnippet: `configurable ${state.varType} temp_var_${uuid().replaceAll('-', '_')} = ;`,
+                targetColumn: 62 + state.varType.length,
+            },
         },
         onChange: onValueChange,
         defaultValue: state.varValue,
     };
+
+    const disableSaveBtn: boolean = !isFormConfigValid(state);
 
     const typeSelectorCustomProps = {
         disableCreateNew: true,
@@ -133,16 +121,19 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
         validate: validateNameValue
     };
 
+    const variableQualifierSelectorCustomProps = {
+        collection: Object.values(VariableQualifiers),
+        disabled: false
+    };
+
     return (
         <FormControl data-testid="module-variable-config-form" className={formClasses.wizardFormControl}>
             <div className={formClasses.formTitleWrapper}>
                 <div className={formClasses.mainTitleWrapper}>
-                    <VariableIcon />
-                    <Box textAlign="center" flex={1} paddingTop={2} paddingBottom={2} >
-                        <Typography variant="h4">
-                            {'Variable'}
-                        </Typography>
-                    </Box>
+                    <ConfigurableIcon />
+                    <Typography variant="h4">
+                        <Box paddingTop={2} paddingBottom={2} paddingLeft={15}>Configurable</Box>
+                    </Typography>
                 </div>
             </div>
             <div className={formClasses.labelWrapper}>
@@ -154,8 +145,8 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
                 </FormHelperText>
             </div>
             <CheckBoxGroup
-                values={['public', 'final']}
-                defaultValues={[]}
+                values={["public"]}
+                defaultValues={state.isPublic ? ['public'] : []}
                 onChange={onAccessModifierChange}
             />
             <SelectDropdownWithButton
@@ -168,9 +159,9 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
                 customProps={variableNameTextFieldCustomProps}
                 defaultValue={state.varName}
                 onChange={handleOnVarNameChange}
-                label={"Variable Name"}
-                errorMessage={"Invalid Variable Name"}
-                placeholder={"Enter Variable Name"}
+                label={"Configurable Name"}
+                errorMessage={"Invalid Configurable Name"}
+                placeholder={"Enter Configurable Name"}
             />
             <ExpressionEditor
                 {...expressionEditorConfig}
@@ -182,7 +173,8 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
                     onClick={onCancel}
                 />
                 <PrimaryButton
-                    text={"Save"}
+                    text="Save"
+                    disabled={disableSaveBtn}
                     fullWidth={false}
                     onClick={handleOnSave}
                 />
