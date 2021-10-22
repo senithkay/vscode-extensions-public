@@ -25,11 +25,10 @@ import { SecondaryButton } from '../../Elements/Button/SecondaryButton';
 import CheckBoxGroup from '../../Elements/CheckBox';
 import { SelectDropdownWithButton } from '../../Elements/DropDown/SelectDropdownWithButton';
 import ExpressionEditor from '../../Elements/ExpressionEditor';
-import { RadioControl } from '../../Elements/RadioControl/FormRadioControl';
 import { FormTextInput } from '../../Elements/TextField/FormTextInput';
 import { useStyles as useFormStyles } from "../style";
 
-import { getFormConfigFromModel, isFormConfigValid, ModuleVarNameRegex, VariableQualifiers } from './util';
+import { getFormConfigFromModel, isFormConfigValid, ModuleVarNameRegex, VariableOptions } from './util';
 import { ModuleVarFormActionTypes, moduleVarFormReducer } from './util/reducer';
 
 interface ModuleVariableFormProps {
@@ -46,7 +45,7 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
     const [state, dispatch] = useReducer(moduleVarFormReducer, getFormConfigFromModel(model));
     const variableTypes: string[] = ["int", "float", "boolean", "string", "json", "xml"];
 
-    if (!state.isPublic) {
+    if (state.varOptions.indexOf(VariableOptions.PUBLIC) === -1) {
         variableTypes.unshift('var');
     }
 
@@ -62,8 +61,8 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
     }
 
     const onAccessModifierChange = (modifierList: string[]) => {
-        dispatch({ type: ModuleVarFormActionTypes.UPDATE_ACCESS_MODIFIER, payload: modifierList.length > 0 });
-        if (modifierList.length > 0 && state.varType === 'var') {
+        dispatch({ type: ModuleVarFormActionTypes.SET_VAR_OPTIONS, payload: modifierList });
+        if (modifierList.indexOf('public') > -1 && state.varType === 'var') {
             // var type  cannot be public
             dispatch({ type: ModuleVarFormActionTypes.RESET_VARIABLE_TYPE });
         }
@@ -83,13 +82,6 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
 
     const handleOnVarNameChange = (value: string) => {
         dispatch({ type: ModuleVarFormActionTypes.SET_VAR_NAME, payload: value });
-    }
-
-    const handleOnVariableQualifierSelect = (value: string) => {
-        dispatch({
-            type: ModuleVarFormActionTypes.SET_VAR_QUALIFIER,
-            payload: value === VariableQualifiers.NONE ? '' : value
-        })
     }
 
     const validateNameValue = (value: string) => {
@@ -132,7 +124,7 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
     };
 
     const variableQualifierSelectorCustomProps = {
-        collection: Object.values(VariableQualifiers),
+        collection: Object.values(VariableOptions),
         disabled: false
     };
 
@@ -149,14 +141,14 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
             <div className={formClasses.labelWrapper}>
                 <FormHelperText className={formClasses.inputLabelForRequired}>
                     <FormattedMessage
-                        id="lowcode.develop.configForms.ModuleVarDecl.configureNewListener"
-                        defaultMessage="Access Modifier :"
+                        id="lowcode.develop.configForms.ModuleVarDecl.variableQualifier"
+                        defaultMessage="Select Variable Options :"
                     />
                 </FormHelperText>
             </div>
             <CheckBoxGroup
                 values={['public', 'final']}
-                defaultValues={[]}
+                defaultValues={state.varOptions}
                 onChange={onAccessModifierChange}
             />
             <SelectDropdownWithButton

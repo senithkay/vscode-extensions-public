@@ -15,12 +15,11 @@ import { CaptureBindingPattern, STKindChecker, TypedBindingPattern } from "@ball
 
 export const ModuleVarNameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 
-export interface ModuleVariableFormState {
+export interface ConfigurableFormState {
     isPublic: boolean;
     varType: string;
     varName: string;
     varValue: string;
-    varQualifier: string;
     isExpressionValid: boolean;
 }
 
@@ -30,26 +29,17 @@ export enum VariableQualifiers {
     CONFIGURABLE = 'configurable',
 }
 
-export function getFormConfigFromModel(model: any): ModuleVariableFormState {
+export function getFormConfigFromModel(model: any): ConfigurableFormState {
     // FixMe: model is set to any type due to missing properties in ST interface
-    const defaultFormState: ModuleVariableFormState = {
+    const defaultFormState: ConfigurableFormState = {
         isPublic: false,
         varType: 'int',
         varName: '',
         varValue: '',
-        varQualifier: 'configurable',
         isExpressionValid: true,
     }
 
     if (model) {
-        if (model.qualifiers.length > 0) {
-            if (STKindChecker.isConfigurableKeyword(model.qualifiers[0])) {
-                defaultFormState.varQualifier = VariableQualifiers.CONFIGURABLE;
-            } else if (STKindChecker.isFinalKeyword(model.qualifiers[0])) {
-                defaultFormState.varQualifier = VariableQualifiers.FINAL;
-            }
-        }
-
         const typeData = model.initializer.typeData;
 
         if (typeData) {
@@ -71,7 +61,7 @@ export function getFormConfigFromModel(model: any): ModuleVariableFormState {
 }
 
 
-export function isFormConfigValid(config: ModuleVariableFormState): boolean {
+export function isFormConfigValid(config: ConfigurableFormState): boolean {
     const { varName, varValue, isExpressionValid } = config;
 
     return varName.length > 0 && ModuleVarNameRegex.test(varName) && varValue.length > 0 && isExpressionValid;

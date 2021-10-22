@@ -16,6 +16,7 @@ import { FormField } from "../../ConfigurationSpec/types";
 import { STModification } from "../../Definitions/lang-client-extended";
 import { ListenerConfig } from "../components/ConfigForms/ListenerConfigForm/util/types";
 import { HeaderObjectConfig } from "../components/ConnectorExtensions/HTTPWizard/HTTPHeaders";
+import { ConfigurableFormState } from "../components/Portals/ConfigForm/forms/ConfigurableForm/util";
 import { ModuleVariableFormState } from "../components/Portals/ConfigForm/forms/ModuleVariableForm/util";
 import { HTTPServiceConfigState } from "../components/Portals/ConfigForm/forms/ServiceConfigForm/forms/HttpService/util/reducer";
 import { getFormattedModuleName, getParams } from "../components/Portals/utils";
@@ -507,7 +508,45 @@ export function createCheckedPayloadFunctionInvocation(variable: string, type: s
 }
 
 export function createModuleVarDecl(config: ModuleVariableFormState, targetPosition: NodePosition): STModification {
-    const { isPublic, varName, varQualifier, varType, varValue } = config;
+    const { varName, varOptions, varType, varValue } = config;
+
+    return {
+        startLine: targetPosition.startLine,
+        endLine: targetPosition.startLine,
+        startColumn: 0,
+        endColumn: 0,
+        type: 'MODULE_VAR_DECL_WITH_INIT',
+        config: {
+            'ACCESS_MODIFIER': varOptions.indexOf('public') > -1 ? 'public' : '',
+            'VAR_QUALIFIER': varOptions.indexOf('final') > -1 ? 'final' : '',
+            'VAR_TYPE': varType,
+            'VAR_NAME': varName,
+            'VAR_VALUE': varValue
+        }
+    }
+}
+
+export function updateModuleVarDecl(config: ModuleVariableFormState, targetPosition: NodePosition): STModification {
+    const { varName, varOptions, varType, varValue } = config;
+
+    return {
+        startLine: targetPosition.startLine,
+        endLine: targetPosition.endLine,
+        startColumn: targetPosition.startColumn,
+        endColumn: targetPosition.endColumn,
+        type: 'MODULE_VAR_DECL_WITH_INIT',
+        config: {
+            'ACCESS_MODIFIER': varOptions.indexOf('public') > -1 ? 'public' : '',
+            'VAR_QUALIFIER': varOptions.indexOf('final') > -1 ? 'final' : '',
+            'VAR_TYPE': varType,
+            'VAR_NAME': varName,
+            'VAR_VALUE': varValue
+        }
+    }
+}
+
+export function createConfigurableDecl(config: ConfigurableFormState, targetPosition: NodePosition): STModification {
+    const { isPublic, varName, varType, varValue } = config;
 
     return {
         startLine: targetPosition.startLine,
@@ -517,7 +556,7 @@ export function createModuleVarDecl(config: ModuleVariableFormState, targetPosit
         type: 'MODULE_VAR_DECL_WITH_INIT',
         config: {
             'ACCESS_MODIFIER': isPublic ? 'public' : '',
-            'VAR_QUALIFIER': varQualifier,
+            'VAR_QUALIFIER': 'configurable',
             'VAR_TYPE': varType,
             'VAR_NAME': varName,
             'VAR_VALUE': varValue
@@ -525,8 +564,8 @@ export function createModuleVarDecl(config: ModuleVariableFormState, targetPosit
     }
 }
 
-export function updateModuleVarDecl(config: ModuleVariableFormState, targetPosition: NodePosition): STModification {
-    const { isPublic, varName, varQualifier, varType, varValue } = config;
+export function updateConfigurableVarDecl(config: ConfigurableFormState, targetPosition: NodePosition): STModification {
+    const { isPublic, varName, varType, varValue } = config;
 
     return {
         startLine: targetPosition.startLine,
@@ -536,7 +575,7 @@ export function updateModuleVarDecl(config: ModuleVariableFormState, targetPosit
         type: 'MODULE_VAR_DECL_WITH_INIT',
         config: {
             'ACCESS_MODIFIER': isPublic ? 'public' : '',
-            'VAR_QUALIFIER': varQualifier,
+            'VAR_QUALIFIER': 'configurable',
             'VAR_TYPE': varType,
             'VAR_NAME': varName,
             'VAR_VALUE': varValue

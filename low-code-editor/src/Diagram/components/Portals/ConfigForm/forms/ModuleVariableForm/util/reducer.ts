@@ -18,32 +18,29 @@ export enum ModuleVarFormActionTypes {
     SET_VAR_TYPE,
     SET_VAR_NAME,
     SET_VAR_VALUE,
-    SET_VAR_QUALIFIER,
+    SET_VAR_OPTIONS,
     UPDATE_EXPRESSION_VALIDITY,
     RESET_VARIABLE_TYPE
 }
 
 export type ModuleVarFormAction =
-    { type: ModuleVarFormActionTypes.UPDATE_ACCESS_MODIFIER, payload: boolean }
     | { type: ModuleVarFormActionTypes.SET_VAR_TYPE, payload: string }
     | { type: ModuleVarFormActionTypes.SET_VAR_NAME, payload: string }
     | { type: ModuleVarFormActionTypes.SET_VAR_VALUE, payload: string }
-    | { type: ModuleVarFormActionTypes.SET_VAR_QUALIFIER, payload: string }
+    | { type: ModuleVarFormActionTypes.SET_VAR_OPTIONS, payload: string[] }
     | { type: ModuleVarFormActionTypes.UPDATE_EXPRESSION_VALIDITY, payload: boolean }
     | { type: ModuleVarFormActionTypes.RESET_VARIABLE_TYPE };
 
 export function moduleVarFormReducer(state: ModuleVariableFormState, action: ModuleVarFormAction): ModuleVariableFormState {
     switch (action.type) {
-        case ModuleVarFormActionTypes.UPDATE_ACCESS_MODIFIER:
-            return { ...state, isPublic: action.payload };
         case ModuleVarFormActionTypes.SET_VAR_NAME:
             return { ...state, varName: action.payload };
         case ModuleVarFormActionTypes.SET_VAR_VALUE:
             return { ...state, varValue: action.payload };
         case ModuleVarFormActionTypes.SET_VAR_TYPE:
             return { ...state, varType: action.payload, varValue: '' };
-        case ModuleVarFormActionTypes.SET_VAR_QUALIFIER:
-            return { ...state, varQualifier: action.payload };
+        case ModuleVarFormActionTypes.SET_VAR_OPTIONS:
+            return { ...state,  };
         case ModuleVarFormActionTypes.UPDATE_EXPRESSION_VALIDITY:
             return { ...state, isExpressionValid: action.payload };
         case ModuleVarFormActionTypes.RESET_VARIABLE_TYPE:

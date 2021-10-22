@@ -12,15 +12,15 @@
  */
 import React, { useReducer, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { v4 as uuid } from "uuid";
 
 import { CaptureBindingPattern, ModuleVarDecl, NodePosition, ServiceDeclaration, STKindChecker, TypedBindingPattern } from '@ballerina/syntax-tree';
 import { Box, FormControl, FormHelperText, Typography } from '@material-ui/core';
+import { v4 as uuid } from "uuid";
 
 import { ConfigurableIcon } from '../../../../../../assets/icons';
 import { useDiagramContext } from '../../../../../../Contexts/Diagram';
 import { STModification } from '../../../../../../Definitions';
-import { createModuleVarDecl, updateModuleVarDecl } from '../../../../../utils/modification-util';
+import { createConfigurableDecl, createModuleVarDecl, updateConfigurableVarDecl, updateModuleVarDecl } from '../../../../../utils/modification-util';
 import { PrimaryButton } from '../../Elements/Button/PrimaryButton';
 import { SecondaryButton } from '../../Elements/Button/SecondaryButton';
 import CheckBoxGroup from '../../Elements/CheckBox';
@@ -31,7 +31,7 @@ import { FormTextInput } from '../../Elements/TextField/FormTextInput';
 import { useStyles as useFormStyles } from "../style";
 
 import { getFormConfigFromModel, isFormConfigValid, ModuleVarNameRegex, VariableQualifiers } from './util';
-import { ModuleVarFormActionTypes, moduleVarFormReducer } from './util/reducer';
+import { ConfigurableFormActionTypes, moduleVarFormReducer } from './util/reducer';
 
 interface ConfigurableFormProps {
     model?: ModuleVarDecl;
@@ -50,32 +50,32 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
     const handleOnSave = () => {
         const modifications: STModification[] = []
         if (model) {
-            modifications.push(updateModuleVarDecl(state, model.position));
+            modifications.push(updateConfigurableVarDecl(state, model.position));
         } else {
-            modifications.push(createModuleVarDecl(state, targetPosition));
+            modifications.push(createConfigurableDecl(state, targetPosition));
         }
         modifyDiagram(modifications);
         onSave();
     }
 
     const onAccessModifierChange = (modifierList: string[]) => {
-        dispatch({ type: ModuleVarFormActionTypes.UPDATE_ACCESS_MODIFIER, payload: modifierList.length > 0 });
+        dispatch({ type: ConfigurableFormActionTypes.UPDATE_ACCESS_MODIFIER, payload: modifierList.length > 0 });
     }
 
     const onVarTypeChange = (type: string) => {
-        dispatch({ type: ModuleVarFormActionTypes.SET_VAR_TYPE, payload: type });
+        dispatch({ type: ConfigurableFormActionTypes.SET_VAR_TYPE, payload: type });
     }
 
     const onValueChange = (value: string) => {
-        dispatch({ type: ModuleVarFormActionTypes.SET_VAR_VALUE, payload: value });
+        dispatch({ type: ConfigurableFormActionTypes.SET_VAR_VALUE, payload: value });
     }
 
     const updateExpressionValidity = (fieldName: string, isInValid: boolean) => {
-        dispatch({ type: ModuleVarFormActionTypes.UPDATE_EXPRESSION_VALIDITY, payload: !isInValid });
+        dispatch({ type: ConfigurableFormActionTypes.UPDATE_EXPRESSION_VALIDITY, payload: !isInValid });
     }
 
     const handleOnVarNameChange = (value: string) => {
-        dispatch({ type: ModuleVarFormActionTypes.SET_VAR_NAME, payload: value });
+        dispatch({ type: ConfigurableFormActionTypes.SET_VAR_NAME, payload: value });
     }
 
     const validateNameValue = (value: string) => {

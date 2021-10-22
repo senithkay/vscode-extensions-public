@@ -11,42 +11,37 @@
  * associated services.
  */
 
-import { CaptureBindingPattern, STKindChecker, TypedBindingPattern } from "@ballerina/syntax-tree";
+import { CaptureBindingPattern, ModuleVarDecl, STKindChecker, TypedBindingPattern } from "@ballerina/syntax-tree";
 
 export const ModuleVarNameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 
 export interface ModuleVariableFormState {
-    isPublic: boolean;
     varType: string;
     varName: string;
     varValue: string;
-    varQualifier: string;
+    varOptions: string[];
     isExpressionValid: boolean;
 }
 
-export enum VariableQualifiers {
-    NONE = 'None',
+export enum VariableOptions {
     FINAL = 'final',
-    CONFIGURABLE = 'configurable',
+    PUBLIC = 'public',
 }
 
 export function getFormConfigFromModel(model: any): ModuleVariableFormState {
     // FixMe: model is set to any type due to missing properties in ST interface
     const defaultFormState: ModuleVariableFormState = {
-        isPublic: false,
         varType: 'int',
         varName: '',
         varValue: '',
-        varQualifier: '',
+        varOptions: [],
         isExpressionValid: true,
     }
 
     if (model) {
-        if (model.qualifiers.length > 0) {
-            if (STKindChecker.isConfigurableKeyword(model.qualifiers[0])) {
-                defaultFormState.varQualifier = VariableQualifiers.CONFIGURABLE;
-            } else if (STKindChecker.isFinalKeyword(model.qualifiers[0])) {
-                defaultFormState.varQualifier = VariableQualifiers.FINAL;
+        if (model.qualifiers.length > 0 && model.qualifiers.filter((qualifier: any) => STKindChecker.isConfigurableKeyword(qualifier)).length > 0) {
+            if (STKindChecker.isFinalKeyword(model.qualifiers[0])) {
+                defaultFormState.varOptions.push(VariableOptions.FINAL);
             }
         }
 
@@ -59,7 +54,10 @@ export function getFormConfigFromModel(model: any): ModuleVariableFormState {
             }
         }
 
-        defaultFormState.isPublic = model.visibilityQualifier && STKindChecker.isPublicKeyword(model.visibilityQualifier);
+        if (model.visibilityQualifier && STKindChecker.isPublicKeyword(model.visibilityQualifier)) {
+            defaultFormState.varOptions.push(VariableOptions.PUBLIC);
+        }
+
         defaultFormState.varValue = model.initializer.source;
         defaultFormState.varName = ((model.typedBindingPattern as TypedBindingPattern)
             .bindingPattern as CaptureBindingPattern).variableName.value;
