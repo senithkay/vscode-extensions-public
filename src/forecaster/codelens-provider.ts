@@ -101,7 +101,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
                 codeLenses.push(this.createCodeLens(CODELENSE_TYPE.INVOCATION,
                     startLine.line, startLine.character,
                     endLine.line, endLine.character,
-                    [label.getResourcePos, label.getResourceName, label.getData], label.getLabel.toString()));
+                    [label.getResourcePos, label.getResourceName], label.getLabel.toString()));
             }
         }
 
@@ -156,7 +156,7 @@ async function findResources(uri: Uri | undefined) {
                                 continue;
                             }
                             await createPerformanceGraphAndCodeLenses(uri.fsPath, range, ANALYZETYPE.REALTIME,
-                                `${serviceMember.functionName.value} ${serviceMember.relativeResourcePath[0].value}`, undefined);
+                                `${serviceMember.functionName.value} ${serviceMember.relativeResourcePath[0].value}`);
                         }
                     }
                 }

@@ -29,10 +29,9 @@ const NETWORK_ERR = "Network error. Please check you internet connection.";
 let langClient: ExtendedLangClient;
 let uiData: GraphData;
 let extension: BallerinaExtension;
-let currentGraphData: PerformanceAnalyzerGraphResponse;
+let advancedData: PerformanceAnalyzerGraphResponse;
 let currentResourceName: String;
 let currentResourcePos: Range;
-let currentRealtimeData: PerformanceAnalyzerRealtimeResponse
 let currentFile: TextDocument | undefined;
 let currentFileUri: String | undefined;
 
@@ -64,10 +63,10 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
         currentFileUri = uri;
         ExecutorCodeLensProvider.dataLabels = [];
 
-        if (args.length < 3) {
+        if (args.length < 2) {
             return;
         }
-        await createPerformanceGraphAndCodeLenses(uri, args[0], ANALYZETYPE.ADVANCED, args[1], args[2]);
+        await createPerformanceGraphAndCodeLenses(uri, args[0], ANALYZETYPE.ADVANCED, args[1]);
         ExecutorCodeLensProvider.onDidChangeCodeLenses.fire();
 
     });
@@ -80,7 +79,7 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
 }
 
 export async function createPerformanceGraphAndCodeLenses(uri: string | undefined, pos: Range,
-    type: ANALYZETYPE, name: String | undefined, realtimeData: PerformanceAnalyzerRealtimeResponse | undefined) {
+    type: ANALYZETYPE, name: String | undefined) {
 
     if (!extension.getChoreoSession().loginStatus) {
         window.showInformationMessage(
@@ -125,8 +124,7 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
             }
             currentResourceName = name;
             currentResourcePos = pos;
-            currentRealtimeData = response;
-            addRealTimePerformanceLabels();
+            addRealTimePerformanceLabels(response);
         }).catch(error => {
             log(error);
         });
@@ -154,15 +152,13 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
                 return;
             }
 
-            if (!realtimeData || !name) {
+            if (!name) {
                 return;
             }
 
-            currentGraphData = response;
+            advancedData = response;
             currentResourceName = name;
             currentResourcePos = pos;
-            currentRealtimeData = realtimeData;
-            addRealTimePerformanceLabels();
             addPerformanceLabels(1);
 
             if (!uiData || !currentFile) {
@@ -192,10 +188,11 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
 }
 
 function addPerformanceLabels(concurrency: number) {
-    if (!currentGraphData || !currentResourcePos || !currentRealtimeData || !currentResourceName) {
+    if (!advancedData || !currentResourcePos || !currentResourceName) {
         return;
     }
-    const sequenceDiagramData = currentGraphData.sequenceDiagramData;
+    const sequenceDiagramData = advancedData.sequenceDiagramData;
+    const graphData = advancedData.graphData;
 
     if (!sequenceDiagramData) {
         return;
@@ -203,30 +200,33 @@ function addPerformanceLabels(concurrency: number) {
 
     if (sequenceDiagramData.length == 0) {
         return;
-    } let data;
+    }
+
     switch (concurrency) {
         case 1: {
-            data = sequenceDiagramData[0];
+            concurrency = 0;
             break;
         }
         case 25: {
-            data = sequenceDiagramData[1];
+            concurrency = 1;
             break;
         }
         case 50: {
-            data = sequenceDiagramData[2];
+            concurrency = 2;
             break;
         }
         case 75: {
-            data = sequenceDiagramData[3];
+            concurrency = 3;
             break;
         }
         case 100: {
-            data = sequenceDiagramData[4];
+            concurrency = 4;
             break;
         }
     }
+    let data = sequenceDiagramData[concurrency];
     const values = data.values;
+    addRealTimePerformanceLabels(graphData[concurrency]);
 
     let file;
     for (let i = 0; i < values.length; i++) {
@@ -238,28 +238,27 @@ function addPerformanceLabels(concurrency: number) {
         const end = pos[1].split(":");
         const range = new Range(parseInt(start[0]), parseInt(start[1]),
             parseInt(end[0]), parseInt(end[1]));
-        const dataLabel = new DataLabel(file, range, latency, currentResourceName, currentResourcePos, currentRealtimeData);
+        const dataLabel = new DataLabel(file, range, latency, currentResourceName, currentResourcePos, null);
         ExecutorCodeLensProvider.addDataLabel(dataLabel);
 
     }
-    uiData = { name: currentResourceName, graphData: currentGraphData.graphData };
+    uiData = { name: currentResourceName, graphData: advancedData.graphData };
 }
 
-function addRealTimePerformanceLabels() {
-    if (!currentRealtimeData || !currentResourcePos || !currentFileUri) {
+function addRealTimePerformanceLabels(data: GraphPoint) {
+    if (!data || !currentResourcePos || !currentFileUri) {
         return;
     }
 
     // add resource latency
-    const dataLabel = new DataLabel(currentFileUri, currentResourcePos, currentRealtimeData.latency,
-        currentResourceName, currentResourcePos, currentRealtimeData);
+    const dataLabel = new DataLabel(currentFileUri, currentResourcePos, data.latency,
+        currentResourceName, currentResourcePos, null);
     ExecutorCodeLensProvider.addDataLabel(dataLabel);
 
 }
 
 export function updateCodeLenses(concurrency: number) {
     ExecutorCodeLensProvider.dataLabels = [];
-    addRealTimePerformanceLabels();
     addPerformanceLabels(concurrency);
     ExecutorCodeLensProvider.onDidChangeCodeLenses.fire();
 
