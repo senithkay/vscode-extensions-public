@@ -23,7 +23,7 @@ import { APIConfigForm } from "./APIConfigForm";
 import { ConfigurableForm } from './ConfigurableForm';
 import { ConnectorInitForm } from "./ConnectorInitForm";
 import { FunctionConfigForm } from './FunctionConfigForm';
-import { ModuleVariableForm } from './ModuleVariableForm';
+import { ModuleDeclForm } from './ModuleVariableForm';
 import { ScheduleConfigForm } from "./ScheduleConfigForm";
 import { ServiceConfigForm } from './ServiceConfigForm';
 import { WebhookConfigForm } from "./WebhookConfigForm";
@@ -46,7 +46,7 @@ export { EndConfigForm as Respond };
 export { ServiceConfigForm as ServiceDeclaration };
 export { FunctionConfigForm as FunctionDefinition };
 export { RecordEditor as RecordEditor };
-export { ModuleVariableForm as ModuleVarDecl };
+export { ModuleDeclForm as ModuleVarDecl };
 export { ConfigurableForm as Configurable };
 export { ListenerConfigForm as ListenerDeclaration };
 export { ApiConfigureWizard as ResourceAccessorDefinition}
