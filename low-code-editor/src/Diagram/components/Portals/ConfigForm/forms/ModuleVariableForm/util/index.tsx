@@ -39,10 +39,9 @@ export function getFormConfigFromModel(model: any): ModuleVariableFormState {
     }
 
     if (model) {
-        if (model.qualifiers.length > 0 && model.qualifiers.filter((qualifier: any) => STKindChecker.isConfigurableKeyword(qualifier)).length > 0) {
-            if (STKindChecker.isFinalKeyword(model.qualifiers[0])) {
-                defaultFormState.varOptions.push(VariableOptions.FINAL);
-            }
+        if (model.qualifiers.length > 0
+            && model.qualifiers.filter((qualifier: any) => STKindChecker.isFinalKeyword(qualifier)).length > 0) {
+            defaultFormState.varOptions.push(VariableOptions.FINAL);
         }
 
         const typeData = model.initializer.typeData;

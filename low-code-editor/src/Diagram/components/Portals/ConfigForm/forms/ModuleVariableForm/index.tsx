@@ -28,7 +28,7 @@ interface ModuleDeclFormProps {
 export function ModuleDeclForm(props: ModuleDeclFormProps) {
     const { model } = props;
 
-    const isConfigurable = model.qualifiers.length > 0
+    const isConfigurable = model && model.qualifiers.length > 0
         && model.qualifiers.filter(qualifier => STKindChecker.isConfigurableKeyword(qualifier)).length > 0;
 
     return (

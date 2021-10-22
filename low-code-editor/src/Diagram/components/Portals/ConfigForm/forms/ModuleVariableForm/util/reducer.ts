@@ -40,7 +40,7 @@ export function moduleVarFormReducer(state: ModuleVariableFormState, action: Mod
         case ModuleVarFormActionTypes.SET_VAR_TYPE:
             return { ...state, varType: action.payload, varValue: '' };
         case ModuleVarFormActionTypes.SET_VAR_OPTIONS:
-            return { ...state,  };
+            return { ...state, varOptions: action.payload };
         case ModuleVarFormActionTypes.UPDATE_EXPRESSION_VALIDITY:
             return { ...state, isExpressionValid: action.payload };
         case ModuleVarFormActionTypes.RESET_VARIABLE_TYPE:
