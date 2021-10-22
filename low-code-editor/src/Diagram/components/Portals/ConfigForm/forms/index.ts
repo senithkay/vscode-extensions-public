@@ -22,6 +22,7 @@ import { APIOptions } from "../../Overlay/Elements/PlusHolder/PlusElementOptions
 import { APIConfigForm } from "./APIConfigForm";
 import { ConfigurableForm } from './ConfigurableForm';
 import { ConnectorInitForm } from "./ConnectorInitForm";
+import { ConstantConfigForm } from './ConstantConfigForm';
 import { FunctionConfigForm } from './FunctionConfigForm';
 import { ModuleDeclForm } from './ModuleVariableForm';
 import { ScheduleConfigForm } from "./ScheduleConfigForm";
@@ -49,4 +50,5 @@ export { RecordEditor as RecordEditor };
 export { ModuleDeclForm as ModuleVarDecl };
 export { ConfigurableForm as Configurable };
 export { ListenerConfigForm as ListenerDeclaration };
-export { ApiConfigureWizard as ResourceAccessorDefinition}
+export { ApiConfigureWizard as ResourceAccessorDefinition };
+export { ConstantConfigForm as ConstDeclaration }
