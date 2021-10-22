@@ -38,11 +38,11 @@ const moduleLevelEntries: PlusMenuEntry[] = [
     { name: 'Service', type: 'ServiceDeclaration' },
     {
         name: 'Variable',
-        type: 'ModuleVarDecl',
+        type: 'VariableIcon',
         subMenu: [
             { name: 'Constant', type: 'ConstDeclaration'},
             { name: 'Module Variable', type: 'ModuleVarDecl' },
-            { name: 'Configurable', type: 'ModuleVarDecl' }
+            { name: 'Configurable', type: 'Configurable' }
         ]
     },
     { name: 'Listener', type: 'ListenerDeclaration' },

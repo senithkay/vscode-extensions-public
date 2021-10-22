@@ -10,13 +10,14 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useReducer } from 'react';
+import React, { useReducer, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
+import { v4 as uuid } from "uuid";
 
 import { CaptureBindingPattern, ModuleVarDecl, NodePosition, ServiceDeclaration, STKindChecker, TypedBindingPattern } from '@ballerina/syntax-tree';
 import { Box, FormControl, FormHelperText, Typography } from '@material-ui/core';
 
-import { VariableIcon } from '../../../../../../assets/icons';
+import { ConfigurableIcon } from '../../../../../../assets/icons';
 import { useDiagramContext } from '../../../../../../Contexts/Diagram';
 import { STModification } from '../../../../../../Definitions';
 import { createModuleVarDecl, updateModuleVarDecl } from '../../../../../utils/modification-util';
@@ -32,23 +33,19 @@ import { useStyles as useFormStyles } from "../style";
 import { getFormConfigFromModel, isFormConfigValid, ModuleVarNameRegex, VariableQualifiers } from './util';
 import { ModuleVarFormActionTypes, moduleVarFormReducer } from './util/reducer';
 
-interface ModuleVariableFormProps {
+interface ConfigurableFormProps {
     model?: ModuleVarDecl;
     targetPosition?: NodePosition;
     onCancel: () => void;
     onSave: () => void;
 }
 
-export function ModuleVariableForm(props: ModuleVariableFormProps) {
+export function ConfigurableForm(props: ConfigurableFormProps) {
     const formClasses = useFormStyles();
     const { api: { code: { modifyDiagram } } } = useDiagramContext();
     const { onSave, onCancel, targetPosition, model } = props;
     const [state, dispatch] = useReducer(moduleVarFormReducer, getFormConfigFromModel(model));
     const variableTypes: string[] = ["int", "float", "boolean", "string", "json", "xml"];
-
-    if (!state.isPublic) {
-        variableTypes.unshift('var');
-    }
 
     const handleOnSave = () => {
         const modifications: STModification[] = []
@@ -63,10 +60,6 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
 
     const onAccessModifierChange = (modifierList: string[]) => {
         dispatch({ type: ModuleVarFormActionTypes.UPDATE_ACCESS_MODIFIER, payload: modifierList.length > 0 });
-        if (modifierList.length > 0 && state.varType === 'var') {
-            // var type  cannot be public
-            dispatch({ type: ModuleVarFormActionTypes.RESET_VARIABLE_TYPE });
-        }
     }
 
     const onVarTypeChange = (type: string) => {
@@ -83,13 +76,6 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
 
     const handleOnVarNameChange = (value: string) => {
         dispatch({ type: ModuleVarFormActionTypes.SET_VAR_NAME, payload: value });
-    }
-
-    const handleOnVariableQualifierSelect = (value: string) => {
-        dispatch({
-            type: ModuleVarFormActionTypes.SET_VAR_QUALIFIER,
-            payload: value === VariableQualifiers.NONE ? '' : value
-        })
     }
 
     const validateNameValue = (value: string) => {
@@ -114,7 +100,11 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
                 endLine: model ? model.position.startLine : targetPosition.startLine,
                 startColumn: 0,
                 endColumn: 0
-            }
+            },
+            customTemplate: {
+                defaultCodeSnippet: `configurable ${state.varType} temp_var_${uuid().replaceAll('-', '_')} = ;`,
+                targetColumn: 62 + state.varType.length,
+            },
         },
         onChange: onValueChange,
         defaultValue: state.varValue,
@@ -140,9 +130,9 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
         <FormControl data-testid="module-variable-config-form" className={formClasses.wizardFormControl}>
             <div className={formClasses.formTitleWrapper}>
                 <div className={formClasses.mainTitleWrapper}>
-                    <VariableIcon />
+                    <ConfigurableIcon />
                     <Typography variant="h4">
-                        <Box paddingTop={2} paddingBottom={2} paddingLeft={15}>Variable</Box>
+                        <Box paddingTop={2} paddingBottom={2} paddingLeft={15}>Configurable</Box>
                     </Typography>
                 </div>
             </div>
@@ -155,8 +145,8 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
                 </FormHelperText>
             </div>
             <CheckBoxGroup
-                values={['public', 'final']}
-                defaultValues={[]}
+                values={["public"]}
+                defaultValues={state.isPublic ? ['public'] : []}
                 onChange={onAccessModifierChange}
             />
             <SelectDropdownWithButton
@@ -169,9 +159,9 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
                 customProps={variableNameTextFieldCustomProps}
                 defaultValue={state.varName}
                 onChange={handleOnVarNameChange}
-                label={"Variable Name"}
-                errorMessage={"Invalid Variable Name"}
-                placeholder={"Enter Variable Name"}
+                label={"Configurable Name"}
+                errorMessage={"Invalid Configurable Name"}
+                placeholder={"Enter Configurable Name"}
             />
             <ExpressionEditor
                 {...expressionEditorConfig}

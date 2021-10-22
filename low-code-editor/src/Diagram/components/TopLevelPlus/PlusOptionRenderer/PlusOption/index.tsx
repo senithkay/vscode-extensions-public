@@ -24,7 +24,6 @@ interface PlusOptionProps {
 
 export function PlusOption(props: PlusOptionProps) {
     const { entry, onOptionSelect } = props;
-    const [isActive, setActive] = useState(false);
 
     const hasSubMenu = entry.subMenu && entry.subMenu.length > 0;
     const onClick = () => {
@@ -49,7 +48,7 @@ export function PlusOption(props: PlusOptionProps) {
     return (
         <li
             className={classNames({ 'dropdown-submenu': hasSubMenu })}
-            onClick={onClick}
+            onClick={!hasSubMenu ? onClick : null}
         >
             <div className="plus-option">
                 <div className="plus-option-icon">
