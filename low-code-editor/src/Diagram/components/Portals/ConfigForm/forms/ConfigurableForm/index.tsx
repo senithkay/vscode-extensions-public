@@ -20,8 +20,8 @@ import { v4 as uuid } from "uuid";
 import { ConfigurableIcon } from '../../../../../../assets/icons';
 import { useDiagramContext } from '../../../../../../Contexts/Diagram';
 import { ConfigOverlayFormStatus, STModification } from '../../../../../../Definitions';
-import { InjectableItem } from '../../../../FormGenerator';
 import { createConfigurableDecl, createModuleVarDecl, updateConfigurableVarDecl, updateModuleVarDecl } from '../../../../../utils/modification-util';
+import { InjectableItem } from '../../../../FormGenerator';
 import { PrimaryButton } from '../../Elements/Button/PrimaryButton';
 import { SecondaryButton } from '../../Elements/Button/SecondaryButton';
 import CheckBoxGroup from '../../Elements/CheckBox';
@@ -32,7 +32,7 @@ import { FormTextInput } from '../../Elements/TextField/FormTextInput';
 import { ModuleVariableFormState } from '../ModuleVariableForm/util';
 import { useStyles as useFormStyles } from "../style";
 
-import { getFormConfigFromModel, isFormConfigValid, ConfigurableFormState, ModuleVarNameRegex, VariableQualifiers } from './util';
+import { ConfigurableFormState, getFormConfigFromModel, isFormConfigValid, ModuleVarNameRegex, VariableQualifiers } from './util';
 import { ConfigurableFormActionTypes, moduleVarFormReducer } from './util/reducer';
 
 const variableTypes: string[] = ["int", "float", "boolean", "string", "xml"];
