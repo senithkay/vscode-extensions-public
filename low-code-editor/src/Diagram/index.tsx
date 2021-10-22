@@ -25,6 +25,7 @@ import { DiagramDisableState } from "./components/DiagramState/DiagramDisableSta
 import { DiagramErrorState } from "./components/DiagramState/DiagramErrorState";
 import { ErrorList } from "./components/DiagramState/ErrorList";
 import { OverlayBackground } from "./components/OverlayBackground";
+import { UndoPanel } from "./components/UndoRedoPanel";
 import "./style.scss";
 import { useStyles } from "./styles";
 import { getSTComponent } from "./utils";
@@ -118,6 +119,7 @@ export function Diagram() {
             )}
             {isErrorDetailsOpen && <ErrorList />}
             <Container className={classes.DesignContainer}>
+                    <UndoPanel />
                     <CanvasDiagram>
                         {child}
                     </CanvasDiagram>
