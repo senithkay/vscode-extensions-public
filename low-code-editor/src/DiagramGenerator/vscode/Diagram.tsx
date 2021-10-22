@@ -19,14 +19,15 @@ export interface EditorState {
 
 export interface EditorAPI {
     getFileContent: (url: string) => Promise<string>;
-    updateFileContent: (url: string, content: string) => Promise<boolean>;
+    updateFileContent: (filePath: string, content: string) => Promise<boolean>;
+    gotoSource: (filePath: string, position: { startLine: number, startColumn: number }) => Promise<boolean>;
 }
 
 export type EditorProps = EditorState & EditorAPI;
 
 export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
 
-    const { getFileContent, updateFileContent, ...restProps } = props;
+    const { getFileContent, updateFileContent, gotoSource, ...restProps } = props;
     const [state, setState] = React.useState<EditorState>(restProps);
 
     React.useEffect(() => {
@@ -40,6 +41,7 @@ export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
                     {...state}
                     getFileContent={getFileContent}
                     updateFileContent={updateFileContent}
+                    gotoSource={gotoSource}
                     panX="-30"
                     panY="0"
                     scale="0.9"

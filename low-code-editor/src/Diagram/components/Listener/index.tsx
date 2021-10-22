@@ -11,13 +11,17 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from 'react'
+import React, { useContext, useRef, useState } from 'react'
 
 import { ListenerDeclaration, STNode } from "@ballerina/syntax-tree";
 
 import DeleteButton from "../../../assets/icons/DeleteButton";
 import EditButton from "../../../assets/icons/EditButton";
 import ListenerIcon from "../../../assets/icons/ListenerIcon";
+import { Context as DiagramContext } from '../../../Contexts/Diagram';
+import { removeStatement } from '../../utils/modification-util';
+import { FormGenerator } from '../FormGenerator';
+import { DeleteConfirmDialog } from '../Portals/Overlay/Elements';
 
 import "./style.scss";
 
@@ -30,8 +34,19 @@ export interface ListenerProps {
 
 export function ListenerC(props: ListenerProps) {
     const { model } = props;
+    const {
+        props: {
+            stSymbolInfo
+        },
+        api: {
+            code: {
+                modifyDiagram
+            }
+        }
+    } = useContext(DiagramContext);
 
     const [isEditable, setIsEditable] = useState(false);
+    const [editingEnabled, setEditingEnabled] = useState(false);
 
     const listenerModel: ListenerDeclaration = model as ListenerDeclaration;
     const listenerName = listenerModel.variableName.value;
@@ -47,6 +62,20 @@ export function ListenerC(props: ListenerProps) {
     const handleMouseLeave = () => {
         setIsEditable(false);
     };
+
+    const handleDeleteBtnClick = () => {
+        modifyDiagram([
+            removeStatement(model.position)
+        ]);
+    }
+
+    const handleEditBtnClick = () => {
+        setEditingEnabled(true);
+    }
+
+    const handleEditBtnCancel = () => {
+        setEditingEnabled(false);
+    }
 
     return (
         <>
@@ -66,12 +95,20 @@ export function ListenerC(props: ListenerProps) {
                     {isEditable && (
                         <div className={"listener-amendment-options"}>
                             <div className={"edit-btn-wrapper"}>
-                                <EditButton />
+                                <EditButton onClick={handleEditBtnClick} />
                             </div>
                             <div className={"delete-btn-wrapper"}>
-                                <DeleteButton />
+                                <DeleteButton onClick={handleDeleteBtnClick} />
                             </div>
                         </div>
+                    )}
+                    {editingEnabled && (
+                        <FormGenerator
+                            model={model}
+                            configOverlayFormStatus={{ formType: model.kind, isLoading: false }}
+                            onCancel={handleEditBtnCancel}
+                            onSave={handleEditBtnCancel}
+                        />
                     )}
                 </div>
             </div>
@@ -80,3 +117,4 @@ export function ListenerC(props: ListenerProps) {
 }
 
 export const Listener = ListenerC;
+

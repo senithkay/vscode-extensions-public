@@ -13,19 +13,17 @@
 // tslint:disable: jsx-no-multiline-js
 // tslint:disable: jsx-wrap-multiline
 // tslint:disable: no-unused-expression
-import React, { useState } from "react"
+import React, { useContext, useState } from "react"
 
 import { EnumDeclaration, EnumMember, STKindChecker } from "@ballerina/syntax-tree";
+import { Button } from "@material-ui/core";
 
-import DeleteButton from "../../../assets/icons/DeleteButton";
-import EditButton from "../../../assets/icons/EditButton";
-import RecordIcon from "../../../assets/icons/RecordIcon";
-import { ComponentExpandButton } from "../ComponentExpandButton";
+import EnumIcon from "../../../assets/icons/EnumIcon";
+import { useDiagramContext } from "../../../Contexts/Diagram";
+import { removeStatement } from "../../utils/modification-util";
+import { HeaderActions } from "../HeaderActions";
 
 import "./style.scss";
-
-export const RECORD_MARGIN_LEFT: number = 24.5;
-export const RECORD_PLUS_OFFSET: number = 7.5;
 
 export interface EnumDeclarationComponentProps {
     model: EnumDeclaration;
@@ -33,10 +31,27 @@ export interface EnumDeclarationComponentProps {
 
 export function EnumDeclarationComponent(props: EnumDeclarationComponentProps) {
     const { model } = props;
+    const {
+        api: {
+            code: { modifyDiagram, gotoSource },
+        },
+    } = useDiagramContext();
     const [isExpanded, setIsExpanded] = useState(false);
+    const [editingEnabled, setEditingEnabled] = useState(false);
 
     const onExpandClick = () => {
         setIsExpanded(!isExpanded);
+    }
+
+    const handleDeleteConfirm = () => {
+        modifyDiagram([
+            removeStatement(model.position)
+        ]);
+    }
+
+    const handleEditBtnConfirm = () => {
+        const targetposition = model.position;
+        gotoSource({ startLine: targetposition.startLine, startColumn: targetposition.startColumn });
     }
 
     const members: JSX.Element[] = model.enumMemberList
@@ -59,39 +74,38 @@ export function EnumDeclarationComponent(props: EnumDeclarationComponentProps) {
         })
 
     return (
-        <div className="enum-comp">
-            <div className="enum-header" >
-                <div className="enum-content">
-                    <div className="enum-icon">
-                        <RecordIcon />
+        <div>
+            <div className="enum-comp">
+                <div className="enum-header" >
+                    <div className="enum-content">
+                        <div className="enum-icon">
+                            <EnumIcon />
+                        </div>
+                        <div className="enum-type">
+                            Enum
+                        </div>
+                        <div className="enum-name">
+                            {model.identifier.value}
+                        </div>
                     </div>
-                    <div className="enum-type">
-                        Enum
-                    </div>
-                    <div className="enum-name">
-                        {model.identifier.value}
-                    </div>
+                    <HeaderActions
+                        model={model}
+                        deleteText="Delete this Enum?"
+                        isExpanded={isExpanded}
+                        onExpandClick={onExpandClick}
+                        onConfirmDelete={handleDeleteConfirm}
+                        onConfirmEdit={handleEditBtnConfirm}
+                    />
                 </div>
-                <div className="enum-amendment-options">
-                    <div className="enum-edit">
-                        <EditButton />
-                    </div>
-                    <div className="enum-delete">
-                        <DeleteButton />
-                    </div>
-                    <div className="enum-expand">
-                        <ComponentExpandButton isExpanded={isExpanded} onClick={onExpandClick} />
-                    </div>
-                </div>
+                <div className="enum-separator" />
+                {isExpanded && (
+                    <>
+                        <div className="enum-fields" >
+                            {members}
+                        </div>
+                    </>
+                )}
             </div>
-            <div className="enum-separator" />
-            {isExpanded && (
-                <>
-                    <div className="enum-fields" >
-                        {members}
-                    </div>
-                </>
-            )}
         </div>
     );
 }

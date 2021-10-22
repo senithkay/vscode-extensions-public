@@ -27,7 +27,7 @@ import { useStyles as useTextInputStyles } from "../TextField/style";
 import { getExampleForType, truncateText, variableNameMaxLength } from "./utils";
 
 export function ExpressionEditorLabel(props: FormElementProps<ExpressionEditorProps>) {
-    const { model, customProps } = props;
+    const { model, customProps, hideLabelTooltips } = props;
 
     const formClasses = useFormStyles();
     const textFieldClasses = useTextInputStyles();
@@ -52,16 +52,16 @@ export function ExpressionEditorLabel(props: FormElementProps<ExpressionEditorPr
 
     return (
         <>
-            {!customProps?.hideTextLabel && textLabel ?
+            {!hideLabelTooltips && !customProps?.hideTextLabel && textLabel ?
                 (model && model.optional ?
-                    (
-                        <div className={textFieldClasses.inputWrapper}>
+                        (
                             <div className={textFieldClasses.inputWrapper}>
-                                <div className={textFieldClasses.labelWrapper}>
-                                    <FormHelperText className={formClasses.inputLabelForRequired}>{textLabel}</FormHelperText>
-                                    {!customProps?.subEditor && <FormHelperText className={formClasses.optionalLabel}><FormattedMessage id="lowcode.develop.elements.expressionEditor.optional.label" defaultMessage="Optional"/></FormHelperText>}
-                                </div>
-                                {(customProps?.tooltipTitle || model?.tooltip) &&
+                                <div className={textFieldClasses.inputWrapper}>
+                                    <div className={textFieldClasses.labelWrapper}>
+                                        <FormHelperText className={formClasses.inputLabelForRequired}>{textLabel}</FormHelperText>
+                                        {!customProps?.subEditor && <FormHelperText className={formClasses.optionalLabel}><FormattedMessage id="lowcode.develop.elements.expressionEditor.optional.label" defaultMessage="Optional"/></FormHelperText>}
+                                    </div>
+                                    {(customProps?.tooltipTitle || model?.tooltip) &&
                                     (
                                         <div>
                                             <TooltipIcon
@@ -74,16 +74,16 @@ export function ExpressionEditorLabel(props: FormElementProps<ExpressionEditorPr
                                             />
                                         </div>
                                     )
-                                }
+                                    }
+                                </div>
                             </div>
-                        </div>
-                    ) : (
-                        <div className={textFieldClasses.inputWrapper}>
-                            <div className={textFieldClasses.labelWrapper}>
-                                <FormHelperText className={formClasses.inputLabelForRequired}>{textLabel}</FormHelperText>
-                                <FormHelperText className={formClasses.starLabelForRequired}>*</FormHelperText>
-                            </div>
-                            {(customProps?.tooltipTitle || model?.tooltip) &&
+                        ) : (
+                            <div className={textFieldClasses.inputWrapper}>
+                                <div className={textFieldClasses.labelWrapper}>
+                                    <FormHelperText className={formClasses.inputLabelForRequired}>{textLabel}</FormHelperText>
+                                    <FormHelperText className={formClasses.starLabelForRequired}>*</FormHelperText>
+                                </div>
+                                {(customProps?.tooltipTitle || model?.tooltip) &&
                                 (
                                     <TooltipIcon
                                         title={model?.tooltip}
@@ -94,9 +94,9 @@ export function ExpressionEditorLabel(props: FormElementProps<ExpressionEditorPr
                                         typeExamples={getExampleForType(model)}
                                     />
                                 )
-                            }
-                        </div>
-                    )
+                                }
+                            </div>
+                        )
                 ) : null
             }
             {typeString && (

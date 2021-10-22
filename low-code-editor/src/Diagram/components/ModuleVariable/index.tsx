@@ -17,7 +17,7 @@ import { CaptureBindingPattern, ModuleVarDecl, STKindChecker, STNode } from "@ba
 
 import DeleteButton from "../../../assets/icons/DeleteButton";
 import EditButton from "../../../assets/icons/EditButton";
-import VariableIcon from "../../../assets/icons/VariableIcon";
+import ModuleVariableIcon from "../../../assets/icons/ModuleVariableIcon";
 
 import "./style.scss";
 
@@ -69,7 +69,7 @@ export function ModuleVariable(props: ModuleVariableProps) {
             >
                 <div className={"moduleVariableWrapper"}>
                     <div className={"moduleVariableIcon"}>
-                        <VariableIcon />
+                        <ModuleVariableIcon />
                     </div>
                     <p className={'variable-text'}>
                         {varValue}

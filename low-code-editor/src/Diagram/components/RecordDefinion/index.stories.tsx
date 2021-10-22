@@ -16,16 +16,16 @@ import React from 'react';
 import { Story } from '@storybook/react/types-6-0';
 
 import recordDef from "./data/record-def-raw.json"
-import { TypeDefComponentProps, TypeDefinitionComponent } from "./index";
+import { RecordDefComponentProps, RecordDefinitionComponent } from "./index";
 
 export default {
     title: 'Low Code Editor/Diagram/TypeDefinion',
-    component: TypeDefinitionComponent,
+    component: RecordDefinitionComponent,
 };
 
 
-const Template: Story<TypeDefComponentProps> = (args: TypeDefComponentProps) =>
-    <TypeDefinitionComponent {...args} />;
+const Template: Story<RecordDefComponentProps> = (args: RecordDefComponentProps) =>
+    <RecordDefinitionComponent {...args} />;
 
 export const RecordComponent = Template.bind({});
 RecordComponent.args = {
