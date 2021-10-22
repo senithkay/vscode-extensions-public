@@ -24,7 +24,7 @@ jobs:
         uses: docker/login-action@v1 
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
       - name: Docker Build and Push
         uses: docker/build-push-action@v2
         with:
@@ -32,7 +32,7 @@ jobs:
           file: .github/workflows/resources/code-server/Dockerfile
           platforms: linux/amd64
           push: true
-          tags: prabushi/code-server:latest
+          tags: prabushi/lowcode-code-server:latest
           build-args: |
             REDIRECT_URI=${{ github.event.inputs.redirect }}
 
