@@ -122,7 +122,8 @@ export class BallerinaExtension {
             outputChannel: getOutputChannel(),
             revealOutputChannelOn: RevealOutputChannelOn.Never,
             initializationOptions: {
-                "enableSemanticHighlighting": <string>workspace.getConfiguration().get(ENABLE_SEMANTIC_HIGHLIGHTING)
+                "enableSemanticHighlighting": <string>workspace.getConfiguration().get(ENABLE_SEMANTIC_HIGHLIGHTING),
+                "supportBalaScheme": "true"
             }
         };
         this.telemetryReporter = createTelemetryReporter(this);
