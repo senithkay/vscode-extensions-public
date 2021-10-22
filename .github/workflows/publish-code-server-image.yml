@@ -1,14 +1,11 @@
-# Build and push the code server image 
+# Build and push the code server image daily
 name: Daily Code Server Image
 
 on:
   workflow_dispatch:
-    inputs:
-      redirect:
-        description: Redirect Choreo URI
-        required: true
-        default: https://consolev2.preview-dv.choreo.dev/
     branches: [main]
+  schedule:
+    - cron: '0 0 * * *'
 
 jobs:
   build_docker:
@@ -35,4 +32,3 @@ jobs:
           tags: prabushi/lowcode-code-server:latest
           build-args: |
             REDIRECT_URI=${{ github.event.inputs.redirect }}
-

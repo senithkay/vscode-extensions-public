@@ -1,4 +1,4 @@
-# Create a plugin release without tests
+# Create a plugin release without running tests
 name: Release Without Tests
 
 on:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    name: Add a daily release for VS Code extension
+    name: Create a release for VS Code extension without running tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code

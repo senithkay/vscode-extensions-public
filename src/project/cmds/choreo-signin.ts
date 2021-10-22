@@ -137,6 +137,15 @@ export class ChoreoOAuth {
 }
 
 export async function getChoreoKeytarSession(): Promise<ChoreoSession> {
+    if (process.env.OVERRIDE_CHOREO_AUTHENTICATION === 'true') {
+        return {
+            loginStatus: true,
+            choreoUser: process.env.VSCODE_CHOREO_SESSION_USERNAME,
+            choreoCookie: process.env.VSCODE_CHOREO_SESSION_COOKIE,
+            choreoToken: process.env.VSCODE_CHOREO_SESSION_TOKEN
+        }
+    }
+
     let choreoToken: string | null = null;
     await keytar.getPassword(CHOREO_SERVICE_NAME, CHOREO_ACCESS_TOKEN).then((result) => {
         choreoToken = result;
