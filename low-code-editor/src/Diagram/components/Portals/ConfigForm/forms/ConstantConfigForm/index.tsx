@@ -25,12 +25,16 @@ import ExpressionEditor from "../../Elements/ExpressionEditor";
 import { FormTextInput } from "../../Elements/TextField/FormTextInput";
 import { useStyles as useFormStyles } from "../style";
 
+
 interface ConstantConfigFormProps {
     model?: ConstDeclaration;
     targetPosition?: NodePosition;
     onCancel: () => void;
     onSave: () => void;
 }
+
+
+const ConstantVarNameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 
 export interface ConstantConfigFormState {
     isTypeDefined: boolean;
@@ -64,7 +68,7 @@ export function constantConfigFormReducer(state: ConstantConfigFormState, action
         case ConstantConfigFormActionTypes.SET_CONSTANT_TYPE:
             return { ...state, constantType: action.payload }
         case ConstantConfigFormActionTypes.TOGGLE_INCLUDE_TYPE:
-            return { ...state, constantType: '', isTypeDefined: !state.isTypeDefined }
+            return { ...state, constantType: '', isTypeDefined: !state.isTypeDefined, constantValue: '' }
         case ConstantConfigFormActionTypes.UPDATE_EXPRESSION_VALIDITY:
             return { ...state, isExpressionValid: action.paylaod }
         default:
@@ -80,17 +84,28 @@ const defaultConstantFormState: ConstantConfigFormState = {
     isExpressionValid: false
 }
 
+export function isFormConfigValid(config: ConstantConfigFormState): boolean {
+    const { constantValue, constantName, constantType, isTypeDefined, isExpressionValid } = config;
+    if (isTypeDefined) {
+        return constantName.length > 0 && ConstantVarNameRegex.test(constantName) && constantType.length > 0
+            && isExpressionValid && constantValue.length > 0;
+
+    } else {
+        return constantName.length > 0 && ConstantVarNameRegex.test(constantName) && isExpressionValid
+            && constantValue.length > 0;
+    }
+}
+
 export function ConstantConfigForm(props: ConstantConfigFormProps) {
     const formClasses = useFormStyles();
     const { model, targetPosition, onCancel, onSave } = props;
     const [config, dispatch] = useReducer(constantConfigFormReducer, defaultConstantFormState)
 
     const variableTypes: string[] = ["int", "float", "byte", "boolean", "string"];
-    const constantVarNameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 
     const validateNameValue = (value: string) => {
         if (value && value !== '') {
-            return constantVarNameRegex.test(value);
+            return ConstantVarNameRegex.test(value);
         }
         return true;
     };
@@ -158,6 +173,13 @@ export function ConstantConfigForm(props: ConstantConfigFormProps) {
         />
     );
 
+    const handleOnSave = () => {
+
+        onSave();
+    }
+
+    const disableSaveBtn: boolean = !isFormConfigValid(config);
+
     return (
         <FormControl data-testid="module-variable-config-form" className={formClasses.wizardFormControl}>
             <div className={formClasses.formTitleWrapper}>
@@ -193,8 +215,10 @@ export function ConstantConfigForm(props: ConstantConfigFormProps) {
                     onClick={onCancel}
                 />
                 <PrimaryButton
+                    disabled={disableSaveBtn}
                     text="Save"
                     fullWidth={false}
+                    onClick={handleOnSave}
                 />
             </div>
         </FormControl>
