@@ -52,7 +52,7 @@ export function updateIfStatementCondition(conditionExpression: string, targetPo
     return updatedIfStatement;
 }
 
-export function createForeachStatement(collection: string, variableName: string, targetPosition: NodePosition): STModification {
+export function createForeachStatement(collection: string, variableName: string, type: string, targetPosition: NodePosition): STModification {
     const foreachStatement: STModification = {
         startLine: targetPosition.startLine,
         startColumn: 0,
@@ -61,7 +61,7 @@ export function createForeachStatement(collection: string, variableName: string,
         type: "FOREACH_STATEMENT",
         config: {
             "COLLECTION": collection,
-            "TYPE": "var",
+            "TYPE": type,
             "VARIABLE": variableName
         }
     };
@@ -69,7 +69,7 @@ export function createForeachStatement(collection: string, variableName: string,
     return foreachStatement;
 }
 
-export function updateForEachCondition(collection: string, variableName: string, targetPosition: NodePosition): STModification {
+export function updateForEachCondition(collection: string, variableName: string, type: string, targetPosition: NodePosition): STModification {
     const foreachStatement: STModification = {
         startLine: targetPosition.startLine,
         startColumn: targetPosition.startColumn,
@@ -78,7 +78,8 @@ export function updateForEachCondition(collection: string, variableName: string,
         type: "FOREACH_STATEMENT_CONDITION",
         config: {
             "COLLECTION": collection,
-            "VARIABLE": variableName
+            "VARIABLE": variableName,
+            "TYPE": type
         }
     };
 
