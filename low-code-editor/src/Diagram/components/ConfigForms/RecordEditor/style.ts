@@ -15,8 +15,8 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 export const recordStyles = makeStyles((theme: Theme) =>
     createStyles({
         recordFieldWrapper: {
-            marginLeft: 20,
-            marginRight: 20,
+            marginLeft: 10,
+            marginRight: 10,
             marginTop: 20,
             height: "85%",
             overflow: "scroll",
@@ -71,7 +71,7 @@ export const recordStyles = makeStyles((theme: Theme) =>
         itemWrapper: {
             display: 'flex',
             flexDirection: `row`,
-            minWidth: 200
+            minWidth: 250
         },
         itemLabel: {
             width: "80%"
@@ -124,18 +124,67 @@ export const recordStyles = makeStyles((theme: Theme) =>
             }
         },
         recordEditorWrapper: {
-            minWidth: 200,
+            minWidth: 250,
             margin: `5px 10px`
         },
         activeRecordEditorWrapper: {
-            minWidth: 200,
+            minWidth: 250,
             padding: 10,
             boxSizing: "border-box",
             border: "1px solid #A6B3FF",
             borderRadius: 4
         },
+        recordHeader: {
+            display: `flex`,
+            flexDirection: `row`,
+            "&:hover": {
+                "& $recordHeaderBtnWrapper": {
+                    display: "flex",
+                    flexDirection: "row",
+                    width: "25%",
+                    alignItems: "center"
+                },
+                "& $recordExpandBtnWrapper": {
+                    marginTop: 10,
+                    marginLeft: 0
+                },
+                "& $typeDefEditBtnWrapper": {
+                    display: "flex",
+                    flexDirection: "row",
+                    width: "10%",
+                    marginTop: 5,
+                    justifyContent: "flex-end"
+                },
+                "& $typeDefExpandButton": {
+                    marginTop: 10,
+                    marginLeft: 0
+                },
+            }
+        },
         recordCode: {
+            width: `80%`,
+            fontFamily: "inherit",
             color: '#0095FF'
+        },
+        recordHeaderBtnWrapper: {
+            display: "none",
+            flexDirection: "row",
+            width: "15%",
+            alignItems: "center"
+        },
+        recordExpandBtnWrapper: {
+            marginTop: 10,
+            marginRight: 10,
+            marginLeft: 20
+        },
+        typeDefEditBtnWrapper: {
+            display: "none",
+            cursor: "pointer",
+        },
+        typeDefExpandButton: {
+            marginTop: 10,
+            marginRight: 10,
+            marginLeft: 22
         },
         buttonWrapper: {
             height: 'auto',

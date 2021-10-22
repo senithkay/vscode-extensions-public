@@ -24,6 +24,7 @@ import ExpressionEditor from "../../../Portals/ConfigForm/Elements/ExpressionEdi
 import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { FormElementProps } from "../../../Portals/ConfigForm/types";
+import { keywords } from "../../../Portals/utils/constants";
 import { wizardStyles } from "../../style";
 import { SimpleField } from "../types";
 
@@ -37,7 +38,7 @@ export function EditFieldForm() {
     const isFieldUpdate = state.currentForm === FormState.UPDATE_FIELD;
     let type = "int";
     let fieldName = "";
-    let nameValidity = false;
+    const varNameError = "";
     let defaultValValidity = true;
     let fieldOptianality = false;
     let typeOptianality = false;
@@ -45,7 +46,6 @@ export function EditFieldForm() {
     if (isFieldUpdate) {
         type = state.currentField.type;
         fieldName = state.currentField.name;
-        nameValidity = true;
         defaultValValidity = true;
         fieldOptianality = state.currentField.isFieldOptional;
         typeOptianality = state.currentField.isFieldTypeOptional;
@@ -53,33 +53,36 @@ export function EditFieldForm() {
     }
     const [selectedType, setSelectedType] = useState(type);
     const [name, setName] = useState(fieldName);
-    const [isValidName, setIsValidName] = useState(nameValidity);
+    const [nameError, setNameError] = useState(varNameError);
     const [isFieldOptional, setIsFieldOptional] = useState(fieldOptianality);
     const [isTypeOptional, setIsTypeOptional] = useState(typeOptianality);
     const [defaultValue, setDefaultValue] = useState(defaultVal);
     const [validDefaultValue, setValidDefaultValue] = useState(defaultValValidity);
-    // const [editorFocus, setEditorFocus] = useState(false);
+
+    const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 
     const handleTypeSelect = (typeSelected: string) => {
         setSelectedType(typeSelected);
         setDefaultValue("");
-        // setEditorFocus(true);
     };
 
     const handleNameChange = (inputText: string) => {
         setName(inputText);
+        const isNameAlreadyExists = state.currentRecord.fields.find(field => (field.name === inputText)) &&
+            !(state.currentField?.name === inputText);
+        if (isNameAlreadyExists) {
+            setNameError("Variable name already exists");
+        } else if (keywords.includes(inputText)) {
+            setNameError("Keywords are not allowed");
+        } else if ((inputText !== "") && !nameRegex.test(inputText)) {
+            setNameError("Enter a valid name");
+        } else {
+            setNameError("");
+        }
     };
 
     const handleDefaultValueChange = (inputText: string) => {
         setDefaultValue(inputText);
-    };
-
-    const validateNameValue = (value: string) => {
-        // TODO: Add name validations for same record name in updating
-        const isNameAlreadyExists = state.currentRecord.fields.find(field => (field.name === value)) &&
-            !(state.currentField?.name === value);
-        setIsValidName(!isNameAlreadyExists);
-        return !isNameAlreadyExists;
     };
 
     const validateDefaultValue = (fName: string, isInvalidFromField: boolean) => {
@@ -128,7 +131,7 @@ export function EditFieldForm() {
         setSelectedType("int");
         setName("");
         setIsFieldOptional(false);
-        setIsValidName(false);
+        setNameError("");
         setIsTypeOptional(false);
         setValidDefaultValue(true);
     };
@@ -137,17 +140,9 @@ export function EditFieldForm() {
         setSelectedType(state.currentField.type);
         setName(state.currentField.name);
         setIsFieldOptional(state.currentField.isFieldOptional);
-        setIsValidName(true);
+        setNameError("");
         setIsTypeOptional(state.currentField.isFieldTypeOptional);
     };
-
-    // const revertEditorFocus = () => {
-    //     setEditorFocus(false);
-    // };
-    //
-    // const focusEditor = () => {
-    //     setEditorFocus(true);
-    // };
 
     const formField: FormField = {
         name: "defaultValue",
@@ -172,7 +167,8 @@ export function EditFieldForm() {
         defaultValue
     };
 
-    const isSaveButtonDisabled = !isValidName || (selectedType === "") || (name === "") || (!isFieldOptional && !validDefaultValue);
+    const isSaveButtonDisabled = (nameError !== "") || (selectedType === "") || (name === "") ||
+        (!isFieldOptional && !validDefaultValue);
 
     useEffect(() => {
         // Checks whether add from is completed and reset field addition
@@ -197,13 +193,13 @@ export function EditFieldForm() {
             <FormTextInput
                 dataTestId="field-name"
                 customProps={{
-                    validate: validateNameValue,
-                    clearInput: (name === "")
+                    clearInput: (name === ""),
+                    isErrored: (nameError !== "")
                 }}
                 defaultValue={name}
                 onChange={handleNameChange}
                 label={"Field name"}
-                errorMessage={!isValidName ? "Variable name already exists" : null}
+                errorMessage={nameError}
                 placeholder={"Enter field name"}
             />
             <CheckBoxGroup

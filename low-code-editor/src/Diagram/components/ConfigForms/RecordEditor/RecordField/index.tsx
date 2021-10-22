@@ -18,23 +18,27 @@ import classnames from "classnames";
 
 import { AddIcon } from "../../../../../assets/icons";
 import DeleteButton from "../../../../../assets/icons/DeleteButton";
+import EditButton from "../../../../../assets/icons/EditButton";
 import { Context, FormState } from "../../../../../Contexts/RecordEditor";
+import { ComponentExpandButton } from "../../../ComponentExpandButton";
 import { FieldItem } from "../FieldItem";
 import { recordStyles } from "../style";
 import { RecordModel, SimpleField } from "../types";
 
 export interface CodePanelProps {
     recordModel: RecordModel;
+    parentRecordModel?: RecordModel;
 }
 
 export function RecordField(props: CodePanelProps) {
-    const { recordModel } = props;
+    const { recordModel, parentRecordModel } = props;
 
     const recordClasses = recordStyles();
 
     const { state, callBacks } = useContext(Context);
 
     const [isFieldAddInProgress, setIsFieldAddInProgress] = useState(false);
+    const [isRecordExpanded, setIsRecordExpanded] = useState(true);
 
     const handleFieldEdit = (field: SimpleField) => {
         const index = recordModel.fields.indexOf(field);
@@ -70,6 +74,36 @@ export function RecordField(props: CodePanelProps) {
         }
     };
 
+    const handleRecordEdit = () => {
+        // Changes the active state to selected record model
+        state.currentRecord.isActive = false;
+        recordModel.isActive = true;
+
+        // Changes the active state to selected field
+        if (state.currentField) {
+            state.currentField.isActive = false;
+        }
+
+        callBacks.onUpdateCurrentField(undefined);
+        callBacks.onUpdateCurrentRecord(recordModel);
+        callBacks.onUpdateModel(state.recordModel);
+        callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
+    };
+
+    const handleRecordDelete = () => {
+        if (parentRecordModel) {
+            const index = parentRecordModel.fields.indexOf(recordModel);
+            if (index !== -1) {
+                parentRecordModel.fields.splice(index, 1);
+            }
+            state.currentRecord.isActive = false;
+            parentRecordModel.isActive = true;
+            state.currentRecord = parentRecordModel;
+            callBacks.onUpdateModel(state.recordModel);
+            callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
+        }
+    };
+
     const handleDraftFieldDelete = () => {
         setIsFieldAddInProgress(false);
         callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
@@ -92,6 +126,10 @@ export function RecordField(props: CodePanelProps) {
         setIsFieldAddInProgress(true);
     };
 
+    const handleRecordExpand = () => {
+        setIsRecordExpanded(!isRecordExpanded);
+    };
+
     const fieldItems: ReactNode[] = [];
     recordModel.fields.forEach((field: SimpleField | RecordModel) => {
         if (field.type !== "record") {
@@ -103,7 +141,7 @@ export function RecordField(props: CodePanelProps) {
                 />
             )
         } else {
-            fieldItems.push(<RecordField recordModel={field as RecordModel} />)
+            fieldItems.push(<RecordField recordModel={field as RecordModel} parentRecordModel={recordModel} />)
         }
     });
 
@@ -141,18 +179,37 @@ export function RecordField(props: CodePanelProps) {
                 className={recordModel.isActive ? recordClasses.activeRecordEditorWrapper :
                     recordClasses.recordEditorWrapper}
             >
-                <Typography
-                    variant='body2'
-                    className={classnames(recordClasses.recordCode)}
-                >
-                    {recordBegin}
-                </Typography>
-                {fieldItems}
-                {!isFieldAddInProgress && (
-                    <div className={recordClasses.addFieldBtnWrap} onClick={handleAddField}>
-                        <AddIcon/>
-                        <p>Add Field</p>
+                <div className={recordClasses.recordHeader}>
+                    <Typography
+                        variant='body2'
+                        className={classnames(recordClasses.recordCode)}
+                    >
+                        {recordBegin}
+                    </Typography>
+                    <div className={recordModel.isTypeDefinition ? recordClasses.typeDefEditBtnWrapper : recordClasses.recordHeaderBtnWrapper}>
+                        <div className={recordClasses.actionBtnWrapper} onClick={handleRecordEdit}>
+                            <EditButton />
+                        </div>
+                        {!recordModel.isTypeDefinition && (
+                            <div className={recordClasses.actionBtnWrapper} onClick={handleRecordDelete}>
+                                <DeleteButton />
+                            </div>
+                        )}
                     </div>
+                    <div className={recordModel.isTypeDefinition ? recordClasses.typeDefExpandButton : recordClasses.recordExpandBtnWrapper}>
+                        <ComponentExpandButton onClick={handleRecordExpand} isExpanded={isRecordExpanded} />
+                    </div>
+                </div>
+                {isRecordExpanded && (
+                    <>
+                        {fieldItems}
+                        {!isFieldAddInProgress && (
+                            <div className={recordClasses.addFieldBtnWrap} onClick={handleAddField}>
+                                <AddIcon/>
+                                <p>Add Field</p>
+                            </div>
+                        )}
+                    </>
                 )}
                 <Typography
                     variant='body2'

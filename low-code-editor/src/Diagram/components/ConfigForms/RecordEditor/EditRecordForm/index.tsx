@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 
 import { Box, FormControl, Typography } from "@material-ui/core";
 
@@ -20,23 +20,12 @@ import { PrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/Prima
 import CheckBoxGroup from "../../../Portals/ConfigForm/Elements/CheckBox";
 import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
-import { wizardStyles } from "../../style";
-import { recordStyles } from "../style";
-import { SimpleField } from "../types";
 
-export interface FieldEditorProps {
-    onSaveFiled?: (field: SimpleField) => void;
-    onCancel?: () => void;
-}
-
-export function EditRecordForm(props: FieldEditorProps) {
-    const { onSaveFiled, onCancel } = props;
+export function EditRecordForm() {
 
     const { state, callBacks } = useContext(Context);
 
-    const overlayClasses = wizardStyles();
     const classes = useStyles();
-    const recordClasses = recordStyles();
 
     const handleNameChange = (inputText: string) => {
         state.currentRecord.name = inputText;
@@ -90,8 +79,7 @@ export function EditRecordForm(props: FieldEditorProps) {
                 }}
                 defaultValue={state.currentRecord.name}
                 onChange={handleNameChange}
-                label={"Field name"}
-                errorMessage={!/*isValidName*/ false ? "Variable name already exists" : null}
+                label={"Record name"}
                 placeholder={"Enter field name"}
             />
             <CheckBoxGroup

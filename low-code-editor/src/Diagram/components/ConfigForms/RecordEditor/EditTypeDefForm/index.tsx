@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
-import { Box, FormControl, Typography } from "@material-ui/core";
+import { Box, FormControl, FormHelperText, Typography } from "@material-ui/core";
 
 import { useRecordEditorContext } from "../../../../../Contexts/RecordEditor";
 import { PrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
@@ -62,13 +62,13 @@ export function EditTypeDefForm() {
                 </Typography>
             </div>
             <FormTextInput
-                dataTestId="field-name"
+                dataTestId="record-name"
                 customProps={{
                     validate: validateNameValue,
                 }}
                 defaultValue={state.currentRecord.name}
                 onChange={handleNameChange}
-                label={"Field name"}
+                label={"Record name"}
                 errorMessage={!/*isValidName*/ false ? "Variable name already exists" : null}
                 placeholder={"Enter field name"}
             />
@@ -78,10 +78,14 @@ export function EditTypeDefForm() {
                 defaultValues={state.currentRecord.isClosed ? ["Is Closed ?"] : []}
                 onChange={handleIsClosedChange}
             />
+
+            <FormHelperText className={classes.inputLabelForRequired}>
+                Visibility
+            </FormHelperText>
             <CheckBoxGroup
                 testId="is-public"
-                values={["Is Public ?"]}
-                defaultValues={state.currentRecord.isPublic ? ["Is Public ?"] : []}
+                values={["public"]}
+                defaultValues={state.currentRecord.isPublic ? ["public"] : []}
                 onChange={handleIsPublicChange}
             />
 
