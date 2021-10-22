@@ -848,9 +848,3 @@ export const INTEGRATION_DISPLAY_TYPES = [APP_TYPE_WEBHOOK, APP_TYPE_MANUAL, APP
 export const SERVICE_APP_DISPLAY_TYPES = [APP_TYPE_API, APP_TYPE_SERVICE_DRAFT];
 
 export interface Resource { }
-export interface DraftUpdateStatement {
-    startLine: number;
-    endLine: number;
-    startColumn: number;
-    endColumn: number;
-}

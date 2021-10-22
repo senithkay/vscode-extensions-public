@@ -17,6 +17,7 @@ import { CaptureBindingPattern, ModuleVarDecl, STKindChecker, STNode } from "@ba
 
 import DeleteButton from "../../../assets/icons/DeleteButton";
 import EditButton from "../../../assets/icons/EditButton";
+import ModuleVariableIcon from "../../../assets/icons/ModuleVariableIcon";
 import VariableIcon from "../../../assets/icons/VariableIcon";
 import { useDiagramContext } from "../../../Contexts/Diagram";
 import { removeStatement } from "../../utils/modification-util";
@@ -85,9 +86,9 @@ export function ModuleVariable(props: ModuleVariableProps) {
                 className={"module-variable-container"}
                 data-test-id="module-var"
             >
-                <div className={'module-variable-display-section'}>
-                    <div className={"module-variable-icon"}>
-                        <VariableIcon />
+                <div className={"moduleVariableWrapper"}>
+                    <div className={"moduleVariableIcon"}>
+                        <ModuleVariableIcon />
                     </div>
                     <p className={'variable-text'}>
                         {varValue}
