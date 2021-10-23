@@ -11,13 +11,17 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from "react"
+import React, { useContext, useState } from "react"
 
 import { ConstDeclaration, STNode } from "@ballerina/syntax-tree";
+import classNames from "classnames";
 
 import ConstantIcon from "../../../assets/icons/ConstantIcon";
 import DeleteButton from "../../../assets/icons/DeleteButton";
 import EditButton from "../../../assets/icons/EditButton";
+import { useDiagramContext } from "../../../Contexts/Diagram";
+import { removeStatement } from "../../utils/modification-util";
+import { UnsupportedConfirmButtons } from "../UnsupportedConfirmButtons";
 
 import "./style.scss";
 
@@ -32,28 +36,43 @@ export interface ConstantProps {
 
 export function Constant(props: ConstantProps) {
     const { model } = props;
+    const {
+        api: {
+            code: { modifyDiagram, gotoSource },
+        },
+    } = useDiagramContext();
 
-    const [isEditable, setIsEditable] = useState(false);
+    const [editingEnabled, setEditingEnabled] = useState(false);
 
     const constModel: ConstDeclaration = model as ConstDeclaration;
     const varType = "const";
     const varName = constModel.variableName.value;
     const varValue = constModel.initializer.source.trim();
 
-    const handleMouseEnter = () => {
-        setIsEditable(true);
-    };
+    const handleDeleteBtnClick = () => {
+        modifyDiagram([
+            removeStatement(model.position)
+        ]);
+    }
 
-    const handleMouseLeave = () => {
-        setIsEditable(false);
-    };
+    const handleEditBtnClick = () => {
+        setEditingEnabled(true);
+    }
+
+    const handleEditBtnCancel = () => {
+        setEditingEnabled(false);
+    }
+
+    const handleEditBtnConfirm = () => {
+        const targetposition = model.position;
+        setEditingEnabled(false);
+        gotoSource({ startLine: targetposition.startLine, startColumn: targetposition.startColumn });
+    }
 
     return (
         <div>
             <div
                 className={"moduleVariableContainer"}
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
                 data-test-id="const"
             >
                 <div className={"moduleVariableWrapper"}>
@@ -64,20 +83,17 @@ export function Constant(props: ConstantProps) {
                         {varType}
                     </p>
                     <p className={"moduleVariableNameText"}>
-                        {`${varName} = ${varValue}`}
+                        {varName}
                     </p>
-                    {isEditable && (
-                        <>
-                            <div className={"editBtnWrapper"}>
-                                <EditButton />
-                            </div>
-                            <div className={"deleteBtnWrapper"}>
-                                <DeleteButton />
-                            </div>
-                        </>
-                    )}
+                    <div className={classNames("editBtnWrapper", "show-on-hover")}>
+                        <EditButton onClick={handleEditBtnClick} />
+                    </div>
+                    <div className={classNames("deleteBtnWrapper", "show-on-hover")}>
+                        <DeleteButton onClick={handleDeleteBtnClick} />
+                    </div>
                 </div>
             </div>
+            {editingEnabled && <UnsupportedConfirmButtons onConfirm={handleEditBtnConfirm} onCancel={handleEditBtnCancel} />}
         </div>
     );
 }
