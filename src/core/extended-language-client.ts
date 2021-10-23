@@ -50,6 +50,8 @@ enum EXTENDED_APIS {
     PACKAGE_COMPONENTS = 'ballerinaPackage/components',
     PACKAGE_METADATA = 'ballerinaPackage/metadata',
     JSON_TO_RECORD_CONVERT = 'jsonToRecord/convert',
+    PARTIAL_PARSE_SINGLE_STATEMENT = 'partialParser/getSTForSingleStatement',
+    PARTIAL_PARSE_EXPRESSION = 'partialParser/getSTForExpression',
     EXAMPLE_LIST = 'ballerinaExample/list',
     PERF_ANALYZER_GRAPH_DATA = 'performanceAnalyzer/getGraphData',
     PERF_ANALYZER_REALTIME_DATA = 'performanceAnalyzer/getRealtimeData'
@@ -398,6 +400,20 @@ export class ExtendedLangClient extends LanguageClient {
             Promise.resolve(NOT_SUPPORTED);
         }
         return this.sendRequest(EXTENDED_APIS.JSON_TO_RECORD_CONVERT, params);
+    }
+
+    getSTForSingleStatement(params: PartialSTRequestParams): Thenable<PartialSTResponse> {
+        if (!this.isExtendedServiceSupported(EXTENDED_APIS.PARTIAL_PARSE_SINGLE_STATEMENT)) {
+            Promise.resolve(NOT_SUPPORTED);
+        }
+        return this.sendRequest(EXTENDED_APIS.PARTIAL_PARSE_SINGLE_STATEMENT, params);
+    }
+
+    getSTForExpression(params: PartialSTRequestParams): Thenable<PartialSTResponse> {
+        if (!this.isExtendedServiceSupported(EXTENDED_APIS.PARTIAL_PARSE_EXPRESSION)) {
+            Promise.resolve(NOT_SUPPORTED);
+        }
+        return this.sendRequest(EXTENDED_APIS.PARTIAL_PARSE_EXPRESSION, params);
     }
 
     initBalServices(params: BallerinaInitializeParams): Promise<BallerinaInitializeResult> {
