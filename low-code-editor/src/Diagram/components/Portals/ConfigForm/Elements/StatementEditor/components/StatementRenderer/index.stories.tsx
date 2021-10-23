@@ -49,7 +49,8 @@ const api = {
         modifyDiagram: dummyFunction,
         onMutate: dummyFunction,
         modifyTrigger: dummyFunction,
-        setCodeLocationToHighlight: dummyFunction
+        setCodeLocationToHighlight: dummyFunction,
+        gotoSource: dummyFunction
     },
     connections: {
         getAllConnections: async (orgHandle: string): Promise<ConnectionDetails[]> => {
