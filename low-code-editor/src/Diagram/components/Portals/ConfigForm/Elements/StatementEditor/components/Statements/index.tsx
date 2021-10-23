@@ -13,6 +13,7 @@
 import { ForeachStatementC } from "./ForeachStatement";
 import { IfStatementC } from "./IfStatement";
 import { LocalVarDeclC } from './LocalVarDecl';
+import { OtherStatementTypes } from "./OtherStatement";
 import { WhileStatementC } from "./WhileStatement";
 
 
@@ -20,3 +21,4 @@ export { LocalVarDeclC as LocalVarDecl };
 export { WhileStatementC as WhileStatement };
 export { ForeachStatementC as ForeachStatement };
 export { IfStatementC as IfElseStatement };
+export { OtherStatementTypes as OtherStatement };
