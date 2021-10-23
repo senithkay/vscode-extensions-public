@@ -264,8 +264,8 @@ export class ExtendedLangClient extends LanguageClient {
         return this.sendRequest("jsonToRecord/convert", params);
     }
 
-    getSTForStatement(params: PartialSTRequestParams): Thenable<PartialSTResponse> {
-        return this.sendRequest("partialParser/getSTForStatement", params);
+    getSTForSingleStatement(params: PartialSTRequestParams): Thenable<PartialSTResponse> {
+        return this.sendRequest("partialParser/getSTForSingleStatement", params);
     }
 
     getSTForExpression(params: PartialSTRequestParams): Thenable<PartialSTResponse> {

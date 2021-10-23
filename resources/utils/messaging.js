@@ -253,9 +253,9 @@ function getLangClient() {
                 });
             })
         },
-        getSTForStatement: (params) => {
+        getSTForSingleStatement: (params) => {
             return new Promise((resolve, _reject) => {
-                webViewRPCHandler.invokeRemoteMethod('getSTForStatement', [params], (resp) => {
+                webViewRPCHandler.invokeRemoteMethod('getSTForSingleStatement', [params], (resp) => {
                     resolve(resp);
                 });
             })
