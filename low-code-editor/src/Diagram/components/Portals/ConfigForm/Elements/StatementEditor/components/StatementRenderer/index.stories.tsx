@@ -23,6 +23,7 @@ import { StatementEditorContextProvider } from "../../store/statement-editor-con
 import foreachModel from "./data/foreach-st-model.json";
 import ifElseBooleanLiteralModel from "./data/ifelse-booleaLiteral-st-model.json";
 import ifElseModel from "./data/ifelse-st-model.json";
+import panicModel from "./data/panic-st-model.json";
 import stModel from "./data/st-model-raw.json";
 import varDeclStringLiteral from "./data/varDecl-stringLiteral-model.json";
 import whileModel from "./data/while-st-model.json";
@@ -176,6 +177,8 @@ export const IfElseStmt = Template.bind({});
 
 export const IfElseBooleanLiteralStmt = Template.bind({});
 
+export const OtherStmt = Template.bind({});
+
 StmtRendererComponent.args = {
     model: stModel,
     userInputs: {
@@ -238,6 +241,17 @@ IfElseBooleanLiteralStmt.args = {
         "selectedType": "boolean",
         "varName": "name",
         "variableExpression": "expression",
+        "formField": "Expression"
+    },
+    diagnosticHandler: dummyDiagnosticHandler
+}
+
+OtherStmt.args = {
+    model: panicModel,
+    userInputs: {
+        "selectedType": "",
+        "varName": "",
+        "variableExpression": "",
         "formField": "Expression"
     },
     diagnosticHandler: dummyDiagnosticHandler

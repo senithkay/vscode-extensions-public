@@ -21,6 +21,7 @@ import { InputEditorContextProvider } from "../../store/input-editor-context";
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
 import foreachModel from "../StatementRenderer/data/foreach-st-model.json";
 import ifElseModel from "../StatementRenderer/data/ifelse-st-model.json";
+import panicModel from "../StatementRenderer/data/panic-st-model.json";
 import stModel from "../StatementRenderer/data/st-model-raw.json";
 import stringModel from "../StatementRenderer/data/varDecl-stringLiteral-model.json";
 import whileStmtModel from "../StatementRenderer/data/while-st-model.json";
@@ -170,6 +171,9 @@ export const ViewContainerForeachStmt = Template.bind({});
 
 export const ViewContainerIfElseStmt = Template.bind({});
 
+export const ViewContainerOtherStmt = Template.bind({});
+
+
 
 ViewContainerDefault.args = {
     kind: "DefaultString",
@@ -251,6 +255,24 @@ ViewContainerIfElseStmt.args = {
         "selectedType": "boolean",
         "varName": "ga",
         "variableExpression": "(expression+expression)",
+        "formField": "Expression"
+    },
+    validate: dummyFunction,
+    isMutationInProgress: false,
+    validForm: true,
+    onCancel: dummyFunctionWithoutArgs,
+    onSave: dummyFunctionWithoutArgs,
+    onChange: dummyFunction
+}
+
+ViewContainerOtherStmt.args = {
+    kind: "NumericLiteral",
+    label: "Other Statement",
+    formArgs: { model: panicModel},
+    userInputs: {
+        "selectedType": "",
+        "varName": "",
+        "variableExpression": "",
         "formField": "Expression"
     },
     validate: dummyFunction,

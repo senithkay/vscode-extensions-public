@@ -17,6 +17,7 @@ import { STNode } from "@ballerina/syntax-tree";
 
 import * as expressionTypeComponents from '../components/ExpressionTypes';
 import * as statementTypeComponents from '../components/Statements';
+import * as c from "../constants";
 import { SuggestionItem, VariableUserInputs } from '../models/definitions';
 
 import { DefaultModelsByKind } from "./sample-model";
@@ -73,10 +74,10 @@ export function getStatementTypeComponent(
     userInputs: VariableUserInputs,
     diagnosticHandler: (diagnostics: string) => void
 ): ReactNode {
-    const StatementTypeComponent = (statementTypeComponents as any)[model.kind];
+    let StatementTypeComponent = (statementTypeComponents as any)[model.kind];
 
     if (!StatementTypeComponent) {
-        return null;
+        StatementTypeComponent = (statementTypeComponents as any)[c.OTHER_STATEMENT];
     }
 
     return <StatementTypeComponent
