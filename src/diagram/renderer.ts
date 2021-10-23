@@ -104,6 +104,17 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
                     );
                 })
             }
+            function gotoSource(filePath, position) {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'gotoSource',
+                        [filePath, position],
+                        (response) => {
+                            resolve(response);
+                        }
+                    );
+                })
+            }
             function drawDiagram({
                 filePath,
                 startLine,
@@ -120,6 +131,7 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
                             startColumn,
                             getFileContent,
                             updateFileContent,
+                            gotoSource,
                             lastUpdatedAt
                         }
                     };
@@ -157,8 +169,8 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
             });
             drawDiagram({
                 filePath: ${JSON.stringify(ballerinaFilePath)},
-                startLine: ${JSON.stringify(startLine.toString())},
-                startColumn: ${JSON.stringify(startColumn.toString())},
+                startLine: ${startLine},
+                startColumn: ${startColumn},
                 lastUpdatedAt: (new Date()).toISOString()
             });
         }

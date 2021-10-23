@@ -19,7 +19,7 @@
 
 import {
 	commands, window, Uri, ViewColumn, ExtensionContext, WebviewPanel, Disposable, workspace, WorkspaceEdit, Range,
-	Position
+	Position, TextDocumentShowOptions
 } from 'vscode';
 import * as _ from 'lodash';
 import { render } from './renderer';
@@ -34,7 +34,8 @@ import {
 import { PackageOverviewDataProvider } from '../tree-view';
 import { PALETTE_COMMANDS } from '../project';
 import { sep } from "path";
-import { DiagramOptions } from './model';
+import { DiagramOptions, Member, SyntaxTree } from './model';
+import { existsSync, readFileSync, writeFileSync } from 'fs';
 
 const NO_DIAGRAM_VIEWS: string = 'No Ballerina diagram views found!';
 
@@ -43,7 +44,7 @@ let overviewDataProvider: PackageOverviewDataProvider;
 let diagramElement: DiagramOptions | undefined = undefined;
 let ballerinaExtension: BallerinaExtension;
 let webviewRPCHandler: WebViewRPCHandler;
-let currentColumn: ViewColumn | undefined;
+let currentDocumentURI: Uri;
 
 export async function showDiagramEditor(startLine: number, startColumn: number, kind: string, name: string,
 	filePath: string, isCommand: boolean = false): Promise<void> {
@@ -91,7 +92,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension, diagramOvervi
 	overviewDataProvider = diagramOverviewDataProvider;
 	ballerinaExtension = ballerinaExtInstance;
 
-	ballerinaExtInstance.onEditorChanged(change => {
+	ballerinaExtInstance.getDocumentContext().onEditorChanged(change => {
 		refreshDiagramForEditorChange(change);
 	});
 
@@ -114,6 +115,15 @@ export function activate(ballerinaExtInstance: BallerinaExtension, diagramOvervi
 			});
 	});
 	context.subscriptions.push(diagramRenderDisposable);
+
+	commands.registerCommand('ballerina.show.source', () => {
+		const path = ballerinaExtension.getDocumentContext().getLatestDocument();
+		if (!path) {
+			return;
+		}
+		commands.executeCommand('workbench.action.splitEditor');
+		commands.executeCommand('vscode.open', path);
+	});
 }
 
 class DiagramPanel {
@@ -128,27 +138,35 @@ class DiagramPanel {
 		this.webviewPanel.onDidDispose(() => this.dispose(), null, this.disposables);
 	}
 
-	public static create(columns: ViewColumn) {
-		if (DiagramPanel.currentPanel && currentColumn === columns) {
+	public static create(viewColumn: ViewColumn) {
+		if (DiagramPanel.currentPanel && DiagramPanel.currentPanel.webviewPanel.viewColumn
+			&& DiagramPanel.currentPanel.webviewPanel.viewColumn == viewColumn) {
 			DiagramPanel.currentPanel.webviewPanel.reveal();
 			DiagramPanel.currentPanel.update();
+			ballerinaExtension.setDiagramActiveContext(true);
 			return;
 		} else if (DiagramPanel.currentPanel) {
 			DiagramPanel.currentPanel.dispose();
 		}
 
+		const fileName: string | undefined = getCurrentFileName();
 		const panel = window.createWebviewPanel(
 			'ballerinaDiagram',
-			"Ballerina Diagram",
-			{ viewColumn: columns, preserveFocus: false },
+			fileName ? `${fileName} Diagram` : `Ballerina Diagram`,
+			{ viewColumn, preserveFocus: false },
 			getCommonWebViewOptions()
 		);
-		currentColumn = columns;
+		ballerinaExtension.setDiagramActiveContext(true);
 		panel.iconPath = {
 			light: Uri.file(join(ballerinaExtension.context!.extensionPath, 'resources/images/icons/design-view.svg')),
 			dark: Uri.file(join(ballerinaExtension.context!.extensionPath,
 				'resources/images/icons/design-view-inverse.svg'))
 		};
+
+		panel.onDidChangeViewState(event => {
+			event.webviewPanel.active ? ballerinaExtension.setDiagramActiveContext(true) :
+				ballerinaExtension.setDiagramActiveContext(false);
+		});
 
 		const remoteMethods: WebViewMethod[] = [
 			{
@@ -157,8 +175,10 @@ class DiagramPanel {
 					// Get the active text editor
 					const filePath = args[0];
 					const doc = workspace.textDocuments.find((doc) => doc.fileName === filePath);
-					const content = doc ? doc.getText() : "";
-					return content;
+					if (doc) {
+						return doc.getText();
+					}
+					return readFileSync(filePath, { encoding: 'utf-8' });
 				}
 			},
 			{
@@ -171,9 +191,41 @@ class DiagramPanel {
 					if (doc) {
 						const edit = new WorkspaceEdit();
 						edit.replace(Uri.file(filePath), new Range(new Position(0, 0), doc.lineAt(doc.lineCount - 1).range.end), fileContent);
-						return await workspace.applyEdit(edit);
+						await workspace.applyEdit(edit);
+						return doc.save();
+					} else {
+						langClient.didChange({
+							contentChanges: [
+								{
+									text: fileContent
+								}
+							],
+							textDocument: {
+								uri: Uri.file(filePath).toString(),
+								version: 1
+							}
+						});
+						writeFileSync(filePath, fileContent);
 					}
 					return false;
+				}
+			},
+			{
+				methodName: "gotoSource",
+				handler: async (args: any[]): Promise<boolean> => {
+					const filePath = args[0];
+					const position: { startLine: number, startColumn: number } = args[1];
+					if (!existsSync(filePath)) {
+						return false;
+					}
+					const showOptions: TextDocumentShowOptions = {
+						preserveFocus: false,
+						preview: false,
+						viewColumn: ViewColumn.Two,
+						selection: new Range(position.startLine, position.startColumn, position.startLine!, position.startColumn!)
+					};
+					const status = commands.executeCommand('vscode.open', Uri.file(filePath), showOptions);
+					return !status ? false : true;
 				}
 			}
 		];
@@ -183,6 +235,7 @@ class DiagramPanel {
 	}
 
 	public dispose() {
+		ballerinaExtension.setDiagramActiveContext(false);
 		DiagramPanel.currentPanel = undefined;
 		this.webviewPanel.dispose();
 		this.disposables.forEach(disposable => {
@@ -193,6 +246,7 @@ class DiagramPanel {
 	private update() {
 		if (diagramElement && diagramElement.isDiagram) {
 			if (!DiagramPanel.currentPanel) {
+				performDidOpen();
 				this.webviewPanel.webview.html = render(diagramElement!.fileUri!, diagramElement!.startLine!,
 					diagramElement!.startColumn!);
 			} else {
@@ -200,10 +254,17 @@ class DiagramPanel {
 			}
 		}
 	}
+
+	public updateTitle(title: string) {
+		if (this.webviewPanel.title === title) {
+			return;
+		}
+		this.webviewPanel.title = title;
+	}
 }
 
 export async function refreshDiagramForEditorChange(change: Change) {
-	if (!webviewRPCHandler || !DiagramPanel.currentPanel || (currentColumn && currentColumn === ViewColumn.One)) {
+	if (!webviewRPCHandler || !DiagramPanel.currentPanel) {
 		return;
 	}
 
@@ -214,10 +275,7 @@ export async function refreshDiagramForEditorChange(change: Change) {
 			}
 		}).then(response => {
 			if (response.parseSuccess && response.syntaxTree) {
-				diagramElement = {
-					isDiagram: true, fileUri: change.fileUri, startLine: change.startLine,
-					startColumn: change.startColumn
-				};
+				diagramElement = getChangedElement(response.syntaxTree, change);
 			}
 		});
 	}
@@ -229,7 +287,10 @@ export async function refreshDiagramForEditorChange(change: Change) {
 }
 
 function callUpdateDiagramMethod() {
+	performDidOpen();
 	let ballerinaFilePath = diagramElement!.fileUri!.fsPath;
+	const fileName: string | undefined = getCurrentFileName();
+	DiagramPanel.currentPanel?.updateTitle(fileName ? `${fileName} Diagram` : `Ballerina Diagram`);
 	if (isWindows()) {
 		ballerinaFilePath = '/' + ballerinaFilePath.split(sep).join("/");
 	}
@@ -239,4 +300,88 @@ function callUpdateDiagramMethod() {
 		startColumn: diagramElement!.startColumn
 	}];
 	webviewRPCHandler.invokeRemoteMethod('updateDiagram', args, () => { });
+}
+
+function performDidOpen() {
+	let tempUri: Uri | undefined;
+	if (diagramElement!.fileUri) {
+		tempUri = diagramElement?.fileUri!;
+	}
+	if (!tempUri) {
+		return;
+	}
+	ballerinaExtension.getDocumentContext().setLatestDocument(tempUri);
+	const doc = workspace.textDocuments.find((doc) => doc.uri === tempUri);
+	if (doc) {
+		return;
+	}
+	if (currentDocumentURI !== tempUri!) {
+		const content: string = readFileSync(tempUri.fsPath, { encoding: 'utf-8' });
+		langClient.didOpen({
+			textDocument: {
+				uri: tempUri.toString(),
+				languageId: 'ballerina',
+				version: 1,
+				text: content
+			}
+		});
+		currentDocumentURI = tempUri;
+	}
+}
+
+function getChangedElement(st: SyntaxTree, change: Change): DiagramOptions {
+	if (!st.members) {
+		return { isDiagram: false };
+	}
+
+	const member: Member[] = st.members.filter(member => {
+		return isWithinRange(member, change);
+	});
+
+	if (member.length == 0) {
+		return { isDiagram: false };
+	}
+
+	if (member[0].kind === 'FunctionDefinition') {
+		return {
+			isDiagram: true, fileUri: change.fileUri, startLine: member[0].functionName?.position.startLine,
+			startColumn: member[0].functionName?.position.startColumn
+		};
+	} else if (member[0].kind === 'ServiceDeclaration') {
+		for (let ri = 0; ri < member[0].members.length; ri++) {
+			const resource = member[0].members[ri];
+			if (resource.kind === 'ResourceAccessorDefinition' && isWithinRange(resource, change)) {
+				return {
+					isDiagram: true, fileUri: change.fileUri, startLine: resource.functionName?.position.startLine,
+					startColumn: resource.functionName?.position.startColumn
+				};
+			}
+		}
+		return {
+			isDiagram: true, fileUri: change.fileUri, startLine: member[0].position.startLine,
+			startColumn: member[0].position.startColumn
+		};
+
+	} else if (member[0].kind === 'ListenerDeclaration' || member[0].kind === 'ModuleVarDecl' ||
+		member[0].kind === 'TypeDefinition' || member[0].kind === 'ConstDeclaration' ||
+		member[0].kind === 'EnumDeclaration' || member[0].kind === 'ClassDefinition') {
+		return {
+			isDiagram: true, fileUri: change.fileUri, startLine: member[0].position.startLine,
+			startColumn: member[0].position.startColumn
+		};
+	}
+	return { isDiagram: false };
+}
+
+function isWithinRange(member: Member, change: Change) {
+	return (member.position.startLine < change.startLine || (member.position.startLine === change.startLine &&
+		member.position.startColumn <= change.startColumn)) && (member.position.endLine > change.startLine ||
+			(member.position.endLine === change.startLine && member.position.endColumn >= change.startColumn));
+}
+
+function getCurrentFileName(): string | undefined {
+	if (!diagramElement || !diagramElement!.fileUri) {
+		return undefined;
+	}
+	return diagramElement!.fileUri!.fsPath.split(sep).pop();
 }

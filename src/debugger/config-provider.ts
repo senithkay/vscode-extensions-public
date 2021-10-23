@@ -32,9 +32,10 @@ import { ExtendedLangClient } from '../core/extended-language-client';
 import { BALLERINA_HOME } from '../core/preferences';
 import { TM_EVENT_START_DEBUG_SESSION, CMP_DEBUGGER, sendTelemetryEvent, sendTelemetryException } from '../telemetry';
 import { log, debug as debugLog, isSupportedVersion, VERSION } from "../utils";
-import { ExecutableOptions } from 'vscode-languageclient';
+import { ExecutableOptions } from 'vscode-languageclient/node';
 
 const BALLERINA_COMMAND = "ballerina.command";
+const EXTENDED_CLIENT_CAPABILITIES = "capabilities";
 
 export enum DEBUG_REQUEST {
     LAUNCH = 'launch'
@@ -65,6 +66,7 @@ async function getModifiedConfigs(config: DebugConfiguration) {
     const ballerinaHome = ballerinaExtInstance.getBallerinaHome();
     config[BALLERINA_HOME] = ballerinaHome;
     config[BALLERINA_COMMAND] = ballerinaExtInstance.getBallerinaCmd();
+    config[EXTENDED_CLIENT_CAPABILITIES] = { supportsReadOnlyEditors: true };
 
     if (!config.type) {
         config.type = LANGUAGE.BALLERINA;

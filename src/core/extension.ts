@@ -18,9 +18,8 @@
  */
 
 import {
-    workspace, window, commands, languages, Uri,
-    ConfigurationChangeEvent, extensions,
-    Extension, ExtensionContext, IndentAction, WebviewPanel, OutputChannel, StatusBarItem, StatusBarAlignment, TextDocument
+    workspace, window, commands, languages, Uri, ConfigurationChangeEvent, extensions, Extension, ExtensionContext,
+    IndentAction, OutputChannel, StatusBarItem, StatusBarAlignment
 } from "vscode";
 import {
     INVALID_HOME_MSG, INSTALL_BALLERINA, DOWNLOAD_BALLERINA, MISSING_SERVER_CAPABILITY, ERROR, COMMAND_NOT_FOUND,
@@ -29,12 +28,15 @@ import {
 } from "./messages";
 import { join, sep } from 'path';
 import { exec, spawnSync } from 'child_process';
-import { LanguageClientOptions, State as LS_STATE, RevealOutputChannelOn, ServerOptions } from "vscode-languageclient";
+import { LanguageClientOptions, State as LS_STATE, RevealOutputChannelOn, ServerOptions } from "vscode-languageclient/node";
 import { getServerOptions } from '../server/server';
 import { ExtendedLangClient } from './extended-language-client';
 import { debug, log, getOutputChannel, outputChannel, isWindows } from '../utils';
 import { AssertionError } from "assert";
-import { BALLERINA_HOME, ENABLE_ALL_CODELENS, ENABLE_EXECUTOR_CODELENS, ENABLE_TELEMETRY, OVERRIDE_BALLERINA_HOME }
+import {
+    BALLERINA_HOME, BALLERINA_LOW_CODE_MODE, ENABLE_ALL_CODELENS, ENABLE_EXECUTOR_CODELENS, ENABLE_TELEMETRY,
+    ENABLE_SEMANTIC_HIGHLIGHTING, OVERRIDE_BALLERINA_HOME
+}
     from "./preferences";
 import TelemetryReporter from "vscode-extension-telemetry";
 import {
@@ -43,6 +45,8 @@ import {
     TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED
 } from "../telemetry";
 import { BALLERINA_COMMANDS, runCommand } from "../project";
+import { SessionDataProvider } from "../tree-view/session-tree-data-provider";
+
 const any = require('promise.any');
 
 const SWAN_LAKE_REGEX = /(s|S)wan( |-)(l|L)ake/g;
@@ -69,6 +73,19 @@ export interface Change {
     startColumn: number;
 }
 
+export interface ChoreoSession {
+    loginStatus: boolean;
+    choreoUser?: string;
+    choreoToken?: string;
+    choreoCookie?: string;
+}
+
+interface CodeServerContext {
+    codeServerEnv: boolean;
+    manageChoreoRedirectUri?: string;
+    alwaysShowInfo?: boolean;
+}
+
 export class BallerinaExtension {
     public telemetryReporter: TelemetryReporter;
     public ballerinaHome: string;
@@ -80,19 +97,15 @@ export class BallerinaExtension {
     public langClient?: ExtendedLangClient;
     public context?: ExtensionContext;
     private sdkVersion: StatusBarItem;
-    private diagramTreeElementClickedCallbacks: Array<(construct: ConstructIdentifier) => void> = [];
-    private editorChangesCallbacks: Array<(change: Change) => void> = [];
-    private currentDocument: TextDocument | undefined;
-
-    private webviewPanels: {
-        [name: string]: WebviewPanel;
-    };
+    private documentContext: DocumentContext;
+    private choreoSession: ChoreoSession;
+    private choreoSessionTreeProvider: SessionDataProvider | undefined;
+    private codeServerContext: CodeServerContext;
 
     constructor() {
         this.ballerinaHome = '';
         this.ballerinaCmd = '';
         this.ballerinaVersion = '';
-        this.webviewPanels = {};
         this.sdkVersion = window.createStatusBarItem(StatusBarAlignment.Left, 100);
         this.sdkVersion.text = `Ballerina SDK: Detecting`;
         this.sdkVersion.command = `ballerina.showLogs`;
@@ -108,8 +121,19 @@ export class BallerinaExtension {
             synchronize: { configurationSection: LANGUAGE.BALLERINA },
             outputChannel: getOutputChannel(),
             revealOutputChannelOn: RevealOutputChannelOn.Never,
+            initializationOptions: {
+                "enableSemanticHighlighting": <string>workspace.getConfiguration().get(ENABLE_SEMANTIC_HIGHLIGHTING),
+                "supportBalaScheme": "true"
+            }
         };
         this.telemetryReporter = createTelemetryReporter(this);
+        this.documentContext = new DocumentContext();
+        this.choreoSession = { loginStatus: false };
+        this.codeServerContext = {
+            codeServerEnv: process.env.CODE_SERVER_ENV === 'true',
+            manageChoreoRedirectUri: process.env.MANAGE_CHOROE_URI,
+            alwaysShowInfo: true
+        }
     }
 
     setContext(context: ExtensionContext) {
@@ -183,6 +207,7 @@ export class BallerinaExtension {
                         log(message);
                         this.showPluginActivationError();
                     } else if (stateChangeEvent.newState === LS_STATE.Running) {
+                        this.langClient?.registerExtendedAPICapabilities();
                         sendTelemetryEvent(this, TM_EVENT_EXTENSION_INIT, CMP_EXTENSION_CORE);
                     }
                 });
@@ -489,18 +514,6 @@ export class BallerinaExtension {
         return <boolean>workspace.getConfiguration().get(OVERRIDE_BALLERINA_HOME);
     }
 
-    public addWebviewPanel(name: string, panel: WebviewPanel) {
-        this.webviewPanels[name] = panel;
-
-        panel.onDidDispose(() => {
-            delete this.webviewPanels[name];
-        });
-    }
-
-    public getWebviewPanels() {
-        return this.webviewPanels;
-    }
-
     public getID(): string {
         return this.extension.id;
     }
@@ -525,9 +538,51 @@ export class BallerinaExtension {
         return <boolean>workspace.getConfiguration().get(ENABLE_EXECUTOR_CODELENS);
     }
 
+    public isBallerinaLowCodeMode(): boolean {
+        let isBallerinaLowCodeMode = <boolean>workspace.getConfiguration().get(BALLERINA_LOW_CODE_MODE);
+        return isBallerinaLowCodeMode || (process.env.LOW_CODE_MODE === 'true');
+    }
+
     public isSwanLake(): boolean {
         return this.swanLake;
     }
+
+    public getDocumentContext(): DocumentContext {
+        return this.documentContext;
+    }
+
+    public setDiagramActiveContext(value: boolean) {
+        commands.executeCommand('setContext', 'isBallerinaDiagram', value);
+    }
+
+    public setChoreoSession(choreoSession: ChoreoSession) {
+        this.choreoSession = choreoSession;
+    }
+
+    public getChoreoSession(): ChoreoSession {
+        return this.choreoSession;
+    }
+
+    public setChoreoSessionTreeProvider(choreoSessionTreeProvider: SessionDataProvider) {
+        this.choreoSessionTreeProvider = choreoSessionTreeProvider;
+    }
+
+    public getChoreoSessionTreeProvider(): SessionDataProvider | undefined {
+        return this.choreoSessionTreeProvider;
+    }
+
+    public getCodeServerContext(): CodeServerContext {
+        return this.codeServerContext;
+    }
+}
+
+/**
+ * Class keeps data related to text and diagram document changes.
+ */
+class DocumentContext {
+    private diagramTreeElementClickedCallbacks: Array<(construct: ConstructIdentifier) => void> = [];
+    private editorChangesCallbacks: Array<(change: Change) => void> = [];
+    private latestDocument: Uri | undefined;
 
     public diagramTreeElementClicked(construct: ConstructIdentifier): void {
         this.diagramTreeElementClickedCallbacks.forEach((callback) => {
@@ -549,12 +604,12 @@ export class BallerinaExtension {
         });
     }
 
-    public setCurrentDocument(document: TextDocument) {
-        this.currentDocument = document;
+    public setLatestDocument(uri: Uri | undefined) {
+        this.latestDocument = uri;
     }
 
-    public getCurrentDocument(): TextDocument | undefined {
-        return this.currentDocument;
+    public getLatestDocument(): Uri | undefined {
+        return this.latestDocument;
     }
 }
 

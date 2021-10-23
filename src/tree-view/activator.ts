@@ -16,13 +16,22 @@
  * under the License.
  */
 
-import { BallerinaExtension, ConstructIdentifier } from "../core";
+import { BallerinaExtension, ChoreoSession, ConstructIdentifier } from "../core";
 import { showDiagramEditor } from '../diagram';
 import { sendTelemetryEvent, CMP_PACKAGE_VIEW, TM_EVENT_OPEN_PACKAGE_OVERVIEW } from "../telemetry";
-import { commands, window } from 'vscode';
-import { CMP_KIND, TREE_COLLAPSE_COMMAND, TREE_ELEMENT_EXECUTE_COMMAND, TREE_REFRESH_COMMAND } from "./model";
-import { PackageOverviewDataProvider } from "./tree-data-provider";
+import { commands, Uri, window, workspace } from 'vscode';
+import {
+    CMP_KIND, TREE_ELEMENT_EXECUTE_COMMAND, OUTLINE_TREE_REFRESH_COMMAND, EXPLORER_TREE_REFRESH_COMMAND,
+    EXPLORER_ITEM_KIND, EXPLORER_TREE_NEW_FILE_COMMAND, EXPLORER_TREE_NEW_FOLDER_COMMAND, ExplorerTreeItem,
+    EXPLORER_TREE_NEW_MODULE_COMMAND, EXPLRER_TREE_DELETE_FILE_COMMAND
+} from "./model";
+import { PackageOverviewDataProvider } from "./outline-tree-data-provider";
 import { SessionDataProvider } from "./session-tree-data-provider";
+import { ExplorerDataProvider } from "./explorer-tree-data-provider";
+import { existsSync, mkdirSync, open, rm, rmdir } from 'fs';
+import { join } from 'path';
+import { BALLERINA_COMMANDS, PALETTE_COMMANDS, runCommand } from "../project";
+import { getChoreoKeytarSession } from "../project/cmds/choreo-signin";
 
 export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverviewDataProvider {
 
@@ -30,29 +39,125 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
 
     const packageTreeDataProvider = new PackageOverviewDataProvider(ballerinaExtInstance);
     window.createTreeView('ballerinaPackageTreeView', {
-        treeDataProvider: packageTreeDataProvider
+        treeDataProvider: packageTreeDataProvider, showCollapseAll: true
     });
 
-    commands.registerCommand(TREE_REFRESH_COMMAND, () =>
+    commands.registerCommand(OUTLINE_TREE_REFRESH_COMMAND, () =>
         packageTreeDataProvider.refresh()
     );
-
-    commands.registerCommand(TREE_COLLAPSE_COMMAND, () => {
-        commands.executeCommand('workbench.actions.treeView.ballerinaPackageTreeView.collapseAll');
-    });
 
     if (!ballerinaExtInstance.isSwanLake()) {
         return packageTreeDataProvider;
     }
 
+    const explorerDataProvider = new ExplorerDataProvider(ballerinaExtInstance);
+    ballerinaExtInstance.context!.subscriptions.push(window.createTreeView('ballerinaExplorerTreeView', {
+        treeDataProvider: explorerDataProvider, showCollapseAll: true
+    }));
+
+    commands.registerCommand(EXPLORER_TREE_REFRESH_COMMAND, () =>
+        explorerDataProvider.refresh()
+    );
+
+    commands.registerCommand(EXPLORER_TREE_NEW_FILE_COMMAND, async (item: ExplorerTreeItem) => {
+        const name = await window.showInputBox({ placeHolder: 'Enter file name...' });
+        if (name && name.trim().length > 0) {
+            open(join(item.getUri().fsPath, name), 'w', () => { });
+            explorerDataProvider.refresh();
+        }
+    });
+
+    commands.registerCommand(EXPLORER_TREE_NEW_FOLDER_COMMAND, async (item: ExplorerTreeItem) => {
+        const name = await window.showInputBox({ placeHolder: 'Enter folder name...' });
+        if (name && name.trim().length > 0) {
+            const filePath = join(item.getUri().fsPath, name);
+            if (!existsSync(filePath)) {
+                mkdirSync(filePath);
+            }
+            explorerDataProvider.refresh();
+        }
+    });
+
+    commands.registerCommand(EXPLRER_TREE_DELETE_FILE_COMMAND, async (item: ExplorerTreeItem) => {
+        const deleteAction = 'Delete';
+        const cancelAction = 'Cancel';
+        window.showWarningMessage(`Are you sure you want to delete ${item.getUri().fsPath}?`,
+            cancelAction, deleteAction).then((selection) => {
+                if (deleteAction === selection) {
+                    item.getKind() == 'folder' ? rmdir(item.getUri().fsPath, { recursive: true }, () => { }) :
+                        rm(item.getUri().fsPath, () => { });
+                    explorerDataProvider.refresh();
+                }
+            });
+    });
+
+    commands.registerCommand(EXPLORER_TREE_NEW_MODULE_COMMAND, async () => {
+        // try {
+        const workspaceFolderProjects = workspace.workspaceFolders?.filter(folder => {
+            return existsSync(join(folder.uri.fsPath, 'Ballerina.toml'));
+        });
+
+        if (!workspaceFolderProjects || workspaceFolderProjects.length == 0) {
+            window.showErrorMessage('No Ballerina Projects identified at the workspace root.');
+            return;
+        }
+        let userSelection;
+        if (workspaceFolderProjects.length > 1) {
+            let projectOptions: { label: string, id: string, uri: Uri }[] = [];
+            workspaceFolderProjects.forEach(project => {
+                projectOptions.push({
+                    label: project.name,
+                    id: project.name,
+                    uri: project.uri
+                });
+            })
+
+            userSelection = await window.showQuickPick(projectOptions, { placeHolder: 'Select the project...' });
+        } else {
+            userSelection = { uri: workspaceFolderProjects[0].uri }
+        }
+
+        const moduleName = await window.showInputBox({ placeHolder: 'Enter module name' });
+        if (userSelection && moduleName && moduleName.trim().length > 0) {
+            runCommand(userSelection.uri.fsPath, ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.ADD,
+                moduleName);
+        }
+    });
+
     const sessionTreeDataProvider = new SessionDataProvider(ballerinaExtInstance);
     window.createTreeView('sessionExplorer', {
-        treeDataProvider: sessionTreeDataProvider
+        treeDataProvider: sessionTreeDataProvider, showCollapseAll: true
     });
+    workspace.onDidChangeTextDocument(_listener => {
+        if (ballerinaExtInstance.getCodeServerContext().codeServerEnv
+            && ballerinaExtInstance.getCodeServerContext().alwaysShowInfo) {
+            const commit = "Commit Changes";
+            const stopPopup = "Don't show this message";
+            window.showInformationMessage('Push your project changes and try out in the Choreo development ' +
+                'environment. Do you want to push your changes? ', commit, stopPopup).then((selection) => {
+                    if (commit === selection) {
+                        commands.executeCommand('git.commitAll');
+                    }
+                    if (stopPopup === selection) {
+                        ballerinaExtInstance.getCodeServerContext().alwaysShowInfo = false;
+                    }
+                });
+        }
+    });
+
+    const choreoSession: ChoreoSession = ballerinaExtInstance.getChoreoSession();
+    ballerinaExtInstance.setChoreoSessionTreeProvider(sessionTreeDataProvider);
+    if (!choreoSession.loginStatus) {
+        getChoreoKeytarSession().then((result) => {
+            ballerinaExtInstance.setChoreoSession(result);
+            sessionTreeDataProvider.refresh();
+        });
+    }
+    sessionTreeDataProvider.refresh();
 
     commands.registerCommand(TREE_ELEMENT_EXECUTE_COMMAND, (filePath: string, kind: string, startLine: number,
         startColumn: number, name: string) => {
-        ballerinaExtInstance.diagramTreeElementClicked({
+        ballerinaExtInstance.getDocumentContext().diagramTreeElementClicked({
             filePath,
             kind,
             startLine,
@@ -61,16 +166,24 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
         });
     });
 
-    ballerinaExtInstance.onDiagramTreeElementClicked((construct: ConstructIdentifier) => {
+    ballerinaExtInstance.getDocumentContext().onDiagramTreeElementClicked((construct: ConstructIdentifier) => {
         if (construct.kind === CMP_KIND.FUNCTION || construct.kind === CMP_KIND.RESOURCE ||
             construct.kind == CMP_KIND.RECORD || construct.kind == CMP_KIND.OBJECT || construct.kind == CMP_KIND.TYPE
             || construct.kind == CMP_KIND.CLASS || construct.kind == CMP_KIND.ENUM ||
             construct.kind == CMP_KIND.CONSTANT || construct.kind == CMP_KIND.METHOD ||
             construct.kind == CMP_KIND.LISTENER || construct.kind == CMP_KIND.MODULE_LEVEL_VAR ||
-            construct.kind == CMP_KIND.SERVICE) {
+            construct.kind == CMP_KIND.SERVICE || construct.kind == EXPLORER_ITEM_KIND.BAL_FILE) {
             showDiagramEditor(construct.startLine, construct.startColumn, construct.kind, construct.name,
                 construct.filePath);
+            ballerinaExtInstance.getDocumentContext().setLatestDocument(Uri.file(construct.filePath));
+            packageTreeDataProvider.refresh();
+            explorerDataProvider.refresh();
         }
     });
+
+    if (ballerinaExtInstance.isBallerinaLowCodeMode()) {
+        commands.executeCommand(PALETTE_COMMANDS.FOCUS_EXPLORER);
+    }
+
     return packageTreeDataProvider;
 }

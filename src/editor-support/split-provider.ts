@@ -37,7 +37,7 @@ export class StringSplitter {
         }
         if (this instanceof BallerinaExtension) {
             // Add change for diagram edit callback
-            this.didEditorChange({
+            this.getDocumentContext().didEditorChange({
                 fileUri: editor.document.uri,
                 startLine: editor.selection.active.line,
                 startColumn: editor.selection.active.character
