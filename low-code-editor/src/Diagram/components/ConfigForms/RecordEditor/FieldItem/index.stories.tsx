@@ -10,22 +10,31 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
-// tslint:disable-next-line: no-submodule-imports
+// tslint:disable-next-line:no-submodule-imports
 import { Story } from '@storybook/react/types-6-0';
 
-import { FieldEditor, FieldEditorProps } from "./index";
+import { FieldItem, FieldItemProps } from "./index";
 
 export default {
-    title: 'Low Code Editor/Form/Record/Field Editor',
-    component: FieldEditor,
+    title: 'Low Code Editor/Form/Record Editor/Field',
+    component: FieldItem,
 };
 
-const Template: Story<FieldEditorProps> = (args: FieldEditorProps) =>
-    <FieldEditor {...args} />;
+const field = {
+    "name": "name",
+    "type": "string",
+    "isFieldOptional": true,
+    "isFieldTypeOptional": true,
+}
 
-export const FieldEditorComponent = Template.bind({});
-FieldEditorComponent.args = {
-    addedFields: [],
+const Template: Story<FieldItemProps> = (args: FieldItemProps) => <FieldItem {...args} />;
+
+export const FieldItemComponent = Template.bind({});
+FieldItemComponent.args = {
+    field,
+    onEditCLick: null,
+    onDeleteClick: null
 };

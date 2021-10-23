@@ -20,11 +20,11 @@ import { Provider as LowCodeEditorProvider } from "../../../../../Contexts/Diagr
 import { FormState, Provider as RecordEditorProvider } from "../../../../../Contexts/RecordEditor";
 import { mockedEditorProps } from "../../ConditionConfigForms/ConditionsOverlayForm/AddWhileForm/index.stories";
 
-import { Record } from "./index";
+import { RecordField } from "./index";
 
 export default {
-    title: 'Low Code Editor/Form/Record Editor/Record',
-    component: Record,
+    title: 'Low Code Editor/Form/Record Editor/Record Field',
+    component: RecordField,
 };
 
 const recordModel = {
@@ -65,9 +65,12 @@ const Template: Story<any> = (args: any) =>
                     sourceModel: null,
                 }}
             >
-                <Record/>
+                <RecordField {...args} />
             </RecordEditorProvider>
         </LowCodeEditorProvider>
     );
 
-export const RecordComponent = Template.bind({});
+export const RecordFieldComponent = Template.bind({});
+RecordFieldComponent.args = {
+    recordModel,
+};

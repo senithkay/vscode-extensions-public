@@ -73,8 +73,7 @@ export function CodePanel() {
 
     return (
         <div>
-            <DiagramOverlayContainer
-            >
+            <DiagramOverlayContainer>
                 <div className="code-panel">
                     <div className={recordClasses.recordConfigTitleWrapper}>
                         <Typography variant="h4">

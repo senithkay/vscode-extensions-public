@@ -18,10 +18,10 @@ import EditButton from "../../../../../assets/icons/EditButton";
 import { recordStyles } from "../style";
 import { SimpleField } from "../types";
 
-interface FieldItemProps {
+export interface FieldItemProps {
     field: SimpleField;
-    onEditCLick?: (field: SimpleField) => void;
-    onDeleteClick?: (field: SimpleField) => void;
+    onEditCLick: (field: SimpleField) => void;
+    onDeleteClick: (field: SimpleField) => void;
 }
 
 export function FieldItem(props: FieldItemProps) {
