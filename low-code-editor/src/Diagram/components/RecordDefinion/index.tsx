@@ -20,6 +20,7 @@ import DeleteButton from "../../../assets/icons/DeleteButton";
 import EditButton from "../../../assets/icons/EditButton";
 import RecordIcon from "../../../assets/icons/RecordIcon";
 import { ComponentExpandButton } from "../ComponentExpandButton";
+import { FormGenerator } from "../FormGenerator";
 
 import "./style.scss";
 
@@ -35,6 +36,7 @@ export function RecordDefinitionComponent(props: RecordDefComponentProps) {
 
     const [isEditable, setIsEditable] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
+    const [formEditInProgress, setFormEditInProgress] = useState(false);
 
     const handleMouseEnter = () => {
         setIsEditable(true);
@@ -44,6 +46,12 @@ export function RecordDefinitionComponent(props: RecordDefComponentProps) {
     };
     const onExpandClick = () => {
         setIsExpanded(!isExpanded);
+    };
+    const handleEditButtonClick = () => {
+        setFormEditInProgress(true);
+    };
+    const handleEditClose = () => {
+        setFormEditInProgress(false);
     };
 
     const component: JSX.Element[] = [];
@@ -84,7 +92,7 @@ export function RecordDefinitionComponent(props: RecordDefComponentProps) {
                     </div>
                     {isEditable && (
                         <div className="record-amendment-options">
-                            <div className="record-edit">
+                            <div className="record-edit" onClick={handleEditButtonClick}>
                                 <EditButton />
                             </div>
                             <div className="record-delete">
@@ -143,17 +151,20 @@ export function RecordDefinitionComponent(props: RecordDefComponentProps) {
         )
     }
 
-    // ToDo : need to fix plus here
-    component.push(
-        // TODO: Commented until all top level pluses sorted out
-        // <TopLevelPlus
-        //     margin={{top: RECORD_PLUS_OFFSET, bottom: RECORD_PLUS_OFFSET, left: RECORD_MARGIN_LEFT}}
-        //     targetPosition={{line: model.position.endLine + 1, column: model.position.endColumn}}
-        // />
-    )
+    if (formEditInProgress) {
+        component.push(
+            <FormGenerator
+                model={model}
+                configOverlayFormStatus={{ formType: "RecordEditor", isLoading: false }}
+                onCancel={handleEditClose}
+                onSave={handleEditClose}
+            />
+        )
+    }
 
     return (
         <>
+            <div id={"edit-div"} />
             {component}
         </>
     );

@@ -10,27 +10,17 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-export interface SimpleField {
-    name: string;
-    type: string;
-    isFieldOptional: boolean;
-    isFieldTypeOptional: boolean;
-    value?: string;
-    isArray?: boolean;
-    isActive?: boolean;
-}
 
-export interface RecordModel {
-    name: string;
-    type?: string;
-    fields: Field[];
-    isInline?: boolean;
-    isOptional?: boolean;
-    isArray?: boolean;
-    isClosed?: boolean;
-    isActive?: boolean;
-    isTypeDefinition?: boolean;
-    isPublic?: boolean;
+.code-panel {
+  position: fixed;
+  top: 0;
+  right: 320px;
+  height: 100vh;
+  width: fit-content;
+  background-color: #ffffff;
+  margin-left: auto;
+  margin-right: 0;
+  box-shadow: inset 1px 0 0 0 #e6e7ec;
+  z-index: 200;
+  box-shadow: 0 5px 10px 0 rgba(102, 103, 133, 0.27);
 }
-
-export declare type Field = SimpleField | RecordModel;
