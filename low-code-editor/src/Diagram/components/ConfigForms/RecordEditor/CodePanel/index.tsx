@@ -89,6 +89,7 @@ export function CodePanel() {
                         <PrimaryButton
                             dataTestId={"record-from-json-save-btn"}
                             text={"Save"}
+                            disabled={state.isEditorInvalid}
                             fullWidth={false}
                             onClick={handleRecordSave}
                         />

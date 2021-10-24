@@ -31,6 +31,7 @@ export interface RecordEditorState {
     currentField?: SimpleField;
     currentForm?: FormState;
     targetPosition?: NodePosition;
+    isEditorInvalid?: boolean;
     sourceModel?: TypeDefinition | RecordTypeDesc;
     onCancel?: () => void;
     onSave?: (typeDesc: string, recModel: RecordModel) => void;
@@ -43,6 +44,7 @@ export interface RecordEditorProps {
         onUpdateCurrentRecord?: (formState: RecordModel) => void;
         onUpdateCurrentField?: (field: SimpleField) => void;
         onChangeFormState?: (formState: FormState) => void;
+        updateEditorValidity?: (isInvalid: boolean) => void;
     };
 }
 
@@ -68,6 +70,11 @@ const reducer = (state: RecordEditorState, action: any) => {
                 ...state,
                 currentField: action.payload
             }
+        case 'UPDATE_RECORD_VALIDITY':
+            return {
+                ...state,
+                isEditorInvalid: action.payload
+            }
     }
 };
 
@@ -89,6 +96,7 @@ export const Provider: React.FC<RecordEditorProps> = (props) => {
         currentField: state.currentField,
         sourceModel: state.sourceModel,
         targetPosition: state.targetPosition,
+        isEditorInvalid: state.isEditorInvalid,
         onSave: state.onSave,
         onCancel: state.onCancel
     });
@@ -109,11 +117,16 @@ export const Provider: React.FC<RecordEditorProps> = (props) => {
         dispatch({ type: 'UPDATE_FORM_STATE', payload: formState });
     }
 
+    const updateRecordEditorValidity = (isInvalid: boolean) => {
+        dispatch({ type: 'UPDATE_RECORD_VALIDITY', payload: isInvalid });
+    }
+
     const callBacks = {
         onUpdateModel: updateModel,
         onUpdateCurrentRecord: updateCurrentRecord,
         onUpdateCurrentField: updateCurrentField,
-        onChangeFormState: updateFormState
+        onChangeFormState: updateFormState,
+        updateEditorValidity: updateRecordEditorValidity
     };
 
     return (

@@ -33,7 +33,6 @@ export interface RecordEditorProps {
 
 export function RecordEditor(props: RecordEditorProps) {
     const { existingModel, name, onCancel, onSave, model, targetPosition, isTypeDefinition } = props;
-    console.log(JSON.stringify(model));
     let recordModel: RecordModel;
     if (model && STKindChecker.isRecordTypeDesc(model)) {
         recordModel = getRecordModel(model, name, true, "record");
@@ -68,6 +67,7 @@ export function RecordEditor(props: RecordEditorProps) {
                 currentForm: FormState.EDIT_RECORD_FORM,
                 currentRecord: recordModel,
                 sourceModel: model,
+                isEditorInvalid: false,
                 targetPosition,
                 onSave,
                 onCancel

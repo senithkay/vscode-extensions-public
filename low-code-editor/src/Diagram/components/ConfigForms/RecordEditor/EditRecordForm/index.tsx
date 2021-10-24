@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
 import { Box, FormControl, Typography } from "@material-ui/core";
 
@@ -27,17 +27,24 @@ export function EditRecordForm() {
 
     const classes = useStyles();
 
+    const [nameError, setNameError] = useState("");
+
+    const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
+
     const handleNameChange = (inputText: string) => {
+        // TODO: Check with parent record fields
+        if ((inputText !== "") && !nameRegex.test(inputText)) {
+            callBacks.updateEditorValidity(true);
+            setNameError("Enter a valid name");
+        } else if (inputText === "") {
+            callBacks.updateEditorValidity(true);
+            setNameError("Name is required");
+        } else {
+            callBacks.updateEditorValidity(false);
+            setNameError("");
+        }
         state.currentRecord.name = inputText;
         callBacks.onUpdateModel(state.recordModel);
-    };
-
-    const validateNameValue = (value: string) => {
-        // TODO: Add name validations
-        // const isNameAlreadyExists = addedFields.find(field => (field.name === value));
-        // setIsValidName(!isNameAlreadyExists);
-        // return !isNameAlreadyExists;
-        return true;
     };
 
     const handleOptionalRecordChange = (text: string[]) => {
@@ -65,6 +72,12 @@ export function EditRecordForm() {
         // TODO: implement this method
     }
 
+    useEffect(() => {
+        if (((state.currentRecord.name === "") || (state.currentRecord.name === undefined)) && !state.isEditorInvalid) {
+            callBacks.updateEditorValidity(true);
+        }
+    }, [state.currentRecord.name]);
+
     return (
         <FormControl data-testid="record-form" className={classes.wizardFormControl}>
             <div className={classes.formTitleWrapper}>
@@ -75,12 +88,13 @@ export function EditRecordForm() {
             <FormTextInput
                 dataTestId="field-name"
                 customProps={{
-                    validate: validateNameValue,
+                    isErrored: nameError !== "",
                 }}
                 defaultValue={state.currentRecord.name}
                 onChange={handleNameChange}
                 label={"Record name"}
                 placeholder={"Enter field name"}
+                errorMessage={nameError}
             />
             <CheckBoxGroup
                 testId="is-optional-field"

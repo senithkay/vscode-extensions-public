@@ -203,7 +203,7 @@ export function RecordField(props: CodePanelProps) {
                 {isRecordExpanded && (
                     <>
                         {fieldItems}
-                        {!isFieldAddInProgress && (
+                        {!isFieldAddInProgress && !state.isEditorInvalid && (
                             <div className={recordClasses.addFieldBtnWrap} onClick={handleAddField}>
                                 <AddIcon/>
                                 <p>Add Field</p>
