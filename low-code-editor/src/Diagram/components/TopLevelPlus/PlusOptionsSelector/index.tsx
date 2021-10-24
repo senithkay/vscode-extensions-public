@@ -44,7 +44,13 @@ const moduleLevelEntries: PlusMenuEntry[] = [
         ]
     },
     { name: 'Listener', type: 'ListenerDeclaration' },
-    { name: 'Type Definition', type: 'TypeDefinition' },
+    {
+        name: 'Type Definition',
+        type: 'TypeDefinition',
+        subMenu: [
+            { name: 'Record', type: 'RecordEditor' }
+        ]
+    },
     { name: 'Class', type: 'ClassDefinition' },
     { name: 'Constant', type: 'ConstDeclaration' },
     { name: 'Function', type: 'FunctionDefinition' },

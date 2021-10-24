@@ -32,7 +32,7 @@ export interface RecordEditorProps {
 }
 
 export function RecordEditor(props: RecordEditorProps) {
-    const { existingModel, name, onCancel, onSave, model, targetPosition, isTypeDefinition } = props;
+    const { existingModel, name, onCancel, onSave, model, targetPosition, isTypeDefinition = true } = props;
     let recordModel: RecordModel;
     if (model && STKindChecker.isRecordTypeDesc(model)) {
         recordModel = getRecordModel(model, name, true, "record");

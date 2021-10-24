@@ -61,6 +61,9 @@ export function EditFieldForm() {
 
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 
+    const variableTypes: string[] = ["int", "float", "decimal", "boolean", "string", "json", "xml", "error", "any",
+        "anydata"];
+
     const handleTypeSelect = (typeSelected: string) => {
         setSelectedType(typeSelected);
         setDefaultValue("");
@@ -213,7 +216,7 @@ export function EditFieldForm() {
                 defaultValue={selectedType}
                 customProps={
                     {
-                        values: ["int", "string"],
+                        values: variableTypes,
                         disableCreateNew: true
                     }
                 }

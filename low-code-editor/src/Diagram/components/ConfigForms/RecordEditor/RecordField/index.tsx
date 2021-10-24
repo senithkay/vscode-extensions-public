@@ -159,8 +159,8 @@ export function RecordField(props: CodePanelProps) {
     }
 
     const accessModifier = `${recordModel.isPublic ? "public " : ""}`;
-    const recordBegin = `${recordModel.isTypeDefinition ? `${accessModifier}type ${recordModel.name} ` :
-        ""}record { ${recordModel.isClosed ? "|" : ""}`;
+    const recordBegin = `${recordModel.isTypeDefinition ? `${accessModifier}type ${recordModel.name !== undefined ?
+        recordModel.name : ""} ` : ""}record { ${recordModel.isClosed ? "|" : ""}`;
 
     const recordProperties = `${recordModel.isArray ? "[] " : " "}${recordModel.name}${recordModel.isOptional ? " ?" :
         ""}`
