@@ -11,7 +11,9 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React from "react";
+import React, { useState } from "react";
+
+import classnames from 'classnames';
 
 import { CloseRounded } from "../../../assets/icons";
 import { OverlayBackground } from "../OverlayBackground";
@@ -27,16 +29,22 @@ interface PanelProps {
 
 export function Panel(props: PanelProps) {
     const { children, onClose } = props;
+    const [isVisible, setIsVisible] = useState(true);
+
+    const onCloseEvent = () => {
+        setIsVisible(false);
+        setTimeout(onClose, 500)
+    }
 
     return (
         <div>
             <DiagramOverlayContainer
             >
-                <div className="panel">
+                <div className={classnames("panel", isVisible ? 'panel-slide-in' : 'panel-slide-out')}>
                     <div className="close-btn-wrap">
                         <ButtonWithIcon
                             className="panel-close-button"
-                            onClick={onClose}
+                            onClick={onCloseEvent}
                             icon={<CloseRounded fontSize="small" />}
                         />
                     </div>

@@ -28,7 +28,8 @@ export enum HintType {
     ADD_DOUBLE_QUOTES_EMPTY,
     ADD_TO_STRING,
     ADD_ELVIS_OPERATOR,
-    SUGGEST_CAST
+    SUGGEST_CAST,
+    CONFIGURABLE,
 }
 
 export interface ExpressionEditorHintProps {
@@ -97,7 +98,7 @@ export function ExpressionEditorHint(props: ExpressionEditorHintProps) {
                     <img className={formClasses.suggestionsIcon} src={ErrorSvg} />
                     <FormHelperText className={formClasses.suggestionsText}>
                         {expressionHasError}
-                        {<a className={formClasses.suggestionsTextInfo} onClick={onClickHere}>{clickHereText}</a>}
+                        {<a className={formClasses.suggestionsTextError} onClick={onClickHere}>{clickHereText}</a>}
                         {toHandleItText}
                     </FormHelperText>
                 </div>
@@ -109,7 +110,7 @@ export function ExpressionEditorHint(props: ExpressionEditorHintProps) {
                 <div className={formClasses.suggestionsWrapper} >
                     <img className={formClasses.suggestionsIcon} src={ErrorSvg} />
                     <FormHelperText className={formClasses.suggestionsText}>
-                        {<a className={formClasses.suggestionsTextInfo} onClick={onClickHere}>{clickHereText}</a>}
+                        {<a className={formClasses.suggestionsTextError} onClick={onClickHere}>{clickHereText}</a>}
                         {addDoubleQuotes}
                         <CodeSnippet content={`"${truncateText(editorContent)}"`} />
                     </FormHelperText>
@@ -122,7 +123,7 @@ export function ExpressionEditorHint(props: ExpressionEditorHintProps) {
                 <div className={formClasses.suggestionsWrapper} >
                     <img className={formClasses.suggestionsIcon} src={ErrorSvg} />
                     <FormHelperText className={formClasses.suggestionsText}>
-                        {<a className={formClasses.suggestionsTextInfo} onClick={onClickHere}>{clickHereText}</a>}
+                        {<a className={formClasses.suggestionsTextError} onClick={onClickHere}>{clickHereText}</a>}
                         {addDoubleQuotesToEmptyExpr}
                     </FormHelperText>
                 </div>
@@ -134,7 +135,7 @@ export function ExpressionEditorHint(props: ExpressionEditorHintProps) {
                 <div className={formClasses.suggestionsWrapper} >
                     <img className={formClasses.suggestionsIcon} src={ErrorSvg} />
                     <FormHelperText className={formClasses.suggestionsText}>
-                        {<a className={formClasses.suggestionsTextInfo} onClick={onClickHere}>{clickHereText}</a>}
+                        {<a className={formClasses.suggestionsTextError} onClick={onClickHere}>{clickHereText}</a>}
                         {addToString}
                         <CodeSnippet content={codeSnippetToString} />
                     </FormHelperText>
@@ -147,7 +148,7 @@ export function ExpressionEditorHint(props: ExpressionEditorHintProps) {
                 <div className={formClasses.suggestionsWrapper} >
                     <img className={formClasses.suggestionsIcon} src={ErrorSvg} />
                     <FormHelperText className={formClasses.suggestionsText}>
-                        {<a className={formClasses.suggestionsTextInfo} onClick={onClickHere}>{clickHereText}</a>}
+                        {<a className={formClasses.suggestionsTextError} onClick={onClickHere}>{clickHereText}</a>}
                         {addElvisOperator}
                     </FormHelperText>
                 </div>
@@ -159,9 +160,21 @@ export function ExpressionEditorHint(props: ExpressionEditorHintProps) {
                 <div className={formClasses.suggestionsWrapper} >
                     <img className={formClasses.suggestionsIcon} src={ErrorSvg} />
                     <FormHelperText className={formClasses.suggestionsText}>
-                        {<a className={formClasses.suggestionsTextInfo} onClick={onClickHere}>{clickHereText}</a>}
+                        {<a className={formClasses.suggestionsTextError} onClick={onClickHere}>{clickHereText}</a>}
                         {suggetCast}
                         <CodeSnippet content={expressionType} />
+                    </FormHelperText>
+                </div>
+            )
+            break;
+        }
+        case HintType.CONFIGURABLE: {
+            component = (
+                <div className={formClasses.suggestionsWrapper} >
+                    <FormHelperText className={formClasses.suggestionsText}>
+                        {<a className={formClasses.suggestionsTextInfo} onClick={onClickHere}>{clickHereText}</a>}
+                        {editorContent}
+                        <CodeSnippet content={'configurable'} />
                     </FormHelperText>
                 </div>
             )

@@ -21,6 +21,7 @@ export interface ConfigurableFormState {
     varName: string;
     varValue: string;
     isExpressionValid: boolean;
+    hasDefaultValue: boolean;
     label: string;
 }
 
@@ -38,6 +39,7 @@ export function getFormConfigFromModel(model: any): ConfigurableFormState {
         varName: '',
         varValue: '',
         isExpressionValid: true,
+        hasDefaultValue: false,
         label: ''
     }
 
@@ -53,7 +55,8 @@ export function getFormConfigFromModel(model: any): ConfigurableFormState {
 
         defaultFormState.isPublic = model.visibilityQualifier
             && STKindChecker.isPublicKeyword(model.visibilityQualifier);
-        defaultFormState.varValue = model.initializer.source;
+        defaultFormState.hasDefaultValue =  !!model.initializer.source && model.initializer.source !== "?";
+        defaultFormState.varValue = model.initializer.source === "?" ? "" : model.initializer.source;
         defaultFormState.varName = ((model.typedBindingPattern as TypedBindingPattern)
             .bindingPattern as CaptureBindingPattern).variableName.value;
 
@@ -77,7 +80,7 @@ export function getFormConfigFromModel(model: any): ConfigurableFormState {
 }
 
 export function isFormConfigValid(config: ConfigurableFormState): boolean {
-    const { varName, varValue, isExpressionValid } = config;
+    const { varName, varValue, isExpressionValid, hasDefaultValue } = config;
 
-    return varName.length > 0 && ModuleVarNameRegex.test(varName) && varValue.length > 0 && isExpressionValid;
+    return varName?.length > 0 && ModuleVarNameRegex.test(varName) && (!hasDefaultValue || (varValue?.length > 0  && isExpressionValid));
 }

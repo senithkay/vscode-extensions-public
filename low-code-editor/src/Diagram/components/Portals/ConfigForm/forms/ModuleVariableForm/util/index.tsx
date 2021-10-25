@@ -39,12 +39,12 @@ export function getFormConfigFromModel(model: any): ModuleVariableFormState {
     }
 
     if (model) {
-        if (model.qualifiers.length > 0
+        if (model?.qualifiers?.length > 0
             && model.qualifiers.filter((qualifier: any) => STKindChecker.isFinalKeyword(qualifier)).length > 0) {
             defaultFormState.varOptions.push(VariableOptions.FINAL);
         }
 
-        const typeData = model.initializer.typeData;
+        const typeData = model?.initializer?.typeData;
 
         if (typeData) {
             const typeSymbol = typeData.typeSymbol;
@@ -59,7 +59,7 @@ export function getFormConfigFromModel(model: any): ModuleVariableFormState {
 
         defaultFormState.varValue = model.initializer.source;
         defaultFormState.varName = ((model.typedBindingPattern as TypedBindingPattern)
-            .bindingPattern as CaptureBindingPattern).variableName.value;
+            ?.bindingPattern as CaptureBindingPattern)?.variableName?.value;
 
         return defaultFormState;
     }

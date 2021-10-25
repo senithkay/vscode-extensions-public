@@ -28,6 +28,7 @@ import {
     updatePropertyStatement
 } from "../../../utils/modification-util";
 import { generateInlineRecordForJson, getDefaultValueForType } from "../../DataMapper/util";
+import { InjectableItem } from "../../FormGenerator";
 import { CustomExpressionConfig, DataMapperConfig, LogConfig, ProcessConfig } from "../../Portals/ConfigForm/types";
 import { DiagramOverlayPosition } from "../../Portals/Overlay";
 
@@ -63,11 +64,16 @@ export function ProcessConfigForm(props: any) {
         type: formType,
         scopeSymbols: [],
         model: formArgs?.model,
-        targetPosition
+        targetPosition,
     };
 
     const onSaveClick = () => {
         const modifications: STModification[] = [];
+        if (formArgs?.expressionInjectables?.list){
+            formArgs.expressionInjectables.list.forEach((item: InjectableItem) => {
+                modifications.push(item.modification)
+            })
+        }
         if (processConfig.model) {
             switch (processConfig.type) {
                 case 'Variable':
