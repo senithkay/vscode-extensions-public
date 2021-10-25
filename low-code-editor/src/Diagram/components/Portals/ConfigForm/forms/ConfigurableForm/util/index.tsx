@@ -79,7 +79,6 @@ export function getFormConfigFromModel(model: any): ConfigurableFormState {
     return defaultFormState;
 }
 
-
 export function isFormConfigValid(config: ConfigurableFormState): boolean {
     const { varName, varValue, isExpressionValid, hasDefaultValue } = config;
 

@@ -155,7 +155,8 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
         model: {
             name: "Label",
             displayName: "Configurable Description",
-            typeName: 'string'
+            typeName: 'string',
+            optional: true
         },
         customProps: {
             validate: updateExpressionValidity,
@@ -166,7 +167,7 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
                 endLine: model ? model.position.startLine : targetPosition.startLine,
                 startColumn: 0,
                 endColumn: 0
-            },
+            }
         },
         onChange: onLabelChange,
         defaultValue: state.label,
