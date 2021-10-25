@@ -55,8 +55,8 @@ export function getFormConfigFromModel(model: any): ConfigurableFormState {
 
         defaultFormState.isPublic = model.visibilityQualifier
             && STKindChecker.isPublicKeyword(model.visibilityQualifier);
-        defaultFormState.hasDefaultValue =  !!model.initializer.source;
-        defaultFormState.varValue = model.initializer.source;
+        defaultFormState.hasDefaultValue =  !!model.initializer.source && model.initializer.source !== "?";
+        defaultFormState.varValue = model.initializer.source === "?" ? "" : model.initializer.source;
         defaultFormState.varName = ((model.typedBindingPattern as TypedBindingPattern)
             .bindingPattern as CaptureBindingPattern).variableName.value;
 
