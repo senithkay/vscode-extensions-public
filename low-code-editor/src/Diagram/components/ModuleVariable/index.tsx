@@ -59,8 +59,6 @@ export function ModuleVariable(props: ModuleVariableProps) {
         varValue = model.source.trim();
         isConfigurable = model && model.qualifiers.length > 0
             && model.qualifiers.filter(qualifier => STKindChecker.isConfigurableKeyword(qualifier)).length > 0;
-
-
     } else if (STKindChecker.isObjectField(model)) {
         varType = model.typeData?.typeSymbol?.typeKind;
         varName = model.fieldName.value;
