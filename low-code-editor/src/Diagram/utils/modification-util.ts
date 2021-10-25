@@ -17,6 +17,7 @@ import { STModification } from "../../Definitions/lang-client-extended";
 import { ListenerConfig } from "../components/ConfigForms/ListenerConfigForm/util/types";
 import { HeaderObjectConfig } from "../components/ConnectorExtensions/HTTPWizard/HTTPHeaders";
 import { ConfigurableFormState } from "../components/Portals/ConfigForm/forms/ConfigurableForm/util";
+import { ConstantConfigFormState } from "../components/Portals/ConfigForm/forms/ConstantConfigForm/util";
 import { ModuleVariableFormState } from "../components/Portals/ConfigForm/forms/ModuleVariableForm/util";
 import { HTTPServiceConfigState } from "../components/Portals/ConfigForm/forms/ServiceConfigForm/forms/HttpService/util/reducer";
 import { getFormattedModuleName, getParams } from "../components/Portals/utils";
@@ -546,9 +547,9 @@ export function updateModuleVarDecl(config: ModuleVariableFormState, targetPosit
 }
 
 export function createConfigurableDecl(config: ConfigurableFormState, targetPosition: NodePosition): STModification {
-    const { isPublic, varName, varType, varValue } = config;
+    const { isPublic, varName, varType, varValue, label } = config;
 
-    return {
+    const modification: STModification = {
         startLine: targetPosition.startLine,
         endLine: targetPosition.startLine,
         startColumn: 0,
@@ -562,12 +563,19 @@ export function createConfigurableDecl(config: ConfigurableFormState, targetPosi
             'VAR_VALUE': varValue
         }
     }
+
+    if (label.length > 0) {
+        modification.type = 'MODULE_VAR_DECL_WITH_INIT_WITH_DISPLAY'
+        modification.config.DISPLAY_LABEL = label;
+    }
+
+    return modification;
 }
 
 export function updateConfigurableVarDecl(config: ConfigurableFormState, targetPosition: NodePosition): STModification {
-    const { isPublic, varName, varType, varValue } = config;
+    const { isPublic, varName, varType, varValue, label } = config;
 
-    return {
+    const modification: STModification = {
         startLine: targetPosition.startLine,
         endLine: targetPosition.endLine,
         startColumn: targetPosition.startColumn,
@@ -579,6 +587,49 @@ export function updateConfigurableVarDecl(config: ConfigurableFormState, targetP
             'VAR_TYPE': varType,
             'VAR_NAME': varName,
             'VAR_VALUE': varValue
+        }
+    }
+
+    if (label.length > 0) {
+        modification.type = 'MODULE_VAR_DECL_WITH_INIT_WITH_DISPLAY'
+        modification.config.DISPLAY_LABEL = label;
+    }
+
+    return modification;
+}
+
+export function createConstDeclaration(config: ConstantConfigFormState, targetPosition: NodePosition): STModification {
+    const { isPublic, constantName, constantType, constantValue } = config;
+
+    return {
+        startLine: targetPosition.startLine,
+        endLine: targetPosition.startLine,
+        startColumn: 0,
+        endColumn: 0,
+        type: 'CONSTANT_DECLARATION',
+        config: {
+            'ACCESS_MODIFIER': isPublic ? 'public' : '',
+            'CONST_TYPE': constantType,
+            'CONST_NAME': constantName,
+            'CONST_VALUE': constantValue
+        }
+    }
+}
+
+export function updateConstDeclaration(config: ConstantConfigFormState, targetPosition: NodePosition): STModification {
+    const { isPublic, constantName, constantType, constantValue } = config;
+
+    return {
+        startLine: targetPosition.startLine,
+        endLine: targetPosition.startLine,
+        startColumn: targetPosition.startColumn,
+        endColumn: targetPosition.endColumn,
+        type: 'CONSTANT_DECLARATION',
+        config: {
+            'ACCESS_MODIFIER': isPublic ? 'public' : '',
+            'CONST_TYPE': constantType,
+            'CONST_NAME': constantName,
+            'CONST_VALUE': constantValue
         }
     }
 }

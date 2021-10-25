@@ -11,7 +11,7 @@
  * associated services.
  */
 
-import { CaptureBindingPattern, STKindChecker, TypedBindingPattern } from "@ballerina/syntax-tree";
+import { CaptureBindingPattern, MappingConstructor, ModuleVarDecl, SimpleNameReference, SpecificField, STKindChecker, TypedBindingPattern } from "@ballerina/syntax-tree";
 
 export const ModuleVarNameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 
@@ -22,6 +22,7 @@ export interface ConfigurableFormState {
     varValue: string;
     isExpressionValid: boolean;
     hasDefaultValue: boolean;
+    label: string;
 }
 
 export enum VariableQualifiers {
@@ -39,6 +40,7 @@ export function getFormConfigFromModel(model: any): ConfigurableFormState {
         varValue: '',
         isExpressionValid: true,
         hasDefaultValue: false,
+        label: ''
     }
 
     if (model) {
@@ -51,13 +53,27 @@ export function getFormConfigFromModel(model: any): ConfigurableFormState {
             }
         }
 
-        defaultFormState.isPublic = model.visibilityQualifier && STKindChecker.isPublicKeyword(model.visibilityQualifier);
+        defaultFormState.isPublic = model.visibilityQualifier
+            && STKindChecker.isPublicKeyword(model.visibilityQualifier);
         defaultFormState.hasDefaultValue =  !!model.initializer.source;
         defaultFormState.varValue = model.initializer.source;
         defaultFormState.varName = ((model.typedBindingPattern as TypedBindingPattern)
             .bindingPattern as CaptureBindingPattern).variableName.value;
 
-        return defaultFormState;
+        const displayAnnotation = (model as ModuleVarDecl)
+            .metadata?.annotations?.filter(annotation =>
+                (annotation.annotReference as SimpleNameReference).name.value === 'display');
+
+        if (displayAnnotation && displayAnnotation.length > 0) {
+            const value: MappingConstructor = displayAnnotation[0].annotValue as MappingConstructor;
+
+            const labelNodes = value.fields
+                .filter(field => STKindChecker.isSpecificField(field) && field.fieldName.value === 'label');
+
+            if (labelNodes && labelNodes.length > 0) {
+                defaultFormState.label = (labelNodes[0] as SpecificField).valueExpr.source;
+            }
+        }
     }
 
     return defaultFormState;

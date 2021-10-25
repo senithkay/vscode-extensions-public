@@ -95,7 +95,11 @@ export function Constant(props: ConstantProps) {
                     </div>
                 </div>
             </div>
-            {deleteBtnEnabled && <UnsupportedConfirmButtons onConfirm={handleEditBtnConfirm} onCancel={handleEditBtnCancel} />}
+            {
+                deleteBtnEnabled && (
+                    <UnsupportedConfirmButtons onConfirm={handleEditBtnConfirm} onCancel={handleEditBtnCancel} />
+                )
+            }
             {
                 editBtnEnabled && (
                     <FormGenerator

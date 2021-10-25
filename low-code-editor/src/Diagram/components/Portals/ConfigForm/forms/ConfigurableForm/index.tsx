@@ -10,10 +10,10 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useReducer, useState } from 'react';
+import React, { useReducer } from 'react';
 import { FormattedMessage } from 'react-intl';
 
-import { CaptureBindingPattern, ModuleVarDecl, NodePosition, ServiceDeclaration, STKindChecker, TypedBindingPattern } from '@ballerina/syntax-tree';
+import { ModuleVarDecl, NodePosition } from '@ballerina/syntax-tree';
 import { Box, FormControl, FormHelperText, Typography } from '@material-ui/core';
 import { v4 as uuid } from "uuid";
 
@@ -27,7 +27,6 @@ import { SecondaryButton } from '../../Elements/Button/SecondaryButton';
 import CheckBoxGroup from '../../Elements/CheckBox';
 import { SelectDropdownWithButton } from '../../Elements/DropDown/SelectDropdownWithButton';
 import ExpressionEditor from '../../Elements/ExpressionEditor';
-import { RadioControl } from '../../Elements/RadioControl/FormRadioControl';
 import { FormTextInput } from '../../Elements/TextField/FormTextInput';
 import { ModuleVariableFormState } from '../ModuleVariableForm/util';
 import { useStyles as useFormStyles } from "../style";
@@ -107,6 +106,10 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
         dispatch({ type: ConfigurableFormActionTypes.SET_VAR_VALUE, payload: value });
     }
 
+    const onLabelChange = (value: string) => {
+        dispatch({ type: ConfigurableFormActionTypes.SET_VAR_LABEL, payload: value });
+    }
+
     const updateExpressionValidity = (fieldName: string, isInValid: boolean) => {
         dispatch({ type: ConfigurableFormActionTypes.UPDATE_EXPRESSION_VALIDITY, payload: !isInValid });
     }
@@ -122,7 +125,7 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
         return true;
     };
 
-    const expressionEditorConfig = {
+    const expressionEditorConfigForValue = {
         model: {
             name: "valueExpression",
             displayName: "Value Expression",
@@ -148,6 +151,27 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
         defaultValue: state.varValue,
     };
 
+    const expressionEditorConfigForLabel = {
+        model: {
+            name: "Label",
+            displayName: "Configurable Description",
+            typeName: 'string'
+        },
+        customProps: {
+            validate: updateExpressionValidity,
+            interactive: true,
+            statementType: 'string',
+            editPosition: {
+                startLine: model ? model.position.startLine : targetPosition.startLine,
+                endLine: model ? model.position.startLine : targetPosition.startLine,
+                startColumn: 0,
+                endColumn: 0
+            },
+        },
+        onChange: onLabelChange,
+        defaultValue: state.label,
+    };
+
     const disableSaveBtn: boolean = !isFormConfigValid(state);
 
     const typeSelectorCustomProps = {
@@ -157,11 +181,6 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
 
     const variableNameTextFieldCustomProps = {
         validate: validateNameValue
-    };
-
-    const variableQualifierSelectorCustomProps = {
-        collection: Object.values(VariableQualifiers),
-        disabled: false
     };
 
     return (
@@ -220,9 +239,12 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
             />
             <div hidden={!state.hasDefaultValue}>
                 <ExpressionEditor
-                    {...expressionEditorConfig}
+                    {...expressionEditorConfigForValue}
                 />
             </div>
+            <ExpressionEditor
+                {...expressionEditorConfigForLabel}
+            />
             <div className={formClasses.wizardBtnHolder}>
                 <SecondaryButton
                     text="Cancel"
