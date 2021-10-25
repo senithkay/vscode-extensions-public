@@ -12,14 +12,14 @@
  */
 import React from "react";
 
-import { STNode } from "@ballerina/syntax-tree";
 import { TextField } from "@material-ui/core";
 
+import { OtherStatementNodeTypes } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
 import { useStatementEditorStyles } from "../../ViewContainer/styles";
 
 interface OtherStatementProps {
-    model: STNode
+    model: OtherStatementNodeTypes
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }

@@ -70,7 +70,7 @@ export function getExpressionTypeComponent(
 }
 
 export function getStatementTypeComponent(
-    model: STNode,
+    model: c.StatementNodes,
     userInputs: VariableUserInputs,
     diagnosticHandler: (diagnostics: string) => void
 ): ReactNode {

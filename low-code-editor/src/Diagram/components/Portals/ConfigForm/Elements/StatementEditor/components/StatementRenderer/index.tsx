@@ -12,13 +12,12 @@
  */
 import React from "react";
 
-import { STNode } from "@ballerina/syntax-tree";
-
+import { StatementNodes } from "../../constants";
 import { VariableUserInputs } from "../../models/definitions";
 import { getStatementTypeComponent } from "../../utils";
 
 export interface StatementRendererProps {
-    model: STNode
+    model: StatementNodes
     userInputs?: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }
