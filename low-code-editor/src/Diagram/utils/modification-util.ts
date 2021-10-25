@@ -547,9 +547,9 @@ export function updateModuleVarDecl(config: ModuleVariableFormState, targetPosit
 }
 
 export function createConfigurableDecl(config: ConfigurableFormState, targetPosition: NodePosition): STModification {
-    const { isPublic, varName, varType, varValue } = config;
+    const { isPublic, varName, varType, varValue, label } = config;
 
-    return {
+    const modification: STModification = {
         startLine: targetPosition.startLine,
         endLine: targetPosition.startLine,
         startColumn: 0,
@@ -563,12 +563,19 @@ export function createConfigurableDecl(config: ConfigurableFormState, targetPosi
             'VAR_VALUE': varValue
         }
     }
+
+    if (label.length > 0) {
+        modification.type = 'MODULE_VAR_DECL_WITH_INIT_WITH_DISPLAY'
+        modification.config.DISPLAY_LABEL = label;
+    }
+
+    return modification;
 }
 
 export function updateConfigurableVarDecl(config: ConfigurableFormState, targetPosition: NodePosition): STModification {
-    const { isPublic, varName, varType, varValue } = config;
+    const { isPublic, varName, varType, varValue, label } = config;
 
-    return {
+    const modification: STModification = {
         startLine: targetPosition.startLine,
         endLine: targetPosition.endLine,
         startColumn: targetPosition.startColumn,
@@ -582,6 +589,13 @@ export function updateConfigurableVarDecl(config: ConfigurableFormState, targetP
             'VAR_VALUE': varValue
         }
     }
+
+    if (label.length > 0) {
+        modification.type = 'MODULE_VAR_DECL_WITH_INIT_WITH_DISPLAY'
+        modification.config.DISPLAY_LABEL = label;
+    }
+
+    return modification;
 }
 
 export function createConstDeclaration(config: ConstantConfigFormState, targetPosition: NodePosition): STModification {

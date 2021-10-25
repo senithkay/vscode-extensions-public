@@ -46,7 +46,7 @@ service /{{{ BASE_PATH }}} on {{{ LISTENER_NAME }}} {
     resource function get .(http:Caller caller) returns error? {
     }
 }`,
-    LISTENER_DECLARATION:  `
+    LISTENER_DECLARATION: `
 listener http:Listener {{{ LISTENER_NAME }}} = new ({{{ PORT }}});
 `,
     FUNCTION_DEFINITION: `
@@ -65,5 +65,9 @@ service /{{{ BASE_PATH }}} on {{{ LISTENER_NAME }}}`,
     MODULE_VAR_DECL_WITH_INIT: `
 {{{ACCESS_MODIFIER}}} {{{VAR_QUALIFIER}}} {{{VAR_TYPE}}} {{{VAR_NAME}}} = {{{VAR_VALUE}}};`,
     CONSTANT_DECLARATION: `
-{{{ACCESS_MODIFIER}}} const {{{CONST_TYPE}}} {{{CONST_NAME}}} = {{{CONST_VALUE}}};`
+{{{ACCESS_MODIFIER}}} const {{{CONST_TYPE}}} {{{CONST_NAME}}} = {{{CONST_VALUE}}};`,
+    MODULE_VAR_DECL_WITH_INIT_WITH_DISPLAY: `@display {
+    label: {{{DISPLAY_LABEL}}}
+}
+{{{ACCESS_MODIFIER}}} {{{VAR_QUALIFIER}}} {{{VAR_TYPE}}} {{{VAR_NAME}}} = {{{VAR_VALUE}}};`
 }
