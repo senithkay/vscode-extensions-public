@@ -20,6 +20,7 @@ import { ConfigurableIcon } from "../../../assets/icons";
 import DeleteButton from "../../../assets/icons/DeleteButton";
 import EditButton from "../../../assets/icons/EditButton";
 import ModuleVariableIcon from "../../../assets/icons/ModuleVariableIcon";
+import Tooltip from "../../../components/Tooltip";
 import { useDiagramContext } from "../../../Contexts/Diagram";
 import { removeStatement } from "../../utils/modification-util";
 import { FormGenerator } from "../FormGenerator";
@@ -66,6 +67,9 @@ export function ModuleVariable(props: ModuleVariableProps) {
         varValue = model.source.trim();
     }
 
+    const typeMaxWidth = varType.length >= 10;
+    const nameMaxWidth = varName.length >= 20;
+
     const handleOnDeleteCancel = () => {
         setDeleteFormVisible(false);
     }
@@ -98,10 +102,18 @@ export function ModuleVariable(props: ModuleVariableProps) {
                             {(isConfigurable) ? <ConfigurableIcon /> : <ModuleVariableIcon />}
                         </div>
                         <div className={"module-variable-type-text"}>
-                            {varType}
+                            <Tooltip
+                                arrow={true}
+                                placement="top-start"
+                                title={model.source.slice(1, -1)}
+                                inverted={false}
+                                interactive={true}
+                            >
+                                <tspan x="0" y="0">{typeMaxWidth ? varType.slice(0, 10) + "..." : varType}</tspan>
+                            </Tooltip>
                         </div>
                         <div className={'module-variable-name-text'}>
-                            {varName}
+                            <tspan x="0" y="0">{nameMaxWidth ? varName.slice(0, 20) + "..." : varName}</tspan>
                         </div>
                     </div>
                     <div className={'module-variable-actions'}>
@@ -114,15 +126,6 @@ export function ModuleVariable(props: ModuleVariableProps) {
                             </div>
                         </div>
                     </div>
-                    {/* {isEditable && (
-                        <>
-                            <div className="amendmentOptions">
-                                <div className={"moduleVariableEditBtn"}>
-                                    <EditButton />
-                                </div>
-                                <div className={"moduleVariableDeleteBtn"}>
-                                    <DeleteButton />
-                                </div> */}
                 </div>
             </div>
             {
