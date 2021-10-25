@@ -16,3 +16,9 @@ extractedDistribution
 .gradle
 !gradle-wrapper.jar
 build
+
+# ignore Intellij-IDEA files
+*.iml
+.idea/
+*.iws
+*.ipr
