@@ -28,6 +28,7 @@ export { default as CustomStatementIcon } from "./CustomStatement";
 export { default as DataMapperIcon } from "./DataMapper";
 // Module level icons
 export { default as ServiceIcon } from './ServiceIcon';
+export { default as Configurable } from './Configurable';
 export { default as ConfigurableIcon } from './Configurable';
 export { default as ServiceDeclaration } from './ServiceIcon';
 export { default as ConstantIcon } from './ConstantIcon';

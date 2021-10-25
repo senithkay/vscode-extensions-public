@@ -11,14 +11,19 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from "react"
+import React, { useRef, useState } from "react"
 
 import { CaptureBindingPattern, ModuleVarDecl, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import classNames from "classnames";
 
 import { ConfigurableIcon } from "../../../assets/icons";
 import DeleteButton from "../../../assets/icons/DeleteButton";
 import EditButton from "../../../assets/icons/EditButton";
 import ModuleVariableIcon from "../../../assets/icons/ModuleVariableIcon";
+import { useDiagramContext } from "../../../Contexts/Diagram";
+import { removeStatement } from "../../utils/modification-util";
+import { FormGenerator } from "../FormGenerator";
+import { DeleteConfirmDialog } from "../Portals/Overlay/Elements";
 
 import "./style.scss";
 
@@ -33,8 +38,12 @@ export interface ModuleVariableProps {
 
 export function ModuleVariable(props: ModuleVariableProps) {
     const { model } = props;
+    const { api: { code: { modifyDiagram } } } = useDiagramContext();
 
-    const [isEditable, setIsEditable] = useState(false);
+    const [editFormVisible, setEditFormVisible] = useState(false);
+    const [deleteFormVisible, setDeleteFormVisible] = useState(false);
+
+    const deleteBtnRef = useRef(null);
 
     let varType = '';
     let varName = '';
@@ -57,35 +66,55 @@ export function ModuleVariable(props: ModuleVariableProps) {
         varValue = model.source.trim();
     }
 
+    const handleOnDeleteCancel = () => {
+        setDeleteFormVisible(false);
+    }
 
-    const handleMouseEnter = () => {
-        setIsEditable(true);
-    };
-    const handleMouseLeave = () => {
-        setIsEditable(false);
-    };
+    const handleOnDeleteClick = () => {
+        setDeleteFormVisible(true);
+    }
+
+    const hadnleOnDeleteConfirm = () => {
+        modifyDiagram([removeStatement(model.position)]);
+    }
+
+    const handleEditBtnClick = () => {
+        setEditFormVisible(true);
+    }
+
+    const handleEditBtnCancel = () => {
+        setEditFormVisible(false)
+    }
 
     return (
         <div>
             <div
-                className={"moduleVariableContainer"}
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
+                className={"module-variable-container"}
                 data-test-id="module-var"
             >
-                <div className="moduleVariableHeader" >
-                    <div className={"moduleVariableWrapper"}>
-                        <div className={"moduleVariableIcon"}>
+                <div className="module-variable-header" >
+                    <div className={"module-variable-wrapper"}>
+                        <div className={"module-variable-icon"}>
                             {(isConfigurable) ? <ConfigurableIcon /> : <ModuleVariableIcon />}
                         </div>
-                        <div className={"moduleVariableTypeText"}>
+                        <div className={"module-variable-type-text"}>
                             {varType}
                         </div>
-                        <div className={'moduleVariableNameText'}>
+                        <div className={'module-variable-name-text'}>
                             {varName}
                         </div>
                     </div>
-                    {isEditable && (
+                    <div className={'module-variable-actions'}>
+                        <div className={classNames("edit-btn-wrapper", "show-on-hover")}>
+                            <EditButton onClick={handleEditBtnClick} />
+                        </div>
+                        <div className={classNames("delete-btn-wrapper", "show-on-hover")}>
+                            <div ref={deleteBtnRef}>
+                                <DeleteButton onClick={handleOnDeleteClick} />
+                            </div>
+                        </div>
+                    </div>
+                    {/* {isEditable && (
                         <>
                             <div className="amendmentOptions">
                                 <div className={"moduleVariableEditBtn"}>
@@ -93,12 +122,37 @@ export function ModuleVariable(props: ModuleVariableProps) {
                                 </div>
                                 <div className={"moduleVariableDeleteBtn"}>
                                     <DeleteButton />
-                                </div>
-                            </div>
-                        </>
-                    )}
+                                </div> */}
                 </div>
             </div>
+            {
+                deleteFormVisible && (
+                    <DeleteConfirmDialog
+                        onCancel={handleOnDeleteCancel}
+                        onConfirm={hadnleOnDeleteConfirm}
+                        position={
+                            deleteBtnRef.current
+                                ? {
+                                    x: deleteBtnRef.current.offsetLeft,
+                                    y: deleteBtnRef.current.offsetTop,
+                                }
+                                : { x: 0, y: 0 }
+                        }
+                        message={'Delete Variable?'}
+                        isFunctionMember={false}
+                    />
+                )
+            }
+            {
+                editFormVisible && (
+                    <FormGenerator
+                        model={model}
+                        configOverlayFormStatus={{ formType: model.kind, isLoading: false }}
+                        onCancel={handleEditBtnCancel}
+                        onSave={handleEditBtnCancel}
+                    />
+                )
+            }
         </div>
     );
 }
