@@ -23,8 +23,8 @@ import { StatementEditorContextProvider } from "../../store/statement-editor-con
 import foreachModel from "./data/foreach-st-model.json";
 import ifElseBooleanLiteralModel from "./data/ifelse-booleaLiteral-st-model.json";
 import ifElseModel from "./data/ifelse-st-model.json";
+import varDeclBinaryExpr from "./data/local-var-decl-with-binary-expr-st-model.json";
 import panicModel from "./data/panic-st-model.json";
-import stModel from "./data/st-model-raw.json";
 import varDeclStringLiteral from "./data/varDecl-stringLiteral-model.json";
 import whileModel from "./data/while-st-model.json";
 import { StatementRenderer, StatementRendererProps } from "./index";
@@ -145,7 +145,7 @@ const inputEditorContextProps: any = {
 }
 
 const statementEditorContextProps = {
-    model: stModel,
+    model: varDeclBinaryExpr,
     onCancelClicked: false,
     onSave: dummyFunctionWithoutArgs,
     onChange: dummyFunction,
@@ -165,7 +165,7 @@ const Template: Story<StatementRendererProps> = (args: StatementRendererProps) =
 const dummyDiagnosticHandler = () => {
 };
 
-export const StmtRendererComponent = Template.bind({});
+export const VarDeclBinaryExprStmt = Template.bind({});
 
 export const VarDeclStringLiteral = Template.bind({});
 
@@ -179,8 +179,8 @@ export const IfElseBooleanLiteralStmt = Template.bind({});
 
 export const OtherStmt = Template.bind({});
 
-StmtRendererComponent.args = {
-    model: stModel,
+VarDeclBinaryExprStmt.args = {
+    model: varDeclBinaryExpr,
     userInputs: {
         "selectedType": "string",
         "varName": "name",

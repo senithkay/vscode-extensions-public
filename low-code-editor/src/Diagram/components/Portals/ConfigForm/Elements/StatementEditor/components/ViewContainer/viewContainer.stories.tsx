@@ -21,8 +21,8 @@ import { InputEditorContextProvider } from "../../store/input-editor-context";
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
 import foreachModel from "../StatementRenderer/data/foreach-st-model.json";
 import ifElseModel from "../StatementRenderer/data/ifelse-st-model.json";
+import varDeclBinaryExprModel from "../StatementRenderer/data/local-var-decl-with-binary-expr-st-model.json";
 import panicModel from "../StatementRenderer/data/panic-st-model.json";
-import stModel from "../StatementRenderer/data/st-model-raw.json";
 import stringModel from "../StatementRenderer/data/varDecl-stringLiteral-model.json";
 import whileStmtModel from "../StatementRenderer/data/while-st-model.json";
 
@@ -40,7 +40,7 @@ const dummyFunctionWithoutArgs = () => {
 };
 
 const statementEditorContextProps = {
-    model: stModel,
+    model: varDeclBinaryExprModel,
     onCancelClicked: false,
     onSave: dummyFunctionWithoutArgs,
     onChange: dummyFunction,
@@ -161,24 +161,24 @@ const Template: Story<ViewProps> = (args: ViewProps) => (
     </LowCodeEditorProvider>
 );
 
-export const ViewContainerDefault = Template.bind({});
+export const VarDeclBinaryExprStmt = Template.bind({});
 
-export const ViewContainerVarDeclString = Template.bind({});
+export const VarDeclStringLiteralStmt = Template.bind({});
 
-export const ViewContainerWhileStmt = Template.bind({});
+export const WhileStmt = Template.bind({});
 
-export const ViewContainerForeachStmt = Template.bind({});
+export const ForeachStmt = Template.bind({});
 
-export const ViewContainerIfElseStmt = Template.bind({});
+export const IfElseStmt = Template.bind({});
 
-export const ViewContainerOtherStmt = Template.bind({});
+export const OtherStmt = Template.bind({});
 
 
 
-ViewContainerDefault.args = {
+VarDeclBinaryExprStmt.args = {
     kind: "DefaultString",
     label: "Variable Statement",
-    formArgs: { model: stModel },
+    formArgs: { model: varDeclBinaryExprModel },
     userInputs: {
         "selectedType": "string",
         "varName": "ga",
@@ -193,7 +193,7 @@ ViewContainerDefault.args = {
     onChange: dummyFunction
 }
 
-ViewContainerWhileStmt.args = {
+WhileStmt.args = {
     kind: "DefaultBoolean",
     label: "While Statement",
     formArgs: { model: whileStmtModel },
@@ -211,7 +211,7 @@ ViewContainerWhileStmt.args = {
     onChange: dummyFunction
 }
 
-ViewContainerForeachStmt.args = {
+ForeachStmt.args = {
     kind: "DefaultString",
     label: "Foreach Statement",
     formArgs: { model: foreachModel },
@@ -229,7 +229,7 @@ ViewContainerForeachStmt.args = {
     onChange: dummyFunction
 }
 
-ViewContainerVarDeclString.args = {
+VarDeclStringLiteralStmt.args = {
     kind: "DefaultString",
     label: "Variable Statement",
     formArgs: { model: stringModel },
@@ -247,7 +247,7 @@ ViewContainerVarDeclString.args = {
     onChange: dummyFunction
 }
 
-ViewContainerIfElseStmt.args = {
+IfElseStmt.args = {
     kind: "DefaultBoolean",
     label: "If-else Statement",
     formArgs: { model: ifElseModel },
@@ -265,7 +265,7 @@ ViewContainerIfElseStmt.args = {
     onChange: dummyFunction
 }
 
-ViewContainerOtherStmt.args = {
+OtherStmt.args = {
     kind: "NumericLiteral",
     label: "Other Statement",
     formArgs: { model: panicModel},

@@ -16,7 +16,7 @@ import React from 'react';
 import { Story } from '@storybook/react/types-6-0';
 
 import { SuggestionItem } from "../../../models/definitions";
-import stModel from "../../StatementRenderer/data/st-model-raw.json";
+import varDeclBinaryExprModel from "../../StatementRenderer/data/local-var-decl-with-binary-expr-st-model.json";
 
 import { ExpressionSuggestions, ExpressionSuggestionsProps } from "./index";
 
@@ -42,7 +42,7 @@ const operatorSuggestions: SuggestionItem[] = [{ value: "+", kind: "PlusToken" }
 export const ExpressionSuggestionDefault = Template.bind({});
 
 ExpressionSuggestionDefault.args = {
-    model: stModel,
+    model: varDeclBinaryExprModel,
     suggestions: expressionSuggestions,
     operator: false,
     suggestionHandler: ("")
@@ -51,7 +51,7 @@ ExpressionSuggestionDefault.args = {
 export const OperatorSuggestion = Template.bind({});
 
 OperatorSuggestion.args = {
-    model: stModel,
+    model: varDeclBinaryExprModel,
     suggestions: operatorSuggestions,
     operator: true,
     suggestionHandler: ("")

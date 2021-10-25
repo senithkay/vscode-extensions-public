@@ -16,7 +16,7 @@ import React from 'react';
 import { Story } from '@storybook/react/types-6-0';
 
 import { SuggestionItem } from "../../../models/definitions";
-import stModel from "../../StatementRenderer/data/st-model-raw.json";
+import varDeclBinaryExprModel from "../../StatementRenderer/data/local-var-decl-with-binary-expr-st-model.json";
 
 import { VariableSuggestions, VariableSuggestionsProps } from "./index";
 
@@ -36,7 +36,7 @@ const variableSuggestions: SuggestionItem[] = [{ value: "var1", kind: "string" }
     { value: "var4", kind: "int" }]
 
 VariableSuggestionDefault.args = {
-    model: stModel,
+    model: varDeclBinaryExprModel,
     variableSuggestions,
     suggestionHandler: ("")
 }
