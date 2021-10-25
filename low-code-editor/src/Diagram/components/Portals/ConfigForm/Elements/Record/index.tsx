@@ -73,7 +73,7 @@ export function Record(props: FormElementProps<RecordProps>) {
                     const element = getFormElement(elementProps, type);
 
                     if (element) {
-                        field?.optional ? optionalRecordFields.push(element) : recordFields.push(element);
+                        (field?.optional || field?.defaultValue) ? optionalRecordFields.push(element) : recordFields.push(element);
                     }
                 }
             });

@@ -139,7 +139,7 @@ export function APIOptions(props: FormGeneratorProps) {
         const componentList: ReactNode[] = [];
         let tooltipSideCount = 0;
         connectors?.forEach((connector: Connector) => {
-            const connectorName = connector.displayName || connector.package.name;
+            const connectorName = connector.displayAnnotation?.label || connector.moduleName;
             const placement = (tooltipSideCount++) % 2 === 0 ? "left" : "right";
             const tooltipTitle = connectorName;
             const tooltipExample = connector.package.summary;
@@ -245,10 +245,10 @@ export function APIOptions(props: FormGeneratorProps) {
             };
 
             langClient.getConnectors(request).then((response: BallerinaConnectorsResponse) => {
-                if (response.central.length > 0){
+                if (response.central?.length > 0){
                     setCentralConnectors(response.central);
                 }
-                if (response.local.length > 0){
+                if (response.local?.length > 0){
                     setLocalConnectors(response.local);
                 }
                 if (selectedContName === "") {
