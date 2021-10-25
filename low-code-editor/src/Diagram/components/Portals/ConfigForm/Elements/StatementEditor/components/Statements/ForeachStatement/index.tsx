@@ -30,7 +30,7 @@ export function ForeachStatementC(props: ForeachStatementProps) {
     const { model, userInputs, diagnosticHandler } = props;
 
     const overlayClasses = useStatementEditorStyles();
-    const suggestionCtx = useContext(SuggestionsContext);
+    const { expressionHandler } = useContext(SuggestionsContext);
 
     const typedBindingComponent: ReactNode = (
         <ExpressionComponent
@@ -53,7 +53,7 @@ export function ForeachStatementC(props: ForeachStatementProps) {
 
     const onClickOnActionOrExpr = (event: any) => {
         event.stopPropagation()
-        suggestionCtx.expressionHandler(model.actionOrExpressionNode, false,
+        expressionHandler(model.actionOrExpressionNode, false,
             { expressionSuggestions: getSuggestionsBasedOnExpressionKind(model.actionOrExpressionNode.kind) })
     };
 

@@ -30,7 +30,7 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
     const { model, userInputs, diagnosticHandler } = props;
 
     const overlayClasses = useStatementEditorStyles();
-    const suggestionCtx = useContext(SuggestionsContext);
+    const { expressionHandler } = useContext(SuggestionsContext);
 
     const typedBindingComponent: ReactNode = (
         <ExpressionComponent
@@ -52,7 +52,7 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
 
     const onClickOnExpression = (event: any) => {
         event.stopPropagation()
-        suggestionCtx.expressionHandler(model.initializer, false,
+        expressionHandler(model.initializer, false,
             { expressionSuggestions: getSuggestionsBasedOnExpressionKind(model.initializer.kind) })
     };
 

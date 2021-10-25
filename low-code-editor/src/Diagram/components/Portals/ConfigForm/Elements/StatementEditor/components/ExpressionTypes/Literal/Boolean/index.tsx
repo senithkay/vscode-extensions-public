@@ -29,11 +29,11 @@ export function BooleanLiteralC(props: BooleanLiteralProps) {
     const { model } = props;
 
     const overlayClasses = useStatementEditorStyles();
-    const suggestionCtx = useContext(SuggestionsContext);
+    const { expressionHandler } = useContext(SuggestionsContext);
 
     const onClickOnBooleanLiteral = (event: any) => {
         event.stopPropagation()
-        suggestionCtx.expressionHandler(model, false,
+        expressionHandler(model, false,
             { expressionSuggestions: getSuggestionsBasedOnExpressionKind(model.kind) })
     };
 

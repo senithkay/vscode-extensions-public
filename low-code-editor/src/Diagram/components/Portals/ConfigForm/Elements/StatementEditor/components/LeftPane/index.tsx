@@ -37,7 +37,7 @@ export function LeftPane(props: ModelProps) {
     const overlayClasses = useStatementEditorStyles();
     const { kind, label, currentModel, userInputs, currentModelHandler } = props;
 
-    const stmtCtx = useContext(StatementEditorContext);
+    const { modelCtx } = useContext(StatementEditorContext);
 
     const [suggestionList, setSuggestionsList] = useState(getSuggestionsBasedOnExpressionKind(kind));
     const [diagnosticList, setDiagnostic] = useState("");
@@ -78,7 +78,7 @@ export function LeftPane(props: ModelProps) {
                 <div className={overlayClasses.templateEditor}>
                     <div className={overlayClasses.templateEditorInner}>
                         <StatementRenderer
-                            model={stmtCtx.modelCtx.statementModel}
+                            model={modelCtx.statementModel}
                             userInputs={userInputs}
                             diagnosticHandler={diagnosticHandler}
                         />

@@ -31,7 +31,7 @@ export function BinaryExpressionC(props: BinaryProps) {
     const { model, userInputs, diagnosticHandler } = props;
 
     const overlayClasses = useStatementEditorStyles();
-    const suggestionCtx = useContext(SuggestionsContext);
+    const { expressionHandler } = useContext(SuggestionsContext);
 
     const lhs: ReactNode = <ExpressionComponent
         model={model.lhsExpr}
@@ -50,17 +50,17 @@ export function BinaryExpressionC(props: BinaryProps) {
 
     const onClickOperator = (event: any) => {
         event.stopPropagation()
-        suggestionCtx.expressionHandler(model, true, { expressionSuggestions: getOperatorSuggestions(kind) })
+        expressionHandler(model, true, { expressionSuggestions: getOperatorSuggestions(kind) })
     }
 
     const onClickOnLhsExpression = (event: any) => {
         event.stopPropagation()
-        suggestionCtx.expressionHandler(model.lhsExpr, false, { expressionSuggestions: getSuggestionsBasedOnExpressionKind(kind) })
+        expressionHandler(model.lhsExpr, false, { expressionSuggestions: getSuggestionsBasedOnExpressionKind(kind) })
     };
 
     const onClickOnRhsExpression = (event: any) => {
         event.stopPropagation()
-        suggestionCtx.expressionHandler(model.rhsExpr, false, { expressionSuggestions: getSuggestionsBasedOnExpressionKind(kind) })
+        expressionHandler(model.rhsExpr, false, { expressionSuggestions: getSuggestionsBasedOnExpressionKind(kind) })
     };
 
     return (

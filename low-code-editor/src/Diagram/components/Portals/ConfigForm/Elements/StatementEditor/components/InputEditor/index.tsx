@@ -81,7 +81,7 @@ export function InputEditor(props: InputEditorProps) {
 
     const inputEditorCtx = useContext(InputEditorContext);
     const stmtCtx = useContext(StatementEditorContext);
-    const suggestionCtx = useContext(SuggestionsContext);
+    const { expressionHandler } = useContext(SuggestionsContext);
 
     const overlayClasses = useStatementEditorStyles();
 
@@ -291,7 +291,7 @@ export function InputEditor(props: InputEditorProps) {
                     return { value: obj.label, kind: obj.detail }
                 });
 
-                suggestionCtx.expressionHandler(model, false, { variableSuggestions });
+                expressionHandler(model, false, { variableSuggestions });
             });
         });
     }
@@ -304,7 +304,7 @@ export function InputEditor(props: InputEditorProps) {
         setIsEditing(false);
         if (userInput !== "") {
             addExpression(model, kind, value);
-            suggestionCtx.expressionHandler(model, false, { expressionSuggestions: [] });
+            expressionHandler(model, false, { expressionSuggestions: [] });
 
             const ignore = handleOnOutFocus();
         }

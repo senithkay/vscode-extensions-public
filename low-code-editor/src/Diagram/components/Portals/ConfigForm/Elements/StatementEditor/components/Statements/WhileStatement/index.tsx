@@ -31,7 +31,7 @@ export function WhileStatementC(props: WhileStatementProps) {
     const { model, userInputs, diagnosticHandler } = props;
 
     const overlayClasses = useStatementEditorStyles();
-    const suggestionCtx = useContext(SuggestionsContext);
+    const { expressionHandler } = useContext(SuggestionsContext);
 
     const conditionComponent: ReactNode = (
         <ExpressionComponent
@@ -45,7 +45,7 @@ export function WhileStatementC(props: WhileStatementProps) {
 
     const onClickOnConditionExpression = (event: any) => {
         event.stopPropagation()
-        suggestionCtx.expressionHandler(model.condition, false,
+        expressionHandler(model.condition, false,
             { expressionSuggestions: getSuggestionsBasedOnExpressionKind(model.condition.kind) })
     };
 
