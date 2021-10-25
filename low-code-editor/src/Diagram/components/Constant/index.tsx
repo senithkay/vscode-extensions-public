@@ -72,19 +72,21 @@ export function Constant(props: ConstantProps) {
     return (
         <div>
             <div
-                className={"moduleVariableContainer"}
+                className={"constContainer"}
                 data-test-id="const"
             >
-                <div className={"moduleVariableWrapper"}>
-                    <div className={"moduleVariableIcon"}>
+                <div className={"constWrapper"}>
+                    <div className={"constIcon"}>
                         <ConstantIcon />
                     </div>
-                    <p className={"moduleVariableTypeText"}>
+                    <div className={"constTypeText"}>
                         {varType}
-                    </p>
-                    <p className={"moduleVariableNameText"}>
+                    </div>
+                    <div className={"constNameText"}>
                         {varName}
-                    </p>
+                    </div>
+                </div>
+                <div className="amendmentOptions">
                     <div className={classNames("editBtnWrapper", "show-on-hover")}>
                         <EditButton onClick={handleEditBtnClick} />
                     </div>
