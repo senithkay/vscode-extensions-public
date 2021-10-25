@@ -64,7 +64,8 @@ enum EXTENDED_APIS_ORG {
     JSON_TO_RECORD = 'jsonToRecord',
     SYMBOL = 'ballerinaSymbol',
     CONNECTOR = 'ballerinaConnector',
-    PERF_ANALYZER = 'performanceAnalyzer'
+    PERF_ANALYZER = 'performanceAnalyzer',
+    PARTIAL_PARSER = 'partialParser'
 }
 
 export interface ExtendedClientCapabilities extends ClientCapabilities {
@@ -438,7 +439,8 @@ export class ExtendedLangClient extends LanguageClient {
                 },
                 { name: EXTENDED_APIS_ORG.EXAMPLE, list: true },
                 { name: EXTENDED_APIS_ORG.JSON_TO_RECORD, convert: true },
-                { name: EXTENDED_APIS_ORG.PERF_ANALYZER, getGraphData: true, getRealtimeData: true }
+                { name: EXTENDED_APIS_ORG.PERF_ANALYZER, getGraphData: true, getRealtimeData: true },
+                { name: EXTENDED_APIS_ORG.PARTIAL_PARSER, getSTForSingleStatement: true, getSTForExpression: true }
             ]
         }).then(response => {
             this.ballerinaExtendedServices = new Set();
