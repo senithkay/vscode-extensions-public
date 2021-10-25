@@ -123,7 +123,7 @@ export function ExpressionConfigurable(props: ExpressionConfigurableProps) {
                         },
                         initializer: {
                           source: exitingItem ? exitingItem.value : model.value,
-                            typeData: {
+                          typeData: {
                                 typeSymbol: {
                                     typeKind: varType,
                                 },
