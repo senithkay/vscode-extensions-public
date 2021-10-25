@@ -545,6 +545,53 @@ export const useStyles = makeStyles((theme: Theme) =>
             height: 'fit-content',
             paddingTop: theme.spacing(3.625),
             width: '5%'
+        },
+        blockWrapper: {
+            display: 'inline-flex',
+            width: '100%'
+        },
+        dropdownWrapper: {
+            minWidth: `92px !important`,
+            paddingRight: theme.spacing(1)
+        },
+        codeText: {
+            paddingTop: theme.spacing(5),
+            paddingRight: theme.spacing(1)
+        },
+        editorWrapper: {
+            minWidth: `110px !important`,
+            paddingRight: theme.spacing(1),
+            '& .MuiInputBase-root': {
+                marginBottom: theme.spacing(0.625)
+            }
+        },
+        scrollableArea: {
+            overflow: 'scroll',
+            '&::-webkit-scrollbar': {
+                width: '3px'
+            },
+            '&::-webkit-scrollbar-thumb': {
+                background: '#e6e7ec',
+                borderRadius: '2px'
+            },
+            '&::-webkit-scrollbar-track':  {
+                backgroundColor: 'transparent'
+            },
+            '&::-webkit-scrollbar-corner': {
+                backgroundColor: 'transparent'
+            }
+        },
+        nameInput: {
+            height: theme.spacing(5)
+        },
+        expEditorWrapper: {
+            minWidth: `120px !important`,
+            paddingRight: theme.spacing(1),
+            paddingTop: theme.spacing(1.25)
+        },
+        expEditorVariableWrapper: {
+            minWidth: `120px !important`,
+            paddingRight: theme.spacing(1)
         }
     }),
 );
