@@ -41,6 +41,7 @@ import {
 } from "../../../utils/st-util";
 import { StatementViewState } from "../../../view-state";
 import * as ConnectorIcons from "../../Connector/Icon";
+import { DefaultConnectorIcon } from "../../Connector/Icon/DefaultConnectorIcon";
 import { ConfigWizardState } from "../../ConnectorConfigWizard";
 import * as ConnectorExtension from "../../ConnectorExtensions";
 import * as Elements from "../ConfigForm/Elements";
@@ -478,20 +479,12 @@ export function getConnectorIcon(iconId: string, props?: any): React.ReactNode {
 }
 
 export function getConnectorIconSVG(connector: Connector, scale: number = 1): React.ReactNode {
-    // const iconId = getConnectorIconId(connector);
-    // const Icon = (Icons as any)[iconId.replace('.', '_')];
-    // const DefaultIcon = (Icons as any).default;
-    // const props = {
-    //     scale
-    // }
-    // return Icon ? (
-    //     <Icon {...props} />
-    // ) : <DefaultIcon {...props} />;
-
+    // TODO: update to render connector icon
+    const props = {
+        scale
+    }
     return (
-      <Avatar variant="rounded">
-        {connector.package.name.substring(0, 2).toUpperCase()}
-      </Avatar>
+        <DefaultConnectorIcon {...props}/>
     );
 }
 
