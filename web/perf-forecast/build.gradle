@@ -36,6 +36,13 @@ task buildPerfViewer {
     doFirst {
         exec {
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                commandLine 'cmd', '/c', 'npm', 'install'
+            } else {
+                commandLine 'npm', 'install'
+            }
+        }
+        exec {
+            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
                 commandLine 'cmd', '/c', 'npm', 'run', 'build'
             } else {
                 commandLine 'npm', 'run', 'build'
