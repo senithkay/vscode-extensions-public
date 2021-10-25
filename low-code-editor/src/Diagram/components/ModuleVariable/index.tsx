@@ -14,10 +14,13 @@
 import React, { useRef, useState } from "react"
 
 import { CaptureBindingPattern, ModuleVarDecl, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import classNames from "classnames";
 
+import { ConfigurableIcon } from "../../../assets/icons";
 import DeleteButton from "../../../assets/icons/DeleteButton";
 import EditButton from "../../../assets/icons/EditButton";
 import ModuleVariableIcon from "../../../assets/icons/ModuleVariableIcon";
+import Tooltip from "../../../components/Tooltip";
 import { useDiagramContext } from "../../../Contexts/Diagram";
 import { removeStatement } from "../../utils/modification-util";
 import { FormGenerator } from "../FormGenerator";
@@ -46,6 +49,7 @@ export function ModuleVariable(props: ModuleVariableProps) {
     let varType = '';
     let varName = '';
     let varValue = '';
+    let isConfigurable = false;
 
     if (STKindChecker.isModuleVarDecl(model)) {
         const moduleMemberModel: ModuleVarDecl = model as ModuleVarDecl;
@@ -53,11 +57,16 @@ export function ModuleVariable(props: ModuleVariableProps) {
             typeSymbol?.typeKind;
         varName = (moduleMemberModel.typedBindingPattern.bindingPattern as CaptureBindingPattern)?.variableName.value;
         varValue = model.source.trim();
+        isConfigurable = model && model.qualifiers.length > 0
+            && model.qualifiers.filter(qualifier => STKindChecker.isConfigurableKeyword(qualifier)).length > 0;
     } else if (STKindChecker.isObjectField(model)) {
         varType = model.typeData?.typeSymbol?.typeKind;
         varName = model.fieldName.value;
         varValue = model.source.trim();
     }
+
+    const typeMaxWidth = varType.length >= 10;
+    const nameMaxWidth = varName.length >= 20;
 
     const handleOnDeleteCancel = () => {
         setDeleteFormVisible(false);
@@ -85,20 +94,31 @@ export function ModuleVariable(props: ModuleVariableProps) {
                 className={"module-variable-container"}
                 data-test-id="module-var"
             >
-                <div className={"moduleVariableWrapper"}>
-                    <div className={"moduleVariableIcon"}>
-                        <ModuleVariableIcon />
+                <div className="module-variable-header" >
+                    <div className={"module-variable-wrapper"}>
+                        <div className={"module-variable-icon"}>
+                            {(isConfigurable) ? <ConfigurableIcon /> : <ModuleVariableIcon />}
+                        </div>
+                        <div className={"module-variable-type-text"}>
+                            <Tooltip
+                                arrow={true}
+                                placement="top-start"
+                                title={model.source.slice(1, -1)}
+                                inverted={false}
+                                interactive={true}
+                            >
+                                <tspan x="0" y="0">{typeMaxWidth ? varType.slice(0, 10) + "..." : varType}</tspan>
+                            </Tooltip>
+                        </div>
+                        <div className={'module-variable-name-text'}>
+                            <tspan x="0" y="0">{nameMaxWidth ? varName.slice(0, 20) + "..." : varName}</tspan>
+                        </div>
                     </div>
-                    <p className={'variable-text'}>
-                        {varValue}
-                    </p>
-                </div>
-                <div className={'show-on-hover'}>
                     <div className={'module-variable-actions'}>
-                        <div className={"edit-btn-wrapper"}>
+                        <div className={classNames("edit-btn-wrapper", "show-on-hover")}>
                             <EditButton onClick={handleEditBtnClick} />
                         </div>
-                        <div className={"delete-btn-wrapper"}>
+                        <div className={classNames("delete-btn-wrapper", "show-on-hover")}>
                             <div ref={deleteBtnRef}>
                                 <DeleteButton onClick={handleOnDeleteClick} />
                             </div>
@@ -137,4 +157,3 @@ export function ModuleVariable(props: ModuleVariableProps) {
         </div>
     );
 }
-
