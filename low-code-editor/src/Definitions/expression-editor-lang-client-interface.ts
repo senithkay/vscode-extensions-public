@@ -75,10 +75,28 @@ export interface ExpressionTypeResponse {
    	types: string[];
 }
 
+export interface PartialSTRequest {
+	codeSnippet: string;
+}
+
+export interface PartialSTResponse {
+	syntaxTree: any;
+}
+
 export interface ExpressionEditorLangClientInterface extends BaseLangClientInterface {
 	getDiagnostics: (
 		params: BallerinaProjectParams
 	) => Thenable<PublishDiagnosticsParams[]>;
-	getCompletion: (params: CompletionParams) => Thenable<CompletionResponse[]>;
-	getType: (param: ExpressionTypeRequest) => Thenable<ExpressionTypeResponse>;
+	getCompletion: (
+		params: CompletionParams
+	) => Thenable<CompletionResponse[]>;
+	getType: (
+		param: ExpressionTypeRequest
+	) => Thenable<ExpressionTypeResponse>;
+	getSTForSingleStatement: (
+		param: PartialSTRequest
+	) => Thenable<PartialSTResponse>;
+	getSTForExpression	: (
+		param: PartialSTRequest
+	) => Thenable<PartialSTResponse>;
 }

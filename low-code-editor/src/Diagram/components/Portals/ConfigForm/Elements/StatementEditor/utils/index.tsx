@@ -15,6 +15,10 @@ import React, { ReactNode } from 'react';
 
 import { STNode } from "@ballerina/syntax-tree";
 
+import {
+    ExpressionEditorLangClientInterface,
+    PartialSTResponse
+} from "../../../../../../../Definitions";
 import * as expressionTypeComponents from '../components/ExpressionTypes';
 import { SuggestionItem, VariableUserInputs } from '../models/definitions';
 
@@ -24,6 +28,26 @@ import {
     ExpressionSuggestionsByKind,
     OperatorsForExpressionKind
 } from "./utils";
+
+export async function getPartialSTForStatement(codeSnippet: string, lsUrl: string, ls?: any): Promise<string> {
+    const langClient: ExpressionEditorLangClientInterface = await ls.getExpressionEditorLangClient(lsUrl);
+    const resp: PartialSTResponse = await langClient.getSTForSingleStatement(
+        {
+            codeSnippet
+        }
+    )
+    return resp.syntaxTree;
+}
+
+export async function getPartialSTForExpression(codeSnippet: string, lsUrl: string, ls?: any): Promise<string> {
+    const langClient: ExpressionEditorLangClientInterface = await ls.getExpressionEditorLangClient(lsUrl);
+    const resp: PartialSTResponse = await langClient.getSTForExpression(
+        {
+            codeSnippet
+        }
+    )
+    return resp.syntaxTree;
+}
 
 export function getDefaultModel(kind: string): STNode {
     return DefaultModelsByKind[kind];
