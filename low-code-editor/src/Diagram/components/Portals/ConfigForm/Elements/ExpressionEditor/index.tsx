@@ -522,7 +522,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             const configurableWidget: monaco.editor.IContentWidget = createContentWidget(CONFIGURABLE_WIDGET_ID);
             if (configurableTypes.includes(varType) && expressionInjectables){
                 monacoRef.current.editor.addContentWidget(configurableWidget);
-            }else{
+            } else {
                 monacoRef.current.editor.removeContentWidget(configurableWidget);
             }
         }
