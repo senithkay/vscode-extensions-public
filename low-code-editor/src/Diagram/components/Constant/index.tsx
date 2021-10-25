@@ -78,14 +78,14 @@ export function Constant(props: ConstantProps) {
     return (
         <div>
             <div
-                className={"constContainer"}
+                className={"const-container"}
                 data-test-id="const"
             >
-                <div className={"constWrapper"}>
-                    <div className={"constIcon"}>
+                <div className={"const-wrapper"}>
+                    <div className={"const-icon"}>
                         <ConstantIcon />
                     </div>
-                    <div className={"constTypeText"}>
+                    <div className={"const-type-text"}>
                         <Tooltip
                             arrow={true}
                             placement="top-start"
@@ -96,15 +96,15 @@ export function Constant(props: ConstantProps) {
                             <tspan x="0" y="0">{typeMaxWidth ? varType.slice(0, 10) + "..." : varType}</tspan>
                         </Tooltip>
                     </div>
-                    <div className={"constNameText"}>
+                    <div className={"const-name-text"}>
                         <tspan x="0" y="0">{nameMaxWidth ? varName.slice(0, 20) + "..." : varName}</tspan>
                     </div>
                 </div>
-                <div className="amendmentOptions">
-                    <div className={classNames("editBtnWrapper", "show-on-hover")}>
+                <div className="amendment-options">
+                    <div className={classNames("edit-btn-wrapper", "show-on-hover")}>
                         <EditButton onClick={handleEditBtnClick} />
                     </div>
-                    <div className={classNames("deleteBtnWrapper", "show-on-hover")}>
+                    <div className={classNames("delete-btn-wrapper", "show-on-hover")}>
                         <DeleteButton onClick={handleDeleteBtnClick} />
                     </div>
                 </div>

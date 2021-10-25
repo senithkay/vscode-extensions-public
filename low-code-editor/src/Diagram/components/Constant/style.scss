@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-.constContainer {
+.const-container {
     border: 1px solid #e6e7ec;
     border-radius: 6px;
     background-color: #fff;
@@ -20,39 +20,39 @@
     flex-direction: row;
     padding-left: 16px;
 
-    .constWrapper {
+    .const-wrapper {
         display: flex;
         flex-direction: row;
         width: 75%;
         align-content: center;
         align-items: center;
 
-        .constIcon {
+        .const-icon {
             height: 18px;
             width: 18px;
         }
         
-        .constTypeText {
+        .const-type-text {
             font-family: inherit;
             color: #222228;
             padding-left: 10px;
         }
         
-        .constNameText {
+        .const-name-text {
             font-family: inherit;
             color: #8d91a3;
             padding-left: 10px;
         }
     }
 
-    .amendmentOptions {
+    .amendment-options {
         display: flex;
         flex-direction: row;
         width: 25%;
         align-items: center;
 
-        .editBtnWrapper,
-        .deleteBtnWrapper {
+        .edit-btn-wrapper,
+        .delete-btn-wrapper {
             width: 25px;
             text-align: center;
             padding-right: 5px;
