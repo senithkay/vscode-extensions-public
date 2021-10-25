@@ -45,7 +45,7 @@ import { SuggestionsContext } from "../../store/suggestions-context";
 import { getDataTypeOnExpressionKind } from "../../utils";
 import { addExpression } from "../../utils/utils";
 import { visitor as CodeGenVisitor } from "../../visitors/code-gen-visitor";
-import { statementEditorStyles } from "../ViewContainer/styles";
+import { useStatementEditorStyles } from "../ViewContainer/styles";
 
 import { acceptedCompletionKind } from "./constants";
 
@@ -83,7 +83,7 @@ export function InputEditor(props: InputEditorProps) {
     const stmtCtx = useContext(StatementEditorContext);
     const suggestionCtx = useContext(SuggestionsContext);
 
-    const overlayClasses = statementEditorStyles();
+    const overlayClasses = useStatementEditorStyles();
 
     let literalModel: StringLiteral | NumericLiteral | SimpleNameReference;
     let value: any;

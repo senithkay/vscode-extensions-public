@@ -17,7 +17,7 @@ import { BooleanLiteral } from "@ballerina/syntax-tree";
 import { VariableUserInputs } from "../../../../models/definitions";
 import { SuggestionsContext } from "../../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../../../utils";
-import { statementEditorStyles } from "../../../ViewContainer/styles";
+import { useStatementEditorStyles } from "../../../ViewContainer/styles";
 
 interface BooleanLiteralProps {
     model: BooleanLiteral
@@ -28,7 +28,7 @@ interface BooleanLiteralProps {
 export function BooleanLiteralC(props: BooleanLiteralProps) {
     const { model } = props;
 
-    const overlayClasses = statementEditorStyles();
+    const overlayClasses = useStatementEditorStyles();
     const suggestionCtx = useContext(SuggestionsContext);
 
     const onClickOnBooleanLiteral = (event: any) => {

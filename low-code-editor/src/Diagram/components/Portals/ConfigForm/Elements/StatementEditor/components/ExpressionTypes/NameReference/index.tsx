@@ -13,14 +13,13 @@
 // tslint:disable: jsx-wrap-multiline
 import React from "react";
 
-import {BracedExpression, SimpleNameReference, STKindChecker, STNode} from "@ballerina/syntax-tree";
+import { SimpleNameReference, STNode } from "@ballerina/syntax-tree";
 
 import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
-import { ExpressionComponent } from "../../Expression";
-import {InputEditor} from "../../InputEditor";
+import { InputEditor } from "../../InputEditor";
 
 interface NameRefProps {
-    model: STNode
+    model: SimpleNameReference
     expressionHandler: (model: STNode, operator: boolean, variableSuggestions?: SuggestionItem[], suggestions?: SuggestionItem[]) => void
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void

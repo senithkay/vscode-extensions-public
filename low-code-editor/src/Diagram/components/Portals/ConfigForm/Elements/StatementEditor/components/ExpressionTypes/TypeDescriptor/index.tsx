@@ -11,37 +11,29 @@
  * associated services.
  */
 // tslint:disable: jsx-wrap-multiline
-import React, {ReactNode} from "react";
+import React from "react";
 
-import {STKindChecker, STNode, StringTypeDesc, TypedBindingPattern} from "@ballerina/syntax-tree";
+import { StringTypeDesc } from "@ballerina/syntax-tree";
 
 import { VariableUserInputs } from "../../../models/definitions";
-import { ExpressionComponent } from "../../Expression";
-import { statementEditorStyles } from "../../ViewContainer/styles";
+import { useStatementEditorStyles } from "../../ViewContainer/styles";
 
 interface StringTypeDescProps {
-    model: STNode
+    model: StringTypeDesc
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }
 
 export function StringTypeDescC(props: StringTypeDescProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+    const { model } = props;
 
-    const overlayClasses = statementEditorStyles();
-
-    let name: string;
-
-    if (STKindChecker.isStringTypeDesc(model)) {
-        const stringTypeDescModel = model as StringTypeDesc;
-        name = stringTypeDescModel.name.value;
-    }
+    const overlayClasses = useStatementEditorStyles();
 
     return (
         <button
             className={overlayClasses.expressionElement}
         >
-            {name}
+            {model.name.value}
         </button>
     );
 }

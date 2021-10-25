@@ -16,7 +16,7 @@ import { STNode } from "@ballerina/syntax-tree";
 import { TextField } from "@material-ui/core";
 
 import { VariableUserInputs } from "../../../models/definitions";
-import { statementEditorStyles } from "../../ViewContainer/styles";
+import { useStatementEditorStyles } from "../../ViewContainer/styles";
 
 interface OtherStatementProps {
     model: STNode
@@ -27,7 +27,7 @@ interface OtherStatementProps {
 export function OtherStatementTypes(props: OtherStatementProps) {
     const { model } = props;
 
-    const overlayClasses = statementEditorStyles();
+    const overlayClasses = useStatementEditorStyles();
 
     return (
         <TextField

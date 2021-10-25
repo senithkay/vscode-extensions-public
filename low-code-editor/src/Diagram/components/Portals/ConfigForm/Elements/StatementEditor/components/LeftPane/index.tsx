@@ -23,7 +23,7 @@ import { Diagnostics } from "../Diagnostics";
 import { StatementRenderer } from "../StatementRenderer";
 import { ExpressionSuggestions } from "../Suggestions/ExpressionSuggestions";
 import { VariableSuggestions } from "../Suggestions/VariableSuggestions";
-import { statementEditorStyles } from "../ViewContainer/styles";
+import { useStatementEditorStyles } from "../ViewContainer/styles";
 
 interface ModelProps {
     kind: string,
@@ -34,7 +34,7 @@ interface ModelProps {
 }
 
 export function LeftPane(props: ModelProps) {
-    const overlayClasses = statementEditorStyles();
+    const overlayClasses = useStatementEditorStyles();
     const { kind, label, currentModel, userInputs, currentModelHandler } = props;
 
     const stmtCtx = useContext(StatementEditorContext);

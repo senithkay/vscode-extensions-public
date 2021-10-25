@@ -13,18 +13,18 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { STNode } from "@ballerina/syntax-tree";
+import { NumericLiteral } from "@ballerina/syntax-tree";
 
 import { VariableUserInputs } from "../../../../models/definitions";
 import { InputEditor } from "../../../InputEditor";
 
-interface LiteralProps {
-    model: STNode
+interface NumericLiteralProps {
+    model: NumericLiteral
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }
 
-export function NumericLiteralC(props: LiteralProps) {
+export function NumericLiteralC(props: NumericLiteralProps) {
     const { model, userInputs, diagnosticHandler } = props;
     const inputEditorProps = {
         statementType: model.kind,

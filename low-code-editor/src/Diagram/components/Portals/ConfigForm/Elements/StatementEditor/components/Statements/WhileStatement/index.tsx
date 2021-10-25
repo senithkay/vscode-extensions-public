@@ -18,7 +18,7 @@ import { VariableUserInputs } from "../../../models/definitions";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
-import { statementEditorStyles } from "../../ViewContainer/styles";
+import { useStatementEditorStyles } from "../../ViewContainer/styles";
 
 
 interface WhileStatementProps {
@@ -30,7 +30,7 @@ interface WhileStatementProps {
 export function WhileStatementC(props: WhileStatementProps) {
     const { model, userInputs, diagnosticHandler } = props;
 
-    const overlayClasses = statementEditorStyles();
+    const overlayClasses = useStatementEditorStyles();
     const suggestionCtx = useContext(SuggestionsContext);
 
     const conditionComponent: ReactNode = (

@@ -11,16 +11,16 @@
  * associated services.
  */
 // tslint:disable: jsx-wrap-multiline
-import React, {ReactNode} from "react";
+import React, { ReactNode } from "react";
 
-import { STKindChecker, STNode, TypedBindingPattern } from "@ballerina/syntax-tree";
+import { TypedBindingPattern } from "@ballerina/syntax-tree";
 
 import { VariableUserInputs } from "../../../models/definitions";
 import { ExpressionComponent } from "../../Expression";
-import { statementEditorStyles } from "../../ViewContainer/styles";
+import { useStatementEditorStyles } from "../../ViewContainer/styles";
 
 interface TypedBindingPatternProps {
-    model: STNode
+    model: TypedBindingPattern
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }
@@ -28,26 +28,21 @@ interface TypedBindingPatternProps {
 export function TypedBindingPatternC(props: TypedBindingPatternProps) {
     const { model, userInputs, diagnosticHandler } = props;
 
-    const overlayClasses = statementEditorStyles();
+    const overlayClasses = useStatementEditorStyles();
 
-    let typeDescriptorComponent: ReactNode;
-    let bindingPatternComponent: ReactNode;
+    const typeDescriptorComponent: ReactNode = <ExpressionComponent
+        model={model.typeDescriptor}
+        isRoot={false}
+        userInputs={userInputs}
+        diagnosticHandler={diagnosticHandler}
+    />;
+    const bindingPatternComponent: ReactNode = <ExpressionComponent
+        model={model.bindingPattern}
+        isRoot={false}
+        userInputs={userInputs}
+        diagnosticHandler={diagnosticHandler}
+    />;
 
-    if (STKindChecker.isTypedBindingPattern(model)) {
-        const typedBindingPatternModel = model as TypedBindingPattern;
-        typeDescriptorComponent = <ExpressionComponent
-            model={typedBindingPatternModel.typeDescriptor}
-            isRoot={false}
-            userInputs={userInputs}
-            diagnosticHandler={diagnosticHandler}
-        />;
-        bindingPatternComponent = <ExpressionComponent
-            model={typedBindingPatternModel.bindingPattern}
-            isRoot={false}
-            userInputs={userInputs}
-            diagnosticHandler={diagnosticHandler}
-        />;
-    }
 
     return (
         <button

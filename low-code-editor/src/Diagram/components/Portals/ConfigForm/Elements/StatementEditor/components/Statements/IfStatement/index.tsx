@@ -18,7 +18,7 @@ import { VariableUserInputs } from "../../../models/definitions";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
-import { statementEditorStyles } from "../../ViewContainer/styles";
+import { useStatementEditorStyles } from "../../ViewContainer/styles";
 
 interface IfStatementProps {
     model: IfElseStatement
@@ -29,7 +29,7 @@ interface IfStatementProps {
 export function IfStatementC(props: IfStatementProps) {
     const { model, userInputs, diagnosticHandler } = props;
 
-    const overlayClasses = statementEditorStyles();
+    const overlayClasses = useStatementEditorStyles();
     const suggestionCtx = useContext(SuggestionsContext);
 
     const conditionComponent: ReactNode = (

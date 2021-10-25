@@ -25,7 +25,7 @@ import { getDefaultModel } from "../../utils";
 import { LeftPane } from '../LeftPane';
 import { RightPane } from '../RightPane';
 
-import { statementEditorStyles } from "./styles";
+import { useStatementEditorStyles } from "./styles";
 
 export interface ViewProps {
     kind: string,
@@ -79,7 +79,7 @@ export function ViewContainer(props: ViewProps) {
         }
     }, [onCancelClicked])
 
-    const overlayClasses = statementEditorStyles();
+    const overlayClasses = useStatementEditorStyles();
     const wizardStylesClasses = wizardStyles();
 
     const saveVariableButtonText = intl.formatMessage({

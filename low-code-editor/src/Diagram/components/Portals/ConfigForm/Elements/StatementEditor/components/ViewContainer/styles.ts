@@ -13,7 +13,7 @@
 // tslint:disable: ordered-imports
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 
-export const statementEditorStyles = makeStyles(() =>
+export const useStatementEditorStyles = makeStyles(() =>
     createStyles({
         stmtEditor: {
             display: "flex",

@@ -18,7 +18,7 @@ import { STNode } from "@ballerina/syntax-tree";
 import { SuggestionItem } from "../../../models/definitions";
 import { InputEditorContext } from "../../../store/input-editor-context";
 import { addVariableSuggestion } from "../../../utils/utils";
-import { statementEditorStyles } from "../../ViewContainer/styles";
+import { useStatementEditorStyles } from "../../ViewContainer/styles";
 
 export interface VariableSuggestionsProps {
     model: STNode
@@ -27,7 +27,7 @@ export interface VariableSuggestionsProps {
 }
 
 export function VariableSuggestions(props: VariableSuggestionsProps) {
-    const overlayClasses = statementEditorStyles();
+    const overlayClasses = useStatementEditorStyles();
     const { model, variableSuggestions, suggestionHandler } = props;
 
     const inputEditorCtx = useContext(InputEditorContext);

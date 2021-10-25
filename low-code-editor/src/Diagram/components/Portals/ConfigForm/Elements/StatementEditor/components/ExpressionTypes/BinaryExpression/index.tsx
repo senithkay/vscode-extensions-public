@@ -11,71 +11,56 @@
  * associated services.
  */
 // tslint:disable: jsx-wrap-multiline
-import React, { useContext } from "react";
+import React, { ReactNode, useContext } from "react";
 
-import { BinaryExpression, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { BinaryExpression } from "@ballerina/syntax-tree";
 
 import { VariableUserInputs } from "../../../models/definitions";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getKindBasedOnOperator, getOperatorSuggestions, getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
-import { statementEditorStyles } from "../../ViewContainer/styles";
+import { useStatementEditorStyles } from "../../ViewContainer/styles";
 
 interface BinaryProps {
-    model: STNode
+    model: BinaryExpression
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }
 
 export function BinaryExpressionC(props: BinaryProps) {
     const { model, userInputs, diagnosticHandler } = props;
-    let lhsExpression: any;
-    let rhsExpression: any;
-    let lhs: any;
-    let rhs: any;
-    let operatorKind: string = "";
-    let operator: any;
 
-    const overlayClasses = statementEditorStyles();
-
+    const overlayClasses = useStatementEditorStyles();
     const suggestionCtx = useContext(SuggestionsContext);
 
-    if (STKindChecker.isBinaryExpression(model)) {
-        const binaryExpModel = model as BinaryExpression;
-        operatorKind = binaryExpModel.operator.kind;
-        lhsExpression = binaryExpModel.lhsExpr;
-        rhsExpression = binaryExpModel.rhsExpr;
-        operator = binaryExpModel.operator.value;
-        lhs = <ExpressionComponent
-            model={lhsExpression}
-            isRoot={false}
-            userInputs={userInputs}
-            diagnosticHandler={diagnosticHandler}
-        />;
-        rhs = <ExpressionComponent
-            model={rhsExpression}
-            isRoot={false}
-            userInputs={userInputs}
-            diagnosticHandler={diagnosticHandler}
-        />;
-    }
+    const lhs: ReactNode = <ExpressionComponent
+        model={model.lhsExpr}
+        isRoot={false}
+        userInputs={userInputs}
+        diagnosticHandler={diagnosticHandler}
+    />;
+    const rhs: ReactNode = <ExpressionComponent
+        model={model.rhsExpr}
+        isRoot={false}
+        userInputs={userInputs}
+        diagnosticHandler={diagnosticHandler}
+    />;
 
-    const kind = getKindBasedOnOperator(operatorKind);
+    const kind = getKindBasedOnOperator(model.operator.kind);
 
     const onClickOperator = (event: any) => {
         event.stopPropagation()
-
         suggestionCtx.expressionHandler(model, true, { expressionSuggestions: getOperatorSuggestions(kind) })
     }
 
     const onClickOnLhsExpression = (event: any) => {
         event.stopPropagation()
-        suggestionCtx.expressionHandler(lhsExpression, false, { expressionSuggestions: getSuggestionsBasedOnExpressionKind(kind) })
+        suggestionCtx.expressionHandler(model.lhsExpr, false, { expressionSuggestions: getSuggestionsBasedOnExpressionKind(kind) })
     };
 
     const onClickOnRhsExpression = (event: any) => {
         event.stopPropagation()
-        suggestionCtx.expressionHandler(rhsExpression, false, { expressionSuggestions: getSuggestionsBasedOnExpressionKind(kind) })
+        suggestionCtx.expressionHandler(model.rhsExpr, false, { expressionSuggestions: getSuggestionsBasedOnExpressionKind(kind) })
     };
 
     return (
@@ -90,7 +75,7 @@ export function BinaryExpressionC(props: BinaryProps) {
                 className={overlayClasses.expressionElement}
                 onClick={onClickOperator}
             >
-                {operator ? operator : "operator"}
+                {model.operator.value ? model.operator.value : "operator"}
             </button>
             <button
                 className={overlayClasses.expressionElement}

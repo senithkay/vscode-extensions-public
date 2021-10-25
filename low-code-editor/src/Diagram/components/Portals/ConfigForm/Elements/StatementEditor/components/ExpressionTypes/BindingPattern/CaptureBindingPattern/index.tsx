@@ -11,37 +11,29 @@
  * associated services.
  */
 // tslint:disable: jsx-wrap-multiline
-import React, {ReactNode} from "react";
+import React from "react";
 
-import { CaptureBindingPattern, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { CaptureBindingPattern } from "@ballerina/syntax-tree";
 
 import { VariableUserInputs } from "../../../../models/definitions";
-import { ExpressionComponent } from "../../../Expression";
-import { statementEditorStyles } from "../../../ViewContainer/styles";
+import { useStatementEditorStyles } from "../../../ViewContainer/styles";
 
 interface CaptureBindingPatternProps {
-    model: STNode
+    model: CaptureBindingPattern
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }
 
 export function CaptureBindingPatternC(props: CaptureBindingPatternProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+    const { model } = props;
 
-    const overlayClasses = statementEditorStyles();
-
-    let variableName: string;
-
-    if (STKindChecker.isCaptureBindingPattern(model)) {
-        const captureBindingPatternModel = model as CaptureBindingPattern;
-        variableName = captureBindingPatternModel.variableName.value;
-    }
+    const overlayClasses = useStatementEditorStyles();
 
     return (
         <button
             className={overlayClasses.expressionElement}
         >
-            {variableName}
+            {model.variableName.value}
         </button>
     );
 }
