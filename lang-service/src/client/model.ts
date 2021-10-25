@@ -200,7 +200,6 @@ export interface FunctionDefinitionInfo {
 export interface BallerinaConnectorInfo extends Connector {
     functions: FunctionDefinitionInfo[];
     documentation?: string;
-    displayAnnotation?: any;
 }
 
 export interface BallerinaConnectorsRequest {
@@ -238,6 +237,7 @@ export interface Package {
     platform?: string;
     languageSpecificationVersion?: string;
     URL?: string;
+    balaURL?: string;
     balaVersion?: string;
     digest?: string;
     summary?: string;
@@ -257,10 +257,10 @@ export interface Package {
 export interface Connector {
     id?: string;
     name: string;
-    orgName: string;
     displayName?: string;
     moduleName?: string;
     package: Package;
+    displayAnnotation?: any;
 }
 export interface IBallerinaLangClient {
 

@@ -27,7 +27,7 @@ export interface FormProps {
     expressionInjectables?: ExpressionInjectablesProps;
 }
 
-const isAllOptionalFields = (recordFields: FormField[]): boolean => recordFields?.every(field => field.optional || (field.fields && isAllOptionalFields(field.fields)));
+const isAllOptionalFields = (recordFields: FormField[]): boolean => recordFields?.every(field => field.optional || field.defaultValue || (field.fields && isAllOptionalFields(field.fields)));
 
 export function Form(props: FormProps) {
     const { fields, onValidate, expressionInjectables } = props;
@@ -53,7 +53,7 @@ export function Form(props: FormProps) {
 
     fields?.map((field, index) => {
         if (!field.hide && (field.typeName === "string" || (field.typeName === 'record' && !field.isReference) || field.typeName === "int"
-            || field.typeName === "boolean" || field.typeName === "float" || field.typeName === "array"
+            || field.typeName === "boolean" || field.typeName === "float" || field.typeName === "decimal" || field.typeName === "array"
             || field.typeName === "map" || field.typeName === "union" || field.typeName === "json" ||
             field.typeName === "httpRequest" || field.typeName === "handle")) {
             const elementProps: FormElementProps = {
@@ -84,7 +84,7 @@ export function Form(props: FormProps) {
             const element = getFormElement(elementProps, type);
 
             if (element) {
-                field?.optional ? optionalElements.push(element) : elements.push(element);
+                (field?.optional || field?.defaultValue) ? optionalElements.push(element) : elements.push(element);
             }
         }
     });
