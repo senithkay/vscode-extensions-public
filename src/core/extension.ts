@@ -197,7 +197,7 @@ export class BallerinaExtension {
                 let serverOptions: ServerOptions;
                 serverOptions = getServerOptions(this.ballerinaCmd);
                 this.langClient = new ExtendedLangClient('ballerina-vscode', 'Ballerina LS Client', serverOptions,
-                    this.clientOptions, false);
+                    this.clientOptions, this, false);
 
                 // Following was put in to handle server startup failures.
                 const disposeDidChange = this.langClient.onDidChangeState(stateChangeEvent => {

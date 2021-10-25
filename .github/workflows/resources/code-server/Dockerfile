@@ -20,4 +20,8 @@ RUN sudo apt-get update && \
     sudo dpkg -i ballerina.deb && \
     curl -s https://api.github.com/repos/wso2/ballerina-plugin-vscode/releases | grep -wo -m1 "https.*ballerina.vsix" | wget -qi - -O ballerina.vsix && \
     code-server --user-data-dir /config/data --extensions-dir /config/extensions --install-extension ballerina.vsix && \
-    rm ballerina.deb
+    wget "https://marketplace.visualstudio.com/_apis/public/gallery/publishers/Tino/vsextensions/simple-rest-client/1.4.2/vspackage" && \
+    code-server --user-data-dir /config/data --extensions-dir /config/extensions --install-extension Tino.simple-rest-client-1.4.2.vsix && \
+    wget "https://marketplace.visualstudio.com/_apis/public/gallery/publishers/be5invis/vsextensions/toml/0.5.1/vspackage" && \
+    code-server --user-data-dir /config/data --extensions-dir /config/extensions --install-extension be5invis.toml-0.5.1.vsix && \
+    rm ballerina.deb ballerina.vsix Tino.simple-rest-client-1.4.2.vsix be5invis.toml-0.5.1.vsix

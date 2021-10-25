@@ -129,20 +129,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
         treeDataProvider: sessionTreeDataProvider, showCollapseAll: true
     });
     workspace.onDidChangeTextDocument(_listener => {
-        if (ballerinaExtInstance.getCodeServerContext().codeServerEnv
-            && ballerinaExtInstance.getCodeServerContext().alwaysShowInfo) {
-            const commit = "Commit Changes";
-            const stopPopup = "Don't show this message";
-            window.showInformationMessage('Push your project changes and try out in the Choreo development ' +
-                'environment. Do you want to push your changes? ', commit, stopPopup).then((selection) => {
-                    if (commit === selection) {
-                        commands.executeCommand('git.commitAll');
-                    }
-                    if (stopPopup === selection) {
-                        ballerinaExtInstance.getCodeServerContext().alwaysShowInfo = false;
-                    }
-                });
-        }
+        showChoreoPushMessage(ballerinaExtInstance);
     });
 
     const choreoSession: ChoreoSession = ballerinaExtInstance.getChoreoSession();
@@ -166,6 +153,11 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
         });
     });
 
+    commands.registerCommand('choreo.pushChanges', async () => {
+        await commands.executeCommand('git.commitAll');
+        await commands.executeCommand('git.push');
+    });
+
     ballerinaExtInstance.getDocumentContext().onDiagramTreeElementClicked((construct: ConstructIdentifier) => {
         if (construct.kind === CMP_KIND.FUNCTION || construct.kind === CMP_KIND.RESOURCE ||
             construct.kind == CMP_KIND.RECORD || construct.kind == CMP_KIND.OBJECT || construct.kind == CMP_KIND.TYPE
@@ -186,4 +178,21 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
     }
 
     return packageTreeDataProvider;
+}
+
+export function showChoreoPushMessage(ballerinaExtInstance: BallerinaExtension) {
+    if (ballerinaExtInstance.getCodeServerContext().codeServerEnv
+        && ballerinaExtInstance.getCodeServerContext().alwaysShowInfo) {
+        const commit = "Commit Changes";
+        const stopPopup = "Don't show this message";
+        window.showInformationMessage('Push your project changes and try out in the Choreo development ' +
+            'environment. Do you want to push your changes? ', commit, stopPopup).then((selection) => {
+                if (commit === selection) {
+                    commands.executeCommand('git.commitAll');
+                }
+                if (stopPopup === selection) {
+                    ballerinaExtInstance.getCodeServerContext().alwaysShowInfo = false;
+                }
+            });
+    }
 }

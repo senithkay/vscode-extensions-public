@@ -38,6 +38,7 @@ suite("Language Server Tests", function () {
             'Ballerina LS Client',
             getServerOptions(getBallerinaCmd()),
             { documentSelector: [{ scheme: 'file', language: 'ballerina' }] },
+            undefined,
             false
         );
         langClient.start();
