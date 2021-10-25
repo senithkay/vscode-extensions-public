@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     branches: [main]
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '0 1 * * *'
 
 jobs:
   build_docker:
@@ -29,6 +29,6 @@ jobs:
           file: .github/workflows/resources/code-server/Dockerfile
           platforms: linux/amd64
           push: true
-          tags: prabushi/lowcode-code-server:latest
+          tags: prabushi/lowcode-code-server:0.0.${{ github.run_number }}
           build-args: |
             REDIRECT_URI=${{ github.event.inputs.redirect }}
