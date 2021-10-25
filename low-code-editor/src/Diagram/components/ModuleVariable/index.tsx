@@ -15,6 +15,7 @@ import React, { useState } from "react"
 
 import { CaptureBindingPattern, ModuleVarDecl, STKindChecker, STNode } from "@ballerina/syntax-tree";
 
+import { ConfigurableIcon } from "../../../assets/icons";
 import DeleteButton from "../../../assets/icons/DeleteButton";
 import EditButton from "../../../assets/icons/EditButton";
 import ModuleVariableIcon from "../../../assets/icons/ModuleVariableIcon";
@@ -38,6 +39,7 @@ export function ModuleVariable(props: ModuleVariableProps) {
     let varType = '';
     let varName = '';
     let varValue = '';
+    let isConfigurable = false;
 
     if (STKindChecker.isModuleVarDecl(model)) {
         const moduleMemberModel: ModuleVarDecl = model as ModuleVarDecl;
@@ -45,6 +47,10 @@ export function ModuleVariable(props: ModuleVariableProps) {
             typeSymbol?.typeKind;
         varName = (moduleMemberModel.typedBindingPattern.bindingPattern as CaptureBindingPattern)?.variableName.value;
         varValue = model.source.trim();
+        isConfigurable = model && model.qualifiers.length > 0
+            && model.qualifiers.filter(qualifier => STKindChecker.isConfigurableKeyword(qualifier)).length > 0;
+
+
     } else if (STKindChecker.isObjectField(model)) {
         varType = model.typeData?.typeSymbol?.typeKind;
         varName = model.fieldName.value;
@@ -67,23 +73,27 @@ export function ModuleVariable(props: ModuleVariableProps) {
                 onMouseLeave={handleMouseLeave}
                 data-test-id="module-var"
             >
-                <div className={"moduleVariableWrapper"}>
-                    <div className={"moduleVariableIcon"}>
-                        <ModuleVariableIcon />
+                <div className="moduleVariableHeader" >
+                    <div className={"moduleVariableWrapper"}>
+                        <div className={"moduleVariableIcon"}>
+                            {(isConfigurable) ? <ConfigurableIcon /> : <ModuleVariableIcon />}
+                        </div>
+                        <div className={"moduleVariableTypeText"}>
+                            {varType}
+                        </div>
+                        <div className={'moduleVariableNameText'}>
+                            {varName}
+                        </div>
                     </div>
-                    <p className={'variable-text'}>
-                        {varValue}
-                    </p>
-                    {/* <p className={"moduleVariableNameText"}>
-                        {`${varName} = ${varValue}`}
-                    </p> */}
                     {isEditable && (
                         <>
-                            <div className={"editBtnWrapper"}>
-                                <EditButton />
-                            </div>
-                            <div className={"deleteBtnWrapper"}>
-                                <DeleteButton />
+                            <div className="amendmentOptions">
+                                <div className={"moduleVariableEditBtn"}>
+                                    <EditButton />
+                                </div>
+                                <div className={"moduleVariableDeleteBtn"}>
+                                    <DeleteButton />
+                                </div>
                             </div>
                         </>
                     )}
@@ -92,4 +102,3 @@ export function ModuleVariable(props: ModuleVariableProps) {
         </div>
     );
 }
-
