@@ -159,7 +159,7 @@ export function AddRespondForm(props: RespondFormProps) {
         !true);
 
 
-    if (stmtEditor) {
+    if (!stmtEditor) {
         return (
                 <FormControl data-testid="respond-form" className={cn(formClasses.wizardFormControl)}>
                     <div className={formClasses.formWrapper}>

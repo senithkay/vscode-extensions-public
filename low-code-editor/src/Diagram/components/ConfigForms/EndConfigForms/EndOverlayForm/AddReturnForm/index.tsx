@@ -102,7 +102,7 @@ export function AddReturnForm(props: ReturnFormProps) {
         },
         true);
 
-    if (stmtEditor){
+    if (!stmtEditor){
         return (
                 <FormControl data-testid="return-form" className={classes.wizardFormControl}>
                     <div className={classes.formWrapper}>

@@ -222,7 +222,7 @@ export function AddForeachForm(props: ForeachProps) {
         },
         true);
 
-    if (stmtEditor) {
+    if (!stmtEditor) {
         return (
                 <FormControl data-testid="foreach-form" className={classes.wizardFormControl}>
                     <div className={classes.formWrapper}>
@@ -241,8 +241,8 @@ export function AddForeachForm(props: ForeachProps) {
                                                 />
                                             </Box>
                                         </Typography>
-                                        {stmtButton}
                                     </div>
+                                    {stmtButton}
                                 </div>
                                 <FormTextInput
                                     customProps={{

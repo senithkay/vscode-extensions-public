@@ -27,6 +27,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
 import {useStatementEdior} from "../../../../Portals/ConfigForm/Elements/StatementEditor/components/hooks";
+import classnames from "classnames";
 
 export interface WhileProps {
     condition: ConditionConfig;
@@ -121,7 +122,7 @@ export function AddWhileForm(props: WhileProps) {
         },
         true);
 
-    if (stmtEditor) {
+    if (!stmtEditor) {
         return  (
                 <FormControl data-testid="while-form" className={classes.wizardFormControl}>
                     <div className={classes.formWrapper}>
@@ -141,11 +142,29 @@ export function AddWhileForm(props: WhileProps) {
                                                 />
                                             </Box>
                                         </Typography>
-                                        {stmtButton}
+                                    </div>
+                                    {stmtButton}
+                                </div>
+                                <div className={classes.codeWrapper}>
+                                    <div className={classes.start}>
+                                        <Typography variant='body2' className={classnames(classes.startCode, classes.code)}>while</Typography>
+                                    </div>
+                                    <div className={classes.middle}>
+                                        <ExpressionEditor {...expElementProps} hideLabelTooltips={true} />
+                                    </div>
+                                    <div className={classes.end}>
+                                        <Typography variant='body2' className={classnames(classes.endCode, classes.code)}>{`{`}</Typography>
                                     </div>
                                 </div>
-                                <div className="exp-wrapper">
-                                    <ExpressionEditor {...expElementProps} />
+                                <div className={classes.codeWrapper}>
+                                    <div>
+                                        <Typography variant='body2' className={classnames(classes.middleCode, classes.code)}>...</Typography>
+                                    </div>
+                                </div>
+                                <div className={classes.codeWrapper}>
+                                    <div>
+                                        <Typography variant='body2' className={classnames(classes.endCode, classes.code)}>{`}`}</Typography>
+                                    </div>
                                 </div>
                             </div>
                         </div>

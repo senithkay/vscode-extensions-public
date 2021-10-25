@@ -130,7 +130,7 @@ export function AddIfForm(props: IfProps) {
         },
         true);
 
-    if (stmtEditor) {
+    if (!stmtEditor) {
         return (
                 <FormControl data-testid="if-form" className={classes.wizardFormControl}>
                     <div className={classes.formWrapper}>
@@ -138,9 +138,6 @@ export function AddIfForm(props: IfProps) {
                             <div className={classes.formWrapper}>
                                 <div className={classes.formTitleWrapper}>
                                     <div className={classes.mainTitleWrapper}>
-                                        <div className={classes.iconWrapper}>
-                                            <IfIcon />
-                                        </div>
                                         <Typography variant="h4">
                                             <Box paddingTop={2} paddingBottom={2}>
                                                 <FormattedMessage
@@ -149,8 +146,8 @@ export function AddIfForm(props: IfProps) {
                                                 />
                                             </Box>
                                         </Typography>
-                                        {stmtButton}
                                     </div>
+                                    {stmtButton}
                                 </div>
                                 <div className="exp-wrapper">
                                     <ExpressionEditor {...expElementProps} />
