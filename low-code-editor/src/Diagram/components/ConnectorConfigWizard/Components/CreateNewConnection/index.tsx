@@ -249,9 +249,8 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         </div>
     );
 
-    const connectorModuleName = initFields ? initFields[0]?.typeInfo?.modName : "";
-    const showConnectionNameField = connectorModuleName === "github" || connectorModuleName === "googleapis.gmail" || connectorModuleName === "googleapis.sheets" ||
-        connectorModuleName === "googleapis.calendar";
+    const connectorModuleName = initFields ? initFields[0]?.typeInfo?.moduleName : "";
+    const showConnectionNameField = connectorModuleName === "googleapis.gmail" || connectorModuleName === "googleapis.sheets" || connectorModuleName === "googleapis.calendar";
     const isFieldsValid = isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName;
     const isFieldsWithConnectionNameValid =  isFieldsValid && connectionNameState.isNameProvided && connectionNameState.isValidName;
     const isEnabled = showConnectionNameField ? isFieldsWithConnectionNameValid : isFieldsValid;

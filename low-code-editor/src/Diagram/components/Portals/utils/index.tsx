@@ -117,9 +117,9 @@ export function getFieldName(fieldName: string): string {
 export function getParams(formFields: FormField[], depth = 1): string[] {
     const paramStrings: string[] = [];
     formFields.forEach(formField => {
-        const isDefaultValue = !formField.optional && formField.defaultValue && (formField.defaultValue === formField.value);
+        const skipDefaultValue = formField.defaultValue && formField.optional;
         let paramString: string = "";
-        if (!formField.noCodeGen && !isDefaultValue) {
+        if (!formField.noCodeGen && !skipDefaultValue) {
             if (formField.isDefaultableParam && formField.value) {
                 paramString += `${formField.name} = `;
             }
@@ -878,19 +878,19 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
 
             default:
                 let type = "";
-                if (formField.typeName === "error" || formField.isErrorType) {
+                if (formField.typeName.trim() === "error" || formField.isErrorType) {
                     formField.isErrorType = true;
                     response.hasError = true;
                 }
                 if (type === "" && formField.typeInfo && !formField.isErrorType) {
                     // set class/record types
-                    type = `${getFormattedModuleName(formField.typeInfo.modName)}:${formField.typeInfo.name}`;
+                    type = `${getFormattedModuleName(formField.typeInfo.moduleName)}:${formField.typeInfo.name}`;
                     response.hasReturn = true;
                     response.importTypeInfo.push(formField.typeInfo);
                 }
                 if (type === "" && formField.typeInfo && formField?.isStream && formField.isErrorType) {
                     // set stream record type with error
-                    type = `${getFormattedModuleName(formField.typeInfo.modName)}:${formField.typeInfo.name},error`;
+                    type = `${getFormattedModuleName(formField.typeInfo.moduleName)}:${formField.typeInfo.name},error`;
                     response.hasReturn = true;
                     response.importTypeInfo.push(formField.typeInfo);
                     // remove error return
@@ -1043,7 +1043,7 @@ export function getOauthConnectionConfigurables(connectorName: string, connectio
 }
 
 export function getOauthConnectionFromFormField(formField: FormField, allConnections: ConnectionDetails[]): ConnectionDetails {
-    const connectorModuleName = formField?.typeInfo.modName;
+    const connectorModuleName = formField?.typeInfo.moduleName;
     let variableKey: string;
     let activeConnection: ConnectionDetails;
 
