@@ -199,7 +199,6 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     // Update path
     const updatedResource = resource;
     updatedResource.path = formattedPath.path;
-    updatedResource.queryParams = formattedPath.queryParams;
     setResource(updatedResource);
   }
 

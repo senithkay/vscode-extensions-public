@@ -270,13 +270,3 @@ export function AddForeachForm(props: ForeachProps) {
         </FormControl>
     );
 }
-
-// const mapStateToProps = ({ diagramState }: PortalState) => {
-//     const { isMutationProgress, stSymbolInfo } = diagramState;
-//     return {
-//         isMutationInProgress: isMutationProgress,
-//         stSymbolInfo
-//     }
-// };
-
-// export const AddForeachForm = connect(mapStateToProps)(AddForeachFormC);

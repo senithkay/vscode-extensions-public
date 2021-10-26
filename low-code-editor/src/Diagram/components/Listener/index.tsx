@@ -18,6 +18,7 @@ import { ListenerDeclaration, STNode } from "@ballerina/syntax-tree";
 import DeleteButton from "../../../assets/icons/DeleteButton";
 import EditButton from "../../../assets/icons/EditButton";
 import ListenerIcon from "../../../assets/icons/ListenerIcon";
+import Tooltip from '../../../components/Tooltip';
 import { Context as DiagramContext } from '../../../Contexts/Diagram';
 import { removeStatement } from '../../utils/modification-util';
 import { FormGenerator } from '../FormGenerator';
@@ -50,11 +51,13 @@ export function ListenerC(props: ListenerProps) {
 
     const listenerModel: ListenerDeclaration = model as ListenerDeclaration;
     const listenerName = listenerModel.variableName.value;
+    const listenerType = listenerModel.typeDescriptor.modulePrefix.value;
     let listenerPort = "";
     listenerModel.initializer.parenthesizedArgList.arguments.forEach((argument) => {
         listenerPort += argument.source.trim();
     });
-    const type = listenerModel.typeDescriptor.identifier.value;
+    const typeMaxWidth = listenerType.length >= 10;
+    const nameMaxWidth = listenerName.length >= 20;
 
     const handleMouseEnter = () => {
         setIsEditable(true);
@@ -86,10 +89,18 @@ export function ListenerC(props: ListenerProps) {
                             <ListenerIcon />
                         </div>
                         <div className="listener-type">
-                            HTTP
+                            <Tooltip
+                                arrow={true}
+                                placement="top-start"
+                                title={model.source.slice(1, -1)}
+                                inverted={false}
+                                interactive={true}
+                            >
+                                <tspan x="0" y="0">{typeMaxWidth ? listenerType.slice(0, 10).toUpperCase() + "..." : listenerType.toUpperCase()}</tspan>
+                            </Tooltip>
                         </div>
                         <div className="listener-name">
-                            {listenerName}
+                            <tspan x="0" y="0">{nameMaxWidth ? listenerName.slice(0, 20) + "..." : listenerName}</tspan>
                         </div>
                     </div>
                     {isEditable && (

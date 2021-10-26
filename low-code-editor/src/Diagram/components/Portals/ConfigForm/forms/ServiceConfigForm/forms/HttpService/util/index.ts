@@ -23,16 +23,15 @@ export function isServiceConfigValid(config: HTTPServiceConfigState): boolean {
     const { serviceBasePath, listenerConfig: { createNewListener, fromVar, listenerName, listenerPort } } = config;
 
     const servicePathValidity = serviceBasePath.length === 0 || isServicePathValid(serviceBasePath);
-    const portNumberRegex = /^\d+$/;
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 
     if (createNewListener && fromVar) {
         return servicePathValidity
-            && listenerPort.length > 0 && portNumberRegex.test(listenerPort)
+            && listenerPort.length > 0
             && listenerName.length > 0 && nameRegex.test(listenerName);
     } else if (!fromVar) {
         return servicePathValidity
-            && listenerPort.length > 0 && portNumberRegex.test(listenerPort)
+            && listenerPort.length > 0
     } else {
         return servicePathValidity && listenerName.length > 0;
     }
@@ -47,14 +46,15 @@ export function getFormStateFromST(model: ServiceDeclaration, symbolInfo: STSymb
             fromVar: true,
             listenerName: '',
             listenerPort: ''
-        }
+        },
+        hasInvalidConfig: false
     }
 
     if (model) {
         const serviceListenerExpression = model.expressions.length > 0 && model.expressions[0];
         const servicePath = model.absoluteResourcePath
-                                    .map((pathSegments, i) => i === 0 ? '' : pathSegments.value)
-                                    .join('');
+            .map((pathSegments, i) => i === 0 ? '' : pathSegments.value)
+            .join('');
 
         if (STKindChecker.isSimpleNameReference(serviceListenerExpression)) {
 

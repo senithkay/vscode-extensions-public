@@ -23,6 +23,34 @@
     box-shadow: 0 5px 10px 0 rgba(102, 103, 133, 0.27);
     overflow: scroll;
 
+    &.panel-slide-in {
+        right: -100vh;
+        -webkit-animation: panel-slide-in-keyframe 0.5s forwards;
+        animation: panel-slide-in-keyframe 0.5s forwards;
+    }
+    
+    @-webkit-keyframes panel-slide-in-keyframe {
+        100% { right: 0; }
+    }
+    
+    @keyframes panel-slide-in-keyframe {
+        100% { right: 0; }
+    }
+
+    &.panel-slide-out {
+        right: 0;
+        -webkit-animation: panel-slide-out-keyframe 0.5s forwards;
+        animation: panel-slide-out-keyframe 0.5s forwards;
+    }
+
+    @-webkit-keyframes panel-slide-out-keyframe {
+        100% { right: -100vh; }
+    }
+    
+    @keyframes panel-slide-out-keyframe {
+        100% { right: -100vh; }
+    }
+
     &::-webkit-scrollbar {
         width: 3px;
     }
