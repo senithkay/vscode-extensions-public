@@ -68,7 +68,7 @@ export function ConditionConfigForm(props: ConditionConfigFormProps) {
                 type: formType,
                 conditionExpression:
                     !formArgs?.config ?
-                        { variable: '', collection: '' }
+                        { variable: '', collection: '', type: '' }
                         : formArgs?.config.conditionExpression,
                 scopeSymbols: [],
             };
@@ -116,9 +116,11 @@ export function ConditionConfigForm(props: ConditionConfigFormProps) {
                         property: formType
                     };
                     onEvent(event);
-                    modifications.push(createForeachStatement(conditionExpression.collection, conditionExpression.variable, formArgs?.targetPosition));
+                    modifications.push(createForeachStatement(conditionExpression.collection, conditionExpression.variable,
+                        conditionExpression.type, formArgs?.targetPosition));
                 } else {
-                    modifications.push(updateForEachCondition(conditionExpression.collection, conditionExpression.variable, formArgs?.config.conditionPosition))
+                    modifications.push(updateForEachCondition(conditionExpression.collection, conditionExpression.variable,
+                        conditionExpression.type, formArgs?.config.conditionPosition))
                 }
                 // modifications.push();
             } else if (formType === "While") {

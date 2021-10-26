@@ -157,9 +157,11 @@ export function ForEach(props: ForeachProps) {
     const onForeachHeadClick = () => {
         // TODO: re enable this after the release
         const variable: string = modelForeach?.typedBindingPattern?.bindingPattern?.source?.trim();
+        const type: string = modelForeach?.typedBindingPattern?.typeDescriptor?.source?.trim();
 
         const conditionExpression: ForeachConfig = {
             variable,
+            type,
             collection: modelForeach.actionOrExpressionNode.source.trim(),
             model: modelForeach
         }
@@ -176,7 +178,7 @@ export function ForEach(props: ForeachProps) {
             * foreach var [i in expr] <- this whole part gets replaced on update
             */
             startLine: modelForeach.typedBindingPattern.bindingPattern.position.startLine,
-            startColumn: modelForeach.typedBindingPattern.bindingPattern.position.startColumn,
+            startColumn: modelForeach.typedBindingPattern.position.startColumn,
             endLine: modelForeach.actionOrExpressionNode.position.endLine,
             endColumn: modelForeach.actionOrExpressionNode.position.endColumn,
         }

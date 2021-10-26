@@ -60,7 +60,7 @@ export function ConditionFormC(props: ConditionFormProps) {
                 type,
                 conditionExpression:
                     wizardType === WizardType.NEW ?
-                        { variable: '', collection: '' }
+                        { variable: '', collection: '', type: '' }
                         : config.conditionExpression,
                 scopeSymbols,
             };
@@ -94,9 +94,11 @@ export function ConditionFormC(props: ConditionFormProps) {
                 const conditionExpression: ForeachConfig = conditionConfig.conditionExpression as
                     ForeachConfig;
                 if (wizardType === WizardType.NEW) {
-                    modifications.push(createForeachStatement(conditionExpression.collection, conditionExpression.variable, targetPosition));
+                    modifications.push(createForeachStatement(conditionExpression.collection,
+                        conditionExpression.variable, conditionExpression.type, targetPosition));
                 } else {
-                    modifications.push(updateForEachCondition(conditionExpression.collection, conditionExpression.variable, config.conditionPosition))
+                    modifications.push(updateForEachCondition(conditionExpression.collection,
+                        conditionExpression.variable, conditionExpression.type, config.conditionPosition))
                 }
                 // modifications.push();
             }
