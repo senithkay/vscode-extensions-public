@@ -18,7 +18,7 @@ import { RecordEditor } from "../../../ConfigForms/RecordEditor";
 import { ApiConfigureWizard } from "../../../ConfigForms/ResourceConfigForm/ApiConfigureWizard";
 import { TypeDefinitionConfigForm } from "../../../ConfigForms/TypeDefinitionConfigForm";
 import { ConnectorForm } from "../../../ConnectorConfigWizard/Components/ConnectorForm";
-import { APIOptions } from "../../Overlay/Elements/PlusHolder/PlusElementOptions/APIOptions";
+import { ConnectorList } from "../../../ConnectorList";
 
 import { APIConfigForm } from "./APIConfigForm";
 import { ConfigurableForm } from './ConfigurableForm';
@@ -39,7 +39,7 @@ export { ConditionConfigForm as ForEach };
 export { ConditionConfigForm as While };
 export { ProcessConfigForm as Variable };
 export { ProcessConfigForm as Log };
-export { APIOptions as ConnectorList };
+export { ConnectorList as ConnectorList };
 export { ConnectorForm as Connector };
 export { ProcessConfigForm as Custom };
 export { ProcessConfigForm as DataMapper };

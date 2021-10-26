@@ -52,7 +52,6 @@ const moduleLevelEntries: PlusMenuEntry[] = [
         ]
     },
     { name: 'Class', type: 'ClassDefinition' },
-    { name: 'Constant', type: 'ConstDeclaration' },
     { name: 'Function', type: 'FunctionDefinition' },
     { name: 'Other', type: 'Custom' }
 ];
