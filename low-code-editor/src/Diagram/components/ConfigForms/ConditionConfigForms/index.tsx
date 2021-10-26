@@ -116,9 +116,11 @@ export function ConditionConfigForm(props: ConditionConfigFormProps) {
                         property: formType
                     };
                     onEvent(event);
-                    modifications.push(createForeachStatement(conditionExpression.collection, conditionExpression.variable, conditionExpression.type, formArgs?.targetPosition));
+                    modifications.push(createForeachStatement(conditionExpression.collection, conditionExpression.variable,
+                        conditionExpression.type, formArgs?.targetPosition));
                 } else {
-                    modifications.push(updateForEachCondition(conditionExpression.collection, conditionExpression.variable, conditionExpression.type, formArgs?.config.conditionPosition))
+                    modifications.push(updateForEachCondition(conditionExpression.collection, conditionExpression.variable,
+                        conditionExpression.type, formArgs?.config.conditionPosition))
                 }
                 // modifications.push();
             } else if (formType === "While") {

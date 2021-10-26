@@ -94,9 +94,11 @@ export function ConditionFormC(props: ConditionFormProps) {
                 const conditionExpression: ForeachConfig = conditionConfig.conditionExpression as
                     ForeachConfig;
                 if (wizardType === WizardType.NEW) {
-                    modifications.push(createForeachStatement(conditionExpression.collection, conditionExpression.variable, conditionExpression.type, targetPosition));
+                    modifications.push(createForeachStatement(conditionExpression.collection,
+                        conditionExpression.variable, conditionExpression.type, targetPosition));
                 } else {
-                    modifications.push(updateForEachCondition(conditionExpression.collection, conditionExpression.variable, conditionExpression.type, config.conditionPosition))
+                    modifications.push(updateForEachCondition(conditionExpression.collection,
+                        conditionExpression.variable, conditionExpression.type, config.conditionPosition))
                 }
                 // modifications.push();
             }
