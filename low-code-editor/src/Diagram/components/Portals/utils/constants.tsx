@@ -99,3 +99,9 @@ export const defaultOrgs = {
     BALLERINA:  "ballerina",
     BALLERINAX:  "ballerinax"
 }
+
+export const QUERY = 'query';
+export const CATEGORY = 'category';
+export const PAGE_OFFSET = 'pageOffset';
+export const SORT_VALUE = 'sortValue';
+export const FILTER_BY = 'filterBy';
