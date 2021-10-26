@@ -11,6 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
+// tslint:disable: jsx-no-lambda
 import React, { useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 
@@ -46,26 +47,26 @@ function SearchBar(props: SearchBarProps) {
   };
 
   return (
-    <Grid container={ true } classes={ { root: classes.searchBarRoot } }>
-      <Grid item={ true } container={ true } xs={ true }>
+    <Grid container={true} classes={{ root: classes.searchBarRoot }}>
+      <Grid item={true} container={true} xs={true}>
         <InputBase
-          classes={ { root: classes.searchText } }
+          classes={{ root: classes.searchText }}
           placeholder="Search for connectors"
-          value={ searchString }
-          onChange={ onSearchFieldChange }
-          onKeyDown={ onKeyDown }
+          value={searchString}
+          onChange={onSearchFieldChange}
+          onKeyDown={onKeyDown}
           aria-label="search-for-connectors"
         />
       </Grid>
       <Grid
-        item={ true }
-        container={ true }
-        xs={ 2 }
+        item={true}
+        container={true}
+        xs={2}
         justifyContent="flex-end"
         data-testid="search-button"
       >
         <PrimaryButtonSquare
-          onClick={ () => onSearchButtonClick(searchString) }
+          onClick={() => onSearchButtonClick(searchString)}
           text="Search"
         />
       </Grid>

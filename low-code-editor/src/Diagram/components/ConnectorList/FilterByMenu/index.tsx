@@ -12,8 +12,8 @@
  */
 /* eslint-disable react/no-array-index-key */
 // tslint:disable: jsx-no-multiline-js
-import { useEffect } from 'react';
-import React from 'react';
+// tslint:disable: jsx-no-lambda
+import React, { useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 
 import { Divider, FormControlLabel, Typography } from '@material-ui/core';
@@ -27,41 +27,32 @@ import menuItems from './menuItems.json';
 import useStyles, { CustomCheckbox } from './style';
 
 // Sample data for filter by menu items
-// @TODO finalize whether the menuItem list need to fetched dynamically
 const { mainFilters, pricingCategories, connectorCategories } = menuItems;
 
 export interface FilterByMenuProps {
   filterValues: string[];
   filterState: FilterStateMap;
   setFilterState: (filterState: FilterStateMap) => void;
+  setCategory: (category: string) => void;
 }
 
 function FilterByMenu(props: FilterByMenuProps) {
   const classes = useStyles();
-  const { filterState, setFilterState, filterValues } = props;
+  const { filterState, filterValues, setFilterState, setCategory } = props;
 
-  // const { search, pathname } = useLocation();
-  // const queryParams = new URLSearchParams(search);
-
-  // const history = useHistory();
+  const [selectedCategory, setSelectedCategory] = useState("");
 
   const handleChange = (event: any, value: string) => {
     setFilterState({
       ...filterState,
-      [event.target.name]: event.target.checked,
+      [ event.target.name ]: event.target.checked,
     });
-    const newFilterValues = [...filterValues];
+    const newFilterValues = [ ...filterValues ];
     if (event.target.checked) {
       newFilterValues.push(value);
     } else {
       newFilterValues.splice(newFilterValues.indexOf(value), 1);
     }
-    // queryParams.set(FILTER_BY, newFilterValues.join(','));
-    // queryParams.set(PAGE_OFFSET, '');
-    // history.push({
-    //   pathname,
-    //   search: `?${queryParams.toString()}`,
-    // });
   };
 
   useEffect(() => {
@@ -78,10 +69,10 @@ function FilterByMenu(props: FilterByMenuProps) {
           'My Organization': true,
         };
       } else {
-        const filterName = value.split('/')[1];
+        const filterName = value.split('/')[ 1 ];
         newFilterState = {
           ...newFilterState,
-          [filterName]: true,
+          [ filterName ]: true,
         };
       }
     });
@@ -92,21 +83,21 @@ function FilterByMenu(props: FilterByMenuProps) {
     <TreeItem
       key={node.name}
       nodeId={node.name}
-      label={
+      label={ (
         <div className={classes.labelRoot}>
-          {!node.children ? (
+          { !node.children ? (
             <FormControlLabel
-              control={
+              control={ (
                 <CustomCheckbox
                   id={node.id}
                   checked={
-                    filterState[node.name] ? filterState[node.name] : false
+                    filterState[ node.name ] ? filterState[ node.name ] : false
                   }
                   onChange={(event) => handleChange(event, node.value)}
                   name={node.name}
                   value={node.value}
                 />
-              }
+              ) }
               label={<>{node.name}</>}
               key={node.name}
             />
@@ -117,22 +108,27 @@ function FilterByMenu(props: FilterByMenuProps) {
             >
               {node.name}
             </Typography>
-          )}
+          ) }
         </div>
-      }
+      ) }
       // todo: null check
-      classes={{
+      classes={ {
         content: classes.content,
         group: classes.groupItem,
         selected: classes.selectedItem,
         label: classes.labelItem,
-      }}
+      } }
     >
-      {Array.isArray(node.children)
+      { Array.isArray(node.children)
         ? node.children.map((childNode: any) => renderTree(childNode))
-        : null}
+        : null }
     </TreeItem>
   );
+
+  const updateCategory = (category: string) => {
+    setCategory(category);
+    setSelectedCategory(category);
+  }
 
   return (
     <div className={classes.filterByMenuDiv}>
@@ -146,23 +142,23 @@ function FilterByMenu(props: FilterByMenuProps) {
         classes={{ root: classes.filterByMenu }}
         defaultCollapseIcon={<ExpandMore />}
         defaultExpandIcon={<ChevronRight />}
-        defaultExpanded={[connectorCategories.name, pricingCategories.name]}
+        defaultExpanded={[ connectorCategories.name, pricingCategories.name ]}
       >
-        {mainFilters.map((menuItem, index) => (
+        { mainFilters.map((menuItem, index) => (
           <div key={index}>{renderTree(menuItem)}</div>
-        ))}
+        )) }
         <Divider light={true} classes={{ root: classes.divider }} />
-        <Categories />
+        <Categories selectedCategory={selectedCategory} setCategory={updateCategory} />
         <Divider light={true} classes={{ root: classes.divider }} />
         <TreeItem
           nodeId={pricingCategories.name}
-          classes={{
+          classes={ {
             content: classes.content,
             selected: classes.selectedItem,
             group: classes.groupItem,
             label: classes.labelItem,
-          }}
-          label={
+          } }
+          label={ (
             <div className={classes.labelRoot}>
               <Typography
                 variant="body1"
@@ -171,11 +167,11 @@ function FilterByMenu(props: FilterByMenuProps) {
                 {pricingCategories.name}
               </Typography>
             </div>
-          }
+          ) }
         >
-          {pricingCategories.categories.map((menuItem, index) => (
+          { pricingCategories.categories.map((menuItem, index) => (
             <div key={index}>{renderTree(menuItem)}</div>
-          ))}
+          )) }
         </TreeItem>
       </TreeView>
     </div>

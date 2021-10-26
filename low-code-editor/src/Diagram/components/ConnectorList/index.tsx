@@ -80,19 +80,20 @@ export function ConnectorList(props: FormGeneratorProps) {
     } = useContext(Context);
     const { onSelect, collapsed } = props.configOverlayFormStatus.formArgs as ConnectorListProps;
 
-    const [ searchQuery, setSearchQuery ] = useState("");
     const [ centralConnectors, setCentralConnectors ] = useState<Connector[]>([]);
     const [ localConnectors, setLocalConnectors ] = useState<Connector[]>([]);
     const [ isSearchResultsFetching, setIsSearchResultsFetching ] = useState(true);
     const [ isToggledExistingConnector, setToggledExistingConnector ] = useState(true);
     const [ isToggledSelectConnector, setToggledSelectConnector ] = useState(true);
+    const [ searchQuery, setSearchQuery ] = useState("");
+    const [selectedCategory, setSelectedCategory] = useState("");
     const [ filterState, setFilterState ] = useState<FilterStateMap>({});
 
     const isExistingConnectors = stSymbolInfo.endpoints && Array.from(stSymbolInfo.endpoints).length > 0;
 
     React.useEffect(() => {
         fetchConnectorList();
-    }, []);
+    }, [searchQuery, selectedCategory]);
 
     let centralConnectorComponents: ReactNode[] = [];
     let localConnectorComponents: ReactNode[] = [];
@@ -154,15 +155,15 @@ export function ConnectorList(props: FormGeneratorProps) {
                 "content": tooltipTitle
             };
             const component: ReactNode = (
-                <Tooltip type="example" text={ tooltipText } placement={ placement } arrow={ true } interactive={ true } key={ connectorName.toLowerCase() }>
-                    <Grid item={ true } sm={ 6 } alignItems="center">
-                        <div key={ connectorName } onClick={ onSelectConnector.bind(this, connector) } data-testid={ connectorName.toLowerCase() }>
-                            <div className={ classes.connector }>
+                <Tooltip type="example" text={tooltipText} placement={placement} arrow={true} interactive={true} key={connectorName.toLowerCase()}>
+                    <Grid item={true} sm={6} alignItems="center">
+                        <div key={connectorName} onClick={onSelectConnector.bind(this, connector)} data-testid={connectorName.toLowerCase()}>
+                            <div className={classes.connector}>
                                 <div >
-                                    { getConnectorIconSVG(connector) }
+                                    {getConnectorIconSVG(connector)}
                                 </div>
-                                <div className={ classes.connectorName }>
-                                    { connectorName }
+                                <div className={classes.connectorName}>
+                                    {connectorName}
                                 </div>
                             </div>
                         </div>
@@ -190,25 +191,25 @@ export function ConnectorList(props: FormGeneratorProps) {
                 const component: ReactNode = (
                     <>
                         { existConnector && (
-                            <div className="existing-connect-option" key={ key } onClick={ onSelectExistingConnector.bind(this, existConnector, value) } data-testid={ key.toLowerCase() }>
+                            <div className="existing-connect-option" key={key} onClick={onSelectExistingConnector.bind(this, existConnector, value)} data-testid={key.toLowerCase()}>
                                 <div className="existing-connector-details product-tour-add-http">
                                     <div className="existing-connector-icon">
-                                        { getExistingConnectorIconSVG(`${existConnector.moduleName}_${existConnector.package.name}`) }
+                                        {getExistingConnectorIconSVG(`${existConnector.moduleName}_${existConnector.package.name}`)}
                                     </div>
                                     <div className="existing-connector-name">
-                                        { key }
+                                        {key}
                                     </div>
                                 </div>
                             </div>
                         ) }
                         { !existConnector && (
-                            <div className="existing-connect-option" key={ key } data-testid={ key.toLowerCase() }>
+                            <div className="existing-connect-option" key={key} data-testid={key.toLowerCase()}>
                                 <div className="existing-connector-details product-tour-add-http">
                                     <div className="existing-connector-icon">
-                                        { getExistingConnectorIconSVG(`${moduleName}_${orgName}`) }
+                                        {getExistingConnectorIconSVG(`${moduleName}_${orgName}`)}
                                     </div>
                                     <div className="existing-connector-name">
-                                        { key }
+                                        {key}
                                     </div>
                                 </div>
                             </div>
@@ -232,13 +233,14 @@ export function ConnectorList(props: FormGeneratorProps) {
         return null;
     };
 
-    const fetchConnectorList = (query?: string) => {
+    const fetchConnectorList = () => {
         setIsSearchResultsFetching(true);
         getDiagramEditorLangClient(langServerURL).then(
             (langClient: DiagramEditorLangClientInterface) => {
                 const request: BallerinaConnectorsRequest = {
                     targetFile: currentFile.path,
-                    packageName: query || searchQuery
+                    query: searchQuery,
+                    keyword: selectedCategory
                 };
                 langClient.getConnectors(request).then((response: BallerinaConnectorsResponse) => {
                     if (response.central?.length > 0) {
@@ -259,7 +261,10 @@ export function ConnectorList(props: FormGeneratorProps) {
 
     const onSearchButtonClick = (query: string) => {
         setSearchQuery(query);
-        fetchConnectorList(query);
+    };
+
+    const updateCategory = (category: string) => {
+        setSelectedCategory(category);
     };
 
     if (!isSearchResultsFetching) {
@@ -269,34 +274,35 @@ export function ConnectorList(props: FormGeneratorProps) {
     }
 
     return (
-        <div onWheel={ preventDiagramScrolling } className={ classes.container } >
+        <div onWheel={preventDiagramScrolling} className={classes.container} >
             <SearchBar
-                searchQuery={ searchQuery }
-                onSearchButtonClick={ onSearchButtonClick }
+                searchQuery={searchQuery}
+                onSearchButtonClick={onSearchButtonClick}
             />
-            <Grid item={ true } sm={ 12 } container={ true }>
-                <Grid item={ true } sm={ 5 }>
+            <Grid item={true} sm={12} container={true}>
+                <Grid item={true} sm={5}>
                     <FilterByMenu
-                        filterState={ filterState }
-                        setFilterState={ setFilterState }
-                        filterValues={ [] }
+                        filterState={filterState}
+                        setFilterState={setFilterState}
+                        filterValues={[]}
+                        setCategory={updateCategory}
                     />
                 </Grid>
                 <Grid
-                    sm={ 7 }
-                    container={ true }
-                    item={ true }
+                    sm={7}
+                    container={true}
+                    item={true}
                     alignItems="flex-start"
                 >
                     { isSearchResultsFetching && (
                         <Grid
-                            sm={ 12 }
-                            item={ true }
-                            container={ true }
+                            sm={12}
+                            item={true}
+                            container={true}
                             alignItems="center"
-                            className={ classes.msgContainer }
+                            className={classes.msgContainer}
                         >
-                            <Grid item={ true } sm={ 12 }>
+                            <Grid item={true} sm={12}>
                                 <Box display="flex" justifyContent="center">
                                     <CircularProgress data-testid="marketplace-search-loader" />
                                 </Box>
@@ -310,49 +316,49 @@ export function ConnectorList(props: FormGeneratorProps) {
                     ) }
 
                     <Grid
-                        item={ true }
-                        sm={ 12 }
-                        container={ true }
+                        item={true}
+                        sm={12}
+                        container={true}
                         direction="row"
                         justifyContent="flex-start"
-                        spacing={ 2 }
-                        className={ classes.connectorWrap }
+                        spacing={2}
+                        className={classes.connectorWrap}
                     >
                         { centralConnectors?.length > 0 && (
                             <>
-                                <Grid item={ true } sm={ 12 } className={ classes.connectorListWrap }>
-                                    <Grid item={ true } sm={ 6 } md={ 6 } lg={ 6 }>
+                                <Grid item={true} sm={12} className={classes.connectorListWrap}>
+                                    <Grid item={true} sm={6} md={6} lg={6}>
                                         <Typography variant="h4">
                                             Public Connectors
                                         </Typography>
                                     </Grid>
                                 </Grid>
-                                { centralConnectorComponents }
+                                {centralConnectorComponents}
                             </>
                         ) }
                         { localConnectors?.length > 0 && (
                             <>
-                                <Grid item={ true } sm={ 12 } className={ classes.connectorListWrap }>
-                                    <Grid item={ true } sm={ 6 } md={ 6 } lg={ 6 }>
+                                <Grid item={true} sm={12} className={classes.connectorListWrap}>
+                                    <Grid item={true} sm={6} md={6} lg={6}>
                                         <Typography variant="h4">
                                             Local Connectors
                                         </Typography>
                                     </Grid>
                                 </Grid>
-                                { localConnectorComponents }
+                                {localConnectorComponents}
                             </>
                         ) }
                     </Grid>
 
                     { !isSearchResultsFetching && centralConnectorComponents.length === 0 && localConnectors.length === 0 && (
                         <Grid
-                            sm={ 12 }
-                            item={ true }
-                            container={ true }
+                            sm={12}
+                            item={true}
+                            container={true}
                             alignItems="center"
-                            className={ classes.msgContainer }
+                            className={classes.msgContainer}
                         >
-                            <Grid item={ true } sm={ 12 }>
+                            <Grid item={true} sm={12}>
                                 <Box display="flex" justifyContent="center">
                                     <Typography variant="body1">
                                         No connectors found.

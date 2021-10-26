@@ -73,9 +73,9 @@ export interface BallerinaConnectorInfo extends Connector {
 }
 
 export interface BallerinaConnectorsRequest {
-    targetFile?: string;
-    query?: string;
-    packageName: string;
+    query: string;
+    packageName?: string;
+    organization?: string;
     connector?: string;
     description?: string;
     template?: string;
@@ -86,6 +86,7 @@ export interface BallerinaConnectorsRequest {
     limit?: number;
     offset?: number;
     sort?: string;
+    targetFile?: string;
 }
 export interface BallerinaConnectorsResponse {
     central: Connector[];

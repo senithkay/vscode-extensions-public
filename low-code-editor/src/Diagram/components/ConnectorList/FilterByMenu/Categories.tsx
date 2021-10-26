@@ -11,6 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
+// tslint:disable: jsx-no-lambda
 import React, { useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 
@@ -23,17 +24,18 @@ import useStyles from './style';
 
 const { connectorCategories } = menuItems;
 
-function Categories() {
+export interface CategoriesProps {
+  selectedCategory: string;
+  setCategory: (category: string) => void;
+}
+
+function Categories(props: CategoriesProps) {
   const classes = useStyles();
+  const { selectedCategory, setCategory } = props;
 
-  // const { search, pathname } = useLocation();
-  // const queryParams = new URLSearchParams(search);
-  const selectedCategory = "";
-
-  // const history = useHistory();
-
-  const [noOfCategoriesDisplayed, setNoOfCategoriesDisplayed] = useState(10);
-  const defaultExpanded = [""];
+  const [ noOfCategoriesDisplayed, setNoOfCategoriesDisplayed ] = useState(10);
+  const [ activeCategory, setActiveCategory ] = useState(selectedCategory);
+  const defaultExpanded = [ "" ];
 
   const onSeeMoreClick = () => {
     setNoOfCategoriesDisplayed(noOfCategoriesDisplayed + 10);
@@ -44,13 +46,9 @@ function Categories() {
   };
 
   const onLabelClick = (selectedNode: string) => {
-    if (selectedCategory !== selectedNode) {
-      // queryParams.set(CATEGORY, selectedNode);
-      // queryParams.set(PAGE_OFFSET, '0');
-      // history.push({
-      //   pathname,
-      //   search: `?${queryParams.toString()}`,
-      // });
+    if (activeCategory !== selectedNode) {
+      setCategory(selectedNode);
+      setActiveCategory(selectedNode);
     }
   };
 
@@ -58,73 +56,74 @@ function Categories() {
     <>
       <TreeItem
         nodeId={connectorCategories.name}
-        classes={{
+        classes={ {
           content: classes.content,
           selected: classes.selectedItem,
           label: classes.labelItem,
-        }}
-        label={
+        } }
+        label={ (
           <Typography
             variant="body1"
             classes={{ root: classes.expandaleFilterByLabel }}
           >
             {connectorCategories.name}
           </Typography>
-        }
+        ) }
       >
         <TreeView
           key={connectorCategories.name}
           defaultCollapseIcon={<ExpandMore />}
           defaultExpandIcon={<ChevronRight />}
           className={classes.categoriesRoot}
-          selected={selectedCategory || ''}
+          selected={activeCategory || ''}
           defaultExpanded={defaultExpanded}
         >
-          {connectorCategories.categories
+          { connectorCategories.categories
             .slice(0, noOfCategoriesDisplayed)
             .map((menuItem) => (
               <TreeItem
+                key={menuItem.name}
                 nodeId={menuItem.name}
-                classes={{
+                classes={ {
                   content: classes.content,
                   group: classes.groupItem,
                   label: classes.labelItem,
-                }}
-                label={
+                } }
+                label={ (
                   <Typography
                     variant="body1"
                     classes={{ root: classes.expandaleFilterByLabel }}
                   >
                     {menuItem.name}
                   </Typography>
-                }
+                ) }
                 onLabelClick={() => onLabelClick(menuItem.name)}
               >
-                {menuItem.children.map((subCategory) => (
+                { menuItem.children.map((subCategory) => (
                   <TreeItem
                     key={subCategory.name}
                     nodeId={subCategory.value}
-                    classes={{
+                    classes={ {
                       content: classes.content,
                       group: classes.groupItem,
                       selected: classes.selectedValue,
                       label: classes.labelItem,
-                    }}
-                    label={
+                    } }
+                    label={ (
                       <Typography
                         variant="body1"
                         className={classes.filterCategories}
                       >
                         {subCategory.name}
                       </Typography>
-                    }
+                    ) }
                     onLabelClick={() => onLabelClick(subCategory.value)}
                   />
-                ))}
+                )) }
               </TreeItem>
-            ))}
+            )) }
         </TreeView>
-        {connectorCategories.categories.length > noOfCategoriesDisplayed ? (
+        { connectorCategories.categories.length > noOfCategoriesDisplayed ? (
           <Button
             onClick={onSeeMoreClick}
             className={classes.seeMoreButton}
@@ -150,7 +149,7 @@ function Categories() {
               defaultMessage="See Less"
             />
           </Button>
-        )}
+        ) }
       </TreeItem>
     </>
   );
