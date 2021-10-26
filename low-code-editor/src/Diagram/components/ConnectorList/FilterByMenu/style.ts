@@ -13,88 +13,88 @@
 
 import { Checkbox } from '@material-ui/core';
 import {
-  createStyles,
-  makeStyles,
-  Theme,
-  withStyles,
+    createStyles,
+    makeStyles,
+    Theme,
+    withStyles,
 } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    content: {
-      flexDirection: 'row-reverse',
-      marginBottom: theme.spacing(1),
-    },
-    expandaleFilterByLabel: {
-      fontWeight: theme.spacing(62.5),
-    },
-    labelRoot: {
-      display: 'flex',
-      alignItems: 'center',
-      padding: 0,
-    },
-    labelIcon: {
-      marginRight: theme.spacing(1),
-    },
-    divider: {
-      marginTop: theme.spacing(2),
-      marginBottom: theme.spacing(2),
-    },
-    filterByMenuDiv: {
-      marginTop: theme.spacing(6),
-    },
-    filterByMenuTitle: {
-      fontWeight: theme.spacing(62.5),
-      marginBottom: theme.spacing(2),
-    },
-    filterByMenu: {
-      flexGrow: theme.spacing(0.125),
-      paddingRight: theme.spacing(4),
-    },
-    groupItem: {
-      marginLeft: 0,
-      marginBottom: theme.spacing(1),
-    },
-    selectedItem: {
-      backgroundColor: 'transparent',
-    },
-    selectedValue: {
-      '& .MuiTypography-body1': {
-        fontWeight: 'bold',
-      },
-    },
-    categoriesRoot: {
-      '& .Mui-selected > .MuiTreeItem-content .MuiTreeItem-label': {
-        color: theme.palette.primary.main,
-      },
-    },
-    labelItem: {
-      backgroundColor: 'transparent !important',
-    },
-    seeMoreButton: {
-      fontWeight: 'normal',
-      '&:hover': {
-        backgroundColor: 'transparent',
-        fontWeight: 'bold',
-      },
-    },
-    filterCategories: {
-      '&:hover': {
-        color: theme.palette.primary.main,
-      },
-    },
-  })
+    createStyles({
+        content: {
+            flexDirection: 'row-reverse',
+            marginBottom: theme.spacing(1),
+        },
+        expandaleFilterByLabel: {
+            fontWeight: theme.spacing(62.5),
+        },
+        labelRoot: {
+            display: 'flex',
+            alignItems: 'center',
+            padding: 0,
+        },
+        labelIcon: {
+            marginRight: theme.spacing(1),
+        },
+        divider: {
+            marginTop: theme.spacing(2),
+            marginBottom: theme.spacing(2),
+        },
+        filterByMenuDiv: {
+            marginTop: theme.spacing(6),
+        },
+        filterByMenuTitle: {
+            fontWeight: theme.spacing(62.5),
+            marginBottom: theme.spacing(2),
+        },
+        filterByMenu: {
+            flexGrow: theme.spacing(0.125),
+            paddingRight: theme.spacing(4),
+        },
+        groupItem: {
+            marginLeft: 0,
+            marginBottom: theme.spacing(1),
+        },
+        selectedItem: {
+            backgroundColor: 'transparent',
+        },
+        selectedValue: {
+            '& .MuiTypography-body1': {
+                fontWeight: 'bold',
+            },
+        },
+        categoriesRoot: {
+            '& .Mui-selected > .MuiTreeItem-content .MuiTreeItem-label': {
+                color: theme.palette.primary.main,
+            },
+        },
+        labelItem: {
+            backgroundColor: 'transparent !important',
+        },
+        seeMoreButton: {
+            fontWeight: 'normal',
+            '&:hover': {
+                backgroundColor: 'transparent',
+                fontWeight: 'bold',
+            },
+        },
+        filterCategories: {
+            '&:hover': {
+                color: theme.palette.primary.main,
+            },
+        },
+    })
 );
 
 export const CustomCheckbox = withStyles((theme: Theme) => ({
-  root: {
-    '&$checked': {
-      color: theme.palette.success.main,
+    root: {
+        '&$checked': {
+            color: theme.palette.success.main,
+        },
+        paddingTop: theme.spacing(0.625),
+        paddingBottom: theme.spacing(0.625),
     },
-    paddingTop: theme.spacing(0.625),
-    paddingBottom: theme.spacing(0.625),
-  },
-  checked: {},
+    checked: {},
 }))(Checkbox);
 
 export default useStyles;

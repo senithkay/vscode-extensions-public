@@ -22,56 +22,56 @@ import { PrimaryButtonSquare } from '../../Buttons/PrimaryButtonSquare';
 import useStyles from './style';
 
 export interface SearchBarProps {
-  searchQuery: string;
-  onSearchButtonClick: (searchString: string) => void;
+    searchQuery: string;
+    onSearchButtonClick: (searchString: string) => void;
 }
 
 function SearchBar(props: SearchBarProps) {
-  const classes = useStyles();
-  const { onSearchButtonClick, searchQuery } = props;
+    const classes = useStyles();
+    const { onSearchButtonClick, searchQuery } = props;
 
-  const [ searchString, setSearchString ] = useState(searchQuery);
+    const [ searchString, setSearchString ] = useState(searchQuery);
 
-  const onSearchFieldChange = (
-    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
-  ) => {
-    setSearchString(event.target.value);
-  };
+    const onSearchFieldChange = (
+        event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+    ) => {
+        setSearchString(event.target.value);
+    };
 
-  const onKeyDown = (
-    event: React.KeyboardEvent<HTMLTextAreaElement | HTMLInputElement>
-  ) => {
-    if (event.key === 'Enter') {
-      onSearchButtonClick(searchString);
-    }
-  };
+    const onKeyDown = (
+        event: React.KeyboardEvent<HTMLTextAreaElement | HTMLInputElement>
+    ) => {
+        if (event.key === 'Enter') {
+            onSearchButtonClick(searchString);
+        }
+    };
 
-  return (
-    <Grid container={true} classes={{ root: classes.searchBarRoot }}>
-      <Grid item={true} container={true} xs={true}>
-        <InputBase
-          classes={{ root: classes.searchText }}
-          placeholder="Search for connectors"
-          value={searchString}
-          onChange={onSearchFieldChange}
-          onKeyDown={onKeyDown}
-          aria-label="search-for-connectors"
-        />
-      </Grid>
-      <Grid
-        item={true}
-        container={true}
-        xs={2}
-        justifyContent="flex-end"
-        data-testid="search-button"
-      >
-        <PrimaryButtonSquare
-          onClick={() => onSearchButtonClick(searchString)}
-          text="Search"
-        />
-      </Grid>
-    </Grid>
-  );
+    return (
+        <Grid container={true} classes={{ root: classes.searchBarRoot }}>
+            <Grid item={true} container={true} xs={true}>
+                <InputBase
+                    classes={{ root: classes.searchText }}
+                    placeholder="Search for connectors"
+                    value={searchString}
+                    onChange={onSearchFieldChange}
+                    onKeyDown={onKeyDown}
+                    aria-label="search-for-connectors"
+                />
+            </Grid>
+            <Grid
+                item={true}
+                container={true}
+                xs={2}
+                justifyContent="flex-end"
+                data-testid="search-button"
+            >
+                <PrimaryButtonSquare
+                    onClick={() => onSearchButtonClick(searchString)}
+                    text="Search"
+                />
+            </Grid>
+        </Grid>
+    );
 }
 
 export default SearchBar;

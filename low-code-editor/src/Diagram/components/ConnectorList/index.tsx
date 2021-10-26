@@ -367,45 +367,6 @@ export function ConnectorList(props: FormGeneratorProps) {
                             </Grid>
                         </Grid>
                     ) }
-
-                    {/* { isExistingConnectors &&
-                        (
-                            <>
-                                <div className="existing-connect-wrapper">
-                                    <div className="title-wrapper">
-                                        <p className="plus-section-title">Choose existing connection </p>
-                                        { isToggledSelectConnector ?
-                                            (
-                                                <div onClick={ toggleExistingCon } className="existing-connector-toggle">
-                                                    { isToggledExistingConnector ?
-                                                        <ExpEditorExpandIcon />
-                                                        :
-                                                        <ExpEditorCollapseIcon />
-                                                    }
-                                                </div>
-                                            )
-                                            :
-                                            null
-                                        }
-                                    </div>
-
-                                    { isToggledExistingConnector &&
-                                        (
-                                            <div className="existing-connector-wrapper">
-                                                { isSearchResultsFetching && (
-                                                    <div className="full-wrapper center-wrapper">
-                                                        <CirclePreloader position="relative" />
-                                                    </div>
-                                                ) }
-                                                { !isSearchResultsFetching && existingConnectorComponents }
-                                            </div>
-                                        )
-                                    }
-                                </div>
-                                <Divider />
-                            </>
-                        )
-                    } */}
                 </Grid>
             </Grid>
         </div >

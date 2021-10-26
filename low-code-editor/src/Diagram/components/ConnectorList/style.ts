@@ -12,35 +12,35 @@
  */
 
 import {
-  createStyles,
-  makeStyles,
-  Theme,
+    createStyles,
+    makeStyles,
+    Theme,
 } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    connectorListWrap: {
-      marginTop: theme.spacing(6),
-    },
-    container: {
-      width: 600,
-      margin: "0 1.5rem"
-    },
-    msgContainer: {
-      height: '80vh',
-      alignContent: 'center',
-      alignItems: 'center',
-    },
-    connector: {
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      height: 100,
-    },
-    connectorName: { color: "#222228", fontSize: 13 },
-    connectorWrap: { overflowY: 'scroll' }
-  })
+    createStyles({
+        connectorListWrap: {
+            marginTop: theme.spacing(6),
+        },
+        container: {
+            width: 600,
+            margin: "0 1.5rem"
+        },
+        msgContainer: {
+            height: '80vh',
+            alignContent: 'center',
+            alignItems: 'center',
+        },
+        connector: {
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: 100,
+        },
+        connectorName: { color: "#222228", fontSize: 13 },
+        connectorWrap: { overflowY: 'scroll' }
+    })
 );
 
 export default useStyles;
