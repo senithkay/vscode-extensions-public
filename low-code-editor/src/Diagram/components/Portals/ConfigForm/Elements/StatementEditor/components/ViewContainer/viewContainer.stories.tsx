@@ -249,7 +249,7 @@ VarDeclStringLiteralStmt.args = {
 
 IfElseStmt.args = {
     kind: "DefaultBoolean",
-    label: "If-else Statement",
+    label: "If-Else Statement",
     formArgs: { model: ifElseModel },
     userInputs: {
         "selectedType": "boolean",

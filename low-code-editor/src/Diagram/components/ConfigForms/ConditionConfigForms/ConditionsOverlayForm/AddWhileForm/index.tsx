@@ -115,6 +115,11 @@ export function AddWhileForm(props: WhileProps) {
         defaultMessage: "Cancel"
     });
 
+    const statementEditorLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.while.statementEditor.label",
+        defaultMessage: "While Statement"
+    });
+
     let exprEditor =
         (
             <FormControl data-testid="while-form" className={classes.wizardFormControl}>
@@ -179,7 +184,7 @@ export function AddWhileForm(props: WhileProps) {
                         // TODO: Send proper props according to the form type
                         <ViewContainer
                             kind="DefaultBoolean"
-                            label="While Statement"
+                            label={statementEditorLabel}
                             formArgs={formArgs}
                             isMutationInProgress={isMutationInProgress}
                             onCancel={handleStmtEditorCancel}
