@@ -199,7 +199,7 @@ export function EditFieldForm() {
         name: "defaultValue",
         optional: true,
         displayName: defaultValText,
-        typeName: selectedType,
+        typeName: isArray ? `${selectedType}[]` : selectedType,
         value: defaultValue
     }
     const defaultValueProps: FormElementProps = {

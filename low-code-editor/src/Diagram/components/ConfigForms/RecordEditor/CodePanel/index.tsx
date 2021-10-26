@@ -20,10 +20,8 @@ import { Box, Typography } from "@material-ui/core";
 import { useDiagramContext } from "../../../../../Contexts/Diagram";
 import { useRecordEditorContext} from "../../../../../Contexts/RecordEditor";
 import { mutateTypeDefinition } from "../../../../utils/modification-util";
-import { OverlayBackground } from "../../../OverlayBackground";
 import { PrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
 import { SecondaryButton } from "../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
-import { DiagramOverlayContainer } from "../../../Portals/Overlay";
 import { wizardStyles } from "../../style";
 import { RecordField } from "../RecordField";
 import { recordStyles } from "../style";
@@ -88,32 +86,26 @@ export function CodePanel() {
 
     return (
         <div>
-            <DiagramOverlayContainer>
-                <div className="code-panel">
-                    <div className={recordClasses.recordConfigTitleWrapper}>
-                        <Typography variant="h4">
-                            <Box paddingTop={2} paddingBottom={2}>{title}</Box>
-                        </Typography>
-                    </div>
-                    <div className={recordClasses.recordTitleSeparator} />
-                    <div className={recordClasses.recordFieldWrapper}>
-                        <RecordField recordModel={state.recordModel} />
-                    </div>
-                    <div className={recordClasses.configButtonWrapper}>
-                        <div className={overlayClasses.buttonWrapper}>
-                            <SecondaryButton text={cancelButtonText} fullWidth={false} onClick={state.onCancel} />
-                            <PrimaryButton
-                                dataTestId={"record-from-json-save-btn"}
-                                text={saveButtonText}
-                                disabled={state.isEditorInvalid}
-                                fullWidth={false}
-                                onClick={handleRecordSave}
-                            />
-                        </div>
-                    </div>
+            <div className={recordClasses.recordConfigTitleWrapper}>
+                <Typography variant="h4">
+                    <Box paddingTop={2} paddingBottom={2}>{title}</Box>
+                </Typography>
+            </div>
+            <div className={recordClasses.recordFieldWrapper}>
+                <RecordField recordModel={state.recordModel}/>
+            </div>
+            <div className={recordClasses.configButtonWrapper}>
+                <div className={overlayClasses.buttonWrapper}>
+                    <SecondaryButton text={cancelButtonText} fullWidth={false} onClick={state.onCancel}/>
+                    <PrimaryButton
+                        dataTestId={"record-from-json-save-btn"}
+                        text={saveButtonText}
+                        disabled={state.isEditorInvalid}
+                        fullWidth={false}
+                        onClick={handleRecordSave}
+                    />
                 </div>
-                <OverlayBackground/>
-            </DiagramOverlayContainer>
+            </div>
         </div>
     )
 }

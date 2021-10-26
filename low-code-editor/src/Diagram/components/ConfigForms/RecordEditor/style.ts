@@ -14,11 +14,22 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
 export const recordStyles = makeStyles((theme: Theme) =>
     createStyles({
+        recordEditorContainer: {
+            display: "flex",
+            flexDirection: "row"
+        },
+        recordConfigSeparator: {
+            position: "absolute",
+            right: 310,
+            top: 0,
+            height: "100%",
+            width: 1,
+            borderLeft: "1px solid #d8d8d8",
+        },
         recordFieldWrapper: {
-            marginLeft: 10,
+            height: "83vh",
             marginRight: 10,
-            marginTop: 20,
-            height: "85%",
+            paddingRight: 10,
             overflow: "scroll",
             "&::-webkit-scrollbar": {
                 width: 3
@@ -32,14 +43,12 @@ export const recordStyles = makeStyles((theme: Theme) =>
             }
         },
         recordConfigTitleWrapper: {
+            position: "absolute",
             width: "auto",
-            height: 47,
-            marginLeft: 20,
-        },
-        recordTitleSeparator: {
-            width: "100%",
-            height: 1,
-            borderTop: "1px solid #d8d8d8"
+            height: 48,
+            top: 0,
+            display: "inline-flex",
+            zIndex: 100
         },
         fieldEditorWrapper: {
             boxSizing: "border-box",
@@ -197,7 +206,7 @@ export const recordStyles = makeStyles((theme: Theme) =>
         },
         configButtonWrapper: {
             width: "auto",
-            marginRight: 10,
+            marginRight: 20,
         },
         fieldAddButtonWrapper: {
             height: 'auto',

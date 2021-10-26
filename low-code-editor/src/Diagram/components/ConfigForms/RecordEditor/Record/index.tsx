@@ -18,12 +18,17 @@ import { CodePanel} from "../CodePanel";
 import { EditFieldForm } from "../EditFieldForm";
 import { EditRecordForm } from "../EditRecordForm";
 import { EditTypeDefForm } from "../EditTypeDefForm";
+import { recordStyles } from "../style";
 
 export function Record() {
     const { state } = useRecordEditorContext();
 
+    const recordClasses = recordStyles();
+
     return (
-        <>
+        <div className={recordClasses.recordEditorContainer}>
+            <CodePanel />
+            <div className={recordClasses.recordConfigSeparator} />
             <div>
                 {(state.currentForm === FormState.EDIT_RECORD_FORM && state.currentRecord.isTypeDefinition) && (
                     <EditTypeDefForm />
@@ -35,7 +40,6 @@ export function Record() {
                     <EditFieldForm />
                 )}
             </div>
-            <CodePanel />
-        </>
+        </div>
     );
 }
