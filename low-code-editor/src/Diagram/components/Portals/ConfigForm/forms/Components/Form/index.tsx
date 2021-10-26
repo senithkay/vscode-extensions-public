@@ -15,10 +15,9 @@ import React, { ReactNode } from "react";
 import { FormField } from "../../../../../../../ConfigurationSpec/types";
 import {isAllValid} from "../../../../../../../utils/validator";
 import { useStyles } from "../../../../../ConfigPanel/styles";
-import FormAccordion from "../../../../../FormAccordion";
-import { ExpressionInjectablesProps } from "../../../../../FormGenerator";
+import FormAccordion from "../../../../../FormComponents/FormAccordion";
 import { getFormElement } from "../../../../utils";
-import { FormElementProps } from "../../../types";
+import { FormElementProps } from "../../../../../FormComponents/Types";
 
 export interface FormProps {
     fields: FormField[];

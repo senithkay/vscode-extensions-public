@@ -22,7 +22,7 @@ import { AiSuggestionsReq, AiSuggestionsRes, AppInfo, ApplicationFile, AppType, 
 import { WizardType } from "../ConfigurationSpec/types";
 import { ConfigOverlayFormStatus, ConfigPanelStatus, DiagramEditorLangClientInterface, DiagramState, ExpressionEditorLangClientInterface, ExpressionEditorState, Gcalendar, GithubRepo, STSymbolInfo } from "../Definitions";
 import { BallerinaConnectorInfo, Connector, STModification } from "../Definitions/lang-client-extended";
-import { ConditionConfig, DataMapperConfig } from "../Diagram/components/Portals/ConfigForm/types";
+import { ConditionConfig, DataMapperConfig } from "../Diagram/components/FormComponents/Types";
 import { LowcodeEvent, TriggerType } from "../Diagram/models";
 import { Warning } from "../Diagram/utils/st-util";
 

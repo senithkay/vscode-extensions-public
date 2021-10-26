@@ -13,7 +13,7 @@ import "../assets/fonts/Glimer/glimer.css";
 import { WizardType } from "../ConfigurationSpec/types";
 import { Connector, ExpressionEditorLangClientInterface, STModification, STSymbolInfo } from "../Definitions";
 import { DiagramEditorLangClientInterface } from "../Definitions/diagram-editor-lang-client-interface";
-import { ConditionConfig } from "../Diagram/components/Portals/ConfigForm/types";
+import { ConditionConfig } from "../Diagram/components/FormComponents/Types";
 import { LowcodeEvent, TriggerType } from "../Diagram/models";
 import messages from '../lang/en.json';
 import { CirclePreloader } from "../PreLoader/CirclePreloader";
