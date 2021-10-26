@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-.panel {
+ .panel {
     position: fixed;
     top: 0;
     right: 0;
@@ -22,6 +22,34 @@
     z-index: 200;
     box-shadow: 0 5px 10px 0 rgba(102, 103, 133, 0.27);
     overflow: scroll;
+
+    &.panel-slide-in {
+        right: -100vh;
+        -webkit-animation: panel-slide-in-keyframe 0.5s forwards;
+        animation: panel-slide-in-keyframe 0.5s forwards;
+    }
+    
+    @-webkit-keyframes panel-slide-in-keyframe {
+        100% { right: 0; }
+    }
+    
+    @keyframes panel-slide-in-keyframe {
+        100% { right: 0; }
+    }
+
+    &.panel-slide-out {
+        right: 0;
+        -webkit-animation: panel-slide-out-keyframe 0.5s forwards;
+        animation: panel-slide-out-keyframe 0.5s forwards;
+    }
+
+    @-webkit-keyframes panel-slide-out-keyframe {
+        100% { right: -100vh; }
+    }
+    
+    @keyframes panel-slide-out-keyframe {
+        100% { right: -100vh; }
+    }
 
     &::-webkit-scrollbar {
         width: 3px;
@@ -47,6 +75,9 @@
         justify-content: flex-end;
         width: 100%;
         padding: 5px 5px 0 !important;
+        height: 48px;
+        align-items: center;
+        border-bottom: 1px solid #d8d8d8;
     }
 
     .panel-close-button {
@@ -58,6 +89,8 @@
         stroke: #cbcedb;
         opacity: 1;
         fill: #cbcedb;
+        display: flex;
+        align-items: center;
     }
 }
 

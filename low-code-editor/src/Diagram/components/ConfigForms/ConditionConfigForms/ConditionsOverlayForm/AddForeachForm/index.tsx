@@ -34,6 +34,8 @@ import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/consta
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
 import { ViewContainer } from "../../../../Portals/ConfigForm/Elements/StatementEditor/components/ViewContainer/ViewContainer";
 import { StatementEditorButton } from "../../../../Portals/ConfigForm/Elements/Button/StatementEditorButton";
+import classnames from "classnames";
+import {SelectDropdownWithButton} from "../../../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
 
 interface Iterations {
     start?: string;
@@ -112,12 +114,32 @@ export function AddForeachForm(props: ForeachProps) {
     const [isInvalid, setIsInvalid] = useState(!!conditionExpression.collection);
     const [isStmtEditor, setIsStmtEditor] = useState(false);
 
+    // todo: Support other data types
+    const variableTypes: string[] = ["var", "int", "float", "decimal", "boolean", "string", "json", "xml"];
+
+    const [selectedType, setSelectedType] = useState(conditionExpression.type ? conditionExpression.type : "var");
+    const [isDropDownOpen, setDropDownOpen] = useState(false);
+
+    const handleOnOpen = () => {
+        setDropDownOpen(true);
+    };
+
+    const handleOnClose = () => {
+        setDropDownOpen(false);
+    };
+
+    const handleTypeChange = (type: string) => {
+        setSelectedType(type);
+        conditionExpression.type = type;
+    };
+
     const handleExpEditorChange = (value: string) => {
         conditionExpression.collection = value;
     }
 
     const handleSave = () => {
         condition.conditionExpression = conditionExpression;
+        conditionExpression.type = selectedType;
         onSave();
     }
 
@@ -137,7 +159,8 @@ export function AddForeachForm(props: ForeachProps) {
     const formField: FormField = {
         name: "iterable expression",
         displayName: "Iterable Expression",
-        typeName: "var"
+        typeName: selectedType + "[]",
+        selectedDataType: selectedType
     };
 
     const forEachTooltipMessages = {
@@ -191,7 +214,7 @@ export function AddForeachForm(props: ForeachProps) {
             interactive: true,
             statementType: formField.typeName,
             customTemplate: {
-                defaultCodeSnippet: 'foreach var temp_var in  {}',
+                defaultCodeSnippet: `foreach ${selectedType} temp_var in  {}`,
                 targetColumn: 25,
             },
         },
@@ -199,45 +222,79 @@ export function AddForeachForm(props: ForeachProps) {
         defaultValue: conditionExpression.collection,
     };
 
-
     let exprEditor =
         (
             <FormControl data-testid="foreach-form" className={classes.wizardFormControl}>
                 {!isCodeEditorActive ?
                     (
                         <div className={classes.formWrapper}>
-                            <div className={classes.formFeilds}>
-                                <div className={classes.formWrapper}>
-                                    <div className={classes.formTitleWrapper}>
-                                        <div className={classes.mainTitleWrapper}>
-                                            <div className={classes.iconWrapper}>
-                                                <ForEachIcon />
+                            <div className={classes.scrollableArea}>
+                                <div className={classes.formFeilds}>
+                                    <div className={classes.formWrapper}>
+                                        <div className={classes.formTitleWrapper}>
+                                            <div className={classes.mainTitleWrapper}>
+                                                <Typography variant="h4">
+                                                    <Box paddingTop={2} paddingBottom={2}>
+                                                        <FormattedMessage
+                                                            id="lowcode.develop.configForms.foreach.title"
+                                                            defaultMessage="Foreach"
+                                                        />
+                                                    </Box>
+                                                </Typography>
                                             </div>
-                                            <Typography variant="h4">
-                                                <Box paddingTop={2} paddingBottom={2}>
-                                                    <FormattedMessage
-                                                        id="lowcode.develop.configForms.foreach.title"
-                                                        defaultMessage="Foreach"
-                                                    />
-                                                </Box>
-                                            </Typography>
-                                            <div style={{marginLeft: "auto", marginRight: 0}}>
+                                            <div className={classes.statementEditor}>
                                                 <StatementEditorButton onClick={handleStmtEditorButtonClick} disabled={true} />
                                             </div>
                                         </div>
-                                    </div>
-                                    <FormTextInput
-                                        customProps={{
-                                            validate: validateNameValue,
-                                        }}
-                                        onChange={onVariableNameChange}
-                                        defaultValue={conditionExpression.variable}
-                                        label={currentValueVariableLabel}
-                                        placeholder={""}
-                                        errorMessage={invalidConnectionErrorMessage}
-                                    />
-                                    <div className="exp-wrapper">
-                                        <ExpressionEditor {...expElementProps} />
+                                        <div className={classes.blockWrapper}>
+                                            <div className={classes.codeText}>
+                                                <Typography variant='body2' className={classnames(classes.startCode)}>Foreach</Typography>
+                                            </div>
+                                            <div className={classes.dropdownWrapper}>
+                                                <SelectDropdownWithButton
+                                                    defaultValue={selectedType}
+                                                    customProps={{
+                                                        disableCreateNew: true,
+                                                        values: variableTypes,
+                                                        onOpenSelect: handleOnOpen,
+                                                        onCloseSelect: handleOnClose,
+                                                    }}
+                                                    label={"Type"}
+                                                    onChange={handleTypeChange}
+                                                />
+                                            </div>
+                                            <div className={classes.editorWrapper}>
+                                                <FormTextInput
+                                                    customProps={{
+                                                        validate: validateNameValue,
+                                                    }}
+                                                    onChange={onVariableNameChange}
+                                                    defaultValue={conditionExpression.variable}
+                                                    label="Current Value"
+                                                    placeholder={""}
+                                                    errorMessage={invalidConnectionErrorMessage}
+                                                />
+                                            </div>
+                                            <div className={classes.codeText}>
+                                                <Typography variant='body2' className={classnames(classes.endCode)}>in</Typography>
+                                            </div>
+                                            <div className={classes.expEditorWrapper}>
+                                                {!isDropDownOpen && <ExpressionEditor {...expElementProps} hideLabelTooltips={true} />}
+                                            </div>
+                                            <div className={classes.codeText}>
+                                                <Typography variant='body2' className={classnames(classes.endCode)}>{`{`}</Typography>
+                                            </div>
+                                        </div>
+                                        <div className={classes.codeWrapper}>
+                                            <div>
+                                                <Typography variant='body2' className={classnames(classes.middleCode, classes.code)}>...</Typography>
+                                            </div>
+                                        </div>
+                                        <div className={classes.codeWrapper}>
+                                            <div>
+                                                <Typography variant='body2' className={classnames(classes.endCode, classes.code)}>{`}`}</Typography>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

@@ -14,7 +14,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useRef, useState } from "react";
 
-import { STNode } from "@ballerina/syntax-tree";
+import { STKindChecker, STNode } from "@ballerina/syntax-tree";
 import classNames from "classnames";
 
 import DeleteButton from "../../../assets/icons/DeleteButton";
@@ -22,6 +22,7 @@ import EditButton from "../../../assets/icons/EditButton";
 import { ComponentExpandButton } from "../ComponentExpandButton";
 import { FormGenerator } from "../FormGenerator";
 import { DeleteConfirmDialog } from "../Portals/Overlay/Elements";
+import { UnsupportedConfirmButtons } from "../UnsupportedConfirmButtons";
 
 import "./style.scss";
 
@@ -31,6 +32,7 @@ export interface HeaderActionsProps {
   deleteText: string;
   onExpandClick: () => void;
   onConfirmDelete: () => void;
+  onConfirmEdit?: () => void;
 }
 
 export function HeaderActions(props: HeaderActionsProps) {
@@ -40,6 +42,7 @@ export function HeaderActions(props: HeaderActionsProps) {
     deleteText,
     onExpandClick,
     onConfirmDelete,
+    onConfirmEdit
   } = props;
   const deleteBtnRef = useRef(null);
 
@@ -51,6 +54,10 @@ export function HeaderActions(props: HeaderActionsProps) {
   const handleEditBtnClick = () => setIsEditViewVisible(true);
   const handleEditBtnCancel = () => setIsEditViewVisible(false);
 
+  const handleEnumEditBtnConfirm = () => {
+    setIsEditViewVisible(false);
+    onConfirmEdit();
+  }
   return (
     <div className={"header-amendment-options"}>
       <div className={classNames("amendment-option", "show-on-hover")}>
@@ -61,7 +68,7 @@ export function HeaderActions(props: HeaderActionsProps) {
           <DeleteButton onClick={handleDeleteBtnClick} />
         </div>
       </div>
-      <div className={"amendment-option"}>
+      <div className={classNames("amendment-option", "show-on-hover")}>
         <ComponentExpandButton
           isExpanded={isExpanded}
           onClick={onExpandClick}
@@ -84,8 +91,10 @@ export function HeaderActions(props: HeaderActionsProps) {
           isFunctionMember={false}
         />
       )}
-
-      {isEditViewVisible && (
+      {isEditViewVisible && (STKindChecker.isEnumDeclaration(model)) && (
+        <UnsupportedConfirmButtons onConfirm={handleEnumEditBtnConfirm} onCancel={handleEditBtnCancel} />
+      )}
+      {isEditViewVisible && (!STKindChecker.isEnumDeclaration(model)) && (
         <FormGenerator
           model={model}
           configOverlayFormStatus={{ formType: model.kind, isLoading: false }}

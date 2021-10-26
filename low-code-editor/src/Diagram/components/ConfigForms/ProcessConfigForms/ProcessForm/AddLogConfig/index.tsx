@@ -141,9 +141,9 @@ export function AddLogConfig(props: LogConfigProps) {
                                             <Typography variant="h4">
                                                 <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.log.title" defaultMessage="Log" /></Box>
                                             </Typography>
-                                            <div style={{marginLeft: "auto", marginRight: 0}}>
-                                                <StatementEditorButton onClick={handleStmtEditorButtonClick} disabled={true} />
-                                            </div>
+                                        </div>
+                                        <div className={formClasses.statementEditor}>
+                                            <StatementEditorButton onClick={handleStmtEditorButtonClick} disabled={true} />
                                         </div>
                                     </div>
                                     <SelectDropdownWithButton
@@ -158,14 +158,18 @@ export function AddLogConfig(props: LogConfigProps) {
                                     />
                                     <div className="exp-wrapper">
                                         <ExpressionEditor
-                                            model={{ name: "expression", type: 'string' }}
+                                            model={{ name: "expression", value: expression, typeName: 'string' }}
                                             customProps={{
                                                 validate: validateExpression,
                                                 tooltipTitle: logTooltipMessages.title,
                                                 tooltipActionText: logTooltipMessages.actionText,
                                                 tooltipActionLink: logTooltipMessages.actionLink,
                                                 interactive: true,
-                                                statementType: 'string'
+                                                statementType: 'string',
+                                                expressionInjectables: {
+                                                    list: formArgs?.expressionInjectables?.list,
+                                                    setInjectables: formArgs?.expressionInjectables?.setInjectables
+                                                }
                                             }}
                                             onChange={onExpressionChange}
                                             defaultValue={expression}

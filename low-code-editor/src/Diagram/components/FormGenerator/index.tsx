@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from "react";
+import React, { useState } from "react";
 
 import { NodePosition, STNode } from "@ballerina/syntax-tree";
 
@@ -19,26 +19,42 @@ import { Panel } from "../Panel";
 import { getForm } from "../Portals/utils";
 
 export interface FormGeneratorProps {
-    model?: STNode;
-    targetPosition?: NodePosition;
-    onCancel?: () => void;
-    onSave?: () => void;
-    configOverlayFormStatus: ConfigOverlayFormStatus; // FixMe : There are lot of unwanted properties passed through
-    // this model clean up or remove this
+  model?: STNode;
+  targetPosition?: NodePosition;
+  onCancel?: () => void;
+  onSave?: () => void;
+  configOverlayFormStatus: ConfigOverlayFormStatus; // FixMe : There are lot of unwanted properties passed through
+  // this model clean up or remove this
+}
+
+export interface InjectableItem {
+  id: string;
+  modification: STModification;
+  name?: string;
+  value?: string;
+}
+
+export interface ExpressionInjectablesProps {
+  list: InjectableItem[];
+  setInjectables: (InjectableItem: InjectableItem[]) => void;
 }
 
 export function FormGenerator(props: FormGeneratorProps) {
-    const { onCancel, configOverlayFormStatus, ...restProps } = props;
-    const { formArgs, formType } = configOverlayFormStatus;
-    const args = { onCancel, configOverlayFormStatus, ...restProps }// FixMe: Sort out form args
+  const [injectables, setInjectables] = useState<InjectableItem[]>([]);
+  const { onCancel, configOverlayFormStatus, ...restProps } = props;
+  const { formArgs, formType } = configOverlayFormStatus;
+  const expressionInjectables: ExpressionInjectablesProps = {
+    list: injectables,
+    setInjectables,
+  };
+  if (configOverlayFormStatus.formArgs) {
+    configOverlayFormStatus.formArgs.expressionInjectables = expressionInjectables;
+  }
+  const args = { onCancel, configOverlayFormStatus, ...restProps }; // FixMe: Sort out form args
 
-    return (
-        <Panel
-            onClose={onCancel}
-        >
-            <div className="form-generator">
-                {getForm(formType, args)}
-            </div>
-        </Panel>
-    );
+  return (
+    <Panel onClose={onCancel}>
+      <div className="form-generator">{getForm(formType, args)}</div>
+    </Panel>
+  );
 }

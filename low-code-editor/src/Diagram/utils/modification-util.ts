@@ -12,10 +12,13 @@
  */
 import { NodePosition } from "@ballerina/syntax-tree";
 
-import { DraftUpdateStatement } from "../../api/models";
 import { FormField } from "../../ConfigurationSpec/types";
 import { STModification } from "../../Definitions/lang-client-extended";
+import { ListenerConfig } from "../components/ConfigForms/ListenerConfigForm/util/types";
 import { HeaderObjectConfig } from "../components/ConnectorExtensions/HTTPWizard/HTTPHeaders";
+import { ConfigurableFormState } from "../components/Portals/ConfigForm/forms/ConfigurableForm/util";
+import { ConstantConfigFormState } from "../components/Portals/ConfigForm/forms/ConstantConfigForm/util";
+import { ModuleVariableFormState } from "../components/Portals/ConfigForm/forms/ModuleVariableForm/util";
 import { HTTPServiceConfigState } from "../components/Portals/ConfigForm/forms/ServiceConfigForm/forms/HttpService/util/reducer";
 import { getFormattedModuleName, getParams } from "../components/Portals/utils";
 
@@ -52,7 +55,7 @@ export function updateIfStatementCondition(conditionExpression: string, targetPo
     return updatedIfStatement;
 }
 
-export function createForeachStatement(collection: string, variableName: string, targetPosition: NodePosition): STModification {
+export function createForeachStatement(collection: string, variableName: string, type: string, targetPosition: NodePosition): STModification {
     const foreachStatement: STModification = {
         startLine: targetPosition.startLine,
         startColumn: 0,
@@ -61,7 +64,7 @@ export function createForeachStatement(collection: string, variableName: string,
         type: "FOREACH_STATEMENT",
         config: {
             "COLLECTION": collection,
-            "TYPE": "var",
+            "TYPE": type,
             "VARIABLE": variableName
         }
     };
@@ -69,7 +72,7 @@ export function createForeachStatement(collection: string, variableName: string,
     return foreachStatement;
 }
 
-export function updateForEachCondition(collection: string, variableName: string, targetPosition: NodePosition): STModification {
+export function updateForEachCondition(collection: string, variableName: string, type: string, targetPosition: NodePosition): STModification {
     const foreachStatement: STModification = {
         startLine: targetPosition.startLine,
         startColumn: targetPosition.startColumn,
@@ -78,7 +81,8 @@ export function updateForEachCondition(collection: string, variableName: string,
         type: "FOREACH_STATEMENT_CONDITION",
         config: {
             "COLLECTION": collection,
-            "VARIABLE": variableName
+            "VARIABLE": variableName,
+            "TYPE": type
         }
     };
 
@@ -145,9 +149,27 @@ export function updatePropertyStatement(property: string, targetPosition: NodePo
     return propertyStatement;
 }
 
-export function updateResourceSignature(method: string, path: string, queryParam: string, payload: string,
-                                        isCaller: boolean, isRequest: boolean, addReturn: string,
-                                        targetPosition: DraftUpdateStatement): STModification {
+export function createResource(method: string, path: string, queryParam: string, payload: string, isCaller: boolean, isRequest: boolean, addReturn: string, targetPosition: NodePosition): STModification {
+    const resource: STModification = {
+        startLine: targetPosition.startLine,
+        startColumn: 0,
+        endLine: targetPosition.startLine,
+        endColumn: 0,
+        type: "RESOURCE",
+        config: {
+            "METHOD": method,
+            "PATH": path,
+            "QUERY_PARAM": queryParam,
+            "PAYLOAD": payload,
+            "ADD_CALLER": isCaller,
+            "ADD_REQUEST": isRequest,
+            "ADD_RETURN": addReturn
+        }
+    };
+    return resource;
+}
+
+export function updateResourceSignature(method: string, path: string, queryParam: string, payload: string, isCaller: boolean, isRequest: boolean, addReturn: string, targetPosition: NodePosition): STModification {
     const resourceSignature: STModification = {
         startLine: targetPosition.startLine,
         startColumn: targetPosition.startColumn,
@@ -161,7 +183,7 @@ export function updateResourceSignature(method: string, path: string, queryParam
             "PAYLOAD": payload,
             "ADD_CALLER": isCaller,
             "ADD_REQUEST": isRequest,
-            "ADD_RETURN": ((addReturn) ? addReturn + "|error?" : "error?")
+            "ADD_RETURN": addReturn
         }
     };
 
@@ -487,6 +509,132 @@ export function createCheckedPayloadFunctionInvocation(variable: string, type: s
     return checkedPayloadInvo;
 }
 
+export function createModuleVarDecl(config: ModuleVariableFormState, targetPosition: NodePosition): STModification {
+    const { varName, varOptions, varType, varValue } = config;
+
+    return {
+        startLine: targetPosition.startLine,
+        endLine: targetPosition.startLine,
+        startColumn: 0,
+        endColumn: 0,
+        type: 'MODULE_VAR_DECL_WITH_INIT',
+        config: {
+            'ACCESS_MODIFIER': varOptions.indexOf('public') > -1 ? 'public' : '',
+            'VAR_QUALIFIER': varOptions.indexOf('final') > -1 ? 'final' : '',
+            'VAR_TYPE': varType,
+            'VAR_NAME': varName,
+            'VAR_VALUE': varValue
+        }
+    }
+}
+
+export function updateModuleVarDecl(config: ModuleVariableFormState, targetPosition: NodePosition): STModification {
+    const { varName, varOptions, varType, varValue } = config;
+
+    return {
+        startLine: targetPosition.startLine,
+        endLine: targetPosition.endLine,
+        startColumn: targetPosition.startColumn,
+        endColumn: targetPosition.endColumn,
+        type: 'MODULE_VAR_DECL_WITH_INIT',
+        config: {
+            'ACCESS_MODIFIER': varOptions.indexOf('public') > -1 ? 'public' : '',
+            'VAR_QUALIFIER': varOptions.indexOf('final') > -1 ? 'final' : '',
+            'VAR_TYPE': varType,
+            'VAR_NAME': varName,
+            'VAR_VALUE': varValue
+        }
+    }
+}
+
+export function createConfigurableDecl(config: ConfigurableFormState, targetPosition: NodePosition): STModification {
+    const { isPublic, varName, varType, varValue, label } = config;
+
+    const modification: STModification = {
+        startLine: targetPosition.startLine,
+        endLine: targetPosition.startLine,
+        startColumn: 0,
+        endColumn: 0,
+        type: 'MODULE_VAR_DECL_WITH_INIT',
+        config: {
+            'ACCESS_MODIFIER': isPublic ? 'public' : '',
+            'VAR_QUALIFIER': 'configurable',
+            'VAR_TYPE': varType,
+            'VAR_NAME': varName,
+            'VAR_VALUE': varValue
+        }
+    }
+
+    if (label.length > 0) {
+        modification.type = 'MODULE_VAR_DECL_WITH_INIT_WITH_DISPLAY'
+        modification.config.DISPLAY_LABEL = label;
+    }
+
+    return modification;
+}
+
+export function updateConfigurableVarDecl(config: ConfigurableFormState, targetPosition: NodePosition): STModification {
+    const { isPublic, varName, varType, varValue, label } = config;
+
+    const modification: STModification = {
+        startLine: targetPosition.startLine,
+        endLine: targetPosition.endLine,
+        startColumn: targetPosition.startColumn,
+        endColumn: targetPosition.endColumn,
+        type: 'MODULE_VAR_DECL_WITH_INIT',
+        config: {
+            'ACCESS_MODIFIER': isPublic ? 'public' : '',
+            'VAR_QUALIFIER': 'configurable',
+            'VAR_TYPE': varType,
+            'VAR_NAME': varName,
+            'VAR_VALUE': varValue
+        }
+    }
+
+    if (label.length > 0) {
+        modification.type = 'MODULE_VAR_DECL_WITH_INIT_WITH_DISPLAY'
+        modification.config.DISPLAY_LABEL = label;
+    }
+
+    return modification;
+}
+
+export function createConstDeclaration(config: ConstantConfigFormState, targetPosition: NodePosition): STModification {
+    const { isPublic, constantName, constantType, constantValue } = config;
+
+    return {
+        startLine: targetPosition.startLine,
+        endLine: targetPosition.startLine,
+        startColumn: 0,
+        endColumn: 0,
+        type: 'CONSTANT_DECLARATION',
+        config: {
+            'ACCESS_MODIFIER': isPublic ? 'public' : '',
+            'CONST_TYPE': constantType,
+            'CONST_NAME': constantName,
+            'CONST_VALUE': constantValue
+        }
+    }
+}
+
+export function updateConstDeclaration(config: ConstantConfigFormState, targetPosition: NodePosition): STModification {
+    const { isPublic, constantName, constantType, constantValue } = config;
+
+    return {
+        startLine: targetPosition.startLine,
+        endLine: targetPosition.startLine,
+        startColumn: targetPosition.startColumn,
+        endColumn: targetPosition.endColumn,
+        type: 'CONSTANT_DECLARATION',
+        config: {
+            'ACCESS_MODIFIER': isPublic ? 'public' : '',
+            'CONST_TYPE': constantType,
+            'CONST_NAME': constantName,
+            'CONST_VALUE': constantValue
+        }
+    }
+}
+
 export function createServiceDeclartion(config: HTTPServiceConfigState, targetPosition: NodePosition): STModification {
     const { serviceBasePath, listenerConfig: { fromVar, listenerName, listenerPort, createNewListener } } = config;
 
@@ -526,6 +674,34 @@ export function createServiceDeclartion(config: HTTPServiceConfigState, targetPo
                 'LISTENER_NAME': listenerName,
                 'BASE_PATH': serviceBasePath,
             }
+        }
+    }
+}
+
+export function createListenerDeclartion(config: ListenerConfig, targetPosition: NodePosition, isNew: boolean): STModification {
+    const { listenerName, listenerPort } = config;
+    let modification: STModification;
+    if (isNew) {
+        modification = {
+            startLine: targetPosition.startLine,
+            endLine: targetPosition.startLine,
+            startColumn: 0,
+            endColumn: 0,
+            type: ''
+        };
+    } else {
+        modification = {
+            ...targetPosition,
+            type: ''
+        };
+    }
+
+    return {
+        ...modification,
+        type: 'LISTENER_DECLARATION',
+        config: {
+            'LISTENER_NAME': listenerName,
+            'PORT': listenerPort
         }
     }
 }
@@ -600,8 +776,7 @@ export function removeStatement(targetPosition: NodePosition): STModification {
     return removeLine;
 }
 
-export function createHeaderObjectDeclaration(headerObject: HeaderObjectConfig[], requestName: string, operation: string,
-                                              message: FormField, targetPosition: NodePosition, modifications: STModification[]) {
+export function createHeaderObjectDeclaration(headerObject: HeaderObjectConfig[], requestName: string, operation: string, message: FormField, targetPosition: NodePosition, modifications: STModification[]) {
     if (operation !== "forward") {
         let httpRequest: string = "http:Request ";
         httpRequest += requestName;
@@ -641,8 +816,7 @@ export function createHeaderObjectDeclaration(headerObject: HeaderObjectConfig[]
     });
 }
 
-export function updateHeaderObjectDeclaration(headerObject: HeaderObjectConfig[], requestName: string, operation: string,
-                                              message: FormField, targetPosition: NodePosition): STModification {
+export function updateHeaderObjectDeclaration(headerObject: HeaderObjectConfig[], requestName: string, operation: string, message: FormField, targetPosition: NodePosition): STModification {
     let headerDecl: string = "";
     if (operation !== "forward") {
         if (operation === "post" || operation === "put" || operation === "delete" || operation === "patch") {

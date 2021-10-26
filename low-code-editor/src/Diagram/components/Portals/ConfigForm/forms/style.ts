@@ -250,13 +250,9 @@ export const useStyles = makeStyles((theme: Theme) =>
             textTransform: 'capitalize'
         },
         mainTitleWrapper: {
-            display: 'flex',
-            flexDirection: 'row',
+            display: 'inline-flex',
             alignItems: 'center',
-            margin: '-2.25rem 0.55rem 0 0',
-            "& img": {
-                marginRight: '1rem'
-            }
+            width: '100%',
         },
         iconWrapper: {
             marginRight: '1rem'
@@ -389,8 +385,12 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginTop: '1rem'
         },
         formTitleWrapper: {
-            width: "auto",
+            width: "100%",
             zIndex: 100,
+            position: 'absolute',
+            top: theme.spacing(-9),
+            height: theme.spacing(6),
+            display: 'inline-flex'
         },
         formWrapper: {
             width: '100%',
@@ -438,8 +438,15 @@ export const useStyles = makeStyles((theme: Theme) =>
                 textTransform: 'capitalize',
             }
         },
-        suggestionsTextInfo: {
+        suggestionsTextError: {
             color: '#ea4c4d !important',
+            "&:hover": {
+                cursor: 'pointer',
+                textDecoration: 'underline'
+            }
+        },
+        suggestionsTextInfo: {
+            color: '#526acf !important',
             "&:hover": {
                 cursor: 'pointer',
                 textDecoration: 'underline'
@@ -505,6 +512,90 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         formFeilds: {
             marginBottom: '50px',
+            width: '100%'
+        },
+        codeWrapper: {
+            width: '100%',
+            display: 'inline-flex'
+        },
+        code: {
+            display: 'flex',
+            alignItems: 'flex-end',
+            height: '100%',
+            paddingBottom: theme.spacing(0.375),
+            paddingLeft: theme.spacing(1)
+        },
+        startCode: {
+            color: '#0095FF'
+        },
+        middleCode: {
+            color: '#8D91A3'
+        },
+        endCode: {
+            color: '#1D2028'
+        },
+        statementEditor: {
+            alignItems: 'center',
+            display: 'inline-flex',
+            justifyContent: 'flex-end',
+            paddingRight: theme.spacing(1),
+            width: '80%'
+        },
+        start: {
+            height: 'fit-content',
+            paddingTop: theme.spacing(3.625),
+            width: '15%'
+        },
+        middle: {
+            width: '80%'
+        },
+        end: {
+            height: 'fit-content',
+            paddingTop: theme.spacing(3.625),
+            width: '5%'
+        },
+        blockWrapper: {
+            display: 'inline-flex',
+            width: '100%'
+        },
+        dropdownWrapper: {
+            minWidth: `92px !important`,
+            paddingRight: theme.spacing(1)
+        },
+        codeText: {
+            paddingTop: theme.spacing(5),
+            paddingRight: theme.spacing(1)
+        },
+        editorWrapper: {
+            minWidth: `110px !important`,
+            paddingRight: theme.spacing(1),
+            '& .MuiInputBase-root': {
+                marginBottom: theme.spacing(0.625)
+            }
+        },
+        scrollableArea: {
+            overflow: 'scroll',
+            '&::-webkit-scrollbar': {
+                width: '3px'
+            },
+            '&::-webkit-scrollbar-thumb': {
+                background: '#e6e7ec',
+                borderRadius: '2px'
+            },
+            '&::-webkit-scrollbar-track':  {
+                backgroundColor: 'transparent'
+            },
+            '&::-webkit-scrollbar-corner': {
+                backgroundColor: 'transparent'
+            }
+        },
+        nameInput: {
+            height: theme.spacing(5)
+        },
+        expEditorWrapper: {
+            minWidth: `120px !important`,
+            paddingRight: theme.spacing(1),
+            paddingTop: theme.spacing(1.25)
         }
     }),
 );

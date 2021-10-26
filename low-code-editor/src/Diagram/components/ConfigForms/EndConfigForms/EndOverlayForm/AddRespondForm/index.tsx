@@ -166,13 +166,12 @@ export function AddRespondForm(props: RespondFormProps) {
                             <div className={formClasses.formFeilds}>
                                 <div className={formClasses.formTitleWrapper}>
                                     <div className={formClasses.mainTitleWrapper}>
-                                        <RespondIcon />
                                         <Typography variant="h4">
                                             <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.Respond.title" defaultMessage="Respond" /></Box>
                                         </Typography>
-                                        <div style={{marginLeft: "auto", marginRight: 0}}>
-                                            <StatementEditorButton onClick={handleStmtEditorButtonClick} disabled={true} />
-                                        </div>
+                                    </div>
+                                    <div className={formClasses.statementEditor}>
+                                        <StatementEditorButton onClick={handleStmtEditorButtonClick} disabled={true} />
                                     </div>
                                 </div>
                                 <div className={formClasses.formWrapper}>

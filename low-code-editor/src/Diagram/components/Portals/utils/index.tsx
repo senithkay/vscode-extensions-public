@@ -116,21 +116,21 @@ export function getFieldName(fieldName: string): string {
 export function getParams(formFields: FormField[], depth = 1): string[] {
     const paramStrings: string[] = [];
     formFields.forEach(formField => {
-        const isDefaultValue = formField.defaultValue && (formField.defaultValue === formField.value);
+        const isDefaultValue = !formField.optional && formField.defaultValue && (formField.defaultValue === formField.value);
         let paramString: string = "";
         if (!formField.noCodeGen && !isDefaultValue) {
             if (formField.isDefaultableParam && formField.value) {
                 paramString += `${formField.name} = `;
             }
-            if (formField.typeName === "string" && formField.value) {
-                paramString += formField.value;
-            } else if (formField.typeName === "array" && !formField.hide && formField.value) {
-                paramString += formField.value.toString();
-            } else if (formField.typeName === "map" && formField.value) {
-                paramString += formField.value;
-            } else if ((formField.typeName === "int" || formField.typeName === "boolean" || formField.typeName === "float" ||
-                formField.typeName === "json" || formField.typeName === "httpRequest") && formField.value) {
-                paramString += formField.value;
+            if (formField.typeName === "string" && (formField.value || formField.defaultValue)) {
+                paramString += formField.value || formField.defaultValue;
+            } else if (formField.typeName === "array" && !formField.hide && (formField.value || formField.defaultValue)) {
+                paramString += formField.value.toString() || formField.defaultValue;
+            } else if (formField.typeName === "map" && (formField.value || formField.defaultValue)) {
+                paramString += formField.value || formField.defaultValue;
+            } else if ((formField.typeName === "int" || formField.typeName === "boolean" || formField.typeName === "float" || formField.typeName === "decimal" ||
+                formField.typeName === "json" || formField.typeName === "httpRequest") && (formField.value || formField.defaultValue)) {
+                paramString += formField.value || formField.defaultValue;
             } else if (formField.typeName === "record" && formField.fields  && formField.fields.length > 0 && !formField.isReference) {
                 let recordFieldsString: string = "";
                 let firstRecordField = false;
@@ -147,7 +147,7 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
                             firstRecordField = true;
                         }
                         recordFieldsString += getFieldName(field.name) + ": " + field.value;
-                    } else if ((field.typeName === "int" || field.typeName === "boolean" || field.typeName === "float") && field.value) {
+                    } else if ((field.typeName === "int" || field.typeName === "boolean" || field.typeName === "float" || formField.typeName === "decimal") && field.value) {
                         if (firstRecordField) {
                             recordFieldsString += ", ";
                         } else {
@@ -174,7 +174,7 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
                     } else if (field.typeName === "union" && !field.hide) {
                         const name = getFieldName(field.name ? field.name : field.typeInfo.name);
                         if (name) {
-                            const selectedField: FormField = field.fields?.find((subField: FormField) => {
+                            const selectedField: FormField = field.members?.find((subField: FormField) => {
                                 const fieldName = getUnionFormFieldName(subField);
                                 return (fieldName !== undefined) && (fieldName === field.selectedDataType);
                             });
@@ -314,7 +314,7 @@ export function matchEndpointToFormField(endPoint: LocalVarDecl, formFields: For
         const formField = formFields[nextValueIndex];
         if (positionalArg.kind === "PositionalArg" || positionalArg.kind === "NamedArg") {
             if (formField.typeName === "string" || formField.typeName === "int" || formField.typeName === "boolean" ||
-                formField.typeName === "float" || formField.typeName === "json" || formField.typeName === "xml") {
+                formField.typeName === "float" || formField.typeName === "decimal" || formField.typeName === "json" || formField.typeName === "xml") {
                 if (STKindChecker.isStringLiteral(positionalArg.expression)) {
                     const stringLiteral: StringLiteral = positionalArg.expression as StringLiteral;
                     formField.value = stringLiteral.literalToken.value;
@@ -416,7 +416,7 @@ export function matchActionToFormField(remoteCall: RemoteMethodCallAction, formF
         } else {
             const positionalArg: PositionalArg = remoteMethodCallArguments[nextValueIndex] as PositionalArg;
             if (formField.typeName === "string" || formField.typeName === "int" || formField.typeName === "boolean"
-                || formField.typeName === "float" || formField.typeName === "httpRequest") {
+                || formField.typeName === "float" || formField.typeName === "decimal" || formField.typeName === "httpRequest") {
                 if (STKindChecker.isStringLiteral(positionalArg.expression) ||
                     STKindChecker.isNumericLiteral(positionalArg.expression) ||
                     STKindChecker.isBooleanLiteral(positionalArg.expression)) {
@@ -816,7 +816,7 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
         returnType: "var",
         importTypeInfo: []
     };
-    const primitives = [ "string", "int", "float", "boolean", "json", "xml", "handle" ];
+    const primitives = [ "string", "int", "float", "decimal", "boolean", "json", "xml", "handle" ];
     const returnTypes: string[] = [];
 
     if (formField) {

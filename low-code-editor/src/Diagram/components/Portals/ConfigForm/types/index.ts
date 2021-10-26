@@ -40,6 +40,7 @@ export interface FormElementProps<T = {}> extends FormElementEvents {
     dataTestId?: string;
     currentValue?: string;
     tooltip?: string;
+    hideLabelTooltips?: boolean;
 }
 
 export interface FormElementEvents {
@@ -61,6 +62,7 @@ export interface ConditionConfig {
 export interface ForeachConfig {
     variable: string;
     collection: string;
+    type: string;
     model?: STNode
 }
 
