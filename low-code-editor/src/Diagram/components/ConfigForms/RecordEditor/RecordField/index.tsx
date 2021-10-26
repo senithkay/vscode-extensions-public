@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext, useEffect, useState } from "react";
+import { useIntl } from "react-intl";
 
 import { Typography } from "@material-ui/core";
 import classnames from "classnames";
@@ -24,7 +25,6 @@ import { ComponentExpandButton } from "../../../ComponentExpandButton";
 import { FieldItem } from "../FieldItem";
 import { recordStyles } from "../style";
 import { RecordModel, SimpleField } from "../types";
-import {useIntl} from "react-intl";
 
 export interface CodePanelProps {
     recordModel: RecordModel;

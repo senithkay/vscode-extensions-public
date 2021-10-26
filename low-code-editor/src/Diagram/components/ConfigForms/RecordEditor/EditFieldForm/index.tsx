@@ -26,15 +26,15 @@ import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/Fo
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { FormElementProps } from "../../../Portals/ConfigForm/types";
 import { keywords } from "../../../Portals/utils/constants";
-import { wizardStyles } from "../../style";
+import { recordStyles } from "../style";
 import { SimpleField } from "../types";
 
 export function EditFieldForm() {
 
     const { state, callBacks } = useRecordEditorContext();
 
-    const overlayClasses = wizardStyles();
     const classes = useStyles();
+    const recordClasses = recordStyles();
     const intl = useIntl();
 
     const titleAdd = intl.formatMessage({
@@ -212,7 +212,7 @@ export function EditFieldForm() {
         defaultValue
     };
 
-    const isSaveButtonDisabled = (nameError !== "") || (selectedType === "") || (name === "") ||
+    const isAddButtonDisabled = (nameError !== "") || (selectedType === "") || (name === "") ||
         (!isFieldOptional && !validDefaultValue);
 
     useEffect(() => {
@@ -282,11 +282,11 @@ export function EditFieldForm() {
                 <ExpressionEditor {...defaultValueProps} />
             )}
 
-            <div className={overlayClasses.buttonWrapper}>
+            <div className={recordClasses.fieldAddButtonWrapper}>
                 <PrimaryButton
-                    dataTestId={"record-from-json-save-btn"}
+                    dataTestId={"record-add-btn"}
                     text={isFieldUpdate ? updateButtonText : addButtonText}
-                    disabled={isSaveButtonDisabled}
+                    disabled={isAddButtonDisabled}
                     fullWidth={false}
                     onClick={handleFieldAdd}
                 />

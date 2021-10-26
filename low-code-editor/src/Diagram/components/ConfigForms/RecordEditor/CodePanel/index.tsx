@@ -99,15 +99,17 @@ export function CodePanel() {
                     <div className={recordClasses.recordFieldWrapper}>
                         <RecordField recordModel={state.recordModel} />
                     </div>
-                    <div className={overlayClasses.buttonWrapper}>
-                        <SecondaryButton text={cancelButtonText} fullWidth={false} onClick={null} />
-                        <PrimaryButton
-                            dataTestId={"record-from-json-save-btn"}
-                            text={saveButtonText}
-                            disabled={state.isEditorInvalid}
-                            fullWidth={false}
-                            onClick={handleRecordSave}
-                        />
+                    <div className={recordClasses.configButtonWrapper}>
+                        <div className={overlayClasses.buttonWrapper}>
+                            <SecondaryButton text={cancelButtonText} fullWidth={false} onClick={state.onCancel} />
+                            <PrimaryButton
+                                dataTestId={"record-from-json-save-btn"}
+                                text={saveButtonText}
+                                disabled={state.isEditorInvalid}
+                                fullWidth={false}
+                                onClick={handleRecordSave}
+                            />
+                        </div>
                     </div>
                 </div>
                 <OverlayBackground/>

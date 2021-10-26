@@ -195,5 +195,17 @@ export const recordStyles = makeStyles((theme: Theme) =>
             paddingTop: '2rem',
             paddingRight: 24
         },
+        configButtonWrapper: {
+            width: "auto",
+            marginRight: 10,
+        },
+        fieldAddButtonWrapper: {
+            height: 'auto',
+            display: 'flex',
+            marginTop: 10,
+            justifyContent: 'flex-end',
+            width: '100%',
+            zIndex: 100,
+        },
     }),
 );

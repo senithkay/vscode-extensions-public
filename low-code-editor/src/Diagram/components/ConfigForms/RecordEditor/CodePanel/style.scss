@@ -12,15 +12,14 @@
  */
 
 .code-panel {
-  position: fixed;
-  top: 0;
-  right: 320px;
-  height: 100vh;
-  width: fit-content;
-  background-color: #ffffff;
-  margin-left: auto;
-  margin-right: 0;
-  box-shadow: inset 1px 0 0 0 #e6e7ec;
-  z-index: 200;
-  box-shadow: 0 5px 10px 0 rgba(102, 103, 133, 0.27);
+    position: fixed;
+    top: 0;
+    right: 320px;
+    height: 100vh;
+    width: fit-content;
+    background-color: #fff;
+    margin-left: auto;
+    margin-right: 0;
+    z-index: 200;
+    box-shadow: 0 5px 10px 0 rgba(102, 103, 133, 0.27);
 }
