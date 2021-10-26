@@ -14,7 +14,7 @@
 import React, { useReducer } from "react";
 import { FormattedMessage } from "react-intl";
 
-import { ListenerDeclaration, NodePosition, ServiceDeclaration, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { ListenerDeclaration, NodePosition, ServiceDeclaration, STKindChecker } from "@ballerina/syntax-tree";
 import { FormHelperText } from "@material-ui/core";
 import classNames from "classnames";
 
@@ -88,7 +88,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         onSave();
     }
 
-    const saveBtnDisabled = isServiceConfigValid(state);
+    const saveBtnDisabled = !isServiceConfigValid(state) || state.hasInvalidConfig;
 
     return (
         <>
@@ -123,6 +123,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
                     configState={state.listenerConfig}
                     actionDispatch={dispatch}
                     listenerList={listenerList}
+                    targetPosition={model ? model.position : targetPosition}
                 />
             </div>
             <div className={formClasses.wizardBtnHolder}>
@@ -133,7 +134,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
                 />
                 <PrimaryButton
                     text="Save"
-                    disabled={!saveBtnDisabled}
+                    disabled={saveBtnDisabled}
                     fullWidth={false}
                     onClick={handleOnSave}
                 />
