@@ -123,6 +123,18 @@
                             vertical-align: bottom;
                         }
                     }
+
+                    .type-descriptor {
+                        color: #5567d5;
+                        font-style: italic;
+                        margin-right: 5px;
+                        letter-spacing: 1px;
+                        font-weight: 500;
+                    }
+
+                    .signature-param {
+                        margin-right: 24px;
+                    }
                 }
             }
         }
