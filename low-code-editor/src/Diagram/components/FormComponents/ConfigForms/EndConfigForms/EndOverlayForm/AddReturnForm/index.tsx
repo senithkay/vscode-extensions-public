@@ -17,13 +17,10 @@ import React, { useContext, useState } from "react";
 import { Box, FormControl, Typography } from "@material-ui/core";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
-import { ButtonWithIcon } from "../../../../FormFieldComponents/Button/ButtonWithIcon";
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
 import { useStyles } from "../../../../../Portals/ConfigForm/forms/style";
 import { EndConfig } from "../../../../Types";
 import { wizardStyles } from "../../../style";
-
-import { CloseRounded, ReturnIcon, EditIcon } from "../../../../../../../assets/icons";
 
 import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";

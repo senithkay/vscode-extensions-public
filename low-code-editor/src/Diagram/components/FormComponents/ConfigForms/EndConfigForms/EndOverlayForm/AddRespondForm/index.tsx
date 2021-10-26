@@ -17,11 +17,9 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { Box, FormControl, Typography } from "@material-ui/core";
 import cn from "classnames";
 
-import { CloseRounded, EditIcon, RespondIcon } from "../../../../../../../assets/icons";
-import { httpResponse, PrimitiveBalType, WizardType } from "../../../../../../../ConfigurationSpec/types";
+import { httpResponse, PrimitiveBalType } from "../../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
-import { ButtonWithIcon } from "../../../../FormFieldComponents/Button/ButtonWithIcon";
 import { StatementEditorButton } from "../../../../FormFieldComponents/Button/StatementEditorButton";
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
 import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";

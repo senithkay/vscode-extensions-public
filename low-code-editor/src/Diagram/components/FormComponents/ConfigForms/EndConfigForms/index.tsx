@@ -19,7 +19,6 @@ import { NodePosition, STNode } from "@ballerina/syntax-tree";
 
 import { Context } from "../../../../../Contexts/Diagram";
 
-import { WizardType } from "../../../../../ConfigurationSpec/types";
 import { ConfigOverlayFormStatus, STModification } from "../../../../../Definitions";
 import { getAllVariables } from "../../../../utils/mixins";
 import {
@@ -29,7 +28,6 @@ import {
     updateReturnStatement
 } from "../../../../utils/modification-util";
 import { EndConfig, RespondConfig } from "../../Types";
-import { DiagramOverlayPosition } from "../../../Portals/Overlay";
 import { genVariableName } from "../../../Portals/utils";
 
 import { EndOverlayForm } from "./EndOverlayForm";
