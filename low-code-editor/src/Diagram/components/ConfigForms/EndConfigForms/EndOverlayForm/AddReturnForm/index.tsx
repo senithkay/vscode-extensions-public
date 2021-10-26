@@ -119,7 +119,6 @@ export function AddReturnForm(props: ReturnFormProps) {
                                 </div>
                                 <div className={classes.formWrapper}>
                                     {
-                                        // containsMainFunction ?
                                         (
                                             <div className="exp-wrapper">
                                                 <ExpressionEditor
