@@ -55,7 +55,7 @@ export function updateIfStatementCondition(conditionExpression: string, targetPo
     return updatedIfStatement;
 }
 
-export function createForeachStatement(collection: string, variableName: string, targetPosition: NodePosition): STModification {
+export function createForeachStatement(collection: string, variableName: string, type: string, targetPosition: NodePosition): STModification {
     const foreachStatement: STModification = {
         startLine: targetPosition.startLine,
         startColumn: 0,
@@ -64,7 +64,7 @@ export function createForeachStatement(collection: string, variableName: string,
         type: "FOREACH_STATEMENT",
         config: {
             "COLLECTION": collection,
-            "TYPE": "var",
+            "TYPE": type,
             "VARIABLE": variableName
         }
     };
@@ -72,7 +72,7 @@ export function createForeachStatement(collection: string, variableName: string,
     return foreachStatement;
 }
 
-export function updateForEachCondition(collection: string, variableName: string, targetPosition: NodePosition): STModification {
+export function updateForEachCondition(collection: string, variableName: string, type: string, targetPosition: NodePosition): STModification {
     const foreachStatement: STModification = {
         startLine: targetPosition.startLine,
         startColumn: targetPosition.startColumn,
@@ -81,7 +81,8 @@ export function updateForEachCondition(collection: string, variableName: string,
         type: "FOREACH_STATEMENT_CONDITION",
         config: {
             "COLLECTION": collection,
-            "VARIABLE": variableName
+            "VARIABLE": variableName,
+            "TYPE": type
         }
     };
 
@@ -547,9 +548,9 @@ export function updateModuleVarDecl(config: ModuleVariableFormState, targetPosit
 }
 
 export function createConfigurableDecl(config: ConfigurableFormState, targetPosition: NodePosition): STModification {
-    const { isPublic, varName, varType, varValue } = config;
+    const { isPublic, varName, varType, varValue, label } = config;
 
-    return {
+    const modification: STModification = {
         startLine: targetPosition.startLine,
         endLine: targetPosition.startLine,
         startColumn: 0,
@@ -563,12 +564,19 @@ export function createConfigurableDecl(config: ConfigurableFormState, targetPosi
             'VAR_VALUE': varValue
         }
     }
+
+    if (label.length > 0) {
+        modification.type = 'MODULE_VAR_DECL_WITH_INIT_WITH_DISPLAY'
+        modification.config.DISPLAY_LABEL = label;
+    }
+
+    return modification;
 }
 
 export function updateConfigurableVarDecl(config: ConfigurableFormState, targetPosition: NodePosition): STModification {
-    const { isPublic, varName, varType, varValue } = config;
+    const { isPublic, varName, varType, varValue, label } = config;
 
-    return {
+    const modification: STModification = {
         startLine: targetPosition.startLine,
         endLine: targetPosition.endLine,
         startColumn: targetPosition.startColumn,
@@ -582,6 +590,13 @@ export function updateConfigurableVarDecl(config: ConfigurableFormState, targetP
             'VAR_VALUE': varValue
         }
     }
+
+    if (label.length > 0) {
+        modification.type = 'MODULE_VAR_DECL_WITH_INIT_WITH_DISPLAY'
+        modification.config.DISPLAY_LABEL = label;
+    }
+
+    return modification;
 }
 
 export function createConstDeclaration(config: ConstantConfigFormState, targetPosition: NodePosition): STModification {

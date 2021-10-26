@@ -12,13 +12,14 @@
  */
 // tslint:disable: jsx-no-multiline-js
 // tslint:disable: jsx-wrap-multiline
-import React, { useContext, useState } from "react"
+import React, { ReactElement, useContext, useState } from "react"
 
 import { MethodDeclaration, ObjectField, ObjectTypeDesc, STKindChecker, TypeDefinition } from "@ballerina/syntax-tree";
 
 import DeleteButton from "../../../assets/icons/DeleteButton";
 import EditButton from "../../../assets/icons/EditButton";
 import RecordIcon from "../../../assets/icons/RecordIcon";
+import Tooltip from "../../../components/Tooltip";
 import { useDiagramContext } from "../../../Contexts/Diagram";
 import { removeStatement } from "../../utils/modification-util";
 import { ComponentExpandButton } from "../ComponentExpandButton";
@@ -37,7 +38,7 @@ export function TypeDefinitionComponent(props: TypeDefComponentProps) {
         api: {
             code: { modifyDiagram, gotoSource },
         },
-      } = useDiagramContext();
+    } = useDiagramContext();
 
     const [isEditable, setIsEditable] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
@@ -84,6 +85,8 @@ export function TypeDefinitionComponent(props: TypeDefComponentProps) {
 
         const varName = typeModel.typeName.value;
         const type = typeModel.typeDescriptor.source.split(/[\s, <]+/)[0];
+        const typeMaxWidth = type.length >= 10;
+        const nameMaxWidth = varName.length >= 20;
         let typeFields;
         if (STKindChecker.isObjectTypeDesc(model.typeDescriptor)) {
             typeFields = [];
@@ -110,10 +113,18 @@ export function TypeDefinitionComponent(props: TypeDefComponentProps) {
                                 <RecordIcon />
                             </div>
                             <div className="type-type">
-                                {type}
+                                <Tooltip
+                                    arrow={true}
+                                    placement="top-start"
+                                    title={model.source.slice(1, -1)}
+                                    inverted={false}
+                                    interactive={true}
+                                >
+                                    <tspan x="0" y="0">{typeMaxWidth ? type.slice(0, 10) + "..." : type}</tspan>
+                                </Tooltip>
                             </div>
                             <div className="type-name">
-                                {varName}
+                                <tspan x="0" y="0">{nameMaxWidth ? varName.slice(0, 20) + "..." : varName}</tspan>
                             </div>
                         </div>
                         {isEditable && (

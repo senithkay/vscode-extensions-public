@@ -118,6 +118,18 @@ div[class^="exp-wrapper"] {
     visibility: inherit !important;
 }
 
+.configurable-icon {
+    height: 14px;
+    width: 18px;
+    position: absolute !important;
+    right: 24px;
+    left: unset !important;
+    bottom: 5px;
+    top: unset !important;
+    opacity: 100;
+    visibility: inherit !important;
+}
+
 .exp-linear-loader {
     height: 2px !important;
     width: 98% !important;

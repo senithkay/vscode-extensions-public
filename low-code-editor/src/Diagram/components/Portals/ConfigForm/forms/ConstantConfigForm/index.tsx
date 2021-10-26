@@ -32,15 +32,12 @@ import { useStyles as useFormStyles } from "../style";
 import { ConstantVarNameRegex, generateConfigFromModel, isFormConfigValid } from "./util";
 import { ConstantConfigFormActionTypes, constantConfigFormReducer } from "./util/reducer";
 
-
 interface ConstantConfigFormProps {
     model?: ConstDeclaration;
     targetPosition?: NodePosition;
     onCancel: () => void;
     onSave: () => void;
 }
-
-
 
 export function ConstantConfigForm(props: ConstantConfigFormProps) {
     const formClasses = useFormStyles();

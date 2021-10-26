@@ -18,8 +18,10 @@ export enum ConfigurableFormActionTypes {
     SET_VAR_TYPE,
     SET_VAR_NAME,
     SET_VAR_VALUE,
+    SET_DEFAULT_INCLUDED,
     UPDATE_EXPRESSION_VALIDITY,
-    RESET_VARIABLE_TYPE
+    RESET_VARIABLE_TYPE,
+    SET_VAR_LABEL,
 }
 
 export type ModuleVarFormAction =
@@ -27,7 +29,9 @@ export type ModuleVarFormAction =
     | { type: ConfigurableFormActionTypes.SET_VAR_TYPE, payload: string }
     | { type: ConfigurableFormActionTypes.SET_VAR_NAME, payload: string }
     | { type: ConfigurableFormActionTypes.SET_VAR_VALUE, payload: string }
+    | { type: ConfigurableFormActionTypes.SET_VAR_LABEL, payload: string }
     | { type: ConfigurableFormActionTypes.UPDATE_EXPRESSION_VALIDITY, payload: boolean }
+       | { type: ConfigurableFormActionTypes.SET_DEFAULT_INCLUDED, payload: boolean}
     | { type: ConfigurableFormActionTypes.RESET_VARIABLE_TYPE };
 
 export function moduleVarFormReducer(state: ConfigurableFormState, action: ModuleVarFormAction): ConfigurableFormState {
@@ -38,10 +42,14 @@ export function moduleVarFormReducer(state: ConfigurableFormState, action: Modul
             return { ...state, varName: action.payload };
         case ConfigurableFormActionTypes.SET_VAR_VALUE:
             return { ...state, varValue: action.payload };
+        case ConfigurableFormActionTypes.SET_VAR_LABEL:
+            return { ...state, label: action.payload };
         case ConfigurableFormActionTypes.SET_VAR_TYPE:
             return { ...state, varType: action.payload, varValue: '' };
         case ConfigurableFormActionTypes.UPDATE_EXPRESSION_VALIDITY:
             return { ...state, isExpressionValid: action.payload };
+        case ConfigurableFormActionTypes.SET_DEFAULT_INCLUDED:
+                return { ...state, hasDefaultValue: action.payload };
         case ConfigurableFormActionTypes.RESET_VARIABLE_TYPE:
             return { ...state, varType: '', varValue: '' };
     }

@@ -62,6 +62,7 @@ export interface ConditionConfig {
 export interface ForeachConfig {
     variable: string;
     collection: string;
+    type: string;
     model?: STNode
 }
 

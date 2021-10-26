@@ -10,56 +10,92 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useReducer, useState } from 'react';
+import React, { useReducer } from 'react';
 import { FormattedMessage } from 'react-intl';
 
-import { CaptureBindingPattern, ModuleVarDecl, NodePosition, ServiceDeclaration, STKindChecker, TypedBindingPattern } from '@ballerina/syntax-tree';
+import { ModuleVarDecl, NodePosition } from '@ballerina/syntax-tree';
 import { Box, FormControl, FormHelperText, Typography } from '@material-ui/core';
 import { v4 as uuid } from "uuid";
 
 import { ConfigurableIcon } from '../../../../../../assets/icons';
 import { useDiagramContext } from '../../../../../../Contexts/Diagram';
-import { STModification } from '../../../../../../Definitions';
+import { ConfigOverlayFormStatus, STModification } from '../../../../../../Definitions';
 import { createConfigurableDecl, createModuleVarDecl, updateConfigurableVarDecl, updateModuleVarDecl } from '../../../../../utils/modification-util';
+import { InjectableItem } from '../../../../FormGenerator';
 import { PrimaryButton } from '../../Elements/Button/PrimaryButton';
 import { SecondaryButton } from '../../Elements/Button/SecondaryButton';
 import CheckBoxGroup from '../../Elements/CheckBox';
 import { SelectDropdownWithButton } from '../../Elements/DropDown/SelectDropdownWithButton';
 import ExpressionEditor from '../../Elements/ExpressionEditor';
-import { RadioControl } from '../../Elements/RadioControl/FormRadioControl';
 import { FormTextInput } from '../../Elements/TextField/FormTextInput';
+import { ModuleVariableFormState } from '../ModuleVariableForm/util';
 import { useStyles as useFormStyles } from "../style";
 
-import { getFormConfigFromModel, isFormConfigValid, ModuleVarNameRegex, VariableQualifiers } from './util';
+import { ConfigurableFormState, getFormConfigFromModel, isFormConfigValid, ModuleVarNameRegex, VariableQualifiers } from './util';
 import { ConfigurableFormActionTypes, moduleVarFormReducer } from './util/reducer';
 
+const variableTypes: string[] = ["int", "float", "boolean", "string", "xml"];
 interface ConfigurableFormProps {
     model?: ModuleVarDecl;
     targetPosition?: NodePosition;
     onCancel: () => void;
     onSave: () => void;
+    configOverlayFormStatus?: ConfigOverlayFormStatus;
 }
 
 export function ConfigurableForm(props: ConfigurableFormProps) {
     const formClasses = useFormStyles();
     const { api: { code: { modifyDiagram } } } = useDiagramContext();
-    const { onSave, onCancel, targetPosition, model } = props;
+    const { onSave, onCancel, targetPosition, model, configOverlayFormStatus } = props;
     const [state, dispatch] = useReducer(moduleVarFormReducer, getFormConfigFromModel(model));
-    const variableTypes: string[] = ["int", "float", "boolean", "string", "json", "xml"];
+
+    const { updateInjectables, updateParentConfigurable, configurableId } = configOverlayFormStatus?.formArgs || {};
+    const isFromExpressionEditor = !!updateInjectables;
 
     const handleOnSave = () => {
-        const modifications: STModification[] = []
-        if (model) {
-            modifications.push(updateConfigurableVarDecl(state, model.position));
-        } else {
-            modifications.push(createConfigurableDecl(state, targetPosition));
+        const modifyState: ConfigurableFormState = {
+            ...state,
+            varValue: state.hasDefaultValue ? state.varValue : '?',
         }
-        modifyDiagram(modifications);
-        onSave();
+        if (isFromExpressionEditor && updateParentConfigurable){
+            const modification = createConfigurableDecl(modifyState, targetPosition);
+            const editItemIndex = updateInjectables?.list.findIndex((item: InjectableItem) => item.id === configurableId);
+            let newInjectableList = updateInjectables?.list;
+            const newInjectable = {
+                id: configurableId,
+                name: state.varName,
+                value: state.varValue,
+                modification,
+              }
+            if (editItemIndex >= 0){
+                newInjectableList[editItemIndex] = newInjectable;
+            }else{
+                newInjectableList = [...newInjectableList, newInjectable]
+            }
+            updateInjectables?.setInjectables(newInjectableList);
+            setTimeout(() => {
+                updateParentConfigurable(state.varName);
+                onCancel();
+            }, 250)
+
+        }else{
+            const modifications: STModification[] = []
+            if (model) {
+                modifications.push(updateConfigurableVarDecl(modifyState, model.position));
+            } else {
+                modifications.push(createConfigurableDecl(modifyState, targetPosition));
+            }
+            modifyDiagram(modifications);
+            onSave();
+        }
     }
 
     const onAccessModifierChange = (modifierList: string[]) => {
         dispatch({ type: ConfigurableFormActionTypes.UPDATE_ACCESS_MODIFIER, payload: modifierList.length > 0 });
+    }
+
+    const onHasDefaultValChange = (defaultValList: string[]) => {
+        dispatch({ type: ConfigurableFormActionTypes.SET_DEFAULT_INCLUDED, payload: defaultValList.length > 0 });
     }
 
     const onVarTypeChange = (type: string) => {
@@ -68,6 +104,10 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
 
     const onValueChange = (value: string) => {
         dispatch({ type: ConfigurableFormActionTypes.SET_VAR_VALUE, payload: value });
+    }
+
+    const onLabelChange = (value: string) => {
+        dispatch({ type: ConfigurableFormActionTypes.SET_VAR_LABEL, payload: value });
     }
 
     const updateExpressionValidity = (fieldName: string, isInValid: boolean) => {
@@ -85,7 +125,7 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
         return true;
     };
 
-    const expressionEditorConfig = {
+    const expressionEditorConfigForValue = {
         model: {
             name: "valueExpression",
             displayName: "Value Expression",
@@ -105,9 +145,32 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
                 defaultCodeSnippet: `configurable ${state.varType} temp_var_${uuid().replaceAll('-', '_')} = ;`,
                 targetColumn: 62 + state.varType.length,
             },
+            hideTextLabel: true
         },
         onChange: onValueChange,
         defaultValue: state.varValue,
+    };
+
+    const expressionEditorConfigForLabel = {
+        model: {
+            name: "Label",
+            displayName: "Configurable Description",
+            typeName: 'string',
+            optional: true
+        },
+        customProps: {
+            validate: updateExpressionValidity,
+            interactive: true,
+            statementType: 'string',
+            editPosition: {
+                startLine: model ? model.position.startLine : targetPosition.startLine,
+                endLine: model ? model.position.startLine : targetPosition.startLine,
+                startColumn: 0,
+                endColumn: 0
+            }
+        },
+        onChange: onLabelChange,
+        defaultValue: state.label,
     };
 
     const disableSaveBtn: boolean = !isFormConfigValid(state);
@@ -121,21 +184,19 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
         validate: validateNameValue
     };
 
-    const variableQualifierSelectorCustomProps = {
-        collection: Object.values(VariableQualifiers),
-        disabled: false
-    };
-
     return (
         <FormControl data-testid="module-variable-config-form" className={formClasses.wizardFormControl}>
             <div className={formClasses.formTitleWrapper}>
                 <div className={formClasses.mainTitleWrapper}>
                     <ConfigurableIcon />
-                    <Typography variant="h4">
-                        <Box paddingTop={2} paddingBottom={2} paddingLeft={15}>Configurable</Box>
-                    </Typography>
+                    <Box textAlign="center" flex={1} paddingTop={2} paddingBottom={2} >
+                        <Typography variant="h4">
+                            {isFromExpressionEditor ? 'Add Configurable' : 'Configurable'}
+                        </Typography>
+                    </Box>
                 </div>
             </div>
+
             <div className={formClasses.labelWrapper}>
                 <FormHelperText className={formClasses.inputLabelForRequired}>
                     <FormattedMessage
@@ -152,8 +213,9 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
             <SelectDropdownWithButton
                 defaultValue={state.varType}
                 customProps={typeSelectorCustomProps}
-                label={"Select type"}
+                label={isFromExpressionEditor ? "type" : "Select type"}
                 onChange={onVarTypeChange}
+                disabled={isFromExpressionEditor}
             />
             <FormTextInput
                 customProps={variableNameTextFieldCustomProps}
@@ -163,8 +225,26 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
                 errorMessage={"Invalid Configurable Name"}
                 placeholder={"Enter Configurable Name"}
             />
+            <div className={formClasses.labelWrapper}>
+                <FormHelperText className={formClasses.inputLabelForRequired}>
+                    <FormattedMessage
+                        id="lowcode.develop.configForms.ModuleVarDecl.defaultValueIncluded"
+                        defaultMessage="Default Value :"
+                    />
+                </FormHelperText>
+            </div>
+            <CheckBoxGroup
+                values={["Include Default Value"]}
+                defaultValues={state.hasDefaultValue ? ['Include Default Value'] : []}
+                onChange={onHasDefaultValChange}
+            />
+            <div hidden={!state.hasDefaultValue}>
+                <ExpressionEditor
+                    {...expressionEditorConfigForValue}
+                />
+            </div>
             <ExpressionEditor
-                {...expressionEditorConfig}
+                {...expressionEditorConfigForLabel}
             />
             <div className={formClasses.wizardBtnHolder}>
                 <SecondaryButton

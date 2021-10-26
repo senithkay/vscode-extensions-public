@@ -1,8 +1,11 @@
 export default {
     CHECKED_PAYLOAD_FUNCTION_INVOCATION: '{{{ TYPE }}} {{{ VARIABLE }}} = check {{{ RESPONSE }}}.{{{ PAYLOAD }}}();',
     DECLARATION: '{{{ TYPE }}} {{{ VARIABLE }}} = new ({{{ PARAMS }}});',
-    FOREACH_STATEMENT_CONDITION: '{{{ VARIABLE }}} in {{{ COLLECTION }}}',
-    FOREACH_STATEMENT: '{{{ VARIABLE }}} in {{{ COLLECTION }}}',
+    FOREACH_STATEMENT_CONDITION: '{{{ TYPE }}} {{{ VARIABLE }}} in {{{ COLLECTION }}}',
+    FOREACH_STATEMENT: `
+foreach {{{ TYPE }}} {{{ VARIABLE }}} in {{{ COLLECTION }}} {
+
+}`,
     IF_STATEMENT_CONDITION: '({{{ CONDITION }}})',
     IF_STATEMENT: `
 if ({{{ CONDITION }}}) {
@@ -46,7 +49,7 @@ service /{{{ BASE_PATH }}} on {{{ LISTENER_NAME }}} {
     resource function get .(http:Caller caller) returns error? {
     }
 }`,
-    LISTENER_DECLARATION:  `
+    LISTENER_DECLARATION: `
 listener http:Listener {{{ LISTENER_NAME }}} = new ({{{ PORT }}});
 `,
     FUNCTION_DEFINITION: `
@@ -66,6 +69,10 @@ service /{{{ BASE_PATH }}} on {{{ LISTENER_NAME }}}`,
 {{{ACCESS_MODIFIER}}} {{{VAR_QUALIFIER}}} {{{VAR_TYPE}}} {{{VAR_NAME}}} = {{{VAR_VALUE}}};`,
     CONSTANT_DECLARATION: `
 {{{ACCESS_MODIFIER}}} const {{{CONST_TYPE}}} {{{CONST_NAME}}} = {{{CONST_VALUE}}};`,
+    MODULE_VAR_DECL_WITH_INIT_WITH_DISPLAY: `@display {
+    label: {{{DISPLAY_LABEL}}}
+}
+{{{ACCESS_MODIFIER}}} {{{VAR_QUALIFIER}}} {{{VAR_TYPE}}} {{{VAR_NAME}}} = {{{VAR_VALUE}}};`,
     TYPE_DEFINITION: `
 {{#if ACCESS_MODIFIER }}{{{ ACCESS_MODIFIER }}} {{/if}}type {{{ TYPE_NAME }}} {{{ TYPE_DESCRIPTOR }}}`
 }

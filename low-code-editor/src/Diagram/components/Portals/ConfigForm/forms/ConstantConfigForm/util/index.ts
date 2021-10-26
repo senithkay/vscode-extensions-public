@@ -24,8 +24,6 @@ export interface ConstantConfigFormState {
     isExpressionValid: boolean;
 }
 
-
-
 export function isFormConfigValid(config: ConstantConfigFormState): boolean {
     const { constantValue, constantName, constantType, isTypeDefined, isExpressionValid } = config;
     if (isTypeDefined) {

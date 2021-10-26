@@ -21,6 +21,7 @@ import { Section } from "../../../../../components/ConfigPanel";
 import { ConnectorConfig, FormField } from "../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../Contexts/Diagram";
 import { Connector } from "../../../../../Definitions/lang-client-extended";
+import { ExpressionInjectablesProps } from "../../../FormGenerator";
 import { LinePrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/LinePrimaryButton";
 import { PrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
 import { SecondaryButton } from "../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
@@ -41,6 +42,7 @@ interface CreateConnectorFormProps {
     isNewConnectorInitWizard?: boolean;
     isOauthConnector: boolean;
     responseStatus: number;
+    expressionInjectables?: ExpressionInjectablesProps;
 }
 
 interface NameState {
@@ -58,7 +60,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     } = useContext(Context);
 
     const { onSave, onSaveNext, onBackClick, initFields, connectorConfig, isOauthConnector,
-            onConfigNameChange, isNewConnectorInitWizard, connector, responseStatus } = props;
+            onConfigNameChange, isNewConnectorInitWizard, connector, responseStatus, expressionInjectables } = props;
     const classes = useStyles();
     const wizardClasses = wizardStyles();
     const intl = useIntl();
@@ -289,7 +291,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                             </Section>
                         </div>
                         <div className={wizardClasses.formWrapper}>
-                            <Form fields={configForm} onValidate={onValidate} />
+                            <Form fields={configForm} onValidate={onValidate} expressionInjectables={expressionInjectables}/>
                         </div>
                     </div>
                 </div>

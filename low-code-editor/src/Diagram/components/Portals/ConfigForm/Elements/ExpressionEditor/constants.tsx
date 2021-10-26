@@ -21,6 +21,7 @@ export const TRIGGER_CHARACTERS: string[] = [".", " "];
 
 export const EXPAND_WIDGET_ID = "expand-widget";
 export const COLLAPSE_WIDGET_ID = "collapse-widget";
+export const CONFIGURABLE_WIDGET_ID = "configurable";
 export const DOUBLE_QUOTE_ERR_CODE = "BCE0411";
 export const UNDEFINED_SYMBOL_ERR_CODE = "BCE2010";
 
