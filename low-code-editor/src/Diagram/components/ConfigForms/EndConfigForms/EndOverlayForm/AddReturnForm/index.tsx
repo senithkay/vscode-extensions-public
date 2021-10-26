@@ -140,15 +140,15 @@ export function AddReturnForm(props: ReturnFormProps) {
                                     }
 
                                 </div>
+                                <FormActionButtons
+                                    cancelBtnText="Cancel"
+                                    saveBtnText={saveReturnButtonLabel}
+                                    isMutationInProgress={isMutationInProgress}
+                                    validForm={isValidValue}
+                                    onSave={onReturnExpressionSave}
+                                    onCancel={onCancel}
+                                />
                             </div>
-                            <FormActionButtons
-                                cancelBtnText="Cancel"
-                                saveBtnText={saveReturnButtonLabel}
-                                isMutationInProgress={isMutationInProgress}
-                                validForm={isValidValue}
-                                onSave={onReturnExpressionSave}
-                                onCancel={onCancel}
-                            />
                         </div>
                     )
                     :
