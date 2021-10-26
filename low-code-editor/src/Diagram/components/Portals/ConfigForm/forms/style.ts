@@ -389,7 +389,8 @@ export const useStyles = makeStyles((theme: Theme) =>
             zIndex: 100,
             position: 'absolute',
             top: theme.spacing(-9),
-            height: theme.spacing(6)
+            height: theme.spacing(6),
+            display: 'inline-flex'
         },
         formWrapper: {
             width: '100%',
