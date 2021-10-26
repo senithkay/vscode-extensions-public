@@ -25,41 +25,39 @@ import { BallerinaExtension } from "../core";
 import { OAuthTokenHandler } from "./inbuilt-impl";
 
 export class OAuthListener {
-	public app: express.Express;
-	public server!: Server;
-	public extension: BallerinaExtension;
+    public app: express.Express;
+    public server!: Server;
+    public extension: BallerinaExtension;
 
-	constructor(public port: number, extension) {
-		this.app = express();
-		this.app.use(express.json(), express.urlencoded({ extended: false }));
-		this.extension = extension;
-	}
+    constructor(public port: number, extension) {
+        this.app = express();
+        this.app.use(express.json(), express.urlencoded({ extended: false }));
+        this.extension = extension;
+    }
 
-	public async StartProcess() {
-		const PATH_OAUTH = "/login";
-		this.server = this.app.listen(this.port);
-		this.app.get(PATH_OAUTH, async (req, res) => {
-			try {
-				const authCode = req.query.code;
-				console.debug("Choreo Authentication Code: " + authCode);
+    public async StartProcess() {
+        const PATH_OAUTH = "/login";
+        this.server = this.app.listen(this.port);
+        this.app.get(PATH_OAUTH, async (req, res) => {
+            try {
+                const authCode = req.query.code;
+                console.debug("Choreo Authentication Code: " + authCode);
 
-				let tokenHandler = new OAuthTokenHandler(this.extension);
-				await tokenHandler.exchangeAuthToken(authCode).then((result) => {
-					let prefix: string = "fail";
-					if (result) {
-						prefix = "success";
-					}
-					const htmlFilePath = vscode.Uri.file(
-						path.join(this.extension.context!.extensionPath, "resources", "pages",
-							"choreo-login-" + prefix + ".html")
-					);
-					res.send(fs.readFileSync(htmlFilePath.fsPath, "utf8"));
-				});
-				this.server.close();
-			} catch (err) {
-				vscode.window.showErrorMessage(`Choreo Login Failed: ` + err);
-			}
-			this.server.close();
-		});
-	}
+                let tokenHandler = new OAuthTokenHandler(this.extension);
+                await tokenHandler.exchangeAuthToken(authCode).then((result) => {
+                    let prefix: string = "fail";
+                    if (result) {
+                        prefix = "success";
+                    }
+                    const htmlFilePath = vscode.Uri.file(path.join(this.extension.context!.extensionPath,
+                        "resources", "pages", "choreo-login-" + prefix + ".html"));
+                    res.send(fs.readFileSync(htmlFilePath.fsPath, "utf8"));
+                });
+                this.server.close();
+            } catch (err) {
+                vscode.window.showErrorMessage(`Choreo Login Failed: ` + err);
+            }
+            this.server.close();
+        });
+    }
 }

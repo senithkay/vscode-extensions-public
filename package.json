@@ -504,7 +504,7 @@
         "@types/node": "^15.12.2",
         "@types/tcp-port-used": "^1.0.0",
         "@types/vscode": "^1.59.0",
-        "axios": "0.21.0",
+        "axios": "0.22.0",
         "chai": "^4.3.4",
         "cross-env": "^7.0.3",
         "decache": "^4.6.0",
