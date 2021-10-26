@@ -15,9 +15,9 @@ import React from "react";
 import { NodePosition } from "@ballerina/syntax-tree";
 import { ClickAwayListener } from "@material-ui/core";
 
-import { getConstructIcon } from "../../Portals/utils";
 import { PlusMenuEntry } from "../PlusOptionsSelector";
 
+import { PlusOption } from "./PlusOption";
 import "./style.scss";
 
 interface PlusOptionRendererProps {
@@ -30,35 +30,19 @@ interface PlusOptionRendererProps {
 export function PlusOptionRenderer(props: PlusOptionRendererProps) {
     const { entries, onClose, onOptionSelect } = props;
 
-    const plusOptions: JSX.Element[] = entries.map((entry, i) => {
-
-        const onClick = () => {
-            onOptionSelect(entry);
-        }
-
-        return (
-            <>
-                <div key={`plus-option-${i}`} className="plus-option" onClick={onClick}>
-                    <div className="plus-option-icon">
-                        {getConstructIcon(entry.type, { color: '#CBCEDB' })}
-                    </div>
-                    <div className="plus-option-text">
-                        {entry.name}
-                    </div>
-                </div>
-                {i < entries.length - 1 ? < div className="plus-option-separator" /> : null}
-            </>
-        )
-    });
-
+    const plusOptions: JSX.Element[] = entries.map(entry =>
+        <PlusOption key={`plus-option-${entry.name.trim()}}`} entry={entry} onOptionSelect={onOptionSelect} />
+    );
     return (
         <ClickAwayListener
             mouseEvent="onMouseDown"
             touchEvent="onTouchStart"
             onClickAway={onClose}
         >
-            <div className="plus-option-container">
-                {plusOptions}
+            <div className={'dropdown'}>
+                <ul className="dropdown-menu">
+                    {plusOptions}
+                </ul>
             </div>
         </ClickAwayListener>
     )

@@ -22,6 +22,7 @@ import { Context } from '../../../../../Contexts/Diagram';
 import { STSymbolInfo } from "../../../../../Definitions";
 import { STModification } from "../../../../../Definitions/lang-client-extended";
 import { getAllVariables } from "../../../../utils/mixins";
+import { ExpressionInjectablesProps } from '../../../FormGenerator';
 import { PrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
 import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
 import { Form } from "../../../Portals/ConfigForm/forms/Components/Form";
@@ -39,13 +40,14 @@ export interface SingleFormProps {
     functionDefInfo: Map<string, FunctionDefinitionInfo>;
     selectedOperation?: string;
     onSave: (sourceModifications?: STModification[]) => void;
+    expressionInjectables: ExpressionInjectablesProps;
 }
 
 export function SingleForm(props: SingleFormProps) {
     const { props: { stSymbolInfo } } = useContext(Context);
     const symbolInfo: STSymbolInfo = stSymbolInfo;
     const { operations, selectedOperation, showConnectionName, onSave, connectionDetails,
-            mutationInProgress, isNewConnectorInitWizard, functionDefInfo } = props;
+            mutationInProgress, isNewConnectorInitWizard, functionDefInfo, expressionInjectables } = props;
     const wizardClasses = wizardStyles();
     const classes = useStyles();
     const intl = useIntl();
@@ -169,7 +171,7 @@ export function SingleForm(props: SingleFormProps) {
                             </>
                             <div className={wizardClasses.formWrapper}>
                                 { formFields && formFields.length > 0 ? (
-                                    <Form fields={formFields} onValidate={validateForm} />
+                                    <Form fields={formFields} onValidate={validateForm} expressionInjectables={expressionInjectables}/>
                                 ) : null
                                 }
                             </div>

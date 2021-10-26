@@ -252,7 +252,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         mainTitleWrapper: {
             display: 'inline-flex',
             alignItems: 'center',
-            width: '20%'
+            width: '100%',
         },
         iconWrapper: {
             marginRight: '1rem'
@@ -437,8 +437,15 @@ export const useStyles = makeStyles((theme: Theme) =>
                 textTransform: 'capitalize',
             }
         },
-        suggestionsTextInfo: {
+        suggestionsTextError: {
             color: '#ea4c4d !important',
+            "&:hover": {
+                cursor: 'pointer',
+                textDecoration: 'underline'
+            }
+        },
+        suggestionsTextInfo: {
+            color: '#526acf !important',
             "&:hover": {
                 cursor: 'pointer',
                 textDecoration: 'underline'

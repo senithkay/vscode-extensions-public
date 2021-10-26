@@ -50,7 +50,7 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
     }
 
     return (
-        <FormControl data-testid="log-form" className={formClasses.wizardFormControl}>
+        <FormControl data-testid="service-config-form" className={formClasses.wizardFormControl}>
             <div className={formClasses.formTitleWrapper}>
                 <div className={formClasses.mainTitleWrapper}>
                     <ServiceIcon color={'#CBCEDB'} />

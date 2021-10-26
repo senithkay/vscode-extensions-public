@@ -26,6 +26,7 @@ import {
     createIfStatement, createWhileStatement, updateForEachCondition,
     updateIfStatementCondition, updateWhileStatementCondition
 } from "../../../utils/modification-util";
+import { InjectableItem } from "../../FormGenerator";
 import { ConditionConfig, ForeachConfig } from "../../Portals/ConfigForm/types";
 import { DiagramOverlayPosition } from "../../Portals/Overlay";
 
@@ -84,6 +85,13 @@ export function ConditionConfigForm(props: ConditionConfigFormProps) {
     const onSaveClick = () => {
         if (formArgs?.targetPosition) {
             const modifications: STModification[] = [];
+
+            if (formArgs?.expressionInjectables?.list){
+                formArgs.expressionInjectables.list.forEach((item: InjectableItem) => {
+                    modifications.push(item.modification)
+                })
+            }
+
             if (formType === "If") {
                 const ifConfig: ConditionConfig = conditionConfig as ConditionConfig;
                 const conditionExpression: string = ifConfig.conditionExpression as string;
