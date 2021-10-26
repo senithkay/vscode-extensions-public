@@ -20,17 +20,15 @@ import keytar = require("keytar");
 import { ChoreoSession } from "../core";
 import { ChoreoSessionConfig } from "./config";
 
-// Create a Store class to store the authentication data. The following implementation uses the session storage.
+// Session Store class to store the authentication data when using the Asgardeo SDK.
 export class SessionStore {
     // Saves the data to the store.
     async setData(key, value) {
-        // sessionStorage.setItem(key, value);
         await keytar.setPassword(ChoreoSessionConfig.ServiceName, key, value);
     }
 
     // Gets the data from the store.
     async getData(key) {
-        // return sessionStorage.getItem(key);
         let value: string = "";
         await keytar.getPassword(ChoreoSessionConfig.ServiceName, key).then((result) => {
             value = result!;
@@ -40,12 +38,19 @@ export class SessionStore {
 
     // Removes the date from the store.
     async removeData(key) {
-        // sessionStorage.removeItem(key);
         await keytar.deletePassword(ChoreoSessionConfig.ServiceName, key);
     }
 }
 
 export async function getChoreoKeytarSession(): Promise<ChoreoSession> {
+    if (process.env.OVERRIDE_CHOREO_AUTHENTICATION === 'true') {
+        return {
+            loginStatus: true,
+            choreoUser: process.env.VSCODE_CHOREO_SESSION_USERNAME,
+            choreoToken: process.env.VSCODE_CHOREO_SESSION_TOKEN
+        }
+    }
+
     let choreoToken: string | null = null;
     await keytar.getPassword(ChoreoSessionConfig.ServiceName, ChoreoSessionConfig.AccessToken).then((result) => {
         choreoToken = result;
@@ -56,17 +61,11 @@ export async function getChoreoKeytarSession(): Promise<ChoreoSession> {
         choreoUser = result;
     });
 
-    let choreoCookie: string | null = null;
-    await keytar.getPassword(ChoreoSessionConfig.ServiceName, ChoreoSessionConfig.CookieCwatf).then((result) => {
-        choreoCookie = result;
-    });
-
-    if (choreoToken != null && choreoUser != null && choreoCookie != null) {
+    if (choreoToken != null && choreoUser != null) {
         return {
             loginStatus: true,
             choreoUser: choreoUser,
-            choreoToken: choreoToken,
-            choreoCookie: choreoCookie
+            choreoToken: choreoToken
         };
     } else {
         return {
@@ -75,14 +74,12 @@ export async function getChoreoKeytarSession(): Promise<ChoreoSession> {
     }
 }
 
-export async function setChoreoKeytarSession(accessToken, displayName, cookieCwatf) {
+export async function setChoreoKeytarSession(accessToken, displayName) {
     await keytar.setPassword(ChoreoSessionConfig.ServiceName, ChoreoSessionConfig.AccessToken, accessToken);
     await keytar.setPassword(ChoreoSessionConfig.ServiceName, ChoreoSessionConfig.DisplayName, displayName);
-    await keytar.setPassword(ChoreoSessionConfig.ServiceName, ChoreoSessionConfig.CookieCwatf, cookieCwatf);
 }
 
 export async function deleteChoreoKeytarSession() {
     await keytar.deletePassword(ChoreoSessionConfig.ServiceName, ChoreoSessionConfig.AccessToken);
     await keytar.deletePassword(ChoreoSessionConfig.ServiceName, ChoreoSessionConfig.DisplayName);
-    await keytar.deletePassword(ChoreoSessionConfig.ServiceName, ChoreoSessionConfig.CookieCwatf);
 }

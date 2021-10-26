@@ -91,7 +91,11 @@ export class SessionDataProvider implements TreeDataProvider<TreeItem> {
                 title: "Sign out",
                 arguments: []
             };
-            treeItems.push(signoutItem);
+
+            // Disable the sign out option for code server users.
+            if (process.env.OVERRIDE_CHOREO_AUTHENTICATION !== 'true') {
+                treeItems.push(signoutItem);
+            }
         }
         return treeItems;
     }

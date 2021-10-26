@@ -28,7 +28,7 @@ import { initiateInbuiltAuth } from "./inbuilt-impl";
 async function activate(extension: BallerinaExtension) {
     commands.registerCommand(PALETTE_COMMANDS.CHOREO_SIGNIN, async () => {
         try {
-            await new OAuthListener(9000, extension).StartProcess();
+            await new OAuthListener(3000, extension).StartProcess();
             // initiateAsgardeoAuth();
             initiateInbuiltAuth(extension);
         } catch (error) {

@@ -36,17 +36,15 @@ export class OAuthListener {
     }
     
 	public async StartProcess() {
-		const PATH_OAUTH = "/";
+		const PATH_OAUTH = "/login";
 		this.server = this.app.listen(this.port);
 		this.app.get(PATH_OAUTH, async (req, res) => {
 			try {
 				const authCode = req.query.code;
-				const authIdPs = req.query.AuthenticatedIdPs;
 				console.debug("Choreo Authentication Code: " + authCode);
-                console.debug("Choreo Authenticated IdPs: " + authIdPs);
 
                 let tokenHandler = new OAuthTokenHandler(this.extension);
-                await tokenHandler.exchangeAuthToken(authCode, authIdPs).then((result) => {
+                await tokenHandler.exchangeAuthToken(authCode).then((result) => {
                     let prefix: string = "fail";
                     if (result) {
                         prefix = "success";

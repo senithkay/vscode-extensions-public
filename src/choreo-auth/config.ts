@@ -19,18 +19,34 @@
 export enum ChoreoSessionConfig {
     ServiceName = "wso2.ballerina.choreo",
     AccessToken = "access.token",
-    CookieCwatf = "cookie.cwatf",
     DisplayName = "display.name"
 }
 
+// // Choreo V1 environment
+// export enum ChoreoAuthConfig {
+//     LoginUrl = "https://id.dv.choreo.dev/oauth2/authorize",
+//     RedirectUrl = "http://localhost:9000/",
+//     ClientId = "choreoportalapplication",
+//     ServerOrigin = "https://app.dv.choreo.dev/",
+//     TokenUrl = "https://app.dv.choreo.dev/auth/token",
+//     Prompt = "login",
+//     Scope = "openid name user",
+//     GoogleFIdp = "google-choreo",
+//     GitHubFIdp = "github-choreo",
+//     AnonymousFIdp = "anonymous"
+// }
+
+// Choreo V2 environment
 export enum ChoreoAuthConfig {
     LoginUrl = "https://id.dv.choreo.dev/oauth2/authorize",
-    RedirectUrl = "http://localhost:9000/",
-    ClientId = "choreoportalapplication",
+    RedirectUrl = "http://localhost:3000/login",
+    ClientId = "GEjPOPRsoMMlNrDuO8fqCBL4mS8a",
+    ApimClientId = "Wxqy0liCfLBsdpXOhkcxZz6uLPka",
     ServerOrigin = "https://app.dv.choreo.dev/",
-    TokenUrl = "https://app.dv.choreo.dev/auth/token",
+    TokenUrl = "https://id.dv.choreo.dev/oauth2/token",
+    ApimTokenUrl = "https://apim.preview-dv.choreo.dev/oauth2/token",
     Prompt = "login",
-    Scope = "openid name user",
+    Scope = "openid",
     GoogleFIdp = "google-choreo",
     GitHubFIdp = "github-choreo",
     AnonymousFIdp = "anonymous"
