@@ -30,13 +30,13 @@ import {
     WhileStatement
 } from "@ballerina/syntax-tree";
 
-import { EXECUTION_TIME_DEFAULT_X_OFFSET, EXECUTION_TIME_IF_X_OFFSET } from "../components/DiagramComponents/ControlFlowExecutionTime";
-import { BOTTOM_CURVE_SVG_WIDTH } from "../components/DiagramComponents/IfElse/Else/BottomCurve";
-import { TOP_CURVE_SVG_HEIGHT } from "../components/DiagramComponents/IfElse/Else/TopCurve";
-import { BIGPLUS_SVG_WIDTH } from "../components/DiagramComponents/Plus/Initial";
-import { PLUS_SVG_HEIGHT } from "../components/DiagramComponents/Plus/PlusAndCollapse/PlusSVG";
-import { EXISTING_PLUS_HOLDER_API_HEIGHT, EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_API_HEIGHT, PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_STATEMENT_HEIGHT } from "../components/FormComponents/DialogBoxes/PlusHolder/PlusElements";
-import { START_SVG_SHADOW_OFFSET } from "../components/DiagramComponents/Start/StartSVG";
+import { EXECUTION_TIME_DEFAULT_X_OFFSET, EXECUTION_TIME_IF_X_OFFSET } from "../components/ControlFlowExecutionTime";
+import { BOTTOM_CURVE_SVG_WIDTH } from "../components/IfElse/Else/BottomCurve";
+import { TOP_CURVE_SVG_HEIGHT } from "../components/IfElse/Else/TopCurve";
+import { BIGPLUS_SVG_WIDTH } from "../components/Plus/Initial";
+import { PLUS_SVG_HEIGHT } from "../components/Plus/PlusAndCollapse/PlusSVG";
+import { EXISTING_PLUS_HOLDER_API_HEIGHT, EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_API_HEIGHT, PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_STATEMENT_HEIGHT } from "../components/Portals/Overlay/Elements/PlusHolder/PlusElements";
+import { START_SVG_SHADOW_OFFSET } from "../components/Start/StartSVG";
 import { isVarTypeDescriptor } from "../utils/diagram-util";
 import { Endpoint, getPlusViewState, updateConnectorCX } from "../utils/st-util";
 import {

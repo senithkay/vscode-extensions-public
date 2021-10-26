@@ -2,13 +2,14 @@ import React from "react";
 
 import { NodePosition } from "@ballerina/syntax-tree";
 
-import * as stComponents from '../components/DiagramComponents';
-import { ActionProcessor } from "../components/DiagramComponents/ActionInvocation/ActionProcess";
-import { ConnectorProcess } from "../components/DiagramComponents/Connector/ConnectorProcess";
-import { IfElse } from "../components/DiagramComponents/IfElse";
-import { DataProcessor } from "../components/DiagramComponents/Processor";
-import { Respond } from "../components/DiagramComponents/Respond";
-import { Statement } from "../components/DiagramComponents/Statement";
+import * as stComponents from '../components';
+import { ActionProcessor } from "../components/ActionInvocation/ActionProcess";
+import { ConnectorProcess } from "../components/Connector/ConnectorProcess";
+// import { ConnectorHeader } from "../components/connector/ConnectorHeader";
+import { IfElse } from "../components/IfElse";
+import { DataProcessor } from "../components/Processor";
+import { Respond } from "../components/Respond";
+import { Statement } from "../components/Statement";
 import { BlockViewState } from "../view-state";
 import { DraftStatementViewState } from "../view-state/draft";
 

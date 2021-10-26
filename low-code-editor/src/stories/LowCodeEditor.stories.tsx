@@ -6,7 +6,7 @@ import { ComponentMeta, ComponentStory } from '@storybook/react';
 import { AiSuggestionsReq, ModelCodePosition, OauthProviderConfig } from '../api/models';
 import { WizardType } from '../ConfigurationSpec/types';
 import { Connector, STModification, STSymbolInfo } from '../Definitions';
-import { ConditionConfig } from '../Diagram/components/FormComponents/Types';
+import { ConditionConfig } from '../Diagram/components/Portals/ConfigForm/types';
 import { LowcodeEvent, TriggerType } from '../Diagram/models';
 import { sizingAndPositioningST } from '../DiagramGenerator/generatorUtil';
 

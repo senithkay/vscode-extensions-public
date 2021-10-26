@@ -10,6 +10,6 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { APIOptions } from "../../../FormComponents/DialogBoxes/PlusHolder/PlusElementOptions/APIOptions";
+import { APIOptions } from "../../Overlay/Elements/PlusHolder/PlusElementOptions/APIOptions";
 
 export { APIOptions as ConnectorList };

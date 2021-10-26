@@ -13,22 +13,28 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from "react";
 
-import { ModulePart } from "@ballerina/syntax-tree";
+import { ModulePart, STNode } from "@ballerina/syntax-tree";
 import Container from "@material-ui/core/Container";
 import classnames from 'classnames';
 
 import { Context as DiagramContext } from "../Contexts/Diagram";
+import { DiagramEditorLangClientInterface } from "../Definitions/diagram-editor-lang-client-interface";
+import { BallerinaConnectorsResponse, Connector } from "../Definitions/lang-client-extended";
 import { TextPreLoader } from "../PreLoader/TextPreLoader";
 
-import { CanvasDiagram } from "./components/DiagramComponents/CanvasContainer";
-import { DataMapper } from './components/DiagramComponents/DataMapper';
-import { DiagramDisableState } from "./components/DiagramComponents/DiagramState/DiagramDisableState";
-import { DiagramErrorState } from "./components/DiagramComponents/DiagramState/DiagramErrorState";
-import { ErrorList } from "./components/DiagramComponents/DiagramState/ErrorList";
+import { Canvas } from "./components/Canvas";
+import { CanvasDiagram } from "./components/CanvasContainer";
+import { DataMapper } from './components/DataMapper';
+import { DiagramDisableState } from "./components/DiagramState/DiagramDisableState";
+import { DiagramErrorState } from "./components/DiagramState/DiagramErrorState";
+import { ErrorList } from "./components/DiagramState/ErrorList";
 import { OverlayBackground } from "./components/OverlayBackground";
+import PanAndZoom from "./components/PanAndZoom";
+import { TriggerType } from "./models";
 import "./style.scss";
 import { useStyles } from "./styles";
 import { getSTComponent } from "./utils";
+import { addConnectorListToCache } from "./utils/st-util";
 import { ViewState } from "./view-state";
 import { DefaultConfig } from "./visitors/default";
 

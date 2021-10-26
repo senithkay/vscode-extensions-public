@@ -14,7 +14,7 @@ import React, { useContext, useReducer } from "react";
 
 import { NodePosition, STNode } from "@ballerina/syntax-tree";
 
-import { DataMapperConfig } from "../Diagram/components/FormComponents/Types";
+import { DataMapperConfig } from "../Diagram/components/Portals/ConfigForm/types";
 import { recalculateSizingAndPositioning, sizingAndPositioning } from "../Diagram/utils/diagram-util";
 import { LowCodeEditorContext, LowCodeEditorProps, LowCodeEditorState } from "../types";
 

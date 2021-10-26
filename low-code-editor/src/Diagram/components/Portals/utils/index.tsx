@@ -46,14 +46,14 @@ import {
     isSTActionInvocation
 } from "../../../utils/st-util";
 import { StatementViewState } from "../../../view-state";
-import * as Forms from "../../FormComponents/ConfigForms";
-import * as ConnectorIcons from "../../DiagramComponents/Connector/Icon";
-import { ConfigWizardState } from "../../FormComponents/ConnectorConfigWizard";
-import * as ConnectorExtension from "../../FormComponents/ConnectorExtensions";
-import * as Elements from "../../FormComponents/FormFieldComponents";
-import { getUnionFormFieldName } from "../../FormComponents/FormFieldComponents/Union";
-import { FormElementProps } from "../../FormComponents/Types";
-import * as OverlayElement from "../../FormComponents/DialogBoxes";
+import * as Forms from "../../ConfigForms";
+import * as ConnectorIcons from "../../Connector/Icon";
+import { ConfigWizardState } from "../../ConnectorConfigWizard";
+import * as ConnectorExtension from "../../ConnectorExtensions";
+import * as Elements from "../ConfigForm/Elements";
+import { getUnionFormFieldName } from "../ConfigForm/Elements/Union";
+import { FormElementProps } from "../ConfigForm/types";
+import * as OverlayElement from "../Overlay/Elements";
 
 import { keywords, symbolKind } from "./constants";
 

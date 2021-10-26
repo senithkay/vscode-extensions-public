@@ -17,7 +17,7 @@ import classnames from 'classnames';
 
 import { CloseRounded } from "../../../assets/icons";
 import { OverlayBackground } from "../OverlayBackground";
-import { ButtonWithIcon } from "../FormComponents/FormFieldComponents/Button/ButtonWithIcon";
+import { ButtonWithIcon } from "../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import { DiagramOverlayContainer } from "../Portals/Overlay";
 
 import "./style.scss";

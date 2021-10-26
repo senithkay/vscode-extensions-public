@@ -11,29 +11,33 @@
  * associated services.
  */
 import {
-    ActionStatement, CheckAction, ElseBlock, FunctionDefinition, IfElseStatement, LocalVarDecl,
+    ActionStatement, CaptureBindingPattern, CheckAction, ElseBlock, FunctionDefinition, IfElseStatement, LocalVarDecl,
     ModulePart, QualifiedNameReference, RemoteMethodCallAction, ResourceKeyword, ServiceDeclaration,
-    STKindChecker,
+    SimpleNameReference, STKindChecker,
     STNode, traversNode, TypeCastExpression, VisibleEndpoint
 } from '@ballerina/syntax-tree';
 import { subMinutes } from "date-fns";
+import cloneDeep from "lodash.clonedeep";
 import { Diagnostic } from 'monaco-languageclient';
 
 import { AnalyzePayloadVisitor, initVisitor, positionVisitor, sizingVisitor } from '../..';
 import { FunctionDefinitionInfo } from "../../ConfigurationSpec/types";
 import { STSymbolInfo } from '../../Definitions';
 import { BallerinaConnectorInfo, BallerinaRecord, Connector } from '../../Definitions/lang-client-extended';
-import { CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH } from "../../Diagram/components/DiagramComponents/Connector/ConnectorHeader/ConnectorClientSVG";
-import { IFELSE_SVG_HEIGHT, IFELSE_SVG_WIDTH } from "../components/DiagramComponents/IfElse/IfElseSVG";
+import { CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH } from "../../Diagram/components/Connector/ConnectorHeader/ConnectorClientSVG";
+import * as formFieldDatabase from "../../utils/idb";
+import { IFELSE_SVG_HEIGHT, IFELSE_SVG_WIDTH } from "../components/IfElse/IfElseSVG";
 import { getFormattedModuleName } from '../components/Portals/utils';
-import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH } from "../components/DiagramComponents/Processor/ProcessSVG";
-import { RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH } from "../components/DiagramComponents/Respond/RespondSVG";
+import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH } from "../components/Processor/ProcessSVG";
+import { RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH } from "../components/Respond/RespondSVG";
 import { TriggerType } from '../models';
 import { EndpointViewState, FunctionViewState, PlusViewState, StatementViewState } from "../view-state";
 import { ActionInvocationFinder } from '../visitors/action-invocation-finder';
 import { BlockStatementFinder } from '../visitors/block-statement-finder';
 import { DefaultConfig } from "../visitors/default";
 import { clearAllDiagnostics, getAllDiagnostics, visitor as DiagnosticVisitor } from '../visitors/diagnostics-collector';
+
+import * as defaultFormCache from "./form-field-cache.json";
 
 export interface Endpoint {
     visibleEndpoint: VisibleEndpoint;
