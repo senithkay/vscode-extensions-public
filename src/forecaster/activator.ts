@@ -178,16 +178,16 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
     function checkErrors(response: PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse) {
         if (response.message === 'AUTHENTICATION_ERROR') {
             // Choreo Auth Error
-            window.showInformationMessage(
+            window.showErrorMessage(
                 CHOREO_AUTH_ERR
             );
         } else if (response.message === 'CONNECTION_ERROR') {
             // Internet Connection Error
-            window.showInformationMessage(
+            window.showErrorMessage(
                 NETWORK_ERR
             );
         } else {
-            window.showInformationMessage(
+            window.showErrorMessage(
                 "Some Error occurred."
             );
         }
