@@ -4,7 +4,7 @@ import { FunctionDefinition, NodePosition, STKindChecker, STNode, traversNode } 
 import { WizardType } from "../../ConfigurationSpec/types";
 import { ConfigOverlayFormStatus, ConfigPanelStatus, DiagramSize, STSymbolInfo } from "../../Definitions";
 import { SelectedPosition } from "../../types";
-import { ConditionConfig } from "../components/Portals/ConfigForm/types";
+import { ConditionConfig } from "../components/FormComponents/Types";
 import { getVaribaleNamesFromVariableDefList } from "../components/Portals/utils";
 import { BlockViewState, FunctionViewState } from "../view-state";
 import { visitor as initVisitor } from "../visitors/init-visitor";
