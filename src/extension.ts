@@ -27,8 +27,7 @@ import { activate as activateProjectFeatures } from './project';
 import { activate as activateEditorSupport } from './editor-support';
 import { activate as activatePackageOverview, PackageOverviewDataProvider } from './tree-view';
 import { activate as activateTesting } from './testing/activator';
-import { activate as activateChoreoSignIn } from './project/cmds/choreo-signin';
-import { activate as activateChoreoSignOut } from './project/cmds/choreo-signout';
+import { activate as activateChoreoAuth } from './choreo-auth/activator';
 import { StaticFeature, DocumentSelector, ServerCapabilities, InitializeParams } from 'vscode-languageclient';
 import { ExtendedClientCapabilities, ExtendedLangClient } from './core/extended-language-client';
 import { activate as activatePerformanceForecaster } from './forecaster';
@@ -85,10 +84,8 @@ export function activate(context: ExtensionContext): Promise<any> {
         activateEditorSupport(ballerinaExtInstance);
         // Enable performance forecaster
         activatePerformanceForecaster(ballerinaExtInstance);
-        // Enable the Choreo Signin
-        activateChoreoSignIn(ballerinaExtInstance);
-        // Enable the Choreo Signout
-        activateChoreoSignOut(ballerinaExtInstance);
+        // Enable the Choreo authentication
+        activateChoreoAuth(ballerinaExtInstance);
 
         if (ballerinaExtInstance.isSwanLake()) {
             // Enable Ballerina Telemetry listener

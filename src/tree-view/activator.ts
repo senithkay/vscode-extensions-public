@@ -31,7 +31,7 @@ import { ExplorerDataProvider } from "./explorer-tree-data-provider";
 import { existsSync, mkdirSync, open, rm, rmdir } from 'fs';
 import { join } from 'path';
 import { BALLERINA_COMMANDS, PALETTE_COMMANDS, runCommand } from "../project";
-import { getChoreoKeytarSession } from "../project/cmds/choreo-signin";
+import { getChoreoKeytarSession } from "../choreo-auth/auth-session";
 
 export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverviewDataProvider {
 

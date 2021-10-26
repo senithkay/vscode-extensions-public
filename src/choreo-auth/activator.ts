@@ -17,22 +17,29 @@
  *
  */
 import { commands, window } from "vscode";
-import { PALETTE_COMMANDS } from "./cmd-runner";
-import { CMP_PROJECT_ADD, sendTelemetryException } from "../../telemetry";
-import { BallerinaExtension, ballerinaExtInstance } from "../../core";
-import keytar = require("keytar");
-
-const CHOREO_SERVICE_NAME = "wso2.ballerina.choreo";
-const CHOREO_ACCESS_TOKEN = "access.token";
-const CHOREO_DISPLAY_NAME = "display.name";
-const CHOREO_COOKIE = "cookie";
+import { PALETTE_COMMANDS } from "../project/cmds/cmd-runner";
+import { CMP_PROJECT_ADD, sendTelemetryException } from "../telemetry";
+import { BallerinaExtension, ballerinaExtInstance } from "../core";
+import { OAuthListener } from "./auth-listener";
+import { deleteChoreoKeytarSession } from "./auth-session";
+import { initiateInbuiltAuth } from "./inbuilt-impl";
 
 async function activate(extension: BallerinaExtension) {
+    commands.registerCommand(PALETTE_COMMANDS.CHOREO_SIGNIN, async () => {
+        try {
+            await new OAuthListener(3000, extension).StartProcess();
+            initiateInbuiltAuth(extension);
+        } catch (error) {
+            if (error instanceof Error) {
+                sendTelemetryException(ballerinaExtInstance, error, CMP_PROJECT_ADD);
+                window.showErrorMessage(error.message);
+            }
+        }
+    });
+
     commands.registerCommand(PALETTE_COMMANDS.CHOREO_SIGNOUT, async () => {
         try {
-            await keytar.deletePassword(CHOREO_SERVICE_NAME, CHOREO_ACCESS_TOKEN);
-            await keytar.deletePassword(CHOREO_SERVICE_NAME, CHOREO_DISPLAY_NAME);
-            await keytar.deletePassword(CHOREO_SERVICE_NAME, CHOREO_COOKIE);
+            deleteChoreoKeytarSession();
             extension.setChoreoSession({
                 loginStatus: false
             });
