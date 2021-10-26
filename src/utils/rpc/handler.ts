@@ -132,6 +132,16 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
         handler: (args: any[]) => {
             return langClient.convertJsonToRecord(args[0]);
         }
+    }, {
+        methodName: 'getSTForSingleStatement',
+        handler: (args: any[]) => {
+            return langClient.getSTForSingleStatement(args[0]);
+        }
+    }, {
+        methodName: 'getSTForExpression',
+        handler: (args: any[]) => {
+            return langClient.getSTForExpression(args[0]);
+        }
     }
     ];
 };
