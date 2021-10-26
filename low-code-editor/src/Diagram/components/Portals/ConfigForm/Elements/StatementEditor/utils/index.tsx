@@ -16,7 +16,7 @@ import React, { ReactNode } from 'react';
 import { STNode } from "@ballerina/syntax-tree";
 
 import {
-    ExpressionEditorLangClientInterface,
+    ExpressionEditorLangClientInterface, PartialSTRequest,
     PartialSTResponse
 } from "../../../../../../../Definitions";
 import * as expressionTypeComponents from '../components/ExpressionTypes';
@@ -29,23 +29,15 @@ import {
     OperatorsForExpressionKind
 } from "./utils";
 
-export async function getPartialSTForStatement(codeSnippet: string, lsUrl: string, ls?: any): Promise<string> {
+export async function getPartialSTForStatement(partialSTRequest: PartialSTRequest, lsUrl: string, ls?: any): Promise<string> {
     const langClient: ExpressionEditorLangClientInterface = await ls.getExpressionEditorLangClient(lsUrl);
-    const resp: PartialSTResponse = await langClient.getSTForSingleStatement(
-        {
-            codeSnippet
-        }
-    )
+    const resp: PartialSTResponse = await langClient.getSTForSingleStatement(partialSTRequest);
     return resp.syntaxTree;
 }
 
-export async function getPartialSTForExpression(codeSnippet: string, lsUrl: string, ls?: any): Promise<string> {
+export async function getPartialSTForExpression(partialSTRequest: PartialSTRequest, lsUrl: string, ls?: any): Promise<string> {
     const langClient: ExpressionEditorLangClientInterface = await ls.getExpressionEditorLangClient(lsUrl);
-    const resp: PartialSTResponse = await langClient.getSTForExpression(
-        {
-            codeSnippet
-        }
-    )
+    const resp: PartialSTResponse = await langClient.getSTForExpression(partialSTRequest);
     return resp.syntaxTree;
 }
 
