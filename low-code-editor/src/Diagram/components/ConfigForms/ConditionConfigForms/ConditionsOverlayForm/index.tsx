@@ -50,7 +50,7 @@ export function ConditionsOverlayForm(props: ConditionsWizardProps) {
     } else if (formType === "ForEach") {
         if (!condition.conditionExpression) {
             condition.conditionExpression = {
-                variable: '', collection: ''
+                variable: '', collection: '', type: ''
             };
         }
     }

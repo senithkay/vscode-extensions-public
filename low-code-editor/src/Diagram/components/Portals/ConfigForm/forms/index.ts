@@ -20,8 +20,11 @@ import { ConnectorForm } from "../../../ConnectorConfigWizard/Components/Connect
 import { APIOptions } from "../../Overlay/Elements/PlusHolder/PlusElementOptions/APIOptions";
 
 import { APIConfigForm } from "./APIConfigForm";
+import { ConfigurableForm } from './ConfigurableForm';
 import { ConnectorInitForm } from "./ConnectorInitForm";
+import { ConstantConfigForm } from './ConstantConfigForm';
 import { FunctionConfigForm } from './FunctionConfigForm';
+import { ModuleDeclForm } from './ModuleVariableForm';
 import { ScheduleConfigForm } from "./ScheduleConfigForm";
 import { ServiceConfigForm } from './ServiceConfigForm';
 import { WebhookConfigForm } from "./WebhookConfigForm";
@@ -44,5 +47,8 @@ export { EndConfigForm as Respond };
 export { ServiceConfigForm as ServiceDeclaration };
 export { FunctionConfigForm as FunctionDefinition };
 export { RecordEditor as RecordEditor };
+export { ModuleDeclForm as ModuleVarDecl };
+export { ConfigurableForm as Configurable };
 export { ListenerConfigForm as ListenerDeclaration };
-export { ApiConfigureWizard as ResourceAccessorDefinition}
+export { ApiConfigureWizard as ResourceAccessorDefinition };
+export { ConstantConfigForm as ConstDeclaration }

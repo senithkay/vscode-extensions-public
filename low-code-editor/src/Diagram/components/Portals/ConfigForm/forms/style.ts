@@ -252,7 +252,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         mainTitleWrapper: {
             display: 'inline-flex',
             alignItems: 'center',
-            width: '20%'
+            width: '100%',
         },
         iconWrapper: {
             marginRight: '1rem'
@@ -389,7 +389,8 @@ export const useStyles = makeStyles((theme: Theme) =>
             zIndex: 100,
             position: 'absolute',
             top: theme.spacing(-9),
-            height: theme.spacing(6)
+            height: theme.spacing(6),
+            display: 'inline-flex'
         },
         formWrapper: {
             width: '100%',
@@ -437,8 +438,15 @@ export const useStyles = makeStyles((theme: Theme) =>
                 textTransform: 'capitalize',
             }
         },
-        suggestionsTextInfo: {
+        suggestionsTextError: {
             color: '#ea4c4d !important',
+            "&:hover": {
+                cursor: 'pointer',
+                textDecoration: 'underline'
+            }
+        },
+        suggestionsTextInfo: {
+            color: '#526acf !important',
             "&:hover": {
                 cursor: 'pointer',
                 textDecoration: 'underline'
@@ -589,9 +597,8 @@ export const useStyles = makeStyles((theme: Theme) =>
             paddingRight: theme.spacing(1),
             paddingTop: theme.spacing(1.25)
         },
-        expEditorVariableWrapper: {
-            minWidth: `120px !important`,
-            paddingRight: theme.spacing(1)
+        typeContainer: {
+            width: '50%'
         }
     }),
 );

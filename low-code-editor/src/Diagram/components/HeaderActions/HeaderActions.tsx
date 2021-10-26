@@ -68,7 +68,7 @@ export function HeaderActions(props: HeaderActionsProps) {
           <DeleteButton onClick={handleDeleteBtnClick} />
         </div>
       </div>
-      <div className={"amendment-option"}>
+      <div className={classNames("amendment-option", "show-on-hover")}>
         <ComponentExpandButton
           isExpanded={isExpanded}
           onClick={onExpandClick}

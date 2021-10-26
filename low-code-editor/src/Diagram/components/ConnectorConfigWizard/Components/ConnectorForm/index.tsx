@@ -64,7 +64,7 @@ import {
   createPropertyStatement,
   updatePropertyStatement,
 } from "../../../../utils/modification-util";
-import { FormGeneratorProps } from "../../../FormGenerator";
+import { ExpressionInjectablesProps, FormGeneratorProps, InjectableItem } from "../../../FormGenerator";
 import {
   genVariableName,
   getActionReturnType,
@@ -124,6 +124,7 @@ export interface ConnectorConfigWizardProps {
   onClose: () => void;
   selectedConnector: LocalVarDecl;
   isAction?: boolean;
+  expressionInjectables?: ExpressionInjectablesProps;
 }
 
 export function ConnectorForm(props: FormGeneratorProps) {
@@ -169,6 +170,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
     onClose,
     selectedConnector,
     isAction,
+    expressionInjectables,
   } = props.configOverlayFormStatus.formArgs as ConnectorConfigWizardProps;
   const {
     connector,
@@ -471,6 +473,9 @@ export function ConnectorForm(props: FormGeneratorProps) {
 
   const handleClientOnSave = () => {
     const modifications: STModification[] = [];
+    expressionInjectables?.list?.forEach((item: InjectableItem) => {
+        modifications.push(item.modification)
+    })
     const isInitReturnError = getInitReturnType(functionDefInfo);
     const moduleName = getFormattedModuleName(connectorModule);
     const event: LowcodeEvent = {
@@ -796,6 +801,9 @@ export function ConnectorForm(props: FormGeneratorProps) {
 
   const handleActionOnSave = () => {
     const modifications: STModification[] = [];
+    expressionInjectables?.list?.forEach((item: InjectableItem) => {
+        modifications.push(item.modification)
+    })
     const isInitReturnError = getInitReturnType(functionDefInfo);
     const currentActionReturnType = getActionReturnType(
       config.action.name,
@@ -1099,6 +1107,9 @@ export function ConnectorForm(props: FormGeneratorProps) {
   // only one client will be create for each module
   const handleSingleFormOnSave = () => {
     const modifications: STModification[] = [];
+    expressionInjectables?.list?.forEach((item: InjectableItem) => {
+        modifications.push(item.modification)
+    })
     const moduleName = getFormattedModuleName(connectorModule);
     const existingEndpointName = getModuleVariable(symbolInfo, connectorInfo);
     const isInitReturnError = getInitReturnType(functionDefInfo);
@@ -1497,6 +1508,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
               mutationInProgress={isMutationProgress}
               isNewConnectorInitWizard={isNewConnectorInitWizard}
               operations={operations}
+              expressionInjectables={expressionInjectables}
             />
           )}
           {formState === FormStates.ExistingConnection &&
@@ -1520,6 +1532,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
                 isNewConnectorInitWizard={isNewConnectorInitWizard}
                 isOauthConnector={isOauthConnector}
                 responseStatus={responseStatus}
+                expressionInjectables={expressionInjectables}
               />
             )}
           {formState === FormStates.CreateNewConnection && (
@@ -1534,6 +1547,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
               isNewConnectorInitWizard={isNewConnectorInitWizard}
               isOauthConnector={isOauthConnector}
               responseStatus={responseStatus}
+              expressionInjectables={expressionInjectables}
             />
           )}
           {formState === FormStates.SingleForm && (
@@ -1545,6 +1559,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
               isNewConnectorInitWizard={isNewConnectorInitWizard}
               operations={operations}
               onSave={handleSingleFormOnSave}
+              expressionInjectables={expressionInjectables}
             />
           )}
         </div>
