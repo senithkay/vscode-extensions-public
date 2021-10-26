@@ -1228,7 +1228,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
       returnType.importTypeInfo?.forEach((typeInfo) => {
         const addImport: STModification = createImportStatement(
           typeInfo.orgName,
-          typeInfo.modName,
+          typeInfo.moduleName,
           { startColumn: 0, startLine: 0 }
         );
         // check already exists modification statements

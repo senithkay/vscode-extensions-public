@@ -249,7 +249,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         </div>
     );
 
-    const connectorModuleName = initFields ? initFields[0]?.typeInfo?.modName : "";
+    const connectorModuleName = initFields ? initFields[0]?.typeInfo?.moduleName : "";
     const showConnectionNameField = connectorModuleName === "github" || connectorModuleName === "googleapis.gmail" || connectorModuleName === "googleapis.sheets" ||
         connectorModuleName === "googleapis.calendar";
     const isFieldsValid = isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName;
