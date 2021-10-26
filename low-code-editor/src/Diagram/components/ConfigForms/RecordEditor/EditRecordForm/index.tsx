@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from 'react';
+import { useIntl } from "react-intl";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
 
@@ -30,6 +31,25 @@ export function EditRecordForm() {
     const [nameError, setNameError] = useState("");
 
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
+
+    const intl = useIntl();
+
+    const title = intl.formatMessage({
+        id: "lowcode.develop.configForms.recordEditor.editRecord.title",
+        defaultMessage: "Edit Record"
+    });
+    const nameText = intl.formatMessage({
+        id: "lowcode.develop.configForms.recordEditor.editRecord.nameText",
+        defaultMessage: "Record name"
+    });
+    const namePlaceholder = intl.formatMessage({
+        id: "lowcode.develop.configForms.recordEditor.editRecord.namePlaceholder",
+        defaultMessage: "Enter record name"
+    });
+    const sampleButtonText = intl.formatMessage({
+        id: "lowcode.develop.configForms.recordEditor.editRecord.sampleBtnText",
+        defaultMessage: "Use Sample"
+    });
 
     const handleNameChange = (inputText: string) => {
         // TODO: Check with parent record fields
@@ -82,18 +102,18 @@ export function EditRecordForm() {
         <FormControl data-testid="record-form" className={classes.wizardFormControl}>
             <div className={classes.formTitleWrapper}>
                 <Typography variant="h4">
-                    <Box paddingTop={2} paddingBottom={2}>{"Edit Record"}</Box>
+                    <Box paddingTop={2} paddingBottom={2}>{title}</Box>
                 </Typography>
             </div>
             <FormTextInput
-                dataTestId="field-name"
+                dataTestId="record-name"
                 customProps={{
                     isErrored: nameError !== "",
                 }}
                 defaultValue={state.currentRecord.name}
                 onChange={handleNameChange}
-                label={"Record name"}
-                placeholder={"Enter field name"}
+                label={nameText}
+                placeholder={namePlaceholder}
                 errorMessage={nameError}
             />
             <CheckBoxGroup
@@ -117,7 +137,7 @@ export function EditRecordForm() {
 
             <PrimaryButton
                 dataTestId={"generate-from-sample-btn"}
-                text={"Use Sample"}
+                text={sampleButtonText}
                 fullWidth={false}
                 onClick={handleGenerateFromSample}
             />

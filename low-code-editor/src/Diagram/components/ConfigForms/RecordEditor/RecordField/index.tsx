@@ -24,6 +24,7 @@ import { ComponentExpandButton } from "../../../ComponentExpandButton";
 import { FieldItem } from "../FieldItem";
 import { recordStyles } from "../style";
 import { RecordModel, SimpleField } from "../types";
+import {useIntl} from "react-intl";
 
 export interface CodePanelProps {
     recordModel: RecordModel;
@@ -34,6 +35,13 @@ export function RecordField(props: CodePanelProps) {
     const { recordModel, parentRecordModel } = props;
 
     const recordClasses = recordStyles();
+
+    const intl = useIntl();
+
+    const addFieldText = intl.formatMessage({
+        id: "lowcode.develop.configForms.recordEditor.recordField.addBtnText",
+        defaultMessage: "Add Field"
+    });
 
     const { state, callBacks } = useContext(Context);
 
@@ -206,7 +214,7 @@ export function RecordField(props: CodePanelProps) {
                         {!isFieldAddInProgress && !state.isEditorInvalid && (
                             <div className={recordClasses.addFieldBtnWrap} onClick={handleAddField}>
                                 <AddIcon/>
-                                <p>Add Field</p>
+                                <p>{addFieldText}</p>
                             </div>
                         )}
                     </>

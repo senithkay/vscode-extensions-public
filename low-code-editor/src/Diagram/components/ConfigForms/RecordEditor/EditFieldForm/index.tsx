@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useState } from 'react';
+import { useIntl } from "react-intl";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
 
@@ -34,6 +35,40 @@ export function EditFieldForm() {
 
     const overlayClasses = wizardStyles();
     const classes = useStyles();
+    const intl = useIntl();
+
+    const titleAdd = intl.formatMessage({
+        id: "lowcode.develop.configForms.recordEditor.editField.addTitle",
+        defaultMessage: "Add Field"
+    });
+    const titleUpdate = intl.formatMessage({
+        id: "lowcode.develop.configForms.recordEditor.editField.updateTitle",
+        defaultMessage: "Update Field"
+    });
+    const addButtonText = intl.formatMessage({
+        id: "lowcode.develop.configForms.recordEditor.addButton.text",
+        defaultMessage: "Add"
+    });
+    const updateButtonText = intl.formatMessage({
+        id: "lowcode.develop.configForms.recordEditor.updateButton.text",
+        defaultMessage: "Update"
+    });
+    const fieldNameText = intl.formatMessage({
+        id: "lowcode.develop.configForms.recordEditor.fieldName.text",
+        defaultMessage: "Field name"
+    });
+    const typeLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.recordEditor.type.label",
+        defaultMessage: "Type"
+    });
+    const typePlaceholder = intl.formatMessage({
+        id: "lowcode.develop.configForms.recordEditor.type.placeholder",
+        defaultMessage: "Select Type"
+    });
+    const defaultValText = intl.formatMessage({
+        id: "lowcode.develop.configForms.recordEditor.defaultVal.text",
+        defaultMessage: "Default Value"
+    });
 
     const isFieldUpdate = state.currentForm === FormState.UPDATE_FIELD;
     let type = "int";
@@ -163,7 +198,7 @@ export function EditFieldForm() {
     const formField: FormField = {
         name: "defaultValue",
         optional: true,
-        displayName: "Default Value",
+        displayName: defaultValText,
         typeName: selectedType,
         value: defaultValue
     }
@@ -171,13 +206,7 @@ export function EditFieldForm() {
         model: formField,
         customProps: {
             validate: validateDefaultValue,
-            // tooltipTitle: whileStatementTooltipMessages.title,
-            // tooltipActionText: whileStatementTooltipMessages.actionText,
-            // tooltipActionLink: whileStatementTooltipMessages.actionLink,
-            // interactive: true,
-            statementType: formField.typeName,
-            // focus: editorFocus,
-            // revertFocus: revertEditorFocus,
+            statementType: formField.typeName
         },
         onChange: handleDefaultValueChange,
         defaultValue
@@ -203,7 +232,7 @@ export function EditFieldForm() {
         <FormControl data-testid="record-form" className={classes.wizardFormControl}>
             <div className={classes.formTitleWrapper}>
                 <Typography variant="h4">
-                    <Box paddingTop={2} paddingBottom={2}>{isFieldUpdate ? "Update Field" : "Add Field"}</Box>
+                    <Box paddingTop={2} paddingBottom={2}>{isFieldUpdate ? titleUpdate : titleAdd}</Box>
                 </Typography>
             </div>
             <FormTextInput
@@ -214,7 +243,7 @@ export function EditFieldForm() {
                 }}
                 defaultValue={name}
                 onChange={handleNameChange}
-                label={"Field name"}
+                label={fieldNameText}
                 errorMessage={nameError}
                 placeholder={"Enter field name"}
             />
@@ -233,8 +262,8 @@ export function EditFieldForm() {
                         disableCreateNew: true
                     }
                 }
-                label="Type"
-                placeholder="Select Type"
+                label={typeLabel}
+                placeholder={typePlaceholder}
                 onChange={handleTypeSelect}
             />
             <CheckBoxGroup
@@ -256,7 +285,7 @@ export function EditFieldForm() {
             <div className={overlayClasses.buttonWrapper}>
                 <PrimaryButton
                     dataTestId={"record-from-json-save-btn"}
-                    text={isFieldUpdate ? "Update" : "Add"}
+                    text={isFieldUpdate ? updateButtonText : addButtonText}
                     disabled={isSaveButtonDisabled}
                     fullWidth={false}
                     onClick={handleFieldAdd}

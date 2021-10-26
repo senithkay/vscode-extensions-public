@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
+import { useIntl } from "react-intl";
 
 import { NodePosition } from "@ballerina/syntax-tree";
 import { Box, Typography } from "@material-ui/core";
@@ -36,6 +37,20 @@ export function CodePanel() {
 
     const overlayClasses = wizardStyles();
     const recordClasses = recordStyles();
+    const intl = useIntl();
+
+    const title = intl.formatMessage({
+        id: "lowcode.develop.configForms.recordEditor.codePanel.title",
+        defaultMessage: "Record Configuration"
+    });
+    const saveButtonText = intl.formatMessage({
+        id: "lowcode.develop.configForms.recordEditor.saveButton.text",
+        defaultMessage: "Save"
+    });
+    const cancelButtonText = intl.formatMessage({
+        id: "lowcode.develop.configForms.recordEditor.cancelButton.text",
+        defaultMessage: "Cancel"
+    });
 
     const handleRecordSave = () => {
         if (state.recordModel.isTypeDefinition) {
@@ -77,7 +92,7 @@ export function CodePanel() {
                 <div className="code-panel">
                     <div className={recordClasses.recordConfigTitleWrapper}>
                         <Typography variant="h4">
-                            <Box paddingTop={2} paddingBottom={2}>{"Record Configuration"}</Box>
+                            <Box paddingTop={2} paddingBottom={2}>{title}</Box>
                         </Typography>
                     </div>
                     <div className={recordClasses.recordTitleSeparator} />
@@ -85,10 +100,10 @@ export function CodePanel() {
                         <RecordField recordModel={state.recordModel} />
                     </div>
                     <div className={overlayClasses.buttonWrapper}>
-                        <SecondaryButton text="Cancel" fullWidth={false} onClick={null} />
+                        <SecondaryButton text={cancelButtonText} fullWidth={false} onClick={null} />
                         <PrimaryButton
                             dataTestId={"record-from-json-save-btn"}
-                            text={"Save"}
+                            text={saveButtonText}
                             disabled={state.isEditorInvalid}
                             fullWidth={false}
                             onClick={handleRecordSave}
