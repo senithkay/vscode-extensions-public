@@ -20,7 +20,6 @@ import { commands, window } from "vscode";
 import { PALETTE_COMMANDS } from "../project/cmds/cmd-runner";
 import { CMP_PROJECT_ADD, sendTelemetryException } from "../telemetry";
 import { BallerinaExtension, ballerinaExtInstance } from "../core";
-// import { initiateAsgardeoAuth } from "./asgardeo-impl";
 import { OAuthListener } from "./auth-listener";
 import { deleteChoreoKeytarSession } from "./auth-session";
 import { initiateInbuiltAuth } from "./inbuilt-impl";
@@ -29,7 +28,6 @@ async function activate(extension: BallerinaExtension) {
     commands.registerCommand(PALETTE_COMMANDS.CHOREO_SIGNIN, async () => {
         try {
             await new OAuthListener(3000, extension).StartProcess();
-            // initiateAsgardeoAuth();
             initiateInbuiltAuth(extension);
         } catch (error) {
             if (error instanceof Error) {

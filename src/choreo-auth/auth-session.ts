@@ -20,28 +20,6 @@ import keytar = require("keytar");
 import { ChoreoSession } from "../core";
 import { ChoreoSessionConfig } from "./config";
 
-// Session Store class to store the authentication data when using the Asgardeo SDK.
-export class SessionStore {
-    // Saves the data to the store.
-    async setData(key, value) {
-        await keytar.setPassword(ChoreoSessionConfig.ServiceName, key, value);
-    }
-
-    // Gets the data from the store.
-    async getData(key) {
-        let value: string = "";
-        await keytar.getPassword(ChoreoSessionConfig.ServiceName, key).then((result) => {
-            value = result!;
-        });
-        return value;
-    }
-
-    // Removes the date from the store.
-    async removeData(key) {
-        await keytar.deletePassword(ChoreoSessionConfig.ServiceName, key);
-    }
-}
-
 export async function getChoreoKeytarSession(): Promise<ChoreoSession> {
     if (process.env.OVERRIDE_CHOREO_AUTHENTICATION === 'true') {
         return {
