@@ -92,7 +92,7 @@ export class OAuthTokenHandler {
         if (!accessToken) {
             vscode.window.showErrorMessage(`Choreo Login Failed: Error while retreiving `
                 + `the access token!`);
-            return false;
+            return;
         }
 
         const params = new url.URLSearchParams({
