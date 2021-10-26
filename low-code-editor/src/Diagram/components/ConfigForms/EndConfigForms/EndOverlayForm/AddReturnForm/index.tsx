@@ -118,26 +118,20 @@ export function AddReturnForm(props: ReturnFormProps) {
                                     </div>
                                 </div>
                                 <div className={classes.formWrapper}>
-                                    {
-                                        (
-                                            <div className="exp-wrapper">
-                                                <ExpressionEditor
-                                                    model={{ name: "return expression", type: "var", value: config.expression }}
-                                                    customProps={{
-                                                        validate: validateExpression,
-                                                        tooltipTitle: returnStatementTooltipMessages.title,
-                                                        tooltipActionText: returnStatementTooltipMessages.actionText,
-                                                        tooltipActionLink: returnStatementTooltipMessages.actionLink,
-                                                        interactive: true,
-                                                        statementType: 'var'
-                                                    }}
-                                                    onChange={onReturnValueChange}
-                                                />
-                                            </div>
-                                        )
-                                        // : null
-                                    }
-
+                                    <div className="exp-wrapper">
+                                        <ExpressionEditor
+                                            model={{ name: "return expression", type: "var", value: config.expression }}
+                                            customProps={{
+                                                validate: validateExpression,
+                                                tooltipTitle: returnStatementTooltipMessages.title,
+                                                tooltipActionText: returnStatementTooltipMessages.actionText,
+                                                tooltipActionLink: returnStatementTooltipMessages.actionLink,
+                                                interactive: true,
+                                                statementType: 'var'
+                                            }}
+                                            onChange={onReturnValueChange}
+                                        />
+                                    </div>
                                 </div>
                                 <FormActionButtons
                                     cancelBtnText="Cancel"
