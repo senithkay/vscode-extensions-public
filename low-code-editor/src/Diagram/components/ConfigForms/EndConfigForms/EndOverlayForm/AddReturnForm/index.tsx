@@ -116,30 +116,29 @@ export function AddReturnForm(props: ReturnFormProps) {
                                     <div className={classes.statementEditor}>
                                         <StatementEditorButton onClick={handleStmtEditorButtonClick} disabled={true} />
                                     </div>
+                                </div>
+                                <div className={classes.formWrapper}>
+                                    {
+                                        // containsMainFunction ?
+                                        (
+                                            <div className="exp-wrapper">
+                                                <ExpressionEditor
+                                                    model={{ name: "return expression", type: "var", value: config.expression }}
+                                                    customProps={{
+                                                        validate: validateExpression,
+                                                        tooltipTitle: returnStatementTooltipMessages.title,
+                                                        tooltipActionText: returnStatementTooltipMessages.actionText,
+                                                        tooltipActionLink: returnStatementTooltipMessages.actionLink,
+                                                        interactive: true,
+                                                        statementType: 'var'
+                                                    }}
+                                                    onChange={onReturnValueChange}
+                                                />
+                                            </div>
+                                        )
+                                        // : null
+                                    }
 
-                                    <div className={classes.formWrapper}>
-                                        {
-                                            // containsMainFunction ?
-                                            (
-                                                <div className="exp-wrapper">
-                                                    <ExpressionEditor
-                                                        model={{ name: "return expression", type: "var", value: config.expression }}
-                                                        customProps={{
-                                                            validate: validateExpression,
-                                                            tooltipTitle: returnStatementTooltipMessages.title,
-                                                            tooltipActionText: returnStatementTooltipMessages.actionText,
-                                                            tooltipActionLink: returnStatementTooltipMessages.actionLink,
-                                                            interactive: true,
-                                                            statementType: 'var'
-                                                        }}
-                                                        onChange={onReturnValueChange}
-                                                    />
-                                                </div>
-                                            )
-                                            // : null
-                                        }
-
-                                    </div>
                                 </div>
                             </div>
                             <FormActionButtons
