@@ -31,7 +31,7 @@ export function FieldItem(props: FieldItemProps) {
 
     const [isFieldActionsVisible, setIsFieldActionsVisible] = useState(false);
 
-    const segmentLabel = `${field.type}${field.isFieldTypeOptional ? "?" :
+    const segmentLabel = `${field.type}${field.isArray ? "[]" : ""}${field.isFieldTypeOptional ? "?" :
         ""} ${field.name}${field.isFieldOptional ? "?" : ""}${field.value ? ` = ${field.value}` : ""};`;
 
     const handleDelete = () => {

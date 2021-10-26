@@ -54,7 +54,7 @@ export function EditRecordForm() {
         }
     };
 
-    const handleOptionalArrayChange = (text: string[]) => {
+    const handleArrayChange = (text: string[]) => {
         if (text) {
             state.currentRecord.isArray = text.length > 0;
             callBacks.onUpdateModel(state.recordModel);
@@ -106,7 +106,7 @@ export function EditRecordForm() {
                 testId="is-array"
                 values={["Is Array ?"]}
                 defaultValues={state.currentRecord.isArray ? ["Is Array ?"] : []}
-                onChange={handleOptionalArrayChange}
+                onChange={handleArrayChange}
             />
             <CheckBoxGroup
                 testId="is-closed"

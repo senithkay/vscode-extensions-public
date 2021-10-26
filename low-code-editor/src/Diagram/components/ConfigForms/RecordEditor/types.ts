@@ -14,7 +14,7 @@ export interface SimpleField {
     name: string;
     type: string;
     isFieldOptional: boolean;
-    isFieldTypeOptional: boolean;
+    isFieldTypeOptional?: boolean;
     value?: string;
     isArray?: boolean;
     isActive?: boolean;

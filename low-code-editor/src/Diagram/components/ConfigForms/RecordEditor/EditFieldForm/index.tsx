@@ -42,6 +42,7 @@ export function EditFieldForm() {
     let defaultValValidity = true;
     let fieldOptianality = false;
     let typeOptianality = false;
+    let isArrayDefaultVal = false;
     let defaultVal = "";
     if (isFieldUpdate) {
         type = state.currentField.type;
@@ -50,12 +51,14 @@ export function EditFieldForm() {
         fieldOptianality = state.currentField.isFieldOptional;
         typeOptianality = state.currentField.isFieldTypeOptional;
         defaultVal = state.currentField.value;
+        isArrayDefaultVal = state.currentField.isArray;
     }
     const [selectedType, setSelectedType] = useState(type);
     const [name, setName] = useState(fieldName);
     const [nameError, setNameError] = useState(varNameError);
     const [isFieldOptional, setIsFieldOptional] = useState(fieldOptianality);
     const [isTypeOptional, setIsTypeOptional] = useState(typeOptianality);
+    const [isArray, setIsArray] = useState(isArrayDefaultVal);
     const [defaultValue, setDefaultValue] = useState(defaultVal);
     const [validDefaultValue, setValidDefaultValue] = useState(defaultValValidity);
 
@@ -105,12 +108,19 @@ export function EditFieldForm() {
         }
     };
 
+    const handleArrayChange = (text: string[]) => {
+        if (text) {
+            setIsArray(text.length > 0);
+        }
+    };
+
     const handleFieldAdd = () => {
         if (!isFieldUpdate) {
             // Avoiding field add in field updates
             const field: SimpleField = {
                 name,
                 isFieldOptional,
+                isArray,
                 isFieldTypeOptional: isTypeOptional,
                 type: selectedType,
                 isActive: true,
@@ -125,6 +135,7 @@ export function EditFieldForm() {
             state.currentField.type = selectedType;
             state.currentField.isActive = true;
             state.currentField.value = defaultValue;
+            state.currentField.isArray = isArray;
         }
         callBacks.onUpdateModel(state.recordModel);
         callBacks.onChangeFormState(FormState.UPDATE_FIELD);
@@ -137,6 +148,7 @@ export function EditFieldForm() {
         setNameError("");
         setIsTypeOptional(false);
         setValidDefaultValue(true);
+        setIsArray(false);
     };
 
     const updateFields = () => {
@@ -145,6 +157,7 @@ export function EditFieldForm() {
         setIsFieldOptional(state.currentField.isFieldOptional);
         setNameError("");
         setIsTypeOptional(state.currentField.isFieldTypeOptional);
+        setIsArray(state.currentField.isArray);
     };
 
     const formField: FormField = {
@@ -229,6 +242,12 @@ export function EditFieldForm() {
                 values={["Is optional ?"]}
                 defaultValues={isTypeOptional ? ["Is optional ?"] : []}
                 onChange={handleOptionalTypeChange}
+            />
+            <CheckBoxGroup
+                testId="is-array"
+                values={["Is Array ?"]}
+                defaultValues={isArray ? ["Is Array ?"] : []}
+                onChange={handleArrayChange}
             />
             {!isFieldOptional && (
                 <ExpressionEditor {...defaultValueProps} />

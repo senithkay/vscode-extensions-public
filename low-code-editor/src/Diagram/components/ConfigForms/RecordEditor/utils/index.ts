@@ -10,7 +10,12 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { RecordTypeDesc, STKindChecker } from "@ballerina/syntax-tree";
+import {
+    RecordField,
+    RecordFieldWithDefaultValue,
+    RecordTypeDesc,
+    STKindChecker
+} from "@ballerina/syntax-tree";
 
 import { DiagramEditorLangClientInterface, JsonToRecordResponse, STSymbolInfo } from "../../../../../Definitions";
 import { Field, RecordModel, SimpleField } from "../types";
@@ -49,19 +54,44 @@ export function getRecordModel(typeDesc: RecordTypeDesc, name: string, isInline:
                 const subRecModels = getRecordModel(field.typeName, field.fieldName.value, true, "record");
                 recordModel.fields.push(subRecModels);
             } else if (STKindChecker.isOptionalTypeDesc(field.typeName)) {
+                const recField: SimpleField = STKindChecker.isArrayTypeDesc(field.typeName.typeDescriptor) ?
+                    (getArrayField(field) as SimpleField) : {
+                        name: field.fieldName.value,
+                        type: field.typeName.typeDescriptor.source.trim(),
+                        isFieldOptional: STKindChecker.isRecordField(field) ? (field.questionMarkToken !== undefined) :
+                            false
+                    };
+                recField.isFieldTypeOptional = true;
+                if (STKindChecker.isRecordFieldWithDefaultValue(field)) {
+                    recField.value = field.expression.literalToken ? field.expression.literalToken.value :
+                        field.expression.source.trim();
+                }
+                recordModel.fields.push(recField);
+            } else if (STKindChecker.isArrayTypeDesc(field.typeName)) {
+                const recField = (getArrayField(field) as SimpleField)
+                if (STKindChecker.isRecordFieldWithDefaultValue(field)) {
+                    recField.value = field.expression.literalToken ? field.expression.literalToken.value :
+                        field.expression.source.trim();
+                }
+                recordModel.fields.push(recField);
+            } else if (STKindChecker.isIntTypeDesc(field.typeName) || STKindChecker.isBooleanTypeDesc(field.typeName)
+                || STKindChecker.isFloatTypeDesc(field.typeName) || STKindChecker.isStringTypeDesc(field.typeName) ||
+                STKindChecker.isErrorTypeDesc(field.typeName) || STKindChecker.isNeverTypeDesc(field.typeName) ||
+                STKindChecker.isSimpleNameReference(field.typeName)) {
+                // when there is a simple field or when there is a referenced record
                 const recField: SimpleField = {
                     name: field.fieldName.value,
-                    type: field.typeName.typeDescriptor.source.trim(),
+                    type: field.typeName.name.value,
                     isFieldOptional: STKindChecker.isRecordField(field) ? (field.questionMarkToken !== undefined) :
                         false,
-                    isFieldTypeOptional: true,
+                    isFieldTypeOptional: false,
                 }
                 if (STKindChecker.isRecordFieldWithDefaultValue(field)) {
-                    recField.value = field.expression.literalToken.value;
+                    recField.value = field.expression.literalToken ? field.expression.literalToken.value :
+                        field.expression.source.trim();
                 }
                 recordModel.fields.push(recField);
             } else {
-                // when there is a simple field or when there is a referenced record
                 const recField: SimpleField = {
                     name: field.fieldName.value,
                     type: field.typeName.source.trim(),
@@ -70,13 +100,46 @@ export function getRecordModel(typeDesc: RecordTypeDesc, name: string, isInline:
                     isFieldTypeOptional: false,
                 }
                 if (STKindChecker.isRecordFieldWithDefaultValue(field)) {
-                    recField.value = field.expression.literalToken.value;
+                    recField.value = field.expression.literalToken ? field.expression.literalToken.value :
+                        field.expression.source.trim();
                 }
                 recordModel.fields.push(recField);
             }
         })
     }
     return recordModel;
+}
+
+export function getArrayField(field: RecordField | RecordFieldWithDefaultValue) : SimpleField | RecordModel {
+    let recField: SimpleField | RecordModel;
+    if ((STKindChecker.isOptionalTypeDesc(field.typeName)) &&
+        STKindChecker.isArrayTypeDesc(field.typeName.typeDescriptor)) {
+        recField = {
+            name: field.fieldName.value,
+            type: field.typeName.typeDescriptor.memberTypeDesc.source.trim(),
+            isFieldOptional: STKindChecker.isRecordField(field) ? (field.questionMarkToken !== undefined) :
+                false,
+            isFieldTypeOptional: false,
+            isArray: true,
+        }
+    } else if (STKindChecker.isArrayTypeDesc(field.typeName)) {
+        if (STKindChecker.isRecordTypeDesc(field.typeName.memberTypeDesc)) {
+            // when there is a inline record
+            recField = getRecordModel(field.typeName.memberTypeDesc, field.fieldName.value, true,
+                "record");
+            recField.isArray = true;
+        } else {
+            recField = {
+                name: field.fieldName.value,
+                type: field.typeName.memberTypeDesc.source.trim(),
+                isFieldOptional: STKindChecker.isRecordField(field) ? (field.questionMarkToken !== undefined) :
+                    false,
+                isFieldTypeOptional: false,
+                isArray: true,
+            }
+        }
+    }
+    return recField;
 }
 
 export function getGeneratedCode(model: Field, isTypeDef: boolean): string {
@@ -97,8 +160,8 @@ export function getGeneratedCode(model: Field, isTypeDef: boolean): string {
         codeGenerated = recordBegin + fieldCode + recordEnd;
     } else {
         const fieldModel = model as SimpleField;
-        codeGenerated = `${fieldModel.type}${fieldModel.isFieldTypeOptional ? "?" :
-            ""}${fieldModel.isArray ? "[]" : ""} ${fieldModel.name}${fieldModel.isFieldOptional ? "?" : ""} ${
+        codeGenerated = `${fieldModel.type}${fieldModel.isArray ? "[]" : ""}${fieldModel.isFieldTypeOptional ? "?" :
+            ""} ${fieldModel.name}${fieldModel.isFieldOptional ? "?" : ""} ${
             fieldModel.value ? ` = ${fieldModel.value}` : ""};`;
     }
     return codeGenerated;
