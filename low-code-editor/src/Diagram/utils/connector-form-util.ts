@@ -446,6 +446,20 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
                 }
             });
             break;
+        case 'ballerinax_github_Client':
+            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
+                if (key === INIT) {
+                    // TODO: Remove this after fixing GitHub connector required field list.
+                    value.parameters.find(fields => fields.name === "config").fields
+                        .forEach(field => {
+                            if (field.name !== "auth"){
+                                field.optional = true;
+                            }
+                        });
+                }
+                filteredFunctions.set(key, value);
+            });
+            break;
         case 'ballerinax_sfdc_Client':
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 if (key === "createJob") {
