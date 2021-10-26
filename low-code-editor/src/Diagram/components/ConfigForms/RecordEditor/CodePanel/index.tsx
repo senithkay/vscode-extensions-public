@@ -27,8 +27,6 @@ import { RecordField } from "../RecordField";
 import { recordStyles } from "../style";
 import { getGeneratedCode } from "../utils";
 
-import "./style.scss";
-
 export function CodePanel() {
     const { state } = useRecordEditorContext();
     const { api: { code: { modifyDiagram } } } = useDiagramContext();
