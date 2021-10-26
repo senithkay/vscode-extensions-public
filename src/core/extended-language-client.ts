@@ -212,8 +212,9 @@ export interface PartialSTResponse {
 export interface PerformanceAnalyzerGraphRequest {
     documentIdentifier: DocumentIdentifier;
     range: Range;
-    choreoToken: String;
+    choreoAPI: String;
     choreoCookie: String;
+    choreoToken: String;
 }
 
 export interface PerformanceAnalyzerGraphResponse {

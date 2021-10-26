@@ -24,6 +24,7 @@ import { ExecutorCodeLensProvider } from "./codelens-provider";
 import { log } from "../utils";
 import { showPerformanceGraph } from "./performanceGraphPanel";
 
+const CHOREO_API = "http://choreocontrolplane.preview-dv.choreo.dev/performance-analyzer/1.0.0/get_estimations/2.0";
 const CHOREO_AUTH_ERR = "Choreo Authentication error.";
 const NETWORK_ERR = "Network error. Please check you internet connection.";
 let langClient: ExtendedLangClient;
@@ -89,7 +90,7 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
     }
 
     const choreoToken = extension.getChoreoSession().choreoToken!;
-    const choreoCookie = extension.getChoreoSession().choreoCookie!;
+    const choreoCookie = "";
 
     if (!uri || !langClient || !pos) {
         return;
@@ -112,6 +113,7 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
                     character: pos.end.character
                 }
             },
+            choreoAPI: CHOREO_API,
             choreoToken: `Bearer ${choreoToken}`,
             choreoCookie: choreoCookie,
         }).then(async (response) => {
@@ -144,6 +146,7 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
                     character: pos.end.character
                 }
             },
+            choreoAPI: CHOREO_API,
             choreoToken: `Bearer ${choreoToken}`,
             choreoCookie: choreoCookie,
         }).then(async (response) => {
@@ -175,13 +178,17 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
     function checkErrors(response: PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse) {
         if (response.message === 'AUTHENTICATION_ERROR') {
             // Choreo Auth Error
-            window.showInformationMessage(
+            window.showErrorMessage(
                 CHOREO_AUTH_ERR
             );
         } else if (response.message === 'CONNECTION_ERROR') {
             // Internet Connection Error
-            window.showInformationMessage(
+            window.showErrorMessage(
                 NETWORK_ERR
+            );
+        } else {
+            window.showErrorMessage(
+                "Some Error occurred."
             );
         }
     }
