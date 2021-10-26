@@ -182,11 +182,6 @@ export function AddForeachForm(props: ForeachProps) {
         defaultMessage: "Cancel"
     });
 
-    const statementEditorLabel = intl.formatMessage({
-        id: "lowcode.develop.configForms.forEach.statementEditor.label",
-        defaultMessage: "Foreach Statement"
-    });
-
     const expElementProps: FormElementProps = {
         model: formField,
         customProps: {
@@ -269,7 +264,10 @@ export function AddForeachForm(props: ForeachProps) {
                             // TODO: Send proper props according to the form type
                             <ViewContainer
                                 kind="DefaultString"
-                                label={statementEditorLabel}
+                                label={intl.formatMessage({
+                                    id: "lowcode.develop.configForms.forEach.statementEditor.label",
+                                    defaultMessage: "Foreach Statement"
+                                })}
                                 formArgs={formArgs}
                                 onCancel={handleStmtEditorCancel}
                             />

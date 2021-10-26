@@ -228,11 +228,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         defaultMessage: "Type"
     });
 
-    const statementEditorLabel = intl.formatMessage({
-        id: "lowcode.develop.configForms.variable.statementEditor.label",
-        defaultMessage: "Variable Statement"
-    });
-
     const variableTooltipMessages = {
         customVariableType: {
             title: intl.formatMessage({
@@ -366,7 +361,10 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                     </div>
                     <ViewContainer
                         kind="DefaultString" // TODO: Derive the kind from the user input
-                        label={statementEditorLabel}
+                        label={intl.formatMessage({
+                            id: "lowcode.develop.configForms.variable.statementEditor.label",
+                            defaultMessage: "Variable Statement"
+                        })}
                         formArgs={formArgs}
                         userInputs={userInputs}
                         isMutationInProgress={isMutationInProgress}

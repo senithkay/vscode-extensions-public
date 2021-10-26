@@ -123,11 +123,6 @@ export function AddIfForm(props: IfProps) {
         defaultMessage: "Cancel"
     });
 
-    const statementEditorLabel = intl.formatMessage({
-        id: "lowcode.develop.configForms.if.statementEditor.label",
-        defaultMessage: "If-Else Statement"
-    });
-
     let exprEditor =
         (
             <FormControl data-testid="if-form" className={classes.wizardFormControl}>
@@ -182,7 +177,10 @@ export function AddIfForm(props: IfProps) {
                             // TODO: Send proper props according to the form type
                             <ViewContainer
                                 kind="DefaultBoolean"
-                                label={statementEditorLabel}
+                                label={intl.formatMessage({
+                                    id: "lowcode.develop.configForms.if.statementEditor.label",
+                                    defaultMessage: "If-Else Statement"
+                                })}
                                 formArgs={formArgs}
                                 onCancel={handleStmtEditorCancel}
                             />
