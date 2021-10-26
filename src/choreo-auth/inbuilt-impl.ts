@@ -23,7 +23,13 @@ import { OAuthListener } from "./auth-listener";
 import { ChoreoAuthConfig } from "./config";
 import { getChoreoKeytarSession, setChoreoKeytarSession } from "./auth-session";
 import jwt_decode from "jwt-decode";
+
 const url = require('url');
+
+const AUTH_FAIL = "Choreo Login Failed: ";
+const AuthCodeError = "Error while retreiving the authentication code details!";
+const AccessTokenError = "Error while retreiving the access token details!";
+const ApimTokenError = "Error while retreiving the apim token details!";
 
 export async function initiateInbuiltAuth(extension: BallerinaExtension) {
     vscode.commands.executeCommand("vscode.open", vscode.Uri.parse(getAuthURL()));
@@ -41,8 +47,7 @@ export class OAuthTokenHandler {
 
     public async exchangeAuthToken(authCode: string): Promise<boolean> {
         if (!authCode) {
-            vscode.window.showErrorMessage(`Choreo Login Failed: Error while retreiving `
-                + `the authentication code details!`);
+            vscode.window.showErrorMessage(AUTH_FAIL + AuthCodeError);
         } else {
             // To bypass the self signed server error.
             process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
@@ -78,11 +83,10 @@ export class OAuthTokenHandler {
 
                     await this.exchangeApimToken(token);
                 } else {
-                    vscode.window.showErrorMessage(`Choreo Login Failed: Error while retreiving `
-                        + `the access token details!`);
+                    vscode.window.showErrorMessage(AUTH_FAIL + AccessTokenError);
                 }
             }).catch((err) => {
-                vscode.window.showErrorMessage(`Choreo Login Failed: ` + err);
+                vscode.window.showErrorMessage(AUTH_FAIL + err);
             });
         }
         return this.status;
@@ -90,8 +94,7 @@ export class OAuthTokenHandler {
 
     public async exchangeApimToken(accessToken: string) {
         if (!accessToken) {
-            vscode.window.showErrorMessage(`Choreo Login Failed: Error while retreiving `
-                + `the access token!`);
+            vscode.window.showErrorMessage(AUTH_FAIL + AccessTokenError);
             return;
         }
 
@@ -125,20 +128,18 @@ export class OAuthTokenHandler {
                         this.status = true;
                         console.debug("Choreo User: " + result.choreoUser);
                         console.debug("Choreo APIM Token: " + result.choreoToken);
-                        // Show the sucess message in vscode.
+                        // Show the success message in vscode.
                         vscode.window.showInformationMessage(`Successfully Logged into Choreo!`);
                         this.extension.getChoreoSessionTreeProvider()?.refresh();
                     } else {
-                        vscode.window.showErrorMessage(`Choreo Login Failed: Error while retrieving`
-                            + ` the apim token details!`);
+                        vscode.window.showErrorMessage(AUTH_FAIL + ApimTokenError);
                     }
                 });
             } else {
-                vscode.window.showErrorMessage(`Choreo Login Failed: Error while retreiving `
-                    + `the apim token details!`);
+                vscode.window.showErrorMessage(AUTH_FAIL + ApimTokenError);
             }
         }).catch((err) => {
-            vscode.window.showErrorMessage(`Choreo Login Failed: ` + err);
+            vscode.window.showErrorMessage(AUTH_FAIL + err);
         });
     }
 }
