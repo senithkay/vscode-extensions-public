@@ -16,8 +16,8 @@ import { FormattedMessage } from "react-intl";
 
 import { FormHelperText, TextField as MuiTextField } from "@material-ui/core";
 
-import { isValidTextInput, validateEmail } from "../../../../Portals/utils";
 import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms/style";
+import { isValidTextInput, validateEmail } from "../../../../Portals/utils";
 import { FormElementProps } from "../../../Types";
 import { useStyles as useTextInputStyles } from "../style";
 

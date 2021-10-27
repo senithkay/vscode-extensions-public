@@ -16,8 +16,8 @@ import { FormattedMessage } from "react-intl";
 
 import { FormControlLabel, FormHelperText, Radio, RadioGroup } from "@material-ui/core";
 
-import { getCollectionForRadio } from "../../../../Portals/utils";
 import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms/style";
+import { getCollectionForRadio } from "../../../../Portals/utils";
 import { FormElementProps } from "../../../Types";
 import { useStyles as useRadioControlStyles } from "../style";
 import '../style.scss'

@@ -15,9 +15,9 @@ import React from "react";
 
 import { FormField } from "../../../../../ConfigurationSpec/types";
 import {isAllEmpty, isAllOptional, isAllValid} from "../../../../../utils/validator";
-import FormAccordion from "../../FormAccordion";
-import { getFormElement } from "../../../Portals/utils";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
+import { getFormElement } from "../../../Portals/utils";
+import FormAccordion from "../../FormAccordion";
 import { FormElementProps } from "../../Types";
 
 interface RecordProps {

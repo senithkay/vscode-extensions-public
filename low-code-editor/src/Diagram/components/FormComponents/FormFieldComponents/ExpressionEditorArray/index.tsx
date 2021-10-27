@@ -18,7 +18,6 @@ import { AddRounded } from "@material-ui/icons";
 import { useStyles } from "../../../Portals/ConfigForm/forms/style"
 import { FormElementProps } from "../../Types";
 import { IconBtnWithText } from "../Button/IconBtnWithText";
-import { PrimaryButton } from "../Button/PrimaryButton";
 import ExpressionEditor, { ExpressionEditorProps } from "../ExpressionEditor";
 import { getInitialValue, transformFormFieldTypeToString } from "../ExpressionEditor/utils";
 import { ExpressionEditorLabel } from "../ExpressionEditorLabel";
