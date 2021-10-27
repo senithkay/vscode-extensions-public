@@ -15,8 +15,6 @@
 // tslint:disable: jsx-wrap-multiline
 import React, { ReactNode, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-export const SSO_TYPE = "sso";
-const GITHUB_CONNECTION = "GitHub";
 
 import { Typography } from "@material-ui/core";
 import Box from '@material-ui/core/Box';
@@ -31,8 +29,10 @@ import { TooltipIcon } from "../../../../../components/Tooltip";
 import { PrimaryButtonSquare } from '../../../Buttons/PrimaryButtonSquare';
 import { LinePrimaryButton } from "../../FormFieldComponents/Button/LinePrimaryButton";
 import { AccountAvatar } from '../AccountAvatar';
-
 import { useStyles } from "../styles";
+export const SSO_TYPE = "sso";
+const GITHUB_CONNECTION = "GitHub";
+
 
 export interface ConnectionListProps {
     activeConnection: ConnectionDetails;
