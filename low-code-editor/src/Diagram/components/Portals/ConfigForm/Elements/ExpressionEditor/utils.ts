@@ -55,6 +55,7 @@ export function diagnosticChecker(diagnostics: Diagnostic[]): boolean {
 export function addToTargetLine(oldModelValue: string, targetPosition: NodePosition, codeSnippet: string, EOL?: string): string {
     const modelContent: string[] = oldModelValue.split(/\n/g) || [];
     if (targetPosition?.startColumn){
+        // FIXME: The following logic fails completely when inserting code where target position is multiline
         modelContent[targetPosition?.startLine] = addToTargetPosition(modelContent[targetPosition?.startLine], targetPosition?.startColumn, codeSnippet, targetPosition?.endColumn || targetPosition.startColumn);
     }else{
         modelContent.splice(targetPosition?.startLine, 0, codeSnippet);

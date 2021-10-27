@@ -94,7 +94,7 @@ const insertComponentStart = (dispatch: any) => {
 }
 
 const editorComponentStart = (dispatch: any) => {
-    return (payload: STNode) => {
+    return (payload: NodePosition) => {
         dispatch({ type: 'EDITOR_COMPONENT_START', payload })
     }
 }
