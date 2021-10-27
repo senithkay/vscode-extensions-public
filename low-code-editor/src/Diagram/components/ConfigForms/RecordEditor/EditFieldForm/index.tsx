@@ -27,7 +27,7 @@ import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { FormElementProps } from "../../../Portals/ConfigForm/types";
 import { keywords } from "../../../Portals/utils/constants";
 import { recordStyles } from "../style";
-import { SimpleField } from "../types";
+import { RecordModel, SimpleField } from "../types";
 
 export function EditFieldForm() {
 
@@ -96,15 +96,17 @@ export function EditFieldForm() {
     const [isArray, setIsArray] = useState(isArrayDefaultVal);
     const [defaultValue, setDefaultValue] = useState(defaultVal);
     const [validDefaultValue, setValidDefaultValue] = useState(defaultValValidity);
+    const [clearExpEditor, setClearExpEditor] = useState(false);
 
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 
     const variableTypes: string[] = ["int", "float", "decimal", "boolean", "string", "json", "xml", "error", "any",
-        "anydata"];
+        "anydata", "record"];
 
     const handleTypeSelect = (typeSelected: string) => {
         setSelectedType(typeSelected);
         setDefaultValue("");
+        setClearExpEditor(true);
     };
 
     const handleNameChange = (inputText: string) => {
@@ -151,18 +153,39 @@ export function EditFieldForm() {
 
     const handleFieldAdd = () => {
         if (!isFieldUpdate) {
-            // Avoiding field add in field updates
-            const field: SimpleField = {
-                name,
-                isFieldOptional,
-                isArray,
-                isFieldTypeOptional: isTypeOptional,
-                type: selectedType,
-                isActive: true,
-                value: defaultValue
-            };
-            state.currentRecord.fields.push(field);
-            callBacks.onUpdateCurrentField(field);
+            if (state.currentField) {
+                state.currentField.isActive = false;
+            }
+            state.currentField = undefined;
+            if (selectedType === "record") {
+                const recordModel: RecordModel = {
+                    name,
+                    isArray,
+                    isOptional: isFieldOptional,
+                    isActive: true,
+                    type: selectedType,
+                    isTypeDefinition: false,
+                    isInline: true,
+                    fields: []
+                };
+                state.currentRecord.fields.push(recordModel);
+                state.currentRecord = recordModel;
+                callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
+            } else {
+                // Avoiding field add in field updates
+                const field: SimpleField = {
+                    name,
+                    isFieldOptional,
+                    isArray,
+                    isFieldTypeOptional: isTypeOptional,
+                    type: selectedType,
+                    isActive: true,
+                    value: defaultValue
+                };
+                state.currentRecord.fields.push(field);
+                callBacks.onUpdateCurrentField(field);
+                callBacks.onChangeFormState(FormState.UPDATE_FIELD);
+            }
         } else {
             state.currentField.name = name;
             state.currentField.isFieldOptional = isFieldOptional;
@@ -171,10 +194,14 @@ export function EditFieldForm() {
             state.currentField.isActive = true;
             state.currentField.value = defaultValue;
             state.currentField.isArray = isArray;
+            callBacks.onChangeFormState(FormState.UPDATE_FIELD);
         }
         callBacks.onUpdateModel(state.recordModel);
-        callBacks.onChangeFormState(FormState.UPDATE_FIELD);
-    }
+    };
+
+    const revertClearInput = () => {
+        setClearExpEditor(false);
+    };
 
     const resetFields = () => {
         setSelectedType("int");
@@ -184,6 +211,8 @@ export function EditFieldForm() {
         setIsTypeOptional(false);
         setValidDefaultValue(true);
         setIsArray(false);
+        setDefaultValue("");
+        setClearExpEditor(true);
     };
 
     const updateFields = () => {
@@ -206,7 +235,9 @@ export function EditFieldForm() {
         model: formField,
         customProps: {
             validate: validateDefaultValue,
-            statementType: formField.typeName
+            statementType: formField.typeName,
+            clearInput: clearExpEditor,
+            revertClearInput
         },
         onChange: handleDefaultValueChange,
         defaultValue
@@ -278,7 +309,7 @@ export function EditFieldForm() {
                 defaultValues={isArray ? ["Is Array ?"] : []}
                 onChange={handleArrayChange}
             />
-            {!isFieldOptional && (
+            {!isFieldOptional && (selectedType !== "record") && (
                 <ExpressionEditor {...defaultValueProps} />
             )}
 
