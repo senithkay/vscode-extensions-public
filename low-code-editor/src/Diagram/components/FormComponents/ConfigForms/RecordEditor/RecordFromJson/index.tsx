@@ -20,12 +20,12 @@ import { Context } from "../../../../../../Contexts/Diagram";
 import { STModification } from "../../../../../../Definitions";
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
 import { createPropertyStatement } from "../../../../../utils/modification-util";
+import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
+import { keywords } from "../../../../Portals/utils/constants";
 import { PrimaryButton } from "../../../FormFieldComponents/Button/PrimaryButton";
 import { SecondaryButton } from "../../../FormFieldComponents/Button/SecondaryButton";
 import { FormTextArea } from "../../../FormFieldComponents/TextField/FormTextArea";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
-import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
-import { keywords } from "../../../../Portals/utils/constants";
 import { wizardStyles } from "../../style";
 import { convertToRecord, getRecordPrefix } from "../utils";
 

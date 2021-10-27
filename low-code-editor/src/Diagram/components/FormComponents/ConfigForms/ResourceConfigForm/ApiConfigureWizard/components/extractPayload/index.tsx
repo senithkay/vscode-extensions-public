@@ -15,9 +15,9 @@ import React, { useContext, useEffect, useState } from "react";
 import { Grid } from "@material-ui/core";
 
 import { Context } from "../../../../../../../../Contexts/Diagram";
+import { checkVariableName } from "../../../../../../Portals/utils";
 import { SelectDropdownWithButton } from "../../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import { FormTextInput } from "../../../../../FormFieldComponents/TextField/FormTextInput";
-import { checkVariableName } from "../../../../../../Portals/utils";
 import { Payload } from "../../types";
 import { convertPayloadStringToPayload, payloadTypes } from "../../util";
 
