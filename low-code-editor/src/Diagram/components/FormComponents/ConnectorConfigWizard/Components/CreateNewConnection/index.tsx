@@ -21,13 +21,12 @@ import { Section } from "../../../../../../components/ConfigPanel";
 import { ConnectorConfig, FormField } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
 import { Connector } from "../../../../../../Definitions/lang-client-extended";
-import { LinePrimaryButton } from "../../../FormFieldComponents/Button/LinePrimaryButton";
-import { PrimaryButton } from "../../../FormFieldComponents/Button/PrimaryButton";
-import { SecondaryButton } from "../../../FormFieldComponents/Button/SecondaryButton";
-import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
 import { Form } from "../../../../Portals/ConfigForm/forms/Components/Form";
 import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { checkVariableName, getManualConnectionDetailsFromFormFields } from "../../../../Portals/utils";
+import { LinePrimaryButton } from "../../../FormFieldComponents/Button/LinePrimaryButton";
+import { PrimaryButton } from "../../../FormFieldComponents/Button/PrimaryButton";
+import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
 import { wizardStyles } from "../../style";
 
 interface CreateConnectorFormProps {

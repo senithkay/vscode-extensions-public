@@ -22,11 +22,11 @@ import { Context } from '../../../../../../Contexts/Diagram';
 import { STSymbolInfo } from "../../../../../../Definitions";
 import { STModification } from "../../../../../../Definitions/lang-client-extended";
 import { getAllVariables } from "../../../../../utils/mixins";
-import { PrimaryButton } from "../../../FormFieldComponents/Button/PrimaryButton";
-import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
 import { Form } from "../../../../Portals/ConfigForm/forms/Components/Form";
 import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { checkVariableName, genVariableName, getActionReturnType } from "../../../../Portals/utils";
+import { PrimaryButton } from "../../../FormFieldComponents/Button/PrimaryButton";
+import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
 import { wizardStyles } from "../../style";
 import { ConnectorOperation } from '../ConnectorForm';
 

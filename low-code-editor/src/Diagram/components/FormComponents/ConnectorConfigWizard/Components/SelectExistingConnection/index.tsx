@@ -20,9 +20,9 @@ import classNames from "classnames";
 
 import { ConnectorConfig } from "../../../../../../ConfigurationSpec/types";
 import { Connector } from "../../../../../../Definitions/lang-client-extended";
-import { SelectDropdownWithButton } from "../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { matchEndpointToFormField } from "../../../../Portals/utils";
+import { SelectDropdownWithButton } from "../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import { wizardStyles } from "../../style";
 
 interface SelectConnectionFormProps {

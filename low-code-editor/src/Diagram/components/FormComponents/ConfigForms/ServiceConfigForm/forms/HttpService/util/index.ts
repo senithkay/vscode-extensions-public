@@ -12,7 +12,6 @@
  */
 
 import { ServiceDeclaration, STKindChecker } from "@ballerina/syntax-tree";
-import { debug } from "webpack";
 
 import { STSymbolInfo } from "../../../../../../../..";
 import { isServicePathValid } from "../../../../../../../../utils/validator";

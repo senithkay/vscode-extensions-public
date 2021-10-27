@@ -28,11 +28,11 @@ import {
 } from "../../../../Definitions/lang-client-extended";
 // import { closeConfigOverlayForm configOverlayFormPrepareStart } from "../../$store/actions";
 import { DefaultConfig } from "../../../visitors/default";
-import { FormGenerator } from "../FormGenerator";
 import {
   DiagramOverlayPosition,
 } from "../../Portals/Overlay";
 import { fetchConnectorInfo } from "../../Portals/utils";
+import { FormGenerator } from "../FormGenerator";
 
 import { wizardStyles } from "./style";
 // import { pan as acpan } from 'store/actions/preference';
