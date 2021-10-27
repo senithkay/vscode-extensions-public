@@ -26,7 +26,7 @@ import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
-import { useStatementEdior } from "../../../../Portals/ConfigForm/Elements/StatementEditor/components/hooks";
+import { useStatementEdior } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
 
 interface IfProps {
     condition: ConditionConfig;
@@ -117,7 +117,7 @@ export function AddIfForm(props: IfProps) {
         defaultMessage: "Cancel"
     });
 
-    const {stmtButton , stmtEditor} = useStatementEdior(
+    const {stmtEditorButton , stmtEditorComponent} = useStatementEdior(
         {
             kind: "DefaultString",
             label: "Variable Statement",
@@ -130,7 +130,7 @@ export function AddIfForm(props: IfProps) {
         },
         true);
 
-    if (!stmtEditor) {
+    if (!stmtEditorComponent) {
         return (
                 <FormControl data-testid="if-form" className={classes.wizardFormControl}>
                     <div className={classes.formWrapper}>
@@ -147,7 +147,7 @@ export function AddIfForm(props: IfProps) {
                                             </Box>
                                         </Typography>
                                     </div>
-                                    {stmtButton}
+                                    {stmtEditorButton}
                                 </div>
                                 <div className="exp-wrapper">
                                     <ExpressionEditor {...expElementProps} />
@@ -167,6 +167,6 @@ export function AddIfForm(props: IfProps) {
             );
     }
     else {
-        return stmtEditor;
+        return stmtEditorComponent;
     }
 }

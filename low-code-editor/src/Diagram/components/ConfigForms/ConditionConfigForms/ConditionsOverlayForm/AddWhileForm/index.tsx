@@ -26,7 +26,7 @@ import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
-import {useStatementEdior} from "../../../../Portals/ConfigForm/Elements/StatementEditor/components/hooks";
+import { useStatementEdior } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
 import classnames from "classnames";
 
 export interface WhileProps {
@@ -109,7 +109,7 @@ export function AddWhileForm(props: WhileProps) {
         defaultMessage: "Cancel"
     });
 
-    const {stmtButton , stmtEditor} = useStatementEdior(
+    const {stmtEditorButton , stmtEditorComponent} = useStatementEdior(
         {
             kind: "DefaultBoolean",
             label: "While Statement",
@@ -122,7 +122,7 @@ export function AddWhileForm(props: WhileProps) {
         },
         true);
 
-    if (!stmtEditor) {
+    if (!stmtEditorComponent) {
         return  (
                 <FormControl data-testid="while-form" className={classes.wizardFormControl}>
                     <div className={classes.formWrapper}>
@@ -143,7 +143,7 @@ export function AddWhileForm(props: WhileProps) {
                                             </Box>
                                         </Typography>
                                     </div>
-                                    {stmtButton}
+                                    {stmtEditorButton}
                                 </div>
                                 <div className={classes.codeWrapper}>
                                     <div className={classes.start}>
@@ -181,7 +181,7 @@ export function AddWhileForm(props: WhileProps) {
             );
     }
     else {
-        return stmtEditor;
+        return stmtEditorComponent;
     }
 
 

@@ -27,7 +27,7 @@ import { ReturnIcon } from "../../../../../../assets/icons";
 import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
-import { useStatementEdior } from "../../../../Portals/ConfigForm/Elements/StatementEditor/components/hooks";
+import { useStatementEdior } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
 
 interface ReturnFormProps {
     config: EndConfig;
@@ -89,7 +89,7 @@ export function AddReturnForm(props: ReturnFormProps) {
 
     const containsMainFunction = triggerType && (triggerType === "Manual" || triggerType === "Schedule"); // todo: this is not working due to triggerType is blank.
 
-    const {stmtButton , stmtEditor} = useStatementEdior(
+    const {stmtEditorButton , stmtEditorComponent} = useStatementEdior(
         {
             kind: "DefaultString",
             label: "Variable Statement",
@@ -102,7 +102,7 @@ export function AddReturnForm(props: ReturnFormProps) {
         },
         true);
 
-    if (!stmtEditor){
+    if (!stmtEditorComponent){
         return (
                 <FormControl data-testid="return-form" className={classes.wizardFormControl}>
                     <div className={classes.formWrapper}>
@@ -115,9 +115,8 @@ export function AddReturnForm(props: ReturnFormProps) {
                                     <Typography variant="h4">
                                         <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.Return.title" defaultMessage="Return" /></Box>
                                     </Typography>
-                                    {stmtButton}
                                 </div>
-
+                                {stmtEditorButton}
                                 <div className={classes.formWrapper}>
                                     {
                                         // containsMainFunction ?
@@ -155,6 +154,6 @@ export function AddReturnForm(props: ReturnFormProps) {
             );
     }
     else {
-        return stmtEditor
+        return stmtEditorComponent
     }
 }

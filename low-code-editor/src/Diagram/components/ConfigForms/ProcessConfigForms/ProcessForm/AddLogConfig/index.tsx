@@ -29,7 +29,7 @@ import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
-import { useStatementEdior } from "../../../../Portals/ConfigForm/Elements/StatementEditor/components/hooks";
+import { useStatementEdior } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
 
 interface LogConfigProps {
     config: ProcessConfig;
@@ -114,7 +114,7 @@ export function AddLogConfig(props: LogConfigProps) {
     }
 
 
-    const {stmtButton , stmtEditor} = useStatementEdior(
+    const {stmtEditorButton , stmtEditorComponent} = useStatementEdior(
                                                 {
                                                     kind: "DefaultString",
                                                     label: "Variable Statement",
@@ -127,7 +127,7 @@ export function AddLogConfig(props: LogConfigProps) {
                                                 },
                                                 true);
 
-    if (!stmtEditor) {
+    if (!stmtEditorComponent) {
         return (
             <FormControl data-testid="log-form" className={formClasses.wizardFormControl}>
                 <div className={formClasses.formWrapper}>
@@ -141,8 +141,8 @@ export function AddLogConfig(props: LogConfigProps) {
                                     <Typography variant="h4">
                                         <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.log.title" defaultMessage="Log" /></Box>
                                     </Typography>
-                                    {stmtButton}
                                 </div>
+                                {stmtEditorButton}
                             </div>
                             <SelectDropdownWithButton
                                 defaultValue={logType}
@@ -184,6 +184,6 @@ export function AddLogConfig(props: LogConfigProps) {
         );
     }
     else {
-        return stmtEditor;
+        return stmtEditorComponent;
     }
 }

@@ -25,7 +25,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import LogoCircleIcon from "../../../../../../assets/icons/LogoCircle";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
-import { useStatementEdior } from "../../../../Portals/ConfigForm/Elements/StatementEditor/components/hooks";
+import { useStatementEdior } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
 
 interface LogConfigProps {
     config: ProcessConfig;
@@ -91,7 +91,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
     }
 
-    const {stmtButton , stmtEditor} = useStatementEdior(
+    const {stmtEditorButton , stmtEditorComponent} = useStatementEdior(
         {
             kind: "DefaultString",
             label: "Variable Statement",
@@ -104,7 +104,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         },
         true);
 
-    if (!stmtEditor){
+    if (!stmtEditorComponent){
         return (
                 <FormControl data-testid="custom-expression-form" className={formClasses.wizardFormControl}>
                     <div className={formClasses.formWrapper}>
@@ -121,8 +121,8 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                                                 />
                                             </Box>
                                         </Typography>
-                                        {stmtButton}
                                     </div>
+                                    {stmtEditorButton}
                                 </div>
                                 <div className="exp-wrapper">
                                     <ExpressionEditor
@@ -157,6 +157,6 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
             );
     }
     else{
-        return stmtEditor;
+        return stmtEditorComponent;
     }
 }

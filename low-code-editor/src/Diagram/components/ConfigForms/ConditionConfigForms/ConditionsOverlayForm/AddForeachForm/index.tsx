@@ -31,7 +31,7 @@ import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
-import { useStatementEdior } from "../../../../Portals/ConfigForm/Elements/StatementEditor/components/hooks";
+import { useStatementEdior } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
 
 interface Iterations {
     start?: string;
@@ -209,7 +209,7 @@ export function AddForeachForm(props: ForeachProps) {
         defaultValue: conditionExpression.collection,
     };
 
-    const {stmtButton , stmtEditor} = useStatementEdior(
+    const {stmtEditorButton , stmtEditorComponent} = useStatementEdior(
         {
             kind: "DefaultString",
             label: "Variable Statement",
@@ -222,7 +222,7 @@ export function AddForeachForm(props: ForeachProps) {
         },
         true);
 
-    if (!stmtEditor) {
+    if (!stmtEditorComponent) {
         return (
                 <FormControl data-testid="foreach-form" className={classes.wizardFormControl}>
                     <div className={classes.formWrapper}>
@@ -242,7 +242,7 @@ export function AddForeachForm(props: ForeachProps) {
                                             </Box>
                                         </Typography>
                                     </div>
-                                    {stmtButton}
+                                    {stmtEditorButton}
                                 </div>
                                 <FormTextInput
                                     customProps={{
@@ -272,7 +272,7 @@ export function AddForeachForm(props: ForeachProps) {
             );
     }
     else  {
-        return stmtEditor;
+        return stmtEditorComponent;
     }
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 Inc. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -15,8 +15,8 @@ import { FormattedMessage } from "react-intl";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
 
-import { StatementEditorButton } from "../Button/StatementEditorButton";
-import { ViewContainer, ViewProps } from "../ViewContainer/ViewContainer";
+import { StatementEditorButton } from "../components/Button/StatementEditorButton";
+import { ViewContainer, ViewProps } from "../components/ViewContainer/ViewContainer";
 
 import { useStyles } from "./style";
 
@@ -45,15 +45,15 @@ export const useStatementEdior = (props: ViewProps, disabled: boolean) => {
         setIsStmtEditor(false);
     };
 
-    const stmtButton =
+    const stmtEditorButton =
         (
-            <div style={{marginLeft: "auto", marginRight: 0}}>
+            <div style={{width: "100%", marginLeft: "auto", marginRight: 0}}>
                 <StatementEditorButton onClick={handleStmtEditorButtonClick} disabled={disabled} />
             </div>
         );
 
-    const stmtEditor =
-        isStmtEditor ? (
+    const stmtEditorComponent =
+        isStmtEditor && (
         <FormControl data-testid="property-form">
             <div>
                 <div className={classes.formTitleWrapper}>
@@ -77,10 +77,10 @@ export const useStatementEdior = (props: ViewProps, disabled: boolean) => {
                 />
             </div>
         </FormControl>
-        ) : null;
+        );
 
     return {
-        stmtButton,
-        stmtEditor
+        stmtEditorButton,
+        stmtEditorComponent
     }
 }

@@ -26,7 +26,7 @@ import { getAllVariables } from "../../../../../utils/mixins";
 import { SelectDropdownWithButton } from "../../../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
-import {useStatementEdior} from "../../../../Portals/ConfigForm/Elements/StatementEditor/components/hooks";
+import {useStatementEdior} from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
 import { FormTextInput } from "../../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
 import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { ProcessConfig } from "../../../../Portals/ConfigForm/types";
@@ -256,7 +256,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             formField
     };
 
-    const {stmtButton , stmtEditor} = useStatementEdior(
+    const {stmtEditorButton , stmtEditorComponent} = useStatementEdior(
                                                 {
                                                     kind: "DefaultString",
                                                     label: "Variable Statement",
@@ -270,7 +270,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                                                 },
                                                 !isStringType);
 
-    if (!stmtEditor) {
+    if (!stmtEditorComponent) {
         return (
             <FormControl data-testid="property-form" className={classes.wizardFormControl}>
                 <div>
@@ -283,8 +283,8 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                                 <Typography variant="h4">
                                     <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.variable.title" defaultMessage="Variable" /></Box>
                                 </Typography>
-                                {stmtButton}
                             </div>
+                            {stmtEditorButton}
                         </div>
                         <div className={classes.activeWrapper}>
                             <SelectDropdownWithButton
@@ -350,6 +350,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         );
     }
     else{
-        return stmtEditor;
+        return stmtEditorComponent;
     }
 }

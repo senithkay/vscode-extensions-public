@@ -23,7 +23,7 @@ import { Context } from "../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
-import { useStatementEdior } from "../../../../Portals/ConfigForm/Elements/StatementEditor/components/hooks";
+import { useStatementEdior } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
 import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { EndConfig, RespondConfig } from "../../../../Portals/ConfigForm/types";
 import { wizardStyles } from "../../../style";
@@ -145,7 +145,7 @@ export function AddRespondForm(props: RespondFormProps) {
     );
     const disableSave = (isMutationInProgress || !validForm || !validStatusCode);
 
-    const {stmtButton , stmtEditor} = useStatementEdior(
+    const {stmtEditorButton , stmtEditorComponent} = useStatementEdior(
         {
             kind: "DefaultString",
             label: "Variable Statement",
@@ -159,7 +159,7 @@ export function AddRespondForm(props: RespondFormProps) {
         !true);
 
 
-    if (!stmtEditor) {
+    if (!stmtEditorComponent) {
         return (
                 <FormControl data-testid="respond-form" className={cn(formClasses.wizardFormControl)}>
                     <div className={formClasses.formWrapper}>
@@ -170,8 +170,8 @@ export function AddRespondForm(props: RespondFormProps) {
                                     <Typography variant="h4">
                                         <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.Respond.title" defaultMessage="Respond" /></Box>
                                     </Typography>
-                                    {stmtButton}
                                 </div>
+                                {stmtEditorButton}
                             </div>
                             <div className={formClasses.formWrapper}>
                                 <div className="exp-wrapper product-tour-payload-jsonpayload">
@@ -224,6 +224,6 @@ export function AddRespondForm(props: RespondFormProps) {
             );
     }
     else {
-        return stmtEditor;
+        return stmtEditorComponent;
     }
 }
