@@ -17,11 +17,9 @@ import React, { useContext, useState } from "react";
 import { CallStatement, FunctionCall, QualifiedNameReference } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 
-import { CloseRounded, LogIcon, EditIcon } from "../../../../../../../assets/icons";
+import { LogIcon } from "../../../../../../../assets/icons";
 
-import { WizardType } from "../../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../../Contexts/Diagram";
-import { ButtonWithIcon } from "../../../../FormFieldComponents/Button/ButtonWithIcon";
 import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
 import { useStyles as useFormStyles } from "../../../../../Portals/ConfigForm/forms/style";

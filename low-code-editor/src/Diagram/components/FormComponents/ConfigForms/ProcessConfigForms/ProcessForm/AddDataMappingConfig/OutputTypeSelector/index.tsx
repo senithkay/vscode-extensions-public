@@ -16,17 +16,16 @@
 import React, { useState } from 'react';
 
 import { LocalVarDecl } from "@ballerina/syntax-tree";
-import { Box, FormControl, Typography } from '@material-ui/core';
-import classNames from 'classnames';
+import { Box, Typography } from '@material-ui/core';
 
+import { useStyles as useFormStyles } from "../../../../../../Portals/ConfigForm/forms/style";
+import { checkVariableName } from '../../../../../../Portals/utils';
 import { FormAutocomplete } from '../../../../../FormFieldComponents/Autocomplete';
 import { SelectDropdownWithButton } from '../../../../../FormFieldComponents/DropDown/SelectDropdownWithButton';
 import { FormJson } from '../../../../../FormFieldComponents/Json/FormJson';
 import { SwitchToggle } from '../../../../../FormFieldComponents/SwitchToggle';
 import { FormTextInput } from '../../../../../FormFieldComponents/TextField/FormTextInput';
-import { useStyles as useFormStyles } from "../../../../../../Portals/ConfigForm/forms/style";
 import { DataMapperInputTypeInfo, DataMapperOutputTypeInfo } from "../../../../../Types";
-import { checkVariableName } from '../../../../../../Portals/utils';
 
 interface OutputTypeSelectorProps {
     types: DataMapperOutputTypeInfo[];

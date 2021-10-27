@@ -11,28 +11,25 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
-import React, {ReactNode, useContext, useState} from "react";
+import React, { useContext, useState} from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { LocalVarDecl, STKindChecker } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 import classnames from "classnames";
 
-import { CloseRounded, EditIcon, PropertyIcon } from "../../../../../../../assets/icons";
-import { PrimitiveBalType, WizardType } from "../../../../../../../ConfigurationSpec/types";
+import { PrimitiveBalType } from "../../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
-import { getAllVariables } from "../../../../../../utils/mixins";
-import { ButtonWithIcon } from "../../../../FormFieldComponents/Button/ButtonWithIcon";
+import { useStyles } from "../../../../../Portals/ConfigForm/forms/style";
+import { checkVariableName } from "../../../../../Portals/utils";
 import { StatementEditorButton } from "../../../../FormFieldComponents/Button/StatementEditorButton";
 import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
 import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";
 import { ViewContainer } from "../../../../FormFieldComponents/StatementEditor/components/ViewContainer/ViewContainer";
 import { FormTextInput } from "../../../../FormFieldComponents/TextField/FormTextInput";
-import { useStyles } from "../../../../../Portals/ConfigForm/forms/style";
 import { ProcessConfig } from "../../../../Types";
-import { checkVariableName, genVariableName } from "../../../../../Portals/utils";
 import { wizardStyles } from "../../../style";
 
 interface AddVariableConfigProps {

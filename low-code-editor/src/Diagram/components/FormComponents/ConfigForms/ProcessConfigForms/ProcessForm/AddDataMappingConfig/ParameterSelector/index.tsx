@@ -16,14 +16,14 @@
 // tslint:disable: jsx-no-lambda
 import React, { ReactNode, useState } from 'react';
 
-import { Box, FormHelperText, TextField, Typography } from '@material-ui/core';
+import { Box, FormHelperText, Typography } from '@material-ui/core';
 import { AddRounded, CloseRounded } from '@material-ui/icons';
 import classNames from 'classnames';
 
+import { useStyles as useFormStyles } from "../../../../../../Portals/ConfigForm/forms/style";
 import { FormAutocomplete } from '../../../../../FormFieldComponents/Autocomplete';
 import { ButtonWithIcon } from '../../../../../FormFieldComponents/Button/ButtonWithIcon';
 import { IconBtnWithText } from '../../../../../FormFieldComponents/Button/IconBtnWithText';
-import { useStyles as useFormStyles } from "../../../../../../Portals/ConfigForm/forms/style";
 import { DataMapperInputTypeInfo } from "../../../../../Types";
 
 interface ParameterSelectorProps {
