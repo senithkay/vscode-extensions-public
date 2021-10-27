@@ -15,11 +15,8 @@ import React, { useContext, useState } from "react";
 
 import {Box, FormControl, Typography} from "@material-ui/core";
 
-import { CloseRounded, IfIcon, EditIcon } from "../../../../../../../assets/icons";
-
 import { FormField } from "../../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../../Contexts/Diagram";
-import { ButtonWithIcon } from "../../../../FormFieldComponents/Button/ButtonWithIcon";
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
 import { useStyles } from "../../../../../Portals/ConfigForm/forms/style";
 import { ConditionConfig, FormElementProps } from "../../../../Types";

@@ -26,8 +26,8 @@ import {
     createIfStatement, createWhileStatement, updateForEachCondition,
     updateIfStatementCondition, updateWhileStatementCondition
 } from "../../../../utils/modification-util";
-import { ConditionConfig, ForeachConfig } from "../../Types";
 import { DiagramOverlayPosition } from "../../../Portals/Overlay";
+import { ConditionConfig, ForeachConfig } from "../../Types";
 
 import { ConditionsOverlayForm } from "./ConditionsOverlayForm";
 
