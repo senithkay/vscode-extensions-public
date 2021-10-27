@@ -14,9 +14,11 @@
 import React, { useEffect, useState } from 'react';
 import { useIntl } from "react-intl";
 
+import { RecordTypeDesc } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 
 import { FormField } from "../../../../../ConfigurationSpec/types";
+import { useDiagramContext } from "../../../../../Contexts/Diagram";
 import { FormState, useRecordEditorContext } from "../../../../../Contexts/RecordEditor";
 import { PrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
 import CheckBoxGroup from "../../../Portals/ConfigForm/Elements/CheckBox";
@@ -31,6 +33,7 @@ import { RecordModel, SimpleField } from "../types";
 
 export function EditFieldForm() {
 
+    const { props: { stSymbolInfo } } = useDiagramContext();
     const { state, callBacks } = useRecordEditorContext();
 
     const classes = useStyles();
@@ -100,8 +103,12 @@ export function EditFieldForm() {
 
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 
-    const variableTypes: string[] = ["int", "float", "decimal", "boolean", "string", "json", "xml", "error", "any",
+    const basicTypes: string[] = ["int", "float", "decimal", "boolean", "string", "json", "xml", "error", "any",
         "anydata", "record"];
+    const variableTypes: string[] = basicTypes.slice();
+    stSymbolInfo.recordTypeDescriptions.forEach((value: RecordTypeDesc, id: string) => {
+        variableTypes.push(value?.typeData?.typeSymbol?.name);
+    })
 
     const handleTypeSelect = (typeSelected: string) => {
         setSelectedType(typeSelected);
@@ -158,6 +165,9 @@ export function EditFieldForm() {
             }
             state.currentField = undefined;
             if (selectedType === "record") {
+                if (state.currentRecord?.isActive) {
+                    state.currentRecord.isActive = false;
+                }
                 const recordModel: RecordModel = {
                     name,
                     isArray,
@@ -187,14 +197,32 @@ export function EditFieldForm() {
                 callBacks.onChangeFormState(FormState.UPDATE_FIELD);
             }
         } else {
-            state.currentField.name = name;
-            state.currentField.isFieldOptional = isFieldOptional;
-            state.currentField.isFieldTypeOptional = isTypeOptional
-            state.currentField.type = selectedType;
-            state.currentField.isActive = true;
-            state.currentField.value = defaultValue;
-            state.currentField.isArray = isArray;
-            callBacks.onChangeFormState(FormState.UPDATE_FIELD);
+            // Avoiding field add in field updates
+            if (selectedType === "record") {
+                const foundIndex = state.currentRecord.fields.indexOf(state.currentField);
+                state.currentRecord.isActive = false;
+                const recordModel: RecordModel = {
+                    name,
+                    isArray,
+                    isOptional: isFieldOptional,
+                    isActive: true,
+                    type: selectedType,
+                    isTypeDefinition: false,
+                    isInline: true,
+                    fields: []
+                };
+                state.currentRecord.fields[foundIndex] = recordModel;
+                callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
+            } else {
+                state.currentField.name = name;
+                state.currentField.isFieldOptional = isFieldOptional;
+                state.currentField.isFieldTypeOptional = isTypeOptional
+                state.currentField.type = selectedType;
+                state.currentField.isActive = true;
+                state.currentField.value = defaultValue;
+                state.currentField.isArray = isArray;
+                callBacks.onChangeFormState(FormState.UPDATE_FIELD);
+            }
         }
         callBacks.onUpdateModel(state.recordModel);
     };
@@ -284,6 +312,7 @@ export function EditFieldForm() {
                 defaultValues={isFieldOptional ? ["Is optional ?"] : []}
                 onChange={handleOptionalFieldChange}
             />
+            <div className={classes.sectionSeparator} />
             <SelectDropdownWithButton
                 dataTestId="field-type"
                 defaultValue={selectedType}
@@ -297,20 +326,25 @@ export function EditFieldForm() {
                 placeholder={typePlaceholder}
                 onChange={handleTypeSelect}
             />
-            <CheckBoxGroup
-                testId="is-optional-field"
-                values={["Is optional ?"]}
-                defaultValues={isTypeOptional ? ["Is optional ?"] : []}
-                onChange={handleOptionalTypeChange}
-            />
+            {(selectedType !== "record") && (
+                <CheckBoxGroup
+                    testId="is-optional-field"
+                    values={["Is optional ?"]}
+                    defaultValues={isTypeOptional ? ["Is optional ?"] : []}
+                    onChange={handleOptionalTypeChange}
+                />
+            )}
             <CheckBoxGroup
                 testId="is-array"
                 values={["Is Array ?"]}
                 defaultValues={isArray ? ["Is Array ?"] : []}
                 onChange={handleArrayChange}
             />
-            {!isFieldOptional && (selectedType !== "record") && (
-                <ExpressionEditor {...defaultValueProps} />
+            {!isFieldOptional && (selectedType !== "record") && (basicTypes.includes(selectedType)) && (
+                <div>
+                    <div className={classes.sectionSeparator} />
+                    <ExpressionEditor {...defaultValueProps} />
+                </div>
             )}
 
             <div className={recordClasses.fieldAddButtonWrapper}>

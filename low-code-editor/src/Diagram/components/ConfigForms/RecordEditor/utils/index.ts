@@ -41,17 +41,22 @@ export function getRecordPrefix(symbolInfo: STSymbolInfo): string {
     return null;
 }
 
-export function getRecordModel(typeDesc: RecordTypeDesc, name: string, isInline: boolean, type?: string): RecordModel {
-    const recordModel: RecordModel = {name, fields: [], isInline, type, isClosed:
-            STKindChecker.isOpenBracePipeToken(typeDesc.bodyStartDelimiter)};
+export function getRecordModel(typeDesc: RecordTypeDesc, name: string, isInline: boolean, type?: string,
+                               isOptional?: boolean): RecordModel {
+    const recordModel: RecordModel = {
+        name, fields: [], isInline, type,
+        isClosed: STKindChecker.isOpenBracePipeToken(typeDesc.bodyStartDelimiter),
+        isOptional
+    };
     if (typeDesc.fields.length > 0) {
         typeDesc.fields.forEach((field) => {
-            // FIXME: Handle array type desc
+            // FIXME: Handle record field with default value
             if (STKindChecker.isRecordFieldWithDefaultValue(field.typeName)) {
                 // when there is a inline record with a default value
             } else if (STKindChecker.isRecordTypeDesc(field.typeName)) {
                 // when there is a inline record
-                const subRecModels = getRecordModel(field.typeName, field.fieldName.value, true, "record");
+                const subRecModels = getRecordModel(field.typeName, field.fieldName.value, true, "record",
+                    (field as RecordField)?.questionMarkToken !== undefined);
                 recordModel.fields.push(subRecModels);
             } else if (STKindChecker.isOptionalTypeDesc(field.typeName)) {
                 const recField: SimpleField = STKindChecker.isArrayTypeDesc(field.typeName.typeDescriptor) ?
