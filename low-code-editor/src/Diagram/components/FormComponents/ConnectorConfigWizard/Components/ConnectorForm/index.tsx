@@ -45,10 +45,6 @@ import {
 } from "../../../../../../Definitions/lang-client-extended";
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
 import {
-  ConnectionType,
-  OauthConnectButton,
-} from "../../../OauthConnectButton";
-import {
   CONNECTOR_CLOSED,
   CONTINUE_TO_INVOKE_API,
   EVENT_TYPE_AZURE_APP_INSIGHTS,
@@ -64,7 +60,6 @@ import {
   createPropertyStatement,
   updatePropertyStatement,
 } from "../../../../../utils/modification-util";
-import { FormGeneratorProps } from "../../../FormGenerator";
 import {
   genVariableName,
   getActionReturnType,
@@ -83,6 +78,11 @@ import {
   matchEndpointToFormField,
 } from "../../../../Portals/utils";
 import { defaultOrgs } from "../../../../Portals/utils/constants";
+import { FormGeneratorProps } from "../../../FormGenerator";
+import {
+  ConnectionType,
+  OauthConnectButton,
+} from "../../../OauthConnectButton";
 import { ConfigWizardState } from "../../index";
 import { wizardStyles } from "../../style";
 import "../../style.scss";

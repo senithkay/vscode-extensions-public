@@ -44,9 +44,9 @@ import {
     updatePropertyStatement,
     updateServiceCallForPayload
 } from "../../../../utils/modification-util";
+import { genVariableName, getConnectorIcon, getParams } from "../../../Portals/utils";
 import { wizardStyles } from "../../ConnectorConfigWizard/style";
 import { ButtonWithIcon } from "../../FormFieldComponents/Button/ButtonWithIcon";
-import { genVariableName, getConnectorIcon, getParams } from "../../../Portals/utils";
 
 import { CreateConnectorForm } from "./CreateConnectorForm";
 import { HeaderObjectConfig } from "./HTTPHeaders";
