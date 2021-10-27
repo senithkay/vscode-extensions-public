@@ -99,7 +99,7 @@ export function getForm(type: string, args: any) {
     const Form = (Forms as any)[type];
     return Form ? (
         <Form {...args} />
-    ) : null;
+    ) : <Forms.Custom {...args}/>;
 }
 
 export function getConnectorComponent(type: string, args: any) {
