@@ -12,7 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from "react";
-import { FormattedMessage, useIntl } from "react-intl";
+import { useIntl } from "react-intl";
 
 import { FormControl } from "@material-ui/core";
 import classNames from "classnames";
@@ -22,14 +22,13 @@ import { ConnectorConfig, FormField, FunctionDefinitionInfo } from "../../../../
 import { Context } from "../../../../../../Contexts/Diagram";
 import { Connector } from "../../../../../../Definitions";
 import { getAllVariables } from "../../../../../utils/mixins";
-import { wizardStyles } from "../../../ConnectorConfigWizard/style";
-import { LinePrimaryButton } from "../../../FormFieldComponents/Button/LinePrimaryButton";
-import { PrimaryButton } from "../../../FormFieldComponents/Button/PrimaryButton";
-import { SecondaryButton } from "../../../FormFieldComponents/Button/SecondaryButton";
-import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
 import { Form } from "../../../../Portals/ConfigForm/forms/Components/Form";
 import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { checkVariableName, genVariableName } from "../../../../Portals/utils";
+import { wizardStyles } from "../../../ConnectorConfigWizard/style";
+import { LinePrimaryButton } from "../../../FormFieldComponents/Button/LinePrimaryButton";
+import { PrimaryButton } from "../../../FormFieldComponents/Button/PrimaryButton";
+import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
 import '../style.scss';
 
 interface CreateConnectorFormProps {

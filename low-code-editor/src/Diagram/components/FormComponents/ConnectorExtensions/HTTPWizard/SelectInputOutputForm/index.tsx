@@ -27,14 +27,14 @@ import {
 import { Context } from "../../../../../../Contexts/Diagram";
 import { Connector, STSymbolInfo } from "../../../../../../Definitions";
 import { getAllVariables } from "../../../../../utils/mixins";
+import { Form } from "../../../../Portals/ConfigForm/forms/Components/Form";
+import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
+import { checkVariableName, genVariableName } from "../../../../Portals/utils";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";
 import { PrimaryButton } from "../../../FormFieldComponents/Button/PrimaryButton";
 import { SelectDropdownWithButton } from "../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import { SwitchToggle } from "../../../FormFieldComponents/SwitchToggle";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
-import { Form } from "../../../../Portals/ConfigForm/forms/Components/Form";
-import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
-import { checkVariableName, genVariableName } from "../../../../Portals/utils";
 import { OperationDropdown } from "../OperationDropdown";
 import '../style.scss'
 

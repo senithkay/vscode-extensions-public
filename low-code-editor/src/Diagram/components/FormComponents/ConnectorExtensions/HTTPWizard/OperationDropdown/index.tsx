@@ -13,11 +13,9 @@
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
-import { Box, IconButton, Typography } from "@material-ui/core";
-import EditIcon from '@material-ui/icons/Edit';
+
 import classNames from 'classnames';
 
-import { ConnectorConfig } from "../../../../../../ConfigurationSpec/types";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";
 import { FormAutocomplete } from '../../../FormFieldComponents/Autocomplete';
 

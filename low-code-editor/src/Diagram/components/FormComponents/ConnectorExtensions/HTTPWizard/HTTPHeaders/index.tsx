@@ -21,10 +21,10 @@ import { AddRounded, CloseRounded } from "@material-ui/icons";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import classNames from "classnames";
 
+import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { ButtonWithIcon } from "../../../FormFieldComponents/Button/ButtonWithIcon";
 import { IconBtnWithText } from "../../../FormFieldComponents/Button/IconBtnWithText";
 import { SwitchToggle } from "../../../FormFieldComponents/SwitchToggle";
-import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
 import '../style.scss'
 
 import { useStyles as headerStyles } from "./style";
