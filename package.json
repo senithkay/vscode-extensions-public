@@ -1,7 +1,6 @@
 {
     "name": "ballerina-low-code-editor-packages",
     "workspaces": [
-      "form-field-generator",
       "lang-service",
       "syntax-tree",
       "low-code-editor"
@@ -10,7 +9,6 @@
         "prebuild": "npm i --legacy-peer-deps",
         "build:st": "npm run build --workspace=syntax-tree",
         "build:ls": "npm run build --workspace=lang-service",
-        "build:fg": "npm run build --workspace=form-field-generator",
         "build:lce": "npm run build --workspace=low-code-editor",
         "build": "npm run build --workspaces"
     }
