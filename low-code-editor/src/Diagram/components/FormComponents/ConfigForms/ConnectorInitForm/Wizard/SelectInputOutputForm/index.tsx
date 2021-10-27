@@ -19,13 +19,13 @@ import { ActionConfig, ConnectorConfig, FormField } from "../../../../../../../C
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { STModification } from "../../../../../../../Definitions/lang-client-extended";
 import { getAllVariables } from "../../../../../../utils/mixins";
+import { Form } from "../../../../../Portals/ConfigForm/forms/Components/Form";
+import { genVariableName } from "../../../../../Portals/utils";
 import { PrimaryButton } from "../../../../FormFieldComponents/Button/PrimaryButton";
 import { SecondaryButton } from "../../../../FormFieldComponents/Button/SecondaryButton";
 import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import { RadioControl } from "../../../../FormFieldComponents/RadioControl/FormRadioControl";
 import { FormTextInput } from "../../../../FormFieldComponents/TextField/FormTextInput";
-import { Form } from "../../../../../Portals/ConfigForm/forms/Components/Form";
-import { genVariableName } from "../../../../../Portals/utils";
 import { wizardStyles } from "../../../style";
 import "../style.scss"
 

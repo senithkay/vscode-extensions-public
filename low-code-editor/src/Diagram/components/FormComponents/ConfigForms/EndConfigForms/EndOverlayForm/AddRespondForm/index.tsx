@@ -20,11 +20,11 @@ import cn from "classnames";
 import { httpResponse, PrimitiveBalType } from "../../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
+import { useStyles as useFormStyles } from "../../../../../Portals/ConfigForm/forms/style";
 import { StatementEditorButton } from "../../../../FormFieldComponents/Button/StatementEditorButton";
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
 import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";
 import { ViewContainer } from "../../../../FormFieldComponents/StatementEditor/components/ViewContainer/ViewContainer";
-import { useStyles as useFormStyles } from "../../../../../Portals/ConfigForm/forms/style";
 import { EndConfig, RespondConfig } from "../../../../Types";
 import { wizardStyles } from "../../../style";
 

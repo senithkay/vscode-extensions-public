@@ -28,8 +28,8 @@ import {
     updatePropertyStatement
 } from "../../../../utils/modification-util";
 import { generateInlineRecordForJson, getDefaultValueForType } from "../../../DiagramComponents/DataMapper/util";
-import { CustomExpressionConfig, DataMapperConfig, LogConfig, ProcessConfig } from "../../Types";
 import { DiagramOverlayPosition } from "../../../Portals/Overlay";
+import { CustomExpressionConfig, DataMapperConfig, LogConfig, ProcessConfig } from "../../Types";
 
 import { ProcessForm } from "./ProcessForm";
 import { GenerationType } from "./ProcessForm/AddDataMappingConfig/OutputTypeSelector";

@@ -21,8 +21,8 @@ import { Context as DiagramContext } from '../../../../../../../Contexts/Diagram
 import { getAllVariables } from "../../../../../../utils/mixins";
 import { DataMapperInitVisitor, VisitingType } from '../../../../../DiagramComponents/DataMapper/util/data-mapper-init-visitor';
 import { DataMapperMappingVisitor } from '../../../../../DiagramComponents/DataMapper/util/data-mapper-mapping-visitor';
-import { DataMapperConfig, DataMapperOutputField, ProcessConfig } from '../../../../Types';
 import { genVariableName } from "../../../../../Portals/utils";
+import { DataMapperConfig, DataMapperOutputField, ProcessConfig } from '../../../../Types';
 
 import { GenerationType } from './OutputTypeSelector';
 

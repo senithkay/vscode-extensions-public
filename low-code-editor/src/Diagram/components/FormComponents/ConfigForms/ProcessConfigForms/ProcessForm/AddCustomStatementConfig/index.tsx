@@ -14,18 +14,14 @@
 // tslint:disable: ordered-imports
 import React, { useContext, useState } from "react";
 import { Box, FormControl, Typography } from "@material-ui/core";
-import { WizardType } from "../../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../../Contexts/Diagram";
-import { ButtonWithIcon } from "../../../../FormFieldComponents/Button/ButtonWithIcon";
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
 import { useStyles as useFormStyles } from "../../../../../Portals/ConfigForm/forms/style";
 import { CustomExpressionConfig, ProcessConfig } from "../../../../Types";
 import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { CloseRounded, EditIcon } from "../../../../../../../assets/icons";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
-import LogoCircleIcon from "../../../../../../../assets/icons/LogoCircle";
 import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";
 import { ViewContainer } from "../../../../FormFieldComponents/StatementEditor/components/ViewContainer/ViewContainer";
 import { StatementEditorButton } from "../../../../FormFieldComponents/Button/StatementEditorButton";
