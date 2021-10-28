@@ -12,7 +12,7 @@
  */
 import React, { useContext } from "react";
 
-import { ActionStatement, ExpressionFunctionBody, RemoteMethodCallAction, ReturnStatement,STKindChecker } from "@ballerina/syntax-tree";
+import { ActionStatement, ExpressionFunctionBody, RemoteMethodCallAction, ReturnStatement, STKindChecker } from "@ballerina/syntax-tree";
 
 import { Context } from "../../../../../../Contexts/Diagram";
 import { ConfigOverlayFormStatus } from "../../../../../../Definitions";
