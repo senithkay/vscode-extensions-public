@@ -203,10 +203,19 @@ export interface ExecutorPosition {
 
 export interface PartialSTRequestParams {
     codeSnippet: string;
+    stModification?: PartialSTModification;
 }
 
 export interface PartialSTResponse {
     syntaxTree: any;
+}
+
+export interface PartialSTModification {
+    startLine: number;
+    startColumn: number;
+    endLine: number;
+    endColumn: number;
+    newCodeSnippet: string;
 }
 
 export interface PerformanceAnalyzerGraphRequest {
