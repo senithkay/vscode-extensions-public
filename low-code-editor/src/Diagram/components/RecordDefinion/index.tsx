@@ -19,7 +19,6 @@ import { RecordFieldWithDefaultValue, RecordTypeDesc, STKindChecker, TypeDefinit
 import RecordIcon from "../../../assets/icons/RecordIcon";
 import { Context as DiagramContext } from "../../../Contexts/Diagram";
 import { removeStatement } from "../../utils/modification-util";
-import { FormGenerator } from "../FormGenerator";
 import { HeaderActions } from "../HeaderActions";
 
 import "./style.scss";
@@ -40,21 +39,10 @@ export function RecordDefinitionComponent(props: RecordDefComponentProps) {
         },
     } = useContext(DiagramContext);
 
-    const [isEditable, setIsEditable] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
-    const [formEditInProgress, setFormEditInProgress] = useState(false);
 
-    const handleMouseEnter = () => {
-        setIsEditable(true);
-    };
-    const handleMouseLeave = () => {
-        setIsEditable(false);
-    };
     const onExpandClick = () => {
         setIsExpanded(!isExpanded);
-    };
-    const handleEditClose = () => {
-        setFormEditInProgress(false);
     };
     const handleDeleteConfirm = () => {
         modifyDiagram([removeStatement(model.position)]);
@@ -83,7 +71,7 @@ export function RecordDefinitionComponent(props: RecordDefComponentProps) {
         }
 
         component.push(
-            <div className="record-comp" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+            <div className="record-comp">
                 <div className="record-header" >
                     <div className="record-content">
                         <div className="record-icon">
@@ -96,15 +84,14 @@ export function RecordDefinitionComponent(props: RecordDefComponentProps) {
                             {varName}
                         </div>
                     </div>
-                    {isEditable && (
-                        <HeaderActions
-                            model={model}
-                            deleteText="Delete this Record?"
-                            isExpanded={isExpanded}
-                            onExpandClick={onExpandClick}
-                            onConfirmDelete={handleDeleteConfirm}
-                        />
-                    )}
+                    <HeaderActions
+                        model={model}
+                        deleteText="Delete this Record?"
+                        isExpanded={isExpanded}
+                        formType="RecordEditor"
+                        onExpandClick={onExpandClick}
+                        onConfirmDelete={handleDeleteConfirm}
+                    />
                 </div>
                 <div className="record-separator" />
                 {isExpanded && (
@@ -128,7 +115,7 @@ export function RecordDefinitionComponent(props: RecordDefComponentProps) {
     } else {
         // ToDo : sort out how to display general typedefinitions
         component.push(
-            <div className="record-comp" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+            <div className="record-comp">
                 <div className="record-header" >
                     <div className="record-content">
                         <div className="record-icon">
@@ -138,28 +125,15 @@ export function RecordDefinitionComponent(props: RecordDefComponentProps) {
                             {model.source.trim()}
                         </div>
                     </div>
-                    {isEditable && (
-                        <HeaderActions
-                            model={model}
-                            deleteText="Delete this Type Definition?"
-                            isExpanded={isExpanded}
-                            onExpandClick={onExpandClick}
-                            onConfirmDelete={handleDeleteConfirm}
-                        />
-                    )}
+                    <HeaderActions
+                        model={model}
+                        deleteText="Delete this Type Definition?"
+                        isExpanded={isExpanded}
+                        onExpandClick={onExpandClick}
+                        onConfirmDelete={handleDeleteConfirm}
+                    />
                 </div>
             </div>
-        )
-    }
-
-    if (formEditInProgress) {
-        component.push(
-            <FormGenerator
-                model={model}
-                configOverlayFormStatus={{ formType: "RecordEditor", isLoading: false }}
-                onCancel={handleEditClose}
-                onSave={handleEditClose}
-            />
         )
     }
 
