@@ -24,7 +24,7 @@ import * as statementTypeComponents from '../components/Statements';
 import * as c from "../constants";
 import { SuggestionItem, VariableUserInputs } from '../models/definitions';
 
-import { DefaultModelsByKind } from "./sample-model";
+import {DefaultStatementByType} from "./default_statements";
 import {
     DataTypeByExpressionKind,
     ExpressionKindByOperator,
@@ -52,8 +52,8 @@ export async function getPartialSTForExpression(
     return resp.syntaxTree;
 }
 
-export function getDefaultModel(kind: string): STNode {
-    return DefaultModelsByKind[kind];
+export function getDefaultModel(type: string): string {
+    return DefaultStatementByType[type];
 }
 
 export function getSuggestionsBasedOnExpressionKind(kind: string): SuggestionItem[] {

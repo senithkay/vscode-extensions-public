@@ -39,7 +39,7 @@ export function LeftPane(props: ModelProps) {
 
     const { modelCtx } = useContext(StatementEditorContext);
 
-    const [suggestionList, setSuggestionsList] = useState(getSuggestionsBasedOnExpressionKind(kind));
+    const [suggestionList, setSuggestionsList] = useState(getSuggestionsBasedOnExpressionKind("DefaultString"));
     const [diagnosticList, setDiagnostic] = useState("");
     const [, setIsSuggestionClicked] = useState(false);
     const [isOperator, setIsOperator] = useState(false);

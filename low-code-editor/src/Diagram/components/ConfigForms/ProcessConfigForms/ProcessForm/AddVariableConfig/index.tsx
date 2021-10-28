@@ -247,19 +247,19 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         isEdit: !!config.model,
     }
 
-    const { stmtEditorButton, stmtEditorComponent } = useStatementEdior(
-        {
-            kind: "DefaultString",
-            label: "Variable Statement",
-            formArgs: { formArgs },
-            userInputs,
-            isMutationInProgress,
-            validForm,
-            onSave: handleSave,
-            onChange: onPropertyChange,
-            validate: validateExpression
-        },
-        !isStringType);
+    const {stmtEditorButton , stmtEditorComponent} = useStatementEdior(
+                                                {
+                                                    kind: "VariableStatement",
+                                                    label: "Variable Statement",
+                                                    formArgs: {formArgs},
+                                                    userInputs,
+                                                    isMutationInProgress,
+                                                    validForm,
+                                                    onSave: handleSave,
+                                                    onChange: onPropertyChange,
+                                                    validate: validateExpression
+                                                },
+                                                !isStringType);
 
     if (!stmtEditorComponent) {
         return (

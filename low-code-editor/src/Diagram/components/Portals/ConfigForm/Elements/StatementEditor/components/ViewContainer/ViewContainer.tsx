@@ -11,17 +11,18 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useIntl } from "react-intl";
 
 import { STNode } from "@ballerina/syntax-tree";
 
+import { Context } from "../../../../../../../../Contexts/Diagram";
 import { wizardStyles } from "../../../../../../ConfigForms/style";
 import { PrimaryButton } from "../../../Button/PrimaryButton";
 import { SecondaryButton } from "../../../Button/SecondaryButton";
 import { VariableUserInputs } from '../../models/definitions';
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
-import { getDefaultModel } from "../../utils";
+import { getDefaultModel, getPartialSTForStatement } from "../../utils";
 import { LeftPane } from '../LeftPane';
 import { RightPane } from '../RightPane';
 
@@ -42,6 +43,14 @@ export interface ViewProps {
 
 export function ViewContainer(props: ViewProps) {
     const {
+        props: {
+            langServerURL,
+        },
+        api: {
+            ls
+        }
+    } = useContext(Context);
+    const {
         kind,
         label,
         formArgs,
@@ -55,9 +64,17 @@ export function ViewContainer(props: ViewProps) {
     } = props;
     const intl = useIntl();
 
-    const stmtModel = formArgs.model ? formArgs.model : getDefaultModel(kind);
+    const [model, setModel] = useState<STNode>(null);
 
-    const [model] = useState({ ...stmtModel });
+    const stmtSource = formArgs.model ? formArgs.model.source : getDefaultModel(kind);
+
+    useEffect(() => {
+        async function getSTModel() {
+            const partialST: STNode = await getPartialSTForStatement({codeSnippet: stmtSource}, langServerURL, ls);
+            setModel(partialST);
+        }
+        getSTModel().then()
+    }, []);
 
     const [currentModel, setCurrentModel] = useState({ model });
 
