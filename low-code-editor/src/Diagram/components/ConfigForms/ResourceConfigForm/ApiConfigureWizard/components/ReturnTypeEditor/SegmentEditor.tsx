@@ -100,7 +100,7 @@ export function ReturnTypeSegmentEditor(props: ReturnTypeSegmentEditorProps) {
                             <PrimaryButton
                                 dataTestId={"api-return-save-btn"}
                                 text={"Add"}
-                                disabled={false}
+                                disabled={!segmentState.type}
                                 fullWidth={false}
                                 onClick={handleOnSave}
                             />
