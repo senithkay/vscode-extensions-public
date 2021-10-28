@@ -19,9 +19,10 @@ import ExpressionEditor, { ExpressionEditorCustomTemplate } from "../../../Eleme
 
 import './style.scss'
 
-interface VariableNameInputProps {
+export interface VariableNameInputProps {
     displayName: string;
     value: string;
+    isEdit: boolean;
     onValueChange: (value: string) => void;
     validateExpression: (fieldName: string, isInValid: boolean) => void;
     position: NodePosition;
@@ -29,7 +30,23 @@ interface VariableNameInputProps {
 }
 
 export function VariableNameInput(props: VariableNameInputProps) {
-    const { onValueChange, validateExpression, position, value, displayName, overrideTemplate } = props;
+    const { onValueChange, validateExpression, position, value, displayName, overrideTemplate, isEdit } = props;
+
+    let customTemplate;
+
+    if (!isEdit) {
+        customTemplate = overrideTemplate ?
+            overrideTemplate
+            : {
+                defaultCodeSnippet: `var  = 10;`,
+                targetColumn: 5,
+            }
+    } else {
+        customTemplate = {
+            defaultCodeSnippet: '',
+            targetColumn: 0
+        }
+    }
 
     const expressionEditorNameConfig = {
         model: {
@@ -42,17 +59,11 @@ export function VariableNameInput(props: VariableNameInputProps) {
             interactive: true,
             editPosition: {
                 startLine: position.startLine,
-                endLine: position.startLine,
-                startColumn: 0,
-                endColumn: 0
+                endLine: position.endLine,
+                startColumn: position.startColumn,
+                endColumn: position.endColumn
             },
-            customTemplate: overrideTemplate ?
-                overrideTemplate
-                : {
-                    defaultCodeSnippet: `var  = 10;`,
-                    targetColumn: 5,
-                },
-            hideSuggestions: true
+            customTemplate
         },
         onChange: onValueChange,
         defaultValue: value,
