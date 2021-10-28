@@ -133,6 +133,11 @@ monaco.editor.defineTheme('exp-theme', {
 
 const BALLERINA_EXPR = "ballerina-exp";
 
+export interface ExpressionEditorCustomTemplate {
+    defaultCodeSnippet: string;
+    targetColumn: number;
+}
+
 export interface ExpressionEditorProps {
     validate?: (field: string, isInvalid: boolean, isEmpty: boolean) => void;
     clearInput?: boolean;
@@ -143,10 +148,7 @@ export interface ExpressionEditorProps {
     focus?: boolean;
     revertFocus?: () => void;
     statementType?: PrimitiveBalType | any;
-    customTemplate?: {
-        defaultCodeSnippet: string;
-        targetColumn: number;
-    }
+    customTemplate?: ExpressionEditorCustomTemplate,
     expandDefault?: boolean;
     revertClearInput?: () => void;
     hideTextLabel?: boolean;
