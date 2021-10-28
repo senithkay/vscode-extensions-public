@@ -20,7 +20,7 @@ import { ViewContainer, ViewProps } from "../components/ViewContainer/ViewContai
 
 import { useStyles } from "./style";
 
-export const useStatementEdior = (props: ViewProps, disabled: boolean) => {
+export const useStatementEditor = (props: ViewProps, disabled: boolean) => {
     const {
         label,
         initialSource,

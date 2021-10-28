@@ -26,7 +26,7 @@ import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
-import { useStatementEdior } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
+import { useStatementEditor } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
 
 interface IfProps {
     condition: ConditionConfig;
@@ -117,7 +117,7 @@ export function AddIfForm(props: IfProps) {
         defaultMessage: "Cancel"
     });
 
-    const {stmtEditorButton , stmtEditorComponent} = useStatementEdior(
+    const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {
             label: "If Else Statement",
             initialSource: "", // TODO: Pass the actual initialSource

@@ -24,7 +24,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
-import { useStatementEdior } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
+import { useStatementEditor } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
 
 interface LogConfigProps {
     config: ProcessConfig;
@@ -90,7 +90,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
     }
 
-    const {stmtEditorButton , stmtEditorComponent} = useStatementEdior(
+    const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {
             label: "Custom Statement",
             initialSource: "", // TODO: Pass the actual initialSource

@@ -26,7 +26,7 @@ import { getVariableNameFromST } from "../../../../../utils/st-util";
 import { SelectDropdownWithButton } from "../../../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
-import { useStatementEdior } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
+import { useStatementEditor } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
 import { FormTextInput } from "../../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
 import {
     VariableNameInput,
@@ -248,6 +248,20 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             : formArgs.targetPosition,
         isEdit: !!config.model,
     }
+
+    const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
+        {
+            label: "Variable Statement",
+            initialSource: getInitialSource(selectedType, varName, variableExpression, otherType),
+            formArgs: {formArgs},
+            userInputs,
+            isMutationInProgress,
+            validForm,
+            onSave: handleSave,
+            onChange: onPropertyChange,
+            validate: validateExpression
+        },
+        !isStringType);
 
     const {stmtEditorButton , stmtEditorComponent} = useStatementEdior(
                                                 {
