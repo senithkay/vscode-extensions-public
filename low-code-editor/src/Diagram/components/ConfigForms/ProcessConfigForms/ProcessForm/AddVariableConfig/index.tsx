@@ -36,6 +36,8 @@ import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { ProcessConfig } from "../../../../Portals/ConfigForm/types";
 import { wizardStyles } from "../../../style";
 
+import {getInitialSource} from "./utils";
+
 interface AddVariableConfigProps {
     config: ProcessConfig;
     formArgs: any;
@@ -249,8 +251,8 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
 
     const {stmtEditorButton , stmtEditorComponent} = useStatementEdior(
                                                 {
-                                                    kind: "VariableStatement",
                                                     label: "Variable Statement",
+                                                    initialSource: getInitialSource(selectedType, varName, variableExpression, otherType),
                                                     formArgs: {formArgs},
                                                     userInputs,
                                                     isMutationInProgress,

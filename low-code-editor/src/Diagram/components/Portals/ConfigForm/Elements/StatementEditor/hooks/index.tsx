@@ -22,8 +22,8 @@ import { useStyles } from "./style";
 
 export const useStatementEdior = (props: ViewProps, disabled: boolean) => {
     const {
-        kind,
         label,
+        initialSource,
         formArgs,
         userInputs,
         validate,
@@ -64,8 +64,8 @@ export const useStatementEdior = (props: ViewProps, disabled: boolean) => {
                     </div>
                 </div>
                 <ViewContainer
-                    kind={kind}// TODO: Derive the kind from the user input
                     label={label}
+                    initialSource={initialSource}
                     formArgs={formArgs}
                     userInputs={userInputs}
                     isMutationInProgress={isMutationInProgress}

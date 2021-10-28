@@ -92,8 +92,8 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
 
     const {stmtEditorButton , stmtEditorComponent} = useStatementEdior(
         {
-            kind: "DefaultString",
-            label: "Variable Statement",
+            label: "Custom Statement",
+            initialSource: "", // TODO: Pass the actual initialSource
             formArgs: {formArgs},
             isMutationInProgress,
             validForm: isFormValid,

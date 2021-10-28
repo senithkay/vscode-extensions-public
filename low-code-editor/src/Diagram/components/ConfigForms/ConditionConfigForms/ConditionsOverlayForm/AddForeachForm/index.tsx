@@ -210,8 +210,8 @@ export function AddForeachForm(props: ForeachProps) {
 
     const {stmtEditorButton , stmtEditorComponent} = useStatementEdior(
         {
-            kind: "DefaultString",
-            label: "Variable Statement",
+            label: "Foreach Statement",
+            initialSource: "", // TODO: Pass the actual initialSource
             formArgs: {formArgs},
             isMutationInProgress,
             validForm: !isInvalid,

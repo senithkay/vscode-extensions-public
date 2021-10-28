@@ -114,8 +114,8 @@ export function AddLogConfig(props: LogConfigProps) {
 
     const {stmtEditorButton , stmtEditorComponent} = useStatementEdior(
                                                 {
-                                                    kind: "DefaultString",
-                                                    label: "Variable Statement",
+                                                    label: "Log Statement",
+                                                    initialSource: "", // TODO: Pass the actual initialSource
                                                     formArgs: {formArgs},
                                                     isMutationInProgress,
                                                     validForm: !!isFormValid,

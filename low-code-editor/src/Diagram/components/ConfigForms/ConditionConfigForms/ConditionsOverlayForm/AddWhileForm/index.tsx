@@ -109,8 +109,8 @@ export function AddWhileForm(props: WhileProps) {
 
     const {stmtEditorButton , stmtEditorComponent} = useStatementEdior(
         {
-            kind: "DefaultBoolean",
             label: "While Statement",
+            initialSource: "", // TODO: Pass the actual initialSource
             formArgs: {formArgs},
             isMutationInProgress,
             validForm: !isInvalid,

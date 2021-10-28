@@ -22,15 +22,15 @@ import { PrimaryButton } from "../../../Button/PrimaryButton";
 import { SecondaryButton } from "../../../Button/SecondaryButton";
 import { VariableUserInputs } from '../../models/definitions';
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
-import { getDefaultModel, getPartialSTForStatement } from "../../utils";
+import { getPartialSTForStatement } from "../../utils";
 import { LeftPane } from '../LeftPane';
 import { RightPane } from '../RightPane';
 
 import { useStatementEditorStyles } from "./styles";
 
 export interface ViewProps {
-    kind: string,
     label: string,
+    initialSource: string,
     formArgs: any,
     userInputs?: VariableUserInputs,
     validate?: (field: string, isInvalid: boolean, isEmpty: boolean) => void
@@ -51,8 +51,8 @@ export function ViewContainer(props: ViewProps) {
         }
     } = useContext(Context);
     const {
-        kind,
         label,
+        initialSource,
         formArgs,
         userInputs,
         validate,
@@ -66,11 +66,9 @@ export function ViewContainer(props: ViewProps) {
 
     const [model, setModel] = useState<STNode>(null);
 
-    const stmtSource = formArgs.model ? formArgs.model.source : getDefaultModel(kind);
-
     useEffect(() => {
         async function getSTModel() {
-            const partialST: STNode = await getPartialSTForStatement({codeSnippet: stmtSource}, langServerURL, ls);
+            const partialST: STNode = await getPartialSTForStatement({codeSnippet: initialSource}, langServerURL, ls);
             setModel(partialST);
         }
         getSTModel().then()
@@ -123,7 +121,6 @@ export function ViewContainer(props: ViewProps) {
                     >
                         <LeftPane
                             currentModel={currentModel}
-                            kind={kind}
                             label={label}
                             userInputs={userInputs}
                             currentModelHandler={currentModelHandler}

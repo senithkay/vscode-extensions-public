@@ -146,8 +146,8 @@ export function AddRespondForm(props: RespondFormProps) {
 
     const {stmtEditorButton , stmtEditorComponent} = useStatementEdior(
         {
-            kind: "DefaultString",
-            label: "Variable Statement",
+            label: "Respond Statement",
+            initialSource: "", // TODO: Pass the actual initialSource
             formArgs: {formArgs},
             isMutationInProgress,
             validForm,
