@@ -39,7 +39,6 @@ export function AddWhileForm(props: WhileProps) {
     const { props: { isMutationProgress: isMutationInProgress } } = useContext(Context);
     const { condition, formArgs, onCancel, onSave } = props;
     const classes = useStyles();
-    const overlayClasses = wizardStyles();
     const intl = useIntl();
 
     const [isInvalid, setIsInvalid] = useState(true);

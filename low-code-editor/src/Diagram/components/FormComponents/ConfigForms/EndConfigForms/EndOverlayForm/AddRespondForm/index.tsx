@@ -40,7 +40,6 @@ export const EXISTING_PROPERTY: string = "Select Existing Property";
 
 export function AddRespondForm(props: RespondFormProps) {
     const formClasses = useFormStyles();
-    const overlayClasses = wizardStyles();
     const {
         props: {
             isCodeEditorActive,

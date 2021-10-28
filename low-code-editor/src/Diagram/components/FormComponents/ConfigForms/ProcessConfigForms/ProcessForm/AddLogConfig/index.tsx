@@ -24,7 +24,6 @@ import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDo
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
 import { useStyles as useFormStyles } from "../../../../../Portals/ConfigForm/forms/style";
 import { LogConfig, ProcessConfig } from "../../../../Types";
-import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";
@@ -43,7 +42,6 @@ export const SELECT_PROPERTY: string = "Select Existing Property";
 
 export function AddLogConfig(props: LogConfigProps) {
     const formClasses = useFormStyles();
-    const overlayClasses = wizardStyles();
     const intl = useIntl();
 
     const {

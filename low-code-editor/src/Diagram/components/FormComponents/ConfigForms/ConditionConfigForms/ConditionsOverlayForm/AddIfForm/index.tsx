@@ -46,7 +46,6 @@ export function AddIfForm(props: IfProps) {
     } = useContext(Context);
     const { condition, formArgs, onCancel, onSave } = props;
     const classes = useStyles();
-    const overlayClasses = wizardStyles();
     const intl = useIntl();
 
     const [isInvalid, setIsInvalid] = useState(true);
