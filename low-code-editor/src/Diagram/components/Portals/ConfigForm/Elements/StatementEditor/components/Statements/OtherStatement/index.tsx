@@ -12,28 +12,28 @@
  */
 import React from "react";
 
-import { StringLiteral } from "@ballerina/syntax-tree";
+import { TextField } from "@material-ui/core";
 
-import { VariableUserInputs } from "../../../../models/definitions";
-import { InputEditor } from "../../../InputEditor";
+import { OtherStatementNodeTypes } from "../../../constants";
+import { VariableUserInputs } from "../../../models/definitions";
+import { useStatementEditorStyles } from "../../ViewContainer/styles";
 
-interface StringLiteralProps {
-    model: StringLiteral
+interface OtherStatementProps {
+    model: OtherStatementNodeTypes
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }
 
-export function StringLiteralC(props: StringLiteralProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+export function OtherStatementTypes(props: OtherStatementProps) {
+    const { model } = props;
 
-    const inputEditorProps = {
-        statementType: model.kind,
-        model,
-        userInputs,
-        diagnosticHandler
-    };
+    const overlayClasses = useStatementEditorStyles();
 
     return (
-        <InputEditor {...inputEditorProps} />
+        <TextField
+            className={overlayClasses.expressionElement}
+            autoFocus={true}
+            defaultValue={model.source.trim()}
+        />
     );
 }

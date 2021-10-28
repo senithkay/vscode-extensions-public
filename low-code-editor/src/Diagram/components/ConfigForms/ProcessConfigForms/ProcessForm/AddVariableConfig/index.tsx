@@ -421,7 +421,10 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                     </div>
                     <ViewContainer
                         kind="DefaultString" // TODO: Derive the kind from the user input
-                        label="Variable Statement"
+                        label={intl.formatMessage({
+                            id: "lowcode.develop.configForms.variable.statementEditor.label",
+                            defaultMessage: "Variable Statement"
+                        })}
                         formArgs={formArgs}
                         userInputs={userInputs}
                         isMutationInProgress={isMutationInProgress}

@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js, ordered-imports
+// tslint:disable: jsx-no-multiline-js ordered-imports
 import React, { useContext, useState } from "react";
 
 import {Box, FormControl, Typography} from "@material-ui/core";
@@ -184,8 +184,12 @@ export function AddWhileForm(props: WhileProps) {
                         // TODO: Send proper props according to the form type
                         <ViewContainer
                             kind="DefaultBoolean"
-                            label="Variable Statement"
+                            label={intl.formatMessage({
+                                id: "lowcode.develop.configForms.while.statementEditor.label",
+                                defaultMessage: "While Statement"
+                            })}
                             formArgs={formArgs}
+                            isMutationInProgress={isMutationInProgress}
                             onCancel={handleStmtEditorCancel}
                         />
                     </div>

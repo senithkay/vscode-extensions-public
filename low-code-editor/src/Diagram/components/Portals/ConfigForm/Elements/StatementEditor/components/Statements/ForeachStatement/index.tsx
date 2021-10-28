@@ -12,7 +12,7 @@
  */
 import React, { ReactNode, useContext } from "react";
 
-import { IfElseStatement } from "@ballerina/syntax-tree"
+import { ForeachStatement } from "@ballerina/syntax-tree";
 
 import { VariableUserInputs } from "../../../models/definitions";
 import { SuggestionsContext } from "../../../store/suggestions-context";
@@ -20,21 +20,30 @@ import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../ViewContainer/styles";
 
-interface IfStatementProps {
-    model: IfElseStatement
+interface ForeachStatementProps {
+    model: ForeachStatement
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }
 
-export function IfStatementC(props: IfStatementProps) {
+export function ForeachStatementC(props: ForeachStatementProps) {
     const { model, userInputs, diagnosticHandler } = props;
 
     const overlayClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
 
-    const conditionComponent: ReactNode = (
+    const typedBindingComponent: ReactNode = (
         <ExpressionComponent
-            model={model.condition}
+            model={model.typedBindingPattern}
+            isRoot={false}
+            userInputs={userInputs}
+            diagnosticHandler={diagnosticHandler}
+        />
+    );
+
+    const actionOrExprComponent: ReactNode = (
+        <ExpressionComponent
+            model={model.actionOrExpressionNode}
             isRoot={false}
             userInputs={userInputs}
             diagnosticHandler={diagnosticHandler}
@@ -42,35 +51,32 @@ export function IfStatementC(props: IfStatementProps) {
     );
 
 
-    const onClickOnConditionExpression = (event: any) => {
+    const onClickOnActionOrExpr = (event: any) => {
         event.stopPropagation()
-        expressionHandler(model.condition, false,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(model.condition.kind) })
+        expressionHandler(model.actionOrExpressionNode, false,
+            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(model.actionOrExpressionNode.kind) })
     };
 
     return (
         <span>
             <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
-                {model.ifKeyword.value}
+                {model.forEachKeyword.value}
             </span>
-             <button className={overlayClasses.expressionElement} onClick={onClickOnConditionExpression}>
-                {conditionComponent}
+            <button className={overlayClasses.expressionElement}>
+                {typedBindingComponent}
             </button>
             <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
-                &nbsp;{model.ifBody.openBraceToken.value}
-                <br/>
-                &nbsp;&nbsp;&nbsp;{"..."}
-                <br/>
-                &nbsp;{model.ifBody.closeBraceToken.value}
+                &nbsp;{model.inKeyword.value}
             </span>
-            <button className={overlayClasses.addNewExpressionButton}> + </button>
+            <button className={overlayClasses.expressionElement} onClick={onClickOnActionOrExpr}>
+                {actionOrExprComponent}
+            </button>
             <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
-                &nbsp;{model.elseBody.elseKeyword.value}
-                &nbsp;{model.ifBody.openBraceToken.value}
+                &nbsp;{model.blockStatement.openBraceToken.value}
                 <br/>
                 &nbsp;&nbsp;&nbsp;{"..."}
                 <br/>
-                &nbsp;{model.ifBody.closeBraceToken.value}
+                {model.blockStatement.closeBraceToken.value}
             </span>
         </span>
     );

@@ -12,7 +12,7 @@
  */
 import React, { ReactNode, useContext } from "react";
 
-import { IfElseStatement } from "@ballerina/syntax-tree"
+import { LocalVarDecl } from "@ballerina/syntax-tree";
 
 import { VariableUserInputs } from "../../../models/definitions";
 import { SuggestionsContext } from "../../../store/suggestions-context";
@@ -20,58 +20,53 @@ import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../ViewContainer/styles";
 
-interface IfStatementProps {
-    model: IfElseStatement
+interface LocalVarDeclProps {
+    model: LocalVarDecl
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }
 
-export function IfStatementC(props: IfStatementProps) {
+export function LocalVarDeclC(props: LocalVarDeclProps) {
     const { model, userInputs, diagnosticHandler } = props;
 
     const overlayClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
 
-    const conditionComponent: ReactNode = (
+    const typedBindingComponent: ReactNode = (
         <ExpressionComponent
-            model={model.condition}
+            model={model.typedBindingPattern}
             isRoot={false}
             userInputs={userInputs}
             diagnosticHandler={diagnosticHandler}
         />
     );
 
+    const expressionComponent: ReactNode = (
+        <ExpressionComponent
+            model={model.initializer}
+            isRoot={false}
+            userInputs={userInputs}
+            diagnosticHandler={diagnosticHandler}
+        />
+    );
 
-    const onClickOnConditionExpression = (event: any) => {
+    const onClickOnExpression = (event: any) => {
         event.stopPropagation()
-        expressionHandler(model.condition, false,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(model.condition.kind) })
+        expressionHandler(model.initializer, false,
+            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(model.initializer.kind) })
     };
 
     return (
         <span>
-            <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
-                {model.ifKeyword.value}
-            </span>
-             <button className={overlayClasses.expressionElement} onClick={onClickOnConditionExpression}>
-                {conditionComponent}
+            <button className={overlayClasses.expressionElement}>
+                {typedBindingComponent}
             </button>
             <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
-                &nbsp;{model.ifBody.openBraceToken.value}
-                <br/>
-                &nbsp;&nbsp;&nbsp;{"..."}
-                <br/>
-                &nbsp;{model.ifBody.closeBraceToken.value}
+                &nbsp;{model.equalsToken.value}
             </span>
-            <button className={overlayClasses.addNewExpressionButton}> + </button>
-            <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
-                &nbsp;{model.elseBody.elseKeyword.value}
-                &nbsp;{model.ifBody.openBraceToken.value}
-                <br/>
-                &nbsp;&nbsp;&nbsp;{"..."}
-                <br/>
-                &nbsp;{model.ifBody.closeBraceToken.value}
-            </span>
+             <button className={overlayClasses.expressionElement} onClick={onClickOnExpression}>
+                {expressionComponent}
+            </button>
         </span>
     );
 }
