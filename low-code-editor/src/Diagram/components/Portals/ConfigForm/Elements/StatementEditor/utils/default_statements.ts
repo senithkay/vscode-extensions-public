@@ -13,7 +13,7 @@
 import { BracedExpression, STNode, StringLiteral } from "@ballerina/syntax-tree";
 
 export const DefaultStatementByType: { [type: string]: string } = {
-    VariableStatement: "json defaultVarName = expression;",
+    VariableStatement: "string defaultVarName = expression;",
     WhileStatement: "while expression {}",
     IfElseStatement: "if expression {} else {}",
     ForEachStatement: "foreach var defaultVarName in expression {}"

@@ -110,43 +110,45 @@ export function ViewContainer(props: ViewProps) {
     });
 
     return (
-        <div className={overlayClasses.stmtEditor}>
-            <div className={overlayClasses.titleLine}/>
-            <div className={overlayClasses.contentPane}>
-                <StatementEditorContextProvider
-                    model={model}
-                    onCancelClicked={onCancelClicked}
-                    onSave={onSave}
-                    onChange={onChange}
-                    validate={validate}
-                >
-                    <LeftPane
-                        currentModel={currentModel}
-                        kind={kind}
-                        label={label}
-                        userInputs={userInputs}
-                        currentModelHandler={currentModelHandler}
-                    />
-                </StatementEditorContextProvider>
-                <div className={overlayClasses.vl}/>
-                <RightPane/>
-            </div>
-            <div className={overlayClasses.bottomPane}>
-                <div className={wizardStylesClasses.buttonWrapper}>
-                    <SecondaryButton
-                        text={cancelVariableButtonText}
-                        fullWidth={false}
-                        onClick={onCancelHandler}
-                    />
-                    <PrimaryButton
-                        dataTestId="save-btn"
-                        text={saveVariableButtonText}
-                        disabled={isMutationInProgress || !validForm}
-                        fullWidth={false}
-                        onClick={onSave}
-                    />
+        model && (
+            <div className={overlayClasses.stmtEditor}>
+                <div className={overlayClasses.titleLine}/>
+                <div className={overlayClasses.contentPane}>
+                    <StatementEditorContextProvider
+                        model={model}
+                        onCancelClicked={onCancelClicked}
+                        onSave={onSave}
+                        onChange={onChange}
+                        validate={validate}
+                    >
+                        <LeftPane
+                            currentModel={currentModel}
+                            kind={kind}
+                            label={label}
+                            userInputs={userInputs}
+                            currentModelHandler={currentModelHandler}
+                        />
+                    </StatementEditorContextProvider>
+                    <div className={overlayClasses.vl}/>
+                    <RightPane/>
+                </div>
+                <div className={overlayClasses.bottomPane}>
+                    <div className={wizardStylesClasses.buttonWrapper}>
+                        <SecondaryButton
+                            text={cancelVariableButtonText}
+                            fullWidth={false}
+                            onClick={onCancelHandler}
+                        />
+                        <PrimaryButton
+                            dataTestId="save-btn"
+                            text={saveVariableButtonText}
+                            disabled={isMutationInProgress || !validForm}
+                            fullWidth={false}
+                            onClick={onSave}
+                        />
+                    </div>
                 </div>
             </div>
-        </div>
+        )
     )
 }
