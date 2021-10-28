@@ -23,7 +23,6 @@ import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
-import LogoCircleIcon from "../../../../../../assets/icons/LogoCircle";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
 import { useStatementEdior } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
 
@@ -112,7 +111,6 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                             <div className={formClasses.formWrapper}>
                                 <div className={formClasses.formTitleWrapper}>
                                     <div className={formClasses.mainTitleWrapper}>
-                                        <LogoCircleIcon />
                                         <Typography variant="h4">
                                             <Box paddingTop={2} paddingBottom={2}>
                                                 <FormattedMessage

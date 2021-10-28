@@ -17,8 +17,6 @@ import React, { useContext, useState } from "react";
 import { CallStatement, FunctionCall, QualifiedNameReference } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 
-import { LogIcon } from "../../../../../../assets/icons";
-
 import { WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
 import { SelectDropdownWithButton } from "../../../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
@@ -135,9 +133,6 @@ export function AddLogConfig(props: LogConfigProps) {
                         <div className={formClasses.formWrapper}>
                             <div className={formClasses.formTitleWrapper}>
                                 <div className={formClasses.mainTitleWrapper}>
-                                    <div className={formClasses.iconWrapper}>
-                                        <LogIcon />
-                                    </div>
                                     <Typography variant="h4">
                                         <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.log.title" defaultMessage="Log" /></Box>
                                     </Typography>

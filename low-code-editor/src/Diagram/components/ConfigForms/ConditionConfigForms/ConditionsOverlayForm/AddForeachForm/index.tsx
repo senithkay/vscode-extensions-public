@@ -17,8 +17,6 @@ import React, { useContext, useState } from "react";
 import { BinaryExpression, ForeachStatement } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 
-import { ForEachIcon } from "../../../../../../assets/icons";
-
 import { FormField } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
 import { getAllVariables } from "../../../../../utils/mixins";
@@ -230,16 +228,13 @@ export function AddForeachForm(props: ForeachProps) {
                             <div className={classes.formWrapper}>
                                 <div className={classes.formTitleWrapper}>
                                     <div className={classes.mainTitleWrapper}>
-                                        <div className={classes.iconWrapper}>
-                                            <ForEachIcon />
-                                        </div>
                                         <Typography variant="h4">
-                                            <Box paddingTop={2} paddingBottom={2}>
+                                            {/* <Box paddingTop={2} paddingBottom={2}> */}
                                                 <FormattedMessage
                                                     id="lowcode.develop.configForms.foreach.title"
                                                     defaultMessage="Foreach"
                                                 />
-                                            </Box>
+                                            {/* </Box> */}
                                         </Typography>
                                     </div>
                                     {stmtEditorButton}

@@ -47,7 +47,7 @@ export const useStatementEdior = (props: ViewProps, disabled: boolean) => {
 
     const stmtEditorButton =
         (
-            <div style={{width: "100%", marginLeft: "auto", marginRight: 0}}>
+            <div style={{display: 'inline-flex', width: "100%", marginLeft: "auto", marginRight: 0}}>
                 <StatementEditorButton onClick={handleStmtEditorButtonClick} disabled={disabled} />
             </div>
         );

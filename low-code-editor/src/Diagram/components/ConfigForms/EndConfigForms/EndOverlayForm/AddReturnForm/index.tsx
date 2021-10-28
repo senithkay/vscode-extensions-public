@@ -22,8 +22,6 @@ import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { EndConfig } from "../../../../Portals/ConfigForm/types";
 import { wizardStyles } from "../../../style";
 
-import { ReturnIcon } from "../../../../../../assets/icons";
-
 import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
@@ -109,9 +107,6 @@ export function AddReturnForm(props: ReturnFormProps) {
                         <div className={classes.formFeilds}>
                             <div className={classes.formTitleWrapper}>
                                 <div className={classes.mainTitleWrapper}>
-                                    <div className={classes.iconWrapper}>
-                                        <ReturnIcon />
-                                    </div>
                                     <Typography variant="h4">
                                         <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.Return.title" defaultMessage="Return" /></Box>
                                     </Typography>

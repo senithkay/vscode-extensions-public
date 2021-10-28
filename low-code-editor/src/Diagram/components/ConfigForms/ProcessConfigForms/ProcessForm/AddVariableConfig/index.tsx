@@ -18,7 +18,6 @@ import { LocalVarDecl, STKindChecker } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 import classnames from "classnames";
 
-import { PropertyIcon } from "../../../../../../assets/icons";
 import { PrimitiveBalType, WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
@@ -277,11 +276,13 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                     <div className={classes.formFeilds}>
                         <div className={classes.formTitleWrapper}>
                             <div className={classes.mainTitleWrapper}>
-                                <div className={classes.iconWrapper}>
-                                    <PropertyIcon />
-                                </div>
                                 <Typography variant="h4">
-                                    <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.variable.title" defaultMessage="Variable" /></Box>
+                                    <Box paddingTop={2} paddingBottom={2}>
+                                        <FormattedMessage
+                                            id="lowcode.develop.configForms.variable.title"
+                                            defaultMessage="Variable"
+                                        />
+                                    </Box>
                                 </Typography>
                             </div>
                             {stmtEditorButton}
