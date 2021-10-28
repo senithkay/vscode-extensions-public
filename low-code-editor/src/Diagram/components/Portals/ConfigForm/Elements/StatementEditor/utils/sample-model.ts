@@ -136,7 +136,7 @@ export const DefaultModelsByKind: { [key: string]: STNode | BracedExpression | S
         "literalToken": {
             "kind": "StringLiteralToken",
             "isToken": true,
-            "value": " expression ",
+            "value": "expression",
             "source": "",
             "position": {
                 "startLine": 4,

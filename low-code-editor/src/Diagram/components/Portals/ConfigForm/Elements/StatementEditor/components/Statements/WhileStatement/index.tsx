@@ -12,7 +12,7 @@
  */
 import React, { ReactNode, useContext } from "react";
 
-import { IfElseStatement } from "@ballerina/syntax-tree"
+import { WhileStatement } from "@ballerina/syntax-tree";
 
 import { VariableUserInputs } from "../../../models/definitions";
 import { SuggestionsContext } from "../../../store/suggestions-context";
@@ -20,13 +20,14 @@ import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../ViewContainer/styles";
 
-interface IfStatementProps {
-    model: IfElseStatement
+
+interface WhileStatementProps {
+    model: WhileStatement
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }
 
-export function IfStatementC(props: IfStatementProps) {
+export function WhileStatementC(props: WhileStatementProps) {
     const { model, userInputs, diagnosticHandler } = props;
 
     const overlayClasses = useStatementEditorStyles();
@@ -51,26 +52,17 @@ export function IfStatementC(props: IfStatementProps) {
     return (
         <span>
             <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
-                {model.ifKeyword.value}
+                {model.whileKeyword.value}
             </span>
-             <button className={overlayClasses.expressionElement} onClick={onClickOnConditionExpression}>
+            <button className={overlayClasses.expressionElement} onClick={onClickOnConditionExpression}>
                 {conditionComponent}
             </button>
             <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
-                &nbsp;{model.ifBody.openBraceToken.value}
+                &nbsp;{model.whileBody.openBraceToken.value}
                 <br/>
                 &nbsp;&nbsp;&nbsp;{"..."}
                 <br/>
-                &nbsp;{model.ifBody.closeBraceToken.value}
-            </span>
-            <button className={overlayClasses.addNewExpressionButton}> + </button>
-            <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
-                &nbsp;{model.elseBody.elseKeyword.value}
-                &nbsp;{model.ifBody.openBraceToken.value}
-                <br/>
-                &nbsp;&nbsp;&nbsp;{"..."}
-                <br/>
-                &nbsp;{model.ifBody.closeBraceToken.value}
+                {model.whileBody.closeBraceToken.value}
             </span>
         </span>
     );

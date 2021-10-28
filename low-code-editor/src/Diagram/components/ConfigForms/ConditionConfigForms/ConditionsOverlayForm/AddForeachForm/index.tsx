@@ -189,6 +189,7 @@ export function AddForeachForm(props: ForeachProps) {
         id: "lowcode.develop.configForms.forEach.cancelButton.label",
         defaultMessage: "Cancel"
     });
+
     const expElementProps: FormElementProps = {
         model: formField,
         customProps: {

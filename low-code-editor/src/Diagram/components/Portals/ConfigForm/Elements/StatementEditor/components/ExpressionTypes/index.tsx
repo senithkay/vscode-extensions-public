@@ -11,13 +11,21 @@
  * associated services.
  */
 import { BinaryExpressionC } from './BinaryExpression';
+import { CaptureBindingPatternC } from './BindingPattern/CaptureBindingPattern';
 import { BracedExpressionC } from './BracedExpression';
 import { BooleanLiteralC } from './Literal/Boolean';
 import { NumericLiteralC } from './Literal/Numeric';
 import { StringLiteralC } from './Literal/String';
+import { SimpleNameReferenceC } from './NameReference';
+import { TypedBindingPatternC } from './TypedBindingPattern';
+import { StringTypeDescC } from './TypeDescriptor';
 
 export { BinaryExpressionC as BinaryExpression };
+export { CaptureBindingPatternC as CaptureBindingPattern };
 export { BracedExpressionC as BracedExpression };
 export { BooleanLiteralC as BooleanLiteral };
 export { NumericLiteralC as NumericLiteral };
+export { SimpleNameReferenceC as SimpleNameReference };
 export { StringLiteralC as StringLiteral };
+export { TypedBindingPatternC as TypedBindingPattern };
+export { StringTypeDescC as StringTypeDesc };

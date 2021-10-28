@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js, ordered-imports
+// tslint:disable: jsx-no-multiline-js ordered-imports
 import React, { useContext, useState } from "react";
 
 import {Box, FormControl, Typography} from "@material-ui/core";

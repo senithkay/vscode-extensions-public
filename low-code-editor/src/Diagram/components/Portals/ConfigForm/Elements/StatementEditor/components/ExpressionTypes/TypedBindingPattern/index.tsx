@@ -13,30 +13,43 @@
 // tslint:disable: jsx-wrap-multiline
 import React, { ReactNode } from "react";
 
-import { BracedExpression} from "@ballerina/syntax-tree";
+import { TypedBindingPattern } from "@ballerina/syntax-tree";
 
 import { VariableUserInputs } from "../../../models/definitions";
 import { ExpressionComponent } from "../../Expression";
+import { useStatementEditorStyles } from "../../ViewContainer/styles";
 
-interface BracedExprProps {
-    model: BracedExpression
+interface TypedBindingPatternProps {
+    model: TypedBindingPattern
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }
 
-export function BracedExpressionC(props: BracedExprProps) {
+export function TypedBindingPatternC(props: TypedBindingPatternProps) {
     const { model, userInputs, diagnosticHandler } = props;
 
-    const expressionComponent: ReactNode = <ExpressionComponent
-        model={model.expression}
+    const overlayClasses = useStatementEditorStyles();
+
+    const typeDescriptorComponent: ReactNode = <ExpressionComponent
+        model={model.typeDescriptor}
+        isRoot={false}
+        userInputs={userInputs}
+        diagnosticHandler={diagnosticHandler}
+    />;
+    const bindingPatternComponent: ReactNode = <ExpressionComponent
+        model={model.bindingPattern}
         isRoot={false}
         userInputs={userInputs}
         diagnosticHandler={diagnosticHandler}
     />;
 
+
     return (
-        <span>
-            {expressionComponent}
-        </span>
+        <button
+            className={overlayClasses.expressionElement}
+        >
+            {typeDescriptorComponent}
+            {bindingPatternComponent}
+        </button>
     );
 }

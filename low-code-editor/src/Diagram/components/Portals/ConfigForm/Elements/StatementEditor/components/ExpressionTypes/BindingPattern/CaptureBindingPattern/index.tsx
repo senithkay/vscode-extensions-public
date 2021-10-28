@@ -10,30 +10,30 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-wrap-multiline
 import React from "react";
 
-import { StringLiteral } from "@ballerina/syntax-tree";
+import { CaptureBindingPattern } from "@ballerina/syntax-tree";
 
 import { VariableUserInputs } from "../../../../models/definitions";
-import { InputEditor } from "../../../InputEditor";
+import { useStatementEditorStyles } from "../../../ViewContainer/styles";
 
-interface StringLiteralProps {
-    model: StringLiteral
+interface CaptureBindingPatternProps {
+    model: CaptureBindingPattern
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }
 
-export function StringLiteralC(props: StringLiteralProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+export function CaptureBindingPatternC(props: CaptureBindingPatternProps) {
+    const { model } = props;
 
-    const inputEditorProps = {
-        statementType: model.kind,
-        model,
-        userInputs,
-        diagnosticHandler
-    };
+    const overlayClasses = useStatementEditorStyles();
 
     return (
-        <InputEditor {...inputEditorProps} />
+        <button
+            className={overlayClasses.expressionElement}
+        >
+            {model.variableName.value}
+        </button>
     );
 }
