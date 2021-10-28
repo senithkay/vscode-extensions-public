@@ -41,6 +41,7 @@ import {
 } from "../../../utils/st-util";
 import { StatementViewState } from "../../../view-state";
 import * as ConnectorIcons from "../../Connector/Icon";
+import { DefaultConnectorIcon } from "../../Connector/Icon/DefaultConnectorIcon";
 import { ConfigWizardState } from "../../ConnectorConfigWizard";
 import * as ConnectorExtension from "../../ConnectorExtensions";
 import * as Elements from "../ConfigForm/Elements";
@@ -99,7 +100,7 @@ export function getForm(type: string, args: any) {
     const Form = (Forms as any)[type];
     return Form ? (
         <Form {...args} />
-    ) : null;
+    ) : <Forms.Custom {...args}/>;
 }
 
 export function getConnectorComponent(type: string, args: any) {
@@ -116,9 +117,9 @@ export function getFieldName(fieldName: string): string {
 export function getParams(formFields: FormField[], depth = 1): string[] {
     const paramStrings: string[] = [];
     formFields.forEach(formField => {
-        const isDefaultValue = !formField.optional && formField.defaultValue && (formField.defaultValue === formField.value);
+        const skipDefaultValue = formField.defaultValue && formField.optional;
         let paramString: string = "";
-        if (!formField.noCodeGen && !isDefaultValue) {
+        if (!formField.noCodeGen && !skipDefaultValue) {
             if (formField.isDefaultableParam && formField.value) {
                 paramString += `${formField.name} = `;
             }
@@ -478,20 +479,12 @@ export function getConnectorIcon(iconId: string, props?: any): React.ReactNode {
 }
 
 export function getConnectorIconSVG(connector: Connector, scale: number = 1): React.ReactNode {
-    // const iconId = getConnectorIconId(connector);
-    // const Icon = (Icons as any)[iconId.replace('.', '_')];
-    // const DefaultIcon = (Icons as any).default;
-    // const props = {
-    //     scale
-    // }
-    // return Icon ? (
-    //     <Icon {...props} />
-    // ) : <DefaultIcon {...props} />;
-
+    // TODO: update to render connector icon
+    const props = {
+        scale
+    }
     return (
-      <Avatar variant="rounded">
-        {connector.package.name.substring(0, 2).toUpperCase()}
-      </Avatar>
+        <DefaultConnectorIcon {...props}/>
     );
 }
 
@@ -885,19 +878,19 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
 
             default:
                 let type = "";
-                if (formField.typeName === "error" || formField.isErrorType) {
+                if (formField.typeName.trim() === "error" || formField.isErrorType) {
                     formField.isErrorType = true;
                     response.hasError = true;
                 }
                 if (type === "" && formField.typeInfo && !formField.isErrorType) {
                     // set class/record types
-                    type = `${getFormattedModuleName(formField.typeInfo.modName)}:${formField.typeInfo.name}`;
+                    type = `${getFormattedModuleName(formField.typeInfo.moduleName)}:${formField.typeInfo.name}`;
                     response.hasReturn = true;
                     response.importTypeInfo.push(formField.typeInfo);
                 }
                 if (type === "" && formField.typeInfo && formField?.isStream && formField.isErrorType) {
                     // set stream record type with error
-                    type = `${getFormattedModuleName(formField.typeInfo.modName)}:${formField.typeInfo.name},error`;
+                    type = `${getFormattedModuleName(formField.typeInfo.moduleName)}:${formField.typeInfo.name},error`;
                     response.hasReturn = true;
                     response.importTypeInfo.push(formField.typeInfo);
                     // remove error return
@@ -1050,7 +1043,7 @@ export function getOauthConnectionConfigurables(connectorName: string, connectio
 }
 
 export function getOauthConnectionFromFormField(formField: FormField, allConnections: ConnectionDetails[]): ConnectionDetails {
-    const connectorModuleName = formField?.typeInfo.modName;
+    const connectorModuleName = formField?.typeInfo.moduleName;
     let variableKey: string;
     let activeConnection: ConnectionDetails;
 

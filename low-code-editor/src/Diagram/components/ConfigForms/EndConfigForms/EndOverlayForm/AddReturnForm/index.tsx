@@ -116,40 +116,32 @@ export function AddReturnForm(props: ReturnFormProps) {
                                     <div className={classes.statementEditor}>
                                         <StatementEditorButton onClick={handleStmtEditorButtonClick} disabled={true} />
                                     </div>
-
-                                    <div className={classes.formWrapper}>
-                                        {
-                                            // containsMainFunction ?
-                                            (
-                                                <div className="exp-wrapper">
-                                                    <ExpressionEditor
-                                                        model={{ name: "return expression", type: "var", value: config.expression }}
-                                                        customProps={{
-                                                            validate: validateExpression,
-                                                            tooltipTitle: returnStatementTooltipMessages.title,
-                                                            tooltipActionText: returnStatementTooltipMessages.actionText,
-                                                            tooltipActionLink: returnStatementTooltipMessages.actionLink,
-                                                            interactive: true,
-                                                            statementType: 'var'
-                                                        }}
-                                                        onChange={onReturnValueChange}
-                                                    />
-                                                </div>
-                                            )
-                                            // : null
-                                        }
-
+                                </div>
+                                <div className={classes.formWrapper}>
+                                    <div className="exp-wrapper">
+                                        <ExpressionEditor
+                                            model={{ name: "return expression", type: "var", value: config.expression }}
+                                            customProps={{
+                                                validate: validateExpression,
+                                                tooltipTitle: returnStatementTooltipMessages.title,
+                                                tooltipActionText: returnStatementTooltipMessages.actionText,
+                                                tooltipActionLink: returnStatementTooltipMessages.actionLink,
+                                                interactive: true,
+                                                statementType: 'var'
+                                            }}
+                                            onChange={onReturnValueChange}
+                                        />
                                     </div>
                                 </div>
+                                <FormActionButtons
+                                    cancelBtnText="Cancel"
+                                    saveBtnText={saveReturnButtonLabel}
+                                    isMutationInProgress={isMutationInProgress}
+                                    validForm={isValidValue}
+                                    onSave={onReturnExpressionSave}
+                                    onCancel={onCancel}
+                                />
                             </div>
-                            <FormActionButtons
-                                cancelBtnText="Cancel"
-                                saveBtnText={saveReturnButtonLabel}
-                                isMutationInProgress={isMutationInProgress}
-                                validForm={isValidValue}
-                                onSave={onReturnExpressionSave}
-                                onCancel={onCancel}
-                            />
                         </div>
                     )
                     :

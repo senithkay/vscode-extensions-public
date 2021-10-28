@@ -14,64 +14,75 @@
 import React from "react";
 
 import {
-  AnyTypeDesc,
-  CommaToken,
-  DefaultableParam,
-  IdentifierToken,
-  IncludedRecordParam,
-  RequiredParam,
-  RestParam,
-  SlashToken,
-  STKindChecker,
+    AnyTypeDesc,
+    CommaToken,
+    DefaultableParam,
+    IdentifierToken,
+    IncludedRecordParam,
+    RequiredParam,
+    RestParam,
+    SlashToken,
+    STKindChecker,
 } from "@ballerina/syntax-tree";
 
 import "./style.scss";
 
 interface ResourceQueryParamsProps {
-  parameters: (
-    | CommaToken
-    | DefaultableParam
-    | IncludedRecordParam
-    | RequiredParam
-    | RestParam
-  )[];
-  relativeResourcePath: (IdentifierToken | SlashToken)[];
+    parameters: (
+        | CommaToken
+        | DefaultableParam
+        | IncludedRecordParam
+        | RequiredParam
+        | RestParam
+    )[];
+    relativeResourcePath: (IdentifierToken | SlashToken)[];
 }
 
 export function ResourceQueryParams(props: ResourceQueryParamsProps) {
-  const { parameters, relativeResourcePath } = props;
+    const { parameters, relativeResourcePath } = props;
 
-  const pathConstruct = relativeResourcePath.reduce(
-    (prev, { source, value }) => prev + (source || value),
-    ""
-  );
+    const pathElements = relativeResourcePath.map(relativePath => {
+        switch (relativePath.kind) {
+            case 'ResourcePathSegmentParam':
+                return (
+                    <>
+                        [<span className={'type-descriptor'}>
+                            {`${(relativePath as any).typeDescriptor?.name?.value} `}
+                        </span>
+                        {(relativePath as any).paramName?.value}]
+                    </>
+                );
+            default:
+                return relativePath.value
+        }
+    });
 
-  const queryParamComponents = parameters
-    .filter((param) => !STKindChecker.isCommaToken(param))
-    .filter(
-      (param) =>
-        STKindChecker.isRequiredParam(param) &&
-        (STKindChecker.isStringTypeDesc(param.typeName) ||
-          STKindChecker.isIntTypeDesc(param.typeName) ||
-          STKindChecker.isBooleanTypeDesc(param.typeName) ||
-          STKindChecker.isFloatTypeDesc(param.typeName) ||
-          STKindChecker.isDecimalTypeDesc(param.typeName))
-    )
-    .map((param: RequiredParam, i) => (
-      <span key={i}>
-        {i !== 0 ? "&" : ""}
-        {param.paramName.value}
-        <sub>{(param.typeName as AnyTypeDesc)?.name?.value}</sub>
-      </span>
-    ));
+    const queryParamComponents = parameters
+        .filter((param) => !STKindChecker.isCommaToken(param))
+        .filter(
+            (param) =>
+                STKindChecker.isRequiredParam(param) &&
+                (STKindChecker.isStringTypeDesc(param.typeName) ||
+                    STKindChecker.isIntTypeDesc(param.typeName) ||
+                    STKindChecker.isBooleanTypeDesc(param.typeName) ||
+                    STKindChecker.isFloatTypeDesc(param.typeName) ||
+                    STKindChecker.isDecimalTypeDesc(param.typeName))
+        )
+        .map((param: RequiredParam, i) => (
+            <span key={i}>
+                {i !== 0 ? "&" : ""}
+                {param.paramName.value}
+                <sub className={'type-descriptor'}>{(param.typeName as AnyTypeDesc)?.name?.value}</sub>
+            </span>
+        ));
 
-  return (
-    <div className={"param-container"}>
-      <p className={"path-text"}>
-        {pathConstruct === "." ? "/" : pathConstruct}
-        {queryParamComponents.length > 0 ? "?" : ""}
-        {queryParamComponents}
-      </p>
-    </div>
-  );
+    return (
+        <div className={"param-container"}>
+            <p className={"path-text"}>
+                {pathElements.length === 1 && pathElements[0] === '.' ? "/" : pathElements}
+                {queryParamComponents.length > 0 ? "?" : ""}
+                {queryParamComponents}
+            </p>
+        </div>
+    );
 }

@@ -449,34 +449,13 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
         case 'ballerinax_github_Client':
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 if (key === INIT) {
-                    // hide optional fields from github forms
-                    // TODO: Remove when optional field BE support is given
-                    hideOptionalFields(value, CONFIG, ACCESS_TOKEN);
-
+                    // TODO: Remove this after fixing GitHub connector required field list.
                     value.parameters.find(fields => fields.name === "config").fields
-                        .find(fields => fields.name === "clientConfig").optional = true;
-                } else if (key === "getOrganizationProjectList") {
-                    // HACK: use hardcoded FormFields until ENUM fix from lang-server
-                    const stateField = value.parameters.find(fields => fields.name === "state");
-                    if (stateField) {
-                        stateField.typeName = PrimitiveBalType.String;
-                        stateField.customAutoComplete = [`"OPEN"`, `"CLOSED"`];
-                    }
-                } else if (key === "getRepositoryProjectList") {
-                    // HACK: use hardcoded FormFields until ENUM fix from lang-server
-                    const stateField = value.parameters.find(fields => fields.name === "state");
-                    if (stateField) {
-                        stateField.typeName = PrimitiveBalType.String;
-                        stateField.customAutoComplete = [`"OPEN"`, `"CLOSED"`];
-                    }
-                } else if (key === "getRepositoryIssueList") {
-                    // HACK: use hardcoded FormFields until ENUM fix from lang-server
-                    const statesField = value.parameters.find(fields => fields.name === "states");
-                    if (statesField) {
-                        statesField.typeName = "array";
-                        statesField.memberType = {typeName: PrimitiveBalType.String};
-                        statesField.customAutoComplete = [`"OPEN"`, `"CLOSED"`];
-                    }
+                        .forEach(field => {
+                            if (field.name !== "auth"){
+                                field.optional = true;
+                            }
+                        });
                 }
                 filteredFunctions.set(key, value);
             });
