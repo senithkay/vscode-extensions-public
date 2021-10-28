@@ -27,6 +27,8 @@ import { showPerformanceGraph } from "./performanceGraphPanel";
 const CHOREO_API = "http://choreocontrolplane.preview-dv.choreo.dev/performance-analyzer/1.0.0/get_estimations/2.0";
 const CHOREO_AUTH_ERR = "Choreo Authentication error.";
 const NETWORK_ERR = "Network error. Please check you internet connection.";
+const MODEL_NOT_FOUND = "AI service does not have enough data to forecast."
+const SUCCESS = "Success";
 let langClient: ExtendedLangClient;
 let uiData: GraphData;
 let extension: BallerinaExtension;
@@ -117,7 +119,7 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
             choreoToken: `Bearer ${choreoToken}`,
             choreoCookie: choreoCookie,
         }).then(async (response) => {
-            if (response.type === 'error') {
+            if (response.type != SUCCESS) {
                 checkErrors(response);
                 return;
             }
@@ -150,7 +152,7 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
             choreoToken: `Bearer ${choreoToken}`,
             choreoCookie: choreoCookie,
         }).then(async (response) => {
-            if (response.type === 'error') {
+            if (response.type != SUCCESS) {
                 checkErrors(response);
                 return;
             }
@@ -185,6 +187,11 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
             // Internet Connection Error
             window.showErrorMessage(
                 NETWORK_ERR
+            );
+        } else if (response.message === 'MODEL_NOT_FOUND') {
+            // Internet Connection Error
+            window.showInformationMessage(
+                MODEL_NOT_FOUND
             );
         } else {
             window.showErrorMessage(
