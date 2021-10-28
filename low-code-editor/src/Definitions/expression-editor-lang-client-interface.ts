@@ -11,6 +11,7 @@
  * associated services.
  */
 
+import { STNode } from "@ballerina/syntax-tree";
 import { Diagnostic } from "monaco-languageclient";
 
 import { BaseLangClientInterface } from "./base-lang-client-interface";
@@ -81,7 +82,7 @@ export interface PartialSTRequest {
 }
 
 export interface PartialSTResponse {
-	syntaxTree: any;
+	syntaxTree: STNode;
 }
 
 export interface PartialSTModification {
