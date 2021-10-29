@@ -170,14 +170,6 @@ export function ConstantConfigForm(props: ConstantConfigFormProps) {
                 defaultValues={config.isPublic ? ["public"] : []}
                 onChange={handleAccessModifierChange}
             />
-            <FormTextInput
-                customProps={variableNameTextFieldCustomProps}
-                defaultValue={config.constantName}
-                onChange={handleNameChange}
-                label={"Constant Name"}
-                errorMessage={"Invalid Constant Name"}
-                placeholder={"Enter Constant Name"}
-            />
             <VariableNameInput
                 displayName={"Constant Name"}
                 value={config.constantName}

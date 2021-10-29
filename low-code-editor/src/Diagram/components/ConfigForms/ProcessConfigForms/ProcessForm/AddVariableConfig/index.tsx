@@ -11,10 +11,10 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
-import React, {ReactNode, useContext, useState} from "react";
+import React, { ReactNode, useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { LocalVarDecl, STKindChecker } from "@ballerina/syntax-tree";
+import { CaptureBindingPattern, LocalVarDecl, STKindChecker } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 
 import { CloseRounded, EditIcon, PropertyIcon } from "../../../../../../assets/icons";
@@ -33,6 +33,7 @@ import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { ProcessConfig } from "../../../../Portals/ConfigForm/types";
 import { checkVariableName, genVariableName } from "../../../../Portals/utils";
 import { wizardStyles } from "../../../style";
+import { VariableNameInput, VariableNameInputProps } from "../../../../Portals/ConfigForm/forms/Components/VariableNameInput";
 
 interface AddVariableConfigProps {
     config: ProcessConfig;
@@ -94,8 +95,8 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     const [otherType, setOtherType] = useState<string>(modelType);
     const [varName, setVarName] = useState(variableName);
     const [defaultVarName, setDefaultVarName] = useState<string>(undefined);
-    const [varNameError, setVarNameError] = useState("");
-    const [isValidVarName, setIsValidVarName] = useState(false);
+    // const [varNameError, setVarNameError] = useState("");
+    // const [isValidVarName, setIsValidVarName] = useState(false);
     const [validExpresssionValue, setValidExpresssionValue] = useState(config.config !== "");
     const [variableExpression, setVariableExpression] = useState<string>(varExpression);
     const [editorFocus, setEditorFocus] = useState<boolean>(false);
@@ -144,22 +145,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                 onPropertyChange("");
             }
         }
-    };
-
-    const validateNameValue = (value: string) => {
-        if (value !== undefined && value !== null) {
-            const varValidationResponse = checkVariableName("variable name", value, defaultVarName, stSymbolInfo);
-            if (varValidationResponse?.error) {
-                setVarNameError(varValidationResponse.message);
-                setIsValidVarName(false);
-                return false;
-            }
-        } else if (value === null) {
-            setIsValidVarName(false);
-            return true;
-        }
-        setIsValidVarName(true);
-        return true;
     };
 
     let variableHasReferences = false;
@@ -253,18 +238,30 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
 
     modelType = (selectedType === "other") ? otherType : selectedType;
 
-    const validForm: boolean = (isValidVarName && validExpresssionValue);
+    const validForm: boolean = varName.length > 0 && variableExpression.length > 0 && validExpresssionValue;
 
     // todo: Support other data types
     const variableTypes: string[] = ["var", "int", "float", "decimal", "boolean", "string", "json", "xml", "error", "any", "anydata", "other"];
 
     const userInputs = {
-            selectedType,
-            otherType,
-            varName,
-            variableExpression,
-            formField
+        selectedType,
+        otherType,
+        varName,
+        variableExpression,
+        formField
     };
+
+    const variableNameConfig: VariableNameInputProps = {
+        displayName: 'Variable Name',
+        value: varName,
+        onValueChange: setVarName,
+        validateExpression,
+        position: config.model ?
+            ((config.model as LocalVarDecl).typedBindingPattern
+                .bindingPattern as CaptureBindingPattern).variableName.position
+            : formArgs.targetPosition,
+        isEdit: !!config.model,
+    }
 
     let exprEditor =
         <FormControl data-testid="property-form" className={classes.wizardFormControl}>
@@ -300,22 +297,15 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                                         placeholder={enterTypePlaceholder}
                                     />
                                 )}
-                                <FormTextInput
-                                    dataTestId="variable-name"
-                                    customProps={{
-                                        validate: validateNameValue,
-                                        disabled: variableHasReferences
-                                    }}
-                                    defaultValue={varName}
-                                    onChange={handleNameOnChange}
-                                    label={addVariableNameLabel}
-                                    errorMessage={varNameError}
-                                    placeholder={addVariablePlaceholder}
-                                />
+                                <VariableNameInput {...variableNameConfig} />
                                 <div className="exp-wrapper">
                                     <ExpressionEditor
                                         key={selectedType}
-                                        model={{ name: "Expression", value: variableExpression, typeName: (modelType ? modelType : "other") }}
+                                        model={{
+                                            name: "Expression",
+                                            value: variableExpression,
+                                            typeName: (modelType ? modelType : "other")
+                                        }}
                                         customProps={{
                                             validate: validateExpression,
                                             expandDefault: (selectedType === "other"),
