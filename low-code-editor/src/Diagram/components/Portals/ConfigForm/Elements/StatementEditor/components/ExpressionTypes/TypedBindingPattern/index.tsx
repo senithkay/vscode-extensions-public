@@ -45,11 +45,9 @@ export function TypedBindingPattern(props: TypedBindingPatternProps) {
 
 
     return (
-        <button
-            className={overlayClasses.expressionElement}
-        >
+        <span>
             {typeDescriptorComponent}
             {bindingPatternComponent}
-        </button>
+        </span>
     );
 }
