@@ -1,5 +1,6 @@
 import * as React from "react";
 import { IntlProvider } from "react-intl";
+import { monaco } from "react-monaco-editor";
 
 import { FunctionDefinition, ModulePart, NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import { MuiThemeProvider } from "@material-ui/core/styles";
@@ -28,6 +29,8 @@ export interface DiagramGeneratorProps extends EditorProps {
 const ZOOM_STEP = 0.1;
 const MAX_ZOOM = 2;
 const MIN_ZOOM = 0.6;
+const undoStack: string[] = [];
+const redoStack: string[] = [];
 
 export function DiagramGenerator(props: DiagramGeneratorProps) {
     const { langClient, filePath, startLine, startColumn, lastUpdatedAt, scale, panX, panY } = props;
@@ -88,6 +91,58 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         newZoomStatus.panX = newPanX;
         newZoomStatus.panY = newPanY;
         setZoomStatus(newZoomStatus);
+    }
+
+    const undo = async () => {
+        const uri = monaco.Uri.file(filePath).toString();
+        redoStack.push(fileContent);
+        const lastSource = undoStack.pop();
+
+        langClient.didChange({
+            contentChanges: [
+                {
+                    text: lastSource
+                }
+            ],
+            textDocument: {
+                uri,
+                version: 1
+            }
+        });
+        const genSyntaxTree = await getSyntaxTree(filePath, langClient);
+        const pfSession = await props.getPFSession();
+        const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, filePath,
+            langClient, pfSession,
+            props.showPerformanceGraph, props.showMessage);
+        setSyntaxTree(vistedSyntaxTree);
+        setFileContent(lastSource);
+        props.updateFileContent(filePath, lastSource);
+    }
+
+    const redo = async () => {
+        const uri = monaco.Uri.file(filePath).toString();
+        undoStack.push(fileContent);
+        const lastUndoSource = redoStack.pop();
+
+        langClient.didChange({
+            contentChanges: [
+                {
+                    text: lastUndoSource
+                }
+            ],
+            textDocument: {
+                uri,
+                version: 1
+            }
+        });
+        const genSyntaxTree = await getSyntaxTree(filePath, langClient);
+        const pfSession = await props.getPFSession();
+        const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, filePath,
+            langClient, pfSession,
+            props.showPerformanceGraph, props.showMessage);
+        setSyntaxTree(vistedSyntaxTree);
+        setFileContent(lastUndoSource);
+        props.updateFileContent(filePath, lastUndoSource);
     }
 
     if (!syntaxTree) {
@@ -159,6 +214,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                             }
                                         });
                                         if (parseSuccess) {
+                                            undoStack.push(fileContent);
                                             const pfSession = await props.getPFSession();
                                             const vistedSyntaxTree: STNode = await getLowcodeST(newST, filePath,
                                                                                                 langClient, pfSession,
@@ -193,6 +249,12 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                     closeConfigOverlayForm: () => undefined,
                                     configOverlayFormPrepareStart: () => undefined,
                                     closeConfigPanel: () => undefined,
+                                },
+                                undoRedoPanel: {
+                                    undoDiagram: undo,
+                                    redoDiagram: redo,
+                                    undoLength: undoStack.length,
+                                    redoLength: redoStack.length
                                 }
                             }}
                         />
