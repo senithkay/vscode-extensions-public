@@ -156,23 +156,21 @@ export function RecordField(props: CodePanelProps) {
     if (isFieldAddInProgress) {
         // Adding draft field
         fieldItems.push(
-            <div className={recordClasses.itemWrapper}>
-                <div className={recordClasses.draftBtnWrapper} onClick={handleDraftFieldDelete}>
-                    <div className={recordClasses.actionBtnWrapper}>
-                        <DeleteButton/>
-                    </div>
+            <div className={recordClasses.draftBtnWrapper} onClick={handleDraftFieldDelete}>
+                <div className={recordClasses.actionBtnWrapper}>
+                    <DeleteButton/>
                 </div>
             </div>
         )
     }
 
     const accessModifier = `${recordModel.isPublic ? "public " : ""}`;
-    const recordBegin = `${recordModel.isTypeDefinition ? `${accessModifier}type ${recordModel.name !== undefined ?
-        recordModel.name : ""} ` : ""}record { ${recordModel.isClosed ? "|" : ""}`;
-
-    const recordProperties = `${recordModel.isArray ? "[] " : " "}${recordModel.name}${recordModel.isOptional ? " ?" :
-        ""}`
-    const recordEnd = `${recordModel.isClosed ? "| " : ""}} ${recordModel.isTypeDefinition ? "" : recordProperties};`;
+    const recordTypeNVisibility = `${recordModel.isTypeDefinition ? `${accessModifier} type` : ""}`;
+    const openBraceTokens = `{ ${recordModel.isClosed ? "|" : ""}`;
+    const recordEn = `${recordModel.isClosed ? "|}" : "}"}${recordModel.isArray ? "[]" :
+        ""}${recordModel.isOptional ? "?" : ""}`;
+    const typeDescName = `${recordModel.isTypeDefinition ? "" : `${recordModel.name}`}`;
+    const typeDefName = `${recordModel.isTypeDefinition ? `${recordModel.name}` : ""}`;
 
     useEffect(() => {
         // Checks whether add from is completed and reset field addition
@@ -188,12 +186,44 @@ export function RecordField(props: CodePanelProps) {
                     recordClasses.recordEditorWrapper}
             >
                 <div className={recordClasses.recordHeader}>
-                    <Typography
-                        variant='body2'
-                        className={classnames(recordClasses.recordCode)}
-                    >
-                        {recordBegin}
-                    </Typography>
+                    <div className={recordClasses.recordExpandBtnWrapper}>
+                        <ComponentExpandButton onClick={handleRecordExpand} isExpanded={isRecordExpanded} />
+                    </div>
+                    <div className={recordClasses.recordHeading}>
+                        {recordTypeNVisibility && (
+                            <Typography
+                                variant='body2'
+                                className={classnames(recordClasses.typeNVisibilityWrapper)}
+                            >
+                                {recordTypeNVisibility}
+                            </Typography>
+                        )}
+                        {typeDefName && (
+                            <Typography
+                                variant='body2'
+                                className={classnames(recordClasses.typeDefNameWrapper)}
+                            >
+                                {typeDefName}
+                            </Typography>
+                        )}
+                        <Typography
+                            variant='body2'
+                            className={classnames(recordClasses.recordKeywordWrapper)}
+                        >
+                            record
+                        </Typography>
+                        <Typography
+                            variant='body2'
+                            className={classnames(recordClasses.openBraceTokenWrapper)}
+                        >
+                            {openBraceTokens}
+                        </Typography>
+                        {!isRecordExpanded && (
+                            <div className={recordClasses.dotExpander} onClick={handleRecordExpand}>
+                                ....
+                            </div>
+                        )}
+                    </div>
                     <div className={recordModel.isTypeDefinition ? recordClasses.typeDefEditBtnWrapper : recordClasses.recordHeaderBtnWrapper}>
                         <div className={recordClasses.actionBtnWrapper} onClick={handleRecordEdit}>
                             <EditButton />
@@ -204,12 +234,9 @@ export function RecordField(props: CodePanelProps) {
                             </div>
                         )}
                     </div>
-                    <div className={recordModel.isTypeDefinition ? recordClasses.typeDefExpandButton : recordClasses.recordExpandBtnWrapper}>
-                        <ComponentExpandButton onClick={handleRecordExpand} isExpanded={isRecordExpanded} />
-                    </div>
                 </div>
                 {isRecordExpanded && (
-                    <>
+                    <div className={recordModel?.isActive ? recordClasses.activeRecordSubFieldWrapper : recordClasses.recordSubFieldWrapper}>
                         {fieldItems}
                         {!isFieldAddInProgress && !state.isEditorInvalid && (
                             <div className={recordClasses.addFieldBtnWrap} onClick={handleAddField}>
@@ -217,14 +244,30 @@ export function RecordField(props: CodePanelProps) {
                                 <p>{addFieldText}</p>
                             </div>
                         )}
-                    </>
+                    </div>
                 )}
-                <Typography
-                    variant='body2'
-                    className={classnames(recordClasses.recordCode)}
-                >
-                    {recordEnd}
-                </Typography>
+                <div className={recordClasses.endRecordCodeWrapper}>
+                    <Typography
+                        variant='body2'
+                        className={classnames(recordClasses.closeBraceTokenWrapper)}
+                    >
+                        {recordEn}
+                    </Typography>
+                    {typeDescName && (
+                        <Typography
+                            variant='body2'
+                            className={classnames(recordClasses.endRecordCode)}
+                        >
+                            {typeDescName}
+                        </Typography>
+                    )}
+                    <Typography
+                        variant='body2'
+                        className={classnames(recordClasses.singleTokenWrapper)}
+                    >
+                        ;
+                    </Typography>
+                </div>
             </div>
         </div>
     )

@@ -47,7 +47,7 @@ export function EditTypeDefForm() {
     });
     const sampleButtonText = intl.formatMessage({
         id: "lowcode.develop.configForms.recordEditor.editRecord.sampleBtnText",
-        defaultMessage: "Use Sample"
+        defaultMessage: "Update from Sample"
     });
     const visibilityText = intl.formatMessage({
         id: "lowcode.develop.configForms.recordEditor.editRecord.visibilityText",

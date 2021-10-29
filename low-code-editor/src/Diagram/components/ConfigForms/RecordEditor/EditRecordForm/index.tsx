@@ -48,7 +48,7 @@ export function EditRecordForm() {
     });
     const sampleButtonText = intl.formatMessage({
         id: "lowcode.develop.configForms.recordEditor.editRecord.sampleBtnText",
-        defaultMessage: "Use Sample"
+        defaultMessage: "Update from Sample"
     });
 
     const handleNameChange = (inputText: string) => {
@@ -136,7 +136,7 @@ export function EditRecordForm() {
             />
 
             <PrimaryButton
-                dataTestId={"generate-from-sample-btn"}
+                dataTestId={"update-from-sample-btn"}
                 text={sampleButtonText}
                 fullWidth={false}
                 onClick={handleGenerateFromSample}

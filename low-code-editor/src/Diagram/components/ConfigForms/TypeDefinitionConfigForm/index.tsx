@@ -199,8 +199,8 @@ export function TypeDefinitionConfigForm(props: TypeDefFormProps) {
                     />
                     {typeDescConfigs && (
                         <div className={recordClasses.activeItemContentWrapper}>
-                            <div className={recordClasses.itemLabel}>
-                                {typeDescConfigs.substring(0, 20)}
+                            <div className={recordClasses.typeWrapper}>
+                                {typeDescConfigs}
                             </div>
                             <div className={recordClasses.btnWrapper}>
                                 <div className={recordClasses.actionBtnWrapper} onClick={handleRecordEdit}>

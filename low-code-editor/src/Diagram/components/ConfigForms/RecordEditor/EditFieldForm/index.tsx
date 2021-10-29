@@ -52,6 +52,10 @@ export function EditFieldForm() {
         id: "lowcode.develop.configForms.recordEditor.addButton.text",
         defaultMessage: "Add"
     });
+    const jsonGenText = intl.formatMessage({
+        id: "lowcode.develop.configForms.recordEditor.jsonButton.text",
+        defaultMessage: "Import JSON"
+    });
     const updateButtonText = intl.formatMessage({
         id: "lowcode.develop.configForms.recordEditor.updateButton.text",
         defaultMessage: "Update"
@@ -106,7 +110,7 @@ export function EditFieldForm() {
     const basicTypes: string[] = ["int", "float", "decimal", "boolean", "string", "json", "xml", "error", "any",
         "anydata", "record"];
     const variableTypes: string[] = basicTypes.slice();
-    stSymbolInfo.recordTypeDescriptions.forEach((value: RecordTypeDesc, id: string) => {
+    stSymbolInfo.recordTypeDescriptions.forEach((value: RecordTypeDesc) => {
         variableTypes.push(value?.typeData?.typeSymbol?.name);
     })
 
@@ -201,7 +205,7 @@ export function EditFieldForm() {
             if (selectedType === "record") {
                 const foundIndex = state.currentRecord.fields.indexOf(state.currentField);
                 state.currentRecord.isActive = false;
-                const recordModel: RecordModel = {
+                state.currentRecord.fields[foundIndex] = {
                     name,
                     isArray,
                     isOptional: isFieldOptional,
@@ -211,7 +215,6 @@ export function EditFieldForm() {
                     isInline: true,
                     fields: []
                 };
-                state.currentRecord.fields[foundIndex] = recordModel;
                 callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
             } else {
                 state.currentField.name = name;
@@ -250,6 +253,7 @@ export function EditFieldForm() {
         setNameError("");
         setIsTypeOptional(state.currentField.isFieldTypeOptional);
         setIsArray(state.currentField.isArray);
+        setDefaultValue(state.currentField.value);
     };
 
     const formField: FormField = {
@@ -326,14 +330,12 @@ export function EditFieldForm() {
                 placeholder={typePlaceholder}
                 onChange={handleTypeSelect}
             />
-            {(selectedType !== "record") && (
-                <CheckBoxGroup
-                    testId="is-optional-field"
-                    values={["Is optional ?"]}
-                    defaultValues={isTypeOptional ? ["Is optional ?"] : []}
-                    onChange={handleOptionalTypeChange}
-                />
-            )}
+            <CheckBoxGroup
+                testId="is-optional-type"
+                values={["Is optional ?"]}
+                defaultValues={isTypeOptional ? ["Is optional ?"] : []}
+                onChange={handleOptionalTypeChange}
+            />
             <CheckBoxGroup
                 testId="is-array"
                 values={["Is Array ?"]}
@@ -348,6 +350,17 @@ export function EditFieldForm() {
             )}
 
             <div className={recordClasses.fieldAddButtonWrapper}>
+                {(!isFieldUpdate && (selectedType === "record")) && (
+                    <div className={recordClasses.jsonButtonWrapper}>
+                        <PrimaryButton
+                            dataTestId={"import-json"}
+                            text={jsonGenText}
+                            disabled={isAddButtonDisabled}
+                            fullWidth={false}
+                            onClick={null}
+                        />
+                    </div>
+                )}
                 <PrimaryButton
                     dataTestId={"record-add-btn"}
                     text={isFieldUpdate ? updateButtonText : addButtonText}

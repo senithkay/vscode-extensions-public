@@ -518,6 +518,7 @@
     "lowcode.develop.configForms.recordEditor.cancelButton.text": "Cancel",
     "lowcode.develop.configForms.recordEditor.codePanel.title": "Record Configuration",
     "lowcode.develop.configForms.recordEditor.addButton.text": "Add",
+    "lowcode.develop.configForms.recordEditor.jsonButton.text": "Import JSON",
     "lowcode.develop.configForms.recordEditor.updateButton.text": "Update",
     "lowcode.develop.configForms.recordEditor.editField.addTitle": "Add Field",
     "lowcode.develop.configForms.recordEditor.editField.updateTitle": "Update Field",
@@ -529,5 +530,5 @@
     "lowcode.develop.configForms.recordEditor.editRecord.nameText": "Record name",
     "lowcode.develop.configForms.recordEditor.editRecord.namePlaceholder": "Enter record name",
     "lowcode.develop.configForms.recordEditor.editRecord.visibilityText": "Visibility",
-    "lowcode.develop.configForms.recordEditor.editRecord.sampleBtnText": "Use Sample"
+    "lowcode.develop.configForms.recordEditor.editRecord.sampleBtnText": "Update from Sample"
 }

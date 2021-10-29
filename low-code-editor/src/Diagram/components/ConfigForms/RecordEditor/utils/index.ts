@@ -152,7 +152,7 @@ export function getGeneratedCode(model: Field, isTypeDef: boolean): string {
     if (model.type === "record") {
         const recordModel = model as RecordModel;
         // TODO: handle type reference fields
-        const recordBegin = `record {${recordModel.isClosed ? "|" : ""}`;
+        const recordBegin = `record {${recordModel.isClosed ? "|\n" : ""}`;
         let fieldCode = "";
         if (recordModel?.fields.length > 0) {
             recordModel.fields.forEach((field) => {
@@ -162,12 +162,12 @@ export function getGeneratedCode(model: Field, isTypeDef: boolean): string {
         const recordEnd = isTypeDef ? `${recordModel.isClosed ? "|" : ""}};` :
             `${recordModel.isClosed ? "|" : ""}}${recordModel.isArray ? "[]" :
                 ""} ${recordModel.name}${recordModel.isOptional ? "?" : ""};`;
-        codeGenerated = recordBegin + fieldCode + recordEnd;
+        codeGenerated = recordBegin + fieldCode + recordEnd + "\n";
     } else {
         const fieldModel = model as SimpleField;
         codeGenerated = `${fieldModel.type}${fieldModel.isArray ? "[]" : ""}${fieldModel.isFieldTypeOptional ? "?" :
             ""} ${fieldModel.name}${fieldModel.isFieldOptional ? "?" : ""} ${
-            fieldModel.value ? ` = ${fieldModel.value}` : ""};`;
+            fieldModel.value ? ` = ${fieldModel.value}` : ""};\n`;
     }
     return codeGenerated;
 }

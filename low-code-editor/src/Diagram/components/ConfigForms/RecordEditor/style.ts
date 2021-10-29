@@ -59,20 +59,18 @@ export const recordStyles = makeStyles((theme: Theme) =>
             marginTop: 15.5
         },
         itemContentWrapper: {
-            background: 'white',
             marginLeft: 10,
             marginRight: 10,
             margin: `5px 0`,
             flexDirection: 'row',
             display: 'flex',
             width: '100%',
-            color: '#0095FF',
         },
         activeItemContentWrapper: {
-            background: 'white',
-            borderRadius: 5,
-            border: '1px solid #A6B3FF',
-            padding: 10,
+            marginLeft: 10,
+            marginRight: 10,
+            backgroundColor: "#ededf1",
+            margin: `5px 0`,
             flexDirection: 'row',
             display: 'flex',
             width: '100%'
@@ -80,13 +78,47 @@ export const recordStyles = makeStyles((theme: Theme) =>
         itemWrapper: {
             display: 'flex',
             flexDirection: `row`,
-            minWidth: 250
+            minWidth: 250,
+            "&:hover": {
+                background: "#ededf1",
+                "& $btnWrapper": {
+                    display: "flex"
+                }
+            }
         },
-        itemLabel: {
-            width: "80%"
+        itemLabelWrapper: {
+            width: "80%",
+            display: "flex",
+            flexDirection: "row"
+        },
+        typeWrapper: {
+            maxWidth: 80,
+            color: '#6fb36d',
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis"
+        },
+        nameWrapper: {
+            maxWidth: 80,
+            color: "#a9acb1",
+            marginLeft: 5,
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+        },
+        defaultValWrapper: {
+            maxWidth: 40,
+            color: '#e3d662',
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis"
+        },
+        optionalNArray: {
+            maxWidth: 15,
+            color: "#a9acb1",
         },
         btnWrapper: {
-            display: "flex",
+            display: "none",
             flexDirection: "row",
             width: "20%",
             alignItems: "center"
@@ -99,10 +131,11 @@ export const recordStyles = makeStyles((theme: Theme) =>
             padding: 0
         },
         draftBtnWrapper: {
-            width: "100%",
+            width: "80%",
             display: "flex",
             flexDirection: "row",
             padding: 10,
+            margin: "0 10px",
             borderRadius: 5,
             border: "1px solid #A6B3FF",
             justifyContent: "center"
@@ -133,14 +166,11 @@ export const recordStyles = makeStyles((theme: Theme) =>
             }
         },
         recordEditorWrapper: {
-            minWidth: 250,
-            margin: `5px 10px`
+            minWidth: 250
         },
         activeRecordEditorWrapper: {
             minWidth: 250,
-            padding: 10,
             boxSizing: "border-box",
-            border: "1px solid #A6B3FF",
             borderRadius: 4
         },
         recordHeader: {
@@ -163,17 +193,65 @@ export const recordStyles = makeStyles((theme: Theme) =>
                     width: "10%",
                     marginTop: 5,
                     justifyContent: "flex-end"
-                },
-                "& $typeDefExpandButton": {
-                    marginTop: 10,
-                    marginLeft: 0
-                },
+                }
             }
         },
-        recordCode: {
-            width: `80%`,
+        recordHeading: {
+            display: "flex",
+            width: "80%"
+        },
+        typeNVisibilityWrapper: {
+            maxWidth: 70,
             fontFamily: "inherit",
             color: '#0095FF'
+        },
+        typeDefNameWrapper: {
+            maxWidth: 130,
+            margin: "0 5px",
+            fontFamily: "inherit",
+            color: '#6fb36d',
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis"
+        },
+        recordKeywordWrapper: {
+            width: 40,
+            fontFamily: "inherit",
+            color: '#0095FF'
+        },
+        openBraceTokenWrapper: {
+            width: 15,
+            fontFamily: "inherit",
+            color: '#a9acb1'
+        },
+        dotExpander: {
+            marginLeft: 5,
+            cursor: "pointer"
+        },
+        endRecordCode: {
+            maxWidth: 200,
+            marginLeft: 5,
+            fontFamily: "inherit",
+            color: '#89baf8'
+        },
+        closeBraceTokenWrapper: {
+            maxWidth: 40,
+            fontFamily: "inherit",
+            color: '#a9acb1'
+        },
+        endRecordCodeWrapper: {
+            display: "flex",
+            flexDirection: "row",
+            marginLeft: 20,
+        },
+        singleTokenWrapper: {
+            width: 10,
+            color: "#a9acb1"
+        },
+        equalTokenWrapper: {
+            margin: "0 5px",
+            width: 10,
+            color: "#a9acb1"
         },
         recordHeaderBtnWrapper: {
             display: "none",
@@ -182,18 +260,12 @@ export const recordStyles = makeStyles((theme: Theme) =>
             alignItems: "center"
         },
         recordExpandBtnWrapper: {
-            marginTop: 10,
-            marginRight: 10,
-            marginLeft: 20
+            width: 20,
+            marginTop: 10
         },
         typeDefEditBtnWrapper: {
             display: "none",
             cursor: "pointer",
-        },
-        typeDefExpandButton: {
-            marginTop: 10,
-            marginRight: 10,
-            marginLeft: 22
         },
         buttonWrapper: {
             height: 'auto',
@@ -216,5 +288,20 @@ export const recordStyles = makeStyles((theme: Theme) =>
             width: '100%',
             zIndex: 100,
         },
+        jsonButtonWrapper: {
+            marginRight: 20,
+        },
+        recordSubFieldWrapper: {
+            display: `flex`,
+            marginLeft: 20,
+            flexDirection: `column`,
+            borderLeft: `1px solid #e8e8e8`
+        },
+        activeRecordSubFieldWrapper: {
+            display: `flex`,
+            marginLeft: 20,
+            flexDirection: `column`,
+            borderLeft: `1px solid #cdcdcd`
+        }
     }),
 );

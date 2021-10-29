@@ -11,10 +11,14 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from "react";
+import React  from "react";
+
+import { Typography } from "@material-ui/core";
+import classnames from "classnames";
 
 import DeleteButton from "../../../../../assets/icons/DeleteButton";
 import EditButton from "../../../../../assets/icons/EditButton";
+import { useRecordEditorContext } from "../../../../../Contexts/RecordEditor";
 import { recordStyles } from "../style";
 import { SimpleField } from "../types";
 
@@ -29,10 +33,9 @@ export function FieldItem(props: FieldItemProps) {
 
     const recordClasses = recordStyles();
 
-    const [isFieldActionsVisible, setIsFieldActionsVisible] = useState(false);
+    const { state } = useRecordEditorContext();
 
-    const segmentLabel = `${field.type}${field.isArray ? "[]" : ""}${field.isFieldTypeOptional ? "?" :
-        ""} ${field.name}${field.isFieldOptional ? "?" : ""}${field.value ? ` = ${field.value}` : ""};`;
+    const typeProperty = `${field.isArray ? "[]" : ""}${field.isFieldTypeOptional ? "?" : ""}`;
 
     const handleDelete = () => {
         onDeleteClick(field);
@@ -42,27 +45,68 @@ export function FieldItem(props: FieldItemProps) {
         onEditCLick(field);
     };
 
-    const handleMouseEnter = () => {
-        setIsFieldActionsVisible(true);
-    };
-
-    const handleMouseLeave = () => {
-        setIsFieldActionsVisible(false);
-    };
-
     return (
-        <div className={recordClasses.itemWrapper} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+        <div className={recordClasses.itemWrapper}>
             <div className={field.isActive ? recordClasses.activeItemContentWrapper : recordClasses.itemContentWrapper}>
-                <div className={recordClasses.itemLabel}>
-                    {segmentLabel}
+                <div className={recordClasses.itemLabelWrapper}>
+                    <Typography
+                        variant='body2'
+                        className={classnames(recordClasses.typeWrapper)}
+                    >
+                        {field.type}
+                    </Typography>
+                    {typeProperty && (
+                        <Typography
+                            variant='body2'
+                            className={classnames(recordClasses.optionalNArray)}
+                        >
+                            {typeProperty}
+                        </Typography>
+                    )}
+                    <Typography
+                        variant='body2'
+                        className={classnames(recordClasses.nameWrapper)}
+                    >
+                        {field.name}
+                    </Typography>
+                    {field.isFieldOptional && (
+                        <Typography
+                            variant='body2'
+                            className={classnames(recordClasses.singleTokenWrapper)}
+                        >
+                            ?
+                        </Typography>
+                    )}
+                    {field.value && (
+                        <div className={recordClasses.recordEditorContainer}>
+                            <Typography
+                                variant='body2'
+                                className={classnames(recordClasses.equalTokenWrapper)}
+                            >
+                                =
+                            </Typography>
+                            <Typography
+                                variant='body2'
+                                className={classnames(recordClasses.defaultValWrapper)}
+                            >
+                                {field.value}
+                            </Typography>
+                        </div>
+                    )}
+                    <Typography
+                        variant='body2'
+                        className={classnames(recordClasses.singleTokenWrapper)}
+                    >
+                        ;
+                    </Typography>
                 </div>
-                {isFieldActionsVisible && (
+                {!state.isEditorInvalid && (
                     <div className={recordClasses.btnWrapper}>
                         <div className={recordClasses.actionBtnWrapper} onClick={handleEdit}>
-                            <EditButton />
+                            <EditButton/>
                         </div>
                         <div className={recordClasses.actionBtnWrapper} onClick={handleDelete}>
-                            <DeleteButton />
+                            <DeleteButton/>
                         </div>
                     </div>
                 )}
