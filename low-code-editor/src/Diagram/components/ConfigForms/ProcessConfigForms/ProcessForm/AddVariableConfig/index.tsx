@@ -25,9 +25,12 @@ import { getAllVariables } from "../../../../../utils/mixins";
 import { SelectDropdownWithButton } from "../../../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
-import {useStatementEdior} from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
+import { useStatementEdior } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
 import { FormTextInput } from "../../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
-import { VariableNameInput, VariableNameInputProps } from "../../../../Portals/ConfigForm/forms/Components/VariableNameInput";
+import {
+    VariableNameInput,
+    VariableNameInputProps
+} from "../../../../Portals/ConfigForm/forms/Components/VariableNameInput";
 import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { ProcessConfig } from "../../../../Portals/ConfigForm/types";
 import { checkVariableName, genVariableName } from "../../../../Portals/utils";
@@ -61,7 +64,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     let initialModelType: string = 'json';
     let modelType;
     let variableName: string = '';
-    let varExpression;
+    let varExpression: string = '';
     const formField: string = 'Expression';
 
     const existingProperty = config && config.model;
@@ -85,24 +88,17 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         variableName = localVarDec.typedBindingPattern.bindingPattern.source.trim();
         varExpression = localVarDec.initializer.source;
     } else {
-        variableName = null;
-        varExpression = null;
+        variableName = '';
+        varExpression = '';
     }
 
     const [selectedType, setSelectedType] = useState(initialModelType);
     const [otherType, setOtherType] = useState<string>(modelType);
     const [varName, setVarName] = useState(variableName);
-    const [defaultVarName, setDefaultVarName] = useState<string>(undefined);
-    // const [varNameError, setVarNameError] = useState("");
-    // const [isValidVarName, setIsValidVarName] = useState(false);
     const [validExpresssionValue, setValidExpresssionValue] = useState(config.config !== "");
     const [variableExpression, setVariableExpression] = useState<string>(varExpression);
     const [editorFocus, setEditorFocus] = useState<boolean>(false);
     const [isStringType, setIsStringType] = useState(initialModelType === 'string');
-
-    if (defaultVarName === undefined) {
-        setDefaultVarName(variableName);
-    }
 
     const onPropertyChange = (property: string) => {
         setVariableExpression(property);
@@ -230,7 +226,8 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     const validForm: boolean = varName.length > 0 && variableExpression.length > 0 && validExpresssionValue;
 
     // todo: Support other data types
-    const variableTypes: string[] = ["var", "int", "float", "decimal", "boolean", "string", "json", "xml", "error", "any", "anydata", "other"];
+    const variableTypes: string[] = ["var", "int", "float", "decimal", "boolean", "string", "json", "xml", "error",
+        "any", "anydata", "other"];
 
     const userInputs = {
         selectedType,
@@ -252,19 +249,19 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         isEdit: !!config.model,
     }
 
-    const {stmtEditorButton , stmtEditorComponent} = useStatementEdior(
-                                                {
-                                                    kind: "DefaultString",
-                                                    label: "Variable Statement",
-                                                    formArgs: {formArgs},
-                                                    userInputs,
-                                                    isMutationInProgress,
-                                                    validForm,
-                                                    onSave: handleSave,
-                                                    onChange: onPropertyChange,
-                                                    validate: validateExpression
-                                                },
-                                                !isStringType);
+    const { stmtEditorButton, stmtEditorComponent } = useStatementEdior(
+        {
+            kind: "DefaultString",
+            label: "Variable Statement",
+            formArgs: { formArgs },
+            userInputs,
+            isMutationInProgress,
+            validForm,
+            onSave: handleSave,
+            onChange: onPropertyChange,
+            validate: validateExpression
+        },
+        !isStringType);
 
     if (!stmtEditorComponent) {
         return (
@@ -306,7 +303,11 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                             <div className="exp-wrapper">
                                 <ExpressionEditor
                                     key={selectedType}
-                                    model={{ name: "Expression", value: variableExpression, type: (modelType ? modelType : "other") }}
+                                    model={{
+                                        name: "Expression",
+                                        value: variableExpression,
+                                        type: (modelType ? modelType : "other")
+                                    }}
                                     customProps={{
                                         validate: validateExpression,
                                         expandDefault: (selectedType === "other"),
@@ -336,7 +337,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             </FormControl >
         );
     }
-    else{
+    else {
         return stmtEditorComponent;
     }
 }
