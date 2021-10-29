@@ -503,7 +503,8 @@ export const useStyles = makeStyles((theme: Theme) =>
             alignItems: "center",
             "& .MuiSvgIcon-root": {
                 height: '18px !important',
-            }
+            },
+            marginTop: 6,
         },
         sectionSeparator: {
             borderBottom: "1px solid #D8D8D8",
@@ -596,6 +597,9 @@ export const useStyles = makeStyles((theme: Theme) =>
             minWidth: `120px !important`,
             paddingRight: theme.spacing(1),
             paddingTop: theme.spacing(1.25)
+        },
+        typeContainer: {
+            width: '50%'
         }
     }),
 );

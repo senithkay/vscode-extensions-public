@@ -12,25 +12,23 @@
  */
 import React from "react";
 
-import { STNode } from "@ballerina/syntax-tree";
+import { StringLiteral } from "@ballerina/syntax-tree";
 
-import { SuggestionItem, VariableUserInputs } from "../../../../models/definitions";
+import { VariableUserInputs } from "../../../../models/definitions";
 import { InputEditor } from "../../../InputEditor";
 
-interface LiteralProps {
-    model: STNode
-    expressionHandler: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void
+interface StringLiteralProps {
+    model: StringLiteral
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }
 
-export function StringLiteralC(props: LiteralProps) {
-    const { model, expressionHandler, userInputs, diagnosticHandler } = props;
+export function StringLiteralC(props: StringLiteralProps) {
+    const { model, userInputs, diagnosticHandler } = props;
 
     const inputEditorProps = {
         statementType: model.kind,
         model,
-        expressionHandler,
         userInputs,
         diagnosticHandler
     };

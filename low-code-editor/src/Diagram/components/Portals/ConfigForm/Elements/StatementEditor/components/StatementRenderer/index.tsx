@@ -10,8 +10,24 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from 'react';
+import React from "react";
 
-export const ModelContext = React.createContext({
-    statementModel: null
-});
+import { StatementNodes } from "../../constants";
+import { VariableUserInputs } from "../../models/definitions";
+import { getStatementTypeComponent } from "../../utils";
+
+export interface StatementRendererProps {
+    model: StatementNodes
+    userInputs?: VariableUserInputs
+    diagnosticHandler: (diagnostics: string) => void
+}
+
+export function StatementRenderer(props: StatementRendererProps) {
+    const { model, userInputs, diagnosticHandler } = props;
+
+    const component = getStatementTypeComponent(model, userInputs, diagnosticHandler);
+
+    return (
+        <span>{component}</span>
+    );
+}

@@ -11,36 +11,28 @@
  * associated services.
  */
 // tslint:disable: jsx-wrap-multiline
-import React from "react";
+import React, { ReactNode } from "react";
 
-import {BracedExpression, STKindChecker, STNode} from "@ballerina/syntax-tree";
+import { BracedExpression} from "@ballerina/syntax-tree";
 
-import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
+import { VariableUserInputs } from "../../../models/definitions";
 import { ExpressionComponent } from "../../Expression";
 
 interface BracedExprProps {
-    model: STNode
-    expressionHandler: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void
+    model: BracedExpression
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }
 
 export function BracedExpressionC(props: BracedExprProps) {
-    const { model, expressionHandler, userInputs, diagnosticHandler } = props;
-    let expression: any;
-    let expressionComponent: any;
+    const { model, userInputs, diagnosticHandler } = props;
 
-    if (STKindChecker.isBracedExpression(model)) {
-        const bracedExpModel = model as BracedExpression;
-        expression = bracedExpModel.expression;
-        expressionComponent = <ExpressionComponent
-            model={expression}
-            expressionHandler={expressionHandler}
-            isRoot={false}
-            userInputs={userInputs}
-            diagnosticHandler={diagnosticHandler}
-        />;
-    }
+    const expressionComponent: ReactNode = <ExpressionComponent
+        model={model.expression}
+        isRoot={false}
+        userInputs={userInputs}
+        diagnosticHandler={diagnosticHandler}
+    />;
 
     return (
         <span>
