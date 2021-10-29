@@ -20,15 +20,14 @@ import { wizardStyles } from "../../../../../../ConfigForms/style";
 import { PrimaryButton } from "../../../Button/PrimaryButton";
 import { SecondaryButton } from "../../../Button/SecondaryButton";
 import { VariableUserInputs } from '../../models/definitions';
-import { FormContext } from '../../store/form-context';
-import { ModelContext } from '../../store/model-context'
+import { StatementEditorContextProvider } from "../../store/statement-editor-context";
 import { getDefaultModel } from "../../utils";
 import { LeftPane } from '../LeftPane';
 import { RightPane } from '../RightPane';
 
-import { statementEditorStyles } from "./styles";
+import { useStatementEditorStyles } from "./styles";
 
-interface ViewProps {
+export interface ViewProps {
     kind: string,
     label: string,
     formArgs: any,
@@ -42,18 +41,33 @@ interface ViewProps {
 }
 
 export function ViewContainer(props: ViewProps) {
-    const { kind, label, formArgs, userInputs, validate, isMutationInProgress, validForm, onCancel, onSave, onChange } = props;
+    const {
+        kind,
+        label,
+        formArgs,
+        userInputs,
+        validate,
+        isMutationInProgress,
+        validForm,
+        onCancel,
+        onSave,
+        onChange
+    } = props;
     const intl = useIntl();
 
-    const stmtModel = formArgs.model ? formArgs.model.initializer : getDefaultModel(kind);
+    const stmtModel = formArgs.model ? formArgs.model : getDefaultModel(kind);
 
-    const [model] = useState({...stmtModel});
+    const [model] = useState({ ...stmtModel });
+
+    const [currentModel, setCurrentModel] = useState({ model });
 
     const [onCancelClicked, setOnCancel] = useState(false);
 
-    const currentModel: { model: STNode } = {
-        model
-    }
+    const currentModelHandler = (cModel: STNode) => {
+        setCurrentModel({
+            model: cModel
+        });
+    };
 
     const onCancelHandler = () => {
         setOnCancel(true);
@@ -65,7 +79,7 @@ export function ViewContainer(props: ViewProps) {
         }
     }, [onCancelClicked])
 
-    const overlayClasses = statementEditorStyles();
+    const overlayClasses = useStatementEditorStyles();
     const wizardStylesClasses = wizardStyles();
 
     const saveVariableButtonText = intl.formatMessage({
@@ -82,30 +96,23 @@ export function ViewContainer(props: ViewProps) {
         <div className={overlayClasses.stmtEditor}>
             <div className={overlayClasses.titleLine}/>
             <div className={overlayClasses.contentPane}>
-                <ModelContext.Provider
-                    value={{
-                        statementModel: model
-                    }}
+                <StatementEditorContextProvider
+                    model={model}
+                    onCancelClicked={onCancelClicked}
+                    onSave={onSave}
+                    onChange={onChange}
+                    validate={validate}
                 >
-                    <FormContext.Provider
-                        value={{
-                            onCancel: onCancelClicked,
-                            onSave,
-                            onChange,
-                            validate
-                        }}
-                    >
-                        <LeftPane
-                            model={model}
-                            currentModel={currentModel}
-                            kind={kind}
-                            label={label}
-                            userInputs={userInputs}
-                        />
-                    </FormContext.Provider>
-                </ModelContext.Provider>
-                <div className={overlayClasses.vl} />
-                <RightPane />
+                    <LeftPane
+                        currentModel={currentModel}
+                        kind={kind}
+                        label={label}
+                        userInputs={userInputs}
+                        currentModelHandler={currentModelHandler}
+                    />
+                </StatementEditorContextProvider>
+                <div className={overlayClasses.vl}/>
+                <RightPane/>
             </div>
             <div className={overlayClasses.bottomPane}>
                 <div className={wizardStylesClasses.buttonWrapper}>
@@ -126,4 +133,3 @@ export function ViewContainer(props: ViewProps) {
         </div>
     )
 }
-

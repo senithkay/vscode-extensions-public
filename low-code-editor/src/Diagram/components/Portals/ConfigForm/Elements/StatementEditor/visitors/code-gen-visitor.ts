@@ -21,25 +21,25 @@ const leafKind = ['PlusToken', 'MinusToken', 'AsteriskToken', 'SlashToken', 'Per
     'DoubleEqualToken', 'NotEqualToken', 'TrippleEqualToken', 'NotDoubleEqualToken',
     'LogicalAndToken', 'LogicalOrToken',
     'DoubleDotLtToken',
-    'DecimalIntegerLiteralToken', 'StringLiteralToken'];
+    'DecimalIntegerLiteralToken', 'StringLiteralToken', 'IdentifierToken'];
 
 class CodeGenVisitor implements Visitor {
     private codeSnippet: string = "";
 
     public beginVisitSTNode(node: STNode, parent?: STNode) {
         if (leafKind.includes(node.kind)) {
-            this.codeSnippet = this.codeSnippet + node.value + " ";
+            this.codeSnippet = this.codeSnippet + node.value;
         }
     }
 
     public beginVisitBracedExpression(node: STNode, parent?: STNode) {
         const bracedExprNode = node as BracedExpression;
-        this.codeSnippet = this.codeSnippet + bracedExprNode.openParen.value + " ";
+        this.codeSnippet = this.codeSnippet + bracedExprNode.openParen.value;
     }
 
     public endVisitBracedExpression(node: STNode, parent?: STNode) {
         const bracedExprNode = node as BracedExpression;
-        this.codeSnippet = this.codeSnippet + bracedExprNode.closeParen.value + " ";
+        this.codeSnippet = this.codeSnippet + bracedExprNode.closeParen.value;
     }
 
     getCodeSnippet() {

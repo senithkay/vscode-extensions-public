@@ -242,6 +242,7 @@ export function ConnectorList(props: FormGeneratorProps) {
                     query: searchQuery,
                     keyword: selectedCategory
                 };
+
                 langClient.getConnectors(request).then((response: BallerinaConnectorsResponse) => {
                     if (response.central?.length > 0) {
                         setCentralConnectors(response.central);

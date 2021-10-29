@@ -596,6 +596,9 @@ export const useStyles = makeStyles((theme: Theme) =>
             minWidth: `120px !important`,
             paddingRight: theme.spacing(1),
             paddingTop: theme.spacing(1.25)
+        },
+        typeContainer: {
+            width: '50%'
         }
     }),
 );

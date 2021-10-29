@@ -17,15 +17,12 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { Box, FormControl, Typography } from "@material-ui/core";
 import cn from "classnames";
 
-import { CloseRounded, EditIcon, RespondIcon } from "../../../../../../assets/icons";
 import { httpResponse, PrimitiveBalType, WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
-import { ButtonWithIcon } from "../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
-import { StatementEditorButton } from "../../../../Portals/ConfigForm/Elements/Button/StatementEditorButton";
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
-import { ViewContainer } from "../../../../Portals/ConfigForm/Elements/StatementEditor/components/ViewContainer/ViewContainer";
+import { useStatementEdior } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
 import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { EndConfig, RespondConfig } from "../../../../Portals/ConfigForm/types";
 import { wizardStyles } from "../../../style";
@@ -67,8 +64,6 @@ export function AddRespondForm(props: RespondFormProps) {
     const [statusCodeState, setStatusCode] = useState(undefined);
     const [resExp, setResExp] = useState(undefined);
     const intl = useIntl();
-    const [isStmtEditor, setIsStmtEditor] = useState(false);
-
 
     const onExpressionChange = (value: any) => {
         respondFormConfig.respondExpression = value;
@@ -112,14 +107,6 @@ export function AddRespondForm(props: RespondFormProps) {
         setStatusCode(value);
     }
 
-    const handleStmtEditorButtonClick = () => {
-        setIsStmtEditor(true);
-    };
-
-    const handleStmtEditorCancel = () => {
-        setIsStmtEditor(false);
-    };
-
     const saveRespondButtonLabel = intl.formatMessage({
         id: "lowcode.develop.configForms.respond.saveButton.label",
         defaultMessage: "Save"
@@ -157,97 +144,84 @@ export function AddRespondForm(props: RespondFormProps) {
     );
     const disableSave = (isMutationInProgress || !validForm || !validStatusCode);
 
-    let exprEditor =
-        (
-            <FormControl data-testid="respond-form" className={cn(formClasses.wizardFormControl)}>
-                {!isCodeEditorActive ?
-                    (
-                        <div className={formClasses.formWrapper}>
-                            <div className={formClasses.formFeilds}>
-                                <div className={formClasses.formTitleWrapper}>
-                                    <div className={formClasses.mainTitleWrapper}>
-                                        <Typography variant="h4">
-                                            <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.Respond.title" defaultMessage="Respond" /></Box>
-                                        </Typography>
-                                    </div>
-                                    <div className={formClasses.statementEditor}>
-                                        <StatementEditorButton onClick={handleStmtEditorButtonClick} disabled={true} />
-                                    </div>
-                                </div>
-                                <div className={formClasses.formWrapper}>
-                                    <div className="exp-wrapper product-tour-payload-jsonpayload">
-                                        <ExpressionEditor
-                                            model={{
-                                                name: "respond expression",
-                                                value: respondFormConfig.respondExpression,
-                                                type: PrimitiveBalType.Union,
-                                                fields: [
-                                                    {
-                                                        type: PrimitiveBalType.String
-                                                    },
-                                                    {
-                                                        type: PrimitiveBalType.Xml
-                                                    },
-                                                    {
-                                                        type: PrimitiveBalType.Json
-                                                    },
-                                                    {
-                                                        type: PrimitiveBalType.Record,
-                                                        typeInfo: httpResponse
-                                                    }
-                                                ]
-                                            }}
-                                            customProps={{
-                                                validate: validateExpression,
-                                                tooltipTitle: respondStatementTooltipMessages.title,
-                                                tooltipActionText: respondStatementTooltipMessages.actionText,
-                                                tooltipActionLink: respondStatementTooltipMessages.actionLink,
-                                                interactive: true,
-                                                statementType: [PrimitiveBalType.String, PrimitiveBalType.Xml, PrimitiveBalType.Json, httpResponse]
-                                            }}
-                                            onChange={onExpressionChange}
-                                        />
-                                    </div>
+    const {stmtEditorButton , stmtEditorComponent} = useStatementEdior(
+        {
+            kind: "DefaultString",
+            label: "Variable Statement",
+            formArgs: {formArgs},
+            isMutationInProgress,
+            validForm,
+            onSave: onSaveWithTour,
+            onChange: onExpressionChange,
+            validate: validateExpression
+        },
+        !true);
 
-                                    {(!config.model) ? statusCodeComp : null}
+
+    if (!stmtEditorComponent) {
+        return (
+                <FormControl data-testid="respond-form" className={cn(formClasses.wizardFormControl)}>
+                    <div className={formClasses.formWrapper}>
+                        <div className={formClasses.formFeilds}>
+                            <div className={formClasses.formTitleWrapper}>
+                                <div className={formClasses.mainTitleWrapper}>
+                                    <Typography variant="h4">
+                                        <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.Respond.title" defaultMessage="Respond" /></Box>
+                                    </Typography>
                                 </div>
+                                {stmtEditorButton}
                             </div>
-                            <FormActionButtons
-                                cancelBtnText="Cancel"
-                                saveBtnText={saveRespondButtonLabel}
-                                isMutationInProgress={isMutationInProgress}
-                                validForm={validForm}
-                                onSave={onSaveWithTour}
-                                onCancel={onCancel}
-                            />
-                        </div>
-                    )
-                    :
-                    null
-                }
-            </FormControl>
-        );
+                            <div className={formClasses.formWrapper}>
+                                <div className="exp-wrapper product-tour-payload-jsonpayload">
+                                    <ExpressionEditor
+                                        model={{
+                                            name: "respond expression",
+                                            value: respondFormConfig.respondExpression,
+                                            type: PrimitiveBalType.Union,
+                                            fields: [
+                                                {
+                                                    type: PrimitiveBalType.String
+                                                },
+                                                {
+                                                    type: PrimitiveBalType.Xml
+                                                },
+                                                {
+                                                    type: PrimitiveBalType.Json
+                                                },
+                                                {
+                                                    type: PrimitiveBalType.Record,
+                                                    typeInfo: httpResponse
+                                                }
+                                            ]
+                                        }}
+                                        customProps={{
+                                            validate: validateExpression,
+                                            tooltipTitle: respondStatementTooltipMessages.title,
+                                            tooltipActionText: respondStatementTooltipMessages.actionText,
+                                            tooltipActionLink: respondStatementTooltipMessages.actionLink,
+                                            interactive: true,
+                                            statementType: [PrimitiveBalType.String, PrimitiveBalType.Xml, PrimitiveBalType.Json, httpResponse]
+                                        }}
+                                        onChange={onExpressionChange}
+                                    />
+                                </div>
 
-    if (isStmtEditor) {
-        exprEditor =
-            (
-                <FormControl data-testid="property-form">
-                    {!isCodeEditorActive ? (
-                        <div>
-                            // TODO: Send proper props according to the form type
-                            <ViewContainer
-                                kind="DefaultBoolean"
-                                label="Variable Statement"
-                                formArgs={formArgs}
-                                onCancel={handleStmtEditorCancel}
-                            />
+                                {(!config.model) ? statusCodeComp : null}
+                            </div>
                         </div>
-                    ) : null}
+                        <FormActionButtons
+                            cancelBtnText="Cancel"
+                            saveBtnText={saveRespondButtonLabel}
+                            isMutationInProgress={isMutationInProgress}
+                            validForm={validForm}
+                            onSave={onSaveWithTour}
+                            onCancel={onCancel}
+                        />
+                    </div>
                 </FormControl>
             );
     }
-
-    return (
-        exprEditor
-    );
+    else {
+        return stmtEditorComponent;
+    }
 }
