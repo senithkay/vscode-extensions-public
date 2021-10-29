@@ -20,5 +20,5 @@ export function getInitialSource(
     const name: string = varName ? varName : "default";
     const expression: string = variableExpression ? variableExpression : "expression";
 
-    return `${type} ${name} = ${expression}`;
+    return `${type} ${name} = ${expression};`;
 }

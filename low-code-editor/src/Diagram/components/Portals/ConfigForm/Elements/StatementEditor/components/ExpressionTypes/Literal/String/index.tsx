@@ -23,7 +23,7 @@ interface StringLiteralProps {
     diagnosticHandler: (diagnostics: string) => void
 }
 
-export function StringLiteralC(props: StringLiteralProps) {
+export function StringLiteral(props: StringLiteralProps) {
     const { model, userInputs, diagnosticHandler } = props;
 
     const inputEditorProps = {

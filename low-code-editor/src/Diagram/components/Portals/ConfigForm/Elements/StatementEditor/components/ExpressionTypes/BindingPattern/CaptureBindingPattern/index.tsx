@@ -24,7 +24,7 @@ interface CaptureBindingPatternProps {
     diagnosticHandler: (diagnostics: string) => void
 }
 
-export function CaptureBindingPatternC(props: CaptureBindingPatternProps) {
+export function CaptureBindingPattern(props: CaptureBindingPatternProps) {
     const { model } = props;
 
     const overlayClasses = useStatementEditorStyles();

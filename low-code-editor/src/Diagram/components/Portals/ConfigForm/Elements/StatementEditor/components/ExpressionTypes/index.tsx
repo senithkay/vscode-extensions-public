@@ -10,22 +10,32 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { BinaryExpressionC } from './BinaryExpression';
-import { CaptureBindingPatternC } from './BindingPattern/CaptureBindingPattern';
-import { BracedExpressionC } from './BracedExpression';
-import { BooleanLiteralC } from './Literal/Boolean';
-import { NumericLiteralC } from './Literal/Numeric';
-import { StringLiteralC } from './Literal/String';
-import { SimpleNameReferenceC } from './NameReference';
-import { TypedBindingPatternC } from './TypedBindingPattern';
-import { StringTypeDescC } from './TypeDescriptor';
+import { BinaryExpression } from './BinaryExpression';
+import { CaptureBindingPattern } from './BindingPattern/CaptureBindingPattern';
+import { BracedExpression } from './BracedExpression';
+import { BooleanLiteral } from './Literal/Boolean';
+import { NumericLiteral } from './Literal/Numeric';
+import { StringLiteral } from './Literal/String';
+import { SimpleNameReference } from './NameReference';
+import { TypedBindingPattern } from './TypedBindingPattern';
+import { BooleanTypeDesc } from './TypeDescriptor/BooleanTypeDesc';
+import { DecimalTypeDesc } from './TypeDescriptor/DecimalTypeDesc';
+import { FloatTypeDesc } from './TypeDescriptor/FloatTypeDesc';
+import { IntTypeDesc } from './TypeDescriptor/IntTypeDesc';
+import { JsonTypeDesc } from './TypeDescriptor/JsonTypeDesc';
+import { StringTypeDesc } from './TypeDescriptor/StringTypeDesc';
 
-export { BinaryExpressionC as BinaryExpression };
-export { CaptureBindingPatternC as CaptureBindingPattern };
-export { BracedExpressionC as BracedExpression };
-export { BooleanLiteralC as BooleanLiteral };
-export { NumericLiteralC as NumericLiteral };
-export { SimpleNameReferenceC as SimpleNameReference };
-export { StringLiteralC as StringLiteral };
-export { TypedBindingPatternC as TypedBindingPattern };
-export { StringTypeDescC as StringTypeDesc };
+export { BinaryExpression };
+export { CaptureBindingPattern };
+export { BracedExpression };
+export { BooleanLiteral };
+export { NumericLiteral };
+export { SimpleNameReference };
+export { StringLiteral };
+export { TypedBindingPattern };
+export { BooleanTypeDesc };
+export { DecimalTypeDesc };
+export { FloatTypeDesc };
+export { IntTypeDesc };
+export { JsonTypeDesc };
+export { StringTypeDesc };

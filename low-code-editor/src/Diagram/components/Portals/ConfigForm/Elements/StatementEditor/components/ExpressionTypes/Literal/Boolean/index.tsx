@@ -23,7 +23,7 @@ interface BooleanLiteralProps {
     diagnosticHandler: (diagnostics: string) => void
 }
 
-export function BooleanLiteralC(props: BooleanLiteralProps) {
+export function BooleanLiteral(props: BooleanLiteralProps) {
     const { model, userInputs, diagnosticHandler } = props;
 
     const inputEditorProps = {

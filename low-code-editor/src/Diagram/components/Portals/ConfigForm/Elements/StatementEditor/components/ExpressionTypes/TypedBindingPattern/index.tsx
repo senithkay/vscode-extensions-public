@@ -25,7 +25,7 @@ interface TypedBindingPatternProps {
     diagnosticHandler: (diagnostics: string) => void
 }
 
-export function TypedBindingPatternC(props: TypedBindingPatternProps) {
+export function TypedBindingPattern(props: TypedBindingPatternProps) {
     const { model, userInputs, diagnosticHandler } = props;
 
     const overlayClasses = useStatementEditorStyles();
