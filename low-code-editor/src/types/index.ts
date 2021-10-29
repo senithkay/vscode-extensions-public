@@ -176,7 +176,13 @@ export interface LowCodeEditorAPI {
         closeConfigOverlayForm: () => void;
         configOverlayFormPrepareStart: () => void;
         closeConfigPanel: () => void;
-    }
+    };
+    undoRedoPanel: {
+        undoDiagram: () => void;
+        redoDiagram: () => void;
+        undoLength: number;
+        redoLength: number;
+    };
 }
 
 // FIXME Some of these props should be moved to low code state
