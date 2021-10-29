@@ -27,11 +27,11 @@ import CheckBoxGroup from "../../Elements/CheckBox";
 import { SelectDropdownWithButton } from "../../Elements/DropDown/SelectDropdownWithButton";
 import ExpressionEditor from "../../Elements/ExpressionEditor";
 import { FormTextInput } from "../../Elements/TextField/FormTextInput";
+import { VariableNameInput } from "../Components/VariableNameInput";
 import { useStyles as useFormStyles } from "../style";
 
 import { ConstantVarNameRegex, generateConfigFromModel, isFormConfigValid } from "./util";
 import { ConstantConfigFormActionTypes, constantConfigFormReducer } from "./util/reducer";
-import { VariableNameInput } from "../Components/VariableNameInput";
 
 interface ConstantConfigFormProps {
     model?: ConstDeclaration;

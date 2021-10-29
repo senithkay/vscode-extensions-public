@@ -28,12 +28,12 @@ import CheckBoxGroup from '../../Elements/CheckBox';
 import { SelectDropdownWithButton } from '../../Elements/DropDown/SelectDropdownWithButton';
 import ExpressionEditor from '../../Elements/ExpressionEditor';
 import { FormTextInput } from '../../Elements/TextField/FormTextInput';
+import { VariableNameInput } from '../Components/VariableNameInput';
 import { ModuleVariableFormState } from '../ModuleVariableForm/util';
 import { useStyles as useFormStyles } from "../style";
 
 import { ConfigurableFormState, getFormConfigFromModel, isFormConfigValid, ModuleVarNameRegex, VariableQualifiers } from './util';
 import { ConfigurableFormActionTypes, moduleVarFormReducer } from './util/reducer';
-import { VariableNameInput } from '../Components/VariableNameInput';
 
 const variableTypes: string[] = ["int", "float", "boolean", "string", "xml"];
 interface ConfigurableFormProps {

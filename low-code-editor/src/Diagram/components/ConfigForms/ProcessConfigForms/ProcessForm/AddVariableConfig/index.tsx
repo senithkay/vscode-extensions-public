@@ -29,11 +29,11 @@ import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/Expression
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
 import { ViewContainer } from "../../../../Portals/ConfigForm/Elements/StatementEditor/components/ViewContainer/ViewContainer";
 import { FormTextInput } from "../../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
+import { VariableNameInput, VariableNameInputProps } from "../../../../Portals/ConfigForm/forms/Components/VariableNameInput";
 import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { ProcessConfig } from "../../../../Portals/ConfigForm/types";
 import { checkVariableName, genVariableName } from "../../../../Portals/utils";
 import { wizardStyles } from "../../../style";
-import { VariableNameInput, VariableNameInputProps } from "../../../../Portals/ConfigForm/forms/Components/VariableNameInput";
 
 interface AddVariableConfigProps {
     config: ProcessConfig;
