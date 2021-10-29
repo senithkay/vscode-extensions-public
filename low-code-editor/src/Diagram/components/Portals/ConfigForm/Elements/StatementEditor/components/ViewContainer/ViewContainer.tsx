@@ -67,11 +67,10 @@ export function ViewContainer(props: ViewProps) {
     const [model, setModel] = useState<STNode>(null);
 
     useEffect(() => {
-        async function getSTModel() {
+        (async () => {
             const partialST: STNode = await getPartialSTForStatement({codeSnippet: initialSource}, langServerURL, ls);
             setModel(partialST);
-        }
-        getSTModel().then()
+        })();
     }, []);
 
     const [currentModel, setCurrentModel] = useState({ model });

@@ -16,8 +16,7 @@ import React, { ReactNode } from 'react';
 import { STNode } from "@ballerina/syntax-tree";
 
 import {
-    ExpressionEditorLangClientInterface, PartialSTRequest,
-    PartialSTResponse
+    ExpressionEditorLangClientInterface, PartialSTRequest
 } from "../../../../../../../Definitions";
 import * as expressionTypeComponents from '../components/ExpressionTypes';
 import * as statementTypeComponents from '../components/Statements';
