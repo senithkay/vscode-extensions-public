@@ -35,7 +35,7 @@ export async function getPartialSTForStatement(
             ls?: any
         ): Promise<STNode> {
     const langClient: ExpressionEditorLangClientInterface = await ls.getExpressionEditorLangClient(lsUrl);
-    const resp: PartialSTResponse = await langClient.getSTForSingleStatement(partialSTRequest);
+    const resp = await langClient.getSTForSingleStatement(partialSTRequest);
     return resp.syntaxTree;
 }
 
@@ -45,7 +45,7 @@ export async function getPartialSTForExpression(
             ls?: any
         ): Promise<STNode> {
     const langClient: ExpressionEditorLangClientInterface = await ls.getExpressionEditorLangClient(lsUrl);
-    const resp: PartialSTResponse = await langClient.getSTForExpression(partialSTRequest);
+    const resp = await langClient.getSTForExpression(partialSTRequest);
     return resp.syntaxTree;
 }
 
