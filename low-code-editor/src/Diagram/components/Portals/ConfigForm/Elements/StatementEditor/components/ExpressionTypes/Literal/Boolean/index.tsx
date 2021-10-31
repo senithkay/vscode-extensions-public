@@ -10,14 +10,12 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useContext } from "react";
+import React from "react";
 
 import { BooleanLiteral } from "@ballerina/syntax-tree";
 
 import { VariableUserInputs } from "../../../../models/definitions";
-import { SuggestionsContext } from "../../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind } from "../../../../utils";
-import { useStatementEditorStyles } from "../../../ViewContainer/styles";
+import { InputEditor } from "../../../InputEditor";
 
 interface BooleanLiteralProps {
     model: BooleanLiteral
@@ -26,20 +24,16 @@ interface BooleanLiteralProps {
 }
 
 export function BooleanLiteralC(props: BooleanLiteralProps) {
-    const { model } = props;
+    const { model, userInputs, diagnosticHandler } = props;
 
-    const overlayClasses = useStatementEditorStyles();
-    const { expressionHandler } = useContext(SuggestionsContext);
-
-    const onClickOnBooleanLiteral = (event: any) => {
-        event.stopPropagation()
-        expressionHandler(model, false,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(model.kind) })
+    const inputEditorProps = {
+        statementType: model.kind,
+        model,
+        userInputs,
+        diagnosticHandler
     };
 
     return (
-        <button className={overlayClasses.expressionElement} onClick={onClickOnBooleanLiteral}>
-            {model.literalToken.value}
-        </button>
+        <InputEditor {...inputEditorProps} />
     );
 }

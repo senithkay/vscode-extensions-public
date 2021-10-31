@@ -20,6 +20,7 @@ import { Provider as LowCodeEditorProvider } from "../../../../../../../../Conte
 import { InputEditorContextProvider } from "../../store/input-editor-context";
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
 import foreachModel from "../StatementRenderer/data/foreach-st-model.json";
+import ifElseBooleanModel from "../StatementRenderer/data/ifelse-booleaLiteral-st-model.json";
 import ifElseModel from "../StatementRenderer/data/ifelse-st-model.json";
 import varDeclBinaryExprModel from "../StatementRenderer/data/local-var-decl-with-binary-expr-st-model.json";
 import panicModel from "../StatementRenderer/data/panic-st-model.json";
@@ -173,6 +174,8 @@ export const IfElseStmt = Template.bind({});
 
 export const OtherStmt = Template.bind({});
 
+export const IfElseBooleanLiteralStmt = Template.bind({});
+
 
 
 VarDeclBinaryExprStmt.args = {
@@ -269,6 +272,24 @@ OtherStmt.args = {
     kind: "NumericLiteral",
     label: "Other Statement",
     formArgs: { model: panicModel},
+    userInputs: {
+        "selectedType": "",
+        "varName": "",
+        "variableExpression": "",
+        "formField": "Expression"
+    },
+    validate: dummyFunction,
+    isMutationInProgress: false,
+    validForm: true,
+    onCancel: dummyFunctionWithoutArgs,
+    onSave: dummyFunctionWithoutArgs,
+    onChange: dummyFunction
+}
+
+IfElseBooleanLiteralStmt.args = {
+    kind: "DefaultBoolean",
+    label: "If-Else Statement",
+    formArgs: { model: ifElseBooleanModel},
     userInputs: {
         "selectedType": "",
         "varName": "",
