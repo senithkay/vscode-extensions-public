@@ -25,6 +25,7 @@ import { STModification } from '../../../../../../../Definitions';
 import { getAllVariables } from '../../../../../../utils/mixins';
 import { createPropertyStatement, updatePropertyStatement } from '../../../../../../utils/modification-util';
 import { wizardStyles } from "../../../../../FormComponents/ConfigForms/style";
+import { useStyles as formStyles } from "../../../../../FormComponents/DynamicConnectorForm/style";
 import { FormAutocomplete } from '../../../../../FormComponents/FormFieldComponents/Autocomplete';
 import { PrimaryButton } from '../../../../../FormComponents/FormFieldComponents/Button/PrimaryButton';
 import { SecondaryButton } from '../../../../../FormComponents/FormFieldComponents/Button/SecondaryButton';
@@ -33,7 +34,6 @@ import { FormJson } from '../../../../../FormComponents/FormFieldComponents/Json
 import { SwitchToggle } from '../../../../../FormComponents/FormFieldComponents/SwitchToggle';
 import { FormTextInput } from '../../../../../FormComponents/FormFieldComponents/TextField/FormTextInput';
 import { DataMapperConfig, DataMapperInputTypeInfo, DataMapperOutputTypeInfo } from '../../../../../FormComponents/Types';
-import { useStyles as formStyles } from "../../../../../Portals/ConfigForm/forms/style";
 import { checkVariableName, genVariableName } from '../../../../../Portals/utils';
 import { Context as DataMapperContext } from '../../../context/DataMapperViewContext';
 import { getDefaultValueForType, resetJsonValueToDefault } from '../../../util';

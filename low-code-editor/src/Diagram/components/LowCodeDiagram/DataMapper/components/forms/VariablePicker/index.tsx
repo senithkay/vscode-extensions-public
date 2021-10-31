@@ -18,11 +18,11 @@ import { CaptureBindingPattern, STKindChecker, STNode } from '@ballerina/syntax-
 
 import { Context as DiagramContext } from '../../../../../../../Contexts/Diagram';
 import { wizardStyles } from "../../../../../FormComponents/ConfigForms/style";
+import { useStyles as useFormStyles } from "../../../../../FormComponents/DynamicConnectorForm/style";
 import { FormAutocomplete } from '../../../../../FormComponents/FormFieldComponents/Autocomplete';
 import { PrimaryButton } from '../../../../../FormComponents/FormFieldComponents/Button/PrimaryButton';
 import { SecondaryButton } from '../../../../../FormComponents/FormFieldComponents/Button/SecondaryButton';
 import { DataMapperInputTypeInfo } from '../../../../../FormComponents/Types';
-import { useStyles as useFormStyles } from "../../../../../Portals/ConfigForm/forms/style";
 import { Context as DataMapperViewContext } from '../../../context/DataMapperViewContext';
 
 export function VariablePicker() {

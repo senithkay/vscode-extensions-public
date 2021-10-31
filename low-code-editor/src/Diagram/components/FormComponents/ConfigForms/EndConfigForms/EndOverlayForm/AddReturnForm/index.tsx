@@ -18,7 +18,7 @@ import { Box, FormControl, Typography } from "@material-ui/core";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
-import { useStyles } from "../../../../../Portals/ConfigForm/forms/style";
+import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { EndConfig } from "../../../../Types";
 import { wizardStyles } from "../../../style";
 

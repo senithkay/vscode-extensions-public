@@ -23,8 +23,8 @@ import { ConfigOverlayFormStatus, STModification } from "../../../../../../Defin
 import { validatePath } from "../../../../../../utils/validator";
 import { ServiceMethodType, SERVICE_METHODS, TriggerType } from "../../../../../models";
 import { createResource, updateResourceSignature } from "../../../../../utils/modification-util";
-import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { DiagramOverlayPosition } from "../../../../Portals/Overlay";
+import { useStyles as useFormStyles } from "../../../DynamicConnectorForm/style";
 import { PrimaryButton } from "../../../FormFieldComponents/Button/PrimaryButton";
 import { SecondaryButton } from "../../../FormFieldComponents/Button/SecondaryButton";
 import { SelectDropdownWithButton } from "../../../FormFieldComponents/DropDown/SelectDropdownWithButton";

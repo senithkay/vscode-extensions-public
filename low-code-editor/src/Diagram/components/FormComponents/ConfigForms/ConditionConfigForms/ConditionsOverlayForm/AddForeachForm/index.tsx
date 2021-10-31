@@ -22,7 +22,7 @@ import { Context } from "../../../../../../../Contexts/Diagram";
 import { getAllVariables } from "../../../../../../utils/mixins";
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
 import { FormTextInput } from "../../../../FormFieldComponents/TextField/FormTextInput";
-import { useStyles } from "../../../../../Portals/ConfigForm/forms/style";
+import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { ConditionConfig, ForeachConfig, FormElementProps } from "../../../../Types";
 import { genVariableName } from "../../../../../Portals/utils";
 import { wizardStyles } from "../../../style";

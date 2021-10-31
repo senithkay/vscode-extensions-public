@@ -20,7 +20,7 @@ import FormGroup from "@material-ui/core/FormGroup";
 import FormHelperText from "@material-ui/core/FormHelperText";
 import classNames from "classnames";
 
-import { useStyles as useFormStyles } from "../../../Portals/ConfigForm/forms/style";
+import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
 
 import { useStyles as useTextInputStyles } from "./style";
 import './style.scss'

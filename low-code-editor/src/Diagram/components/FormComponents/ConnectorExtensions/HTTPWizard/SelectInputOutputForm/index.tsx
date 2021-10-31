@@ -27,10 +27,10 @@ import {
 import { Context } from "../../../../../../Contexts/Diagram";
 import { Connector, STSymbolInfo } from "../../../../../../Definitions";
 import { getAllVariables } from "../../../../../utils/mixins";
-import { Form } from "../../../../Portals/ConfigForm/forms/Components/Form";
-import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { checkVariableName, genVariableName } from "../../../../Portals/utils";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";
+import { Form } from "../../../DynamicConnectorForm";
+import { useStyles } from "../../../DynamicConnectorForm/style";
 import { PrimaryButton } from "../../../FormFieldComponents/Button/PrimaryButton";
 import { SelectDropdownWithButton } from "../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import { SwitchToggle } from "../../../FormFieldComponents/SwitchToggle";

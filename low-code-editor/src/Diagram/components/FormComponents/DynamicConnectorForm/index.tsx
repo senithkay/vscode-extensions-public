@@ -12,12 +12,12 @@
  */
 import React, { ReactNode } from "react";
 
-import { FormField } from "../../../../../../../ConfigurationSpec/types";
-import {isAllValid} from "../../../../../../../utils/validator";
-import { useStyles } from "../../../../../ConfigPanel/styles";
-import FormAccordion from "../../../../../FormComponents/FormAccordion";
-import { FormElementProps } from "../../../../../FormComponents/Types";
-import { getFormElement } from "../../../../utils";
+import { FormField } from "../../../../ConfigurationSpec/types";
+import {isAllValid} from "../../../../utils/validator";
+import { useStyles } from "../../ConfigPanel/styles";
+import { getFormElement } from "../../Portals/utils";
+import FormAccordion from "../FormAccordion";
+import { FormElementProps } from "../Types";
 
 export interface FormProps {
     fields: FormField[];

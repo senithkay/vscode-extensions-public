@@ -17,8 +17,8 @@ import { FormattedMessage } from "react-intl";
 import { FormHelperText } from "@material-ui/core";
 
 import { FormField } from "../../../../../ConfigurationSpec/types";
-import { Form } from "../../../Portals/ConfigForm/forms/Components/Form";
-import { useStyles } from "../../../Portals/ConfigForm/forms/style";
+import { Form } from "../../DynamicConnectorForm";
+import { useStyles } from "../../DynamicConnectorForm/style";
 import { FormElementProps } from "../../Types";
 import { SelectDropdownWithButton } from "../DropDown/SelectDropdownWithButton";
 

@@ -20,7 +20,7 @@ import cn from "classnames";
 import { httpResponse, PrimitiveBalType, WizardType } from "../../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
-import { useStyles as useFormStyles } from "../../../../../Portals/ConfigForm/forms/style";
+import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
 import { StatementEditorButton } from "../../../../FormFieldComponents/Button/StatementEditorButton";
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
 import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";

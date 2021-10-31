@@ -17,7 +17,7 @@ import { FormattedMessage } from "react-intl";
 import { FormHelperText, InputAdornment, TextField as MuiTextField } from "@material-ui/core";
 
 import { TooltipIcon } from "../../../../../../components/Tooltip";
-import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms/style";
+import { useStyles as useFormStyles } from "../../../DynamicConnectorForm/style";
 import { FormElementProps } from "../../../Types";
 import { useStyles as useTextInputStyles } from "../style";
 

@@ -22,10 +22,10 @@ import { ConnectorConfig, FormField, FunctionDefinitionInfo } from "../../../../
 import { Context } from "../../../../../../Contexts/Diagram";
 import { Connector } from "../../../../../../Definitions";
 import { getAllVariables } from "../../../../../utils/mixins";
-import { Form } from "../../../../Portals/ConfigForm/forms/Components/Form";
-import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { checkVariableName, genVariableName } from "../../../../Portals/utils";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";
+import { Form } from "../../../DynamicConnectorForm";
+import { useStyles } from "../../../DynamicConnectorForm/style";
 import { LinePrimaryButton } from "../../../FormFieldComponents/Button/LinePrimaryButton";
 import { PrimaryButton } from "../../../FormFieldComponents/Button/PrimaryButton";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";

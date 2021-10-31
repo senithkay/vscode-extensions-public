@@ -18,7 +18,7 @@ import { FormHelperText } from "@material-ui/core";
 import { AddRounded } from "@material-ui/icons";
 import CloseRounded from "@material-ui/icons/CloseRounded";
 
-import { useStyles } from "../../../Portals/ConfigForm/forms/style"
+import { useStyles } from "../../DynamicConnectorForm/style"
 import { FormElementProps } from "../../Types";
 import { ButtonWithIcon } from "../Button/ButtonWithIcon";
 import { IconBtnWithText } from "../Button/IconBtnWithText";

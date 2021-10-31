@@ -18,7 +18,7 @@ import { FormHelperText } from "@material-ui/core";
 import * as MonacoEditor from 'monaco-editor';
 
 import { TooltipCodeSnippet, TooltipIcon } from "../../../../../components/Tooltip";
-import { useStyles as useFormStyles } from "../../../Portals/ConfigForm/forms/style";
+import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
 import { FormElementProps } from "../../Types";
 import { ExpressionEditorProps } from "../ExpressionEditor";
 import { transformFormFieldTypeToString } from "../ExpressionEditor/utils";

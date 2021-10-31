@@ -15,8 +15,8 @@ import React from "react";
 
 import { FormField } from "../../../../../ConfigurationSpec/types";
 import {isAllEmpty, isAllOptional, isAllValid} from "../../../../../utils/validator";
-import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { getFormElement } from "../../../Portals/utils";
+import { useStyles } from "../../DynamicConnectorForm/style";
 import FormAccordion from "../../FormAccordion";
 import { FormElementProps } from "../../Types";
 

@@ -19,8 +19,8 @@ import { ActionConfig, ConnectorConfig, FormField } from "../../../../../../../C
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { STModification } from "../../../../../../../Definitions/lang-client-extended";
 import { getAllVariables } from "../../../../../../utils/mixins";
-import { Form } from "../../../../../Portals/ConfigForm/forms/Components/Form";
 import { genVariableName } from "../../../../../Portals/utils";
+import { Form } from "../../../../DynamicConnectorForm";
 import { PrimaryButton } from "../../../../FormFieldComponents/Button/PrimaryButton";
 import { SecondaryButton } from "../../../../FormFieldComponents/Button/SecondaryButton";
 import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";

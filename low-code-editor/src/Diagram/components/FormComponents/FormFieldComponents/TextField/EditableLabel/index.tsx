@@ -17,7 +17,7 @@ import { FormHelperText, TextField } from "@material-ui/core";
 import cn from "classnames";
 
 import { deleteVariableNameSvg, editVariableNameSvg } from "../../../../../../assets";
-import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms/style";
+import { useStyles as useFormStyles } from "../../../DynamicConnectorForm/style";
 import { FormElementProps } from "../../../Types";
 import { FormTextInput } from "../FormTextInput";
 

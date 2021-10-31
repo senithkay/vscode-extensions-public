@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { useStyles } from "../../../Portals/ConfigForm/forms/style";
+import { useStyles } from "../../DynamicConnectorForm/style";
 import { FormElementProps } from "../../Types";
 import ExpressionEditor from "../ExpressionEditor";
 

@@ -22,7 +22,7 @@ import { LogIcon } from "../../../../../../../assets/icons";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
-import { useStyles as useFormStyles } from "../../../../../Portals/ConfigForm/forms/style";
+import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
 import { LogConfig, ProcessConfig } from "../../../../Types";
 import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";

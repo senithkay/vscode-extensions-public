@@ -20,9 +20,9 @@ import CloseRounded from "@material-ui/icons/CloseRounded";
 import classNames from "classnames";
 
 import { FormField, getType } from "../../../../../ConfigurationSpec/types";
-import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { getFormElement, getParams } from "../../../Portals/utils";
-import "../../forms/ConnectorInitForm/Wizard/style.scss"
+import "../../DynamicConnectorForm/ConnectorInitForm/Wizard/style.scss"
+import { useStyles } from "../../DynamicConnectorForm/style";
 import { FormElementProps } from "../../Types";
 import { ButtonWithIcon } from "../Button/ButtonWithIcon";
 import { IconBtnWithText } from "../Button/IconBtnWithText";

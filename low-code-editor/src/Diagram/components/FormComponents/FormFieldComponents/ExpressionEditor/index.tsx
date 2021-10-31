@@ -26,7 +26,7 @@ import { TooltipCodeSnippet } from "../../../../../components/Tooltip";
 import { PrimitiveBalType } from "../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../Contexts/Diagram";
 import { CompletionParams, CompletionResponse, ExpressionEditorLangClientInterface, TextEdit } from "../../../../../Definitions";
-import { useStyles as useFormStyles } from "../../../Portals/ConfigForm/forms/style";
+import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
 import { FormElementProps } from "../../Types";
 import { ExpressionEditorHint, ExpressionEditorHintProps } from "../ExpressionEditorHint";
 import { ExpressionEditorLabel } from "../ExpressionEditorLabel";

@@ -15,7 +15,7 @@ import React, { useState } from "react";
 
 import { AddRounded } from "@material-ui/icons";
 
-import { useStyles } from "../../../Portals/ConfigForm/forms/style"
+import { useStyles } from "../../DynamicConnectorForm/style"
 import { FormElementProps } from "../../Types";
 import { IconBtnWithText } from "../Button/IconBtnWithText";
 import ExpressionEditor, { ExpressionEditorProps } from "../ExpressionEditor";

@@ -19,7 +19,7 @@ import TextField from '@material-ui/core/TextField';
 import { format, parse } from 'date-fns';
 
 import { TooltipIcon } from "../../../../../components/Tooltip";
-import {useStyles as useFormStyles} from "../../../Portals/ConfigForm/forms/style";
+import {useStyles as useFormStyles} from "../../DynamicConnectorForm/style";
 import { FormElementProps } from '../../Types';
 import {useStyles as useTextInputStyles} from "../TextField/style";
 

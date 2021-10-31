@@ -16,7 +16,7 @@ import { FormattedMessage } from "react-intl";
 
 import { FormControlLabel, FormHelperText, Radio, RadioGroup } from "@material-ui/core";
 
-import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms/style";
+import { useStyles as useFormStyles } from "../../../DynamicConnectorForm/style";
 import { FormElementProps } from "../../../Types";
 import { useStyles as useRadioControlStyles } from "../style";
 import '../style.scss'

@@ -18,8 +18,8 @@ import React, { useState } from 'react';
 import { LocalVarDecl } from "@ballerina/syntax-tree";
 import { Box, Typography } from '@material-ui/core';
 
-import { useStyles as useFormStyles } from "../../../../../../Portals/ConfigForm/forms/style";
 import { checkVariableName } from '../../../../../../Portals/utils';
+import { useStyles as useFormStyles } from "../../../../../DynamicConnectorForm/style";
 import { FormAutocomplete } from '../../../../../FormFieldComponents/Autocomplete';
 import { SelectDropdownWithButton } from '../../../../../FormFieldComponents/DropDown/SelectDropdownWithButton';
 import { FormJson } from '../../../../../FormFieldComponents/Json/FormJson';

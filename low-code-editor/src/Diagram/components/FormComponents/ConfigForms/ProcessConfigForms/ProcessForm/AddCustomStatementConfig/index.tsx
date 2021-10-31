@@ -16,7 +16,7 @@ import React, { useContext, useState } from "react";
 import { Box, FormControl, Typography } from "@material-ui/core";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
-import { useStyles as useFormStyles } from "../../../../../Portals/ConfigForm/forms/style";
+import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
 import { CustomExpressionConfig, ProcessConfig } from "../../../../Types";
 import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
