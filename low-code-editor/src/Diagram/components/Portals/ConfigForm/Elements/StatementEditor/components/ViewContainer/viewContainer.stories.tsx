@@ -24,6 +24,7 @@ import ifElseBooleanModel from "../StatementRenderer/data/ifelse-booleaLiteral-s
 import ifElseModel from "../StatementRenderer/data/ifelse-st-model.json";
 import varDeclBinaryExprModel from "../StatementRenderer/data/local-var-decl-with-binary-expr-st-model.json";
 import panicModel from "../StatementRenderer/data/panic-st-model.json";
+import returnModel from "../StatementRenderer/data/return-st-model.json";
 import stringModel from "../StatementRenderer/data/varDecl-stringLiteral-model.json";
 import whileStmtModel from "../StatementRenderer/data/while-st-model.json";
 
@@ -176,7 +177,7 @@ export const OtherStmt = Template.bind({});
 
 export const IfElseBooleanLiteralStmt = Template.bind({});
 
-
+export const ReturnStmt = Template.bind({});
 
 VarDeclBinaryExprStmt.args = {
     kind: "DefaultString",
@@ -292,6 +293,24 @@ IfElseBooleanLiteralStmt.args = {
     formArgs: { model: ifElseBooleanModel},
     userInputs: {
         "selectedType": "",
+        "varName": "",
+        "variableExpression": "",
+        "formField": "Expression"
+    },
+    validate: dummyFunction,
+    isMutationInProgress: false,
+    validForm: true,
+    onCancel: dummyFunctionWithoutArgs,
+    onSave: dummyFunctionWithoutArgs,
+    onChange: dummyFunction
+}
+
+ReturnStmt.args = {
+    kind: "DefaultReturn",
+    label: "Return Statement",
+    formArgs: { model: returnModel },
+    userInputs: {
+        "selectedType": "string",
         "varName": "",
         "variableExpression": "",
         "formField": "Expression"
