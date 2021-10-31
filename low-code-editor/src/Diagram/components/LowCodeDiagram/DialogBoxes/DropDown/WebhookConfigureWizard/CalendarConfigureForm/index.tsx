@@ -30,13 +30,11 @@ import {
 import { Box, IconButton } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
 
-import { DiagramOverlayPosition } from "../../../../../Portals/Overlay";
 import { ConnectionDetails } from "../../../../../../../api/models";
 import EditDarkIcon from "../../../../../../../assets/icons/EditDarkIcon";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { STModification } from "../../../../../../../Definitions";
 import { Gcalendar } from "../../../../../../../Definitions/connector";
-import { AccountAvatar } from "../../../../OauthConnectButton/AccountAvatar";
 import { CirclePreloader } from "../../../../../../../PreLoader/CirclePreloader";
 import {
     EVENT_TYPE_AZURE_APP_INSIGHTS,
@@ -45,9 +43,11 @@ import {
     TRIGGER_TYPE_WEBHOOK
 } from "../../../../../../models";
 import { createPropertyStatement, updatePropertyStatement } from "../../../../../../utils/modification-util";
-import { ConnectionType, OauthConnectButton } from "../../../../OauthConnectButton";
-import { FormAutocomplete } from "../../../../FormFieldComponents/Autocomplete";
-import { PrimaryButton } from "../../../../FormFieldComponents/Button/PrimaryButton";
+import { FormAutocomplete } from "../../../../../FormComponents/FormFieldComponents/Autocomplete";
+import { PrimaryButton } from "../../../../../FormComponents/FormFieldComponents/Button/PrimaryButton";
+import { ConnectionType, OauthConnectButton } from "../../../../../FormComponents/OauthConnectButton";
+import { AccountAvatar } from "../../../../../FormComponents/OauthConnectButton/AccountAvatar";
+import { DiagramOverlayPosition } from "../../../../../Portals/Overlay";
 import { getKeyFromConnection } from "../../../../../Portals/utils";
 import { SourceUpdateConfirmDialog } from "../../../SourceUpdateConfirmDialog";
 import { useStyles } from "../../styles";

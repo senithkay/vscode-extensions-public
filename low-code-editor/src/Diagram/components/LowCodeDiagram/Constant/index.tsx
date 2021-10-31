@@ -16,14 +16,9 @@ import React, { useContext, useState } from "react"
 import { ConstDeclaration, STNode } from "@ballerina/syntax-tree";
 import classNames from "classnames";
 
-import ConstantIcon from "../../../assets/icons/ConstantIcon";
-import DeleteButton from "../../../assets/icons/DeleteButton";
-import EditButton from "../../../assets/icons/EditButton";
-import Tooltip from "../../../components/Tooltip";
-import { useDiagramContext } from "../../../Contexts/Diagram";
-import { removeStatement } from "../../utils/modification-util";
-import { FormGenerator } from "../FormGenerator";
-import { UnsupportedConfirmButtons } from "../UnsupportedConfirmButtons";
+import ConstantIcon from "../../../../assets/icons/ConstantIcon";
+import DeleteButton from "../../../../assets/icons/DeleteButton";
+import EditButton from "../../../../assets/icons/EditButton";
 
 import "./style.scss";
 

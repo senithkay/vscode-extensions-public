@@ -21,7 +21,7 @@ import debounce from "lodash.debounce";
 import * as monaco from 'monaco-editor'
 import { CompletionItemKind, InsertTextFormat, Range } from "monaco-languageclient";
 
-import grammar from "../../../../../../ballerina.monarch.json";
+import grammar from "../../../../../ballerina.monarch.json";
 import { TooltipCodeSnippet } from "../../../../../components/Tooltip";
 import { PrimitiveBalType } from "../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../Contexts/Diagram";

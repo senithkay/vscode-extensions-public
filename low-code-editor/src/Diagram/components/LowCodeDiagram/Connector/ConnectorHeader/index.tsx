@@ -16,14 +16,13 @@ import React from "react";
 import { STNode } from "@ballerina/syntax-tree";
 import cn from "classnames";
 
-import { BlockViewState, EndpointViewState, StatementViewState, ViewState } from "../../../view-state";
-import { DraftStatementViewState } from "../../../view-state/draft";
-import { getConnectorIcon } from "../../Portals/utils";
+import { EndpointViewState, StatementViewState } from "../../../../view-state";
+import { DraftStatementViewState } from "../../../../view-state/draft";
+import { getConnectorIcon } from "../../../Portals/utils";
 
 import {
     CLIENT_RADIUS,
     CLIENT_SHADOW_OFFSET,
-    CLIENT_SVG_HEIGHT,
     CLIENT_SVG_WIDTH_WITH_SHADOW,
     ConnectorSVG
 } from "./ConnectorClientSVG";

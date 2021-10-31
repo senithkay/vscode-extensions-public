@@ -47,13 +47,13 @@ import {
 } from "../../../utils/st-util";
 import { StatementViewState } from "../../../view-state";
 import * as Forms from "../../FormComponents/ConfigForms";
-import * as ConnectorIcons from "../../DiagramComponents/Connector/Icon";
 import { ConfigWizardState } from "../../FormComponents/ConnectorConfigWizard";
 import * as ConnectorExtension from "../../FormComponents/ConnectorExtensions";
 import * as Elements from "../../FormComponents/FormFieldComponents";
 import { getUnionFormFieldName } from "../../FormComponents/FormFieldComponents/Union";
 import { FormElementProps } from "../../FormComponents/Types";
-import * as OverlayElement from "../../FormComponents/DialogBoxes";
+import * as ConnectorIcons from "../../LowCodeDiagram/Connector/Icon";
+import * as OverlayElement from "../../LowCodeDiagram/DialogBoxes";
 
 import { keywords, symbolKind } from "./constants";
 

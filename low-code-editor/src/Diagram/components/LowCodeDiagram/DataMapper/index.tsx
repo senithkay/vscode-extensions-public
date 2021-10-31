@@ -11,21 +11,18 @@
  * associated services.
  */
 /* tslint:disable:jsx-no-multiline-js */
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
 import {
     AssignmentStatement,
     CaptureBindingPattern,
-    LocalVarDecl,
     STKindChecker,
     STNode,
 } from '@ballerina/syntax-tree';
 
-import { PrimitiveBalType } from '../../../../ConfigurationSpec/types';
 import { Context as DiagramContext } from '../../../../Contexts/Diagram';
 import { STModification } from '../../../../Definitions';
 import { GenerationType } from '../../FormComponents/ConfigForms/ProcessConfigForms/ProcessForm/AddDataMappingConfig/OutputTypeSelector';
-import "./components/InputTypes/style.scss";
 import { DataMapperInputTypeInfo, DataMapperOutputTypeInfo } from '../../FormComponents/Types';
 
 import { DataMapperWrapper } from './components/DataMapperWrapper';

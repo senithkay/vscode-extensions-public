@@ -20,11 +20,11 @@ import classnames from 'classnames';
 import { Context as DiagramContext } from "../Contexts/Diagram";
 import { TextPreLoader } from "../PreLoader/TextPreLoader";
 
-import { CanvasDiagram } from "./components/DiagramComponents/CanvasContainer";
-import { DataMapper } from './components/DiagramComponents/DataMapper';
-import { DiagramDisableState } from "./components/DiagramComponents/DiagramState/DiagramDisableState";
-import { DiagramErrorState } from "./components/DiagramComponents/DiagramState/DiagramErrorState";
-import { ErrorList } from "./components/DiagramComponents/DiagramState/ErrorList";
+import { CanvasDiagram } from "./components/LowCodeDiagram/CanvasContainer";
+import { DataMapper } from './components/LowCodeDiagram/DataMapper';
+import { DiagramDisableState } from "./components/LowCodeDiagram/DiagramState/DiagramDisableState";
+import { DiagramErrorState } from "./components/LowCodeDiagram/DiagramState/DiagramErrorState";
+import { ErrorList } from "./components/LowCodeDiagram/DiagramState/ErrorList";
 import { OverlayBackground } from "./components/OverlayBackground";
 import "./style.scss";
 import { useStyles } from "./styles";

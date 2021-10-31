@@ -13,8 +13,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from 'react';
 
-import { PrimitiveBalType } from '../../../../../ConfigurationSpec/types';
-import { updatePropertyStatement } from '../../../../utils/modification-util';
+import { PrimitiveBalType } from '../../../../../../ConfigurationSpec/types';
+import { updatePropertyStatement } from '../../../../../utils/modification-util';
 import { DeleteSVG } from '../../../DiagramActions/DeleteBtn/DeleteSVG';
 import { Context as DataMapperContext } from '../../context/DataMapperViewContext';
 import { PADDING_OFFSET } from '../../util/data-mapper-position-visitor';

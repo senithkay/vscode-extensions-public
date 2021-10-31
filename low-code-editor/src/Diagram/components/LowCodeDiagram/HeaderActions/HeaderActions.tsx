@@ -19,9 +19,9 @@ import classNames from "classnames";
 
 import DeleteButton from "../../../../assets/icons/DeleteButton";
 import EditButton from "../../../../assets/icons/EditButton";
-import { ComponentExpandButton } from "../ComponentExpandButton";
 import { FormGenerator } from "../../FormComponents/FormGenerator";
-import { DeleteConfirmDialog } from "../../FormComponents/DialogBoxes";
+import { DeleteConfirmDialog } from "../../LowCodeDiagram/DialogBoxes";
+import { ComponentExpandButton } from "../ComponentExpandButton";
 
 import "./style.scss";
 

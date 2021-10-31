@@ -17,10 +17,9 @@ import { STNode } from "@ballerina/syntax-tree";
 
 import { Context } from "../../../../../Contexts/Diagram";
 import { STModification } from "../../../../../Definitions/lang-client-extended";
-import { STSymbolInfo } from "../../../../../Definitions/store";
 import { removeStatement } from "../../../../utils/modification-util";
 import { DefaultConfig } from "../../../../visitors/default";
-import { DeleteConfirmDialog } from "../../../FormComponents/DialogBoxes";
+import { DeleteConfirmDialog } from "../../DialogBoxes";
 
 import { DeleteSVG } from "./DeleteSVG";
 import "./style.scss";

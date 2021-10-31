@@ -19,7 +19,7 @@ import { HeaderObjectConfig } from "../components/FormComponents/ConnectorExtens
 import { getFormattedModuleName, getParams } from "../components/Portals/utils";
 
 /* tslint:disable ordered-imports */
-import { getInsertComponentSource } from "./template-utils";
+import { getComponentSource, getInsertComponentSource } from "./template-utils";
 
 export function createIfStatement(conditionExpression: string, targetPosition: NodePosition): STModification {
     const ifStatement: STModification = {

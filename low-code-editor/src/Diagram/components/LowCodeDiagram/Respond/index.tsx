@@ -21,11 +21,11 @@ import { getOverlayFormConfig } from "../../../utils/diagram-util";
 import { BlockViewState } from "../../../view-state";
 import { DraftStatementViewState } from "../../../view-state/draft";
 import { DefaultConfig } from "../../../visitors/default";
+import { FormGenerator } from "../../FormComponents/FormGenerator";
 import { DeleteBtn } from "../DiagramActions/DeleteBtn";
 import { DELETE_SVG_WIDTH_WITH_SHADOW } from "../DiagramActions/DeleteBtn/DeleteSVG";
 import { EditBtn } from "../DiagramActions/EditBtn";
 import { EDIT_SVG_WIDTH_WITH_SHADOW } from "../DiagramActions/EditBtn/EditSVG";
-import { FormGenerator } from "../../FormComponents/FormGenerator";
 import { PROCESS_SVG_HEIGHT, PROCESS_SVG_HEIGHT_WITH_SHADOW, PROCESS_SVG_SHADOW_OFFSET, PROCESS_SVG_WIDTH, PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW } from "../Processor/ProcessSVG";
 
 import { RespondSVG, RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH_WITH_SHADOW } from "./RespondSVG";

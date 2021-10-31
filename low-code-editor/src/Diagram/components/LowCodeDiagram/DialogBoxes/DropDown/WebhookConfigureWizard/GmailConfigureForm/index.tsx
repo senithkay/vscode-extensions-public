@@ -19,7 +19,6 @@ import {
     FunctionDefinition, STKindChecker
 } from "@ballerina/syntax-tree";
 
-import { DiagramOverlayPosition } from "../../../../../Portals/Overlay";
 import { ConnectionDetails } from "../../../../../../../api/models";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { Gcalendar } from "../../../../../../../Definitions/connector";
@@ -29,9 +28,10 @@ import {
     TRIGGER_SELECTED_INSIGHTS,
     TRIGGER_TYPE_WEBHOOK
 } from "../../../../../../models";
-import { ConnectionType, OauthConnectButton } from "../../../../OauthConnectButton";
-import { FormAutocomplete } from "../../../../FormFieldComponents/Autocomplete";
-import { PrimaryButton } from "../../../../FormFieldComponents/Button/PrimaryButton";
+import { FormAutocomplete } from "../../../../../FormComponents/FormFieldComponents/Autocomplete";
+import { PrimaryButton } from "../../../../../FormComponents/FormFieldComponents/Button/PrimaryButton";
+import { ConnectionType, OauthConnectButton } from "../../../../../FormComponents/OauthConnectButton";
+import { DiagramOverlayPosition } from "../../../../../Portals/Overlay";
 import { useStyles } from "../../styles";
 
 interface GmailConfigureFormProps {

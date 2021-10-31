@@ -37,7 +37,7 @@ import {
 } from '@ballerina/syntax-tree';
 import { types } from 'joi';
 
-import { PrimitiveBalType } from '../../../../ConfigurationSpec/types';
+import { PrimitiveBalType } from '../../../../../ConfigurationSpec/types';
 import { DataMapperViewState, FieldViewState, SourcePointViewState, TargetPointViewState } from '../viewstate';
 
 import { CONSTANT_TYPE } from './datamapper-constant-visitor';

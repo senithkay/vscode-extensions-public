@@ -16,8 +16,8 @@ import React, { useState } from "react";
 import classnames from 'classnames';
 
 import { CloseRounded } from "../../../assets/icons";
-import { OverlayBackground } from "../OverlayBackground";
 import { ButtonWithIcon } from "../FormComponents/FormFieldComponents/Button/ButtonWithIcon";
+import { OverlayBackground } from "../OverlayBackground";
 import { DiagramOverlayContainer } from "../Portals/Overlay";
 
 import "./style.scss";

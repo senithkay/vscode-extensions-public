@@ -16,8 +16,8 @@ import React from "react";
 import { ResourceAccessorDefinition } from "@ballerina/syntax-tree";
 import classNames from "classnames";
 
-import { useDiagramContext } from "../../../Contexts/Diagram";
-import { removeStatement } from "../../utils/modification-util";
+import { useDiagramContext } from "../../../../Contexts/Diagram";
+import { removeStatement } from "../../../utils/modification-util";
 import { HeaderActions } from "../HeaderActions";
 
 import { ResourceOtherParams } from "./ResourceOtherParams";

@@ -13,12 +13,11 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
 
-import { Checkbox, Grid } from "@material-ui/core";
+import { Grid } from "@material-ui/core";
 
 import { Context } from "../../../../../../../../Contexts/Diagram";
-import { ButtonWithIcon } from "../../../../../FormFieldComponents/Button/ButtonWithIcon";
-import { SelectDropdownWithButton } from "../../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
-import { FormTextInput } from "../../../../../FormFieldComponents/TextField/FormTextInput";
+import { SelectDropdownWithButton } from "../../../../../../FormComponents/FormFieldComponents/DropDown/SelectDropdownWithButton";
+import { FormTextInput } from "../../../../../../FormComponents/FormFieldComponents/TextField/FormTextInput";
 import { checkVariableName } from "../../../../../../Portals/utils";
 import { Payload } from "../../types";
 import { convertPayloadStringToPayload, payloadTypes } from "../../util";

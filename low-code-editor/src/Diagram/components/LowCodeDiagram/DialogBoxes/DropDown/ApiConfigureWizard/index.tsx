@@ -19,12 +19,10 @@ import { FunctionBodyBlock, FunctionDefinition, ModulePart, STKindChecker } from
 import { Grid, Link } from "@material-ui/core";
 import cn from "classnames";
 
-import { DiagramOverlay, DiagramOverlayPosition } from '../../../../Portals/Overlay';
 import { AddIcon } from "../../../../../../assets/icons";
 import DeleteButton from "../../../../../../assets/icons/DeleteButton";
 import ConfigPanel, { Section } from "../../../../../../components/ConfigPanel";
 import { Context } from "../../../../../../Contexts/Diagram";
-import { updateResourceSignature } from '../../../../../utils/modification-util';
 import {
   isPathDuplicated,
   reCalculateDuplicatedResources,
@@ -38,12 +36,13 @@ import {
   TriggerType,
   TRIGGER_SELECTED_INSIGHTS, TRIGGER_TYPE_API, TRIGGER_TYPE_SERVICE_DRAFT
 } from "../../../../../models";
-import { PrimaryButton } from "../../../FormFieldComponents/Button/PrimaryButton";
-import { SelectDropdownWithButton } from "../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
-import ExpressionEditor from "../../../FormFieldComponents/ExpressionEditor";
-import { SwitchToggle } from "../../../FormFieldComponents/SwitchToggle";
-import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
-import { useStyles as returnStyles } from "./components/ReturnTypeEditor/style";
+import { updateResourceSignature } from '../../../../../utils/modification-util';
+import { PrimaryButton } from "../../../../FormComponents/FormFieldComponents/Button/PrimaryButton";
+import { SelectDropdownWithButton } from "../../../../FormComponents/FormFieldComponents/DropDown/SelectDropdownWithButton";
+import ExpressionEditor from "../../../../FormComponents/FormFieldComponents/ExpressionEditor";
+import { SwitchToggle } from "../../../../FormComponents/FormFieldComponents/SwitchToggle";
+import { FormTextInput } from "../../../../FormComponents/FormFieldComponents/TextField/FormTextInput";
+import { DiagramOverlay, DiagramOverlayPosition } from '../../../../Portals/Overlay';
 import { useStyles } from "../styles";
 
 import { AdvancedEditor } from "./components/advanced";
@@ -51,6 +50,7 @@ import { PayloadEditor } from "./components/extractPayload";
 import { PathEditor } from "./components/pathEditor";
 import { QueryParamEditor } from "./components/queryParamEditor";
 import { ReturnTypeEditor } from "./components/ReturnTypeEditor";
+import { useStyles as returnStyles } from "./components/ReturnTypeEditor/style";
 import {
   Advanced,
   AdvancedResourceState,

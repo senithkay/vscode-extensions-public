@@ -17,7 +17,6 @@ import {FormattedMessage, useIntl} from "react-intl";
 
 import {STKindChecker} from "@ballerina/syntax-tree";
 
-import {DiagramOverlayPosition} from "../../../../../Portals/Overlay";
 import {ConnectionDetails} from "../../../../../../../api/models";
 import {Context} from "../../../../../../../Contexts/Diagram";
 import {
@@ -26,9 +25,10 @@ import {
     TRIGGER_SELECTED_INSIGHTS,
     TRIGGER_TYPE_WEBHOOK
 } from "../../../../../../models";
-import {FormAutocomplete} from "../../../../FormFieldComponents/Autocomplete";
-import {PrimaryButton} from "../../../../FormFieldComponents/Button/PrimaryButton";
-import {FormTextInput} from "../../../../FormFieldComponents/TextField/FormTextInput";
+import {FormAutocomplete} from "../../../../../FormComponents/FormFieldComponents/Autocomplete";
+import {PrimaryButton} from "../../../../../FormComponents/FormFieldComponents/Button/PrimaryButton";
+import {FormTextInput} from "../../../../../FormComponents/FormFieldComponents/TextField/FormTextInput";
+import {DiagramOverlayPosition} from "../../../../../Portals/Overlay";
 import {SourceUpdateConfirmDialog} from "../../../SourceUpdateConfirmDialog";
 import {useStyles} from "../../styles";
 

@@ -15,8 +15,8 @@ import React from "react";
 
 import { ModulePart, STNode } from "@ballerina/syntax-tree";
 
-import { useStyles } from "../../styles";
-import { getSTComponent } from "../../utils";
+import { useStyles } from "../../../styles";
+import { getSTComponent } from "../../../utils";
 import { TopLevelPlus } from "../TopLevelPlus";
 
 import './style.scss';

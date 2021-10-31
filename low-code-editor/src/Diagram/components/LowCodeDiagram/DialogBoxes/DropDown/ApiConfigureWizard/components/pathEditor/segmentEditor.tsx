@@ -15,11 +15,11 @@ import React, { useContext, useEffect, useState } from "react";
 
 import { Grid } from "@material-ui/core";
 
-import { PrimaryButton } from "../../../../../FormFieldComponents/Button/PrimaryButton";
-import { SecondaryButton } from "../../../../../FormFieldComponents/Button/SecondaryButton";
-import CheckBoxGroup from "../../../../../FormFieldComponents/CheckBox";
-import { SelectDropdownWithButton } from "../../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
-import { FormTextInput } from "../../../../../FormFieldComponents/TextField/FormTextInput";
+import { PrimaryButton } from "../../../../../../FormComponents/FormFieldComponents/Button/PrimaryButton";
+import { SecondaryButton } from "../../../../../../FormComponents/FormFieldComponents/Button/SecondaryButton";
+import CheckBoxGroup from "../../../../../../FormComponents/FormFieldComponents/CheckBox";
+import { SelectDropdownWithButton } from "../../../../../../FormComponents/FormFieldComponents/DropDown/SelectDropdownWithButton";
+import { FormTextInput } from "../../../../../../FormComponents/FormFieldComponents/TextField/FormTextInput";
 import { PathSegment } from "../../types";
 import { pathParamTypes } from "../../util";
 

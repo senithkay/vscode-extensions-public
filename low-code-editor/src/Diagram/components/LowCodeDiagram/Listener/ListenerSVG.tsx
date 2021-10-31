@@ -13,14 +13,6 @@
 // tslint:disable: jsx-no-multiline-js  jsx-wrap-multiline
 import React from "react"
 
-import {ModuleVarDecl, ServiceDeclaration, STNode} from "@ballerina/syntax-tree";
-
-import { getSTComponents } from "../../utils";
-import { BlockViewState } from "../../view-state";
-import {ModuleMemberViewState} from "../../view-state/module-member";
-import { ServiceViewState } from "../../view-state/service";
-import { PlusButton } from "../Plus";
-
 import "./style.scss";
 
 export const LISTENER_HEIGHT: number = 49;

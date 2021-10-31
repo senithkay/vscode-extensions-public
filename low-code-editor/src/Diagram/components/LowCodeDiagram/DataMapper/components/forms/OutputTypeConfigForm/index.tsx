@@ -19,22 +19,22 @@ import React, { useContext, useEffect, useState } from 'react';
 
 import { CaptureBindingPattern, LocalVarDecl, NodePosition, STKindChecker, STNode } from '@ballerina/syntax-tree';
 
-import { FormField, PrimitiveBalType, WizardType } from '../../../../../../ConfigurationSpec/types';
-import { Context as DiagramContext } from '../../../../../../Contexts/Diagram';
-import { STModification } from '../../../../../../Definitions';
-import { getAllVariables } from '../../../../../utils/mixins';
-import { createPropertyStatement, updatePropertyStatement } from '../../../../../utils/modification-util';
-import { wizardStyles } from "../../../../ConfigForms/style";
-import { FormAutocomplete } from '../../../../Portals/ConfigForm/Elements/Autocomplete';
-import { PrimaryButton } from '../../../../Portals/ConfigForm/Elements/Button/PrimaryButton';
-import { SecondaryButton } from '../../../../Portals/ConfigForm/Elements/Button/SecondaryButton';
-import { SelectDropdownWithButton } from '../../../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton';
-import { FormJson } from '../../../../Portals/ConfigForm/Elements/Json/FormJson';
-import { SwitchToggle } from '../../../../Portals/ConfigForm/Elements/SwitchToggle';
-import { FormTextInput } from '../../../../Portals/ConfigForm/Elements/TextField/FormTextInput';
-import { useStyles as formStyles } from "../../../../Portals/ConfigForm/forms/style";
-import { DataMapperConfig, DataMapperInputTypeInfo, DataMapperOutputTypeInfo } from '../../../../Portals/ConfigForm/types';
-import { checkVariableName, genVariableName } from '../../../../Portals/utils';
+import { FormField, PrimitiveBalType, WizardType } from '../../../../../../../ConfigurationSpec/types';
+import { Context as DiagramContext } from '../../../../../../../Contexts/Diagram';
+import { STModification } from '../../../../../../../Definitions';
+import { getAllVariables } from '../../../../../../utils/mixins';
+import { createPropertyStatement, updatePropertyStatement } from '../../../../../../utils/modification-util';
+import { wizardStyles } from "../../../../../FormComponents/ConfigForms/style";
+import { FormAutocomplete } from '../../../../../FormComponents/FormFieldComponents/Autocomplete';
+import { PrimaryButton } from '../../../../../FormComponents/FormFieldComponents/Button/PrimaryButton';
+import { SecondaryButton } from '../../../../../FormComponents/FormFieldComponents/Button/SecondaryButton';
+import { SelectDropdownWithButton } from '../../../../../FormComponents/FormFieldComponents/DropDown/SelectDropdownWithButton';
+import { FormJson } from '../../../../../FormComponents/FormFieldComponents/Json/FormJson';
+import { SwitchToggle } from '../../../../../FormComponents/FormFieldComponents/SwitchToggle';
+import { FormTextInput } from '../../../../../FormComponents/FormFieldComponents/TextField/FormTextInput';
+import { DataMapperConfig, DataMapperInputTypeInfo, DataMapperOutputTypeInfo } from '../../../../../FormComponents/Types';
+import { useStyles as formStyles } from "../../../../../Portals/ConfigForm/forms/style";
+import { checkVariableName, genVariableName } from '../../../../../Portals/utils';
 import { Context as DataMapperContext } from '../../../context/DataMapperViewContext';
 import { getDefaultValueForType, resetJsonValueToDefault } from '../../../util';
 

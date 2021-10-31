@@ -15,16 +15,15 @@
 // tslint:disable: jsx-no-lambda
 // tslint:disable: jsx-no-multiline-js
 // tslint:disable: no-console
-import React, { ReactElement, useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 
-import { CaptureBindingPattern, LocalVarDecl, MappingConstructor, RecordTypeDesc, STKindChecker, STNode } from '@ballerina/syntax-tree';
+import { LocalVarDecl, MappingConstructor, RecordTypeDesc, STKindChecker, STNode } from '@ballerina/syntax-tree';
 import classNames from 'classnames';
 
-import Tooltip from '../../../../../../components/Tooltip';
-import { Context as DiagramContext } from '../../../../../../Contexts/Diagram';
-import { DefaultConfig } from '../../../../../../Diagram/visitors/default';
+import Tooltip from '../../../../../../../components/Tooltip';
+import { Context as DiagramContext } from '../../../../../../../Contexts/Diagram';
+import { DefaultConfig } from '../../../../../../../Diagram/visitors/default';
 import { DeleteSVG } from '../../../../DiagramActions/DeleteBtn/DeleteSVG';
-import { DataMapperInputTypeInfo } from '../../../../Portals/ConfigForm/types';
 import { getDataMapperComponent, hasReferenceConnections } from '../../../util';
 import { DEFAULT_OFFSET } from '../../../util/data-mapper-position-visitor';
 import { FieldViewState, SourcePointViewState, TargetPointViewState } from '../../../viewstate';

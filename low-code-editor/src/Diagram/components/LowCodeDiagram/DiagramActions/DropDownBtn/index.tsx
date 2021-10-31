@@ -14,7 +14,7 @@
 import React, { useContext, useState } from "react";
 
 import { Context } from "../../../../../Contexts/Diagram"
-import { DropDownMenu, DropDownMenuProps } from "../../../FormComponents/DialogBoxes";
+import { DropDownMenu, DropDownMenuProps } from "../../DialogBoxes";
 
 import {
     DropDownSVG, DROPDOWN_SVG_HEIGHT_WITH_SHADOW, DROPDOWN_SVG_WIDTH_WITH_SHADOW

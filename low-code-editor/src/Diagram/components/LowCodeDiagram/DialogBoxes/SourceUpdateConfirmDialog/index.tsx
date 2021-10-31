@@ -18,8 +18,8 @@ import { Button } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
 
 import { Context } from '../../../../../Contexts/Diagram';
+import { ButtonWithIcon } from "../../../FormComponents/FormFieldComponents/Button/ButtonWithIcon";
 import { OverlayBackground } from "../../../OverlayBackground";
-import { ButtonWithIcon } from "../../FormFieldComponents/Button/ButtonWithIcon";
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from "../../../Portals/Overlay/index";
 
 import "./style.scss";

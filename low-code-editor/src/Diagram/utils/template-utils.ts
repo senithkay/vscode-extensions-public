@@ -31,3 +31,8 @@ export async function getInsertComponentSource(insertTempName: string, config: {
     const hbTemplate = compile(await getInsertTemplate(insertTempName));
     return hbTemplate(config);
 }
+
+export function getComponentSource(insertTemplateName: string, config: {[key: string]: any}) {
+    const hbTemplate = compile(templates[insertTemplateName]);
+    return hbTemplate(config);
+}

@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { TypeInfo } from "../../Portals/ConfigForm/types";
+import { TypeInfo } from "../../../FormComponents/Types";
 
 import { DataMapperViewState, SourcePointViewState, TargetPointViewState } from ".";
 import { DraftFieldViewstate } from "./draft-field-viestate";

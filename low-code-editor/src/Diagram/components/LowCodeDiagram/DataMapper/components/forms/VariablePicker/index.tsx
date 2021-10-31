@@ -14,18 +14,15 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from 'react';
 
-import { CaptureBindingPattern, LocalVarDecl, STKindChecker, STNode } from '@ballerina/syntax-tree';
-import { Box, FormControl, Typography } from '@material-ui/core';
-import { CloseRounded } from '@material-ui/icons';
-import classNames from 'classnames';
+import { CaptureBindingPattern, STKindChecker, STNode } from '@ballerina/syntax-tree';
 
-import { Context as DiagramContext } from '../../../../../../Contexts/Diagram';
-import { wizardStyles } from "../../../../ConfigForms/style";
-import { FormAutocomplete } from '../../../../Portals/ConfigForm/Elements/Autocomplete';
-import { PrimaryButton } from '../../../../Portals/ConfigForm/Elements/Button/PrimaryButton';
-import { SecondaryButton } from '../../../../Portals/ConfigForm/Elements/Button/SecondaryButton';
-import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms/style";
-import { DataMapperInputTypeInfo } from '../../../../Portals/ConfigForm/types';
+import { Context as DiagramContext } from '../../../../../../../Contexts/Diagram';
+import { wizardStyles } from "../../../../../FormComponents/ConfigForms/style";
+import { FormAutocomplete } from '../../../../../FormComponents/FormFieldComponents/Autocomplete';
+import { PrimaryButton } from '../../../../../FormComponents/FormFieldComponents/Button/PrimaryButton';
+import { SecondaryButton } from '../../../../../FormComponents/FormFieldComponents/Button/SecondaryButton';
+import { DataMapperInputTypeInfo } from '../../../../../FormComponents/Types';
+import { useStyles as useFormStyles } from "../../../../../Portals/ConfigForm/forms/style";
 import { Context as DataMapperViewContext } from '../../../context/DataMapperViewContext';
 
 export function VariablePicker() {

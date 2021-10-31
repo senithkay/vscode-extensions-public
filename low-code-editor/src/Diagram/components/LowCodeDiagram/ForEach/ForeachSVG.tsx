@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from "react";
 
-import { TooltipCodeSnippet } from "../../../components/Tooltip";
+import { TooltipCodeSnippet } from "../../../../components/Tooltip";
 
 export const FOREACH_SVG_WIDTH_WITH_SHADOW = 66.686;
 export const FOREACH_SVG_HEIGHT_WITH_SHADOW = 62.686;

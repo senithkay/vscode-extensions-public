@@ -15,16 +15,15 @@ import * as React from "react";
 import { STNode } from "@ballerina/syntax-tree";
 import cn from "classnames";
 
-import { EndpointViewState, StatementViewState } from "../../view-state";
-import { DefaultConfig } from "../../visitors/default";
+import { EndpointViewState, StatementViewState } from "../../../view-state";
+import { DefaultConfig } from "../../../visitors/default";
 import { ActionInvoLine } from "../ActionInvocation/ActionInvoLine";
-import { ARROW_WIDTH } from "../ArrowHead";
 import ControlFlowArrow from "../ControlFlowArrow";
 
 import { ConnectorHeader } from "./ConnectorHeader";
-import { CLIENT_RADIUS, CLIENT_SHADOW_OFFSET, CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH_WITH_SHADOW, ConnectorSVG } from "./ConnectorHeader/ConnectorClientSVG";
+import { CLIENT_RADIUS, CLIENT_SHADOW_OFFSET, CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH_WITH_SHADOW } from "./ConnectorHeader/ConnectorClientSVG";
 import { ConnectorProcess } from "./ConnectorProcess";
-import { ConnectorProcessSVG, CONNECTOR_PROCESS_SVG_WIDTH } from "./ConnectorProcess/ConnectorProcessSVG";
+import { CONNECTOR_PROCESS_SVG_WIDTH } from "./ConnectorProcess/ConnectorProcessSVG";
 import "./style.scss";
 
 export interface ConnectorProps {

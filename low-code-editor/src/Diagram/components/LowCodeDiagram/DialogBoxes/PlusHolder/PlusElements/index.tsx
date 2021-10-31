@@ -17,12 +17,12 @@ import { useIntl } from "react-intl";
 import { LocalVarDecl } from "@ballerina/syntax-tree";
 import CloseIcon from '@material-ui/icons/Close';
 
-import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from '../../../../Portals/Overlay';
 import { Context } from "../../../../../../Contexts/Diagram";
 import { useFunctionContext } from "../../../../../../Contexts/Function";
 import { BallerinaConnectorInfo } from "../../../../../../Definitions/lang-client-extended";
 import { PlusViewState } from "../../../../../view-state/plus";
 import { OverlayBackground } from "../../../../OverlayBackground";
+import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from '../../../../Portals/Overlay';
 import { StatementOptions } from "../PlusElementOptions/StatementOptions";
 import "../style.scss";
 

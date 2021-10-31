@@ -15,9 +15,7 @@ import React from 'react';
 
 import classNames from 'classnames';
 
-import { DefaultConfig } from '../../../../../Diagram/visitors/default';
-import { DeleteSVG } from '../../../DiagramActions/DeleteBtn/DeleteSVG';
-import { PADDING_OFFSET } from '../../util/data-mapper-position-visitor';
+import { DefaultConfig } from '../../../../../../Diagram/visitors/default';
 import { SourcePointViewState, TargetPointViewState } from "../../viewstate";
 import "../InputTypes/style.scss";
 

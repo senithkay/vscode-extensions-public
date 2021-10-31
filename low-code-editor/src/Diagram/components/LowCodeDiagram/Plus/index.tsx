@@ -22,7 +22,7 @@ import { BallerinaConnectorInfo } from "../../../../Definitions/lang-client-exte
 import { BlockViewState } from "../../../view-state";
 import { PlusViewState } from "../../../view-state/plus";
 import { DefaultConfig } from "../../../visitors/default";
-import { PlusElements } from "../../FormComponents/DialogBoxes/PlusHolder";
+import { PlusElements } from "../DialogBoxes/PlusHolder";
 
 import { PlusCircleSVG, PLUSCIRCLE_SVG_HEIGHT_WITH_SHADOW, PLUSCIRCLE_SVG_WIDTH_WITH_SHADOW } from "./Circle";
 import { SmallPlusSVG, SMALLPLUS_SVG_HEIGHT_WITH_SHADOW, SMALLPLUS_SVG_WIDTH_WITH_SHADOW } from "./Default";

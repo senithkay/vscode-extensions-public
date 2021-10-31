@@ -15,10 +15,10 @@ import React, { useState } from "react";
 
 import { Grid } from "@material-ui/core";
 
-import CheckBoxGroup from "../../../../../FormFieldComponents/CheckBox";
-import { PrimaryButton } from "../../../../../FormFieldComponents/Button/PrimaryButton";
-import { SecondaryButton } from "../../../../../FormFieldComponents/Button/SecondaryButton";
-import { SelectDropdownWithButton } from "../../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
+import { PrimaryButton } from "../../../../../../FormComponents/FormFieldComponents/Button/PrimaryButton";
+import { SecondaryButton } from "../../../../../../FormComponents/FormFieldComponents/Button/SecondaryButton";
+import CheckBoxGroup from "../../../../../../FormComponents/FormFieldComponents/CheckBox";
+import { SelectDropdownWithButton } from "../../../../../../FormComponents/FormFieldComponents/DropDown/SelectDropdownWithButton";
 import { ReturnType } from "../../types";
 import { returnTypes } from "../../util";
 

@@ -17,12 +17,12 @@ import { useIntl } from "react-intl";
 import { FunctionBodyBlock, FunctionDefinition } from "@ballerina/syntax-tree";
 import CloseIcon from "@material-ui/icons/Close";
 
-import { DiagramOverlay, DiagramOverlayPosition } from '../../../../Portals/Overlay';
 import { Context } from "../../../../../../Contexts/Diagram";
 import { ServiceMethodType, TRIGGER_TYPE_WEBHOOK, WebhookMethodType, WEBHOOK_METHODS } from "../../../../../models";
-import { PrimaryButton } from "../../../FormFieldComponents/Button/PrimaryButton";
-import { RadioControl } from "../../../FormFieldComponents/RadioControl/FormRadioControl";
-import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
+import { PrimaryButton } from "../../../../FormComponents/FormFieldComponents/Button/PrimaryButton";
+import { RadioControl } from "../../../../FormComponents/FormFieldComponents/RadioControl/FormRadioControl";
+import { FormTextInput } from "../../../../FormComponents/FormFieldComponents/TextField/FormTextInput";
+import { DiagramOverlay, DiagramOverlayPosition } from '../../../../Portals/Overlay';
 import { SourceUpdateConfirmDialog } from "../../SourceUpdateConfirmDialog";
 import { useStyles } from "../styles";
 

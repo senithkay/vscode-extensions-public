@@ -11,7 +11,7 @@
  * associated services.
  */
 
-import createContext from '../../../../Contexts/createContext';
+import createContext from '../../../../../Contexts/createContext';
 import { dataMapperSizingAndPositioningRecalculate } from '../util';
 import { DataMapperState } from '../util/types';
 

@@ -15,14 +15,9 @@ import React, { useContext, useRef, useState } from 'react'
 
 import { ListenerDeclaration, STNode } from "@ballerina/syntax-tree";
 
-import DeleteButton from "../../../assets/icons/DeleteButton";
-import EditButton from "../../../assets/icons/EditButton";
-import ListenerIcon from "../../../assets/icons/ListenerIcon";
-import Tooltip from '../../../components/Tooltip';
-import { Context as DiagramContext } from '../../../Contexts/Diagram';
-import { removeStatement } from '../../utils/modification-util';
-import { FormGenerator } from '../FormGenerator';
-import { DeleteConfirmDialog } from '../Portals/Overlay/Elements';
+import DeleteButton from "../../../../assets/icons/DeleteButton";
+import EditButton from "../../../../assets/icons/EditButton";
+import ListenerIcon from "../../../../assets/icons/ListenerIcon";
 
 import "./style.scss";
 

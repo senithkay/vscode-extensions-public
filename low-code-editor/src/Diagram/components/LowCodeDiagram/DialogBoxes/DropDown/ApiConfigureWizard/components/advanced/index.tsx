@@ -1,15 +1,10 @@
 
-import React, { useContext, useEffect, useState } from "react";
+import React, { useState } from "react";
 
-import { Checkbox, Grid } from "@material-ui/core";
-import { CloseRounded } from "@material-ui/icons";
+import { Grid } from "@material-ui/core";
 
-import { ButtonWithIcon } from "../../../../../FormFieldComponents/Button/ButtonWithIcon";
-import CheckBoxGroup from "../../../../../FormFieldComponents/CheckBox";
-import { SelectDropdownWithButton } from "../../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
-import { FormTextInput } from "../../../../../FormFieldComponents/TextField/FormTextInput";
+import CheckBoxGroup from "../../../../../../FormComponents/FormFieldComponents/CheckBox";
 import { Advanced } from "../../types";
-import { convertPayloadStringToPayload } from "../../util";
 
 import { useStyles } from "./style";
 

@@ -21,21 +21,21 @@ import {
 } from "@ballerina/syntax-tree";
 import cn from "classnames";
 
-import { WizardType } from "../../../ConfigurationSpec/types";
-import { Context } from "../../../Contexts/Diagram";
-import { getDraftComponent, getSTComponents } from "../../utils";
-import { getConditionConfig, getRandomInt } from "../../utils/diagram-util";
-import { findActualEndPositionOfIfElseStatement } from "../../utils/st-util";
-import { BlockViewState, ControlFlowLineState, ElseViewState, IfViewState } from "../../view-state";
-import { DraftStatementViewState } from "../../view-state/draft";
-import { DefaultConfig } from "../../visitors/default";
+import { WizardType } from "../../../../ConfigurationSpec/types";
+import { Context } from "../../../../Contexts/Diagram";
+import { getDraftComponent, getSTComponents } from "../../../utils";
+import { getConditionConfig, getRandomInt } from "../../../utils/diagram-util";
+import { findActualEndPositionOfIfElseStatement } from "../../../utils/st-util";
+import { BlockViewState, ControlFlowLineState, ElseViewState, IfViewState } from "../../../view-state";
+import { DraftStatementViewState } from "../../../view-state/draft";
+import { DefaultConfig } from "../../../visitors/default";
+import { FormGenerator } from "../../FormComponents/FormGenerator";
 import { Collapse } from "../Collapse";
 import { CONDITION_ASSIGNMENT_NAME_WIDTH, ContitionAssignment } from "../ContitionAssignment";
 import { ControlFlowLine } from "../ControlFlowLine";
 import { DeleteBtn } from "../DiagramActions/DeleteBtn";
 import {
     DELETE_SVG_HEIGHT_WITH_SHADOW,
-    DELETE_SVG_OFFSET,
     DELETE_SVG_WIDTH_WITH_SHADOW
 } from "../DiagramActions/DeleteBtn/DeleteSVG";
 import { EditBtn } from "../DiagramActions/EditBtn";
@@ -44,7 +44,6 @@ import {
     EDIT_SVG_OFFSET,
     EDIT_SVG_WIDTH_WITH_SHADOW
 } from "../DiagramActions/EditBtn/EditSVG";
-import { FormGenerator } from "../FormGenerator";
 import { PlusButton } from "../Plus";
 
 import { Else } from "./Else";

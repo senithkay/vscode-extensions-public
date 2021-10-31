@@ -11,15 +11,12 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useEffect, useState } from "react";
+import React, { useState } from "react";
 import { FormattedMessage } from "react-intl";
 
-import { CloseRounded } from "@material-ui/icons";
-
 import { AddIcon } from "../../../../../../../../assets/icons";
-import { ButtonWithIcon } from "../../../../../FormFieldComponents/Button/ButtonWithIcon";
 import { QueryParam, QueryParamCollection } from "../../types";
-import { convertQueryParamStringToSegments, generateQueryParamFromQueryCollection, genrateBallerinaQueryParams } from "../../util";
+import { convertQueryParamStringToSegments, generateQueryParamFromQueryCollection } from "../../util";
 
 import { QueryParamItem } from "./queryParamItem";
 import { QueryParamSegmentEditor } from "./segmentEditor";

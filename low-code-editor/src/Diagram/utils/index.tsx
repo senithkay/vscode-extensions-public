@@ -2,13 +2,13 @@ import React from "react";
 
 import { NodePosition } from "@ballerina/syntax-tree";
 
-import * as stComponents from '../components/DiagramComponents';
-import { ActionProcessor } from "../components/DiagramComponents/ActionInvocation/ActionProcess";
-import { ConnectorProcess } from "../components/DiagramComponents/Connector/ConnectorProcess";
-import { IfElse } from "../components/DiagramComponents/IfElse";
-import { DataProcessor } from "../components/DiagramComponents/Processor";
-import { Respond } from "../components/DiagramComponents/Respond";
-import { Statement } from "../components/DiagramComponents/Statement";
+import * as stComponents from '../components/LowCodeDiagram';
+import { ActionProcessor } from "../components/LowCodeDiagram/ActionInvocation/ActionProcess";
+import { ConnectorProcess } from "../components/LowCodeDiagram/Connector/ConnectorProcess";
+import { IfElse } from "../components/LowCodeDiagram/IfElse";
+import { DataProcessor } from "../components/LowCodeDiagram/Processor";
+import { Respond } from "../components/LowCodeDiagram/Respond";
+import { Statement } from "../components/LowCodeDiagram/Statement";
 import { BlockViewState } from "../view-state";
 import { DraftStatementViewState } from "../view-state/draft";
 

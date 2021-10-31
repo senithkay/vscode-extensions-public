@@ -13,8 +13,8 @@
 
 import { STNode } from "@ballerina/syntax-tree";
 
-import { STModification } from "../../../../Definitions";
-import { DataMapperConfig } from "../../Portals/ConfigForm/types";
+import { STModification } from "../../../../../Definitions";
+import { DataMapperConfig } from "../../../FormComponents/Types";
 import { FieldViewState } from "../viewstate";
 
 export interface DataMapperState {

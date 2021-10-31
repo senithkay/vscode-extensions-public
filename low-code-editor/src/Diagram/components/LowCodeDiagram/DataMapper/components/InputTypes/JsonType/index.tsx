@@ -18,10 +18,10 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import { AssignmentStatement, LocalVarDecl, MappingConstructor, NodePosition, RecordTypeDesc, SpecificField, STKindChecker, STNode } from '@ballerina/syntax-tree';
 import classNames from 'classnames';
 
-import Tooltip from '../../../../../../components/Tooltip';
-import { PrimitiveBalType } from '../../../../../../ConfigurationSpec/types';
-import { removeStatement } from '../../../../../../Diagram/utils/modification-util';
-import { DefaultConfig } from '../../../../../../Diagram/visitors/default';
+import Tooltip from '../../../../../../../components/Tooltip';
+import { PrimitiveBalType } from '../../../../../../../ConfigurationSpec/types';
+import { removeStatement } from '../../../../../../../Diagram/utils/modification-util';
+import { DefaultConfig } from '../../../../../../../Diagram/visitors/default';
 import { DeleteSVG } from '../../../../DiagramActions/DeleteBtn/DeleteSVG';
 import { Context as DataMapperViewContext } from '../../../context/DataMapperViewContext';
 import { getDataMapperComponent, hasReferenceConnections } from '../../../util';

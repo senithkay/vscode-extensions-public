@@ -22,7 +22,6 @@ import Tooltip from "../../../../../../../components/TooltipV2";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { DiagramEditorLangClientInterface } from "../../../../../../../Definitions/diagram-editor-lang-client-interface";
 import { BallerinaConnectorInfo, BallerinaConnectorsRequest, BallerinaConnectorsResponse, Connector } from "../../../../../../../Definitions/lang-client-extended";
-import { PlusViewState } from "../../../../../../view-state/plus";
 import { CirclePreloader } from "../../../../../../../PreLoader/CirclePreloader";
 import {
     EVENT_TYPE_AZURE_APP_INSIGHTS,
@@ -30,8 +29,9 @@ import {
     START_CONNECTOR_ADD_INSIGHTS,
     START_EXISTING_CONNECTOR_ADD_INSIGHTS
 } from "../../../../../../models";
-import { addConnectorListToCache, getConnectorListFromCache } from "../../../../../../utils/st-util";
-import { FormGeneratorProps } from "../../../../FormGenerator";
+import { addConnectorListToCache } from "../../../../../../utils/st-util";
+import { PlusViewState } from "../../../../../../view-state/plus";
+import { FormGeneratorProps } from "../../../../../FormComponents/FormGenerator";
 import { getConnectorIconSVG, getExistingConnectorIconSVG, getFormattedModuleName } from "../../../../../Portals/utils";
 import { APIHeightStates } from "../../PlusElements";
 import "../../style.scss";

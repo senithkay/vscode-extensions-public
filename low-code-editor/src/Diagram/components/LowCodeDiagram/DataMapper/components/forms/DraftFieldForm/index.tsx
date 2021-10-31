@@ -15,13 +15,11 @@ import React, { useContext, useState } from 'react';
 import { IconButton, TextField } from '@material-ui/core';
 import { Check, Close } from '@material-ui/icons';
 
-import { createPropertyStatement, updatePropertyStatement } from '../../../../../../Diagram/utils/modification-util';
-import { DiagramOverlay, DiagramOverlayContainer } from "../../../../Portals/Overlay";
+import { updatePropertyStatement } from '../../../../../../../Diagram/utils/modification-util';
+import { DiagramOverlay, DiagramOverlayContainer } from "../../../../../Portals/Overlay";
 import { Context as DataMapperContext } from '../../../context/DataMapperViewContext';
 import { DraftFieldViewstate } from "../../../viewstate/draft-field-viestate";
 
-import { AttributeTypeSelectButton } from './buttons/AttributeTypeSelectButton';
-import { ObjectTypeSelectButton } from './buttons/ObjectTypeSelectButton';
 import './style.scss';
 
 export enum JsonFieldTypes {

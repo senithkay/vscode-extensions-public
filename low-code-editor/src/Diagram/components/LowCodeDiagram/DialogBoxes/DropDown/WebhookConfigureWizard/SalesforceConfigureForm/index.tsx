@@ -23,7 +23,6 @@ import {
     STKindChecker
 } from "@ballerina/syntax-tree";
 
-import { DiagramOverlayPosition } from "../../../../../Portals/Overlay";
 import { ConnectionDetails } from "../../../../../../../api/models";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { STModification } from "../../../../../../../Definitions";
@@ -34,9 +33,10 @@ import {
     TRIGGER_TYPE_WEBHOOK
 } from "../../../../../../models";
 import { updatePropertyStatement } from "../../../../../../utils/modification-util";
-import { FormAutocomplete } from "../../../../FormFieldComponents/Autocomplete";
-import { PrimaryButton } from "../../../../FormFieldComponents/Button/PrimaryButton";
-import { FormTextInput } from "../../../../FormFieldComponents/TextField/FormTextInput";
+import { FormAutocomplete } from "../../../../../FormComponents/FormFieldComponents/Autocomplete";
+import { PrimaryButton } from "../../../../../FormComponents/FormFieldComponents/Button/PrimaryButton";
+import { FormTextInput } from "../../../../../FormComponents/FormFieldComponents/TextField/FormTextInput";
+import { DiagramOverlayPosition } from "../../../../../Portals/Overlay";
 import { SourceUpdateConfirmDialog } from "../../../SourceUpdateConfirmDialog";
 import { useStyles } from "../../styles";
 

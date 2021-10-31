@@ -16,8 +16,8 @@ import { FormField } from "../../../../../../../ConfigurationSpec/types";
 import {isAllValid} from "../../../../../../../utils/validator";
 import { useStyles } from "../../../../../ConfigPanel/styles";
 import FormAccordion from "../../../../../FormComponents/FormAccordion";
-import { getFormElement } from "../../../../utils";
 import { FormElementProps } from "../../../../../FormComponents/Types";
+import { getFormElement } from "../../../../utils";
 
 export interface FormProps {
     fields: FormField[];

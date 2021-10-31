@@ -18,10 +18,10 @@ import React, { useContext, useState } from "react"
 import { EnumDeclaration, EnumMember, STKindChecker } from "@ballerina/syntax-tree";
 import { Button } from "@material-ui/core";
 
-import EnumIcon from "../../../assets/icons/EnumIcon";
-import { useDiagramContext } from "../../../Contexts/Diagram";
-import { removeStatement } from "../../utils/modification-util";
-import { HeaderActions } from "../HeaderActions";
+import DeleteButton from "../../../../assets/icons/DeleteButton";
+import EditButton from "../../../../assets/icons/EditButton";
+import RecordIcon from "../../../../assets/icons/RecordIcon";
+import { ComponentExpandButton } from "../ComponentExpandButton";
 
 import "./style.scss";
 

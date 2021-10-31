@@ -10,8 +10,9 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+
+import { APIOptions } from "../../LowCodeDiagram/DialogBoxes/PlusHolder/PlusElementOptions/APIOptions";
 import { ConnectorForm } from "../ConnectorConfigWizard/Components/ConnectorForm";
-import { APIOptions } from "../DialogBoxes/PlusHolder/PlusElementOptions/APIOptions";
 
 import { APIConfigForm } from "./APIConfigForm";
 import { ConditionConfigForm } from "./ConditionConfigForms";

@@ -23,11 +23,11 @@ import { AnalyzePayloadVisitor, initVisitor, positionVisitor, sizingVisitor } fr
 import { FunctionDefinitionInfo } from "../../ConfigurationSpec/types";
 import { STSymbolInfo } from '../../Definitions';
 import { BallerinaConnectorInfo, BallerinaRecord, Connector } from '../../Definitions/lang-client-extended';
-import { CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH } from "../../Diagram/components/DiagramComponents/Connector/ConnectorHeader/ConnectorClientSVG";
-import { IFELSE_SVG_HEIGHT, IFELSE_SVG_WIDTH } from "../components/DiagramComponents/IfElse/IfElseSVG";
+import { CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH } from "../../Diagram/components/LowCodeDiagram/Connector/ConnectorHeader/ConnectorClientSVG";
+import { IFELSE_SVG_HEIGHT, IFELSE_SVG_WIDTH } from "../components/LowCodeDiagram/IfElse/IfElseSVG";
+import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH } from "../components/LowCodeDiagram/Processor/ProcessSVG";
+import { RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH } from "../components/LowCodeDiagram/Respond/RespondSVG";
 import { getFormattedModuleName } from '../components/Portals/utils';
-import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH } from "../components/DiagramComponents/Processor/ProcessSVG";
-import { RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH } from "../components/DiagramComponents/Respond/RespondSVG";
 import { TriggerType } from '../models';
 import { EndpointViewState, FunctionViewState, PlusViewState, StatementViewState } from "../view-state";
 import { ActionInvocationFinder } from '../visitors/action-invocation-finder';

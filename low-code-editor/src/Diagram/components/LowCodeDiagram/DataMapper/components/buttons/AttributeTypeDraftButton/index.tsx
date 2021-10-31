@@ -12,7 +12,7 @@
  */
 import React from 'react';
 
-import Tooltip from '../../../../../../components/Tooltip';
+import Tooltip from '../../../../../../../components/Tooltip';
 import { JsonFieldTypes } from '../../forms/DraftFieldForm';
 
 interface AttributeTypeDraftButtonProps {

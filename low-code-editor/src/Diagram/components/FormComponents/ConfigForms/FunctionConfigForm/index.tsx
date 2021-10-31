@@ -24,15 +24,15 @@ import {
   createFunctionSignature,
   updateFunctionSignature,
 } from "../../../../utils/modification-util";
-import { QueryParamItem as FunctionParamItem } from "../../DialogBoxes/DropDown/ApiConfigureWizard/components/queryParamEditor/queryParamItem";
-import { QueryParamSegmentEditor as FunctionParamSegmentEditor } from "../../DialogBoxes/DropDown/ApiConfigureWizard/components/queryParamEditor/segmentEditor";
-import { ReturnTypeItem } from "../../DialogBoxes/DropDown/ApiConfigureWizard/components/ReturnTypeEditor/ReturnTypeItem";
-import { ReturnTypeSegmentEditor } from "../../DialogBoxes/DropDown/ApiConfigureWizard/components/ReturnTypeEditor/SegmentEditor";
+import { QueryParamItem as FunctionParamItem } from "../../../LowCodeDiagram/DialogBoxes/DropDown/ApiConfigureWizard/components/queryParamEditor/queryParamItem";
+import { QueryParamSegmentEditor as FunctionParamSegmentEditor } from "../../../LowCodeDiagram/DialogBoxes/DropDown/ApiConfigureWizard/components/queryParamEditor/segmentEditor";
+import { ReturnTypeItem } from "../../../LowCodeDiagram/DialogBoxes/DropDown/ApiConfigureWizard/components/ReturnTypeEditor/ReturnTypeItem";
+import { ReturnTypeSegmentEditor } from "../../../LowCodeDiagram/DialogBoxes/DropDown/ApiConfigureWizard/components/ReturnTypeEditor/SegmentEditor";
 import {
   QueryParam,
   ReturnType,
-} from "../../DialogBoxes/DropDown/ApiConfigureWizard/types";
-import { functionParamTypes } from "../../DialogBoxes/DropDown/ApiConfigureWizard/util";
+} from "../../../LowCodeDiagram/DialogBoxes/DropDown/ApiConfigureWizard/types";
+import { functionParamTypes } from "../../../LowCodeDiagram/DialogBoxes/DropDown/ApiConfigureWizard/util";
 import { PrimaryButton } from "../../FormFieldComponents/Button/PrimaryButton";
 import { SecondaryButton } from "../../FormFieldComponents/Button/SecondaryButton";
 import { FormTextInput } from "../../FormFieldComponents/TextField/FormTextInput";

@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
-import Tooltip from '../../../../../../components/Tooltip';
+import Tooltip from '../../../../../../../components/Tooltip';
 import { FieldViewState } from '../../../viewstate';
 import { DataPoint } from '../../DataPoint';
 

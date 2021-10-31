@@ -11,18 +11,15 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 
-import { Checkbox, Grid } from "@material-ui/core";
-import { CloseRounded } from "@material-ui/icons";
+import { Grid } from "@material-ui/core";
 
 import { Context } from "../../../../../../../../Contexts/Diagram";
-import { ButtonWithIcon } from "../../../../../FormFieldComponents/Button/ButtonWithIcon";
-import { PrimaryButton } from "../../../../../FormFieldComponents/Button/PrimaryButton";
-import { SecondaryButton } from "../../../../../FormFieldComponents/Button/SecondaryButton";
-import CheckBoxGroup from "../../../../../FormFieldComponents/CheckBox";
-import { SelectDropdownWithButton } from "../../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
-import { FormTextInput } from "../../../../../FormFieldComponents/TextField/FormTextInput";
+import { PrimaryButton } from "../../../../../../FormComponents/FormFieldComponents/Button/PrimaryButton";
+import { SecondaryButton } from "../../../../../../FormComponents/FormFieldComponents/Button/SecondaryButton";
+import { SelectDropdownWithButton } from "../../../../../../FormComponents/FormFieldComponents/DropDown/SelectDropdownWithButton";
+import { FormTextInput } from "../../../../../../FormComponents/FormFieldComponents/TextField/FormTextInput";
 import { checkVariableName } from "../../../../../../Portals/utils";
 import { QueryParam } from "../../types";
 import { queryParamTypes } from "../../util";

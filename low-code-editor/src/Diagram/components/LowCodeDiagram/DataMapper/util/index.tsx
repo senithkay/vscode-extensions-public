@@ -14,9 +14,9 @@ import React from 'react';
 
 import { CaptureBindingPattern, LocalVarDecl, RecordTypeDesc, STKindChecker, STNode, traversNode } from "@ballerina/syntax-tree";
 
-import { PrimitiveBalType } from "../../../../ConfigurationSpec/types";
-import { DiagramEditorLangClientInterface } from '../../../../Definitions/diagram-editor-lang-client-interface';
-import { DataMapperConfig, DataMapperOutputTypeInfo, TypeInfo } from "../../Portals/ConfigForm/types";
+import { PrimitiveBalType } from "../../../../../ConfigurationSpec/types";
+import { DiagramEditorLangClientInterface } from '../../../../../Definitions/diagram-editor-lang-client-interface';
+import { DataMapperConfig, DataMapperOutputTypeInfo, TypeInfo } from "../../../FormComponents/Types";
 import * as DataMapperComponents from '../components/InputTypes';
 import { DataMapperViewState, FieldViewState } from "../viewstate";
 

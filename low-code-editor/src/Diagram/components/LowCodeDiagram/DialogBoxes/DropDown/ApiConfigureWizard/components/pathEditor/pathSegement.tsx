@@ -3,7 +3,7 @@ import React, { useContext, useEffect, useState } from "react";
 
 import { CloseRounded } from "@material-ui/icons";
 
-import { ButtonWithIcon } from "../../../../../FormFieldComponents/Button/ButtonWithIcon";
+import { ButtonWithIcon } from "../../../../../../FormComponents/FormFieldComponents/Button/ButtonWithIcon";
 import { PathSegment } from "../../types";
 
 import { useStyles } from './style';

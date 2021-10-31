@@ -20,9 +20,9 @@ import {
   STKindChecker,
 } from "@ballerina/syntax-tree";
 
-import FunctionIcon from "../../../assets/icons/FunctionIcon";
-import { useDiagramContext } from "../../../Contexts/Diagram";
-import { removeStatement } from "../../utils/modification-util";
+import FunctionIcon from "../../../../assets/icons/FunctionIcon";
+import { useDiagramContext } from "../../../../Contexts/Diagram";
+import { removeStatement } from "../../../utils/modification-util";
 import { HeaderActions } from "../HeaderActions";
 
 import "./style.scss";

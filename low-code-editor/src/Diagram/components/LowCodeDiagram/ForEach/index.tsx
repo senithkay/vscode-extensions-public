@@ -13,14 +13,16 @@
 // tslint:disable: jsx-no-multiline-js  jsx-wrap-multiline
 import React, { ReactNode, useContext, useState } from "react"
 
-import { CaptureBindingPattern, ForeachStatement, NodePosition, STKindChecker, STNode, TypedBindingPattern } from "@ballerina/syntax-tree";
+import { ForeachStatement, NodePosition, STKindChecker, STNode, TypedBindingPattern } from "@ballerina/syntax-tree";
 
-import { WizardType } from "../../../ConfigurationSpec/types";
-import { Context } from "../../../Contexts/Diagram";
-import { getDraftComponent, getSTComponents } from "../../utils";
-import { getConditionConfig, getRandomInt } from "../../utils/diagram-util";
-import { BlockViewState, ForEachViewState } from "../../view-state";
-import { DefaultConfig } from "../../visitors/default";
+import { WizardType } from "../../../../ConfigurationSpec/types";
+import { Context } from "../../../../Contexts/Diagram";
+import { getDraftComponent, getSTComponents } from "../../../utils";
+import { getConditionConfig, getRandomInt } from "../../../utils/diagram-util";
+import { BlockViewState, ForEachViewState } from "../../../view-state";
+import { DefaultConfig } from "../../../visitors/default";
+import { FormGenerator } from "../../FormComponents/FormGenerator";
+import { ForeachConfig } from "../../FormComponents/Types";
 import { Collapse } from "../Collapse";
 import { CONDITION_ASSIGNMENT_NAME_WIDTH, ContitionAssignment } from "../ContitionAssignment";
 import { ControlFlowIterationCount, ControlFlowIterationCountProp, CONTROL_FLOW_ITERATION_COUNT_PADDING } from "../ControlFlowIterationCount"
@@ -28,7 +30,6 @@ import { ControlFlowLine } from "../ControlFlowLine";
 import { DeleteBtn } from "../DiagramActions/DeleteBtn";
 import {
     DELETE_SVG_HEIGHT_WITH_SHADOW,
-    DELETE_SVG_OFFSET,
     DELETE_SVG_WIDTH_WITH_SHADOW
 } from "../DiagramActions/DeleteBtn/DeleteSVG";
 import { EditBtn } from "../DiagramActions/EditBtn";
@@ -37,10 +38,7 @@ import {
     EDIT_SVG_OFFSET,
     EDIT_SVG_WIDTH_WITH_SHADOW
 } from "../DiagramActions/EditBtn/EditSVG";
-import { FormGenerator } from "../FormGenerator";
 import { PlusButton } from "../Plus";
-import { ForeachConfig } from "../Portals/ConfigForm/types";
-import { VARIABLE_NAME_WIDTH } from "../VariableName";
 
 import { ColapseButtonSVG, COLLAPSE_SVG_WIDTH } from "./ColapseButtonSVG";
 import { ExpandButtonSVG } from "./ExpandButtonSVG";

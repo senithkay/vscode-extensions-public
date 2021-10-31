@@ -29,9 +29,9 @@ import {
     TRIGGER_TYPE_API
 } from "../../../models";
 import { DefaultConfig } from "../../../visitors/default";
-import { PlusButton } from "../Plus";
+import { TriggerDropDown } from "../../LowCodeDiagram/DialogBoxes";
 import { DiagramOverlayPosition } from "../../Portals/Overlay";
-import { TriggerDropDown } from "../../FormComponents/DialogBoxes";
+import { PlusButton } from "../Plus";
 
 import {
     StartSVG,

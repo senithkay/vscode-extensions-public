@@ -22,7 +22,6 @@ import CloseIcon from "@material-ui/icons/Close";
 import { isValidCron } from "cron-validator";
 import { addMinutes, format } from "date-fns";
 
-import { DiagramOverlay, DiagramOverlayPosition } from '../../../../Portals/Overlay';
 import { TooltipIcon } from "../../../../../../components/Tooltip";
 import { Context } from "../../../../../../Contexts/Diagram";
 import {
@@ -35,9 +34,10 @@ import {
   TRIGGER_TYPE_WEBHOOK,
 } from "../../../../../models";
 import { createPropertyStatement } from "../../../../../utils/modification-util";
-import { PrimaryButton } from "../../../FormFieldComponents/Button/PrimaryButton";
-import { SelectDropdownWithButton } from "../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
-import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
+import { PrimaryButton } from "../../../../FormComponents/FormFieldComponents/Button/PrimaryButton";
+import { SelectDropdownWithButton } from "../../../../FormComponents/FormFieldComponents/DropDown/SelectDropdownWithButton";
+import { FormTextInput } from "../../../../FormComponents/FormFieldComponents/TextField/FormTextInput";
+import { DiagramOverlay, DiagramOverlayPosition } from '../../../../Portals/Overlay';
 import { SourceUpdateConfirmDialog } from "../../SourceUpdateConfirmDialog";
 import { useStyles } from "../styles";
 
