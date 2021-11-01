@@ -13,10 +13,11 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useRef, useState } from "react";
 
-import { FunctionDefinition, NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { FunctionDefinition, NodePosition, STKindChecker } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 
 import { AddIcon, FunctionIcon } from "../../../../../../assets/icons";
+import { PrimaryButton } from "../../../../../../components/Buttons/PrimaryButton";
 import { Section } from "../../../../../../components/ConfigPanel";
 import { useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { STModification } from "../../../../../../Definitions";
@@ -24,16 +25,15 @@ import {
     createFunctionSignature,
     updateFunctionSignature,
 } from "../../../../../utils/modification-util";
-import { QueryParamItem as FunctionParamItem } from "../../../Overlay/Elements/DropDown/ApiConfigureWizard/components/queryParamEditor/queryParamItem";
-import { QueryParamSegmentEditor as FunctionParamSegmentEditor } from "../../../Overlay/Elements/DropDown/ApiConfigureWizard/components/queryParamEditor/segmentEditor";
-import { ReturnTypeItem } from "../../../Overlay/Elements/DropDown/ApiConfigureWizard/components/ReturnTypeEditor/ReturnTypeItem";
-import { ReturnTypeSegmentEditor } from "../../../Overlay/Elements/DropDown/ApiConfigureWizard/components/ReturnTypeEditor/SegmentEditor";
+import { QueryParamItem as FunctionParamItem } from "../../../../ConfigForms/ResourceConfigForm/ApiConfigureWizard/components/queryParamEditor/queryParamItem";
+import { QueryParamSegmentEditor as FunctionParamSegmentEditor } from "../../../../ConfigForms/ResourceConfigForm/ApiConfigureWizard/components/queryParamEditor/segmentEditor";
+import { ReturnTypeItem } from "../../../../ConfigForms/ResourceConfigForm/ApiConfigureWizard/components/ReturnTypeEditor/ReturnTypeItem";
+import { ReturnTypeSegmentEditor } from "../../../../ConfigForms/ResourceConfigForm/ApiConfigureWizard/components/ReturnTypeEditor/SegmentEditor";
 import {
     QueryParam,
     ReturnType,
 } from "../../../Overlay/Elements/DropDown/ApiConfigureWizard/types";
-import { functionParamTypes } from "../../../Overlay/Elements/DropDown/ApiConfigureWizard/util";
-import { PrimaryButton } from "../../Elements/Button/PrimaryButton";
+import { functionParamTypes, functionReturnTypes } from "../../../Overlay/Elements/DropDown/ApiConfigureWizard/util";
 import { SecondaryButton } from "../../Elements/Button/SecondaryButton";
 import { VariableNameInput, VariableNameInputProps } from "../Components/VariableNameInput";
 import { useStyles as useFormStyles } from "../style";
@@ -54,6 +54,7 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
     const [addingNewParam, setAddingNewParam] = useState(false);
     const [addingNewReturnType, setAddingNewReturnType] = useState(false);
     const [isFunctionNameValid, setIsFunctionNameValid] = useState(false);
+
     const {
         props: { syntaxTree },
         api: {
@@ -82,18 +83,28 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
         if (model && STKindChecker.isFunctionDefinition(model)) {
             // Perform update if model exists
             modifications.push(
-                updateFunctionSignature(functionName, parametersStr, returnTypeStr, {
-                    ...model?.functionSignature?.position,
-                    startColumn: model?.functionName?.position?.startColumn,
-                })
+                updateFunctionSignature(
+                    functionName,
+                    parametersStr,
+                    returnTypeStr,
+                    {
+                        ...model?.functionSignature?.position,
+                        startColumn: model?.functionName?.position?.startColumn,
+                    }
+                )
             );
         } else {
             // Create new function if model does not exist
             modifications.push(
-                createFunctionSignature(functionName, parametersStr, returnTypeStr, {
-                    startLine: targetPosition.startLine,
-                    startColumn: 0,
-                })
+                createFunctionSignature(
+                    functionName,
+                    parametersStr,
+                    returnTypeStr,
+                    {
+                        startLine: targetPosition.startLine,
+                        startColumn: 0,
+                    }
+                )
             );
         }
         modifyDiagram(modifications);
@@ -183,6 +194,14 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
         }
     }
 
+    const validateParams = (value: string) => {
+        const isParamExist = parameters.some((item) => item.name === value);
+        return {
+            error: isParamExist,
+            message: isParamExist ? `${value} already exists` : "",
+        };
+    };
+
     return (
         <FormControl
             data-testid="log-form"
@@ -216,7 +235,8 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
                             onCancel={closeNewParamView}
                             types={functionParamTypes}
                             onSave={onSaveNewParam}
-                            params={parameters}
+                            validateParams={validateParams}
+                        // params={parameters}
                         />
                     ) : (
                         <span
@@ -245,6 +265,7 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
                             showDefaultError={false}
                             onCancel={closeNewReturnTypeView}
                             onSave={onSaveNewReturnType}
+                            returnTypesValues={functionReturnTypes}
                         />
                     ) : (
                         <span
@@ -259,9 +280,13 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
             </div>
 
             <div className={formClasses.wizardBtnHolder}>
-                <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
+                <SecondaryButton
+                    text="Cancel"
+                    fullWidth={false}
+                    onClick={onCancel}
+                />
                 <PrimaryButton
-                    text="Save"
+                    text={"Save"}
                     disabled={disableSaveBtn}
                     fullWidth={false}
                     onClick={handleOnSave}
