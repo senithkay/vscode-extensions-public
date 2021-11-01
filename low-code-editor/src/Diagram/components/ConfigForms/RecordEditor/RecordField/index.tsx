@@ -170,7 +170,7 @@ export function RecordField(props: CodePanelProps) {
     const recordEn = `${recordModel.isClosed ? "|}" : "}"}${recordModel.isArray ? "[]" :
         ""}${recordModel.isOptional ? "?" : ""}`;
     const typeDescName = `${recordModel.isTypeDefinition ? "" : `${recordModel.name}`}`;
-    const typeDefName = `${recordModel.isTypeDefinition ? `${recordModel.name}` : ""}`;
+    const typeDefName = `${recordModel.isTypeDefinition ? `${recordModel.name ? recordModel.name : ""}` : ""}`;
 
     useEffect(() => {
         // Checks whether add from is completed and reset field addition

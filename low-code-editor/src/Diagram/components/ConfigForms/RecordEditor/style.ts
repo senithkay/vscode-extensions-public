@@ -207,7 +207,7 @@ export const recordStyles = makeStyles((theme: Theme) =>
         },
         typeDefNameWrapper: {
             maxWidth: 130,
-            margin: "0 5px",
+            marginLeft: 5,
             fontFamily: "inherit",
             color: '#6fb36d',
             whiteSpace: "nowrap",
@@ -216,6 +216,7 @@ export const recordStyles = makeStyles((theme: Theme) =>
         },
         recordKeywordWrapper: {
             width: 40,
+            marginLeft: 5,
             fontFamily: "inherit",
             color: '#0095FF'
         },
