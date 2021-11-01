@@ -89,8 +89,8 @@ export function AddReturnForm(props: ReturnFormProps) {
 
     const {stmtEditorButton , stmtEditorComponent} = useStatementEdior(
         {
-            kind: "DefaultString",
-            label: "Variable Statement",
+            kind: "DefaultReturn",
+            label: "Return Statement",
             formArgs: {formArgs},
             isMutationInProgress,
             validForm: isValidValue,
