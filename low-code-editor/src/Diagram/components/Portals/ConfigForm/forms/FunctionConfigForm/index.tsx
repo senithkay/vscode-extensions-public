@@ -190,7 +190,7 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
         isEdit: !!model,
         overrideTemplate: {
             defaultCodeSnippet: 'function () {}',
-            targetColumn: 8
+            targetColumn: 10
         }
     }
 
