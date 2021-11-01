@@ -167,7 +167,10 @@ export function ActionProcessor(props: ProcessorProps) {
     // let exsitingWizard: ReactNode = null;
     const toggleSelection = () => {
         const connectorInit: LocalVarDecl = model as LocalVarDecl;
-        setConnector(getMatchingConnector(connectorInit, connectors, stSymbolInfo));
+        const matchedConnector = getMatchingConnector(connectorInit, stSymbolInfo);
+        if (matchedConnector) {
+            setConnector(matchedConnector);
+        }
         setIsConnectorEdit(!isEditConnector);
     };
 
