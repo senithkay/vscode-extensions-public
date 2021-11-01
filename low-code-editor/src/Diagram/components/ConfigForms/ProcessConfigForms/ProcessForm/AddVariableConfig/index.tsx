@@ -320,7 +320,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                             <div className="exp-wrapper">
                                 <ExpressionEditor
                                     key={selectedType}
-                                    model={{ name: "Expression", value: variableExpression, type: (modelType ? modelType : "other") }}
+                                    model={{ name: "Expression", value: variableExpression, typeName: (modelType ? modelType : "other") }}
                                     customProps={{
                                         validate: validateExpression,
                                         expandDefault: (selectedType === "other"),
@@ -330,7 +330,11 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                                         interactive: true,
                                         focus: editorFocus,
                                         statementType: (modelType ? modelType : "other") as PrimitiveBalType,
-                                        revertFocus: revertEditorFocus
+                                        revertFocus: revertEditorFocus,
+                                        expressionInjectables: {
+                                            list: formArgs?.expressionInjectables?.list,
+                                            setInjectables: formArgs?.expressionInjectables?.setInjectables
+                                        }
                                     }}
                                     onChange={onPropertyChange}
                                     defaultValue={variableExpression}
