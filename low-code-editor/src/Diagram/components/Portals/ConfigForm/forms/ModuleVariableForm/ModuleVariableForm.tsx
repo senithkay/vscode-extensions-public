@@ -20,6 +20,7 @@ import { VariableIcon } from '../../../../../../assets/icons';
 import { useDiagramContext } from '../../../../../../Contexts/Diagram';
 import { STModification } from '../../../../../../Definitions';
 import { createModuleVarDecl, updateModuleVarDecl } from '../../../../../utils/modification-util';
+import { getVariableNameFromST } from '../../../../../utils/st-util';
 import { PrimaryButton } from '../../Elements/Button/PrimaryButton';
 import { SecondaryButton } from '../../Elements/Button/SecondaryButton';
 import CheckBoxGroup from '../../Elements/CheckBox';
@@ -132,8 +133,7 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
     let namePosition: NodePosition = { startLine: 0, startColumn: 0, endLine: 0, endColumn: 0 }
 
     if (model) {
-        namePosition = (model.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.position;
-
+        namePosition = getVariableNameFromST(model).position;
     } else {
         namePosition.startLine = targetPosition.startLine;
         namePosition.endLine = targetPosition.startLine;

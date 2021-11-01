@@ -22,6 +22,7 @@ import { PrimitiveBalType, WizardType } from "../../../../../../ConfigurationSpe
 import { Context } from "../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { getAllVariables } from "../../../../../utils/mixins";
+import { getVariableNameFromST } from "../../../../../utils/st-util";
 import { SelectDropdownWithButton } from "../../../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
@@ -33,7 +34,6 @@ import {
 } from "../../../../Portals/ConfigForm/forms/Components/VariableNameInput";
 import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { ProcessConfig } from "../../../../Portals/ConfigForm/types";
-import { checkVariableName, genVariableName } from "../../../../Portals/utils";
 import { wizardStyles } from "../../../style";
 
 interface AddVariableConfigProps {
@@ -85,7 +85,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             initialModelType = "other";
             modelType = typeDescriptor.source.trim();
         }
-        variableName = localVarDec.typedBindingPattern.bindingPattern.source.trim();
+        variableName = getVariableNameFromST(config.model).value;
         varExpression = localVarDec.initializer.source;
     } else {
         variableName = '';
@@ -243,8 +243,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         onValueChange: setVarName,
         validateExpression,
         position: config.model ?
-            ((config.model as LocalVarDecl).typedBindingPattern
-                .bindingPattern as CaptureBindingPattern).variableName.position
+            getVariableNameFromST(config.model as LocalVarDecl).position
             : formArgs.targetPosition,
         isEdit: !!config.model,
     }
