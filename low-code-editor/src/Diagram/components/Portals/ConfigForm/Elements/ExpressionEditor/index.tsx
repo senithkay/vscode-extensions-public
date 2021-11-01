@@ -17,6 +17,7 @@ import MonacoEditor, { EditorDidMount } from "react-monaco-editor";
 
 import { ConfigurableKeyword, NodePosition, STKindChecker, TypedBindingPattern } from "@ballerina/syntax-tree";
 import { FormHelperText, LinearProgress } from "@material-ui/core";
+import classNames from "classnames";
 import debounce from "lodash.debounce";
 import * as monaco from 'monaco-editor'
 import { CompletionItemKind, InsertTextFormat, Range } from "monaco-languageclient";
@@ -64,7 +65,6 @@ import {
     transformFormFieldTypeToString,
     truncateDiagnosticMsg,
 } from "./utils";
-import classNames from "classnames";
 
 const MONACO_OPTIONS: monaco.editor.IEditorConstructionOptions = {
     scrollbar: {
@@ -924,7 +924,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         <>
             <ExpressionEditorLabel {...props} />
             <div
-                className={classNames("exp-container", { 'hide-suggestion': hideSuggestions })} 
+                className={classNames("exp-container", { 'hide-suggestion': hideSuggestions })}
                 style={{ height: expand ? (superExpand ? '200px' : '100px') : '34px' }}
             >
                 <div className="exp-absolute-wrapper">
