@@ -15,10 +15,8 @@ import React from "react";
 
 import { NodePosition } from "@ballerina/syntax-tree";
 
-import ExpressionEditor, { ExpressionEditorCustomTemplate } from "../../../Elements/ExpressionEditor";
-
-import './style.scss'
-
+import ExpressionEditor, { ExpressionEditorCustomTemplate, ExpressionEditorProps } from "../../../Elements/ExpressionEditor";
+import { FormElementProps } from "../../../types";
 export interface VariableNameInputProps {
     displayName: string;
     value: string;
@@ -48,7 +46,7 @@ export function VariableNameInput(props: VariableNameInputProps) {
         }
     }
 
-    const expressionEditorNameConfig = {
+    const expressionEditorNameConfig: FormElementProps<ExpressionEditorProps> = {
         model: {
             name: "variableName",
             displayName,
@@ -63,15 +61,14 @@ export function VariableNameInput(props: VariableNameInputProps) {
                 startColumn: position.startColumn,
                 endColumn: position.endColumn
             },
-            customTemplate
+            customTemplate,
+            hideSuggestions: true
         },
         onChange: onValueChange,
         defaultValue: value,
     };
 
     return (
-        <div className={'hide-suggestion'}>
-            <ExpressionEditor {...expressionEditorNameConfig} />
-        </div>
+        <ExpressionEditor {...expressionEditorNameConfig} />
     )
 }
