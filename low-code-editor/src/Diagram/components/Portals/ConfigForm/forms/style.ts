@@ -603,7 +603,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             width: '50%'
         },
         fitContent: {
-            width: 'fit-content !important'
+            width: 'fit-content'
         }
     }),
 );
