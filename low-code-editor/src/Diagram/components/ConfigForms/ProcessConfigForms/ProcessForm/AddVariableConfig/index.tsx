@@ -42,6 +42,9 @@ interface AddVariableConfigProps {
 const defaultJsonVal = `{“key”: “Click the Tooltip for examples”}`;
 const defaultXmlVal = `xml \`<obj>Click the Tooltip for examples</obj>\``;
 const defaultValues = [defaultJsonVal, defaultXmlVal];
+// todo: Support other data types
+export const variableTypes: string[] = ["var", "int", "float", "decimal", "boolean", "string", "json",
+    "xml", "error", "any", "anydata", "other"];
 
 export function AddVariableConfig(props: AddVariableConfigProps) {
     const classes = useStyles();
@@ -243,9 +246,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     modelType = (selectedType === "other") ? otherType : selectedType;
 
     const validForm: boolean = (isValidVarName && validExpresssionValue);
-
-    // todo: Support other data types
-    const variableTypes: string[] = ["var", "int", "float", "decimal", "boolean", "string", "json", "xml", "error", "any", "anydata", "other"];
 
     const userInputs = {
             selectedType,

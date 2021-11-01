@@ -45,6 +45,7 @@ export interface RecordEditorProps {
         onUpdateCurrentField?: (field: SimpleField) => void;
         onChangeFormState?: (formState: FormState) => void;
         updateEditorValidity?: (isInvalid: boolean) => void;
+        updateCurrentField?: (field: SimpleField) => void;
     };
 }
 
@@ -74,6 +75,17 @@ const reducer = (state: RecordEditorState, action: any) => {
             return {
                 ...state,
                 isEditorInvalid: action.payload
+            }
+        case 'UPDATE_FIELD':
+            state.currentField.name = action.payload.name;
+            state.currentField.isArray = action.payload.isArray;
+            state.currentField.isFieldOptional = action.payload.isFieldOptional;
+            state.currentField.isFieldTypeOptional = action.payload.isFieldTypeOptional;
+            state.currentField.isActive = action.payload.isActive;
+            state.currentField.value = action.payload.value;
+            state.currentField.type = action.payload.type;
+            return {
+                ...state
             }
     }
 };
@@ -121,12 +133,17 @@ export const Provider: React.FC<RecordEditorProps> = (props) => {
         dispatch({ type: 'UPDATE_RECORD_VALIDITY', payload: isInvalid });
     }
 
+    const updateField = (field: SimpleField) => {
+        dispatch({ type: 'UPDATE_FIELD', payload: field });
+    }
+
     const callBacks = {
         onUpdateModel: updateModel,
         onUpdateCurrentRecord: updateCurrentRecord,
         onUpdateCurrentField: updateCurrentField,
         onChangeFormState: updateFormState,
-        updateEditorValidity: updateRecordEditorValidity
+        updateEditorValidity: updateRecordEditorValidity,
+        updateCurrentField: updateField
     };
 
     return (

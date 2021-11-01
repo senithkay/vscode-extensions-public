@@ -28,6 +28,7 @@ import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/Fo
 import { useStyles } from "../../../Portals/ConfigForm/forms/style";
 import { FormElementProps } from "../../../Portals/ConfigForm/types";
 import { keywords } from "../../../Portals/utils/constants";
+import { variableTypes } from "../../ProcessConfigForms/ProcessForm/AddVariableConfig";
 import { recordStyles } from "../style";
 import { RecordModel, SimpleField } from "../types";
 
@@ -78,40 +79,28 @@ export function EditFieldForm() {
     });
 
     const isFieldUpdate = state.currentForm === FormState.UPDATE_FIELD;
-    let type = "int";
-    let fieldName = "";
-    const varNameError = "";
-    let defaultValValidity = true;
-    let fieldOptianality = false;
-    let typeOptianality = false;
-    let isArrayDefaultVal = false;
-    let defaultVal = "";
-    if (isFieldUpdate) {
-        type = state.currentField.type;
-        fieldName = state.currentField.name;
-        defaultValValidity = true;
-        fieldOptianality = state.currentField.isFieldOptional;
-        typeOptianality = state.currentField.isFieldTypeOptional;
-        defaultVal = state.currentField.value;
-        isArrayDefaultVal = state.currentField.isArray;
-    }
+    const type = isFieldUpdate ? state.currentField.type : "int";
+    const fieldName = isFieldUpdate ? state.currentField.name : "";
+    const fieldOptianality = isFieldUpdate ? state.currentField.isFieldOptional : false;
+    const typeOptianality = isFieldUpdate ? state.currentField.isFieldTypeOptional : false;
+    const isArrayDefaultVal = isFieldUpdate ? state.currentField.isArray : false;
+    const defaultVal = isFieldUpdate ? state.currentField.value : "";
+
     const [selectedType, setSelectedType] = useState(type);
     const [name, setName] = useState(fieldName);
-    const [nameError, setNameError] = useState(varNameError);
+    const [nameError, setNameError] = useState("");
     const [isFieldOptional, setIsFieldOptional] = useState(fieldOptianality);
     const [isTypeOptional, setIsTypeOptional] = useState(typeOptianality);
     const [isArray, setIsArray] = useState(isArrayDefaultVal);
     const [defaultValue, setDefaultValue] = useState(defaultVal);
-    const [validDefaultValue, setValidDefaultValue] = useState(defaultValValidity);
+    const [validDefaultValue, setValidDefaultValue] = useState(true);
     const [clearExpEditor, setClearExpEditor] = useState(false);
 
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 
-    const basicTypes: string[] = ["int", "float", "decimal", "boolean", "string", "json", "xml", "error", "any",
-        "anydata", "record"];
-    const variableTypes: string[] = basicTypes.slice();
+    const allVariableTypes: string[] = variableTypes.slice();
     stSymbolInfo.recordTypeDescriptions.forEach((value: RecordTypeDesc) => {
-        variableTypes.push(value?.typeData?.typeSymbol?.name);
+        allVariableTypes.push(value?.typeData?.typeSymbol?.name);
     })
 
     const handleTypeSelect = (typeSelected: string) => {
@@ -217,13 +206,17 @@ export function EditFieldForm() {
                 };
                 callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
             } else {
-                state.currentField.name = name;
-                state.currentField.isFieldOptional = isFieldOptional;
-                state.currentField.isFieldTypeOptional = isTypeOptional
-                state.currentField.type = selectedType;
-                state.currentField.isActive = true;
-                state.currentField.value = defaultValue;
-                state.currentField.isArray = isArray;
+                // Updating a simple field
+                const curField: SimpleField = {
+                    name,
+                    isFieldOptional,
+                    isFieldTypeOptional: isTypeOptional,
+                    type: selectedType,
+                    value: defaultValue,
+                    isArray,
+                    isActive: true
+                };
+                callBacks.updateCurrentField(curField);
                 callBacks.onChangeFormState(FormState.UPDATE_FIELD);
             }
         }
@@ -322,7 +315,7 @@ export function EditFieldForm() {
                 defaultValue={selectedType}
                 customProps={
                     {
-                        values: variableTypes,
+                        values: allVariableTypes,
                         disableCreateNew: true
                     }
                 }
@@ -342,7 +335,7 @@ export function EditFieldForm() {
                 defaultValues={isArray ? ["Is Array ?"] : []}
                 onChange={handleArrayChange}
             />
-            {!isFieldOptional && (selectedType !== "record") && (basicTypes.includes(selectedType)) && (
+            {!isFieldOptional && (selectedType !== "record") && (variableTypes.includes(selectedType)) && (
                 <div>
                     <div className={classes.sectionSeparator} />
                     <ExpressionEditor {...defaultValueProps} />
