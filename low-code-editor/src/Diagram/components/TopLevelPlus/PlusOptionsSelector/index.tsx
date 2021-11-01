@@ -10,13 +10,11 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js jsx-wrap-multiline object-literal-shorthand align
+// tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
 import { NodePosition } from "@ballerina/syntax-tree";
 
-import { useDiagramContext } from "../../../../Contexts/Diagram";
-import { STModification } from "../../../../Definitions";
 import { FormGenerator } from "../../FormGenerator";
 import { Margin } from "../index";
 import { PlusOptionRenderer } from "../PlusOptionRenderer";
@@ -31,17 +29,25 @@ export interface PlusOptionsProps {
 export interface PlusMenuEntry {
     name: string,
     type: string,
+    subMenu?: PlusMenuEntry[]
 }
 
 const moduleLevelEntries: PlusMenuEntry[] = [
     { name: 'Service', type: 'ServiceDeclaration' },
-    { name: 'Variable', type: 'ModuleVarDecl' },
+    {
+        name: 'Variable',
+        type: 'VariableIcon',
+        subMenu: [
+            { name: 'Constant', type: 'ConstDeclaration' },
+            { name: 'Module Variable', type: 'ModuleVarDecl' },
+            { name: 'Configurable', type: 'Configurable' }
+        ]
+    },
     { name: 'Listener', type: 'ListenerDeclaration' },
     { name: 'Type Definition', type: 'TypeDefinition' },
     { name: 'Class', type: 'ClassDefinition' },
-    { name: 'Constant', type: 'ConstDeclaration' },
     { name: 'Function', type: 'FunctionDefinition' },
-    { name: 'Other', type: 'Custom'}
+    { name: 'Other', type: 'Custom' }
 ];
 
 const classMemberEntries: PlusMenuEntry[] = [
@@ -81,26 +87,22 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
 
     return (
         <>
-            {
-                !selectedOption && (
-                    <PlusOptionRenderer
-                        entries={menuEntries}
-                        onClose={handleOnClose}
-                        onOptionSelect={onOptionSelect}
-                        targetPosition={targetPosition}
-                    />
-                )
-            }
-            {
-                selectedOption && (
-                    <FormGenerator
-                        targetPosition={targetPosition}
-                        configOverlayFormStatus={{ formType: selectedOption.type, isLoading: false }}
-                        onCancel={handleOnClose}
-                        onSave={handleOnSave}
-                    />
-                )
-            }
+            {!selectedOption && (
+                <PlusOptionRenderer
+                    entries={menuEntries}
+                    onClose={handleOnClose}
+                    onOptionSelect={onOptionSelect}
+                    targetPosition={targetPosition}
+                />
+            )}
+            {selectedOption && (
+                <FormGenerator
+                    targetPosition={targetPosition}
+                    configOverlayFormStatus={{ formType: selectedOption.type, isLoading: false }}
+                    onCancel={handleOnClose}
+                    onSave={handleOnSave}
+                />
+            )}
         </>
     );
 };

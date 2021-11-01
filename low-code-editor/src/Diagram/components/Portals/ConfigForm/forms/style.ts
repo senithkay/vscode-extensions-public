@@ -252,7 +252,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         mainTitleWrapper: {
             display: 'inline-flex',
             alignItems: 'center',
-            width: '20%'
+            width: '100%',
         },
         iconWrapper: {
             marginRight: '1rem'
@@ -389,7 +389,8 @@ export const useStyles = makeStyles((theme: Theme) =>
             zIndex: 100,
             position: 'absolute',
             top: theme.spacing(-9),
-            height: theme.spacing(6)
+            height: theme.spacing(6),
+            display: 'inline-flex'
         },
         formWrapper: {
             width: '100%',
@@ -437,8 +438,15 @@ export const useStyles = makeStyles((theme: Theme) =>
                 textTransform: 'capitalize',
             }
         },
-        suggestionsTextInfo: {
+        suggestionsTextError: {
             color: '#ea4c4d !important',
+            "&:hover": {
+                cursor: 'pointer',
+                textDecoration: 'underline'
+            }
+        },
+        suggestionsTextInfo: {
+            color: '#526acf !important',
             "&:hover": {
                 cursor: 'pointer',
                 textDecoration: 'underline'
@@ -495,7 +503,8 @@ export const useStyles = makeStyles((theme: Theme) =>
             alignItems: "center",
             "& .MuiSvgIcon-root": {
                 height: '18px !important',
-            }
+            },
+            marginTop: 6,
         },
         sectionSeparator: {
             borderBottom: "1px solid #D8D8D8",
@@ -545,6 +554,52 @@ export const useStyles = makeStyles((theme: Theme) =>
             height: 'fit-content',
             paddingTop: theme.spacing(3.625),
             width: '5%'
+        },
+        blockWrapper: {
+            display: 'inline-flex',
+            width: '100%'
+        },
+        dropdownWrapper: {
+            minWidth: `92px !important`,
+            paddingRight: theme.spacing(1)
+        },
+        codeText: {
+            paddingTop: theme.spacing(5),
+            paddingRight: theme.spacing(1)
+        },
+        editorWrapper: {
+            minWidth: `110px !important`,
+            paddingRight: theme.spacing(1),
+            '& .MuiInputBase-root': {
+                marginBottom: theme.spacing(0.625)
+            }
+        },
+        scrollableArea: {
+            overflow: 'scroll',
+            '&::-webkit-scrollbar': {
+                width: '3px'
+            },
+            '&::-webkit-scrollbar-thumb': {
+                background: '#e6e7ec',
+                borderRadius: '2px'
+            },
+            '&::-webkit-scrollbar-track':  {
+                backgroundColor: 'transparent'
+            },
+            '&::-webkit-scrollbar-corner': {
+                backgroundColor: 'transparent'
+            }
+        },
+        nameInput: {
+            height: theme.spacing(5)
+        },
+        expEditorWrapper: {
+            minWidth: `120px !important`,
+            paddingRight: theme.spacing(1),
+            paddingTop: theme.spacing(1.25)
+        },
+        typeContainer: {
+            width: '50%'
         }
     }),
 );

@@ -10,58 +10,76 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-.moduleVariableContainer {
+.module-variable-container {
+    display: flex;
+    flex-direction: row;
+    box-sizing: border-box;
+    height: auto;
+    width: 275px;
     border: 1px solid #e6e7ec;
     border-radius: 6px;
     background-color: #fff;
-    width: 275px;
-}
+    font-family: "Gilmer", sans-serif;
+    font-weight: 300;
 
-.moduleVariableWrapper {
-    display: flex;
-    flex-direction: row;
-}
+    .module-variable-header {
+        display: flex;
+        flex-direction: row;
+        height: 49px;
+        width: 100%;
 
-.moduleVariableIcon {
-    height: 18px;
-    width: 18px;
-    margin: 15.5px 12px 15.5px 16.5px;
-}
+        .module-variable-wrapper {
+            display: flex;
+            flex-direction: row;
+            font-size: 13px;
+            align-content: center;
+            align-items: center;
+            width: 75%;
+            padding-left: 16px;
 
-.variable-text {
-    margin: 15px 15px 0 0;
-    font-family: inherit;
-    color: #8d91a3;
-}
+            .module-variable-icon {
+                height: 16px;
+                width: 10%;
+            }
 
-.moduleVariableTypeText {
-    height: 24px;
-    margin: 10.5px 0 14.5px 0;
-    font-family: inherit;
-    font-size: 13px;
-    letter-spacing: 0;
-    color: #222228;
-    line-height: 24px;
-}
+            .module-variable-type-text {
+                color: #222228;
+                padding-left: 10px;
+            }
 
-.moduleVariableNameText {
-    height: 24px;
-    width: 104px;
-    margin: 10.5px 0 14.5px 0;
-    font-family: inherit;
-    font-size: 13px;
-    letter-spacing: 0;
-    color: #8d91a3;
-    line-height: 24px;
-}
+            .module-variable-name-text {
+                padding-left: 10px;
+                color: #8d91a3;
+            }
+        }
 
-.editBtnWrapper {
-    cursor: pointer;
-    margin-top: 15px;
-}
+        .module-variable-actions {
+            display: flex;
+            width: 25%;
+            align-items: center;
+            display: flex;
+            flex-direction: row;
 
-.deleteBtnWrapper {
-    cursor: pointer;
-    margin-top: 15px;
-    margin-left: 20px;
+            .edit-btn-wrapper,
+            .delete-btn-wrapper {
+                width: 25px;
+                text-align: center;
+                padding-right: 5px;
+
+                &:hover {
+                    cursor: pointer;
+                }
+            }
+        }
+    }
+
+    .show-on-hover {
+        display: none;
+    }
+
+    &:hover {
+        .show-on-hover {
+            display: block;
+        }
+    }
 }

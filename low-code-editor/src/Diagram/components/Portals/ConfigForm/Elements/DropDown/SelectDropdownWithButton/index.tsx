@@ -84,6 +84,8 @@ export function SelectDropdownWithButton(props: FormElementProps<SelectDropdownP
         e.stopPropagation();
     }
 
+    const EmptyChevronIcon = () => <span/>;
+
     return (
         <>
             {label ?
@@ -152,6 +154,7 @@ export function SelectDropdownWithButton(props: FormElementProps<SelectDropdownP
                         horizontal: "left",
                     }
                 }}
+                IconComponent={disabled ? EmptyChevronIcon : undefined}
             >
                 {
                     values?.length > 0 ? (

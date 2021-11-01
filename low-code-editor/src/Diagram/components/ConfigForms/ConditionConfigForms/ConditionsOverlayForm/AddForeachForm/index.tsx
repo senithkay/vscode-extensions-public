@@ -17,12 +17,9 @@ import React, { useContext, useState } from "react";
 import { BinaryExpression, ForeachStatement } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 
-import { CloseRounded, ForEachIcon, EditIcon } from "../../../../../../assets/icons";
-
 import { FormField } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
 import { getAllVariables } from "../../../../../utils/mixins";
-import { ButtonWithIcon } from "../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { FormTextInput } from "../../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
 import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
@@ -32,8 +29,7 @@ import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
-import { ViewContainer } from "../../../../Portals/ConfigForm/Elements/StatementEditor/components/ViewContainer/ViewContainer";
-import { StatementEditorButton } from "../../../../Portals/ConfigForm/Elements/Button/StatementEditorButton";
+import { useStatementEdior } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
 
 interface Iterations {
     start?: string;
@@ -110,7 +106,25 @@ export function AddForeachForm(props: ForeachProps) {
     };
 
     const [isInvalid, setIsInvalid] = useState(!!conditionExpression.collection);
-    const [isStmtEditor, setIsStmtEditor] = useState(false);
+
+    // todo: Support other data types
+    const variableTypes: string[] = ["var", "int", "float", "decimal", "boolean", "string", "json", "xml"];
+
+    const [selectedType, setSelectedType] = useState(conditionExpression.type ? conditionExpression.type : "var");
+    const [isDropDownOpen, setDropDownOpen] = useState(false);
+
+    const handleOnOpen = () => {
+        setDropDownOpen(true);
+    };
+
+    const handleOnClose = () => {
+        setDropDownOpen(false);
+    };
+
+    const handleTypeChange = (type: string) => {
+        setSelectedType(type);
+        conditionExpression.type = type;
+    };
 
     const handleExpEditorChange = (value: string) => {
         conditionExpression.collection = value;
@@ -118,6 +132,7 @@ export function AddForeachForm(props: ForeachProps) {
 
     const handleSave = () => {
         condition.conditionExpression = conditionExpression;
+        conditionExpression.type = selectedType;
         onSave();
     }
 
@@ -126,18 +141,11 @@ export function AddForeachForm(props: ForeachProps) {
         setIsInvalid(!isValidExpression)
     }
 
-    const handleStmtEditorButtonClick = () => {
-        setIsStmtEditor(true);
-    };
-
-    const handleStmtEditorCancel = () => {
-        setIsStmtEditor(false);
-    };
-
     const formField: FormField = {
         name: "iterable expression",
         displayName: "Iterable Expression",
-        typeName: "var"
+        typeName: selectedType + "[]",
+        selectedDataType: selectedType
     };
 
     const forEachTooltipMessages = {
@@ -192,7 +200,7 @@ export function AddForeachForm(props: ForeachProps) {
             interactive: true,
             statementType: formField.typeName,
             customTemplate: {
-                defaultCodeSnippet: 'foreach var temp_var in  {}',
+                defaultCodeSnippet: `foreach ${selectedType} temp_var in  {}`,
                 targetColumn: 25,
             },
         },
@@ -200,85 +208,67 @@ export function AddForeachForm(props: ForeachProps) {
         defaultValue: conditionExpression.collection,
     };
 
+    const {stmtEditorButton , stmtEditorComponent} = useStatementEdior(
+        {
+            kind: "DefaultString",
+            label: "Variable Statement",
+            formArgs: {formArgs},
+            isMutationInProgress,
+            validForm: !isInvalid,
+            onSave: handleSave,
+            onChange: handleExpEditorChange,
+            validate: validateField
+        },
+        true);
 
-    let exprEditor =
-        (
-            <FormControl data-testid="foreach-form" className={classes.wizardFormControl}>
-                {!isCodeEditorActive ?
-                    (
-                        <div className={classes.formWrapper}>
-                            <div className={classes.formFeilds}>
-                                <div className={classes.formWrapper}>
-                                    <div className={classes.formTitleWrapper}>
-                                        <div className={classes.mainTitleWrapper}>
-                                            <Typography variant="h4">
-                                                <Box paddingTop={2} paddingBottom={2}>
-                                                    <FormattedMessage
-                                                        id="lowcode.develop.configForms.foreach.title"
-                                                        defaultMessage="Foreach"
-                                                    />
-                                                </Box>
-                                            </Typography>
-                                        </div>
-                                        <div className={classes.statementEditor}>
-                                            <StatementEditorButton onClick={handleStmtEditorButtonClick} disabled={true} />
-                                        </div>
+    if (!stmtEditorComponent) {
+        return (
+                <FormControl data-testid="foreach-form" className={classes.wizardFormControl}>
+                    <div className={classes.formWrapper}>
+                        <div className={classes.formFeilds}>
+                            <div className={classes.formWrapper}>
+                                <div className={classes.formTitleWrapper}>
+                                    <div className={classes.mainTitleWrapper}>
+                                        <Typography variant="h4">
+                                            {/* <Box paddingTop={2} paddingBottom={2}> */}
+                                                <FormattedMessage
+                                                    id="lowcode.develop.configForms.foreach.title"
+                                                    defaultMessage="Foreach"
+                                                />
+                                            {/* </Box> */}
+                                        </Typography>
                                     </div>
-                                    <FormTextInput
-                                        customProps={{
-                                            validate: validateNameValue,
-                                        }}
-                                        onChange={onVariableNameChange}
-                                        defaultValue={conditionExpression.variable}
-                                        label={currentValueVariableLabel}
-                                        placeholder={""}
-                                        errorMessage={invalidConnectionErrorMessage}
-                                    />
-                                    <div className="exp-wrapper">
-                                        <ExpressionEditor {...expElementProps} />
-                                    </div>
+                                    {stmtEditorButton}
+                                </div>
+                                <FormTextInput
+                                    customProps={{
+                                        validate: validateNameValue,
+                                    }}
+                                    onChange={onVariableNameChange}
+                                    defaultValue={conditionExpression.variable}
+                                    label={currentValueVariableLabel}
+                                    placeholder={""}
+                                    errorMessage={invalidConnectionErrorMessage}
+                                />
+                                <div className="exp-wrapper">
+                                    <ExpressionEditor {...expElementProps} />
                                 </div>
                             </div>
-                            <FormActionButtons
-                                cancelBtnText={cancelForEachButtonLabel}
-                                saveBtnText={saveForEachButtonLabel}
-                                isMutationInProgress={isMutationInProgress}
-                                validForm={!isInvalid}
-                                onSave={handleSave}
-                                onCancel={onCancel}
-                            />
                         </div>
-                    )
-                    :
-                    null
-                }
-            </FormControl>
-        );
-
-    if (isStmtEditor) {
-        exprEditor =
-            (
-                <FormControl data-testid="property-form">
-                    {!isCodeEditorActive ? (
-                        <div>
-                            // TODO: Send proper props according to the form type
-                            <ViewContainer
-                                kind="DefaultString"
-                                label={intl.formatMessage({
-                                    id: "lowcode.develop.configForms.forEach.statementEditor.label",
-                                    defaultMessage: "Foreach Statement"
-                                })}
-                                formArgs={formArgs}
-                                onCancel={handleStmtEditorCancel}
-                            />
-                        </div>
-                    ) : null}
+                        <FormActionButtons
+                            cancelBtnText={cancelForEachButtonLabel}
+                            saveBtnText={saveForEachButtonLabel}
+                            isMutationInProgress={isMutationInProgress}
+                            validForm={!isInvalid}
+                            onSave={handleSave}
+                            onCancel={onCancel}
+                        />
+                    </div>
                 </FormControl>
             );
     }
-
-    return (
-        exprEditor
-    );
+    else  {
+        return stmtEditorComponent;
+    }
 }
 

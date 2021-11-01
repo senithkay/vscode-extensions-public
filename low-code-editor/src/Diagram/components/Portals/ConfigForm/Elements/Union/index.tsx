@@ -42,8 +42,6 @@ export function Union(props: FormElementProps<UnionProps>) {
         }
     }, [ selectedType ]);
 
-
-
     const getTypes = () => {
         const types: string[] = [];
         model.members?.forEach((field: FormField, key: number) => {
@@ -92,7 +90,7 @@ export function Union(props: FormElementProps<UnionProps>) {
         }
     };
 
-    const selector = model && model.fields && model.fields.length > 1 && (
+    const selector = model && model.members && model.members.length > 1 && (
         <SelectDropdownWithButton
             onChange={handleTypeChange}
             customProps={ {

@@ -45,7 +45,11 @@ export function EditBtn(props: EditBtnProps) {
             if (model &&
                 (targetPos?.startLine !== model.position.startLine
                     || targetPos?.startColumn !== model.position.startColumn)) {
-                dispatchEditComponentStart(model.position)
+                dispatchEditComponentStart({
+                    ...model.position,
+                    endLine: 0,
+                    endColumn: 0,
+                })
             }
             onHandleEdit();
         }

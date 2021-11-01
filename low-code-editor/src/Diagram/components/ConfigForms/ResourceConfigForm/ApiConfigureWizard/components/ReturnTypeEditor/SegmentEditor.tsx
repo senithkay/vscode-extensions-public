@@ -29,10 +29,11 @@ interface ReturnTypeSegmentEditorProps {
     segment?: ReturnType,
     onSave?: (segment: ReturnType) => void;
     onCancel?: () => void;
+    returnTypesValues?: string[];
 }
 
 export function ReturnTypeSegmentEditor(props: ReturnTypeSegmentEditorProps) {
-    const { segment, showDefaultError, onSave, id, onCancel } = props;
+    const { segment, showDefaultError, onSave, id, onCancel, returnTypesValues = returnTypes } = props;
     const classes = useStyles();
 
     const initValue: ReturnType = segment ? { ...segment } : {
@@ -79,12 +80,12 @@ export function ReturnTypeSegmentEditor(props: ReturnTypeSegmentEditorProps) {
                         <SelectDropdownWithButton
                             dataTestId="api-return-type"
                             defaultValue={segmentState?.type === "error" ? "" : segmentState?.type}
-                            customProps={{values: returnTypes, disableCreateNew: true}}
+                            customProps={{values: returnTypesValues, disableCreateNew: true}}
                             onChange={onChangeSegmentType}
                         />
                     </Grid>
                     <Grid item={true} xs={6}>
-                        <CheckBoxGroup values={["Is Optional"]} defaultValues={[segmentState.isOptional ? "Is Optional" : ""]} onChange={onChangeSegmentOptional} />
+                        <CheckBoxGroup className={classes.checkBoxLabel} values={["Is Optional"]} defaultValues={[segmentState.isOptional ? "Is Optional" : ""]} onChange={onChangeSegmentOptional} />
                     </Grid>
                 </Grid>
                 <Grid container={true} item={true} spacing={2}>
@@ -99,7 +100,7 @@ export function ReturnTypeSegmentEditor(props: ReturnTypeSegmentEditorProps) {
                             <PrimaryButton
                                 dataTestId={"api-return-save-btn"}
                                 text={"Add"}
-                                disabled={false}
+                                disabled={!segmentState.type}
                                 fullWidth={false}
                                 onClick={handleOnSave}
                             />

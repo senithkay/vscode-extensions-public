@@ -30,10 +30,10 @@ export interface STModification {
 export interface Connector {
     id?: string;
     name: string;
-    orgName: string;
     displayName?: string;
     moduleName?: string;
     package: Package;
+    displayAnnotation?: any;
 }
 
 export interface Package {
@@ -43,6 +43,7 @@ export interface Package {
     platform?: string;
     languageSpecificationVersion?: string;
     URL?: string;
+    balaURL?: string;
     balaVersion?: string;
     digest?: string;
     summary?: string;
@@ -69,13 +70,12 @@ export interface BallerinaRecord {
 export interface BallerinaConnectorInfo extends Connector {
     functions: FunctionDefinitionInfo[];
     documentation?: string;
-    displayAnnotation?: any;
 }
 
 export interface BallerinaConnectorsRequest {
-    targetFile?: string;
-    query?: string;
-    packageName: string;
+    query: string;
+    packageName?: string;
+    organization?: string;
     connector?: string;
     description?: string;
     template?: string;
@@ -86,6 +86,7 @@ export interface BallerinaConnectorsRequest {
     limit?: number;
     offset?: number;
     sort?: string;
+    targetFile?: string;
 }
 export interface BallerinaConnectorsResponse {
     central: Connector[];

@@ -29,7 +29,8 @@
 
             .monaco-editor {
                 .suggest-widget {
-                    width: 450px !important;
+                    width: 100% !important;
+                    left: 0 !important;
                     border-radius: 0 0 5px 5px;
                     margin-top: 0.25rem;
                     z-index: 1000 !important;
@@ -113,6 +114,18 @@ div[class^="exp-wrapper"] {
     right: 3px;
     left: unset !important;
     bottom: 0;
+    top: unset !important;
+    opacity: 100;
+    visibility: inherit !important;
+}
+
+.configurable-icon {
+    height: 14px;
+    width: 18px;
+    position: absolute !important;
+    right: 24px;
+    left: unset !important;
+    bottom: 5px;
     top: unset !important;
     opacity: 100;
     visibility: inherit !important;
