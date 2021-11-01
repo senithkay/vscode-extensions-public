@@ -68,7 +68,7 @@ export function addExpression(model: any, kind: string, value?: any) {
         }
     } else if (kind === c.BOOLEAN_LITERAL) {
         if (value) {
-            if (value === "true") {
+            if (value === c.TRUE_KEYWORD) {
                 Object.assign(model, createTrueBooleanLiteral(value));
             } else {
                 Object.assign(model, createFalseBooleanLiteral(value));
