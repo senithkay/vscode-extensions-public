@@ -15,7 +15,6 @@ import React, { ReactNode, useContext, useEffect, useState } from "react";
 import { useIntl } from "react-intl";
 
 import { Typography } from "@material-ui/core";
-import classnames from "classnames";
 
 import { AddIcon } from "../../../../../assets/icons";
 import DeleteButton from "../../../../../assets/icons/DeleteButton";
@@ -193,7 +192,7 @@ export function RecordField(props: CodePanelProps) {
                         {recordTypeNVisibility && (
                             <Typography
                                 variant='body2'
-                                className={classnames(recordClasses.typeNVisibilityWrapper)}
+                                className={recordClasses.typeNVisibilityWrapper}
                             >
                                 {recordTypeNVisibility}
                             </Typography>
@@ -201,20 +200,21 @@ export function RecordField(props: CodePanelProps) {
                         {typeDefName && (
                             <Typography
                                 variant='body2'
-                                className={classnames(recordClasses.typeDefNameWrapper)}
+                                className={recordClasses.typeDefNameWrapper}
                             >
                                 {typeDefName}
                             </Typography>
                         )}
                         <Typography
                             variant='body2'
-                            className={classnames(recordClasses.recordKeywordWrapper)}
+                            className={typeDefName ? recordClasses.recordKeywordWrapper :
+                                recordClasses.recordKeywordWithTypeWrapper}
                         >
                             record
                         </Typography>
                         <Typography
                             variant='body2'
-                            className={classnames(recordClasses.openBraceTokenWrapper)}
+                            className={recordClasses.openBraceTokenWrapper}
                         >
                             {openBraceTokens}
                         </Typography>
@@ -249,21 +249,21 @@ export function RecordField(props: CodePanelProps) {
                 <div className={recordClasses.endRecordCodeWrapper}>
                     <Typography
                         variant='body2'
-                        className={classnames(recordClasses.closeBraceTokenWrapper)}
+                        className={recordClasses.closeBraceTokenWrapper}
                     >
                         {recordEn}
                     </Typography>
                     {typeDescName && (
                         <Typography
                             variant='body2'
-                            className={classnames(recordClasses.endRecordCode)}
+                            className={recordClasses.endRecordCode}
                         >
                             {typeDescName}
                         </Typography>
                     )}
                     <Typography
                         variant='body2'
-                        className={classnames(recordClasses.singleTokenWrapper)}
+                        className={recordClasses.singleTokenWrapper}
                     >
                         ;
                     </Typography>

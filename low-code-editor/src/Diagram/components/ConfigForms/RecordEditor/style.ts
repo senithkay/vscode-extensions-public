@@ -220,6 +220,11 @@ export const recordStyles = makeStyles((theme: Theme) =>
             fontFamily: "inherit",
             color: '#0095FF'
         },
+        recordKeywordWithTypeWrapper: {
+            width: 40,
+            fontFamily: "inherit",
+            color: '#0095FF'
+        },
         openBraceTokenWrapper: {
             width: 15,
             fontFamily: "inherit",
