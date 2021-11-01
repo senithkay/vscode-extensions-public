@@ -93,14 +93,14 @@ export const recordStyles = makeStyles((theme: Theme) =>
         },
         typeWrapper: {
             maxWidth: 80,
-            color: '#6fb36d',
+            color: '#00819C',
             whiteSpace: "nowrap",
             overflow: "hidden",
             textOverflow: "ellipsis"
         },
         nameWrapper: {
             maxWidth: 80,
-            color: "#a9acb1",
+            color: "#000",
             marginLeft: 5,
             whiteSpace: "nowrap",
             overflow: "hidden",
@@ -108,14 +108,14 @@ export const recordStyles = makeStyles((theme: Theme) =>
         },
         defaultValWrapper: {
             maxWidth: 40,
-            color: '#e3d662',
+            color: '#B20002',
             whiteSpace: "nowrap",
             overflow: "hidden",
             textOverflow: "ellipsis"
         },
         optionalNArray: {
             maxWidth: 15,
-            color: "#a9acb1",
+            color: "#000",
         },
         btnWrapper: {
             display: "none",
@@ -203,13 +203,13 @@ export const recordStyles = makeStyles((theme: Theme) =>
         typeNVisibilityWrapper: {
             maxWidth: 70,
             fontFamily: "inherit",
-            color: '#0095FF'
+            color: '#1E00FF'
         },
         typeDefNameWrapper: {
             maxWidth: 130,
             marginLeft: 5,
             fontFamily: "inherit",
-            color: '#6fb36d',
+            color: '#00819C',
             whiteSpace: "nowrap",
             overflow: "hidden",
             textOverflow: "ellipsis"
@@ -218,17 +218,17 @@ export const recordStyles = makeStyles((theme: Theme) =>
             width: 40,
             marginLeft: 5,
             fontFamily: "inherit",
-            color: '#0095FF'
+            color: '#1E00FF'
         },
         recordKeywordWithTypeWrapper: {
             width: 40,
             fontFamily: "inherit",
-            color: '#0095FF'
+            color: '#1E00FF'
         },
         openBraceTokenWrapper: {
             width: 15,
             fontFamily: "inherit",
-            color: '#a9acb1'
+            color: '#000'
         },
         dotExpander: {
             marginLeft: 5,
@@ -238,12 +238,12 @@ export const recordStyles = makeStyles((theme: Theme) =>
             maxWidth: 200,
             marginLeft: 5,
             fontFamily: "inherit",
-            color: '#89baf8'
+            color: '#000'
         },
         closeBraceTokenWrapper: {
             maxWidth: 40,
             fontFamily: "inherit",
-            color: '#a9acb1'
+            color: '#000'
         },
         endRecordCodeWrapper: {
             display: "flex",
@@ -252,12 +252,12 @@ export const recordStyles = makeStyles((theme: Theme) =>
         },
         singleTokenWrapper: {
             width: 10,
-            color: "#a9acb1"
+            color: "#000"
         },
         equalTokenWrapper: {
             margin: "0 5px",
             width: 10,
-            color: "#a9acb1"
+            color: "#000"
         },
         recordHeaderBtnWrapper: {
             display: "none",
