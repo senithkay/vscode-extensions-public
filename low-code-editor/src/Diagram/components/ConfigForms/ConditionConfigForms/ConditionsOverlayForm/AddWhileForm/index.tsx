@@ -109,7 +109,7 @@ export function AddWhileForm(props: WhileProps) {
 
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {
-            label: "While Statement",
+            label: intl.formatMessage({id: "lowcode.develop.configForms.while.statementEditor.label"}),
             initialSource: "", // TODO: Pass the actual initialSource
             formArgs: {formArgs},
             isMutationInProgress,
@@ -118,7 +118,8 @@ export function AddWhileForm(props: WhileProps) {
             onChange: handleExpEditorChange,
             validate: validateField
         },
-        true);
+        true
+    );
 
     if (!stmtEditorComponent) {
         return  (

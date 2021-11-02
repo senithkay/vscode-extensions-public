@@ -119,7 +119,7 @@ export function AddIfForm(props: IfProps) {
 
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {
-            label: "If Else Statement",
+            label: intl.formatMessage({id: "lowcode.develop.configForms.if.statementEditor.label"}),
             initialSource: "", // TODO: Pass the actual initialSource
             formArgs: {formArgs},
             isMutationInProgress,

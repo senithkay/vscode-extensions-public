@@ -210,7 +210,7 @@ export function AddForeachForm(props: ForeachProps) {
 
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {
-            label: "Foreach Statement",
+            label: intl.formatMessage({id: "lowcode.develop.configForms.foreach.statementEditor.label"}),
             initialSource: "", // TODO: Pass the actual initialSource
             formArgs: {formArgs},
             isMutationInProgress,

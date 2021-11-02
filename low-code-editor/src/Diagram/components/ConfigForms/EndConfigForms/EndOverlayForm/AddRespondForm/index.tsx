@@ -146,7 +146,7 @@ export function AddRespondForm(props: RespondFormProps) {
 
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {
-            label: "Respond Statement",
+            label: intl.formatMessage({id: "lowcode.develop.configForms.respond.statementEditor.label"}),
             initialSource: "", // TODO: Pass the actual initialSource
             formArgs: {formArgs},
             isMutationInProgress,

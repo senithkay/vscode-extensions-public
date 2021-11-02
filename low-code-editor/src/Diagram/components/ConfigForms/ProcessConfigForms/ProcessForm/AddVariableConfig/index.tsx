@@ -268,7 +268,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
 
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {
-            label: "Variable Statement",
+            label: intl.formatMessage({id: "lowcode.develop.configForms.variable.statementEditor.label"}),
             initialSource,
             formArgs: {formArgs},
             userInputs,
@@ -278,21 +278,8 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             onChange: onPropertyChange,
             validate: validateExpression
         },
-        !isStringType);
-
-    const {stmtEditorButton , stmtEditorComponent} = useStatementEdior(
-                                                {
-                                                    label: "Variable Statement",
-                                                    initialSource: getInitialSource(selectedType, varName, variableExpression, otherType),
-                                                    formArgs: {formArgs},
-                                                    userInputs,
-                                                    isMutationInProgress,
-                                                    validForm,
-                                                    onSave: handleSave,
-                                                    onChange: onPropertyChange,
-                                                    validate: validateExpression
-                                                },
-                                                !isStringType);
+        !isStringType
+    );
 
     if (!stmtEditorComponent) {
         return (
