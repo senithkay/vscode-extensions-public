@@ -217,7 +217,7 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
                 onChange={onVarTypeChange}
                 disabled={isFromExpressionEditor}
             />
-            <VariableNameInput  
+            <VariableNameInput
                 // Fixme: Prevent editing name if the configurable is being referenced somewhere
                 displayName={'Configurable Name'}
                 value={state.varName}
