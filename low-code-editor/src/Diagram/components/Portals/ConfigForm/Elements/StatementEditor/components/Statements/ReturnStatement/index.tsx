@@ -47,12 +47,6 @@ export function ReturnStatementC(props: ReturnStatementProps) {
     const onClickOnExpression = (event: any) => {
         event.stopPropagation()
         expressionHandler(model.expression, false,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(model.expression.kind) })
-    };
-
-    const onClickOnRoot = (event: any) => {
-        event.stopPropagation()
-        expressionHandler(model.expression, false,
             { expressionSuggestions: getSuggestionsBasedOnExpressionKind(c.DEFAULT_RETURN) })
     };
 
@@ -61,11 +55,9 @@ export function ReturnStatementC(props: ReturnStatementProps) {
             <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
                 {model.returnKeyword.value}
             </span>
-            <span className={overlayClasses.rootElement} onClick={onClickOnRoot}>
-                <button className={overlayClasses.expressionElement} style={{ margin: '3px 3px 3px 3px' }} onClick={onClickOnExpression}>
+                <button className={overlayClasses.expressionElement} onClick={onClickOnExpression}>
                     {expressionComponent}
                 </button>
-            </span>
             <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
                 &nbsp;{model.semicolonToken.value}
             </span>
