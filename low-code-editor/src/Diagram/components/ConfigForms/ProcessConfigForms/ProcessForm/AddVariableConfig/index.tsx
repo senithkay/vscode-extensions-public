@@ -22,8 +22,8 @@ import { PrimitiveBalType, WizardType } from "../../../../../../ConfigurationSpe
 import { Context } from "../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { getAllVariables } from "../../../../../utils/mixins";
-import { getVariableNameFromST } from "../../../../../utils/st-util";
 import { createModuleVarDecl, getInitialSource} from "../../../../../utils/modification-util";
+import { getVariableNameFromST } from "../../../../../utils/st-util";
 import { SelectDropdownWithButton } from "../../../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
@@ -107,7 +107,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
 
     useEffect(() => {
         (async () => {
-            const s = await getInitialSource(createModuleVarDecl(
+            const source = await getInitialSource(createModuleVarDecl(
                 {
                     varName: varName ? varName : "default",
                     varOptions: [],
@@ -118,7 +118,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                     endColumn: 0, endLine: 0, startColumn: 0, startLine: 0
                 }
             ));
-            setInitialSource(s);
+            setInitialSource(source);
         })();
     }, [varName, selectedType, variableExpression]);
 

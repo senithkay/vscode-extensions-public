@@ -128,7 +128,8 @@ export function AddIfForm(props: IfProps) {
             onChange: handleExpEditorChange,
             validate: validateField
         },
-        true);
+        true
+    );
 
     if (!stmtEditorComponent) {
         return (

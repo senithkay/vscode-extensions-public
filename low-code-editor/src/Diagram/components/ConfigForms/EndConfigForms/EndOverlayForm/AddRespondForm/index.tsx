@@ -155,7 +155,8 @@ export function AddRespondForm(props: RespondFormProps) {
             onChange: onExpressionChange,
             validate: validateExpression
         },
-        !true);
+        !true
+    );
 
 
     if (!stmtEditorComponent) {

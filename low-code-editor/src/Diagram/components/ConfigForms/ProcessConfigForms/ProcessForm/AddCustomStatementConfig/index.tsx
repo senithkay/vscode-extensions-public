@@ -101,7 +101,8 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
             onChange: onExpressionChange,
             validate: validateExpression
         },
-        true);
+        true
+    );
 
     if (!stmtEditorComponent){
         return (

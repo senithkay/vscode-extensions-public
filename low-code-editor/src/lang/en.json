@@ -150,6 +150,7 @@
     "lowcode.develop.configForms.if.statementEditor.label": "If Else Statement",
     "lowcode.develop.configForms.if.title": "If",
     "lowcode.develop.configForms.log.saveButton.label": "Save",
+    "lowcode.develop.configForms.log.statementEditor.label": "Log Statement",
     "lowcode.develop.configForms.log.title": "Log",
     "lowcode.develop.configForms.logTooltipMessages.expressionEditor.tooltip.actionText": "Learn Ballerina expressions",
     "lowcode.develop.configForms.logTooltipMessages.expressionEditor.tooltip.actionTitle": "{learnBallerina}",
