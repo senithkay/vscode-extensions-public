@@ -213,7 +213,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const [showConfigurableView, setShowConfigurableView] = useState(false);
 
     // Configurable insertion icon will be displayed only when originalValue is empty
-    const [originalValue, setOriginalValue] = useState(initalValue || '');
+    const [originalValue, setOriginalValue] = useState(model?.value || '');
 
     const validExpEditor = () => {
         if (monacoRef.current?.editor?.getModel()?.getValue()) {
