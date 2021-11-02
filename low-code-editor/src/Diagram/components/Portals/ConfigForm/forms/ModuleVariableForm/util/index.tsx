@@ -13,6 +13,8 @@
 
 import { CaptureBindingPattern, ModuleVarDecl, STKindChecker, TypedBindingPattern } from "@ballerina/syntax-tree";
 
+import { getVariableNameFromST } from "../../../../../../utils/st-util";
+
 export const ModuleVarNameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 
 export interface ModuleVariableFormState {
@@ -58,8 +60,7 @@ export function getFormConfigFromModel(model: any): ModuleVariableFormState {
         }
 
         defaultFormState.varValue = model.initializer.source;
-        defaultFormState.varName = ((model.typedBindingPattern as TypedBindingPattern)
-            ?.bindingPattern as CaptureBindingPattern)?.variableName?.value;
+        defaultFormState.varName = getVariableNameFromST(model).value;
 
         return defaultFormState;
     }

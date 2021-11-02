@@ -171,18 +171,6 @@ export const useStatementEditorStyles = makeStyles(() =>
                 color: '#fff'
             }
         },
-        rootElement: {
-            boxSizing: 'border-box',
-            border: '1px solid #A6B3FF',
-            borderRadius: '8px',
-            position: 'relative',
-            display: 'inline-block',
-            backgroundColor: '#ffffff',
-            '&:hover': {
-                backgroundColor: '#d7dcfc',
-                color: '#fff'
-            }
-        },
         inputEditorTemplate: {
             // color: '#05A26B',
             color: '#5567D5',
