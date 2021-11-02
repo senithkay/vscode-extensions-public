@@ -52,8 +52,8 @@ import * as ConnectorExtension from "../../FormComponents/ConnectorExtensions";
 import * as Elements from "../../FormComponents/FormFieldComponents";
 import { getUnionFormFieldName } from "../../FormComponents/FormFieldComponents/Union";
 import { FormElementProps } from "../../FormComponents/Types";
-import * as ConnectorIcons from "../../LowCodeDiagram/Connector/Icon";
-import * as OverlayElement from "../../LowCodeDiagram/DialogBoxes";
+import * as OverlayElement from "../../LowCodeDiagram/Components/DialogBoxes";
+import * as ConnectorIcons from "../../LowCodeDiagram/Components/RenderingComponents/Connector/Icon";
 
 import { keywords, symbolKind } from "./constants";
 

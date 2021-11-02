@@ -21,7 +21,7 @@ import { Context as DiagramContext } from "../Contexts/Diagram";
 import { TextPreLoader } from "../PreLoader/TextPreLoader";
 
 import { CanvasDiagram } from "./components/LowCodeDiagram/CanvasContainer";
-import { DataMapper } from './components/LowCodeDiagram/DataMapper';
+import { DataMapper } from './components/LowCodeDiagram/Components/RenderingComponents/DataMapper';
 import { DiagramDisableState } from "./components/LowCodeDiagram/DiagramState/DiagramDisableState";
 import { DiagramErrorState } from "./components/LowCodeDiagram/DiagramState/DiagramErrorState";
 import { ErrorList } from "./components/LowCodeDiagram/DiagramState/ErrorList";

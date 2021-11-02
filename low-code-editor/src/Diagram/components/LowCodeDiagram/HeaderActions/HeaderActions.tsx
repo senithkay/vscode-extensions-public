@@ -20,8 +20,8 @@ import classNames from "classnames";
 import DeleteButton from "../../../../assets/icons/DeleteButton";
 import EditButton from "../../../../assets/icons/EditButton";
 import { FormGenerator } from "../../FormComponents/FormGenerator";
-import { DeleteConfirmDialog } from "../../LowCodeDiagram/DialogBoxes";
-import { ComponentExpandButton } from "../ComponentExpandButton";
+import { ComponentExpandButton } from "../Components/ComponentExpandButton";
+import { DeleteConfirmDialog } from "../Components/DialogBoxes";
 
 import "./style.scss";
 

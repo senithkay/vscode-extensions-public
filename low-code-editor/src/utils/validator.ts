@@ -1,9 +1,9 @@
 import { FormField } from "../ConfigurationSpec/types";
-import { Resource } from "../Diagram/components/LowCodeDiagram/DialogBoxes/DropDown/ApiConfigureWizard/types";
+import { Resource } from "../Diagram/components/LowCodeDiagram/Components/DialogBoxes/DropDown/ApiConfigureWizard/types";
 import {
     convertReturnTypeStringToSegments,
     returnTypes
-} from "../Diagram/components/LowCodeDiagram/DialogBoxes/DropDown/ApiConfigureWizard/util";
+} from "../Diagram/components/LowCodeDiagram/Components/DialogBoxes/DropDown/ApiConfigureWizard/util";
 import { keywords } from "../Diagram/components/Portals/utils/constants";
 
 export function validatePath(text: string) {

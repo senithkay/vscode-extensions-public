@@ -11,7 +11,7 @@
  * associated services.
  */
 
-import { APIOptions } from "../../LowCodeDiagram/DialogBoxes/PlusHolder/PlusElementOptions/APIOptions";
+import { APIOptions } from "../../LowCodeDiagram/Components/DialogBoxes/PlusHolder/PlusElementOptions/APIOptions";
 import { ConnectorForm } from "../ConnectorConfigWizard/Components/ConnectorForm";
 
 import { APIConfigForm } from "./APIConfigForm";

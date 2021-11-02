@@ -2,13 +2,13 @@ import React from "react";
 
 import { NodePosition } from "@ballerina/syntax-tree";
 
-import * as stComponents from '../components/LowCodeDiagram';
-import { ActionProcessor } from "../components/LowCodeDiagram/ActionInvocation/ActionProcess";
-import { ConnectorProcess } from "../components/LowCodeDiagram/Connector/ConnectorProcess";
-import { IfElse } from "../components/LowCodeDiagram/IfElse";
-import { DataProcessor } from "../components/LowCodeDiagram/Processor";
-import { Respond } from "../components/LowCodeDiagram/Respond";
-import { Statement } from "../components/LowCodeDiagram/Statement";
+import * as stComponents from '../components/LowCodeDiagram/Components/RenderingComponents';
+import { ActionProcessor } from "../components/LowCodeDiagram/Components/RenderingComponents/ActionInvocation/ActionProcess";
+import { ConnectorProcess } from "../components/LowCodeDiagram/Components/RenderingComponents/Connector/ConnectorProcess";
+import { IfElse } from "../components/LowCodeDiagram/Components/RenderingComponents/IfElse";
+import { DataProcessor } from "../components/LowCodeDiagram/Components/RenderingComponents/Processor";
+import { Respond } from "../components/LowCodeDiagram/Components/RenderingComponents/Respond";
+import { Statement } from "../components/LowCodeDiagram/Components/RenderingComponents/Statement";
 import { BlockViewState } from "../view-state";
 import { DraftStatementViewState } from "../view-state/draft";
 

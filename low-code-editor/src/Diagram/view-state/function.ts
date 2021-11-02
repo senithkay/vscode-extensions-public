@@ -12,8 +12,8 @@
  */
 import { OnFailClause } from "@ballerina/syntax-tree";
 
-import { STOP_SVG_HEIGHT } from "../components/LowCodeDiagram/End/StopSVG";
-import { START_SVG_HEIGHT } from "../components/LowCodeDiagram/Start/StartSVG";
+import { STOP_SVG_HEIGHT } from "../components/LowCodeDiagram/Components/RenderingComponents/End/StopSVG";
+import { START_SVG_HEIGHT } from "../components/LowCodeDiagram/Components/RenderingComponents/Start/StartSVG";
 import { DefaultConfig } from "../visitors/default";
 
 import { BlockViewState } from "./block";

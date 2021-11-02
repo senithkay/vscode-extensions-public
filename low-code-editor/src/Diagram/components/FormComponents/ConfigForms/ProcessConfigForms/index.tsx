@@ -27,7 +27,7 @@ import {
     updateLogStatement,
     updatePropertyStatement
 } from "../../../../utils/modification-util";
-import { generateInlineRecordForJson, getDefaultValueForType } from "../../../LowCodeDiagram/DataMapper/util";
+import { generateInlineRecordForJson, getDefaultValueForType } from "../../../LowCodeDiagram/Components/RenderingComponents/DataMapper/util";
 import { DiagramOverlayPosition } from "../../../Portals/Overlay";
 import { CustomExpressionConfig, DataMapperConfig, LogConfig, ProcessConfig } from "../../Types";
 

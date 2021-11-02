@@ -19,8 +19,8 @@ import { CaptureBindingPattern, SimpleNameReference, STKindChecker, STNode, trav
 import { PrimitiveBalType } from '../../../../../../../ConfigurationSpec/types';
 import { Context as DiagramContext } from '../../../../../../../Contexts/Diagram';
 import { getAllVariables } from "../../../../../../utils/mixins";
-import { DataMapperInitVisitor, VisitingType } from '../../../../../LowCodeDiagram/DataMapper/util/data-mapper-init-visitor';
-import { DataMapperMappingVisitor } from '../../../../../LowCodeDiagram/DataMapper/util/data-mapper-mapping-visitor';
+import { DataMapperInitVisitor, VisitingType } from '../../../../../LowCodeDiagram/Components/RenderingComponents/DataMapper/util/data-mapper-init-visitor';
+import { DataMapperMappingVisitor } from '../../../../../LowCodeDiagram/Components/RenderingComponents/DataMapper/util/data-mapper-mapping-visitor';
 import { genVariableName } from "../../../../../Portals/utils";
 import { DataMapperConfig, DataMapperOutputField, ProcessConfig } from '../../../../Types';
 
