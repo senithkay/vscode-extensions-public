@@ -151,14 +151,18 @@ export function AddLogConfig(props: LogConfigProps) {
                             />
                             <div className="exp-wrapper">
                                 <ExpressionEditor
-                                    model={{ name: "expression", type: 'string' }}
+                                    model={{ name: "expression", value: expression, typeName: 'string' }}
                                     customProps={{
                                         validate: validateExpression,
                                         tooltipTitle: logTooltipMessages.title,
                                         tooltipActionText: logTooltipMessages.actionText,
                                         tooltipActionLink: logTooltipMessages.actionLink,
                                         interactive: true,
-                                        statementType: 'string'
+                                        statementType: 'string',
+                                        expressionInjectables: {
+                                            list: formArgs?.expressionInjectables?.list,
+                                            setInjectables: formArgs?.expressionInjectables?.setInjectables
+                                        }
                                     }}
                                     onChange={onExpressionChange}
                                     defaultValue={expression}
