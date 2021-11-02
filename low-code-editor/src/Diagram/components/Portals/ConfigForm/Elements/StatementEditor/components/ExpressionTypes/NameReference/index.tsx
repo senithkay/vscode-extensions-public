@@ -11,22 +11,24 @@
  * associated services.
  */
 // tslint:disable: jsx-wrap-multiline
-import React from "react";
+import React, { useContext } from "react";
 
-import { SimpleNameReference, STNode } from "@ballerina/syntax-tree";
+import { SimpleNameReference } from "@ballerina/syntax-tree";
 
-import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
+import { VariableUserInputs } from "../../../models/definitions";
+import { SuggestionsContext } from "../../../store/suggestions-context";
 import { InputEditor } from "../../InputEditor";
 
 interface NameRefProps {
     model: SimpleNameReference
-    expressionHandler: (model: STNode, operator: boolean, variableSuggestions?: SuggestionItem[], suggestions?: SuggestionItem[]) => void
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }
 
 export function SimpleNameReferenceC(props: NameRefProps) {
-    const { model, expressionHandler, userInputs, diagnosticHandler } = props;
+    const { model, userInputs, diagnosticHandler } = props;
+
+    const { expressionHandler } = useContext(SuggestionsContext);
 
     const inputEditorProps = {
         statementType: model.kind,

@@ -89,8 +89,11 @@ export function AddReturnForm(props: ReturnFormProps) {
 
     const {stmtEditorButton , stmtEditorComponent} = useStatementEdior(
         {
-            kind: "DefaultString",
-            label: "Variable Statement",
+            kind: "DefaultReturn",
+            label: intl.formatMessage({
+                id: "lowcode.develop.configForms.return.statementEditor.label",
+                defaultMessage: "Return Statement"
+            }),
             formArgs: {formArgs},
             isMutationInProgress,
             validForm: isValidValue,
