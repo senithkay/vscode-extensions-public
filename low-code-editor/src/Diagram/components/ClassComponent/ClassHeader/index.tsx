@@ -59,8 +59,14 @@ export function ClassHeader(props: ClassHeaderProps) {
         gotoSource({ startLine: targetposition.startLine, startColumn: targetposition.startColumn });
     }
 
+    const handleBarClick = (evt: React.MouseEvent) => {
+        if (!evt.isPropagationStopped()) {
+            onExpandClick();
+        }
+    }
+
     return (
-        <div className={'class-component-header'}>
+        <div className={'class-component-header'} onClick={handleBarClick} >
             <div className={'header-segement-container'}>
                 <div className="header-segment" >
                     <ClassIcon />
