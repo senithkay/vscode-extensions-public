@@ -99,6 +99,7 @@ export function EditFieldForm() {
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 
     const allVariableTypes: string[] = variableTypes.slice();
+    allVariableTypes.push("record");
     stSymbolInfo.recordTypeDescriptions.forEach((value: RecordTypeDesc) => {
         allVariableTypes.push(value?.typeData?.typeSymbol?.name);
     })
