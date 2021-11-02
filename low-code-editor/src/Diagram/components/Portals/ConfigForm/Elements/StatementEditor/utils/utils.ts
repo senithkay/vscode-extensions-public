@@ -54,6 +54,8 @@ export function addExpression(model: any, kind: string, value?: any) {
         Object.assign(model, createRelational());
     } else if (kind === c.EQUALITY) {
         Object.assign(model, createEquality());
+    } else if (kind === c.LOGICAL) {
+        Object.assign(model, createLogical());
     } else if (kind === c.STRING_LITERAL) {
         if (value) {
             Object.assign(model, createStringLiteral(value));
@@ -195,6 +197,39 @@ function createEquality(): BinaryExpression {
                 source: ""
             },
             source: ""
+        },
+        source: ""
+    };
+}
+
+function createLogical(): BinaryExpression {
+    return {
+        kind: "BinaryExpression",
+        lhsExpr: {
+            "kind": "SimpleNameReference",
+            "name": {
+                "kind": "IdentifierToken",
+                "isToken": true,
+                "value": "expression",
+                "source": "",
+            },
+            "source": ""
+        },
+        operator: {
+            kind: "LogicalOrToken",
+            isToken: false,
+            value: "||",
+            source: ""
+        },
+        rhsExpr: {
+            "kind": "SimpleNameReference",
+            "name": {
+                "kind": "IdentifierToken",
+                "isToken": true,
+                "value": "expression",
+                "source": "",
+            },
+            "source": ""
         },
         source: ""
     };
