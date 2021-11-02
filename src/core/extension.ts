@@ -50,7 +50,6 @@ import { SessionDataProvider } from "../tree-view/session-tree-data-provider";
 const any = require('promise.any');
 
 const SWAN_LAKE_REGEX = /(s|S)wan( |-)(l|L)ake/g;
-const PREV_REGEX = /1\.2\.[0-9]+/g;
 
 export const EXTENSION_ID = 'wso2.ballerina';
 const PREV_EXTENSION_ID = 'ballerina.ballerina';
@@ -183,10 +182,10 @@ export class BallerinaExtension {
                     this.swanLake = true;
                 }
 
-                if (!this.swanLake && !this.ballerinaVersion.match(PREV_REGEX)) {
+                if (!this.swanLake) {
                     this.showMessageOldBallerina();
                     const message = `Ballerina version ${this.ballerinaVersion} is not supported. 
-                        The extension supports Ballerina Swan Lake and 1.2.x versions.`;
+                        The extension supports Ballerina Swan Lake version.`;
                     sendTelemetryEvent(this, TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED, CMP_EXTENSION_CORE, message);
                     throw new AssertionError({
                         message: message
