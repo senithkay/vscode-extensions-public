@@ -11,8 +11,8 @@
  * associated services.
  */
 import {
-    ActionStatement, CaptureBindingPattern, CheckAction, ElseBlock, FunctionDefinition, IfElseStatement, LocalVarDecl,
-    ModulePart, QualifiedNameReference, RemoteMethodCallAction, ResourceKeyword, ServiceDeclaration,
+    ActionStatement, CaptureBindingPattern, CheckAction, ElseBlock, FunctionDefinition, IdentifierToken, IfElseStatement, LocalVarDecl,
+    ModulePart, ModuleVarDecl, QualifiedNameReference, RemoteMethodCallAction, ResourceKeyword, ServiceDeclaration,
     SimpleNameReference, STKindChecker,
     STNode, traversNode, TypeCastExpression, VisibleEndpoint
 } from '@ballerina/syntax-tree';
@@ -434,12 +434,12 @@ export interface ConnectorCache {
 
 // TODO: need to update local storage with persistent disk
 export async function addConnectorToCache(connector: BallerinaConnectorInfo) {
-    const {package: {organization, name: packageName, version}, name, id } = connector;
+    const { package: { organization, name: packageName, version }, name, id } = connector;
     const key = `${organization}_${packageName}_${name}_${version}_${id || "x"}`;
 
     const connectorsStr = localStorage.getItem(CONNECTOR_CACHE);
     let connectors: ConnectorCache = {};
-    if (connectorsStr){
+    if (connectorsStr) {
         connectors = JSON.parse(connectorsStr);
     }
     connectors[key] = connector;
@@ -448,14 +448,14 @@ export async function addConnectorToCache(connector: BallerinaConnectorInfo) {
 
 export function getConnectorFromCache(connector: Connector): BallerinaConnectorInfo {
     if (connector) {
-        const {package: {organization, name: packageName, version}, name, id } = connector;
+        const { package: { organization, name: packageName, version }, name, id } = connector;
         const key = `${organization}_${packageName}_${name}_${version}_${id || "x"}`;
 
         const connectorsStr = localStorage.getItem(CONNECTOR_CACHE);
         let connectors: ConnectorCache;
-        if (connectorsStr){
+        if (connectorsStr) {
             connectors = JSON.parse(connectorsStr) as ConnectorCache;
-            if (connectors.hasOwnProperty(key)){
+            if (connectors.hasOwnProperty(key)) {
                 return connectors[key];
             }
         }
@@ -696,4 +696,8 @@ export function recalculateSizingAndPositioningST(st: STNode): STNode {
     }
     const clone = { ...st };
     return clone;
+}
+
+export function getVariableNameFromST(node: LocalVarDecl | ModuleVarDecl): IdentifierToken {
+    return (node.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName;
 }
