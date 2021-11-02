@@ -25,44 +25,50 @@ import { ResourceQueryParams } from "./ResourceQueryParams";
 import "./style.scss";
 
 interface ResourceHeaderProps {
-  model: ResourceAccessorDefinition;
-  onExpandClick: () => void;
-  isExpanded: boolean;
+    model: ResourceAccessorDefinition;
+    onExpandClick: () => void;
+    isExpanded: boolean;
 }
 
 export function ResourceHeader(props: ResourceHeaderProps) {
-  const { model, onExpandClick, isExpanded } = props;
+    const { model, onExpandClick, isExpanded } = props;
 
-  const {
-    api: {
-      code: { modifyDiagram },
-    },
-  } = useDiagramContext();
+    const {
+        api: {
+            code: { modifyDiagram },
+        },
+    } = useDiagramContext();
 
-  const onDeleteClick = () => {
-    const modification = removeStatement(model.position);
-    modifyDiagram([modification]);
-  };
+    const onDeleteClick = () => {
+        const modification = removeStatement(model.position);
+        modifyDiagram([modification]);
+    };
 
-  return (
-    <div className={classNames("function-signature", model.functionName.value)}>
-      <div className={classNames("resource-badge", model.functionName.value)}>
-        <p className={"text"}>{model.functionName.value.toUpperCase()}</p>
-      </div>
-      <div className="param-wrapper">
-        <ResourceQueryParams
-          parameters={model.functionSignature.parameters}
-          relativeResourcePath={model.relativeResourcePath}
-        />
-        <ResourceOtherParams parameters={model.functionSignature.parameters} />
-      </div>
-      <HeaderActions
-        model={model}
-        deleteText="Are you sure you want to delete resource?"
-        isExpanded={isExpanded}
-        onExpandClick={onExpandClick}
-        onConfirmDelete={onDeleteClick}
-      />
-    </div>
-  );
+    const handleBarClick = (evt: React.MouseEvent) => {
+        if (!evt.isPropagationStopped()) {
+            onExpandClick()
+        }
+    }
+
+    return (
+        <div onClick={handleBarClick} className={classNames("function-signature", model.functionName.value)}>
+            <div className={classNames("resource-badge", model.functionName.value)}>
+                <p className={"text"}>{model.functionName.value.toUpperCase()}</p>
+            </div>
+            <div className="param-wrapper">
+                <ResourceQueryParams
+                    parameters={model.functionSignature.parameters}
+                    relativeResourcePath={model.relativeResourcePath}
+                />
+                <ResourceOtherParams parameters={model.functionSignature.parameters} />
+            </div>
+            <HeaderActions
+                model={model}
+                deleteText="Are you sure you want to delete resource?"
+                isExpanded={isExpanded}
+                onExpandClick={onExpandClick}
+                onConfirmDelete={onDeleteClick}
+            />
+        </div>
+    );
 }

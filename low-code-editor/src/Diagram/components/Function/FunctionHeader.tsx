@@ -14,10 +14,10 @@
 import React from "react";
 
 import {
-  FunctionDefinition,
-  ObjectMethodDefinition,
-  RequiredParam,
-  STKindChecker,
+    FunctionDefinition,
+    ObjectMethodDefinition,
+    RequiredParam,
+    STKindChecker,
 } from "@ballerina/syntax-tree";
 
 import FunctionIcon from "../../../assets/icons/FunctionIcon";
@@ -28,54 +28,59 @@ import { HeaderActions } from "../HeaderActions";
 import "./style.scss";
 
 interface FunctionHeaderProps {
-  model: FunctionDefinition | ObjectMethodDefinition;
-  onExpandClick: () => void;
-  isExpanded: boolean;
+    model: FunctionDefinition | ObjectMethodDefinition;
+    onExpandClick: () => void;
+    isExpanded: boolean;
 }
 
 export function FunctionHeader(props: FunctionHeaderProps) {
-  const { model, onExpandClick, isExpanded } = props;
+    const { model, onExpandClick, isExpanded } = props;
 
-  const {
-    api: {
-      code: { modifyDiagram },
-    },
-  } = useDiagramContext();
+    const {
+        api: {
+            code: { modifyDiagram },
+        },
+    } = useDiagramContext();
 
-  const onDeleteClick = () => {
-    const modification = removeStatement(model.position);
-    modifyDiagram([modification]);
-  };
+    const onDeleteClick = () => {
+        const modification = removeStatement(model.position);
+        modifyDiagram([modification]);
+    };
 
-  return (
-    <div className="function-signature">
-      <div className={"function-icon"}>
-        <FunctionIcon />
-      </div>
+    const handleBarClick = (evt: React.MouseEvent) => {
+        if (!evt.isPropagationStopped()) {
+            onExpandClick();
+        }
+    }
 
-      <div className="param-wrapper">
-        <div className={"param-container"}>
-          <p className={"path-text"}>{model?.functionName?.value}</p>
+    return (
+        <div className="function-signature" onClick={handleBarClick}>
+            <div className={"function-icon"}>
+                <FunctionIcon />
+            </div>
+            <div className="param-wrapper">
+                <div className={"param-container"}>
+                    <p className={"path-text"}>{model?.functionName?.value}</p>
+                </div>
+                <div className={"param-container"}>
+                    <p className={"path-text"}>
+                        {model?.functionSignature?.parameters
+                            .filter((param) => !STKindChecker.isCommaToken(param))
+                            .map((param: RequiredParam, i) => (
+                                <span key={i} className={"param"}>
+                                    {param.source}
+                                </span>
+                            ))}
+                    </p>
+                </div>
+            </div>
+            <HeaderActions
+                model={model}
+                deleteText="Are you sure you want to delete this function?"
+                isExpanded={isExpanded}
+                onExpandClick={onExpandClick}
+                onConfirmDelete={onDeleteClick}
+            />
         </div>
-        <div className={"param-container"}>
-          <p className={"path-text"}>
-            {model?.functionSignature?.parameters
-              .filter((param) => !STKindChecker.isCommaToken(param))
-              .map((param: RequiredParam, i) => (
-                <span key={i} className={"param"}>
-                  {param.source}
-                </span>
-              ))}
-          </p>
-        </div>
-      </div>
-      <HeaderActions
-        model={model}
-        deleteText="Are you sure you want to delete this function?"
-        isExpanded={isExpanded}
-        onExpandClick={onExpandClick}
-        onConfirmDelete={onDeleteClick}
-      />
-    </div>
-  );
+    );
 }
