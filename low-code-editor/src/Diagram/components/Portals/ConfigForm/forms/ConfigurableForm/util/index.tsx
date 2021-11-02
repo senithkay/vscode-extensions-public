@@ -55,7 +55,7 @@ export function getFormConfigFromModel(model: any): ConfigurableFormState {
 
         defaultFormState.isPublic = model.visibilityQualifier
             && STKindChecker.isPublicKeyword(model.visibilityQualifier);
-        defaultFormState.hasDefaultValue =  !!model.initializer.source && model.initializer.source !== "?";
+        defaultFormState.hasDefaultValue = !!model.initializer.source && model.initializer.source !== "?";
         defaultFormState.varValue = model.initializer.source === "?" ? "" : model.initializer.source;
         defaultFormState.varName = ((model.typedBindingPattern as TypedBindingPattern)
             .bindingPattern as CaptureBindingPattern).variableName.value;
@@ -82,5 +82,5 @@ export function getFormConfigFromModel(model: any): ConfigurableFormState {
 export function isFormConfigValid(config: ConfigurableFormState): boolean {
     const { varName, varValue, isExpressionValid, hasDefaultValue } = config;
 
-    return varName?.length > 0 && ModuleVarNameRegex.test(varName) && (!hasDefaultValue || (varValue?.length > 0  && isExpressionValid));
+    return varName?.length > 0 && (!hasDefaultValue || varValue?.length > 0) && isExpressionValid;
 }
