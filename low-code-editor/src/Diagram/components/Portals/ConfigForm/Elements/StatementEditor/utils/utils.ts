@@ -369,75 +369,75 @@ export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = 
         { value: c.RELATIONAL },
         { value: c.EQUALITY },
         { value: c.LOGICAL },
-        { value: c.TYPE_CHECK },
-        { value: c.CONDITIONAL },
-        { value: c.UNARY }
+        //{ value: c.TYPE_CHECK },
+        //{ value: c.CONDITIONAL },
+        //{ value: c.UNARY }
     ],
     StringLiteral: [
         { value: c.STRING_LITERAL },
-        { value: c.CONDITIONAL },
+        //{ value: c.CONDITIONAL },
         { value: c.STRING_TEMPLATE },
         { value: c.ARITHMETIC }
     ],
     NumericLiteral: [],
     Relational: [
         { value: c.ARITHMETIC },
-        { value: c.CONDITIONAL },
-        { value: c.TYPE_CHECK },
+        //{ value: c.CONDITIONAL },
+        //{ value: c.TYPE_CHECK },
         { value: c.RELATIONAL },
         { value: c.NUMERIC_LITERAL }
     ],
     Arithmetic: [
         { value: c.NUMERIC_LITERAL },
         { value: c.ARITHMETIC },
-        { value: c.CONDITIONAL },
+        //{ value: c.CONDITIONAL },
         { value: c.STRING_LITERAL }
     ],
     Logical: [
         { value: c.RELATIONAL },
         { value: c.LOGICAL },
-        { value: c.CONDITIONAL },
+        //{ value: c.CONDITIONAL },
         { value: c.STRING_LITERAL }
     ],
     Conditional: [
         { value: c.STRING_LITERAL },
         { value: c.NUMERIC_LITERAL },
         { value: c.RELATIONAL },
-        { value: c.TYPE_CHECK },
-        { value: c.CONDITIONAL }
+        //{ value: c.TYPE_CHECK },
+        //{ value: c.CONDITIONAL }
     ],
     Equality: [
         { value: c.ARITHMETIC },
-        { value: c.CONDITIONAL },
+        //{ value: c.CONDITIONAL },
         { value: c.STRING_LITERAL },
         { value: c.NUMERIC_LITERAL },
-        { value: c.STRING_TEMPLATE }
+        //{ value: c.STRING_TEMPLATE }
     ],
     DefaultBoolean: [
         { value: c.RELATIONAL },
         { value: c.EQUALITY },
         { value: c.LOGICAL },
         { value: c.BOOLEAN_LITERAL },
-        { value: c.TYPE_CHECK },
-        { value: c.CONDITIONAL },
-        { value: c.UNARY }
+        // { value: c.TYPE_CHECK },
+        // { value: c.CONDITIONAL },
+        // { value: c.UNARY }
     ],
     DefaultInteger: [
         { value: c.ARITHMETIC },
         { value: c.NUMERIC_LITERAL },
-        { value: c.CONDITIONAL },
-        { value: c.UNARY }
+        // { value: c.CONDITIONAL },
+        // { value: c.UNARY }
     ],
     DefaultString: [
         { value: c.STRING_LITERAL },
-        { value: c.CONDITIONAL },
-        { value: c.STRING_TEMPLATE },
+        // { value: c.CONDITIONAL },
+        // { value: c.STRING_TEMPLATE },
         { value: c.ARITHMETIC }
     ],
     TypeCheck: [
         { value: c.STRING_LITERAL },
         { value: c.NUMERIC_LITERAL },
-        { value: c.CONDITIONAL }
+        //{ value: c.CONDITIONAL }
     ],
     Unary: [
         { value: c.NUMERIC_LITERAL },
@@ -448,7 +448,7 @@ export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = 
     StringTemplate: [
         { value: c.STRING_TEMPLATE },
         { value: c.ARITHMETIC },
-        { value: c.CONDITIONAL }
+        //{ value: c.CONDITIONAL }
     ],
     DefaultReturn: [
         { value: c.STRING_LITERAL },
@@ -457,7 +457,7 @@ export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = 
         { value: c.ARITHMETIC },
         { value: c.RELATIONAL },
         { value: c.EQUALITY },
-        { value: c.TYPE_CHECK },
+        //{ value: c.TYPE_CHECK },
         { value: c.LOGICAL }
     ]
 }
