@@ -24,7 +24,7 @@ interface IntTypeDescProps {
     diagnosticHandler: (diagnostics: string) => void
 }
 
-export function IntTypeDesc(props: IntTypeDescProps) {
+export function IntTypeDescComponent(props: IntTypeDescProps) {
     const { model } = props;
 
     const overlayClasses = useStatementEditorStyles();

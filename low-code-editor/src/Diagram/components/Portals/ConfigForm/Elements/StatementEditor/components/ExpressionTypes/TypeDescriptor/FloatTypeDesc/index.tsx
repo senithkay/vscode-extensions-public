@@ -24,7 +24,7 @@ interface FloatTypeDescProps {
     diagnosticHandler: (diagnostics: string) => void
 }
 
-export function FloatTypeDesc(props: FloatTypeDescProps) {
+export function FloatTypeDescComponent(props: FloatTypeDescProps) {
     const { model } = props;
 
     const overlayClasses = useStatementEditorStyles();

@@ -24,7 +24,7 @@ interface JsonTypeDescProps {
     diagnosticHandler: (diagnostics: string) => void
 }
 
-export function JsonTypeDesc(props: JsonTypeDescProps) {
+export function JsonTypeDescComponent(props: JsonTypeDescProps) {
     const { model } = props;
 
     const overlayClasses = useStatementEditorStyles();

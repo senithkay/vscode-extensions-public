@@ -27,7 +27,7 @@ interface BinaryProps {
     diagnosticHandler: (diagnostics: string) => void
 }
 
-export function BinaryExpression(props: BinaryProps) {
+export function BinaryExpressionComponent(props: BinaryProps) {
     const { model, userInputs, diagnosticHandler } = props;
 
     const overlayClasses = useStatementEditorStyles();

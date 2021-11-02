@@ -24,7 +24,7 @@ interface DecimalTypeDescProps {
     diagnosticHandler: (diagnostics: string) => void
 }
 
-export function DecimalTypeDesc(props: DecimalTypeDescProps) {
+export function DecimalTypeDescComponent(props: DecimalTypeDescProps) {
     const { model } = props;
 
     const overlayClasses = useStatementEditorStyles();

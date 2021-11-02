@@ -24,7 +24,7 @@ interface StringTypeDescProps {
     diagnosticHandler: (diagnostics: string) => void
 }
 
-export function StringTypeDesc(props: StringTypeDescProps) {
+export function StringTypeDescComponent(props: StringTypeDescProps) {
     const { model } = props;
 
     const overlayClasses = useStatementEditorStyles();

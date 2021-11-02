@@ -25,7 +25,7 @@ interface NameRefProps {
     diagnosticHandler: (diagnostics: string) => void
 }
 
-export function SimpleNameReference(props: NameRefProps) {
+export function SimpleNameReferenceComponent(props: NameRefProps) {
     const { model, userInputs, diagnosticHandler } = props;
 
     const { expressionHandler } = useContext(SuggestionsContext);

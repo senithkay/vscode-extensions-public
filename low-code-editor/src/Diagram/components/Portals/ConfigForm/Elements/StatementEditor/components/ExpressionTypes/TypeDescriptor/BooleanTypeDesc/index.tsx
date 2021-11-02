@@ -24,7 +24,7 @@ interface BooleanTypeDescProps {
     diagnosticHandler: (diagnostics: string) => void
 }
 
-export function BooleanTypeDesc(props: BooleanTypeDescProps) {
+export function BooleanTypeDescComponent(props: BooleanTypeDescProps) {
     const { model } = props;
 
     const overlayClasses = useStatementEditorStyles();
