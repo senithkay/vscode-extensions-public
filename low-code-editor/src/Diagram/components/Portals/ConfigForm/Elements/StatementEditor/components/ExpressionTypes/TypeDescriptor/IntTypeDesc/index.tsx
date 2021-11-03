@@ -10,30 +10,30 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-wrap-multiline
 import React from "react";
 
-import { BooleanLiteral } from "@ballerina/syntax-tree";
+import { IntTypeDesc } from "@ballerina/syntax-tree";
 
 import { VariableUserInputs } from "../../../../models/definitions";
-import { InputEditor } from "../../../InputEditor";
+import { useStatementEditorStyles } from "../../../ViewContainer/styles";
 
-interface BooleanLiteralProps {
-    model: BooleanLiteral
+interface IntTypeDescProps {
+    model: IntTypeDesc
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }
 
-export function BooleanLiteralComponent(props: BooleanLiteralProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+export function IntTypeDescComponent(props: IntTypeDescProps) {
+    const { model } = props;
 
-    const inputEditorProps = {
-        statementType: model.kind,
-        model,
-        userInputs,
-        diagnosticHandler
-    };
+    const overlayClasses = useStatementEditorStyles();
 
     return (
-        <InputEditor {...inputEditorProps} />
+        <button
+            className={overlayClasses.expressionElement}
+        >
+            {model.name.value}
+        </button>
     );
 }

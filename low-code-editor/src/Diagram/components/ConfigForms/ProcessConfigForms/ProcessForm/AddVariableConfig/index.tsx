@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
-import React, { ReactNode, useContext, useState } from "react";
+import React, { ReactNode, useContext, useEffect, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { CaptureBindingPattern, LocalVarDecl, STKindChecker } from "@ballerina/syntax-tree";
@@ -22,11 +22,12 @@ import { PrimitiveBalType, WizardType } from "../../../../../../ConfigurationSpe
 import { Context } from "../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { getAllVariables } from "../../../../../utils/mixins";
+import { createModuleVarDecl, getInitialSource} from "../../../../../utils/modification-util";
 import { getVariableNameFromST } from "../../../../../utils/st-util";
 import { SelectDropdownWithButton } from "../../../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
-import { useStatementEdior } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
+import { useStatementEditor } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
 import { FormTextInput } from "../../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
 import {
     VariableNameInput,
@@ -102,6 +103,24 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     const [variableExpression, setVariableExpression] = useState<string>(varExpression);
     const [editorFocus, setEditorFocus] = useState<boolean>(false);
     const [isStringType, setIsStringType] = useState(initialModelType === 'string');
+    const [initialSource, setInitialSource] = useState('');
+
+    useEffect(() => {
+        (async () => {
+            const source = await getInitialSource(createModuleVarDecl(
+                {
+                    varName: varName ? varName : "default",
+                    varOptions: [],
+                    varType:  selectedType === "other" ? otherType : selectedType,
+                    varValue: variableExpression ? variableExpression : "expression"
+                },
+                {
+                    endColumn: 0, endLine: 0, startColumn: 0, startLine: 0
+                }
+            ));
+            setInitialSource(source);
+        })();
+    }, [varName, selectedType, variableExpression]);
 
     const onPropertyChange = (property: string) => {
         setVariableExpression(property);
@@ -247,11 +266,11 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         isEdit: !!config.model,
     }
 
-    const { stmtEditorButton, stmtEditorComponent } = useStatementEdior(
+    const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {
-            kind: "DefaultString",
-            label: "Variable Statement",
-            formArgs: { formArgs },
+            label: intl.formatMessage({id: "lowcode.develop.configForms.variable.statementEditor.label"}),
+            initialSource,
+            formArgs: {formArgs},
             userInputs,
             isMutationInProgress,
             validForm,
@@ -259,7 +278,8 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             onChange: onPropertyChange,
             validate: validateExpression
         },
-        !isStringType);
+        !isStringType
+    );
 
     if (!stmtEditorComponent) {
         return (

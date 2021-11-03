@@ -25,7 +25,7 @@ import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
-import { useStatementEdior } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
+import { useStatementEditor } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
 
 interface ReturnFormProps {
     config: EndConfig;
@@ -87,13 +87,10 @@ export function AddReturnForm(props: ReturnFormProps) {
 
     const containsMainFunction = triggerType && (triggerType === "Manual" || triggerType === "Schedule"); // todo: this is not working due to triggerType is blank.
 
-    const {stmtEditorButton , stmtEditorComponent} = useStatementEdior(
+    const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {
-            kind: "DefaultReturn",
-            label: intl.formatMessage({
-                id: "lowcode.develop.configForms.return.statementEditor.label",
-                defaultMessage: "Return Statement"
-            }),
+            label: intl.formatMessage({id: "lowcode.develop.configForms.return.statementEditor.label"}),
+            initialSource: "", // TODO: Pass the actual initialSource
             formArgs: {formArgs},
             isMutationInProgress,
             validForm: isValidValue,
@@ -101,7 +98,8 @@ export function AddReturnForm(props: ReturnFormProps) {
             onChange: onReturnValueChange,
             validate: validateExpression
         },
-        true);
+        true
+    );
 
     if (!stmtEditorComponent){
         return (
