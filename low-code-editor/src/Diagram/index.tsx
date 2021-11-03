@@ -179,11 +179,9 @@ export function Diagram() {
                     <DataMapper width={w} />
                 )}
                 {!isDataMapperShown && (
-                    <div>
-                        <CanvasDiagram>
-                            {child}
-                        </CanvasDiagram>
-                    </div>
+                    <CanvasDiagram>
+                        {child}
+                    </CanvasDiagram>
                 )}
                 {/*
                 {diagramDisabledWithTextLoaderStatus && triggerType !== undefined && isWaitingOnWorkspace && <OverlayBackground />}

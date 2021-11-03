@@ -76,7 +76,6 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
 
     React.useEffect(() => {
         const keyPress = (e: any) => {
-            const file = currentFilePath;
             const evtobj = e;
             if (evtobj.keyCode === 90 && evtobj.ctrlKey) {
                 undo();
@@ -255,7 +254,6 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                             }
                                         });
                                         if (parseSuccess) {
-                                            // undoStack.push(fileContent);
                                             const sourcestack = undoStack.get(filePath);
                                             if (!sourcestack) {
                                                 undoStack.set(filePath, [fileContent]);

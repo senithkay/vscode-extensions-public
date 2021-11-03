@@ -176,7 +176,7 @@ export interface LowCodeEditorAPI {
         closeConfigOverlayForm: () => void;
         configOverlayFormPrepareStart: () => void;
         closeConfigPanel: () => void;
-    };
+    }
 }
 
 // FIXME Some of these props should be moved to low code state
