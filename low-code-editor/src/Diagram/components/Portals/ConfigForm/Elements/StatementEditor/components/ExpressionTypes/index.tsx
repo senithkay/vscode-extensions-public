@@ -13,8 +13,8 @@
 import { BinaryExpressionComponent } from './BinaryExpression';
 import { CaptureBindingPatternComponent } from './BindingPattern/CaptureBindingPattern';
 import { BracedExpressionComponent } from './BracedExpression';
-import { BooleanLiteralComponent } from './Literal/Boolean';
 import { ConditionalExpressionComponent } from "./ConditionalExpression";
+import { BooleanLiteralComponent } from './Literal/Boolean';
 import { NumericLiteralComponent } from './Literal/Numeric';
 import { StringLiteralComponent } from './Literal/String';
 import { SimpleNameReferenceComponent } from './NameReference';
