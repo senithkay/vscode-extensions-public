@@ -30,7 +30,6 @@ import { DiagramErrorState } from "./components/DiagramState/DiagramErrorState";
 import { ErrorList } from "./components/DiagramState/ErrorList";
 import { OverlayBackground } from "./components/OverlayBackground";
 import PanAndZoom from "./components/PanAndZoom";
-import { UndoPanel } from "./components/UndoRedoPanel";
 import { TriggerType } from "./models";
 import "./style.scss";
 import { useStyles } from "./styles";
@@ -181,7 +180,6 @@ export function Diagram() {
                 )}
                 {!isDataMapperShown && (
                     <div>
-                        <UndoPanel />
                         <CanvasDiagram>
                             {child}
                         </CanvasDiagram>
