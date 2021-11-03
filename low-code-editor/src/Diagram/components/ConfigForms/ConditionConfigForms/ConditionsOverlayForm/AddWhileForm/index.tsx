@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js ordered-imports
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import {Box, FormControl, Typography} from "@material-ui/core";
 
@@ -26,6 +26,7 @@ import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/consta
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
 import { useStatementEditor } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
 import classnames from "classnames";
+import { createWhileStatement, getInitialSource } from "../../../../../utils/modification-util";
 
 export interface WhileProps {
     condition: ConditionConfig;
@@ -43,7 +44,19 @@ export function AddWhileForm(props: WhileProps) {
 
     const [isInvalid, setIsInvalid] = useState(true);
     const [conditionState, setConditionState] = useState(condition);
+    const [initialSource, setInitialSource] = useState('');
 
+    useEffect(() => {
+        (async () => {
+            const s = await getInitialSource(createWhileStatement(
+                 conditionState.conditionExpression ? conditionState.conditionExpression as string : 'expression',
+                {
+                    endColumn: 0, endLine: 0, startColumn: 0, startLine: 0
+                }
+            ));
+            setInitialSource(s);
+        })();
+    }, [conditionState]);
 
     const handleExpEditorChange = (value: string) => {
         setConditionState({ ...conditionState, conditionExpression: value })
@@ -110,7 +123,7 @@ export function AddWhileForm(props: WhileProps) {
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {
             label: intl.formatMessage({id: "lowcode.develop.configForms.while.statementEditor.label"}),
-            initialSource: "", // TODO: Pass the actual initialSource
+            initialSource,
             formArgs: {formArgs},
             isMutationInProgress,
             validForm: !isInvalid,
@@ -118,7 +131,7 @@ export function AddWhileForm(props: WhileProps) {
             onChange: handleExpEditorChange,
             validate: validateField
         },
-        true
+        false
     );
 
     if (!stmtEditorComponent) {
@@ -178,7 +191,4 @@ export function AddWhileForm(props: WhileProps) {
     else {
         return stmtEditorComponent;
     }
-
-
 }
-

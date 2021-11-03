@@ -116,7 +116,7 @@ export function InputEditor(props: InputEditorProps) {
     const targetPosition = getTargetPosition(targetPositionDraft, syntaxTree);
     const textLabel = userInputs && userInputs.formField ? userInputs.formField : "modelName"
     const varName = userInputs && userInputs.varName ? userInputs.varName : "temp_" + (textLabel).replace(/[^A-Z0-9]+/ig, "");
-    const varType = userInputs.selectedType;
+    const varType = userInputs ? userInputs.selectedType : 'string';
     const defaultCodeSnippet = varType + " " + varName + " = ;";
     const snippetTargetPosition = defaultCodeSnippet.length;
     const isCustomTemplate = false;
@@ -186,7 +186,7 @@ export function InputEditor(props: InputEditorProps) {
         const hasDiagnostic = !inputEditorState.diagnostic.length // true if there are no diagnostics
 
         stmtCtx.formCtx.onChange(codeSnippet);
-        stmtCtx.formCtx.validate(userInputs.formField, !hasDiagnostic, false);
+        stmtCtx.formCtx.validate('', !hasDiagnostic, false);
 
         // TODO: Need to obtain the default value as a prop
         if (!CodeGenVisitor.getCodeSnippet().includes('expression')) {
