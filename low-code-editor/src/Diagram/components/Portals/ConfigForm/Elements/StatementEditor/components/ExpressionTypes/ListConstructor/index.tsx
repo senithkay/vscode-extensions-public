@@ -13,11 +13,11 @@
 // tslint:disable: jsx-wrap-multiline jsx-no-multiline-js
 import React, { ReactNode } from "react";
 
-import { ListConstructor, STNode } from "@ballerina/syntax-tree";
+import { ListConstructor, STKindChecker, STNode } from "@ballerina/syntax-tree";
 
 import { VariableUserInputs } from "../../../models/definitions";
 import { ExpressionComponent } from "../../Expression";
-import {useStatementEditorStyles} from "../../ViewContainer/styles";
+import { useStatementEditorStyles } from "../../ViewContainer/styles";
 
 interface ListConstructorProps {
     model: ListConstructor
@@ -30,36 +30,62 @@ export function ListConstructorComponent(props: ListConstructorProps) {
 
     const overlayClasses = useStatementEditorStyles();
 
-    const expressions: (ReactNode)[] = [];
+    const expressions: (ReactNode | string)[] = [];
 
     model.expressions.forEach((expression: STNode) => {
-        const expressionComponent: ReactNode = <ExpressionComponent
-            model={expression}
-            isRoot={false}
-            userInputs={userInputs}
-            diagnosticHandler={diagnosticHandler}
-        />;
-        expressions.push(expressionComponent)
+        if (STKindChecker.isCommaToken(expression)) {
+            expressions.push(expression.value);
+        } else {
+            const expr: ReactNode = <ExpressionComponent
+                model={expression}
+                isRoot={false}
+                userInputs={userInputs}
+                diagnosticHandler={diagnosticHandler}
+            />;
+            expressions.push(expr)
+        }
     });
 
-    return (
-        <span>
-            <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
-                &nbsp;{model.openBracket.value}
-            </span>
+    const expressionComponent = (
             <span>
                 {
-                    expressions.map((expr: ReactNode, index: number) => (
-                        <span
-                            key={index}
-                        >
-                            {expr}
-                        </span>
+                    expressions.map((expr: ReactNode | string, index: number) => (
+                        (typeof expr === 'string') ?
+                            (
+                                <span
+                                    key={index}
+                                    className={
+                                        `${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`
+                                    }
+                                >
+                                    {expr}
+                                </span>
+                            ) :
+                            (
+                                <button
+                                    key={index}
+                                    className={overlayClasses.expressionElement}
+                                >
+                                    {expr}
+                                </button>
+                            )
                     ))
                 }
             </span>
-            <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
-                &nbsp;{model.closeBracket.value}
+        );
+
+    return (
+        <span>
+            <span
+                className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}
+            >
+                &nbsp;{model.openBracket.value}
+            </span>
+            {expressionComponent}
+            <span
+                className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}
+            >
+                {model.closeBracket.value}
             </span>
         </span>
     );

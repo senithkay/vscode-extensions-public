@@ -127,7 +127,7 @@ export function AddForeachForm(props: ForeachProps) {
             ));
             setInitialSource(source);
         })();
-    }, []);
+    }, [isInvalid]);
 
     const handleOnOpen = () => {
         setDropDownOpen(true);
