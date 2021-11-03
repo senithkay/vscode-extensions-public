@@ -10,10 +10,17 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { BinaryExpression, BracedExpression, NumericLiteral, STNode, StringLiteral } from "@ballerina/syntax-tree";
+import {
+    BinaryExpression, BooleanLiteral,
+    BracedExpression,
+    NumericLiteral,
+    SimpleNameReference, STKindChecker,
+    STNode,
+    StringLiteral
+} from "@ballerina/syntax-tree";
 
 import * as c from "../constants";
-import {SuggestionItem} from "../models/definitions";
+import { SuggestionItem } from "../models/definitions";
 
 export function addOperator(model: STNode, operator: SuggestionItem) {
     const expression: any = model;
@@ -22,6 +29,16 @@ export function addOperator(model: STNode, operator: SuggestionItem) {
     } else {
         expression.operator.value = operator.value;
         expression.operator.kind = operator.kind;
+    }
+}
+
+export function addVariableSuggestion(model: STNode, suggestion: SuggestionItem) {
+    const initialKeys = Object.keys(model);
+    initialKeys.forEach((key) => {
+        delete model[key];
+    });
+    if (suggestion.kind === "string") {
+        Object.assign(model, createSimpleNameReference(suggestion.value));
     }
 }
 
@@ -49,6 +66,19 @@ export function addExpression(model: any, kind: string, value?: any) {
         } else {
             Object.assign(model, createNumericLiteral(""));
         }
+    } else if (kind === c.BOOLEAN_LITERAL) {
+        if (value) {
+            if (value === c.TRUE_KEYWORD) {
+                Object.assign(model, createTrueBooleanLiteral(value));
+            } else {
+                Object.assign(model, createFalseBooleanLiteral(value));
+            }
+
+        } else {
+            Object.assign(model, createTrueBooleanLiteral(""));
+        }
+    } else if (kind === c.SIMPLE_NAME_REFERENCE) {
+        Object.assign(model, createSimpleNameReference(value));
     } else {
         // tslint:disable-next-line:no-console
         console.log(`Unsupported kind. (${kind})`);
@@ -196,6 +226,45 @@ function createNumericLiteral(value: string): NumericLiteral {
     };
 }
 
+function createTrueBooleanLiteral(value: string): BooleanLiteral {
+    return {
+        "kind": "BooleanLiteral",
+        "literalToken": {
+            "kind": "TrueKeyword",
+            "isToken": true,
+            "value": value,
+            "source": ""
+        },
+        "source": ""
+    };
+}
+
+function createFalseBooleanLiteral(value: string): BooleanLiteral {
+    return {
+        "kind": "BooleanLiteral",
+        "literalToken": {
+            "kind": "FalseKeyword",
+            "isToken": false,
+            "value": value,
+            "source": ""
+        },
+        "source": ""
+    };
+}
+
+function createSimpleNameReference(value: string): SimpleNameReference {
+    return {
+        "kind": "SimpleNameReference",
+        "name": {
+            "kind": "IdentifierToken",
+            "isToken": true,
+            "value": value,
+            "source": "",
+        },
+        "source": ""
+    }
+}
+
 export const ExpressionKindByOperator: { [key: string]: string } = {
     AsteriskToken: c.ARITHMETIC,
     BitwiseAndToken: c.ARITHMETIC,
@@ -261,7 +330,20 @@ export const OperatorsForExpressionKind: { [key: string]: SuggestionItem[] } = {
 }
 
 export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = {
-    StringLiteral: [],
+    BooleanLiteral: [
+        { value: c.RELATIONAL },
+        { value: c.EQUALITY },
+        { value: c.LOGICAL },
+        { value: c.TYPE_CHECK },
+        { value: c.CONDITIONAL },
+        { value: c.UNARY }
+    ],
+    StringLiteral: [
+        { value: c.STRING_LITERAL },
+        { value: c.CONDITIONAL },
+        { value: c.STRING_TEMPLATE },
+        { value: c.ARITHMETIC }
+    ],
     NumericLiteral: [],
     Relational: [
         { value: c.ARITHMETIC },
@@ -300,7 +382,7 @@ export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = 
         { value: c.RELATIONAL },
         { value: c.EQUALITY },
         { value: c.LOGICAL },
-        { value: c.STRING_LITERAL },
+        { value: c.BOOLEAN_LITERAL },
         { value: c.TYPE_CHECK },
         { value: c.CONDITIONAL },
         { value: c.UNARY }
@@ -332,5 +414,22 @@ export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = 
         { value: c.STRING_TEMPLATE },
         { value: c.ARITHMETIC },
         { value: c.CONDITIONAL }
+    ],
+    DefaultReturn: [
+        { value: c.STRING_LITERAL },
+        { value: c.NUMERIC_LITERAL },
+        { value: c.BOOLEAN_LITERAL },
+        { value: c.ARITHMETIC },
+        { value: c.RELATIONAL },
+        { value: c.EQUALITY },
+        { value: c.TYPE_CHECK },
+        { value: c.LOGICAL }
     ]
+}
+
+export const DataTypeByExpressionKind: { [key: string]: string[] } = {
+    StringLiteral: ["string"],
+    NumericLiteral: ["int", "float", "decimal"],
+    Arithmetic: ["string", "int", "float", "decimal"],
+    BracedExpression: ["string", "int", "float", "decimal"]
 }

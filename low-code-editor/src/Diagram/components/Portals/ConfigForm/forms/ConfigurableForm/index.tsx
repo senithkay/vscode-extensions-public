@@ -13,7 +13,7 @@
 import React, { useReducer } from 'react';
 import { FormattedMessage } from 'react-intl';
 
-import { ModuleVarDecl, NodePosition } from '@ballerina/syntax-tree';
+import { CaptureBindingPattern, ModuleVarDecl, NodePosition } from '@ballerina/syntax-tree';
 import { Box, FormControl, FormHelperText, Typography } from '@material-ui/core';
 import { v4 as uuid } from "uuid";
 
@@ -28,6 +28,7 @@ import CheckBoxGroup from '../../Elements/CheckBox';
 import { SelectDropdownWithButton } from '../../Elements/DropDown/SelectDropdownWithButton';
 import ExpressionEditor from '../../Elements/ExpressionEditor';
 import { FormTextInput } from '../../Elements/TextField/FormTextInput';
+import { VariableNameInput } from '../Components/VariableNameInput';
 import { ModuleVariableFormState } from '../ModuleVariableForm/util';
 import { useStyles as useFormStyles } from "../style";
 
@@ -180,9 +181,14 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
         values: variableTypes,
     };
 
-    const variableNameTextFieldCustomProps = {
-        validate: validateNameValue
-    };
+    let namePosition: NodePosition = { startLine: 0, startColumn: 0, endLine: 0, endColumn: 0 }
+
+    if (model) {
+        namePosition = (model.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.position;
+    } else {
+        namePosition.startLine = targetPosition.startLine;
+        namePosition.endLine = targetPosition.startLine;
+    }
 
     return (
         <FormControl data-testid="module-variable-config-form" className={formClasses.wizardFormControl}>
@@ -217,13 +223,13 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
                 onChange={onVarTypeChange}
                 disabled={isFromExpressionEditor}
             />
-            <FormTextInput
-                customProps={variableNameTextFieldCustomProps}
-                defaultValue={state.varName}
-                onChange={handleOnVarNameChange}
-                label={"Configurable Name"}
-                errorMessage={"Invalid Configurable Name"}
-                placeholder={"Enter Configurable Name"}
+            <VariableNameInput
+                displayName={'Configurable Name'}
+                value={state.varName}
+                onValueChange={handleOnVarNameChange}
+                validateExpression={updateExpressionValidity}
+                position={namePosition}
+                isEdit={!!model}
             />
             <div className={formClasses.labelWrapper}>
                 <FormHelperText className={formClasses.inputLabelForRequired}>

@@ -10,14 +10,32 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { BinaryExpressionC } from './BinaryExpression';
-import { BracedExpressionC } from './BracedExpression';
-import { BooleanLiteralC } from './Literal/Boolean';
-import { NumericLiteralC } from './Literal/Numeric';
-import { StringLiteralC } from './Literal/String';
+import { BinaryExpressionComponent } from './BinaryExpression';
+import { CaptureBindingPatternComponent } from './BindingPattern/CaptureBindingPattern';
+import { BracedExpressionComponent } from './BracedExpression';
+import { BooleanLiteralComponent } from './Literal/Boolean';
+import { NumericLiteralComponent } from './Literal/Numeric';
+import { StringLiteralComponent } from './Literal/String';
+import { SimpleNameReferenceComponent } from './NameReference';
+import { TypedBindingPatternComponent } from './TypedBindingPattern';
+import { BooleanTypeDescComponent } from './TypeDescriptor/BooleanTypeDesc';
+import { DecimalTypeDescComponent } from './TypeDescriptor/DecimalTypeDesc';
+import { FloatTypeDescComponent } from './TypeDescriptor/FloatTypeDesc';
+import { IntTypeDescComponent } from './TypeDescriptor/IntTypeDesc';
+import { JsonTypeDescComponent } from './TypeDescriptor/JsonTypeDesc';
+import { StringTypeDescComponent } from './TypeDescriptor/StringTypeDesc';
 
-export { BinaryExpressionC as BinaryExpression };
-export { BracedExpressionC as BracedExpression };
-export { BooleanLiteralC as BooleanLiteral };
-export { NumericLiteralC as NumericLiteral };
-export { StringLiteralC as StringLiteral };
+export { BinaryExpressionComponent as BinaryExpression };
+export { CaptureBindingPatternComponent as CaptureBindingPattern };
+export { BracedExpressionComponent as BracedExpression };
+export { BooleanLiteralComponent as BooleanLiteral };
+export { NumericLiteralComponent as NumericLiteral };
+export { StringLiteralComponent as StringLiteral };
+export { SimpleNameReferenceComponent as SimpleNameReference };
+export { TypedBindingPatternComponent as TypedBindingPattern };
+export { BooleanTypeDescComponent as BooleanTypeDesc };
+export { DecimalTypeDescComponent as DecimalTypeDesc };
+export { FloatTypeDescComponent as FloatTypeDesc };
+export { IntTypeDescComponent as IntTypeDesc };
+export { JsonTypeDescComponent as JsonTypeDesc };
+export { StringTypeDescComponent as StringTypeDesc };

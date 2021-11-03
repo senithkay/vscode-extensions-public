@@ -11,6 +11,7 @@
  * associated services.
  */
 
+import { STNode } from "@ballerina/syntax-tree";
 import { Diagnostic } from "monaco-languageclient";
 
 import { BaseLangClientInterface } from "./base-lang-client-interface";
@@ -75,10 +76,37 @@ export interface ExpressionTypeResponse {
    	types: string[];
 }
 
+export interface PartialSTRequest {
+	codeSnippet: string;
+	stModification?: PartialSTModification;
+}
+
+export interface PartialSTResponse {
+	syntaxTree: STNode;
+}
+
+export interface PartialSTModification {
+	startLine: number;
+	startColumn: number;
+	endLine: number;
+	endColumn: number;
+	newCodeSnippet: string;
+}
+
 export interface ExpressionEditorLangClientInterface extends BaseLangClientInterface {
 	getDiagnostics: (
 		params: BallerinaProjectParams
 	) => Thenable<PublishDiagnosticsParams[]>;
-	getCompletion: (params: CompletionParams) => Thenable<CompletionResponse[]>;
-	getType: (param: ExpressionTypeRequest) => Thenable<ExpressionTypeResponse>;
+	getCompletion: (
+		params: CompletionParams
+	) => Thenable<CompletionResponse[]>;
+	getType: (
+		param: ExpressionTypeRequest
+	) => Thenable<ExpressionTypeResponse>;
+	getSTForSingleStatement: (
+		param: PartialSTRequest
+	) => Thenable<PartialSTResponse>;
+	getSTForExpression	: (
+		param: PartialSTRequest
+	) => Thenable<PartialSTResponse>;
 }

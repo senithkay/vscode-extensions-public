@@ -17,19 +17,15 @@ import React, { useContext, useState } from "react";
 import { Box, FormControl, Typography } from "@material-ui/core";
 
 import { Context } from "../../../../../../Contexts/Diagram";
-import { ButtonWithIcon } from "../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { EndConfig } from "../../../../Portals/ConfigForm/types";
 import { wizardStyles } from "../../../style";
 
-import { CloseRounded, ReturnIcon, EditIcon } from "../../../../../../assets/icons";
-
 import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
-import { ViewContainer } from "../../../../Portals/ConfigForm/Elements/StatementEditor/components/ViewContainer/ViewContainer";
-import { StatementEditorButton } from "../../../../Portals/ConfigForm/Elements/Button/StatementEditorButton";
+import { useStatementEditor } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
 
 interface ReturnFormProps {
     config: EndConfig;
@@ -51,7 +47,6 @@ export function AddReturnForm(props: ReturnFormProps) {
     const classes = useStyles();
     const overlayClasses = wizardStyles();
     const intl = useIntl();
-    const [isStmtEditor, setIsStmtEditor] = useState(false);
 
     const [returnExpression, setReturnExpression] = useState(config.expression);
     const onReturnValueChange = (value: any) => {
@@ -66,14 +61,6 @@ export function AddReturnForm(props: ReturnFormProps) {
     const [isValidValue, setIsValidValue] = useState(true);
     const validateExpression = (fieldName: string, isInvalid: boolean) => {
         setIsValidValue(!isInvalid || (returnExpression === ""));
-    };
-
-    const handleStmtEditorButtonClick = () => {
-        setIsStmtEditor(true);
-    };
-
-    const handleStmtEditorCancel = () => {
-        setIsStmtEditor(false);
     };
 
     const isButtonDisabled = isMutationInProgress || !isValidValue;
@@ -100,76 +87,69 @@ export function AddReturnForm(props: ReturnFormProps) {
 
     const containsMainFunction = triggerType && (triggerType === "Manual" || triggerType === "Schedule"); // todo: this is not working due to triggerType is blank.
 
-    let exprEditor =
-        (
-            <FormControl data-testid="return-form" className={classes.wizardFormControl}>
-                {!isCodeEditorActive ?
-                    (
-                        <div className={classes.formWrapper}>
-                            <div className={classes.formFeilds}>
-                                <div className={classes.formTitleWrapper}>
-                                    <div className={classes.mainTitleWrapper}>
-                                        <Typography variant="h4">
-                                            <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.Return.title" defaultMessage="Return" /></Box>
-                                        </Typography>
-                                    </div>
-                                    <div className={classes.statementEditor}>
-                                        <StatementEditorButton onClick={handleStmtEditorButtonClick} disabled={true} />
-                                    </div>
+    const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
+        {
+            label: intl.formatMessage({id: "lowcode.develop.configForms.return.statementEditor.label"}),
+            initialSource: "", // TODO: Pass the actual initialSource
+            formArgs: {formArgs},
+            isMutationInProgress,
+            validForm: isValidValue,
+            onSave: onReturnExpressionSave,
+            onChange: onReturnValueChange,
+            validate: validateExpression
+        },
+        true
+    );
+
+    if (!stmtEditorComponent){
+        return (
+                <FormControl data-testid="return-form" className={classes.wizardFormControl}>
+                    <div className={classes.formWrapper}>
+                        <div className={classes.formFeilds}>
+                            <div className={classes.formTitleWrapper}>
+                                <div className={classes.mainTitleWrapper}>
+                                    <Typography variant="h4">
+                                        <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.Return.title" defaultMessage="Return" /></Box>
+                                    </Typography>
                                 </div>
+                                {stmtEditorButton}
                                 <div className={classes.formWrapper}>
-                                    <div className="exp-wrapper">
-                                        <ExpressionEditor
-                                            model={{ name: "return expression", type: "var", value: config.expression }}
-                                            customProps={{
-                                                validate: validateExpression,
-                                                tooltipTitle: returnStatementTooltipMessages.title,
-                                                tooltipActionText: returnStatementTooltipMessages.actionText,
-                                                tooltipActionLink: returnStatementTooltipMessages.actionLink,
-                                                interactive: true,
-                                                statementType: 'var'
-                                            }}
-                                            onChange={onReturnValueChange}
-                                        />
-                                    </div>
+                                    {
+                                        // containsMainFunction ?
+                                        (
+                                            <div className="exp-wrapper">
+                                                <ExpressionEditor
+                                                    model={{ name: "return expression", type: "var", value: config.expression }}
+                                                    customProps={{
+                                                        validate: validateExpression,
+                                                        tooltipTitle: returnStatementTooltipMessages.title,
+                                                        tooltipActionText: returnStatementTooltipMessages.actionText,
+                                                        tooltipActionLink: returnStatementTooltipMessages.actionLink,
+                                                        interactive: true,
+                                                        statementType: 'var'
+                                                    }}
+                                                    onChange={onReturnValueChange}
+                                                />
+                                            </div>
+                                        )
+                                        // : null
+                                    }
                                 </div>
-                                <FormActionButtons
-                                    cancelBtnText="Cancel"
-                                    saveBtnText={saveReturnButtonLabel}
-                                    isMutationInProgress={isMutationInProgress}
-                                    validForm={isValidValue}
-                                    onSave={onReturnExpressionSave}
-                                    onCancel={onCancel}
-                                />
                             </div>
                         </div>
-                    )
-                    :
-                    null
-                }
-            </FormControl>
-        );
-
-    if (isStmtEditor) {
-        exprEditor =
-            (
-                <FormControl data-testid="property-form">
-                    {!isCodeEditorActive ? (
-                        <div>
-                            // TODO: Send proper props according to the form type
-                            <ViewContainer
-                                kind="DefaultBoolean"
-                                label="Variable Statement"
-                                formArgs={formArgs}
-                                onCancel={handleStmtEditorCancel}
-                            />
-                        </div>
-                    ) : null}
+                        <FormActionButtons
+                            cancelBtnText="Cancel"
+                            saveBtnText={saveReturnButtonLabel}
+                            isMutationInProgress={isMutationInProgress}
+                            validForm={isValidValue}
+                            onSave={onReturnExpressionSave}
+                            onCancel={onCancel}
+                        />
+                    </div>
                 </FormControl>
             );
     }
-
-    return (
-        exprEditor
-    );
+    else {
+        return stmtEditorComponent
+    }
 }

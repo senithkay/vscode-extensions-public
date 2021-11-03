@@ -31,10 +31,11 @@ interface QueryParamSegmentEditorProps {
     onSave?: (segment: QueryParam) => void;
     onCancel?: () => void;
     types?: string[];
+    validateParams?: (paramName: string) => { error: boolean, message: string };
 }
 
 export function QueryParamSegmentEditor(props: QueryParamSegmentEditorProps) {
-    const { segment, onSave, id, onCancel, types } = props;
+    const { segment, onSave, id, onCancel, types, validateParams } = props;
     const classes = useStyles();
     const { props: { stSymbolInfo } } = useContext(Context);
     const initValue: QueryParam = segment ? { ...segment } : {
@@ -62,8 +63,9 @@ export function QueryParamSegmentEditor(props: QueryParamSegmentEditorProps) {
 
     const validateNameValue = (value: string) => {
         if (value) {
-            const varValidationResponse = checkVariableName("query param name", value,
-                "", stSymbolInfo);
+            const varValidationResponse = validateParams
+                ? validateParams(value)
+                : checkVariableName("query param name", value, "", stSymbolInfo);
             if (varValidationResponse?.error) {
                 setParamError(varValidationResponse.message);
                 return false;

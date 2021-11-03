@@ -79,7 +79,7 @@ export interface LowCodeEditorActions {
     diagramCleanDraw: (payload: STNode) => void;
     diagramRedraw: (payload: STNode) => void;
     insertComponentStart: (payload: NodePosition) => void;
-    editorComponentStart: (payload: STNode) => void;
+    editorComponentStart: (payload: NodePosition) => void;
     dataMapperStart: (dataMapperConfig: DataMapperConfig) => void;
     toggleDiagramOverlay: () => void;
     updateDataMapperConfig: (dataMapperConfig: DataMapperConfig) => void;

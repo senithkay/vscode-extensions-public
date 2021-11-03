@@ -17,11 +17,8 @@ import React, { useContext, useState } from "react";
 import { CallStatement, FunctionCall, QualifiedNameReference } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 
-import { CloseRounded, LogIcon, EditIcon } from "../../../../../../assets/icons";
-
 import { WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
-import { ButtonWithIcon } from "../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import { SelectDropdownWithButton } from "../../../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms/style";
@@ -30,8 +27,7 @@ import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
-import { ViewContainer } from "../../../../Portals/ConfigForm/Elements/StatementEditor/components/ViewContainer/ViewContainer";
-import { StatementEditorButton } from "../../../../Portals/ConfigForm/Elements/Button/StatementEditorButton";
+import { useStatementEditor } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
 
 interface LogConfigProps {
     config: ProcessConfig;
@@ -76,8 +72,6 @@ export function AddLogConfig(props: LogConfigProps) {
     const [logType, setLogType] = useState(defaultType);
     const [expression, setExpression] = useState(defaultExpression);
     const [isFormValid, setIsFormValid] = useState(logType && expression);
-    const [isStmtEditor, setIsStmtEditor] = useState(false);
-
 
     const onExpressionChange = (value: any) => {
         setExpression(value);
@@ -95,14 +89,6 @@ export function AddLogConfig(props: LogConfigProps) {
 
     const validateExpression = (field: string, isInvalid: boolean) => {
         setIsFormValid(!isInvalid && logType);
-    };
-
-    const handleStmtEditorButtonClick = () => {
-        setIsStmtEditor(true);
-    };
-
-    const handleStmtEditorCancel = () => {
-        setIsStmtEditor(false);
     };
 
     const saveLogButtonLabel = intl.formatMessage({
@@ -125,94 +111,75 @@ export function AddLogConfig(props: LogConfigProps) {
         }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
     }
 
-    let exprEditor =
-        (
+
+    const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
+        {
+            label: intl.formatMessage({id: "lowcode.develop.configForms.log.statementEditor.label"}),
+            initialSource: "", // TODO: Pass the actual initialSource
+            formArgs: {formArgs},
+            isMutationInProgress,
+            validForm: !!isFormValid,
+            onSave: onSaveBtnClick,
+            onChange: onExpressionChange,
+            validate: validateExpression
+        },
+        true
+    );
+
+    if (!stmtEditorComponent) {
+        return (
             <FormControl data-testid="log-form" className={formClasses.wizardFormControl}>
-                {!isCodeEditorActive ?
-                    (
+                <div className={formClasses.formWrapper}>
+                    <div className={formClasses.formFeilds}>
                         <div className={formClasses.formWrapper}>
-                            <div className={formClasses.formFeilds}>
-                                <div className={formClasses.formWrapper}>
-                                    <div className={formClasses.formTitleWrapper}>
-                                        <div className={formClasses.mainTitleWrapper}>
-                                            <div className={formClasses.iconWrapper}>
-                                                <LogIcon />
-                                            </div>
-                                            <Typography variant="h4">
-                                                <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.log.title" defaultMessage="Log" /></Box>
-                                            </Typography>
-                                        </div>
-                                        <div className={formClasses.statementEditor}>
-                                            <StatementEditorButton onClick={handleStmtEditorButtonClick} disabled={true} />
-                                        </div>
-                                    </div>
-                                    <SelectDropdownWithButton
-                                        defaultValue={logType}
-                                        onChange={onTypeChange}
-                                        customProps={{
-                                            disableCreateNew: true,
-                                            values: logTypes
-                                        }}
-                                        placeholder=""
-                                        label="Type"
-                                    />
-                                    <div className="exp-wrapper">
-                                        <ExpressionEditor
-                                            model={{ name: "expression", value: expression, typeName: 'string' }}
-                                            customProps={{
-                                                validate: validateExpression,
-                                                tooltipTitle: logTooltipMessages.title,
-                                                tooltipActionText: logTooltipMessages.actionText,
-                                                tooltipActionLink: logTooltipMessages.actionLink,
-                                                interactive: true,
-                                                statementType: 'string',
-                                                expressionInjectables: {
-                                                    list: formArgs?.expressionInjectables?.list,
-                                                    setInjectables: formArgs?.expressionInjectables?.setInjectables
-                                                }
-                                            }}
-                                            onChange={onExpressionChange}
-                                            defaultValue={expression}
-                                        />
-                                    </div>
+                            <div className={formClasses.formTitleWrapper}>
+                                <div className={formClasses.mainTitleWrapper}>
+                                    <Typography variant="h4">
+                                        <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.log.title" defaultMessage="Log" /></Box>
+                                    </Typography>
                                 </div>
+                                {stmtEditorButton}
                             </div>
-                            <FormActionButtons
-                                cancelBtnText="Cancel"
-                                saveBtnText={saveLogButtonLabel}
-                                isMutationInProgress={isMutationInProgress}
-                                validForm={!!isFormValid}
-                                onSave={onSaveBtnClick}
-                                onCancel={onCancel}
+                            <SelectDropdownWithButton
+                                defaultValue={logType}
+                                onChange={onTypeChange}
+                                customProps={{
+                                    disableCreateNew: true,
+                                    values: logTypes
+                                }}
+                                placeholder=""
+                                label="Type"
                             />
+                            <div className="exp-wrapper">
+                                <ExpressionEditor
+                                    model={{ name: "expression", type: 'string' }}
+                                    customProps={{
+                                        validate: validateExpression,
+                                        tooltipTitle: logTooltipMessages.title,
+                                        tooltipActionText: logTooltipMessages.actionText,
+                                        tooltipActionLink: logTooltipMessages.actionLink,
+                                        interactive: true,
+                                        statementType: 'string'
+                                    }}
+                                    onChange={onExpressionChange}
+                                    defaultValue={expression}
+                                />
+                            </div>
                         </div>
-                    )
-                    :
-                    null
-                }
+                    </div>
+                    <FormActionButtons
+                        cancelBtnText="Cancel"
+                        saveBtnText={saveLogButtonLabel}
+                        isMutationInProgress={isMutationInProgress}
+                        validForm={!!isFormValid}
+                        onSave={onSaveBtnClick}
+                        onCancel={onCancel}
+                    />
+                </div>
             </FormControl>
         );
-
-    if (isStmtEditor) {
-        exprEditor =
-            (
-                <FormControl data-testid="property-form">
-                    {!isCodeEditorActive ? (
-                        <div>
-                            // TODO: Send proper props according to the form type
-                            <ViewContainer
-                                kind="DefaultBoolean"
-                                label="Variable Statement"
-                                formArgs={formArgs}
-                                onCancel={handleStmtEditorCancel}
-                            />
-                        </div>
-                    ) : null}
-                </FormControl>
-            );
     }
-
-    return (
-        exprEditor
-    );
+    else {
+        return stmtEditorComponent;
+    }
 }

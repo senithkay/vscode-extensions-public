@@ -10,6 +10,15 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import {
+    ActionStatement, AssignmentStatement, CallStatement, CompoundAssignmentStatement, DoStatement,
+    ForeachStatement, ForkStatement,
+    IfElseStatement,
+    LocalVarDecl, LockStatement, MatchStatement,
+    PanicStatement, ReturnStatement, RollbackStatement, TransactionStatement,
+    WhileStatement
+} from "@ballerina/syntax-tree";
+
 export const VARIABLE = "Variable"
 export const ARITHMETIC = "Arithmetic"
 export const CONDITIONAL = "Conditional"
@@ -20,7 +29,43 @@ export const STRING_TEMPLATE = "StringTemplate"
 export const DEFAULT_BOOL = "DefaultBoolean"
 export const DEFAULT_INTEGER = "DefaultInteger"
 export const DEFAULT_STRING = "DefaultString"
+export const DEFAULT_RETURN = "DefaultReturn"
 export const TYPE_CHECK = "TypeCheck"
 export const UNARY = "Unary"
 export const STRING_LITERAL = "StringLiteral"
 export const NUMERIC_LITERAL = "NumericLiteral"
+export const BOOLEAN_LITERAL = "BooleanLiteral"
+export const SIMPLE_NAME_REFERENCE = "SimpleNameReference"
+export const TRUE_KEYWORD = "true";
+export const OTHER_STATEMENT = "OtherStatement"
+
+// Statement types supported in function-body-block
+export type StatementNodes = ActionStatement
+    | AssignmentStatement
+    | CallStatement
+    | CompoundAssignmentStatement
+    | DoStatement
+    | ForeachStatement
+    | ForkStatement
+    | IfElseStatement
+    | LocalVarDecl
+    | LockStatement
+    | MatchStatement
+    | PanicStatement
+    | ReturnStatement
+    | RollbackStatement
+    | TransactionStatement
+    | WhileStatement;
+
+export type OtherStatementNodeTypes = ActionStatement
+    | AssignmentStatement
+    | CallStatement
+    | CompoundAssignmentStatement
+    | DoStatement
+    | ForkStatement
+    | LockStatement
+    | MatchStatement
+    | PanicStatement
+    | ReturnStatement
+    | RollbackStatement
+    | TransactionStatement;

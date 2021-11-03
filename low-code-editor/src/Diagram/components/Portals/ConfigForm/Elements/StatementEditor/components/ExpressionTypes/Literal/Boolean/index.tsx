@@ -12,29 +12,28 @@
  */
 import React from "react";
 
-import {BooleanLiteral, STKindChecker, STNode} from "@ballerina/syntax-tree";
+import { BooleanLiteral } from "@ballerina/syntax-tree";
 
-import { SuggestionItem, VariableUserInputs } from "../../../../models/definitions";
+import { VariableUserInputs } from "../../../../models/definitions";
+import { InputEditor } from "../../../InputEditor";
 
-interface LiteralProps {
-    model: STNode
-    expressionHandler: (suggestions: SuggestionItem[], model: STNode) => void
+interface BooleanLiteralProps {
+    model: BooleanLiteral
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }
 
-export function BooleanLiteralC(props: LiteralProps) {
-    const { model } = props;
-    let value: any;
+export function BooleanLiteralComponent(props: BooleanLiteralProps) {
+    const { model, userInputs, diagnosticHandler } = props;
 
-    if (STKindChecker.isBooleanLiteral(model)) {
-        const literalModel: BooleanLiteral = model as BooleanLiteral;
-        value = literalModel.literalToken.value;
-    }
+    const inputEditorProps = {
+        statementType: model.kind,
+        model,
+        userInputs,
+        diagnosticHandler
+    };
 
     return (
-        <button>
-            {value}
-        </button>
+        <InputEditor {...inputEditorProps} />
     );
 }

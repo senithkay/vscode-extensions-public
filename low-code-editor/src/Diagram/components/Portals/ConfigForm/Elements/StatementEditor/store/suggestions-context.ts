@@ -13,9 +13,16 @@
 // tslint:disable: no-empty
 import React from 'react';
 
-export const FormContext = React.createContext({
-    onCancel: false,
-    onSave: () => {},
-    onChange: (p: string) => {},
-    validate: (fieldName: string, isInvalid: boolean, isEmpty: boolean) => {},
+import { STNode } from "@ballerina/syntax-tree";
+
+import { SuggestionItem } from "../models/definitions";
+
+export const SuggestionsContext = React.createContext({
+    expressionHandler: (model: STNode,
+                        operator: boolean,
+                        suggestionsList: {
+                            expressionSuggestions?: SuggestionItem[],
+                            variableSuggestions?: SuggestionItem[]
+                        }) => {}
+
 });
