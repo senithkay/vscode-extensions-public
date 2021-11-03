@@ -13,18 +13,18 @@
 // tslint:disable: jsx-wrap-multiline
 import React from "react";
 
-import { StringTypeDesc } from "@ballerina/syntax-tree";
+import { DecimalTypeDesc } from "@ballerina/syntax-tree";
 
-import { VariableUserInputs } from "../../../models/definitions";
-import { useStatementEditorStyles } from "../../ViewContainer/styles";
+import { VariableUserInputs } from "../../../../models/definitions";
+import { useStatementEditorStyles } from "../../../ViewContainer/styles";
 
-interface StringTypeDescProps {
-    model: StringTypeDesc
+interface DecimalTypeDescProps {
+    model: DecimalTypeDesc
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
 }
 
-export function StringTypeDescC(props: StringTypeDescProps) {
+export function DecimalTypeDescComponent(props: DecimalTypeDescProps) {
     const { model } = props;
 
     const overlayClasses = useStatementEditorStyles();

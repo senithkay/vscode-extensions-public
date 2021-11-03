@@ -22,6 +22,9 @@ export interface ModuleVariableFormState {
     varName: string;
     varValue: string;
     varOptions: string[];
+}
+
+export interface ModuleVariableFormStateWithValidity extends ModuleVariableFormState{
     isExpressionValid: boolean;
 }
 
@@ -30,9 +33,9 @@ export enum VariableOptions {
     PUBLIC = 'public',
 }
 
-export function getFormConfigFromModel(model: any): ModuleVariableFormState {
+export function getFormConfigFromModel(model: any): ModuleVariableFormStateWithValidity {
     // FixMe: model is set to any type due to missing properties in ST interface
-    const defaultFormState: ModuleVariableFormState = {
+    const defaultFormState: ModuleVariableFormStateWithValidity = {
         varType: 'int',
         varName: '',
         varValue: '',
@@ -68,7 +71,7 @@ export function getFormConfigFromModel(model: any): ModuleVariableFormState {
     return defaultFormState;
 }
 
-export function isFormConfigValid(config: ModuleVariableFormState): boolean {
+export function isFormConfigValid(config: ModuleVariableFormStateWithValidity): boolean {
     const { varName, varValue, isExpressionValid } = config;
 
     return varName.length > 0 && ModuleVarNameRegex.test(varName) && varValue.length > 0 && isExpressionValid;
