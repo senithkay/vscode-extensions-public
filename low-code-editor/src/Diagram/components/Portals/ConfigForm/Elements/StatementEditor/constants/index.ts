@@ -30,7 +30,6 @@ export const DEFAULT_BOOL = "DefaultBoolean"
 export const DEFAULT_INTEGER = "DefaultInteger"
 export const DEFAULT_STRING = "DefaultString"
 export const DEFAULT_RETURN = "DefaultReturn"
-export const TYPE_CHECK = "TypeCheck"
 export const UNARY = "Unary"
 export const STRING_LITERAL = "StringLiteral"
 export const NUMERIC_LITERAL = "NumericLiteral"
@@ -38,6 +37,9 @@ export const BOOLEAN_LITERAL = "BooleanLiteral"
 export const SIMPLE_NAME_REFERENCE = "SimpleNameReference"
 export const TRUE_KEYWORD = "true";
 export const OTHER_STATEMENT = "OtherStatement"
+export const STRING_TYPE_DESC = "StringTypeDesc"
+export const TYPE_TEST = "TypeTestExpression"
+export const TYPE_DESCRIPTOR = "TypeDescriptor"
 
 // Statement types supported in function-body-block
 export type StatementNodes = ActionStatement

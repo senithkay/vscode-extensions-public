@@ -16,7 +16,7 @@ import {
     NumericLiteral,
     SimpleNameReference, STKindChecker,
     STNode,
-    StringLiteral
+    StringLiteral, StringTypeDesc, TypeTestExpression
 } from "@ballerina/syntax-tree";
 
 import * as c from "../constants";
@@ -56,6 +56,8 @@ export function addExpression(model: any, kind: string, value?: any) {
         Object.assign(model, createEquality());
     } else if (kind === c.LOGICAL) {
         Object.assign(model, createLogical());
+    } else if (kind === c.STRING_TYPE_DESC) {
+        Object.assign(model, createStringTypeDesc());
     } else if (kind === c.STRING_LITERAL) {
         if (value) {
             Object.assign(model, createStringLiteral(value));
@@ -81,6 +83,12 @@ export function addExpression(model: any, kind: string, value?: any) {
         }
     } else if (kind === c.SIMPLE_NAME_REFERENCE) {
         Object.assign(model, createSimpleNameReference(value));
+    } else if (kind === c.TYPE_TEST) {
+        if (value) {
+            Object.assign(model, createTypeTestExpression(value));
+        } else {
+            Object.assign(model, createTypeTestExpression(""));
+        }
     } else {
         // tslint:disable-next-line:no-console
         console.log(`Unsupported kind. (${kind})`);
@@ -235,6 +243,39 @@ function createLogical(): BinaryExpression {
     };
 }
 
+function createTypeTestExpression(value: string): TypeTestExpression {
+    return {
+        kind: "TypeTestExpression",
+        expression: {
+            "kind": "SimpleNameReference",
+            "name": {
+                "kind": "IdentifierToken",
+                "isToken": true,
+                "value": value,
+                "source": "",
+            },
+            "source": ""
+        },
+        isKeyword: {
+            kind: "isKeyword",
+            isToken: true,
+            value: "is",
+            source: ""
+        },
+        "typeDescriptor": {
+            kind: "StringTypeDesc",
+            name: {
+                kind: "StringKeyword",
+                "isToken": true,
+                "value": "string",
+                "source": "",
+            },
+            "source": ""
+        },
+        source: ""
+    };
+}
+
 function createStringLiteral(value: string): StringLiteral {
     return {
         "kind": "StringLiteral",
@@ -294,6 +335,19 @@ function createSimpleNameReference(value: string): SimpleNameReference {
             "kind": "IdentifierToken",
             "isToken": true,
             "value": value,
+            "source": "",
+        },
+        "source": ""
+    }
+}
+
+function createStringTypeDesc(): StringTypeDesc {
+    return {
+        kind: "StringTypeDesc",
+        name: {
+            kind: "StringKeyword",
+            "isToken": true,
+            "value": "string",
             "source": "",
         },
         "source": ""
@@ -369,56 +423,56 @@ export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = 
         { value: c.RELATIONAL },
         { value: c.EQUALITY },
         { value: c.LOGICAL },
-        //{ value: c.TYPE_CHECK },
-        //{ value: c.CONDITIONAL },
-        //{ value: c.UNARY }
+        { value: c.TYPE_TEST },
+        // { value: c.CONDITIONAL },
+        // { value: c.UNARY }
     ],
     StringLiteral: [
         { value: c.STRING_LITERAL },
-        //{ value: c.CONDITIONAL },
+        // { value: c.CONDITIONAL },
         { value: c.STRING_TEMPLATE },
         { value: c.ARITHMETIC }
     ],
     NumericLiteral: [],
     Relational: [
         { value: c.ARITHMETIC },
-        //{ value: c.CONDITIONAL },
-        //{ value: c.TYPE_CHECK },
+        // { value: c.CONDITIONAL },
+        { value: c.TYPE_TEST },
         { value: c.RELATIONAL },
         { value: c.NUMERIC_LITERAL }
     ],
     Arithmetic: [
         { value: c.NUMERIC_LITERAL },
         { value: c.ARITHMETIC },
-        //{ value: c.CONDITIONAL },
+        // { value: c.CONDITIONAL },
         { value: c.STRING_LITERAL }
     ],
     Logical: [
         { value: c.RELATIONAL },
         { value: c.LOGICAL },
-        //{ value: c.CONDITIONAL },
+        // { value: c.CONDITIONAL },
         { value: c.STRING_LITERAL }
     ],
     Conditional: [
         { value: c.STRING_LITERAL },
         { value: c.NUMERIC_LITERAL },
         { value: c.RELATIONAL },
-        //{ value: c.TYPE_CHECK },
-        //{ value: c.CONDITIONAL }
+        { value: c.TYPE_TEST },
+        // { value: c.CONDITIONAL }
     ],
     Equality: [
         { value: c.ARITHMETIC },
-        //{ value: c.CONDITIONAL },
+        // { value: c.CONDITIONAL },
         { value: c.STRING_LITERAL },
         { value: c.NUMERIC_LITERAL },
-        //{ value: c.STRING_TEMPLATE }
+        // { value: c.STRING_TEMPLATE }
     ],
     DefaultBoolean: [
         { value: c.RELATIONAL },
         { value: c.EQUALITY },
         { value: c.LOGICAL },
         { value: c.BOOLEAN_LITERAL },
-        // { value: c.TYPE_CHECK },
+        { value: c.TYPE_TEST },
         // { value: c.CONDITIONAL },
         // { value: c.UNARY }
     ],
@@ -434,11 +488,6 @@ export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = 
         // { value: c.STRING_TEMPLATE },
         { value: c.ARITHMETIC }
     ],
-    TypeCheck: [
-        { value: c.STRING_LITERAL },
-        { value: c.NUMERIC_LITERAL },
-        //{ value: c.CONDITIONAL }
-    ],
     Unary: [
         { value: c.NUMERIC_LITERAL },
         { value: c.RELATIONAL },
@@ -448,7 +497,7 @@ export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = 
     StringTemplate: [
         { value: c.STRING_TEMPLATE },
         { value: c.ARITHMETIC },
-        //{ value: c.CONDITIONAL }
+        // { value: c.CONDITIONAL }
     ],
     DefaultReturn: [
         { value: c.STRING_LITERAL },
@@ -457,8 +506,11 @@ export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = 
         { value: c.ARITHMETIC },
         { value: c.RELATIONAL },
         { value: c.EQUALITY },
-        //{ value: c.TYPE_CHECK },
+        { value: c.TYPE_TEST },
         { value: c.LOGICAL }
+    ],
+    TypeDescriptor: [
+        { value: c.STRING_TYPE_DESC },
     ]
 }
 

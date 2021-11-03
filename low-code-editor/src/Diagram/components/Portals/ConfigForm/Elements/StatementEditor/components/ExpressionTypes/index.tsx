@@ -19,6 +19,7 @@ import { StringLiteralC } from './Literal/String';
 import { SimpleNameReferenceC } from './NameReference';
 import { TypedBindingPatternC } from './TypedBindingPattern';
 import { StringTypeDescC } from './TypeDescriptor';
+import { TypeTestExpressionComponent} from "./TypeTestExpression";
 
 export { BinaryExpressionC as BinaryExpression };
 export { CaptureBindingPatternC as CaptureBindingPattern };
@@ -29,3 +30,4 @@ export { SimpleNameReferenceC as SimpleNameReference };
 export { StringLiteralC as StringLiteral };
 export { TypedBindingPatternC as TypedBindingPattern };
 export { StringTypeDescC as StringTypeDesc };
+export { TypeTestExpressionComponent as TypeTestExpression };
