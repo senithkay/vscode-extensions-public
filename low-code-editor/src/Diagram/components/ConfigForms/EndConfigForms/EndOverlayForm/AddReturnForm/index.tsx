@@ -12,7 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 // tslint:disable: ordered-imports
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
 
@@ -26,6 +26,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
 import { useStatementEditor } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
+import { createReturnStatement, getInitialSource } from "../../../../../utils/modification-util";
 
 interface ReturnFormProps {
     config: EndConfig;
@@ -49,6 +50,20 @@ export function AddReturnForm(props: ReturnFormProps) {
     const onReturnValueChange = (value: any) => {
         setReturnExpression(value);
     };
+
+    const [initialSource, setInitialSource] = useState('');
+
+    useEffect(() => {
+        (async () => {
+            const source = await getInitialSource(createReturnStatement(
+                returnExpression as string,
+                {
+                    endColumn: 0, endLine: 0, startColumn: 0, startLine: 0
+                }
+            ));
+            setInitialSource(source);
+        })();
+    }, [returnExpression]);
 
     const onReturnExpressionSave = () => {
         config.expression = returnExpression;
@@ -83,7 +98,7 @@ export function AddReturnForm(props: ReturnFormProps) {
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {
             label: intl.formatMessage({id: "lowcode.develop.configForms.return.statementEditor.label"}),
-            initialSource: "", // TODO: Pass the actual initialSource
+            initialSource,
             formArgs: {formArgs},
             isMutationInProgress,
             validForm: isValidValue,
@@ -91,7 +106,7 @@ export function AddReturnForm(props: ReturnFormProps) {
             onChange: onReturnValueChange,
             validate: validateExpression
         },
-        true
+        false
     );
 
     if (!stmtEditorComponent){
