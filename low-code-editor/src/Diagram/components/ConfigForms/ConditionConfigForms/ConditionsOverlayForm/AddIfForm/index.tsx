@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js ordered-imports
-import React, {useContext, useEffect, useState} from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
 
@@ -27,7 +27,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
 import { useStatementEditor } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
-import {createIfStatement, createWhileStatement, getInitialSource} from "../../../../../utils/modification-util";
+import { createIfStatement, getInitialSource } from "../../../../../utils/modification-util";
 
 interface IfProps {
     condition: ConditionConfig;
