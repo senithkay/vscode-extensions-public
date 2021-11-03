@@ -48,13 +48,13 @@ export function AddWhileForm(props: WhileProps) {
 
     useEffect(() => {
         (async () => {
-            const s = await getInitialSource(createWhileStatement(
+            const source = await getInitialSource(createWhileStatement(
                  conditionState.conditionExpression ? conditionState.conditionExpression as string : 'expression',
                 {
                     endColumn: 0, endLine: 0, startColumn: 0, startLine: 0
                 }
             ));
-            setInitialSource(s);
+            setInitialSource(source);
         })();
     }, [conditionState]);
 

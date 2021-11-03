@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js ordered-imports
-import React, { useContext, useState } from "react";
+import React, {useContext, useEffect, useState} from "react";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
 
@@ -27,6 +27,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
 import { useStatementEditor } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
+import {createIfStatement, createWhileStatement, getInitialSource} from "../../../../../utils/modification-util";
 
 interface IfProps {
     condition: ConditionConfig;
@@ -52,6 +53,19 @@ export function AddIfForm(props: IfProps) {
 
     const [isInvalid, setIsInvalid] = useState(true);
     const [conditionState, setConditionState] = useState(condition);
+    const [initialSource, setInitialSource] = useState('');
+
+    useEffect(() => {
+        (async () => {
+            const source = await getInitialSource(createIfStatement(
+                conditionState.conditionExpression ? conditionState.conditionExpression as string : 'expression',
+                {
+                    endColumn: 0, endLine: 0, startColumn: 0, startLine: 0
+                }
+            ));
+            setInitialSource(source);
+        })();
+    }, [conditionState]);
 
     const handleExpEditorChange = (value: string) => {
         // condition.conditionExpression = value;
@@ -120,7 +134,7 @@ export function AddIfForm(props: IfProps) {
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {
             label: intl.formatMessage({id: "lowcode.develop.configForms.if.statementEditor.label"}),
-            initialSource: "", // TODO: Pass the actual initialSource
+            initialSource,
             formArgs: {formArgs},
             isMutationInProgress,
             validForm: !isInvalid,
@@ -128,7 +142,7 @@ export function AddIfForm(props: IfProps) {
             onChange: handleExpEditorChange,
             validate: validateField
         },
-        true
+        false
     );
 
     if (!stmtEditorComponent) {
