@@ -12,7 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 // tslint:disable: ordered-imports
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import { BinaryExpression, ForeachStatement } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
@@ -30,6 +30,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
 import { useStatementEditor } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
+import { createForeachStatement, getInitialSource } from "../../../../../utils/modification-util";
 
 interface Iterations {
     start?: string;
@@ -112,6 +113,21 @@ export function AddForeachForm(props: ForeachProps) {
 
     const [selectedType, setSelectedType] = useState(conditionExpression.type ? conditionExpression.type : "var");
     const [isDropDownOpen, setDropDownOpen] = useState(false);
+    const [initialSource, setInitialSource] = useState('');
+
+    useEffect(() => {
+        (async () => {
+            const source = await getInitialSource(createForeachStatement(
+                conditionExpression.collection,
+                conditionExpression.variable,
+                selectedType,
+                {
+                    endColumn: 0, endLine: 0, startColumn: 0, startLine: 0
+                }
+            ));
+            setInitialSource(source);
+        })();
+    }, []);
 
     const handleOnOpen = () => {
         setDropDownOpen(true);
@@ -211,7 +227,7 @@ export function AddForeachForm(props: ForeachProps) {
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {
             label: intl.formatMessage({id: "lowcode.develop.configForms.foreach.statementEditor.label"}),
-            initialSource: "", // TODO: Pass the actual initialSource
+            initialSource,
             formArgs: {formArgs},
             isMutationInProgress,
             validForm: !isInvalid,
@@ -219,7 +235,7 @@ export function AddForeachForm(props: ForeachProps) {
             onChange: handleExpEditorChange,
             validate: validateField
         },
-        true
+        false
     );
 
     if (!stmtEditorComponent) {
