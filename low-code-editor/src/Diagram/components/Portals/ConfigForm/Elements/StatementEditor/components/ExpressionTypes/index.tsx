@@ -13,6 +13,7 @@
 import { BinaryExpressionC } from './BinaryExpression';
 import { CaptureBindingPatternC } from './BindingPattern/CaptureBindingPattern';
 import { BracedExpressionC } from './BracedExpression';
+import { ConditionalExpressionComponent } from "./ConditionalExpression";
 import { BooleanLiteralC } from './Literal/Boolean';
 import { NumericLiteralC } from './Literal/Numeric';
 import { StringLiteralC } from './Literal/String';
@@ -31,3 +32,4 @@ export { StringLiteralC as StringLiteral };
 export { TypedBindingPatternC as TypedBindingPattern };
 export { StringTypeDescC as StringTypeDesc };
 export { TypeTestExpressionComponent as TypeTestExpression };
+export { ConditionalExpressionComponent as ConditionalExpression };

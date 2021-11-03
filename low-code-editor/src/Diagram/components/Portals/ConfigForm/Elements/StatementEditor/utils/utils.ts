@@ -12,7 +12,7 @@
  */
 import {
     BinaryExpression, BooleanLiteral,
-    BracedExpression,
+    BracedExpression, ConditionalExpression,
     NumericLiteral,
     SimpleNameReference, STKindChecker,
     STNode,
@@ -89,7 +89,13 @@ export function addExpression(model: any, kind: string, value?: any) {
         } else {
             Object.assign(model, createTypeTestExpression(""));
         }
-    } else {
+    } else if (kind === c.CONDITIONAL) {
+        if (value) {
+            Object.assign(model, createConditionalExpression(value));
+        } else {
+            Object.assign(model, createConditionalExpression(""));
+        }
+    }else {
         // tslint:disable-next-line:no-console
         console.log(`Unsupported kind. (${kind})`);
     }
@@ -97,6 +103,7 @@ export function addExpression(model: any, kind: string, value?: any) {
 
 function createArithmetic(): BracedExpression {
     return {
+
         kind: "BracedExpression",
         source: "",
         closeParen: {
@@ -276,6 +283,76 @@ function createTypeTestExpression(value: string): TypeTestExpression {
     };
 }
 
+function createConditionalExpression(value: string): ConditionalExpression {
+    return {
+        kind: "ConditionalExpression",
+        lhsExpression: {
+            "kind": "TypeTestExpression",
+            "expression": {
+                "kind": "SimpleNameReference",
+                "name": {
+                    "kind": "IdentifierToken",
+                    "isToken": true,
+                    "value": value,
+                    "source": "",
+                },
+                "source": ""
+            },
+            isKeyword: {
+                kind: "isKeyword",
+                isToken: true,
+                value: "is",
+                source: ""
+            },
+            "typeDescriptor": {
+                kind: "StringTypeDesc",
+                name: {
+                    kind: "StringKeyword",
+                    "isToken": true,
+                    "value": "string",
+                    "source": "",
+                },
+                "source": ""
+            },
+            source: ""
+        },
+        questionMarkToken: {
+            "kind": "QuestionMarkToken",
+            "isToken": true,
+            "value": "?",
+            "source": ""
+
+        },
+        middleExpression: {
+            "kind": "StringLiteral",
+            "literalToken": {
+                "kind": "StringLiteralToken",
+                "isToken": true,
+                "value": "expression",
+                "source": ""
+            },
+            "source": ""
+        },
+        colonToken: {
+            "kind": "ColonToken",
+            "isToken": true,
+            "value": ":",
+            "source": ""
+        },
+        endExpression: {
+            "kind": "SimpleNameReference",
+            "name": {
+                "kind": "IdentifierToken",
+                "isToken": true,
+                "value": "expression",
+                "source": "",
+            },
+            "source": ""
+        },
+        source: ""
+    }
+}
+
 function createStringLiteral(value: string): StringLiteral {
     return {
         "kind": "StringLiteral",
@@ -424,19 +501,19 @@ export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = 
         { value: c.EQUALITY },
         { value: c.LOGICAL },
         { value: c.TYPE_TEST },
-        // { value: c.CONDITIONAL },
+        { value: c.CONDITIONAL },
         // { value: c.UNARY }
     ],
     StringLiteral: [
         { value: c.STRING_LITERAL },
-        // { value: c.CONDITIONAL },
+        { value: c.CONDITIONAL },
         { value: c.STRING_TEMPLATE },
         { value: c.ARITHMETIC }
     ],
     NumericLiteral: [],
     Relational: [
         { value: c.ARITHMETIC },
-        // { value: c.CONDITIONAL },
+        { value: c.CONDITIONAL },
         { value: c.TYPE_TEST },
         { value: c.RELATIONAL },
         { value: c.NUMERIC_LITERAL }
@@ -444,13 +521,13 @@ export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = 
     Arithmetic: [
         { value: c.NUMERIC_LITERAL },
         { value: c.ARITHMETIC },
-        // { value: c.CONDITIONAL },
+        { value: c.CONDITIONAL },
         { value: c.STRING_LITERAL }
     ],
     Logical: [
         { value: c.RELATIONAL },
         { value: c.LOGICAL },
-        // { value: c.CONDITIONAL },
+        { value: c.CONDITIONAL },
         { value: c.STRING_LITERAL }
     ],
     Conditional: [
@@ -458,11 +535,11 @@ export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = 
         { value: c.NUMERIC_LITERAL },
         { value: c.RELATIONAL },
         { value: c.TYPE_TEST },
-        // { value: c.CONDITIONAL }
+        { value: c.CONDITIONAL }
     ],
     Equality: [
         { value: c.ARITHMETIC },
-        // { value: c.CONDITIONAL },
+        { value: c.CONDITIONAL },
         { value: c.STRING_LITERAL },
         { value: c.NUMERIC_LITERAL },
         // { value: c.STRING_TEMPLATE }
@@ -473,18 +550,18 @@ export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = 
         { value: c.LOGICAL },
         { value: c.BOOLEAN_LITERAL },
         { value: c.TYPE_TEST },
-        // { value: c.CONDITIONAL },
+        { value: c.CONDITIONAL },
         // { value: c.UNARY }
     ],
     DefaultInteger: [
         { value: c.ARITHMETIC },
         { value: c.NUMERIC_LITERAL },
-        // { value: c.CONDITIONAL },
+        { value: c.CONDITIONAL },
         // { value: c.UNARY }
     ],
     DefaultString: [
         { value: c.STRING_LITERAL },
-        // { value: c.CONDITIONAL },
+        { value: c.CONDITIONAL },
         // { value: c.STRING_TEMPLATE },
         { value: c.ARITHMETIC }
     ],
@@ -497,7 +574,7 @@ export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = 
     StringTemplate: [
         { value: c.STRING_TEMPLATE },
         { value: c.ARITHMETIC },
-        // { value: c.CONDITIONAL }
+        { value: c.CONDITIONAL }
     ],
     DefaultReturn: [
         { value: c.STRING_LITERAL },
@@ -507,7 +584,8 @@ export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = 
         { value: c.RELATIONAL },
         { value: c.EQUALITY },
         { value: c.TYPE_TEST },
-        { value: c.LOGICAL }
+        { value: c.LOGICAL },
+        { value: c.CONDITIONAL }
     ],
     TypeDescriptor: [
         { value: c.STRING_TYPE_DESC },
@@ -520,7 +598,8 @@ export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = 
         { value: c.STRING_LITERAL },
         { value: c.NUMERIC_LITERAL },
         { value: c.BOOLEAN_LITERAL },
-        { value: c.TYPE_TEST }
+        { value: c.TYPE_TEST },
+        { value: c.CONDITIONAL }
     ]
 }
 
