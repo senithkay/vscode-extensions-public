@@ -11,7 +11,7 @@
  * associated services.
  */
 import {
-    BinaryExpression, BooleanLiteral,
+    BinaryExpression, BooleanLiteral, BooleanTypeDesc,
     BracedExpression, ConditionalExpression,
     NumericLiteral,
     SimpleNameReference, STKindChecker,
@@ -58,6 +58,8 @@ export function addExpression(model: any, kind: string, value?: any) {
         Object.assign(model, createLogical());
     } else if (kind === c.STRING_TYPE_DESC) {
         Object.assign(model, createStringTypeDesc());
+    } else if (kind === c.BOOLEAN_TYPE_DESC) {
+        Object.assign(model, createBooleanTypeDesc());
     } else if (kind === c.STRING_LITERAL) {
         if (value) {
             Object.assign(model, createStringLiteral(value));
@@ -103,7 +105,6 @@ export function addExpression(model: any, kind: string, value?: any) {
 
 function createArithmetic(): BracedExpression {
     return {
-
         kind: "BracedExpression",
         source: "",
         closeParen: {
@@ -431,6 +432,19 @@ function createStringTypeDesc(): StringTypeDesc {
     }
 }
 
+function createBooleanTypeDesc(): BooleanTypeDesc {
+    return {
+        kind: "BooleanTypeDesc",
+        name: {
+            kind: "BooleanKeyword",
+            "isToken": true,
+            "value": "boolean",
+            "source": "",
+        },
+        "source": ""
+    }
+}
+
 export const ExpressionKindByOperator: { [key: string]: string } = {
     AsteriskToken: c.ARITHMETIC,
     BitwiseAndToken: c.ARITHMETIC,
@@ -589,6 +603,7 @@ export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = 
     ],
     TypeDescriptor: [
         { value: c.STRING_TYPE_DESC },
+        { value: c.BOOLEAN_TYPE_DESC },
     ],
     DefaultExpressions : [
         { value: c.ARITHMETIC },
