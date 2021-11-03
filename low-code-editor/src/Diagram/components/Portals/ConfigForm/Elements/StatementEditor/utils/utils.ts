@@ -511,6 +511,16 @@ export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = 
     ],
     TypeDescriptor: [
         { value: c.STRING_TYPE_DESC },
+    ],
+    DefaultExpressions : [
+        { value: c.ARITHMETIC },
+        { value: c.RELATIONAL },
+        { value: c.EQUALITY },
+        { value: c.LOGICAL },
+        { value: c.STRING_LITERAL },
+        { value: c.NUMERIC_LITERAL },
+        { value: c.BOOLEAN_LITERAL },
+        { value: c.TYPE_TEST }
     ]
 }
 

@@ -40,6 +40,7 @@ export const OTHER_STATEMENT = "OtherStatement"
 export const STRING_TYPE_DESC = "StringTypeDesc"
 export const TYPE_TEST = "TypeTestExpression"
 export const TYPE_DESCRIPTOR = "TypeDescriptor"
+export const DEFAULT_EXPRESSIONS = "DefaultExpressions"
 
 // Statement types supported in function-body-block
 export type StatementNodes = ActionStatement
