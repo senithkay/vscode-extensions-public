@@ -32,6 +32,7 @@ const MIN_ZOOM = 0.6;
 const undoStack: Map<string, string[]> = new Map();
 const redoStack: Map<string, string[]> = new Map();
 let currentFileContent = "";
+let currentFilePath = "";
 
 export function DiagramGenerator(props: DiagramGeneratorProps) {
     const { langClient, filePath, startLine, startColumn, lastUpdatedAt, scale, panX, panY } = props;
@@ -64,6 +65,8 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                 setSyntaxTree(vistedSyntaxTree);
                 const content = await props.getFileContent(filePath);
                 setFileContent(content);
+                currentFilePath = filePath;
+                currentFileContent = content;
             } catch (err) {
                 throw err;
             }
@@ -72,6 +75,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
 
     React.useEffect(() => {
         const keyPress = (e: any) => {
+            const file = currentFilePath;
             const evtobj = e;
             if (evtobj.keyCode === 90 && evtobj.ctrlKey) {
                 undo();
@@ -109,20 +113,20 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     }
 
     const undo = async () => {
-        if (undoStack.get(filePath)?.length !== 0) {
-            const uri = monaco.Uri.file(filePath).toString();
+        if (undoStack.get(currentFilePath)?.length) {
+            const uri = monaco.Uri.file(currentFilePath).toString();
 
-            const redoSourceStack = redoStack.get(filePath);
+            const redoSourceStack = redoStack.get(currentFilePath);
             if (!redoSourceStack) {
-                redoStack.set(filePath, [currentFileContent]);
+                redoStack.set(currentFilePath, [currentFileContent]);
             } else {
                 redoSourceStack.push(currentFileContent);
                 if (redoSourceStack.length >= 100) {
                     redoSourceStack.shift();
                 }
-                redoStack.set(filePath, redoSourceStack);
+                redoStack.set(currentFilePath, redoSourceStack);
             }
-            const lastsource = undoStack.get(filePath).pop();
+            const lastsource = undoStack.get(currentFilePath).pop();
 
             langClient.didChange({
                 contentChanges: [
@@ -135,30 +139,35 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                     version: 1
                 }
             });
+<<<<<<< HEAD
             const genSyntaxTree = await getSyntaxTree(filePath, langClient);
             const pfSession = await props.getPFSession();
             const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, filePath,
                                                                 langClient, pfSession,
                                                                 props.showPerformanceGraph, props.showMessage);
+=======
+            const genSyntaxTree = await getSyntaxTree(currentFilePath, langClient);
+            const vistedSyntaxTree: STNode = getLowcodeST(genSyntaxTree);
+>>>>>>> 6eddd6a3... Add variable for path and content change
             setSyntaxTree(vistedSyntaxTree);
             setFileContent(lastsource);
             currentFileContent = lastsource;
-            props.updateFileContent(filePath, lastsource);
+            props.updateFileContent(currentFilePath, lastsource);
         }
     }
 
     const redo = async () => {
-        if (redoStack.get(filePath)?.length !== 0) {
-            const uri = monaco.Uri.file(filePath).toString();
+        if (redoStack.get(currentFilePath)?.length) {
+            const uri = monaco.Uri.file(currentFilePath).toString();
 
-            const undoSourceStack = undoStack.get(filePath);
+            const undoSourceStack = undoStack.get(currentFilePath);
             undoSourceStack.push(currentFileContent);
             if (undoSourceStack.length >= 100) {
                 undoSourceStack.shift();
             }
-            undoStack.set(filePath, undoSourceStack);
+            undoStack.set(currentFilePath, undoSourceStack);
 
-            const lastUndoSource = redoStack.get(filePath).pop();
+            const lastUndoSource = redoStack.get(currentFilePath).pop();
 
             langClient.didChange({
                 contentChanges: [
@@ -171,15 +180,20 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                     version: 1
                 }
             });
+<<<<<<< HEAD
             const genSyntaxTree = await getSyntaxTree(filePath, langClient);
             const pfSession = await props.getPFSession();
             const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, filePath,
                 langClient, pfSession,
                 props.showPerformanceGraph, props.showMessage);
+=======
+            const genSyntaxTree = await getSyntaxTree(currentFilePath, langClient);
+            const vistedSyntaxTree: STNode = getLowcodeST(genSyntaxTree);
+>>>>>>> 6eddd6a3... Add variable for path and content change
             setSyntaxTree(vistedSyntaxTree);
             setFileContent(lastUndoSource);
             currentFileContent = lastUndoSource;
-            props.updateFileContent(filePath, lastUndoSource);
+            props.updateFileContent(currentFilePath, lastUndoSource);
         }
     }
 
