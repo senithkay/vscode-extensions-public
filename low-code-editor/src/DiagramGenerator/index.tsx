@@ -229,18 +229,6 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                         return {} as any;
                                     },
                                 },
-                                oauth: {
-                                    oauthSessions: {},
-                                    dispatchGetAllConfiguration: (orgHandle?: string) => {
-                                        return {} as any;
-                                    },
-                                    dispatchFetchConnectionList: (connector: string, sessionId: string) => undefined,
-                                    dispatchInitOauthSession: (sessionId: string, connector: string, oauthProviderConfig?: OauthProviderConfig) => undefined,
-                                    dispatchResetOauthSession: (sessionId: string) => undefined,
-                                    dispatchTimeoutOauthRequest: (sessionId: string) => undefined,
-                                    dispatchDeleteOauthSession: (sessionId: string) => undefined,
-                                    oauthProviderConfigs: {} as any,
-                                },
                                 // FIXME Doesn't make sense to take these methods below from outside
                                 // Move these inside and get an external API for pref persistance
                                 // against a unique ID (eg AppID) for rerender from prev state

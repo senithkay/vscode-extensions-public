@@ -28,9 +28,7 @@ import { FunctionConfigForm } from './FunctionConfigForm';
 import { ModuleDeclForm } from './ModuleVariableForm';
 import { ScheduleConfigForm } from "./ScheduleConfigForm";
 import { ServiceConfigForm } from './ServiceConfigForm';
-import { WebhookConfigForm } from "./WebhookConfigForm";
 
-export { WebhookConfigForm as webhookConfig };
 export { ScheduleConfigForm as scheduleConfig };
 export { APIConfigForm as apiConfig };
 export { ConnectorInitForm as connectorInit };

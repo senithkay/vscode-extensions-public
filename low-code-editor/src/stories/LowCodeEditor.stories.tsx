@@ -1,9 +1,9 @@
 import React from 'react';
 
 import { ModulePart, NodePosition, STNode } from '@ballerina/syntax-tree';
-import { ComponentMeta, ComponentStory } from '@storybook/react';
+import { ComponentStory } from '@storybook/react';
 
-import { AiSuggestionsReq, ModelCodePosition, OauthProviderConfig } from '../api/models';
+import { AiSuggestionsReq, ModelCodePosition } from '../api/models';
 import { WizardType } from '../ConfigurationSpec/types';
 import { Connector, STModification, STSymbolInfo } from '../Definitions';
 import { ConditionConfig } from '../Diagram/components/Portals/ConfigForm/types';
@@ -106,18 +106,6 @@ const lowCodeEditorArgs: LowCodeEditorProps = {
         getGithubRepoList: (orgHandle: string, handler: string, username: string) => {
           return {} as any;
         },
-    },
-    oauth: {
-        oauthSessions: {},
-        dispatchGetAllConfiguration: (orgHandle?: string) => {
-          return {} as any;
-        },
-        dispatchFetchConnectionList: (connector: string, sessionId: string) => undefined,
-        dispatchInitOauthSession: (sessionId: string, connector: string, oauthProviderConfig?: OauthProviderConfig) => undefined,
-        dispatchResetOauthSession: (sessionId: string) => undefined,
-        dispatchTimeoutOauthRequest: (sessionId: string) => undefined,
-        dispatchDeleteOauthSession: (sessionId: string) => undefined,
-        oauthProviderConfigs: {} as any,
     },
     // FIXME Doesn't make sense to take these methods below from outside
     // Move these inside and get an external API for pref persistance

@@ -24,7 +24,6 @@ import {
 import { Box, Divider, FormControl, Typography } from "@material-ui/core";
 
 import {
-    ConnectionDetails,
     OauthProviderConfig,
 } from "../../../../../api/models";
 import {
@@ -41,7 +40,6 @@ import {
     STModification,
 } from "../../../../../Definitions/lang-client-extended";
 import { TextPreloaderVertical } from "../../../../../PreLoader/TextPreloaderVertical";
-import { ConnectionType } from "../../../../components/OauthConnectButton";
 import {
     CONTINUE_TO_INVOKE_API,
     EVENT_TYPE_AZURE_APP_INSIGHTS,
@@ -51,7 +49,6 @@ import {
 } from "../../../../models";
 import { getAllVariables } from "../../../../utils/mixins";
 import {
-    createCheckedPayloadFunctionInvocation,
     createImportStatement,
     createPropertyStatement,
     updatePropertyStatement,
@@ -161,14 +158,6 @@ export function ConnectorForm(props: FormGeneratorProps) {
     const [selectedOperation, setSelectedOperation] = useState(
         config?.action?.name
     );
-    const [
-        selectedActiveConnection,
-        setSelectedActiveConnection,
-    ] = useState<ConnectionDetails>();
-    const [
-        selectedConnectionType,
-        setSelectedConnectionType,
-    ] = useState<ConnectionType>();
 
     const [responseStatus, setResponseStatus] = useState<number>();
 
