@@ -266,6 +266,24 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         isEdit: !!config.model,
     }
 
+    const expressionEditorConfig = {
+        model: {
+            name: "Expression",
+            displayName: "Value Expression",
+            typeName: (modelType ? modelType : "other")
+        },
+        customProps: {
+            validate: validateExpression,
+            interactive: true,
+            statementType: (modelType ? modelType : "other"),
+            tooltipTitle: variableTooltipMessages.expressionEditor.title,
+            tooltipActionText: variableTooltipMessages.expressionEditor.actionText,
+            tooltipActionLink: variableTooltipMessages.expressionEditor.actionLink,
+        },
+        onChange: onPropertyChange,
+        defaultValue: variableExpression,
+    };
+
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {
             label: intl.formatMessage({id: "lowcode.develop.configForms.variable.statementEditor.label"}),
@@ -320,25 +338,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                             <VariableNameInput {...variableNameConfig} />
                             <div className="exp-wrapper">
                                 <ExpressionEditor
-                                    key={selectedType}
-                                    model={{
-                                        name: "Expression",
-                                        value: variableExpression,
-                                        type: (modelType ? modelType : "other")
-                                    }}
-                                    customProps={{
-                                        validate: validateExpression,
-                                        expandDefault: (selectedType === "other"),
-                                        tooltipTitle: variableTooltipMessages.expressionEditor.title,
-                                        tooltipActionText: variableTooltipMessages.expressionEditor.actionText,
-                                        tooltipActionLink: variableTooltipMessages.expressionEditor.actionLink,
-                                        interactive: true,
-                                        focus: editorFocus,
-                                        statementType: (modelType ? modelType : "other") as PrimitiveBalType,
-                                        revertFocus: revertEditorFocus
-                                    }}
-                                    onChange={onPropertyChange}
-                                    defaultValue={variableExpression}
+                                    {...expressionEditorConfig}
                                 />
                             </div>
                         </div>
