@@ -15,6 +15,7 @@ import { CaptureBindingPatternComponent } from './BindingPattern/CaptureBindingP
 import { BracedExpressionComponent } from './BracedExpression';
 import { ConditionalExpressionComponent } from "./ConditionalExpression";
 import { FieldAccessComponent } from "./FieldAccess";
+import { FunctionCallComponent } from "./FunctionCall";
 import { BooleanLiteralComponent } from './Literal/Boolean';
 import { NumericLiteralComponent } from './Literal/Numeric';
 import { StringLiteralComponent } from './Literal/String';
@@ -47,3 +48,4 @@ export { TypeTestExpressionComponent as TypeTestExpression };
 export { ConditionalExpressionComponent as ConditionalExpression };
 export { FieldAccessComponent as FieldAccess };
 export { PositionalArgComponent as PositionalArg };
+export { FunctionCallComponent as FunctionCall };
