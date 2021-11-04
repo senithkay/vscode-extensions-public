@@ -25,6 +25,7 @@ import ifElseBooleanLiteralModel from "./data/ifelse-booleaLiteral-st-model.json
 import ifElseModel from "./data/ifelse-st-model.json";
 import varDeclBinaryExpr from "./data/local-var-decl-with-binary-expr-st-model.json";
 import panicModel from "./data/panic-st-model.json";
+import returnModel from "./data/return-st-model.json";
 import varDeclStringLiteral from "./data/varDecl-stringLiteral-model.json";
 import whileModel from "./data/while-st-model.json";
 import { StatementRenderer, StatementRendererProps } from "./index";
@@ -179,6 +180,8 @@ export const IfElseBooleanLiteralStmt = Template.bind({});
 
 export const OtherStmt = Template.bind({});
 
+export const ReturnStmt = Template.bind({});
+
 VarDeclBinaryExprStmt.args = {
     model: varDeclBinaryExpr,
     userInputs: {
@@ -248,6 +251,17 @@ IfElseBooleanLiteralStmt.args = {
 
 OtherStmt.args = {
     model: panicModel,
+    userInputs: {
+        "selectedType": "",
+        "varName": "",
+        "variableExpression": "",
+        "formField": "Expression"
+    },
+    diagnosticHandler: dummyDiagnosticHandler
+}
+
+ReturnStmt.args = {
+    model: returnModel,
     userInputs: {
         "selectedType": "",
         "varName": "",

@@ -35,6 +35,7 @@ export { default as ConstantIcon } from './ConstantIcon';
 export { default as ConstDeclaration } from './ConstantIcon';
 export { default as TypeDefinitionIcon } from './RecordIcon';
 export { default as TypeDefinition } from './RecordIcon';
+export { default as RecordEditor } from './RecordIcon';
 export { default as EnumDeclaration } from './EnumIcon';
 export { default as ListenerIcon } from './ListenerIcon';
 export { default as ListenerDeclaration } from './ListenerIcon';

@@ -23,7 +23,7 @@ import { HTTPServiceConfigState } from "../components/Portals/ConfigForm/forms/S
 import { getFormattedModuleName, getParams } from "../components/Portals/utils";
 
 /* tslint:disable ordered-imports */
-import { getInsertComponentSource } from "./template-utils";
+import { getComponentSource, getInsertComponentSource } from "./template-utils";
 
 export function createIfStatement(conditionExpression: string, targetPosition: NodePosition): STModification {
     const ifStatement: STModification = {
@@ -920,4 +920,38 @@ export function updateFunctionSignature(name: string, parameters: string, return
     };
 
     return functionStatement;
+}
+
+export function mutateTypeDefinition(typeName: string, typeDesc: string, targetPosition: NodePosition, isNew: boolean,
+                                     accessModifier?: string): STModification {
+    let modification: STModification;
+    if (isNew) {
+        modification = {
+            startLine: targetPosition.startLine,
+            endLine: targetPosition.startLine,
+            startColumn: 0,
+            endColumn: 0,
+            type: ''
+        };
+    } else {
+        modification = {
+            ...targetPosition,
+            type: ''
+        };
+    }
+
+    return {
+        ...modification,
+        type: 'TYPE_DEFINITION',
+        config: {
+            'ACCESS_MODIFIER': accessModifier,
+            'TYPE_NAME': typeName,
+            'TYPE_DESCRIPTOR': typeDesc
+        }
+    }
+}
+
+export async function getInitialSource(modification: STModification): Promise<string> {
+    const source = await getComponentSource(modification.type, modification.config);
+    return source;
 }

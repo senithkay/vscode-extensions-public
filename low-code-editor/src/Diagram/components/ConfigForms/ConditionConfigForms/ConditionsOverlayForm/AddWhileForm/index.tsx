@@ -24,7 +24,7 @@ import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
-import { useStatementEdior } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
+import { useStatementEditor } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
 import classnames from "classnames";
 
 export interface WhileProps {
@@ -107,10 +107,10 @@ export function AddWhileForm(props: WhileProps) {
         defaultMessage: "Cancel"
     });
 
-    const {stmtEditorButton , stmtEditorComponent} = useStatementEdior(
+    const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {
-            kind: "DefaultBoolean",
-            label: "While Statement",
+            label: intl.formatMessage({id: "lowcode.develop.configForms.while.statementEditor.label"}),
+            initialSource: "", // TODO: Pass the actual initialSource
             formArgs: {formArgs},
             isMutationInProgress,
             validForm: !isInvalid,
@@ -118,7 +118,8 @@ export function AddWhileForm(props: WhileProps) {
             onChange: handleExpEditorChange,
             validate: validateField
         },
-        true);
+        true
+    );
 
     if (!stmtEditorComponent) {
         return  (

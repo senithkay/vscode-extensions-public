@@ -15,6 +15,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { monaco } from "react-monaco-editor";
 
 import {
+    BooleanLiteral,
     NumericLiteral,
     SimpleNameReference,
     STKindChecker,
@@ -101,6 +102,10 @@ export function InputEditor(props: InputEditorProps) {
         literalModel = model as SimpleNameReference;
         kind = c.SIMPLE_NAME_REFERENCE;
         value = literalModel.name.value;
+    } else if (STKindChecker.isBooleanLiteral(model)) {
+        literalModel = model as BooleanLiteral;
+        kind = c.BOOLEAN_LITERAL;
+        value = literalModel.literalToken.value;
     }
     const [userInput, setUserInput] = useState(value);
 

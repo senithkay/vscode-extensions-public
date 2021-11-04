@@ -30,6 +30,7 @@ export interface HeaderActionsProps {
     model: STNode;
     isExpanded: boolean;
     deleteText: string;
+    formType?: string;
     onExpandClick: () => void;
     onConfirmDelete: () => void;
     onConfirmEdit?: () => void;
@@ -41,6 +42,8 @@ export function HeaderActions(props: HeaderActionsProps) {
         isExpanded,
         deleteText,
         onExpandClick,
+
+        formType,
         onConfirmDelete,
         onConfirmEdit
     } = props;
@@ -58,6 +61,11 @@ export function HeaderActions(props: HeaderActionsProps) {
         setIsEditViewVisible(false);
         onConfirmEdit();
     }
+
+    React.useEffect(() => {
+        setIsDeleteViewVisible(false);
+    }, [model]);
+
     return (
         <div className={"header-amendment-options"}>
             <div className={classNames("amendment-option", "show-on-hover")}>
@@ -97,7 +105,7 @@ export function HeaderActions(props: HeaderActionsProps) {
             {isEditViewVisible && (!STKindChecker.isEnumDeclaration(model)) && (
                 <FormGenerator
                     model={model}
-                    configOverlayFormStatus={{ formType: model.kind, isLoading: false }}
+                    configOverlayFormStatus={{ formType: (formType ? formType : model.kind), isLoading: false }}
                     onCancel={handleEditBtnCancel}
                     onSave={handleEditBtnCancel}
                 />
