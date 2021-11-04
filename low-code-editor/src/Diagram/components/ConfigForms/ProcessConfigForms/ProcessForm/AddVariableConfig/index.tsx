@@ -102,7 +102,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     const [validExpresssionValue, setValidExpresssionValue] = useState(config.config !== "");
     const [variableExpression, setVariableExpression] = useState<string>(varExpression);
     const [editorFocus, setEditorFocus] = useState<boolean>(false);
-    const [isStringType, setIsStringType] = useState(initialModelType === 'string');
     const [initialSource, setInitialSource] = useState('');
 
     useEffect(() => {
@@ -137,12 +136,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
 
     const handleTypeChange = (type: string) => {
         setSelectedType(type);
-        if (type === "string") {
-            setIsStringType(true);
-        } else {
-            setIsStringType(false);
-        }
-
         setValidExpresssionValue(false);
         if (type !== "other") {
             setOtherType(undefined);
@@ -296,7 +289,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             onChange: onPropertyChange,
             validate: validateExpression
         },
-        !isStringType
+        false
     );
 
     if (!stmtEditorComponent) {
