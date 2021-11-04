@@ -2,17 +2,13 @@ import * as React from "react";
 import { IntlProvider } from "react-intl";
 
 import { FunctionDefinition, ModulePart, NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
-import Grid from "@material-ui/core/Grid";
 import { MuiThemeProvider } from "@material-ui/core/styles";
-import { StringValueNode } from "graphql";
 import cloneDeep from "lodash.clonedeep";
 
 import LowCodeEditor, { BlockViewState, getSymbolInfo, InsertorDelete } from "..";
-import { AiSuggestionsReq, ModelCodePosition, OauthProviderConfig } from "../api/models";
 import "../assets/fonts/Glimer/glimer.css";
 import { WizardType } from "../ConfigurationSpec/types";
-import { Connector, ExpressionEditorLangClientInterface, STModification, STSymbolInfo } from "../Definitions";
-import { DiagramEditorLangClientInterface } from "../Definitions/diagram-editor-lang-client-interface";
+import { Connector, STModification, STSymbolInfo } from "../Definitions";
 import { ConditionConfig } from "../Diagram/components/Portals/ConfigForm/types";
 import { LowcodeEvent, TriggerType } from "../Diagram/models";
 import messages from '../lang/en.json';
@@ -133,9 +129,6 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                             }}
                             // tslint:disable-next-line: jsx-no-multiline-js
                             api={{
-                                tour: {
-                                    goToNextTourStep: (step: string) => undefined,
-                                },
                                 helpPanel: {
                                     openConnectorHelp: (connector?: Partial<Connector>, method?: string) => undefined,
                                 },
@@ -153,7 +146,6 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                 },
                                 insights: {
                                     onEvent: (event: LowcodeEvent) => undefined,
-                                    trackTriggerSelection: (trigger: string) => undefined,
                                 },
                                 code: {
                                     modifyDiagram: async (mutations: STModification[], options?: any) => {
@@ -174,60 +166,10 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
 
                                     },
                                     onMutate: (type: string, options: any) => undefined,
-                                    modifyTrigger: (
-                                        triggerType: TriggerType,
-                                        model?: any,
-                                        configObject?: any
-                                    ) => undefined,
-                                    dispatchCodeChangeCommit: () => Promise.resolve(),
-                                    dispatchFileChange: (content: string, callback?: () => undefined) => Promise.resolve(),
-                                    hasConfigurables: (templateST: ModulePart) => false,
-                                    setCodeLocationToHighlight: (position: ModelCodePosition) => undefined,
+                                    setCodeLocationToHighlight: (position: NodePosition) => undefined,
                                     gotoSource: (position: { startLine: number, startColumn: number }) => {
                                         props.gotoSource(filePath, position);
                                     }
-                                },
-                                connections: {
-                                    createManualConnection: (orgHandle: string, displayName: string, connectorName: string,
-                                                             userAccountIdentifier: string,
-                                                             tokens: { name: string; value: string }[],
-                                                             selectedType: string) => {
-                                                             return {} as any;
-                                    },
-                                    updateManualConnection: (activeConnectionId: string, orgHandle: string, displayName: string, connectorName: string,
-                                                             userAccountIdentifier: string, tokens: { name: string; value: string }[],
-                                                             type?: string, activeConnectionHandler?: string) => {
-                                        return {} as any;
-                                    },
-                                    getAllConnections: (
-                                        orgHandle: string,
-                                        connector?: string
-                                    ) => {
-                                        return {} as any;
-                                    },
-                                },
-                                ai: {
-                                    getAiSuggestions: (params: AiSuggestionsReq) => {
-                                        return {} as any;
-                                    }
-                                },
-                                splitPanel: {
-                                    maximize: (view: string, orientation: string, appId: number | string) => undefined,
-                                    minimize: (view: string, orientation: string, appId: number | string) => undefined,
-                                    setPrimaryRatio: (view: string, orientation: string, appId: number | string) => undefined,
-                                    setSecondaryRatio: (view: string, orientation: string, appId: number | string) => undefined,
-                                    handleRightPanelContent: (viewName: string) => undefined
-                                },
-                                data: {
-                                    getGsheetList: (orgHandle: string, handler: string) => {
-                                        return {} as any;
-                                    },
-                                    getGcalendarList: (orgHandle: string, handler: string) => {
-                                        return {} as any;
-                                    },
-                                    getGithubRepoList: (orgHandle: string, handler: string, username: string) => {
-                                        return {} as any;
-                                    },
                                 },
                                 // FIXME Doesn't make sense to take these methods below from outside
                                 // Move these inside and get an external API for pref persistance

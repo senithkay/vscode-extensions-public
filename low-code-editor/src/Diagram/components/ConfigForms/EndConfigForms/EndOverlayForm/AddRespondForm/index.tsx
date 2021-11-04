@@ -44,11 +44,6 @@ export function AddRespondForm(props: RespondFormProps) {
         props: {
             isCodeEditorActive,
             isMutationProgress: isMutationInProgress
-        },
-        api: {
-            tour: {
-                goToNextTourStep: dispatchGoToNextTourStep
-            }
         }
     } = useContext(Context);
     const { config, formArgs, onCancel, onSave } = props;
@@ -68,14 +63,10 @@ export function AddRespondForm(props: RespondFormProps) {
     const onExpressionChange = (value: any) => {
         respondFormConfig.respondExpression = value;
         setResExp(value);
-        if (value === "jsonPayload") {
-            dispatchGoToNextTourStep('CONFIG_RESPOND_SELECT_JSON');
-        }
         setValidForm(false);
     };
 
     const onSaveWithTour = () => {
-        dispatchGoToNextTourStep('CONFIG_RESPOND_CONFIG_SAVE');
         respondFormConfig.responseCode = statusCodeState;
         respondFormConfig.respondExpression = resExp;
         onSave();

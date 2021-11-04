@@ -24,9 +24,6 @@ import {
 import { Box, Divider, FormControl, Typography } from "@material-ui/core";
 
 import {
-    OauthProviderConfig,
-} from "../../../../../api/models";
-import {
     ActionConfig,
     ConnectorConfig,
     FormField,
@@ -77,11 +74,6 @@ import { CreateConnectorForm } from "../CreateNewConnection";
 import { OperationForm } from "../OperationForm";
 import { SelectConnectionForm } from "../SelectExistingConnection";
 
-export interface OauthProviderConfigState {
-    isConfigListLoading: boolean;
-    configList: OauthProviderConfig[];
-    configListError?: Error;
-}
 export interface ConnectorOperation {
     name: string;
     label?: string;

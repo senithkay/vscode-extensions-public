@@ -3,7 +3,6 @@ import React from 'react';
 import { ModulePart, NodePosition, STNode } from '@ballerina/syntax-tree';
 import { ComponentStory } from '@storybook/react';
 
-import { AiSuggestionsReq, ModelCodePosition } from '../api/models';
 import { WizardType } from '../ConfigurationSpec/types';
 import { Connector, STModification, STSymbolInfo } from '../Definitions';
 import { ConditionConfig } from '../Diagram/components/Portals/ConfigForm/types';
@@ -30,9 +29,6 @@ const lowCodeEditorArgs: LowCodeEditorProps = {
   ...missingProps,
   syntaxTree: sizingAndPositioningST(syntaxTree),
   api: {
-    tour: {
-        goToNextTourStep: (step: string) => undefined,
-    },
     helpPanel: {
         openConnectorHelp: (connector?: Partial<Connector>, method?: string) => undefined,
     },
@@ -50,62 +46,11 @@ const lowCodeEditorArgs: LowCodeEditorProps = {
     },
     insights: {
         onEvent: (event: LowcodeEvent) => undefined,
-        trackTriggerSelection: (trigger: string) => undefined,
     },
     code: {
         modifyDiagram: (mutations: STModification[], options?: any) => undefined,
         onMutate: (type: string, options: any) => undefined,
-        modifyTrigger: (
-            triggerType: TriggerType,
-            model?: any,
-            configObject?: any
-        ) => undefined,
-        dispatchCodeChangeCommit: () => Promise.resolve(),
-        dispatchFileChange: (content: string, callback?: () => undefined) => Promise.resolve(),
-        hasConfigurables: (templateST: ModulePart) => false,
-        setCodeLocationToHighlight: (position: ModelCodePosition) => undefined,
-    },
-    connections: {
-        createManualConnection: (orgHandle: string, displayName: string, connectorName: string,
-                                 userAccountIdentifier: string,
-                                 tokens: { name: string; value: string }[],
-                                 selectedType: string) => {
-                                      return {} as any;
-                                  },
-        updateManualConnection: (activeConnectionId: string, orgHandle: string, displayName: string, connectorName: string,
-                                 userAccountIdentifier: string, tokens: { name: string; value: string }[],
-                                 type?: string, activeConnectionHandler?: string) => {
-                                    return {} as any;
-                                },
-        getAllConnections: (
-                        orgHandle: string,
-                        connector?: string
-                        ) => {
-                          return {} as any;
-                      },
-    },
-    ai: {
-        getAiSuggestions: (params: AiSuggestionsReq) => {
-          return {} as any;
-        }
-    },
-    splitPanel: {
-        maximize: (view: string, orientation: string, appId: number | string) => undefined,
-        minimize: (view: string, orientation: string, appId: number | string) => undefined,
-        setPrimaryRatio: (view: string, orientation: string, appId: number | string) => undefined,
-        setSecondaryRatio: (view: string, orientation: string, appId: number | string) => undefined,
-        handleRightPanelContent: (viewName: string) => undefined
-    },
-    data: {
-        getGsheetList: (orgHandle: string, handler: string) => {
-          return {} as any;
-        },
-        getGcalendarList: (orgHandle: string, handler: string) => {
-          return {} as any;
-        },
-        getGithubRepoList: (orgHandle: string, handler: string, username: string) => {
-          return {} as any;
-        },
+        setCodeLocationToHighlight: (position: NodePosition) => undefined,
     },
     // FIXME Doesn't make sense to take these methods below from outside
     // Move these inside and get an external API for pref persistance

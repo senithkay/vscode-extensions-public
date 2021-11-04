@@ -164,7 +164,6 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const {
         state: { targetPosition: targetPositionDraft },
         props: {
-            currentApp,
             currentFile,
             langServerURL,
             syntaxTree,
