@@ -527,7 +527,8 @@ export const useStyles = makeStyles((theme: Theme) =>
             paddingLeft: theme.spacing(1)
         },
         startCode: {
-            color: '#0095FF'
+            color: '#0095FF',
+            width: 'max-content'
         },
         middleCode: {
             color: '#8D91A3'
@@ -594,12 +595,38 @@ export const useStyles = makeStyles((theme: Theme) =>
             height: theme.spacing(5)
         },
         expEditorWrapper: {
-            minWidth: `120px !important`,
+            minWidth: `164px !important`,
             paddingRight: theme.spacing(1),
-            paddingTop: theme.spacing(1.25)
+            paddingTop: theme.spacing(1.25),
+            position: 'relative'
         },
         typeContainer: {
             width: '50%'
-        }
+        },
+        fitContent: {
+            width: 'fit-content'
+        },
+        ifEditorWrapper: {
+            minWidth: `220px !important`,
+            paddingRight: theme.spacing(1),
+            paddingTop: theme.spacing(1.25),
+            position: 'relative'
+        },
+        buttonWrapper: {
+            display: 'inline-flex',
+            width: '100%',
+            alignItems: 'center'
+        },
+        button: {
+            '&.MuiIconButton-root': {
+                padding: 0,
+            }
+        },
+        elseIfEditorWrapper: {
+            minWidth: `180px !important`,
+            paddingRight: theme.spacing(1),
+            paddingTop: theme.spacing(1.25),
+            position: 'relative'
+        },
     }),
 );

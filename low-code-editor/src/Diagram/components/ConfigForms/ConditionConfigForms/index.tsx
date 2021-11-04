@@ -27,7 +27,7 @@ import {
     updateIfStatementCondition, updateWhileStatementCondition
 } from "../../../utils/modification-util";
 import { InjectableItem } from "../../FormGenerator";
-import { ConditionConfig, ForeachConfig } from "../../Portals/ConfigForm/types";
+import {ConditionConfig, ElseIfConfig, ForeachConfig} from "../../Portals/ConfigForm/types";
 import { DiagramOverlayPosition } from "../../Portals/Overlay";
 
 import { ConditionsOverlayForm } from "./ConditionsOverlayForm";
@@ -56,6 +56,12 @@ export function ConditionConfigForm(props: ConditionConfigFormProps) {
 
     switch (formType) {
         case "If":
+            conditionConfig = {
+                type: formType,
+                conditionExpression: formArgs?.config && formArgs?.config.conditionExpression ? formArgs?.config.conditionExpression : {values: [{id: 0, expression: "", position: formArgs?.targetPosition}]},
+                scopeSymbols: [],
+            };
+            break;
         case "While":
             conditionConfig = {
                 type: formType,
@@ -82,6 +88,18 @@ export function ConditionConfigForm(props: ConditionConfigFormProps) {
             break;
     }
 
+    const generateElseIfCondition = (ifConfig: ElseIfConfig) => {
+        const compList = ifConfig?.values;
+        let statement = `if(${compList[0]?.expression}) {\n\n`;
+        if (compList.length !== 1) {
+            compList.slice(1, compList.length).forEach((elem) => {
+                statement += `}else if (${elem.expression}) {\n\n`
+            })
+        }
+        statement += `}else {\n\n}\n\n`;
+        return statement;
+    }
+
     const onSaveClick = () => {
         if (formArgs?.targetPosition) {
             const modifications: STModification[] = [];
@@ -93,8 +111,8 @@ export function ConditionConfigForm(props: ConditionConfigFormProps) {
             }
 
             if (formType === "If") {
-                const ifConfig: ConditionConfig = conditionConfig as ConditionConfig;
-                const conditionExpression: string = ifConfig.conditionExpression as string;
+                const ifConfig: ElseIfConfig = conditionConfig.conditionExpression as ElseIfConfig;
+                const conditionExpression: string = generateElseIfCondition(ifConfig);
                 if (!formArgs?.config) {
                     const event: LowcodeEvent = {
                         type: EVENT_TYPE_AZURE_APP_INSIGHTS,
@@ -104,7 +122,9 @@ export function ConditionConfigForm(props: ConditionConfigFormProps) {
                     onEvent(event);
                     modifications.push(createIfStatement(conditionExpression, formArgs?.targetPosition));
                 } else {
-                    modifications.push(updateIfStatementCondition(conditionExpression, formArgs?.config.conditionPosition));
+                    ifConfig?.values.forEach((value) => {
+                        modifications.push(updateIfStatementCondition(`(${value.expression})`, value.position));
+                    })
                 }
             } else if (formType === "ForEach") {
                 const conditionExpression: ForeachConfig = conditionConfig.conditionExpression as

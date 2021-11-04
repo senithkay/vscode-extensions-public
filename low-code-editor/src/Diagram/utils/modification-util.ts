@@ -25,30 +25,30 @@ import { getFormattedModuleName, getParams } from "../components/Portals/utils";
 /* tslint:disable ordered-imports */
 import { getComponentSource, getInsertComponentSource } from "./template-utils";
 
-export function createIfStatement(conditionExpression: string, targetPosition: NodePosition): STModification {
+export function createIfStatement(property: string, targetPosition: NodePosition): STModification {
     const ifStatement: STModification = {
         startLine: targetPosition.startLine,
         startColumn: 0,
         endLine: targetPosition.startLine,
         endColumn: 0,
-        type: "IF_STATEMENT",
+        type: "PROPERTY_STATEMENT",
         config: {
-            "CONDITION": conditionExpression,
+            "PROPERTY": property,
         }
     };
 
     return ifStatement;
 }
 
-export function updateIfStatementCondition(conditionExpression: string, targetPosition: NodePosition): STModification {
+export function updateIfStatementCondition(property: string, targetPosition: NodePosition): STModification {
     const updatedIfStatement: STModification = {
         startLine: targetPosition.startLine,
         startColumn: targetPosition.startColumn,
         endLine: targetPosition.endLine,
         endColumn: targetPosition.endColumn,
-        type: "IF_STATEMENT_CONDITION",
+        type: "PROPERTY_STATEMENT",
         config: {
-            "CONDITION": conditionExpression,
+            "PROPERTY": property,
         }
     };
 

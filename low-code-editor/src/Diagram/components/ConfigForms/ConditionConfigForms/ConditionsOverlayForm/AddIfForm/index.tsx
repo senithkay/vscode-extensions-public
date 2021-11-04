@@ -13,20 +13,20 @@
 // tslint:disable: jsx-no-multiline-js ordered-imports
 import React, { useContext, useState } from "react";
 
-import { Box, FormControl, Typography } from "@material-ui/core";
-
-import { IfIcon } from "../../../../../../assets/icons";
+import {Box, FormControl, IconButton, Typography} from "@material-ui/core";
 
 import { FormField } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
-import { ConditionConfig, FormElementProps } from "../../../../Portals/ConfigForm/types";
+import {ConditionConfig, ElseIfConfig, FormElementProps} from "../../../../Portals/ConfigForm/types";
 import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
-import { useStatementEditor } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
+import {useStatementEditor} from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
+import classnames from "classnames";
+import {ControlPoint, RemoveCircleOutlineRounded} from "@material-ui/icons";
 
 interface IfProps {
     condition: ConditionConfig;
@@ -51,22 +51,44 @@ export function AddIfForm(props: IfProps) {
     const intl = useIntl();
 
     const [isInvalid, setIsInvalid] = useState(true);
-    const [conditionState, setConditionState] = useState(condition);
 
-    const handleExpEditorChange = (value: string) => {
-        // condition.conditionExpression = value;
-        setConditionState({ ...conditionState, conditionExpression: value })
+    const [compList, setCompList] = useState((condition.conditionExpression as ElseIfConfig)?.values);
+
+    const handlePlusButton = (order: number) => () => {
+        if (order === -1){
+            setCompList((prev) => {
+                return [...prev, {id: compList.length, expression: "", position: {}}]
+            });
+        }else {
+            setCompList((prev) => {
+                return [...prev.slice(0, order), {id: order, expression: "", position: {}}, ...prev.slice(order, compList.length)];
+            });
+        }
+    }
+
+    const handleMinusButton = (order: number) => () => {
+        setCompList(compList.filter((comp) => {
+            return comp.id !== order
+        }));
+    }
+
+    const handleExpEditorChange = (order: number) => (value: string) => {
+        setCompList((prevState) => {
+            return [...prevState.slice(0, order), {...prevState[order], expression: value}, ...prevState.slice(order + 1, compList.length)];
+        });
     }
 
     const validateField = (fieldName: string, isInvalidFromField: boolean) => {
         setIsInvalid(isInvalidFromField)
     }
 
-    const formField: FormField = {
-        name: "condition",
-        displayName: "Condition",
-        typeName: "boolean",
-        value: conditionState.conditionExpression,
+    const setFormField = (order: number): FormField => {
+        return {
+            name: "condition",
+            displayName: "Condition",
+            typeName: "boolean",
+            value: compList[order]?.expression
+        }
     }
 
     const IFStatementTooltipMessages = {
@@ -84,26 +106,28 @@ export function AddIfForm(props: IfProps) {
         }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
     };
 
-    const expElementProps: FormElementProps = {
-        model: formField,
-        customProps: {
-            validate: validateField,
-            tooltipTitle: IFStatementTooltipMessages.title,
-            tooltipActionText: IFStatementTooltipMessages.actionText,
-            tooltipActionLink: IFStatementTooltipMessages.actionLink,
-            interactive: true,
-            statementType: formField.typeName,
-            expressionInjectables: {
-                list: formArgs?.expressionInjectables?.list,
-                setInjectables: formArgs?.expressionInjectables?.setInjectables
-            }
-        },
-        onChange: handleExpEditorChange,
-        defaultValue: condition.conditionExpression
-    };
+    const setElementProps = (order: number): FormElementProps => {
+        return {
+            model: setFormField(order),
+            customProps: {
+                validate: validateField,
+                tooltipTitle: IFStatementTooltipMessages.title,
+                tooltipActionText: IFStatementTooltipMessages.actionText,
+                tooltipActionLink: IFStatementTooltipMessages.actionLink,
+                interactive: true,
+                statementType: setFormField(order).typeName,
+                expressionInjectables: {
+                    list: formArgs?.expressionInjectables?.list,
+                    setInjectables: formArgs?.expressionInjectables?.setInjectables
+                }
+            },
+            onChange: handleExpEditorChange(order),
+            defaultValue: compList[order]?.expression
+        }
+    }
 
     const handleOnSaveClick = () => {
-        condition.conditionExpression = conditionState.conditionExpression;
+        condition.conditionExpression = {values: compList}
         onSave();
     }
 
@@ -125,11 +149,50 @@ export function AddIfForm(props: IfProps) {
             isMutationInProgress,
             validForm: !isInvalid,
             onSave: handleOnSaveClick,
-            onChange: handleExpEditorChange,
+            onChange: handleExpEditorChange(0),
             validate: validateField
         },
         true
     );
+
+    const ElseIfElement = (order: number) => {
+        return (
+            <>
+                <div className={classes.blockWrapper}>
+                    <div className={classes.codeText}>
+                        <Typography variant='body2' className={classes.endCode}>{`}`}</Typography>
+                    </div>
+                    {
+                        formArgs?.wizardType === 0 && (
+                            <div className={classes.codeText}>
+                                <IconButton
+                                    color="primary"
+                                    onClick={handleMinusButton(order)}
+                                    className={classes.button}
+                                >
+                                    <RemoveCircleOutlineRounded/>
+                                </IconButton>
+                            </div>
+                        )
+                    }
+                    <div className={classes.codeText}>
+                        <Typography variant='body2' className={classes.startCode}>else if</Typography>
+                    </div>
+                    <div className={classes.ifEditorWrapper}>
+                        <div className="exp-wrapper">
+                            <ExpressionEditor {...setElementProps(order)} hideLabelTooltips={true} />
+                        </div>
+                    </div>
+                    <div className={classes.codeText}>
+                        <Typography variant='body2' className={classes.endCode}>{`{`}</Typography>
+                    </div>
+                </div>
+                <div className={classes.codeWrapper}>
+                    <Typography variant='body2' className={classes.middleCode}>{`...`}</Typography>
+                </div>
+            </>
+        )
+    }
 
     if (!stmtEditorComponent) {
         return (
@@ -150,8 +213,54 @@ export function AddIfForm(props: IfProps) {
                                     </div>
                                     {stmtEditorButton}
                                 </div>
-                                <div className="exp-wrapper">
-                                    <ExpressionEditor {...expElementProps} />
+                                <div className={classes.blockWrapper}>
+                                    <div className={classes.codeText}>
+                                        <Typography variant='body2' className={classnames(classes.startCode)}>if</Typography>
+                                    </div>
+                                    <div className={classes.ifEditorWrapper}>
+                                        <div className="exp-wrapper">
+                                            <ExpressionEditor {...setElementProps(0)} hideLabelTooltips={true} />
+                                        </div>
+                                    </div>
+                                    <div className={classes.codeText}>
+                                        <Typography variant='body2' className={classnames(classes.endCode)}>{`{`}</Typography>
+                                    </div>
+                                </div>
+                                <div className={classes.codeWrapper}>
+                                    <Typography variant='body2' className={classes.middleCode}>...</Typography>
+                                </div>
+                                {compList.slice(1, compList.length).map((comp) => {
+                                    return <React.Fragment key={comp.id}>{ElseIfElement(comp.id)}</React.Fragment>
+                                })}
+                                <div className={classes.blockWrapper}>
+                                    <div className={classes.codeText}>
+                                        <Typography variant='body2' className={classes.endCode}>{`}`}</Typography>
+                                    </div>
+                                    {
+                                        formArgs?.wizardType === 0 && (
+                                            <div className={classes.codeText}>
+                                                <IconButton
+                                                    color="primary"
+                                                    onClick={handlePlusButton(-1)}
+                                                    className={classes.button}
+                                                >
+                                                    <ControlPoint/>
+                                                </IconButton>
+                                            </div>
+                                        )
+                                    }
+                                    <div className={classes.codeText}>
+                                        <Typography variant='body2' className={classes.startCode}>else</Typography>
+                                    </div>
+                                    <div className={classes.codeText}>
+                                        <Typography variant='body2' className={classes.endCode}>{`{`}</Typography>
+                                    </div>
+                                </div>
+                                <div className={classes.codeWrapper}>
+                                    <Typography variant='body2' className={classes.middleCode}>{`...`}</Typography>
+                                </div>
+                                <div className={classes.codeWrapper}>
+                                    <Typography variant='body2' className={classes.endCode}>{`}`}</Typography>
                                 </div>
                             </div>
                         </div>

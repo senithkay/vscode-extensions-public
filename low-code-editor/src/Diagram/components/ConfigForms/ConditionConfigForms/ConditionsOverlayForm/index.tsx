@@ -16,7 +16,7 @@ import { Context } from "../../../../../Contexts/Diagram";
 import { ConfigOverlayFormStatus } from "../../../../../Definitions";
 import { DefaultConfig } from "../../../../../Diagram/visitors/default";
 import { TextPreloaderVertical } from "../../../../../PreLoader/TextPreloaderVertical";
-import { ConditionConfig } from "../../../Portals/ConfigForm/types";
+import {ConditionConfig, ElseIfConfig} from "../../../Portals/ConfigForm/types";
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from "../../../Portals/Overlay";
 
 import { AddForeachForm } from "./AddForeachForm";
@@ -43,9 +43,13 @@ export function ConditionsOverlayForm(props: ConditionsWizardProps) {
         }
     } = useContext(Context);
 
-    if (formType === "if" || formType === "While") {
+    if (formType === "While") {
         if (!condition.conditionExpression) {
             condition.conditionExpression = "";
+        }
+    } else if (formType === "If") {
+        if (!condition.conditionExpression) {
+            condition.conditionExpression = condition?.conditionExpression as ElseIfConfig
         }
     } else if (formType === "ForEach") {
         if (!condition.conditionExpression) {
