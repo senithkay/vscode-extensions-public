@@ -17,7 +17,7 @@
  */
 
 import { BallerinaExtension, ChoreoSession, ConstructIdentifier } from "../core";
-import { showDiagramEditor } from '../diagram';
+import { renderFirstDiagramElement, showDiagramEditor } from '../diagram';
 import { sendTelemetryEvent, CMP_PACKAGE_VIEW, TM_EVENT_OPEN_PACKAGE_OVERVIEW } from "../telemetry";
 import { commands, Uri, window, workspace } from 'vscode';
 import {
@@ -165,8 +165,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
             construct.kind == CMP_KIND.CONSTANT || construct.kind == CMP_KIND.METHOD ||
             construct.kind == CMP_KIND.LISTENER || construct.kind == CMP_KIND.MODULE_LEVEL_VAR ||
             construct.kind == CMP_KIND.SERVICE || construct.kind == EXPLORER_ITEM_KIND.BAL_FILE) {
-            showDiagramEditor(construct.startLine, construct.startColumn, construct.kind, construct.name,
-                construct.filePath);
+            showDiagramEditor(construct.startLine, construct.startColumn, construct.filePath);
             ballerinaExtInstance.getDocumentContext().setLatestDocument(Uri.file(construct.filePath));
             packageTreeDataProvider.refresh();
             explorerDataProvider.refresh();
@@ -175,6 +174,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
 
     if (ballerinaExtInstance.isBallerinaLowCodeMode()) {
         commands.executeCommand(PALETTE_COMMANDS.FOCUS_EXPLORER);
+        renderFirstDiagramElement(ballerinaExtInstance.langClient!);
     }
 
     return packageTreeDataProvider;

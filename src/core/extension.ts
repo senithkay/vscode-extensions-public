@@ -34,8 +34,8 @@ import { ExtendedLangClient } from './extended-language-client';
 import { debug, log, getOutputChannel, outputChannel, isWindows } from '../utils';
 import { AssertionError } from "assert";
 import {
-    BALLERINA_HOME, BALLERINA_LOW_CODE_MODE, ENABLE_ALL_CODELENS, ENABLE_EXECUTOR_CODELENS, ENABLE_TELEMETRY,
-    ENABLE_SEMANTIC_HIGHLIGHTING, OVERRIDE_BALLERINA_HOME
+    BALLERINA_HOME, ENABLE_ALL_CODELENS, ENABLE_EXECUTOR_CODELENS, ENABLE_TELEMETRY,
+    ENABLE_SEMANTIC_HIGHLIGHTING, OVERRIDE_BALLERINA_HOME, BALLERINA_LOW_CODE_MODE
 }
     from "./preferences";
 import TelemetryReporter from "vscode-extension-telemetry";
@@ -261,8 +261,9 @@ export class BallerinaExtension {
         // We need to restart VSCode if we change plugin configurations.
         workspace.onDidChangeConfiguration((params: ConfigurationChangeEvent) => {
             if (params.affectsConfiguration(BALLERINA_HOME) || params.affectsConfiguration(OVERRIDE_BALLERINA_HOME)
-                || params.affectsConfiguration(ENABLE_ALL_CODELENS)
-                || params.affectsConfiguration(ENABLE_EXECUTOR_CODELENS)) {
+                || params.affectsConfiguration(ENABLE_ALL_CODELENS) ||
+                params.affectsConfiguration(ENABLE_EXECUTOR_CODELENS) ||
+                params.affectsConfiguration(BALLERINA_LOW_CODE_MODE)) {
                 this.showMsgAndRestart(CONFIG_CHANGED);
             }
         });
@@ -538,8 +539,8 @@ export class BallerinaExtension {
     }
 
     public isBallerinaLowCodeMode(): boolean {
-        let isBallerinaLowCodeMode = <boolean>workspace.getConfiguration().get(BALLERINA_LOW_CODE_MODE);
-        return isBallerinaLowCodeMode || (process.env.LOW_CODE_MODE === 'true');
+        return <boolean>workspace.getConfiguration().get(BALLERINA_LOW_CODE_MODE) ||
+            process.env.LOW_CODE_MODE === 'true';
     }
 
     public isSwanLake(): boolean {
