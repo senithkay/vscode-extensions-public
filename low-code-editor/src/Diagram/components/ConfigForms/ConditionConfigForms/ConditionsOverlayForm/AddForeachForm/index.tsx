@@ -118,7 +118,7 @@ export function AddForeachForm(props: ForeachProps) {
     useEffect(() => {
         (async () => {
             const source = await getInitialSource(createForeachStatement(
-                conditionExpression.collection,
+                conditionExpression.collection ? conditionExpression.collection : 'expression',
                 conditionExpression.variable,
                 selectedType,
                 {
@@ -226,7 +226,7 @@ export function AddForeachForm(props: ForeachProps) {
 
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {
-            label: intl.formatMessage({id: "lowcode.develop.configForms.foreach.statementEditor.label"}),
+            label: intl.formatMessage({id: "lowcode.develop.configForms.forEach.statementEditor.label"}),
             initialSource,
             formArgs: {formArgs},
             isMutationInProgress,

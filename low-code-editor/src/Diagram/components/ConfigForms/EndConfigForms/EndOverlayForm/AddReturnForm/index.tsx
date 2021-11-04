@@ -56,7 +56,7 @@ export function AddReturnForm(props: ReturnFormProps) {
     useEffect(() => {
         (async () => {
             const source = await getInitialSource(createReturnStatement(
-                returnExpression as string,
+                returnExpression ? returnExpression as string : 'expression',
                 {
                     endColumn: 0, endLine: 0, startColumn: 0, startLine: 0
                 }
