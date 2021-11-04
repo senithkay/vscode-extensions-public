@@ -15,6 +15,7 @@ import React from "react";
 import { StatementNodes } from "../../constants";
 import { VariableUserInputs } from "../../models/definitions";
 import { getStatementTypeComponent } from "../../utils";
+import { useStatementEditorStyles } from "../ViewContainer/styles";
 
 export interface StatementRendererProps {
     model: StatementNodes
@@ -25,9 +26,15 @@ export interface StatementRendererProps {
 export function StatementRenderer(props: StatementRendererProps) {
     const { model, userInputs, diagnosticHandler } = props;
 
+    const overlayClasses = useStatementEditorStyles();
+
     const component = getStatementTypeComponent(model, userInputs, diagnosticHandler);
 
     return (
-        <span>{component}</span>
+        <button
+            className={overlayClasses.expressionElement}
+        >
+            {component}
+        </button>
     );
 }

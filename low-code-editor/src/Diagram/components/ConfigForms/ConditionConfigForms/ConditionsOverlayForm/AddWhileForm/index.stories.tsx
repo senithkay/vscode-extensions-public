@@ -81,7 +81,7 @@ const api = {
 }
 
 
-const props = {
+export const mockedEditorProps = {
     api,
     // @ts-ignore
     currentAppType: undefined,
@@ -127,7 +127,7 @@ const props = {
 
 const Template: Story<WhileProps> = (args: WhileProps) => {
     return(
-        <LowCodeEditorProvider {...props} >
+        <LowCodeEditorProvider {...mockedEditorProps} >
             <AddWhileForm {...args}/>
         </LowCodeEditorProvider>
     );

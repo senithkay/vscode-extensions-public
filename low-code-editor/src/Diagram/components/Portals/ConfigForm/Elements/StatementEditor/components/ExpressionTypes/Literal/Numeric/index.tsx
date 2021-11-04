@@ -24,7 +24,7 @@ interface NumericLiteralProps {
     diagnosticHandler: (diagnostics: string) => void
 }
 
-export function NumericLiteralC(props: NumericLiteralProps) {
+export function NumericLiteralComponent(props: NumericLiteralProps) {
     const { model, userInputs, diagnosticHandler } = props;
     const inputEditorProps = {
         statementType: model.kind,

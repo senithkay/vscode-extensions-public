@@ -63,7 +63,7 @@ export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
                                 className={overlayClasses.suggestionButton}
                                 key={index}
                                 onClick={() => onClickExpressionSuggestion(suggestion.value)}
-                                disabled={(suggestion.value !== c.ARITHMETIC && suggestion.value !== c.STRING_LITERAL)}
+                                disabled={(suggestion.value !== c.ARITHMETIC && suggestion.value !== c.STRING_LITERAL && suggestion.value !== c.BOOLEAN_LITERAL)}
                             >
                                 {suggestion.value}
                             </button>

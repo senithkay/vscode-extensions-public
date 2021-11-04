@@ -17,6 +17,7 @@ import MonacoEditor, { EditorDidMount } from "react-monaco-editor";
 
 import { ConfigurableKeyword, NodePosition, STKindChecker, TypedBindingPattern } from "@ballerina/syntax-tree";
 import { FormHelperText, LinearProgress } from "@material-ui/core";
+import classNames from "classnames";
 import debounce from "lodash.debounce";
 import * as monaco from 'monaco-editor'
 import { CompletionItemKind, InsertTextFormat, Range } from "monaco-languageclient";
@@ -133,6 +134,11 @@ monaco.editor.defineTheme('exp-theme', {
 
 const BALLERINA_EXPR = "ballerina-exp";
 
+export interface ExpressionEditorCustomTemplate {
+    defaultCodeSnippet: string;
+    targetColumn: number;
+}
+
 export interface ExpressionEditorProps {
     validate?: (field: string, isInvalid: boolean, isEmpty: boolean) => void;
     clearInput?: boolean;
@@ -143,10 +149,7 @@ export interface ExpressionEditorProps {
     focus?: boolean;
     revertFocus?: () => void;
     statementType?: PrimitiveBalType | any;
-    customTemplate?: {
-        defaultCodeSnippet: string;
-        targetColumn: number;
-    }
+    customTemplate?: ExpressionEditorCustomTemplate,
     expandDefault?: boolean;
     revertClearInput?: () => void;
     hideTextLabel?: boolean;
@@ -154,6 +157,7 @@ export interface ExpressionEditorProps {
     subEditor?: boolean;
     editPosition?: any;
     expressionInjectables?: ExpressionInjectablesProps;
+    hideSuggestions?: boolean;
 }
 
 export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>) {
@@ -187,7 +191,8 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         onChange,
         customProps,
     } = props;
-    const { validate, statementType, customTemplate, focus, expandDefault, clearInput, revertClearInput, changed, subEditor, editPosition, expressionInjectables } = customProps;
+    const { validate, statementType, customTemplate, focus, expandDefault, clearInput, revertClearInput, changed,
+            subEditor, editPosition, expressionInjectables, hideSuggestions } = customProps;
     const targetPosition = editPosition ? editPosition : getTargetPosition(targetPositionDraft, syntaxTree);
     const [invalidSourceCode, setInvalidSourceCode] = useState(false);
     const [expand, setExpand] = useState(expandDefault || false);
@@ -434,8 +439,8 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                             command: {
                                                 id: monacoRef.current.editor.addCommand(0, (_, args: TextEdit[]) => {
                                                     if (args.length > 0) {
-                                                        const startColumn =  args[0].range.start.character - snippetTargetPosition + 2
-                                                        const endColumn =  args[0].range.end.character - snippetTargetPosition + 2
+                                                        const startColumn = args[0].range.start.character - snippetTargetPosition + 2
+                                                        const endColumn = args[0].range.end.character - snippetTargetPosition + 2
                                                         const edit: monaco.editor.IIdentifiedSingleEditOperation[] = [{
                                                             text: args[0].newText,
                                                             range: new monaco.Range(1, startColumn, 1, endColumn)
@@ -520,7 +525,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         if (monacoRef.current) {
             // Show & hide configurable options icon in the expression editor based on the model type
             const configurableWidget: monaco.editor.IContentWidget = createContentWidget(CONFIGURABLE_WIDGET_ID);
-            if (configurableTypes.includes(varType) && expressionInjectables){
+            if (configurableTypes.includes(varType) && expressionInjectables) {
                 monacoRef.current.editor.addContentWidget(configurableWidget);
             } else {
                 monacoRef.current.editor.removeContentWidget(configurableWidget);
@@ -787,13 +792,13 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const handleOnOutFocus = async () => {
         // remove additional semicolon if present
         const monacoModel = monacoRef?.current?.editor.getModel();
-        if (monacoModel){
+        if (monacoModel) {
             const currentContent = monacoModel.getValue();
             // Remove semicolon only if the content ends with a semicolon and if its not a custom template
-            if (currentContent.endsWith(';') && !isCustomTemplate){
+            if (currentContent.endsWith(';') && !isCustomTemplate) {
                 const contentWithoutSemiColon = getValueWithoutSemiColon(currentContent);
                 model.value = contentWithoutSemiColon;
-                if (onChange){
+                if (onChange) {
                     onChange(contentWithoutSemiColon);
                 }
             }
@@ -907,7 +912,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             }
             const suggestWidgetStatus = (monacoEditor as any)._contentWidgets["editor.widget.suggestWidget"]?.widget?._widget?._state;
             // When suggest widget is open => suggestWidgetStatus = 3
-            if (keyCode === monaco.KeyCode.Tab && suggestWidgetStatus !== 3){
+            if (keyCode === monaco.KeyCode.Tab && suggestWidgetStatus !== 3) {
                 event.stopPropagation();
             }
         });
@@ -918,7 +923,10 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     return (
         <>
             <ExpressionEditorLabel {...props} />
-            <div className="exp-container" style={{ height: expand ? (superExpand ? '200px' : '100px') : '34px' }}>
+            <div
+                className={classNames("exp-container", { 'hide-suggestion': hideSuggestions })}
+                style={{ height: expand ? (superExpand ? '200px' : '100px') : '34px' }}
+            >
                 <div className="exp-absolute-wrapper">
                     <div className="exp-editor" style={{ height: expand ? (superExpand ? '200px' : '100px') : '34px' }} >
                         <MonacoEditor
@@ -929,7 +937,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                             options={MONACO_OPTIONS}
                             editorDidMount={handleEditorMount}
                         />
-                        {validating && <LinearProgress data-testid='expr-validating-loader' className="exp-linear-loader"/>}
+                        {validating && <LinearProgress data-testid='expr-validating-loader' className="exp-linear-loader" />}
                     </div>
                 </div>
             </div>
@@ -943,24 +951,24 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 setShowConfigurableView={setShowConfigurableView}
             />
             {invalidSourceCode ?
+                (
+                    <>
+                        {!(subEditor && cursorOnEditor) && <Diagnostic message={mainDiagnostics[0]?.message} />}
+                        <FormHelperText className={formClasses.invalidCode}><FormattedMessage id="lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage" defaultMessage="Error occurred in the code-editor. Please fix it first to continue." /></FormHelperText>
+                    </>
+                ) : !validating && expressionEditorState.name === model?.name && expressionEditorState.diagnostic && getDiagnosticMessage(expressionEditorState.diagnostic, varType) ?
                     (
                         <>
-                            {!(subEditor && cursorOnEditor) && <Diagnostic message={mainDiagnostics[0]?.message} />}
-                            <FormHelperText className={formClasses.invalidCode}><FormattedMessage id="lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage" defaultMessage="Error occurred in the code-editor. Please fix it first to continue." /></FormHelperText>
+                            {!(subEditor && cursorOnEditor) && <Diagnostic message={getDiagnosticMessage(expressionEditorState.diagnostic, varType)} />}
+                            {hints.map(hint => <ExpressionEditorHint key={hint.type} {...hint} />)}
                         </>
-                    ) : !validating && expressionEditorState.name === model?.name && expressionEditorState.diagnostic && getDiagnosticMessage(expressionEditorState.diagnostic, varType) ?
-                        (
-                                <>
-                                    {!(subEditor && cursorOnEditor)  && <Diagnostic message={getDiagnosticMessage(expressionEditorState.diagnostic, varType)} />}
-                                    {hints.map(hint => <ExpressionEditorHint key={hint.type} {...hint}/>)}
-                                </>
-                        ) : null
+                    ) : null
             }
         </>
     );
 }
 
-function Diagnostic(props: {message: string}) {
+function Diagnostic(props: { message: string }) {
     const { message } = props
     const formClasses = useFormStyles();
 

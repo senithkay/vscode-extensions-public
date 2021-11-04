@@ -604,6 +604,11 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         fitContent: {
             width: 'fit-content'
-        }
+        },
+        variableExpEditorWrapper: {
+            minWidth: `164px !important`,
+            paddingRight: theme.spacing(1),
+            position: 'relative'
+        },
     }),
 );
