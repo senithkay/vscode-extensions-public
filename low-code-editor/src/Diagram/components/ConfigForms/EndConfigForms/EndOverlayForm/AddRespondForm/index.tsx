@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, useContext, useState } from "react";
+import React, {ReactNode, useContext, useEffect, useState} from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
@@ -20,6 +20,7 @@ import cn from "classnames";
 import { httpResponse, PrimitiveBalType, WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
+import { createRespond, getInitialSource } from "../../../../../utils/modification-util";
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
 import { useStatementEditor } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
@@ -58,7 +59,23 @@ export function AddRespondForm(props: RespondFormProps) {
     const [validStatusCode, setValidStatusCode] = useState(validForm);
     const [statusCodeState, setStatusCode] = useState(undefined);
     const [resExp, setResExp] = useState(undefined);
+    const [initialSource, setInitialSource] = useState('');
     const intl = useIntl();
+
+    useEffect(() => {
+        (async () => {
+            const source = await getInitialSource(createRespond(
+                respondFormConfig.genType,
+                respondFormConfig.variable,
+                respondFormConfig.caller,
+                resExp,
+                {
+                    endColumn: 0, endLine: 0, startColumn: 0, startLine: 0
+                }
+            ));
+            setInitialSource(source);
+        })();
+    }, [resExp]);
 
     const onExpressionChange = (value: any) => {
         respondFormConfig.respondExpression = value;
@@ -138,7 +155,7 @@ export function AddRespondForm(props: RespondFormProps) {
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {
             label: intl.formatMessage({id: "lowcode.develop.configForms.respond.statementEditor.label"}),
-            initialSource: "", // TODO: Pass the actual initialSource
+            initialSource,
             formArgs: {formArgs},
             isMutationInProgress,
             validForm,
