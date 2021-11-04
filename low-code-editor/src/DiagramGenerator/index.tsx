@@ -77,7 +77,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     React.useEffect(() => {
         const keyPress = (e: any) => {
             const evtobj = e;
-            if (evtobj.keyCode === 90 && evtobj.ctrlKey) {
+            if (evtobj.keyCode === 90 && (evtobj.ctrlKey || evtobj.metaKey)) {
                 undo();
             } else if (evtobj.keyCode === 89 && evtobj.ctrlKey) {
                 redo();
