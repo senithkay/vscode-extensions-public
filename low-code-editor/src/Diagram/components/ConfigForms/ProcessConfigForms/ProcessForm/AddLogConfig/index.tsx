@@ -12,7 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 // tslint:disable: ordered-imports
-import React, { useContext, useState } from "react";
+import React, {useContext, useEffect, useState} from "react";
 
 import { CallStatement, FunctionCall, QualifiedNameReference } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
@@ -28,6 +28,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
 import { useStatementEditor } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
+import {createLogStatement, createModuleVarDecl, getInitialSource} from "../../../../../utils/modification-util";
 
 interface LogConfigProps {
     config: ProcessConfig;
@@ -72,6 +73,20 @@ export function AddLogConfig(props: LogConfigProps) {
     const [logType, setLogType] = useState(defaultType);
     const [expression, setExpression] = useState(defaultExpression);
     const [isFormValid, setIsFormValid] = useState(logType && expression);
+    const [initialSource, setInitialSource] = useState('');
+
+    useEffect(() => {
+        (async () => {
+            const source = await getInitialSource(createLogStatement(
+                logType,
+                expression,
+                {
+                    endColumn: 0, endLine: 0, startColumn: 0, startLine: 0
+                }
+            ));
+            setInitialSource(source);
+        })();
+    }, [logType, expression]);
 
     const onExpressionChange = (value: any) => {
         setExpression(value);
@@ -115,15 +130,14 @@ export function AddLogConfig(props: LogConfigProps) {
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {
             label: intl.formatMessage({id: "lowcode.develop.configForms.log.statementEditor.label"}),
-            initialSource: "", // TODO: Pass the actual initialSource
+            initialSource,
             formArgs: {formArgs},
             isMutationInProgress,
             validForm: !!isFormValid,
             onSave: onSaveBtnClick,
             onChange: onExpressionChange,
             validate: validateExpression
-        },
-        true
+        }
     );
 
     if (!stmtEditorComponent) {

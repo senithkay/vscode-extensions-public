@@ -234,8 +234,7 @@ export function AddForeachForm(props: ForeachProps) {
             onSave: handleSave,
             onChange: handleExpEditorChange,
             validate: validateField
-        },
-        false
+        }
     );
 
     if (!stmtEditorComponent) {

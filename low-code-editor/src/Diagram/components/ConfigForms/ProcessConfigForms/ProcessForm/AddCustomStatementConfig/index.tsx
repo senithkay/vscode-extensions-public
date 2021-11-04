@@ -100,8 +100,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
             onSave: onSaveBtnClick,
             onChange: onExpressionChange,
             validate: validateExpression
-        },
-        false
+        }
     );
 
     if (!stmtEditorComponent){

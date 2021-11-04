@@ -130,8 +130,7 @@ export function AddWhileForm(props: WhileProps) {
             onSave: handleOnSaveClick,
             onChange: handleExpEditorChange,
             validate: validateField
-        },
-        false
+        }
     );
 
     if (!stmtEditorComponent) {

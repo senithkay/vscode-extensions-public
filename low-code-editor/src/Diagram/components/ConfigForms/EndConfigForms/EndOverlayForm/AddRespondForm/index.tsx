@@ -145,8 +145,7 @@ export function AddRespondForm(props: RespondFormProps) {
             onSave: onSaveWithTour,
             onChange: onExpressionChange,
             validate: validateExpression
-        },
-        !true
+        }
     );
 
 

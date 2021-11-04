@@ -141,8 +141,7 @@ export function AddIfForm(props: IfProps) {
             onSave: handleOnSaveClick,
             onChange: handleExpEditorChange,
             validate: validateField
-        },
-        false
+        }
     );
 
     if (!stmtEditorComponent) {

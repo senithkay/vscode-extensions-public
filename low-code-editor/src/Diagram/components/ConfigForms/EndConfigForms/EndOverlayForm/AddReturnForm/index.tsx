@@ -105,8 +105,7 @@ export function AddReturnForm(props: ReturnFormProps) {
             onSave: onReturnExpressionSave,
             onChange: onReturnValueChange,
             validate: validateExpression
-        },
-        false
+        }
     );
 
     if (!stmtEditorComponent){

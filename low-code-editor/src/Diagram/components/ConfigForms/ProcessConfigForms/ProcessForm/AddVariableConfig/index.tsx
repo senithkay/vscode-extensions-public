@@ -288,8 +288,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             onSave: handleSave,
             onChange: onPropertyChange,
             validate: validateExpression
-        },
-        false
+        }
     );
 
     if (!stmtEditorComponent) {
