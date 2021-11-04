@@ -112,28 +112,26 @@ export function AddReturnForm(props: ReturnFormProps) {
                                         <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.Return.title" defaultMessage="Return" /></Box>
                                     </Typography>
                                 </div>
-                                {stmtEditorButton}
-                                <div className={classes.formWrapper}>
-                                    {
-                                        // containsMainFunction ?
-                                        (
-                                            <div className="exp-wrapper">
-                                                <ExpressionEditor
-                                                    model={{ name: "return expression", type: "var", value: config.expression }}
-                                                    customProps={{
-                                                        validate: validateExpression,
-                                                        tooltipTitle: returnStatementTooltipMessages.title,
-                                                        tooltipActionText: returnStatementTooltipMessages.actionText,
-                                                        tooltipActionLink: returnStatementTooltipMessages.actionLink,
-                                                        interactive: true,
-                                                        statementType: 'var'
-                                                    }}
-                                                    onChange={onReturnValueChange}
-                                                />
-                                            </div>
-                                        )
-                                        // : null
-                                    }
+                                <div className={classes.statementEditor}>
+                                    {stmtEditorButton}
+                                </div>
+                            </div>
+                            <div className={classes.blockWrapper}>
+                                <div className={classes.returnWrapper}>
+                                    <div className="exp-wrapper">
+                                        <ExpressionEditor
+                                            model={{ name: "return expression", type: "var", value: config.expression }}
+                                            customProps={{
+                                                validate: validateExpression,
+                                                tooltipTitle: returnStatementTooltipMessages.title,
+                                                tooltipActionText: returnStatementTooltipMessages.actionText,
+                                                tooltipActionLink: returnStatementTooltipMessages.actionLink,
+                                                interactive: true,
+                                                statementType: 'var'
+                                            }}
+                                            onChange={onReturnValueChange}
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         </div>
