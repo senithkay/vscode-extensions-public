@@ -129,112 +129,100 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
     const isSingleFormConnector = connector && connector.package.organization === defaultOrgs.WSO2;
     const toolTip = isReferencedVariable ? "API is referred in the code below" : undefined;
 
+    const connectorList = (
+        <FormGenerator
+            onCancel={onWizardClose}
+            // onSave={onSave}
+            configOverlayFormStatus={ {
+                formType: "ConnectorList",
+                formArgs: {
+                    onSelect: onConnectorSelect,
+                },
+                isLoading: true,
+            } }
+        />
+    );
+
+    const connectorWizard = (
+        <ConnectorConfigWizard
+            connectorInfo={connector}
+            position={ {
+                x: viewState.bBox.cx + 80,
+                y: viewState.bBox.cy,
+            } }
+            targetPosition={draftVS.targetPosition}
+            selectedConnector={draftVS.selectedConnector}
+            model={model}
+            onClose={onWizardClose}
+            isAction={false}
+        />
+    );
+
     return (
         <>
-            { !model && !connector && (
-                <g className={ connectorWrapper }>
-                    <ConnectorProcessSVG
-                        x={ viewState.bBox.cx - CONNECTOR_PROCESS_SVG_WIDTH / 2 }
-                        y={ viewState.bBox.cy }
-                    />
-                    <FormGenerator
-                        onCancel={ onWizardClose }
-                        // onSave={onSave}
-                        configOverlayFormStatus={ {
-                            formType: "ConnectorList",
-                            formArgs: {
-                                onSelect: onConnectorSelect,
-                            },
-                            isLoading: true,
-                        } }
-                    />
-                </g>
-            ) }
-            { model && (
-                <g className={ connectorWrapper }>
-                    <ConnectorProcessSVG
-                        x={ viewState.bBox.cx - CONNECTOR_PROCESS_SVG_WIDTH / 2 }
-                        y={ viewState.bBox.cy }
-                    />
-                    <>
-                        { !isReadOnly && !isMutationProgress && !isWaitingOnWorkspace && (
-                            <g
-                                className="connector-process-options-wrapper"
-                                height={ CONNECTOR_PROCESS_SVG_HEIGHT_WITH_SHADOW }
-                                width={ CONNECTOR_PROCESS_SVG_WIDTH_WITH_SHADOW }
-                                x={ x - CONNECTOR_PROCESS_SHADOW_OFFSET / 2 }
-                                y={ y - CONNECTOR_PROCESS_SHADOW_OFFSET / 2 }
-                            >
-                                <rect
-                                    x={ viewState.bBox.cx - CONNECTOR_PROCESS_SVG_WIDTH / 4 }
-                                    y={ viewState.bBox.cy + CONNECTOR_PROCESS_SVG_HEIGHT / 4 }
-                                    className="connector-process-rect"
-                                />
-                                <g className={ isReferencedVariable ? "disable" : "" }>
-                                    <DeleteBtn
-                                        cx={
-                                            viewState.bBox.cx -
-                                            DELETE_SVG_WIDTH_WITH_SHADOW +
-                                            CONNECTOR_PROCESS_SVG_WIDTH / 4
-                                        }
-                                        cy={
-                                            viewState.bBox.cy +
-                                            CONNECTOR_PROCESS_SVG_HEIGHT / 2 -
-                                            DELETE_SVG_HEIGHT_WITH_SHADOW / 3
-                                        }
-                                        model={ model }
-                                        toolTipTitle={ toolTip }
-                                        isButtonDisabled={ isReferencedVariable }
-                                        onDraftDelete={ onDraftDelete }
-                                        createModifications={ connectorDefDeleteMutation }
-                                    />
-                                </g>
-                                <g
-                                    className={
-                                        !isLocalVariableDecl || isSingleFormConnector
-                                            ? "disable"
-                                            : ""
-                                    }
-                                >
-                                    <EditBtn
-                                        onHandleEdit={ toggleSelection }
-                                        model={ model }
-                                        cx={
-                                            viewState.bBox.cx -
-                                            EDIT_SVG_WIDTH_WITH_SHADOW / 2 +
-                                            EDIT_SVG_OFFSET
-                                        }
-                                        cy={ viewState.bBox.cy + CONNECTOR_PROCESS_SVG_HEIGHT / 4 }
-                                        isButtonDisabled={
-                                            !isLocalVariableDecl || isSingleFormConnector
-                                        }
-                                    />
-                                </g>
-                            </g>
-                        ) }
-                    </>
-                </g>
-            ) }
-            { connector && (
-                <g className={ connectorWrapper }>
-                    <ConnectorProcessSVG
-                        x={ viewState.bBox.cx - CONNECTOR_PROCESS_SVG_WIDTH / 2 }
-                        y={ viewState.bBox.cy }
-                    />
-                    <ConnectorConfigWizard
-                        connectorInfo={ connector }
-                        position={ {
-                            x: viewState.bBox.cx + 80,
-                            y: viewState.bBox.cy,
-                        } }
-                        targetPosition={ draftVS.targetPosition }
-                        selectedConnector={ draftVS.selectedConnector }
-                        model={ model }
-                        onClose={ onWizardClose }
-                        isAction={ false }
-                    />
-                </g>
-            ) }
+            <g className={connectorWrapper}>
+                <ConnectorProcessSVG
+                    x={viewState.bBox.cx - CONNECTOR_PROCESS_SVG_WIDTH / 2}
+                    y={viewState.bBox.cy}
+                />
+                {!model && !connector && connectorList}
+                {connector && connectorWizard}
+                { model && !isReadOnly && !isMutationProgress && !isWaitingOnWorkspace && (
+                    <g
+                        className="connector-process-options-wrapper"
+                        height={CONNECTOR_PROCESS_SVG_HEIGHT_WITH_SHADOW}
+                        width={CONNECTOR_PROCESS_SVG_WIDTH_WITH_SHADOW}
+                        x={x - CONNECTOR_PROCESS_SHADOW_OFFSET / 2}
+                        y={y - CONNECTOR_PROCESS_SHADOW_OFFSET / 2}
+                    >
+                        <rect
+                            x={viewState.bBox.cx - CONNECTOR_PROCESS_SVG_WIDTH / 4}
+                            y={viewState.bBox.cy + CONNECTOR_PROCESS_SVG_HEIGHT / 4}
+                            className="connector-process-rect"
+                        />
+                        <g className={isReferencedVariable ? "disable" : ""}>
+                            <DeleteBtn
+                                cx={
+                                    viewState.bBox.cx -
+                                    DELETE_SVG_WIDTH_WITH_SHADOW +
+                                    CONNECTOR_PROCESS_SVG_WIDTH / 4
+                                }
+                                cy={
+                                    viewState.bBox.cy +
+                                    CONNECTOR_PROCESS_SVG_HEIGHT / 2 -
+                                    DELETE_SVG_HEIGHT_WITH_SHADOW / 3
+                                }
+                                model={model}
+                                toolTipTitle={toolTip}
+                                isButtonDisabled={isReferencedVariable}
+                                onDraftDelete={onDraftDelete}
+                                createModifications={connectorDefDeleteMutation}
+                            />
+                        </g>
+                        <g
+                            className={
+                                !isLocalVariableDecl || isSingleFormConnector
+                                    ? "disable"
+                                    : ""
+                            }
+                        >
+                            <EditBtn
+                                onHandleEdit={toggleSelection}
+                                model={model}
+                                cx={
+                                    viewState.bBox.cx -
+                                    EDIT_SVG_WIDTH_WITH_SHADOW / 2 +
+                                    EDIT_SVG_OFFSET
+                                }
+                                cy={viewState.bBox.cy + CONNECTOR_PROCESS_SVG_HEIGHT / 4}
+                                isButtonDisabled={
+                                    !isLocalVariableDecl || isSingleFormConnector
+                                }
+                            />
+                        </g>
+                    </g>
+                ) }
+            </g>
         </>
     );
 }

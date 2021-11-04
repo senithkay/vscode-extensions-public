@@ -15,6 +15,7 @@ import React, { useContext, useState } from "react";
 import { useIntl } from "react-intl";
 
 import { LocalVarDecl, NodePosition, STNode } from "@ballerina/syntax-tree";
+
 import { ConnectorConfig, FunctionDefinitionInfo, WizardType, } from "../../../ConfigurationSpec/types";
 import { Context } from "../../../Contexts/Diagram";
 import { BallerinaConnectorInfo, Connector, } from "../../../Definitions/lang-client-extended";
@@ -135,7 +136,7 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
         <div>
             { !isCodeEditorActive ? (
                 <FormGenerator
-                    onCancel={ handleClose }
+                    onCancel={handleClose}
                     // onSave={onSave}
                     configOverlayFormStatus={ {
                         formType: "Connector",

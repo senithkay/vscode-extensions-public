@@ -359,14 +359,19 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                     if (specificField.valueExpr.kind === 'MappingConstructor') {
                         const mappingField = specificField.valueExpr as MappingConstructor;
                         if (formField.typeName === "union") {
-                            formField.fields.forEach(subFormField => {
+                            formField.members.forEach(subFormField => {
                                 if (subFormField.typeName === "record" && subFormField.fields) {
                                     const subFields = subFormField.fields;
                                     if (subFields) {
                                         mapRecordLiteralToRecordTypeFormField(mappingField.fields as SpecificField[], subFields);
                                         // find selected data type using non optional field's value
-                                        const valueFilled = subFields.find(field => (field.optional === false && field.value));
-                                        if (valueFilled) {
+                                        let allFieldsFilled = true;
+                                        subFields.forEach(field => {
+                                            if (field.optional === false && !field.value){
+                                                allFieldsFilled = false;
+                                            }
+                                        });
+                                        if (allFieldsFilled) {
                                             formField.selectedDataType = getUnionFormFieldName(subFormField);
                                         }
                                     }
@@ -637,15 +642,15 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
     let connectorInfo = getConnectorFromCache(connector);
     let functionDefInfo: Map<string, FunctionDefinitionInfo> = new Map();
     const connectorConfig = new ConnectorConfig();
-    let connectorRequest: BallerinaConnectorRequest = {};
+    const connectorRequest: BallerinaConnectorRequest = {};
 
     // Connector request with connector_id
-    if(!connectorInfo && connector && connector.id){
+    if (!connectorInfo && connector && connector.id){
         connectorRequest.id = connector.id;
     }
 
     // Connector request with FQN
-    if(!connectorInfo && connector && connector.moduleName && connector.package){        
+    if (!connectorInfo && connector && connector.moduleName && connector.package){
         connectorRequest.name = connector.name;
         connectorRequest.moduleName = connector.moduleName;
         connectorRequest.orgName = connector.package.organization;
@@ -665,7 +670,7 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
         }
     }
 
-    if(!connectorInfo){
+    if (!connectorInfo){
         return null;
     }
 

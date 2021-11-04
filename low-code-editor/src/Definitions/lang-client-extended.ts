@@ -95,13 +95,13 @@ export interface BallerinaConnectorsResponse {
 }
 
 export interface BallerinaConnectorRequest {
-    id?:string
-    orgName?:string
-    packageName?:string
-    moduleName?:string
-    version?:string
-    name?:string
-    targetFile?:string
+    id?: string
+    orgName?: string
+    packageName?: string
+    moduleName?: string
+    version?: string
+    name?: string
+    targetFile?: string
 }
 export interface BallerinaConnectorResponse extends BallerinaConnectorInfo {
     error?: string;

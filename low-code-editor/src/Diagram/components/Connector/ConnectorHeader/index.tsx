@@ -47,7 +47,8 @@ export function ConnectorHeaderC(props: ConnectorClientProps) {
     const connectorWrapper = cn("main-connector-wrapper connector-client");
     const iconProps = {
         cx: connectorClientViewState.endpoint.lifeLine.cx,
-        cy: epViewState.isExternal ? connectorClientViewState.endpoint.lifeLine.cy - CLIENT_RADIUS : connectorClientViewState.endpoint.lifeLine.cy + CLIENT_RADIUS
+        cy: epViewState.isExternal ? connectorClientViewState.endpoint.lifeLine.cy - CLIENT_RADIUS : connectorClientViewState.endpoint.lifeLine.cy + CLIENT_RADIUS,
+        scale: 0.1
     };
 
     const icon = getConnectorIcon(connectorIconId, iconProps);
