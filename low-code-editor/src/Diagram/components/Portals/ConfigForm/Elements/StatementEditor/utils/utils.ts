@@ -60,6 +60,8 @@ export function addExpression(model: any, kind: string, value?: any) {
         Object.assign(model, createStringTypeDesc());
     } else if (kind === c.BOOLEAN_TYPE_DESC) {
         Object.assign(model, createBooleanTypeDesc());
+    } else if (kind === c.RANGE) {
+        Object.assign(model, createRange());
     } else if (kind === c.STRING_LITERAL) {
         if (value) {
             Object.assign(model, createStringLiteral(value));
@@ -97,7 +99,7 @@ export function addExpression(model: any, kind: string, value?: any) {
         } else {
             Object.assign(model, createConditionalExpression(""));
         }
-    }else {
+    } else {
         // tslint:disable-next-line:no-console
         console.log(`Unsupported kind. (${kind})`);
     }
@@ -246,6 +248,39 @@ function createLogical(): BinaryExpression {
                 "source": "",
             },
             "source": ""
+        },
+        source: ""
+    };
+}
+
+function createRange(): BinaryExpression {
+    return {
+        kind: "BinaryExpression",
+        lhsExpr: {
+            kind: "NumericLiteral",
+            literalToken: {
+                kind: "DecimalIntegerLiteralToken",
+                isToken: false,
+                value: "expression",
+                source: ""
+            },
+            source: ""
+        },
+        operator: {
+            kind: "EllipsisToken",
+            isToken: true,
+            value: "...",
+            source: ""
+        },
+        rhsExpr: {
+            kind: "NumericLiteral",
+            literalToken: {
+                kind: "DecimalIntegerLiteralToken",
+                isToken: false,
+                value: "expression",
+                source: ""
+            },
+            source: ""
         },
         source: ""
     };
@@ -449,9 +484,9 @@ export const ExpressionKindByOperator: { [key: string]: string } = {
     AsteriskToken: c.ARITHMETIC,
     BitwiseAndToken: c.ARITHMETIC,
     BitwiseXorToken: c.ARITHMETIC,
-    DoubleDotLtToken: c.ARITHMETIC,
+    DoubleDotLtToken: c.RANGE,
     DoubleEqualToken: c.EQUALITY,
-    EllipsisToken: c.ARITHMETIC,
+    EllipsisToken: c.RANGE,
     ElvisToken: c.ARITHMETIC,
     GtEqualToken: c.RELATIONAL,
     GtToken: c.RELATIONAL,
@@ -504,7 +539,7 @@ export const OperatorsForExpressionKind: { [key: string]: SuggestionItem[] } = {
         { value: ">>>", kind: "Unknown" }
     ],
     Range: [
-        { value: "...", kind: "Unknown" },
+        { value: "...", kind: "EllipsisToken" },
         { value: "..<", kind: "DoubleDotLtToken" }
     ]
 }
@@ -599,13 +634,14 @@ export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = 
         { value: c.EQUALITY },
         { value: c.TYPE_TEST },
         { value: c.LOGICAL },
-        { value: c.CONDITIONAL }
+        { value: c.CONDITIONAL },
+        { value: c.RANGE }
     ],
     TypeDescriptor: [
         { value: c.STRING_TYPE_DESC },
         { value: c.BOOLEAN_TYPE_DESC },
     ],
-    DefaultExpressions : [
+    DefaultExpressions: [
         { value: c.ARITHMETIC },
         { value: c.RELATIONAL },
         { value: c.EQUALITY },
@@ -614,7 +650,19 @@ export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = 
         { value: c.NUMERIC_LITERAL },
         { value: c.BOOLEAN_LITERAL },
         { value: c.TYPE_TEST },
-        { value: c.CONDITIONAL }
+        { value: c.CONDITIONAL },
+        { value: c.RANGE }
+    ],
+    Range: [
+        { value: c.ARITHMETIC },
+        { value: c.RELATIONAL },
+        { value: c.EQUALITY },
+        { value: c.LOGICAL },
+        { value: c.STRING_LITERAL },
+        { value: c.NUMERIC_LITERAL },
+        { value: c.BOOLEAN_LITERAL },
+        { value: c.CONDITIONAL },
+        { value: c.RANGE }
     ]
 }
 
