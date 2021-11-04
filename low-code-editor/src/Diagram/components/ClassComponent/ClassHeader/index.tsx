@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 
 import { ClassDefinition } from '@ballerina/syntax-tree';
 import classNames from 'classnames';
@@ -59,14 +59,14 @@ export function ClassHeader(props: ClassHeaderProps) {
         gotoSource({ startLine: targetposition.startLine, startColumn: targetposition.startColumn });
     }
 
-    const handleBarClick = (evt: React.MouseEvent) => {
+    const handleHeaderBarClick = (evt: React.MouseEvent) => {
         if (!evt.isPropagationStopped()) {
             onExpandClick();
         }
     }
 
     return (
-        <div className={'class-component-header'} onClick={handleBarClick} >
+        <div className={'class-component-header'} onClick={handleHeaderBarClick} >
             <div className={'header-segement-container'}>
                 <div className="header-segment" >
                     <ClassIcon />
