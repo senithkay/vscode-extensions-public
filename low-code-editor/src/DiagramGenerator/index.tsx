@@ -79,7 +79,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
             const evtobj = e;
             if (evtobj.keyCode === 90 && (evtobj.ctrlKey || evtobj.metaKey)) {
                 undo();
-            } else if (evtobj.keyCode === 89 && evtobj.ctrlKey) {
+            } else if (evtobj.keyCode === 89 && (evtobj.ctrlKey || evtobj.metaKey)) {
                 redo();
             }
         }
