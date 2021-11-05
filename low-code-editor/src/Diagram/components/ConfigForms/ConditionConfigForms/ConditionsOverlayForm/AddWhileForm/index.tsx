@@ -26,7 +26,7 @@ import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/consta
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
 import { useStatementEditor } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
 import classnames from "classnames";
-import { createWhileStatement, getInitialSource } from "../../../../../utils/modification-util";
+import {createForeachStatement, createWhileStatement, getInitialSource} from "../../../../../utils/modification-util";
 
 export interface WhileProps {
     condition: ConditionConfig;
@@ -44,19 +44,6 @@ export function AddWhileForm(props: WhileProps) {
 
     const [isInvalid, setIsInvalid] = useState(true);
     const [conditionState, setConditionState] = useState(condition);
-    const [initialSource, setInitialSource] = useState('');
-
-    useEffect(() => {
-        (async () => {
-            const source = await getInitialSource(createWhileStatement(
-                 conditionState.conditionExpression ? conditionState.conditionExpression as string : 'expression',
-                {
-                    endColumn: 0, endLine: 0, startColumn: 0, startLine: 0
-                }
-            ));
-            setInitialSource(source);
-        })();
-    }, [conditionState]);
 
     const handleExpEditorChange = (value: string) => {
         setConditionState({ ...conditionState, conditionExpression: value })
@@ -119,6 +106,13 @@ export function AddWhileForm(props: WhileProps) {
         id: "lowcode.develop.configForms.while.cancelButton.label",
         defaultMessage: "Cancel"
     });
+
+    const initialSource = getInitialSource(createWhileStatement(
+        conditionState.conditionExpression ? conditionState.conditionExpression as string : 'expression',
+        {
+            endColumn: 0, endLine: 0, startColumn: 0, startLine: 0
+        }
+    ));
 
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {

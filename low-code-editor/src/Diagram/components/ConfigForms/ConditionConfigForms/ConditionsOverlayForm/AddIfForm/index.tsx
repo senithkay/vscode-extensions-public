@@ -53,19 +53,6 @@ export function AddIfForm(props: IfProps) {
 
     const [isInvalid, setIsInvalid] = useState(true);
     const [conditionState, setConditionState] = useState(condition);
-    const [initialSource, setInitialSource] = useState('');
-
-    useEffect(() => {
-        (async () => {
-            const source = await getInitialSource(createIfStatement(
-                conditionState.conditionExpression ? conditionState.conditionExpression as string : 'expression',
-                {
-                    endColumn: 0, endLine: 0, startColumn: 0, startLine: 0
-                }
-            ));
-            setInitialSource(source);
-        })();
-    }, [conditionState]);
 
     const handleExpEditorChange = (value: string) => {
         // condition.conditionExpression = value;
@@ -130,6 +117,13 @@ export function AddIfForm(props: IfProps) {
         id: "lowcode.develop.configForms.if.cancelButton.label",
         defaultMessage: "Cancel"
     });
+
+    const initialSource = getInitialSource(createIfStatement(
+            conditionState.conditionExpression ? conditionState.conditionExpression as string : 'expression',
+            {
+                endColumn: 0, endLine: 0, startColumn: 0, startLine: 0
+            }
+        ));
 
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {

@@ -51,20 +51,6 @@ export function AddReturnForm(props: ReturnFormProps) {
         setReturnExpression(value);
     };
 
-    const [initialSource, setInitialSource] = useState('');
-
-    useEffect(() => {
-        (async () => {
-            const source = await getInitialSource(createReturnStatement(
-                returnExpression ? returnExpression as string : 'expression',
-                {
-                    endColumn: 0, endLine: 0, startColumn: 0, startLine: 0
-                }
-            ));
-            setInitialSource(source);
-        })();
-    }, [returnExpression]);
-
     const onReturnExpressionSave = () => {
         config.expression = returnExpression;
         onSave();
@@ -94,6 +80,15 @@ export function AddReturnForm(props: ReturnFormProps) {
             defaultMessage: "{learnBallerina}"
         }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
     };
+
+    const containsMainFunction = triggerType && (triggerType === "Manual" || triggerType === "Schedule"); // todo: this is not working due to triggerType is blank.
+
+    const initialSource = getInitialSource(createReturnStatement(
+        returnExpression ? returnExpression as string : 'expression',
+        {
+            endColumn: 0, endLine: 0, startColumn: 0, startLine: 0
+        }
+    ));
 
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {

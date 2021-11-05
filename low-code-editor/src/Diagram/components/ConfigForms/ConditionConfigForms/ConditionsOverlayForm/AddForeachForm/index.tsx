@@ -30,7 +30,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
 import { useStatementEditor } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
-import { createForeachStatement, getInitialSource } from "../../../../../utils/modification-util";
+import {createForeachStatement, createIfStatement, getInitialSource} from "../../../../../utils/modification-util";
 
 interface Iterations {
     start?: string;
@@ -113,21 +113,6 @@ export function AddForeachForm(props: ForeachProps) {
 
     const [selectedType, setSelectedType] = useState(conditionExpression.type ? conditionExpression.type : "var");
     const [isDropDownOpen, setDropDownOpen] = useState(false);
-    const [initialSource, setInitialSource] = useState('');
-
-    useEffect(() => {
-        (async () => {
-            const source = await getInitialSource(createForeachStatement(
-                conditionExpression.collection ? conditionExpression.collection : 'expression',
-                conditionExpression.variable,
-                selectedType,
-                {
-                    endColumn: 0, endLine: 0, startColumn: 0, startLine: 0
-                }
-            ));
-            setInitialSource(source);
-        })();
-    }, [isInvalid]);
 
     const handleOnOpen = () => {
         setDropDownOpen(true);
@@ -223,6 +208,15 @@ export function AddForeachForm(props: ForeachProps) {
         onChange: handleExpEditorChange,
         defaultValue: conditionExpression.collection,
     };
+
+    const initialSource = getInitialSource(createForeachStatement(
+        conditionExpression.collection ? conditionExpression.collection : 'expression',
+        conditionExpression.variable,
+        selectedType,
+        {
+            endColumn: 0, endLine: 0, startColumn: 0, startLine: 0
+        }
+    ));
 
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {

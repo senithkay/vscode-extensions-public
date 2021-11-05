@@ -951,7 +951,7 @@ export function mutateTypeDefinition(typeName: string, typeDesc: string, targetP
     }
 }
 
-export async function getInitialSource(modification: STModification): Promise<string> {
-    const source = await getComponentSource(modification.type, modification.config);
+export function getInitialSource(modification: STModification): string {
+    const source = getComponentSource(modification.type, modification.config);
     return source;
 }

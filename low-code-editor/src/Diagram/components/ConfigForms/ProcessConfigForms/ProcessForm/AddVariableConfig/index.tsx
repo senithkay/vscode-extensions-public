@@ -102,24 +102,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     const [validExpresssionValue, setValidExpresssionValue] = useState(config.config !== "");
     const [variableExpression, setVariableExpression] = useState<string>(varExpression);
     const [editorFocus, setEditorFocus] = useState<boolean>(false);
-    const [initialSource, setInitialSource] = useState('');
-
-    useEffect(() => {
-        (async () => {
-            const source = await getInitialSource(createModuleVarDecl(
-                {
-                    varName: varName ? varName : "default",
-                    varOptions: [],
-                    varType:  selectedType === "other" ? otherType : selectedType,
-                    varValue: variableExpression ? variableExpression : "expression"
-                },
-                {
-                    endColumn: 0, endLine: 0, startColumn: 0, startLine: 0
-                }
-            ));
-            setInitialSource(source);
-        })();
-    }, [varName, selectedType, variableExpression]);
 
     const onPropertyChange = (property: string) => {
         setVariableExpression(property);
@@ -276,6 +258,18 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         onChange: onPropertyChange,
         defaultValue: variableExpression,
     };
+
+    const initialSource = getInitialSource(createModuleVarDecl(
+        {
+            varName: varName ? varName : "default",
+            varOptions: [],
+            varType:  selectedType === "other" ? otherType : selectedType,
+            varValue: variableExpression ? variableExpression : "expression"
+        },
+        {
+            endColumn: 0, endLine: 0, startColumn: 0, startLine: 0
+        }
+    ));
 
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {

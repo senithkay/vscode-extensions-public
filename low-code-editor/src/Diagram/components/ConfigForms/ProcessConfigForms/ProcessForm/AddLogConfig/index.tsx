@@ -28,7 +28,12 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
 import { useStatementEditor } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
-import {createLogStatement, createModuleVarDecl, getInitialSource} from "../../../../../utils/modification-util";
+import {
+    createLogStatement,
+    createModuleVarDecl,
+    createReturnStatement,
+    getInitialSource
+} from "../../../../../utils/modification-util";
 
 interface LogConfigProps {
     config: ProcessConfig;
@@ -73,20 +78,6 @@ export function AddLogConfig(props: LogConfigProps) {
     const [logType, setLogType] = useState(defaultType);
     const [expression, setExpression] = useState(defaultExpression);
     const [isFormValid, setIsFormValid] = useState(logType && expression);
-    const [initialSource, setInitialSource] = useState('');
-
-    useEffect(() => {
-        (async () => {
-            const source = await getInitialSource(createLogStatement(
-                logType,
-                expression ? expression : 'expression',
-                {
-                    endColumn: 0, endLine: 0, startColumn: 0, startLine: 0
-                }
-            ));
-            setInitialSource(source);
-        })();
-    }, [logType, expression]);
 
     const onExpressionChange = (value: any) => {
         setExpression(value);
@@ -126,6 +117,13 @@ export function AddLogConfig(props: LogConfigProps) {
         }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
     }
 
+    const initialSource = getInitialSource(createLogStatement(
+        logType,
+        expression ? expression : 'expression',
+        {
+            endColumn: 0, endLine: 0, startColumn: 0, startLine: 0
+        }
+    ));
 
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {

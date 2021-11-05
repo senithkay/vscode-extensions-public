@@ -20,7 +20,7 @@ import cn from "classnames";
 import { httpResponse, PrimitiveBalType, WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
-import { createRespond, getInitialSource } from "../../../../../utils/modification-util";
+import {createRespond, createWhileStatement, getInitialSource} from "../../../../../utils/modification-util";
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
 import { useStatementEditor } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
@@ -59,23 +59,7 @@ export function AddRespondForm(props: RespondFormProps) {
     const [validStatusCode, setValidStatusCode] = useState(validForm);
     const [statusCodeState, setStatusCode] = useState(undefined);
     const [resExp, setResExp] = useState(undefined);
-    const [initialSource, setInitialSource] = useState('');
     const intl = useIntl();
-
-    useEffect(() => {
-        (async () => {
-            const source = await getInitialSource(createRespond(
-                respondFormConfig.genType,
-                respondFormConfig.variable,
-                respondFormConfig.caller,
-                resExp,
-                {
-                    endColumn: 0, endLine: 0, startColumn: 0, startLine: 0
-                }
-            ));
-            setInitialSource(source);
-        })();
-    }, [resExp]);
 
     const onExpressionChange = (value: any) => {
         respondFormConfig.respondExpression = value;
@@ -151,6 +135,16 @@ export function AddRespondForm(props: RespondFormProps) {
         </>
     );
     const disableSave = (isMutationInProgress || !validForm || !validStatusCode);
+
+    const initialSource = getInitialSource(createRespond(
+        respondFormConfig.genType,
+        respondFormConfig.variable,
+        respondFormConfig.caller,
+        resExp,
+        {
+            endColumn: 0, endLine: 0, startColumn: 0, startLine: 0
+        }
+    ));
 
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {
