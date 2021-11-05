@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
-import React, { ReactNode, useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { CaptureBindingPattern, LocalVarDecl, STKindChecker } from "@ballerina/syntax-tree";
@@ -22,7 +22,7 @@ import { PrimitiveBalType, WizardType } from "../../../../../../ConfigurationSpe
 import { Context } from "../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { getAllVariables } from "../../../../../utils/mixins";
-import { createModuleVarDecl, getInitialSource} from "../../../../../utils/modification-util";
+import { createModuleVarDecl, getInitialSource } from "../../../../../utils/modification-util";
 import { getVariableNameFromST } from "../../../../../utils/st-util";
 import { SelectDropdownWithButton } from "../../../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";

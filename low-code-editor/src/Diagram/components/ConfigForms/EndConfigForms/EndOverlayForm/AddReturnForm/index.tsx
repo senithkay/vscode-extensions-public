@@ -12,7 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 // tslint:disable: ordered-imports
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
 
@@ -80,8 +80,6 @@ export function AddReturnForm(props: ReturnFormProps) {
             defaultMessage: "{learnBallerina}"
         }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
     };
-
-    const containsMainFunction = triggerType && (triggerType === "Manual" || triggerType === "Schedule"); // todo: this is not working due to triggerType is blank.
 
     const initialSource = getInitialSource(createReturnStatement(
         returnExpression ? returnExpression as string : 'expression'

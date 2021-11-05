@@ -12,7 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 // tslint:disable: ordered-imports
-import React, {useContext, useEffect, useState} from "react";
+import React, { useContext, useState } from "react";
 
 import { CallStatement, FunctionCall, QualifiedNameReference } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
@@ -28,12 +28,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
 import { useStatementEditor } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
-import {
-    createLogStatement,
-    createModuleVarDecl,
-    createReturnStatement,
-    getInitialSource
-} from "../../../../../utils/modification-util";
+import { createLogStatement, getInitialSource } from "../../../../../utils/modification-util";
 
 interface LogConfigProps {
     config: ProcessConfig;
