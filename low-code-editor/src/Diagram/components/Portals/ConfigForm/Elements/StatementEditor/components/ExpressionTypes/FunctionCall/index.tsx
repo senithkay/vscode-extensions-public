@@ -90,11 +90,11 @@ export function FunctionCallComponent(props: FunctionCallProps) {
                 {functionName}
             </button>
             <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
-                &nbsp;{model.openParenToken.value}
+                {model.openParenToken.value}
             </span>
                 {expressionComponent}
             <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
-                &nbsp;{model.closeParenToken.value}
+                {model.closeParenToken.value}
             </span>
         </span>
     );

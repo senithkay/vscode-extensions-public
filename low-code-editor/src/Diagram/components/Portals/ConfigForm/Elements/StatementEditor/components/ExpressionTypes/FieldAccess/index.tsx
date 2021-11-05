@@ -63,7 +63,7 @@ export function FieldAccessComponent(props: FieldAccessProps) {
                 {expression}
             </button>
             <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
-                &nbsp;{model.dotToken.value}
+                {model.dotToken.value}
             </span>
             <button
                 className={overlayClasses.expressionElement}
