@@ -221,6 +221,13 @@ class DiagramPanel {
 					const status = commands.executeCommand('vscode.open', Uri.file(filePath), showOptions);
 					return !status ? false : true;
 				}
+			},
+			{
+				methodName: 'focusDiagram',
+				handler: (_args: any[]): Promise<boolean> => {
+					ballerinaExtension.setDiagramActiveContext(true);
+					return Promise.resolve(true);
+				}
 			}
 		];
 

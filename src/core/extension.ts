@@ -567,6 +567,9 @@ class DocumentContext {
     }
 
     public setLatestDocument(uri: Uri | undefined) {
+        if (uri && (uri.scheme !== 'file' || uri.fsPath.split(sep).pop()?.split(".").pop() !== "bal")) {
+            return;
+        }
         this.latestDocument = uri;
     }
 
