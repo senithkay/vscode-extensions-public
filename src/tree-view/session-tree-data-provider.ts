@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Event, EventEmitter, ProviderResult, TreeDataProvider, TreeItem, TreeItemCollapsibleState } from "vscode";
+import { Event, EventEmitter, ProviderResult, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri } from "vscode";
 import { join } from "path";
 import { BallerinaExtension, ChoreoSession } from "../core";
 
@@ -46,7 +46,7 @@ export class SessionDataProvider implements TreeDataProvider<TreeItem> {
         let treeItems: TreeItem[] = [];
         const choreoSession: ChoreoSession = this.ballerinaExtension.getChoreoSession();
         if (choreoSession.loginStatus) {
-            let session = new TreeItem(`Logged in as ${choreoSession.choreoUser}`, TreeItemCollapsibleState.None);
+            const session = new TreeItem(`Logged in as ${choreoSession.choreoUser}`, TreeItemCollapsibleState.None);
             session.iconPath = {
                 light: join(this.ballerinaExtension.extension.extensionPath,
                     'resources', 'images', 'icons', 'user.svg'),
@@ -54,6 +54,31 @@ export class SessionDataProvider implements TreeDataProvider<TreeItem> {
                     'resources', 'images', 'icons', 'user-inverse.svg')
             }
             treeItems.push(session);
+
+            if (this.ballerinaExtension.getCodeServerContext().codeServerEnv) {
+                const commit = new TreeItem(`Push Changes to Choreo...`, TreeItemCollapsibleState.None);
+                commit.command = { command: 'git.commitAll', title: 'Commit Changes' };
+                commit.iconPath = {
+                    light: join(this.ballerinaExtension.extension.extensionPath,
+                        'resources', 'images', 'icons', 'commit.svg'),
+                    dark: join(this.ballerinaExtension.extension.extensionPath,
+                        'resources', 'images', 'icons', 'commit-inverse.svg')
+                }
+                treeItems.push(commit);
+                const manage = new TreeItem(`Deploy and Manage in Choreo...`, TreeItemCollapsibleState.None);
+                manage.command = {
+                    command: 'vscode.open', title: 'Open Choreo Manage Portal',
+                    arguments: [Uri.parse(this.ballerinaExtension.getCodeServerContext().manageChoreoRedirectUri!)]
+                };
+                manage.iconPath = {
+                    light: join(this.ballerinaExtension.extension.extensionPath,
+                        'resources', 'images', 'icons', 'choreo.svg'),
+                    dark: join(this.ballerinaExtension.extension.extensionPath,
+                        'resources', 'images', 'icons', 'choreo-inverse.svg')
+                }
+                treeItems.push(manage);
+            }
+
             const signoutItem = new TreeItem("Sign out from Choreo...", TreeItemCollapsibleState.None);
             signoutItem.iconPath = {
                 light: join(this.ballerinaExtension.extension.extensionPath,
@@ -66,7 +91,11 @@ export class SessionDataProvider implements TreeDataProvider<TreeItem> {
                 title: "Sign out",
                 arguments: []
             };
-            treeItems.push(signoutItem);
+
+            // Disable the sign out option for code server users.
+            if (process.env.OVERRIDE_CHOREO_AUTHENTICATION !== 'true') {
+                treeItems.push(signoutItem);
+            }
         }
         return treeItems;
     }

@@ -183,7 +183,8 @@ async function constructDebugConfig(testDebug: boolean, ballerinaCmd: string, ba
         tests: testDebug ? args : [],
         programArgs,
         commandOptions,
-        env
+        env,
+        capabilities: { supportsReadOnlyEditors: true }
     };
     return debugConfig;
 }

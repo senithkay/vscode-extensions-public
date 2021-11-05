@@ -17,37 +17,21 @@
  *
  */
 
-import { Uri } from 'vscode';
+import { CancellationToken, Event, TextDocumentContentProvider, Uri, workspace} from 'vscode';
 
-export interface DiagramOptions {
-    startLine?: number;
-    startColumn?: number;
-    isDiagram: boolean;
-    fileUri?: Uri;
-}
+/**
+ * Text document content provider for read only files.
+ *
+ * @class ReadOnlyContentProvider
+ * @extends {TextDocumentContentProvider}
+ */
+export class ReadOnlyContentProvider implements TextDocumentContentProvider{
 
-export interface SyntaxTree {
-    members: Member[];
-}
-
-export interface Member {
-    kind: string;
-    position: Position;
-    functionName?: {
-        value: string;
-        position: Position;
-    };
-    members: Member[];
-    relativeResourcePath?: ResourcePath[];
-}
-
-interface Position {
-    startLine: number;
-    startColumn: number;
-    endLine: number;
-    endColumn: number;
-}
-
-interface ResourcePath {
-    value: string;
+    onDidChange?: Event<Uri> | undefined;
+    async provideTextDocumentContent(uri: Uri, token: CancellationToken): Promise<string> {
+        // create new Uri object to convert the schema to file.
+        let fileUri = Uri.file(uri.path);
+        const content = await workspace.fs.readFile(fileUri);
+        return content.toString();
+    }
 }

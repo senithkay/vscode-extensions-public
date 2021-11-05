@@ -63,7 +63,7 @@
             "type": "object",
             "title": "Ballerina",
             "properties": {
-                "ballerina.plugin.dev.mod": {
+                "ballerina.pluginDevMode": {
                     "type": "boolean",
                     "default": false,
                     "description": "Enable plugin development mode."
@@ -117,6 +117,16 @@
                     "type": "boolean",
                     "default": true,
                     "markdownDescription": "Enable Ballerina telemetry."
+                },
+                "ballerina.lowCodeMode": {
+                    "type": "boolean",
+                    "default": false,
+                    "markdownDescription": "Enable Ballerina low-code mode."
+                },
+                "ballerina.enableSemanticHighlighting": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable semantic highlighting for Ballerina source."
                 }
             }
         },
@@ -373,7 +383,7 @@
             "activitybar": [
                 {
                     "id": "diagram-explorer",
-                    "title": "Ballerina",
+                    "title": "Ballerina Low-Code",
                     "icon": "resources/images/icons/tab.svg"
                 }
             ]
@@ -477,7 +487,7 @@
     },
     "dependencies": {
         "@types/vscode": "^1.59.0",
-        "@wso2-enterprise/ballerina-low-code-editor": "^1.1.2",
+        "@wso2-enterprise/ballerina-low-code-editor": "latest",
         "file-uri-to-path": "^2.0.0",
         "glob": "^7.1.7",
         "monaco-languageclient": "^0.13.0",
@@ -485,7 +495,7 @@
         "promise.any": "^2.0.2",
         "vscode-debugprotocol": "^1.44.0",
         "vscode-extension-telemetry": "^0.1.7",
-        "vscode-languageclient": "^6.1.4",
+        "vscode-languageclient": "^7.0.0",
         "vscode-test": "^1.5.1"
     },
     "devDependencies": {
@@ -494,12 +504,15 @@
         "@types/node": "^15.12.2",
         "@types/tcp-port-used": "^1.0.0",
         "@types/vscode": "^1.59.0",
+        "axios": "0.22.0",
         "chai": "^4.3.4",
         "cross-env": "^7.0.3",
         "decache": "^4.6.0",
+        "express": "^4.17.1",
         "glob": "^7.1.7",
         "istanbul": "^0.4.5",
         "js-yaml": "^4.1.0",
+        "keytar": "^7.7.0",
         "kill-port-process": "2.3.0",
         "mocha": "^9.0.0",
         "remap-istanbul": "^0.13.0",
@@ -513,9 +526,7 @@
         "webpack": "^4.46.0",
         "webpack-cli": "^3.3.3",
         "yarn": "^1.22.11",
-        "express": "^4.17.1",
-        "keytar": "^7.7.0",
-        "axios": "0.22.0"
+        "jwt-decode": "3.1.2"
     },
     "extensionPack": [
         "be5invis.toml"

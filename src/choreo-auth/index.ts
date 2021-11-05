@@ -17,37 +17,4 @@
  *
  */
 
-import { Uri } from 'vscode';
-
-export interface DiagramOptions {
-    startLine?: number;
-    startColumn?: number;
-    isDiagram: boolean;
-    fileUri?: Uri;
-}
-
-export interface SyntaxTree {
-    members: Member[];
-}
-
-export interface Member {
-    kind: string;
-    position: Position;
-    functionName?: {
-        value: string;
-        position: Position;
-    };
-    members: Member[];
-    relativeResourcePath?: ResourcePath[];
-}
-
-interface Position {
-    startLine: number;
-    startColumn: number;
-    endLine: number;
-    endColumn: number;
-}
-
-interface ResourcePath {
-    value: string;
-}
+export * from './activator';

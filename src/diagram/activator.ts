@@ -19,7 +19,7 @@
 
 import {
 	commands, window, Uri, ViewColumn, ExtensionContext, WebviewPanel, Disposable, workspace, WorkspaceEdit, Range,
-	Position
+	Position, TextDocumentShowOptions
 } from 'vscode';
 import * as _ from 'lodash';
 import { render } from './renderer';
@@ -35,7 +35,7 @@ import { PackageOverviewDataProvider } from '../tree-view';
 import { PALETTE_COMMANDS } from '../project';
 import { sep } from "path";
 import { DiagramOptions, Member, SyntaxTree } from './model';
-import { readFileSync, writeFileSync } from 'fs';
+import { existsSync, readFileSync, writeFileSync } from 'fs';
 
 const NO_DIAGRAM_VIEWS: string = 'No Ballerina diagram views found!';
 
@@ -149,9 +149,10 @@ class DiagramPanel {
 			DiagramPanel.currentPanel.dispose();
 		}
 
+		const fileName: string | undefined = getCurrentFileName();
 		const panel = window.createWebviewPanel(
 			'ballerinaDiagram',
-			"Ballerina Diagram",
+			fileName ? `${fileName} Diagram` : `Ballerina Diagram`,
 			{ viewColumn, preserveFocus: false },
 			getCommonWebViewOptions()
 		);
@@ -208,6 +209,24 @@ class DiagramPanel {
 					}
 					return false;
 				}
+			},
+			{
+				methodName: "gotoSource",
+				handler: async (args: any[]): Promise<boolean> => {
+					const filePath = args[0];
+					const position: { startLine: number, startColumn: number } = args[1];
+					if (!existsSync(filePath)) {
+						return false;
+					}
+					const showOptions: TextDocumentShowOptions = {
+						preserveFocus: false,
+						preview: false,
+						viewColumn: ViewColumn.Two,
+						selection: new Range(position.startLine, position.startColumn, position.startLine!, position.startColumn!)
+					};
+					const status = commands.executeCommand('vscode.open', Uri.file(filePath), showOptions);
+					return !status ? false : true;
+				}
 			}
 		];
 
@@ -234,6 +253,13 @@ class DiagramPanel {
 				callUpdateDiagramMethod();
 			}
 		}
+	}
+
+	public updateTitle(title: string) {
+		if (this.webviewPanel.title === title) {
+			return;
+		}
+		this.webviewPanel.title = title;
 	}
 }
 
@@ -263,6 +289,8 @@ export async function refreshDiagramForEditorChange(change: Change) {
 function callUpdateDiagramMethod() {
 	performDidOpen();
 	let ballerinaFilePath = diagramElement!.fileUri!.fsPath;
+	const fileName: string | undefined = getCurrentFileName();
+	DiagramPanel.currentPanel?.updateTitle(fileName ? `${fileName} Diagram` : `Ballerina Diagram`);
 	if (isWindows()) {
 		ballerinaFilePath = '/' + ballerinaFilePath.split(sep).join("/");
 	}
@@ -276,17 +304,18 @@ function callUpdateDiagramMethod() {
 
 function performDidOpen() {
 	let tempUri: Uri | undefined;
-	if (diagramElement!.filePath) {
-		tempUri = Uri.file(diagramElement!.filePath!);
-	} else if (diagramElement!.fileUri) {
+	if (diagramElement!.fileUri) {
 		tempUri = diagramElement?.fileUri!;
+	}
+	if (!tempUri) {
+		return;
 	}
 	ballerinaExtension.getDocumentContext().setLatestDocument(tempUri);
 	const doc = workspace.textDocuments.find((doc) => doc.uri === tempUri);
 	if (doc) {
 		return;
 	}
-	if (tempUri && currentDocumentURI !== tempUri!) {
+	if (currentDocumentURI !== tempUri!) {
 		const content: string = readFileSync(tempUri.fsPath, { encoding: 'utf-8' });
 		langClient.didOpen({
 			textDocument: {
@@ -348,4 +377,11 @@ function isWithinRange(member: Member, change: Change) {
 	return (member.position.startLine < change.startLine || (member.position.startLine === change.startLine &&
 		member.position.startColumn <= change.startColumn)) && (member.position.endLine > change.startLine ||
 			(member.position.endLine === change.startLine && member.position.endColumn >= change.startColumn));
+}
+
+function getCurrentFileName(): string | undefined {
+	if (!diagramElement || !diagramElement!.fileUri) {
+		return undefined;
+	}
+	return diagramElement!.fileUri!.fsPath.split(sep).pop();
 }
