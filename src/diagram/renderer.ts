@@ -137,6 +137,17 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
                     );
                 })
             }
+            function showMessage(message, type, isIgnorable) {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'showMessage',
+                        [message, type, isIgnorable],
+                        (response) => {
+                            resolve(response);
+                        }
+                    );
+                })
+            }
             function drawDiagram({
                 filePath,
                 startLine,
@@ -156,6 +167,7 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
                             gotoSource,
                             getPFSession,
                             showPerformanceGraph,
+                            showMessage,
                             lastUpdatedAt
                         }
                     };

@@ -31,12 +31,13 @@ import {
 	TM_EVENT_OPEN_DIAGRAM, TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED, TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW,
 	sendTelemetryEvent, sendTelemetryException
 } from '../telemetry';
+import { CHOREO_API_PF, openPerformanceDiagram, PFSession } from '../forecaster';
+import { showMessage } from '../utils/showMessage';
 import { PackageOverviewDataProvider } from '../tree-view';
 import { PALETTE_COMMANDS } from '../project';
 import { sep } from "path";
 import { DiagramOptions, Member, SyntaxTree } from './model';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
-import { CHOREO_API_PF, openPerformanceDiagram, PFSession } from '../forecaster';
 
 const NO_DIAGRAM_VIEWS: string = 'No Ballerina diagram views found!';
 
@@ -240,6 +241,13 @@ class DiagramPanel {
 				methodName: "showPerformanceGraph",
 				handler: async (args: any[]): Promise<boolean> => {
 					return openPerformanceDiagram(args[0]);
+				}
+			},
+			{
+				methodName: "showMessage",
+				handler: async (args: any[]): Promise<boolean> => {
+					showMessage(args[0], args[1], args[2]);
+					return true;
 				}
 			}
 		];

@@ -23,6 +23,7 @@ import { BallerinaExtension, ExtendedLangClient, GraphPoint, LANGUAGE, Performan
 import { ExecutorCodeLensProvider } from "./codelens-provider";
 import { log } from "../utils";
 import { showPerformanceGraph } from "./performanceGraphPanel";
+import { MESSAGE_TYPE, showMessage } from "../utils/showMessage";
 
 export const CHOREO_API_PF = "http://choreocontrolplane.preview-dv.choreo.dev/performance-analyzer/1.0.0/get_estimations/2.0";
 const CHOREO_AUTH_ERR = "Choreo Authentication error.";
@@ -96,9 +97,7 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
     type: ANALYZETYPE, name: String | undefined) {
 
     if (!extension.getChoreoSession().loginStatus) {
-        window.showInformationMessage(
-            "Please sign in to Choreo to view performance predictions."
-        );
+        showMessage("Please sign in to Choreo to view performance predictions.", MESSAGE_TYPE.INFO, true);
         return;
     }
 
@@ -191,23 +190,19 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
     function checkErrors(response: PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse) {
         if (response.message === 'AUTHENTICATION_ERROR') {
             // Choreo Auth Error
-            window.showErrorMessage(
-                CHOREO_AUTH_ERR
-            );
+            showMessage(CHOREO_AUTH_ERR, MESSAGE_TYPE.ERROR, true);
+
         } else if (response.message === 'CONNECTION_ERROR') {
             // Internet Connection Error
-            window.showErrorMessage(
-                NETWORK_ERR
-            );
+            showMessage(NETWORK_ERR, MESSAGE_TYPE.ERROR, true);
+
         } else if (response.message === 'MODEL_NOT_FOUND') {
             // AI Error
-            window.showInformationMessage(
-                MODEL_NOT_FOUND
-            );
+            showMessage(MODEL_NOT_FOUND, MESSAGE_TYPE.INFO, true);
+
         } else {
-            window.showErrorMessage(
-                "Some Error occurred."
-            );
+            showMessage(response.message, MESSAGE_TYPE.ERROR, true);
+
         }
     }
 }
