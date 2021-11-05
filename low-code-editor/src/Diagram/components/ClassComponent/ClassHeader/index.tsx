@@ -23,6 +23,7 @@ import { useDiagramContext } from '../../../../Contexts/Diagram';
 import { removeStatement } from '../../../utils/modification-util';
 import { ComponentExpandButton } from '../../ComponentExpandButton';
 import { UnsupportedConfirmButtons } from '../../UnsupportedConfirmButtons';
+import { HeaderWrapper } from '../../HeaderWrapper';
 
 interface ClassHeaderProps {
     model: ClassDefinition;
@@ -59,14 +60,11 @@ export function ClassHeader(props: ClassHeaderProps) {
         gotoSource({ startLine: targetposition.startLine, startColumn: targetposition.startColumn });
     }
 
-    const handleHeaderBarClick = (evt: React.MouseEvent) => {
-        if (!evt.isPropagationStopped()) {
-            onExpandClick();
-        }
-    }
-
     return (
-        <div className={'class-component-header'} onClick={handleHeaderBarClick} >
+        <HeaderWrapper
+            className={'class-component-header'}
+            onClick={onExpandClick}
+        >
             <div className={'header-segement-container'}>
                 <div className="header-segment" >
                     <ClassIcon />
@@ -84,6 +82,6 @@ export function ClassHeader(props: ClassHeaderProps) {
             </div>
             <ComponentExpandButton isExpanded={isExpanded} onClick={onExpandClick} />
             {editingEnabled && <UnsupportedConfirmButtons onConfirm={handleEditBtnConfirm} onCancel={handleEditBtnCancel} />}
-        </div >
+        </HeaderWrapper>
     );
 }

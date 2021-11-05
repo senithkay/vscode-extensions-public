@@ -19,6 +19,7 @@ import classNames from "classnames";
 import { useDiagramContext } from "../../../Contexts/Diagram";
 import { removeStatement } from "../../utils/modification-util";
 import { HeaderActions } from "../HeaderActions";
+import { HeaderWrapper } from "../HeaderWrapper";
 
 import { ResourceOtherParams } from "./ResourceOtherParams";
 import { ResourceQueryParams } from "./ResourceQueryParams";
@@ -44,14 +45,11 @@ export function ResourceHeader(props: ResourceHeaderProps) {
         modifyDiagram([modification]);
     };
 
-    const handleBarClick = (evt: React.MouseEvent) => {
-        if (!evt.isPropagationStopped()) {
-            onExpandClick()
-        }
-    }
-
     return (
-        <div onClick={handleBarClick} className={classNames("function-signature", model.functionName.value)}>
+        <HeaderWrapper
+            className={classNames("function-signature", model.functionName.value)}
+            onClick={onExpandClick}
+        >
             <div className={classNames("resource-badge", model.functionName.value)}>
                 <p className={"text"}>{model.functionName.value.toUpperCase()}</p>
             </div>
@@ -69,6 +67,6 @@ export function ResourceHeader(props: ResourceHeaderProps) {
                 onExpandClick={onExpandClick}
                 onConfirmDelete={onDeleteClick}
             />
-        </div>
+        </HeaderWrapper >
     );
 }

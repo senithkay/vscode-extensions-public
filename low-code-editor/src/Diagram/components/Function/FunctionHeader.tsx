@@ -26,6 +26,7 @@ import { removeStatement } from "../../utils/modification-util";
 import { HeaderActions } from "../HeaderActions";
 
 import "./style.scss";
+import { HeaderWrapper } from "../HeaderWrapper";
 
 interface FunctionHeaderProps {
     model: FunctionDefinition | ObjectMethodDefinition;
@@ -47,14 +48,11 @@ export function FunctionHeader(props: FunctionHeaderProps) {
         modifyDiagram([modification]);
     };
 
-    const handleBarClick = (evt: React.MouseEvent) => {
-        if (!evt.isPropagationStopped()) {
-            onExpandClick();
-        }
-    }
-
     return (
-        <div className="function-signature" onClick={handleBarClick}>
+        <HeaderWrapper
+            className="function-signature"
+            onClick={onExpandClick}
+        >
             <div className={"function-icon"}>
                 <FunctionIcon />
             </div>
@@ -81,6 +79,6 @@ export function FunctionHeader(props: FunctionHeaderProps) {
                 onExpandClick={onExpandClick}
                 onConfirmDelete={onDeleteClick}
             />
-        </div>
+        </HeaderWrapper>
     );
 }

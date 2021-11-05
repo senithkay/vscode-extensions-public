@@ -24,6 +24,7 @@ import { ServiceIconLight } from "../../../assets/icons/ServiceIcon";
 import { Context as DiagramContext } from "../../../Contexts/Diagram";
 import { removeStatement } from "../../utils/modification-util";
 import { HeaderActions } from "../HeaderActions";
+import { HeaderWrapper } from "../HeaderWrapper";
 
 import "./style.scss";
 
@@ -89,14 +90,11 @@ export function ServiceHeader(props: ServiceHeaderProps) {
         modifyDiagram([removeStatement(model.position)]);
     };
 
-    const handleOnHeaderBarClick = (evt: React.MouseEvent) => {
-        if (!evt.isPropagationStopped()) {
-            onExpandClick();
-        }
-    }
-
     return (
-        <div className={"service-header"} onClick={handleOnHeaderBarClick} >
+        <HeaderWrapper
+            className={"service-header"}
+            onClick={onExpandClick}
+        >
             <div className={"header-segement-container"}>
                 <div className={"header-segment"}>
                     <ServiceIconLight />
@@ -114,6 +112,6 @@ export function ServiceHeader(props: ServiceHeaderProps) {
                 onExpandClick={onExpandClick}
                 onConfirmDelete={handleDeleteConfirm}
             />
-        </div>
+        </HeaderWrapper >
     );
 }
