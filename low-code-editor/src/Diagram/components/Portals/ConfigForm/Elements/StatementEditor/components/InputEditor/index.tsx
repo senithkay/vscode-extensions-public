@@ -16,7 +16,7 @@ import { monaco } from "react-monaco-editor";
 
 import {
     BooleanLiteral,
-    NumericLiteral,
+    NumericLiteral, QualifiedNameReference,
     SimpleNameReference,
     STKindChecker,
     STNode,
@@ -86,7 +86,7 @@ export function InputEditor(props: InputEditorProps) {
 
     const overlayClasses = useStatementEditorStyles();
 
-    let literalModel: StringLiteral | NumericLiteral | SimpleNameReference;
+    let literalModel: StringLiteral | NumericLiteral | SimpleNameReference | QualifiedNameReference;
     let value: any;
     let kind: any;
 
@@ -102,6 +102,10 @@ export function InputEditor(props: InputEditorProps) {
         literalModel = model as SimpleNameReference;
         kind = c.SIMPLE_NAME_REFERENCE;
         value = literalModel.name.value;
+    } else if (STKindChecker.isQualifiedNameReference(model)) {
+        literalModel = model as QualifiedNameReference;
+        kind = c.QUALIFIED_NAME_REFERENCE;
+        value = literalModel.identifier.value;
     } else if (STKindChecker.isBooleanLiteral(model)) {
         literalModel = model as BooleanLiteral;
         kind = c.BOOLEAN_LITERAL;

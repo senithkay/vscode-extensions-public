@@ -42,7 +42,11 @@ export function QualifiedNameReferenceComponent(props: QualifiedNameReferencePro
 
     return (
         <span>
-            <InputEditor {...inputEditorProps} />
+            <button
+                className={overlayClasses.expressionElement}
+            >
+                {model.modulePrefix.value ? model.modulePrefix.value : "module-prefix"}
+            </button>
             <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
                 &nbsp;{model.colon.value}
             </span>

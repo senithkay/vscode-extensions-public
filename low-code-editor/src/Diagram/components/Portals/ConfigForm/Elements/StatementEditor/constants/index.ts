@@ -36,6 +36,7 @@ export const STRING_LITERAL = "StringLiteral"
 export const NUMERIC_LITERAL = "NumericLiteral"
 export const BOOLEAN_LITERAL = "BooleanLiteral"
 export const SIMPLE_NAME_REFERENCE = "SimpleNameReference"
+export const QUALIFIED_NAME_REFERENCE = "QualifiedNameReference"
 export const TRUE_KEYWORD = "true";
 export const OTHER_STATEMENT = "OtherStatement"
 export const STRING_TYPE_DESC = "StringTypeDesc"
