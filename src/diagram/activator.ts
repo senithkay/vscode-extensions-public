@@ -399,7 +399,7 @@ export async function renderFirstDiagramElement(client: ExtendedLangClient) {
 		});
 
 		const documentIdentifiers: DocumentIdentifier[] = [{ uri: currentFileUri }];
-		await client.getBallerinaProjectComponents({ documentIdentifiers }).then((response) => {
+		await client.getBallerinaProjectComponents({ documentIdentifiers }).then(async (response) => {
 			if (!response.packages || response.packages.length == 0 || !response.packages[0].modules) {
 				return;
 			}
@@ -415,7 +415,7 @@ export async function renderFirstDiagramElement(client: ExtendedLangClient) {
 				});
 				if (mainFunctionNodes.length > 0) {
 					const path = join(folder.uri.path, mainFunctionNodes[0].filePath);
-					showDiagramEditor(0, 0, path);
+					await showDiagramEditor(0, 0, path);
 					diagramElement = {
 						isDiagram: true,
 						fileUri: Uri.file(path),
@@ -427,7 +427,7 @@ export async function renderFirstDiagramElement(client: ExtendedLangClient) {
 					const path = join(folder.uri.path, defaultModules[0].services[0].filePath);
 					for (let i = 0; i < defaultModules[0].services.length; i++) {
 						if (defaultModules[0].services[i].resources && defaultModules[0].services[i].resources.length > 0) {
-							showDiagramEditor(0, 0, path);
+							await showDiagramEditor(0, 0, path);
 							diagramElement = {
 								isDiagram: true,
 								fileUri: Uri.file(path),

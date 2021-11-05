@@ -88,7 +88,6 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
     });
 
     commands.registerCommand(EXPLORER_TREE_NEW_MODULE_COMMAND, async () => {
-        // try {
         const workspaceFolderProjects = workspace.workspaceFolders?.filter(folder => {
             return existsSync(join(folder.uri.fsPath, 'Ballerina.toml'));
         });
