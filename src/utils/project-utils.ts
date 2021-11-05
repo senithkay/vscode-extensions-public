@@ -36,8 +36,7 @@ function getCurrentBallerinaProject(): Promise<BallerinaProject> {
                         uri,
                     }
                 }).then((project) => {
-                    if (ballerinaExtInstance.isSwanLake() && !project.kind || !ballerinaExtInstance.isSwanLake()
-                        && !project.path && !activeEditor.document.fileName.endsWith('.bal')) {
+                    if (!project.kind) {
                         reject(`Current file does not belong to a ballerina project.`);
                     }
                     resolve(project);

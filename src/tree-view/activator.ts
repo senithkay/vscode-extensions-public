@@ -46,10 +46,6 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
         packageTreeDataProvider.refresh()
     );
 
-    if (!ballerinaExtInstance.isSwanLake()) {
-        return packageTreeDataProvider;
-    }
-
     const explorerDataProvider = new ExplorerDataProvider(ballerinaExtInstance);
     ballerinaExtInstance.context!.subscriptions.push(window.createTreeView('ballerinaExplorerTreeView', {
         treeDataProvider: explorerDataProvider, showCollapseAll: true

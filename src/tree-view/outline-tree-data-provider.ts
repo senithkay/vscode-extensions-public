@@ -82,7 +82,7 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
     }
 
     getChildren(element?: PackageTreeItem): ProviderResult<PackageTreeItem[]> {
-        if (!this.ballerinaExtension.isSwanLake() || !isSupportedVersion(this.ballerinaExtension, VERSION.BETA, 1)) {
+        if (!isSupportedVersion(this.ballerinaExtension, VERSION.BETA, 1)) {
             window.showErrorMessage("Ballerina package overview is not supported in this Ballerina runtime version.");
             return;
         }

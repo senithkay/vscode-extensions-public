@@ -28,8 +28,8 @@ import { BallerinaExtension, Change } from '../core';
 import { getCommonWebViewOptions, isWindows, WebViewMethod, WebViewRPCHandler } from '../utils';
 import { join } from "path";
 import {
-	TM_EVENT_OPEN_DIAGRAM, TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED, TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW,
-	sendTelemetryEvent, sendTelemetryException
+	TM_EVENT_OPEN_DIAGRAM, TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, sendTelemetryEvent,
+	sendTelemetryException
 } from '../telemetry';
 import { Module, PackageOverviewDataProvider } from '../tree-view';
 import { PALETTE_COMMANDS } from '../project';
@@ -97,12 +97,6 @@ export function activate(ballerinaExtInstance: BallerinaExtension, diagramOvervi
 	});
 
 	const diagramRenderDisposable = commands.registerCommand('ballerina.show.diagram', () => {
-		if (!ballerinaExtInstance.isSwanLake()) {
-			ballerinaExtInstance.showMessageOldBallerina();
-			sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED, CMP_DIAGRAM_VIEW,
-				"Diagram Editor is not supported for the ballerina version.");
-			return;
-		}
 		commands.executeCommand(PALETTE_COMMANDS.FOCUS_OVERVIEW);
 		sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_DIAGRAM, CMP_DIAGRAM_VIEW);
 		return ballerinaExtInstance.onReady()

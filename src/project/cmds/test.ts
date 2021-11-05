@@ -22,11 +22,9 @@ import { commands, window } from "vscode";
 import {
     TM_EVENT_PROJECT_TEST, CMP_PROJECT_TEST, sendTelemetryEvent, sendTelemetryException
 } from "../../telemetry";
-import { runCommand, BALLERINA_COMMANDS, COMMAND_OPTIONS, MESSAGES, PROJECT_TYPE, PALETTE_COMMANDS }
+import { runCommand, BALLERINA_COMMANDS, PROJECT_TYPE, PALETTE_COMMANDS }
     from "./cmd-runner";
 import { getCurrentBallerinaProject, getCurrentBallerinaFile, getCurrenDirectoryPath } from "../../utils/project-utils";
-
-enum TEST_OPTIONS { TEST_ALL = "test-all", TEST_MODULE = "test-module" }
 
 export function activateTestRunner() {
     // register run project tests handler
@@ -38,47 +36,12 @@ export function activateTestRunner() {
             }
             // get Ballerina Project path for current Ballerina file
             const currentProject = await getCurrentBallerinaProject();
-            if (ballerinaExtInstance.isSwanLake()) {
-                if (currentProject.kind !== PROJECT_TYPE.SINGLE_FILE) {
-                    runCommand(currentProject, ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.TEST,
-                        ...args, currentProject.path!);
-                } else {
-                    runCommand(getCurrenDirectoryPath(), ballerinaExtInstance.getBallerinaCmd(),
-                        BALLERINA_COMMANDS.TEST, ...args, getCurrentBallerinaFile());
-                }
-
+            if (currentProject.kind !== PROJECT_TYPE.SINGLE_FILE) {
+                runCommand(currentProject, ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.TEST,
+                    ...args, currentProject.path!);
             } else {
-                if (currentProject.path) {
-                    const docOptions = [{
-                        description: "ballerina build <module-name>",
-                        label: "Test Module",
-                        id: TEST_OPTIONS.TEST_MODULE
-                    }, {
-                        description: "ballerina build --all",
-                        label: "Test Project",
-                        id: TEST_OPTIONS.TEST_ALL
-                    }];
-
-                    const userSelection = await window.showQuickPick(docOptions, {
-                        placeHolder: MESSAGES.SELECT_OPTION
-                    });
-
-                    if (userSelection!.id === TEST_OPTIONS.TEST_MODULE) {
-                        const moduleName = await window.showInputBox({ placeHolder: MESSAGES.MODULE_NAME });
-                        if (moduleName && moduleName.trim().length > 0) {
-                            runCommand(currentProject, ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.TEST,
-                                moduleName);
-                        }
-                    }
-                    if (userSelection!.id === TEST_OPTIONS.TEST_ALL) {
-                        runCommand(currentProject, ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.TEST,
-                            COMMAND_OPTIONS.ALL);
-                    }
-
-                } else {
-                    runCommand(getCurrenDirectoryPath(), ballerinaExtInstance.getBallerinaCmd(),
-                        BALLERINA_COMMANDS.TEST, getCurrentBallerinaFile());
-                }
+                runCommand(getCurrenDirectoryPath(), ballerinaExtInstance.getBallerinaCmd(),
+                    BALLERINA_COMMANDS.TEST, ...args, getCurrentBallerinaFile());
             }
         } catch (error) {
             if (error instanceof Error) {

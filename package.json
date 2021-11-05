@@ -492,7 +492,6 @@
         "glob": "^7.1.7",
         "monaco-languageclient": "^0.13.0",
         "portfinder": "^1.0.28",
-        "promise.any": "^2.0.2",
         "simple-git": "^2.47.0",
         "vscode-debugprotocol": "^1.44.0",
         "vscode-extension-telemetry": "^0.1.7",

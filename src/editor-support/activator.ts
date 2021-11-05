@@ -26,7 +26,7 @@ import { StringSplitFeature, StringSplitter } from "./split-provider";
 import * as gitStatus from "./git-status";
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
-    if (!ballerinaExtInstance.context || !ballerinaExtInstance.langClient || !ballerinaExtInstance.isSwanLake()) {
+    if (!ballerinaExtInstance.context || !ballerinaExtInstance.langClient) {
         return;
     }
     if (isSupportedVersion(ballerinaExtInstance, VERSION.ALPHA, 5)) {

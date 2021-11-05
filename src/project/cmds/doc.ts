@@ -23,10 +23,8 @@ import {
     TM_EVENT_PROJECT_DOC, TM_EVENT_ERROR_EXECUTE_PROJECT_DOC, CMP_PROJECT_DOC, sendTelemetryEvent,
     sendTelemetryException
 } from "../../telemetry";
-import { runCommand, BALLERINA_COMMANDS, COMMAND_OPTIONS, MESSAGES, PROJECT_TYPE, PALETTE_COMMANDS } from "./cmd-runner";
+import { runCommand, BALLERINA_COMMANDS, MESSAGES, PROJECT_TYPE, PALETTE_COMMANDS } from "./cmd-runner";
 import { getCurrentBallerinaProject } from "../../utils/project-utils";
-
-enum DOC_OPTIONS { DOC_ALL = "build-all", DOC_MODULE = "build-module" }
 
 function activateDocCommand() {
     // register ballerina doc handler
@@ -35,51 +33,14 @@ function activateDocCommand() {
             sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_PROJECT_DOC, CMP_PROJECT_DOC);
 
             const currentProject = await getCurrentBallerinaProject();
-            if (ballerinaExtInstance.isSwanLake()) {
-                if (currentProject.kind === PROJECT_TYPE.SINGLE_FILE) {
-                    sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_ERROR_EXECUTE_PROJECT_DOC, CMP_PROJECT_DOC,
-                        MESSAGES.NOT_IN_PROJECT);
-                    window.showErrorMessage(MESSAGES.NOT_IN_PROJECT);
-                    return;
-                }
-                runCommand(currentProject, ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.DOC,
-                    currentProject.path!);
-
-            } else {
-                if (currentProject.path) {
-                    const docOptions = [{
-                        description: "ballerina build <module-name>",
-                        label: "Document Module",
-                        id: DOC_OPTIONS.DOC_MODULE
-                    }, {
-                        description: "ballerina build --all",
-                        label: "Document Project",
-                        id: DOC_OPTIONS.DOC_ALL
-                    }];
-
-                    const userSelection = await window.showQuickPick(docOptions, {
-                        placeHolder: MESSAGES.SELECT_OPTION
-                    });
-
-                    if (userSelection!.id === DOC_OPTIONS.DOC_MODULE) {
-                        const moduleName = await window.showInputBox({ placeHolder: MESSAGES.MODULE_NAME });
-                        if (moduleName && moduleName.trim().length > 0) {
-                            runCommand(currentProject, ballerinaExtInstance.getBallerinaCmd(),
-                                BALLERINA_COMMANDS.BUILD, moduleName);
-                        }
-                    }
-                    if (userSelection!.id === DOC_OPTIONS.DOC_ALL) {
-                        runCommand(currentProject, ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.BUILD,
-                            COMMAND_OPTIONS.ALL);
-                    }
-
-                } else {
-                    sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_ERROR_EXECUTE_PROJECT_DOC, CMP_PROJECT_DOC,
-                        MESSAGES.NOT_IN_PROJECT);
-                    window.showErrorMessage(MESSAGES.NOT_IN_PROJECT);
-                    return;
-                }
+            if (currentProject.kind === PROJECT_TYPE.SINGLE_FILE) {
+                sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_ERROR_EXECUTE_PROJECT_DOC, CMP_PROJECT_DOC,
+                    MESSAGES.NOT_IN_PROJECT);
+                window.showErrorMessage(MESSAGES.NOT_IN_PROJECT);
+                return;
             }
+            runCommand(currentProject, ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.DOC,
+                currentProject.path!);
 
         } catch (error) {
             if (error instanceof Error) {
