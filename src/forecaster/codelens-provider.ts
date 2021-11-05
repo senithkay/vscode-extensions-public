@@ -36,7 +36,7 @@ enum CODELENSE_TYPE {
 let langClient: ExtendedLangClient;
 
 /**
- * Codelense provider for perforemence forecaster.
+ * Codelense provider for performence forecaster.
  */
 export class ExecutorCodeLensProvider implements CodeLensProvider {
 
