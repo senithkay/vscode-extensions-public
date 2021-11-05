@@ -265,9 +265,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             varOptions: [],
             varType:  selectedType === "other" ? otherType : selectedType,
             varValue: variableExpression ? variableExpression : "expression"
-        },
-        {
-            endColumn: 0, endLine: 0, startColumn: 0, startLine: 0
         }
     ));
 

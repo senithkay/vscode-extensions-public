@@ -212,10 +212,7 @@ export function AddForeachForm(props: ForeachProps) {
     const initialSource = getInitialSource(createForeachStatement(
         conditionExpression.collection ? conditionExpression.collection : 'expression',
         conditionExpression.variable,
-        selectedType,
-        {
-            endColumn: 0, endLine: 0, startColumn: 0, startLine: 0
-        }
+        selectedType
     ));
 
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(

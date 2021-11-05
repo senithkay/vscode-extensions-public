@@ -140,10 +140,7 @@ export function AddRespondForm(props: RespondFormProps) {
         respondFormConfig.genType,
         respondFormConfig.variable,
         respondFormConfig.caller,
-        resExp,
-        {
-            endColumn: 0, endLine: 0, startColumn: 0, startLine: 0
-        }
+        resExp
     ));
 
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(

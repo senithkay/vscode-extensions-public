@@ -119,11 +119,8 @@ export function AddIfForm(props: IfProps) {
     });
 
     const initialSource = getInitialSource(createIfStatement(
-            conditionState.conditionExpression ? conditionState.conditionExpression as string : 'expression',
-            {
-                endColumn: 0, endLine: 0, startColumn: 0, startLine: 0
-            }
-        ));
+        conditionState.conditionExpression ? conditionState.conditionExpression as string : 'expression'
+    ));
 
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {

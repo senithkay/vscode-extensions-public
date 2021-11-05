@@ -84,10 +84,7 @@ export function AddReturnForm(props: ReturnFormProps) {
     const containsMainFunction = triggerType && (triggerType === "Manual" || triggerType === "Schedule"); // todo: this is not working due to triggerType is blank.
 
     const initialSource = getInitialSource(createReturnStatement(
-        returnExpression ? returnExpression as string : 'expression',
-        {
-            endColumn: 0, endLine: 0, startColumn: 0, startLine: 0
-        }
+        returnExpression ? returnExpression as string : 'expression'
     ));
 
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(

@@ -119,10 +119,7 @@ export function AddLogConfig(props: LogConfigProps) {
 
     const initialSource = getInitialSource(createLogStatement(
         logType,
-        expression ? expression : 'expression',
-        {
-            endColumn: 0, endLine: 0, startColumn: 0, startLine: 0
-        }
+        expression ? expression : 'expression'
     ));
 
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
