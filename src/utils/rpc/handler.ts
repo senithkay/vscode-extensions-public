@@ -144,14 +144,14 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
             return langClient.getSTForExpression(args[0]);
         }
     }, {
-        methodName: 'getRealtimePerformaceData',
+        methodName: 'getRealtimePerformanceData',
         handler: (args: any[]) => {
-            return langClient.getRealtimePerformaceData(args[0]);
+            return langClient.getRealtimePerformanceData(args[0]);
         }
     }, {
-        methodName: 'getPerformaceGraphData',
+        methodName: 'getPerformanceGraphData',
         handler: (args: any[]) => {
-            return langClient.getPerformaceGraphData(args[0]);
+            return langClient.getPerformanceGraphData(args[0]);
         }
     }, {
         methodName: 'showPerformanceDiagram',

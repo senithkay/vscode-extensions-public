@@ -112,7 +112,7 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
     currentFileUri = uri;
     if (type == ANALYZETYPE.REALTIME) {
         // add codelenses to resources
-        await langClient.getRealtimePerformaceData({
+        await langClient.getRealtimePerformanceData({
             documentIdentifier: {
                 uri
             },
@@ -145,7 +145,7 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
         });
     } else {
         // add code lenses to invocations
-        await langClient.getPerformaceGraphData({
+        await langClient.getPerformanceGraphData({
             documentIdentifier: {
                 uri
             },
@@ -200,7 +200,7 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
                 NETWORK_ERR
             );
         } else if (response.message === 'MODEL_NOT_FOUND') {
-            // Internet Connection Error
+            // AI Error
             window.showInformationMessage(
                 MODEL_NOT_FOUND
             );
