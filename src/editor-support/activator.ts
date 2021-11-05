@@ -23,6 +23,7 @@ import { BallerinaExtension, LANGUAGE } from "../core";
 import { ExecutorCodeLensProvider } from "./codelens-provider";
 import { ReadOnlyContentProvider } from "./readonly-content-provider";
 import { StringSplitFeature, StringSplitter } from "./split-provider";
+import * as gitStatus from "./git-status";
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
     if (!ballerinaExtInstance.context || !ballerinaExtInstance.langClient || !ballerinaExtInstance.isSwanLake()) {
@@ -42,4 +43,6 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     // Create new content provider for ballerina library files
     const blProvider = new ReadOnlyContentProvider();
     ballerinaExtInstance.context.subscriptions.push(workspace.registerTextDocumentContentProvider('bala', blProvider));
+
+    gitStatus.activate(ballerinaExtInstance);
 }
