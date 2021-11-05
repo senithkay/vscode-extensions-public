@@ -156,7 +156,8 @@ async function findResources(uri: Uri | undefined) {
                                 continue;
                             }
                             await createPerformanceGraphAndCodeLenses(uri.fsPath, range, ANALYZETYPE.REALTIME,
-                                `${serviceMember.functionName.value} ${serviceMember.relativeResourcePath[0].value}`);
+                                `${serviceMember.functionName.value.toUpperCase()} ` +
+                                `/${serviceMember.relativeResourcePath[0].value}`);
                         }
                     }
                 }
