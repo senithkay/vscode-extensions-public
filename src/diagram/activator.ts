@@ -36,6 +36,7 @@ import { PALETTE_COMMANDS } from '../project';
 import { sep } from "path";
 import { DiagramOptions, Member, SyntaxTree } from './model';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { CHOREO_API_PF, openPerformanceDiagram, PFSession } from '../forecaster';
 
 const NO_DIAGRAM_VIEWS: string = 'No Ballerina diagram views found!';
 
@@ -227,6 +228,19 @@ class DiagramPanel {
 					const status = commands.executeCommand('vscode.open', Uri.file(filePath), showOptions);
 					return !status ? false : true;
 				}
+			},
+			{
+				methodName: "getPFSession",
+				handler: async (): Promise<PFSession> => {
+					const choreoToken = ballerinaExtension.getChoreoSession().choreoToken;
+					return { choreoAPI: CHOREO_API_PF, choreoToken: choreoToken, choreoCookie: "" };
+				}
+			},
+			{
+				methodName: "showPerformanceDiagram",
+				handler: async (args: any[]): Promise<boolean> => {
+					return openPerformanceDiagram(args[0]);
+				}
 			}
 		];
 
@@ -300,6 +314,14 @@ function callUpdateDiagramMethod() {
 		startColumn: diagramElement!.startColumn
 	}];
 	webviewRPCHandler.invokeRemoteMethod('updateDiagram', args, () => { });
+}
+
+export async function refreshDiagramForPerformanceConcurrencyChanges(args: any) {
+	if (!webviewRPCHandler || !DiagramPanel.currentPanel) {
+		return;
+	}
+
+	webviewRPCHandler.invokeRemoteMethod('updatePerformanceLabels', args, () => { });
 }
 
 function performDidOpen() {

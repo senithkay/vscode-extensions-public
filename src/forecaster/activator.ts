@@ -18,13 +18,13 @@
  */
 
 import { DataLabel } from "./model";
-import { commands, ExtensionContext, languages, Range, TextDocument, ViewColumn, window } from "vscode";
+import { commands, ExtensionContext, languages, Range, TextDocument, Uri, ViewColumn, window } from "vscode";
 import { BallerinaExtension, ExtendedLangClient, GraphPoint, LANGUAGE, PerformanceAnalyzerGraphResponse, PerformanceAnalyzerRealtimeResponse } from "../core";
 import { ExecutorCodeLensProvider } from "./codelens-provider";
 import { log } from "../utils";
 import { showPerformanceGraph } from "./performanceGraphPanel";
 
-const CHOREO_API = "http://choreocontrolplane.preview-dv.choreo.dev/performance-analyzer/1.0.0/get_estimations/2.0";
+export const CHOREO_API_PF = "http://choreocontrolplane.preview-dv.choreo.dev/performance-analyzer/1.0.0/get_estimations/2.0";
 const CHOREO_AUTH_ERR = "Choreo Authentication error.";
 const NETWORK_ERR = "Network error. Please check you internet connection.";
 const MODEL_NOT_FOUND = "AI service does not have enough data to forecast."
@@ -48,6 +48,17 @@ export enum ANALYZETYPE {
 export interface GraphData {
     name: String,
     graphData: GraphPoint[];
+}
+
+export interface PFSession {
+    choreoAPI: String,
+    choreoToken: String | undefined,
+    choreoCookie?: String | undefined
+}
+
+export interface PerformanceGraphRequest {
+    file: string;
+    data: GraphData;
 }
 
 /**
@@ -115,7 +126,7 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
                     character: pos.end.character
                 }
             },
-            choreoAPI: CHOREO_API,
+            choreoAPI: CHOREO_API_PF,
             choreoToken: `Bearer ${choreoToken}`,
             choreoCookie: choreoCookie,
         }).then(async (response) => {
@@ -148,7 +159,7 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
                     character: pos.end.character
                 }
             },
-            choreoAPI: CHOREO_API,
+            choreoAPI: CHOREO_API_PF,
             choreoToken: `Bearer ${choreoToken}`,
             choreoCookie: choreoCookie,
         }).then(async (response) => {
@@ -280,4 +291,9 @@ export function updateCodeLenses(concurrency: number) {
         return;
     }
     window.showTextDocument(currentFile, ViewColumn.One);
+}
+
+export function openPerformanceDiagram(request: PerformanceGraphRequest) {
+    showPerformanceGraph(langClient, request.data, Uri.parse(request.file));
+    return true;
 }

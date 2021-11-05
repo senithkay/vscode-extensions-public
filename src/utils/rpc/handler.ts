@@ -20,6 +20,7 @@
 import { WebViewMethod, WebViewRPCMessage } from './model';
 import { commands, WebviewPanel } from 'vscode';
 import { ExtendedLangClient } from 'src/core/extended-language-client';
+import { openPerformanceDiagram } from '../../forecaster';
 
 const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] => {
     return [{
@@ -141,6 +142,21 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
         methodName: 'getSTForExpression',
         handler: (args: any[]) => {
             return langClient.getSTForExpression(args[0]);
+        }
+    }, {
+        methodName: 'getRealtimePerformaceData',
+        handler: (args: any[]) => {
+            return langClient.getRealtimePerformaceData(args[0]);
+        }
+    }, {
+        methodName: 'getPerformaceGraphData',
+        handler: (args: any[]) => {
+            return langClient.getPerformaceGraphData(args[0]);
+        }
+    }, {
+        methodName: 'showPerformanceDiagram',
+        handler: (args: any[]) => {
+            return openPerformanceDiagram(args[0]);
         }
     }
     ];

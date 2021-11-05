@@ -115,6 +115,28 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
                     );
                 })
             }
+            function getPFSession() {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'getPFSession',
+                        [],
+                        (response) => {
+                            resolve(response);
+                        }
+                    );
+                })
+            }
+            function showPerformanceDiagram() {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'showPerformanceDiagram',
+                        [data],
+                        (response) => {
+                            resolve(response);
+                        }
+                    );
+                })
+            }
             function drawDiagram({
                 filePath,
                 startLine,
@@ -132,6 +154,7 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
                             getFileContent,
                             updateFileContent,
                             gotoSource,
+                            getPFSession,
                             lastUpdatedAt
                         }
                     };
@@ -165,6 +188,11 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
                     startColumn: args[0].startColumn,
                     lastUpdatedAt: (new Date()).toISOString()
                 });
+                return Promise.resolve({});
+            });
+            webViewRPCHandler.addMethod("updatePerformanceLabels", (args) => {
+                console.log("Update performance labels" + JSON.stringify(args));
+                BLCEditor.updatePerformanceLabels(args);
                 return Promise.resolve({});
             });
             drawDiagram({

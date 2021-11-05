@@ -266,6 +266,27 @@ function getLangClient() {
                     resolve(resp);
                 });
             })
+        },
+        getRealtimePerformaceData: (params) => {
+            return new Promise((resolve, _reject) => {
+                webViewRPCHandler.invokeRemoteMethod('getRealtimePerformaceData', [params], (resp) => {
+                    resolve(resp);
+                });
+            })
+        },
+        getPerformaceGraphData: (params) => {
+            return new Promise((resolve, _reject) => {
+                webViewRPCHandler.invokeRemoteMethod('getPerformaceGraphData', [params], (resp) => {
+                    resolve(resp);
+                });
+            })
+        },
+        showPerformanceDiagram: (params) => {
+            return new Promise((resolve, _reject) => {
+                webViewRPCHandler.invokeRemoteMethod('showPerformanceDiagram', [params], (resp) => {
+                    resolve(resp);
+                });
+            })
         }
     }
 }
