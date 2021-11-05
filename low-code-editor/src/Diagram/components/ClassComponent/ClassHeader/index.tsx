@@ -22,8 +22,8 @@ import EditButton from '../../../../assets/icons/EditButton';
 import { useDiagramContext } from '../../../../Contexts/Diagram';
 import { removeStatement } from '../../../utils/modification-util';
 import { ComponentExpandButton } from '../../ComponentExpandButton';
-import { UnsupportedConfirmButtons } from '../../UnsupportedConfirmButtons';
 import { HeaderWrapper } from '../../HeaderWrapper';
+import { UnsupportedConfirmButtons } from '../../UnsupportedConfirmButtons';
 
 interface ClassHeaderProps {
     model: ClassDefinition;
