@@ -21,8 +21,9 @@ import {
 import classNames from "classnames";
 import { v4 as uuid } from "uuid";
 
-import { Context } from "../../../Contexts/Diagram";
+import { Context, useDiagramContext } from "../../../Contexts/Diagram";
 import { Provider as FunctionProvider } from "../../../Contexts/Function";
+import { addAdvancedLabels } from "../../../DiagramGenerator/performanceUtil";
 import { useSelectedStatus } from "../../hooks";
 import { useStyles } from "../../styles";
 import { BlockViewState, FunctionViewState } from "../../view-state";
@@ -131,36 +132,67 @@ export function Function(props: FunctionProps) {
     </div>
   );
 
+  const {
+    actions: { diagramRedraw },
+  } = useDiagramContext();
+
+  const marginTop = (model as any).performance ? 5 : 0;
+  const onClickPerformance = async () => {
+    await addAdvancedLabels(`${model.functionName.value.toUpperCase()} /${model.relativeResourcePath[0].value}`,
+      model.position, diagramRedraw)
+  };
+
+  let value;
+  let unit;
+  if ((model as any).performance) {
+    const responseTimeValue = Number((model as any).performance.latency);
+    value = responseTimeValue > 1000 ? responseTimeValue / 1000 : responseTimeValue;
+    unit = responseTimeValue > 1000 ? " s" : " ms";
+  }
+
   return (
-    <div
-      ref={containerRef}
-      className={classNames(
+    <div>
+      <div className="performance-label-container">
         {
-          "function-box":
-            STKindChecker.isResourceAccessorDefinition(model) ||
-            STKindChecker.isObjectMethodDefinition(model),
-          "module-level-function": STKindChecker.isFunctionDefinition(model),
-          expanded: diagramExpanded,
-        },
-        STKindChecker.isResourceAccessorDefinition(model)
-          ? model.functionName.value
-          : ""
-      )}
-    >
-      {STKindChecker.isResourceAccessorDefinition(model) ? (
-        <ResourceHeader
-          isExpanded={diagramExpanded}
-          model={model}
-          onExpandClick={onExpandClick}
-        />
-      ) : (
-        <FunctionHeader
-          isExpanded={diagramExpanded}
-          model={model}
-          onExpandClick={onExpandClick}
-        />
-      )}
-      {diagramExpanded && functionBody}
+          (model as any).performance ?
+            (
+              <p className={"text"} style={{ cursor: 'pointer' }} onClick={onClickPerformance}>
+                {`Forecasted latency: ${value} ${unit}`}
+              </p>
+            ) : null
+        }
+      </div>
+      <div
+        ref={containerRef}
+        className={classNames(
+          {
+            "function-box":
+              STKindChecker.isResourceAccessorDefinition(model) ||
+              STKindChecker.isObjectMethodDefinition(model),
+            "module-level-function": STKindChecker.isFunctionDefinition(model),
+            expanded: diagramExpanded,
+          },
+          STKindChecker.isResourceAccessorDefinition(model)
+            ? model.functionName.value
+            : ""
+        )}
+        style={{ marginTop }}
+      >
+        {STKindChecker.isResourceAccessorDefinition(model) ? (
+          <ResourceHeader
+            isExpanded={diagramExpanded}
+            model={model}
+            onExpandClick={onExpandClick}
+          />
+        ) : (
+          <FunctionHeader
+            isExpanded={diagramExpanded}
+            model={model}
+            onExpandClick={onExpandClick}
+          />
+        )}
+        {diagramExpanded && functionBody}
+      </div>
     </div>
   );
 }

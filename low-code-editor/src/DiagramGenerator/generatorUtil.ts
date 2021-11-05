@@ -1,10 +1,12 @@
 import { FunctionDefinition, ModulePart, ResourceAccessorDefinition, ServiceDeclaration, STKindChecker, STNode, traversNode } from "@ballerina/syntax-tree";
 
-import { initVisitor, positionVisitor, sizingVisitor, SymbolVisitor } from "..";
 import { DiagramEditorLangClientInterface } from "../Definitions/diagram-editor-lang-client-interface";
-import { getLowCodeSTFnSelected } from "../Diagram/utils/st-util";
 import { cleanLocalSymbols, cleanModuleLevelSymbols } from "../Diagram/visitors/symbol-finder-visitor";
+import { initVisitor, positionVisitor, sizingVisitor, SymbolVisitor } from "../index";
 import { SelectedPosition } from "../types";
+
+import { addPerformanceData } from "./performanceUtil";
+import { PFSession } from "./vscode/Diagram";
 
 export async function getSyntaxTree(filePath: string, langClient: DiagramEditorLangClientInterface) {
     const resp = await langClient.getSyntaxTree({
@@ -15,13 +17,15 @@ export async function getSyntaxTree(filePath: string, langClient: DiagramEditorL
     return resp.syntaxTree;
 }
 
-export function getLowcodeST(payload: any) {
+export async function getLowcodeST(payload: any, filePath: string, langClient: DiagramEditorLangClientInterface,
+                                   pfSession: PFSession, showPerformanceGraph: any, showMessage: any) {
     const modulePart: ModulePart = payload;
     const members: STNode[] = modulePart?.members || [];
     const st = sizingAndPositioningST(payload);
     cleanLocalSymbols();
     cleanModuleLevelSymbols();
     traversNode(st, SymbolVisitor);
+    await addPerformanceData(st, filePath, langClient, pfSession, showPerformanceGraph, showMessage);
     return st;
 }
 
@@ -38,7 +42,7 @@ export function getDefaultSelectedPosition(modulePart: ModulePart): SelectedPosi
 
     const mainResult = functions && functions.filter((m) => m.functionName.value === "main");
     if (mainResult && mainResult.length > 0) { // select main fn if availble
-       return getFnStartPosition(mainResult[0]);
+        return getFnStartPosition(mainResult[0]);
     } else if (services && services.length > 0) { // select first resource fn of first service if availble
         const resources = services[0].members;
         if (resources && resources.length > 0) {
@@ -50,7 +54,7 @@ export function getDefaultSelectedPosition(modulePart: ModulePart): SelectedPosi
         const { startColumn, startLine } = modulePart.members[0]?.position;
         return { startColumn, startLine }
     } else {
-        return  { startColumn: 0, startLine : 0}
+        return { startColumn: 0, startLine: 0 }
     }
 }
 

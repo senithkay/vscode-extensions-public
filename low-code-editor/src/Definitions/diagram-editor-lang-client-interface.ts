@@ -31,6 +31,10 @@ import {
 	BallerinaSTModifyResponse,
 	JsonToRecordRequest,
 	JsonToRecordResponse,
+	PerformanceAnalyzerGraphRequest as PerformanceAnalyzerRequest,
+	PerformanceAnalyzerGraphResponse,
+	PerformanceAnalyzerRealtimeResponse,
+	PerformanceGraphRequest,
 	TriggerModifyRequest,
 } from "./lang-client-extended";
 
@@ -83,4 +87,10 @@ export interface DiagramEditorLangClientInterface extends BaseLangClientInterfac
 	convert: (
 		params: JsonToRecordRequest
 	) => Thenable<JsonToRecordResponse>;
+	getPerformanceGraphData: (
+		params: PerformanceAnalyzerRequest
+	) => Thenable<PerformanceAnalyzerGraphResponse>;
+	getRealtimePerformanceData: (
+		params: PerformanceAnalyzerRequest
+	) => Thenable<PerformanceAnalyzerRealtimeResponse>;
 }

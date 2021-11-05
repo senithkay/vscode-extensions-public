@@ -54,7 +54,10 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         (async () => {
             try {
                 const genSyntaxTree = await getSyntaxTree(filePath, langClient);
-                const vistedSyntaxTree: STNode = getLowcodeST(genSyntaxTree);
+                const pfSession = await props.getPFSession();
+                const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, filePath,
+                                                                    langClient, pfSession,
+                                                                    props.showPerformanceGraph, props.showMessage);
                 if (!vistedSyntaxTree) {
                     return (<div><h1>Parse error...!</h1></div>);
                 }
@@ -164,7 +167,10 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                             }
                                         });
                                         if (parseSuccess) {
-                                            const vistedSyntaxTree: STNode = getLowcodeST(newST);
+                                            const pfSession = await props.getPFSession();
+                                            const vistedSyntaxTree: STNode = await getLowcodeST(newST, filePath,
+                                                                                                langClient, pfSession,
+                                                                                                props.showPerformanceGraph, props.showMessage);
                                             setSyntaxTree(vistedSyntaxTree);
                                             setFileContent(source);
                                             props.updateFileContent(filePath, source);

@@ -70,6 +70,7 @@ export { ConfigPanel, CONFIG_PANEL_PORTAL_DIV_ID } from "./Diagram/components/Co
 export { getTriggerSource, getSampleSource } from "./Diagram/utils/template-utils";
 export { InsertorDelete, createPropertyStatement } from "./Diagram/utils/modification-util";
 export { renderDiagramEditor } from "./DiagramGenerator/vscode";
+export { updatePerformanceLabels } from "./DiagramGenerator/performanceUtil";
 
 const LowCodeEditor: React.FC<Props> = (props: Props) => {
 
