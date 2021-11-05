@@ -26,10 +26,10 @@ import { fetchConnectorInfo } from "../Portals/utils";
 export interface ConfigWizardState {
     isLoading: boolean;
     connector: Connector;
-    wizardType: WizardType;
     functionDefInfo: Map<string, FunctionDefinitionInfo>;
     connectorConfig: ConnectorConfig;
     model?: STNode;
+    wizardType?: WizardType;
 }
 export interface ConnectorConfigWizardProps {
     position: DiagramOverlayPosition;
@@ -39,6 +39,7 @@ export interface ConnectorConfigWizardProps {
     onClose: () => void;
     selectedConnector?: LocalVarDecl;
     isAction?: boolean;
+    isEdit?: boolean;
     // dispatchOverlayOpen: () => void;
 }
 
@@ -79,14 +80,15 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
         onClose,
         selectedConnector,
         isAction,
+        isEdit
     } = props;
 
     const initWizardState: ConfigWizardState = {
         isLoading: true,
         connectorConfig: undefined,
         functionDefInfo: undefined,
-        wizardType: undefined,
         connector: undefined,
+        wizardType: isEdit ? WizardType.EXISTING : WizardType.NEW
     };
 
     const [ wizardState, setWizardState ] = useState<ConfigWizardState>(
@@ -107,7 +109,7 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
     React.useEffect(() => {
         if (wizardState.isLoading) {
             (async () => {
-                const configList = await fetchConnectorInfo(
+                const connectorInfoResponse = await fetchConnectorInfo(
                     connectorInfo,
                     model,
                     stSymbolInfo,
@@ -115,8 +117,9 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
                     getDiagramEditorLangClient,
                     userInfo?.user?.email
                 );
-                if (configList) {
-                    setWizardState(configList);
+                connectorInfoResponse.wizardType = isEdit ? WizardType.EXISTING : WizardType.NEW;
+                if (connectorInfoResponse) {
+                    setWizardState(connectorInfoResponse);
                 } else {
                     triggerErrorNotification(new Error(connectionErrorMsgText));
                     handleClose();

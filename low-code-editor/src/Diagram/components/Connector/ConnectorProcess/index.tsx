@@ -155,6 +155,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
             model={model}
             onClose={onWizardClose}
             isAction={false}
+            isEdit={isEditConnector}
         />
     );
 

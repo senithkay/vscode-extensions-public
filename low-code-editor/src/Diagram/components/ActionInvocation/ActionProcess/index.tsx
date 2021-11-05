@@ -251,6 +251,7 @@ export function ActionProcessor(props: ProcessorProps) {
                                             model={model}
                                             onClose={onWizardClose}
                                             isAction={true}
+                                            isEdit={isEditConnector}
                                         />
                                     )}
                                 </g>
