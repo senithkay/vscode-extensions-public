@@ -41,7 +41,7 @@ export function IndexedExpressionComponent(props: IndexedExpressionProps) {
         diagnosticHandler={diagnosticHandler}
     />;
 
-    const exprArguments: ReactNode[] = [];
+    const keyExpressions: ReactNode[] = [];
 
     model.keyExpression.forEach((expr: STNode) => {
         const expression: ReactNode = <ExpressionComponent
@@ -50,14 +50,14 @@ export function IndexedExpressionComponent(props: IndexedExpressionProps) {
             userInputs={userInputs}
             diagnosticHandler={diagnosticHandler}
         />;
-        exprArguments.push(expression)
+        keyExpressions.push(expression)
 
     });
 
     const keyExprComponent = (
         <span>
                 {
-                    exprArguments.map((expr: ReactNode, index: number) => (
+                    keyExpressions.map((expr: ReactNode, index: number) => (
                         (
                             <button
                                 key={index}
