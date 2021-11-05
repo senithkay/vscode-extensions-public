@@ -237,7 +237,7 @@ class DiagramPanel {
 				}
 			},
 			{
-				methodName: "showPerformanceDiagram",
+				methodName: "showPerformanceGraph",
 				handler: async (args: any[]): Promise<boolean> => {
 					return openPerformanceDiagram(args[0]);
 				}

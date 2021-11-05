@@ -126,11 +126,11 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
                     );
                 })
             }
-            function showPerformanceDiagram() {
+            function showPerformanceGraph(file, data) {
                 return new Promise((resolve, _reject) => {
                     webViewRPCHandler.invokeRemoteMethod(
-                        'showPerformanceDiagram',
-                        [data],
+                        'showPerformanceGraph',
+                        [file, data],
                         (response) => {
                             resolve(response);
                         }
@@ -155,6 +155,7 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
                             updateFileContent,
                             gotoSource,
                             getPFSession,
+                            showPerformanceGraph,
                             lastUpdatedAt
                         }
                     };

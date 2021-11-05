@@ -280,13 +280,6 @@ function getLangClient() {
                     resolve(resp);
                 });
             })
-        },
-        showPerformanceDiagram: (params) => {
-            return new Promise((resolve, _reject) => {
-                webViewRPCHandler.invokeRemoteMethod('showPerformanceDiagram', [params], (resp) => {
-                    resolve(resp);
-                });
-            })
         }
     }
 }
