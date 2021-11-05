@@ -13,42 +13,28 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from "react";
 
-import { ModulePart, STNode } from "@ballerina/syntax-tree";
+import { ModulePart } from "@ballerina/syntax-tree";
 import Container from "@material-ui/core/Container";
 import classnames from 'classnames';
 
 import { Context as DiagramContext } from "../Contexts/Diagram";
-import { DiagramEditorLangClientInterface } from "../Definitions/diagram-editor-lang-client-interface";
-import { BallerinaConnectorsResponse, Connector } from "../Definitions/lang-client-extended";
 import { TextPreLoader } from "../PreLoader/TextPreLoader";
 
-import { Canvas } from "./components/Canvas";
 import { CanvasDiagram } from "./components/CanvasContainer";
-import { DataMapper } from './components/DataMapper';
 import { DiagramDisableState } from "./components/DiagramState/DiagramDisableState";
 import { DiagramErrorState } from "./components/DiagramState/DiagramErrorState";
 import { ErrorList } from "./components/DiagramState/ErrorList";
 import { OverlayBackground } from "./components/OverlayBackground";
-import PanAndZoom from "./components/PanAndZoom";
-import { TriggerType } from "./models";
 import "./style.scss";
 import { useStyles } from "./styles";
 import { getSTComponent } from "./utils";
-import { addConnectorListToCache } from "./utils/st-util";
 import { ViewState } from "./view-state";
 import { DefaultConfig } from "./visitors/default";
 
 export function Diagram() {
     const {
-        state: {
-            isDataMapperShown,
-            isConfigOverlayFormOpen,
-        },
         api: {
             code: { hasConfigurables },
-            ls: {
-                getDiagramEditorLangClient
-            },
         },
         props: {
             diagnostics,
@@ -63,7 +49,6 @@ export function Diagram() {
             isLoadingAST,
             originalSyntaxTree,
             error,
-            langServerURL
         },
     } = useContext(DiagramContext);
 
@@ -170,42 +155,12 @@ export function Diagram() {
                     {diagramStatus}
                 </div>
             )}
-
             {isErrorDetailsOpen && <ErrorList />}
-
             <Container className={classes.DesignContainer}>
-                {/* <div id="canvas-overlay" className={classes.OverlayContainer} /> */}
-                {isDataMapperShown && (
-                    <DataMapper width={w} />
-                )}
-                {!isDataMapperShown && (
                     <CanvasDiagram>
                         {child}
                     </CanvasDiagram>
-                )}
-                {/*
-                {diagramDisabledWithTextLoaderStatus && triggerType !== undefined && isWaitingOnWorkspace && <OverlayBackground />}
-                {isCodeEditorActive && !isConfigOverlayFormOpen && diagramDisabledStatus && <OverlayBackground />}
-                {isConfigOverlayFormOpen && <OverlayBackground />}
-                */}
             </Container>
-
-            {/* <PanAndZoom>
-                <Container className={classes.DesignContainer}>
-                    <div id="canvas-overlay" className={classes.OverlayContainer} />
-                    {isDataMapperShown && (
-                        <DataMapper width={w} />
-                    )}
-                    {!isDataMapperShown && (
-                        <Canvas h={h} w={w} >
-                            {child}
-                        </Canvas>
-                    )}
-                    {diagramDisabledWithTextLoaderStatus && triggerType !== undefined && isWaitingOnWorkspace && <OverlayBackground />}
-                    {isCodeEditorActive && !isConfigOverlayFormOpen && diagramDisabledStatus && <OverlayBackground />}
-                    {isConfigOverlayFormOpen && <OverlayBackground />}
-                </Container>
-            </PanAndZoom> */}
         </div>
     );
 }
