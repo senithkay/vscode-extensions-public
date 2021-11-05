@@ -15,12 +15,14 @@ import React, { ReactNode } from 'react';
 
 import { STNode } from "@ballerina/syntax-tree";
 
+import {
+    ExpressionEditorLangClientInterface, PartialSTRequest
+} from "../../../../../../../Definitions";
 import * as expressionTypeComponents from '../components/ExpressionTypes';
 import * as statementTypeComponents from '../components/Statements';
 import * as c from "../constants";
 import { SuggestionItem, VariableUserInputs } from '../models/definitions';
 
-import { DefaultModelsByKind } from "./sample-model";
 import {
     DataTypeByExpressionKind,
     ExpressionKindByOperator,
@@ -28,8 +30,24 @@ import {
     OperatorsForExpressionKind
 } from "./utils";
 
-export function getDefaultModel(kind: string): STNode {
-    return DefaultModelsByKind[kind];
+export async function getPartialSTForStatement(
+            partialSTRequest: PartialSTRequest,
+            lsUrl: string,
+            ls?: any
+        ): Promise<STNode> {
+    const langClient: ExpressionEditorLangClientInterface = await ls.getExpressionEditorLangClient(lsUrl);
+    const resp = await langClient.getSTForSingleStatement(partialSTRequest);
+    return resp.syntaxTree;
+}
+
+export async function getPartialSTForExpression(
+            partialSTRequest: PartialSTRequest,
+            lsUrl: string,
+            ls?: any
+        ): Promise<STNode> {
+    const langClient: ExpressionEditorLangClientInterface = await ls.getExpressionEditorLangClient(lsUrl);
+    const resp = await langClient.getSTForExpression(partialSTRequest);
+    return resp.syntaxTree;
 }
 
 export function getSuggestionsBasedOnExpressionKind(kind: string): SuggestionItem[] {

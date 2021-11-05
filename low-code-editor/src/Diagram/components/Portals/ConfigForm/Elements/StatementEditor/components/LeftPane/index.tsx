@@ -26,7 +26,6 @@ import { VariableSuggestions } from "../Suggestions/VariableSuggestions";
 import { useStatementEditorStyles } from "../ViewContainer/styles";
 
 interface ModelProps {
-    kind: string,
     label: string,
     currentModel: { model: STNode },
     userInputs?: VariableUserInputs
@@ -35,11 +34,11 @@ interface ModelProps {
 
 export function LeftPane(props: ModelProps) {
     const overlayClasses = useStatementEditorStyles();
-    const { kind, label, currentModel, userInputs, currentModelHandler } = props;
+    const { label, currentModel, userInputs, currentModelHandler } = props;
 
     const { modelCtx } = useContext(StatementEditorContext);
 
-    const [suggestionList, setSuggestionsList] = useState(getSuggestionsBasedOnExpressionKind(kind));
+    const [suggestionList, setSuggestionsList] = useState(getSuggestionsBasedOnExpressionKind("DefaultString"));
     const [diagnosticList, setDiagnostic] = useState("");
     const [, setIsSuggestionClicked] = useState(false);
     const [isOperator, setIsOperator] = useState(false);

@@ -16,6 +16,7 @@ import { ListenerConfigForm } from "../../../ConfigForms/ListenerConfigForm";
 import { ProcessConfigForm } from "../../../ConfigForms/ProcessConfigForms";
 import { RecordEditor } from "../../../ConfigForms/RecordEditor";
 import { ApiConfigureWizard } from "../../../ConfigForms/ResourceConfigForm/ApiConfigureWizard";
+import { TypeDefinitionConfigForm } from "../../../ConfigForms/TypeDefinitionConfigForm";
 import { ConnectorForm } from "../../../ConnectorConfigWizard/Components/ConnectorForm";
 import { ConnectorList } from "../../../ConnectorList";
 
@@ -52,3 +53,4 @@ export { ConfigurableForm as Configurable };
 export { ListenerConfigForm as ListenerDeclaration };
 export { ApiConfigureWizard as ResourceAccessorDefinition };
 export { ConstantConfigForm as ConstDeclaration }
+export { TypeDefinitionConfigForm as TypeDefinition };
