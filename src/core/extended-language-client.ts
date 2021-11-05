@@ -87,12 +87,24 @@ export interface SyntaxTreeNodeResponse {
     kind: string;
 }
 
-export interface JsonToRecordRequestParams {
+export interface JsonToRecordRequest {
     jsonString: string;
+    recordName: string;
+    isRecordTypeDesc: boolean;
+    isClosed: boolean;
+}
+
+export interface JsonToRecordField {
+    name: string;
+    type: string;
+    isArray: boolean;
+    isRequired: boolean;
+    fields: JsonToRecordField[];
 }
 
 export interface JsonToRecordResponse {
     codeBlock: string;
+    fields: JsonToRecordField;
 }
 
 export interface GetBallerinaPackagesParams {
@@ -278,13 +290,16 @@ export class ExtendedLangClient extends LanguageClient {
     }
 
     getRecordsForJson(json: string): Thenable<JsonToRecordResponse> {
-        const params: JsonToRecordRequestParams = {
-            jsonString: json
+        const params: JsonToRecordRequest = {
+            jsonString: json,
+            isClosed: false,
+            isRecordTypeDesc: false,
+            recordName: ""
         };
         return this.sendRequest("jsonToRecord/convert", params);
     }
 
-    getRecordsFromJson(params: JsonToRecordRequestParams): Thenable<JsonToRecordResponse> {
+    getRecordsFromJson(params: JsonToRecordRequest): Thenable<JsonToRecordResponse> {
         return this.sendRequest("jsonToRecord/convert", params);
     }
 }

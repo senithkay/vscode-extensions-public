@@ -83,11 +83,6 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
             return langClient.didChange(args[0]);
         }
     }, {
-        methodName: 'getConnectors',
-        handler: (args: any[]) => {
-            return langClient.getConnectors(args[0]);
-        }
-    }, {
         methodName: 'getConnector',
         handler: (args: any[]) => {
             return langClient.getConnector(args[0]);
@@ -132,9 +127,7 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
         handler: (args: any[]) => {
             return langClient.getRecordsFromJson(args[0]);
         }
-    }
-    // impelmet here also
-    ];
+    }];
 };
 
 const undoRedoMethods = [{
