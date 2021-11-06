@@ -10,13 +10,13 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable-next-line: no-submodule-imports
-import { STNode } from "@ballerina/syntax-tree";
+// tslint:disable: ordered-imports
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
-export interface STSymbolInfo {
-    endpoints: Map<string, STNode>;
-    actions: Map<string, STNode>;
-    variables: Map<string, STNode[]>;
-    callStatement: Map<string, STNode[]>;
-    variableNameReferences: Map<string, STNode[]>;
-}
+export const useStyles = makeStyles((theme: Theme) =>
+    createStyles({
+        fullWidth: {
+            width: '100%'
+        }
+    }),
+);

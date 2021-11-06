@@ -25,18 +25,15 @@ import {
 import { Avatar, colors } from "@material-ui/core";
 import { DocumentSymbol, SymbolInformation } from "monaco-languageclient";
 
-import { ConnectionDetails } from "../../../../api/models";
 import * as ConstructIcons from "../../../../assets/icons"
 import { ActionConfig, ConnectorConfig, FormField, FormFieldReturnType, FunctionDefinitionInfo, ManualConfigType, PrimitiveBalType, WizardType } from "../../../../ConfigurationSpec/types";
 import { DiagramEditorLangClientInterface, STSymbolInfo } from "../../../../Definitions";
 import { BallerinaConnectorInfo, Connector } from "../../../../Definitions/lang-client-extended";
-import { filterCodeGenFunctions, filterConnectorFunctions } from "../../../utils/connector-form-util";
+import { filterConnectorFunctions } from "../../../utils/connector-form-util";
 import { getAllVariables as retrieveVariables } from "../../../utils/mixins";
 import {
     addConnectorToCache,
-    getConnectorDefFromCache,
     getConnectorFromCache,
-    getFormFieldFromFileCache,
     isSTActionInvocation
 } from "../../../utils/st-util";
 import { StatementViewState } from "../../../view-state";
@@ -741,53 +738,6 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
     };
 }
 
-export const getKeyFromConnection = (connection: ConnectionDetails, key: string) => {
-    return connection?.codeVariableKeys.find((keys: { name: string; }) => keys.name === key)?.codeVariableKey || "";
-};
-
-export function getOauthParamsFromConnection(connectorName: string, connectionDetail: ConnectionDetails, type?: string): any {
-    let tokenObjectName = "oauthClientConfig";
-    switch (connectorName) {
-        case "github": {
-            return [`{
-                accessToken: ${getKeyFromConnection(connectionDetail, 'accessTokenKey')}}`];
-        }
-        case "google calendar": {
-            tokenObjectName = "oauth2Config";
-            break;
-        }
-        case "google drive": {
-            tokenObjectName = "clientConfig";
-            break;
-        }
-        case "gmail":
-        case "google sheets": {
-            tokenObjectName = "oauthClientConfig";
-            break;
-        }
-    }
-    if (type && type === "OAuth2RefreshTokenGrantConfig") {
-        let refreshUrl = getKeyFromConnection(connectionDetail, 'refreshUrlKey')
-        if (refreshUrl === ""){
-                refreshUrl = getKeyFromConnection(connectionDetail, 'tokenEpKey');
-        }
-
-        return [`{
-            ${tokenObjectName}: {
-                clientId: ${getKeyFromConnection(connectionDetail, 'clientIdKey')},
-                clientSecret: ${getKeyFromConnection(connectionDetail, 'clientSecretKey')},
-                refreshToken: ${getKeyFromConnection(connectionDetail, 'refreshTokenKey')},
-                refreshUrl : ${refreshUrl}
-            }
-         }`];
-    } else if (type && type === "BearerTokenConfig") {
-        return [`{
-            ${tokenObjectName}: {
-                token: ${getKeyFromConnection(connectionDetail, 'tokenKey')}
-            }
-         }`];
-    }
-}
 
 export function getInitReturnType(functionDefinitions: Map<string, FunctionDefinitionInfo>): boolean {
     const returnTypeField = functionDefinitions.get("init")?.returnType;
@@ -992,94 +942,6 @@ export function getOauthParamsFromFormFields(connectorName: string, formFields: 
              }`);
         }
     }
-}
-
-export function getOauthConnectionConfigurables(connectorName: string, connectionDetail: ConnectionDetails, configurables?: Map<string, STNode>, type?: string): any {
-    switch (connectorName) {
-        case "github": {
-            const githubAccessToken = getKeyFromConnection(connectionDetail, 'accessTokenKey');
-            if (!configurables?.get(githubAccessToken)) {
-                return `configurable string ${githubAccessToken} = ?;`;
-            }
-            break;
-        }
-        case "google sheets":
-        case "google calendar":
-        case "google drive":
-        case "gmail": {
-            const clientId = getKeyFromConnection(connectionDetail, 'clientIdKey');
-            const clientSecret = getKeyFromConnection(connectionDetail, 'clientSecretKey');
-            let refreshUrl = getKeyFromConnection(connectionDetail, 'refreshUrlKey');
-            if (refreshUrl === ""){
-                refreshUrl = getKeyFromConnection(connectionDetail, 'tokenEpKey');
-            }
-            const refreshToken = getKeyFromConnection(connectionDetail, 'refreshTokenKey');
-            const token = getKeyFromConnection(connectionDetail, 'tokenKey');
-            let statement = '';
-
-            if (type && type === "OAuth2RefreshTokenGrantConfig") {
-                if (!configurables?.get(clientId)) {
-                    statement += `configurable string ${clientId} = ?;\n`;
-                }
-                if (!configurables?.get(clientSecret)) {
-                    statement += `configurable string ${clientSecret} = ?;\n`;
-                }
-                if (!configurables?.get(refreshUrl)) {
-                    statement += `configurable string ${refreshUrl} = ?;\n`;
-                }
-                if (!configurables?.get(refreshToken)) {
-                    statement += `configurable string ${refreshToken} = ?;\n`;
-                }
-            } else if (type && type === "BearerTokenConfig") {
-                if (!configurables?.get(token)) {
-                    statement += `configurable string ${token} = ?;\n`;
-                }
-            }
-
-            return statement !== '' ? statement : null;
-        }
-    }
-    return null;
-}
-
-export function getOauthConnectionFromFormField(formField: FormField, allConnections: ConnectionDetails[]): ConnectionDetails {
-    const connectorModuleName = formField?.typeInfo.moduleName;
-    let variableKey: string;
-    let activeConnection: ConnectionDetails;
-
-    switch (connectorModuleName) {
-        case "github":
-            variableKey = formField.fields?.find(field => field.name === "accessToken")?.value;
-            break;
-        case "googleapis.gmail":
-        case "googleapis.sheets":
-            variableKey = formField.fields?.find(field => field.name === "oauthClientConfig")?.
-                fields?.find(field => field.typeInfo.name === "OAuth2RefreshTokenGrantConfig")?.fields.find(field => field.name === "clientId")?.value;
-            if (!variableKey) {
-                variableKey = formField.fields?.find(field => field.name === "oauthClientConfig")?.
-                    fields?.find(field => field.typeInfo.name === "BearerTokenConfig")?.fields.find(field => field.name === "token")?.value;
-            }
-            break;
-        case "googleapis.calendar": {
-            variableKey = formField.fields?.find(field => field.name === "oauth2Config")?.
-                fields?.find(field => field.typeInfo.name === "OAuth2RefreshTokenGrantConfig")?.fields.find(field => field.name === "clientId")?.value;
-            if (!variableKey) {
-                variableKey = formField.fields?.find(field => field.name === "oauth2Config")?.
-                    fields?.find(field => field.typeInfo.name === "BearerTokenConfig")?.fields.find(field => field.name === "token")?.value;
-            }
-            break;
-        }
-        default:
-            return null;
-    }
-
-    allConnections.forEach(connection => {
-        if (connection.codeVariableKeys.find(key => key.codeVariableKey === variableKey)) {
-            activeConnection = connection;
-        }
-    });
-
-    return activeConnection;
 }
 
 export function checkErrorsReturnType(action: string, functionDefinitions: Map<string, FunctionDefinitionInfo>): boolean {
