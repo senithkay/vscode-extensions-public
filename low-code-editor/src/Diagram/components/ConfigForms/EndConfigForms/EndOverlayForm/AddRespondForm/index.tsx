@@ -22,7 +22,7 @@ import { Context } from "../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
-import { useStatementEdior } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
+import { useStatementEditor } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
 import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { EndConfig, RespondConfig } from "../../../../Portals/ConfigForm/types";
 import { wizardStyles } from "../../../style";
@@ -44,11 +44,6 @@ export function AddRespondForm(props: RespondFormProps) {
         props: {
             isCodeEditorActive,
             isMutationProgress: isMutationInProgress
-        },
-        api: {
-            tour: {
-                goToNextTourStep: dispatchGoToNextTourStep
-            }
         }
     } = useContext(Context);
     const { config, formArgs, onCancel, onSave } = props;
@@ -68,14 +63,10 @@ export function AddRespondForm(props: RespondFormProps) {
     const onExpressionChange = (value: any) => {
         respondFormConfig.respondExpression = value;
         setResExp(value);
-        if (value === "jsonPayload") {
-            dispatchGoToNextTourStep('CONFIG_RESPOND_SELECT_JSON');
-        }
         setValidForm(false);
     };
 
     const onSaveWithTour = () => {
-        dispatchGoToNextTourStep('CONFIG_RESPOND_CONFIG_SAVE');
         respondFormConfig.responseCode = statusCodeState;
         respondFormConfig.respondExpression = resExp;
         onSave();
@@ -144,10 +135,10 @@ export function AddRespondForm(props: RespondFormProps) {
     );
     const disableSave = (isMutationInProgress || !validForm || !validStatusCode);
 
-    const {stmtEditorButton , stmtEditorComponent} = useStatementEdior(
+    const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {
-            kind: "DefaultString",
-            label: "Variable Statement",
+            label: intl.formatMessage({id: "lowcode.develop.configForms.respond.statementEditor.label"}),
+            initialSource: "", // TODO: Pass the actual initialSource
             formArgs: {formArgs},
             isMutationInProgress,
             validForm,
@@ -155,7 +146,8 @@ export function AddRespondForm(props: RespondFormProps) {
             onChange: onExpressionChange,
             validate: validateExpression
         },
-        !true);
+        !true
+    );
 
 
     if (!stmtEditorComponent) {

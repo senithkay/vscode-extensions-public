@@ -73,15 +73,10 @@ export function IfElse(props: IfElseProps) {
         api: {
             code: {
                 setCodeLocationToHighlight: setCodeToHighlight
-            },
-            splitPanel: {
-                handleRightPanelContent,
-                maximize: maximizeCodeView,
             }
         },
         props: {
             isCodeEditorActive,
-            currentApp,
             isMutationProgress,
             syntaxTree,
             stSymbolInfo,
@@ -89,7 +84,6 @@ export function IfElse(props: IfElseProps) {
             isWaitingOnWorkspace
         }
     } = useContext(Context);
-    const { id: appId } = currentApp || {};
     const { model, blockViewState, name } = props;
 
     const [isConfigWizardOpen, setConfigWizardOpen] = useState(false);
@@ -136,8 +130,6 @@ export function IfElse(props: IfElseProps) {
     }
 
     const onClickOpenInCodeView = () => {
-        maximizeCodeView("home", "vertical", appId);
-        handleRightPanelContent('Code');
         setCodeToHighlight(model?.position)
     }
 
@@ -181,7 +173,7 @@ export function IfElse(props: IfElseProps) {
                     codeSnippet={codeSnippet}
                     codeSnippetOnSvg={codeSnippetOnSvg}
                     conditionType={conditionType}
-                    openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && appId && onClickOpenInCodeView}
+                    openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && onClickOpenInCodeView}
                 />
                 <ContitionAssignment
                     x={x - (CONDITION_ASSIGNMENT_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
@@ -340,7 +332,7 @@ export function IfElse(props: IfElseProps) {
                             codeSnippet={codeSnippet}
                             codeSnippetOnSvg={codeSnippetOnSvg}
                             conditionType={conditionType}
-                            openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && appId && onClickOpenInCodeView}
+                            openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && onClickOpenInCodeView}
                         />
                         <ContitionAssignment
                             x={x - (CONDITION_ASSIGNMENT_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}

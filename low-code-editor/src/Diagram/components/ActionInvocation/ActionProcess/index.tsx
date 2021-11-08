@@ -43,10 +43,6 @@ export function ActionProcessor(props: ProcessorProps) {
     const {
         actions: { diagramCleanDraw },
         api: {
-            splitPanel: {
-                handleRightPanelContent,
-                maximize: maximizeCodeView,
-            },
             code: {
                 setCodeLocationToHighlight: setCodeToHighlight,
             },
@@ -56,7 +52,6 @@ export function ActionProcessor(props: ProcessorProps) {
             }
         },
         props: {
-            currentApp,
             isCodeEditorActive,
             connectors,
             syntaxTree,
@@ -66,7 +61,6 @@ export function ActionProcessor(props: ProcessorProps) {
             isReadOnly,
         }
     } = useContext(Context);
-    const { id: appId } = currentApp || {};
 
     const { model, blockViewState } = props;
     const [configOverlayFormState, updateConfigOverlayFormState] = useState(undefined);
@@ -175,8 +169,6 @@ export function ActionProcessor(props: ProcessorProps) {
     };
 
     const onClickOpenInCodeView = () => {
-        maximizeCodeView("home", "vertical", appId);
-        handleRightPanelContent('Code');
         setCodeToHighlight(model.position)
     }
 
@@ -228,7 +220,7 @@ export function ActionProcessor(props: ProcessorProps) {
                             processType={processType}
                             sourceSnippet={sourceSnippet}
                             position={model?.position}
-                            openInCodeView={!isReadOnly && !isCodeEditorActive && !isWaitingOnWorkspace && model && model.position && appId && onClickOpenInCodeView}
+                            openInCodeView={!isReadOnly && !isCodeEditorActive && !isWaitingOnWorkspace && model && model.position && onClickOpenInCodeView}
                         />
                         {!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace &&
                             <g

@@ -18,13 +18,10 @@ import { FormattedMessage } from "react-intl";
 import { CaptureBindingPattern, LocalVarDecl, NodePosition, STKindChecker } from "@ballerina/syntax-tree";
 import { Box, Divider, FormControl, Typography } from "@material-ui/core";
 
-import { ConnectionDetails, OauthProviderConfig } from "../../../../../api/models";
 import { ActionConfig, ConnectorConfig, FormField, FormFieldReturnType, WizardType } from "../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../Contexts/Diagram";
-import { STSymbolInfo } from "../../../../../Definitions";
 import { BallerinaConnectorInfo, STModification } from "../../../../../Definitions/lang-client-extended";
 import { TextPreloaderVertical } from "../../../../../PreLoader/TextPreloaderVertical";
-import { ConnectionType } from "../../../../components/OauthConnectButton";
 import {
     CONTINUE_TO_INVOKE_API,
     EVENT_TYPE_AZURE_APP_INSIGHTS,
@@ -34,7 +31,6 @@ import {
 } from "../../../../models";
 import { getAllVariables } from "../../../../utils/mixins";
 import {
-    createCheckedPayloadFunctionInvocation,
     createImportStatement,
     createPropertyStatement,
     updatePropertyStatement,
@@ -49,9 +45,7 @@ import {
     getFormattedModuleName,
     getInitReturnType,
     getParams,
-    matchEndpointToFormField,
 } from "../../../Portals/utils";
-import { defaultOrgs } from "../../../Portals/utils/constants";
 import { ConfigWizardState } from "../../index";
 import { wizardStyles } from "../../style";
 import "../../style.scss";
@@ -59,11 +53,6 @@ import { CreateConnectorForm } from "../CreateNewConnection";
 import { OperationForm } from "../OperationForm";
 import { SelectConnectionForm } from "../SelectExistingConnection";
 
-export interface OauthProviderConfigState {
-    isConfigListLoading: boolean;
-    configList: OauthProviderConfig[];
-    configListError?: Error;
-}
 export interface ConnectorOperation {
     name: string;
     label?: string;
@@ -368,7 +357,12 @@ export function ConnectorForm(props: FormGeneratorProps) {
                     )}
 
                     {formState === FormStates.ExistingConnection && isNewConnectorInitWizard && (
-                        <SelectConnectionForm onCreateNew={onCreateNew} connectorConfig={config} connector={connector} onSelectExisting={onSelectExisting} />
+                        <SelectConnectionForm
+                            onCreateNew={onCreateNew}
+                            connectorConfig={config}
+                            connector={connector}
+                            onSelectExisting={onSelectExisting}
+                        />
                     )}
 
                     {formState === FormStates.ExistingConnection && !isNewConnectorInitWizard && (

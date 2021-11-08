@@ -25,7 +25,7 @@ import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
-import { useStatementEdior } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
+import { useStatementEditor } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
 
 interface ReturnFormProps {
     config: EndConfig;
@@ -37,12 +37,9 @@ interface ReturnFormProps {
 export function AddReturnForm(props: ReturnFormProps) {
     const {
         props: {
-            isCodeEditorActive,
-            currentApp,
             isMutationProgress: isMutationInProgress
         }
     } = useContext(Context);
-    const triggerType = currentApp ? currentApp.displayType : undefined;
     const { config, formArgs, onCancel, onSave } = props;
     const classes = useStyles();
     const overlayClasses = wizardStyles();
@@ -62,8 +59,6 @@ export function AddReturnForm(props: ReturnFormProps) {
     const validateExpression = (fieldName: string, isInvalid: boolean) => {
         setIsValidValue(!isInvalid || (returnExpression === ""));
     };
-
-    const isButtonDisabled = isMutationInProgress || !isValidValue;
 
     const saveReturnButtonLabel = intl.formatMessage({
         id: "lowcode.develop.configForms.return.saveButton.label",
@@ -85,12 +80,10 @@ export function AddReturnForm(props: ReturnFormProps) {
         }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
     };
 
-    const containsMainFunction = triggerType && (triggerType === "Manual" || triggerType === "Schedule"); // todo: this is not working due to triggerType is blank.
-
-    const {stmtEditorButton , stmtEditorComponent} = useStatementEdior(
+    const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {
-            kind: "DefaultString",
-            label: "Variable Statement",
+            label: intl.formatMessage({id: "lowcode.develop.configForms.return.statementEditor.label"}),
+            initialSource: "", // TODO: Pass the actual initialSource
             formArgs: {formArgs},
             isMutationInProgress,
             validForm: isValidValue,
@@ -98,7 +91,8 @@ export function AddReturnForm(props: ReturnFormProps) {
             onChange: onReturnValueChange,
             validate: validateExpression
         },
-        true);
+        true
+    );
 
     if (!stmtEditorComponent){
         return (

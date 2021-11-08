@@ -234,24 +234,32 @@ export function StatementOptions(props: StatementOptionsProps) {
     }
     const connectorStatement: StatementComponent = {
         name: "connector",
-        category: 'process',
-        component:
-            (
-                <Tooltip
-                    title={plusHolderStatementTooltipMessages.connectorStatement.title}
-                    placement="left"
-                    arrow={true}
-                    interactive={true}
+        category: "process",
+        component: (
+            <Tooltip
+                title={plusHolderStatementTooltipMessages.connectorStatement.title}
+                placement="left"
+                arrow={true}
+                interactive={true}
+            >
+                <div
+                    className="sub-option enabled"
+                    data-testid="addConnector"
+                    onClick={onSelectStatement.bind(undefined, "Connector")}
                 >
-                    <div className="sub-option enabled" data-testid="addConnector" onClick={onSelectStatement.bind(undefined, "Connector")}>
-                        <div className="icon-wrapper">
-                            <LogIcon />
-                        </div>
-                        <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.connector.title" defaultMessage="API Call" /></div>
+                    <div className="icon-wrapper">
+                        <LogIcon />
                     </div>
-                </Tooltip>
-            )
-    }
+                    <div className="text-label">
+                        <FormattedMessage
+                            id="lowcode.develop.plusHolder.plusElements.statements.connector.title"
+                            defaultMessage="API Call"
+                        />
+                    </div>
+                </div>
+            </Tooltip>
+        ),
+    };
 
     const returnStm: StatementComponent = {
         name: "return",
