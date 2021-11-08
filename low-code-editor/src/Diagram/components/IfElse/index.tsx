@@ -151,18 +151,22 @@ export function IfElse(props: IfElseProps) {
     };
 
     const isDraftStatement: boolean = viewState instanceof DraftStatementViewState;
-    let ConditionWrapper;
+    let conditionWrapper;
     if (isDraftStatement){
-        ConditionWrapper = cn("main-condition-wrapper active-condition")
+        if(diagnostics?.length !== 0){
+            conditionWrapper = cn("main-condition-wrapper active-condition-error")
+        }
+        else{
+            conditionWrapper = cn("main-condition-wrapper active-condition")
+        }
     }
-    if (isDraftStatement && diagnostics?.length !== 0){
-        ConditionWrapper = cn("main-condition-wrapper active-condition-error")
-    }
-    if (!isDraftStatement){
-        ConditionWrapper = cn("main-condition-wrapper if-condition-wrapper")
-    }
-    if (!isDraftStatement && diagnostics?.length !== 0) {
-        ConditionWrapper = cn("main-condition-wrapper if-condition-error-wrapper")
+    else{
+        if(diagnostics?.length !== 0){
+            conditionWrapper = cn("main-condition-wrapper if-condition-error-wrapper")
+        }
+        else{
+            conditionWrapper = cn("main-condition-wrapper if-condition-wrapper")
+        }
     }
 
     let assignmentText: any = (!isDraftStatement && STKindChecker?.isIfElseStatement(model));
@@ -414,7 +418,7 @@ export function IfElse(props: IfElseProps) {
     }
 
     return (
-        <g className={ConditionWrapper}>
+        <g className={conditionWrapper}>
             {component}
         </g>
     );
