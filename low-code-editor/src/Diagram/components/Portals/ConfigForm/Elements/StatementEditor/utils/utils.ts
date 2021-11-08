@@ -640,6 +640,11 @@ export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = 
     TypeDescriptor: [
         { value: c.STRING_TYPE_DESC },
         { value: c.BOOLEAN_TYPE_DESC },
+        { value: c.JSON_TYPE_DESC },
+        { value: c.DECIMAL_TYPE_DESC },
+        { value: c.FLOAT_TYPE_DESC },
+        { value: c.INT_TYPE_DESC },
+        { value: c.VAR_TYPE_DESC },
     ],
     DefaultExpressions: [
         { value: c.ARITHMETIC },

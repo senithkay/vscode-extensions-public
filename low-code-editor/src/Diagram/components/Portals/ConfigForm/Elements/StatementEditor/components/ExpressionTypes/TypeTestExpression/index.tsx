@@ -15,7 +15,7 @@ import React, { ReactNode, useContext } from "react";
 
 import { TypeTestExpression } from "@ballerina/syntax-tree";
 
-import { DEFAULT_EXPRESSIONS } from "../../../constants";
+import { TYPE_DESCRIPTOR } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
@@ -50,7 +50,7 @@ export function TypeTestExpressionComponent(props: TypeTestExpressionProps) {
 
     const onClickOnTypeDescriptor = (event: any) => {
         event.stopPropagation()
-        expressionHandler(model.typeDescriptor, false, { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
+        expressionHandler(model.typeDescriptor, false, { expressionSuggestions: getSuggestionsBasedOnExpressionKind(TYPE_DESCRIPTOR) })
     };
 
     return (
