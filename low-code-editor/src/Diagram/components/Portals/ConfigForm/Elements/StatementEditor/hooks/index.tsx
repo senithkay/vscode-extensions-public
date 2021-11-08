@@ -20,7 +20,7 @@ import { ViewContainer, ViewProps } from "../components/ViewContainer/ViewContai
 
 import { useStyles } from "./style";
 
-export const useStatementEditor = (props: ViewProps, disabled: boolean) => {
+export const useStatementEditor = (props: ViewProps) => {
     const {
         label,
         initialSource,
@@ -48,7 +48,7 @@ export const useStatementEditor = (props: ViewProps, disabled: boolean) => {
     const stmtEditorButton =
         (
             <div style={{display: 'inline-flex', width: "100%", marginLeft: "auto", marginRight: 0}}>
-                <StatementEditorButton onClick={handleStmtEditorButtonClick} disabled={disabled} />
+                <StatementEditorButton onClick={handleStmtEditorButtonClick} />
             </div>
         );
 

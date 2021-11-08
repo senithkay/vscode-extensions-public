@@ -14,10 +14,8 @@ import React, { useContext } from "react";
 
 import { Context } from "../../../../../Contexts/Diagram";
 import { ConfigOverlayFormStatus } from "../../../../../Definitions";
-import { DefaultConfig } from "../../../../../Diagram/visitors/default";
 import { TextPreloaderVertical } from "../../../../../PreLoader/TextPreloaderVertical";
 import { ConditionConfig } from "../../../Portals/ConfigForm/types";
-import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from "../../../Portals/Overlay";
 
 import { AddForeachForm } from "./AddForeachForm";
 import { AddIfForm } from "./AddIfForm/index";

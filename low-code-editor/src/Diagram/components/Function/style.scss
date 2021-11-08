@@ -78,6 +78,7 @@
         display: flex;
         flex-direction: row;
         border-bottom: 1px #c1e4fc solid;
+        cursor: pointer;
 
         &.get {
             border-bottom: 1px solid #c1e4fc;
@@ -217,6 +218,7 @@
         flex-direction: row;
         padding: 15px;
         border-bottom: 1px #e6e7ec solid;
+        cursor: pointer;
 
         .function-icon {
             margin-top: 2px;

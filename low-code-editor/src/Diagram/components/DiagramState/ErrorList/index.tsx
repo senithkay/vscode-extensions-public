@@ -36,21 +36,14 @@ export function ErrorList() {
 
     const {
         api: {
-            splitPanel: {
-                handleRightPanelContent,
-                maximize: maximizeCodeView,
-            },
             code: {
-                setCodeLocationToHighlight: setCodeToHighlight,
-                dispatchFileChange,
-                dispatchCodeChangeCommit,
+                setCodeLocationToHighlight: setCodeToHighlight
             },
             ls: {
                 getDiagramEditorLangClient,
             }
         },
         props: {
-            currentApp,
             langServerURL,
             currentFile,
             isCodeEditorActive,
@@ -61,11 +54,8 @@ export function ErrorList() {
             isReadOnly,
         }
     } = useContext(Context);
-    const { id: appId } = currentApp || {};
 
     const onJumpToCodeClick = (range: any) => {
-        maximizeCodeView("home", "vertical", appId);
-        handleRightPanelContent('Code');
         setCodeToHighlight({
             endColumn: range.end.character,
             endLine: range.end.line,
@@ -108,32 +98,8 @@ export function ErrorList() {
         }else{
             setAnchorEl(null);
             const action = actions[0];
-
-            const uri = monaco.Uri.file(`file://${currentFile.path}`)
-            let monacoModel = monaco.editor.getModel(uri);
-            if (!monacoModel){
-                monacoModel = monaco.editor.createModel((currentFile.content), "ballerina", uri)
-            }
-
-            monacoModel.setValue(currentFile.content)
-            for (const docChange of action.edit.documentChanges){
-                const docEdit = docChange as TextDocumentEdit;
-                if (docEdit.edits){
-                    monacoModel.applyEdits(docEdit.edits.map(({range: {start, end}, newText: text}) => {
-                        const range: any = {
-                            startLineNumber: start.line + 1,
-                            startColumn: start.character + 1,
-                            endLineNumber: end.line + 1,
-                            endColumn: end.character + 1,
-                        };
-                        return {range,  text};
-                    }));
-                }
-            }
-            const updatedModelValue = monacoModel.getValue();
-
-            // Dispatch file change first and pass code change commit as a callback
-            dispatchFileChange(btoa(updatedModelValue), dispatchCodeChangeCommit);
+            // TODO: Removed old monaco based code action applying logic
+            // Reimplement using VSCode APIs when error view is wired back
         }
     };
 

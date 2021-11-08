@@ -59,7 +59,8 @@
         "eofline": true,
         "react-hooks-nesting": {
             "severity": "error"
-        }
+        },
+        "indent": [true, "spaces", 4]
     },
     "rulesDirectory": []
 }

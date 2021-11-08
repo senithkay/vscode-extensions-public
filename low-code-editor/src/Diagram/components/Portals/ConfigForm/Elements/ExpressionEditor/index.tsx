@@ -164,7 +164,6 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const {
         state: { targetPosition: targetPositionDraft },
         props: {
-            currentApp,
             currentFile,
             langServerURL,
             syntaxTree,
@@ -211,6 +210,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const [hints, setHints] = useState<ExpressionEditorHintProps[]>([]);
     const [validating, setValidating] = useState<boolean>(false);
     const [showConfigurableView, setShowConfigurableView] = useState(false);
+
+    // Configurable insertion icon will be displayed only when originalValue is empty
+    const [originalValue, setOriginalValue] = useState(model?.value || '');
 
     const validExpEditor = () => {
         if (monacoRef.current?.editor?.getModel()?.getValue()) {
@@ -365,7 +367,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                 triggerKind: 1
                             },
                             position: {
-                                character: monacoRef.current.editor.getPosition().column - 1 + (snippetTargetPosition - 1),
+                                character: targetPosition.startColumn + monacoRef.current.editor.getPosition().column - 1 + (snippetTargetPosition - 1),
                                 line: targetPosition.startLine
                             }
                         }
@@ -523,15 +525,17 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
 
     useEffect(() => {
         if (monacoRef.current) {
-            // Show & hide configurable options icon in the expression editor based on the model type
+            // Show configurable options icon in the expression editor only if following conditions passes
+            // - If model type os one of valid configurable types
+            // - originalValue is empty (will be empty in create flow, or if user removes the expression during edit flow)
             const configurableWidget: monaco.editor.IContentWidget = createContentWidget(CONFIGURABLE_WIDGET_ID);
-            if (configurableTypes.includes(varType) && expressionInjectables) {
+            if (configurableTypes.includes(varType) && expressionInjectables && !originalValue){
                 monacoRef.current.editor.addContentWidget(configurableWidget);
             } else {
                 monacoRef.current.editor.removeContentWidget(configurableWidget);
             }
         }
-    }, [configurableTypes, expressionInjectables])
+    }, [configurableTypes, expressionInjectables, originalValue])
 
     useEffect(() => {
         // Programatically clear exp-editor
@@ -783,6 +787,11 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 if (currentContent.length >= EXPAND_EDITOR_MAXIMUM_CHARACTERS) {
                     setSuperExpand(true);
                 }
+            }
+
+            if (!!originalValue && !currentContent){
+                // Enable configurable insertion icon when user deletes the whole expression
+                setOriginalValue("");
             }
         }
     }
