@@ -41,10 +41,6 @@ export interface EndProps {
 export function End(props: EndProps) {
     const {
         api: {
-            splitPanel: {
-                maximize: maximizeCodeView,
-                handleRightPanelContent
-            },
             code: {
                 setCodeLocationToHighlight: setCodeToHighlight
             },
@@ -58,7 +54,6 @@ export function End(props: EndProps) {
         },
         props: {
             isCodeEditorActive,
-            currentApp,
             syntaxTree,
             isMutationProgress,
             isWaitingOnWorkspace,
@@ -66,7 +61,6 @@ export function End(props: EndProps) {
             isReadOnly,
         }
     } = useContext(Context);
-    const { id: appId } = currentApp || {};
 
     const { viewState, model, blockViewState, isExpressionFunction } = props;
     const isDraftStatement: boolean = blockViewState
@@ -126,8 +120,6 @@ export function End(props: EndProps) {
     }
 
     const onClickOpenInCodeView = () => {
-        maximizeCodeView("home", "vertical", appId);
-        handleRightPanelContent('Code');
         setCodeToHighlight(model?.position)
     }
 
@@ -141,7 +133,7 @@ export function End(props: EndProps) {
                     y={cy - DefaultConfig.shadow}
                     text={compType.toUpperCase()}
                     codeSnippet={codeSnippet}
-                    openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && appId && onClickOpenInCodeView}
+                    openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && onClickOpenInCodeView}
                 />
                 {blockViewState || model ?
                     (<>

@@ -15,7 +15,6 @@ import React from 'react';
 
 import { Story } from '@storybook/react/types-6-0';
 
-import { ConnectionDetails } from "../../../../../../../../api/models";
 import { Provider as LowCodeEditorProvider } from "../../../../../../../../Contexts/Diagram";
 import { InputEditorContextProvider } from "../../store/input-editor-context";
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
@@ -58,30 +57,8 @@ const api = {
     code: {
         modifyDiagram: dummyFunction,
         onMutate: dummyFunction,
-        modifyTrigger: dummyFunction,
         setCodeLocationToHighlight: dummyFunction,
         gotoSource: dummyFunction
-    },
-    connections: {
-        getAllConnections: async (orgHandle: string): Promise<ConnectionDetails[]> => {
-            const completions: ConnectionDetails[] = [];
-            return completions;
-        }
-    },
-    ai: {},
-    splitPanel: {
-        maximize: dummyFunction,
-        minimize: dummyFunction,
-        setPrimaryRatio: dummyFunction,
-        setSecondaryRatio: dummyFunction,
-        handleRightPanelContent: dummyFunction
-    },
-    data: {
-        getGsheetList: async (): Promise<any> => ([]),
-    },
-    oauth: {
-        dispatchGetAllConfiguration: async (): Promise<void> => {
-        },
     },
     panNZoom: {
         pan: dummyFunction,
@@ -100,19 +77,6 @@ const api = {
 
 const props = {
     api,
-    // @ts-ignore
-    currentAppType: undefined,
-    currentApp: {
-        workingFile: "/apps/username/apName/project/choreo.bal",
-        id: 1,
-        name: '',
-        displayName: '',
-        org: '',
-        organizationId: 0,
-        // @ts-ignore
-        template: undefined,
-        createdAt: ''
-    },
     currentFile: {
         // @ts-ignore
         type: undefined,

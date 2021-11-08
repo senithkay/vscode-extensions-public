@@ -14,36 +14,36 @@
 import { InitializeParams, InitializeResult } from "monaco-languageclient";
 
 export interface DidOpenParams {
-	textDocument: {
-		uri: string;
-		languageId: string;
-		text: string;
-		version: number;
-	};
+    textDocument: {
+        uri: string;
+        languageId: string;
+        text: string;
+        version: number;
+    };
 }
 
 export interface DidCloseParams {
-	textDocument: {
-		uri: string;
-	};
+    textDocument: {
+        uri: string;
+    };
 }
 
 export interface DidChangeParams {
-	textDocument: {
-		uri: string;
-		version: number;
-	};
-	contentChanges: [
-		{
-			text: string;
-		}
-	];
+    textDocument: {
+        uri: string;
+        version: number;
+    };
+    contentChanges: [
+        {
+            text: string;
+        }
+    ];
 }
 
 export interface BaseLangClientInterface {
-	isInitialized: boolean;
-	init: (params: InitializeParams) => Promise<InitializeResult>
-	didClose: (params: DidCloseParams) => void;
-	didChange: (params: DidChangeParams) => void;
-	close: () => void;
+    isInitialized: boolean;
+    init: (params: InitializeParams) => Promise<InitializeResult>
+    didClose: (params: DidCloseParams) => void;
+    didChange: (params: DidChangeParams) => void;
+    close: () => void;
 }

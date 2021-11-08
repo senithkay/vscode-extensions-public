@@ -13,12 +13,15 @@
 // tslint:disable: no-empty jsx-no-multiline-js
 import React from 'react';
 
-import { STNode } from "@ballerina/syntax-tree";
+import { NodePosition, STNode } from "@ballerina/syntax-tree";
 
 import { InputEditorContextProvider } from "./input-editor-context";
 
 export const StatementEditorContext = React.createContext({
-    modelCtx: { statementModel: null },
+    modelCtx: {
+        statementModel: null,
+        updateModel: (codeSnippet: string, position: NodePosition) => {}
+    },
     formCtx: {
         onCancel: false,
         onSave: () => {},
@@ -33,15 +36,19 @@ interface CtxProviderProps {
     onCancelClicked: boolean,
     onSave?: () => void
     onChange?: (property: string) => void,
-    validate?: (field: string, isInvalid: boolean, isEmpty: boolean) => void
+    validate?: (field: string, isInvalid: boolean, isEmpty: boolean) => void,
+    updateModel? : (codeSnippet: string, position: NodePosition) => void
 }
 export const StatementEditorContextProvider = (props: CtxProviderProps) => {
-    const { children, model, onCancelClicked, onSave, onChange, validate } = props;
+    const { children, model, onCancelClicked, onSave, onChange, validate, updateModel } = props;
 
     return (
         <StatementEditorContext.Provider
             value={{
-            modelCtx: { statementModel: model },
+            modelCtx: {
+                statementModel: model,
+                updateModel
+            },
             formCtx: {
                 onCancel: onCancelClicked,
                 onSave,

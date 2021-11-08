@@ -27,7 +27,7 @@ export const recordStyles = makeStyles((theme: Theme) =>
             borderLeft: "1px solid #d8d8d8",
         },
         recordFieldWrapper: {
-            height: "83vh",
+            maxHeight: "83vh",
             marginRight: 10,
             paddingRight: 10,
             overflow: "scroll",
@@ -81,6 +81,7 @@ export const recordStyles = makeStyles((theme: Theme) =>
             minWidth: 250,
             "&:hover": {
                 background: "#ededf1",
+                cursor: "pointer",
                 "& $btnWrapper": {
                     display: "flex"
                 }
@@ -217,11 +218,6 @@ export const recordStyles = makeStyles((theme: Theme) =>
         recordKeywordWrapper: {
             width: 40,
             marginLeft: 5,
-            fontFamily: "inherit",
-            color: '#1E00FF'
-        },
-        recordKeywordWithTypeWrapper: {
-            width: 40,
             fontFamily: "inherit",
             color: '#1E00FF'
         },
