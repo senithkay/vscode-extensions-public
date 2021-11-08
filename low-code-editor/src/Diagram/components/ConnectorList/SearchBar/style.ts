@@ -13,8 +13,6 @@
 
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
-import searchGrey from '../../../../assets/images/search-grey.svg';
-
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         searchBarRoot: {
@@ -29,9 +27,6 @@ const useStyles = makeStyles((theme: Theme) =>
         searchIcon: {
             height: theme.spacing(2.375),
             width: theme.spacing(2.25),
-            backgroundImage: `url(${searchGrey})`,
-            backgroundRepeat: 'no-repeat',
-            backgroundPosition: 'center',
             marginTop: theme.spacing(1.5),
             marginLeft: theme.spacing(1.375),
             marginBottom: theme.spacing(1.125),

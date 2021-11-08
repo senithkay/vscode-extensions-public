@@ -45,6 +45,9 @@ const useStyles = makeStyles((theme: Theme) =>
         resultsContainer: {
             marginTop: theme.spacing(6),
         },
+        filterTagWrap: {
+            maxHeight: '48px',
+        },
         filterTag: {
             border: '1px solid #E6E7EC',
             borderRadius: '8px',

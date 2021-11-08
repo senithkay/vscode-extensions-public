@@ -224,7 +224,7 @@ export function ConnectorList(props: FormGeneratorProps) {
                                     )}
 
                                     {!isSearchResultsFetching && selectedCategory !== "" && (
-                                        <Grid sm={12} item={true} container={true} alignItems="center">
+                                        <Grid sm={12} item={true} container={true} alignItems="center" className={classes.filterTagWrap}>
                                             <Box display="flex" justifyContent="center" alignItems="center" className={classes.filterTag}>
                                                 <Typography variant="body1">{selectedCategory}</Typography>
                                                 <ButtonWithIcon
@@ -242,6 +242,7 @@ export function ConnectorList(props: FormGeneratorProps) {
                                         container={true}
                                         direction="row"
                                         justifyContent="flex-start"
+                                        alignContent="flex-start"
                                         spacing={2}
                                         className={classes.connectorListWrap}
                                         onScroll={handleConnectorListScroll}

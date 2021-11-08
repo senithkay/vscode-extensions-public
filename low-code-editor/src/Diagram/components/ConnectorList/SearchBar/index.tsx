@@ -17,6 +17,7 @@ import { FormattedMessage } from "react-intl";
 
 import { Grid, InputBase } from "@material-ui/core";
 
+import SearchIcon from "../../../../assets/icons/SearchIcon";
 import { PrimaryButtonSquare } from "../../Buttons/PrimaryButtonSquare";
 import PrimaryRounded from "../../Buttons/PrimaryRounded";
 
@@ -45,7 +46,7 @@ function SearchBar(props: SearchBarProps) {
 
     return (
         <Grid container={true} classes={{ root: classes.searchBarRoot }}>
-            <div className={classes.searchIcon} />
+            <SearchIcon className={classes.searchIcon} />
             <Grid item={true} container={true} xs={true}>
                 <InputBase
                     classes={{ root: classes.searchText }}
