@@ -123,11 +123,13 @@ export function InputEditor(props: InputEditorProps) {
     const snippetTargetPosition = defaultCodeSnippet.length;
     const isCustomTemplate = false;
 
+    const reservedWords: string[] = ['EXPRESSION', 'typeDescriptor'];
+
     useEffect(() => {
         handleOnFocus(currentContent, "").then(() => {
             handleOnOutFocus().then();
         })
-        getContextBasedCompletions(userInput === 'EXPRESSION' ? "" : userInput);
+        getContextBasedCompletions(reservedWords.indexOf(userInput) > -1 ? "" : userInput);
     }, [statementType]);
 
     useEffect(() => {
@@ -148,8 +150,7 @@ export function InputEditor(props: InputEditorProps) {
     }, [isEditing]);
 
     const handleOnFocus = async (currentStatement: string, EOL: string) => {
-        const newCodeSnippet: string = currentStatement.split("EXPRESSION").join(" ");
-        const initContent: string = addToTargetLine((currentFile.content), targetPosition, newCodeSnippet, EOL);
+        const initContent: string = addToTargetLine((currentFile.content), targetPosition, currentStatement, EOL);
 
         inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
         inputEditorState.content = initContent;
@@ -185,7 +186,7 @@ export function InputEditor(props: InputEditorProps) {
         stmtCtx.formCtx.validate('', !hasDiagnostic, false);
 
         // TODO: Need to obtain the default value as a prop
-        if (!currentContent.includes('EXPRESSION')) {
+        if (!reservedWords.some(word => currentContent.includes(word))) {
             diagnosticHandler(getDiagnosticMessage(inputEditorState.diagnostic, varType))
         }
     }
@@ -198,7 +199,7 @@ export function InputEditor(props: InputEditorProps) {
         inputEditorState.content = newModel;
         inputEditorState.uri = monaco.Uri.file(currentFile.path).toString();
 
-        stmtCtx.formCtx.onChange(currentStatement.split("EXPRESSION").join(" "));
+        stmtCtx.formCtx.onChange(currentStatement);
 
         const langClient = await getExpressionEditorLangClient(langServerURL);
         langClient.didChange({
@@ -343,7 +344,7 @@ export function InputEditor(props: InputEditorProps) {
     return isEditing ?
         (
             <input
-                value={userInput !== "EXPRESSION" ? userInput : ""}
+                value={reservedWords.indexOf(userInput) > -1 ? "" : userInput}
                 className={overlayClasses.inputEditorTemplate}
                 onKeyDown={inputEnterHandler}
                 onBlur={inputBlurHandler}
