@@ -42,10 +42,15 @@ let sequenceDiagramData: SequenceGraphPoint[];
 let diagramRedraw: any;
 let currentServiceIndex: number;
 let currentResourceIndex: number;
-let showPerformanceGraph: any;
-let showMessage: any;
+let showPerformanceGraph: (request: PerformanceGraphRequest) => Promise<boolean>;
+let showMessage: (message: string, type: MESSAGE_TYPE, isIgnorable: boolean) => Promise<boolean>;
 
-enum MESSAGE_TYPE {
+export interface PerformanceGraphRequest {
+    file: string;
+    data: GraphData;
+}
+
+export enum MESSAGE_TYPE {
     ERROR,
     WARNING,
     INFO
@@ -61,7 +66,8 @@ enum MESSAGE_TYPE {
  * @param showMsg Show alerts in vscode side
  */
 export async function addPerformanceData(st: any, file: string, lc: DiagramEditorLangClientInterface,
-                                         session: PFSession, showPerf: any, showMsg: any) {
+                                         session: PFSession, showPerf: (request: PerformanceGraphRequest) => Promise<boolean>,
+                                         showMsg: (message: string, type: MESSAGE_TYPE, isIgnorable: boolean) => Promise<boolean>) {
 
     if (!st || !file || !lc || !session) {
         return;

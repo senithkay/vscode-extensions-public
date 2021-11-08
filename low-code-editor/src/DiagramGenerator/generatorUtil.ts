@@ -5,7 +5,7 @@ import { cleanLocalSymbols, cleanModuleLevelSymbols } from "../Diagram/visitors/
 import { initVisitor, positionVisitor, sizingVisitor, SymbolVisitor } from "../index";
 import { SelectedPosition } from "../types";
 
-import { addPerformanceData } from "./performanceUtil";
+import { addPerformanceData, MESSAGE_TYPE } from "./performanceUtil";
 import { PFSession } from "./vscode/Diagram";
 
 export async function getSyntaxTree(filePath: string, langClient: DiagramEditorLangClientInterface) {
@@ -18,7 +18,8 @@ export async function getSyntaxTree(filePath: string, langClient: DiagramEditorL
 }
 
 export async function getLowcodeST(payload: any, filePath: string, langClient: DiagramEditorLangClientInterface,
-                                   pfSession: PFSession, showPerformanceGraph: any, showMessage: any) {
+                                   pfSession: PFSession, showPerformanceGraph: () => Promise<boolean>,
+                                   showMessage: (message: string, type: MESSAGE_TYPE, isIgnorable: boolean) => Promise<boolean>) {
     const modulePart: ModulePart = payload;
     const members: STNode[] = modulePart?.members || [];
     const st = sizingAndPositioningST(payload);
