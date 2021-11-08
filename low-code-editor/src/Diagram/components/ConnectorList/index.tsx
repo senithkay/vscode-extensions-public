@@ -145,16 +145,17 @@ export function ConnectorList(props: FormGeneratorProps) {
         const componentList: ReactNode[] = [];
         let tooltipSideCount = 0;
         connectors?.forEach((connector: Connector) => {
-            const connectorName = (connector.displayAnnotation?.label || `${connector.package?.name} / ${connector.name}`).replace(/["']/g, "");
+            const connectorName = connector.displayAnnotation?.label || connector.moduleName;
             const placement = (tooltipSideCount++) % 2 === 0 ? "left" : "right";
+            const tooltipTitle = connectorName;
             const tooltipExample = connector.package.summary;
             const tooltipText = {
                 "heading": connectorName,
-                "content": connector.package?.organization,
-                "example": tooltipExample
+                "example": tooltipExample,
+                "content": tooltipTitle
             };
             const component: ReactNode = (
-                <Tooltip type="example" text={tooltipText} placement={placement} arrow={true} interactive={true} key={connectorName}>
+                <Tooltip type="example" text={tooltipText} placement={placement} arrow={true} interactive={true} key={connectorName.toLowerCase()}>
                     <Grid item={true} sm={6} alignItems="center">
                         <div key={connectorName} onClick={onSelectConnector.bind(this, connector)} data-testid={connectorName.toLowerCase()}>
                             <div className={classes.connector}>

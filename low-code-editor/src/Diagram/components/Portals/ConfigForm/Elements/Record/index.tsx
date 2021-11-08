@@ -16,19 +16,17 @@ import React from "react";
 import { FormField } from "../../../../../../ConfigurationSpec/types";
 import {isAllEmpty, isAllOptional, isAllValid} from "../../../../../../utils/validator";
 import FormAccordion from "../../../../../components/FormAccordion";
-import { ExpressionInjectablesProps } from "../../../../FormGenerator";
 import { getFormElement } from "../../../utils";
 import { useStyles } from "../../forms/style";
 import { FormElementProps } from "../../types";
 
 interface RecordProps {
     validate?: (field: string, isInvalid: boolean, isEmpty: boolean) => void;
-    expressionInjectables?: ExpressionInjectablesProps;
 }
 
 export function Record(props: FormElementProps<RecordProps>) {
     const { model, customProps } = props;
-    const { validate, expressionInjectables } = customProps;
+    const { validate } = customProps;
     const classes = useStyles();
     const validFieldChecker = React.useRef(new Map<string, boolean>());
     const emptyFieldChecker = React.useRef(new Map<string, boolean>());
@@ -54,8 +52,7 @@ export function Record(props: FormElementProps<RecordProps>) {
                         model: field,
                         index,
                         customProps: {
-                            validate: validateField,
-                            expressionInjectables,
+                            validate: validateField
                         }
                     };
 

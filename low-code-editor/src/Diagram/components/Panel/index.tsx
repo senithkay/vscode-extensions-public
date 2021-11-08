@@ -31,19 +31,15 @@ export function Panel(props: PanelProps) {
     const { children, onClose } = props;
     const [isVisible, setIsVisible] = useState(true);
 
-    const onCloseEvent = (evt: React.MouseEvent) => {
-        evt.stopPropagation();
+    const onCloseEvent = () => {
         setIsVisible(false);
         setTimeout(onClose, 500)
     }
 
-    const onDivClick = (evt: React.MouseEvent) => {
-        evt.stopPropagation();
-    }
-
     return (
-        <div onClick={onDivClick} >
-            <DiagramOverlayContainer>
+        <div>
+            <DiagramOverlayContainer
+            >
                 <div className={classnames("panel", isVisible ? 'panel-slide-in' : 'panel-slide-out')}>
                     <div className="close-btn-wrap">
                         <ButtonWithIcon

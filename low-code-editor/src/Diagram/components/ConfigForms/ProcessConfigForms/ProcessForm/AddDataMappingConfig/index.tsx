@@ -12,19 +12,29 @@
  */
 // tslint:disable:jsx-no-multiline-js
 // tslint:disable: jsx-wrap-multiline
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
-import { CaptureBindingPattern, SimpleNameReference, STKindChecker, STNode, traversNode, TypedBindingPattern } from '@ballerina/syntax-tree';
+import { CaptureBindingPattern, LocalVarDecl, SimpleNameReference, STKindChecker, STNode, traversNode, TypedBindingPattern } from '@ballerina/syntax-tree';
+import { Box, FormControl, Typography } from '@material-ui/core';
+import { CloseRounded } from '@material-ui/icons';
 
-import { PrimitiveBalType } from '../../../../../../ConfigurationSpec/types';
+import { LogIcon } from "../../../../../../assets/icons";
+import DataMapperIcon from '../../../../../../assets/icons/DataMapper';
+import { PrimitiveBalType, WizardType } from '../../../../../../ConfigurationSpec/types';
 import { Context as DiagramContext } from '../../../../../../Contexts/Diagram';
 import { getAllVariables } from "../../../../../utils/mixins";
 import { DataMapperInitVisitor, VisitingType } from '../../../../DataMapper/util/data-mapper-init-visitor';
 import { DataMapperMappingVisitor } from '../../../../DataMapper/util/data-mapper-mapping-visitor';
-import { DataMapperConfig, DataMapperOutputField, ProcessConfig } from '../../../../Portals/ConfigForm/types';
-import { genVariableName } from "../../../../Portals/utils";
+import { ButtonWithIcon } from '../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon';
+import { PrimaryButton } from '../../../../Portals/ConfigForm/Elements/Button/PrimaryButton';
+import { SecondaryButton } from '../../../../Portals/ConfigForm/Elements/Button/SecondaryButton';
+import { useStyles as useFormStyles } from "../../../../Portals/ConfigForm/forms/style";
+import { DataMapperConfig, DataMapperInputTypeInfo, DataMapperOutputField, DataMapperOutputTypeInfo, ProcessConfig } from '../../../../Portals/ConfigForm/types';
+import { checkVariableName, genVariableName } from "../../../../Portals/utils";
+import { wizardStyles } from "../../../style";
 
-import { GenerationType } from './OutputTypeSelector';
+import { GenerationType, OutputTypeSelector } from './OutputTypeSelector';
+import { ParameterSelector } from './ParameterSelector';
 
 
 interface AddDataMappingConfigProps {

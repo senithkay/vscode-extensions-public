@@ -16,7 +16,7 @@ import { monaco } from "react-monaco-editor";
 
 import {
     BooleanLiteral,
-    NumericLiteral, QualifiedNameReference,
+    NumericLiteral,
     SimpleNameReference,
     STKindChecker,
     STNode,
@@ -44,6 +44,8 @@ import { InputEditorContext } from "../../store/input-editor-context";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { SuggestionsContext } from "../../store/suggestions-context";
 import { getDataTypeOnExpressionKind } from "../../utils";
+import { addExpression } from "../../utils/utils";
+import { visitor as CodeGenVisitor } from "../../visitors/code-gen-visitor";
 import { useStatementEditorStyles } from "../ViewContainer/styles";
 
 import { acceptedCompletionKind } from "./constants";
@@ -82,11 +84,9 @@ export function InputEditor(props: InputEditorProps) {
     const stmtCtx = useContext(StatementEditorContext);
     const { expressionHandler } = useContext(SuggestionsContext);
 
-    const [currentContent, setCurrentContent] = useState(stmtCtx.modelCtx.statementModel.source);
-
     const overlayClasses = useStatementEditorStyles();
 
-    let literalModel: StringLiteral | NumericLiteral | SimpleNameReference | QualifiedNameReference;
+    let literalModel: StringLiteral | NumericLiteral | SimpleNameReference;
     let value: any;
     let kind: any;
 
@@ -102,10 +102,6 @@ export function InputEditor(props: InputEditorProps) {
         literalModel = model as SimpleNameReference;
         kind = c.SIMPLE_NAME_REFERENCE;
         value = literalModel.name.value;
-    } else if (STKindChecker.isQualifiedNameReference(model)) {
-        literalModel = model as QualifiedNameReference;
-        kind = c.QUALIFIED_NAME_REFERENCE;
-        value = literalModel.identifier.value;
     } else if (STKindChecker.isBooleanLiteral(model)) {
         literalModel = model as BooleanLiteral;
         kind = c.BOOLEAN_LITERAL;
@@ -116,18 +112,18 @@ export function InputEditor(props: InputEditorProps) {
     const targetPosition = getTargetPosition(targetPositionDraft, syntaxTree);
     const textLabel = userInputs && userInputs.formField ? userInputs.formField : "modelName"
     const varName = userInputs && userInputs.varName ? userInputs.varName : "temp_" + (textLabel).replace(/[^A-Z0-9]+/ig, "");
-    const varType = userInputs ? userInputs.selectedType : 'string';
+    const varType = userInputs.selectedType;
     const defaultCodeSnippet = varType + " " + varName + " = ;";
     const snippetTargetPosition = defaultCodeSnippet.length;
     const isCustomTemplate = false;
 
-    const placeHolders: string[] = ['EXPRESSION', 'TYPE_DESCRIPTOR'];
-
     useEffect(() => {
-        handleOnFocus(currentContent, "").then(() => {
+        CodeGenVisitor.clearCodeSnippet();
+        traversNode(stmtCtx.modelCtx.statementModel, CodeGenVisitor);
+        handleOnFocus(CodeGenVisitor.getCodeSnippet(), "").then(() => {
             handleOnOutFocus().then();
         })
-        getContextBasedCompletions(placeHolders.indexOf(userInput) > -1 ? "" : userInput);
+        getContextBasedCompletions(userInput === 'expression' ? "" : userInput);
     }, [statementType]);
 
     useEffect(() => {
@@ -136,7 +132,9 @@ export function InputEditor(props: InputEditorProps) {
 
     useEffect(() => {
         setUserInput(value);
-        handleContentChange(currentContent, "").then(() => {
+        CodeGenVisitor.clearCodeSnippet();
+        traversNode(stmtCtx.modelCtx.statementModel, CodeGenVisitor);
+        handleContentChange(CodeGenVisitor.getCodeSnippet(), "").then(() => {
             handleOnOutFocus().then();
         });
     }, [inputEditorCtx.userInput]);
@@ -147,8 +145,10 @@ export function InputEditor(props: InputEditorProps) {
         }
     }, [isEditing]);
 
-    const handleOnFocus = async (currentStatement: string, EOL: string) => {
-        const initContent: string = addToTargetLine((currentFile.content), targetPosition, currentStatement, EOL);
+    const handleOnFocus = async (currentContent: string, EOL: string) => {
+        let initContent: string;
+        const newCodeSnippet: string = addToTargetPosition(defaultCodeSnippet, (snippetTargetPosition - 1), currentContent);
+        initContent = addToTargetLine((currentFile.content), targetPosition, newCodeSnippet, EOL);
 
         inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
         inputEditorState.content = initContent;
@@ -178,26 +178,28 @@ export function InputEditor(props: InputEditorProps) {
     }
 
     const handleDiagnostic = () => {
+        const codeSnippet = CodeGenVisitor.getCodeSnippet();
         const hasDiagnostic = !inputEditorState.diagnostic.length // true if there are no diagnostics
 
-        stmtCtx.formCtx.onChange(currentContent);
-        stmtCtx.formCtx.validate('', !hasDiagnostic, false);
+        stmtCtx.formCtx.onChange(codeSnippet);
+        stmtCtx.formCtx.validate(userInputs.formField, !hasDiagnostic, false);
 
         // TODO: Need to obtain the default value as a prop
-        if (!placeHolders.some(word => currentContent.includes(word))) {
+        if (!CodeGenVisitor.getCodeSnippet().includes('expression')) {
             diagnosticHandler(getDiagnosticMessage(inputEditorState.diagnostic, varType))
         }
     }
 
-    const handleContentChange = async (currentStatement: string, EOL: string) => {
+    const handleContentChange = async (currentContent: string, EOL: string) => {
         let newModel: string;
-        newModel = addToTargetLine((currentFile.content), targetPosition, currentStatement, EOL);
+        const newCodeSnippet: string = addToTargetPosition(defaultCodeSnippet, (snippetTargetPosition - 1), currentContent);
+        newModel = addToTargetLine((currentFile.content), targetPosition, newCodeSnippet, EOL);
 
         inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
         inputEditorState.content = newModel;
         inputEditorState.uri = monaco.Uri.file(currentFile.path).toString();
 
-        stmtCtx.formCtx.onChange(currentStatement);
+        stmtCtx.formCtx.onChange(currentContent);
 
         const langClient = await getExpressionEditorLangClient(langServerURL);
         langClient.didChange({
@@ -220,7 +222,6 @@ export function InputEditor(props: InputEditorProps) {
             ...inputEditorState,
             diagnostic: diagResp[0]?.diagnostics ? getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) : []
         })
-        setCurrentContent(currentStatement);
     }
 
     const handleOnOutFocus = async () => {
@@ -307,7 +308,7 @@ export function InputEditor(props: InputEditorProps) {
     const inputBlurHandler = () => {
         setIsEditing(false);
         if (userInput !== "") {
-            stmtCtx.modelCtx.updateModel(userInput, model.position);
+            addExpression(model, kind, value);
             expressionHandler(model, false, { expressionSuggestions: [] });
 
             const ignore = handleOnOutFocus();
@@ -316,15 +317,20 @@ export function InputEditor(props: InputEditorProps) {
 
     const inputEnterHandler = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === "Enter" || event.key === "Tab" || event.key === "Escape") {
-            stmtCtx.modelCtx.updateModel(userInput, model.position);
-            const ignore = handleContentChange(stmtCtx.modelCtx.statementModel.source, "")
+            addExpression(model, kind, userInput);
+
+            CodeGenVisitor.clearCodeSnippet();
+            traversNode(stmtCtx.modelCtx.statementModel, CodeGenVisitor);
+            const ignore = handleContentChange(CodeGenVisitor.getCodeSnippet(), "")
             getContextBasedCompletions(userInput);
         }
     };
 
     const inputChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const newLine = addToTargetPosition(stmtCtx.modelCtx.statementModel.source, model.position.startColumn, event.target.value ? event.target.value : "", model.position.endColumn + 1);
-        debouncedContentChange(newLine, "");
+        addExpression(model, kind, event.target.value ? event.target.value : "");
+        CodeGenVisitor.clearCodeSnippet();
+        traversNode(stmtCtx.modelCtx.statementModel, CodeGenVisitor);
+        debouncedContentChange(CodeGenVisitor.getCodeSnippet(), "");
         getContextBasedCompletions(event.target.value);
         setUserInput(event.target.value);
     };
@@ -342,7 +348,7 @@ export function InputEditor(props: InputEditorProps) {
     return isEditing ?
         (
             <input
-                value={placeHolders.indexOf(userInput) > -1 ? "" : userInput}
+                value={userInput}
                 className={overlayClasses.inputEditorTemplate}
                 onKeyDown={inputEnterHandler}
                 onBlur={inputBlurHandler}

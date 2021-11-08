@@ -30,7 +30,6 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
 import { useStatementEditor } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
-import { createForeachStatement, getInitialSource } from "../../../../../utils/modification-util";
 
 interface Iterations {
     start?: string;
@@ -209,23 +208,18 @@ export function AddForeachForm(props: ForeachProps) {
         defaultValue: conditionExpression.collection,
     };
 
-    const initialSource = getInitialSource(createForeachStatement(
-        conditionExpression.collection ? conditionExpression.collection : 'EXPRESSION',
-        conditionExpression.variable,
-        selectedType
-    ));
-
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {
-            label: intl.formatMessage({id: "lowcode.develop.configForms.forEach.statementEditor.label"}),
-            initialSource,
+            label: intl.formatMessage({id: "lowcode.develop.configForms.foreach.statementEditor.label"}),
+            initialSource: "", // TODO: Pass the actual initialSource
             formArgs: {formArgs},
             isMutationInProgress,
             validForm: !isInvalid,
             onSave: handleSave,
             onChange: handleExpEditorChange,
             validate: validateField
-        }
+        },
+        true
     );
 
     if (!stmtEditorComponent) {

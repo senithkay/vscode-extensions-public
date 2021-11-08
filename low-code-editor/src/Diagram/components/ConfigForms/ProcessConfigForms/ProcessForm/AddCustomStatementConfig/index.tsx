@@ -93,14 +93,15 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {
             label: intl.formatMessage({id: "lowcode.develop.configForms.customStatement.statementEditor.label"}),
-            initialSource: expression,
+            initialSource: "", // TODO: Pass the actual initialSource
             formArgs: {formArgs},
             isMutationInProgress,
             validForm: isFormValid,
             onSave: onSaveBtnClick,
             onChange: onExpressionChange,
             validate: validateExpression
-        }
+        },
+        true
     );
 
     if (!stmtEditorComponent){

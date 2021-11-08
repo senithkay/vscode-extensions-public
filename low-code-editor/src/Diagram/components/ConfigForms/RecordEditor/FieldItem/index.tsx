@@ -46,7 +46,7 @@ export function FieldItem(props: FieldItemProps) {
     };
 
     return (
-        <div className={recordClasses.itemWrapper} onClick={handleEdit}>
+        <div className={recordClasses.itemWrapper}>
             <div className={field.isActive ? recordClasses.activeItemContentWrapper : recordClasses.itemContentWrapper}>
                 <div className={recordClasses.itemLabelWrapper}>
                     <Typography

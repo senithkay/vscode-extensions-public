@@ -43,6 +43,7 @@ export function Respond(props: RespondProps) {
             diagramCleanDraw, toggleDiagramOverlay
         },
         props: {
+            currentApp,
             isCodeEditorActive,
             syntaxTree,
             stSymbolInfo,
@@ -54,11 +55,17 @@ export function Respond(props: RespondProps) {
             code: {
                 setCodeLocationToHighlight: setCodeToHighlight
             },
+            splitPanel: {
+                maximize: maximizeCodeView,
+                handleRightPanelContent
+            },
             configPanel: {
                 dispactchConfigOverlayForm: openNewEndConfig,
             }
         }
     } = useContext(Context);
+
+    const { id: appId } = currentApp || {};
 
     const { model, blockViewState } = props;
     const [configOverlayFormState, updateConfigOverlayFormState] = useState(undefined);
@@ -106,6 +113,8 @@ export function Respond(props: RespondProps) {
     };
 
     const onClickOpenInCodeView = () => {
+        maximizeCodeView("home", "vertical", appId);
+        handleRightPanelContent('Code');
         setCodeToHighlight(model.position)
     }
 
@@ -117,7 +126,7 @@ export function Respond(props: RespondProps) {
                     y={cy - DefaultConfig.shadow + DefaultConfig.dotGap / 2}
                     text={compType}
                     sourceSnippet={sourceSnippet}
-                    openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model.position && onClickOpenInCodeView}
+                    openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model.position && appId && onClickOpenInCodeView}
                 />
             </g>
         )

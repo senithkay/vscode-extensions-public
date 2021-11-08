@@ -40,10 +40,12 @@ export const EXISTING_PROPERTY: string = "Select Existing Property";
 export function AddReturnForm(props: ReturnFormProps) {
     const {
         props: {
+            currentApp,
             isMutationProgress: isMutationInProgress,
             stSymbolInfo
         }
     } = useContext(Context);
+    const triggerType = currentApp ? currentApp.displayType : undefined;
     const { config, onCancel, onSave } = props;
     let initCustomExpression = !(config.scopeSymbols.length > 0);
     const classes = useStyles();
@@ -91,6 +93,7 @@ export function AddReturnForm(props: ReturnFormProps) {
 
     const existingActiveClass = customExpression ? classes.inActiveWrapper : null;
     const customActiveClass = !customExpression ? classes.inActiveWrapper : null;
+    const containsMainFunction = triggerType && (triggerType === "Manual" || triggerType === "Schedule"); // todo: this is not working due to triggerType is blank.
     const errorVariables = stSymbolInfo ? [...getVaribaleNamesFromVariableDefList(stSymbolInfo.variables.get('error'))] : [];
     return (
         <FormControl data-testid="return-form" className={classes.wizardFormControl}>
@@ -103,41 +106,62 @@ export function AddReturnForm(props: ReturnFormProps) {
                 </div>
             </div>
             <div className={classes.formWrapper}>
-                <div className={classes.groupedForm}>
-                    <RadioControl
-                        onChange={onExistingRadioBtnChange}
-                        defaultValue={existingExprDefaultVal}
-                        customProps={{ collection: [EXISTING_PROPERTY], disabled: !(config.scopeSymbols.length > 0) }}
-                    />
-                    <div className={existingActiveClass}>
-                        <SelectDropdownWithButton
-                            customProps={{
-                                disableCreateNew: true,
-                                values: config.scopeSymbols,
-                                clearSelection: customExpression
-                            }}
-                            onChange={onDropdownChange}
-                            placeholder="Select Property"
-                            defaultValue={config.expression}
-                        />
-                    </div>
+                {
+                    containsMainFunction ?
+                        (
+                            <div className={classes.groupedForm}>
+                                <SelectDropdownWithButton
+                                    label={"Select Error property"}
+                                    customProps={{
+                                        disableCreateNew: true,
+                                        values: errorVariables,
+                                        clearSelection: customExpression,
+                                        optional: true
+                                    }}
+                                    onChange={onDropdownChange}
+                                    placeholder="Select Property"
+                                    defaultValue={config.expression}
+                                />
+                            </div>
+                        ) :
+                        (
+                            <div className={classes.groupedForm}>
+                                <RadioControl
+                                    onChange={onExistingRadioBtnChange}
+                                    defaultValue={existingExprDefaultVal}
+                                    customProps={{ collection: [EXISTING_PROPERTY], disabled: !(config.scopeSymbols.length > 0) }}
+                                />
+                                <div className={existingActiveClass}>
+                                    <SelectDropdownWithButton
+                                        customProps={{
+                                            disableCreateNew: true,
+                                            values: config.scopeSymbols,
+                                            clearSelection: customExpression
+                                        }}
+                                        onChange={onDropdownChange}
+                                        placeholder="Select Property"
+                                        defaultValue={config.expression}
+                                    />
+                                </div>
 
-                    <div className={classes.divider} />
+                                <div className={classes.divider} />
 
-                    <RadioControl
-                        onChange={onDefineRadioBtnChange}
-                        defaultValue={customExprDefaultVal}
-                        customProps={{ collection: [DEFINE_RETURN_EXR] }}
-                    />
-                    <div className={customActiveClass}>
-                        <FormTextInput
-                            customProps={{ clearInput: !customExpression }}
-                            onChange={onReturnValueChange}
-                            placeholder={"eg: \"Hello\""}
-                            defaultValue={config.expression}
-                        />
-                    </div>
-                </div>
+                                <RadioControl
+                                    onChange={onDefineRadioBtnChange}
+                                    defaultValue={customExprDefaultVal}
+                                    customProps={{ collection: [DEFINE_RETURN_EXR] }}
+                                />
+                                <div className={customActiveClass}>
+                                    <FormTextInput
+                                        customProps={{ clearInput: !customExpression }}
+                                        onChange={onReturnValueChange}
+                                        placeholder={"eg: \"Hello\""}
+                                        defaultValue={config.expression}
+                                    />
+                                </div>
+                            </div>
+                        )
+                }
                 <div className={classes.wizardBtnHolder}>
                     <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
                     <PrimaryButton

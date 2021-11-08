@@ -15,7 +15,6 @@ import React, { ReactNode, useContext } from "react";
 
 import { BinaryExpression } from "@ballerina/syntax-tree";
 
-import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getKindBasedOnOperator, getOperatorSuggestions, getSuggestionsBasedOnExpressionKind } from "../../../utils";
@@ -56,12 +55,12 @@ export function BinaryExpressionComponent(props: BinaryProps) {
 
     const onClickOnLhsExpression = (event: any) => {
         event.stopPropagation()
-        expressionHandler(model.lhsExpr, false, { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
+        expressionHandler(model.lhsExpr, false, { expressionSuggestions: getSuggestionsBasedOnExpressionKind(kind) })
     };
 
     const onClickOnRhsExpression = (event: any) => {
         event.stopPropagation()
-        expressionHandler(model.rhsExpr, false, { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
+        expressionHandler(model.rhsExpr, false, { expressionSuggestions: getSuggestionsBasedOnExpressionKind(kind) })
     };
 
     return (

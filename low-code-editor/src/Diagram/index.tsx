@@ -13,35 +13,62 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from "react";
 
-import { ModulePart } from "@ballerina/syntax-tree";
+import { ModulePart, STNode } from "@ballerina/syntax-tree";
 import Container from "@material-ui/core/Container";
 import classnames from 'classnames';
 
 import { Context as DiagramContext } from "../Contexts/Diagram";
+import { DiagramEditorLangClientInterface } from "../Definitions/diagram-editor-lang-client-interface";
+import { BallerinaConnectorsResponse, Connector } from "../Definitions/lang-client-extended";
 import { TextPreLoader } from "../PreLoader/TextPreLoader";
 
+import { Canvas } from "./components/Canvas";
 import { CanvasDiagram } from "./components/CanvasContainer";
+import { DataMapper } from './components/DataMapper';
 import { DiagramDisableState } from "./components/DiagramState/DiagramDisableState";
 import { DiagramErrorState } from "./components/DiagramState/DiagramErrorState";
 import { ErrorList } from "./components/DiagramState/ErrorList";
 import { OverlayBackground } from "./components/OverlayBackground";
+import PanAndZoom from "./components/PanAndZoom";
+import { TriggerType } from "./models";
 import "./style.scss";
 import { useStyles } from "./styles";
 import { getSTComponent } from "./utils";
+import { addConnectorListToCache } from "./utils/st-util";
 import { ViewState } from "./view-state";
 import { DefaultConfig } from "./visitors/default";
 
 export function Diagram() {
     const {
+        state: {
+            isDataMapperShown,
+            isConfigOverlayFormOpen,
+        },
+        api: {
+            code: { hasConfigurables },
+            ls: {
+                getDiagramEditorLangClient
+            },
+        },
         props: {
             diagnostics,
             warnings,
             syntaxTree,
+            isWaitingOnWorkspace,
             isMutationProgress,
+            isReadOnly,
+            currentApp,
+            isConfigPanelOpen,
+            isCodeEditorActive,
             isLoadingAST,
+            originalSyntaxTree,
             error,
+            langServerURL
         },
     } = useContext(DiagramContext);
+
+    // FIXME remove the need for passing down current APP to low code editor
+    const triggerType = currentApp ? currentApp.displayType : "";
 
     const classes = useStyles();
     const diagnosticInDiagram = diagnostics && diagnostics.length > 0;
@@ -71,6 +98,20 @@ export function Diagram() {
     const textLoader = (
         <div className={classes.progressContainer}>
             <TextPreLoader position="absolute" />
+        </div>
+    );
+
+    const disableIconClassCheck = (triggerType === "API") ? classes.disableAPIDiagramIcon : classes.disableDiagramIcon;
+    const enableIconClassCheck = (triggerType === "API") ? classes.diagramAPIStateWrapper : classes.diagramStateWrapper;
+
+    const diagramDisabledStatus = (
+        <div className={disableIconClassCheck}>
+            <DiagramDisableState />
+        </div>
+    );
+    const diagramDisabledWithTextLoaderStatus = (
+        <div className={classes.disableDiagramIconWithTextLoader}>
+            <DiagramDisableState />
         </div>
     );
 
@@ -106,22 +147,65 @@ export function Diagram() {
 
     const child = getSTComponent(syntaxTree);
 
+    let hasConfigurable = false;
+    if (originalSyntaxTree) {
+        hasConfigurable = hasConfigurables(originalSyntaxTree as ModulePart)
+    }
+
     return (
         <div id="canvas">
             {(codeTriggerredUpdateInProgress || isMutationProgress) && textLoader}
+            {triggerType !== undefined && isWaitingOnWorkspace && textLoader && diagramDisabledWithTextLoaderStatus}
+            {(isWaitingOnWorkspace && (triggerType !== undefined)) ? textLoader : null}
+
+            <div className={enableIconClassCheck}>
+                {(!isCodeEditorActive && !isWaitingOnWorkspace) && !isConfigPanelOpen && !isReadOnly && diagramStatus}
+                {isWaitingOnWorkspace && !isConfigPanelOpen && !isReadOnly && diagramDisabledWithTextLoaderStatus}
+                {isCodeEditorActive && diagramDisabledStatus}
+            </div>
 
             {(diagnosticInDiagram || warningsInDiagram) && (
-                <div className={classnames(classes.diagramErrorStateWrapper)}>
+                <div className={classnames(classes.diagramErrorStateWrapper, hasConfigurable && classes.diagramErrorStateWrapperWithConfig)}>
                     {diagnosticInDiagram && <OverlayBackground />}
                     {diagramStatus}
                 </div>
             )}
+
             {isErrorDetailsOpen && <ErrorList />}
+
             <Container className={classes.DesignContainer}>
+                {/* <div id="canvas-overlay" className={classes.OverlayContainer} /> */}
+                {isDataMapperShown && (
+                    <DataMapper width={w} />
+                )}
+                {!isDataMapperShown && (
                     <CanvasDiagram>
                         {child}
                     </CanvasDiagram>
+                )}
+                {/*
+                {diagramDisabledWithTextLoaderStatus && triggerType !== undefined && isWaitingOnWorkspace && <OverlayBackground />}
+                {isCodeEditorActive && !isConfigOverlayFormOpen && diagramDisabledStatus && <OverlayBackground />}
+                {isConfigOverlayFormOpen && <OverlayBackground />}
+                */}
             </Container>
+
+            {/* <PanAndZoom>
+                <Container className={classes.DesignContainer}>
+                    <div id="canvas-overlay" className={classes.OverlayContainer} />
+                    {isDataMapperShown && (
+                        <DataMapper width={w} />
+                    )}
+                    {!isDataMapperShown && (
+                        <Canvas h={h} w={w} >
+                            {child}
+                        </Canvas>
+                    )}
+                    {diagramDisabledWithTextLoaderStatus && triggerType !== undefined && isWaitingOnWorkspace && <OverlayBackground />}
+                    {isCodeEditorActive && !isConfigOverlayFormOpen && diagramDisabledStatus && <OverlayBackground />}
+                    {isConfigOverlayFormOpen && <OverlayBackground />}
+                </Container>
+            </PanAndZoom> */}
         </div>
     );
 }

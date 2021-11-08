@@ -166,11 +166,6 @@ export const useStatementEditorStyles = makeStyles(() =>
             backgroundColor: '#ffffff',
             marginLeft: '2px',
             marginTop: '1px',
-            fontFamily: "Droid Sans Mono",
-            color: '#0095FF',
-            fontSize: '12px',
-            letterSpacing: 0,
-            lineHeight: '24px',
             '&:hover': {
                 backgroundColor: '#d7dcfc',
                 color: '#fff'

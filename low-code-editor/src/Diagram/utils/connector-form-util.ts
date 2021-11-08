@@ -142,18 +142,388 @@ export function filterConnectorFunctions(connector: Connector, fieldsForFunction
     }
 
     switch (connectorName) {
+        case "ballerina_http_Client":
+            fieldsForFunctions.forEach((value, key) => {
+                if (key === INIT) {
+                    value.parameters.forEach((param) => {
+                        if (param.name === "url") {
+                            param.displayName = "URL";
+                            param.description = "URL of the target service";
+                            param.validationRegex = new RegExp("[(http(s)?):\\/\\/(www\\.)?a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)");
+                        } else if (param.name === "config") {
+                            param.hide = true;
+                            param.noCodeGen = true;
+                            param.displayName = "Advance Configurations";
+                            const recordFields: FormField[] = [];
+                            if (param.fields && param.fields.length > 0) {
+                                param.fields.forEach(recordField => {
+                                    if (recordField.name === "forwarded") {
+                                        recordField.displayName = "Forwarded";
+                                    } else if (recordField.name === "httpVersion") {
+                                        recordField.displayName = "HTTP Version";
+                                        recordFields.push(recordField);
+                                    } else if (recordField.name === "timeoutInMillis") {
+                                        recordField.displayName = "Timeout In Milliseconds";
+                                        recordFields.push(recordField);
+                                    } else {
+                                        recordFields.push(recordField);
+                                    }
+                                });
+                                param.fields = recordFields;
+                            }
+                        }
+                    });
+                    filteredFunctions.set(key, value);
+                } else if (key === "get") {
+                    value.parameters.forEach((param) => {
+                        if (param.name === "path") {
+                            param.displayName = "Resource Path";
+                            param.value = "\"/\"";
+                        } else if (param.name === "message") {
+                            param.hide = true;
+                            param.noCodeGen = true;
+                            param.displayName = "Message";
+                        } else if (param.name === "targetType") {
+                            param.hide = true;
+                            param.noCodeGen = true;
+                        } else if (param.name === "headers") {
+                            param.displayName = "Headers";
+                            param.customAutoComplete = headerKeys;
+                            param.fields[0].customAutoComplete = headerVal;
+                        }
+                    });
+                    filteredFunctions.set(key, value);
+                } else if (key === "post" || key === "put" || key === "delete" || key === "patch") {
+                    value.parameters.forEach((param) => {
+                        if (param.name === "path") {
+                            param.displayName = "Resource Path";
+                            param.value = "\"/\"";
+                        } else if (param.name === "message") {
+                            param.displayName = "Message";
+                        } else if (param.name === "targetType") {
+                            param.hide = true;
+                            param.noCodeGen = true;
+                        } else if (param.name === "headers") {
+                            param.displayName = "Headers";
+                            param.customAutoComplete = headerKeys;
+                            param.fields[0].customAutoComplete = headerVal;
+                        }
+                    });
+                    filteredFunctions.set(key, value);
+                } else if (key === "forward") {
+                    value.parameters.forEach((param) => {
+                        if (param.name === "path") {
+                            param.displayName = "Resource Path";
+                            param.value = "\"/\"";
+                        } else if (param.name === "request") {
+                            param.displayName = "Request";
+                            param.typeName = "httpRequest";
+                            param.typeInfo = httpRequest;
+                        } else if (param.name === "targetType") {
+                            param.hide = true;
+                            param.noCodeGen = true;
+                        }
+                    });
+                    filteredFunctions.set(key, value);
+                }
+            });
+
+            // Set payload types.
+            const payloadTypes: Map<string, string> = new Map();
+            payloadTypes.set("String", "string");
+            payloadTypes.set("XML", "xml");
+            payloadTypes.set("JSON", "json");
+            const responsePayloadMap: ResponsePayloadMap = {
+                isPayloadSelected: false,
+                payloadTypes
+            };
+            connectorConfig.responsePayloadMap = responsePayloadMap;
+            break;
+        case "ballerina_email_SmtpClient":
+            fieldsForFunctions.forEach((value: FunctionDefinitionInfo , key) => {
+                if (key === "sendMessage") {
+                    let formField: FormField[] = [];
+                    value.parameters[0].fields.forEach((param) => {
+                        if (param.name === "contentType" || param.name === "sender") {
+                            param.hide = true;
+                        } else if (param.name === "replyTo") {
+                            param.hide = true;
+                            param.value = "[]";
+                        } else if (param.name === "'from") {
+                            // const state = store.getState();
+                            param.tooltip = tooltipMessages.SMTP.from
+                            param.value = userEmail ? "\"" + userEmail + "\"" : undefined;
+                            formField = [param, ...formField]
+                        } else if (param.name === "to") {
+                            param.typeName = "array";
+                            param.memberType = {typeName: PrimitiveBalType.String};
+                            param.fields = [];
+                            param.tooltip = tooltipMessages.SMTP.to
+                        }
+                        else if (param.name === "subject"){
+                            param.tooltip = tooltipMessages.SMTP.subject
+                        }
+                        else if (param.name === "body"){
+                            param.tooltip = tooltipMessages.SMTP.body
+                        }
+
+                        if (param.name !== "'from") {
+                            formField.push(param);
+                        }
+                    });
+                    value.parameters[0].fields = formField;
+                    filteredFunctions.set(key, value);
+                } else if (key === 'send'){
+                    value.parameters.forEach((param) => {
+                        if (param.typeName === "Options") {
+                            param.fields.forEach(field => {
+                                // Temporarily setting default value to contentType to avoid running into run-time errors
+                                if (field.name === "contentType"){
+                                    field.value = `"text/plain"`;
+                                }
+                            })
+                        }
+                    });
+                    filteredFunctions.set(key, value);
+                }
+                else if (key === INIT) {
+                    if (value.parameters[3].name === CLIENT_CONFIG) {
+                        value.parameters[3].fields.forEach((param) => {
+                            if (param.name === "properties" || param.name === "secureSocket") {
+                                param.hide = true;
+                            }
+                        })
+                    }
+                    if (value.parameters[0].name === "host"){
+                        value.parameters[0].tooltip = tooltipMessages.SMTP.host
+                    }
+                    if (value.parameters[1].name === "username"){
+                        value.parameters[1].tooltip = tooltipMessages.SMTP.username
+                    }
+                    if (value.parameters[2].name === "password"){
+                        value.parameters[2].tooltip = tooltipMessages.SMTP.password
+                    }
+                    filteredFunctions.set(key, value);
+                }
+                else {
+                    filteredFunctions.set(key, value);
+                }
+            });
+            break;
+        case "ballerina_email_ImapClient":
+            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
+                if (key === INIT) {
+                    value.parameters.find(field => field.name === CLIENT_CONFIG).hide = true;
+                    value.parameters.find(field => field.name === CLIENT_CONFIG).noCodeGen = true;
+                    if (value.parameters[0].name === "host"){
+                        value.parameters[0].tooltip = tooltipMessages.IMAP.host
+                    }
+                    if (value.parameters[1].name === "username"){
+                        value.parameters[1].tooltip = tooltipMessages.IMAP.username
+                    }
+                    if (value.parameters[2].name === "password"){
+                        value.parameters[2].tooltip = tooltipMessages.IMAP.password
+                        value.parameters[2].tooltipActionLink = tooltipMessages.IMAP.passwordLink
+                        value.parameters[2].tooltipActionText = tooltipMessages.IMAP.passwordText
+                    }
+                }
+                filteredFunctions.set(key, value);
+            });
+            break;
+        case "ballerina_email_PopClient":
+            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
+                if (key === INIT) {
+                    value.parameters.find(field => field.name === CLIENT_CONFIG).hide = true;
+                    value.parameters.find(field => field.name === CLIENT_CONFIG).noCodeGen = true;
+                    if (value.parameters[0].name === "host"){
+                        value.parameters[0].tooltip = tooltipMessages.POP3.host
+                    }
+                    if (value.parameters[1].name === "username"){
+                        value.parameters[1].tooltip = tooltipMessages.POP3.username
+                    }
+                    if (value.parameters[2].name === "password"){
+                        value.parameters[2].tooltip = tooltipMessages.POP3.password
+                    }
+                }
+                filteredFunctions.set(key, value);
+            });
+            break;
+        case "ballerinax_googleapis.gmail_Client":
+            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
+                if (key === "sendMessage" || key === "createDraft" || key === "updateDraft") {
+                    value.parameters.find(fields => fields.name === "message").fields.forEach(field => {
+                        if (field.name === "contentType") {
+                            // set content type in sendMessage form
+                            field.value = `"text/plain"`;
+                        }
+                        if (field.name === "inlineImagePaths") {
+                            field.optional = true;
+                            field.displayName = 'Inline Image Paths'
+                        }
+                        if (field.name === "attachmentPaths") {
+                            field.optional = true;
+                            field.displayName = 'Attachment Paths'
+                        }
+                    });
+                }
+
+                // hide optional fields from gmail forms
+                // TODO: Remove when optional field BE support is given
+                if (key === INIT){
+                    hideOptionalFields(value, GMAIL_CONFIG, OAUTH_CLIENT_CONFIG);
+                }
+
+                if (key === "readMessage") {
+                    value.parameters.find(fields => fields.name === "format").hide = true;
+                    value.parameters.find(fields => fields.name === "metadataHeaders").hide = true;
+                }
+                if (key === "listMessages") {
+                    value.parameters.find(fields => fields.name === "filter").hide = true;
+                }
+
+                // set default value to userId field
+                const userIdField = value.parameters.find(field => field.name === "userId");
+                if (userIdField && !(userIdField?.value)) {
+                    value.parameters.find(field => field.name === "userId").value = `"me"`;
+                }
+                filteredFunctions.set(key, value);
+            });
+            break;
+        case "ballerinax_googleapis.calendar_Client":
+            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
+
+                // hide optional fields from google calendar forms
+                // TODO: Remove when optional field BE support is given
+                if (key === INIT){
+                    hideOptionalFields(value, CALENDAR_CONFIG, OAUTH2_CONFIG);
+                }
+
+                if (key === "createEvent" || key === "updateEvent") {
+                    value.parameters.find(field => field.name === "event").fields.forEach((field) => {
+                        if (!((field.name === "summary") || (field.name === "description") || (field.name === "location") ||
+                            (field.name === "'start") || (field.name === "end") || (field.name === "attendees"))) {
+                            field.hide = true;
+                        } else if (field.name === "attendees") {
+                            field.displayName = "Attendee Emails";
+                        }
+                    });
+                    filteredFunctions.set(key, value);
+                } else if (key === "quickAddEvent") {
+                    value.parameters.forEach((field) => {
+                        if ((field.name === "sendUpdates")) {
+                            field.hide = true;
+                        }
+                    });
+                    filteredFunctions.set(key, value);
+                } else if (key === "getEvents") {
+                    value.parameters.forEach((field) => {
+                        if ((field.name === "count")) {
+                            field.value = "10";
+                        }
+                    });
+                    filteredFunctions.set(key, value);
+                } else if (!((key === "watchEvents") || (key === "stopChannel"))) {
+                    filteredFunctions.set(key, value);
+                }
+            });
+            break;
+        case 'ballerinax_googleapis.sheets_Client':
+            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
+                // hide optional fields from google sheets forms
+                // TODO: Remove when optional field BE support is given
+                if (key === INIT){
+                    hideOptionalFields(value, SPREAD_SHEET_CONFIG, OAUTH_CLIENT_CONFIG);
+                }
+
+                // HACK: hide duplicate sheet operations. this will fixed in next sheet connector release. #5338
+                const filteredOperations = [ "removeSheet", "addColumnsBefore", "addColumnsAfter", "deleteColumns",
+                    "addRowsBefore", "addRowsAfter", "deleteRows", "copyTo", "clearAll" ];
+                if (!filteredOperations.includes(key)) {
+                    if (key === "addRowsBeforeBySheetName") {
+                        value.name = "Add Rows Before"
+                    }
+                    filteredFunctions.set(key, value);
+                }
+            });
+            break;
         case 'ballerinax_github_Client':
             fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
                 if (key === INIT) {
                     // TODO: Remove this after fixing GitHub connector required field list.
                     value.parameters.find(fields => fields.name === "config").fields
                         .forEach(field => {
-                            if (field.name !== "auth") {
+                            if (field.name !== "auth"){
                                 field.optional = true;
                             }
                         });
                 }
                 filteredFunctions.set(key, value);
+            });
+            break;
+        case 'ballerinax_sfdc_Client':
+            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
+                if (key === "createJob") {
+                    value.parameters.forEach(field => {
+                        if (field.name === "operation"){
+                            // HACK: use hardcoded FormFields until ENUM fix from lang-server
+                            field.typeName = PrimitiveBalType.String;
+                            field.customAutoComplete = [`"insert"`, `"update"`, `"delete"`, `"upsert"`, `"query"`];
+                        } else if (field.name === "contentType"){
+                            // HACK: use hardcoded FormFields until ENUM fix from lang-server
+                            field.typeName = PrimitiveBalType.String;
+                            field.customAutoComplete = [`"JSON"`, `"XML"`, `"CSV"`];
+                        }
+                    })
+                }
+                filteredFunctions.set(key, value);
+            });
+            break;
+        case 'ballerinax_netsuite_Client':
+            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
+                // HACK: use hardcoded FormFields until ENUM fix from lang-server
+                if (key === "getAll") {
+                    value.parameters[0] = {
+                        typeName: PrimitiveBalType.String,
+                        name: "RecordType",
+                        optional: false,
+                    }
+                }
+                filteredFunctions.set(key, value);
+            });
+            break;
+        case 'ballerinax_slack_Client':
+            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
+                // TODO: hide file upload operation until the Choreo support file upload feature
+                if (key !== "uploadFile") {
+                    filteredFunctions.set(key, value);
+                }
+            });
+            break;
+        case 'ballerinax_worldbank_Client':
+            // HACK: update default response format as a JSON
+            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
+                if (value.parameters.find(field => field.name === "format")){
+                    value.parameters.find(field => field.name === "format").value = `"json"`;
+                }
+                filteredFunctions.set(key, value);
+            });
+            break;
+        case 'ballerinax_googleapis.drive_Client':
+            fieldsForFunctions.forEach((value: FunctionDefinitionInfo, key) => {
+
+                // TODO: hide these operation until the Choreo support file upload feature
+                const hiddenActions: string[] = [
+                    "uploadFile",
+                    "uploadFileUsingByteArray",
+                    "watchFiles",
+                    "watchFilesById",
+                    "watchStop",
+                    "getAbout",
+                    "listChanges"
+                ];
+                if (!hiddenActions.includes(key)) {
+                    filteredFunctions.set(key, value);
+                }
             });
             break;
         default:

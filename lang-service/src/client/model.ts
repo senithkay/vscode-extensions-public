@@ -224,14 +224,8 @@ export interface BallerinaConnectorsResponse {
     error?: string;
 }
 
-export interface BallerinaConnectorRequest {
-    id?:string
-    orgName?:string
-    packageName?:string
-    moduleName?:string
-    version?:string
-    name?:string
-    targetFile?:string
+// tslint:disable-next-line: no-empty-interface
+export interface BallerinaConnectorRequest extends Connector {
 }
 
 export interface BallerinaConnectorResponse extends BallerinaConnectorInfo {

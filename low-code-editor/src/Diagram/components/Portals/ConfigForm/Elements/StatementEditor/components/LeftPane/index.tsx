@@ -15,7 +15,6 @@ import React, { useContext, useState } from "react";
 
 import { STNode } from "@ballerina/syntax-tree";
 
-import * as c from "../../constants";
 import { SuggestionItem, VariableUserInputs } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { SuggestionsContext } from "../../store/suggestions-context";
@@ -39,7 +38,7 @@ export function LeftPane(props: ModelProps) {
 
     const { modelCtx } = useContext(StatementEditorContext);
 
-    const [suggestionList, setSuggestionsList] = useState(getSuggestionsBasedOnExpressionKind(c.DEFAULT_EXPRESSIONS));
+    const [suggestionList, setSuggestionsList] = useState(getSuggestionsBasedOnExpressionKind("DefaultString"));
     const [diagnosticList, setDiagnostic] = useState("");
     const [, setIsSuggestionClicked] = useState(false);
     const [isOperator, setIsOperator] = useState(false);

@@ -44,7 +44,7 @@ export enum GenerationType {
 }
 
 export function OutputTypeConfigForm() {
-    const { state: diagramState, props: { stSymbolInfo: symbolInfo } } = useContext(DiagramContext);
+    const { state: diagramState, props: { currentApp, stSymbolInfo: symbolInfo } } = useContext(DiagramContext);
     const { targetPosition } = diagramState;
     const targetpos = targetPosition as NodePosition;
     const {

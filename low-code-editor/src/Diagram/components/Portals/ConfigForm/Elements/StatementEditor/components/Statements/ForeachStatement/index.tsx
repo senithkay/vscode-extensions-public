@@ -14,7 +14,6 @@ import React, { ReactNode, useContext } from "react";
 
 import { ForeachStatement } from "@ballerina/syntax-tree";
 
-import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
@@ -55,7 +54,7 @@ export function ForeachStatementC(props: ForeachStatementProps) {
     const onClickOnActionOrExpr = (event: any) => {
         event.stopPropagation()
         expressionHandler(model.actionOrExpressionNode, false,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
+            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(model.actionOrExpressionNode.kind) })
     };
 
     return (

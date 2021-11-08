@@ -292,6 +292,25 @@ export function EditFieldForm() {
                     <Box paddingTop={2} paddingBottom={2}>{isFieldUpdate ? titleUpdate : titleAdd}</Box>
                 </Typography>
             </div>
+            <FormTextInput
+                dataTestId="field-name"
+                customProps={{
+                    clearInput: (name === ""),
+                    isErrored: (nameError !== "")
+                }}
+                defaultValue={name}
+                onChange={handleNameChange}
+                label={fieldNameText}
+                errorMessage={nameError}
+                placeholder={"Enter field name"}
+            />
+            <CheckBoxGroup
+                testId="is-optional-field"
+                values={["Is optional ?"]}
+                defaultValues={isFieldOptional ? ["Is optional ?"] : []}
+                onChange={handleOptionalFieldChange}
+            />
+            <div className={classes.sectionSeparator} />
             <SelectDropdownWithButton
                 dataTestId="field-type"
                 defaultValue={selectedType}
@@ -316,25 +335,6 @@ export function EditFieldForm() {
                 values={["Is Array ?"]}
                 defaultValues={isArray ? ["Is Array ?"] : []}
                 onChange={handleArrayChange}
-            />
-            <div className={classes.sectionSeparator} />
-            <FormTextInput
-                dataTestId="field-name"
-                customProps={{
-                    clearInput: (name === ""),
-                    isErrored: (nameError !== "")
-                }}
-                defaultValue={name}
-                onChange={handleNameChange}
-                label={fieldNameText}
-                errorMessage={nameError}
-                placeholder={"Enter field name"}
-            />
-            <CheckBoxGroup
-                testId="is-optional-field"
-                values={["Is optional ?"]}
-                defaultValues={isFieldOptional ? ["Is optional ?"] : []}
-                onChange={handleOptionalFieldChange}
             />
             {!isFieldOptional && (selectedType !== "record") && (variableTypes.includes(selectedType)) && (
                 <div>

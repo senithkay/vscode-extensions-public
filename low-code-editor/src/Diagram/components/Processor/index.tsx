@@ -19,6 +19,7 @@ import {
     FunctionCall,
     LocalVarDecl,
     NodePosition,
+    PositionalArg,
     QualifiedNameReference,
     STKindChecker,
     STNode
@@ -32,6 +33,7 @@ import { BlockViewState, StatementViewState } from "../../view-state";
 import { DraftStatementViewState } from "../../view-state/draft";
 import { DefaultConfig } from "../../visitors/default";
 import { Assignment } from "../Assignment";
+import { ProcessConfigForm } from "../ConfigForms/ProcessConfigForms";
 import { DeleteBtn } from "../DiagramActions/DeleteBtn";
 import { DELETE_SVG_HEIGHT_WITH_SHADOW, DELETE_SVG_WIDTH_WITH_SHADOW } from "../DiagramActions/DeleteBtn/DeleteSVG";
 import { EditBtn } from "../DiagramActions/EditBtn";
@@ -51,11 +53,16 @@ export function DataProcessor(props: ProcessorProps) {
     const {
         actions: { diagramCleanDraw, toggleDiagramOverlay },
         api: {
+            splitPanel: {
+                maximize: maximizeCodeView,
+                handleRightPanelContent,
+            },
             code: {
                 setCodeLocationToHighlight: setCodeToHighlight,
             }
         },
         props: {
+            currentApp,
             isCodeEditorActive,
             syntaxTree,
             stSymbolInfo,
@@ -64,6 +71,8 @@ export function DataProcessor(props: ProcessorProps) {
             isReadOnly,
         }
     } = useContext(Context);
+
+    const { id: appId } = currentApp || {};
 
     const { model, blockViewState } = props;
     const [configOverlayFormState, updateConfigOverlayFormState] = useState(undefined);
@@ -112,11 +121,19 @@ export function DataProcessor(props: ProcessorProps) {
             if (model?.initializer && !STKindChecker.isImplicitNewExpression(model?.initializer)) {
                 isIntializedVariable = true;
             }
+
+            if (model?.initializer && STKindChecker.isMappingConstructor(model?.initializer)) {
+                processType = 'DataMapper';
+            }
         } else if (STKindChecker.isAssignmentStatement(model)) {
             processType = "Custom";
             processName = "Assignment";
             if (STKindChecker.isSimpleNameReference(model?.varRef)) {
                 processName = model?.varRef?.name?.value
+            }
+
+            if (STKindChecker.isMappingConstructor(model.expression)) {
+                processType = 'DataMapper';
             }
         } else {
             processType = "Custom";
@@ -184,6 +201,8 @@ export function DataProcessor(props: ProcessorProps) {
     };
 
     const onClickOpenInCodeView = () => {
+        maximizeCodeView("home", "vertical", appId);
+        handleRightPanelContent('Code');
         setCodeToHighlight(model.position)
     }
 
@@ -248,7 +267,7 @@ export function DataProcessor(props: ProcessorProps) {
                             processType={processType}
                             sourceSnippet={sourceSnippet}
                             position={model?.position}
-                            openInCodeView={!isReadOnly && !isCodeEditorActive && !isWaitingOnWorkspace && model && model.position && onClickOpenInCodeView}
+                            openInCodeView={!isReadOnly && !isCodeEditorActive && !isWaitingOnWorkspace && model && model.position && appId && onClickOpenInCodeView}
                         />
                         {/* <Tooltip arrow={true} placement="top-start" content="jgkgjhgj"> */}
                         <Assignment

@@ -13,17 +13,19 @@
 import {
     ActionStatement, CaptureBindingPattern, CheckAction, ElseBlock, FunctionDefinition, IdentifierToken, IfElseStatement, LocalVarDecl,
     ModulePart, ModuleVarDecl, QualifiedNameReference, RemoteMethodCallAction, ResourceKeyword, ServiceDeclaration,
-    STKindChecker,
+    SimpleNameReference, STKindChecker,
     STNode, traversNode, TypeCastExpression, VisibleEndpoint
 } from '@ballerina/syntax-tree';
 import { subMinutes } from "date-fns";
+import cloneDeep from "lodash.clonedeep";
 import { Diagnostic } from 'monaco-languageclient';
 
 import { AnalyzePayloadVisitor, initVisitor, positionVisitor, sizingVisitor } from '../..';
 import { FunctionDefinitionInfo } from "../../ConfigurationSpec/types";
 import { STSymbolInfo } from '../../Definitions';
-import { BallerinaConnectorInfo, BallerinaConnectorRequest, BallerinaRecord, Connector } from '../../Definitions/lang-client-extended';
+import { BallerinaConnectorInfo, BallerinaRecord, Connector } from '../../Definitions/lang-client-extended';
 import { CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH } from "../../Diagram/components/Connector/ConnectorHeader/ConnectorClientSVG";
+import * as formFieldDatabase from "../../utils/idb";
 import { IFELSE_SVG_HEIGHT, IFELSE_SVG_WIDTH } from "../components/IfElse/IfElseSVG";
 import { getFormattedModuleName } from '../components/Portals/utils';
 import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH } from "../components/Processor/ProcessSVG";
@@ -34,6 +36,8 @@ import { ActionInvocationFinder } from '../visitors/action-invocation-finder';
 import { BlockStatementFinder } from '../visitors/block-statement-finder';
 import { DefaultConfig } from "../visitors/default";
 import { clearAllDiagnostics, getAllDiagnostics, visitor as DiagnosticVisitor } from '../visitors/diagnostics-collector';
+
+import * as defaultFormCache from "./form-field-cache.json";
 
 export interface Endpoint {
     visibleEndpoint: VisibleEndpoint;
@@ -486,16 +490,18 @@ export function findActualEndPositionOfIfElseStatement(ifNode: IfElseStatement):
     return position;
 }
 
-export function getMatchingConnector(actionInvo: STNode, stSymbolInfo: STSymbolInfo): BallerinaConnectorInfo {
-    const viewState = actionInvo.viewState as StatementViewState;
+export function getMatchingConnector(actionInvo: STNode, connectors: BallerinaConnectorInfo[], stSymbolInfo: STSymbolInfo): BallerinaConnectorInfo {
+    let connector: BallerinaConnectorInfo;
+    const variable = actionInvo as LocalVarDecl;
+    const viewState: StatementViewState = variable.viewState as StatementViewState;
     let actionVariable: RemoteMethodCallAction;
     let remoteMethodCallAction: RemoteMethodCallAction;
-    let connector: BallerinaConnectorInfo;
+    let matchModule: boolean = false;
+    let matchName: boolean = false;
 
     if (viewState.isAction) {
         switch (actionInvo.kind) {
             case "LocalVarDecl":
-                const variable = actionInvo as LocalVarDecl;
                 switch (variable.initializer.kind) {
                     case 'TypeCastExpression':
                         const initializer: TypeCastExpression = variable.initializer as TypeCastExpression;
@@ -521,39 +527,54 @@ export function getMatchingConnector(actionInvo: STNode, stSymbolInfo: STSymbolI
 
         remoteMethodCallAction = isSTActionInvocation(actionVariable);
 
-        if (remoteMethodCallAction?.expression?.typeData?.typeSymbol) {
-            const typeSymbol = remoteMethodCallAction.expression.typeData.typeSymbol;
-            const module = typeSymbol?.moduleID;
-            if (typeSymbol && module) {
-                connector = {
-                    name: typeSymbol.name,
-                    moduleName: module.moduleName,
-                    package: {
-                        organization: module.orgName,
-                        name: module.moduleName,
-                        version: module.version
-                    },
-                    functions: []
-                };
+        if (remoteMethodCallAction && remoteMethodCallAction.methodName &&
+            remoteMethodCallAction.methodName.typeData) {
+            const moduleName = remoteMethodCallAction.methodName.typeData?.symbol.moduleID.moduleName;
+            const endPointName = actionVariable.expression.value ? actionVariable.expression.value : (actionVariable.expression as any)?.name.value;
+            const endPoint = stSymbolInfo.endpoints.get(endPointName);
+            let identifierName;
+            if (!endPoint) {
+                const endpointViewState: EndpointViewState = viewState.endpoint;
+                identifierName = endpointViewState.typeName;
+            } else {
+                identifierName = ((endPoint as LocalVarDecl)?.typedBindingPattern.typeDescriptor as QualifiedNameReference)?.identifier.value;
+            }
+
+            if (moduleName && identifierName) {
+                for (const connectorInfo of connectors) {
+                    if (connectorInfo.moduleName === moduleName) {
+                        matchModule = true;
+                    }
+                    if (connectorInfo.name === identifierName) {
+                        matchName = true;
+                    }
+
+                    if (matchModule && matchName) {
+                        connector = connectorInfo;
+                        break;
+                    }
+                }
             }
         }
-    } else if (viewState.isEndpoint && STKindChecker.isLocalVarDecl(actionInvo)) {
-        const variable = actionInvo as LocalVarDecl;
+    } else if (viewState.isEndpoint) {
         if (STKindChecker.isCaptureBindingPattern(variable.typedBindingPattern.bindingPattern)) {
             const nameReference = variable.typedBindingPattern.typeDescriptor as QualifiedNameReference;
-            const typeSymbol = nameReference.typeData?.typeSymbol;
-            const module = typeSymbol?.moduleID;
-            if (typeSymbol && module) {
-                connector = {
-                    name: typeSymbol.name,
-                    moduleName: module.moduleName,
-                    package: {
-                        organization: module.orgName,
-                        name: module.moduleName,
-                        version: module.version
-                    },
-                    functions: []
-                };
+            const moduleName = nameReference?.modulePrefix?.value;
+            const identifierName = nameReference?.identifier?.value;
+            if (moduleName && identifierName) {
+                for (const connectorInfo of connectors) {
+                    if (getFormattedModuleName(connectorInfo.package.name) === moduleName) {
+                        matchModule = true;
+                    }
+                    if (connectorInfo.name === identifierName) {
+                        matchName = true;
+                    }
+
+                    if (matchModule && matchName) {
+                        connector = connectorInfo;
+                        break;
+                    }
+                }
             }
         }
     }
@@ -584,6 +605,31 @@ export function isSTResourceFunction(node: FunctionDefinition): boolean {
     });
 
     return (resourceKeyword !== undefined);
+}
+
+export function getConfigDataFromSt(triggerType: TriggerType, model: any, currentApp: any): any {
+    switch (triggerType) {
+        case "API":
+        case "Webhook":
+            let resourcePath = "";
+            if (model?.relativeResourcePath?.length > 0) {
+                for (const relativeResourcePath of model?.relativeResourcePath) {
+                    resourcePath += relativeResourcePath.value && relativeResourcePath.kind !== "DotToken" ?
+                        relativeResourcePath.value : (relativeResourcePath.source || "");
+                }
+            }
+            return {
+                method: model?.functionName?.value,
+                path: resourcePath
+            }
+        case "Schedule":
+            return {
+                cron: getCronFromUtcCron(currentApp.cronSchedule),
+                schType: getSchType(currentApp.cronSchedule)
+            }
+        default:
+            return undefined;
+    }
 }
 
 export function getCronFromUtcCron(utcCron: string): string {

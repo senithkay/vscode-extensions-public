@@ -16,16 +16,14 @@ import React from "react";
 import { FunctionProperties } from "../types";
 
 const defaultState: FunctionProperties = {
-    overlayId: '',
-    overlayNode: undefined
+    overlayId: ''
 }
 
 export const Context = React.createContext<FunctionProperties>(defaultState);
 
 export const Provider: React.FC<FunctionProperties> = (props) => {
-    const { children, ...restProps } = props;
     return (
-        <Context.Provider value={{ ...restProps }} >
+        <Context.Provider value={{ overlayId: props.overlayId }} >
             {props.children}
         </Context.Provider>
     )

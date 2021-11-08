@@ -14,12 +14,11 @@ import React, { ReactNode } from "react";
 
 import { FormField } from "../../../../../../../ConfigurationSpec/types";
 import {isAllValid} from "../../../../../../../utils/validator";
+import { useStyles } from "../../../../../ConfigPanel/styles";
 import FormAccordion from "../../../../../FormAccordion";
 import { ExpressionInjectablesProps } from "../../../../../FormGenerator";
 import { getFormElement } from "../../../../utils";
 import { FormElementProps } from "../../../types";
-
-import { useStyles } from "./styles";
 
 export interface FormProps {
     fields: FormField[];
@@ -91,7 +90,7 @@ export function Form(props: FormProps) {
     });
 
     return (
-        <form className={classes.fullWidth} noValidate={true} autoComplete="off">
+        <form className={classes.inputUrl} noValidate={true} autoComplete="off">
             <FormAccordion
                 depth={1}
                 mandatoryFields={elements}

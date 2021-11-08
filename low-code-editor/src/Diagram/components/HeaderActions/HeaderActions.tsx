@@ -27,89 +27,88 @@ import { UnsupportedConfirmButtons } from "../UnsupportedConfirmButtons";
 import "./style.scss";
 
 export interface HeaderActionsProps {
-    model: STNode;
-    isExpanded: boolean;
-    deleteText: string;
-    formType?: string;
-    onExpandClick: () => void;
-    onConfirmDelete: () => void;
-    onConfirmEdit?: () => void;
+  model: STNode;
+  isExpanded: boolean;
+  deleteText: string;
+  formType?: string;
+  onExpandClick: () => void;
+  onConfirmDelete: () => void;
+  onConfirmEdit?: () => void;
 }
 
 export function HeaderActions(props: HeaderActionsProps) {
-    const {
-        model,
-        isExpanded,
-        deleteText,
-        onExpandClick,
+  const {
+    model,
+    isExpanded,
+    deleteText,
+    formType,
+    onExpandClick,
+    onConfirmDelete,
+    onConfirmEdit
+  } = props;
+  const deleteBtnRef = useRef(null);
 
-        formType,
-        onConfirmDelete,
-        onConfirmEdit
-    } = props;
+  const [isDeleteViewVisible, setIsDeleteViewVisible] = useState(false);
+  const handleDeleteBtnClick = () => setIsDeleteViewVisible(true);
+  const handleCancelDeleteBtn = () => setIsDeleteViewVisible(false);
 
-    const deleteBtnRef = useRef(null);
-    const [isDeleteViewVisible, setIsDeleteViewVisible] = useState(false);
-    const handleDeleteBtnClick = () => setIsDeleteViewVisible(true);
-    const handleCancelDeleteBtn = () => setIsDeleteViewVisible(false);
+  const [isEditViewVisible, setIsEditViewVisible] = useState(false);
+  const handleEditBtnClick = () => setIsEditViewVisible(true);
+  const handleEditBtnCancel = () => setIsEditViewVisible(false);
 
-    const [isEditViewVisible, setIsEditViewVisible] = useState(false);
-    const handleEditBtnClick = () => setIsEditViewVisible(true);
-    const handleEditBtnCancel = () => setIsEditViewVisible(false);
+  const handleEnumEditBtnConfirm = () => {
+    setIsEditViewVisible(false);
+    onConfirmEdit();
+  }
 
-    const handleEnumEditBtnConfirm = () => {
-        setIsEditViewVisible(false);
-        onConfirmEdit();
-    }
+  React.useEffect(() => {
+    setIsDeleteViewVisible(false);
+  }, [model]);
 
-    React.useEffect(() => {
-        setIsDeleteViewVisible(false);
-    }, [model]);
-
-    return (
-        <div className={"header-amendment-options"}>
-            <div className={classNames("amendment-option", "show-on-hover")}>
-                <EditButton onClick={handleEditBtnClick} />
-            </div>
-            <div className={classNames("amendment-option", "show-on-hover")}>
-                <div ref={deleteBtnRef}>
-                    <DeleteButton onClick={handleDeleteBtnClick} />
-                </div>
-            </div>
-            <div className={classNames("amendment-option", "show-on-hover")}>
-                <ComponentExpandButton
-                    isExpanded={isExpanded}
-                    onClick={onExpandClick}
-                />
-            </div>
-
-            {isDeleteViewVisible && (
-                <DeleteConfirmDialog
-                    onCancel={handleCancelDeleteBtn}
-                    onConfirm={onConfirmDelete}
-                    position={
-                        deleteBtnRef.current
-                            ? {
-                                x: deleteBtnRef.current.offsetLeft - 272,
-                                y: deleteBtnRef.current.offsetTop,
-                            }
-                            : { x: 0, y: 0 }
-                    }
-                    message={deleteText}
-                    isFunctionMember={false}
-                />
-            )}
-            {isEditViewVisible && (STKindChecker.isEnumDeclaration(model)) && (
-                <UnsupportedConfirmButtons onConfirm={handleEnumEditBtnConfirm} onCancel={handleEditBtnCancel} />
-            )}
-            {isEditViewVisible && (!STKindChecker.isEnumDeclaration(model)) && (
-                <FormGenerator
-                    model={model}
-                    configOverlayFormStatus={{ formType: (formType ? formType : model.kind), isLoading: false }}
-                    onCancel={handleEditBtnCancel}
-                    onSave={handleEditBtnCancel}
-                />
-            )}
+  return (
+    <div className={"header-amendment-options"}>
+      <div className={classNames("amendment-option", "show-on-hover")}>
+        <EditButton onClick={handleEditBtnClick} />
+      </div>
+      <div className={classNames("amendment-option", "show-on-hover")}>
+        <div ref={deleteBtnRef}>
+          <DeleteButton onClick={handleDeleteBtnClick} />
         </div>
-    );
+      </div>
+      <div className={classNames("amendment-option", "show-on-hover")}>
+        <ComponentExpandButton
+          isExpanded={isExpanded}
+          onClick={onExpandClick}
+        />
+      </div>
+
+      {isDeleteViewVisible && (
+        <DeleteConfirmDialog
+          onCancel={handleCancelDeleteBtn}
+          onConfirm={onConfirmDelete}
+          position={
+            deleteBtnRef.current
+              ? {
+                  x: deleteBtnRef.current.offsetLeft - 272,
+                  y: deleteBtnRef.current.offsetTop,
+                }
+              : { x: 0, y: 0 }
+          }
+          message={deleteText}
+          isFunctionMember={false}
+        />
+      )}
+      {isEditViewVisible && (STKindChecker.isEnumDeclaration(model)) && (
+        <UnsupportedConfirmButtons onConfirm={handleEnumEditBtnConfirm} onCancel={handleEditBtnCancel} />
+      )}
+      {isEditViewVisible && (!STKindChecker.isEnumDeclaration(model)) && (
+        <FormGenerator
+          model={model}
+          configOverlayFormStatus={{ formType: (formType ? formType : model.kind), isLoading: false }}
+          onCancel={handleEditBtnCancel}
+          onSave={handleEditBtnCancel}
+        />
+      )}
+    </div>
+  );
 }

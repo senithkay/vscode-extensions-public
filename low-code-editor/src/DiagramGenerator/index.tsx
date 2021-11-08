@@ -1,14 +1,19 @@
 import * as React from "react";
 import { IntlProvider } from "react-intl";
+import { monaco } from "react-monaco-editor";
 
 import { FunctionDefinition, ModulePart, NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import Grid from "@material-ui/core/Grid";
 import { MuiThemeProvider } from "@material-ui/core/styles";
+import { StringValueNode } from "graphql";
 import cloneDeep from "lodash.clonedeep";
 
 import LowCodeEditor, { BlockViewState, getSymbolInfo, InsertorDelete } from "..";
+import { AiSuggestionsReq, ModelCodePosition, OauthProviderConfig } from "../api/models";
 import "../assets/fonts/Glimer/glimer.css";
 import { WizardType } from "../ConfigurationSpec/types";
-import { Connector, STModification, STSymbolInfo } from "../Definitions";
+import { Connector, ExpressionEditorLangClientInterface, STModification, STSymbolInfo } from "../Definitions";
+import { DiagramEditorLangClientInterface } from "../Definitions/diagram-editor-lang-client-interface";
 import { ConditionConfig } from "../Diagram/components/Portals/ConfigForm/types";
 import { LowcodeEvent, TriggerType } from "../Diagram/models";
 import messages from '../lang/en.json';
@@ -28,6 +33,10 @@ export interface DiagramGeneratorProps extends EditorProps {
 const ZOOM_STEP = 0.1;
 const MAX_ZOOM = 2;
 const MIN_ZOOM = 0.6;
+const undoStack: Map<string, string[]> = new Map();
+const redoStack: Map<string, string[]> = new Map();
+let currentFileContent = "";
+let currentFilePath = "";
 
 export function DiagramGenerator(props: DiagramGeneratorProps) {
     const { langClient, filePath, startLine, startColumn, lastUpdatedAt, scale, panX, panY } = props;
@@ -50,22 +59,35 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         (async () => {
             try {
                 const genSyntaxTree = await getSyntaxTree(filePath, langClient);
-                const pfSession = await props.getPFSession();
-                const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, filePath,
-                                                                    langClient, pfSession,
-                                                                    props.showPerformanceGraph, props.showMessage);
+                const vistedSyntaxTree: STNode = getLowcodeST(genSyntaxTree);
                 if (!vistedSyntaxTree) {
                     return (<div><h1>Parse error...!</h1></div>);
                 }
                 setSyntaxTree(vistedSyntaxTree);
                 const content = await props.getFileContent(filePath);
                 setFileContent(content);
+                currentFilePath = filePath;
+                currentFileContent = content;
             } catch (err) {
                 throw err;
             }
         })();
     }, [lastUpdatedAt]);
 
+    React.useEffect(() => {
+        const keyPress = (e: any) => {
+            const evtobj = e;
+            if (evtobj.keyCode === 90 && (evtobj.ctrlKey || evtobj.metaKey)) {
+                undo();
+            } else if (evtobj.keyCode === 89 && (evtobj.ctrlKey || evtobj.metaKey)) {
+                redo();
+            }
+        }
+        document.onkeydown = keyPress;
+        return () => {
+            document.onkeydown = undefined;
+        };
+    }, []);
 
     function zoomIn() {
         const newZoomStatus = cloneDeep(zoomStatus);
@@ -88,6 +110,75 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         newZoomStatus.panX = newPanX;
         newZoomStatus.panY = newPanY;
         setZoomStatus(newZoomStatus);
+    }
+
+    const undo = async () => {
+        if (undoStack.get(currentFilePath)?.length) {
+            const uri = monaco.Uri.file(currentFilePath).toString();
+
+            const redoSourceStack = redoStack.get(currentFilePath);
+            if (!redoSourceStack) {
+                redoStack.set(currentFilePath, [currentFileContent]);
+            } else {
+                redoSourceStack.push(currentFileContent);
+                if (redoSourceStack.length >= 100) {
+                    redoSourceStack.shift();
+                }
+                redoStack.set(currentFilePath, redoSourceStack);
+            }
+            const lastsource = undoStack.get(currentFilePath).pop();
+
+            langClient.didChange({
+                contentChanges: [
+                    {
+                        text: lastsource
+                    }
+                ],
+                textDocument: {
+                    uri,
+                    version: 1
+                }
+            });
+            const genSyntaxTree = await getSyntaxTree(currentFilePath, langClient);
+            const vistedSyntaxTree: STNode = getLowcodeST(genSyntaxTree);
+            setSyntaxTree(vistedSyntaxTree);
+            setFileContent(lastsource);
+            currentFileContent = lastsource;
+            props.updateFileContent(currentFilePath, lastsource);
+        }
+    }
+
+    const redo = async () => {
+        if (redoStack.get(currentFilePath)?.length) {
+            const uri = monaco.Uri.file(currentFilePath).toString();
+
+            const undoSourceStack = undoStack.get(currentFilePath);
+            undoSourceStack.push(currentFileContent);
+            if (undoSourceStack.length >= 100) {
+                undoSourceStack.shift();
+            }
+            undoStack.set(currentFilePath, undoSourceStack);
+
+            const lastUndoSource = redoStack.get(currentFilePath).pop();
+
+            langClient.didChange({
+                contentChanges: [
+                    {
+                        text: lastUndoSource
+                    }
+                ],
+                textDocument: {
+                    uri,
+                    version: 1
+                }
+            });
+            const genSyntaxTree = await getSyntaxTree(currentFilePath, langClient);
+            const vistedSyntaxTree: STNode = getLowcodeST(genSyntaxTree);
+            setSyntaxTree(vistedSyntaxTree);
+            setFileContent(lastUndoSource);
+            currentFileContent = lastUndoSource;
+            props.updateFileContent(currentFilePath, lastUndoSource);
+        }
     }
 
     if (!syntaxTree) {
@@ -132,6 +223,9 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                             }}
                             // tslint:disable-next-line: jsx-no-multiline-js
                             api={{
+                                tour: {
+                                    goToNextTourStep: (step: string) => undefined,
+                                },
                                 helpPanel: {
                                     openConnectorHelp: (connector?: Partial<Connector>, method?: string) => undefined,
                                 },
@@ -149,6 +243,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                 },
                                 insights: {
                                     onEvent: (event: LowcodeEvent) => undefined,
+                                    trackTriggerSelection: (trigger: string) => undefined,
                                 },
                                 code: {
                                     modifyDiagram: async (mutations: STModification[], options?: any) => {
@@ -159,12 +254,21 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                             }
                                         });
                                         if (parseSuccess) {
-                                            const pfSession = await props.getPFSession();
-                                            const vistedSyntaxTree: STNode = await getLowcodeST(newST, filePath,
-                                                                                                langClient, pfSession,
-                                                                                                props.showPerformanceGraph, props.showMessage);
+                                            const sourcestack = undoStack.get(filePath);
+                                            if (!sourcestack) {
+                                                undoStack.set(filePath, [fileContent]);
+                                            } else {
+                                                sourcestack.push(fileContent);
+                                                if (sourcestack.length >= 100) {
+                                                    sourcestack.shift();
+                                                }
+                                                undoStack.set(filePath, sourcestack);
+                                            }
+
+                                            const vistedSyntaxTree: STNode = getLowcodeST(newST);
                                             setSyntaxTree(vistedSyntaxTree);
                                             setFileContent(source);
+                                            currentFileContent = source;
                                             props.updateFileContent(filePath, source);
                                         } else {
                                             // TODO show error
@@ -172,10 +276,72 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
 
                                     },
                                     onMutate: (type: string, options: any) => undefined,
-                                    setCodeLocationToHighlight: (position: NodePosition) => undefined,
+                                    modifyTrigger: (
+                                        triggerType: TriggerType,
+                                        model?: any,
+                                        configObject?: any
+                                    ) => undefined,
+                                    dispatchCodeChangeCommit: () => Promise.resolve(),
+                                    dispatchFileChange: (content: string, callback?: () => undefined) => Promise.resolve(),
+                                    hasConfigurables: (templateST: ModulePart) => false,
+                                    setCodeLocationToHighlight: (position: ModelCodePosition) => undefined,
                                     gotoSource: (position: { startLine: number, startColumn: number }) => {
                                         props.gotoSource(filePath, position);
                                     }
+                                },
+                                connections: {
+                                    createManualConnection: (orgHandle: string, displayName: string, connectorName: string,
+                                                             userAccountIdentifier: string,
+                                                             tokens: { name: string; value: string }[],
+                                                             selectedType: string) => {
+                                                             return {} as any;
+                                    },
+                                    updateManualConnection: (activeConnectionId: string, orgHandle: string, displayName: string, connectorName: string,
+                                                             userAccountIdentifier: string, tokens: { name: string; value: string }[],
+                                                             type?: string, activeConnectionHandler?: string) => {
+                                        return {} as any;
+                                    },
+                                    getAllConnections: (
+                                        orgHandle: string,
+                                        connector?: string
+                                    ) => {
+                                        return {} as any;
+                                    },
+                                },
+                                ai: {
+                                    getAiSuggestions: (params: AiSuggestionsReq) => {
+                                        return {} as any;
+                                    }
+                                },
+                                splitPanel: {
+                                    maximize: (view: string, orientation: string, appId: number | string) => undefined,
+                                    minimize: (view: string, orientation: string, appId: number | string) => undefined,
+                                    setPrimaryRatio: (view: string, orientation: string, appId: number | string) => undefined,
+                                    setSecondaryRatio: (view: string, orientation: string, appId: number | string) => undefined,
+                                    handleRightPanelContent: (viewName: string) => undefined
+                                },
+                                data: {
+                                    getGsheetList: (orgHandle: string, handler: string) => {
+                                        return {} as any;
+                                    },
+                                    getGcalendarList: (orgHandle: string, handler: string) => {
+                                        return {} as any;
+                                    },
+                                    getGithubRepoList: (orgHandle: string, handler: string, username: string) => {
+                                        return {} as any;
+                                    },
+                                },
+                                oauth: {
+                                    oauthSessions: {},
+                                    dispatchGetAllConfiguration: (orgHandle?: string) => {
+                                        return {} as any;
+                                    },
+                                    dispatchFetchConnectionList: (connector: string, sessionId: string) => undefined,
+                                    dispatchInitOauthSession: (sessionId: string, connector: string, oauthProviderConfig?: OauthProviderConfig) => undefined,
+                                    dispatchResetOauthSession: (sessionId: string) => undefined,
+                                    dispatchTimeoutOauthRequest: (sessionId: string) => undefined,
+                                    dispatchDeleteOauthSession: (sessionId: string) => undefined,
+                                    oauthProviderConfigs: {} as any,
                                 },
                                 // FIXME Doesn't make sense to take these methods below from outside
                                 // Move these inside and get an external API for pref persistance

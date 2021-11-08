@@ -26,7 +26,6 @@ import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/consta
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
 import { useStatementEditor } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
 import classnames from "classnames";
-import { createWhileStatement, getInitialSource } from "../../../../../utils/modification-util";
 
 export interface WhileProps {
     condition: ConditionConfig;
@@ -44,6 +43,7 @@ export function AddWhileForm(props: WhileProps) {
 
     const [isInvalid, setIsInvalid] = useState(true);
     const [conditionState, setConditionState] = useState(condition);
+
 
     const handleExpEditorChange = (value: string) => {
         setConditionState({ ...conditionState, conditionExpression: value })
@@ -107,21 +107,18 @@ export function AddWhileForm(props: WhileProps) {
         defaultMessage: "Cancel"
     });
 
-    const initialSource = getInitialSource(createWhileStatement(
-        conditionState.conditionExpression ? conditionState.conditionExpression as string : 'EXPRESSION'
-    ));
-
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {
             label: intl.formatMessage({id: "lowcode.develop.configForms.while.statementEditor.label"}),
-            initialSource,
+            initialSource: "", // TODO: Pass the actual initialSource
             formArgs: {formArgs},
             isMutationInProgress,
             validForm: !isInvalid,
             onSave: handleOnSaveClick,
             onChange: handleExpEditorChange,
             validate: validateField
-        }
+        },
+        true
     );
 
     if (!stmtEditorComponent) {
@@ -181,4 +178,7 @@ export function AddWhileForm(props: WhileProps) {
     else {
         return stmtEditorComponent;
     }
+
+
 }
+

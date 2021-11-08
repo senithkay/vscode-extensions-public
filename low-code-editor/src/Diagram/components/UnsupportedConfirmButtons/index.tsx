@@ -26,25 +26,14 @@ export interface UnsupportedConfirmButtonsProps {
 
 export function UnsupportedConfirmButtons(props: UnsupportedConfirmButtonsProps) {
     const { onConfirm, onCancel } = props;
-
-    const handleOnConfirm = (evt: React.MouseEvent) => {
-        evt.stopPropagation();
-        onConfirm();
-    }
-
-    const handleOnCancel = (evt: React.MouseEvent) => {
-        evt.stopPropagation();
-        onCancel();
-    }
-
     return (
         <DiagramOverlayContainer>
             <div className="container-wrapper">
                 <div className="confirm-container" >
                     <p>Diagram editing for this is unsupported. Move to code?</p>
                     <div className={'action-button-container'}>
-                        <Button variant="contained" className="cancelbtn" onClick={handleOnCancel}>No</Button>
-                        <Button variant="contained" className="confirmbtn" onClick={handleOnConfirm}>Yes</Button>
+                        <Button variant="contained" className="cancelbtn" onClick={onCancel}>No</Button>
+                        <Button variant="contained" className="confirmbtn" onClick={onConfirm}>Yes</Button>
                     </div>
                 </div>
             </div>

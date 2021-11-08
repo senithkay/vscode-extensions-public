@@ -11,55 +11,267 @@
  * associated services.
  */
 import {
-    BinaryExpression, BooleanLiteral, BooleanTypeDesc,
-    BracedExpression, ConditionalExpression,
+    BinaryExpression, BooleanLiteral,
+    BracedExpression,
     NumericLiteral,
     SimpleNameReference, STKindChecker,
     STNode,
-    StringLiteral, StringTypeDesc, TypeTestExpression
+    StringLiteral
 } from "@ballerina/syntax-tree";
 
 import * as c from "../constants";
 import { SuggestionItem } from "../models/definitions";
 
-export function generateExpressionTemplate (kind: string, value?: any) {
-    if (kind === c.ARITHMETIC) {
-        return ("EXPRESSION + EXPRESSION")
-    } else if (kind === c.RELATIONAL) {
-        return ("EXPRESSION > EXPRESSION")
-    } else if (kind === c.EQUALITY) {
-        return ("EXPRESSION === EXPRESSION")
-    } else if (kind === c.LOGICAL) {
-        return ("EXPRESSION && EXPRESSION")
-    } else if (kind === c.CONDITIONAL) {
-        return ("EXPRESSION ? EXPRESSION : EXPRESSION")
-    } else if (kind === c.RANGE) {
-        return ("EXPRESSION ... EXPRESSION")
-    } else if (kind === c.TYPE_TEST) {
-        return ("EXPRESSION is TYPE_DESCRIPTOR")
-    } else if (kind === c.STRING_LITERAL) {
-        return ("\" \"");
-    } else if (kind === c.NUMERIC_LITERAL) {
-        return ("0");
-    } else if (kind === c.BOOLEAN_LITERAL) {
-        return ("true");
-    } else if (kind === c.SIMPLE_NAME_REFERENCE) {
-        return (value);
-    } else if (kind === c.BOOLEAN_TYPE_DESC) {
-        return ("boolean")
-    } else if (kind === c.STRING_TYPE_DESC) {
-        return ("string")
+export function addOperator(model: STNode, operator: SuggestionItem) {
+    const expression: any = model;
+    if ("typeDescriptor" in expression) {
+        expression.typeDescriptor = operator.value;
+    } else {
+        expression.operator.value = operator.value;
+        expression.operator.kind = operator.kind;
     }
 }
 
+export function addVariableSuggestion(model: STNode, suggestion: SuggestionItem) {
+    const initialKeys = Object.keys(model);
+    initialKeys.forEach((key) => {
+        delete model[key];
+    });
+    if (suggestion.kind === "string") {
+        Object.assign(model, createSimpleNameReference(suggestion.value));
+    }
+}
+
+export function addExpression(model: any, kind: string, value?: any) {
+    const initialKeys = Object.keys(model);
+    initialKeys.forEach((key) => {
+        delete model[key];
+    });
+
+    if (kind === c.ARITHMETIC) {
+        Object.assign(model, createArithmetic());
+    } else if (kind === c.RELATIONAL) {
+        Object.assign(model, createRelational());
+    } else if (kind === c.EQUALITY) {
+        Object.assign(model, createEquality());
+    } else if (kind === c.STRING_LITERAL) {
+        if (value) {
+            Object.assign(model, createStringLiteral(value));
+        } else {
+            Object.assign(model, createStringLiteral(""));
+        }
+    } else if (kind === c.NUMERIC_LITERAL) {
+        if (value) {
+            Object.assign(model, createNumericLiteral(value));
+        } else {
+            Object.assign(model, createNumericLiteral(""));
+        }
+    } else if (kind === c.BOOLEAN_LITERAL) {
+        if (value) {
+            if (value === c.TRUE_KEYWORD) {
+                Object.assign(model, createTrueBooleanLiteral(value));
+            } else {
+                Object.assign(model, createFalseBooleanLiteral(value));
+            }
+
+        } else {
+            Object.assign(model, createTrueBooleanLiteral(""));
+        }
+    } else if (kind === c.SIMPLE_NAME_REFERENCE) {
+        Object.assign(model, createSimpleNameReference(value));
+    } else {
+        // tslint:disable-next-line:no-console
+        console.log(`Unsupported kind. (${kind})`);
+    }
+}
+
+function createArithmetic(): BracedExpression {
+    return {
+        kind: "BracedExpression",
+        source: "",
+        closeParen: {
+            kind: "CloseParenToken",
+            isToken: true,
+            value: ")",
+            source: "",
+        },
+        expression: {
+            kind: "BinaryExpression",
+            lhsExpr: {
+                kind: "NumericLiteral",
+                literalToken: {
+                    kind: "DecimalIntegerLiteralToken",
+                    isToken: false,
+                    value: "expression",
+                    source: ""
+                },
+                source: ""
+            },
+            operator: {
+                kind: "PlusToken",
+                isToken: false,
+                value: "+",
+                source: ""
+            },
+            rhsExpr: {
+                kind: "NumericLiteral",
+                literalToken: {
+                    kind: "DecimalIntegerLiteralToken",
+                    isToken: false,
+                    value: "expression",
+                    source: ""
+                },
+                source: ""
+            },
+            source: ""
+        },
+        openParen: {
+            kind: "OpenParenToken",
+            isToken: true,
+            value: "(",
+            source: ""
+        }
+    };
+}
+
+function createRelational(): BinaryExpression {
+    return {
+        kind: "BinaryExpression",
+        lhsExpr: {
+            kind: "NumericLiteral",
+            literalToken: {
+                kind: "DecimalIntegerLiteralToken",
+                isToken: false,
+                value: "expression",
+                source: ""
+            },
+            source: ""
+        },
+        operator: {
+            kind: "GtToken",
+            isToken: false,
+            value: ">",
+            source: ""
+        },
+        rhsExpr: {
+            kind: "NumericLiteral",
+            literalToken: {
+                kind: "DecimalIntegerLiteralToken",
+                isToken: false,
+                value: "expression",
+                source: ""
+            },
+            source: ""
+        },
+        source: ""
+    };
+}
+
+function createEquality(): BinaryExpression {
+    return {
+        kind: "BinaryExpression",
+        lhsExpr: {
+            kind: "NumericLiteral",
+            literalToken: {
+                kind: "DecimalIntegerLiteralToken",
+                isToken: false,
+                value: "expression",
+                source: ""
+            },
+            source: ""
+        },
+        operator: {
+            kind: "TrippleEqualToken",
+            isToken: false,
+            value: "===",
+            source: ""
+        },
+        rhsExpr: {
+            kind: "NumericLiteral",
+            literalToken: {
+                kind: "DecimalIntegerLiteralToken",
+                isToken: false,
+                value: "expression",
+                source: ""
+            },
+            source: ""
+        },
+        source: ""
+    };
+}
+
+function createStringLiteral(value: string): StringLiteral {
+    return {
+        "kind": "StringLiteral",
+        "literalToken": {
+            "kind": "StringLiteralToken",
+            "isToken": true,
+            "value": value,
+            "source": ""
+        },
+        "source": ""
+    };
+}
+
+function createNumericLiteral(value: string): NumericLiteral {
+    return {
+        "kind": "NumericLiteral",
+        "literalToken": {
+            "kind": "DecimalIntegerLiteralToken",
+            "isToken": true,
+            "value": value,
+            "source": ""
+        },
+        "source": ""
+    };
+}
+
+function createTrueBooleanLiteral(value: string): BooleanLiteral {
+    return {
+        "kind": "BooleanLiteral",
+        "literalToken": {
+            "kind": "TrueKeyword",
+            "isToken": true,
+            "value": value,
+            "source": ""
+        },
+        "source": ""
+    };
+}
+
+function createFalseBooleanLiteral(value: string): BooleanLiteral {
+    return {
+        "kind": "BooleanLiteral",
+        "literalToken": {
+            "kind": "FalseKeyword",
+            "isToken": false,
+            "value": value,
+            "source": ""
+        },
+        "source": ""
+    };
+}
+
+function createSimpleNameReference(value: string): SimpleNameReference {
+    return {
+        "kind": "SimpleNameReference",
+        "name": {
+            "kind": "IdentifierToken",
+            "isToken": true,
+            "value": value,
+            "source": "",
+        },
+        "source": ""
+    }
+}
 
 export const ExpressionKindByOperator: { [key: string]: string } = {
     AsteriskToken: c.ARITHMETIC,
     BitwiseAndToken: c.ARITHMETIC,
     BitwiseXorToken: c.ARITHMETIC,
-    DoubleDotLtToken: c.RANGE,
+    DoubleDotLtToken: c.ARITHMETIC,
     DoubleEqualToken: c.EQUALITY,
-    EllipsisToken: c.RANGE,
+    EllipsisToken: c.ARITHMETIC,
     ElvisToken: c.ARITHMETIC,
     GtEqualToken: c.RELATIONAL,
     GtToken: c.RELATIONAL,
@@ -112,7 +324,7 @@ export const OperatorsForExpressionKind: { [key: string]: SuggestionItem[] } = {
         { value: ">>>", kind: "Unknown" }
     ],
     Range: [
-        { value: "...", kind: "EllipsisToken" },
+        { value: "...", kind: "Unknown" },
         { value: "..<", kind: "DoubleDotLtToken" }
     ]
 }
@@ -122,9 +334,9 @@ export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = 
         { value: c.RELATIONAL },
         { value: c.EQUALITY },
         { value: c.LOGICAL },
-        { value: c.TYPE_TEST },
+        { value: c.TYPE_CHECK },
         { value: c.CONDITIONAL },
-        // { value: c.UNARY }
+        { value: c.UNARY }
     ],
     StringLiteral: [
         { value: c.STRING_LITERAL },
@@ -136,7 +348,7 @@ export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = 
     Relational: [
         { value: c.ARITHMETIC },
         { value: c.CONDITIONAL },
-        { value: c.TYPE_TEST },
+        { value: c.TYPE_CHECK },
         { value: c.RELATIONAL },
         { value: c.NUMERIC_LITERAL }
     ],
@@ -156,7 +368,7 @@ export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = 
         { value: c.STRING_LITERAL },
         { value: c.NUMERIC_LITERAL },
         { value: c.RELATIONAL },
-        { value: c.TYPE_TEST },
+        { value: c.TYPE_CHECK },
         { value: c.CONDITIONAL }
     ],
     Equality: [
@@ -164,28 +376,33 @@ export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = 
         { value: c.CONDITIONAL },
         { value: c.STRING_LITERAL },
         { value: c.NUMERIC_LITERAL },
-        // { value: c.STRING_TEMPLATE }
+        { value: c.STRING_TEMPLATE }
     ],
     DefaultBoolean: [
         { value: c.RELATIONAL },
         { value: c.EQUALITY },
         { value: c.LOGICAL },
         { value: c.BOOLEAN_LITERAL },
-        { value: c.TYPE_TEST },
+        { value: c.TYPE_CHECK },
         { value: c.CONDITIONAL },
-        // { value: c.UNARY }
+        { value: c.UNARY }
     ],
     DefaultInteger: [
         { value: c.ARITHMETIC },
         { value: c.NUMERIC_LITERAL },
         { value: c.CONDITIONAL },
-        // { value: c.UNARY }
+        { value: c.UNARY }
     ],
     DefaultString: [
         { value: c.STRING_LITERAL },
         { value: c.CONDITIONAL },
-        // { value: c.STRING_TEMPLATE },
+        { value: c.STRING_TEMPLATE },
         { value: c.ARITHMETIC }
+    ],
+    TypeCheck: [
+        { value: c.STRING_LITERAL },
+        { value: c.NUMERIC_LITERAL },
+        { value: c.CONDITIONAL }
     ],
     Unary: [
         { value: c.NUMERIC_LITERAL },
@@ -205,42 +422,8 @@ export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = 
         { value: c.ARITHMETIC },
         { value: c.RELATIONAL },
         { value: c.EQUALITY },
-        { value: c.TYPE_TEST },
-        { value: c.LOGICAL },
-        { value: c.CONDITIONAL },
-        { value: c.RANGE }
-    ],
-    TypeDescriptor: [
-        { value: c.STRING_TYPE_DESC },
-        { value: c.BOOLEAN_TYPE_DESC },
-        { value: c.JSON_TYPE_DESC },
-        { value: c.DECIMAL_TYPE_DESC },
-        { value: c.FLOAT_TYPE_DESC },
-        { value: c.INT_TYPE_DESC },
-        { value: c.VAR_TYPE_DESC },
-    ],
-    DefaultExpressions: [
-        { value: c.ARITHMETIC },
-        { value: c.RELATIONAL },
-        { value: c.EQUALITY },
-        { value: c.LOGICAL },
-        { value: c.STRING_LITERAL },
-        { value: c.NUMERIC_LITERAL },
-        { value: c.BOOLEAN_LITERAL },
-        { value: c.TYPE_TEST },
-        { value: c.CONDITIONAL },
-        { value: c.RANGE }
-    ],
-    Range: [
-        { value: c.ARITHMETIC },
-        { value: c.RELATIONAL },
-        { value: c.EQUALITY },
-        { value: c.LOGICAL },
-        { value: c.STRING_LITERAL },
-        { value: c.NUMERIC_LITERAL },
-        { value: c.BOOLEAN_LITERAL },
-        { value: c.CONDITIONAL },
-        { value: c.RANGE }
+        { value: c.TYPE_CHECK },
+        { value: c.LOGICAL }
     ]
 }
 

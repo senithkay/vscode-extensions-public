@@ -14,7 +14,7 @@ import React, { ReactNode, useContext } from "react";
 
 import { ReturnStatement } from "@ballerina/syntax-tree";
 
-import { DEFAULT_EXPRESSIONS } from "../../../constants";
+import * as c from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
@@ -47,7 +47,7 @@ export function ReturnStatementC(props: ReturnStatementProps) {
     const onClickOnExpression = (event: any) => {
         event.stopPropagation()
         expressionHandler(model.expression, false,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
+            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(c.DEFAULT_RETURN) })
     };
 
     return (
@@ -59,7 +59,7 @@ export function ReturnStatementC(props: ReturnStatementProps) {
                     {expressionComponent}
                 </button>
             <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
-                {model.semicolonToken.value}
+                &nbsp;{model.semicolonToken.value}
             </span>
 
         </span>

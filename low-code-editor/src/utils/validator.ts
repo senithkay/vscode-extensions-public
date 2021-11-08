@@ -164,8 +164,7 @@ export function isAllValid(validFields: Map<string, boolean>, emptyFields: Map<s
     } else {
         validFields.forEach((isValid, key) => {
             if (!isValid) {
-                // TODO: fix inner optional fields validation
-                // result = false;
+                result = false;
             }
         });
         if (result && isAllChildrenOptional && !isOptional) {

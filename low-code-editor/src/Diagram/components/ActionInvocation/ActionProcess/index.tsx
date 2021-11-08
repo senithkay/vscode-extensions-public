@@ -43,6 +43,10 @@ export function ActionProcessor(props: ProcessorProps) {
     const {
         actions: { diagramCleanDraw },
         api: {
+            splitPanel: {
+                handleRightPanelContent,
+                maximize: maximizeCodeView,
+            },
             code: {
                 setCodeLocationToHighlight: setCodeToHighlight,
             },
@@ -52,6 +56,7 @@ export function ActionProcessor(props: ProcessorProps) {
             }
         },
         props: {
+            currentApp,
             isCodeEditorActive,
             connectors,
             syntaxTree,
@@ -61,6 +66,7 @@ export function ActionProcessor(props: ProcessorProps) {
             isReadOnly,
         }
     } = useContext(Context);
+    const { id: appId } = currentApp || {};
 
     const { model, blockViewState } = props;
     const [configOverlayFormState, updateConfigOverlayFormState] = useState(undefined);
@@ -161,14 +167,13 @@ export function ActionProcessor(props: ProcessorProps) {
     // let exsitingWizard: ReactNode = null;
     const toggleSelection = () => {
         const connectorInit: LocalVarDecl = model as LocalVarDecl;
-        const matchedConnector = getMatchingConnector(connectorInit, stSymbolInfo);
-        if (matchedConnector) {
-            setConnector(matchedConnector);
-        }
+        setConnector(getMatchingConnector(connectorInit, connectors, stSymbolInfo));
         setIsConnectorEdit(!isEditConnector);
     };
 
     const onClickOpenInCodeView = () => {
+        maximizeCodeView("home", "vertical", appId);
+        handleRightPanelContent('Code');
         setCodeToHighlight(model.position)
     }
 
@@ -220,7 +225,7 @@ export function ActionProcessor(props: ProcessorProps) {
                             processType={processType}
                             sourceSnippet={sourceSnippet}
                             position={model?.position}
-                            openInCodeView={!isReadOnly && !isCodeEditorActive && !isWaitingOnWorkspace && model && model.position && onClickOpenInCodeView}
+                            openInCodeView={!isReadOnly && !isCodeEditorActive && !isWaitingOnWorkspace && model && model.position && appId && onClickOpenInCodeView}
                         />
                         {!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace &&
                             <g
@@ -243,7 +248,6 @@ export function ActionProcessor(props: ProcessorProps) {
                                             model={model}
                                             onClose={onWizardClose}
                                             isAction={true}
-                                            isEdit={isEditConnector}
                                         />
                                     )}
                                 </g>

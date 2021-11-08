@@ -207,7 +207,8 @@ export function RecordField(props: CodePanelProps) {
                         )}
                         <Typography
                             variant='body2'
-                            className={recordClasses.recordKeywordWrapper}
+                            className={typeDefName ? recordClasses.recordKeywordWrapper :
+                                recordClasses.recordKeywordWithTypeWrapper}
                         >
                             record
                         </Typography>

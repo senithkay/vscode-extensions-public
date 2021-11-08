@@ -18,7 +18,7 @@ import DiagramContainer from "./Diagram/Container";
 import { TriggerType } from "./Diagram/models";
 import { LowCodeEditorProps as Props } from "./types";
 
-export { LowCodeEditorProps } from "./types";
+export { LowCodeEditorProps, PortalState } from "./types";
 export {
     BallerinaConnectorRequest,
     BallerinaConnectorResponse,
@@ -49,7 +49,7 @@ export {
     STSymbolInfo,
     ConfigOverlayFormStatus as ConfigOverlayFormStatusDef
 } from "./Definitions";
-export { AnalyzerRequestPayload } from "./Diagram/visitors/AnalyzerPayload";
+export { AnalyzerRequestPayload } from "./api/models";
 export { Diagram } from "./Diagram";
 export {
     getDiagnosticsFromVisitor,
@@ -66,10 +66,10 @@ export { visitor as sizingVisitor } from "./Diagram/visitors/sizing-visitor";
 export { AnalyzePayloadVisitor } from "./Diagram/visitors/analyze-payload-visitor";
 export { cleanLocalSymbols, cleanModuleLevelSymbols, getSymbolInfo, visitor as SymbolVisitor } from "./Diagram/visitors/symbol-finder-visitor";
 export { BlockViewState } from './Diagram/view-state';
+export { ConfigPanel, CONFIG_PANEL_PORTAL_DIV_ID } from "./Diagram/components/ConfigPanel";
 export { getTriggerSource, getSampleSource } from "./Diagram/utils/template-utils";
 export { InsertorDelete, createPropertyStatement } from "./Diagram/utils/modification-util";
 export { renderDiagramEditor } from "./DiagramGenerator/vscode";
-export { updatePerformanceLabels } from "./DiagramGenerator/performanceUtil";
 
 const LowCodeEditor: React.FC<Props> = (props: Props) => {
 

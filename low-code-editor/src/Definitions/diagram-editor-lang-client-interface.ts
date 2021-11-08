@@ -12,84 +12,75 @@
  */
 
 import {
-    DocumentSymbol,
-    DocumentSymbolParams,
-    SymbolInformation,
+	DocumentSymbol,
+	DocumentSymbolParams,
+	SymbolInformation,
 } from "monaco-languageclient";
 
 import { BaseLangClientInterface } from "./base-lang-client-interface";
 import { PublishDiagnosticsParams } from "./expression-editor-lang-client-interface";
 import {
-    BallerinaConnectorRequest,
-    BallerinaConnectorResponse,
-    BallerinaConnectorsRequest,
-    BallerinaConnectorsResponse,
-    BallerinaProjectParams,
-    BallerinaRecordRequest,
-    BallerinaRecordResponse,
-    BallerinaSTModifyRequest,
-    BallerinaSTModifyResponse,
-    JsonToRecordRequest,
-    JsonToRecordResponse,
-    PerformanceAnalyzerGraphRequest as PerformanceAnalyzerRequest,
-    PerformanceAnalyzerGraphResponse,
-    PerformanceAnalyzerRealtimeResponse,
-    TriggerModifyRequest,
+	BallerinaConnectorRequest,
+	BallerinaConnectorResponse,
+	BallerinaConnectorsRequest,
+	BallerinaConnectorsResponse,
+	BallerinaProjectParams,
+	BallerinaRecordRequest,
+	BallerinaRecordResponse,
+	BallerinaSTModifyRequest,
+	BallerinaSTModifyResponse,
+	JsonToRecordRequest,
+	JsonToRecordResponse,
+	TriggerModifyRequest,
 } from "./lang-client-extended";
 
 export interface BallerinaAST {
-    id: string;
-    kind: string;
-    topLevelNodes: BallerinaASTNode[];
+	id: string;
+	kind: string;
+	topLevelNodes: BallerinaASTNode[];
 }
 
 export interface BallerinaASTNode {
-    kind: string;
+	kind: string;
 }
 
 export interface GetSyntaxTreeParams {
-    documentIdentifier: {
-        uri: string;
-    };
+	documentIdentifier: {
+		uri: string;
+	};
 }
 
 export interface GetSyntaxTreeResponse {
-    syntaxTree: any;
-    parseSuccess: boolean;
+	syntaxTree: any;
+	parseSuccess: boolean;
 }
 
 export interface DiagramEditorLangClientInterface extends BaseLangClientInterface {
-    getConnectors: (
-        params: BallerinaConnectorsRequest
-    ) => Thenable<BallerinaConnectorsResponse>;
-    getConnector: (
-        params: BallerinaConnectorRequest
-    ) => Thenable<BallerinaConnectorResponse>;
-    getRecord: (
-        params: BallerinaRecordRequest
-    ) => Thenable<BallerinaRecordResponse>;
-    stModify: (
-        params: BallerinaSTModifyRequest
-    ) => Thenable<BallerinaSTModifyResponse>;
-    triggerModify: (
-        params: TriggerModifyRequest
-    ) => Thenable<BallerinaSTModifyResponse>;
-    getSyntaxTree: (
-        params: GetSyntaxTreeParams
-    ) => Thenable<GetSyntaxTreeResponse>;
-    getDocumentSymbol: (
-        params: DocumentSymbolParams
-    ) => Thenable<DocumentSymbol[] | SymbolInformation[] | null>;
-    diagnostics: (
-        params: BallerinaProjectParams
-    ) => Thenable<PublishDiagnosticsParams[]>;
-    convert: (
-        params: JsonToRecordRequest
-    ) => Thenable<JsonToRecordResponse>;
-    getPerformanceGraphData: (
-        params: PerformanceAnalyzerRequest
-    ) => Thenable<PerformanceAnalyzerGraphResponse>;
-    getRealtimePerformanceData: (
-        params: PerformanceAnalyzerRequest
-    ) => Thenable<PerformanceAnalyzerRealtimeResponse>;
+	getConnectors: (
+		params: BallerinaConnectorsRequest
+	) => Thenable<BallerinaConnectorsResponse>;
+	getConnector: (
+		params: BallerinaConnectorRequest
+	) => Thenable<BallerinaConnectorResponse>;
+	getRecord: (
+		params: BallerinaRecordRequest
+	) => Thenable<BallerinaRecordResponse>;
+	stModify: (
+		params: BallerinaSTModifyRequest
+	) => Thenable<BallerinaSTModifyResponse>;
+	triggerModify: (
+		params: TriggerModifyRequest
+	) => Thenable<BallerinaSTModifyResponse>;
+	getSyntaxTree: (
+		params: GetSyntaxTreeParams
+	) => Thenable<GetSyntaxTreeResponse>;
+	getDocumentSymbol: (
+		params: DocumentSymbolParams
+	) => Thenable<DocumentSymbol[] | SymbolInformation[] | null>;
+	diagnostics: (
+		params: BallerinaProjectParams
+	) => Thenable<PublishDiagnosticsParams[]>;
+	convert: (
+		params: JsonToRecordRequest
+	) => Thenable<JsonToRecordResponse>;
 }

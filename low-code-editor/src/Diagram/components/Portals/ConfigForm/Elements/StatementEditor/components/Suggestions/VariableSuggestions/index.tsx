@@ -17,7 +17,7 @@ import { STNode } from "@ballerina/syntax-tree";
 
 import { SuggestionItem } from "../../../models/definitions";
 import { InputEditorContext } from "../../../store/input-editor-context";
-import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { addVariableSuggestion } from "../../../utils/utils";
 import { useStatementEditorStyles } from "../../ViewContainer/styles";
 
 export interface VariableSuggestionsProps {
@@ -32,14 +32,8 @@ export function VariableSuggestions(props: VariableSuggestionsProps) {
 
     const inputEditorCtx = useContext(InputEditorContext);
 
-    const {
-        modelCtx: {
-            updateModel,
-        }
-    } = useContext(StatementEditorContext);
-
     const onClickVariableSuggestion = (suggestion: SuggestionItem) => {
-        updateModel(suggestion.value, model.position);
+        addVariableSuggestion(model, suggestion);
         inputEditorCtx.onVariableSelection(suggestion.value);
         suggestionHandler();
     }

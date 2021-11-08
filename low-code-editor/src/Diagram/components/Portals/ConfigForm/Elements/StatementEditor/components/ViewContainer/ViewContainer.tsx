@@ -14,7 +14,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useIntl } from "react-intl";
 
-import { NodePosition, STNode } from "@ballerina/syntax-tree";
+import { STNode } from "@ballerina/syntax-tree";
 
 import { Context } from "../../../../../../../../Contexts/Diagram";
 import { wizardStyles } from "../../../../../../ConfigForms/style";
@@ -73,18 +73,6 @@ export function ViewContainer(props: ViewProps) {
         })();
     }, []);
 
-    const updateModel = async (codeSnippet : string, position: NodePosition) => {
-        const stModification = {
-            startLine: position.startLine,
-            startColumn: position.startColumn,
-            endLine: position.endLine,
-            endColumn: position.endColumn,
-            newCodeSnippet: codeSnippet
-        }
-        const partialST: STNode = await getPartialSTForStatement({codeSnippet : model.source, stModification}, langServerURL, ls);
-        setModel(partialST);
-    }
-
     const [currentModel, setCurrentModel] = useState({ model });
 
     const [onCancelClicked, setOnCancel] = useState(false);
@@ -129,7 +117,6 @@ export function ViewContainer(props: ViewProps) {
                         onSave={onSave}
                         onChange={onChange}
                         validate={validate}
-                        updateModel={updateModel}
                     >
                         <LeftPane
                             currentModel={currentModel}

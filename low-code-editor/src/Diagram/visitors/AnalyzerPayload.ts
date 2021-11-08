@@ -13,33 +13,7 @@
 
 import { BinaryExpression, CaptureBindingPattern, CheckExpression, ForeachStatement, ImplicitNewExpression, LocalVarDecl, NodePosition, NumericLiteral, PositionalArg, RemoteMethodCallAction, STKindChecker, STNode, StringLiteral, StringLiteralToken } from "@ballerina/syntax-tree";
 
-export interface AnalyzerEndPoint {
-    pkgID: string;
-    name: string;
-    baseUrl: string;
-    pos: string;
-}
-
-export interface AnalyzerEndPointData {
-    endPointPayload: { [s: string]: AnalyzerEndPoint; };
-}
-
-export interface AnalyzerRequestPayload {
-    endpoints: { [s: string]: AnalyzerEndPoint };
-    actionInvocations: AnalyzerAction;
-}
-
-export interface AnalyzerAction {
-    length?: number;
-    nextNode?: AnalyzerAction;
-    endPointRef?: string;
-    name?: string;
-    path?: string;
-    pos?: string;
-    ifBody?: AnalyzerAction;
-    elseBody?: AnalyzerAction;
-    forBody?: AnalyzerAction;
-}
+import { AnalyzerAction, AnalyzerEndPoint } from "../../api/models";
 
 export default class AnalyzerPayload {
     private endPointIdDictionary: { id: string, variableName: string }[][] = [[]];

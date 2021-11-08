@@ -38,15 +38,7 @@ const useStyles = makeStyles((theme: Theme) =>
             justifyContent: 'center',
             height: 100,
         },
-        connectorName: {
-            color: "#222228",
-            fontSize: 13,
-            width: '100%',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            textAlign: 'center',
-        },
+        connectorName: { color: "#222228", fontSize: 13 },
         connectorWrap: { overflowY: 'scroll' }
     })
 );

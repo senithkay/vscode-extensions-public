@@ -13,8 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from "react";
 
-import { NodePosition } from "@ballerina/syntax-tree";
-
+import { ModelCodePosition } from "../../../api/models";
 import Tooltip from "../../../components/TooltipV2";
 
 import "./style.scss";
@@ -29,7 +28,7 @@ export const PROCESS_SVG_HEIGHT = 48 + PROCESS_STROKE_HEIGHT;
 export const PROCESS_SVG_SHADOW_OFFSET = PROCESS_SVG_HEIGHT_WITH_SHADOW - PROCESS_SVG_HEIGHT;
 
 
-export function ProcessSVG(props: { x: number, y: number, varName: any, sourceSnippet: any, position: NodePosition, openInCodeView?: () => void, processType: string }) {
+export function ProcessSVG(props: { x: number, y: number, varName: any, sourceSnippet: any, position: ModelCodePosition, openInCodeView?: () => void, processType: string }) {
     const { varName, sourceSnippet, processType, openInCodeView, ...xyProps } = props;
 
     const processTypeIndicator: JSX.Element[] = [];
@@ -41,6 +40,16 @@ export function ProcessSVG(props: { x: number, y: number, varName: any, sourceSn
                     <tspan x="1" y="1">{processType.toLowerCase()}</tspan>
                 </text>
             );
+            break;
+        case 'DataMapper':
+            processTypeIndicator.push(
+                <>
+                    <g transform="translate(244 529)">
+                        <path id="Combined_Shape" d="M4.8,11.2H0V9.6H4.8v-8H.8V0h9.6V1.6h-4V4.8h4V6.4h-4v4.8Z" transform="translate(2.4 2.4)" fill="#ccd1f2" />
+                        <path id="Combined_Shape-2" d="M12,11.2a1.6,1.6,0,1,1,1.6,1.6A1.6,1.6,0,0,1,12,11.2Zm-12,0a1.6,1.6,0,1,1,1.6,1.6A1.6,1.6,0,0,1,0,11.2ZM12,6.4A1.6,1.6,0,1,1,13.6,8,1.6,1.6,0,0,1,12,6.4ZM0,6.4A1.6,1.6,0,1,1,1.6,8,1.6,1.6,0,0,1,0,6.4ZM12,1.6a1.6,1.6,0,1,1,1.6,1.6A1.6,1.6,0,0,1,12,1.6ZM0,1.6A1.6,1.6,0,1,1,1.6,3.2,1.6,1.6,0,0,1,0,1.6Z" transform="translate(0.4 1.6)" fill="#5567d5" />
+                    </g>
+                </>
+            )
             break;
         default:
             processTypeIndicator.push(

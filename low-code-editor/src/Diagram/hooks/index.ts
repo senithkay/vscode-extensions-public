@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useState } from "react";
+import React, { useContext } from "react";
 
 import { STKindChecker, STNode } from "@ballerina/syntax-tree";
 
@@ -44,16 +44,4 @@ export function isNodeSelected(selectedPosition: SelectedPosition, node: STNode)
         return selectedPosition.startLine === node.position?.startLine
         && selectedPosition.startColumn === node.position?.startColumn;
     }
-}
-
-export function useOverlayRef(): [
-    HTMLDivElement,
-    (node: HTMLDivElement) => void] {
-    const [overlayDiv, setOverlayDiv] = useState<HTMLDivElement>(undefined);
-    const ref = useCallback(node => {
-        if (node !== null) {
-            setOverlayDiv(node);
-        }
-    }, []);
-    return [overlayDiv, ref];
 }
