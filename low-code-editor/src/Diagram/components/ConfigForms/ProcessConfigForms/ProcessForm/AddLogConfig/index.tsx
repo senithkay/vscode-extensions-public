@@ -28,6 +28,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
 import { useStatementEditor } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
+import { createLogStatement, getInitialSource } from "../../../../../utils/modification-util";
 
 interface LogConfigProps {
     config: ProcessConfig;
@@ -111,19 +112,22 @@ export function AddLogConfig(props: LogConfigProps) {
         }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
     }
 
+    const initialSource = getInitialSource(createLogStatement(
+        logType,
+        expression ? expression : 'EXPRESSION'
+    ));
 
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {
             label: intl.formatMessage({id: "lowcode.develop.configForms.log.statementEditor.label"}),
-            initialSource: "", // TODO: Pass the actual initialSource
+            initialSource,
             formArgs: {formArgs},
             isMutationInProgress,
             validForm: !!isFormValid,
             onSave: onSaveBtnClick,
             onChange: onExpressionChange,
             validate: validateExpression
-        },
-        true
+        }
     );
 
     if (!stmtEditorComponent) {

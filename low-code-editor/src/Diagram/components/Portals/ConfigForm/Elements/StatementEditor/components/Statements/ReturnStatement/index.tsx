@@ -59,7 +59,7 @@ export function ReturnStatementC(props: ReturnStatementProps) {
                     {expressionComponent}
                 </button>
             <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
-                &nbsp;{model.semicolonToken.value}
+                {model.semicolonToken.value}
             </span>
 
         </span>
