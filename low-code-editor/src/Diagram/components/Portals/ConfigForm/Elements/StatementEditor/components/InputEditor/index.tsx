@@ -68,8 +68,6 @@ export function InputEditor(props: InputEditorProps) {
         }
     } = useContext(Context);
 
-
-
     const [isEditing, setIsEditing] = useState(false);
     const [inputEditorState, setInputEditorState] = useState({
         name: undefined,
@@ -193,7 +191,7 @@ export function InputEditor(props: InputEditorProps) {
 
     const handleContentChange = async (currentStatement: string, EOL: string) => {
         let newModel: string;
-        newModel = addToTargetLine((currentFile.content), model.position.startLine, currentStatement, EOL);
+        newModel = addToTargetLine((currentFile.content), targetPosition, currentStatement, EOL);
 
         inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
         inputEditorState.content = newModel;
