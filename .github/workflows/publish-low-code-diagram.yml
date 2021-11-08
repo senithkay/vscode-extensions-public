@@ -13,11 +13,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - run: npm ci
-      - run: npm run build --if-present
-      - name: Publish Package
-        uses: JS-DevTools/npm-publish@v1
+      - name: Setup NodeJS
+        uses: actions/setup-node@v2
         with:
-          token: ${{ secrets.NPM_ACCESS_TOKEN }}
-          registry: "https://npm.pkg.github.com/"
-          tag: "stable"
+          node-version: '16.x'
+          registry-url: 'https://npm.pkg.github.com'
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}

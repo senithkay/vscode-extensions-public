@@ -1,4 +1,4 @@
-name: "Daily publish Low Code Editor"
+name: "Daily Publish Low Code Editor"
 
 on:
   workflow_dispatch:
@@ -16,15 +16,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Setup NodeJS
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16.x'
+          registry-url: 'https://npm.pkg.github.com'
       - name: Get current timestamp
         id: timestamp
         run: echo "::set-output name=timestamp::$(date +'%Y%m%d-%H%M')"
-      - run: npm ci
       - run: npm version prerelease --preid=${{ steps.timestamp.outputs.timestamp }}
-      - run: npm run build
-      - name: Publish Package
-        uses: JS-DevTools/npm-publish@v1
-        with:
-          token: ${{ secrets.NPM_ACCESS_TOKEN }}
-          registry: "https://npm.pkg.github.com/"
-          tag: "next"
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}

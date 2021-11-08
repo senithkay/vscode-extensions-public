@@ -9,7 +9,7 @@
   "types": "build/index.d.ts",
   "typings": "build/index",
   "scripts": {
-    "prepublishOnly": "npm run clean && npm run build",
+    "prepublishOnly": "npm run build",
     "prebuild": "npm i --legacy-peer-deps && npm run lint",
     "build": "npm run build:webpack",
     "build:tsc": "tsc --pretty && npm run copy:assets",
