@@ -19,7 +19,6 @@ import {
     FunctionCall,
     LocalVarDecl,
     NodePosition,
-    PositionalArg,
     QualifiedNameReference,
     STKindChecker,
     STNode
@@ -33,7 +32,6 @@ import { BlockViewState, StatementViewState } from "../../view-state";
 import { DraftStatementViewState } from "../../view-state/draft";
 import { DefaultConfig } from "../../visitors/default";
 import { Assignment } from "../Assignment";
-import { ProcessConfigForm } from "../ConfigForms/ProcessConfigForms";
 import { DeleteBtn } from "../DiagramActions/DeleteBtn";
 import { DELETE_SVG_HEIGHT_WITH_SHADOW, DELETE_SVG_WIDTH_WITH_SHADOW } from "../DiagramActions/DeleteBtn/DeleteSVG";
 import { EditBtn } from "../DiagramActions/EditBtn";
@@ -114,19 +112,11 @@ export function DataProcessor(props: ProcessorProps) {
             if (model?.initializer && !STKindChecker.isImplicitNewExpression(model?.initializer)) {
                 isIntializedVariable = true;
             }
-
-            if (model?.initializer && STKindChecker.isMappingConstructor(model?.initializer)) {
-                processType = 'DataMapper';
-            }
         } else if (STKindChecker.isAssignmentStatement(model)) {
             processType = "Custom";
             processName = "Assignment";
             if (STKindChecker.isSimpleNameReference(model?.varRef)) {
                 processName = model?.varRef?.name?.value
-            }
-
-            if (STKindChecker.isMappingConstructor(model.expression)) {
-                processType = 'DataMapper';
             }
         } else {
             processType = "Custom";

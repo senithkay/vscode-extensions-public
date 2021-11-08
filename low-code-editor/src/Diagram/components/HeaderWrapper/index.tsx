@@ -10,19 +10,26 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import React from 'react';
 
-.header-amendment-options {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+interface HeaderWrapperProps {
+    children?: JSX.Element[] | JSX.Element;
+    className: string;
+    onClick: () => void;
+}
 
-    .amendment-option {
-        width: 25px;
-        text-align: center;
-        padding-right: 5px;
+export function HeaderWrapper(props: HeaderWrapperProps) {
+    const { className, onClick } = props;
 
-        &:hover {
-            cursor: pointer;
+    const handleOnClick = (evt: React.MouseEvent) => {
+        if (!evt.isPropagationStopped()) {
+            onClick();
         }
     }
+
+    return (
+        <div className={className} onClick={handleOnClick}>
+            {props.children}
+        </div>
+    );
 }
