@@ -99,6 +99,93 @@
             }
         }
     }
+    &.active-condition-error {
+        .if-else {
+            .condition-options-wrapper {
+                fill: none;
+                display: none;
+                width: 100px;
+                height: 30px;
+
+                .disable {
+                    pointer-events: none !important;
+                    opacity: 0.5;
+
+                    &:hover {
+                        cursor: none !important;
+                    }
+                }
+            }
+
+            &:hover {
+                .if-else-rect {
+                    cursor: pointer;
+                    stroke: #c0ceff8a;
+                    stroke-miterlimit: 10;
+                    stroke-width: 9px;
+                    fill: url(#IfElseLinearGradient) #fafafc;
+                    filter: none;
+
+                    &.click-effect {
+                        stroke-width: 0.5px !important;
+                        stroke: #d55555 !important;
+                    }
+                }
+
+                .condition-options-wrapper {
+                    fill: #fbfbfd !important;
+                    display: inline !important;
+                }
+
+                .condition-rect {
+                    fill: #fbfbfd;
+                    height: 21px;
+                    width: 25px;
+                }
+            }
+
+            .if-else-group-active {
+                rect {
+                    cursor: pointer !important;
+                    stroke: #c0ceff8a !important;
+                    stroke-miterlimit: 10 !important;
+                    stroke-width: 9px !important;
+                    filter: none !important;
+                    fill: url(#IfElseLinearGradient) #fafafc;
+
+                    &.click-effect {
+                        stroke-width: 1px !important;
+                        stroke: #d55555 !important;
+                    }
+                }
+            }
+
+            .condition-text {
+                tspan {
+                    font-weight: 500;
+                    fill: #40404b;
+                    font-size: 10px;
+                    font-family: inherit;
+                    letter-spacing: 0.05em;
+                    user-select: none;
+                }
+            }
+
+            .condition-text-italic {
+                tspan {
+                    font-style: italic;
+                }
+            }
+
+            .then-text {
+                fill: #32324d;
+                letter-spacing: 0.05em;
+                font-weight: 100;
+                font-size: 10px !important;
+                font-family: inherit;
+            }
+        }
+    }
 
     &.if-condition-wrapper {
 
@@ -211,6 +298,132 @@
 
                 .condition-assignment {
                     fill: #5567d5;
+                    font-family: "Gilmer", sans-serif;
+                }
+            }
+
+            .then-text {
+                fill: #32324d;
+                letter-spacing: 0.05em;
+                font-weight: 100;
+                font-size: 10px !important;
+                font-family: inherit;
+            }
+        }
+
+        /* stylelint-enable */
+    }
+    &.if-condition-error-wrapper {
+
+        /* stylelint-disable */
+        .if-else {
+            user-select: none;
+
+            .if-else-group {
+                rect {
+                    stroke: #d55555;
+                    stroke-miterlimit: 10;
+                    stroke-width: 2;
+                    fill: url(#IfElseLinearGradient) #fafafc;
+                    filter: url(#IfElseFilterDefault) #fafafc;
+                }
+
+                :hover {
+                    rect {
+                        cursor: pointer;
+                        stroke: #d25252;
+                        stroke-miterlimit: 10;
+                        stroke-width: 2;
+                        fill: url(#IfElseLinearGradient) #fafafc;
+                        filter: url(#IfElseFilterHover) #fafafc;
+                    }
+                }
+
+                :active {
+                    .if-else-rect {
+                        cursor: pointer;
+                        stroke: #c0ceff8a;
+                        stroke-miterlimit: 10;
+                        stroke-width: 9px;
+                        fill: url(#IfElseLinearGradient) #fafafc;
+                        filter: none;
+
+                        &.click-effect {
+                            stroke-width: 2px !important;
+                            stroke: #d55555 !important;
+                        }
+                    }
+                }
+            }
+
+            .condition-text {
+                tspan {
+                    font-weight: 500;
+                    fill: #40404b;
+                    font-size: 12px;
+                    font-family: inherit;
+                    letter-spacing: 0.05em;
+                    user-select: none;
+                }
+            }
+
+            .condition-text-italic {
+                tspan {
+                    font-style: italic;
+                }
+            }
+
+            line {
+                stroke-width: 2px;
+                stroke: #d55555;
+            }
+
+            .if-head-wrapper {
+                .condition-options-wrapper {
+                    fill: none;
+                    display: none;
+                    width: 100px;
+                    height: 30px;
+
+                    .disable {
+                        pointer-events: none !important;
+                        opacity: 0.5;
+
+                        &:hover {
+                            cursor: none !important;
+                        }
+                    }
+                }
+
+                &:hover {
+                    .if-else-rect {
+                        cursor: pointer;
+                        stroke: #c0ceff8a;
+                        stroke-miterlimit: 10;
+                        stroke-width: 9px;
+                        fill: url(#IfElseLinearGradient) #fafafc;
+                        filter: none;
+
+                        &.click-effect {
+                            stroke-width: 1px !important;
+                            stroke: #d55555 !important;
+                        }
+                    }
+
+                    .condition-options-wrapper {
+                        fill: #fbfbfd !important;
+                        display: inline !important;
+                    }
+
+                    .condition-rect {
+                        fill: #fbfbfd;
+                        height: 21px;
+                        width: 25px;
+                    }
+                }
+
+                .condition-assignment {
+                    fill: #d55555;
                     font-family: "Gilmer", sans-serif;
                 }
             }
