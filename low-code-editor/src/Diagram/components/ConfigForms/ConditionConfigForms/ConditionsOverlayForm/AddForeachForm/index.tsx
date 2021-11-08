@@ -210,7 +210,7 @@ export function AddForeachForm(props: ForeachProps) {
     };
 
     const initialSource = getInitialSource(createForeachStatement(
-        conditionExpression.collection ? conditionExpression.collection : 'expression',
+        conditionExpression.collection ? conditionExpression.collection : 'EXPRESSION',
         conditionExpression.variable,
         selectedType
     ));

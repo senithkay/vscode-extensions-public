@@ -114,7 +114,7 @@ export function AddLogConfig(props: LogConfigProps) {
 
     const initialSource = getInitialSource(createLogStatement(
         logType,
-        expression ? expression : 'expression'
+        expression ? expression : 'EXPRESSION'
     ));
 
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(

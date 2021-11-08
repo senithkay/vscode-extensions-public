@@ -108,7 +108,7 @@ export function AddWhileForm(props: WhileProps) {
     });
 
     const initialSource = getInitialSource(createWhileStatement(
-        conditionState.conditionExpression ? conditionState.conditionExpression as string : 'expression'
+        conditionState.conditionExpression ? conditionState.conditionExpression as string : 'EXPRESSION'
     ));
 
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(

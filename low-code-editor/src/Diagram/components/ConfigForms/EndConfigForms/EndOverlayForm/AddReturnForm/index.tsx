@@ -82,7 +82,7 @@ export function AddReturnForm(props: ReturnFormProps) {
     };
 
     const initialSource = getInitialSource(createReturnStatement(
-        returnExpression ? returnExpression as string : 'expression'
+        returnExpression ? returnExpression as string : 'EXPRESSION'
     ));
 
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(

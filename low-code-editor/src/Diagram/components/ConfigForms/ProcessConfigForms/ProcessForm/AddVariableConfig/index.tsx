@@ -270,7 +270,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             varName: varName ? varName : "default",
             varOptions: [],
             varType:  selectedType === "other" ? otherType : selectedType,
-            varValue: variableExpression ? variableExpression : "expression"
+            varValue: variableExpression ? variableExpression : "EXPRESSION"
         }
     ));
 

@@ -119,7 +119,7 @@ export function AddIfForm(props: IfProps) {
     });
 
     const initialSource = getInitialSource(createIfStatement(
-        conditionState.conditionExpression ? conditionState.conditionExpression as string : 'expression'
+        conditionState.conditionExpression ? conditionState.conditionExpression as string : 'EXPRESSION'
     ));
 
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
