@@ -17,7 +17,7 @@
  */
 import { BallerinaExtension, LANGUAGE } from "../core";
 import {
-    Event, EventEmitter, FileStat, FileType, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri, window, workspace
+    Event, EventEmitter, FileStat, FileType, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri, workspace
 } from "vscode";
 import { ExplorerTreeItem, EXPLORER_ITEM_KIND, FILE_EXTENSION, TREE_ELEMENT_EXECUTE_COMMAND } from "./model";
 import * as fs from 'fs';
@@ -28,13 +28,11 @@ import { BAL_TOML } from "../project";
  * Tree data provider for explorer view.
  */
 export class ExplorerDataProvider implements TreeDataProvider<ExplorerTreeItem> {
-    private ballerinaExtension: BallerinaExtension;
     private _onDidChangeTreeData: EventEmitter<ExplorerTreeItem | undefined> = new EventEmitter<ExplorerTreeItem
         | undefined>();
     readonly onDidChangeTreeData: Event<ExplorerTreeItem | undefined> = this._onDidChangeTreeData.event;
 
     constructor(ballerinaExtension: BallerinaExtension) {
-        this.ballerinaExtension = ballerinaExtension;
         workspace.onDidOpenTextDocument(document => {
             if (document.languageId === LANGUAGE.BALLERINA || document.fileName.endsWith(BAL_TOML)) {
                 ballerinaExtension.setDiagramActiveContext(false);
@@ -110,10 +108,6 @@ export class ExplorerDataProvider implements TreeDataProvider<ExplorerTreeItem> 
     }
 
     async getChildren(element?: ExplorerTreeItem): Promise<ExplorerTreeItem[]> {
-        if (!this.ballerinaExtension.isSwanLake()) {
-            window.showErrorMessage("Ballerina explorer is not supported in this Ballerina runtime version.");
-            return [];
-        }
 
         let files: ExplorerTreeItem[] = [];
         if (element) {

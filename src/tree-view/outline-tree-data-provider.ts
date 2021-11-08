@@ -82,7 +82,7 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
     }
 
     getChildren(element?: PackageTreeItem): ProviderResult<PackageTreeItem[]> {
-        if (!this.ballerinaExtension.isSwanLake() || !isSupportedVersion(this.ballerinaExtension, VERSION.BETA, 1)) {
+        if (!isSupportedVersion(this.ballerinaExtension, VERSION.BETA, 1)) {
             window.showErrorMessage("Ballerina package overview is not supported in this Ballerina runtime version.");
             return;
         }
@@ -129,13 +129,15 @@ export class PackageOverviewDataProvider implements TreeDataProvider<PackageTree
                 const tomlPath = fileUriToPath(folder.uri.toString()) + sep + 'Ballerina.toml';
                 if (existsSync(tomlPath)) {
                     currentFileUri = Uri.file(tomlPath).toString();
-                    this.langClient!.sendNotification('textDocument/didOpen', {
-                        textDocument: {
-                            uri: currentFileUri,
-                            languageId: 'ballerina',
-                            version: 1,
-                            text: readFileSync(tomlPath, { encoding: 'utf-8' })
-                        }
+                    this.langClient!.onReady().then(() => {
+                        this.langClient!.sendNotification('textDocument/didOpen', {
+                            textDocument: {
+                                uri: currentFileUri,
+                                languageId: 'ballerina',
+                                version: 1,
+                                text: readFileSync(tomlPath, { encoding: 'utf-8' })
+                            }
+                        });
                     });
                 }
             }

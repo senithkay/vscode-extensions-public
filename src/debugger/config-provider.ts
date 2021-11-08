@@ -21,8 +21,7 @@ import {
     DebugConfigurationProvider, WorkspaceFolder, DebugConfiguration,
     debug, ExtensionContext, window, commands,
     DebugSession,
-    DebugAdapterExecutable, DebugAdapterDescriptor, DebugAdapterDescriptorFactory, DebugAdapterServer,
-    Uri
+    DebugAdapterExecutable, DebugAdapterDescriptor, DebugAdapterDescriptorFactory, DebugAdapterServer
 } from 'vscode';
 import * as child_process from "child_process";
 import { getPortPromise } from 'portfinder';
@@ -83,8 +82,7 @@ async function getModifiedConfigs(config: DebugConfiguration) {
 
     const activeDoc = window.activeTextEditor.document;
 
-    if (ballerinaExtInstance.isSwanLake() && ballerinaExtInstance.langClient &&
-        isSupportedVersion(ballerinaExtInstance, VERSION.BETA, 1)) {
+    if (ballerinaExtInstance.langClient && isSupportedVersion(ballerinaExtInstance, VERSION.BETA, 1)) {
         await ballerinaExtInstance.langClient.getBallerinaProject({
             documentIdentifier: {
                 uri: activeDoc.uri.toString()
@@ -150,18 +148,6 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
         const cwd = this.getCurrentWorkingDir();
         let args: string[] = [];
         const cmd = this.getScriptPath(args);
-
-        if (!ballerinaExtInstance.isSwanLake()) {
-            const SHOW_VSCODE_IDE_DOCS = "https://ballerina.io/1.2/learn/setting-up-visual-studio-code/run-and-debug/";
-            const showDetails: string = 'Learn More';
-            window.showWarningMessage("Ballerina Debugging is an experimental feature. Click \"Learn more\" for known" +
-                " limitations and workarounds.",
-                showDetails).then((selection) => {
-                    if (showDetails === selection) {
-                        commands.executeCommand('vscode.open', Uri.parse(SHOW_VSCODE_IDE_DOCS));
-                    }
-                });
-        }
         args.push(port.toString());
 
         let opt: ExecutableOptions = { cwd: cwd };

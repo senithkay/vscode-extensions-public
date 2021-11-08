@@ -42,10 +42,6 @@ export function isWindows(): boolean {
 
 export function isSupportedVersion(ballerinaExtInstance: BallerinaExtension, supportedRelease: VERSION,
     supportedVersion: number): boolean {
-    if (!ballerinaExtInstance.isSwanLake()) {
-        return false;
-    }
-
     const ballerinaVersion: string = ballerinaExtInstance.ballerinaVersion.toLocaleLowerCase();
     const isPreview: boolean = ballerinaVersion.includes(VERSION.PREVIEW);
     const isAlpha: boolean = ballerinaVersion.includes(VERSION.ALPHA);
