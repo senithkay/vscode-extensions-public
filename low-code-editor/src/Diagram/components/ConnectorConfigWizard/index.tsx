@@ -40,7 +40,6 @@ export interface ConnectorConfigWizardProps {
     selectedConnector?: LocalVarDecl;
     isAction?: boolean;
     isEdit?: boolean;
-    // dispatchOverlayOpen: () => void;
 }
 
 export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
@@ -50,7 +49,6 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
         },
         props: {
             isCodeEditorActive,
-            currentApp,
             userInfo,
             langServerURL,
             stSymbolInfo

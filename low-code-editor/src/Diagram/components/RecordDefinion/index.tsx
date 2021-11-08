@@ -12,14 +12,14 @@
  */
 // tslint:disable: jsx-no-multiline-js
 // tslint:disable: jsx-wrap-multiline
-import React, { useState } from "react"
+import React, { useContext, useState } from "react"
 
 import { RecordFieldWithDefaultValue, RecordTypeDesc, STKindChecker, TypeDefinition } from "@ballerina/syntax-tree";
 
-import DeleteButton from "../../../assets/icons/DeleteButton";
-import EditButton from "../../../assets/icons/EditButton";
 import RecordIcon from "../../../assets/icons/RecordIcon";
-import { ComponentExpandButton } from "../ComponentExpandButton";
+import { Context as DiagramContext } from "../../../Contexts/Diagram";
+import { removeStatement } from "../../utils/modification-util";
+import { HeaderActions } from "../HeaderActions";
 
 import "./style.scss";
 
@@ -33,17 +33,19 @@ export interface RecordDefComponentProps {
 export function RecordDefinitionComponent(props: RecordDefComponentProps) {
     const { model } = props;
 
-    const [isEditable, setIsEditable] = useState(false);
+    const {
+        api: {
+            code: { modifyDiagram },
+        },
+    } = useContext(DiagramContext);
+
     const [isExpanded, setIsExpanded] = useState(false);
 
-    const handleMouseEnter = () => {
-        setIsEditable(true);
-    };
-    const handleMouseLeave = () => {
-        setIsEditable(false);
-    };
     const onExpandClick = () => {
         setIsExpanded(!isExpanded);
+    };
+    const handleDeleteConfirm = () => {
+        modifyDiagram([removeStatement(model.position)]);
     };
 
     const component: JSX.Element[] = [];
@@ -69,7 +71,7 @@ export function RecordDefinitionComponent(props: RecordDefComponentProps) {
         }
 
         component.push(
-            <div className="record-comp" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+            <div className="record-comp">
                 <div className="record-header" >
                     <div className="record-content">
                         <div className="record-icon">
@@ -82,19 +84,14 @@ export function RecordDefinitionComponent(props: RecordDefComponentProps) {
                             {varName}
                         </div>
                     </div>
-                    {isEditable && (
-                        <div className="record-amendment-options">
-                            <div className="record-edit">
-                                <EditButton />
-                            </div>
-                            <div className="record-delete">
-                                <DeleteButton />
-                            </div>
-                            <div className="record-expand">
-                                <ComponentExpandButton isExpanded={isExpanded} onClick={onExpandClick} />
-                            </div>
-                        </div>
-                    )}
+                    <HeaderActions
+                        model={model}
+                        deleteText="Delete this Record?"
+                        isExpanded={isExpanded}
+                        formType="RecordEditor"
+                        onExpandClick={onExpandClick}
+                        onConfirmDelete={handleDeleteConfirm}
+                    />
                 </div>
                 <div className="record-separator" />
                 {isExpanded && (
@@ -118,7 +115,7 @@ export function RecordDefinitionComponent(props: RecordDefComponentProps) {
     } else {
         // ToDo : sort out how to display general typedefinitions
         component.push(
-            <div className="record-comp" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+            <div className="record-comp">
                 <div className="record-header" >
                     <div className="record-content">
                         <div className="record-icon">
@@ -128,32 +125,21 @@ export function RecordDefinitionComponent(props: RecordDefComponentProps) {
                             {model.source.trim()}
                         </div>
                     </div>
-                    {isEditable && (
-                        <div className="record-amendment-options">
-                            <div className="record-edit">
-                                <EditButton />
-                            </div>
-                            <div className="record-delete">
-                                <DeleteButton />
-                            </div>
-                        </div>
-                    )}
+                    <HeaderActions
+                        model={model}
+                        deleteText="Delete this Type Definition?"
+                        isExpanded={isExpanded}
+                        onExpandClick={onExpandClick}
+                        onConfirmDelete={handleDeleteConfirm}
+                    />
                 </div>
             </div>
         )
     }
 
-    // ToDo : need to fix plus here
-    component.push(
-        // TODO: Commented until all top level pluses sorted out
-        // <TopLevelPlus
-        //     margin={{top: RECORD_PLUS_OFFSET, bottom: RECORD_PLUS_OFFSET, left: RECORD_MARGIN_LEFT}}
-        //     targetPosition={{line: model.position.endLine + 1, column: model.position.endColumn}}
-        // />
-    )
-
     return (
         <>
+            <div id={"edit-div"} />
             {component}
         </>
     );

@@ -13,12 +13,12 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useRef, useState } from "react";
 
-import { NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { FunctionDefinition, NodePosition, STKindChecker } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 
 import { AddIcon, FunctionIcon } from "../../../../../../assets/icons";
 import { PrimaryButton } from "../../../../../../components/Buttons/PrimaryButton";
-import ConfigPanel, { Section } from "../../../../../../components/ConfigPanel";
+import { Section } from "../../../../../../components/ConfigPanel";
 import { useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { STModification } from "../../../../../../Definitions";
 import {
@@ -32,15 +32,14 @@ import { ReturnTypeSegmentEditor } from "../../../../ConfigForms/ResourceConfigF
 import {
     QueryParam,
     ReturnType,
-} from "../../../../ConfigForms/ResourceConfigForm/ApiConfigureWizard/types";
-import { functionParamTypes } from "../../../../ConfigForms/ResourceConfigForm/ApiConfigureWizard/util";
-import { SecondaryButton } from "../../../../Portals/ConfigForm/Elements/Button/SecondaryButton";
-import { functionReturnTypes } from "../../../Overlay/Elements/DropDown/ApiConfigureWizard/util";
-import { FormTextInput } from "../../Elements/TextField/FormTextInput";
+} from "../../../Overlay/Elements/DropDown/ApiConfigureWizard/types";
+import { functionParamTypes, functionReturnTypes } from "../../../Overlay/Elements/DropDown/ApiConfigureWizard/util";
+import { SecondaryButton } from "../../Elements/Button/SecondaryButton";
+import { VariableNameInput, VariableNameInputProps } from "../Components/VariableNameInput";
 import { useStyles as useFormStyles } from "../style";
 
 interface FunctionConfigFormProps {
-    model?: STNode;
+    model?: FunctionDefinition;
     targetPosition?: NodePosition;
     onCancel: () => void;
     onSave: () => void;
@@ -54,6 +53,8 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
     const [returnTypes, setReturnTypes] = useState<ReturnType[]>([]);
     const [addingNewParam, setAddingNewParam] = useState(false);
     const [addingNewReturnType, setAddingNewReturnType] = useState(false);
+    const [isFunctionNameValid, setIsFunctionNameValid] = useState(false);
+
     const {
         props: { syntaxTree },
         api: {
@@ -61,9 +62,7 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
         },
     } = useDiagramContext();
     const existingFunctionNames = useRef([]);
-    const disableSaveBtn =
-        !!!functionName ||
-        existingFunctionNames?.current?.includes(functionName);
+    const disableSaveBtn = !(functionName.length > 0) || !isFunctionNameValid;
 
     const handleOnSave = () => {
         const parametersStr = parameters
@@ -112,6 +111,10 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
         onSave();
     };
 
+    const updateFunctionNameValidation = (fieldName: string, isInValid: boolean) => {
+        setIsFunctionNameValid(!isInValid);
+    }
+
     const onFunctionNameChange = (name: string) => setFunctionName(name);
 
     // Param related functions
@@ -132,14 +135,6 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
     const onSaveNewReturnType = (item: ReturnType) => {
         setReturnTypes([...returnTypes, item]);
         setAddingNewReturnType(false);
-    };
-
-    const validateParams = (value: string) => {
-        const isParamExist = parameters.some((item) => item.name === value);
-        return {
-            error: isParamExist,
-            message: isParamExist ? `${value} already exists` : "",
-        };
     };
 
     useEffect(() => {
@@ -167,17 +162,45 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
                 "|"
             );
             if (returnArr) {
-                const returnParams: ReturnType[] = returnArr.map(
-                    (item, index) => ({
-                        id: index,
-                        isOptional: item.trim().endsWith("?"),
-                        type: item.trim().replace("?", ""),
-                    })
-                );
+                const returnParams: ReturnType[] = returnArr.map((item, index) => ({
+                    id: index,
+                    isOptional: item.trim().endsWith("?"),
+                    type: item.trim().replace("?", ""),
+                }));
                 setReturnTypes(returnParams);
             }
         }
     }, [model]);
+
+    let namePosition: NodePosition = { startLine: 0, startColumn: 0, endLine: 0, endColumn: 0 }
+
+    if (model) {
+        namePosition = model.functionName.position;
+    } else {
+        namePosition.startLine = targetPosition.startLine;
+        namePosition.endLine = targetPosition.startLine;
+    }
+
+    const functionNameConfig: VariableNameInputProps = {
+        displayName: 'Function Name',
+        value: model ? model.functionName.value : '',
+        onValueChange: onFunctionNameChange,
+        validateExpression: updateFunctionNameValidation,
+        position: namePosition,
+        isEdit: !!model,
+        overrideTemplate: {
+            defaultCodeSnippet: 'function () {}',
+            targetColumn: 10
+        }
+    }
+
+    const validateParams = (value: string) => {
+        const isParamExist = parameters.some((item) => item.name === value);
+        return {
+            error: isParamExist,
+            message: isParamExist ? `${value} already exists` : "",
+        };
+    };
 
     return (
         <FormControl
@@ -194,29 +217,9 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
                     </Typography>
                 </div>
             </div>
-
             <div className={formClasses.sectionSeparator}>
-                <Section>
-                    <FormTextInput
-                        label="Function Name"
-                        dataTestId="function-name"
-                        defaultValue={
-                            model && STKindChecker.isFunctionDefinition(model)
-                                ? model?.functionName?.value
-                                : functionName
-                        }
-                        onChange={onFunctionNameChange}
-                        placeholder="Enter function name"
-                        customProps={{
-                            isErrored: existingFunctionNames.current?.includes(
-                                functionName
-                            ),
-                        }}
-                        errorMessage="Function name already exists"
-                    />
-                </Section>
+                <VariableNameInput {...functionNameConfig} />
             </div>
-
             <div className={formClasses.sectionSeparator}>
                 <Section title={"Parameters"}>
                     {parameters.map((param) => (
@@ -233,7 +236,7 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
                             types={functionParamTypes}
                             onSave={onSaveNewParam}
                             validateParams={validateParams}
-                            // params={parameters}
+                        // params={parameters}
                         />
                     ) : (
                         <span
