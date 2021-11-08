@@ -228,7 +228,7 @@ export function ForEach(props: ForeachProps) {
     const forEachSource = forEachModel?.actionOrExpressionNode?.source;
     assignmentText = variableName + " " + keyWord + " " + forEachSource;
     let diagnostics = forEachModel.actionOrExpressionNode.typeData.diagnostics;
-    let ForeachWrapper = diagnostics?.length!=0 ? cn("foreach-block-error") :cn("foreach-block") ;
+    let ForeachWrapper = diagnostics?.length!==0 ? cn("foreach-block-error") : cn("foreach-block") ;
 
     const unFoldedComponent = (
         <g className="foreach-block" data-testid="foreach-block">

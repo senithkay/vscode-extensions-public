@@ -19,6 +19,7 @@ import {
     STNode,
     WhileStatement
 } from "@ballerina/syntax-tree";
+import cn from "classnames";
 
 import { WizardType } from "../../../ConfigurationSpec/types";
 import { Context } from "../../../Contexts/Diagram";
@@ -52,7 +53,6 @@ import { FormGenerator } from "../FormGenerator";
 import { PlusButton } from "../Plus";
 
 import "./style.scss";
-import cn from "classnames";
 import { WhileSVG, WHILE_SHADOW_OFFSET, WHILE_SVG_HEIGHT, WHILE_SVG_HEIGHT_WITH_SHADOW, WHILE_SVG_WIDTH, WHILE_SVG_WIDTH_WITH_SHADOW } from "./WhileSVG";
 
 export interface WhileProps {
@@ -93,8 +93,8 @@ export function While(props: WhileProps) {
 
     let codeSnippet = "WHILE CODE SNIPPET";
     let codeSnippetOnSvg = "WHILE";
-    let diagnostics = modelWhile.condition.typeData.diagnostics;
-    let whileWrapper = diagnostics?.length!=0 ? cn("while-error-wrapper") :cn("while-wrapper") ;
+    const diagnostics = modelWhile.condition.typeData.diagnostics;
+    const whileWrapper = diagnostics?.length !== 0 ? cn("while-error-wrapper") : cn("while-wrapper") ;
 
     if (model) {
         codeSnippet = modelWhile.source.trim().split('{')[0];

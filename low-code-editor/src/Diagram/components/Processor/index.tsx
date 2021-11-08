@@ -85,7 +85,7 @@ export function DataProcessor(props: ProcessorProps) {
     if (model) {
         processType = "Variable";
         diagnostics = model.typeData?.diagnostics[0]?.message;
-        sourceSnippet = diagnostics ? "Code has errors\n"+model.source : model.source;
+        sourceSnippet = diagnostics ? "Code has errors\n" + model.source : model.source;
         if (STKindChecker.isCallStatement(model)) {
             const callStatement: CallStatement = model as CallStatement;
             const stmtFunctionCall: FunctionCall = callStatement.expression as FunctionCall;
@@ -229,8 +229,8 @@ export function DataProcessor(props: ProcessorProps) {
     }
 
     const processWrapper = isDraftStatement ? cn("main-process-wrapper active-data-processor") : cn("main-process-wrapper data-processor");
-    const processStyles = diagnostics && !isDraftStatement ? cn("main-process-wrapper data-processor-error "):processWrapper
-    
+    const processStyles = diagnostics && !isDraftStatement ? cn("main-process-wrapper data-processor-error ") : processWrapper
+
     const component: React.ReactNode = (!viewState.collapsed &&
         (
             <g>

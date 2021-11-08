@@ -122,10 +122,10 @@ export function IfElse(props: IfElseProps) {
 
     let codeSnippet = "IF ELSE CODE SNIPPET"
     let codeSnippetOnSvg = "IF"
-    let diagnostics = (model as IfElseStatement)?.condition.typeData?.diagnostics;
+    const diagnostics = (model as IfElseStatement)?.condition.typeData?.diagnostics;
 
     if (model) {
-        codeSnippet = diagnostics.length!=0 ? "Code has errors\n"+model.source :model.source.trim().split(')')[0];
+        codeSnippet = diagnostics.length !== 0 ? "Code has errors\n" + model.source : model.source.trim().split(')')[0];
         codeSnippetOnSvg = codeSnippet.substring(4, 13)
         codeSnippet = codeSnippet + ')'
     }
@@ -152,22 +152,22 @@ export function IfElse(props: IfElseProps) {
 
     const isDraftStatement: boolean = viewState instanceof DraftStatementViewState;
     let ConditionWrapper;
-    if(isDraftStatement){
+    if (isDraftStatement){
         ConditionWrapper = cn("main-condition-wrapper active-condition")
     }
-    if(isDraftStatement && diagnostics?.length!=0){
+    if (isDraftStatement && diagnostics?.length !== 0){
         ConditionWrapper = cn("main-condition-wrapper active-condition-error")
     }
-    if(!isDraftStatement){
+    if (!isDraftStatement){
         ConditionWrapper = cn("main-condition-wrapper if-condition-wrapper")
     }
-    if(!isDraftStatement && diagnostics?.length!=0) {
+    if (!isDraftStatement && diagnostics?.length !== 0) {
         ConditionWrapper = cn("main-condition-wrapper if-condition-error-wrapper")
     }
 
     let assignmentText: any = (!isDraftStatement && STKindChecker?.isIfElseStatement(model));
     assignmentText = (model as IfElseStatement)?.condition.source;
-    
+
 
     const assignmentTextWidth = assignmentText?.length * 8 + DefaultConfig.dotGap;
 
