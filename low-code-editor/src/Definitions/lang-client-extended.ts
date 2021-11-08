@@ -172,3 +172,67 @@ export interface JsonToRecordRequest {
 export interface JsonToRecordResponse {
     codeBlock: string;
 }
+
+export interface DocumentIdentifier {
+    uri: string;
+}
+
+export interface Range {
+    start: Position;
+    end: Position;
+}
+
+export interface Position {
+    line: number;
+    character: number;
+}
+
+export interface PerformanceAnalyzerGraphRequest {
+    documentIdentifier: DocumentIdentifier;
+    range: Range;
+    choreoAPI: string;
+    choreoCookie: string;
+    choreoToken: string;
+}
+
+export interface PerformanceAnalyzerGraphResponse {
+    message: string;
+    type: any;
+    sequenceDiagramData: SequenceGraphPoint[];
+    graphData: GraphPoint[];
+}
+
+export interface PerformanceAnalyzerRealtimeResponse {
+    message: string;
+    type: any;
+    concurrency: string;
+    latency: string;
+    tps: string;
+}
+
+export interface GraphPoint {
+    concurrency: string;
+    latency: string;
+    tps: string;
+}
+
+export interface SequenceGraphPoint {
+    concurrency: string;
+    values: SequenceGraphPointValue[];
+}
+
+export interface SequenceGraphPointValue {
+    name: string;
+    latency: number;
+    tps: number;
+}
+
+export interface GraphData {
+    name: string,
+    graphData: GraphPoint[];
+}
+
+export interface PerformanceGraphRequest {
+    file: string;
+    data: GraphData;
+}

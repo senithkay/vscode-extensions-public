@@ -14,15 +14,16 @@
 import React, { useContext, useRef, useState } from "react";
 
 import {
-  FunctionBodyBlock,
-  FunctionDefinition,
-  STKindChecker,
+    FunctionBodyBlock,
+    FunctionDefinition,
+    STKindChecker,
 } from "@ballerina/syntax-tree";
 import classNames from "classnames";
 import { v4 as uuid } from "uuid";
 
-import { Context } from "../../../Contexts/Diagram";
+import { Context, useDiagramContext } from "../../../Contexts/Diagram";
 import { Provider as FunctionProvider } from "../../../Contexts/Function";
+import { addAdvancedLabels } from "../../../DiagramGenerator/performanceUtil";
 import { useOverlayRef, useSelectedStatus } from "../../hooks";
 import { useStyles } from "../../styles";
 import { BlockViewState, FunctionViewState } from "../../view-state";
@@ -42,126 +43,161 @@ export const FUNCTION_PLUS_MARGIN_BOTTOM = 7.5;
 export const FUNCTION_PLUS_MARGIN_LEFT = 10;
 
 export interface FunctionProps {
-  model: FunctionDefinition;
+    model: FunctionDefinition;
 }
 
 export function Function(props: FunctionProps) {
-  const classes = useStyles();
-  const { state } = useContext(Context);
-  const [overlayId] = useState(`function-overlay-${uuid()}`);
-  const {
-    props: { isWaitingOnWorkspace, isReadOnly, isCodeEditorActive },
-  } = useContext(Context);
+    const classes = useStyles();
+    const { state } = useContext(Context);
+    const [overlayId] = useState(`function-overlay-${uuid()}`);
+    const {
+        props: { isWaitingOnWorkspace, isReadOnly, isCodeEditorActive },
+    } = useContext(Context);
 
-  const { model } = props;
+    const { model } = props;
 
-  const viewState: FunctionViewState = model.viewState;
-  const isInitPlusAvailable: boolean = viewState.initPlus !== undefined;
-  const isExpressionFuncBody: boolean = STKindChecker.isExpressionFunctionBody(
-    model.functionBody
-  );
-
-  const containerRef = useRef(null);
-  const isSelected = useSelectedStatus(model, containerRef);
-  const [diagramExpanded, setDiagramExpanded] = useState(isSelected);
-  const [overlayNode, overlayRef] = useOverlayRef();
-
-  React.useEffect(() => {
-    setDiagramExpanded(isSelected);
-  }, [isSelected]);
-
-  const onExpandClick = () => {
-    setDiagramExpanded(!diagramExpanded);
-  };
-
-  let component: JSX.Element;
-
-  if (isExpressionFuncBody) {
-    component = (
-      <g>
-        <StartButton model={model} />
-        <WorkerLine viewState={viewState} />
-        <End
-          model={model.functionBody}
-          viewState={viewState.end}
-          isExpressionFunction={true}
-        />
-      </g>
+    const viewState: FunctionViewState = model.viewState;
+    const isInitPlusAvailable: boolean = viewState.initPlus !== undefined;
+    const isExpressionFuncBody: boolean = STKindChecker.isExpressionFunctionBody(
+        model.functionBody
     );
-  } else {
-    const block: FunctionBodyBlock = model.functionBody as FunctionBodyBlock;
-    const isStatementsAvailable: boolean = block.statements.length > 0;
-    const bodyViewState: BlockViewState = block.viewState;
 
-    component = (
-      <g>
-        <>
-          {!isReadOnly &&
-            isInitPlusAvailable &&
-            !isCodeEditorActive &&
-            !isWaitingOnWorkspace &&
-            !viewState.initPlus.isTriggerDropdown && (
-              <WorkerLine viewState={viewState} />
-            )}
-        </>
+    const containerRef = useRef(null);
+    const isSelected = useSelectedStatus(model, containerRef);
+    const [diagramExpanded, setDiagramExpanded] = useState(isSelected);
+    const [overlayNode, overlayRef] = useOverlayRef();
 
-        {!isInitPlusAvailable && <WorkerLine viewState={viewState} />}
-        {isInitPlusAvailable && <StartButton model={model} />}
-        {!isInitPlusAvailable && <StartButton model={model} />}
-        {!isInitPlusAvailable && (
-          <WorkerBody model={block} viewState={block.viewState} />
-        )}
-        {!isInitPlusAvailable &&
-          isStatementsAvailable &&
-          (!bodyViewState?.isEndComponentInMain ||
-            bodyViewState?.collapseView) && <End viewState={viewState.end} />}
-      </g>
+    React.useEffect(() => {
+        setDiagramExpanded(isSelected);
+    }, [isSelected]);
+
+    const onExpandClick = () => {
+        setDiagramExpanded(!diagramExpanded);
+    };
+
+    let component: JSX.Element;
+
+    if (isExpressionFuncBody) {
+        component = (
+            <g>
+                <StartButton model={model} />
+                <WorkerLine viewState={viewState} />
+                <End
+                    model={model.functionBody}
+                    viewState={viewState.end}
+                    isExpressionFunction={true}
+                />
+            </g>
+        );
+    } else {
+        const block: FunctionBodyBlock = model.functionBody as FunctionBodyBlock;
+        const isStatementsAvailable: boolean = block.statements.length > 0;
+        const bodyViewState: BlockViewState = block.viewState;
+
+        component = (
+            <g>
+                <>
+                    {!isReadOnly &&
+                        isInitPlusAvailable &&
+                        !isCodeEditorActive &&
+                        !isWaitingOnWorkspace &&
+                        !viewState.initPlus.isTriggerDropdown && (
+                            <WorkerLine viewState={viewState} />
+                        )}
+                </>
+
+                {!isInitPlusAvailable && <WorkerLine viewState={viewState} />}
+                {isInitPlusAvailable && <StartButton model={model} />}
+                {!isInitPlusAvailable && <StartButton model={model} />}
+                {!isInitPlusAvailable && (
+                    <WorkerBody model={block} viewState={block.viewState} />
+                )}
+                {!isInitPlusAvailable &&
+                    isStatementsAvailable &&
+                    (!bodyViewState?.isEndComponentInMain ||
+                        bodyViewState?.collapseView) && <End viewState={viewState.end} />}
+            </g>
+        );
+    }
+
+    const functionBody = (
+        <div className={"lowcode-diagram"}>
+            <FunctionProvider overlayId={overlayId} overlayNode={overlayNode}>
+                <PanAndZoom>
+                    <div ref={overlayRef} id={overlayId} className={classes.OverlayContainer} />
+                    <Canvas h={model.viewState.bBox.h} w={model.viewState.bBox.w}>
+                        {component}
+                    </Canvas>
+                </PanAndZoom>
+            </FunctionProvider>
+        </div>
     );
-  }
 
-  const functionBody = (
-    <div className={"lowcode-diagram"}>
-      <FunctionProvider overlayId={overlayId} overlayNode={overlayNode}>
-        <PanAndZoom>
-          <div ref={overlayRef} id={overlayId} className={classes.OverlayContainer} />
-          <Canvas h={model.viewState.bBox.h} w={model.viewState.bBox.w}>
-            {component}
-          </Canvas>
-        </PanAndZoom>
-      </FunctionProvider>
-    </div>
-  );
+    const {
+        actions: { diagramRedraw },
+    } = useDiagramContext();
 
-  return (
-    <div
-      ref={containerRef}
-      className={classNames(
-        {
-          "function-box":
-            STKindChecker.isResourceAccessorDefinition(model) ||
-            STKindChecker.isObjectMethodDefinition(model),
-          "module-level-function": STKindChecker.isFunctionDefinition(model),
-          expanded: diagramExpanded,
-        },
-        STKindChecker.isResourceAccessorDefinition(model)
-          ? model.functionName.value
-          : ""
-      )}
-    >
-      {STKindChecker.isResourceAccessorDefinition(model) ? (
-        <ResourceHeader
-          isExpanded={diagramExpanded}
-          model={model}
-          onExpandClick={onExpandClick}
-        />
-      ) : (
-        <FunctionHeader
-          isExpanded={diagramExpanded}
-          model={model}
-          onExpandClick={onExpandClick}
-        />
-      )}
-      {diagramExpanded && functionBody}
-    </div>
-  );
+    const marginTop = (model as any).performance ? 5 : 0;
+    const onClickPerformance = async () => {
+        let fullPath = "";
+        for (const path of model.relativeResourcePath) {
+            fullPath += (path as any).value;
+        }
+
+        await addAdvancedLabels(`${model.functionName.value.toUpperCase()} /${fullPath}`,
+            model.position, diagramRedraw)
+    };
+
+    let value;
+    let unit;
+    if ((model as any).performance) {
+        const responseTimeValue = Number((model as any).performance.latency);
+        value = responseTimeValue > 1000 ? responseTimeValue / 1000 : responseTimeValue;
+        unit = responseTimeValue > 1000 ? " s" : " ms";
+    }
+
+    return (
+        <div>
+            <div className="performance-label-container">
+                {
+                    (model as any).performance ?
+                        (
+                            <p className={"text"} style={{ cursor: 'pointer' }} onClick={onClickPerformance}>
+                                {`Forecasted latency: ${value} ${unit}`}
+                            </p>
+                        ) : null
+                }
+            </div>
+            <div
+                ref={containerRef}
+                className={classNames(
+                    {
+                        "function-box":
+                            STKindChecker.isResourceAccessorDefinition(model) ||
+                            STKindChecker.isObjectMethodDefinition(model),
+                        "module-level-function": STKindChecker.isFunctionDefinition(model),
+                        expanded: diagramExpanded,
+                    },
+                    STKindChecker.isResourceAccessorDefinition(model)
+                        ? model.functionName.value
+                        : ""
+                )}
+            >
+                {STKindChecker.isResourceAccessorDefinition(model) ? (
+                    <ResourceHeader
+                        isExpanded={diagramExpanded}
+                        model={model}
+                        onExpandClick={onExpandClick}
+                    />
+                ) : (
+                    <FunctionHeader
+                        isExpanded={diagramExpanded}
+                        model={model}
+                        onExpandClick={onExpandClick}
+                    />
+                )}
+                {diagramExpanded && functionBody}
+            </div>
+        </div>
+    );
 }
