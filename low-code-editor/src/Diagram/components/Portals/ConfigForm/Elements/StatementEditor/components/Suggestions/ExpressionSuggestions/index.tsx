@@ -44,7 +44,6 @@ export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
     }
 
     const onClickOperatorSuggestion = (operator: SuggestionItem) => {
-        console.log({"operatorValue":operator.value, "[psition":model});
         updateModel(operator.value, (model as BinaryExpression).operator.position);
         suggestionHandler();
     }
