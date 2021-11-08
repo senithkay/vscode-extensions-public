@@ -5,13 +5,17 @@ on:
     branches: [main]
   schedule:
     - cron: '0 0 * * *'
+
+defaults:
+  run:
+    working-directory: low-code-editor
+
 jobs:
   publish-package:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - run: cd /home/runner/work/ballerina-low-code-editor/low-code-editor
       - name: Get current timestamp
         id: timestamp
         run: echo "::set-output name=timestamp::$(date +'%Y%m%d-%H%M')"
