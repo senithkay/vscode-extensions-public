@@ -51,16 +51,11 @@ export function DataProcessor(props: ProcessorProps) {
     const {
         actions: { diagramCleanDraw, toggleDiagramOverlay },
         api: {
-            splitPanel: {
-                maximize: maximizeCodeView,
-                handleRightPanelContent,
-            },
             code: {
                 setCodeLocationToHighlight: setCodeToHighlight,
             }
         },
         props: {
-            currentApp,
             isCodeEditorActive,
             syntaxTree,
             stSymbolInfo,
@@ -69,8 +64,6 @@ export function DataProcessor(props: ProcessorProps) {
             isReadOnly,
         }
     } = useContext(Context);
-
-    const { id: appId } = currentApp || {};
 
     const { model, blockViewState } = props;
     const [configOverlayFormState, updateConfigOverlayFormState] = useState(undefined);
@@ -191,8 +184,6 @@ export function DataProcessor(props: ProcessorProps) {
     };
 
     const onClickOpenInCodeView = () => {
-        maximizeCodeView("home", "vertical", appId);
-        handleRightPanelContent('Code');
         setCodeToHighlight(model.position)
     }
 
@@ -257,7 +248,7 @@ export function DataProcessor(props: ProcessorProps) {
                             processType={processType}
                             sourceSnippet={sourceSnippet}
                             position={model?.position}
-                            openInCodeView={!isReadOnly && !isCodeEditorActive && !isWaitingOnWorkspace && model && model.position && appId && onClickOpenInCodeView}
+                            openInCodeView={!isReadOnly && !isCodeEditorActive && !isWaitingOnWorkspace && model && model.position && onClickOpenInCodeView}
                         />
                         {/* <Tooltip arrow={true} placement="top-start" content="jgkgjhgj"> */}
                         <Assignment

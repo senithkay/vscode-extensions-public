@@ -65,7 +65,6 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
     },
     props: {
       isCodeEditorActive,
-      currentApp,
       userInfo,
       langServerURL,
       stSymbolInfo

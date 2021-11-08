@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
-import React, { ReactNode, useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { CaptureBindingPattern, LocalVarDecl, STKindChecker } from "@ballerina/syntax-tree";
@@ -22,7 +22,7 @@ import { PrimitiveBalType, WizardType } from "../../../../../../ConfigurationSpe
 import { Context } from "../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { getAllVariables } from "../../../../../utils/mixins";
-import { createModuleVarDecl, getInitialSource} from "../../../../../utils/modification-util";
+import { createModuleVarDecl, getInitialSource } from "../../../../../utils/modification-util";
 import { getVariableNameFromST } from "../../../../../utils/st-util";
 import { SelectDropdownWithButton } from "../../../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
@@ -102,25 +102,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     const [validExpresssionValue, setValidExpresssionValue] = useState(config.config !== "");
     const [variableExpression, setVariableExpression] = useState<string>(varExpression);
     const [editorFocus, setEditorFocus] = useState<boolean>(false);
-    const [isStringType, setIsStringType] = useState(initialModelType === 'string');
-    const [initialSource, setInitialSource] = useState('');
-
-    useEffect(() => {
-        (async () => {
-            const source = await getInitialSource(createModuleVarDecl(
-                {
-                    varName: varName ? varName : "default",
-                    varOptions: [],
-                    varType:  selectedType === "other" ? otherType : selectedType,
-                    varValue: variableExpression ? variableExpression : "expression"
-                },
-                {
-                    endColumn: 0, endLine: 0, startColumn: 0, startLine: 0
-                }
-            ));
-            setInitialSource(source);
-        })();
-    }, [varName, selectedType, variableExpression]);
 
     const onPropertyChange = (property: string) => {
         setVariableExpression(property);
@@ -137,12 +118,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
 
     const handleTypeChange = (type: string) => {
         setSelectedType(type);
-        if (type === "string") {
-            setIsStringType(true);
-        } else {
-            setIsStringType(false);
-        }
-
         setValidExpresssionValue(false);
         if (type !== "other") {
             setOtherType(undefined);
@@ -266,6 +241,33 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         isEdit: !!config.model,
     }
 
+    const expressionEditorConfig = {
+        model: {
+            name: "Expression",
+            displayName: "Value Expression",
+            typeName: (modelType ? modelType : "other")
+        },
+        customProps: {
+            validate: validateExpression,
+            interactive: true,
+            statementType: (modelType ? modelType : "other"),
+            tooltipTitle: variableTooltipMessages.expressionEditor.title,
+            tooltipActionText: variableTooltipMessages.expressionEditor.actionText,
+            tooltipActionLink: variableTooltipMessages.expressionEditor.actionLink,
+        },
+        onChange: onPropertyChange,
+        defaultValue: variableExpression,
+    };
+
+    const initialSource = getInitialSource(createModuleVarDecl(
+        {
+            varName: varName ? varName : "default",
+            varOptions: [],
+            varType:  selectedType === "other" ? otherType : selectedType,
+            varValue: variableExpression ? variableExpression : "expression"
+        }
+    ));
+
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {
             label: intl.formatMessage({id: "lowcode.develop.configForms.variable.statementEditor.label"}),
@@ -277,8 +279,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             onSave: handleSave,
             onChange: onPropertyChange,
             validate: validateExpression
-        },
-        !isStringType
+        }
     );
 
     if (!stmtEditorComponent) {
@@ -320,25 +321,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                             <VariableNameInput {...variableNameConfig} />
                             <div className="exp-wrapper">
                                 <ExpressionEditor
-                                    key={selectedType}
-                                    model={{
-                                        name: "Expression",
-                                        value: variableExpression,
-                                        type: (modelType ? modelType : "other")
-                                    }}
-                                    customProps={{
-                                        validate: validateExpression,
-                                        expandDefault: (selectedType === "other"),
-                                        tooltipTitle: variableTooltipMessages.expressionEditor.title,
-                                        tooltipActionText: variableTooltipMessages.expressionEditor.actionText,
-                                        tooltipActionLink: variableTooltipMessages.expressionEditor.actionLink,
-                                        interactive: true,
-                                        focus: editorFocus,
-                                        statementType: (modelType ? modelType : "other") as PrimitiveBalType,
-                                        revertFocus: revertEditorFocus
-                                    }}
-                                    onChange={onPropertyChange}
-                                    defaultValue={variableExpression}
+                                    {...expressionEditorConfig}
                                 />
                             </div>
                         </div>

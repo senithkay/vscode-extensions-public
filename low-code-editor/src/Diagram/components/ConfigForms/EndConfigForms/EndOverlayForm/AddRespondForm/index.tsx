@@ -20,6 +20,7 @@ import cn from "classnames";
 import { httpResponse, PrimitiveBalType, WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
+import { createRespond, getInitialSource } from "../../../../../utils/modification-util";
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
 import { useStatementEditor } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
@@ -44,11 +45,6 @@ export function AddRespondForm(props: RespondFormProps) {
         props: {
             isCodeEditorActive,
             isMutationProgress: isMutationInProgress
-        },
-        api: {
-            tour: {
-                goToNextTourStep: dispatchGoToNextTourStep
-            }
         }
     } = useContext(Context);
     const { config, formArgs, onCancel, onSave } = props;
@@ -68,14 +64,10 @@ export function AddRespondForm(props: RespondFormProps) {
     const onExpressionChange = (value: any) => {
         respondFormConfig.respondExpression = value;
         setResExp(value);
-        if (value === "jsonPayload") {
-            dispatchGoToNextTourStep('CONFIG_RESPOND_SELECT_JSON');
-        }
         setValidForm(false);
     };
 
     const onSaveWithTour = () => {
-        dispatchGoToNextTourStep('CONFIG_RESPOND_CONFIG_SAVE');
         respondFormConfig.responseCode = statusCodeState;
         respondFormConfig.respondExpression = resExp;
         onSave();
@@ -144,18 +136,24 @@ export function AddRespondForm(props: RespondFormProps) {
     );
     const disableSave = (isMutationInProgress || !validForm || !validStatusCode);
 
+    const initialSource = getInitialSource(createRespond(
+        respondFormConfig.genType,
+        respondFormConfig.variable,
+        respondFormConfig.caller,
+        resExp
+    ));
+
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {
             label: intl.formatMessage({id: "lowcode.develop.configForms.respond.statementEditor.label"}),
-            initialSource: "", // TODO: Pass the actual initialSource
+            initialSource,
             formArgs: {formArgs},
             isMutationInProgress,
             validForm,
             onSave: onSaveWithTour,
             onChange: onExpressionChange,
             validate: validateExpression
-        },
-        !true
+        }
     );
 
 

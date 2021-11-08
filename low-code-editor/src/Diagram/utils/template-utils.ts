@@ -32,7 +32,7 @@ export async function getInsertComponentSource(insertTempName: string, config: {
     return hbTemplate(config);
 }
 
-export async function getComponentSource(insertTempName: string, config: { [key: string]: any }) {
+export function getComponentSource(insertTempName: string, config: { [key: string]: any }) {
     const hbTemplate = compile(templates[insertTempName]);
     return hbTemplate(config);
 }
