@@ -20,7 +20,7 @@ import {
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         connectorListWrap: {
-            marginTop: theme.spacing(6),
+            marginTop: theme.spacing(2),
             height: '80vh',
             overflowY: 'scroll',
         },
@@ -41,6 +41,17 @@ const useStyles = makeStyles((theme: Theme) =>
             height: '80vh',
             alignContent: 'center',
             alignItems: 'center',
+        },
+        resultsContainer: {
+            marginTop: theme.spacing(6),
+        },
+        filterTag: {
+            border: '1px solid #E6E7EC',
+            borderRadius: '8px',
+            paddingLeft: '8px'
+        },
+        filterRemoveBtn: {
+            padding: '8px',
         },
         connector: {
             display: 'flex',

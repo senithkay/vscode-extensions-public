@@ -32,14 +32,13 @@ export interface FilterByMenuProps {
     filterValues: string[];
     filterState: FilterStateMap;
     setFilterState: (filterState: FilterStateMap) => void;
+    selectedCategory: string;
     setCategory: (category: string) => void;
 }
 
 function FilterByMenu(props: FilterByMenuProps) {
     const classes = useStyles();
-    const { filterState, filterValues, setFilterState, setCategory } = props;
-
-    const [ selectedCategory, setSelectedCategory ] = useState("");
+    const { filterState, filterValues, setFilterState, selectedCategory, setCategory } = props;
 
     const handleChange = (event: any, value: string) => {
         setFilterState({
@@ -126,7 +125,6 @@ function FilterByMenu(props: FilterByMenuProps) {
 
     const updateCategory = (category: string) => {
         setCategory(category);
-        setSelectedCategory(category);
     };
 
     return (

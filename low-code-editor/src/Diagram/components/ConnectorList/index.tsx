@@ -16,6 +16,7 @@ import { FormattedMessage } from "react-intl";
 
 import { LocalVarDecl } from "@ballerina/syntax-tree";
 import { Box, CircularProgress, FormControl, Grid, Typography } from "@material-ui/core";
+import { CloseRounded } from "@material-ui/icons";
 
 import { Context } from "../../../Contexts/Diagram";
 import { DiagramEditorLangClientInterface } from "../../../Definitions/diagram-editor-lang-client-interface";
@@ -23,6 +24,7 @@ import { BallerinaConnectorInfo, BallerinaConnectorsRequest, BallerinaConnectors
 import { EVENT_TYPE_AZURE_APP_INSIGHTS, LowcodeEvent, START_CONNECTOR_ADD_INSIGHTS } from "../../models";
 import { PlusViewState } from "../../view-state/plus";
 import { FormGeneratorProps } from "../FormGenerator";
+import { ButtonWithIcon } from "../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import { useStyles as useFormStyles } from "../Portals/ConfigForm/forms/style";
 import { APIHeightStates } from "../Portals/Overlay/Elements/PlusHolder/PlusElements";
 import { getConnectorIconSVG } from "../Portals/utils";
@@ -163,6 +165,10 @@ export function ConnectorList(props: FormGeneratorProps) {
         setSelectedCategory(category);
     };
 
+    const clearCategory = () => {
+        setSelectedCategory("");
+    };
+
     const handleConnectorListScroll = (e: React.UIEvent<HTMLElement>) => {
         const bottom = e.currentTarget.scrollHeight - e.currentTarget.scrollTop === e.currentTarget.clientHeight;
         if (bottom && !isSearchResultsFetching) {
@@ -195,11 +201,17 @@ export function ConnectorList(props: FormGeneratorProps) {
                             <SearchBar searchQuery={searchQuery} onSearchButtonClick={onSearchButtonClick} />
                             <Grid item={true} sm={12} container={true}>
                                 <Grid item={true} sm={5}>
-                                    <FilterByMenu filterState={filterState} setFilterState={setFilterState} filterValues={[]} setCategory={updateCategory} />
+                                    <FilterByMenu
+                                        filterState={filterState}
+                                        setFilterState={setFilterState}
+                                        filterValues={[]}
+                                        selectedCategory={selectedCategory}
+                                        setCategory={updateCategory}
+                                    />
                                 </Grid>
-                                <Grid sm={7} container={true} item={true} alignItems="flex-start">
+                                <Grid sm={7} container={true} item={true} className={classes.resultsContainer}>
                                     {isSearchResultsFetching && (
-                                        <Grid sm={12} item={true} container={true} alignItems="center" className={classes.msgContainer}>
+                                        <Grid sm={12} item={true} container={true} className={classes.msgContainer}>
                                             <Grid item={true} sm={12}>
                                                 <Box display="flex" justifyContent="center">
                                                     <CircularProgress data-testid="marketplace-search-loader" />
@@ -208,6 +220,19 @@ export function ConnectorList(props: FormGeneratorProps) {
                                                     <Typography variant="body1">Loading...</Typography>
                                                 </Box>
                                             </Grid>
+                                        </Grid>
+                                    )}
+
+                                    {!isSearchResultsFetching && selectedCategory !== "" && (
+                                        <Grid sm={12} item={true} container={true} alignItems="center">
+                                            <Box display="flex" justifyContent="center" alignItems="center" className={classes.filterTag}>
+                                                <Typography variant="body1">{selectedCategory}</Typography>
+                                                <ButtonWithIcon
+                                                    className={classes.filterRemoveBtn}
+                                                    onClick={clearCategory}
+                                                    icon={<CloseRounded fontSize="small" />}
+                                                />
+                                            </Box>
                                         </Grid>
                                     )}
 
