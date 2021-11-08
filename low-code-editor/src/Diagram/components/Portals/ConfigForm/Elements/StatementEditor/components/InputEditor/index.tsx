@@ -179,10 +179,9 @@ export function InputEditor(props: InputEditorProps) {
     }
 
     const handleDiagnostic = () => {
-        const codeSnippet = stmtCtx.modelCtx.statementModel.source.split("EXPRESSION").join(" ");
         const hasDiagnostic = !inputEditorState.diagnostic.length // true if there are no diagnostics
 
-        stmtCtx.formCtx.onChange(codeSnippet);
+        stmtCtx.formCtx.onChange(stmtCtx.modelCtx.statementModel.source);
         stmtCtx.formCtx.validate('', !hasDiagnostic, false);
 
         // TODO: Need to obtain the default value as a prop
@@ -193,8 +192,7 @@ export function InputEditor(props: InputEditorProps) {
 
     const handleContentChange = async (currentStatement: string, EOL: string) => {
         let newModel: string;
-        const newCodeSnippet: string = currentStatement.split("EXPRESSION").join(" ");
-        newModel = addToTargetLine((currentFile.content), model.position.startLine, newCodeSnippet, EOL);
+        newModel = addToTargetLine((currentFile.content), model.position.startLine, currentStatement, EOL);
 
         inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
         inputEditorState.content = newModel;
