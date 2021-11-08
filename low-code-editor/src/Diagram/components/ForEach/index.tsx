@@ -53,6 +53,7 @@ import {
 } from "./ForeachSVG";
 import "./style.scss";
 import { COLLAPSE_DOTS_SVG_WIDTH, ThreeDotsSVG } from "./ThreeDotsSVG";
+import cn from "classnames";
 
 export interface ForeachProps {
     blockViewState?: BlockViewState;
@@ -235,6 +236,8 @@ export function ForEach(props: ForeachProps) {
     const keyWord = forEachModel.inKeyword.value
     const forEachSource = forEachModel?.actionOrExpressionNode?.source;
     assignmentText = variableName + " " + keyWord + " " + forEachSource;
+    let diagnostics = forEachModel.actionOrExpressionNode.typeData.diagnostics;
+    let ForeachWrapper = diagnostics?.length!=0 ? cn("foreach-block-error") :cn("foreach-block") ;
 
     const unFoldedComponent = (
         <g className="foreach-block" data-testid="foreach-block">
@@ -376,7 +379,7 @@ export function ForEach(props: ForeachProps) {
     );
 
     return (
-        <g className="foreach-wrapper">
+        <g className={ForeachWrapper}>
             <g>
                 {foreachComponent}
             </g>
