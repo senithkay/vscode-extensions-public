@@ -357,7 +357,12 @@ export function ConnectorForm(props: FormGeneratorProps) {
                     )}
 
                     {formState === FormStates.ExistingConnection && isNewConnectorInitWizard && (
-                        <SelectConnectionForm onCreateNew={onCreateNew} connectorConfig={config} connector={connector} onSelectExisting={onSelectExisting} />
+                        <SelectConnectionForm
+                            onCreateNew={onCreateNew}
+                            connectorConfig={config}
+                            connector={connector}
+                            onSelectExisting={onSelectExisting}
+                        />
                     )}
 
                     {formState === FormStates.ExistingConnection && !isNewConnectorInitWizard && (
