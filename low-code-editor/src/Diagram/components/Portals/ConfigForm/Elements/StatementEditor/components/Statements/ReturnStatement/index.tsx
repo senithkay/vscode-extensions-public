@@ -14,7 +14,7 @@ import React, { ReactNode, useContext } from "react";
 
 import { ReturnStatement } from "@ballerina/syntax-tree";
 
-import * as c from "../../../constants";
+import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
@@ -47,7 +47,7 @@ export function ReturnStatementC(props: ReturnStatementProps) {
     const onClickOnExpression = (event: any) => {
         event.stopPropagation()
         expressionHandler(model.expression, false,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(c.DEFAULT_RETURN) })
+            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
     };
 
     return (
