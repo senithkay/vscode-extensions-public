@@ -130,7 +130,6 @@ export function ViewContainer(props: ViewProps) {
                         onChange={onChange}
                         validate={validate}
                         updateModel={updateModel}
-
                     >
                         <LeftPane
                             currentModel={currentModel}
