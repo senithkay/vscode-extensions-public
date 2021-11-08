@@ -355,8 +355,8 @@
                 "category": "Ballerina"
             },
             {
-                "command": "ballerina.performanceForecast",
-                "title": "Performance Forecast",
+                "command": "ballerina.swaggerView.open",
+                "title": "Open Swagger View",
                 "category": "Ballerina"
             }
         ],
