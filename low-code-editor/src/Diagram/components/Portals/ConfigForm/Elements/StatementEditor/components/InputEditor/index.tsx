@@ -124,7 +124,7 @@ export function InputEditor(props: InputEditorProps) {
     const isCustomTemplate = false;
 
     useEffect(() => {
-        handleOnFocus(stmtCtx.modelCtx.statementModel.source, "").then(() => {
+        handleOnFocus(currentContent, "").then(() => {
             handleOnOutFocus().then();
         })
         getContextBasedCompletions(userInput === 'EXPRESSION' ? "" : userInput);

@@ -33,7 +33,9 @@ export function generateExpressionTemplate (kind: string, value?: any) {
         return ("EXPRESSION && EXPRESSION ")
     } else if (kind === c.CONDITIONAL) {
         return ("EXPRESSION ? EXPRESSION : EXPRESSION")
-    }else if (kind === c.STRING_LITERAL) {
+    } else if (kind === c.RANGE) {
+        return ("EXPRESSION ... EXPRESSION")
+    } else if (kind === c.STRING_LITERAL) {
         return ("\" \"");
     } else if (kind === c.NUMERIC_LITERAL) {
         return ("0");
