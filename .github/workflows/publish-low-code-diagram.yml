@@ -3,13 +3,16 @@ name: "Publish Low Code Editor"
 on:
   workflow_dispatch:
 
+defaults:
+  run:
+    working-directory: low-code-editor
+
 jobs:
   publish-package:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - run: cd /home/runner/work/ballerina-low-code-editor/low-code-editor
       - run: npm ci
       - run: npm run build --if-present
       - name: Publish Package
