@@ -108,8 +108,9 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
 
     let isReferencedVariable = false;
     const isLocalVariableDecl = model && STKindChecker.isLocalVarDecl(model);
+    const isCaptureBindingPattern = model && isLocalVariableDecl && STKindChecker.isCaptureBindingPattern(model.typedBindingPattern.bindingPattern);
 
-    if (isLocalVariableDecl) {
+    if (isCaptureBindingPattern) {
         const localVarDecl = model as LocalVarDecl;
         const captureBingingPattern = localVarDecl.typedBindingPattern.bindingPattern as CaptureBindingPattern;
         if (stSymbolInfo?.variableNameReferences?.size &&

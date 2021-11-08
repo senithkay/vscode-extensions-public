@@ -13,15 +13,29 @@
 
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
+import searchGrey from '../../../../assets/images/search-grey.svg';
+
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         searchBarRoot: {
             height: theme.spacing(7),
+            borderRadius: theme.spacing(4),
             backgroundColor: theme.palette.common.white,
-            boxShadow: '0 5px 20px 0 rgba(50,50,77,0.07)',
             padding: theme.spacing(1),
             flexDirection: 'row',
             alignItems: 'center',
+            border: '1px solid #E6E7EC',
+        },
+        searchIcon: {
+            height: theme.spacing(2.375),
+            width: theme.spacing(2.25),
+            backgroundImage: `url(${searchGrey})`,
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center',
+            marginTop: theme.spacing(1.5),
+            marginLeft: theme.spacing(1.375),
+            marginBottom: theme.spacing(1.125),
+            marginRight: theme.spacing(0.75),
         },
         searchText: {
             width: '100%',
@@ -29,7 +43,8 @@ const useStyles = makeStyles((theme: Theme) =>
             ...theme.typography.subtitle2,
         },
         searchBtn: {
-            width: '50%',
+            paddingLeft: theme.spacing(4),
+            paddingRight: theme.spacing(4),
         },
     })
 );

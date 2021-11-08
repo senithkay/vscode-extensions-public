@@ -12,28 +12,24 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, SyntheticEvent, useContext, useState } from "react";
+import { FormattedMessage } from "react-intl";
 
-import { LocalVarDecl, STKindChecker } from "@ballerina/syntax-tree";
-import { Box, CircularProgress, Grid, Typography } from "@material-ui/core";
+import { LocalVarDecl } from "@ballerina/syntax-tree";
+import { Box, CircularProgress, FormControl, Grid, Typography } from "@material-ui/core";
 
-import Tooltip from "../../../components/TooltipV2";
 import { Context } from "../../../Contexts/Diagram";
 import { DiagramEditorLangClientInterface } from "../../../Definitions/diagram-editor-lang-client-interface";
 import { BallerinaConnectorInfo, BallerinaConnectorsRequest, BallerinaConnectorsResponse, Connector } from "../../../Definitions/lang-client-extended";
-import {
-    EVENT_TYPE_AZURE_APP_INSIGHTS,
-    LowcodeEvent,
-    START_CONNECTOR_ADD_INSIGHTS,
-    START_EXISTING_CONNECTOR_ADD_INSIGHTS
-} from "../../models";
+import { EVENT_TYPE_AZURE_APP_INSIGHTS, LowcodeEvent, START_CONNECTOR_ADD_INSIGHTS } from "../../models";
 import { PlusViewState } from "../../view-state/plus";
 import { FormGeneratorProps } from "../FormGenerator";
+import { useStyles as useFormStyles } from "../Portals/ConfigForm/forms/style";
 import { APIHeightStates } from "../Portals/Overlay/Elements/PlusHolder/PlusElements";
-import { getConnectorIconSVG, getExistingConnectorIconSVG, getFormattedModuleName } from "../Portals/utils";
+import { getConnectorIconSVG } from "../Portals/utils";
 
 import FilterByMenu from "./FilterByMenu";
 import SearchBar from "./SearchBar";
-import useStyles from './style';
+import useStyles from "./style";
 
 export interface ConnectorListProps {
     onSelect: (connector: BallerinaConnectorInfo, selectedConnector: LocalVarDecl) => void;
@@ -59,200 +55,100 @@ export interface ExisitingConnctorComponent {
 }
 
 export interface FilterStateMap {
-    [ key: string ]: boolean;
+    [key: string]: boolean;
 }
 
 export function ConnectorList(props: FormGeneratorProps) {
     const classes = useStyles();
+    const formClasses = useFormStyles();
     const {
-        props: { langServerURL, stSymbolInfo, currentFile },
+        props: { langServerURL, stSymbolInfo, currentFile, userInfo },
         api: {
-            helpPanel: {
-                openConnectorHelp,
-            },
-            insights: {
-                onEvent
-            },
-            ls: {
-                getDiagramEditorLangClient,
-            }
-        }
+            helpPanel: { openConnectorHelp },
+            insights: { onEvent },
+            ls: { getDiagramEditorLangClient },
+        },
     } = useContext(Context);
-    const { onSelect, collapsed } = props.configOverlayFormStatus.formArgs as ConnectorListProps;
+    const { onSelect } = props.configOverlayFormStatus.formArgs as ConnectorListProps;
 
-    const [ centralConnectors, setCentralConnectors ] = useState<Connector[]>([]);
-    const [ localConnectors, setLocalConnectors ] = useState<Connector[]>([]);
-    const [ isSearchResultsFetching, setIsSearchResultsFetching ] = useState(true);
-    const [ isToggledExistingConnector, setToggledExistingConnector ] = useState(true);
-    const [ isToggledSelectConnector, setToggledSelectConnector ] = useState(true);
-    const [ searchQuery, setSearchQuery ] = useState("");
+    const [centralConnectors, setCentralConnectors] = useState<Connector[]>([]);
+    const [localConnectors, setLocalConnectors] = useState<Connector[]>([]);
+    const [isSearchResultsFetching, setIsSearchResultsFetching] = useState(true);
+    const [searchQuery, setSearchQuery] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("");
-    const [ filterState, setFilterState ] = useState<FilterStateMap>({});
+    const [filterState, setFilterState] = useState<FilterStateMap>({});
+    const [currentPage, setCurrentPage] = useState(1);
+    const [isNextPageFetching, setIsNextPageFetching] = useState(false);
 
-    const isExistingConnectors = stSymbolInfo.endpoints && Array.from(stSymbolInfo.endpoints).length > 0;
+    const connectorLimit = 14;
 
     React.useEffect(() => {
         fetchConnectorList();
-    }, [searchQuery, selectedCategory]);
+    }, [searchQuery, selectedCategory, filterState]);
 
     let centralConnectorComponents: ReactNode[] = [];
     let localConnectorComponents: ReactNode[] = [];
-    let existingConnectorComponents: ReactNode[] = [];
-
-    const toggleExistingCon = () => {
-        setToggledExistingConnector(!isToggledExistingConnector);
-        if (!isToggledExistingConnector) {
-            // setExistingConnectorCollapsed(true);
-            collapsed(APIHeightStates.ExistingConnectors);
-        } else if (isToggledExistingConnector) {
-            collapsed(APIHeightStates.ExistingConnectorsColapsed);
-        }
-    };
-
-    const toggleSelectCon = () => {
-        setToggledSelectConnector(!isToggledSelectConnector);
-        if (!isToggledSelectConnector) {
-            // setSelectConnectorCollapsed(true);
-            collapsed(APIHeightStates.SelectConnectors);
-        } else if (isToggledSelectConnector) {
-            collapsed(APIHeightStates.SelectConnectorsColapsed);
-        }
-    };
 
     const onSelectConnector = (connector: BallerinaConnectorInfo) => {
         const event: LowcodeEvent = {
             type: EVENT_TYPE_AZURE_APP_INSIGHTS,
             name: START_CONNECTOR_ADD_INSIGHTS,
-            property: connector.displayName || connector.package.name
+            property: connector.displayName || connector.package.name,
         };
         onEvent(event);
         onSelect(connector, undefined);
         openConnectorHelp(connector);
     };
 
-    const onSelectExistingConnector = (connector: BallerinaConnectorInfo, selectedConnector: LocalVarDecl) => {
-        const event: LowcodeEvent = {
-            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
-            name: START_EXISTING_CONNECTOR_ADD_INSIGHTS,
-            property: connector.displayName || connector.package.name
-        };
-        onEvent(event);
-        openConnectorHelp(connector);
-        onSelect(connector, selectedConnector);
-    };
-
     const getConnectorComponents = (connectors: Connector[]): ReactNode[] => {
         const componentList: ReactNode[] = [];
-        let tooltipSideCount = 0;
         connectors?.forEach((connector: Connector) => {
             const connectorName = (connector.displayAnnotation?.label || `${connector.package?.name} / ${connector.name}`).replace(/["']/g, "");
-            const placement = (tooltipSideCount++) % 2 === 0 ? "left" : "right";
-            const tooltipExample = connector.package.summary;
-            const tooltipText = {
-                "heading": connectorName,
-                "content": connector.package?.organization,
-                "example": tooltipExample
-            };
             const component: ReactNode = (
-                <Tooltip type="example" text={tooltipText} placement={placement} arrow={true} interactive={true} key={connectorName}>
-                    <Grid item={true} sm={6} alignItems="center">
-                        <div key={connectorName} onClick={onSelectConnector.bind(this, connector)} data-testid={connectorName.toLowerCase()}>
-                            <div className={classes.connector}>
-                                <div >
-                                    {getConnectorIconSVG(connector)}
-                                </div>
-                                <div className={classes.connectorName}>
-                                    {connectorName}
-                                </div>
-                            </div>
+                <Grid item={true} sm={6} alignItems="center">
+                    <div key={connectorName} onClick={onSelectConnector.bind(this, connector)} data-testid={connectorName.toLowerCase()}>
+                        <div className={classes.connector}>
+                            <div>{getConnectorIconSVG(connector)}</div>
+                            <div className={classes.connectorName}>{connectorName}</div>
+                            <div className={classes.orgName}>by {connector.package.organization}</div>
                         </div>
-                    </Grid>
-                </Tooltip>
+                    </div>
+                </Grid>
             );
             componentList.push(component);
         });
         return componentList;
     };
 
-    const getExistingConnectorComponents = (): ReactNode[] => {
-        const componentList: ReactNode[] = [];
-        stSymbolInfo.endpoints.forEach((value: LocalVarDecl, key: string) => {
-            // todo: need to add connector filtering here
-            let moduleName: string;
-            let name: string;
-            if (STKindChecker.isQualifiedNameReference(value.typedBindingPattern.typeDescriptor)) {
-                moduleName = value.typedBindingPattern.typeDescriptor?.modulePrefix?.value;
-                name = value.typedBindingPattern.typeDescriptor?.identifier?.value;
+    const fetchConnectorList = (page?: number) => {
+        page ? setIsNextPageFetching(true) : setIsSearchResultsFetching(true);
+        getDiagramEditorLangClient(langServerURL).then((langClient: DiagramEditorLangClientInterface) => {
+            const request: BallerinaConnectorsRequest = {
+                targetFile: currentFile.path,
+                query: searchQuery,
+                keyword: selectedCategory,
+                limit: connectorLimit,
+            };
+
+            const hasUserOrgFilter = filterState.hasOwnProperty("My Organization") ? filterState["My Organization"] : false;
+            if (hasUserOrgFilter && userInfo) {
+                request.organization = userInfo.selectedOrgHandle;
             }
-            const orgName = value.typedBindingPattern.bindingPattern.typeData?.typeSymbol?.moduleID?.orgName;
-            if (moduleName && name) {
-                const existConnector = getConnector(moduleName, name);
-                const component: ReactNode = (
-                    <>
-                        { existConnector && (
-                            <div className="existing-connect-option" key={key} onClick={onSelectExistingConnector.bind(this, existConnector, value)} data-testid={key.toLowerCase()}>
-                                <div className="existing-connector-details product-tour-add-http">
-                                    <div className="existing-connector-icon">
-                                        {getExistingConnectorIconSVG(`${existConnector.moduleName}_${existConnector.package.name}`)}
-                                    </div>
-                                    <div className="existing-connector-name">
-                                        {key}
-                                    </div>
-                                </div>
-                            </div>
-                        ) }
-                        { !existConnector && (
-                            <div className="existing-connect-option" key={key} data-testid={key.toLowerCase()}>
-                                <div className="existing-connector-details product-tour-add-http">
-                                    <div className="existing-connector-icon">
-                                        {getExistingConnectorIconSVG(`${moduleName}_${orgName}`)}
-                                    </div>
-                                    <div className="existing-connector-name">
-                                        {key}
-                                    </div>
-                                </div>
-                            </div>
-                        ) }
-                    </>
-                );
-                componentList.push(component);
+
+            if (page) {
+                request.offset = (page - 1) * connectorLimit;
             }
+
+            langClient.getConnectors(request).then((response: BallerinaConnectorsResponse) => {
+                if (response.central?.length > 0) {
+                    page ? setCentralConnectors([...centralConnectors, ...response.central]) : setCentralConnectors(response.central);
+                }
+                if (response.local?.length > 0) {
+                    setLocalConnectors(response.local);
+                }
+                page ? setIsNextPageFetching(false) : setIsSearchResultsFetching(false);
+            });
         });
-        return componentList;
-    };
-
-    const getConnector = (moduleName: string, name: string): BallerinaConnectorInfo => {
-        centralConnectors.forEach(element => {
-            const existingConnector = element as BallerinaConnectorInfo;
-            const formattedModuleName = getFormattedModuleName(existingConnector.package.name);
-            if (formattedModuleName === moduleName && existingConnector.name === name) {
-                return existingConnector;
-            }
-        });
-        return null;
-    };
-
-    const fetchConnectorList = () => {
-        setIsSearchResultsFetching(true);
-        getDiagramEditorLangClient(langServerURL).then(
-            (langClient: DiagramEditorLangClientInterface) => {
-                const request: BallerinaConnectorsRequest = {
-                    targetFile: currentFile.path,
-                    query: searchQuery,
-                    keyword: selectedCategory
-                };
-
-                langClient.getConnectors(request).then((response: BallerinaConnectorsResponse) => {
-                    if (response.central?.length > 0) {
-                        setCentralConnectors(response.central);
-                    }
-                    if (response.local?.length > 0) {
-                        setLocalConnectors(response.local);
-                    }
-                    setIsSearchResultsFetching(false);
-                });
-            }
-        );
     };
 
     const preventDiagramScrolling = (e: SyntheticEvent) => {
@@ -267,108 +163,108 @@ export function ConnectorList(props: FormGeneratorProps) {
         setSelectedCategory(category);
     };
 
+    const handleConnectorListScroll = (e: React.UIEvent<HTMLElement>) => {
+        const bottom = e.currentTarget.scrollHeight - e.currentTarget.scrollTop === e.currentTarget.clientHeight;
+        if (bottom && !isSearchResultsFetching) {
+            fetchConnectorList(currentPage + 1);
+            setCurrentPage(currentPage + 1);
+        }
+    };
+
     if (!isSearchResultsFetching) {
         centralConnectorComponents = getConnectorComponents(centralConnectors);
         localConnectorComponents = getConnectorComponents(localConnectors);
-        existingConnectorComponents = getExistingConnectorComponents();
     }
 
     return (
-        <div onWheel={preventDiagramScrolling} className={classes.container} >
-            <SearchBar
-                searchQuery={searchQuery}
-                onSearchButtonClick={onSearchButtonClick}
-            />
-            <Grid item={true} sm={12} container={true}>
-                <Grid item={true} sm={5}>
-                    <FilterByMenu
-                        filterState={filterState}
-                        setFilterState={setFilterState}
-                        filterValues={[]}
-                        setCategory={updateCategory}
-                    />
-                </Grid>
-                <Grid
-                    sm={7}
-                    container={true}
-                    item={true}
-                    alignItems="flex-start"
-                >
-                    { isSearchResultsFetching && (
-                        <Grid
-                            sm={12}
-                            item={true}
-                            container={true}
-                            alignItems="center"
-                            className={classes.msgContainer}
-                        >
-                            <Grid item={true} sm={12}>
-                                <Box display="flex" justifyContent="center">
-                                    <CircularProgress data-testid="marketplace-search-loader" />
-                                </Box>
-                                <Box display="flex" justifyContent="center">
-                                    <Typography variant="body1">
-                                        Loading...
-                                    </Typography>
-                                </Box>
-                            </Grid>
-                        </Grid>
-                    ) }
+        <FormControl data-testid="log-form" className={classes.container}>
+            <div className={formClasses.formWrapper}>
+                <div className={formClasses.formFeilds}>
+                    <div className={formClasses.formWrapper}>
+                        <div className={formClasses.formTitleWrapper}>
+                            <div className={formClasses.mainTitleWrapper}>
+                                <Typography variant="h4">
+                                    <Box paddingTop={2} paddingBottom={2}>
+                                        <FormattedMessage id="lowcode.develop.configForms.connectorList.title" defaultMessage="API Call" />
+                                    </Box>
+                                </Typography>
+                            </div>
+                        </div>
 
-                    <Grid
-                        item={true}
-                        sm={12}
-                        container={true}
-                        direction="row"
-                        justifyContent="flex-start"
-                        spacing={2}
-                        className={classes.connectorWrap}
-                    >
-                        { centralConnectors?.length > 0 && (
-                            <>
-                                <Grid item={true} sm={12} className={classes.connectorListWrap}>
-                                    <Grid item={true} sm={6} md={6} lg={6}>
-                                        <Typography variant="h4">
-                                            Public Connectors
-                                        </Typography>
-                                    </Grid>
+                        <div onWheel={preventDiagramScrolling} className={classes.container}>
+                            <SearchBar searchQuery={searchQuery} onSearchButtonClick={onSearchButtonClick} />
+                            <Grid item={true} sm={12} container={true}>
+                                <Grid item={true} sm={5}>
+                                    <FilterByMenu filterState={filterState} setFilterState={setFilterState} filterValues={[]} setCategory={updateCategory} />
                                 </Grid>
-                                {centralConnectorComponents}
-                            </>
-                        ) }
-                        { localConnectors?.length > 0 && (
-                            <>
-                                <Grid item={true} sm={12} className={classes.connectorListWrap}>
-                                    <Grid item={true} sm={6} md={6} lg={6}>
-                                        <Typography variant="h4">
-                                            Local Connectors
-                                        </Typography>
-                                    </Grid>
-                                </Grid>
-                                {localConnectorComponents}
-                            </>
-                        ) }
-                    </Grid>
+                                <Grid sm={7} container={true} item={true} alignItems="flex-start">
+                                    {isSearchResultsFetching && (
+                                        <Grid sm={12} item={true} container={true} alignItems="center" className={classes.msgContainer}>
+                                            <Grid item={true} sm={12}>
+                                                <Box display="flex" justifyContent="center">
+                                                    <CircularProgress data-testid="marketplace-search-loader" />
+                                                </Box>
+                                                <Box display="flex" justifyContent="center">
+                                                    <Typography variant="body1">Loading...</Typography>
+                                                </Box>
+                                            </Grid>
+                                        </Grid>
+                                    )}
 
-                    { !isSearchResultsFetching && centralConnectorComponents.length === 0 && localConnectors.length === 0 && (
-                        <Grid
-                            sm={12}
-                            item={true}
-                            container={true}
-                            alignItems="center"
-                            className={classes.msgContainer}
-                        >
-                            <Grid item={true} sm={12}>
-                                <Box display="flex" justifyContent="center">
-                                    <Typography variant="body1">
-                                        No connectors found.
-                                    </Typography>
-                                </Box>
+                                    <Grid
+                                        item={true}
+                                        sm={12}
+                                        container={true}
+                                        direction="row"
+                                        justifyContent="flex-start"
+                                        spacing={2}
+                                        className={classes.connectorListWrap}
+                                        onScroll={handleConnectorListScroll}
+                                    >
+                                        {!isSearchResultsFetching && localConnectors?.length > 0 && (
+                                            <>
+                                                <Grid item={true} sm={12} className={classes.connectorSectionWrap}>
+                                                    <Grid item={true} sm={6} md={6} lg={6}>
+                                                        <Typography variant="h4">Local APIs</Typography>
+                                                    </Grid>
+                                                </Grid>
+                                                {localConnectorComponents}
+                                            </>
+                                        )}
+                                        {!isSearchResultsFetching && centralConnectors?.length > 0 && (
+                                            <>
+                                                <Grid item={true} sm={12} className={classes.connectorSectionWrap}>
+                                                    <Grid item={true} sm={6} md={6} lg={6}>
+                                                        <Typography variant="h4">Public APIs</Typography>
+                                                    </Grid>
+                                                </Grid>
+                                                {centralConnectorComponents}
+                                            </>
+                                        )}
+                                        {!isSearchResultsFetching && isNextPageFetching && (
+                                            <Grid item={true} sm={12} className={classes.connectorSectionWrap}>
+                                                <Box display="flex" justifyContent="center">
+                                                    <Typography variant="body1">Loading more APIs...</Typography>
+                                                </Box>
+                                            </Grid>
+                                        )}
+                                    </Grid>
+
+                                    {!isSearchResultsFetching && centralConnectorComponents.length === 0 && localConnectors.length === 0 && (
+                                        <Grid sm={12} item={true} container={true} alignItems="center" className={classes.msgContainer}>
+                                            <Grid item={true} sm={12}>
+                                                <Box display="flex" justifyContent="center">
+                                                    <Typography variant="body1">No APIs found.</Typography>
+                                                </Box>
+                                            </Grid>
+                                        </Grid>
+                                    )}
+                                </Grid>
                             </Grid>
-                        </Grid>
-                    ) }
-                </Grid>
-            </Grid>
-        </div >
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </FormControl>
     );
 }

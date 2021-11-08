@@ -133,7 +133,7 @@ function FilterByMenu(props: FilterByMenuProps) {
         <div className={classes.filterByMenuDiv}>
             <Typography variant="body1" classes={{ root: classes.filterByMenuTitle }}>
                 <FormattedMessage
-                    id="modules.marketplace.FilterByMenu.FilterByMenu.Filter.By"
+                    id="lowcode.develop.configForms.connectorList.FilterByMenu.FilterByMenu.Filter.By"
                     defaultMessage="Filter by"
                 />
             </Typography>

@@ -122,7 +122,7 @@ function Categories(props: CategoriesProps) {
                         startIcon={<ExpandMore />}
                     >
                         <FormattedMessage
-                            id="modules.marketplace.FilterByMenu.FilterByMenu.Categories.SeeMore"
+                            id="lowcode.develop.configForms.connectorList.FilterByMenu.FilterByMenu.Categories.SeeMore"
                             defaultMessage="See More"
                         />
                     </Button>
@@ -135,7 +135,7 @@ function Categories(props: CategoriesProps) {
                         startIcon={<ExpandLess />}
                     >
                         <FormattedMessage
-                            id="modules.marketplace.FilterByMenu.FilterByMenu.Categories.SeeLess"
+                            id="lowcode.develop.configForms.connectorList.FilterByMenu.FilterByMenu.Categories.SeeLess"
                             defaultMessage="See Less"
                         />
                     </Button>
