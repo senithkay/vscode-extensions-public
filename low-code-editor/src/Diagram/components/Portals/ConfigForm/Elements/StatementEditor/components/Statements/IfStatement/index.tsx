@@ -10,58 +10,69 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { ReactNode } from "react";
+import React, { ReactNode, useContext } from "react";
 
-import { STNode } from "@ballerina/syntax-tree"
+import { IfElseStatement } from "@ballerina/syntax-tree"
 
-import * as c from "../../../constants";
-import { SuggestionItem } from "../../../models/definitions";
+import { DEFAULT_EXPRESSIONS } from "../../../constants";
+import { VariableUserInputs } from "../../../models/definitions";
+import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
-import { statementEditorStyles } from "../../ViewContainer/styles";
+import { ExpressionComponent } from "../../Expression";
+import { useStatementEditorStyles } from "../../ViewContainer/styles";
 
 interface IfStatementProps {
-    model: STNode
-    expressionHandler: (suggestions: SuggestionItem[], model: STNode, operator: boolean) => void
-    isRoot: boolean
-    component: ReactNode
+    model: IfElseStatement
+    userInputs: VariableUserInputs
+    diagnosticHandler: (diagnostics: string) => void
 }
 
-export function IfStatement(props: IfStatementProps) {
-    const {model, expressionHandler, isRoot, component} = props;
+export function IfStatementC(props: IfStatementProps) {
+    const { model, userInputs, diagnosticHandler } = props;
 
-    const overlayClasses = statementEditorStyles();
+    const overlayClasses = useStatementEditorStyles();
+    const { expressionHandler } = useContext(SuggestionsContext);
 
-    const onClickOnRootExpression = (event: any) => {
+    const conditionComponent: ReactNode = (
+        <ExpressionComponent
+            model={model.condition}
+            isRoot={false}
+            userInputs={userInputs}
+            diagnosticHandler={diagnosticHandler}
+        />
+    );
+
+
+    const onClickOnConditionExpression = (event: any) => {
         event.stopPropagation()
-        expressionHandler(getSuggestionsBasedOnExpressionKind(c.DEFAULT_BOOL), model, false)
+        expressionHandler(model.condition, false,
+            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
     };
 
     return (
-        isRoot ? (
-            <span>
-                <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
-                    {"if"}
-                </span>
-                <button
-                    className={overlayClasses.expressionElement}
-                    onClick={onClickOnRootExpression}
-                >
-                    {component}
-                </button>
-                <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
-                    &nbsp;{"{"}
-                    <br/>
-                    &nbsp;&nbsp;&nbsp;{"..."}
-                    <br/>
-                    {"} "}
-                    <button className={overlayClasses.addNewExpressionButton}> + </button>
-                    {" else {"}
-                    <br/>
-                    &nbsp;&nbsp;&nbsp;{"..."}
-                    <br/>
-                    {"}"}
-                </span>
+        <span>
+            <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
+                {model.ifKeyword.value}
             </span>
-        ) : <span>{component}</span>
+             <button className={overlayClasses.expressionElement} onClick={onClickOnConditionExpression}>
+                {conditionComponent}
+            </button>
+            <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
+                &nbsp;{model.ifBody.openBraceToken.value}
+                <br/>
+                &nbsp;&nbsp;&nbsp;{"..."}
+                <br/>
+                &nbsp;{model.ifBody.closeBraceToken.value}
+            </span>
+            <button className={overlayClasses.addNewExpressionButton}> + </button>
+            <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
+                &nbsp;{model.elseBody.elseKeyword.value}
+                &nbsp;{model.ifBody.openBraceToken.value}
+                <br/>
+                &nbsp;&nbsp;&nbsp;{"..."}
+                <br/>
+                &nbsp;{model.ifBody.closeBraceToken.value}
+            </span>
+        </span>
     );
 }

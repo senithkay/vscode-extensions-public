@@ -17,19 +17,16 @@ import React, { useContext, useState } from "react";
 import { Box, FormControl, Typography } from "@material-ui/core";
 
 import { Context } from "../../../../../../Contexts/Diagram";
-import { ButtonWithIcon } from "../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { EndConfig } from "../../../../Portals/ConfigForm/types";
 import { wizardStyles } from "../../../style";
 
-import { CloseRounded, ReturnIcon, EditIcon } from "../../../../../../assets/icons";
-
 import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
-import { ViewContainer } from "../../../../Portals/ConfigForm/Elements/StatementEditor/components/ViewContainer/ViewContainer";
-import { StatementEditorButton } from "../../../../Portals/ConfigForm/Elements/Button/StatementEditorButton";
+import { useStatementEditor } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
+import { createReturnStatement, getInitialSource } from "../../../../../utils/modification-util";
 
 interface ReturnFormProps {
     config: EndConfig;
@@ -41,17 +38,13 @@ interface ReturnFormProps {
 export function AddReturnForm(props: ReturnFormProps) {
     const {
         props: {
-            isCodeEditorActive,
-            currentApp,
             isMutationProgress: isMutationInProgress
         }
     } = useContext(Context);
-    const triggerType = currentApp ? currentApp.displayType : undefined;
     const { config, formArgs, onCancel, onSave } = props;
     const classes = useStyles();
     const overlayClasses = wizardStyles();
     const intl = useIntl();
-    const [isStmtEditor, setIsStmtEditor] = useState(false);
 
     const [returnExpression, setReturnExpression] = useState(config.expression);
     const onReturnValueChange = (value: any) => {
@@ -67,16 +60,6 @@ export function AddReturnForm(props: ReturnFormProps) {
     const validateExpression = (fieldName: string, isInvalid: boolean) => {
         setIsValidValue(!isInvalid || (returnExpression === ""));
     };
-
-    const handleStmtEditorButtonClick = () => {
-        setIsStmtEditor(true);
-    };
-
-    const handleStmtEditorCancel = () => {
-        setIsStmtEditor(false);
-    };
-
-    const isButtonDisabled = isMutationInProgress || !isValidValue;
 
     const saveReturnButtonLabel = intl.formatMessage({
         id: "lowcode.develop.configForms.return.saveButton.label",
@@ -98,26 +81,40 @@ export function AddReturnForm(props: ReturnFormProps) {
         }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
     };
 
-    const containsMainFunction = triggerType && (triggerType === "Manual" || triggerType === "Schedule"); // todo: this is not working due to triggerType is blank.
+    const initialSource = getInitialSource(createReturnStatement(
+        returnExpression ? returnExpression as string : 'EXPRESSION'
+    ));
 
-    let exprEditor =
-        (
-            <FormControl data-testid="return-form" className={classes.wizardFormControl}>
-                {!isCodeEditorActive ?
-                    (
-                        <div className={classes.formWrapper}>
-                            <div className={classes.formFeilds}>
-                                <div className={classes.formTitleWrapper}>
-                                    <div className={classes.mainTitleWrapper}>
-                                        <Typography variant="h4">
-                                            <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.Return.title" defaultMessage="Return" /></Box>
-                                        </Typography>
-                                    </div>
-                                    <div className={classes.statementEditor}>
-                                        <StatementEditorButton onClick={handleStmtEditorButtonClick} disabled={true} />
-                                    </div>
+    const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
+        {
+            label: intl.formatMessage({id: "lowcode.develop.configForms.return.statementEditor.label"}),
+            initialSource,
+            formArgs: {formArgs},
+            isMutationInProgress,
+            validForm: isValidValue,
+            onSave: onReturnExpressionSave,
+            onChange: onReturnValueChange,
+            validate: validateExpression
+        }
+    );
+
+    if (!stmtEditorComponent){
+        return (
+                <FormControl data-testid="return-form" className={classes.wizardFormControl}>
+                    <div className={classes.formWrapper}>
+                        <div className={classes.formFeilds}>
+                            <div className={classes.formTitleWrapper}>
+                                <div className={classes.mainTitleWrapper}>
+                                    <Typography variant="h4">
+                                        <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.Return.title" defaultMessage="Return" /></Box>
+                                    </Typography>
                                 </div>
-                                <div className={classes.formWrapper}>
+                                <div className={classes.statementEditor}>
+                                    {stmtEditorButton}
+                                </div>
+                            </div>
+                            <div className={classes.blockWrapper}>
+                                <div className={classes.returnWrapper}>
                                     <div className="exp-wrapper">
                                         <ExpressionEditor
                                             model={{ name: "return expression", type: "var", value: config.expression }}
@@ -133,43 +130,21 @@ export function AddReturnForm(props: ReturnFormProps) {
                                         />
                                     </div>
                                 </div>
-                                <FormActionButtons
-                                    cancelBtnText="Cancel"
-                                    saveBtnText={saveReturnButtonLabel}
-                                    isMutationInProgress={isMutationInProgress}
-                                    validForm={isValidValue}
-                                    onSave={onReturnExpressionSave}
-                                    onCancel={onCancel}
-                                />
                             </div>
                         </div>
-                    )
-                    :
-                    null
-                }
-            </FormControl>
-        );
-
-    if (isStmtEditor) {
-        exprEditor =
-            (
-                <FormControl data-testid="property-form">
-                    {!isCodeEditorActive ? (
-                        <div>
-                            // TODO: Send proper props according to the form type
-                            <ViewContainer
-                                kind="DefaultBoolean"
-                                label="Variable Statement"
-                                formArgs={formArgs}
-                                onCancel={handleStmtEditorCancel}
-                            />
-                        </div>
-                    ) : null}
+                        <FormActionButtons
+                            cancelBtnText="Cancel"
+                            saveBtnText={saveReturnButtonLabel}
+                            isMutationInProgress={isMutationInProgress}
+                            validForm={isValidValue}
+                            onSave={onReturnExpressionSave}
+                            onCancel={onCancel}
+                        />
+                    </div>
                 </FormControl>
             );
     }
-
-    return (
-        exprEditor
-    );
+    else {
+        return stmtEditorComponent
+    }
 }

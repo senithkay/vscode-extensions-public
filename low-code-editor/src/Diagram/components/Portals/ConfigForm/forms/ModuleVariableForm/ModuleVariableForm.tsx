@@ -20,12 +20,14 @@ import { VariableIcon } from '../../../../../../assets/icons';
 import { useDiagramContext } from '../../../../../../Contexts/Diagram';
 import { STModification } from '../../../../../../Definitions';
 import { createModuleVarDecl, updateModuleVarDecl } from '../../../../../utils/modification-util';
+import { getVariableNameFromST } from '../../../../../utils/st-util';
 import { PrimaryButton } from '../../Elements/Button/PrimaryButton';
 import { SecondaryButton } from '../../Elements/Button/SecondaryButton';
 import CheckBoxGroup from '../../Elements/CheckBox';
 import { SelectDropdownWithButton } from '../../Elements/DropDown/SelectDropdownWithButton';
 import ExpressionEditor from '../../Elements/ExpressionEditor';
 import { FormTextInput } from '../../Elements/TextField/FormTextInput';
+import { VariableNameInput } from '../Components/VariableNameInput';
 import { useStyles as useFormStyles } from "../style";
 
 import { getFormConfigFromModel, isFormConfigValid, ModuleVarNameRegex, VariableOptions } from './util';
@@ -128,6 +130,15 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
         disabled: false
     };
 
+    let namePosition: NodePosition = { startLine: 0, startColumn: 0, endLine: 0, endColumn: 0 }
+
+    if (model) {
+        namePosition = getVariableNameFromST(model).position;
+    } else {
+        namePosition.startLine = targetPosition.startLine;
+        namePosition.endLine = targetPosition.startLine;
+    }
+
     return (
         <FormControl data-testid="module-variable-config-form" className={formClasses.wizardFormControl}>
             <div className={formClasses.formTitleWrapper}>
@@ -157,13 +168,13 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
                 label={"Select type"}
                 onChange={onVarTypeChange}
             />
-            <FormTextInput
-                customProps={variableNameTextFieldCustomProps}
-                defaultValue={state.varName}
-                onChange={handleOnVarNameChange}
-                label={"Variable Name"}
-                errorMessage={"Invalid Variable Name"}
-                placeholder={"Enter Variable Name"}
+            <VariableNameInput
+                displayName={'Variable Name'}
+                value={state.varName}
+                onValueChange={handleOnVarNameChange}
+                validateExpression={updateExpressionValidity}
+                position={namePosition}
+                isEdit={!!model}
             />
             <ExpressionEditor
                 {...expressionEditorConfig}

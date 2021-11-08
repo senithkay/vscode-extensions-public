@@ -67,16 +67,11 @@ export function ForEach(props: ForeachProps) {
             diagramCleanDraw, diagramRedraw, insertComponentStart
         },
         api: {
-            splitPanel: {
-                handleRightPanelContent,
-                maximize: maximizeCodeView,
-            },
             code: {
                 setCodeLocationToHighlight: setCodeToHighlight,
             }
         },
         props: {
-            currentApp,
             syntaxTree,
             isReadOnly,
             isMutationProgress,
@@ -102,8 +97,6 @@ export function ForEach(props: ForeachProps) {
     const y: number = viewState.foreachHead.cy - (viewState.foreachHead.h / 2) - (FOREACH_SHADOW_OFFSET / 2);
     const r: number = DefaultConfig.forEach.radius;
     const paddingUnfold = DefaultConfig.forEach.paddingUnfold;
-
-    const { id: appId } = currentApp || {};
 
     let drafts: React.ReactNode[] = [];
     if (bodyViewState.draft) {
@@ -221,8 +214,6 @@ export function ForEach(props: ForeachProps) {
     }
 
     const onClickOpenInCodeView = () => {
-        maximizeCodeView("home", "vertical", appId);
-        handleRightPanelContent('Code');
         setCodeToHighlight(model?.position)
     }
 

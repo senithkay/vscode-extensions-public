@@ -12,6 +12,12 @@
  */
 
 .exp-container {
+    &.hide-suggestion {
+        .suggest-widget {
+            visibility: hidden !important; 
+        }
+    }
+
     .exp-absolute-wrapper {
         width: 100%;
         height: auto;

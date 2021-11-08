@@ -13,7 +13,7 @@
 // tslint:disable: ordered-imports
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 
-export const statementEditorStyles = makeStyles(() =>
+export const useStatementEditorStyles = makeStyles(() =>
     createStyles({
         stmtEditor: {
             display: "flex",
@@ -166,6 +166,11 @@ export const statementEditorStyles = makeStyles(() =>
             backgroundColor: '#ffffff',
             marginLeft: '2px',
             marginTop: '1px',
+            fontFamily: "Droid Sans Mono",
+            color: '#0095FF',
+            fontSize: '12px',
+            letterSpacing: 0,
+            lineHeight: '24px',
             '&:hover': {
                 backgroundColor: '#d7dcfc',
                 color: '#fff'
@@ -186,6 +191,21 @@ export const statementEditorStyles = makeStyles(() =>
                 backgroundColor: '#d7dcfc',
                 color: '#fff'
             }
+        },
+        dataTypeTemplate: {
+            // color: '#05A26B',
+            color: '#05A26B',
+            fontSize: '10px',
+            letterSpacing: '-0.2px',
+            lineHeight: '24px',
+            position: 'relative',
+            marginLeft: '2px',
+            marginTop: '1px',
+            boxSizing: 'border-box',
+            border: ' 1px #36B475',
+            borderStyle: 'solid',
+            borderRadius: '3px',
+            padding: '3%'
         },
         addNewExpressionButton: {
             backgroundColor: '#f7f8fb',

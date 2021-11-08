@@ -47,12 +47,6 @@ const reducer = (state: LowCodeEditorState, action: any) => {
                 ...state,
                 targetPosition: action.payload
             }
-        case 'SWITCH_TO_DATAMAPPER':
-            return {
-                ...state,
-                isDataMapperShown: !state.isDataMapperShown,
-                dataMapperConfig: action.payload
-            }
         case 'TOGGLE_DIAGRAM_OVERLAY':
             return {
                 ...state,
@@ -94,7 +88,7 @@ const insertComponentStart = (dispatch: any) => {
 }
 
 const editorComponentStart = (dispatch: any) => {
-    return (payload: STNode) => {
+    return (payload: NodePosition) => {
         dispatch({ type: 'EDITOR_COMPONENT_START', payload })
     }
 }

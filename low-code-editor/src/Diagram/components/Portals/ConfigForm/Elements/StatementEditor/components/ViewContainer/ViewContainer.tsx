@@ -11,26 +11,26 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useIntl } from "react-intl";
 
-import { STNode } from "@ballerina/syntax-tree";
+import { NodePosition, STNode } from "@ballerina/syntax-tree";
 
+import { Context } from "../../../../../../../../Contexts/Diagram";
 import { wizardStyles } from "../../../../../../ConfigForms/style";
 import { PrimaryButton } from "../../../Button/PrimaryButton";
 import { SecondaryButton } from "../../../Button/SecondaryButton";
 import { VariableUserInputs } from '../../models/definitions';
-import { FormContext } from '../../store/form-context';
-import { ModelContext } from '../../store/model-context'
-import { getDefaultModel } from "../../utils";
+import { StatementEditorContextProvider } from "../../store/statement-editor-context";
+import { getPartialSTForStatement } from "../../utils";
 import { LeftPane } from '../LeftPane';
 import { RightPane } from '../RightPane';
 
-import { statementEditorStyles } from "./styles";
+import { useStatementEditorStyles } from "./styles";
 
-interface ViewProps {
-    kind: string,
+export interface ViewProps {
     label: string,
+    initialSource: string,
     formArgs: any,
     userInputs?: VariableUserInputs,
     validate?: (field: string, isInvalid: boolean, isEmpty: boolean) => void
@@ -42,18 +42,58 @@ interface ViewProps {
 }
 
 export function ViewContainer(props: ViewProps) {
-    const { kind, label, formArgs, userInputs, validate, isMutationInProgress, validForm, onCancel, onSave, onChange } = props;
+    const {
+        props: {
+            langServerURL,
+        },
+        api: {
+            ls
+        }
+    } = useContext(Context);
+    const {
+        label,
+        initialSource,
+        formArgs,
+        userInputs,
+        validate,
+        isMutationInProgress,
+        validForm,
+        onCancel,
+        onSave,
+        onChange
+    } = props;
     const intl = useIntl();
 
-    const stmtModel = formArgs.model ? formArgs.model.initializer : getDefaultModel(kind);
+    const [model, setModel] = useState<STNode>(null);
 
-    const [model] = useState({...stmtModel});
+    useEffect(() => {
+        (async () => {
+            const partialST: STNode = await getPartialSTForStatement({codeSnippet: initialSource}, langServerURL, ls);
+            setModel(partialST);
+        })();
+    }, []);
+
+    const updateModel = async (codeSnippet : string, position: NodePosition) => {
+        const stModification = {
+            startLine: position.startLine,
+            startColumn: position.startColumn,
+            endLine: position.endLine,
+            endColumn: position.endColumn,
+            newCodeSnippet: codeSnippet
+        }
+        const partialST: STNode = await getPartialSTForStatement({codeSnippet : model.source, stModification}, langServerURL, ls);
+        setModel(partialST);
+    }
+
+    const [currentModel, setCurrentModel] = useState({ model });
 
     const [onCancelClicked, setOnCancel] = useState(false);
 
-    const currentModel: { model: STNode } = {
-        model
-    }
+    const currentModelHandler = (cModel: STNode) => {
+        setCurrentModel({
+            model: cModel
+        });
+    };
 
     const onCancelHandler = () => {
         setOnCancel(true);
@@ -65,7 +105,7 @@ export function ViewContainer(props: ViewProps) {
         }
     }, [onCancelClicked])
 
-    const overlayClasses = statementEditorStyles();
+    const overlayClasses = useStatementEditorStyles();
     const wizardStylesClasses = wizardStyles();
 
     const saveVariableButtonText = intl.formatMessage({
@@ -79,51 +119,45 @@ export function ViewContainer(props: ViewProps) {
     });
 
     return (
-        <div className={overlayClasses.stmtEditor}>
-            <div className={overlayClasses.titleLine}/>
-            <div className={overlayClasses.contentPane}>
-                <ModelContext.Provider
-                    value={{
-                        statementModel: model
-                    }}
-                >
-                    <FormContext.Provider
-                        value={{
-                            onCancel: onCancelClicked,
-                            onSave,
-                            onChange,
-                            validate
-                        }}
+        model && (
+            <div className={overlayClasses.stmtEditor}>
+                <div className={overlayClasses.titleLine}/>
+                <div className={overlayClasses.contentPane}>
+                    <StatementEditorContextProvider
+                        model={model}
+                        onCancelClicked={onCancelClicked}
+                        onSave={onSave}
+                        onChange={onChange}
+                        validate={validate}
+                        updateModel={updateModel}
                     >
                         <LeftPane
-                            model={model}
                             currentModel={currentModel}
-                            kind={kind}
                             label={label}
                             userInputs={userInputs}
+                            currentModelHandler={currentModelHandler}
                         />
-                    </FormContext.Provider>
-                </ModelContext.Provider>
-                <div className={overlayClasses.vl} />
-                <RightPane />
-            </div>
-            <div className={overlayClasses.bottomPane}>
-                <div className={wizardStylesClasses.buttonWrapper}>
-                    <SecondaryButton
-                        text={cancelVariableButtonText}
-                        fullWidth={false}
-                        onClick={onCancelHandler}
-                    />
-                    <PrimaryButton
-                        dataTestId="save-btn"
-                        text={saveVariableButtonText}
-                        disabled={isMutationInProgress || !validForm}
-                        fullWidth={false}
-                        onClick={onSave}
-                    />
+                    </StatementEditorContextProvider>
+                    <div className={overlayClasses.vl}/>
+                    <RightPane/>
+                </div>
+                <div className={overlayClasses.bottomPane}>
+                    <div className={wizardStylesClasses.buttonWrapper}>
+                        <SecondaryButton
+                            text={cancelVariableButtonText}
+                            fullWidth={false}
+                            onClick={onCancelHandler}
+                        />
+                        <PrimaryButton
+                            dataTestId="save-btn"
+                            text={saveVariableButtonText}
+                            disabled={isMutationInProgress || !validForm}
+                            fullWidth={false}
+                            onClick={onSave}
+                        />
+                    </div>
                 </div>
             </div>
-        </div>
+        )
     )
 }
-

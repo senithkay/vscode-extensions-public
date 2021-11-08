@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 
 import { ClassDefinition } from '@ballerina/syntax-tree';
 import classNames from 'classnames';
@@ -22,6 +22,7 @@ import EditButton from '../../../../assets/icons/EditButton';
 import { useDiagramContext } from '../../../../Contexts/Diagram';
 import { removeStatement } from '../../../utils/modification-util';
 import { ComponentExpandButton } from '../../ComponentExpandButton';
+import { HeaderWrapper } from '../../HeaderWrapper';
 import { UnsupportedConfirmButtons } from '../../UnsupportedConfirmButtons';
 
 interface ClassHeaderProps {
@@ -60,7 +61,10 @@ export function ClassHeader(props: ClassHeaderProps) {
     }
 
     return (
-        <div className={'class-component-header'}>
+        <HeaderWrapper
+            className={'class-component-header'}
+            onClick={onExpandClick}
+        >
             <div className={'header-segement-container'}>
                 <div className="header-segment" >
                     <ClassIcon />
@@ -78,6 +82,6 @@ export function ClassHeader(props: ClassHeaderProps) {
             </div>
             <ComponentExpandButton isExpanded={isExpanded} onClick={onExpandClick} />
             {editingEnabled && <UnsupportedConfirmButtons onConfirm={handleEditBtnConfirm} onCancel={handleEditBtnCancel} />}
-        </div >
+        </HeaderWrapper>
     );
 }

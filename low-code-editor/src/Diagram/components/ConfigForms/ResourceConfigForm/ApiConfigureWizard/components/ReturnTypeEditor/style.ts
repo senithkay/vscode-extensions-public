@@ -91,6 +91,9 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         toggleTitle: {
             fontSize: 13,
+        },
+        checkBoxLabel: {
+            width: 'max-content'
         }
     })
 );

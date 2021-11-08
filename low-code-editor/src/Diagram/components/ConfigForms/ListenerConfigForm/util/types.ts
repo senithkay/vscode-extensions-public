@@ -14,4 +14,5 @@ export interface ListenerConfig {
     listenerName: string,
     listenerPort: string,
     listenerType: string
+    isExpressionValid: boolean;
 }

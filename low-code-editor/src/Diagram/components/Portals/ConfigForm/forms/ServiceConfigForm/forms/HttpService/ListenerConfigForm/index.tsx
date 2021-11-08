@@ -123,7 +123,6 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
     const listenerPortInputComponent = (
         <ExpressionEditor
             {...portNumberExpressionEditorProps}
-
         />
     )
 
