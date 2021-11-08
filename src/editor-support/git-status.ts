@@ -22,7 +22,7 @@ import { commands, StatusBarAlignment, StatusBarItem, ThemeColor, window, worksp
 import { debug } from '../utils';
 import { PALETTE_COMMANDS } from '../project';
 
-class gitStatusBarItem {
+export class gitStatusBarItem {
     private statusBarItem: StatusBarItem;
     private baseDir: string = "";
     private git: SimpleGit | undefined;
@@ -53,7 +53,7 @@ class gitStatusBarItem {
                 this.statusBarItem.text = `$(cloud-upload) Push Changes to Choreo`;
                 this.statusBarItem.backgroundColor = new ThemeColor('statusBarItem.errorBackground');
                 this.statusBarItem.command = {
-                    command: `git.push`,
+                    command: PALETTE_COMMANDS.CHOREO_PUSH,
                     arguments: [this],
                     title: 'Push Changes'
                 };
@@ -73,7 +73,7 @@ class gitStatusBarItem {
         }
         const status = await this.git.status();
         this.git.add(status.files.map(f => { return f.path }));
-        this.git.commit(message, (error, result) => {
+        await this.git.commit(message, (error, result) => {
             if (error) {
                 debug(error.message);
                 return;
@@ -85,12 +85,12 @@ class gitStatusBarItem {
         })
     }
 
-    push() {
+    async push() {
         this.createSimpleGit();
         if (!this.git) {
             return;
         }
-        this.git.push(message => {
+        await this.git.push(message => {
             if (message) {
                 debug(message.message);
             }
@@ -119,6 +119,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         return;
     }
     const statusBarItem = new gitStatusBarItem();
+    ballerinaExtInstance.getCodeServerContext().statusBarItem = statusBarItem;
     workspace.onDidChangeTextDocument(_event => {
         statusBarItem.updateGitStatus();
     });
@@ -130,17 +131,19 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         commands.executeCommand(PALETTE_COMMANDS.SAVE_ALL);
         window.showInputBox({
             placeHolder: "Enter the commit message"
-        }).then((message) => {
+        }).then(async (message) => {
             if (message === undefined) {
                 return;
             } else {
-                barItem.commitAll(message);
+                await barItem.commitAll(message);
+                barItem.updateGitStatus();
             }
         });
     });
 
-    const push = commands.registerCommand(PALETTE_COMMANDS.CHOREO_PUSH, (barItem: gitStatusBarItem) => {
-        barItem.push();
+    const push = commands.registerCommand(PALETTE_COMMANDS.CHOREO_PUSH, async (barItem: gitStatusBarItem) => {
+        await barItem.push();
+        barItem.updateGitStatus();
     })
 
     const commitAndPush = commands.registerCommand(PALETTE_COMMANDS.CHOREO_COMMIT_AND_PUSH, async () => {

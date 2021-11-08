@@ -46,6 +46,7 @@ import {
 } from "../telemetry";
 import { BALLERINA_COMMANDS, runCommand } from "../project";
 import { SessionDataProvider } from "../tree-view/session-tree-data-provider";
+import { gitStatusBarItem } from "../editor-support/git-status";
 
 const SWAN_LAKE_REGEX = /(s|S)wan( |-)(l|L)ake/g;
 
@@ -81,6 +82,7 @@ interface CodeServerContext {
     codeServerEnv: boolean;
     manageChoreoRedirectUri?: string;
     showInfo: boolean;
+    statusBarItem?: gitStatusBarItem;
 }
 
 export class BallerinaExtension {

@@ -360,6 +360,13 @@ export class ExtendedLangClient extends LanguageClient {
     public close(): void {
     }
 
+    public updateStatusBar() {
+        if (!this.ballerinaExtInstance || !this.ballerinaExtInstance.getCodeServerContext().statusBarItem) {
+            return;
+        }
+        this.ballerinaExtInstance.getCodeServerContext().statusBarItem?.updateGitStatus();
+    }
+
     getDidOpenParams(): DidOpenParams {
         return {
             textDocument: {
