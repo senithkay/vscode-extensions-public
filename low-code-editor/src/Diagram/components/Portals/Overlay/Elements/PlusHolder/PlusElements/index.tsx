@@ -91,10 +91,10 @@ export function PlusElements(props: PlusElementsProps) {
             // todo: handle the dispatch for the tour
             // dispatchGoToNextTourStep("DIAGRAM_ADD_RESPOND");
         }
-        if (processType === "DataMapper") {
-            // FIXME: Found this while enabling types for context. We are reusing help panel action in a wrong way
-            openConnectorHelp({moduleName: processType});
-        }
+        // if (processType === "DataMapper") {
+        //     // FIXME: Found this while enabling types for context. We are reusing help panel action in a wrong way
+        //     openConnectorHelp({moduleName: processType});
+        // }
     };
 
 
