@@ -142,6 +142,16 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
         handler: (args: any[]) => {
             return langClient.getSTForExpression(args[0]);
         }
+    }, {
+        methodName: 'getRealtimePerformanceData',
+        handler: (args: any[]) => {
+            return langClient.getRealtimePerformanceData(args[0]);
+        }
+    }, {
+        methodName: 'getPerformanceGraphData',
+        handler: (args: any[]) => {
+            return langClient.getPerformanceGraphData(args[0]);
+        }
     }
     ];
 };

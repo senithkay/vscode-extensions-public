@@ -31,6 +31,8 @@ import {
 	TM_EVENT_OPEN_DIAGRAM, TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, sendTelemetryEvent,
 	sendTelemetryException
 } from '../telemetry';
+import { CHOREO_API_PF, openPerformanceDiagram, PFSession } from '../forecaster';
+import { showMessage } from '../utils/showMessage';
 import { Module, PackageOverviewDataProvider } from '../tree-view';
 import { PALETTE_COMMANDS } from '../project';
 import { sep } from "path";
@@ -223,6 +225,26 @@ class DiagramPanel {
 				}
 			},
 			{
+				methodName: "getPFSession",
+				handler: async (): Promise<PFSession> => {
+					const choreoToken = ballerinaExtension.getChoreoSession().choreoToken;
+					return { choreoAPI: CHOREO_API_PF, choreoToken: choreoToken, choreoCookie: "" };
+				}
+			},
+			{
+				methodName: "showPerformanceGraph",
+				handler: async (args: any[]): Promise<boolean> => {
+					return openPerformanceDiagram(args[0]);
+				}
+			},
+			{
+				methodName: "showMessage",
+				handler: async (args: any[]): Promise<boolean> => {
+					showMessage(args[0], args[1], args[2]);
+					return true;
+				}
+			},
+			{
 				methodName: 'focusDiagram',
 				handler: (_args: any[]): Promise<boolean> => {
 					ballerinaExtension.setDiagramActiveContext(true);
@@ -301,6 +323,14 @@ function callUpdateDiagramMethod() {
 		startColumn: diagramElement!.startColumn
 	}];
 	webviewRPCHandler.invokeRemoteMethod('updateDiagram', args, () => { });
+}
+
+export async function refreshDiagramForPerformanceConcurrencyChanges(args: any) {
+	if (!webviewRPCHandler || !DiagramPanel.currentPanel) {
+		return;
+	}
+
+	webviewRPCHandler.invokeRemoteMethod('updatePerformanceLabels', args, () => { });
 }
 
 function performDidOpen() {

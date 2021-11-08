@@ -24,6 +24,7 @@ import { GraphData } from "./activator";
 import { updateCodeLenses } from ".";
 import { ExtendedLangClient } from "../core";
 import { ExecutorCodeLensProvider } from "./codelens-provider";
+import { refreshDiagramForPerformanceConcurrencyChanges } from "../diagram";
 
 let performanceGraphPanel: WebviewPanel | undefined;
 
@@ -46,6 +47,7 @@ export function showPerformanceGraph(langClient: ExtendedLangClient, data: Graph
             switch (message.command) {
                 case 'updateCodeLenses':
                     updateCodeLenses(message.text);
+                    refreshDiagramForPerformanceConcurrencyChanges(message.text);
                     return;
             }
         }
@@ -58,6 +60,7 @@ export function showPerformanceGraph(langClient: ExtendedLangClient, data: Graph
     }
     performanceGraphPanel.onDidDispose(() => {
         performanceGraphPanel = undefined;
+        refreshDiagramForPerformanceConcurrencyChanges(-1);
         ExecutorCodeLensProvider.addCodeLenses(currentFileUri);
     });
 }
