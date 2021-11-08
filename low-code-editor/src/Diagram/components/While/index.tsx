@@ -93,7 +93,7 @@ export function While(props: WhileProps) {
 
     let codeSnippet = "WHILE CODE SNIPPET";
     let codeSnippetOnSvg = "WHILE";
-    const diagnostics = modelWhile.condition.typeData.diagnostics;
+    const diagnostics = modelWhile?.condition?.typeData?.diagnostics;
     const whileWrapper = diagnostics?.length !== 0 ? cn("while-error-wrapper") : cn("while-wrapper") ;
 
     if (model) {
