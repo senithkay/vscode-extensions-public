@@ -117,6 +117,12 @@ export function StatementOptions(props: StatementOptionsProps) {
                 id: "lowcode.develop.plusHolder.plusElements.statements.dataMapping.tooltip.title",
                 defaultMessage: "A data mapping statement can be used to create an object using several other variables."
             })
+        },
+        connectorStatement: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.plusHolder.plusElements.statements.connector.tooltip.title",
+                defaultMessage: "An API Call can be used to make external app requests."
+            })
         }
     }
 
@@ -228,24 +234,32 @@ export function StatementOptions(props: StatementOptionsProps) {
     }
     const connectorStatement: StatementComponent = {
         name: "connector",
-        category: 'process',
-        component:
-            (
-                <Tooltip
-                    title={plusHolderStatementTooltipMessages.logStatement.title}
-                    placement="left"
-                    arrow={true}
-                    interactive={true}
+        category: "process",
+        component: (
+            <Tooltip
+                title={plusHolderStatementTooltipMessages.connectorStatement.title}
+                placement="left"
+                arrow={true}
+                interactive={true}
+            >
+                <div
+                    className="sub-option enabled"
+                    data-testid="addConnector"
+                    onClick={onSelectStatement.bind(undefined, "Connector")}
                 >
-                    <div className="sub-option enabled" data-testid="addConnector" onClick={onSelectStatement.bind(undefined, "Connector")}>
-                        <div className="icon-wrapper">
-                            <LogIcon />
-                        </div>
-                        <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.connector.title" defaultMessage="Connector" /></div>
+                    <div className="icon-wrapper">
+                        <LogIcon />
                     </div>
-                </Tooltip>
-            )
-    }
+                    <div className="text-label">
+                        <FormattedMessage
+                            id="lowcode.develop.plusHolder.plusElements.statements.connector.title"
+                            defaultMessage="API Call"
+                        />
+                    </div>
+                </div>
+            </Tooltip>
+        ),
+    };
 
     const returnStm: StatementComponent = {
         name: "return",

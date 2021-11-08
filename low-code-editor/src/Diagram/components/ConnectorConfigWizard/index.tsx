@@ -16,139 +16,124 @@ import { useIntl } from "react-intl";
 
 import { LocalVarDecl, NodePosition, STNode } from "@ballerina/syntax-tree";
 
-import {
-  ConnectorConfig,
-  FunctionDefinitionInfo,
-  WizardType,
-} from "../../../ConfigurationSpec/types";
+import { ConnectorConfig, FunctionDefinitionInfo, WizardType, } from "../../../ConfigurationSpec/types";
 import { Context } from "../../../Contexts/Diagram";
-import {
-  BallerinaConnectorInfo,
-  Connector,
-} from "../../../Definitions/lang-client-extended";
-// import { closeConfigOverlayForm configOverlayFormPrepareStart } from "../../$store/actions";
+import { BallerinaConnectorInfo, Connector, } from "../../../Definitions/lang-client-extended";
 import { DefaultConfig } from "../../visitors/default";
 import { FormGenerator } from "../FormGenerator";
-import {
-  DiagramOverlayPosition,
-} from "../Portals/Overlay";
+import { DiagramOverlayPosition } from "../Portals/Overlay";
 import { fetchConnectorInfo } from "../Portals/utils";
-
-import { wizardStyles } from "./style";
-// import { pan as acpan } from 'store/actions/preference';
-
-
 export interface ConfigWizardState {
-  isLoading: boolean;
-  connector: Connector;
-  wizardType: WizardType;
-  functionDefInfo: Map<string, FunctionDefinitionInfo>;
-  connectorConfig: ConnectorConfig;
-  model?: STNode;
+    isLoading: boolean;
+    connector: Connector;
+    functionDefInfo: Map<string, FunctionDefinitionInfo>;
+    connectorConfig: ConnectorConfig;
+    model?: STNode;
+    wizardType?: WizardType;
 }
-
 export interface ConnectorConfigWizardProps {
-  position: DiagramOverlayPosition;
-  connectorInfo: BallerinaConnectorInfo;
-  targetPosition: NodePosition;
-  model?: STNode;
-  onClose: () => void;
-  selectedConnector?: LocalVarDecl;
-  isAction?: boolean;
-  // dispatchOverlayOpen: () => void;
+    position: DiagramOverlayPosition;
+    connectorInfo: BallerinaConnectorInfo;
+    targetPosition: NodePosition;
+    model?: STNode;
+    onClose: () => void;
+    selectedConnector?: LocalVarDecl;
+    isAction?: boolean;
+    isEdit?: boolean;
 }
 
 export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
-  const {
-    actions: {
-      toggleDiagramOverlay
-    },
-    props: {
-      isCodeEditorActive,
-      userInfo,
-      langServerURL,
-      stSymbolInfo
-    },
-    api: {
-      ls: {
-        getDiagramEditorLangClient
-      },
-      panNZoom: {
-        pan,
-        fitToScreen
-      },
-      notifications: {
-        triggerErrorNotification,
-      },
-      configPanel: {
-        closeConfigOverlayForm: dispatchOverlayClose,
-      }
-    }
-  } = useContext(Context);
-
-  const {
-    position,
-    connectorInfo,
-    targetPosition,
-    model,
-    onClose,
-    selectedConnector,
-    isAction,
-  } = props;
-
-  const initWizardState: ConfigWizardState = {
-    isLoading: true,
-    connectorConfig: undefined,
-    functionDefInfo: undefined,
-    wizardType: undefined,
-    connector: undefined,
-  };
-
-  const [wizardState, setWizardState] = useState<ConfigWizardState>(
-    initWizardState
-  );
-
-  const intl = useIntl();
-  const connectionErrorMsgText = intl.formatMessage({
-    id: "lowcode.develop.connectorForms.createConnection.errorMessage",
-    defaultMessage: "Something went wrong. Couldn't load the connection.",
-  });
-
-
-  React.useEffect(() => {
-    fitToScreen();
-    pan(0, -position.y + DefaultConfig.dotGap * 3);
-  }, []);
-
-  React.useEffect(() => {
-    if (wizardState.isLoading) {
-      (async () => {
-        const configList = await fetchConnectorInfo(
-          connectorInfo,
-          model,
-          stSymbolInfo,
-          langServerURL,
-          getDiagramEditorLangClient,
-          userInfo?.user?.email
-        );
-        if (configList) {
-          setWizardState(configList);
-        } else {
-          triggerErrorNotification(new Error(connectionErrorMsgText));
-          handleClose();
+    const {
+        actions: {
+            toggleDiagramOverlay
+        },
+        props: {
+            isCodeEditorActive,
+            userInfo,
+            langServerURL,
+            stSymbolInfo
+        },
+        api: {
+            ls: {
+                getDiagramEditorLangClient
+            },
+            panNZoom: {
+                pan,
+                fitToScreen
+            },
+            notifications: {
+                triggerErrorNotification,
+            },
+            configPanel: {
+                closeConfigOverlayForm: dispatchOverlayClose,
+            }
         }
-      })();
-      toggleDiagramOverlay();
-    }
-  }, [wizardState]);
+    } = useContext(Context);
 
-  const handleClose = () => {
-    onClose();
-    dispatchOverlayClose();
-    toggleDiagramOverlay();
-  };
+    const {
+        position,
+        connectorInfo,
+        targetPosition,
+        model,
+        onClose,
+        selectedConnector,
+        isAction,
+        isEdit
+    } = props;
 
-  return (
+    const initWizardState: ConfigWizardState = {
+        isLoading: true,
+        connectorConfig: undefined,
+        functionDefInfo: undefined,
+        connector: undefined,
+        wizardType: isEdit ? WizardType.EXISTING : WizardType.NEW
+    };
+
+    const [ wizardState, setWizardState ] = useState<ConfigWizardState>(
+        initWizardState
+    );
+
+    const intl = useIntl();
+    const connectionErrorMsgText = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.createConnection.errorMessage",
+        defaultMessage: "Something went wrong. Couldn't load the connection.",
+    });
+
+    React.useEffect(() => {
+        fitToScreen();
+        pan(0, -position.y + DefaultConfig.dotGap * 3);
+    }, []);
+
+    React.useEffect(() => {
+        if (wizardState.isLoading) {
+            (async () => {
+                const connectorInfoResponse = await fetchConnectorInfo(
+                    connectorInfo,
+                    model,
+                    stSymbolInfo,
+                    langServerURL,
+                    getDiagramEditorLangClient,
+                    userInfo?.user?.email
+                );
+                connectorInfoResponse.wizardType = isEdit ? WizardType.EXISTING : WizardType.NEW;
+                if (connectorInfoResponse) {
+                    setWizardState(connectorInfoResponse);
+                } else {
+                    triggerErrorNotification(new Error(connectionErrorMsgText));
+                    handleClose();
+                }
+            })();
+            toggleDiagramOverlay();
+        }
+    }, [ wizardState ]);
+
+    const handleClose = () => {
+        onClose();
+        dispatchOverlayClose();
+        toggleDiagramOverlay();
+    };
+
+    return (
         <div>
             { !isCodeEditorActive ? (
                 <FormGenerator

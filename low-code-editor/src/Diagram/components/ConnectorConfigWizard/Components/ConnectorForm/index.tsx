@@ -15,27 +15,12 @@
 import React, { ReactNode, useContext, useEffect, useState } from "react";
 import { FormattedMessage } from "react-intl";
 
-import {
-    CaptureBindingPattern,
-    LocalVarDecl,
-    NodePosition,
-    STKindChecker,
-} from "@ballerina/syntax-tree";
+import { CaptureBindingPattern, LocalVarDecl, NodePosition, STKindChecker } from "@ballerina/syntax-tree";
 import { Box, Divider, FormControl, Typography } from "@material-ui/core";
 
-import {
-    ActionConfig,
-    ConnectorConfig,
-    FormField,
-    FormFieldReturnType,
-    WizardType,
-} from "../../../../../ConfigurationSpec/types";
+import { ActionConfig, ConnectorConfig, FormField, FormFieldReturnType, WizardType } from "../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../Contexts/Diagram";
-import { STSymbolInfo } from "../../../../../Definitions";
-import {
-    BallerinaConnectorInfo,
-    STModification,
-} from "../../../../../Definitions/lang-client-extended";
+import { BallerinaConnectorInfo, STModification } from "../../../../../Definitions/lang-client-extended";
 import { TextPreloaderVertical } from "../../../../../PreLoader/TextPreloaderVertical";
 import {
     CONTINUE_TO_INVOKE_API,
@@ -50,11 +35,7 @@ import {
     createPropertyStatement,
     updatePropertyStatement,
 } from "../../../../utils/modification-util";
-import {
-    ExpressionInjectablesProps,
-    FormGeneratorProps,
-    InjectableItem,
-} from "../../../FormGenerator";
+import { ExpressionInjectablesProps, FormGeneratorProps, InjectableItem } from "../../../FormGenerator";
 import { useStyles as useFormStyles } from "../../../Portals/ConfigForm/forms/style";
 import {
     genVariableName,
@@ -64,9 +45,7 @@ import {
     getFormattedModuleName,
     getInitReturnType,
     getParams,
-    matchEndpointToFormField,
 } from "../../../Portals/utils";
-import { defaultOrgs } from "../../../Portals/utils/constants";
 import { ConfigWizardState } from "../../index";
 import { wizardStyles } from "../../style";
 import "../../style.scss";
@@ -78,8 +57,6 @@ export interface ConnectorOperation {
     name: string;
     label?: string;
 }
-
-export const MANUAL_TYPE = "manual";
 
 enum FormStates {
     ExistingConnection,
@@ -110,47 +87,19 @@ export function ConnectorForm(props: FormGeneratorProps) {
         props: { stSymbolInfo, isMutationProgress },
     } = useContext(Context);
 
-    const symbolInfo: STSymbolInfo = stSymbolInfo;
-    const {
-        targetPosition,
-        configWizardArgs,
-        onClose,
-        selectedConnector,
-        isAction,
-        expressionInjectables,
-    } = props.configOverlayFormStatus.formArgs as ConnectorConfigWizardProps;
-    const {
-        connector,
-        functionDefInfo,
-        connectorConfig,
-        wizardType,
-        model,
-        isLoading: isConnectorLoading,
-    } = configWizardArgs;
-
+    const { targetPosition, configWizardArgs, onClose, selectedConnector, isAction, expressionInjectables } = props.configOverlayFormStatus
+        .formArgs as ConnectorConfigWizardProps;
+    const { connector, functionDefInfo, connectorConfig, wizardType, model, isLoading: isConnectorLoading } = configWizardArgs;
     const isOauthConnector = false;
-    // TODO:  need to update connector name with display annotation
-    const connectorName = connector?.moduleName || connector?.package.name;
-    const connectorModule = connector?.moduleName || connector?.package.name;
+    const connectorName = connector?.displayAnnotation?.label || `${connector?.package.name} / ${connector?.name}`;
+    const connectorModule = connector?.moduleName;
+    const config = connectorConfig ? connectorConfig : new ConnectorConfig();
+    const selectedOperation = config?.action?.name;
+    const isNewConnectorInitWizard = wizardType === WizardType.NEW;
 
-    const [config, setConfig] = useState(
-        connectorConfig ? connectorConfig : new ConnectorConfig()
-    );
-    const isNewConnectorInitWizard = config.existingConnections
-        ? wizardType === WizardType.NEW
-        : true;
-
-    const [formState, setFormState] = useState<FormStates>(
-        FormStates.CreateNewConnection
-    );
-    const [isNewConnection, setIsNewConnection] = useState(
-        isNewConnectorInitWizard
-    );
+    const [formState, setFormState] = useState<FormStates>(FormStates.CreateNewConnection);
+    const [isNewConnection, setIsNewConnection] = useState(isNewConnectorInitWizard);
     const [isLoading, setIsLoading] = useState(true);
-    const [selectedOperation, setSelectedOperation] = useState(
-        config?.action?.name
-    );
-
     const [responseStatus, setResponseStatus] = useState<number>();
 
     useEffect(() => {
@@ -164,27 +113,12 @@ export function ConnectorForm(props: FormGeneratorProps) {
         }
     }, []);
 
-    useEffect(() => {
-        if (selectedConnector) {
-            const connectorNameValue = (selectedConnector.typedBindingPattern
-                .bindingPattern as CaptureBindingPattern).variableName.value;
-            config.name = connectorNameValue;
-            matchEndpointToFormField(selectedConnector, config.connectorInit);
-            config.isExistingConnection = connectorNameValue !== undefined;
-            onSelectExisting(connectorNameValue);
-        }
-    }, [selectedConnector]);
-
-    const connectorInitFormFields: FormField[] = functionDefInfo?.get("init")
-        ?.parameters;
+    const connectorInitFormFields: FormField[] = functionDefInfo?.get("init")?.parameters;
 
     // managing name set by the non oauth connectors
     config.name =
         connector && isNewConnectorInitWizard && !config.name
-            ? genVariableName(
-                  getFormattedModuleName(connectorModule) + "Endpoint",
-                  getAllVariables(symbolInfo)
-              )
+            ? genVariableName(getFormattedModuleName(connectorModule) + "Endpoint", getAllVariables(stSymbolInfo))
             : config.name;
     const [configName, setConfigName] = useState(config.name);
     const handleConfigNameChange = (name: string) => {
@@ -203,19 +137,19 @@ export function ConnectorForm(props: FormGeneratorProps) {
         config.action = new ActionConfig();
     }
 
+    const actionReturnType = getActionReturnType(selectedOperation, functionDefInfo);
+    if (
+        !isNewConnectorInitWizard &&
+        actionReturnType?.hasReturn &&
+        STKindChecker.isLocalVarDecl(model) &&
+        STKindChecker.isCaptureBindingPattern(model.typedBindingPattern?.bindingPattern)
+    ) {
+        config.action.returnVariableName = ((model as LocalVarDecl).typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
+    }
+
     const onCreateNew = () => {
-        setConfigName(
-            genVariableName(
-                connectorModule + "Endpoint",
-                getAllVariables(symbolInfo)
-            )
-        );
-        setConfigName(
-            genVariableName(
-                connectorModule + "Endpoint",
-                getAllVariables(symbolInfo)
-            )
-        );
+        setConfigName(genVariableName(connectorModule + "Endpoint", getAllVariables(stSymbolInfo)));
+        setConfigName(genVariableName(connectorModule + "Endpoint", getAllVariables(stSymbolInfo)));
         setFormState(FormStates.CreateNewConnection);
         setIsNewConnection(true);
     };
@@ -229,14 +163,9 @@ export function ConnectorForm(props: FormGeneratorProps) {
     };
 
     const onSelectExisting = (value: any) => {
-        if (connector.package.organization === defaultOrgs.WSO2) {
-            setIsNewConnection(true);
-            setFormState(FormStates.SingleForm);
-        } else {
-            setConfigName(value);
-            setIsNewConnection(false);
-            setFormState(FormStates.OperationForm);
-        }
+        setConfigName(value);
+        setIsNewConnection(false);
+        setFormState(FormStates.OperationForm);
     };
 
     const handleCreateConnectorSaveNext = () => {
@@ -256,30 +185,18 @@ export function ConnectorForm(props: FormGeneratorProps) {
         });
         const isInitReturnError = getInitReturnType(functionDefInfo);
         const moduleName = getFormattedModuleName(connectorModule);
-        const endpointStatement = `${moduleName}:${connector.name} ${
-            config.name
-        } = ${isInitReturnError ? "check" : ""} new (${getParams(
+        const endpointStatement = `${moduleName}:${connector.name} ${config.name} = ${isInitReturnError ? "check" : ""} new (${getParams(
             config.connectorInit
         ).join()});`;
 
         if (isNewConnectorInitWizard && targetPosition) {
-            const addImport: STModification = createImportStatement(
-                connector.package.organization,
-                connectorModule,
-                targetPosition
-            );
+            const addImport: STModification = createImportStatement(connector.package.organization, connectorModule, targetPosition);
             modifications.push(addImport);
-            const addConnectorInit = createPropertyStatement(
-                endpointStatement,
-                targetPosition
-            );
+            const addConnectorInit = createPropertyStatement(endpointStatement, targetPosition);
             modifications.push(addConnectorInit);
             onConnectorAddEvent();
         } else {
-            const updateConnectorInit = updatePropertyStatement(
-                endpointStatement,
-                connectorConfig.initPosition
-            );
+            const updateConnectorInit = updatePropertyStatement(endpointStatement, connectorConfig.initPosition);
             modifications.push(updateConnectorInit);
         }
 
@@ -292,10 +209,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
     const handleActionSave = () => {
         const modifications: STModification[] = [];
         const isInitReturnError = getInitReturnType(functionDefInfo);
-        const currentActionReturnType = getActionReturnType(
-            config.action.name,
-            functionDefInfo
-        );
+        const currentActionReturnType = getActionReturnType(config.action.name, functionDefInfo);
         const moduleName = getFormattedModuleName(connectorModule);
 
         expressionInjectables?.list?.forEach((item: InjectableItem) => {
@@ -304,40 +218,24 @@ export function ConnectorForm(props: FormGeneratorProps) {
 
         let actionStatement = "";
         if (currentActionReturnType.hasReturn) {
-            addReturnImportsModifications(
-                modifications,
-                currentActionReturnType
-            );
+            addReturnImportsModifications(modifications, currentActionReturnType);
             actionStatement += `${currentActionReturnType.returnType} ${config.action.returnVariableName} = `;
         }
-        actionStatement += `${
-            currentActionReturnType.hasError ? "check" : ""
-        } ${config.name}->${config.action.name}(${getParams(
+        actionStatement += `${currentActionReturnType.hasError ? "check" : ""} ${config.name}->${config.action.name}(${getParams(
             config.action.fields
         ).join()});`;
 
         if (isNewConnectorInitWizard) {
-            const endpointStatement = `${moduleName}:${connector.name} ${
-                config.name
-            } = ${isInitReturnError ? "check" : ""} new (${getParams(
+            const endpointStatement = `${moduleName}:${connector.name} ${config.name} = ${isInitReturnError ? "check" : ""} new (${getParams(
                 config.connectorInit
             ).join()});`;
-            const addConnectorInit = createPropertyStatement(
-                endpointStatement,
-                targetPosition
-            );
+            const addConnectorInit = createPropertyStatement(endpointStatement, targetPosition);
             modifications.push(addConnectorInit);
-            const addActionInvocation = createPropertyStatement(
-                actionStatement,
-                targetPosition
-            );
+            const addActionInvocation = createPropertyStatement(actionStatement, targetPosition);
             modifications.push(addActionInvocation);
             onActionAddEvent();
         } else {
-            const updateActionInvocation = updatePropertyStatement(
-                actionStatement,
-                model.position
-            );
+            const updateActionInvocation = updatePropertyStatement(actionStatement, model.position);
             modifications.push(updateActionInvocation);
         }
 
@@ -362,23 +260,12 @@ export function ConnectorForm(props: FormGeneratorProps) {
         }
     };
 
-    const addReturnImportsModifications = (
-        modifications: STModification[],
-        returnType: FormFieldReturnType
-    ) => {
+    const addReturnImportsModifications = (modifications: STModification[], returnType: FormFieldReturnType) => {
         if (returnType.importTypeInfo) {
             returnType.importTypeInfo?.forEach((typeInfo) => {
-                const addImport: STModification = createImportStatement(
-                    typeInfo.orgName,
-                    typeInfo.moduleName,
-                    { startColumn: 0, startLine: 0 }
-                );
+                const addImport: STModification = createImportStatement(typeInfo.orgName, typeInfo.moduleName, { startColumn: 0, startLine: 0 });
                 // check already exists modification statements
-                const existsMod = modifications.find(
-                    (modification) =>
-                        JSON.stringify(addImport) ===
-                        JSON.stringify(modification)
-                );
+                const existsMod = modifications.find((modification) => JSON.stringify(addImport) === JSON.stringify(modification));
                 if (!existsMod) {
                     modifications.push(addImport);
                 }
@@ -386,23 +273,23 @@ export function ConnectorForm(props: FormGeneratorProps) {
         }
     };
 
-    const actionReturnType = getActionReturnType(
-        selectedOperation,
-        functionDefInfo
-    );
+    const onActionAddEvent = () => {
+        const event: LowcodeEvent = {
+            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+            name: FINISH_CONNECTOR_ACTION_ADD_INSIGHTS,
+            property: connectorName,
+        };
+        onEvent(event);
+    };
 
-    if (!isNewConnectorInitWizard && actionReturnType?.hasReturn) {
-        if (
-            STKindChecker.isLocalVarDecl(model) &&
-            config.action.name === selectedOperation
-        ) {
-            config.action.returnVariableName = ((model as LocalVarDecl)
-                .typedBindingPattern
-                .bindingPattern as CaptureBindingPattern).variableName.value;
-        } else {
-            config.action.returnVariableName = undefined;
-        }
-    }
+    const onConnectorAddEvent = () => {
+        const event: LowcodeEvent = {
+            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+            name: FINISH_CONNECTOR_INIT_ADD_INSIGHTS,
+            property: connectorName,
+        };
+        onEvent(event);
+    };
 
     // TODO: fix AI suggestion issue with vscode implementation
     // useEffect(() => {
@@ -429,33 +316,25 @@ export function ConnectorForm(props: FormGeneratorProps) {
 
     if (functionDefInfo) {
         if (connectorModule === "http") {
-            connectorComponent = getConnectorComponent(
-                connectorModule + connector.name,
-                {
-                    functionDefinitions: functionDefInfo,
-                    connectorConfig: config,
-                    handleActionSave,
-                    onClose,
-                    connector,
-                    isNewConnectorInitWizard,
-                    targetPosition,
-                    model,
-                    selectedConnector,
-                    isAction,
-                }
-            );
+            connectorComponent = getConnectorComponent(connectorModule + connector.name, {
+                functionDefinitions: functionDefInfo,
+                connectorConfig: config,
+                handleActionSave,
+                onClose,
+                connector,
+                isNewConnectorInitWizard,
+                targetPosition,
+                model,
+                selectedConnector,
+                isAction,
+            });
         } else {
             connectorComponent = (
                 <div className={wizardClasses.fullWidth}>
                     <div className={wizardClasses.topTitleWrapper}>
                         <div className={wizardClasses.titleWrapper}>
-                            <div className={wizardClasses.connectorIconWrapper}>
-                                {getConnectorIcon(connectorName)}
-                            </div>
-                            <Typography
-                                className={wizardClasses.configTitle}
-                                variant="h4"
-                            >
+                            <div className={wizardClasses.connectorIconWrapper}>{getConnectorIcon(connectorName)}</div>
+                            <Typography className={wizardClasses.configTitle} variant="h4">
                                 {connectorName}
                             </Typography>
                         </div>
@@ -477,33 +356,29 @@ export function ConnectorForm(props: FormGeneratorProps) {
                         />
                     )}
 
-                    {formState === FormStates.ExistingConnection &&
-                        isNewConnectorInitWizard && (
-                            <SelectConnectionForm
-                                onCreateNew={onCreateNew}
-                                connectorConfig={config}
-                                connector={connector}
-                                onSelectExisting={onSelectExisting}
-                            />
-                        )}
+                    {formState === FormStates.ExistingConnection && isNewConnectorInitWizard && (
+                        <SelectConnectionForm
+                            onCreateNew={onCreateNew}
+                            connectorConfig={config}
+                            connector={connector}
+                            onSelectExisting={onSelectExisting}
+                        />
+                    )}
 
-                    {formState === FormStates.ExistingConnection &&
-                        !isNewConnectorInitWizard && (
-                            <CreateConnectorForm
-                                initFields={connectorInitFormFields}
-                                onSave={onCreateConnectorSave}
-                                connectorConfig={config}
-                                onConfigNameChange={handleConfigNameChange}
-                                onBackClick={onCreateConnectorBack}
-                                connector={connector}
-                                isNewConnectorInitWizard={
-                                    isNewConnectorInitWizard
-                                }
-                                isOauthConnector={isOauthConnector}
-                                responseStatus={responseStatus}
-                                expressionInjectables={expressionInjectables}
-                            />
-                        )}
+                    {formState === FormStates.ExistingConnection && !isNewConnectorInitWizard && (
+                        <CreateConnectorForm
+                            initFields={connectorInitFormFields}
+                            onSave={onCreateConnectorSave}
+                            connectorConfig={config}
+                            onConfigNameChange={handleConfigNameChange}
+                            onBackClick={onCreateConnectorBack}
+                            connector={connector}
+                            isNewConnectorInitWizard={isNewConnectorInitWizard}
+                            isOauthConnector={isOauthConnector}
+                            responseStatus={responseStatus}
+                            expressionInjectables={expressionInjectables}
+                        />
+                    )}
 
                     {formState === FormStates.CreateNewConnection && (
                         <CreateConnectorForm
@@ -527,10 +402,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
 
     return (
         <>
-            <FormControl
-                data-testid="log-form"
-                className={formClasses.wizardFormControl}
-            >
+            <FormControl data-testid="log-form" className={formClasses.wizardFormControl}>
                 <div className={formClasses.formWrapper}>
                     <div className={formClasses.formFeilds}>
                         <div className={formClasses.formWrapper}>
@@ -538,10 +410,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
                                 <div className={formClasses.mainTitleWrapper}>
                                     <Typography variant="h4">
                                         <Box paddingTop={2} paddingBottom={2}>
-                                            <FormattedMessage
-                                                id="lowcode.develop.configForms.connector.title"
-                                                defaultMessage="API Call"
-                                            />
+                                            <FormattedMessage id="lowcode.develop.configForms.connector.title" defaultMessage="API Call" />
                                         </Box>
                                     </Typography>
                                 </div>
@@ -552,33 +421,11 @@ export function ConnectorForm(props: FormGeneratorProps) {
                                     <TextPreloaderVertical position="relative" />
                                 </div>
                             )}
-                            {!(isLoading || isConnectorLoading) && (
-                                <div className={wizardClasses.mainApiWrapper}>
-                                    {connectorComponent}
-                                </div>
-                            )}
+                            {!(isLoading || isConnectorLoading) && <div className={wizardClasses.mainApiWrapper}>{connectorComponent}</div>}
                         </div>
                     </div>
                 </div>
             </FormControl>
         </>
     );
-
-    function onActionAddEvent() {
-        const event: LowcodeEvent = {
-            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
-            name: FINISH_CONNECTOR_ACTION_ADD_INSIGHTS,
-            property: connectorName,
-        };
-        onEvent(event);
-    }
-
-    function onConnectorAddEvent() {
-        const event: LowcodeEvent = {
-            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
-            name: FINISH_CONNECTOR_INIT_ADD_INSIGHTS,
-            property: connectorName,
-        };
-        onEvent(event);
-    }
 }

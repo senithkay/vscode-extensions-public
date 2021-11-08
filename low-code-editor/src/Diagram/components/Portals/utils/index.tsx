@@ -28,7 +28,7 @@ import { DocumentSymbol, SymbolInformation } from "monaco-languageclient";
 import * as ConstructIcons from "../../../../assets/icons"
 import { ActionConfig, ConnectorConfig, FormField, FormFieldReturnType, FunctionDefinitionInfo, ManualConfigType, PrimitiveBalType, WizardType } from "../../../../ConfigurationSpec/types";
 import { DiagramEditorLangClientInterface, STSymbolInfo } from "../../../../Definitions";
-import { BallerinaConnectorInfo, Connector } from "../../../../Definitions/lang-client-extended";
+import { BallerinaConnectorInfo, BallerinaConnectorRequest, Connector } from "../../../../Definitions/lang-client-extended";
 import { filterConnectorFunctions } from "../../../utils/connector-form-util";
 import { getAllVariables as retrieveVariables } from "../../../utils/mixins";
 import {
@@ -356,14 +356,19 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                     if (specificField.valueExpr.kind === 'MappingConstructor') {
                         const mappingField = specificField.valueExpr as MappingConstructor;
                         if (formField.typeName === "union") {
-                            formField.fields.forEach(subFormField => {
+                            formField.members.forEach(subFormField => {
                                 if (subFormField.typeName === "record" && subFormField.fields) {
                                     const subFields = subFormField.fields;
                                     if (subFields) {
                                         mapRecordLiteralToRecordTypeFormField(mappingField.fields as SpecificField[], subFields);
                                         // find selected data type using non optional field's value
-                                        const valueFilled = subFields.find(field => (field.optional === false && field.value));
-                                        if (valueFilled) {
+                                        let allFieldsFilled = true;
+                                        subFields.forEach(field => {
+                                            if (field.optional === false && !field.value){
+                                                allFieldsFilled = false;
+                                            }
+                                        });
+                                        if (allFieldsFilled) {
                                             formField.selectedDataType = getUnionFormFieldName(subFormField);
                                         }
                                     }
@@ -631,29 +636,42 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
                                          : Promise<ConfigWizardState> {
 
     // get form fields from browser cache
-    let cachedConnector = getConnectorFromCache(connector);
+    let connectorInfo = getConnectorFromCache(connector);
     let functionDefInfo: Map<string, FunctionDefinitionInfo> = new Map();
     const connectorConfig = new ConnectorConfig();
+    const connectorRequest: BallerinaConnectorRequest = {};
 
-    if ((connector as BallerinaConnectorInfo).functions?.length > 0){
-        cachedConnector = connector as BallerinaConnectorInfo;
+    // Connector request with connector_id
+    if (!connectorInfo && connector && connector.id){
+        connectorRequest.id = connector.id;
     }
 
-    if (!cachedConnector) {
+    // Connector request with FQN
+    if (!connectorInfo && connector && connector.moduleName && connector.package){
+        connectorRequest.name = connector.name;
+        connectorRequest.moduleName = connector.moduleName;
+        connectorRequest.orgName = connector.package.organization;
+        connectorRequest.packageName = connector.package.name;
+        connectorRequest.version = connector.package.version;
+    }
+
+    if (!connectorInfo && connectorRequest) {
         // generate form fields form connector syntax tree
         const langClient: DiagramEditorLangClientInterface = await getDiagramEditorLangClient(langServerURL);
-        if (connector) {
-            const connectorResp = await langClient.getConnector(connector);
-            if (connectorResp) {
-                cachedConnector = connectorResp as BallerinaConnectorInfo;
-                connector = cachedConnector;
-                // save form fields in browser cache
-                await addConnectorToCache(cachedConnector);
-            }
+        const connectorResp = await langClient?.getConnector(connectorRequest);
+        if (connectorResp) {
+            connectorInfo = connectorResp as BallerinaConnectorInfo;
+            connector = connectorInfo;
+            // save form fields in browser cache
+            await addConnectorToCache(connectorInfo);
         }
     }
 
-    cachedConnector?.functions.forEach((functionInfo: FunctionDefinitionInfo) => {
+    if (!connectorInfo){
+        return null;
+    }
+
+    connectorInfo?.functions.forEach((functionInfo: FunctionDefinitionInfo) => {
         functionDefInfo.set(functionInfo.name, functionInfo);
     });
 
@@ -716,9 +734,7 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
                 connectorConfig.name = endpointVarName;
             }
         }
-        connectorConfig.connectorInit = functionDefInfo.get("init") ?
-            functionDefInfo.get("init").parameters
-            : functionDefInfo.get("__init").parameters;
+        connectorConfig.connectorInit = functionDefInfo.get("init") ? functionDefInfo.get("init").parameters : [];
         const matchingEndPoint: LocalVarDecl = symbolInfo.endpoints.get(connectorConfig.name) as LocalVarDecl;
         if (matchingEndPoint) {
             connectorConfig.initPosition = matchingEndPoint.position;
@@ -731,7 +747,6 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
     return {
         isLoading: false,
         connector,
-        wizardType: model ? WizardType.EXISTING : WizardType.NEW,
         functionDefInfo,
         connectorConfig,
         model
