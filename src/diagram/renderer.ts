@@ -173,6 +173,16 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
                 startColumn: ${startColumn},
                 lastUpdatedAt: (new Date()).toISOString()
             });
+
+            window.addEventListener('focus', event => {
+                webViewRPCHandler.invokeRemoteMethod(
+                    'focusDiagram',
+                    [],
+                    (response) => {
+                            resolve(response);
+                    }
+                );
+            });
         }
     `;
 

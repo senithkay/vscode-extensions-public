@@ -34,8 +34,8 @@ import { ExtendedLangClient } from './extended-language-client';
 import { debug, log, getOutputChannel, outputChannel, isWindows } from '../utils';
 import { AssertionError } from "assert";
 import {
-    BALLERINA_HOME, BALLERINA_LOW_CODE_MODE, ENABLE_ALL_CODELENS, ENABLE_EXECUTOR_CODELENS, ENABLE_TELEMETRY,
-    ENABLE_SEMANTIC_HIGHLIGHTING, OVERRIDE_BALLERINA_HOME
+    BALLERINA_HOME, ENABLE_ALL_CODELENS, ENABLE_EXECUTOR_CODELENS, ENABLE_TELEMETRY,
+    ENABLE_SEMANTIC_HIGHLIGHTING, OVERRIDE_BALLERINA_HOME, BALLERINA_LOW_CODE_MODE
 }
     from "./preferences";
 import TelemetryReporter from "vscode-extension-telemetry";
@@ -47,10 +47,7 @@ import {
 import { BALLERINA_COMMANDS, runCommand } from "../project";
 import { SessionDataProvider } from "../tree-view/session-tree-data-provider";
 
-const any = require('promise.any');
-
 const SWAN_LAKE_REGEX = /(s|S)wan( |-)(l|L)ake/g;
-const PREV_REGEX = /1\.2\.[0-9]+/g;
 
 export const EXTENSION_ID = 'wso2.ballerina';
 const PREV_EXTENSION_ID = 'ballerina.ballerina';
@@ -83,7 +80,7 @@ export interface ChoreoSession {
 interface CodeServerContext {
     codeServerEnv: boolean;
     manageChoreoRedirectUri?: string;
-    alwaysShowInfo?: boolean;
+    showInfo: boolean;
 }
 
 export class BallerinaExtension {
@@ -91,7 +88,6 @@ export class BallerinaExtension {
     public ballerinaHome: string;
     private ballerinaCmd: string;
     public ballerinaVersion: string;
-    private swanLake: boolean;
     public extension: Extension<any>;
     private clientOptions: LanguageClientOptions;
     public langClient?: ExtendedLangClient;
@@ -110,7 +106,6 @@ export class BallerinaExtension {
         this.sdkVersion.text = `Ballerina SDK: Detecting`;
         this.sdkVersion.command = `ballerina.showLogs`;
         this.sdkVersion.show();
-        this.swanLake = false;
         // Load the extension
         this.extension = extensions.getExtension(EXTENSION_ID)!;
         this.clientOptions = {
@@ -132,7 +127,7 @@ export class BallerinaExtension {
         this.codeServerContext = {
             codeServerEnv: process.env.CODE_SERVER_ENV === 'true',
             manageChoreoRedirectUri: process.env.VSCODE_CHOREO_DEPLOY_URI,
-            alwaysShowInfo: true
+            showInfo: true
         }
     }
 
@@ -179,14 +174,10 @@ export class BallerinaExtension {
                 log(`Plugin version: ${pluginVersion}\nBallerina version: ${this.ballerinaVersion}`);
                 this.sdkVersion.text = `Ballerina SDK: ${this.ballerinaVersion}`;
 
-                if (this.ballerinaVersion.match(SWAN_LAKE_REGEX)) {
-                    this.swanLake = true;
-                }
-
-                if (!this.swanLake && !this.ballerinaVersion.match(PREV_REGEX)) {
+                if (!this.ballerinaVersion.match(SWAN_LAKE_REGEX)) {
                     this.showMessageOldBallerina();
                     const message = `Ballerina version ${this.ballerinaVersion} is not supported. 
-                        The extension supports Ballerina Swan Lake and 1.2.x versions.`;
+                        The extension supports Ballerina Swan Lake version.`;
                     sendTelemetryEvent(this, TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED, CMP_EXTENSION_CORE, message);
                     throw new AssertionError({
                         message: message
@@ -197,7 +188,7 @@ export class BallerinaExtension {
                 let serverOptions: ServerOptions;
                 serverOptions = getServerOptions(this.ballerinaCmd);
                 this.langClient = new ExtendedLangClient('ballerina-vscode', 'Ballerina LS Client', serverOptions,
-                    this.clientOptions, false);
+                    this.clientOptions, this, false);
 
                 // Following was put in to handle server startup failures.
                 const disposeDidChange = this.langClient.onDidChangeState(stateChangeEvent => {
@@ -262,8 +253,9 @@ export class BallerinaExtension {
         // We need to restart VSCode if we change plugin configurations.
         workspace.onDidChangeConfiguration((params: ConfigurationChangeEvent) => {
             if (params.affectsConfiguration(BALLERINA_HOME) || params.affectsConfiguration(OVERRIDE_BALLERINA_HOME)
-                || params.affectsConfiguration(ENABLE_ALL_CODELENS)
-                || params.affectsConfiguration(ENABLE_EXECUTOR_CODELENS)) {
+                || params.affectsConfiguration(ENABLE_ALL_CODELENS) ||
+                params.affectsConfiguration(ENABLE_EXECUTOR_CODELENS) ||
+                params.affectsConfiguration(BALLERINA_LOW_CODE_MODE)) {
                 this.showMsgAndRestart(CONFIG_CHANGED);
             }
         });
@@ -306,7 +298,7 @@ export class BallerinaExtension {
         }
 
         let ballerinaExecutor = '';
-        const balPromise: Promise<string> = new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
             exec(distPath + 'bal' + exeExtension + ' version', (err, stdout, stderr) => {
                 if (stdout) {
                     debug(`bal command stdout: ${stdout}`);
@@ -328,50 +320,24 @@ export class BallerinaExtension {
 
                 ballerinaExecutor = 'bal';
                 debug(`'bal' executor is picked up by the plugin.`);
-                resolve(stdout);
+
+                this.ballerinaCmd = (distPath + ballerinaExecutor + exeExtension).trim();
+                try {
+                    debug(`Ballerina version output: ${stdout}`);
+                    const implVersionLine = stdout.split('\n')[0];
+                    const replacePrefix = implVersionLine.startsWith("jBallerina")
+                        ? /jBallerina /
+                        : /Ballerina /;
+                    const parsedVersion = implVersionLine.replace(replacePrefix, '').replace(/[\n\t\r]/g, '');
+                    return resolve(parsedVersion);
+                } catch (error) {
+                    if (error instanceof Error) {
+                        sendTelemetryException(this, error, CMP_EXTENSION_CORE);
+                    }
+                    return reject(error);
+                }
             });
         });
-        const ballerinaPromise: Promise<string> = new Promise((resolve, reject) => {
-            exec(distPath + 'ballerina' + exeExtension + ' version', (err, stdout, stderr) => {
-                if (stdout) {
-                    debug(`ballerina command stdout: ${stdout}`);
-                }
-                if (stderr) {
-                    debug(`ballerina command _stderr: ${stderr}`);
-                }
-                if (err) {
-                    debug(`ballerina command err: ${err}`);
-                    reject(err);
-                    return;
-                }
-
-                if (stdout.length === 0 || stdout.startsWith(ERROR) || stdout.includes(NO_SUCH_FILE) ||
-                    stdout.includes(COMMAND_NOT_FOUND)) {
-                    reject(stdout);
-                    return;
-                }
-
-                ballerinaExecutor = 'ballerina';
-                debug(`'ballerina' executor is picked up by the plugin.`);
-                resolve(stdout);
-            });
-        });
-        const cmdOutput = await any([balPromise, ballerinaPromise]);
-        this.ballerinaCmd = (distPath + ballerinaExecutor + exeExtension).trim();
-        try {
-            debug(`Ballerina version output: ${cmdOutput}`);
-            const implVersionLine = cmdOutput.split('\n')[0];
-            const replacePrefix = implVersionLine.startsWith("jBallerina")
-                ? /jBallerina /
-                : /Ballerina /;
-            const parsedVersion = implVersionLine.replace(replacePrefix, '').replace(/[\n\t\r]/g, '');
-            return Promise.resolve(parsedVersion);
-        } catch (error) {
-            if (error instanceof Error) {
-                sendTelemetryException(this, error, CMP_EXTENSION_CORE);
-            }
-            return Promise.reject(error);
-        }
     }
 
     showMessageInstallBallerina(): any {
@@ -539,12 +505,8 @@ export class BallerinaExtension {
     }
 
     public isBallerinaLowCodeMode(): boolean {
-        let isBallerinaLowCodeMode = <boolean>workspace.getConfiguration().get(BALLERINA_LOW_CODE_MODE);
-        return isBallerinaLowCodeMode || (process.env.LOW_CODE_MODE === 'true');
-    }
-
-    public isSwanLake(): boolean {
-        return this.swanLake;
+        return <boolean>workspace.getConfiguration().get(BALLERINA_LOW_CODE_MODE) ||
+            process.env.LOW_CODE_MODE === 'true';
     }
 
     public getDocumentContext(): DocumentContext {
@@ -605,6 +567,9 @@ class DocumentContext {
     }
 
     public setLatestDocument(uri: Uri | undefined) {
+        if (uri && (uri.scheme !== 'file' || uri.fsPath.split(sep).pop()?.split(".").pop() !== "bal")) {
+            return;
+        }
         this.latestDocument = uri;
     }
 

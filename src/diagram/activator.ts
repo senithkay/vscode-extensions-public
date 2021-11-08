@@ -23,15 +23,15 @@ import {
 } from 'vscode';
 import * as _ from 'lodash';
 import { render } from './renderer';
-import { ExtendedLangClient } from '../core/extended-language-client';
+import { DocumentIdentifier, ExtendedLangClient } from '../core/extended-language-client';
 import { BallerinaExtension, Change } from '../core';
 import { getCommonWebViewOptions, isWindows, WebViewMethod, WebViewRPCHandler } from '../utils';
 import { join } from "path";
 import {
-	TM_EVENT_OPEN_DIAGRAM, TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED, TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW,
-	sendTelemetryEvent, sendTelemetryException
+	TM_EVENT_OPEN_DIAGRAM, TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, sendTelemetryEvent,
+	sendTelemetryException
 } from '../telemetry';
-import { PackageOverviewDataProvider } from '../tree-view';
+import { Module, PackageOverviewDataProvider } from '../tree-view';
 import { PALETTE_COMMANDS } from '../project';
 import { sep } from "path";
 import { DiagramOptions, Member, SyntaxTree } from './model';
@@ -46,8 +46,8 @@ let ballerinaExtension: BallerinaExtension;
 let webviewRPCHandler: WebViewRPCHandler;
 let currentDocumentURI: Uri;
 
-export async function showDiagramEditor(startLine: number, startColumn: number, kind: string, name: string,
-	filePath: string, isCommand: boolean = false): Promise<void> {
+export async function showDiagramEditor(startLine: number, startColumn: number, filePath: string,
+	isCommand: boolean = false): Promise<void> {
 
 	const editor = window.activeTextEditor;
 	if (isCommand) {
@@ -97,17 +97,11 @@ export function activate(ballerinaExtInstance: BallerinaExtension, diagramOvervi
 	});
 
 	const diagramRenderDisposable = commands.registerCommand('ballerina.show.diagram', () => {
-		if (!ballerinaExtInstance.isSwanLake()) {
-			ballerinaExtInstance.showMessageOldBallerina();
-			sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED, CMP_DIAGRAM_VIEW,
-				"Diagram Editor is not supported for the ballerina version.");
-			return;
-		}
 		commands.executeCommand(PALETTE_COMMANDS.FOCUS_OVERVIEW);
 		sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_DIAGRAM, CMP_DIAGRAM_VIEW);
 		return ballerinaExtInstance.onReady()
 			.then(() => {
-				showDiagramEditor(0, 0, '', '', '', true);
+				showDiagramEditor(0, 0, '', true);
 			})
 			.catch((e) => {
 				ballerinaExtInstance.showPluginActivationError();
@@ -226,6 +220,13 @@ class DiagramPanel {
 					};
 					const status = commands.executeCommand('vscode.open', Uri.file(filePath), showOptions);
 					return !status ? false : true;
+				}
+			},
+			{
+				methodName: 'focusDiagram',
+				handler: (_args: any[]): Promise<boolean> => {
+					ballerinaExtension.setDiagramActiveContext(true);
+					return Promise.resolve(true);
 				}
 			}
 		];
@@ -384,4 +385,68 @@ function getCurrentFileName(): string | undefined {
 		return undefined;
 	}
 	return diagramElement!.fileUri!.fsPath.split(sep).pop();
+}
+
+export async function renderFirstDiagramElement(client: ExtendedLangClient) {
+	const folder = workspace.workspaceFolders![0];
+	const tomlPath = folder.uri.fsPath + sep + 'Ballerina.toml';
+	const currentFileUri = Uri.file(tomlPath).toString();
+	if (!existsSync(tomlPath)) {
+		return;
+	}
+
+	client.onReady().then(async () => {
+		client.sendNotification('textDocument/didOpen', {
+			textDocument: {
+				uri: currentFileUri,
+				languageId: 'ballerina',
+				version: 1,
+				text: readFileSync(tomlPath, { encoding: 'utf-8' })
+			}
+		});
+
+		const documentIdentifiers: DocumentIdentifier[] = [{ uri: currentFileUri }];
+		await client.getBallerinaProjectComponents({ documentIdentifiers }).then(async (response) => {
+			if (!response.packages || response.packages.length == 0 || !response.packages[0].modules) {
+				return;
+			}
+			const defaultModules: Module[] = response.packages[0].modules.filter(module => {
+				return !module.name;
+			});
+			if (defaultModules.length == 0) {
+				return;
+			}
+			if (defaultModules[0].functions && defaultModules[0].functions.length > 0) {
+				const mainFunctionNodes = defaultModules[0].functions.filter(fn => {
+					return fn.name === 'main';
+				});
+				if (mainFunctionNodes.length > 0) {
+					const path = join(folder.uri.path, mainFunctionNodes[0].filePath);
+					await showDiagramEditor(0, 0, path);
+					diagramElement = {
+						isDiagram: true,
+						fileUri: Uri.file(path),
+						startLine: mainFunctionNodes[0].endLine,
+						startColumn: mainFunctionNodes[0].endColumn - 1
+					}
+					callUpdateDiagramMethod();
+				} else if (defaultModules[0].services && defaultModules[0].services.length > 0) {
+					const path = join(folder.uri.path, defaultModules[0].services[0].filePath);
+					for (let i = 0; i < defaultModules[0].services.length; i++) {
+						if (defaultModules[0].services[i].resources && defaultModules[0].services[i].resources.length > 0) {
+							await showDiagramEditor(0, 0, path);
+							diagramElement = {
+								isDiagram: true,
+								fileUri: Uri.file(path),
+								startLine: defaultModules[0].services[i].resources[0].startLine,
+								startColumn: defaultModules[0].services[i].resources[0].startColumn
+							}
+							callUpdateDiagramMethod();
+							break;
+						}
+					}
+				}
+			}
+		});
+	});
 }
