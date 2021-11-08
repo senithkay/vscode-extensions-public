@@ -37,12 +37,9 @@ interface ReturnFormProps {
 export function AddReturnForm(props: ReturnFormProps) {
     const {
         props: {
-            isCodeEditorActive,
-            currentApp,
             isMutationProgress: isMutationInProgress
         }
     } = useContext(Context);
-    const triggerType = currentApp ? currentApp.displayType : undefined;
     const { config, formArgs, onCancel, onSave } = props;
     const classes = useStyles();
     const overlayClasses = wizardStyles();
@@ -63,8 +60,6 @@ export function AddReturnForm(props: ReturnFormProps) {
         setIsValidValue(!isInvalid || (returnExpression === ""));
     };
 
-    const isButtonDisabled = isMutationInProgress || !isValidValue;
-
     const saveReturnButtonLabel = intl.formatMessage({
         id: "lowcode.develop.configForms.return.saveButton.label",
         defaultMessage: "Save"
@@ -84,8 +79,6 @@ export function AddReturnForm(props: ReturnFormProps) {
             defaultMessage: "{learnBallerina}"
         }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
     };
-
-    const containsMainFunction = triggerType && (triggerType === "Manual" || triggerType === "Schedule"); // todo: this is not working due to triggerType is blank.
 
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {

@@ -10,4 +10,13 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-export * from "./DeleteConfirmDialog";
+// tslint:disable: ordered-imports
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+
+export const useStyles = makeStyles((theme: Theme) =>
+    createStyles({
+        fullWidth: {
+            width: '100%'
+        }
+    }),
+);

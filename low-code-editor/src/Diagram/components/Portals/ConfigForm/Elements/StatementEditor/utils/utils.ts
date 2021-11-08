@@ -11,12 +11,12 @@
  * associated services.
  */
 import {
-    BinaryExpression, BooleanLiteral,
-    BracedExpression,
+    BinaryExpression, BooleanLiteral, BooleanTypeDesc,
+    BracedExpression, ConditionalExpression,
     NumericLiteral,
     SimpleNameReference, STKindChecker,
     STNode,
-    StringLiteral
+    StringLiteral, StringTypeDesc, TypeTestExpression
 } from "@ballerina/syntax-tree";
 
 import * as c from "../constants";
@@ -38,13 +38,14 @@ export function generateExpressionTemplate (kind: string, value?: any) {
     }
 }
 
+
 export const ExpressionKindByOperator: { [key: string]: string } = {
     AsteriskToken: c.ARITHMETIC,
     BitwiseAndToken: c.ARITHMETIC,
     BitwiseXorToken: c.ARITHMETIC,
-    DoubleDotLtToken: c.ARITHMETIC,
+    DoubleDotLtToken: c.RANGE,
     DoubleEqualToken: c.EQUALITY,
-    EllipsisToken: c.ARITHMETIC,
+    EllipsisToken: c.RANGE,
     ElvisToken: c.ARITHMETIC,
     GtEqualToken: c.RELATIONAL,
     GtToken: c.RELATIONAL,
@@ -97,7 +98,7 @@ export const OperatorsForExpressionKind: { [key: string]: SuggestionItem[] } = {
         { value: ">>>", kind: "Unknown" }
     ],
     Range: [
-        { value: "...", kind: "Unknown" },
+        { value: "...", kind: "EllipsisToken" },
         { value: "..<", kind: "DoubleDotLtToken" }
     ]
 }
@@ -107,9 +108,9 @@ export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = 
         { value: c.RELATIONAL },
         { value: c.EQUALITY },
         { value: c.LOGICAL },
-        { value: c.TYPE_CHECK },
+        { value: c.TYPE_TEST },
         { value: c.CONDITIONAL },
-        { value: c.UNARY }
+        // { value: c.UNARY }
     ],
     StringLiteral: [
         { value: c.STRING_LITERAL },
@@ -121,7 +122,7 @@ export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = 
     Relational: [
         { value: c.ARITHMETIC },
         { value: c.CONDITIONAL },
-        { value: c.TYPE_CHECK },
+        { value: c.TYPE_TEST },
         { value: c.RELATIONAL },
         { value: c.NUMERIC_LITERAL }
     ],
@@ -141,7 +142,7 @@ export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = 
         { value: c.STRING_LITERAL },
         { value: c.NUMERIC_LITERAL },
         { value: c.RELATIONAL },
-        { value: c.TYPE_CHECK },
+        { value: c.TYPE_TEST },
         { value: c.CONDITIONAL }
     ],
     Equality: [
@@ -149,33 +150,28 @@ export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = 
         { value: c.CONDITIONAL },
         { value: c.STRING_LITERAL },
         { value: c.NUMERIC_LITERAL },
-        { value: c.STRING_TEMPLATE }
+        // { value: c.STRING_TEMPLATE }
     ],
     DefaultBoolean: [
         { value: c.RELATIONAL },
         { value: c.EQUALITY },
         { value: c.LOGICAL },
         { value: c.BOOLEAN_LITERAL },
-        { value: c.TYPE_CHECK },
+        { value: c.TYPE_TEST },
         { value: c.CONDITIONAL },
-        { value: c.UNARY }
+        // { value: c.UNARY }
     ],
     DefaultInteger: [
         { value: c.ARITHMETIC },
         { value: c.NUMERIC_LITERAL },
         { value: c.CONDITIONAL },
-        { value: c.UNARY }
+        // { value: c.UNARY }
     ],
     DefaultString: [
         { value: c.STRING_LITERAL },
         { value: c.CONDITIONAL },
-        { value: c.STRING_TEMPLATE },
+        // { value: c.STRING_TEMPLATE },
         { value: c.ARITHMETIC }
-    ],
-    TypeCheck: [
-        { value: c.STRING_LITERAL },
-        { value: c.NUMERIC_LITERAL },
-        { value: c.CONDITIONAL }
     ],
     Unary: [
         { value: c.NUMERIC_LITERAL },
@@ -195,8 +191,37 @@ export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = 
         { value: c.ARITHMETIC },
         { value: c.RELATIONAL },
         { value: c.EQUALITY },
-        { value: c.TYPE_CHECK },
-        { value: c.LOGICAL }
+        { value: c.TYPE_TEST },
+        { value: c.LOGICAL },
+        { value: c.CONDITIONAL },
+        { value: c.RANGE }
+    ],
+    TypeDescriptor: [
+        { value: c.STRING_TYPE_DESC },
+        { value: c.BOOLEAN_TYPE_DESC },
+    ],
+    DefaultExpressions: [
+        { value: c.ARITHMETIC },
+        { value: c.RELATIONAL },
+        { value: c.EQUALITY },
+        { value: c.LOGICAL },
+        { value: c.STRING_LITERAL },
+        { value: c.NUMERIC_LITERAL },
+        { value: c.BOOLEAN_LITERAL },
+        { value: c.TYPE_TEST },
+        { value: c.CONDITIONAL },
+        { value: c.RANGE }
+    ],
+    Range: [
+        { value: c.ARITHMETIC },
+        { value: c.RELATIONAL },
+        { value: c.EQUALITY },
+        { value: c.LOGICAL },
+        { value: c.STRING_LITERAL },
+        { value: c.NUMERIC_LITERAL },
+        { value: c.BOOLEAN_LITERAL },
+        { value: c.CONDITIONAL },
+        { value: c.RANGE }
     ]
 }
 
