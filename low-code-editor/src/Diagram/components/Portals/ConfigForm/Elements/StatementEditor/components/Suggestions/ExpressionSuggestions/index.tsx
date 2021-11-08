@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline jsx-no-lambda
 import React, { useContext } from "react";
 
-import { BinaryExpression, STNode } from "@ballerina/syntax-tree";
+import { BinaryExpression, STKindChecker, STNode } from "@ballerina/syntax-tree";
 
 import * as c from "../../../constants";
 import { SuggestionItem } from "../../../models/definitions";
@@ -44,8 +44,10 @@ export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
     }
 
     const onClickOperatorSuggestion = (operator: SuggestionItem) => {
-        updateModel(operator.value, (model as BinaryExpression).operator.position);
-        suggestionHandler();
+        if (STKindChecker.isBinaryExpression(model)) {
+            updateModel(operator.value, model.operator.position);
+            suggestionHandler();
+        }
     }
 
     return (
