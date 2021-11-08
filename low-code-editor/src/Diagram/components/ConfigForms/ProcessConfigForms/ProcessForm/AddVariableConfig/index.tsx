@@ -242,10 +242,12 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     }
 
     const expressionEditorConfig = {
+        key: selectedType,
         model: {
             name: "Expression",
             displayName: "Value Expression",
-            typeName: (modelType ? modelType : "other")
+            typeName: (modelType ? modelType : "other"),
+            value: variableExpression,
         },
         customProps: {
             validate: validateExpression,
@@ -254,6 +256,10 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             tooltipTitle: variableTooltipMessages.expressionEditor.title,
             tooltipActionText: variableTooltipMessages.expressionEditor.actionText,
             tooltipActionLink: variableTooltipMessages.expressionEditor.actionLink,
+            expressionInjectables: {
+                list: formArgs?.expressionInjectables?.list,
+                setInjectables: formArgs?.expressionInjectables?.setInjectables
+            }
         },
         onChange: onPropertyChange,
         defaultValue: variableExpression,
