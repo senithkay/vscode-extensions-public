@@ -123,13 +123,13 @@ export function InputEditor(props: InputEditorProps) {
     const snippetTargetPosition = defaultCodeSnippet.length;
     const isCustomTemplate = false;
 
-    const reservedWords: string[] = ['EXPRESSION', 'typeDescriptor'];
+    const placeHolders: string[] = ['EXPRESSION', 'TYPE_DESCRIPTOR'];
 
     useEffect(() => {
         handleOnFocus(currentContent, "").then(() => {
             handleOnOutFocus().then();
         })
-        getContextBasedCompletions(reservedWords.indexOf(userInput) > -1 ? "" : userInput);
+        getContextBasedCompletions(placeHolders.indexOf(userInput) > -1 ? "" : userInput);
     }, [statementType]);
 
     useEffect(() => {
@@ -186,7 +186,7 @@ export function InputEditor(props: InputEditorProps) {
         stmtCtx.formCtx.validate('', !hasDiagnostic, false);
 
         // TODO: Need to obtain the default value as a prop
-        if (!reservedWords.some(word => currentContent.includes(word))) {
+        if (!placeHolders.some(word => currentContent.includes(word))) {
             diagnosticHandler(getDiagnosticMessage(inputEditorState.diagnostic, varType))
         }
     }
@@ -344,7 +344,7 @@ export function InputEditor(props: InputEditorProps) {
     return isEditing ?
         (
             <input
-                value={reservedWords.indexOf(userInput) > -1 ? "" : userInput}
+                value={placeHolders.indexOf(userInput) > -1 ? "" : userInput}
                 className={overlayClasses.inputEditorTemplate}
                 onKeyDown={inputEnterHandler}
                 onBlur={inputBlurHandler}

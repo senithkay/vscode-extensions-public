@@ -36,7 +36,7 @@ export function generateExpressionTemplate (kind: string, value?: any) {
     } else if (kind === c.RANGE) {
         return ("EXPRESSION ... EXPRESSION")
     } else if (kind === c.TYPE_TEST) {
-        return ("EXPRESSION is typeDescriptor")
+        return ("EXPRESSION is TYPE_DESCRIPTOR")
     } else if (kind === c.STRING_LITERAL) {
         return ("\" \"");
     } else if (kind === c.NUMERIC_LITERAL) {
