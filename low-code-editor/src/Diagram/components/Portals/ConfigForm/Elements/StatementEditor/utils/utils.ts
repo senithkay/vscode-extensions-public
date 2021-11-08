@@ -24,13 +24,13 @@ import { SuggestionItem } from "../models/definitions";
 
 export function generateExpressionTemplate (kind: string, value?: any) {
     if (kind === c.ARITHMETIC) {
-        return ("EXPRESSION + EXPRESSION ")
+        return ("EXPRESSION + EXPRESSION")
     } else if (kind === c.RELATIONAL) {
-        return ("EXPRESSION > EXPRESSION ")
+        return ("EXPRESSION > EXPRESSION")
     } else if (kind === c.EQUALITY) {
-        return ("EXPRESSION === EXPRESSION ")
+        return ("EXPRESSION === EXPRESSION")
     } else if (kind === c.LOGICAL) {
-        return ("EXPRESSION && EXPRESSION ")
+        return ("EXPRESSION && EXPRESSION")
     } else if (kind === c.CONDITIONAL) {
         return ("EXPRESSION ? EXPRESSION : EXPRESSION")
     } else if (kind === c.RANGE) {
