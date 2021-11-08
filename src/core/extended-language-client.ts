@@ -270,6 +270,26 @@ export interface SequenceGraphPointValue {
     tps: String;
 }
 
+export interface JsonToRecordRequest {
+    jsonString: string;
+    recordName: string;
+    isRecordTypeDesc: boolean;
+    isClosed: boolean;
+}
+
+export interface JsonToRecordField {
+    name: string;
+    type: string;
+    isArray: boolean;
+    isRequired: boolean;
+    fields: JsonToRecordField[];
+}
+
+export interface JsonToRecordResponse {
+    codeBlock: string;
+    fields: JsonToRecordField;
+}
+
 export class ExtendedLangClient extends LanguageClient {
     private ballerinaExtendedServices: Set<String> | undefined;
     private isDynamicRegistrationSupported: boolean;
@@ -418,7 +438,7 @@ export class ExtendedLangClient extends LanguageClient {
         return this.sendRequest(EXTENDED_APIS.DOCUMENT_EXECUTOR_POSITIONS, params);
     }
 
-    convertJsonToRecord(params: JsonToRecordRequestParams): Thenable<JsonToRecordResponse> {
+    convertJsonToRecord(params: JsonToRecordRequest): Thenable<JsonToRecordResponse> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.JSON_TO_RECORD_CONVERT)) {
             Promise.resolve(NOT_SUPPORTED);
         }
