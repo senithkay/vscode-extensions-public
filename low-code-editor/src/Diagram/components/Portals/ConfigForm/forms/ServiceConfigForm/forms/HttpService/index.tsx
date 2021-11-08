@@ -14,7 +14,7 @@
 import React, { useReducer } from "react";
 import { FormattedMessage } from "react-intl";
 
-import { ListenerDeclaration, NodePosition, ServiceDeclaration, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { ListenerDeclaration, NodePosition, ServiceDeclaration, STKindChecker } from "@ballerina/syntax-tree";
 import { FormHelperText } from "@material-ui/core";
 import classNames from "classnames";
 
@@ -88,26 +88,10 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         onSave();
     }
 
-    const saveBtnDisabled = isServiceConfigValid(state);
+    const saveBtnDisabled = !isServiceConfigValid(state) || state.hasInvalidConfig;
 
     return (
         <>
-            <div className={formClasses.labelWrapper}>
-                <FormHelperText className={formClasses.inputLabelForRequired}>
-                    <FormattedMessage
-                        id="lowcode.develop.connectorForms.HTTP.configureNewListener"
-                        defaultMessage="Configure Listener :"
-                    />
-                </FormHelperText>
-                <FormHelperText className={formClasses.starLabelForRequired}>*</FormHelperText>
-            </div>
-            <div className={classNames(formClasses.groupedForm, formClasses.marginTB)}>
-                <ListenerConfigForm
-                    configState={state.listenerConfig}
-                    actionDispatch={dispatch}
-                    listenerList={listenerList}
-                />
-            </div>
             <div className={formClasses.labelWrapper}>
                 <FormHelperText className={formClasses.inputLabelForRequired}>
                     <FormattedMessage
@@ -125,6 +109,23 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
                     startAdornment: '/'
                 }}
             />
+            <div className={formClasses.labelWrapper}>
+                <FormHelperText className={formClasses.inputLabelForRequired}>
+                    <FormattedMessage
+                        id="lowcode.develop.connectorForms.HTTP.configureNewListener"
+                        defaultMessage="Configure Listener :"
+                    />
+                </FormHelperText>
+                <FormHelperText className={formClasses.starLabelForRequired}>*</FormHelperText>
+            </div>
+            <div className={classNames(formClasses.groupedForm, formClasses.marginTB)}>
+                <ListenerConfigForm
+                    configState={state.listenerConfig}
+                    actionDispatch={dispatch}
+                    listenerList={listenerList}
+                    targetPosition={model ? model.position : targetPosition}
+                />
+            </div>
             <div className={formClasses.wizardBtnHolder}>
                 <SecondaryButton
                     text="Cancel"
@@ -133,7 +134,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
                 />
                 <PrimaryButton
                     text="Save"
-                    disabled={!saveBtnDisabled}
+                    disabled={saveBtnDisabled}
                     fullWidth={false}
                     onClick={handleOnSave}
                 />

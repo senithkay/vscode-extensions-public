@@ -23,6 +23,7 @@ import { Context } from '../../../../../Contexts/Diagram';
 import { STSymbolInfo } from "../../../../../Definitions";
 import { STModification } from "../../../../../Definitions/lang-client-extended";
 import { getAllVariables } from "../../../../utils/mixins";
+import { ExpressionInjectablesProps } from '../../../FormGenerator';
 import { PrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
 import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
 import { Form } from "../../../Portals/ConfigForm/forms/Components/Form";
@@ -42,13 +43,14 @@ export interface OperationFormProps {
     onConnectionChange: () => void;
     isNewConnectorInitWizard?: boolean;
     functionDefInfo: Map<string, FunctionDefinitionInfo>;
+    expressionInjectables: ExpressionInjectablesProps;
 }
 
 export function OperationForm(props: OperationFormProps) {
     const { props: { stSymbolInfo } } = useContext(Context);
     const symbolInfo: STSymbolInfo = stSymbolInfo;
     const { operations, selectedOperation, showConnectionName, onSave, connectionDetails, onConnectionChange,
-            mutationInProgress, isNewConnectorInitWizard, functionDefInfo } = props;
+            mutationInProgress, isNewConnectorInitWizard, functionDefInfo, expressionInjectables } = props;
     const wizardClasses = wizardStyles();
     const classes = useStyles();
     const intl = useIntl();
@@ -182,7 +184,7 @@ export function OperationForm(props: OperationFormProps) {
                             </>
                             <div className={wizardClasses.formWrapper}>
                                 {formFields && formFields.length > 0 ? (
-                                    <Form fields={formFields} onValidate={validateForm} />
+                                    <Form fields={formFields} onValidate={validateForm} expressionInjectables={expressionInjectables}/>
                                 ) : null
                                 }
                             </div>

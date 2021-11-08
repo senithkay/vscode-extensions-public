@@ -51,7 +51,7 @@ export function ResourceOtherParams(props: ResourceOtherParamsProps) {
         )
     )
     .map((param: RequiredParam, i) => (
-      <span key={i} className={"param"}>
+      <span key={i} className={"signature-param"}>
         {param.source}
       </span>
     ));

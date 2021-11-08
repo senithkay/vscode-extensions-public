@@ -26,6 +26,7 @@ import {
     createIfStatement, createWhileStatement, updateForEachCondition,
     updateIfStatementCondition, updateWhileStatementCondition
 } from "../../../utils/modification-util";
+import { InjectableItem } from "../../FormGenerator";
 import { ConditionConfig, ForeachConfig } from "../../Portals/ConfigForm/types";
 import { DiagramOverlayPosition } from "../../Portals/Overlay";
 
@@ -67,7 +68,7 @@ export function ConditionConfigForm(props: ConditionConfigFormProps) {
                 type: formType,
                 conditionExpression:
                     !formArgs?.config ?
-                        { variable: '', collection: '' }
+                        { variable: '', collection: '', type: '' }
                         : formArgs?.config.conditionExpression,
                 scopeSymbols: [],
             };
@@ -84,6 +85,13 @@ export function ConditionConfigForm(props: ConditionConfigFormProps) {
     const onSaveClick = () => {
         if (formArgs?.targetPosition) {
             const modifications: STModification[] = [];
+
+            if (formArgs?.expressionInjectables?.list){
+                formArgs.expressionInjectables.list.forEach((item: InjectableItem) => {
+                    modifications.push(item.modification)
+                })
+            }
+
             if (formType === "If") {
                 const ifConfig: ConditionConfig = conditionConfig as ConditionConfig;
                 const conditionExpression: string = ifConfig.conditionExpression as string;
@@ -108,9 +116,11 @@ export function ConditionConfigForm(props: ConditionConfigFormProps) {
                         property: formType
                     };
                     onEvent(event);
-                    modifications.push(createForeachStatement(conditionExpression.collection, conditionExpression.variable, formArgs?.targetPosition));
+                    modifications.push(createForeachStatement(conditionExpression.collection, conditionExpression.variable,
+                        conditionExpression.type, formArgs?.targetPosition));
                 } else {
-                    modifications.push(updateForEachCondition(conditionExpression.collection, conditionExpression.variable, formArgs?.config.conditionPosition))
+                    modifications.push(updateForEachCondition(conditionExpression.collection, conditionExpression.variable,
+                        conditionExpression.type, formArgs?.config.conditionPosition))
                 }
                 // modifications.push();
             } else if (formType === "While") {

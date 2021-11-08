@@ -63,12 +63,8 @@ export function While(props: WhileProps) {
     const {
         state,
         actions: { diagramCleanDraw, diagramRedraw, insertComponentStart },
-        props: { currentApp, isCodeEditorActive, syntaxTree, isReadOnly, isMutationProgress, isWaitingOnWorkspace },
+        props: { isCodeEditorActive, syntaxTree, isReadOnly, isMutationProgress, isWaitingOnWorkspace },
         api: {
-            splitPanel: {
-                maximize: maximizeCodeView,
-                handleRightPanelContent
-            },
             code: {
                 setCodeLocationToHighlight: setCodeToHighlight
             }
@@ -96,7 +92,6 @@ export function While(props: WhileProps) {
 
     let codeSnippet = "WHILE CODE SNIPPET";
     let codeSnippetOnSvg = "WHILE";
-    const { id: appId } = currentApp || {};
 
     if (model) {
         codeSnippet = modelWhile.source.trim().split('{')[0];
@@ -106,8 +101,6 @@ export function While(props: WhileProps) {
     }
 
     const onClickOpenInCodeView = () => {
-        maximizeCodeView("home", "vertical", appId);
-        handleRightPanelContent('Code');
         setCodeToHighlight(model?.position)
     }
 
@@ -213,7 +206,7 @@ export function While(props: WhileProps) {
                     y={y}
                     codeSnippet={codeSnippet}
                     codeSnippetOnSvg={codeSnippetOnSvg}
-                    openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && appId && onClickOpenInCodeView}
+                    openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && onClickOpenInCodeView}
                 />
                 <ContitionAssignment
                     x={x - (CONDITION_ASSIGNMENT_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
@@ -281,7 +274,7 @@ export function While(props: WhileProps) {
                     y={y}
                     codeSnippet={codeSnippet}
                     codeSnippetOnSvg={codeSnippetOnSvg}
-                    openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && appId && onClickOpenInCodeView}
+                    openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && onClickOpenInCodeView}
                 />
                 <ContitionAssignment
                     x={x - (CONDITION_ASSIGNMENT_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}

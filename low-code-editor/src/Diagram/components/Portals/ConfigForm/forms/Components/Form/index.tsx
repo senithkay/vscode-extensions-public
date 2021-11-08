@@ -14,21 +14,24 @@ import React, { ReactNode } from "react";
 
 import { FormField } from "../../../../../../../ConfigurationSpec/types";
 import {isAllValid} from "../../../../../../../utils/validator";
-import { useStyles } from "../../../../../ConfigPanel/styles";
 import FormAccordion from "../../../../../FormAccordion";
+import { ExpressionInjectablesProps } from "../../../../../FormGenerator";
 import { getFormElement } from "../../../../utils";
 import { FormElementProps } from "../../../types";
+
+import { useStyles } from "./styles";
 
 export interface FormProps {
     fields: FormField[];
     onValidate?: (isRequiredFieldsFilled: boolean) => void;
-    size?: "small" | "medium"
+    size?: "small" | "medium",
+    expressionInjectables?: ExpressionInjectablesProps;
 }
 
-const isAllOptionalFields = (recordFields: FormField[]): boolean => recordFields?.every(field => field.optional || (field.fields && isAllOptionalFields(field.fields)));
+const isAllOptionalFields = (recordFields: FormField[]): boolean => recordFields?.every(field => field.optional || field.defaultValue || (field.fields && isAllOptionalFields(field.fields)));
 
 export function Form(props: FormProps) {
-    const { fields, onValidate } = props;
+    const { fields, onValidate, expressionInjectables } = props;
 
     const classes = useStyles();
     const elements: ReactNode[] = [];
@@ -51,7 +54,7 @@ export function Form(props: FormProps) {
 
     fields?.map((field, index) => {
         if (!field.hide && (field.typeName === "string" || (field.typeName === 'record' && !field.isReference) || field.typeName === "int"
-            || field.typeName === "boolean" || field.typeName === "float" || field.typeName === "array"
+            || field.typeName === "boolean" || field.typeName === "float" || field.typeName === "decimal" || field.typeName === "array"
             || field.typeName === "map" || field.typeName === "union" || field.typeName === "json" ||
             field.typeName === "httpRequest" || field.typeName === "handle")) {
             const elementProps: FormElementProps = {
@@ -59,7 +62,8 @@ export function Form(props: FormProps) {
                 index,
                 customProps: {
                     validate: validateField,
-                    tooltipTitle: field.tooltip
+                    tooltipTitle: field.tooltip,
+                    expressionInjectables,
                 },
             };
 
@@ -81,13 +85,13 @@ export function Form(props: FormProps) {
             const element = getFormElement(elementProps, type);
 
             if (element) {
-                field?.optional ? optionalElements.push(element) : elements.push(element);
+                (field?.optional || field?.defaultValue) ? optionalElements.push(element) : elements.push(element);
             }
         }
     });
 
     return (
-        <form className={classes.inputUrl} noValidate={true} autoComplete="off">
+        <form className={classes.fullWidth} noValidate={true} autoComplete="off">
             <FormAccordion
                 depth={1}
                 mandatoryFields={elements}

@@ -14,10 +14,10 @@ import React from "react";
 
 import ComponentExpandIcon from "../../../../../../../../assets/icons/ComponentExpandIcon";
 import { ButtonWithIcon } from "../../../Button/ButtonWithIcon";
-import { statementEditorStyles } from "../ViewContainer/styles";
+import { useStatementEditorStyles } from "../ViewContainer/styles";
 
 export function RightPane() {
-    const overlayClasses = statementEditorStyles();
+    const overlayClasses = useStatementEditorStyles();
 
     return (
         <div className={overlayClasses.rightPane}>

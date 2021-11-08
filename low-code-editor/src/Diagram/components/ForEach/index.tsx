@@ -66,16 +66,11 @@ export function ForEach(props: ForeachProps) {
             diagramCleanDraw, diagramRedraw, insertComponentStart
         },
         api: {
-            splitPanel: {
-                handleRightPanelContent,
-                maximize: maximizeCodeView,
-            },
             code: {
                 setCodeLocationToHighlight: setCodeToHighlight,
             }
         },
         props: {
-            currentApp,
             syntaxTree,
             isReadOnly,
             isMutationProgress,
@@ -101,8 +96,6 @@ export function ForEach(props: ForeachProps) {
     const y: number = viewState.foreachHead.cy - (viewState.foreachHead.h / 2) - (FOREACH_SHADOW_OFFSET / 2);
     const r: number = DefaultConfig.forEach.radius;
     const paddingUnfold = DefaultConfig.forEach.paddingUnfold;
-
-    const { id: appId } = currentApp || {};
 
     let drafts: React.ReactNode[] = [];
     if (bodyViewState.draft) {
@@ -157,9 +150,11 @@ export function ForEach(props: ForeachProps) {
     const onForeachHeadClick = () => {
         // TODO: re enable this after the release
         const variable: string = modelForeach?.typedBindingPattern?.bindingPattern?.source?.trim();
+        const type: string = modelForeach?.typedBindingPattern?.typeDescriptor?.source?.trim();
 
         const conditionExpression: ForeachConfig = {
             variable,
+            type,
             collection: modelForeach.actionOrExpressionNode.source.trim(),
             model: modelForeach
         }
@@ -176,7 +171,7 @@ export function ForEach(props: ForeachProps) {
             * foreach var [i in expr] <- this whole part gets replaced on update
             */
             startLine: modelForeach.typedBindingPattern.bindingPattern.position.startLine,
-            startColumn: modelForeach.typedBindingPattern.bindingPattern.position.startColumn,
+            startColumn: modelForeach.typedBindingPattern.position.startColumn,
             endLine: modelForeach.actionOrExpressionNode.position.endLine,
             endColumn: modelForeach.actionOrExpressionNode.position.endColumn,
         }
@@ -218,8 +213,6 @@ export function ForEach(props: ForeachProps) {
     }
 
     const onClickOpenInCodeView = () => {
-        maximizeCodeView("home", "vertical", appId);
-        handleRightPanelContent('Code');
         setCodeToHighlight(model?.position)
     }
 

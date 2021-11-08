@@ -12,7 +12,8 @@
  */
 export interface HTTPServiceConfigState {
     serviceBasePath: string;
-    listenerConfig: ListenerConfigFormState
+    listenerConfig: ListenerConfigFormState,
+    hasInvalidConfig: boolean
 }
 
 export interface ListenerConfigFormState {
@@ -28,7 +29,8 @@ export enum ServiceConfigActionTypes {
     SET_LISTENER_PORT,
     CREATE_NEW_LISTENER,
     SELECT_EXISTING_LISTENER,
-    DEFINE_LISTENER_INLINE
+    DEFINE_LISTENER_INLINE,
+    UPDATE_INVALID_CONFIG_STATUS
 }
 
 export type ServiceConfigActions =
@@ -38,6 +40,7 @@ export type ServiceConfigActions =
     | { type: ServiceConfigActionTypes.SET_LISTENER_PORT, payload: string }
     | { type: ServiceConfigActionTypes.SELECT_EXISTING_LISTENER, payload: string }
     | { type: ServiceConfigActionTypes.DEFINE_LISTENER_INLINE, payload: boolean }
+    | { type: ServiceConfigActionTypes.UPDATE_INVALID_CONFIG_STATUS, payload: boolean }
 
 
 export function serviceConfigReducer(
@@ -56,7 +59,10 @@ export function serviceConfigReducer(
                 listenerConfig: {
                     ...state.listenerConfig,
                     createNewListener: true,
-                }
+                    listenerName: '',
+                    listenerPort: ''
+                },
+                hasInvalidConfig: true
             };
         case ServiceConfigActionTypes.SELECT_EXISTING_LISTENER:
             return {
@@ -69,7 +75,13 @@ export function serviceConfigReducer(
                 }
             };
         case ServiceConfigActionTypes.DEFINE_LISTENER_INLINE:
-            return { ...state, listenerConfig: { ...state.listenerConfig, fromVar: action.payload } };
+            return {
+                ...state,
+                listenerConfig: { ...state.listenerConfig, fromVar: action.payload },
+                hasInvalidConfig: true
+            };
+        case ServiceConfigActionTypes.UPDATE_INVALID_CONFIG_STATUS:
+            return { ...state, hasInvalidConfig: action.payload };
         default:
             return state;
     }

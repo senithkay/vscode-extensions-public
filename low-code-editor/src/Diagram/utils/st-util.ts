@@ -11,13 +11,12 @@
  * associated services.
  */
 import {
-    ActionStatement, CaptureBindingPattern, CheckAction, ElseBlock, FunctionDefinition, IfElseStatement, LocalVarDecl,
-    ModulePart, QualifiedNameReference, RemoteMethodCallAction, ResourceKeyword, ServiceDeclaration,
-    SimpleNameReference, STKindChecker,
+    ActionStatement, CaptureBindingPattern, CheckAction, ElseBlock, FunctionDefinition, IdentifierToken, IfElseStatement, LocalVarDecl,
+    ModulePart, ModuleVarDecl, QualifiedNameReference, RemoteMethodCallAction, ResourceKeyword, ServiceDeclaration,
+    STKindChecker,
     STNode, traversNode, TypeCastExpression, VisibleEndpoint
 } from '@ballerina/syntax-tree';
 import { subMinutes } from "date-fns";
-import cloneDeep from "lodash.clonedeep";
 import { Diagnostic } from 'monaco-languageclient';
 
 import { AnalyzePayloadVisitor, initVisitor, positionVisitor, sizingVisitor } from '../..';
@@ -25,7 +24,6 @@ import { FunctionDefinitionInfo } from "../../ConfigurationSpec/types";
 import { STSymbolInfo } from '../../Definitions';
 import { BallerinaConnectorInfo, BallerinaRecord, Connector } from '../../Definitions/lang-client-extended';
 import { CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH } from "../../Diagram/components/Connector/ConnectorHeader/ConnectorClientSVG";
-import * as formFieldDatabase from "../../utils/idb";
 import { IFELSE_SVG_HEIGHT, IFELSE_SVG_WIDTH } from "../components/IfElse/IfElseSVG";
 import { getFormattedModuleName } from '../components/Portals/utils';
 import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH } from "../components/Processor/ProcessSVG";
@@ -36,8 +34,6 @@ import { ActionInvocationFinder } from '../visitors/action-invocation-finder';
 import { BlockStatementFinder } from '../visitors/block-statement-finder';
 import { DefaultConfig } from "../visitors/default";
 import { clearAllDiagnostics, getAllDiagnostics, visitor as DiagnosticVisitor } from '../visitors/diagnostics-collector';
-
-import * as defaultFormCache from "./form-field-cache.json";
 
 export interface Endpoint {
     visibleEndpoint: VisibleEndpoint;
@@ -434,12 +430,12 @@ export interface ConnectorCache {
 
 // TODO: need to update local storage with persistent disk
 export async function addConnectorToCache(connector: BallerinaConnectorInfo) {
-    const {package: {organization, name: packageName, version}, name, id } = connector;
+    const { package: { organization, name: packageName, version }, name, id } = connector;
     const key = `${organization}_${packageName}_${name}_${version}_${id || "x"}`;
 
     const connectorsStr = localStorage.getItem(CONNECTOR_CACHE);
     let connectors: ConnectorCache = {};
-    if (connectorsStr){
+    if (connectorsStr) {
         connectors = JSON.parse(connectorsStr);
     }
     connectors[key] = connector;
@@ -448,14 +444,14 @@ export async function addConnectorToCache(connector: BallerinaConnectorInfo) {
 
 export function getConnectorFromCache(connector: Connector): BallerinaConnectorInfo {
     if (connector) {
-        const {package: {organization, name: packageName, version}, name, id } = connector;
+        const { package: { organization, name: packageName, version }, name, id } = connector;
         const key = `${organization}_${packageName}_${name}_${version}_${id || "x"}`;
 
         const connectorsStr = localStorage.getItem(CONNECTOR_CACHE);
         let connectors: ConnectorCache;
-        if (connectorsStr){
+        if (connectorsStr) {
             connectors = JSON.parse(connectorsStr) as ConnectorCache;
-            if (connectors.hasOwnProperty(key)){
+            if (connectors.hasOwnProperty(key)) {
                 return connectors[key];
             }
         }
@@ -607,31 +603,6 @@ export function isSTResourceFunction(node: FunctionDefinition): boolean {
     return (resourceKeyword !== undefined);
 }
 
-export function getConfigDataFromSt(triggerType: TriggerType, model: any, currentApp: any): any {
-    switch (triggerType) {
-        case "API":
-        case "Webhook":
-            let resourcePath = "";
-            if (model?.relativeResourcePath?.length > 0) {
-                for (const relativeResourcePath of model?.relativeResourcePath) {
-                    resourcePath += relativeResourcePath.value && relativeResourcePath.kind !== "DotToken" ?
-                        relativeResourcePath.value : (relativeResourcePath.source || "");
-                }
-            }
-            return {
-                method: model?.functionName?.value,
-                path: resourcePath
-            }
-        case "Schedule":
-            return {
-                cron: getCronFromUtcCron(currentApp.cronSchedule),
-                schType: getSchType(currentApp.cronSchedule)
-            }
-        default:
-            return undefined;
-    }
-}
-
 export function getCronFromUtcCron(utcCron: string): string {
     const cronSplit = utcCron?.split(" ", 5);
     if (getSchType(utcCron) === "Day") {
@@ -696,4 +667,8 @@ export function recalculateSizingAndPositioningST(st: STNode): STNode {
     }
     const clone = { ...st };
     return clone;
+}
+
+export function getVariableNameFromST(node: LocalVarDecl | ModuleVarDecl): IdentifierToken {
+    return (node.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName;
 }

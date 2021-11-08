@@ -13,7 +13,7 @@
 // tslint:disable: ordered-imports
 import { FunctionDefinition, NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import { Diagnostic, Range } from "monaco-languageclient";
-import { ExpEditorExpandSvg, ExpEditorCollapseSvg } from "../../../../../../assets";
+import { ExpEditorExpandSvg, ExpEditorCollapseSvg, EditIcon, ConfigurableIconSvg } from "../../../../../../assets";
 
 import * as monaco from 'monaco-editor';
 
@@ -34,10 +34,13 @@ import {
     UNDEFINED_SYMBOL_ERR_CODE,
     DIAGNOSTIC_MAX_LENGTH,
     SUGGEST_CAST_MAP,
+    CONFIGURABLE_WIDGET_ID,
 } from "./constants";
 import "./style.scss";
 import { ExpressionEditorHintProps, HintType } from "../ExpressionEditorHint";
 import MonacoEditor from "react-monaco-editor";
+import { InsertorDelete } from "../../../../../utils/modification-util";
+import { InjectableItem } from "../../../../FormGenerator";
 
 
 // return true if there is any diagnostic of severity === 1
@@ -52,6 +55,7 @@ export function diagnosticChecker(diagnostics: Diagnostic[]): boolean {
 export function addToTargetLine(oldModelValue: string, targetPosition: NodePosition, codeSnippet: string, EOL?: string): string {
     const modelContent: string[] = oldModelValue.split(/\n/g) || [];
     if (targetPosition?.startColumn){
+        // FIXME: The following logic fails completely when inserting code where target position is multiline
         modelContent[targetPosition?.startLine] = addToTargetPosition(modelContent[targetPosition?.startLine], targetPosition?.startColumn, codeSnippet, targetPosition?.endColumn || targetPosition.startColumn);
     }else{
         modelContent.splice(targetPosition?.startLine, 0, codeSnippet);
@@ -220,7 +224,7 @@ export function getDefaultValue(expEditorType: string): string {
 export const transformFormFieldTypeToString = (model?: FormField, returnUndefined?: boolean): string => {
     if (model.typeName === "record" || model.typeInfo) {
         if (model.typeInfo) {
-            let modName = model.typeInfo.modName;
+            let modName = model.typeInfo.moduleName;
             if (modName.includes('.')) {
                 modName = modName.split('.')[1];
             }
@@ -237,7 +241,7 @@ export const transformFormFieldTypeToString = (model?: FormField, returnUndefine
                 let type;
                 if (field.typeName === "record" || field.typeInfo) {
                     if (field.typeInfo) {
-                        type = (field.typeName === PrimitiveBalType.Array) ? field.typeInfo.modName + ":" + field.typeInfo.name + "[]" : field.typeInfo.modName + ":" + field.typeInfo.name;
+                        type = (field.typeName === PrimitiveBalType.Array) ? field.typeInfo.moduleName + ":" + field.typeInfo.name + "[]" : field.typeInfo.moduleName + ":" + field.typeInfo.name;
                     }
                 } else if (field.typeName === "tuple") {
                     type = transformFormFieldTypeToString(field);
@@ -261,7 +265,7 @@ export const transformFormFieldTypeToString = (model?: FormField, returnUndefine
             for (const field of model.fields) {
                 let type;
                 if (field.typeName === "record" && field.typeInfo) {
-                    type = field.typeInfo.modName + ":" + field.typeInfo.name;
+                    type = field.typeInfo.moduleName + ":" + field.typeInfo.name;
                 } else if (field.typeName) {
                     type = field.typeName;
                 }
@@ -273,7 +277,7 @@ export const transformFormFieldTypeToString = (model?: FormField, returnUndefine
         }
     } else if (model.typeName === "array") {
         if (model.typeInfo) {
-            return model.typeInfo.modName + ":" + model.typeInfo.name + "[]";
+            return model.typeInfo.moduleName + ":" + model.typeInfo.name + "[]";
         } else if (model.memberType) {
             const returnTypeString = transformFormFieldTypeToString(model.memberType);
             if (returnTypeString.length > 2 && returnTypeString.substr(-2) === "[]") {
@@ -309,6 +313,19 @@ export function checkIfStringExist(varType: string): boolean {
     return types.includes("string")
 }
 
+/** Inject StModifications into the expression editor modal  */
+export const addInjectables = async (oldModelValue: string, injectables?: InjectableItem[]): Promise<string> => {
+    const modelContent: string[] = oldModelValue.split(/\n/g) || [];
+    if (injectables){
+        const modifications = await InsertorDelete(injectables.map(item => item.modification))
+        for (const item of modifications){
+            const source = item.config?.STATEMENT || ''
+            modelContent[item.startLine] = addToTargetPosition(modelContent[item.startLine], item.startColumn, source, item.endColumn);
+        }
+    }
+    return modelContent.join('\n');
+}
+
 /**
  * Helper function to add import statements to a given code.
  * Import statements are only added if a given type is a non primitive type and if already not imported.
@@ -320,8 +337,8 @@ export const addImportModuleToCode = (codeSnipet: string, model: FormField): str
     if (model.typeName === "record" || model.typeInfo) {
         if (model.typeInfo) {
             const nonPrimitiveTypeItem = model.typeInfo as NonPrimitiveBal
-            const importSnippet = `import ${nonPrimitiveTypeItem.orgName}/${nonPrimitiveTypeItem.modName};`;
-            const typeDeclarion = `${nonPrimitiveTypeItem.modName}:${nonPrimitiveTypeItem.name}`;
+            const importSnippet = `import ${nonPrimitiveTypeItem.orgName}/${nonPrimitiveTypeItem.moduleName};`;
+            const typeDeclarion = `${nonPrimitiveTypeItem.moduleName}:${nonPrimitiveTypeItem.name}`;
             if (!code.includes(importSnippet) && code.includes(typeDeclarion)) {
                 // Add import only if its already not imported
                 code = addToZerothLine(code, `${importSnippet}`);
@@ -333,8 +350,8 @@ export const addImportModuleToCode = (codeSnipet: string, model: FormField): str
                 if (field.typeName === "record" || model.typeInfo) {
                     if (field.typeInfo) {
                         const nonPrimitiveTypeItem = field.typeInfo as NonPrimitiveBal
-                        const importSnippet = `import ${nonPrimitiveTypeItem.orgName}/${nonPrimitiveTypeItem.modName};`;
-                        const typeDeclarion = `${nonPrimitiveTypeItem.modName}:${nonPrimitiveTypeItem.name}`;
+                        const importSnippet = `import ${nonPrimitiveTypeItem.orgName}/${nonPrimitiveTypeItem.moduleName};`;
+                        const typeDeclarion = `${nonPrimitiveTypeItem.moduleName}:${nonPrimitiveTypeItem.name}`;
                         if (!code.includes(importSnippet) && code.includes(typeDeclarion)) {
                             // Add import only if its already not imported
                             code = addToZerothLine(code, `${importSnippet}`);
@@ -362,6 +379,9 @@ export function createContentWidget(id: string): monaco.editor.IContentWidget {
                 } else if (id === COLLAPSE_WIDGET_ID) {
                     this.domNode.className = "collapse-icon";
                     this.domNode.innerHTML = `<img src="${ExpEditorCollapseSvg}"/>`;
+                }else if (id === CONFIGURABLE_WIDGET_ID) {
+                    this.domNode.className = "configurable-icon";
+                    this.domNode.innerHTML = `<img src="${ConfigurableIconSvg}"/>`;
                 }
             }
             return this.domNode;

@@ -11,13 +11,19 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from "react"
+import React, { useContext, useState } from "react"
 
 import { ConstDeclaration, STNode } from "@ballerina/syntax-tree";
+import classNames from "classnames";
 
 import ConstantIcon from "../../../assets/icons/ConstantIcon";
 import DeleteButton from "../../../assets/icons/DeleteButton";
 import EditButton from "../../../assets/icons/EditButton";
+import Tooltip from "../../../components/Tooltip";
+import { useDiagramContext } from "../../../Contexts/Diagram";
+import { removeStatement } from "../../utils/modification-util";
+import { FormGenerator } from "../FormGenerator";
+import { UnsupportedConfirmButtons } from "../UnsupportedConfirmButtons";
 
 import "./style.scss";
 
@@ -32,52 +38,92 @@ export interface ConstantProps {
 
 export function Constant(props: ConstantProps) {
     const { model } = props;
+    const {
+        api: {
+            code: { modifyDiagram, gotoSource },
+        },
+    } = useDiagramContext();
 
-    const [isEditable, setIsEditable] = useState(false);
+    const [deleteBtnEnabled, setDeleteBtnEnabled] = useState(false);
+    const [editBtnEnabled, setEditBtnEnabled] = useState(false);
 
     const constModel: ConstDeclaration = model as ConstDeclaration;
     const varType = "const";
     const varName = constModel.variableName.value;
     const varValue = constModel.initializer.source.trim();
 
-    const handleMouseEnter = () => {
-        setIsEditable(true);
-    };
+    const typeMaxWidth = varType.length >= 10;
+    const nameMaxWidth = varName.length >= 20;
 
-    const handleMouseLeave = () => {
-        setIsEditable(false);
-    };
+    const handleDeleteBtnClick = () => {
+        modifyDiagram([
+            removeStatement(model.position)
+        ]);
+    }
+
+    const handleEditBtnClick = () => {
+        setEditBtnEnabled(true);
+    }
+
+    const handleEditBtnCancel = () => {
+        setEditBtnEnabled(false);
+    }
+
+    const handleEditBtnConfirm = () => {
+        const targetposition = model.position;
+        setDeleteBtnEnabled(false);
+        gotoSource({ startLine: targetposition.startLine, startColumn: targetposition.startColumn });
+    }
 
     return (
         <div>
             <div
-                className={"moduleVariableContainer"}
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
+                className={"const-container"}
                 data-test-id="const"
             >
-                <div className={"moduleVariableWrapper"}>
-                    <div className={"moduleVariableIcon"}>
+                <div className={"const-wrapper"}>
+                    <div className={"const-icon"}>
                         <ConstantIcon />
                     </div>
-                    <p className={"moduleVariableTypeText"}>
-                        {varType}
-                    </p>
-                    <p className={"moduleVariableNameText"}>
-                        {`${varName} = ${varValue}`}
-                    </p>
-                    {isEditable && (
-                        <>
-                            <div className={"editBtnWrapper"}>
-                                <EditButton />
-                            </div>
-                            <div className={"deleteBtnWrapper"}>
-                                <DeleteButton />
-                            </div>
-                        </>
-                    )}
+                    <div className={"const-type-text"}>
+                        <Tooltip
+                            arrow={true}
+                            placement="top-start"
+                            title={model.source.slice(1, -1)}
+                            inverted={false}
+                            interactive={true}
+                        >
+                            <tspan x="0" y="0">{typeMaxWidth ? varType.slice(0, 10) + "..." : varType}</tspan>
+                        </Tooltip>
+                    </div>
+                    <div className={"const-name-text"}>
+                        <tspan x="0" y="0">{nameMaxWidth ? varName.slice(0, 20) + "..." : varName}</tspan>
+                    </div>
+                </div>
+                <div className="amendment-options">
+                    <div className={classNames("edit-btn-wrapper", "show-on-hover")}>
+                        <EditButton onClick={handleEditBtnClick} />
+                    </div>
+                    <div className={classNames("delete-btn-wrapper", "show-on-hover")}>
+                        <DeleteButton onClick={handleDeleteBtnClick} />
+                    </div>
                 </div>
             </div>
+            {
+                deleteBtnEnabled && (
+                    <UnsupportedConfirmButtons onConfirm={handleEditBtnConfirm} onCancel={handleEditBtnCancel} />
+                )
+            }
+            {
+                editBtnEnabled && (
+                    <FormGenerator
+                        model={model}
+                        configOverlayFormStatus={{ formType: model.kind, isLoading: false }}
+                        onCancel={handleEditBtnCancel}
+                        onSave={handleEditBtnCancel}
+                    />
+                )
+            }
         </div>
     );
 }

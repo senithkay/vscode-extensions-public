@@ -32,19 +32,19 @@ export enum PrimitiveBalType {
 
 export const httpResponse: NonPrimitiveBal = {
     orgName: 'ballerina',
-    modName: 'http',
+    moduleName: 'http',
     name: 'Response',
 }
 
 export const httpRequest: NonPrimitiveBal = {
     orgName: 'ballerina',
-    modName: 'http',
+    moduleName: 'http',
     name: 'Request',
 }
 
 export interface NonPrimitiveBal {
     orgName: string;
-    modName: string;
+    moduleName: string;
     name: string;
     version?: string;
 }

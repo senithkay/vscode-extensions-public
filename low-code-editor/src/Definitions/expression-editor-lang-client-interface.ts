@@ -10,75 +10,102 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-
+import { STNode } from "@ballerina/syntax-tree";
 import { Diagnostic } from "monaco-languageclient";
 
 import { BaseLangClientInterface } from "./base-lang-client-interface";
 import { BallerinaProjectParams } from "./lang-client-extended";
 
 export interface CompletionParams {
-	textDocument: {
-		uri: string;
-	};
-	position: {
-		character: number;
-		line: number;
-	};
-	context: {
-		triggerKind: number;
-	};
+    textDocument: {
+        uri: string;
+    };
+    position: {
+        character: number;
+        line: number;
+    };
+    context: {
+        triggerKind: number;
+    };
 }
 
 export interface CompletionResponse {
-	detail: string;
-	insertText: string;
-	insertTextFormat: number;
-	kind: number;
-	label: string;
-	additionalTextEdits?: TextEdit[];
-	documentation?: string;
+    detail: string;
+    insertText: string;
+    insertTextFormat: number;
+    kind: number;
+    label: string;
+    additionalTextEdits?: TextEdit[];
+    documentation?: string;
 }
 
 export interface TextEdit {
-	newText: string,
-	range: {
-		end: {
-			character: number;
-			line: number;
-		},
-		start: {
-			character: number;
-			line: number;
-		}
-	}
+    newText: string,
+    range: {
+        end: {
+            character: number;
+            line: number;
+        },
+        start: {
+            character: number;
+            line: number;
+        }
+    }
 }
 
 export interface PublishDiagnosticsParams {
-	uri: string;
-	diagnostics: Diagnostic[];
+    uri: string;
+    diagnostics: Diagnostic[];
 }
 
 export interface LinePosition {
-	line: number;
-	offset: number;
+    line: number;
+    offset: number;
 }
 
 export interface ExpressionTypeRequest {
- 	documentIdentifier: { uri: string; };
-	// tslint:disable-next-line: align
-	position: LinePosition;
+     documentIdentifier: { uri: string; };
+    // tslint:disable-next-line: align
+    position: LinePosition;
 }
 
 export interface ExpressionTypeResponse {
-	documentIdentifier: { uri: string; };
-   	// tslint:disable-next-line: align
-   	types: string[];
+    documentIdentifier: { uri: string; };
+       // tslint:disable-next-line: align
+       types: string[];
+}
+
+export interface PartialSTRequest {
+    codeSnippet: string;
+    stModification?: PartialSTModification;
+}
+
+export interface PartialSTResponse {
+    syntaxTree: STNode;
+}
+
+export interface PartialSTModification {
+    startLine: number;
+    startColumn: number;
+    endLine: number;
+    endColumn: number;
+    newCodeSnippet: string;
 }
 
 export interface ExpressionEditorLangClientInterface extends BaseLangClientInterface {
-	getDiagnostics: (
-		params: BallerinaProjectParams
-	) => Thenable<PublishDiagnosticsParams[]>;
-	getCompletion: (params: CompletionParams) => Thenable<CompletionResponse[]>;
-	getType: (param: ExpressionTypeRequest) => Thenable<ExpressionTypeResponse>;
+    getDiagnostics: (
+        params: BallerinaProjectParams
+    ) => Thenable<PublishDiagnosticsParams[]>;
+    getCompletion: (
+        params: CompletionParams
+    ) => Thenable<CompletionResponse[]>;
+    getType: (
+        param: ExpressionTypeRequest
+    ) => Thenable<ExpressionTypeResponse>;
+    getSTForSingleStatement: (
+        param: PartialSTRequest
+    ) => Thenable<PartialSTResponse>;
+    getSTForExpression	: (
+        param: PartialSTRequest
+    ) => Thenable<PartialSTResponse>;
 }

@@ -28,6 +28,7 @@ import {
     updatePropertyStatement
 } from "../../../utils/modification-util";
 import { generateInlineRecordForJson, getDefaultValueForType } from "../../DataMapper/util";
+import { InjectableItem } from "../../FormGenerator";
 import { CustomExpressionConfig, DataMapperConfig, LogConfig, ProcessConfig } from "../../Portals/ConfigForm/types";
 import { DiagramOverlayPosition } from "../../Portals/Overlay";
 
@@ -53,7 +54,7 @@ export function ProcessConfigForm(props: any) {
                 modifyDiagram,
             }
         },
-        props: { currentApp, stSymbolInfo }
+        props: { stSymbolInfo }
     } = useContext(Context);
 
     const { onCancel, onSave, configOverlayFormStatus, targetPosition } = props as AddProcessFormProps;
@@ -63,11 +64,16 @@ export function ProcessConfigForm(props: any) {
         type: formType,
         scopeSymbols: [],
         model: formArgs?.model,
-        targetPosition
+        targetPosition,
     };
 
     const onSaveClick = () => {
         const modifications: STModification[] = [];
+        if (formArgs?.expressionInjectables?.list){
+            formArgs.expressionInjectables.list.forEach((item: InjectableItem) => {
+                modifications.push(item.modification)
+            })
+        }
         if (processConfig.model) {
             switch (processConfig.type) {
                 case 'Variable':
@@ -136,9 +142,7 @@ export function ProcessConfigForm(props: any) {
                             break;
                         case 'record':
                             const outputTypeInfo = datamapperConfig.outputType?.typeInfo;
-                            outputType = outputTypeInfo.moduleName === currentApp.name ?
-                                outputTypeInfo.name
-                                : `${outputTypeInfo.moduleName}:${outputTypeInfo.name}`
+                            outputType = `${outputTypeInfo.moduleName}:${outputTypeInfo.name}`
                             break;
                         default:
                             outputType = datamapperConfig.outputType.type;

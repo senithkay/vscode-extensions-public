@@ -10,12 +10,20 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from 'react';
+// tslint:disable: jsx-no-multiline-js
+import React, { useState } from 'react';
 
 import { ClassDefinition } from '@ballerina/syntax-tree';
+import classNames from 'classnames';
 
 import ClassIcon from '../../../../assets/icons/ClassIcon';
+import DeleteButton from '../../../../assets/icons/DeleteButton';
+import EditButton from '../../../../assets/icons/EditButton';
+import { useDiagramContext } from '../../../../Contexts/Diagram';
+import { removeStatement } from '../../../utils/modification-util';
 import { ComponentExpandButton } from '../../ComponentExpandButton';
+import { HeaderWrapper } from '../../HeaderWrapper';
+import { UnsupportedConfirmButtons } from '../../UnsupportedConfirmButtons';
 
 interface ClassHeaderProps {
     model: ClassDefinition;
@@ -25,17 +33,55 @@ interface ClassHeaderProps {
 
 export function ClassHeader(props: ClassHeaderProps) {
     const { model, onExpandClick, isExpanded } = props;
+    const {
+        api: {
+            code: { modifyDiagram, gotoSource },
+        },
+    } = useDiagramContext();
+    const [editingEnabled, setEditingEnabled] = useState(false);
+
+    const handleDeleteBtnClick = () => {
+        modifyDiagram([
+            removeStatement(model.position)
+        ]);
+    }
+
+    const handleEditBtnClick = () => {
+        setEditingEnabled(true);
+    }
+
+    const handleEditBtnCancel = () => {
+        setEditingEnabled(false);
+    }
+
+    const handleEditBtnConfirm = () => {
+        const targetposition = model.position;
+        setEditingEnabled(false);
+        gotoSource({ startLine: targetposition.startLine, startColumn: targetposition.startColumn });
+    }
+
     return (
-        <div className={'class-component-header'}>
+        <HeaderWrapper
+            className={'class-component-header'}
+            onClick={onExpandClick}
+        >
             <div className={'header-segement-container'}>
                 <div className="header-segment" >
                     <ClassIcon />
                 </div>
-                <div className="header-segment">
-                    {model.className.value}
+                <div className={"header-segment"}>Class</div>
+                <div className={"header-segment-path"}>{model.className.value}</div>
+            </div>
+            <div className="class-amendment-options">
+                <div className={classNames("class-component-edit", "show-on-hover")}>
+                    <EditButton onClick={handleEditBtnClick} />
+                </div>
+                <div className={classNames("class-component-delete", "show-on-hover")}>
+                    <DeleteButton onClick={handleDeleteBtnClick} />
                 </div>
             </div>
             <ComponentExpandButton isExpanded={isExpanded} onClick={onExpandClick} />
-        </div >
+            {editingEnabled && <UnsupportedConfirmButtons onConfirm={handleEditBtnConfirm} onCancel={handleEditBtnCancel} />}
+        </HeaderWrapper>
     );
 }

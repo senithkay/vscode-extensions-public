@@ -11,13 +11,18 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from 'react'
+import React, { useContext, useRef, useState } from 'react'
 
 import { ListenerDeclaration, STNode } from "@ballerina/syntax-tree";
 
 import DeleteButton from "../../../assets/icons/DeleteButton";
 import EditButton from "../../../assets/icons/EditButton";
 import ListenerIcon from "../../../assets/icons/ListenerIcon";
+import Tooltip from '../../../components/Tooltip';
+import { Context as DiagramContext } from '../../../Contexts/Diagram';
+import { removeStatement } from '../../utils/modification-util';
+import { FormGenerator } from '../FormGenerator';
+import { DeleteConfirmDialog } from '../Portals/Overlay/Elements';
 
 import "./style.scss";
 
@@ -30,16 +35,29 @@ export interface ListenerProps {
 
 export function ListenerC(props: ListenerProps) {
     const { model } = props;
+    const {
+        props: {
+            stSymbolInfo
+        },
+        api: {
+            code: {
+                modifyDiagram
+            }
+        }
+    } = useContext(DiagramContext);
 
     const [isEditable, setIsEditable] = useState(false);
+    const [editingEnabled, setEditingEnabled] = useState(false);
 
     const listenerModel: ListenerDeclaration = model as ListenerDeclaration;
     const listenerName = listenerModel.variableName.value;
+    const listenerType = listenerModel.typeDescriptor.modulePrefix.value;
     let listenerPort = "";
     listenerModel.initializer.parenthesizedArgList.arguments.forEach((argument) => {
         listenerPort += argument.source.trim();
     });
-    const type = listenerModel.typeDescriptor.identifier.value;
+    const typeMaxWidth = listenerType.length >= 10;
+    const nameMaxWidth = listenerName.length >= 20;
 
     const handleMouseEnter = () => {
         setIsEditable(true);
@@ -47,6 +65,20 @@ export function ListenerC(props: ListenerProps) {
     const handleMouseLeave = () => {
         setIsEditable(false);
     };
+
+    const handleDeleteBtnClick = () => {
+        modifyDiagram([
+            removeStatement(model.position)
+        ]);
+    }
+
+    const handleEditBtnClick = () => {
+        setEditingEnabled(true);
+    }
+
+    const handleEditBtnCancel = () => {
+        setEditingEnabled(false);
+    }
 
     return (
         <>
@@ -57,21 +89,37 @@ export function ListenerC(props: ListenerProps) {
                             <ListenerIcon />
                         </div>
                         <div className="listener-type">
-                            HTTP
+                            <Tooltip
+                                arrow={true}
+                                placement="top-start"
+                                title={model.source.slice(1, -1)}
+                                inverted={false}
+                                interactive={true}
+                            >
+                                <tspan x="0" y="0">{typeMaxWidth ? listenerType.slice(0, 10).toUpperCase() + "..." : listenerType.toUpperCase()}</tspan>
+                            </Tooltip>
                         </div>
                         <div className="listener-name">
-                            {listenerName}
+                            <tspan x="0" y="0">{nameMaxWidth ? listenerName.slice(0, 20) + "..." : listenerName}</tspan>
                         </div>
                     </div>
                     {isEditable && (
                         <div className={"listener-amendment-options"}>
                             <div className={"edit-btn-wrapper"}>
-                                <EditButton />
+                                <EditButton onClick={handleEditBtnClick} />
                             </div>
                             <div className={"delete-btn-wrapper"}>
-                                <DeleteButton />
+                                <DeleteButton onClick={handleDeleteBtnClick} />
                             </div>
                         </div>
+                    )}
+                    {editingEnabled && (
+                        <FormGenerator
+                            model={model}
+                            configOverlayFormStatus={{ formType: model.kind, isLoading: false }}
+                            onCancel={handleEditBtnCancel}
+                            onSave={handleEditBtnCancel}
+                        />
                     )}
                 </div>
             </div>
@@ -80,3 +128,4 @@ export function ListenerC(props: ListenerProps) {
 }
 
 export const Listener = ListenerC;
+

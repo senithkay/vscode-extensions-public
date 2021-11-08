@@ -18,52 +18,24 @@ import { ModulePart, NodePosition, STNode } from "@ballerina/syntax-tree";
 import { Diagnostic } from "monaco-languageclient";
 
 import { BlockViewState } from "..";
-import { AiSuggestionsReq, AiSuggestionsRes, AppInfo, ApplicationFile, AppType, ConnectionDetails, ConnectorApiResponse, ModelCodePosition, OauthProviderConfig } from "../api/models";
 import { WizardType } from "../ConfigurationSpec/types";
-import { ConfigOverlayFormStatus, ConfigPanelStatus, DiagramEditorLangClientInterface, DiagramState, ExpressionEditorLangClientInterface, ExpressionEditorState, Gcalendar, GithubRepo, STSymbolInfo } from "../Definitions";
+import { ConfigOverlayFormStatus, ConfigPanelStatus, DiagramEditorLangClientInterface, ExpressionEditorLangClientInterface, STSymbolInfo } from "../Definitions";
 import { BallerinaConnectorInfo, Connector, STModification } from "../Definitions/lang-client-extended";
 import { ConditionConfig, DataMapperConfig } from "../Diagram/components/Portals/ConfigForm/types";
 import { LowcodeEvent, TriggerType } from "../Diagram/models";
 import { Warning } from "../Diagram/utils/st-util";
 
-import {
-    APIViewState, AppViewState, ConnectionData, Feedback, GSpreadsheet, HomeViewState, LinkerState, Notification, OauthProviderConfigState,
-    OauthSessionState, ObserveViewState, SettingsState, UserConfigurations, UserState
-} from "./definitions"; // TODO Will need to remove unused definitions later
-import {PreferenceState, ZoomStatus} from "./definitions/preference";
-import { TestCaseState } from "./definitions/testcases";
-
-export interface APISortingData {
-    columnName: string,
-    asc: boolean
+export interface ZoomStatus {
+    scale: number,
+    panX: number,
+    panY: number,
 }
 
-export interface SortingData {
-    columnName: string,
-    asc: boolean
-}
-
-// AppSplitViews
-export interface SplitViewState {
-    minimize: boolean;
-    dragging: boolean;
-    size: number;
-    toggleRatio: boolean;
-    transitioning: false;
-}
-
-export interface AppSplitViews{
-    homeHorizontal : SplitViewState,
-    homeVertical: SplitViewState,
-    obsHorizontal : SplitViewState,
-    obsVertical: SplitViewState
-    deployHorizontal : SplitViewState
-    testVertical: SplitViewState
-    testCasesVertical: SplitViewState,
-    testCasesEditorVertical: SplitViewState,
-    testCasesCodeVertical: SplitViewState,
-    testCaseHorizontal: SplitViewState,
-    homeLowCodeVertical: SplitViewState
+export interface UserState {
+    selectedOrgHandle: string;
+    user: {
+        email: string;
+    }
 }
 
 export interface LowCodeEditorState {
@@ -79,7 +51,7 @@ export interface LowCodeEditorActions {
     diagramCleanDraw: (payload: STNode) => void;
     diagramRedraw: (payload: STNode) => void;
     insertComponentStart: (payload: NodePosition) => void;
-    editorComponentStart: (payload: STNode) => void;
+    editorComponentStart: (payload: NodePosition) => void;
     dataMapperStart: (dataMapperConfig: DataMapperConfig) => void;
     toggleDiagramOverlay: () => void;
     updateDataMapperConfig: (dataMapperConfig: DataMapperConfig) => void;
@@ -87,9 +59,6 @@ export interface LowCodeEditorActions {
 }
 
 export interface LowCodeEditorAPI {
-    tour: {
-        goToNextTourStep: (step: string) => void;
-    }
     helpPanel: {
         openConnectorHelp: (connector?: Partial<Connector>, method?: string) => void;
     }
@@ -104,60 +73,13 @@ export interface LowCodeEditorAPI {
     // This has to come from Lang-server
     insights: {
         onEvent?: (event: LowcodeEvent) => void;
-        trackTriggerSelection: (trigger: string) => void;
     }
     code: {
         modifyDiagram: (mutations: STModification[], options?: any) => void;
         onMutate: (type: string, options: any) => void;
-        modifyTrigger: (
-            triggerType: TriggerType,
-            model?: any,
-            configObject?: any
-        ) => void;
-        dispatchCodeChangeCommit?: () => Promise<void>;
-        dispatchFileChange?: (content: string, callback?: () => void) => Promise<void>;
-        hasConfigurables?: (templateST: ModulePart) => boolean;
         // Reuse go-to-def from LangServer?
-        setCodeLocationToHighlight: (position: ModelCodePosition) => void,
-    }
-    connections: {
-        createManualConnection?: (orgHandle: string, displayName: string, connectorName: string,
-                                  userAccountIdentifier: string,
-                                  tokens: { name: string; value: string }[],
-                                  selectedType: string) => Promise<ConnectorApiResponse>,
-        updateManualConnection?: (activeConnectionId: string, orgHandle: string, displayName: string, connectorName: string,
-                                  userAccountIdentifier: string, tokens: { name: string; value: string }[],
-                                  type?: string, activeConnectionHandler?: string) => Promise<ConnectorApiResponse>,
-        getAllConnections(
-                        orgHandle: string,
-                        connector?: string
-                        ): Promise<ConnectionDetails[]>;
-    }
-    ai: {
-        // should moved inside lang-server
-        getAiSuggestions?: (params: AiSuggestionsReq) => Promise<AiSuggestionsRes>;
-    }
-    splitPanel: {
-        maximize: (view: string, orientation: string, appId: number | string) => void,
-        minimize: (view: string, orientation: string, appId: number | string) => void,
-        setPrimaryRatio: (view: string, orientation: string, appId: number | string) => void,
-        setSecondaryRatio: (view: string, orientation: string, appId: number | string) => void,
-        handleRightPanelContent: (viewName: string) => void
-    }
-    data: {
-        getGsheetList: (orgHandle: string, handler: string) => Promise<GSpreadsheet[]>;
-        getGcalendarList?: (orgHandle: string, handler: string) => Promise<Gcalendar[]>;
-        getGithubRepoList?: (orgHandle: string, handler: string, username: string) => Promise<GithubRepo[]>;
-    }
-    oauth: {
-        oauthSessions?: OauthSessionState;
-        dispatchGetAllConfiguration: (orgHandle?: string) => Promise<any>;
-        dispatchFetchConnectionList?: (connector: string, sessionId: string) => void;
-        dispatchInitOauthSession?: (sessionId: string, connector: string, oauthProviderConfig?: OauthProviderConfig) => void;
-        dispatchResetOauthSession?: (sessionId: string) => void;
-        dispatchTimeoutOauthRequest?: (sessionId: string) => void;
-        dispatchDeleteOauthSession?: (sessionId: string) => void;
-        oauthProviderConfigs?: OauthProviderConfigState;
+        setCodeLocationToHighlight: (position: NodePosition) => void;
+        gotoSource: (position: { startLine: number, startColumn: number }) => void;
     }
     // FIXME Doesn't make sense to take these methods below from outside
     // Move these inside and get an external API for pref persistance
@@ -181,10 +103,12 @@ export interface LowCodeEditorAPI {
 // FIXME Some of these props should be moved to low code state
 // and need to avoid getting from outside
 export interface LowCodeEditorProperties {
-    currentAppType: AppType;
-    currentApp: AppInfo;
     userInfo?: UserState;
-    currentFile: ApplicationFile;
+    currentFile: {
+        content: string,
+        path: string,
+        size: number
+    };
     syntaxTree: STNode;
     originalSyntaxTree: ModulePart;
     stSymbolInfo: STSymbolInfo;
@@ -210,6 +134,7 @@ export interface LowCodeEditorProperties {
 
 export interface FunctionProperties {
     overlayId: string;
+    overlayNode: HTMLDivElement;
 }
 
 export interface SelectedPosition {
@@ -226,92 +151,4 @@ export interface LowCodeEditorContext {
 
 export interface LowCodeEditorProps extends LowCodeEditorProperties {
     api: LowCodeEditorAPI;
-}
-export interface LowCodeEditorPropsOld {
-    appInfo?: AppViewState;
-    zoomStatus?: any;
-    isLoadingAST?: boolean;
-    isMutationProgress?: boolean;
-    isWaitingOnWorkspace?: boolean;
-    error?: Error;
-    langServerURL?: string;
-    getDiagramEditorLangClient?: (url: string) => Promise<DiagramEditorLangClientInterface>;
-    getExpressionEditorLangClient?: (url: string) => Promise<ExpressionEditorLangClientInterface>;
-    workingFile?: string;
-    // syntaxTree: ModulePart | STNode;
-    syntaxTree: any;
-    originalSyntaxTree?: STNode;
-    stSymbolInfo?: STSymbolInfo;
-    isCodeEditorActive?: boolean;
-    isConfigPanelOpen?: boolean;
-    currentApp?: AppInfo;
-    currentFile?: ApplicationFile;
-    diagnostics?: Diagnostic[];
-    targetPosition?: any;
-    isReadOnly?: boolean;
-    dispatch?: (fn: any) => void;
-    configPanelStatus?: ConfigPanelStatus;
-    connectors?: BallerinaConnectorInfo[];
-    isLoadingSuccess?: boolean;
-    userInfo?: UserState;
-    onZoomIn?: any;
-    onZoomOut?: any;
-    fitToScreen?: () => void;
-    onPanLocation?: any;
-    onMutate?: any; // TODO Should be mandotory
-    onModify?: any; // TODO Should be mandotory,
-    getAiSuggestions?: (params: AiSuggestionsReq) => Promise<AiSuggestionsRes>;
-    getGsheetList?: any;
-    getGcalendarList?: (orgHandle: string, handler: string) => Promise<Gcalendar[]>;
-    getGithubRepoList?: (orgHandle: string, handler: string, username: string) => Promise<GithubRepo[]>;
-    oauthSessions?: OauthSessionState;
-    dispatchFileChange?: (content: string) => Promise<void>;
-    dispatchCodeChangeCommit?: () => Promise<void>;
-    onEvent?: (event: LowcodeEvent) => void;
-    hasConfigurables?: (templateST: ModulePart) => boolean;
-    triggerUpdated?: boolean;
-    diagramPanLocation?: (panX: number, panY: number) => void,
-    createManualConnection?: (orgHandle: string, displayName: string, connectorName: string,
-                              userAccountIdentifier: string,
-                              tokens: { name: string; value: string }[],
-                              selectedType: string) => Promise<ConnectorApiResponse>,
-    updateManualConnection?: (activeConnectionId: string, orgHandle: string, displayName: string, connectorName: string,
-                              userAccountIdentifier: string, tokens: { name: string; value: string }[],
-                              type?: string, activeConnectionHandler?: string) => Promise<ConnectorApiResponse>,
-    triggerErrorNotification?: (msg: Error | string) => void,
-    triggerSuccessNotification?: (msg: Error | string) => void,
-    modifyDiagram?: (mutations: STModification[], options: any) => void,
-    modifyTrigger?: (
-        triggerType: TriggerType,
-        model?: any,
-        configObject?: any
-    ) => void
-}
-
-export interface STSymbolInfoOld {
-    endpoints: Map<string, STNode>;
-    actions: Map<string, STNode>;
-    variables: Map<string, STNode[]>;
-    callStatement: Map<string, STNode[]>;
-    variableNameReferences: Map<string, STNode[]>;
-}
-
-export interface PortalState {
-    userInfo?: UserState;
-    appInfo?: AppViewState;
-    obsViewState?: ObserveViewState;
-    homeViewState?: HomeViewState;
-    diagramState?: DiagramState;
-    splitViewState?: AppSplitViews;
-    error?: Notification;
-    preferenceInfo?: PreferenceState;
-    feedbackInfo?: Feedback;
-    linkerState?: LinkerState;
-    oauthProviderConfigs?: OauthProviderConfigState;
-    oauthSessions?: OauthSessionState;
-    connectionData?: ConnectionData;
-    settings?: SettingsState;
-    testCasesState?: TestCaseState;
-    userConfigurations?: UserConfigurations;
-    apiInfo?: APIViewState;
 }

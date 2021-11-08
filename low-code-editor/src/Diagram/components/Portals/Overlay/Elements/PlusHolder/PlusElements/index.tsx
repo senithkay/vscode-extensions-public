@@ -68,7 +68,7 @@ export function PlusElements(props: PlusElementsProps) {
             }
         }
     } = useContext(Context);
-    const { overlayId } = useFunctionContext();
+    const { overlayId, overlayNode } = useFunctionContext();
 
     const intl = useIntl();
     // const [isAPICallsExisting] = useState(stSymbolInfo.endpoints && Array.from(stSymbolInfo.endpoints).length > 0);
@@ -91,10 +91,10 @@ export function PlusElements(props: PlusElementsProps) {
             // todo: handle the dispatch for the tour
             // dispatchGoToNextTourStep("DIAGRAM_ADD_RESPOND");
         }
-        if (processType === "DataMapper") {
-            // FIXME: Found this while enabling types for context. We are reusing help panel action in a wrong way
-            openConnectorHelp({orgName: processType});
-        }
+        // if (processType === "DataMapper") {
+        //     // FIXME: Found this while enabling types for context. We are reusing help panel action in a wrong way
+        //     openConnectorHelp({moduleName: processType});
+        // }
     };
 
 
@@ -120,18 +120,22 @@ export function PlusElements(props: PlusElementsProps) {
     );
 
     return (
-        <DiagramOverlayContainer
-            divId={overlayId}
-        >
-            <DiagramOverlay
-                className={plusContainer}
-                position={position}
-            >
-                {isCodeEditorActive && !initPlus ? <div className="plus-overlay"><OverlayBackground /></div> : null}
-                {initPlus && isCodeEditorActive ? null : <>{plusHolder}</>}
-                {!initPlus && <OverlayBackground />}
-            </DiagramOverlay>
-        </DiagramOverlayContainer>
+        <>
+            {overlayNode && (
+                <DiagramOverlayContainer
+                    divId={overlayId}
+                >
+                    <DiagramOverlay
+                        className={plusContainer}
+                        position={position}
+                    >
+                        {isCodeEditorActive && !initPlus ? <div className="plus-overlay"><OverlayBackground /></div> : null}
+                        {initPlus && isCodeEditorActive ? null : <>{plusHolder}</>}
+                        {!initPlus && <OverlayBackground />}
+                    </DiagramOverlay>
+                </DiagramOverlayContainer>
+            )}
+        </>
     );
 }
 

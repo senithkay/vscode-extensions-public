@@ -11,27 +11,30 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
-import React, {ReactNode, useContext, useState} from "react";
+import React, { useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { LocalVarDecl, STKindChecker } from "@ballerina/syntax-tree";
+import { CaptureBindingPattern, LocalVarDecl, STKindChecker } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
+import classnames from "classnames";
 
-import { CloseRounded, EditIcon, PropertyIcon } from "../../../../../../assets/icons";
 import { PrimitiveBalType, WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { getAllVariables } from "../../../../../utils/mixins";
-import { ButtonWithIcon } from "../../../../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
-import { StatementEditorButton } from "../../../../Portals/ConfigForm/Elements/Button/StatementEditorButton";
+import { createModuleVarDecl, getInitialSource } from "../../../../../utils/modification-util";
+import { getVariableNameFromST } from "../../../../../utils/st-util";
 import { SelectDropdownWithButton } from "../../../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
-import { ViewContainer } from "../../../../Portals/ConfigForm/Elements/StatementEditor/components/ViewContainer/ViewContainer";
+import { useStatementEditor } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
 import { FormTextInput } from "../../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
+import {
+    VariableNameInput,
+    VariableNameInputProps
+} from "../../../../Portals/ConfigForm/forms/Components/VariableNameInput";
 import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
 import { ProcessConfig } from "../../../../Portals/ConfigForm/types";
-import { checkVariableName, genVariableName } from "../../../../Portals/utils";
 import { wizardStyles } from "../../../style";
 
 interface AddVariableConfigProps {
@@ -44,6 +47,9 @@ interface AddVariableConfigProps {
 const defaultJsonVal = `{“key”: “Click the Tooltip for examples”}`;
 const defaultXmlVal = `xml \`<obj>Click the Tooltip for examples</obj>\``;
 const defaultValues = [defaultJsonVal, defaultXmlVal];
+// todo: Support other data types
+export const variableTypes: string[] = ["var", "int", "float", "decimal", "boolean", "string", "json",
+    "xml", "error", "any", "anydata", "other"];
 
 export function AddVariableConfig(props: AddVariableConfigProps) {
     const classes = useStyles();
@@ -62,7 +68,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     let initialModelType: string = 'json';
     let modelType;
     let variableName: string = '';
-    let varExpression;
+    let varExpression: string = '';
     const formField: string = 'Expression';
 
     const existingProperty = config && config.model;
@@ -83,28 +89,19 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             initialModelType = "other";
             modelType = typeDescriptor.source.trim();
         }
-        variableName = localVarDec.typedBindingPattern.bindingPattern.source.trim();
+        variableName = getVariableNameFromST(config.model).value;
         varExpression = localVarDec.initializer.source;
     } else {
-        variableName = null;
-        varExpression = null;
+        variableName = '';
+        varExpression = '';
     }
 
     const [selectedType, setSelectedType] = useState(initialModelType);
     const [otherType, setOtherType] = useState<string>(modelType);
     const [varName, setVarName] = useState(variableName);
-    const [defaultVarName, setDefaultVarName] = useState<string>(undefined);
-    const [varNameError, setVarNameError] = useState("");
-    const [isValidVarName, setIsValidVarName] = useState(false);
     const [validExpresssionValue, setValidExpresssionValue] = useState(config.config !== "");
     const [variableExpression, setVariableExpression] = useState<string>(varExpression);
     const [editorFocus, setEditorFocus] = useState<boolean>(false);
-    const [isStmtEditor, setIsStmtEditor] = useState(false);
-    const [isStringType, setIsStringType] = useState(initialModelType === 'string');
-
-    if (defaultVarName === undefined) {
-        setDefaultVarName(variableName);
-    }
 
     const onPropertyChange = (property: string) => {
         setVariableExpression(property);
@@ -121,12 +118,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
 
     const handleTypeChange = (type: string) => {
         setSelectedType(type);
-        if (type === "string") {
-            setIsStringType(true);
-        } else {
-            setIsStringType(false);
-        }
-
         setValidExpresssionValue(false);
         if (type !== "other") {
             setOtherType(undefined);
@@ -146,22 +137,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         }
     };
 
-    const validateNameValue = (value: string) => {
-        if (value !== undefined && value !== null) {
-            const varValidationResponse = checkVariableName("variable name", value, defaultVarName, stSymbolInfo);
-            if (varValidationResponse?.error) {
-                setVarNameError(varValidationResponse.message);
-                setIsValidVarName(false);
-                return false;
-            }
-        } else if (value === null) {
-            setIsValidVarName(false);
-            return true;
-        }
-        setIsValidVarName(true);
-        return true;
-    };
-
     let variableHasReferences = false;
 
     if (existingProperty && STKindChecker.isLocalVarDecl(config.model)) {
@@ -171,14 +146,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
 
     const validateExpression = (fieldName: string, isInvalid: boolean) => {
         setValidExpresssionValue(!isInvalid);
-    };
-
-    const handleStmtEditorButtonClick = () => {
-        setIsStmtEditor(true);
-    };
-
-    const handleStmtEditorCancel = () => {
-        setIsStmtEditor(false);
     };
 
     const handleSave = () => {
@@ -253,130 +220,131 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
 
     modelType = (selectedType === "other") ? otherType : selectedType;
 
-    const validForm: boolean = (isValidVarName && validExpresssionValue);
-
-    // todo: Support other data types
-    const variableTypes: string[] = ["var", "int", "float", "decimal", "boolean", "string", "json", "xml", "error", "any", "anydata", "other"];
+    const validForm: boolean = varName.length > 0 && variableExpression.length > 0 && validExpresssionValue;
 
     const userInputs = {
-            selectedType,
-            otherType,
-            varName,
-            variableExpression,
-            formField
+        selectedType,
+        otherType,
+        varName,
+        variableExpression,
+        formField
     };
 
-    let exprEditor =
-        <FormControl data-testid="property-form" className={classes.wizardFormControl}>
-            {!isCodeEditorActive ?
-                (
-                    <div>
-                        <div className={classes.formFeilds}>
-                            <div className={classes.formTitleWrapper}>
-                                <div className={classes.mainTitleWrapper}>
-                                    <Typography variant="h4">
-                                        <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.variable.title" defaultMessage="Variable" /></Box>
-                                    </Typography>
-                                </div>
-                                <div className={classes.statementEditor}>
-                                    <StatementEditorButton onClick={handleStmtEditorButtonClick} disabled={!isStringType} />
-                                </div>
-                            </div>
-                            <div className={classes.activeWrapper}>
-                                <SelectDropdownWithButton
-                                    defaultValue={selectedType === "other" ? "other" : modelType}
-                                    customProps={{
-                                        disableCreateNew: true,
-                                        values: variableTypes,
-                                    }}
-                                    label={variableTypeLabel}
-                                    onChange={handleTypeChange}
-                                />
-                                {(selectedType === "other") && (
-                                    <FormTextInput
-                                        defaultValue={otherType}
-                                        onChange={handleOtherTypeOnChange}
-                                        label={otherTypeLabel}
-                                        placeholder={enterTypePlaceholder}
-                                    />
-                                )}
-                                <FormTextInput
-                                    dataTestId="variable-name"
-                                    customProps={{
-                                        validate: validateNameValue,
-                                        disabled: variableHasReferences
-                                    }}
-                                    defaultValue={varName}
-                                    onChange={handleNameOnChange}
-                                    label={addVariableNameLabel}
-                                    errorMessage={varNameError}
-                                    placeholder={addVariablePlaceholder}
-                                />
-                                <div className="exp-wrapper">
-                                    <ExpressionEditor
-                                        key={selectedType}
-                                        model={{ name: "Expression", value: variableExpression, type: (modelType ? modelType : "other") }}
-                                        customProps={{
-                                            validate: validateExpression,
-                                            expandDefault: (selectedType === "other"),
-                                            tooltipTitle: variableTooltipMessages.expressionEditor.title,
-                                            tooltipActionText: variableTooltipMessages.expressionEditor.actionText,
-                                            tooltipActionLink: variableTooltipMessages.expressionEditor.actionLink,
-                                            interactive: true,
-                                            focus: editorFocus,
-                                            statementType: (modelType ? modelType : "other") as PrimitiveBalType,
-                                            revertFocus: revertEditorFocus
-                                        }}
-                                        onChange={onPropertyChange}
-                                        defaultValue={variableExpression}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                        <FormActionButtons
-                            cancelBtnText={cancelVariableButtonText}
-                            saveBtnText={saveVariableButtonText}
-                            isMutationInProgress={isMutationInProgress}
-                            validForm={validForm}
-                            onSave={handleSave}
-                            onCancel={onCancel}
-                        />
-                    </div>
-                )
-                :
-                null
-            }
-        </FormControl >;
-
-    if (isStmtEditor) {
-        exprEditor = <FormControl data-testid="property-form">
-            {!isCodeEditorActive ? (
-                <div>
-                    <div className={classes.formTitleWrapper}>
-                        <div className={classes.mainTitleWrapper}>
-                            <Typography variant="h4">
-                                <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.statementEditor.title" defaultMessage="Statement Editor" /></Box>
-                            </Typography>
-                        </div>
-                    </div>
-                    <ViewContainer
-                        kind="DefaultString" // TODO: Derive the kind from the user input
-                        label="Variable Statement"
-                        formArgs={formArgs}
-                        userInputs={userInputs}
-                        isMutationInProgress={isMutationInProgress}
-                        validForm={validForm}
-                        onCancel={handleStmtEditorCancel}
-                        onSave={handleSave}
-                        onChange={onPropertyChange}
-                        validate={validateExpression}
-                    />
-                </div>
-            ) : null}
-        </FormControl>;
+    const variableNameConfig: VariableNameInputProps = {
+        displayName: 'Variable Name',
+        value: varName,
+        onValueChange: setVarName,
+        validateExpression,
+        position: config.model ?
+            getVariableNameFromST(config.model as LocalVarDecl).position
+            : formArgs.targetPosition,
+        isEdit: !!config.model,
     }
 
-    return (
-        exprEditor
+    const expressionEditorConfig = {
+        key: selectedType,
+        model: {
+            name: "Expression",
+            displayName: "Value Expression",
+            typeName: (modelType ? modelType : "other"),
+            value: variableExpression,
+        },
+        customProps: {
+            validate: validateExpression,
+            interactive: true,
+            statementType: (modelType ? modelType : "other"),
+            tooltipTitle: variableTooltipMessages.expressionEditor.title,
+            tooltipActionText: variableTooltipMessages.expressionEditor.actionText,
+            tooltipActionLink: variableTooltipMessages.expressionEditor.actionLink,
+            expressionInjectables: {
+                list: formArgs?.expressionInjectables?.list,
+                setInjectables: formArgs?.expressionInjectables?.setInjectables
+            }
+        },
+        onChange: onPropertyChange,
+        defaultValue: variableExpression,
+    };
+
+    const initialSource = getInitialSource(createModuleVarDecl(
+        {
+            varName: varName ? varName : "default",
+            varOptions: [],
+            varType:  selectedType === "other" ? otherType : selectedType,
+            varValue: variableExpression ? variableExpression : "expression"
+        }
+    ));
+
+    const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
+        {
+            label: intl.formatMessage({id: "lowcode.develop.configForms.variable.statementEditor.label"}),
+            initialSource,
+            formArgs: {formArgs},
+            userInputs,
+            isMutationInProgress,
+            validForm,
+            onSave: handleSave,
+            onChange: onPropertyChange,
+            validate: validateExpression
+        }
     );
+
+    if (!stmtEditorComponent) {
+        return (
+            <FormControl data-testid="property-form" className={classes.wizardFormControl}>
+                <div>
+                    <div className={classes.formFeilds}>
+                        <div className={classes.formTitleWrapper}>
+                            <div className={classes.mainTitleWrapper}>
+                                <Typography variant="h4">
+                                    <Box paddingTop={2} paddingBottom={2}>
+                                        <FormattedMessage
+                                            id="lowcode.develop.configForms.variable.title"
+                                            defaultMessage="Variable"
+                                        />
+                                    </Box>
+                                </Typography>
+                            </div>
+                            {stmtEditorButton}
+                        </div>
+                        <div className={classes.activeWrapper}>
+                            <SelectDropdownWithButton
+                                defaultValue={selectedType === "other" ? "other" : modelType}
+                                customProps={{
+                                    disableCreateNew: true,
+                                    values: variableTypes,
+                                }}
+                                label={variableTypeLabel}
+                                onChange={handleTypeChange}
+                            />
+                            {(selectedType === "other") && (
+                                <FormTextInput
+                                    defaultValue={otherType}
+                                    onChange={handleOtherTypeOnChange}
+                                    label={otherTypeLabel}
+                                    placeholder={enterTypePlaceholder}
+                                />
+                            )}
+                            <VariableNameInput {...variableNameConfig} />
+                            <div className="exp-wrapper">
+                                <ExpressionEditor
+                                    {...expressionEditorConfig}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                    <FormActionButtons
+                        cancelBtnText={cancelVariableButtonText}
+                        saveBtnText={saveVariableButtonText}
+                        isMutationInProgress={isMutationInProgress}
+                        validForm={validForm}
+                        onSave={handleSave}
+                        onCancel={onCancel}
+                    />
+                </div>
+            </FormControl >
+        );
+    }
+    else {
+        return stmtEditorComponent;
+    }
 }

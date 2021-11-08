@@ -13,7 +13,6 @@
 import { NodePosition, STNode } from "@ballerina/syntax-tree";
 import { Diagnostic } from "monaco-languageclient";
 
-import { AppInfo, ApplicationFile } from "../../../../../api/models";
 import { FormField, WizardType } from "../../../../../ConfigurationSpec/types";
 import { ExpressionEditorState } from "../../../../../Definitions";
 import { GenerationType } from "../../../ConfigForms/ProcessConfigForms/ProcessForm/AddDataMappingConfig/OutputTypeSelector";
@@ -31,8 +30,6 @@ export interface FormElementProps<T = {}> extends FormElementEvents {
     onFieldValueChange?: (isRequiredFieldsFilled: boolean) => void;
     size?: "small" | "medium";
     type?: "string" | "number" | "array" | "record" | "|" | "varref" | "int" | "float" | "boolean" | "json" | "var";
-    currentFile?: ApplicationFile;
-    currentApp?: AppInfo;
     editorDiagnostics?: Diagnostic[];
     mainDiagnostics?: Diagnostic[];
     targetPositionDraft?: any;
@@ -62,6 +59,7 @@ export interface ConditionConfig {
 export interface ForeachConfig {
     variable: string;
     collection: string;
+    type: string;
     model?: STNode
 }
 
