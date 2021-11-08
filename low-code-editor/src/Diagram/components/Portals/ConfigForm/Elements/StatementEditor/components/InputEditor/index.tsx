@@ -182,7 +182,7 @@ export function InputEditor(props: InputEditorProps) {
     const handleDiagnostic = () => {
         const hasDiagnostic = !inputEditorState.diagnostic.length // true if there are no diagnostics
 
-        stmtCtx.formCtx.onChange(stmtCtx.modelCtx.statementModel.source);
+        stmtCtx.formCtx.onChange(currentContent);
         stmtCtx.formCtx.validate('', !hasDiagnostic, false);
 
         // TODO: Need to obtain the default value as a prop
