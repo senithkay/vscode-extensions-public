@@ -14,6 +14,7 @@ import React, { ReactNode, useContext } from "react";
 
 import { LocalVarDecl } from "@ballerina/syntax-tree";
 
+import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
@@ -53,7 +54,7 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
     const onClickOnExpression = (event: any) => {
         event.stopPropagation()
         expressionHandler(model.initializer, false,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(model.initializer.kind) })
+            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
     };
 
     return (
