@@ -101,7 +101,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
                 codeLenses.push(this.createCodeLens(CODELENSE_TYPE.INVOCATION,
                     startLine.line, startLine.character,
                     endLine.line, endLine.character,
-                    [label.getResourcePos, label.getResourceName], label.getLabel.toString()));
+                    [label.getResourcePos, label.getResourceName], Number(label.getLabel)));
             }
         }
 
@@ -109,11 +109,12 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
     }
 
     private createCodeLens(type: CODELENSE_TYPE, startLine, startColumn, endLine, endColumn,
-        data: any[], latency = "null"): CodeLens {
-
+        data: any[], latency = -1): CodeLens {
+        const value = latency > 1000 ? latency / 1000 : latency;
+        const unit = latency > 1000 ? " s" : " ms";
         const codeLens = new CodeLens(new Range(startLine, startColumn, endLine, endColumn));
         codeLens.command = {
-            title: latency == "" ? "View Performance" : `Forecasted latency: ${latency} ms`,
+            title: latency == -1 ? "View Performance" : `Forecasted latency: ${value} ${unit}`,
             tooltip: type == CODELENSE_TYPE.RESOURCE ? "Forecast performance using AI" :
                 `Click here to view the performance graph.`,
             command: SHOW_GRAPH_COMMAND,
