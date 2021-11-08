@@ -164,7 +164,6 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const {
         state: { targetPosition: targetPositionDraft },
         props: {
-            currentApp,
             currentFile,
             langServerURL,
             syntaxTree,
@@ -368,7 +367,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                 triggerKind: 1
                             },
                             position: {
-                                character: monacoRef.current.editor.getPosition().column - 1 + (snippetTargetPosition - 1),
+                                character: targetPosition.startColumn + monacoRef.current.editor.getPosition().column - 1 + (snippetTargetPosition - 1),
                                 line: targetPosition.startLine
                             }
                         }

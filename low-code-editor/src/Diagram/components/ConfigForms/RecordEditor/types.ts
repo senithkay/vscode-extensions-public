@@ -10,13 +10,27 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-export interface Field {
+export interface SimpleField {
     name: string;
     type: string;
-    isOptional: string;
+    isFieldOptional: boolean;
+    isFieldTypeOptional?: boolean;
     value?: string;
+    isArray?: boolean;
+    isActive?: boolean;
 }
 
-export interface Record {
+export interface RecordModel {
+    name: string;
+    type?: string;
     fields: Field[];
+    isInline?: boolean;
+    isOptional?: boolean;
+    isArray?: boolean;
+    isClosed?: boolean;
+    isActive?: boolean;
+    isTypeDefinition?: boolean;
+    isPublic?: boolean;
 }
+
+export declare type Field = SimpleField | RecordModel;

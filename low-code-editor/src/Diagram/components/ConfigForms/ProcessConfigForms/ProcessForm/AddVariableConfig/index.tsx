@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
-import React, { ReactNode, useContext, useState } from "react";
+import React, { ReactNode, useContext, useEffect, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { CaptureBindingPattern, LocalVarDecl, STKindChecker } from "@ballerina/syntax-tree";
@@ -22,11 +22,12 @@ import { PrimitiveBalType, WizardType } from "../../../../../../ConfigurationSpe
 import { Context } from "../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { getAllVariables } from "../../../../../utils/mixins";
+import { createModuleVarDecl, getInitialSource} from "../../../../../utils/modification-util";
 import { getVariableNameFromST } from "../../../../../utils/st-util";
 import { SelectDropdownWithButton } from "../../../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
-import { useStatementEdior } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
+import { useStatementEditor } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
 import { FormTextInput } from "../../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
 import {
     VariableNameInput,
@@ -46,6 +47,9 @@ interface AddVariableConfigProps {
 const defaultJsonVal = `{“key”: “Click the Tooltip for examples”}`;
 const defaultXmlVal = `xml \`<obj>Click the Tooltip for examples</obj>\``;
 const defaultValues = [defaultJsonVal, defaultXmlVal];
+// todo: Support other data types
+export const variableTypes: string[] = ["var", "int", "float", "decimal", "boolean", "string", "json",
+    "xml", "error", "any", "anydata", "other"];
 
 export function AddVariableConfig(props: AddVariableConfigProps) {
     const classes = useStyles();
@@ -99,6 +103,24 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     const [variableExpression, setVariableExpression] = useState<string>(varExpression);
     const [editorFocus, setEditorFocus] = useState<boolean>(false);
     const [isStringType, setIsStringType] = useState(initialModelType === 'string');
+    const [initialSource, setInitialSource] = useState('');
+
+    useEffect(() => {
+        (async () => {
+            const source = await getInitialSource(createModuleVarDecl(
+                {
+                    varName: varName ? varName : "default",
+                    varOptions: [],
+                    varType:  selectedType === "other" ? otherType : selectedType,
+                    varValue: variableExpression ? variableExpression : "expression"
+                },
+                {
+                    endColumn: 0, endLine: 0, startColumn: 0, startLine: 0
+                }
+            ));
+            setInitialSource(source);
+        })();
+    }, [varName, selectedType, variableExpression]);
 
     const onPropertyChange = (property: string) => {
         setVariableExpression(property);
@@ -225,10 +247,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
 
     const validForm: boolean = varName.length > 0 && variableExpression.length > 0 && validExpresssionValue;
 
-    // todo: Support other data types
-    const variableTypes: string[] = ["var", "int", "float", "decimal", "boolean", "string", "json", "xml", "error",
-        "any", "anydata", "other"];
-
     const userInputs = {
         selectedType,
         otherType,
@@ -248,11 +266,35 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         isEdit: !!config.model,
     }
 
-    const { stmtEditorButton, stmtEditorComponent } = useStatementEdior(
+    const expressionEditorConfig = {
+        key: selectedType,
+        model: {
+            name: "Expression",
+            displayName: "Value Expression",
+            typeName: (modelType ? modelType : "other"),
+            value: variableExpression,
+        },
+        customProps: {
+            validate: validateExpression,
+            interactive: true,
+            statementType: (modelType ? modelType : "other"),
+            tooltipTitle: variableTooltipMessages.expressionEditor.title,
+            tooltipActionText: variableTooltipMessages.expressionEditor.actionText,
+            tooltipActionLink: variableTooltipMessages.expressionEditor.actionLink,
+            expressionInjectables: {
+                list: formArgs?.expressionInjectables?.list,
+                setInjectables: formArgs?.expressionInjectables?.setInjectables
+            }
+        },
+        onChange: onPropertyChange,
+        defaultValue: variableExpression,
+    };
+
+    const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {
-            kind: "DefaultString",
-            label: "Variable Statement",
-            formArgs: { formArgs },
+            label: intl.formatMessage({id: "lowcode.develop.configForms.variable.statementEditor.label"}),
+            initialSource,
+            formArgs: {formArgs},
             userInputs,
             isMutationInProgress,
             validForm,
@@ -260,7 +302,8 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             onChange: onPropertyChange,
             validate: validateExpression
         },
-        !isStringType);
+        !isStringType
+    );
 
     if (!stmtEditorComponent) {
         return (
@@ -301,29 +344,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                             <VariableNameInput {...variableNameConfig} />
                             <div className="exp-wrapper">
                                 <ExpressionEditor
-                                    key={selectedType}
-                                    model={{
-                                        name: "Expression",
-                                        value: variableExpression,
-                                        typeName: (modelType ? modelType : "other")
-                                    }}
-                                    customProps={{
-                                        validate: validateExpression,
-                                        expandDefault: (selectedType === "other"),
-                                        tooltipTitle: variableTooltipMessages.expressionEditor.title,
-                                        tooltipActionText: variableTooltipMessages.expressionEditor.actionText,
-                                        tooltipActionLink: variableTooltipMessages.expressionEditor.actionLink,
-                                        interactive: true,
-                                        focus: editorFocus,
-                                        statementType: (modelType ? modelType : "other") as PrimitiveBalType,
-                                        revertFocus: revertEditorFocus,
-                                        expressionInjectables: {
-                                            list: formArgs?.expressionInjectables?.list,
-                                            setInjectables: formArgs?.expressionInjectables?.setInjectables
-                                        }
-                                    }}
-                                    onChange={onPropertyChange}
-                                    defaultValue={variableExpression}
+                                    {...expressionEditorConfig}
                                 />
                             </div>
                         </div>
