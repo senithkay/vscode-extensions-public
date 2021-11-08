@@ -136,7 +136,7 @@ export function InputEditor(props: InputEditorProps) {
 
     useEffect(() => {
         setUserInput(value);
-        handleContentChange(stmtCtx.modelCtx.statementModel.source, "").then(() => {
+        handleContentChange(currentContent, "").then(() => {
             handleOnOutFocus().then();
         });
     }, [inputEditorCtx.userInput]);
