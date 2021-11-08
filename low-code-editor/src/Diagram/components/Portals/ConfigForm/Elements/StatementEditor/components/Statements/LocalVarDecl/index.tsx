@@ -67,6 +67,9 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
              <button className={overlayClasses.expressionElement} onClick={onClickOnExpression}>
                 {expressionComponent}
             </button>
+            <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
+                {model.semicolonToken.value}
+            </span>
         </span>
     );
 }

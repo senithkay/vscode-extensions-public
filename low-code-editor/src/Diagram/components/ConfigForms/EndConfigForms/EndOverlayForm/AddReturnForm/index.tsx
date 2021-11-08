@@ -26,6 +26,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
 import { useStatementEditor } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
+import { createReturnStatement, getInitialSource } from "../../../../../utils/modification-util";
 
 interface ReturnFormProps {
     config: EndConfig;
@@ -80,18 +81,21 @@ export function AddReturnForm(props: ReturnFormProps) {
         }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
     };
 
+    const initialSource = getInitialSource(createReturnStatement(
+        returnExpression ? returnExpression as string : 'expression'
+    ));
+
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {
             label: intl.formatMessage({id: "lowcode.develop.configForms.return.statementEditor.label"}),
-            initialSource: "", // TODO: Pass the actual initialSource
+            initialSource,
             formArgs: {formArgs},
             isMutationInProgress,
             validForm: isValidValue,
             onSave: onReturnExpressionSave,
             onChange: onReturnValueChange,
             validate: validateExpression
-        },
-        true
+        }
     );
 
     if (!stmtEditorComponent){
