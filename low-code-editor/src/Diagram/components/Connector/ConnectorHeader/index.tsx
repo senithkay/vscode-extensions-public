@@ -39,15 +39,20 @@ export function ConnectorHeaderC(props: ConnectorClientProps) {
     const epViewState: EndpointViewState = connectorClientViewState.endpoint as EndpointViewState;
 
 
-    const x = connectorClientViewState.endpoint.lifeLine.cx - (CLIENT_SVG_WIDTH_WITH_SHADOW / 2);
-    const y = epViewState.isExternal ? connectorClientViewState.endpoint.lifeLine.cy - (CLIENT_RADIUS * 2) - (CLIENT_SHADOW_OFFSET / 2) : connectorClientViewState.bBox.cy - (CLIENT_SHADOW_OFFSET / 2);
+    const x = connectorClientViewState.endpoint.lifeLine.cx - CLIENT_SVG_WIDTH_WITH_SHADOW / 2;
+    const y = epViewState.isExternal
+        ? connectorClientViewState.endpoint.lifeLine.cy - CLIENT_RADIUS * 2 - CLIENT_SHADOW_OFFSET / 2
+        : connectorClientViewState.bBox.cy - CLIENT_SHADOW_OFFSET / 2;
 
     const draftVS: any = connectorClientViewState as DraftStatementViewState;
     const connectorIconId = (model?.viewState as StatementViewState)?.endpoint?.iconId;
     const connectorWrapper = cn("main-connector-wrapper connector-client");
     const iconProps = {
         cx: connectorClientViewState.endpoint.lifeLine.cx,
-        cy: epViewState.isExternal ? connectorClientViewState.endpoint.lifeLine.cy - CLIENT_RADIUS : connectorClientViewState.endpoint.lifeLine.cy + CLIENT_RADIUS
+        cy: epViewState.isExternal
+            ? connectorClientViewState.endpoint.lifeLine.cy - CLIENT_RADIUS
+            : connectorClientViewState.endpoint.lifeLine.cy + CLIENT_RADIUS,
+        scale: 0.1,
     };
 
     const icon = getConnectorIcon(connectorIconId, iconProps);

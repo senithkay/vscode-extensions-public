@@ -600,6 +600,9 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         typeContainer: {
             width: '50%'
+        },
+        returnWrapper: {
+            width: "82%"
         }
     }),
 );
