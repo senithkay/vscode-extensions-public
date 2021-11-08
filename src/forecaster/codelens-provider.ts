@@ -36,7 +36,7 @@ enum CODELENSE_TYPE {
 let langClient: ExtendedLangClient;
 
 /**
- * Codelense provider for performence forecaster.
+ * Codelense provider for performance forecaster.
  */
 export class ExecutorCodeLensProvider implements CodeLensProvider {
 
@@ -155,9 +155,13 @@ async function findResources(uri: Uri | undefined) {
                             if (!serviceMember.functionName || !serviceMember.relativeResourcePath) {
                                 continue;
                             }
+                            let fullPath = "";
+                            for (const path of serviceMember.relativeResourcePath) {
+                                fullPath += (path as any).value;
+                            }
                             await createPerformanceGraphAndCodeLenses(uri.fsPath, range, ANALYZETYPE.REALTIME,
                                 `${serviceMember.functionName.value.toUpperCase()} ` +
-                                `/${serviceMember.relativeResourcePath[0].value}`);
+                                `/${fullPath}`);
                         }
                     }
                 }

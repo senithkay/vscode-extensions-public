@@ -129,7 +129,7 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
             choreoToken: `Bearer ${choreoToken}`,
             choreoCookie: choreoCookie,
         }).then(async (response) => {
-            if (response.type != SUCCESS) {
+            if (response.type !== SUCCESS) {
                 checkErrors(response);
                 return;
             }
@@ -162,7 +162,7 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
             choreoToken: `Bearer ${choreoToken}`,
             choreoCookie: choreoCookie,
         }).then(async (response) => {
-            if (response.type != SUCCESS) {
+            if (response.type !== SUCCESS) {
                 checkErrors(response);
                 return;
             }
