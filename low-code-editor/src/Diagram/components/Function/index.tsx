@@ -23,7 +23,7 @@ import { v4 as uuid } from "uuid";
 
 import { Context } from "../../../Contexts/Diagram";
 import { Provider as FunctionProvider } from "../../../Contexts/Function";
-import { useSelectedStatus } from "../../hooks";
+import { useOverlayRef, useSelectedStatus } from "../../hooks";
 import { useStyles } from "../../styles";
 import { BlockViewState, FunctionViewState } from "../../view-state";
 import { Canvas } from "../Canvas";
@@ -64,6 +64,7 @@ export function Function(props: FunctionProps) {
   const containerRef = useRef(null);
   const isSelected = useSelectedStatus(model, containerRef);
   const [diagramExpanded, setDiagramExpanded] = useState(isSelected);
+  const [overlayNode, overlayRef] = useOverlayRef();
 
   React.useEffect(() => {
     setDiagramExpanded(isSelected);
@@ -120,9 +121,9 @@ export function Function(props: FunctionProps) {
 
   const functionBody = (
     <div className={"lowcode-diagram"}>
-      <FunctionProvider overlayId={overlayId}>
+      <FunctionProvider overlayId={overlayId} overlayNode={overlayNode}>
         <PanAndZoom>
-          <div id={overlayId} className={classes.OverlayContainer} />
+          <div ref={overlayRef} id={overlayId} className={classes.OverlayContainer} />
           <Canvas h={model.viewState.bBox.h} w={model.viewState.bBox.w}>
             {component}
           </Canvas>

@@ -18,9 +18,7 @@ import { WizardType } from "../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../Contexts/Diagram";
 import { ConfigOverlayFormStatus } from "../../../../../Definitions";
 import { TextPreloaderVertical } from "../../../../../PreLoader/TextPreloaderVertical";
-import { DefaultConfig } from "../../../../visitors/default";
 import { ProcessConfig } from "../../../Portals/ConfigForm/types";
-import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from "../../../Portals/Overlay";
 
 import { AddCustomStatementConfig } from "./AddCustomStatementConfig";
 import { AddDataMappingConfig } from "./AddDataMappingConfig";
