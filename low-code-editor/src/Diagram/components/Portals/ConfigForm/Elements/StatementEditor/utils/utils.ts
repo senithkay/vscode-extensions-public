@@ -29,10 +29,16 @@ export function generateExpressionTemplate (kind: string, value?: any) {
         return ("EXPRESSION > EXPRESSION ")
     } else if (kind === c.EQUALITY) {
         return ("EXPRESSION === EXPRESSION ")
-    } else if (kind === c.STRING_LITERAL) {
+    } else if (kind === c.LOGICAL) {
+        return ("EXPRESSION && EXPRESSION ")
+    } else if (kind === c.CONDITIONAL) {
+        return ("EXPRESSION ? EXPRESSION : EXPRESSION")
+    }else if (kind === c.STRING_LITERAL) {
         return ("\" \"");
     } else if (kind === c.NUMERIC_LITERAL) {
         return ("0");
+    } else if (kind === c.BOOLEAN_LITERAL) {
+        return ("true");
     } else if (kind === c.SIMPLE_NAME_REFERENCE) {
         return (value);
     }
