@@ -20,7 +20,7 @@ jobs:
         id: timestamp
         run: echo "::set-output name=timestamp::$(date +'%Y%m%d-%H%M')"
       - run: npm ci
-      - run: npm version prerelease preid=${{ steps.timestamp.outputs.timestamp }}
+      - run: npm version prerelease --preid=${{ steps.timestamp.outputs.timestamp }}
       - run: npm run build
       - name: Publish Package
         uses: JS-DevTools/npm-publish@v1
