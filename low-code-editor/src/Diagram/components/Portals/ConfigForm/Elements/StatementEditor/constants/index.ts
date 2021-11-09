@@ -49,6 +49,7 @@ export const TYPE_TEST = "TypeTestExpression"
 export const TYPE_DESCRIPTOR = "TypeDescriptor"
 export const DEFAULT_EXPRESSIONS = "DefaultExpressions"
 export const BOOLEAN_TYPE_DESC = "BooleanTypeDesc"
+export const OTHER_EXPRESSION = "OtherExpression"
 
 // Statement types supported in function-body-block
 export type StatementNodes = ActionStatement
