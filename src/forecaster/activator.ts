@@ -26,9 +26,12 @@ import { showPerformanceGraph } from "./performanceGraphPanel";
 import { MESSAGE_TYPE, showMessage } from "../utils/showMessage";
 
 export const CHOREO_API_PF = "http://choreocontrolplane.preview-dv.choreo.dev/performance-analyzer/1.0.0/get_estimations/2.0";
-const CHOREO_AUTH_ERR = "Choreo Authentication error.";
-const NETWORK_ERR = "Network error. Please check you internet connection.";
-const MODEL_NOT_FOUND = "AI service does not have enough data to forecast."
+const CHOREO_AUTH_ERR = "Authentication error for accessing AI service (ID6)";
+const NETWORK_ERR = "Network error. Please check you internet connection";
+const MODEL_NOT_FOUND = "AI service does not have enough data to forecast";
+const ESTIMATOR_ERROR = "AI service is currently unavailable (ID2)";
+const UNKNOWN_ANALYSIS_TYPE = "Invalid request sent to AI service (ID7)";
+const INVALID_DATA = "Request with invalid data sent to AI service (ID8)";
 const SUCCESS = "Success";
 let langClient: ExtendedLangClient;
 let uiData: GraphData;
@@ -199,6 +202,22 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
         } else if (response.message === 'MODEL_NOT_FOUND') {
             // AI Error
             showMessage(MODEL_NOT_FOUND, MESSAGE_TYPE.INFO, true);
+
+        } else if (response.message === 'NO_DATA') {
+            // This happens when there is no action invocations in the code.
+            // No need to show any error/info since there is no invocations.
+
+        } else if (response.message === 'ESTIMATOR_ERROR') {
+            // AI Error
+            showMessage(ESTIMATOR_ERROR, MESSAGE_TYPE.ERROR, true);
+
+        } else if (response.message === 'UNKNOWN_ANALYSIS_TYPE') {
+            // AI Error
+            showMessage(UNKNOWN_ANALYSIS_TYPE, MESSAGE_TYPE.ERROR, true);
+
+        } else if (response.message === 'INVALID_DATA') {
+            // AI Error
+            showMessage(INVALID_DATA, MESSAGE_TYPE.INFO, true);
 
         } else {
             showMessage(response.message, MESSAGE_TYPE.ERROR, true);
