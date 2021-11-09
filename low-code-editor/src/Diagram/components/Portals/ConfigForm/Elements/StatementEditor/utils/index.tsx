@@ -13,7 +13,7 @@
 // tslint:disable: jsx-wrap-multiline
 import React, { ReactNode } from 'react';
 
-import { STNode } from "@ballerina/syntax-tree";
+import { STKindChecker, STNode } from "@ballerina/syntax-tree";
 
 import {
     ExpressionEditorLangClientInterface, PartialSTRequest
@@ -48,6 +48,18 @@ export async function getPartialSTForExpression(
     const langClient: ExpressionEditorLangClientInterface = await ls.getExpressionEditorLangClient(lsUrl);
     const resp = await langClient.getSTForExpression(partialSTRequest);
     return resp.syntaxTree;
+}
+
+export function getExpressionSource(model: STNode): string {
+    if (STKindChecker.isCallStatement(model) || STKindChecker.isReturnStatement(model)) {
+        return model.expression.source;
+    } else if (STKindChecker.isForeachStatement(model)) {
+        return model.actionOrExpressionNode.source;
+    } else if (STKindChecker.isIfElseStatement(model) || STKindChecker.isWhileStatement(model)) {
+        return model.condition.source;
+    } else if (STKindChecker.isLocalVarDecl(model)) {
+        return model.initializer.source;
+    }
 }
 
 export function getSuggestionsBasedOnExpressionKind(kind: string): SuggestionItem[] {

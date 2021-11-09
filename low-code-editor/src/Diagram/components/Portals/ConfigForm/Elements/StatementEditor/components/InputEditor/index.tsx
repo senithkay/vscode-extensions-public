@@ -43,7 +43,7 @@ import { SuggestionItem, VariableUserInputs } from "../../models/definitions";
 import { InputEditorContext } from "../../store/input-editor-context";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { SuggestionsContext } from "../../store/suggestions-context";
-import { getDataTypeOnExpressionKind } from "../../utils";
+import { getDataTypeOnExpressionKind, getExpressionSource } from "../../utils";
 import { useStatementEditorStyles } from "../ViewContainer/styles";
 
 import { acceptedCompletionKind } from "./constants";
@@ -180,7 +180,7 @@ export function InputEditor(props: InputEditorProps) {
     const handleDiagnostic = () => {
         const hasDiagnostic = !inputEditorState.diagnostic.length // true if there are no diagnostics
 
-        stmtCtx.formCtx.onChange(currentContent);
+        stmtCtx.formCtx.onChange(getExpressionSource(stmtCtx.modelCtx.statementModel));
         stmtCtx.formCtx.validate('', !hasDiagnostic, false);
 
         // TODO: Need to obtain the default value as a prop
@@ -197,7 +197,7 @@ export function InputEditor(props: InputEditorProps) {
         inputEditorState.content = newModel;
         inputEditorState.uri = monaco.Uri.file(currentFile.path).toString();
 
-        stmtCtx.formCtx.onChange(currentStatement);
+        stmtCtx.formCtx.onChange(getExpressionSource(stmtCtx.modelCtx.statementModel));
 
         const langClient = await getExpressionEditorLangClient(langServerURL);
         langClient.didChange({
