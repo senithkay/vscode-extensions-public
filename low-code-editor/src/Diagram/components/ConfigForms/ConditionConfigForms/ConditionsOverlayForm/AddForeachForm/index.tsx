@@ -31,6 +31,8 @@ import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/consta
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
 import { useStatementEditor } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
 import { createForeachStatement, getInitialSource } from "../../../../../utils/modification-util";
+import classnames from "classnames";
+import {SelectDropdownWithButton} from "../../../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
 
 interface Iterations {
     start?: string;
@@ -230,35 +232,75 @@ export function AddForeachForm(props: ForeachProps) {
 
     if (!stmtEditorComponent) {
         return (
-                <FormControl data-testid="foreach-form" className={classes.wizardFormControl}>
+                <FormControl data-testid="foreach-form" className={classnames(classes.wizardFormControl, classes.fitContent)}>
                     <div className={classes.formWrapper}>
                         <div className={classes.formFeilds}>
                             <div className={classes.formWrapper}>
                                 <div className={classes.formTitleWrapper}>
                                     <div className={classes.mainTitleWrapper}>
                                         <Typography variant="h4">
-                                            {/* <Box paddingTop={2} paddingBottom={2}> */}
+                                            <Box paddingTop={2} paddingBottom={2}>
                                                 <FormattedMessage
                                                     id="lowcode.develop.configForms.foreach.title"
                                                     defaultMessage="Foreach"
                                                 />
-                                            {/* </Box> */}
+                                            </Box>
                                         </Typography>
                                     </div>
-                                    {stmtEditorButton}
+                                    <div className={classes.statementEditor}>
+                                        {stmtEditorButton}
+                                    </div>
                                 </div>
-                                <FormTextInput
-                                    customProps={{
-                                        validate: validateNameValue,
-                                    }}
-                                    onChange={onVariableNameChange}
-                                    defaultValue={conditionExpression.variable}
-                                    label={currentValueVariableLabel}
-                                    placeholder={""}
-                                    errorMessage={invalidConnectionErrorMessage}
-                                />
-                                <div className="exp-wrapper">
-                                    <ExpressionEditor {...expElementProps} />
+                                <div className={classes.blockWrapper}>
+                                    <div className={classes.codeText}>
+                                        <Typography variant='body2' className={classnames(classes.startCode)}>Foreach</Typography>
+                                    </div>
+                                    <div className={classes.dropdownWrapper}>
+                                        <SelectDropdownWithButton
+                                            defaultValue={selectedType}
+                                            customProps={{
+                                                disableCreateNew: true,
+                                                values: variableTypes,
+                                                onOpenSelect: handleOnOpen,
+                                                onCloseSelect: handleOnClose,
+                                            }}
+                                            label={"Type"}
+                                            onChange={handleTypeChange}
+                                        />
+                                    </div>
+                                    <div className={classes.editorWrapper}>
+                                        <FormTextInput
+                                            customProps={{
+                                                validate: validateNameValue,
+                                            }}
+                                            onChange={onVariableNameChange}
+                                            defaultValue={conditionExpression.variable}
+                                            label="Current Value"
+                                            placeholder={""}
+                                            errorMessage={invalidConnectionErrorMessage}
+                                        />
+                                    </div>
+                                    <div className={classes.codeText}>
+                                        <Typography variant='body2' className={classnames(classes.endCode)}>in</Typography>
+                                    </div>
+                                    <div className={classes.expEditorWrapper}>
+                                        {!isDropDownOpen &&
+                                        (
+                                            <div className="exp-wrapper">
+                                                <ExpressionEditor {...expElementProps} hideLabelTooltips={true} />
+                                            </div>
+                                        )
+                                        }
+                                    </div>
+                                    <div className={classes.codeText}>
+                                        <Typography variant='body2' className={classnames(classes.endCode)}>{`{`}</Typography>
+                                    </div>
+                                </div>
+                                <div className={classes.codeWrapper}>
+                                    <Typography variant='body2' className={classnames(classes.middleCode, classes.code)}>...</Typography>
+                                </div>
+                                <div className={classes.codeWrapper}>
+                                    <Typography variant='body2' className={classnames(classes.endCode, classes.code)}>{`}`}</Typography>
                                 </div>
                             </div>
                         </div>

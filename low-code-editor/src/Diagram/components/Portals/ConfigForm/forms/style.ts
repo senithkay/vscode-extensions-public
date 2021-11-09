@@ -540,7 +540,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             display: 'inline-flex',
             justifyContent: 'flex-end',
             paddingRight: theme.spacing(1),
-            width: '80%'
+            width: '100%'
         },
         start: {
             height: 'fit-content',
@@ -594,15 +594,30 @@ export const useStyles = makeStyles((theme: Theme) =>
             height: theme.spacing(5)
         },
         expEditorWrapper: {
-            minWidth: `120px !important`,
+            minWidth: `164px !important`,
             paddingRight: theme.spacing(1),
-            paddingTop: theme.spacing(1.25)
+            paddingTop: theme.spacing(1.25),
+            position: 'relative'
         },
         typeContainer: {
             width: '50%'
         },
         returnWrapper: {
             width: "82%"
-        }
+        },
+        fitContent: {
+            width: 'fit-content'
+        },
+        nameExpEditorWrapper: {
+            minWidth: `164px !important`,
+            paddingRight: theme.spacing(1),
+            position: 'relative'
+        },
+        variableExpEditorWrapper: {
+            minWidth: `164px !important`,
+            paddingRight: theme.spacing(1),
+            position: 'relative',
+            marginTop: theme.spacing(1.5)
+        },
     }),
 );
