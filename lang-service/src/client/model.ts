@@ -168,6 +168,7 @@ export interface FormField {
     defaultValue?: any;
     value?: any;
     optional?: boolean;
+    defaultable?: boolean;
     fields?: FormField[];
     members?: FormField[];
     references?: FormField[];
@@ -184,7 +185,6 @@ export interface FormField {
     tooltipActionLink?: string;
     tooltipActionText?: string;
     isErrorType?: boolean;
-    isDefaultableParam?: boolean;
     isRestParam?: boolean;
     customAutoComplete?: string[];
     validationRegex?: any;
