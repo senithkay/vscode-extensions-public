@@ -38,7 +38,8 @@ export interface ViewProps {
     validForm?: boolean
     onCancel?: () => void
     onSave?: () => void
-    onChange?: (property: string) => void
+    onChange?: (property: string) => void,
+    handleNameOnChange?: (name: string) => void
 }
 
 export function ViewContainer(props: ViewProps) {
@@ -60,11 +61,16 @@ export function ViewContainer(props: ViewProps) {
         validForm,
         onCancel,
         onSave,
-        onChange
+        onChange,
+        handleNameOnChange
     } = props;
     const intl = useIntl();
 
     const [model, setModel] = useState<STNode>(null);
+
+    if (!userInputs.varName && !!handleNameOnChange){
+        handleNameOnChange("default")
+    }
 
     useEffect(() => {
         (async () => {
