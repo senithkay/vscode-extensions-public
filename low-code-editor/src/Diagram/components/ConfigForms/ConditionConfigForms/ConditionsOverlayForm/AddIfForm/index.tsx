@@ -28,6 +28,7 @@ import { useStatementEditor } from "../../../../Portals/ConfigForm/Elements/Stat
 import { createIfStatement, getInitialSource } from "../../../../../utils/modification-util";
 import {ControlPoint, RemoveCircleOutlineRounded} from "@material-ui/icons";
 import classnames from "classnames";
+import {NodePosition} from "@ballerina/syntax-tree";
 
 interface IfProps {
     condition: ConditionConfig;
@@ -38,6 +39,10 @@ interface IfProps {
 
 export const DEFINE_CONDITION: string = "Define Condition Expression";
 export const EXISTING_PROPERTY: string = "Select Boolean Property";
+
+interface ExpressionsArray {
+    id: number, expression: string, position: NodePosition
+}
 
 export function AddIfForm(props: IfProps) {
     const {
@@ -52,7 +57,12 @@ export function AddIfForm(props: IfProps) {
     const intl = useIntl();
 
     const [isInvalid, setIsInvalid] = useState(true);
-    const [compList, setCompList] = useState((condition.conditionExpression as ElseIfConfig)?.values);
+
+    let statementConditions : ExpressionsArray[];
+    statementConditions = ((condition.conditionExpression as ElseIfConfig)?.values)
+        ? (condition.conditionExpression as ElseIfConfig).values
+        : [{id: 0, expression: "", position: {}}];
+    const [compList, setCompList] = useState(statementConditions);
 
     const handlePlusButton = (order: number) => () => {
         if (order === -1){
@@ -79,7 +89,14 @@ export function AddIfForm(props: IfProps) {
     }
 
     const validateField = (fieldName: string, isInvalidFromField: boolean) => {
-        setIsInvalid(isInvalidFromField)
+        let isInvalidForm = false;
+        for (const elem of compList) {
+            if (elem.expression === "") {
+                isInvalidForm = true;
+                break;
+            }
+        }
+        setIsInvalid(isInvalidFromField || isInvalidForm)
     }
 
     const setFormField = (order: number): FormField => {
