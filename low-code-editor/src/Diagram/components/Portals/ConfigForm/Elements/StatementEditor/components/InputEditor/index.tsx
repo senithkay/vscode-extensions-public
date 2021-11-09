@@ -105,7 +105,7 @@ export function InputEditor(props: InputEditorProps) {
     } else if (STKindChecker.isQualifiedNameReference(model)) {
         literalModel = model as QualifiedNameReference;
         kind = c.QUALIFIED_NAME_REFERENCE;
-        value =  `${literalModel.modulePrefix.value}${literalModel.colon.value}${literalModel.identifier.value}`;
+        value = `${literalModel.modulePrefix.value}${literalModel.colon.value}${literalModel.identifier.value}`;
     } else if (STKindChecker.isBooleanLiteral(model)) {
         literalModel = model as BooleanLiteral;
         kind = c.BOOLEAN_LITERAL;
