@@ -75,6 +75,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
 
     React.useEffect(() => {
         const keyPress = (e: any) => {
+            const file = currentFilePath;
             const evtobj = e;
             if (evtobj.keyCode === 90 && (evtobj.ctrlKey || evtobj.metaKey)) {
                 undo();
@@ -138,16 +139,11 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                     version: 1
                 }
             });
-<<<<<<< HEAD
-            const genSyntaxTree = await getSyntaxTree(filePath, langClient);
+            const genSyntaxTree = await getSyntaxTree(currentFilePath, langClient);
             const pfSession = await props.getPFSession();
-            const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, filePath,
+            const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, currentFilePath,
                                                                 langClient, pfSession,
                                                                 props.showPerformanceGraph, props.showMessage);
-=======
-            const genSyntaxTree = await getSyntaxTree(currentFilePath, langClient);
-            const vistedSyntaxTree: STNode = getLowcodeST(genSyntaxTree);
->>>>>>> 6eddd6a3... Add variable for path and content change
             setSyntaxTree(vistedSyntaxTree);
             setFileContent(lastsource);
             currentFileContent = lastsource;
@@ -179,16 +175,11 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                     version: 1
                 }
             });
-<<<<<<< HEAD
-            const genSyntaxTree = await getSyntaxTree(filePath, langClient);
+            const genSyntaxTree = await getSyntaxTree(currentFilePath, langClient);
             const pfSession = await props.getPFSession();
-            const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, filePath,
+            const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, currentFilePath,
                 langClient, pfSession,
                 props.showPerformanceGraph, props.showMessage);
-=======
-            const genSyntaxTree = await getSyntaxTree(currentFilePath, langClient);
-            const vistedSyntaxTree: STNode = getLowcodeST(genSyntaxTree);
->>>>>>> 6eddd6a3... Add variable for path and content change
             setSyntaxTree(vistedSyntaxTree);
             setFileContent(lastUndoSource);
             currentFileContent = lastUndoSource;
