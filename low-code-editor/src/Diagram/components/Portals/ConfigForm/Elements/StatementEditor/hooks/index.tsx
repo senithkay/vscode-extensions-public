@@ -61,7 +61,7 @@ export const useStatementEditor = (props: ViewProps) => {
                 <div className={classes.formTitleWrapper}>
                     <div className={classes.mainTitleWrapper}>
                         <Typography variant="h4">
-                            <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.statementEditor.title" defaultMessage="Statement Editor" /></Box>
+                            <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.statementEditor.title" defaultMessage="Statement jhkhkj" /></Box>
                         </Typography>
                     </div>
                 </div>
