@@ -158,6 +158,7 @@ export interface ExpressionEditorProps {
     editPosition?: any;
     expressionInjectables?: ExpressionInjectablesProps;
     hideSuggestions?: boolean;
+    hideExpand?: boolean;
 }
 
 export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>) {
@@ -191,7 +192,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         customProps,
     } = props;
     const { validate, statementType, customTemplate, focus, expandDefault, clearInput, revertClearInput, changed,
-            subEditor, editPosition, expressionInjectables, hideSuggestions } = customProps;
+            subEditor, editPosition, expressionInjectables, hideSuggestions, hideExpand } = customProps;
     const targetPosition = editPosition ? editPosition : getTargetPosition(targetPositionDraft, syntaxTree);
     const [invalidSourceCode, setInvalidSourceCode] = useState(false);
     const [expand, setExpand] = useState(expandDefault || false);
@@ -503,7 +504,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     }, [focus]);
 
     useEffect(() => {
-        if (monacoRef.current) {
+        if (monacoRef.current && !hideExpand) {
             const expandWidget: monaco.editor.IContentWidget = createContentWidget(EXPAND_WIDGET_ID);
             const collapseWidget: monaco.editor.IContentWidget = createContentWidget(COLLAPSE_WIDGET_ID);
 
@@ -521,7 +522,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 monacoRef.current.editor.addContentWidget(expandWidget);
             }
         }
-    }, [expand])
+    }, [expand, hideExpand])
 
     useEffect(() => {
         if (monacoRef.current) {
