@@ -224,7 +224,7 @@ export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = 
         { value: c.DECIMAL_TYPE_DESC },
         { value: c.FLOAT_TYPE_DESC },
         { value: c.INT_TYPE_DESC },
-        //{ value: c.VAR_TYPE_DESC },
+        // { value: c.VAR_TYPE_DESC },
     ],
     DefaultExpressions: [
         { value: c.ARITHMETIC },

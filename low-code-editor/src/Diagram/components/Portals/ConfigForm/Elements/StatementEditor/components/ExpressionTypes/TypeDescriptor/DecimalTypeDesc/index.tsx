@@ -16,9 +16,9 @@ import React, { useContext } from "react";
 import { DecimalTypeDesc } from "@ballerina/syntax-tree";
 
 import { TYPE_DESCRIPTOR } from "../../../../constants";
+import { VariableUserInputs } from "../../../../models/definitions";
 import { SuggestionsContext } from "../../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../../../utils";
-import { VariableUserInputs } from "../../../../models/definitions";
 import { useStatementEditorStyles } from "../../../ViewContainer/styles";
 
 interface DecimalTypeDescProps {
