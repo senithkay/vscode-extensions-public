@@ -28,7 +28,6 @@ import { useStatementEditor } from "../../../../Portals/ConfigForm/Elements/Stat
 import { createIfStatement, getInitialSource } from "../../../../../utils/modification-util";
 import {ControlPoint, RemoveCircleOutlineRounded} from "@material-ui/icons";
 import classnames from "classnames";
-import {STKindChecker} from "@ballerina/syntax-tree";
 
 interface IfProps {
     condition: ConditionConfig;
@@ -53,17 +52,16 @@ export function AddIfForm(props: IfProps) {
     const intl = useIntl();
 
     const [isInvalid, setIsInvalid] = useState(true);
-
     const [compList, setCompList] = useState((condition.conditionExpression as ElseIfConfig)?.values);
 
     const handlePlusButton = (order: number) => () => {
         if (order === -1){
             setCompList((prev) => {
-                return [...prev, {id: compList.length, expression: "", position: {}}]
+                return [...prev, {id: prev.length, expression: "", position: {}}]
             });
         }else {
             setCompList((prev) => {
-                return [...prev.slice(0, order), {id: order, expression: "", position: {}}, ...prev.slice(order, compList.length)];
+                return [...prev.slice(0, order), {id: order, expression: "", position: {}}, ...prev.slice(order, prev.length)];
             });
         }
     }
@@ -76,7 +74,7 @@ export function AddIfForm(props: IfProps) {
 
     const handleExpEditorChange = (order: number) => (value: string) => {
         setCompList((prevState) => {
-            return [...prevState.slice(0, order), {...prevState[order], expression: value}, ...prevState.slice(order + 1, compList.length)];
+            return [...prevState.slice(0, order), {...prevState[order], expression: value}, ...prevState.slice(order + 1, prevState.length)];
         });
     }
 
@@ -216,7 +214,7 @@ export function AddIfForm(props: IfProps) {
                                             </Box>
                                         </Typography>
                                     </div>
-                                    {stmtEditorButton}
+                                    {/* TODO: Add after statement editor support {stmtEditorButton}*/}
                                 </div>
                                 <div className={classes.blockWrapper}>
                                     <div className={classes.codeText}>

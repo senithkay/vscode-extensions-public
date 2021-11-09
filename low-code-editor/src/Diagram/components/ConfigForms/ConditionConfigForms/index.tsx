@@ -22,8 +22,8 @@ import { ConfigOverlayFormStatus } from "../../../../Definitions";
 import { STModification } from "../../../../Definitions/lang-client-extended";
 import { EVENT_TYPE_AZURE_APP_INSIGHTS, FINISH_STATEMENT_ADD_INSIGHTS, LowcodeEvent } from "../../../models";
 import {
-    createForeachStatement,
-    createIfStatement, createWhileStatement, updateForEachCondition,
+    createElseIfStatement, createElseStatement,
+    createForeachStatement, createIfStatement, createWhileStatement, updateForEachCondition,
     updateIfStatementCondition, updateWhileStatementCondition
 } from "../../../utils/modification-util";
 import { InjectableItem } from "../../FormGenerator";
@@ -88,18 +88,6 @@ export function ConditionConfigForm(props: ConditionConfigFormProps) {
             break;
     }
 
-    const generateElseIfCondition = (ifConfig: ElseIfConfig) => {
-        const compList = ifConfig?.values;
-        let statement = `if(${compList[0]?.expression}) {\n\n`;
-        if (compList.length !== 1) {
-            compList.slice(1, compList.length).forEach((elem) => {
-                statement += `}else if (${elem.expression}) {\n\n`
-            })
-        }
-        statement += `}else {\n\n}\n\n`;
-        return statement;
-    }
-
     const onSaveClick = () => {
         if (formArgs?.targetPosition) {
             const modifications: STModification[] = [];
@@ -112,7 +100,7 @@ export function ConditionConfigForm(props: ConditionConfigFormProps) {
 
             if (formType === "If") {
                 const ifConfig: ElseIfConfig = conditionConfig.conditionExpression as ElseIfConfig;
-                const conditionExpression: string = generateElseIfCondition(ifConfig);
+                const compList = ifConfig?.values;
                 if (!formArgs?.config) {
                     const event: LowcodeEvent = {
                         type: EVENT_TYPE_AZURE_APP_INSIGHTS,
@@ -120,10 +108,16 @@ export function ConditionConfigForm(props: ConditionConfigFormProps) {
                         property: formType
                     };
                     onEvent(event);
-                    modifications.push(createIfStatement(conditionExpression, formArgs?.targetPosition));
+                    modifications.push(createIfStatement(compList[0]?.expression, formArgs?.targetPosition));
+                    if (compList.length > 1){
+                        ifConfig?.values.slice(1).forEach((value) => {
+                            modifications.push(createElseIfStatement(value.expression, formArgs?.targetPosition));
+                        })
+                    }
+                    modifications.push(createElseStatement(formArgs?.targetPosition));
                 } else {
                     ifConfig?.values.forEach((value) => {
-                        modifications.push(updateIfStatementCondition(`(${value.expression})`, value.position));
+                        modifications.push(updateIfStatementCondition(value.expression, value.position));
                     })
                 }
             } else if (formType === "ForEach") {

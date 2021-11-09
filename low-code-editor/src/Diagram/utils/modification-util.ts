@@ -25,30 +25,55 @@ import { getFormattedModuleName, getParams } from "../components/Portals/utils";
 /* tslint:disable ordered-imports */
 import { getComponentSource, getInsertComponentSource } from "./template-utils";
 
-export function createIfStatement(property: string, targetPosition?: NodePosition): STModification {
+export function createIfStatement(condition: string, targetPosition?: NodePosition): STModification {
     const ifStatement: STModification = {
         startLine: targetPosition ? targetPosition.startLine : 0,
         startColumn: 0,
         endLine: targetPosition ? targetPosition.startLine : 0,
         endColumn: 0,
-        type: "PROPERTY_STATEMENT",
+        type: "IF_CONDITION",
         config: {
-            "PROPERTY": property,
+            "CONDITION": condition,
         }
     };
 
     return ifStatement;
 }
 
-export function updateIfStatementCondition(property: string, targetPosition: NodePosition): STModification {
+export function createElseIfStatement(condition: string, targetPosition?: NodePosition): STModification {
+    const elseIfStatement: STModification = {
+        startLine: targetPosition.startLine,
+        startColumn: 0,
+        endLine: targetPosition.startLine,
+        endColumn: 0,
+        type: "ELSE_IF_CONDITION",
+        config: {
+            "CONDITION": condition,
+        }
+    };
+    return elseIfStatement;
+}
+
+export function createElseStatement(targetPosition?: NodePosition): STModification {
+    const elseStatement: STModification = {
+        startLine: targetPosition.startLine,
+        startColumn: 0,
+        endLine: targetPosition.startLine,
+        endColumn: 0,
+        type: "ELSE_STATEMENT"
+    };
+    return elseStatement;
+}
+
+export function updateIfStatementCondition(condition: string, targetPosition: NodePosition): STModification {
     const updatedIfStatement: STModification = {
         startLine: targetPosition.startLine,
         startColumn: targetPosition.startColumn,
         endLine: targetPosition.endLine,
         endColumn: targetPosition.endColumn,
-        type: "PROPERTY_STATEMENT",
+        type: "IF_STATEMENT_CONDITION",
         config: {
-            "PROPERTY": property,
+            "CONDITION": condition,
         }
     };
 

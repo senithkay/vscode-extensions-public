@@ -527,7 +527,8 @@ export const useStyles = makeStyles((theme: Theme) =>
             paddingLeft: theme.spacing(1)
         },
         startCode: {
-            color: '#0095FF'
+            color: '#0095FF',
+            width: 'max-content'
         },
         middleCode: {
             color: '#8D91A3'
