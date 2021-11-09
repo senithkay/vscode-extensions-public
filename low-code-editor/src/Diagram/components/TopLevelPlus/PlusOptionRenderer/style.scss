@@ -12,7 +12,7 @@
  */
 
 .dropdown {
-    
+
     .dropdown-menu {
         box-sizing: border-box;
         height: fit-content;
@@ -45,6 +45,18 @@
                 transition-delay: .5s all;
             }
 
+            li {
+                &:hover {
+                    .plus-option {
+                        .plus-option-icon {
+                            .svg-sub-menu-plus-option-icon {
+                                fill: #fff !important;
+                            }
+                        }
+                    }
+                }
+            }
+
         }
 
     }
@@ -62,6 +74,12 @@
                 .plus-option{
                     .plus-option-text {
                         color: #fff;
+                    }
+
+                    .plus-option-icon {
+                        .svg-plus-option-icon {
+                            fill: #fff !important;
+                        }
                     }
                 }
 
