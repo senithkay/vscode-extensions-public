@@ -23,8 +23,6 @@ import {
     Visitor
 } from "@ballerina/syntax-tree";
 
-import { AnalyzerRequestPayload } from "../../api/models";
-
 import AnalyzerPayload from "./AnalyzerPayload";
 
 export class AnalyzePayloadVisitor implements Visitor {

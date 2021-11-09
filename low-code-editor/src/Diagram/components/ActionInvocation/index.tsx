@@ -21,7 +21,7 @@ import { DefaultConfig } from "../../visitors/default";
 import { ConnectorProcessSVG, CONNECTOR_PROCESS_SVG_WIDTH, CONNECTOR_PROCESS_SVG_WIDTH_WITH_SHADOW } from "../Connector/ConnectorProcess/ConnectorProcessSVG";
 import ControlFlowArrow from "../ControlFlowArrow";
 import { Metrics } from "../Metrics";
-import { Performance } from "../Performace";
+import { Performance } from "../Performance";
 import { DataProcessor } from "../Processor";
 import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH } from "../Processor/ProcessSVG";
 

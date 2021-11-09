@@ -27,6 +27,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
 import { useStatementEditor } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
+import { createIfStatement, getInitialSource } from "../../../../../utils/modification-util";
 
 interface IfProps {
     condition: ConditionConfig;
@@ -117,18 +118,21 @@ export function AddIfForm(props: IfProps) {
         defaultMessage: "Cancel"
     });
 
+    const initialSource = getInitialSource(createIfStatement(
+        conditionState.conditionExpression ? conditionState.conditionExpression as string : 'EXPRESSION'
+    ));
+
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {
             label: intl.formatMessage({id: "lowcode.develop.configForms.if.statementEditor.label"}),
-            initialSource: "", // TODO: Pass the actual initialSource
+            initialSource,
             formArgs: {formArgs},
             isMutationInProgress,
             validForm: !isInvalid,
             onSave: handleOnSaveClick,
             onChange: handleExpEditorChange,
             validate: validateField
-        },
-        true
+        }
     );
 
     if (!stmtEditorComponent) {

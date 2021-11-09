@@ -117,6 +117,12 @@ export function StatementOptions(props: StatementOptionsProps) {
                 id: "lowcode.develop.plusHolder.plusElements.statements.dataMapping.tooltip.title",
                 defaultMessage: "A data mapping statement can be used to create an object using several other variables."
             })
+        },
+        connectorStatement: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.plusHolder.plusElements.statements.connector.tooltip.title",
+                defaultMessage: "An API Call can be used to make external app requests."
+            })
         }
     }
 
@@ -228,24 +234,32 @@ export function StatementOptions(props: StatementOptionsProps) {
     }
     const connectorStatement: StatementComponent = {
         name: "connector",
-        category: 'process',
-        component:
-            (
-                <Tooltip
-                    title={plusHolderStatementTooltipMessages.logStatement.title}
-                    placement="left"
-                    arrow={true}
-                    interactive={true}
+        category: "process",
+        component: (
+            <Tooltip
+                title={plusHolderStatementTooltipMessages.connectorStatement.title}
+                placement="left"
+                arrow={true}
+                interactive={true}
+            >
+                <div
+                    className="sub-option enabled"
+                    data-testid="addConnector"
+                    onClick={onSelectStatement.bind(undefined, "Connector")}
                 >
-                    <div className="sub-option enabled" data-testid="addConnector" onClick={onSelectStatement.bind(undefined, "Connector")}>
-                        <div className="icon-wrapper">
-                            <LogIcon />
-                        </div>
-                        <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.connector.title" defaultMessage="Connector" /></div>
+                    <div className="icon-wrapper">
+                        <LogIcon />
                     </div>
-                </Tooltip>
-            )
-    }
+                    <div className="text-label">
+                        <FormattedMessage
+                            id="lowcode.develop.plusHolder.plusElements.statements.connector.title"
+                            defaultMessage="API Call"
+                        />
+                    </div>
+                </div>
+            </Tooltip>
+        ),
+    };
 
     const returnStm: StatementComponent = {
         name: "return",
@@ -295,27 +309,27 @@ export function StatementOptions(props: StatementOptionsProps) {
             </Tooltip>
         )
     }
-    const datamappingStatement: StatementComponent = {
-        name: "datamapper",
-        category: 'process',
-        component: (
-            <Tooltip
-                title={plusHolderStatementTooltipMessages.dataMapperStatement.title}
-                placement="right"
-                arrow={true}
-                // example={false}
-                // codeSnippet={true}
-                interactive={true}
-            >
-                <div className="sub-option enabled" data-testid="addDataMapping" onClick={onSelect.bind(undefined, "DataMapper")}>
-                    <div className="icon-wrapper">
-                        <DataMapperIcon />
-                    </div>
-                    <div className="text-label">Data Mapping</div>
-                </div>
-            </Tooltip>
-        )
-    }
+    // const datamappingStatement: StatementComponent = {
+    //     name: "datamapper",
+    //     category: 'process',
+    //     component: (
+    //         <Tooltip
+    //             title={plusHolderStatementTooltipMessages.dataMapperStatement.title}
+    //             placement="right"
+    //             arrow={true}
+    //             // example={false}
+    //             // codeSnippet={true}
+    //             interactive={true}
+    //         >
+    //             <div className="sub-option enabled" data-testid="addDataMapping" onClick={onSelect.bind(undefined, "DataMapper")}>
+    //                 <div className="icon-wrapper">
+    //                     <DataMapperIcon />
+    //                 </div>
+    //                 <div className="text-label">Data Mapping</div>
+    //             </div>
+    //         </Tooltip>
+    //     )
+    // }
     const customStatement: StatementComponent = {
         name: "customStatement",
         category: 'process',
@@ -348,7 +362,7 @@ export function StatementOptions(props: StatementOptionsProps) {
     statements.push(whileStmt);
     statements.push(returnStm);
     statements.push(respondStm);
-    statements.push(datamappingStatement);
+    // statements.push(datamappingStatement);
     statements.push(customStatement);
     statements.push(connectorStatement);
 

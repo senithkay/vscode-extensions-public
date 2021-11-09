@@ -1,0 +1,26 @@
+name: "Daily publish Low Code Editor"
+
+on:
+  workflow_dispatch:
+    branches: [main]
+  schedule:
+    - cron: '0 0 * * *'
+jobs:
+  publish-package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - run: cd /home/runner/work/ballerina-low-code-editor/low-code-editor
+      - name: Get current timestamp
+        id: timestamp
+        run: echo "::set-output name=timestamp::$(date +'%Y%m%d-%H%M')"
+      - run: npm ci
+      - run: npm version prerelease preid=${{ steps.timestamp.outputs.timestamp }}
+      - run: npm run build
+      - name: Publish Package
+        uses: JS-DevTools/npm-publish@v1
+        with:
+          token: ${{ secrets.NPM_ACCESS_TOKEN }}
+          registry: "https://npm.pkg.github.com/"
+          tag: "next"

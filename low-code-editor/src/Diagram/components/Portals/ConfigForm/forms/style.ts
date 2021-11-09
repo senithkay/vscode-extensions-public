@@ -602,13 +602,22 @@ export const useStyles = makeStyles((theme: Theme) =>
         typeContainer: {
             width: '50%'
         },
+        returnWrapper: {
+            width: "82%"
+        },
         fitContent: {
             width: 'fit-content'
+        },
+        nameExpEditorWrapper: {
+            minWidth: `164px !important`,
+            paddingRight: theme.spacing(1),
+            position: 'relative'
         },
         variableExpEditorWrapper: {
             minWidth: `164px !important`,
             paddingRight: theme.spacing(1),
-            position: 'relative'
+            position: 'relative',
+            marginTop: theme.spacing(1.5)
         },
     }),
 );
