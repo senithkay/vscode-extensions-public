@@ -40,20 +40,11 @@ export class gitStatusBarItem {
         this.git.status((error, status) => {
             if (error) {
                 this.statusBarItem.hide();
-            } else if (status.files.length > 0) {
-                this.statusBarItem.text = `$(check) Commit Changes`;
-                this.statusBarItem.backgroundColor = new ThemeColor('statusBarItem.errorBackground');
-                this.statusBarItem.command = {
-                    command: PALETTE_COMMANDS.CHOREO_COMMIT,
-                    arguments: [this],
-                    title: 'Commit All Changes'
-                };
-                this.statusBarItem.show();
-            } else if (status.ahead > 0) {
+            } else if (status.files.length > 0 || status.ahead > 0) {
                 this.statusBarItem.text = `$(cloud-upload) Push Changes to Choreo`;
                 this.statusBarItem.backgroundColor = new ThemeColor('statusBarItem.errorBackground');
                 this.statusBarItem.command = {
-                    command: PALETTE_COMMANDS.CHOREO_PUSH,
+                    command: PALETTE_COMMANDS.CHOREO_COMMIT_AND_PUSH,
                     arguments: [this],
                     title: 'Push Changes'
                 };
@@ -127,7 +118,8 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         statusBarItem.updateGitStatus();
     });
 
-    const commitAll = commands.registerCommand(PALETTE_COMMANDS.CHOREO_COMMIT, (barItem: gitStatusBarItem) => {
+    const commitAndPush = commands.registerCommand(PALETTE_COMMANDS.CHOREO_COMMIT_AND_PUSH,
+        async (barItem: gitStatusBarItem) => {
         commands.executeCommand(PALETTE_COMMANDS.SAVE_ALL);
         window.showInputBox({
             placeHolder: "Enter the commit message"
@@ -136,23 +128,11 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
                 return;
             } else {
                 await barItem.commitAll(message);
-                barItem.updateGitStatus();
             }
         });
-    });
-
-    const push = commands.registerCommand(PALETTE_COMMANDS.CHOREO_PUSH, async (barItem: gitStatusBarItem) => {
         await barItem.push();
         barItem.updateGitStatus();
     })
 
-    const commitAndPush = commands.registerCommand(PALETTE_COMMANDS.CHOREO_COMMIT_AND_PUSH, async () => {
-        const barItem = new gitStatusBarItem();
-        await commands.executeCommand(PALETTE_COMMANDS.CHOREO_COMMIT, barItem);
-        await commands.executeCommand(PALETTE_COMMANDS.CHOREO_PUSH, barItem);
-    });
-
-    ballerinaExtInstance.context!.subscriptions.push(commitAll);
-    ballerinaExtInstance.context!.subscriptions.push(push);
     ballerinaExtInstance.context!.subscriptions.push(commitAndPush);
 }

@@ -180,8 +180,8 @@ export function showChoreoPushMessage(ballerinaExtInstance: BallerinaExtension) 
     window.showInformationMessage('Push your project changes and try out in the Choreo development ' +
         'environment. Do you want to push your changes? ', push).then((selection) => {
             if (push === selection) {
-                commands.executeCommand(PALETTE_COMMANDS.CHOREO_COMMIT_AND_PUSH);
-
+                commands.executeCommand(PALETTE_COMMANDS.CHOREO_COMMIT_AND_PUSH,
+                    [ballerinaExtInstance.getCodeServerContext().statusBarItem]);
             }
         });
 }

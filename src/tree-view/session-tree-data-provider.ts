@@ -58,7 +58,11 @@ export class SessionDataProvider implements TreeDataProvider<TreeItem> {
 
             if (this.ballerinaExtension.getCodeServerContext().codeServerEnv) {
                 const commit = new TreeItem(`Push Changes to Choreo...`, TreeItemCollapsibleState.None);
-                commit.command = { command: PALETTE_COMMANDS.CHOREO_COMMIT_AND_PUSH, title: `Commit Changes` };
+                commit.command = {
+                    command: PALETTE_COMMANDS.CHOREO_COMMIT_AND_PUSH,
+                    title: `Commit Changes`,
+                    arguments: [this.ballerinaExtension.getCodeServerContext().statusBarItem]
+                };
                 commit.iconPath = {
                     light: join(this.ballerinaExtension.extension.extensionPath,
                         'resources', 'images', 'icons', 'commit.svg'),
