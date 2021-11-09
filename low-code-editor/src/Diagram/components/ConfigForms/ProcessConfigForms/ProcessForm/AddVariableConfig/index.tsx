@@ -284,7 +284,8 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             validForm,
             onSave: handleSave,
             onChange: onPropertyChange,
-            validate: validateExpression
+            validate: validateExpression,
+            handleNameOnChange
         }
     );
 
