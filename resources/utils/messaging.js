@@ -266,6 +266,20 @@ function getLangClient() {
                     resolve(resp);
                 });
             })
+        },
+        getRealtimePerformanceData: (params) => {
+            return new Promise((resolve, _reject) => {
+                webViewRPCHandler.invokeRemoteMethod('getRealtimePerformanceData', [params], (resp) => {
+                    resolve(resp);
+                });
+            })
+        },
+        getPerformanceGraphData: (params) => {
+            return new Promise((resolve, _reject) => {
+                webViewRPCHandler.invokeRemoteMethod('getPerformanceGraphData', [params], (resp) => {
+                    resolve(resp);
+                });
+            })
         }
     }
 }

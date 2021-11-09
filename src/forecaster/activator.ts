@@ -18,15 +18,21 @@
  */
 
 import { DataLabel } from "./model";
-import { commands, ExtensionContext, languages, Range, TextDocument, ViewColumn, window } from "vscode";
+import { commands, ExtensionContext, languages, Range, TextDocument, Uri, ViewColumn, window } from "vscode";
 import { BallerinaExtension, ExtendedLangClient, GraphPoint, LANGUAGE, PerformanceAnalyzerGraphResponse, PerformanceAnalyzerRealtimeResponse } from "../core";
 import { ExecutorCodeLensProvider } from "./codelens-provider";
 import { log } from "../utils";
 import { showPerformanceGraph } from "./performanceGraphPanel";
+import { MESSAGE_TYPE, showMessage } from "../utils/showMessage";
 
-const CHOREO_API = "http://choreocontrolplane.preview-dv.choreo.dev/performance-analyzer/1.0.0/get_estimations/2.0";
-const CHOREO_AUTH_ERR = "Choreo Authentication error.";
-const NETWORK_ERR = "Network error. Please check you internet connection.";
+export const CHOREO_API_PF = "http://choreocontrolplane.preview-dv.choreo.dev/performance-analyzer/1.0.0/get_estimations/2.0";
+const CHOREO_AUTH_ERR = "Authentication error for accessing AI service (ID6)";
+const NETWORK_ERR = "Network error. Please check you internet connection";
+const MODEL_NOT_FOUND = "AI service does not have enough data to forecast";
+const ESTIMATOR_ERROR = "AI service is currently unavailable (ID2)";
+const UNKNOWN_ANALYSIS_TYPE = "Invalid request sent to AI service (ID7)";
+const INVALID_DATA = "Request with invalid data sent to AI service (ID8)";
+const SUCCESS = "Success";
 let langClient: ExtendedLangClient;
 let uiData: GraphData;
 let extension: BallerinaExtension;
@@ -46,6 +52,17 @@ export enum ANALYZETYPE {
 export interface GraphData {
     name: String,
     graphData: GraphPoint[];
+}
+
+export interface PFSession {
+    choreoAPI: String,
+    choreoToken: String | undefined,
+    choreoCookie?: String | undefined
+}
+
+export interface PerformanceGraphRequest {
+    file: string;
+    data: GraphData;
 }
 
 /**
@@ -83,9 +100,7 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
     type: ANALYZETYPE, name: String | undefined) {
 
     if (!extension.getChoreoSession().loginStatus) {
-        window.showInformationMessage(
-            "Please sign in to Choreo to view performance predictions."
-        );
+        showMessage("Please sign in to Choreo to view performance predictions.", MESSAGE_TYPE.INFO, true);
         return;
     }
 
@@ -99,7 +114,7 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
     currentFileUri = uri;
     if (type == ANALYZETYPE.REALTIME) {
         // add codelenses to resources
-        await langClient.getRealtimePerformaceData({
+        await langClient.getRealtimePerformanceData({
             documentIdentifier: {
                 uri
             },
@@ -113,11 +128,11 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
                     character: pos.end.character
                 }
             },
-            choreoAPI: CHOREO_API,
+            choreoAPI: CHOREO_API_PF,
             choreoToken: `Bearer ${choreoToken}`,
             choreoCookie: choreoCookie,
         }).then(async (response) => {
-            if (response.type === 'error') {
+            if (response.type !== SUCCESS) {
                 checkErrors(response);
                 return;
             }
@@ -132,7 +147,7 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
         });
     } else {
         // add code lenses to invocations
-        await langClient.getPerformaceGraphData({
+        await langClient.getPerformanceGraphData({
             documentIdentifier: {
                 uri
             },
@@ -146,11 +161,11 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
                     character: pos.end.character
                 }
             },
-            choreoAPI: CHOREO_API,
+            choreoAPI: CHOREO_API_PF,
             choreoToken: `Bearer ${choreoToken}`,
             choreoCookie: choreoCookie,
         }).then(async (response) => {
-            if (response.type === 'error') {
+            if (response.type !== SUCCESS) {
                 checkErrors(response);
                 return;
             }
@@ -178,18 +193,35 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
     function checkErrors(response: PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse) {
         if (response.message === 'AUTHENTICATION_ERROR') {
             // Choreo Auth Error
-            window.showErrorMessage(
-                CHOREO_AUTH_ERR
-            );
+            showMessage(CHOREO_AUTH_ERR, MESSAGE_TYPE.ERROR, true);
+
         } else if (response.message === 'CONNECTION_ERROR') {
             // Internet Connection Error
-            window.showErrorMessage(
-                NETWORK_ERR
-            );
+            showMessage(NETWORK_ERR, MESSAGE_TYPE.ERROR, true);
+
+        } else if (response.message === 'MODEL_NOT_FOUND') {
+            // AI Error
+            showMessage(MODEL_NOT_FOUND, MESSAGE_TYPE.INFO, true);
+
+        } else if (response.message === 'NO_DATA') {
+            // This happens when there is no action invocations in the code.
+            // No need to show any error/info since there is no invocations.
+
+        } else if (response.message === 'ESTIMATOR_ERROR') {
+            // AI Error
+            showMessage(ESTIMATOR_ERROR, MESSAGE_TYPE.ERROR, true);
+
+        } else if (response.message === 'UNKNOWN_ANALYSIS_TYPE') {
+            // AI Error
+            showMessage(UNKNOWN_ANALYSIS_TYPE, MESSAGE_TYPE.ERROR, true);
+
+        } else if (response.message === 'INVALID_DATA') {
+            // AI Error
+            showMessage(INVALID_DATA, MESSAGE_TYPE.INFO, true);
+
         } else {
-            window.showErrorMessage(
-                "Some Error occurred."
-            );
+            showMessage(response.message, MESSAGE_TYPE.ERROR, true);
+
         }
     }
 }
@@ -273,4 +305,9 @@ export function updateCodeLenses(concurrency: number) {
         return;
     }
     window.showTextDocument(currentFile, ViewColumn.One);
+}
+
+export function openPerformanceDiagram(request: PerformanceGraphRequest) {
+    showPerformanceGraph(langClient, request.data, Uri.parse(request.file));
+    return true;
 }

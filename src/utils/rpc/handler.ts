@@ -83,6 +83,11 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
             return langClient.didChange(args[0]);
         }
     }, {
+        methodName: 'getConnectors',
+        handler: (args: any[]) => {
+            return langClient.getConnectors(args[0]);
+        }
+    }, {
         methodName: 'getConnector',
         handler: (args: any[]) => {
             return langClient.getConnector(args[0]);
@@ -137,7 +142,18 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
         handler: (args: any[]) => {
             return langClient.getSTForExpression(args[0]);
         }
-    }];
+    }, {
+        methodName: 'getRealtimePerformanceData',
+        handler: (args: any[]) => {
+            return langClient.getRealtimePerformanceData(args[0]);
+        }
+    }, {
+        methodName: 'getPerformanceGraphData',
+        handler: (args: any[]) => {
+            return langClient.getPerformanceGraphData(args[0]);
+        }
+    }
+    ];
 };
 
 const undoRedoMethods = [{

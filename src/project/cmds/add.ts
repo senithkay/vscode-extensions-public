@@ -32,8 +32,7 @@ function activateAddCommand() {
             sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_PROJECT_ADD, CMP_PROJECT_ADD);
 
             const currentProject = await getCurrentBallerinaProject();
-            if (ballerinaExtInstance.isSwanLake() && currentProject.kind === PROJECT_TYPE.SINGLE_FILE ||
-                !ballerinaExtInstance.isSwanLake() && !currentProject.path) {
+            if (currentProject.kind === PROJECT_TYPE.SINGLE_FILE || !currentProject.path) {
                 sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_ERROR_EXECUTE_PROJECT_ADD, CMP_PROJECT_ADD,
                     MESSAGES.NOT_IN_PROJECT);
                 window.showErrorMessage(MESSAGES.NOT_IN_PROJECT);

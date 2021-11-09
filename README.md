@@ -2,8 +2,6 @@
 
 The Visual Studio Code Ballerina extension provides a set of rich language features along with an enhanced user experience. It offers easy development, execution, debugging, and testing for the Ballerina programming language. The Ballerina language possesses a bidirectional mapping between its syntaxes and the visual representation. You can further visualize the graphical representation of your Ballerina source via the extension.
 
-The extension works across all Ballerina versions, and some of the supported features of the extension may vary from Ballerina version to version.
-
 ---
 ### Quick Start
 

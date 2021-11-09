@@ -37,7 +37,7 @@ export function activatePasteJsonAsRecord() {
         // This command is only available since Swan Lake Beta 2
         // Check the version before registering the command
         const balVersion = ballerinaExtInstance.ballerinaVersion.toLowerCase();
-        if (ballerinaExtInstance.isSwanLake() && !balVersion.includes("alpha") && !balVersion.includes("preview")) {
+        if (!balVersion.includes("alpha") && !balVersion.includes("preview")) {
             if (balVersion.includes("beta")) {
                 // check if SL Beta version >= 2
                 const digits = ballerinaExtInstance.ballerinaVersion.replace(/[^0-9]/g, "");
