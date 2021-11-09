@@ -323,7 +323,7 @@ export function InputEditor(props: InputEditorProps) {
     };
 
     const inputChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const newLine = addToTargetPosition(stmtCtx.modelCtx.statementModel.source, model.position.startColumn, event.target.value ? event.target.value : "", model.position.endColumn + 1);
+        const newLine = addToTargetPosition(stmtCtx.modelCtx.statementModel.source, model.position.startColumn, event.target.value ? " " + event.target.value : "", model.position.endColumn + 1);
         debouncedContentChange(newLine, "");
         getContextBasedCompletions(event.target.value);
         setUserInput(event.target.value);
