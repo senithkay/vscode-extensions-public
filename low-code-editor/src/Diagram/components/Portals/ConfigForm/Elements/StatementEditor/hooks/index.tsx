@@ -30,7 +30,9 @@ export const useStatementEditor = (props: ViewProps) => {
         isMutationInProgress,
         validForm,
         onSave,
-        onChange
+        onChange,
+        handleNameOnChange,
+        handleTypeChange
     } = props;
     const classes = useStyles();
 
@@ -74,6 +76,8 @@ export const useStatementEditor = (props: ViewProps) => {
                     onSave={onSave}
                     onChange={onChange}
                     validate={validate}
+                    handleNameOnChange={handleNameOnChange}
+                    handleTypeChange={handleTypeChange}
                 />
             </div>
         </FormControl>

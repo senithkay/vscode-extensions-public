@@ -49,6 +49,14 @@ export function generateExpressionTemplate (kind: string, value?: any) {
         return "boolean";
     } else if (kind === c.STRING_TYPE_DESC) {
         return "string";
+    } else if (kind === c.DECIMAL_TYPE_DESC) {
+        return "decimal";
+    } else if (kind === c.FLOAT_TYPE_DESC) {
+        return "float";
+    } else if (kind === c.INT_TYPE_DESC) {
+        return "int";
+    } else if (kind === c.JSON_TYPE_DESC) {
+        return "json";
     }
 }
 
@@ -216,7 +224,7 @@ export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = 
         { value: c.DECIMAL_TYPE_DESC },
         { value: c.FLOAT_TYPE_DESC },
         { value: c.INT_TYPE_DESC },
-        { value: c.VAR_TYPE_DESC },
+        // { value: c.VAR_TYPE_DESC }, // TODO: Enable var-type-desc when syntax-tree-interfaces are supported
     ],
     DefaultExpressions: [
         { value: c.ARITHMETIC },

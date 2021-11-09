@@ -71,6 +71,7 @@ export interface ConnectorConfigWizardProps {
     targetPosition: NodePosition;
     configWizardArgs?: ConfigWizardState;
     onClose: () => void;
+    onSave: () => void;
     selectedConnector: LocalVarDecl;
     isAction?: boolean;
     expressionInjectables?: ExpressionInjectablesProps;
@@ -87,8 +88,15 @@ export function ConnectorForm(props: FormGeneratorProps) {
         props: { stSymbolInfo, isMutationProgress },
     } = useContext(Context);
 
-    const { targetPosition, configWizardArgs, onClose, selectedConnector, isAction, expressionInjectables } = props.configOverlayFormStatus
-        .formArgs as ConnectorConfigWizardProps;
+    const {
+        targetPosition,
+        configWizardArgs,
+        onClose,
+        onSave,
+        selectedConnector,
+        isAction,
+        expressionInjectables,
+    } = props.configOverlayFormStatus.formArgs as ConnectorConfigWizardProps;
     const { connector, functionDefInfo, connectorConfig, wizardType, model, isLoading: isConnectorLoading } = configWizardArgs;
     const isOauthConnector = false;
     const connectorName = connector?.displayAnnotation?.label || `${connector?.package.name} / ${connector?.name}`;
@@ -144,7 +152,8 @@ export function ConnectorForm(props: FormGeneratorProps) {
         STKindChecker.isLocalVarDecl(model) &&
         STKindChecker.isCaptureBindingPattern(model.typedBindingPattern?.bindingPattern)
     ) {
-        config.action.returnVariableName = ((model as LocalVarDecl).typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value;
+        config.action.returnVariableName = ((model as LocalVarDecl).typedBindingPattern
+            .bindingPattern as CaptureBindingPattern).variableName.value;
     }
 
     const onCreateNew = () => {
@@ -202,7 +211,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
 
         if (modifications.length > 0) {
             modifyDiagram(modifications);
-            onClose();
+            onSave();
         }
     };
 
@@ -241,7 +250,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
 
         if (modifications.length > 0) {
             modifyDiagram(modifications);
-            onClose();
+            onSave();
         }
     };
 

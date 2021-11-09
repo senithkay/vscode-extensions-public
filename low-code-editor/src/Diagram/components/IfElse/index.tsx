@@ -122,9 +122,10 @@ export function IfElse(props: IfElseProps) {
 
     let codeSnippet = "IF ELSE CODE SNIPPET"
     let codeSnippetOnSvg = "IF"
+    const diagnostics = (model as IfElseStatement)?.condition.typeData?.diagnostics;
 
     if (model) {
-        codeSnippet = model.source.trim().split(')')[0]
+        codeSnippet = diagnostics.length !== 0 ? "Code has errors\n" + model.source : model.source.trim().split(')')[0];
         codeSnippetOnSvg = codeSnippet.substring(4, 13)
         codeSnippet = codeSnippet + ')'
     }
@@ -150,7 +151,10 @@ export function IfElse(props: IfElseProps) {
     };
 
     const isDraftStatement: boolean = viewState instanceof DraftStatementViewState;
-    const ConditionWrapper = isDraftStatement ? cn("main-condition-wrapper active-condition") : cn("main-condition-wrapper if-condition-wrapper");
+    const conditionWrapper = isDraftStatement ? (diagnostics?.length !== 0 ?
+        cn("main-condition-wrapper active-condition-error") : cn("main-condition-wrapper active-condition")) :
+        (diagnostics?.length !== 0 ?
+        cn("main-condition-wrapper if-condition-error-wrapper") : cn("main-condition-wrapper if-condition-wrapper"));
 
     let assignmentText: any = (!isDraftStatement && STKindChecker?.isIfElseStatement(model));
     assignmentText = (model as IfElseStatement)?.condition.source;
@@ -400,7 +404,7 @@ export function IfElse(props: IfElseProps) {
     }
 
     return (
-        <g className={ConditionWrapper}>
+        <g className={conditionWrapper}>
             {component}
         </g>
     );
