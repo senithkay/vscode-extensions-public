@@ -24,9 +24,11 @@ import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
-import {useStatementEditor} from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
-import classnames from "classnames";
+import { useStatementEditor } from "../../../../Portals/ConfigForm/Elements/StatementEditor/hooks";
+import { createIfStatement, getInitialSource } from "../../../../../utils/modification-util";
 import {ControlPoint, RemoveCircleOutlineRounded} from "@material-ui/icons";
+import classnames from "classnames";
+import {STKindChecker} from "@ballerina/syntax-tree";
 
 interface IfProps {
     condition: ConditionConfig;
@@ -141,18 +143,21 @@ export function AddIfForm(props: IfProps) {
         defaultMessage: "Cancel"
     });
 
+    const initialSource = getInitialSource(createIfStatement(
+        condition.conditionExpression ? condition.conditionExpression as string : 'EXPRESSION'
+    ));
+
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {
             label: intl.formatMessage({id: "lowcode.develop.configForms.if.statementEditor.label"}),
-            initialSource: "", // TODO: Pass the actual initialSource
+            initialSource,
             formArgs: {formArgs},
             isMutationInProgress,
             validForm: !isInvalid,
             onSave: handleOnSaveClick,
             onChange: handleExpEditorChange(0),
             validate: validateField
-        },
-        true
+        }
     );
 
     const ElseIfElement = (order: number) => {

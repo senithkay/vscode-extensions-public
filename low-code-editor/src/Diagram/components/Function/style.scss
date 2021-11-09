@@ -66,11 +66,19 @@
         }
     }
 
+    .performance-label-container {
+        font-weight: 300;
+        color: #8d91a3;
+        margin-left: 5px;
+        margin-top: 5px;
+    }
+
     .function-signature {
         min-height: 48px;
         display: flex;
         flex-direction: row;
         border-bottom: 1px #c1e4fc solid;
+        cursor: pointer;
 
         &.get {
             border-bottom: 1px solid #c1e4fc;
@@ -150,7 +158,6 @@
         }
 
         .resource-badge {
-            height: 32px;
             min-width: 67px;
             margin: 8px 0 8px 8px;
             border-radius: 4px;
@@ -211,6 +218,7 @@
         flex-direction: row;
         padding: 15px;
         border-bottom: 1px #e6e7ec solid;
+        cursor: pointer;
 
         .function-icon {
             margin-top: 2px;

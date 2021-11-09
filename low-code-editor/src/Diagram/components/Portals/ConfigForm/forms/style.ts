@@ -527,8 +527,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             paddingLeft: theme.spacing(1)
         },
         startCode: {
-            color: '#0095FF',
-            width: 'max-content'
+            color: '#0095FF'
         },
         middleCode: {
             color: '#8D91A3'
@@ -541,7 +540,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             display: 'inline-flex',
             justifyContent: 'flex-end',
             paddingRight: theme.spacing(1),
-            width: '80%'
+            width: '100%'
         },
         start: {
             height: 'fit-content',
@@ -603,8 +602,22 @@ export const useStyles = makeStyles((theme: Theme) =>
         typeContainer: {
             width: '50%'
         },
+        returnWrapper: {
+            width: "82%"
+        },
         fitContent: {
             width: 'fit-content'
+        },
+        nameExpEditorWrapper: {
+            minWidth: `164px !important`,
+            paddingRight: theme.spacing(1),
+            position: 'relative'
+        },
+        variableExpEditorWrapper: {
+            minWidth: `164px !important`,
+            paddingRight: theme.spacing(1),
+            position: 'relative',
+            marginTop: theme.spacing(1.5)
         },
         ifEditorWrapper: {
             minWidth: `220px !important`,

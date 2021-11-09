@@ -11,4 +11,3 @@
  * associated services.
  */
 export * from "./DeleteConfirmDialog";
-export * from "./DropDown";
