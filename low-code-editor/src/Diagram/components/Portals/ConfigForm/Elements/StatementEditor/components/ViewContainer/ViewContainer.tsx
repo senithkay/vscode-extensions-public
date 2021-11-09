@@ -68,7 +68,7 @@ export function ViewContainer(props: ViewProps) {
 
     const [model, setModel] = useState<STNode>(null);
 
-    if (!userInputs.varName && !!handleNameOnChange){
+    if (!userInputs?.varName && !!handleNameOnChange){
         handleNameOnChange("default")
     }
 
