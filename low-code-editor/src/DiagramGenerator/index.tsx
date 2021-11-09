@@ -57,8 +57,8 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                 const genSyntaxTree = await getSyntaxTree(filePath, langClient);
                 const pfSession = await props.getPFSession();
                 const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, filePath,
-                    langClient, pfSession,
-                    props.showPerformanceGraph, props.showMessage);
+                                                                    langClient, pfSession,
+                                                                    props.showPerformanceGraph, props.showMessage);
                 if (!vistedSyntaxTree) {
                     return (<div><h1>Parse error...!</h1></div>);
                 }
