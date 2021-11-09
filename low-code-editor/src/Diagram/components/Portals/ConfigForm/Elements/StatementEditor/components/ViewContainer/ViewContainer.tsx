@@ -14,7 +14,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useIntl } from "react-intl";
 
-import { NodePosition, STNode } from "@ballerina/syntax-tree";
+import { NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
 
 import { Context } from "../../../../../../../../Contexts/Diagram";
 import { wizardStyles } from "../../../../../../ConfigForms/style";
@@ -79,6 +79,11 @@ export function ViewContainer(props: ViewProps) {
         })();
     }, []);
 
+    useEffect(() => {
+        if (!!model && STKindChecker.isLocalVarDecl(model)) {
+            handleNameOnChange(model.typedBindingPattern.bindingPattern.source)
+        }
+    }, [model]);
     const updateModel = async (codeSnippet : string, position: NodePosition) => {
         const stModification = {
             startLine: position.startLine,
