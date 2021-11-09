@@ -24,34 +24,33 @@ import { SuggestionItem } from "../models/definitions";
 
 export function generateExpressionTemplate (kind: string, value?: any) {
     if (kind === c.ARITHMETIC) {
-        return ("EXPRESSION + EXPRESSION")
+        return "(EXPRESSION + EXPRESSION)";
     } else if (kind === c.RELATIONAL) {
-        return ("EXPRESSION > EXPRESSION")
+        return "(EXPRESSION > EXPRESSION)";
     } else if (kind === c.EQUALITY) {
-        return ("EXPRESSION === EXPRESSION")
+        return "(EXPRESSION === EXPRESSION)";
     } else if (kind === c.LOGICAL) {
-        return ("EXPRESSION && EXPRESSION")
+        return "(EXPRESSION && EXPRESSION)";
     } else if (kind === c.CONDITIONAL) {
-        return ("EXPRESSION ? EXPRESSION : EXPRESSION")
+        return "(EXPRESSION ? EXPRESSION : EXPRESSION)";
     } else if (kind === c.RANGE) {
-        return ("EXPRESSION ... EXPRESSION")
+        return "(EXPRESSION ... EXPRESSION)";
     } else if (kind === c.TYPE_TEST) {
-        return ("EXPRESSION is TYPE_DESCRIPTOR")
+        return "(EXPRESSION is TYPE_DESCRIPTOR)";
     } else if (kind === c.STRING_LITERAL) {
-        return ("\" \"");
+        return "\" \"";
     } else if (kind === c.NUMERIC_LITERAL) {
-        return ("0");
+        return "0";
     } else if (kind === c.BOOLEAN_LITERAL) {
-        return ("true");
+        return "true";
     } else if (kind === c.SIMPLE_NAME_REFERENCE) {
-        return (value);
+        return value;
     } else if (kind === c.BOOLEAN_TYPE_DESC) {
-        return ("boolean")
+        return "boolean";
     } else if (kind === c.STRING_TYPE_DESC) {
-        return ("string")
+        return "string";
     }
 }
-
 
 export const ExpressionKindByOperator: { [key: string]: string } = {
     AsteriskToken: c.ARITHMETIC,
