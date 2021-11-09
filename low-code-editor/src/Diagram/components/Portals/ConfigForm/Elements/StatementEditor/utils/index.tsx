@@ -51,18 +51,14 @@ export async function getPartialSTForExpression(
 }
 
 export function getExpressionSource(model: STNode): string {
-    if (STKindChecker.isCallStatement(model)) {
+    if (STKindChecker.isCallStatement(model) || STKindChecker.isReturnStatement(model)) {
         return model.expression.source;
     } else if (STKindChecker.isForeachStatement(model)) {
         return model.actionOrExpressionNode.source;
-    } else if (STKindChecker.isIfElseStatement(model)) {
+    } else if (STKindChecker.isIfElseStatement(model) || STKindChecker.isWhileStatement(model)) {
         return model.condition.source;
     } else if (STKindChecker.isLocalVarDecl(model)) {
         return model.initializer.source;
-    } else if (STKindChecker.isReturnStatement(model)) {
-        return model.expression.source;
-    } else if (STKindChecker.isWhileStatement(model)) {
-        return model.condition.source;
     }
 }
 
