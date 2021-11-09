@@ -26,6 +26,8 @@ export const useStyles = makeStyles((theme: Theme) =>
         formTitleWrapper: {
             width: "auto",
             zIndex: 100,
+            position: "absolute",
+            top: "-42px"
         },
         statementEditorButton: {
             display: 'inline-flex',

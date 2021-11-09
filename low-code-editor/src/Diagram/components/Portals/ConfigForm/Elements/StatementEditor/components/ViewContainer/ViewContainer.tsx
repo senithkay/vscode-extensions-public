@@ -135,7 +135,6 @@ export function ViewContainer(props: ViewProps) {
     return (
         model && (
             <div className={overlayClasses.stmtEditor}>
-                <div className={overlayClasses.titleLine}/>
                 <div className={overlayClasses.contentPane}>
                     <StatementEditorContextProvider
                         model={model}
