@@ -85,7 +85,7 @@ export function Form(props: FormProps) {
             const element = getFormElement(elementProps, type);
 
             if (element) {
-                (field?.optional || field?.defaultValue) ? optionalElements.push(element) : elements.push(element);
+                (field?.optional || field?.defaultable) ? optionalElements.push(element) : elements.push(element);
             }
         }
     });
