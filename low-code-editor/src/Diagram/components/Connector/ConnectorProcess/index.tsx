@@ -102,14 +102,18 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
         setConnector(undefined);
     };
 
+    const onConnectorFormClose = () => {
+        setIsConnectorEdit(false);
+        setConnector(undefined);
+    };
+
     const onConnectorSelect = (balConnector: BallerinaConnectorInfo) => {
         setConnector(balConnector);
     };
 
     let isReferencedVariable = false;
     const isLocalVariableDecl = model && STKindChecker.isLocalVarDecl(model);
-    const isCaptureBindingPattern = isLocalVariableDecl && STKindChecker.isCaptureBindingPattern(model.typedBindingPattern.bindingPattern);
-    if (isCaptureBindingPattern) {
+    if (isLocalVariableDecl && STKindChecker.isCaptureBindingPattern(model.typedBindingPattern.bindingPattern)) {
         const captureBingingPattern = (model as LocalVarDecl).typedBindingPattern.bindingPattern as CaptureBindingPattern;
         if (stSymbolInfo?.variableNameReferences?.size &&
             stSymbolInfo.variableNameReferences.get(captureBingingPattern.variableName.value)?.length > 0) {
@@ -152,7 +156,8 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
             targetPosition={draftVS.targetPosition}
             selectedConnector={draftVS.selectedConnector}
             model={model}
-            onClose={onWizardClose}
+            onClose={onConnectorFormClose}
+            onSave={onWizardClose}
             isAction={false}
             isEdit={isEditConnector}
         />
