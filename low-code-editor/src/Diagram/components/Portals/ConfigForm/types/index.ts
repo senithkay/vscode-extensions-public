@@ -50,7 +50,7 @@ export interface FormElementEvents {
 
 export interface ConditionConfig {
     type: string;
-    conditionExpression?: string | ForeachConfig;
+    conditionExpression?: string | ForeachConfig | ElseIfConfig;
     scopeSymbols?: string[];
     conditionPosition?: NodePosition;
     model?: STNode
@@ -61,6 +61,10 @@ export interface ForeachConfig {
     collection: string;
     type: string;
     model?: STNode
+}
+
+export interface ElseIfConfig {
+    values: {id: number, expression: string, position: NodePosition}[]
 }
 
 export interface ProcessConfig {
