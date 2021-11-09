@@ -151,9 +151,9 @@ export function IfElse(props: IfElseProps) {
     };
 
     const isDraftStatement: boolean = viewState instanceof DraftStatementViewState;
-    const conditionWrapper = isDraftStatement ? (diagnostics?.length !== 0 ? 
-        cn("main-condition-wrapper active-condition-error") : cn("main-condition-wrapper active-condition")) : 
-        (diagnostics?.length !== 0 ? 
+    const conditionWrapper = isDraftStatement ? (diagnostics?.length !== 0 ?
+        cn("main-condition-wrapper active-condition-error") : cn("main-condition-wrapper active-condition")) :
+        (diagnostics?.length !== 0 ?
         cn("main-condition-wrapper if-condition-error-wrapper") : cn("main-condition-wrapper if-condition-wrapper"));
 
     let assignmentText: any = (!isDraftStatement && STKindChecker?.isIfElseStatement(model));
