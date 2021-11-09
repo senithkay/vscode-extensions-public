@@ -447,7 +447,8 @@ export async function renderFirstDiagramElement(client: ExtendedLangClient) {
 			if (defaultModules.length == 0) {
 				return;
 			}
-			if (defaultModules[0].functions && defaultModules[0].functions.length > 0) {
+			if ((defaultModules[0].functions && defaultModules[0].functions.length > 0) ||
+				(defaultModules[0].services && defaultModules[0].services.length > 0)) {
 				const mainFunctionNodes = defaultModules[0].functions.filter(fn => {
 					return fn.name === 'main';
 				});
