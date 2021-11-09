@@ -112,7 +112,7 @@
 
             .data-processor {
                 rect {
-                    stroke: #d55555;
+                    stroke: #FE523C;
                     stroke-miterlimit: 10;
                     stroke-width: 2;
                     fill: url(#ProcessLinearGradient) #fafafc;
@@ -139,7 +139,7 @@
             :hover {
                 rect {
                     cursor: pointer;
-                    stroke: #d55555;
+                    stroke: #FE523C;
                     stroke-miterlimit: 10;
                     stroke-width: 2;
                     fill: url(#ProcessLinearGradient) #fafafc;
@@ -150,7 +150,7 @@
             :active {
                 rect {
                     cursor: pointer;
-                    stroke: #d55555;
+                    stroke: #FE523C;
                     stroke-miterlimit: 10;
                     stroke-width: 9;
                     fill: url(#ProcessLinearGradient) #fafafc;
@@ -159,7 +159,7 @@
 
                 .click-effect {
                     stroke-width: 1px !important;
-                    stroke: #d55555 !important;
+                    stroke: #FE523C !important;
                 }
             }
         }

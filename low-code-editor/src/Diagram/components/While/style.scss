@@ -133,13 +133,13 @@
 
         .while-rect {
             stroke-width: 2;
-            stroke: #d55555;
+            stroke: #FE523C;
             fill: #f7f8fb;
         }
 
         .while-group {
             rect {
-                stroke: #d55555;
+                stroke: #FE523C;
                 stroke-miterlimit: 10;
                 stroke-width: 2;
                 fill: url(#WhileLinearGradient) #fafafc;
@@ -169,7 +169,7 @@
 
                 .click-effect {
                     stroke-width: 2px !important;
-                    stroke: #d55555 !important;
+                    stroke: #FE523C !important;
                 }
             }
         }
@@ -204,7 +204,7 @@
 
                     .click-effect {
                         stroke-width: 2px !important;
-                        stroke: #d55555 !important;
+                        stroke: #FE523C !important;
                     }
                 }
 
@@ -240,7 +240,7 @@
     }
 
     .condition-assignment {
-        fill: #d55555;
+        fill: #FE523C;
         font-family: "Gilmer", sans-serif;
     }
 }

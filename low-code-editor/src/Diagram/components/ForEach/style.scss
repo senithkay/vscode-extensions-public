@@ -130,13 +130,13 @@
 
     .for-each-rect {
         stroke-width: 2;
-        stroke: #d55555;
+        stroke: #FE523C;
         fill: #f7f8fb;
     }
 
     .foreach-group {
         rect {
-            stroke: #d55555;
+            stroke: #FE523C;
             stroke-miterlimit: 10;
             stroke-width: 2;
             fill: url(#ForeachLinearGradient) #fafafc;
@@ -146,7 +146,7 @@
         :hover {
             rect {
                 cursor: pointer;
-                stroke: #d25252;
+                stroke: #FE523C;
                 stroke-miterlimit: 10;
                 stroke-width: 0.5;
                 fill: url(#ForeachLinearGradient) #fafafc;
@@ -166,7 +166,7 @@
 
             .click-effect {
                 stroke-width: 1px !important;
-                stroke: #d55555 !important;
+                stroke: #FE523C !important;
             }
         }
     }
@@ -201,7 +201,7 @@
 
                 .click-effect {
                     stroke-width: 1px !important;
-                    stroke: #d55555 !important;
+                    stroke: #FE523C !important;
                 }
             }
 
@@ -236,7 +236,7 @@
     }
 
     .condition-assignment {
-        fill: #d55555;
+        fill: #FE523C;
         font-family: "Gilmer", sans-serif;
     }
 }
