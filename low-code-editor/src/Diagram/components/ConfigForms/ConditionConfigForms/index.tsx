@@ -58,14 +58,17 @@ export function ConditionConfigForm(props: ConditionConfigFormProps) {
         case "If":
             conditionConfig = {
                 type: formType,
-                conditionExpression: formArgs?.config && formArgs?.config.conditionExpression ? formArgs?.config.conditionExpression : {values: [{id: 0, expression: "", position: formArgs?.targetPosition}]},
+                conditionExpression: formArgs?.config && formArgs?.config.conditionExpression
+                    ? formArgs?.config.conditionExpression
+                    : {values: [{id: 0, expression: "", position: formArgs?.targetPosition}]},
                 scopeSymbols: [],
             };
             break;
         case "While":
             conditionConfig = {
                 type: formType,
-                conditionExpression: formArgs?.config && formArgs?.config.conditionExpression ? formArgs?.config.conditionExpression : '',
+                conditionExpression: formArgs?.config && formArgs?.config.conditionExpression
+                    ? formArgs?.config.conditionExpression : '',
                 scopeSymbols: [],
             };
             break;
