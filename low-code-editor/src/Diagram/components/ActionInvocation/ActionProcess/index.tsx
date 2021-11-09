@@ -242,6 +242,7 @@ export function ActionProcessor(props: ProcessorProps) {
                                             selectedConnector={draftViewState.selectedConnector}
                                             model={model}
                                             onClose={onWizardClose}
+                                            onSave={onWizardClose}
                                             isAction={true}
                                             isEdit={isEditConnector}
                                         />

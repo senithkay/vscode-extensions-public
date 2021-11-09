@@ -102,6 +102,11 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
         setConnector(undefined);
     };
 
+    const onConnectorFormClose = () => {
+        setIsConnectorEdit(false);
+        setConnector(undefined);
+    };
+
     const onConnectorSelect = (balConnector: BallerinaConnectorInfo) => {
         setConnector(balConnector);
     };
@@ -152,7 +157,8 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
             targetPosition={draftVS.targetPosition}
             selectedConnector={draftVS.selectedConnector}
             model={model}
-            onClose={onWizardClose}
+            onClose={onConnectorFormClose}
+            onSave={onWizardClose}
             isAction={false}
             isEdit={isEditConnector}
         />
