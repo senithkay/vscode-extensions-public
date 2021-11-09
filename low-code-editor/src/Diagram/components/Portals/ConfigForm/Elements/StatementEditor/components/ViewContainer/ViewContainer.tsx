@@ -40,6 +40,7 @@ export interface ViewProps {
     onSave?: () => void
     onChange?: (property: string) => void,
     handleNameOnChange?: (name: string) => void
+    handleTypeChange?: (name: string) => void
 }
 
 export function ViewContainer(props: ViewProps) {
@@ -62,7 +63,8 @@ export function ViewContainer(props: ViewProps) {
         onCancel,
         onSave,
         onChange,
-        handleNameOnChange
+        handleNameOnChange,
+        handleTypeChange
     } = props;
     const intl = useIntl();
 
@@ -82,6 +84,7 @@ export function ViewContainer(props: ViewProps) {
     useEffect(() => {
         if (!!model && STKindChecker.isLocalVarDecl(model)) {
             handleNameOnChange(model.typedBindingPattern.bindingPattern.source)
+            handleTypeChange(model.typedBindingPattern.typeDescriptor.source)
         }
     }, [model]);
     const updateModel = async (codeSnippet : string, position: NodePosition) => {
