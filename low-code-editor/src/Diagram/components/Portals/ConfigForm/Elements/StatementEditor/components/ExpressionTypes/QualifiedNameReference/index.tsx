@@ -18,7 +18,6 @@ import { QualifiedNameReference } from "@ballerina/syntax-tree";
 import { VariableUserInputs } from "../../../models/definitions";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { InputEditor } from "../../InputEditor";
-import { useStatementEditorStyles } from "../../ViewContainer/styles";
 
 interface QualifiedNameReferenceProps {
     model: QualifiedNameReference
@@ -29,7 +28,6 @@ interface QualifiedNameReferenceProps {
 export function QualifiedNameReferenceComponent(props: QualifiedNameReferenceProps) {
     const { model, userInputs, diagnosticHandler } = props;
 
-    const overlayClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
 
     const inputEditorProps = {
@@ -41,16 +39,6 @@ export function QualifiedNameReferenceComponent(props: QualifiedNameReferencePro
     };
 
     return (
-        <span>
-            <button
-                className={overlayClasses.expressionElement}
-            >
-                {model.modulePrefix.value ? model.modulePrefix.value : "module-prefix"}
-            </button>
-            <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
-                &nbsp;{model.colon.value}
-            </span>
-            <InputEditor {...inputEditorProps} />
-        </span>
+        <InputEditor {...inputEditorProps} />
     );
 }

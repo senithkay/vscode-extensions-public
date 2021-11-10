@@ -12,7 +12,6 @@
  */
 
 .dropdown {
-    
     .dropdown-menu {
         box-sizing: border-box;
         height: fit-content;
@@ -33,7 +32,7 @@
 
         .dropdown-menu {
             visibility: hidden;
-            transition-delay: .5s all;
+            transition-delay: 0.5s all;
         }
 
         &:hover {
@@ -42,14 +41,33 @@
                 top: 0;
                 left: 100%;
                 margin-top: -1px;
-                transition-delay: .5s all;
+                transition-delay: 0.5s all;
             }
 
-        }
+            .plus-option {
+                .plus-option-icon {
+                    .svg-sub-menu-plus-option-icon {
+                        fill: #5668d5;
+                    }
+                }
+            }
 
+            li {
+                &:hover {
+                    .plus-option {
+                        .plus-option-icon {
+                            .svg-sub-menu-plus-option-icon {
+                                fill: #fff;
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
-    .dropdown-submenu, .dropdown-menu {
+    .dropdown-submenu,
+    .dropdown-menu {
         padding-left: 0;
 
         li {
@@ -57,11 +75,30 @@
             border-bottom: 1px solid #e6e7ec;
             background-color: #fff;
 
+            .plus-option {
+                .plus-option-text {
+                    color: #fff;
+                }
+
+                .plus-option-icon {
+                    .svg-plus-option-icon {
+                        fill: #5668d5;
+                    }
+                }
+            }
+
             &:hover {
                 background-color: #434ecb;
-                .plus-option{
+
+                .plus-option {
                     .plus-option-text {
                         color: #fff;
+                    }
+
+                    .plus-option-icon {
+                        .svg-plus-option-icon {
+                            fill: #fff;
+                        }
                     }
                 }
 
@@ -108,5 +145,17 @@
             border-bottom-left-radius: 8px;
             border-bottom-right-radius: 8px;
         }
+    }
+}
+
+.service-config-form-fill {
+    .svg-plus-option-icon {
+        fill: #cbcedb;
+    }
+}
+
+.function-config-form-fill {
+    .svg-plus-option-icon {
+        fill: #cbcedb;
     }
 }

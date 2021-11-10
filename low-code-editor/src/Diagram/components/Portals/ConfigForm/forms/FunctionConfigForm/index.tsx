@@ -212,7 +212,7 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
         >
             <div className={formClasses.formTitleWrapper}>
                 <div className={formClasses.mainTitleWrapper}>
-                    <FunctionIcon color={"#CBCEDB"} />
+                    <FunctionIcon className="function-config-form-fill" />
                     <Typography variant="h4">
                         <Box paddingLeft={2} paddingY={2}>
                             Function

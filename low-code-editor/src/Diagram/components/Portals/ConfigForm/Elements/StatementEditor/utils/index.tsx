@@ -86,10 +86,10 @@ export function getExpressionTypeComponent(
     userInputs: VariableUserInputs,
     diagnosticHandler: (diagnostics: string) => void
 ): ReactNode {
-    const ExprTypeComponent = (expressionTypeComponents as any)[expression.kind];
+    let ExprTypeComponent = (expressionTypeComponents as any)[expression.kind];
 
     if (!ExprTypeComponent) {
-        return null;
+        ExprTypeComponent = (expressionTypeComponents as any)[c.OTHER_EXPRESSION];
     }
 
     return <ExprTypeComponent
