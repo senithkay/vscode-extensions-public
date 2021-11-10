@@ -52,7 +52,7 @@ export function PlusOption(props: PlusOptionProps) {
         >
             <div className="plus-option">
                 <div className="plus-option-icon">
-                    {getConstructIcon(entry.type, { color: '#5668D5' })}
+                    {getConstructIcon(entry.type)}
                 </div>
                 <div className="plus-option-text">
                     {entry.name}
