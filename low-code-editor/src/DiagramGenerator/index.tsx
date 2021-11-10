@@ -82,6 +82,30 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         });
     }, []);
 
+
+    function zoomIn() {
+        const newZoomStatus = cloneDeep(zoomStatus);
+        newZoomStatus.scale = (zoomStatus.scale + ZOOM_STEP >= MAX_ZOOM) ? MAX_ZOOM : zoomStatus.scale + ZOOM_STEP;
+        setZoomStatus(newZoomStatus);
+    }
+
+    function zoomOut() {
+        const newZoomStatus = cloneDeep(zoomStatus);
+        newZoomStatus.scale = (zoomStatus.scale - ZOOM_STEP <= MIN_ZOOM) ? MIN_ZOOM : zoomStatus.scale - ZOOM_STEP;
+        setZoomStatus(newZoomStatus);
+    }
+
+    function fitToScreen() {
+        setZoomStatus(defaultZoomStatus);
+    }
+
+    function pan(newPanX: number, newPanY: number) {
+        const newZoomStatus = cloneDeep(zoomStatus);
+        newZoomStatus.panX = newPanX;
+        newZoomStatus.panY = newPanY;
+        setZoomStatus(newZoomStatus);
+    }
+
     const undo = async () => {
         const path = undoRedo.getFilePath();
         const uri = monaco.Uri.file(path).toString();
@@ -134,30 +158,6 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
             setFileContent(lastUndoSource);
             props.updateFileContent(path, lastUndoSource);
         }
-    }
-
-
-    function zoomIn() {
-        const newZoomStatus = cloneDeep(zoomStatus);
-        newZoomStatus.scale = (zoomStatus.scale + ZOOM_STEP >= MAX_ZOOM) ? MAX_ZOOM : zoomStatus.scale + ZOOM_STEP;
-        setZoomStatus(newZoomStatus);
-    }
-
-    function zoomOut() {
-        const newZoomStatus = cloneDeep(zoomStatus);
-        newZoomStatus.scale = (zoomStatus.scale - ZOOM_STEP <= MIN_ZOOM) ? MIN_ZOOM : zoomStatus.scale - ZOOM_STEP;
-        setZoomStatus(newZoomStatus);
-    }
-
-    function fitToScreen() {
-        setZoomStatus(defaultZoomStatus);
-    }
-
-    function pan(newPanX: number, newPanY: number) {
-        const newZoomStatus = cloneDeep(zoomStatus);
-        newZoomStatus.panX = newPanX;
-        newZoomStatus.panY = newPanY;
-        setZoomStatus(newZoomStatus);
     }
 
     if (!syntaxTree) {
