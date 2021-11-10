@@ -14,7 +14,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useIntl } from "react-intl";
 
-import { STNode } from "@ballerina/syntax-tree";
+import { NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
 
 import { Context } from "../../../../../../../../Contexts/Diagram";
 import { wizardStyles } from "../../../../../../ConfigForms/style";
@@ -38,7 +38,9 @@ export interface ViewProps {
     validForm?: boolean
     onCancel?: () => void
     onSave?: () => void
-    onChange?: (property: string) => void
+    onChange?: (property: string) => void,
+    handleNameOnChange?: (name: string) => void
+    handleTypeChange?: (name: string) => void
 }
 
 export function ViewContainer(props: ViewProps) {
@@ -60,11 +62,17 @@ export function ViewContainer(props: ViewProps) {
         validForm,
         onCancel,
         onSave,
-        onChange
+        onChange,
+        handleNameOnChange,
+        handleTypeChange
     } = props;
     const intl = useIntl();
 
     const [model, setModel] = useState<STNode>(null);
+
+    if (!userInputs?.varName && !!handleNameOnChange){
+        handleNameOnChange("default")
+    }
 
     useEffect(() => {
         (async () => {
@@ -72,6 +80,24 @@ export function ViewContainer(props: ViewProps) {
             setModel(partialST);
         })();
     }, []);
+
+    useEffect(() => {
+        if (!!model && STKindChecker.isLocalVarDecl(model)) {
+            handleNameOnChange(model.typedBindingPattern.bindingPattern.source)
+            handleTypeChange(model.typedBindingPattern.typeDescriptor.source)
+        }
+    }, [model]);
+    const updateModel = async (codeSnippet : string, position: NodePosition) => {
+        const stModification = {
+            startLine: position.startLine,
+            startColumn: position.startColumn,
+            endLine: position.endLine,
+            endColumn: position.endColumn,
+            newCodeSnippet: codeSnippet
+        }
+        const partialST: STNode = await getPartialSTForStatement({codeSnippet : model.source, stModification}, langServerURL, ls);
+        setModel(partialST);
+    }
 
     const [currentModel, setCurrentModel] = useState({ model });
 
@@ -109,7 +135,6 @@ export function ViewContainer(props: ViewProps) {
     return (
         model && (
             <div className={overlayClasses.stmtEditor}>
-                <div className={overlayClasses.titleLine}/>
                 <div className={overlayClasses.contentPane}>
                     <StatementEditorContextProvider
                         model={model}
@@ -117,6 +142,7 @@ export function ViewContainer(props: ViewProps) {
                         onSave={onSave}
                         onChange={onChange}
                         validate={validate}
+                        updateModel={updateModel}
                     >
                         <LeftPane
                             currentModel={currentModel}

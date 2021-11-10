@@ -21,7 +21,6 @@ import { Context as DiagramContext } from "../Contexts/Diagram";
 import { TextPreLoader } from "../PreLoader/TextPreLoader";
 
 import { CanvasDiagram } from "./components/CanvasContainer";
-import { DataMapper } from './components/DataMapper';
 import { DiagramDisableState } from "./components/DiagramState/DiagramDisableState";
 import { DiagramErrorState } from "./components/DiagramState/DiagramErrorState";
 import { ErrorList } from "./components/DiagramState/ErrorList";
@@ -34,9 +33,6 @@ import { DefaultConfig } from "./visitors/default";
 
 export function Diagram() {
     const {
-        state: {
-            isDataMapperShown,
-        },
         props: {
             diagnostics,
             warnings,
@@ -120,18 +116,11 @@ export function Diagram() {
                     {diagramStatus}
                 </div>
             )}
-
             {isErrorDetailsOpen && <ErrorList />}
-
             <Container className={classes.DesignContainer}>
-                {isDataMapperShown && (
-                    <DataMapper width={w} />
-                )}
-                {!isDataMapperShown && (
                     <CanvasDiagram>
                         {child}
                     </CanvasDiagram>
-                )}
             </Container>
         </div>
     );

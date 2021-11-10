@@ -14,6 +14,7 @@ import React, { ReactNode, useContext } from "react";
 
 import { IfElseStatement } from "@ballerina/syntax-tree"
 
+import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
@@ -45,7 +46,7 @@ export function IfStatementC(props: IfStatementProps) {
     const onClickOnConditionExpression = (event: any) => {
         event.stopPropagation()
         expressionHandler(model.condition, false,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(model.condition.kind) })
+            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
     };
 
     return (

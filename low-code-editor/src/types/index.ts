@@ -134,6 +134,7 @@ export interface LowCodeEditorProperties {
 
 export interface FunctionProperties {
     overlayId: string;
+    overlayNode: HTMLDivElement;
 }
 
 export interface SelectedPosition {

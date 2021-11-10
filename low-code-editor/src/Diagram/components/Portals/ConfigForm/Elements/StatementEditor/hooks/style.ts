@@ -26,6 +26,16 @@ export const useStyles = makeStyles((theme: Theme) =>
         formTitleWrapper: {
             width: "auto",
             zIndex: 100,
+            position: "absolute",
+            top: "-42px"
+        },
+        statementEditorButton: {
+            display: 'inline-flex',
+            width: "100%",
+            marginLeft: "auto",
+            marginRight: 0,
+            justifyContent: 'flex-end',
+            paddingRight: theme.spacing(1)
         }
     }),
 );

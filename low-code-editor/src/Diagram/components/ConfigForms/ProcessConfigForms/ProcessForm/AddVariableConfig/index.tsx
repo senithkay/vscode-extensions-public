@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
-import React, { ReactNode, useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { CaptureBindingPattern, LocalVarDecl, STKindChecker } from "@ballerina/syntax-tree";
@@ -22,7 +22,7 @@ import { PrimitiveBalType, WizardType } from "../../../../../../ConfigurationSpe
 import { Context } from "../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../utils/constants";
 import { getAllVariables } from "../../../../../utils/mixins";
-import { createModuleVarDecl, getInitialSource} from "../../../../../utils/modification-util";
+import { createModuleVarDecl, getInitialSource } from "../../../../../utils/modification-util";
 import { getVariableNameFromST } from "../../../../../utils/st-util";
 import { SelectDropdownWithButton } from "../../../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
 import ExpressionEditor from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
@@ -102,25 +102,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     const [validExpresssionValue, setValidExpresssionValue] = useState(config.config !== "");
     const [variableExpression, setVariableExpression] = useState<string>(varExpression);
     const [editorFocus, setEditorFocus] = useState<boolean>(false);
-    const [isStringType, setIsStringType] = useState(initialModelType === 'string');
-    const [initialSource, setInitialSource] = useState('');
-
-    useEffect(() => {
-        (async () => {
-            const source = await getInitialSource(createModuleVarDecl(
-                {
-                    varName: varName ? varName : "default",
-                    varOptions: [],
-                    varType:  selectedType === "other" ? otherType : selectedType,
-                    varValue: variableExpression ? variableExpression : "expression"
-                },
-                {
-                    endColumn: 0, endLine: 0, startColumn: 0, startLine: 0
-                }
-            ));
-            setInitialSource(source);
-        })();
-    }, [varName, selectedType, variableExpression]);
 
     const onPropertyChange = (property: string) => {
         setVariableExpression(property);
@@ -137,12 +118,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
 
     const handleTypeChange = (type: string) => {
         setSelectedType(type);
-        if (type === "string") {
-            setIsStringType(true);
-        } else {
-            setIsStringType(false);
-        }
-
         setValidExpresssionValue(false);
         if (type !== "other") {
             setOtherType(undefined);
@@ -267,10 +242,12 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     }
 
     const expressionEditorConfig = {
+        key: selectedType,
         model: {
             name: "Expression",
             displayName: "Value Expression",
-            typeName: (modelType ? modelType : "other")
+            typeName: (modelType ? modelType : "other"),
+            value: variableExpression,
         },
         customProps: {
             validate: validateExpression,
@@ -279,10 +256,23 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             tooltipTitle: variableTooltipMessages.expressionEditor.title,
             tooltipActionText: variableTooltipMessages.expressionEditor.actionText,
             tooltipActionLink: variableTooltipMessages.expressionEditor.actionLink,
+            expressionInjectables: {
+                list: formArgs?.expressionInjectables?.list,
+                setInjectables: formArgs?.expressionInjectables?.setInjectables
+            }
         },
         onChange: onPropertyChange,
         defaultValue: variableExpression,
     };
+
+    const initialSource = getInitialSource(createModuleVarDecl(
+        {
+            varName: varName ? varName : "default",
+            varOptions: [],
+            varType:  selectedType === "other" ? otherType : selectedType,
+            varValue: variableExpression ? variableExpression : "EXPRESSION"
+        }
+    ));
 
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {
@@ -294,14 +284,42 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             validForm,
             onSave: handleSave,
             onChange: onPropertyChange,
-            validate: validateExpression
-        },
-        !isStringType
+            validate: validateExpression,
+            handleNameOnChange,
+            handleTypeChange
+        }
+    );
+
+    const typeDropDown = (
+        <SelectDropdownWithButton
+            defaultValue={selectedType === "other" ? "other" : modelType}
+            customProps={{
+                disableCreateNew: true,
+                values: variableTypes,
+            }}
+            label={variableTypeLabel}
+            onChange={handleTypeChange}
+        />
+    );
+
+    const variableNameInput = (
+        <div className="exp-wrapper">
+            <VariableNameInput {...variableNameConfig} />
+        </div>
+    );
+
+    const expressionEditor = (
+        <div className="exp-wrapper">
+            <ExpressionEditor
+                hideLabelTooltips={true}
+                {...expressionEditorConfig}
+            />
+        </div>
     );
 
     if (!stmtEditorComponent) {
         return (
-            <FormControl data-testid="property-form" className={classes.wizardFormControl}>
+            <FormControl data-testid="property-form" className={classnames(classes.wizardFormControl, classes.fitContent)}>
                 <div>
                     <div className={classes.formFeilds}>
                         <div className={classes.formTitleWrapper}>
@@ -318,29 +336,51 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                             {stmtEditorButton}
                         </div>
                         <div className={classes.activeWrapper}>
-                            <SelectDropdownWithButton
-                                defaultValue={selectedType === "other" ? "other" : modelType}
-                                customProps={{
-                                    disableCreateNew: true,
-                                    values: variableTypes,
-                                }}
-                                label={variableTypeLabel}
-                                onChange={handleTypeChange}
-                            />
-                            {(selectedType === "other") && (
-                                <FormTextInput
-                                    defaultValue={otherType}
-                                    onChange={handleOtherTypeOnChange}
-                                    label={otherTypeLabel}
-                                    placeholder={enterTypePlaceholder}
-                                />
-                            )}
-                            <VariableNameInput {...variableNameConfig} />
-                            <div className="exp-wrapper">
-                                <ExpressionEditor
-                                    {...expressionEditorConfig}
-                                />
-                            </div>
+                            {(selectedType === "other")
+                                ? (
+                                    <div>
+                                        <div className={classes.typeContainer}>
+                                            {typeDropDown}
+                                        </div>
+                                        <div className={classnames(classes.activeWrapper, classes.blockWrapper)}>
+                                            <div className={classes.dropdownWrapper}>
+                                                <FormTextInput
+                                                    defaultValue={otherType}
+                                                    onChange={handleOtherTypeOnChange}
+                                                    label={otherTypeLabel}
+                                                    placeholder={enterTypePlaceholder}
+                                                />
+                                            </div>
+                                            <div className={classes.nameExpEditorWrapper}>
+                                                {variableNameInput}
+                                            </div>
+                                            <div className={classes.codeText}>
+                                                <Typography variant='body2' className={classes.endCode}>=</Typography>
+                                            </div>
+                                            <div className={classes.variableExpEditorWrapper}>
+                                                {expressionEditor}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                )
+                                : (
+                                    <div className={classnames(classes.activeWrapper, classes.blockWrapper)}>
+                                        <div className={classes.dropdownWrapper}>
+                                            {typeDropDown}
+                                        </div>
+                                        <div className={classes.nameExpEditorWrapper}>
+                                            {variableNameInput}
+                                        </div>
+                                        <div className={classes.codeText}>
+                                            <Typography variant='body2' className={classes.endCode}>=</Typography>
+                                        </div>
+                                        <div className={classes.variableExpEditorWrapper}>
+                                            {expressionEditor}
+                                        </div>
+                                    </div>
+                                )
+                            }
                         </div>
                     </div>
                     <FormActionButtons

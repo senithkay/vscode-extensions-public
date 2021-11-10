@@ -18,9 +18,7 @@ import { WizardType } from "../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../Contexts/Diagram";
 import { ConfigOverlayFormStatus } from "../../../../../Definitions";
 import { TextPreloaderVertical } from "../../../../../PreLoader/TextPreloaderVertical";
-import { DefaultConfig } from "../../../../visitors/default";
 import { ProcessConfig } from "../../../Portals/ConfigForm/types";
-import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from "../../../Portals/Overlay";
 
 import { AddCustomStatementConfig } from "./AddCustomStatementConfig";
 import { AddDataMappingConfig } from "./AddDataMappingConfig";
@@ -62,11 +60,6 @@ export function ProcessForm(props: ProcessFormProps) {
             type: "",
             expression: ""
         };
-    } else if (formType === "DataMapper") {
-        config.config = {
-            inputTypes: [],
-            outputType: undefined
-        }
     } else if (formType === "Call" || formType === "Custom") {
         config.config = {
             expression: ""
@@ -89,7 +82,6 @@ export function ProcessForm(props: ProcessFormProps) {
             <>
                 {formType === "Variable" && <AddVariableConfig config={config} formArgs={formArgs} onSave={onSave} onCancel={onCancel} />}
                 {formType === "Log" && <AddLogConfig config={config} formArgs={formArgs} onSave={onSave} onCancel={onCancel} />}
-                {formType === "DataMapper" && <AddDataMappingConfig processConfig={config} onSave={onSave} onCancel={onCancel} />}
                 {(formType === "Custom" || formType === "Call") && <AddCustomStatementConfig config={config} formArgs={formArgs} onSave={onSave} onCancel={onCancel} />}
             </>
         );

@@ -19,7 +19,6 @@ import {
     FunctionCall,
     LocalVarDecl,
     NodePosition,
-    PositionalArg,
     QualifiedNameReference,
     STKindChecker,
     STNode
@@ -33,7 +32,6 @@ import { BlockViewState, StatementViewState } from "../../view-state";
 import { DraftStatementViewState } from "../../view-state/draft";
 import { DefaultConfig } from "../../visitors/default";
 import { Assignment } from "../Assignment";
-import { ProcessConfigForm } from "../ConfigForms/ProcessConfigForms";
 import { DeleteBtn } from "../DiagramActions/DeleteBtn";
 import { DELETE_SVG_HEIGHT_WITH_SHADOW, DELETE_SVG_WIDTH_WITH_SHADOW } from "../DiagramActions/DeleteBtn/DeleteSVG";
 import { EditBtn } from "../DiagramActions/EditBtn";
@@ -77,6 +75,7 @@ export function DataProcessor(props: ProcessorProps) {
     let processType = "STATEMENT";
     let processName = "Variable";
     let sourceSnippet = "Source";
+    let diagnostics;
 
     let isIntializedVariable = false;
     let isLogStmt = false;
@@ -85,7 +84,8 @@ export function DataProcessor(props: ProcessorProps) {
 
     if (model) {
         processType = "Variable";
-        sourceSnippet = model.source;
+        diagnostics = model.typeData?.diagnostics[0]?.message;
+        sourceSnippet = diagnostics ? "Code has errors\n" + model.source : model.source;
         if (STKindChecker.isCallStatement(model)) {
             const callStatement: CallStatement = model as CallStatement;
             const stmtFunctionCall: FunctionCall = callStatement.expression as FunctionCall;
@@ -114,19 +114,11 @@ export function DataProcessor(props: ProcessorProps) {
             if (model?.initializer && !STKindChecker.isImplicitNewExpression(model?.initializer)) {
                 isIntializedVariable = true;
             }
-
-            if (model?.initializer && STKindChecker.isMappingConstructor(model?.initializer)) {
-                processType = 'DataMapper';
-            }
         } else if (STKindChecker.isAssignmentStatement(model)) {
             processType = "Custom";
             processName = "Assignment";
             if (STKindChecker.isSimpleNameReference(model?.varRef)) {
                 processName = model?.varRef?.name?.value
-            }
-
-            if (STKindChecker.isMappingConstructor(model.expression)) {
-                processType = 'DataMapper';
             }
         } else {
             processType = "Custom";
@@ -237,10 +229,12 @@ export function DataProcessor(props: ProcessorProps) {
     }
 
     const processWrapper = isDraftStatement ? cn("main-process-wrapper active-data-processor") : cn("main-process-wrapper data-processor");
+    const processStyles = diagnostics && !isDraftStatement ? cn("main-process-wrapper data-processor-error ") : processWrapper
+
     const component: React.ReactNode = (!viewState.collapsed &&
         (
             <g>
-                <g className={processWrapper} data-testid="data-processor-block" z-index="1000" >
+                <g className={processStyles} data-testid="data-processor-block" z-index="1000" >
                     <React.Fragment>
                         {(processType !== "Log" && processType !== "Call") && !isDraftStatement &&
                             <VariableName
@@ -260,7 +254,6 @@ export function DataProcessor(props: ProcessorProps) {
                             position={model?.position}
                             openInCodeView={!isReadOnly && !isCodeEditorActive && !isWaitingOnWorkspace && model && model.position && onClickOpenInCodeView}
                         />
-                        {/* <Tooltip arrow={true} placement="top-start" content="jgkgjhgj"> */}
                         <Assignment
                             x={cx + PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW / 2 + (DefaultConfig.dotGap * 3)}
                             y={cy + PROCESS_SVG_HEIGHT / 3}
@@ -268,7 +261,7 @@ export function DataProcessor(props: ProcessorProps) {
                             className="assignment-text"
                             key_id={getRandomInt(1000)}
                         />
-                        {/* </Tooltip> */}
+
                         {!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace &&
                             <g
                                 className="process-options-wrapper"

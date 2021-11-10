@@ -20,7 +20,7 @@ import { ViewContainer, ViewProps } from "../components/ViewContainer/ViewContai
 
 import { useStyles } from "./style";
 
-export const useStatementEditor = (props: ViewProps, disabled: boolean) => {
+export const useStatementEditor = (props: ViewProps) => {
     const {
         label,
         initialSource,
@@ -30,7 +30,9 @@ export const useStatementEditor = (props: ViewProps, disabled: boolean) => {
         isMutationInProgress,
         validForm,
         onSave,
-        onChange
+        onChange,
+        handleNameOnChange,
+        handleTypeChange
     } = props;
     const classes = useStyles();
 
@@ -47,8 +49,8 @@ export const useStatementEditor = (props: ViewProps, disabled: boolean) => {
 
     const stmtEditorButton =
         (
-            <div style={{display: 'inline-flex', width: "100%", marginLeft: "auto", marginRight: 0}}>
-                <StatementEditorButton onClick={handleStmtEditorButtonClick} disabled={disabled} />
+            <div style={{display: 'inline-flex', width: "100%", marginLeft: "auto", marginRight: '8px', justifyContent: 'flex-end'}}>
+                <StatementEditorButton onClick={handleStmtEditorButtonClick} />
             </div>
         );
 
@@ -59,7 +61,7 @@ export const useStatementEditor = (props: ViewProps, disabled: boolean) => {
                 <div className={classes.formTitleWrapper}>
                     <div className={classes.mainTitleWrapper}>
                         <Typography variant="h4">
-                            <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.statementEditor.title" defaultMessage="Statement Editor" /></Box>
+                            <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.statementEditor.title" defaultMessage="Statement jhkhkj" /></Box>
                         </Typography>
                     </div>
                 </div>
@@ -74,6 +76,8 @@ export const useStatementEditor = (props: ViewProps, disabled: boolean) => {
                     onSave={onSave}
                     onChange={onChange}
                     validate={validate}
+                    handleNameOnChange={handleNameOnChange}
+                    handleTypeChange={handleTypeChange}
                 />
             </div>
         </FormControl>

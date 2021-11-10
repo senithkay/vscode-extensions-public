@@ -15,7 +15,7 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 export const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         formSave: {
-            width: theme.spacing(37.5),
+            width: '100%',
             right: theme.spacing(2.5),
             padding: theme.spacing(1.25),
             backgroundColor: '#fff',

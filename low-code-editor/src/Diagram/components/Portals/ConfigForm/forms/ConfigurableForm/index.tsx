@@ -119,12 +119,6 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
         dispatch({ type: ConfigurableFormActionTypes.SET_VAR_NAME, payload: value });
     }
 
-    const validateNameValue = (value: string) => {
-        if (value && value !== '') {
-            return ModuleVarNameRegex.test(value);
-        }
-        return true;
-    };
 
     const expressionEditorConfigForValue = {
         model: {
@@ -183,7 +177,7 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
 
     let namePosition: NodePosition = { startLine: 0, startColumn: 0, endLine: 0, endColumn: 0 }
 
-    if (model) {
+    if (model && (model?.typedBindingPattern?.bindingPattern as CaptureBindingPattern)?.variableName?.position) {
         namePosition = (model.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.position;
     } else {
         namePosition.startLine = targetPosition.startLine;
@@ -224,12 +218,13 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
                 disabled={isFromExpressionEditor}
             />
             <VariableNameInput
+                // Fixme: Prevent editing name if the configurable is being referenced somewhere
                 displayName={'Configurable Name'}
                 value={state.varName}
                 onValueChange={handleOnVarNameChange}
                 validateExpression={updateExpressionValidity}
                 position={namePosition}
-                isEdit={!!model}
+                isEdit={!isFromExpressionEditor && !!model}
             />
             <div className={formClasses.labelWrapper}>
                 <FormHelperText className={formClasses.inputLabelForRequired}>

@@ -46,27 +46,52 @@ export function DeleteConfirmDialog(props: DeleteConfirmDialogProps) {
 
     const { removeText = removeButtonText } = props;
 
+    const handleOnConfirm = (evt: React.MouseEvent) => {
+        evt.stopPropagation();
+        onConfirm();
+    }
+
+    const handleOnCancel = (evt: React.MouseEvent) => {
+        evt.stopPropagation();
+        onCancel();
+    }
+
+    const handleDivClick = (evt: React.MouseEvent) => {
+        evt.stopPropagation();
+    }
+
     return (
         <ClickAwayListener
             mouseEvent="onMouseDown"
             touchEvent="onTouchStart"
             onClickAway={onCancel}
         >
-            <div>
-                {/* <DiagramOverlayContainer    // TODO: add back divId
+            <div onClick={handleDivClick} >
+                <DiagramOverlayContainer
                     divId={isFunctionMember ? overlayId : 'canvas-overlay'}
-                > */}
-                <DiagramOverlayContainer >
+                >
                     <DiagramOverlay
                         className="delete-container"
                         position={position}
                     >
                         <p>{message}</p>
                         <div className={'action-button-container'}>
-                            <Button variant="contained" className="cancelbtn" onClick={onCancel}>{cancelButtonText}</Button>
-                            <Button data-testid="delete-logic-block-btn" variant="contained" className="deletebtn" onClick={onConfirm}>{removeButtonText}</Button>
+                            <Button
+                                variant="contained"
+                                className="cancelbtn"
+                                onClick={handleOnCancel}
+                            >
+                                {cancelButtonText}
+                            </Button>
+                            <Button
+                                data-testid="delete-logic-block-btn"
+                                variant="contained"
+                                className="deletebtn"
+                                onClick={handleOnConfirm}
+                            >
+                                {removeButtonText}
+                            </Button>
                         </div>
-
                     </DiagramOverlay>
                 </DiagramOverlayContainer>
             </div>

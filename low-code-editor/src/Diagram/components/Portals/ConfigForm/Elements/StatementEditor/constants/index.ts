@@ -40,10 +40,16 @@ export const QUALIFIED_NAME_REFERENCE = "QualifiedNameReference"
 export const TRUE_KEYWORD = "true";
 export const OTHER_STATEMENT = "OtherStatement"
 export const STRING_TYPE_DESC = "StringTypeDesc"
+export const DECIMAL_TYPE_DESC = "DecimalTypeDesc"
+export const FLOAT_TYPE_DESC = "FloatTypeDesc"
+export const INT_TYPE_DESC = "IntTypeDesc"
+export const JSON_TYPE_DESC = "JsonTypeDesc"
+export const VAR_TYPE_DESC = "VarTypeDesc"
 export const TYPE_TEST = "TypeTestExpression"
 export const TYPE_DESCRIPTOR = "TypeDescriptor"
 export const DEFAULT_EXPRESSIONS = "DefaultExpressions"
 export const BOOLEAN_TYPE_DESC = "BooleanTypeDesc"
+export const OTHER_EXPRESSION = "OtherExpression"
 
 // Statement types supported in function-body-block
 export type StatementNodes = ActionStatement

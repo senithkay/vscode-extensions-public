@@ -1,5 +1,6 @@
 import * as React from "react";
 import { IntlProvider } from "react-intl";
+import { monaco } from "react-monaco-editor";
 
 import { FunctionDefinition, ModulePart, NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import { MuiThemeProvider } from "@material-ui/core/styles";
@@ -28,6 +29,10 @@ export interface DiagramGeneratorProps extends EditorProps {
 const ZOOM_STEP = 0.1;
 const MAX_ZOOM = 2;
 const MIN_ZOOM = 0.6;
+const undoStack: Map<string, string[]> = new Map();
+const redoStack: Map<string, string[]> = new Map();
+let currentFileContent = "";
+let currentFilePath = "";
 
 export function DiagramGenerator(props: DiagramGeneratorProps) {
     const { langClient, filePath, startLine, startColumn, lastUpdatedAt, scale, panX, panY } = props;
@@ -50,19 +55,39 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         (async () => {
             try {
                 const genSyntaxTree = await getSyntaxTree(filePath, langClient);
-                const vistedSyntaxTree: STNode = getLowcodeST(genSyntaxTree);
+                const pfSession = await props.getPFSession();
+                const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, filePath,
+                                                                    langClient, pfSession,
+                                                                    props.showPerformanceGraph, props.showMessage);
                 if (!vistedSyntaxTree) {
                     return (<div><h1>Parse error...!</h1></div>);
                 }
                 setSyntaxTree(vistedSyntaxTree);
                 const content = await props.getFileContent(filePath);
                 setFileContent(content);
+                currentFilePath = filePath;
+                currentFileContent = content;
             } catch (err) {
                 throw err;
             }
         })();
     }, [lastUpdatedAt]);
 
+    React.useEffect(() => {
+        const keyPress = (e: any) => {
+            const file = currentFilePath;
+            const evtobj = e;
+            if (evtobj.keyCode === 90 && (evtobj.ctrlKey || evtobj.metaKey)) {
+                undo();
+            } else if (evtobj.keyCode === 89 && (evtobj.ctrlKey || evtobj.metaKey)) {
+                redo();
+            }
+        }
+        document.onkeydown = keyPress;
+        return () => {
+            document.onkeydown = undefined;
+        };
+    }, []);
 
     function zoomIn() {
         const newZoomStatus = cloneDeep(zoomStatus);
@@ -85,6 +110,81 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         newZoomStatus.panX = newPanX;
         newZoomStatus.panY = newPanY;
         setZoomStatus(newZoomStatus);
+    }
+
+    const undo = async () => {
+        if (undoStack.get(currentFilePath)?.length) {
+            const uri = monaco.Uri.file(currentFilePath).toString();
+
+            const redoSourceStack = redoStack.get(currentFilePath);
+            if (!redoSourceStack) {
+                redoStack.set(currentFilePath, [currentFileContent]);
+            } else {
+                redoSourceStack.push(currentFileContent);
+                if (redoSourceStack.length >= 100) {
+                    redoSourceStack.shift();
+                }
+                redoStack.set(currentFilePath, redoSourceStack);
+            }
+            const lastsource = undoStack.get(currentFilePath).pop();
+
+            langClient.didChange({
+                contentChanges: [
+                    {
+                        text: lastsource
+                    }
+                ],
+                textDocument: {
+                    uri,
+                    version: 1
+                }
+            });
+            const genSyntaxTree = await getSyntaxTree(currentFilePath, langClient);
+            const pfSession = await props.getPFSession();
+            const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, currentFilePath,
+                                                                langClient, pfSession,
+                                                                props.showPerformanceGraph, props.showMessage);
+            setSyntaxTree(vistedSyntaxTree);
+            setFileContent(lastsource);
+            currentFileContent = lastsource;
+            props.updateFileContent(currentFilePath, lastsource);
+        }
+    }
+
+    const redo = async () => {
+        if (redoStack.get(currentFilePath)?.length) {
+            const uri = monaco.Uri.file(currentFilePath).toString();
+
+            const undoSourceStack = undoStack.get(currentFilePath);
+            undoSourceStack.push(currentFileContent);
+            if (undoSourceStack.length >= 100) {
+                undoSourceStack.shift();
+            }
+            undoStack.set(currentFilePath, undoSourceStack);
+
+            const lastUndoSource = redoStack.get(currentFilePath).pop();
+
+            langClient.didChange({
+                contentChanges: [
+                    {
+                        text: lastUndoSource
+                    }
+                ],
+                textDocument: {
+                    uri,
+                    version: 1
+                }
+            });
+            const genSyntaxTree = await getSyntaxTree(currentFilePath, langClient);
+            const pfSession = await props.getPFSession();
+            const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, currentFilePath,
+                langClient, pfSession,
+                props.showPerformanceGraph, props.showMessage);
+            setSyntaxTree(vistedSyntaxTree);
+            setFileContent(lastUndoSource);
+            currentFileContent = lastUndoSource;
+            props.updateFileContent(currentFilePath, lastUndoSource);
+        }
     }
 
     if (!syntaxTree) {
@@ -156,9 +256,23 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                             }
                                         });
                                         if (parseSuccess) {
-                                            const vistedSyntaxTree: STNode = getLowcodeST(newST);
+                                            const sourcestack = undoStack.get(filePath);
+                                            if (!sourcestack) {
+                                                undoStack.set(filePath, [fileContent]);
+                                            } else {
+                                                sourcestack.push(fileContent);
+                                                if (sourcestack.length >= 100) {
+                                                    sourcestack.shift();
+                                                }
+                                                undoStack.set(filePath, sourcestack);
+                                            }
+                                            const pfSession = await props.getPFSession();
+                                            const vistedSyntaxTree: STNode = await getLowcodeST(newST, filePath,
+                                                                                                langClient, pfSession,
+                                                                                                props.showPerformanceGraph, props.showMessage);
                                             setSyntaxTree(vistedSyntaxTree);
                                             setFileContent(source);
+                                            currentFileContent = source;
                                             props.updateFileContent(filePath, source);
                                         } else {
                                             // TODO show error

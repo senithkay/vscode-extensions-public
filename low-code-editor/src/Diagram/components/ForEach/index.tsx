@@ -14,6 +14,7 @@
 import React, { ReactNode, useContext, useState } from "react"
 
 import { CaptureBindingPattern, ForeachStatement, NodePosition, STKindChecker, STNode, TypedBindingPattern } from "@ballerina/syntax-tree";
+import cn from "classnames";
 
 import { WizardType } from "../../../ConfigurationSpec/types";
 import { Context } from "../../../Contexts/Diagram";
@@ -226,6 +227,8 @@ export function ForEach(props: ForeachProps) {
     const keyWord = forEachModel.inKeyword.value
     const forEachSource = forEachModel?.actionOrExpressionNode?.source;
     assignmentText = variableName + " " + keyWord + " " + forEachSource;
+    const diagnostics = forEachModel?.actionOrExpressionNode?.typeData.diagnostics;
+    const ForeachWrapper = diagnostics?.length !== 0 ? cn("foreach-block-error") : cn("foreach-block") ;
 
     const unFoldedComponent = (
         <g className="foreach-block" data-testid="foreach-block">
@@ -367,7 +370,7 @@ export function ForEach(props: ForeachProps) {
     );
 
     return (
-        <g className="foreach-wrapper">
+        <g className={ForeachWrapper}>
             <g>
                 {foreachComponent}
             </g>
