@@ -502,9 +502,9 @@ export function getExistingConnectorIconSVG(iconId: string, scale: number = 1): 
 }
 
 
-export function getConstructIcon(iconId: string, args: any) {
+export function getConstructIcon(iconId: string) {
     const Icon = (ConstructIcons as any)[iconId];
-    return <Icon {...args} />
+    return <Icon/>
 }
 
 export function getConnectorIconId(connector: BallerinaConnectorInfo) {
