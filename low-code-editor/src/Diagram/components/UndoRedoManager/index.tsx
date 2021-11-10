@@ -44,7 +44,6 @@ export class UndoRedoManager {
         }
     }
 
-
     public redo() {
         if (this.redoStack.get(this.path)?.length) {
 

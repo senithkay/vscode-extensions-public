@@ -101,8 +101,8 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
             const genSyntaxTree = await getSyntaxTree(path, langClient);
             const pfSession = await props.getPFSession();
             const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, path,
-                langClient, pfSession,
-                props.showPerformanceGraph, props.showMessage);
+                                                                langClient, pfSession,
+                                                                props.showPerformanceGraph, props.showMessage);
             setSyntaxTree(vistedSyntaxTree);
             setFileContent(lastsource);
             props.updateFileContent(path, lastsource);
@@ -274,4 +274,3 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         </MuiThemeProvider>
     );
 }
-
