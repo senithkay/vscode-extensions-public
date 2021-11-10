@@ -16,9 +16,9 @@ import React from "react";
 import { STNode } from "@ballerina/syntax-tree";
 import cn from "classnames";
 
-import { EndpointViewState, StatementViewState } from "../../../../../../view-state";
-import { DraftStatementViewState } from "../../../../../../view-state/draft";
 import { getConnectorIcon } from "../../../../../Portals/utils";
+import { EndpointViewState, StatementViewState } from "../../../../ViewState";
+import { DraftStatementViewState } from "../../../../ViewState/draft";
 
 import {
     CLIENT_RADIUS,

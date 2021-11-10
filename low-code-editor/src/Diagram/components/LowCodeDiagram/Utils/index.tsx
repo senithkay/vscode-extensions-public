@@ -1,16 +1,45 @@
 import React from "react";
 
-import { NodePosition } from "@ballerina/syntax-tree";
+import { NodePosition, STKindChecker, STNode, traversNode } from "@ballerina/syntax-tree";
 
-import * as stComponents from '../components/LowCodeDiagram/Components/RenderingComponents';
-import { ActionProcessor } from "../components/LowCodeDiagram/Components/RenderingComponents/ActionInvocation/ActionProcess";
-import { ConnectorProcess } from "../components/LowCodeDiagram/Components/RenderingComponents/Connector/ConnectorProcess";
-import { IfElse } from "../components/LowCodeDiagram/Components/RenderingComponents/IfElse";
-import { DataProcessor } from "../components/LowCodeDiagram/Components/RenderingComponents/Processor";
-import { Respond } from "../components/LowCodeDiagram/Components/RenderingComponents/Respond";
-import { Statement } from "../components/LowCodeDiagram/Components/RenderingComponents/Statement";
-import { BlockViewState } from "../components/LowCodeDiagram/ViewState";
-import { DraftStatementViewState } from "../components/LowCodeDiagram/ViewState/draft";
+import * as stComponents from '../Components/RenderingComponents';
+import { ActionProcessor } from "../Components/RenderingComponents/ActionInvocation/ActionProcess";
+import { ConnectorProcess } from "../Components/RenderingComponents/Connector/ConnectorProcess";
+import { IfElse } from "../Components/RenderingComponents/IfElse";
+import { DataProcessor } from "../Components/RenderingComponents/Processor";
+import { Respond } from "../Components/RenderingComponents/Respond";
+import { Statement } from "../Components/RenderingComponents/Statement";
+import { BlockViewState, FunctionViewState } from "../ViewState";
+import { DraftStatementViewState } from "../ViewState/draft";
+import { visitor as initVisitor } from "../Visitors/init-visitor";
+import { visitor as positionVisitor } from "../Visitors/positioning-visitor";
+import { visitor as sizingVisitor } from "../Visitors/sizing-visitor";
+
+export function sizingAndPositioning(st: STNode): STNode {
+    traversNode(st, initVisitor);
+    traversNode(st, sizingVisitor);
+    traversNode(st, positionVisitor);
+
+    if (STKindChecker.isFunctionDefinition(st) && st?.viewState?.onFail) {
+        const viewState = st.viewState as FunctionViewState;
+        traversNode(viewState.onFail, sizingVisitor);
+        traversNode(viewState.onFail, positionVisitor);
+    }
+    const clone = { ...st };
+    return clone;
+}
+
+export function recalculateSizingAndPositioning(st: STNode): STNode {
+    traversNode(st, sizingVisitor);
+    traversNode(st, positionVisitor);
+    if (STKindChecker.isFunctionDefinition(st) && st?.viewState?.onFail) {
+        const viewState = st.viewState as FunctionViewState;
+        traversNode(viewState.onFail, sizingVisitor);
+        traversNode(viewState.onFail, positionVisitor);
+    }
+    const clone = { ...st };
+    return clone;
+}
 
 export function getSTComponents(nodeArray: any): React.ReactNode[] {
     // Convert to array

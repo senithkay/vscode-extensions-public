@@ -35,34 +35,33 @@ import {
     Visitor, WhileStatement
 } from "@ballerina/syntax-tree";
 
-import { EXISTING_PLUS_HOLDER_API_HEIGHT, EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_API_HEIGHT, PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_STATEMENT_HEIGHT, PLUS_HOLDER_WIDTH } from "../components/LowCodeDiagram/Components/DialogBoxes/PlusHolder/PlusElements";
-import { PLUS_SVG_HEIGHT, PLUS_SVG_WIDTH } from "../components/LowCodeDiagram/Components/PlusButtons/Plus/PlusAndCollapse/PlusSVG";
-import { TRIGGER_RECT_SVG_HEIGHT, TRIGGER_RECT_SVG_WIDTH } from "../components/LowCodeDiagram/Components/RenderingComponents/ActionInvocation/TriggerSVG";
-import { ASSIGNMENT_NAME_WIDTH } from "../components/LowCodeDiagram/Components/RenderingComponents/Assignment";
-import { COLLAPSE_SVG_HEIGHT_WITH_SHADOW, COLLAPSE_SVG_WIDTH_WITH_SHADOW } from "../components/LowCodeDiagram/Components/RenderingComponents/Collapse/CollapseSVG";
-import { CLIENT_RADIUS, CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH } from "../components/LowCodeDiagram/Components/RenderingComponents/Connector/ConnectorHeader/ConnectorClientSVG";
-import { STOP_SVG_HEIGHT, STOP_SVG_WIDTH } from "../components/LowCodeDiagram/Components/RenderingComponents/End/StopSVG";
-import { FOREACH_SVG_HEIGHT, FOREACH_SVG_WIDTH } from "../components/LowCodeDiagram/Components/RenderingComponents/ForEach/ForeachSVG";
-import { COLLAPSE_DOTS_SVG_HEIGHT } from "../components/LowCodeDiagram/Components/RenderingComponents/ForEach/ThreeDotsSVG";
-import { IFELSE_SVG_HEIGHT, IFELSE_SVG_WIDTH } from "../components/LowCodeDiagram/Components/RenderingComponents/IfElse/IfElseSVG";
-import { LISTENER_HEIGHT, LISTENER_WIDTH } from "../components/LowCodeDiagram/Components/RenderingComponents/Listener/ListenerSVG";
-import { MIN_MODULE_VAR_WIDTH, MODULE_VAR_HEIGHT } from "../components/LowCodeDiagram/Components/RenderingComponents/ModuleVariable";
-import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH, PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW } from "../components/LowCodeDiagram/Components/RenderingComponents/Processor/ProcessSVG";
-import { RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH } from "../components/LowCodeDiagram/Components/RenderingComponents/Respond/RespondSVG";
-import { DEFAULT_SERVICE_WIDTH } from "../components/LowCodeDiagram/Components/RenderingComponents/Service";
-import { SERVICE_HEADER_HEIGHT } from "../components/LowCodeDiagram/Components/RenderingComponents/Service/ServiceHeader";
-import { START_SVG_HEIGHT, START_SVG_WIDTH } from "../components/LowCodeDiagram/Components/RenderingComponents/Start/StartSVG";
-import { VARIABLE_NAME_WIDTH } from "../components/LowCodeDiagram/Components/RenderingComponents/VariableName";
-import { WHILE_SVG_HEIGHT, WHILE_SVG_WIDTH } from "../components/LowCodeDiagram/Components/RenderingComponents/While/WhileSVG";
-import { isVarTypeDescriptor } from "../utils/diagram-util";
-import { Endpoint, getDraftComponentSizes, getPlusViewState, haveBlockStatement, isSTActionInvocation } from "../utils/st-util";
-import { BlockViewState, CollapseViewState, CompilationUnitViewState, DoViewState, ElseViewState, ForEachViewState, FunctionViewState, IfViewState, OnErrorViewState, PlusViewState, StatementViewState } from "../view-state";
-import { DraftStatementViewState } from "../view-state/draft";
-import { ModuleMemberViewState } from "../view-state/module-member";
-import { ServiceViewState } from "../view-state/service";
-import { WhileViewState } from "../view-state/while";
-
-import { DefaultConfig } from "./default";
+import { isVarTypeDescriptor } from "../../../utils/diagram-util";
+import { Endpoint, getDraftComponentSizes, getPlusViewState, haveBlockStatement, isSTActionInvocation } from "../../../utils/st-util";
+import { DefaultConfig } from "../../../visitors/default";
+import { EXISTING_PLUS_HOLDER_API_HEIGHT, EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_API_HEIGHT, PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_STATEMENT_HEIGHT, PLUS_HOLDER_WIDTH } from "../Components/DialogBoxes/PlusHolder/PlusElements";
+import { PLUS_SVG_HEIGHT, PLUS_SVG_WIDTH } from "../Components/PlusButtons/Plus/PlusAndCollapse/PlusSVG";
+import { TRIGGER_RECT_SVG_HEIGHT, TRIGGER_RECT_SVG_WIDTH } from "../Components/RenderingComponents/ActionInvocation/TriggerSVG";
+import { ASSIGNMENT_NAME_WIDTH } from "../Components/RenderingComponents/Assignment";
+import { COLLAPSE_SVG_HEIGHT_WITH_SHADOW, COLLAPSE_SVG_WIDTH_WITH_SHADOW } from "../Components/RenderingComponents/Collapse/CollapseSVG";
+import { CLIENT_RADIUS, CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH } from "../Components/RenderingComponents/Connector/ConnectorHeader/ConnectorClientSVG";
+import { STOP_SVG_HEIGHT, STOP_SVG_WIDTH } from "../Components/RenderingComponents/End/StopSVG";
+import { FOREACH_SVG_HEIGHT, FOREACH_SVG_WIDTH } from "../Components/RenderingComponents/ForEach/ForeachSVG";
+import { COLLAPSE_DOTS_SVG_HEIGHT } from "../Components/RenderingComponents/ForEach/ThreeDotsSVG";
+import { IFELSE_SVG_HEIGHT, IFELSE_SVG_WIDTH } from "../Components/RenderingComponents/IfElse/IfElseSVG";
+import { LISTENER_HEIGHT, LISTENER_WIDTH } from "../Components/RenderingComponents/Listener/ListenerSVG";
+import { MIN_MODULE_VAR_WIDTH, MODULE_VAR_HEIGHT } from "../Components/RenderingComponents/ModuleVariable";
+import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH, PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW } from "../Components/RenderingComponents/Processor/ProcessSVG";
+import { RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH } from "../Components/RenderingComponents/Respond/RespondSVG";
+import { DEFAULT_SERVICE_WIDTH } from "../Components/RenderingComponents/Service";
+import { SERVICE_HEADER_HEIGHT } from "../Components/RenderingComponents/Service/ServiceHeader";
+import { START_SVG_HEIGHT, START_SVG_WIDTH } from "../Components/RenderingComponents/Start/StartSVG";
+import { VARIABLE_NAME_WIDTH } from "../Components/RenderingComponents/VariableName";
+import { WHILE_SVG_HEIGHT, WHILE_SVG_WIDTH } from "../Components/RenderingComponents/While/WhileSVG";
+import { BlockViewState, CollapseViewState, CompilationUnitViewState, DoViewState, ElseViewState, ForEachViewState, FunctionViewState, IfViewState, OnErrorViewState, PlusViewState, StatementViewState } from "../ViewState";
+import { DraftStatementViewState } from "../ViewState/draft";
+import { ModuleMemberViewState } from "../ViewState/module-member";
+import { ServiceViewState } from "../ViewState/service";
+import { WhileViewState } from "../ViewState/while";
 
 let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
 

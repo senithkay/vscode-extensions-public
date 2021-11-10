@@ -11,7 +11,7 @@
  * associated services.
  */
 
-import { SimpleBBox } from "../../../../../../view-state";
+import { SimpleBBox } from "../../../../ViewState";
 
 export class DataMapperViewState {
     public bBox: SimpleBBox = new SimpleBBox();

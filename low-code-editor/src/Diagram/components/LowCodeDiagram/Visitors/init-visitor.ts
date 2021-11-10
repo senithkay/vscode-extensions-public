@@ -31,7 +31,8 @@ import {
 } from "@ballerina/syntax-tree";
 import { Diagnostic } from "monaco-languageclient";
 
-import { Endpoint, isSTActionInvocation } from "../utils/st-util";
+import { Endpoint, isSTActionInvocation } from "../../../utils/st-util";
+import { DefaultConfig } from "../../../visitors/default";
 import {
     BlockViewState,
     CollapseViewState,
@@ -50,10 +51,8 @@ import {
     StatementViewState,
     ViewState,
     WhileViewState
-} from "../view-state";
-import { DraftStatementViewState } from "../view-state/draft";
-
-import { DefaultConfig } from "./default";
+} from "../ViewState";
+import { DraftStatementViewState } from "../ViewState/draft";
 
 let allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
 let currentFnBody: FunctionBodyBlock | ExpressionFunctionBody;

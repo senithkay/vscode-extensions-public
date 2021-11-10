@@ -19,8 +19,6 @@ import cn from "classnames";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BallerinaConnectorInfo } from "../../../../../../../Definitions";
 import { getMatchingConnector } from "../../../../../../utils/st-util";
-import { BlockViewState, StatementViewState, ViewState } from "../../../../../../view-state";
-import { DraftStatementViewState } from "../../../../../../view-state/draft";
 import { ConnectorConfigWizard } from "../../../../../FormComponents/ConnectorConfigWizard";
 import { FormGenerator } from "../../../../../FormComponents/FormGenerator";
 import { defaultOrgs } from "../../../../../Portals/utils/constants";
@@ -28,6 +26,8 @@ import { DeleteBtn } from "../../../../Components/DiagramActions/DeleteBtn";
 import { DELETE_SVG_HEIGHT_WITH_SHADOW, DELETE_SVG_WIDTH_WITH_SHADOW } from "../../../../Components/DiagramActions/DeleteBtn/DeleteSVG";
 import { EditBtn } from "../../../../Components/DiagramActions/EditBtn";
 import { EDIT_SVG_OFFSET, EDIT_SVG_WIDTH_WITH_SHADOW } from "../../../../Components/DiagramActions/EditBtn/EditSVG";
+import { BlockViewState, StatementViewState, ViewState } from "../../../../ViewState";
+import { DraftStatementViewState } from "../../../../ViewState/draft";
 
 import { ConnectorProcessSVG, CONNECTOR_PROCESS_SHADOW_OFFSET, CONNECTOR_PROCESS_SVG_HEIGHT, CONNECTOR_PROCESS_SVG_HEIGHT_WITH_SHADOW, CONNECTOR_PROCESS_SVG_WIDTH, CONNECTOR_PROCESS_SVG_WIDTH_WITH_SHADOW } from "./ConnectorProcessSVG";
 import "./style.scss";

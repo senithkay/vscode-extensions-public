@@ -16,7 +16,7 @@ import { FunctionBodyBlock } from "@ballerina/syntax-tree";
 
 import { Context } from "../../../../../../Contexts/Diagram";
 import { getDraftComponent, getSTComponents } from "../../../../../utils";
-import { BlockViewState } from "../../../../../view-state";
+import { BlockViewState } from "../../../ViewState";
 import { PlusButton } from "../../PlusButtons/Plus";
 import { Collapse } from "../Collapse";
 import ControlFlowExecutionTime from "../ControlFlowExecutionTime";

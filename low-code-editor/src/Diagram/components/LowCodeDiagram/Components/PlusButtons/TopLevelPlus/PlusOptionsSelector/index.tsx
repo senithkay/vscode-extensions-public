@@ -10,14 +10,12 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
-import React, { useState } from "react";
+// tslint:disable: jsx-no-multiline-js jsx-wrap-multiline object-literal-shorthand align
+import React, { useContext, useState } from "react";
 
 import { NodePosition } from "@ballerina/syntax-tree";
 
-import { useDiagramContext } from "../../../../../../../Contexts/Diagram";
-import { STModification } from "../../../../../../../Definitions";
-import { FormGenerator } from "../../../../../FormComponents/FormGenerator";
+import { Context } from "../../../../Context/diagram";
 import { Margin } from "../index";
 import { PlusOptionRenderer } from "../PlusOptionRenderer";
 
@@ -61,6 +59,13 @@ const classMemberEntries: PlusMenuEntry[] = [
 export const PlusOptionsSelector = (props: PlusOptionsProps) => {
     const { onClose, targetPosition, kind } = props;
     const [selectedOption, setSelectedOption] = useState<PlusMenuEntry>(undefined);
+    const {
+        api: {
+            edit: {
+                renderAddForm
+            }
+        }
+    } = useContext(Context);
 
     let menuEntries: PlusMenuEntry[] = [];
 
@@ -74,7 +79,8 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
     }
 
     const onOptionSelect = (option: PlusMenuEntry) => {
-        setSelectedOption(option)
+        renderAddForm(targetPosition, { formType: option.type, isLoading: false }, handleOnClose, handleOnSave);
+        setSelectedOption(option);
     }
 
     switch (kind) {
@@ -89,22 +95,16 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
 
     return (
         <>
-            {!selectedOption && (
-                <PlusOptionRenderer
-                    entries={menuEntries}
-                    onClose={handleOnClose}
-                    onOptionSelect={onOptionSelect}
-                    targetPosition={targetPosition}
-                />
-            )}
-            {selectedOption && (
-                <FormGenerator
-                    targetPosition={targetPosition}
-                    configOverlayFormStatus={{ formType: selectedOption.type, isLoading: false }}
-                    onCancel={handleOnClose}
-                    onSave={handleOnSave}
-                />
-            )}
+            {
+                !selectedOption && (
+                    <PlusOptionRenderer
+                        entries={menuEntries}
+                        onClose={handleOnClose}
+                        onOptionSelect={onOptionSelect}
+                        targetPosition={targetPosition}
+                    />
+                )
+            }
         </>
     );
 };

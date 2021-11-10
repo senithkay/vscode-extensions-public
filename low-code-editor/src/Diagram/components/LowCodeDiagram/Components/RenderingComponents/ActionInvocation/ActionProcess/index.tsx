@@ -17,14 +17,14 @@ import { LocalVarDecl, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import cn from "classnames";
 
 import { WizardType } from "../../../../../../../ConfigurationSpec/types";
-import { Context } from "../../../../../../../Contexts/Diagram";
 import { BallerinaConnectorInfo } from "../../../../../../../Definitions";
 import { getOverlayFormConfig, getRandomInt } from "../../../../../../utils/diagram-util";
 import { getMatchingConnector } from "../../../../../../utils/st-util";
-import { BlockViewState, StatementViewState } from "../../../../../../view-state";
-import { DraftStatementViewState } from "../../../../../../view-state/draft";
 import { DefaultConfig } from "../../../../../../visitors/default";
 import { ConnectorConfigWizard } from "../../../../../FormComponents/ConnectorConfigWizard";
+import { Context } from "../../../../Context/diagram";
+import { BlockViewState, StatementViewState } from "../../../../ViewState";
+import { DraftStatementViewState } from "../../../../ViewState/draft";
 import { DeleteBtn } from "../../../DiagramActions/DeleteBtn";
 import { DELETE_SVG_HEIGHT_WITH_SHADOW, DELETE_SVG_WIDTH_WITH_SHADOW } from "../../../DiagramActions/DeleteBtn/DeleteSVG";
 import { EditBtn } from "../../../DiagramActions/EditBtn";
@@ -42,23 +42,22 @@ export interface ProcessorProps {
 export function ActionProcessor(props: ProcessorProps) {
     const {
         actions: { diagramCleanDraw },
-        api: {
-            splitPanel: {
-                handleRightPanelContent,
-                maximize: maximizeCodeView,
-            },
-            code: {
-                setCodeLocationToHighlight: setCodeToHighlight,
-            },
-            configPanel: {
-                dispactchConfigOverlayForm: openNewProcessorConfig,
-                closeConfigOverlayForm: dispatchCloseConfigOverlayForm,
-            }
-        },
+        // api: {
+        //     splitPanel: {
+        //         handleRightPanelContent,
+        //         maximize: maximizeCodeView,
+        //     },
+        //     code: {
+        //         setCodeLocationToHighlight: setCodeToHighlight,
+        //     },
+        //     configPanel: {
+        //         dispactchConfigOverlayForm: openNewProcessorConfig,
+        //         closeConfigOverlayForm: dispatchCloseConfigOverlayForm,
+        //     }
+        // },
         props: {
-            currentApp,
-            isCodeEditorActive,
-            connectors,
+            // currentApp,
+            // isCodeEditorActive,
             syntaxTree,
             stSymbolInfo,
             isMutationProgress,
@@ -66,7 +65,7 @@ export function ActionProcessor(props: ProcessorProps) {
             isReadOnly,
         }
     } = useContext(Context);
-    const { id: appId } = currentApp || {};
+    // const { id: appId } = currentApp || {};
 
     const { model, blockViewState } = props;
     const [configOverlayFormState, updateConfigOverlayFormState] = useState(undefined);
@@ -124,12 +123,12 @@ export function ActionProcessor(props: ProcessorProps) {
     React.useEffect(() => {
         if (model === null && blockViewState) {
             const draftVS = blockViewState.draft[1];
-            dispatchCloseConfigOverlayForm();
+            // dispatchCloseConfigOverlayForm();
             const overlayFormConfig = getOverlayFormConfig(draftVS.subType, draftVS.targetPosition, WizardType.NEW,
                 blockViewState, undefined, stSymbolInfo);
             updateConfigOverlayFormState(overlayFormConfig);
-            openNewProcessorConfig(draftVS.subType, draftVS.targetPosition,
-                WizardType.NEW, blockViewState, undefined, stSymbolInfo);
+            // openNewProcessorConfig(draftVS.subType, draftVS.targetPosition,
+            //     WizardType.NEW, blockViewState, undefined, stSymbolInfo);
         }
     }, []);
 
@@ -137,7 +136,7 @@ export function ActionProcessor(props: ProcessorProps) {
         if (blockViewState) {
             blockViewState.draft = undefined;
             diagramCleanDraw(syntaxTree);
-            dispatchCloseConfigOverlayForm();
+            // dispatchCloseConfigOverlayForm();
         }
     };
 
@@ -151,15 +150,15 @@ export function ActionProcessor(props: ProcessorProps) {
 
     const onSave = () => {
         setConfigWizardOpen(false);
-        dispatchCloseConfigOverlayForm();
+        // dispatchCloseConfigOverlayForm();
     }
 
     const connectorsCollection: BallerinaConnectorInfo[] = [];
-    if (connectors) {
-        connectors.forEach((connectorInfo: any) => {
-            connectorsCollection.push(connectorInfo);
-        });
-    }
+    // if (connectors) {
+    //     connectors.forEach((connectorInfo: any) => {
+    //         connectorsCollection.push(connectorInfo);
+    //     });
+    // }
 
     const [isEditConnector, setIsConnectorEdit] = useState<boolean>(false);
     const [connector, setConnector] = useState<BallerinaConnectorInfo>(draftViewState.connector);
@@ -167,14 +166,14 @@ export function ActionProcessor(props: ProcessorProps) {
     // let exsitingWizard: ReactNode = null;
     const toggleSelection = () => {
         const connectorInit: LocalVarDecl = model as LocalVarDecl;
-        setConnector(getMatchingConnector(connectorInit, connectors, stSymbolInfo));
+        // setConnector(getMatchingConnector(connectorInit, connectors, stSymbolInfo));
         setIsConnectorEdit(!isEditConnector);
     };
 
     const onClickOpenInCodeView = () => {
-        maximizeCodeView("home", "vertical", appId);
-        handleRightPanelContent('Code');
-        setCodeToHighlight(model.position)
+        // maximizeCodeView("home", "vertical", appId);
+        // handleRightPanelContent('Code');
+        // setCodeToHighlight(model.position)
     }
 
     const toolTip = isReferencedVariable ? "Variable is referred in the code below" : undefined;
@@ -225,7 +224,7 @@ export function ActionProcessor(props: ProcessorProps) {
                             processType={processType}
                             sourceSnippet={sourceSnippet}
                             position={model?.position}
-                            openInCodeView={!isReadOnly && !isCodeEditorActive && !isWaitingOnWorkspace && model && model.position && appId && onClickOpenInCodeView}
+                            openInCodeView={!isReadOnly && !isWaitingOnWorkspace && model && model.position && onClickOpenInCodeView}
                         />
                         {!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace &&
                             <g

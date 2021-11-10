@@ -17,11 +17,11 @@ import { BlockStatement, FunctionBodyBlock, LocalVarDecl } from "@ballerina/synt
 import { ClickAwayListener } from "@material-ui/core";
 import cn from "classnames";
 
-import { Context } from "../../../../../../Contexts/Diagram";
 import { BallerinaConnectorInfo } from "../../../../../../Definitions/lang-client-extended";
-import { BlockViewState } from "../../../../../view-state";
-import { PlusViewState } from "../../../../../view-state/plus";
 import { DefaultConfig } from "../../../../../visitors/default";
+import { Context } from "../../../Context/diagram";
+import { BlockViewState } from "../../../ViewState";
+import { PlusViewState } from "../../../ViewState/plus";
 import { PlusElements } from "../../DialogBoxes/PlusHolder";
 
 import { PlusCircleSVG, PLUSCIRCLE_SVG_HEIGHT_WITH_SHADOW, PLUSCIRCLE_SVG_WIDTH_WITH_SHADOW } from "./Circle";
@@ -44,8 +44,7 @@ export const PlusButton = (props: PlusProps) => {
     const {
         props: {
             syntaxTree,
-            isReadOnly,
-            isWaitingOnWorkspace
+            isReadOnly
         },
         actions: { diagramCleanDraw, diagramRedraw }
     } = useContext(Context);
@@ -83,21 +82,6 @@ export const PlusButton = (props: PlusProps) => {
             isCollapsePlusDuoShown: states.isCollapsePlusDuoShown,
             isPlusHolderShown: states.isPlusHolderShown
         });
-    };
-
-    // On click for the small plus button.
-    const smallPlusClick = () => {
-        if (!states.isCollapsePlusDuoShown && !states.isPlusHolderShown) {
-            setStates({
-                isSmallPlusShown: false,
-                isCollapsePlusDuoShown: true,
-                isPlusHolderShown: states.isPlusHolderShown
-            });
-            viewState.collapsedPlusDuoExpanded = true;
-            viewState.expanded = false;
-            viewState.collapsedClicked = false;
-            diagramRedraw(syntaxTree);
-        }
     };
 
     // On click for the plus button in plus collapse button.
@@ -193,7 +177,6 @@ export const PlusButton = (props: PlusProps) => {
         diagramRedraw(syntaxTree);
     };
 
-    const initPlusClass = initPlus && states.isPlusHolderShown ? cn("big-plus-btn-none") : cn("big-plus-btn");
     const plusCircle = !initPlus && !states.isPlusHolderShown && !states.isCollapsePlusDuoShown && viewState.visible ?
         (
             <PlusCircleSVG
@@ -234,7 +217,7 @@ export const PlusButton = (props: PlusProps) => {
     return (
         <g ref={plusRef}>
             {
-                (!isReadOnly && !isWaitingOnWorkspace) && (<g className="main-plus-wrapper">
+                (!isReadOnly) && (<g className="main-plus-wrapper">
                     {plusCircle}
                     {plusHolder}
                     <ClickAwayListener

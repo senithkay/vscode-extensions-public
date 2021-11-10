@@ -26,8 +26,6 @@ import { Context } from "../../../../../../Contexts/Diagram";
 import { getDraftComponent, getSTComponents } from "../../../../../utils";
 import { getConditionConfig, getRandomInt } from "../../../../../utils/diagram-util";
 import { findActualEndPositionOfIfElseStatement } from "../../../../../utils/st-util";
-import { BlockViewState, ControlFlowLineState, ElseViewState, IfViewState } from "../../../../../view-state";
-import { DraftStatementViewState } from "../../../../../view-state/draft";
 import { DefaultConfig } from "../../../../../visitors/default";
 import { FormGenerator } from "../../../../FormComponents/FormGenerator";
 import { DeleteBtn } from "../../../Components/DiagramActions/DeleteBtn";
@@ -41,6 +39,8 @@ import {
     EDIT_SVG_OFFSET,
     EDIT_SVG_WIDTH_WITH_SHADOW
 } from "../../../Components/DiagramActions/EditBtn/EditSVG";
+import { BlockViewState, ControlFlowLineState, ElseViewState, IfViewState } from "../../../ViewState";
+import { DraftStatementViewState } from "../../../ViewState/draft";
 import { PlusButton } from "../../PlusButtons/Plus";
 import { Collapse } from "../Collapse";
 import { CONDITION_ASSIGNMENT_NAME_WIDTH, ContitionAssignment } from "../ContitionAssignment";

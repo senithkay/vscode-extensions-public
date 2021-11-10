@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js align  jsx-wrap-multiline
 import React from "react";
 
-import { ControlFlowLineState } from "../../../../../view-state";
+import { ControlFlowLineState } from "../../../ViewState";
 
 import { ControlFlowLineSVG } from "./ControlFlowLineSVG";
 import "./style.scss";

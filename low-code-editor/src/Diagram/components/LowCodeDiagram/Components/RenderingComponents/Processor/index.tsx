@@ -28,14 +28,14 @@ import cn from "classnames";
 import { WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
 import { getOverlayFormConfig, getRandomInt } from "../../../../../utils/diagram-util";
-import { BlockViewState, StatementViewState } from "../../../../../view-state";
-import { DraftStatementViewState } from "../../../../../view-state/draft";
 import { DefaultConfig } from "../../../../../visitors/default";
 import { FormGenerator } from "../../../../FormComponents/FormGenerator";
 import { DeleteBtn } from "../../../Components/DiagramActions/DeleteBtn";
 import { DELETE_SVG_HEIGHT_WITH_SHADOW, DELETE_SVG_WIDTH_WITH_SHADOW } from "../../../Components/DiagramActions/DeleteBtn/DeleteSVG";
 import { EditBtn } from "../../../Components/DiagramActions/EditBtn";
 import { EDIT_SVG_OFFSET, EDIT_SVG_WIDTH_WITH_SHADOW } from "../../../Components/DiagramActions/EditBtn/EditSVG";
+import { BlockViewState, StatementViewState } from "../../../ViewState";
+import { DraftStatementViewState } from "../../../ViewState/draft";
 import { Assignment } from "../Assignment";
 import { VariableName, VARIABLE_NAME_WIDTH } from "../VariableName";
 

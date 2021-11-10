@@ -21,7 +21,7 @@ import { LogIcon, PropertyIcon, IfIcon, ForEachIcon, ReturnIcon, RespondIcon, Cu
 
 import { Context } from "../../../../../../../../Contexts/Diagram";
 import { isSTResourceFunction } from "../../../../../../../utils/st-util";
-import { PlusViewState } from "../../../../../../../view-state";
+import { PlusViewState } from "../../../../../ViewState";
 import Tooltip from "../../../../../../../../components/Tooltip";
 import "../../style.scss";
 import While from "../../../../../../../../assets/icons/While";

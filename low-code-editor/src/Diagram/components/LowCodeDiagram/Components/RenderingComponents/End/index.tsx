@@ -18,14 +18,14 @@ import { STNode } from "@ballerina/syntax-tree";
 import { WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
 import { getConditionConfig } from "../../../../../utils/diagram-util";
-import { BlockViewState, EndViewState } from "../../../../../view-state";
-import { DraftStatementViewState } from "../../../../../view-state/draft";
 import { DefaultConfig } from "../../../../../visitors/default";
 import { FormGenerator } from "../../../../FormComponents/FormGenerator";
 import { DeleteBtn } from "../../../Components/DiagramActions/DeleteBtn";
 import { DELETE_SVG_OFFSET, DELETE_SVG_WIDTH_WITH_SHADOW } from "../../../Components/DiagramActions/DeleteBtn/DeleteSVG";
 import { EditBtn } from "../../../Components/DiagramActions/EditBtn";
 import { EDIT_SVG_WIDTH_WITH_SHADOW } from "../../../Components/DiagramActions/EditBtn/EditSVG";
+import { BlockViewState, EndViewState } from "../../../ViewState";
+import { DraftStatementViewState } from "../../../ViewState/draft";
 
 import { StopSVG, STOP_SVG_HEIGHT, STOP_SVG_HEIGHT_WITH_SHADOW, STOP_SVG_SHADOW_OFFSET, STOP_SVG_WIDTH_WITH_SHADOW } from "./StopSVG";
 import "./style.scss";

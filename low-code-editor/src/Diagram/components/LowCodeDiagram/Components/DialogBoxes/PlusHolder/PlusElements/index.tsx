@@ -20,9 +20,9 @@ import CloseIcon from '@material-ui/icons/Close';
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { useFunctionContext } from "../../../../../../../Contexts/Function";
 import { BallerinaConnectorInfo } from "../../../../../../../Definitions/lang-client-extended";
-import { PlusViewState } from "../../../../../../view-state/plus";
 import { OverlayBackground } from "../../../../../OverlayBackground";
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from '../../../../../Portals/Overlay';
+import { PlusViewState } from "../../../../ViewState/plus";
 import { StatementOptions } from "../PlusElementOptions/StatementOptions";
 import "../style.scss";
 

@@ -1,6 +1,6 @@
 import { LocalVarDecl, NodePosition } from "@ballerina/syntax-tree";
 
-import { BallerinaConnectorInfo } from "../../Definitions/lang-client-extended";
+import { BallerinaConnectorInfo } from "../../../../Definitions/lang-client-extended";
 
 import { StatementViewState } from ".";
 

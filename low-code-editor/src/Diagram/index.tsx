@@ -13,23 +13,24 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from "react";
 
-import { ModulePart } from "@ballerina/syntax-tree";
+import { ModulePart, NodePosition, STNode } from "@ballerina/syntax-tree";
 import Container from "@material-ui/core/Container";
 import classnames from 'classnames';
 
 import { Context as DiagramContext } from "../Contexts/Diagram";
+import { ConfigOverlayFormStatus } from "../Definitions";
 import { TextPreLoader } from "../PreLoader/TextPreLoader";
 
-import { CanvasDiagram } from "./components/LowCodeDiagram/CanvasContainer";
+import { FormGenerator, FormGeneratorProps } from "./components/FormComponents/FormGenerator";
+import LowCodeDiagram from "./components/LowCodeDiagram";
 import { DataMapper } from './components/LowCodeDiagram/Components/RenderingComponents/DataMapper';
 import { DiagramDisableState } from "./components/LowCodeDiagram/DiagramState/DiagramDisableState";
 import { DiagramErrorState } from "./components/LowCodeDiagram/DiagramState/DiagramErrorState";
 import { ErrorList } from "./components/LowCodeDiagram/DiagramState/ErrorList";
+import { ViewState } from "./components/LowCodeDiagram/ViewState";
 import { OverlayBackground } from "./components/OverlayBackground";
 import "./style.scss";
 import { useStyles } from "./styles";
-import { getSTComponent } from "./utils";
-import { ViewState } from "./view-state";
 import { DefaultConfig } from "./visitors/default";
 
 export function Diagram() {
@@ -73,6 +74,8 @@ export function Diagram() {
     const warningsInDiagram = warnings && warnings.length > 0;
     const [isErrorStateDialogOpen, setIsErrorStateDialogOpen] = useState(diagramErrors);
     const [isErrorDetailsOpen, setIsErrorDetailsOpen] = useState(false);
+    const [isFormOpen, setIsFormOpen] = useState(false);
+    const [formConfig, setFormConfig] = useState<FormGeneratorProps>(undefined);
 
     React.useEffect(() => {
         setIsErrorStateDialogOpen(diagramErrors);
@@ -88,6 +91,39 @@ export function Diagram() {
         setIsErrorStateDialogOpen(false);
         setIsErrorDetailsOpen(false);
     }
+
+    const handleDiagramAdd = (targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose: () => void, onSave: () => void) => {
+        setFormConfig({
+            configOverlayFormStatus,
+            onCancel: () => {
+                setIsFormOpen(false);
+                onClose();
+            },
+            onSave: () => {
+                setIsFormOpen(false);
+                onSave();
+            },
+            targetPosition
+        });
+        setIsFormOpen(true);
+    };
+
+    const handleDiagramEdit = (model: STNode, targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose: () => void, onSave: () => void) => {
+        setFormConfig({
+            model,
+            configOverlayFormStatus,
+            onCancel: () => {
+                setIsFormOpen(false);
+                onClose();
+            },
+            onSave: () => {
+                setIsFormOpen(false);
+                onSave();
+            },
+            targetPosition
+        });
+        setIsFormOpen(true);
+    };
 
     const textLoader = (
         <div className={classes.progressContainer}>
@@ -139,8 +175,6 @@ export function Diagram() {
         h = h + (window.innerHeight - h);
     }
 
-    const child = getSTComponent(syntaxTree);
-
     let hasConfigurable = false;
     if (originalSyntaxTree) {
         hasConfigurable = hasConfigurables(originalSyntaxTree as ModulePart)
@@ -168,38 +202,26 @@ export function Diagram() {
             {isErrorDetailsOpen && <ErrorList />}
 
             <Container className={classes.DesignContainer}>
-                {/* <div id="canvas-overlay" className={classes.OverlayContainer} /> */}
                 {isDataMapperShown && (
                     <DataMapper width={w} />
                 )}
                 {!isDataMapperShown && (
-                    <CanvasDiagram>
-                        {child}
-                    </CanvasDiagram>
+                    <LowCodeDiagram
+                        syntaxTree={syntaxTree}
+                        originalSyntaxTree={originalSyntaxTree}
+                        isReadOnly={isReadOnly}
+                        api={{
+                            edit: {
+                                renderAddForm: handleDiagramAdd,
+                                renderEditForm: handleDiagramEdit
+                            }
+                        }}
+                    />
                 )}
-                {/*
-                {diagramDisabledWithTextLoaderStatus && triggerType !== undefined && isWaitingOnWorkspace && <OverlayBackground />}
-                {isCodeEditorActive && !isConfigOverlayFormOpen && diagramDisabledStatus && <OverlayBackground />}
-                {isConfigOverlayFormOpen && <OverlayBackground />}
-                */}
+                {isFormOpen && (
+                    <FormGenerator {...formConfig} />
+                )}
             </Container>
-
-            {/* <PanAndZoom>
-                <Container className={classes.DesignContainer}>
-                    <div id="canvas-overlay" className={classes.OverlayContainer} />
-                    {isDataMapperShown && (
-                        <DataMapper width={w} />
-                    )}
-                    {!isDataMapperShown && (
-                        <Canvas h={h} w={w} >
-                            {child}
-                        </Canvas>
-                    )}
-                    {diagramDisabledWithTextLoaderStatus && triggerType !== undefined && isWaitingOnWorkspace && <OverlayBackground />}
-                    {isCodeEditorActive && !isConfigOverlayFormOpen && diagramDisabledStatus && <OverlayBackground />}
-                    {isConfigOverlayFormOpen && <OverlayBackground />}
-                </Container>
-            </PanAndZoom> */}
         </div>
     );
 }

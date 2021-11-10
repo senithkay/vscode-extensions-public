@@ -14,7 +14,7 @@ import * as React from "react";
 
 import cn from "classnames";
 
-import { FunctionViewState, ViewState } from "../../../../../view-state";
+import { FunctionViewState, ViewState } from "../../../ViewState";
 
 import "./style.scss";
 

@@ -17,8 +17,8 @@ import { OnFailClause as BallerinaOnFailClause } from "@ballerina/syntax-tree";
 
 import { Context as DiagramContext } from "../../../../../../Contexts/Diagram";
 import { getDraftComponent, getSTComponents } from "../../../../../utils";
-import { BlockViewState, DoViewState, OnErrorViewState } from "../../../../../view-state";
 import { DefaultConfig } from "../../../../../visitors/default";
+import { BlockViewState, DoViewState, OnErrorViewState } from "../../../ViewState";
 import { PlusButton } from "../../PlusButtons/Plus";
 
 import "./style.scss";

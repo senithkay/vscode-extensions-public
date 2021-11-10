@@ -45,7 +45,6 @@ import {
     getConnectorFromCache,
     isSTActionInvocation
 } from "../../../utils/st-util";
-import { StatementViewState } from "../../../view-state";
 import * as Forms from "../../FormComponents/ConfigForms";
 import { ConfigWizardState } from "../../FormComponents/ConnectorConfigWizard";
 import * as ConnectorExtension from "../../FormComponents/ConnectorExtensions";
@@ -54,6 +53,7 @@ import { getUnionFormFieldName } from "../../FormComponents/FormFieldComponents/
 import { FormElementProps } from "../../FormComponents/Types";
 import * as OverlayElement from "../../LowCodeDiagram/Components/DialogBoxes";
 import * as ConnectorIcons from "../../LowCodeDiagram/Components/RenderingComponents/Connector/Icon";
+import { StatementViewState } from "../../LowCodeDiagram/ViewState";
 
 import { keywords, symbolKind } from "./constants";
 

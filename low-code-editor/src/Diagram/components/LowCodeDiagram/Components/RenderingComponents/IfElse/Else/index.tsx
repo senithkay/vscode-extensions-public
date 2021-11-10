@@ -18,8 +18,8 @@ import cn from "classnames";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { getDraftComponent, getSTComponents } from "../../../../../../utils";
-import { ControlFlowLineState, ElseViewState } from "../../../../../../view-state";
 import { DefaultConfig } from "../../../../../../visitors/default";
+import { ControlFlowLineState, ElseViewState } from "../../../../ViewState";
 import { PlusButton } from "../../../PlusButtons/Plus";
 import { Collapse } from "../../Collapse";
 import { ControlFlowLine } from "../../ControlFlowLine";

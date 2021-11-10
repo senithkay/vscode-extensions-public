@@ -10,32 +10,30 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useContext } from "react";
+import React from "react";
 
 import { LocalVarDecl, STNode } from "@ballerina/syntax-tree";
 import cn from "classnames";
 
-import { Context } from "../../../../../../Contexts/Diagram";
-import { SimpleBBox, StatementViewState } from "../../../../../view-state";
 import { DefaultConfig } from "../../../../../visitors/default";
-import { ConnectorProcessSVG, CONNECTOR_PROCESS_SVG_WIDTH, CONNECTOR_PROCESS_SVG_WIDTH_WITH_SHADOW } from "../Connector/ConnectorProcess/ConnectorProcessSVG";
+import { SimpleBBox, StatementViewState } from "../../../ViewState";
+import { CONNECTOR_PROCESS_SVG_WIDTH_WITH_SHADOW } from "../Connector/ConnectorProcess/ConnectorProcessSVG";
 import ControlFlowArrow from "../ControlFlowArrow";
 import { Metrics } from "../Metrics";
 import { Performance } from "../Performace";
-import { DataProcessor } from "../Processor";
 import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH } from "../Processor/ProcessSVG";
 
 import { ActionInvoLine } from "./ActionInvoLine";
 import { ActionProcessor } from "./ActionProcess";
 import "./style.scss";
-import { TriggerSVG, TRIGGER_SVG_HEIGHT, TRIGGER_SVG_WIDTH } from "./TriggerSVG";
+import { TriggerSVG, TRIGGER_SVG_WIDTH } from "./TriggerSVG";
 export interface ConnectorLineProps {
     model: STNode
 }
 
 export function ActionInvocation(props: ConnectorLineProps) {
     const { model } = props;
-    const { props: { isPerformanceViewOpen } } = useContext(Context);
+    // const { props: { isPerformanceViewOpen } } = useContext(Context);
     const classes = cn("action-invocation");
     const leftline = "leftline";
     const dashedLine = "dashedLine";
@@ -59,9 +57,9 @@ export function ActionInvocation(props: ConnectorLineProps) {
     const triggerSVGX = lifeLineCX;
     const triggerSVGY = viewState.bBox.cy;
 
-    const truncatedActionName = (
-        viewState.action.actionName.length > 8 && viewState.action.actionName ? viewState.action.actionName.slice(0, 7) + "..." : viewState.action.actionName
-    );
+    // const truncatedActionName = (
+    //     viewState.action.actionName.length > 8 && viewState.action.actionName ? viewState.action.actionName.slice(0, 7) + "..." : viewState.action.actionName
+    // );
 
     const controlFlowArrowC = (
         <g>
@@ -93,7 +91,7 @@ export function ActionInvocation(props: ConnectorLineProps) {
                     width={DefaultConfig.textLine.padding + DefaultConfig.textLine.width + DefaultConfig.textLine.padding}
                     className={'method-text'}
                 >
-                    {isPerformanceViewOpen ? truncatedActionName : viewState.action.actionName}
+                    {viewState.action.actionName}{/* isPerformanceViewOpen ? truncatedActionName : */}
                 </text>
                 <ActionInvoLine
                     actionX={actionLineStartX}

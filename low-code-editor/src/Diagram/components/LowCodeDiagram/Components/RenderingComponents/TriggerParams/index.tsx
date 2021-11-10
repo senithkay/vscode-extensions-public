@@ -15,8 +15,8 @@ import React from "react";
 
 import {FunctionDefinition, RequiredParam, RestParam, STKindChecker, STNode} from "@ballerina/syntax-tree";
 
-import {BlockViewState} from "../../../../../view-state";
 import {DefaultConfig} from "../../../../../visitors/default";
+import {BlockViewState} from "../../../ViewState";
 import {START_SVG_HEIGHT_WITH_SHADOW} from "../Start/StartSVG";
 
 import "./style.scss";

@@ -16,7 +16,7 @@ import { LocalVarDecl, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import cn from "classnames";
 
 import { isVarTypeDescriptor } from "../../../../../utils/diagram-util";
-import { EndpointViewState, StatementViewState } from '../../../../../view-state';
+import { EndpointViewState, StatementViewState } from '../../../ViewState';
 import { ActionInvocation } from '../ActionInvocation';
 import { Connector } from "../Connector";
 import { DoStatement } from '../DoStatement';

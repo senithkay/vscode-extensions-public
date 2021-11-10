@@ -15,8 +15,8 @@ import * as React from "react";
 import { STNode } from "@ballerina/syntax-tree";
 import cn from "classnames";
 
-import { EndpointViewState, StatementViewState } from "../../../../../view-state";
 import { DefaultConfig } from "../../../../../visitors/default";
+import { EndpointViewState, StatementViewState } from "../../../ViewState";
 import { ActionInvoLine } from "../ActionInvocation/ActionInvoLine";
 import ControlFlowArrow from "../ControlFlowArrow";
 

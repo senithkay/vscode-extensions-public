@@ -19,7 +19,6 @@ import { WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
 import { getDraftComponent, getSTComponents } from "../../../../../utils";
 import { getConditionConfig, getRandomInt } from "../../../../../utils/diagram-util";
-import { BlockViewState, ForEachViewState } from "../../../../../view-state";
 import { DefaultConfig } from "../../../../../visitors/default";
 import { FormGenerator } from "../../../../FormComponents/FormGenerator";
 import { ForeachConfig } from "../../../../FormComponents/Types";
@@ -34,6 +33,7 @@ import {
     EDIT_SVG_OFFSET,
     EDIT_SVG_WIDTH_WITH_SHADOW
 } from "../../../Components/DiagramActions/EditBtn/EditSVG";
+import { BlockViewState, ForEachViewState } from "../../../ViewState";
 import { PlusButton } from "../../PlusButtons/Plus";
 import { Collapse } from "../Collapse";
 import { CONDITION_ASSIGNMENT_NAME_WIDTH, ContitionAssignment } from "../ContitionAssignment";

@@ -11,21 +11,21 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 
 import { ActionStatement, STNode } from "@ballerina/syntax-tree";
 
 import { WizardType } from "../../../../../../ConfigurationSpec/types";
-import { Context } from "../../../../../../Contexts/Diagram";
+import { ConfigOverlayFormStatus } from "../../../../../../Definitions";
 import { getOverlayFormConfig } from "../../../../../utils/diagram-util";
-import { BlockViewState } from "../../../../../view-state";
-import { DraftStatementViewState } from "../../../../../view-state/draft";
 import { DefaultConfig } from "../../../../../visitors/default";
-import { FormGenerator } from "../../../../FormComponents/FormGenerator";
 import { DeleteBtn } from "../../../Components/DiagramActions/DeleteBtn";
 import { DELETE_SVG_WIDTH_WITH_SHADOW } from "../../../Components/DiagramActions/DeleteBtn/DeleteSVG";
 import { EditBtn } from "../../../Components/DiagramActions/EditBtn";
 import { EDIT_SVG_WIDTH_WITH_SHADOW } from "../../../Components/DiagramActions/EditBtn/EditSVG";
+import { Context } from "../../../Context/diagram";
+import { BlockViewState } from "../../../ViewState";
+import { DraftStatementViewState } from "../../../ViewState/draft";
 import { PROCESS_SVG_HEIGHT, PROCESS_SVG_HEIGHT_WITH_SHADOW, PROCESS_SVG_SHADOW_OFFSET, PROCESS_SVG_WIDTH, PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW } from "../Processor/ProcessSVG";
 
 import { RespondSVG, RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH_WITH_SHADOW } from "./RespondSVG";
@@ -39,11 +39,9 @@ export interface RespondProps {
 export function Respond(props: RespondProps) {
     const {
         actions: {
-            diagramCleanDraw, toggleDiagramOverlay
+            diagramCleanDraw
         },
         props: {
-            currentApp,
-            isCodeEditorActive,
             syntaxTree,
             stSymbolInfo,
             isWaitingOnWorkspace,
@@ -51,23 +49,15 @@ export function Respond(props: RespondProps) {
             isReadOnly,
         },
         api: {
-            code: {
-                setCodeLocationToHighlight: setCodeToHighlight
-            },
-            splitPanel: {
-                maximize: maximizeCodeView,
-                handleRightPanelContent
-            },
-            configPanel: {
-                dispactchConfigOverlayForm: openNewEndConfig,
+            edit: {
+                renderAddForm,
+                renderEditForm
             }
+
         }
     } = useContext(Context);
 
-    const { id: appId } = currentApp || {};
-
     const { model, blockViewState } = props;
-    const [configOverlayFormState, updateConfigOverlayFormState] = useState(undefined);
 
     let isEditable = false;
     const [isConfigWizardOpen, setConfigWizardOpen] = useState(false);
@@ -95,12 +85,6 @@ export function Respond(props: RespondProps) {
         compType = blockViewState.draft[1].subType.toUpperCase();
     }
 
-    useEffect(() => {
-        if (configOverlayFormState) {
-            toggleDiagramOverlay();
-        }
-    }, [configOverlayFormState])
-
     const deleteTriggerPosition = {
         cx: cx - (DELETE_SVG_WIDTH_WITH_SHADOW / 2) - (DefaultConfig.dotGap / 2),
         cy: cy + (RESPOND_SVG_HEIGHT / 4)
@@ -112,9 +96,9 @@ export function Respond(props: RespondProps) {
     };
 
     const onClickOpenInCodeView = () => {
-        maximizeCodeView("home", "vertical", appId);
-        handleRightPanelContent('Code');
-        setCodeToHighlight(model.position)
+        // maximizeCodeView("home", "vertical", appId);
+        // handleRightPanelContent('Code');
+        // setCodeToHighlight(model.position);
     }
 
     const component: React.ReactElement = (!model?.viewState.collapsed &&
@@ -125,7 +109,7 @@ export function Respond(props: RespondProps) {
                     y={cy - DefaultConfig.shadow + DefaultConfig.dotGap / 2}
                     text={compType}
                     sourceSnippet={sourceSnippet}
-                    openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model.position && appId && onClickOpenInCodeView}
+                    openInCodeView={!isWaitingOnWorkspace && model && model.position && onClickOpenInCodeView}
                 />
             </g>
         )
@@ -135,7 +119,6 @@ export function Respond(props: RespondProps) {
         if (blockViewState) {
             blockViewState.draft = undefined;
             diagramCleanDraw(syntaxTree);
-            toggleDiagramOverlay();
         }
         setConfigWizardOpen(false);
     };
@@ -146,34 +129,25 @@ export function Respond(props: RespondProps) {
             diagramCleanDraw(syntaxTree);
         }
         setConfigWizardOpen(false);
-        toggleDiagramOverlay();
     }
 
     React.useEffect(() => {
         if (blockViewState) {
             const draftVS = blockViewState.draft[1] as DraftStatementViewState;
-            openNewEndConfig(draftVS.subType, draftVS.targetPosition, WizardType.NEW,
-                blockViewState, undefined, stSymbolInfo);
             const overlayFormConfig = getOverlayFormConfig(draftVS.subType, draftVS.targetPosition, WizardType.NEW,
                 blockViewState, undefined, stSymbolInfo);
-            updateConfigOverlayFormState(overlayFormConfig);
+            renderAddForm(draftVS.targetPosition, overlayFormConfig as ConfigOverlayFormStatus, onCancel, onSave);
         }
     }, []);
 
-    // const draftConmpnant = blockViewState?.draft[1] as DraftStatementViewState
-
     const onEditClick = () => {
-        openNewEndConfig("Respond", model.position, WizardType.EXISTING,
-            model.viewState, undefined, stSymbolInfo, model);
         const overlayFormConfig = getOverlayFormConfig("Respond", model.position, WizardType.EXISTING,
             blockViewState, undefined, stSymbolInfo, model);
-        updateConfigOverlayFormState(overlayFormConfig);
-        setConfigWizardOpen(true);
+        renderEditForm(model, model.position, overlayFormConfig as ConfigOverlayFormStatus, onCancel, onSave);
     }
 
     const onSave = () => {
         setConfigWizardOpen(false);
-        toggleDiagramOverlay();
     }
 
     return (
@@ -187,20 +161,6 @@ export function Respond(props: RespondProps) {
                     x={cx - (PROCESS_SVG_SHADOW_OFFSET / 2)}
                     y={cy - (PROCESS_SVG_SHADOW_OFFSET / 2)}
                 >
-                    {blockViewState && blockViewState.draft && configOverlayFormState &&
-                        <FormGenerator
-                            onCancel={onCancel}
-                            onSave={onSave}
-                            configOverlayFormStatus={configOverlayFormState}
-                        />
-                    }
-                    {isConfigWizardOpen && configOverlayFormState &&
-                        <FormGenerator
-                            onCancel={onCancel}
-                            onSave={onSave}
-                            configOverlayFormStatus={configOverlayFormState}
-                        />
-                    }
                     {!isConfigWizardOpen && (
                         <>
                             <rect

@@ -30,9 +30,9 @@ import {
     START_EXISTING_CONNECTOR_ADD_INSIGHTS
 } from "../../../../../../../models";
 import { addConnectorListToCache } from "../../../../../../../utils/st-util";
-import { PlusViewState } from "../../../../../../../view-state/plus";
 import { FormGeneratorProps } from "../../../../../../FormComponents/FormGenerator";
 import { getConnectorIconSVG, getExistingConnectorIconSVG, getFormattedModuleName } from "../../../../../../Portals/utils";
+import { PlusViewState } from "../../../../../ViewState/plus";
 import { APIHeightStates } from "../../PlusElements";
 import "../../style.scss";
 

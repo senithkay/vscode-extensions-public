@@ -16,7 +16,7 @@ import { NodePosition, STNode } from "@ballerina/syntax-tree";
 
 import { ConfigOverlayFormStatus } from "../../../../Definitions";
 import { Panel } from "../../Panel";
-import { getForm } from "../../Portals/utils";
+import { getForm } from "../Utils";
 
 export interface FormGeneratorProps {
   model?: STNode;
