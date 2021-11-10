@@ -130,17 +130,8 @@ export interface JsonToRecordRequest {
     isClosed: boolean;
 }
 
-export interface JsonToRecordField {
-    name: string;
-    type: string;
-    isArray: boolean;
-    isRequired: boolean;
-    fields: JsonToRecordField[];
-}
-
 export interface JsonToRecordResponse {
     codeBlock: string;
-    fields: JsonToRecordField;
 }
 
 interface BallerinaInitializeParams {
@@ -271,27 +262,6 @@ export interface SequenceGraphPointValue {
     latency: String;
     tps: String;
 }
-
-export interface JsonToRecordRequest {
-    jsonString: string;
-    recordName: string;
-    isRecordTypeDesc: boolean;
-    isClosed: boolean;
-}
-
-export interface JsonToRecordField {
-    name: string;
-    type: string;
-    isArray: boolean;
-    isRequired: boolean;
-    fields: JsonToRecordField[];
-}
-
-export interface JsonToRecordResponse {
-    codeBlock: string;
-    fields: JsonToRecordField;
-}
-
 export class ExtendedLangClient extends LanguageClient {
     private ballerinaExtendedServices: Set<String> | undefined;
     private isDynamicRegistrationSupported: boolean;
