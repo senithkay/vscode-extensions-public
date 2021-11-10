@@ -97,7 +97,7 @@ export function ServiceHeader(props: ServiceHeaderProps) {
         >
             <div className={"header-segement-container"}>
                 <div className={"header-segment"}>
-                    <ServiceIconLight className=".service-config-form-fill"/>
+                    <ServiceIconLight className="dark-fill"/>
                 </div>
                 <div className={"header-segment"}>{serviceType}</div>
                 <div className={"header-segment-path"}>{servicePath}</div>

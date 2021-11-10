@@ -12,9 +12,13 @@
  */
 import React from 'react';
 
-export default function ConstantIcon() {
+export interface ConstantIconProps {
+    className?: string
+}
+
+export default function ConstantIcon(props: ConstantIconProps) {
     return (
-        <svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
+        <svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" className={props?.className ? props.className : "sub-menu-dark-fill"}>
             <title>7C0D8DAD-3459-4E19-BC9B-9D270DE4F96F</title>
             <g id="module-var" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                 <g id="module-var-body" className="svg-sub-menu-plus-option-icon" transform="translate(-907.000000, -112.000000)" fill-rule="nonzero">

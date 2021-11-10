@@ -18,7 +18,7 @@ export interface FunctionIconProps {
 
 export default function FunctionIcon(props: FunctionIconProps) {
     return (
-        <svg width="16px" height="14px" viewBox="0 0 16 14" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" className={props.className}>
+        <svg width="16px" height="14px" viewBox="0 0 16 14" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" className={props?.className ? props.className : "dark-fill"}>
             <g id="Home" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
                 <g id="choose-service" transform="translate(-136.000000, -306.000000)" className="svg-plus-option-icon" fillRule="nonzero">
                     <g id="Icon/Fx-Copy" transform="translate(136.000000, 306.000000)">

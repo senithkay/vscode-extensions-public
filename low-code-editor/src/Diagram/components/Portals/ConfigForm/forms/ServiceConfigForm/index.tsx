@@ -53,7 +53,7 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
         <FormControl data-testid="service-config-form" className={formClasses.wizardFormControl}>
             <div className={formClasses.formTitleWrapper}>
                 <div className={formClasses.mainTitleWrapper}>
-                    <ServiceIcon className={"service-config-form-fill"} />
+                    <ServiceIcon className="service-config-light-fill" />
                     <Typography variant="h4">
                         <Box paddingTop={2} paddingBottom={2} paddingLeft={15}>Service</Box>
                     </Typography>
