@@ -157,6 +157,7 @@ export class UndoRedoManager {
                 this.redoStack.set(this.path, redoSourceStack);
             }
             const lastsource = this.undoStack.get(this.path).pop();
+            this.updateContent(this.path, lastsource)
             return lastsource;
 
             // const langClient = await getDiagramEditorLangClient(langServerURL);
@@ -177,8 +178,6 @@ export class UndoRedoManager {
             // setFileContent(lastsource);
             // content = lastsource;
             // props.updateFileContent(path, lastsource);
-        } else {
-            return ("");
         }
     }
 
@@ -193,8 +192,8 @@ export class UndoRedoManager {
                 undoSourceStack.shift();
             }
             this.undoStack.set(this.path, undoSourceStack);
-
             const lastUndoSource = this.redoStack.get(this.path).pop();
+            this.updateContent(this.path, lastUndoSource)
             return lastUndoSource;
 
             // langClient.didChange({
@@ -228,5 +227,9 @@ export class UndoRedoManager {
             }
             this.undoStack.set(this.path, sourcestack);
         }
+    }
+
+    public getFilePath() {
+        return(this.path);
     }
 }
