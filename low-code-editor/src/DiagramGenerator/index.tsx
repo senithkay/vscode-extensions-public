@@ -5,6 +5,7 @@ import { monaco } from "react-monaco-editor";
 import { FunctionDefinition, ModulePart, NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import { MuiThemeProvider } from "@material-ui/core/styles";
 import cloneDeep from "lodash.clonedeep";
+import Mousetrap from 'mousetrap';
 
 import LowCodeEditor, { BlockViewState, getSymbolInfo, InsertorDelete } from "..";
 import "../assets/fonts/Glimer/glimer.css";
@@ -71,18 +72,26 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     }, [lastUpdatedAt]);
 
     React.useEffect(() => {
-        const keyPress = (e: any) => {
-            const evtobj = e;
-            if (evtobj.keyCode === 90 && evtobj.ctrlKey) {
-                undo();
-            } else if (evtobj.keyCode === 89 && evtobj.ctrlKey) {
-                redo();
-            }
-        }
-        document.onkeydown = keyPress;
-        return () => {
-            document.onkeydown = undefined;
-        };
+        // const keyPress = (e: any) => {
+        //     const evtobj = e;
+        //     if (evtobj.keyCode === 90 && evtobj.ctrlKey) {
+        //         undo();
+        //     } else if (evtobj.keyCode === 89 && evtobj.ctrlKey) {
+        //         redo();
+        //     }
+        // }
+        // document.onkeydown = keyPress;
+        // return () => {
+        //     document.onkeydown = undefined;
+        // };
+        Mousetrap.bind(['command+z', 'ctrl+z'], () => {
+            undo();
+            return false;
+        });
+        Mousetrap.bind(['command+y', 'ctrl+y'], () => {
+            redo();
+            return false;
+        });
     }, []);
 
     const undo = async () => {
