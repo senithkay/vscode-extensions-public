@@ -12,7 +12,6 @@
  */
 
 .dropdown {
-
     .dropdown-menu {
         box-sizing: border-box;
         height: fit-content;
@@ -33,7 +32,7 @@
 
         .dropdown-menu {
             visibility: hidden;
-            transition-delay: .5s all;
+            transition-delay: 0.5s all;
         }
 
         &:hover {
@@ -42,7 +41,7 @@
                 top: 0;
                 left: 100%;
                 margin-top: -1px;
-                transition-delay: .5s all;
+                transition-delay: 0.5s all;
             }
 
             li {
@@ -50,18 +49,17 @@
                     .plus-option {
                         .plus-option-icon {
                             .svg-sub-menu-plus-option-icon {
-                                fill: #fff !important;
+                                fill: #fff;
                             }
                         }
                     }
                 }
             }
-
         }
-
     }
 
-    .dropdown-submenu, .dropdown-menu {
+    .dropdown-submenu,
+    .dropdown-menu {
         padding-left: 0;
 
         li {
@@ -71,14 +69,15 @@
 
             &:hover {
                 background-color: #434ecb;
-                .plus-option{
+
+                .plus-option {
                     .plus-option-text {
                         color: #fff;
                     }
 
                     .plus-option-icon {
                         .svg-plus-option-icon {
-                            fill: #fff !important;
+                            fill: #fff;
                         }
                     }
                 }
