@@ -76,7 +76,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
             undo();
             return false;
         });
-        Mousetrap.bind(['command+y', 'ctrl+y'], () => {
+        Mousetrap.bind(['command+shift+z', 'ctrl+y'], () => {
             redo();
             return false;
         });
