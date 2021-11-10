@@ -72,18 +72,6 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     }, [lastUpdatedAt]);
 
     React.useEffect(() => {
-        // const keyPress = (e: any) => {
-        //     const evtobj = e;
-        //     if (evtobj.keyCode === 90 && evtobj.ctrlKey) {
-        //         undo();
-        //     } else if (evtobj.keyCode === 89 && evtobj.ctrlKey) {
-        //         redo();
-        //     }
-        // }
-        // document.onkeydown = keyPress;
-        // return () => {
-        //     document.onkeydown = undefined;
-        // };
         Mousetrap.bind(['command+z', 'ctrl+z'], () => {
             undo();
             return false;
