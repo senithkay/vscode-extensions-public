@@ -54,10 +54,10 @@ export function diagnosticChecker(diagnostics: Diagnostic[]): boolean {
 
 export function addToTargetLine(oldModelValue: string, targetPosition: NodePosition, codeSnippet: string, EOL?: string): string {
     const modelContent: string[] = oldModelValue.split(/\n/g) || [];
-    if (targetPosition?.startColumn){
+    if (targetPosition?.startColumn) {
         // FIXME: The following logic fails completely when inserting code where target position is multiline
         modelContent[targetPosition?.startLine] = addToTargetPosition(modelContent[targetPosition?.startLine], targetPosition?.startColumn, codeSnippet, targetPosition?.endColumn || targetPosition.startColumn);
-    }else{
+    } else {
         modelContent.splice(targetPosition?.startLine, 0, codeSnippet);
     }
     return modelContent.join('\n');
@@ -316,9 +316,9 @@ export function checkIfStringExist(varType: string): boolean {
 /** Inject StModifications into the expression editor modal  */
 export const addInjectables = async (oldModelValue: string, injectables?: InjectableItem[]): Promise<string> => {
     const modelContent: string[] = oldModelValue.split(/\n/g) || [];
-    if (injectables){
+    if (injectables) {
         const modifications = await InsertorDelete(injectables.map(item => item.modification))
-        for (const item of modifications){
+        for (const item of modifications) {
             const source = item.config?.STATEMENT || ''
             modelContent[item.startLine] = addToTargetPosition(modelContent[item.startLine], item.startColumn, source, item.endColumn);
         }
@@ -379,7 +379,7 @@ export function createContentWidget(id: string): monaco.editor.IContentWidget {
                 } else if (id === COLLAPSE_WIDGET_ID) {
                     this.domNode.className = "collapse-icon";
                     this.domNode.innerHTML = `<img src="${ExpEditorCollapseSvg}"/>`;
-                }else if (id === CONFIGURABLE_WIDGET_ID) {
+                } else if (id === CONFIGURABLE_WIDGET_ID) {
                     this.domNode.className = "configurable-icon";
                     this.domNode.innerHTML = `<img src="${ConfigurableIconSvg}"/>`;
                 }
@@ -404,12 +404,10 @@ export function getRandomInt(max: number) {
     return Math.floor(Math.random() * Math.floor(max));
 }
 
-export function getFilteredDiagnostics (diagnostics: Diagnostic[], isCustomStatement: boolean) {
-    if (isCustomStatement) {
-        return diagnostics;
-    } else {
-        return diagnostics.filter(diagnostic => !IGNORED_DIAGNOSTIC_MESSAGES.includes(diagnostic.message.toString()) && diagnostic.severity === 1);
-    }
+export function getFilteredDiagnostics(diagnostics: Diagnostic[], isCustomStatement: boolean) {
+    return diagnostics
+        .filter(diagnostic =>
+            !IGNORED_DIAGNOSTIC_MESSAGES.includes(diagnostic.message.toString()) && diagnostic.severity === 1);
 }
 
 
@@ -512,9 +510,9 @@ const hintHandlers = {
             const editorModel = monacoRef.current.editor.getModel();
             if (editorModel) {
                 const editorContent = editorModel.getValue();
-                if (foundType === 'string'){
+                if (foundType === 'string') {
                     editorModel.setValue(`check ${varType}:fromString(${editorContent})`);
-                }else{
+                } else {
                     editorModel.setValue(`<${varType}> ${editorContent}`);
                 }
                 monacoRef.current.editor.focus();
@@ -530,29 +528,29 @@ export const getHints = (diagnostics: Diagnostic[], varType: string, varName: st
     if (diagnostics && Array.isArray(diagnostics) && diagnostics.length > 0) {
         const [expectedType, foundType] = getTypesFromDiagnostics(getSelectedDiagnostics(diagnostics, varType));
 
-        if (typeCheckerExp(diagnostics, varName, varType)){
+        if (typeCheckerExp(diagnostics, varName, varType)) {
             // Prepend `check` to input in order to handle expressions that could throw an error
-            hints.push({type: HintType.ADD_CHECK, onClickHere: () => hintHandlers.addCheck(monacoRef)})
-        }else if (addElvisChecker(expectedType, foundType)){
+            hints.push({ type: HintType.ADD_CHECK, onClickHere: () => hintHandlers.addCheck(monacoRef) })
+        } else if (addElvisChecker(expectedType, foundType)) {
             // Add a default value for nullable inputs via Elvis operator
-            hints.push({type: HintType.ADD_ELVIS_OPERATOR, onClickHere: () => hintHandlers.addElvisOperator(varType, monacoRef)})
-        }else if (checkIfStringExist(varType)){
+            hints.push({ type: HintType.ADD_ELVIS_OPERATOR, onClickHere: () => hintHandlers.addElvisOperator(varType, monacoRef) })
+        } else if (checkIfStringExist(varType)) {
             // handle string or string|other_types
-            if (addToStringChecker(diagnostics)){
+            if (addToStringChecker(diagnostics)) {
                 // Add .toString to the input
-                hints.push({type: HintType.ADD_TO_STRING, onClickHere: () => hintHandlers.addToString(monacoRef)})
-            }else if (addQuotesChecker(diagnostics)){
+                hints.push({ type: HintType.ADD_TO_STRING, onClickHere: () => hintHandlers.addToString(monacoRef) })
+            } else if (addQuotesChecker(diagnostics)) {
                 const editorContent = monacoRef.current.editor.getModel().getValue();
                 if (editorContent === "") {
                     // Add empty double quotes if the input field is empty for string type
-                    hints.push({type: HintType.ADD_DOUBLE_QUOTES_EMPTY, onClickHere: () => hintHandlers.addDoubleQuotes(monacoRef)})
-                }else{
+                    hints.push({ type: HintType.ADD_DOUBLE_QUOTES_EMPTY, onClickHere: () => hintHandlers.addDoubleQuotes(monacoRef) })
+                } else {
                     // Add double quotes around the input, if its string input type
-                    hints.push({type: HintType.ADD_DOUBLE_QUOTES, onClickHere: () => hintHandlers.addDoubleQuotes(monacoRef), editorContent})
+                    hints.push({ type: HintType.ADD_DOUBLE_QUOTES, onClickHere: () => hintHandlers.addDoubleQuotes(monacoRef), editorContent })
                 }
             }
         } else if (suggestCastChecker(expectedType, foundType)) {
-            hints.push({type: HintType.SUGGEST_CAST, onClickHere: () => hintHandlers.addTypeCast(foundType, varType, monacoRef), expressionType: varType})
+            hints.push({ type: HintType.SUGGEST_CAST, onClickHere: () => hintHandlers.addTypeCast(foundType, varType, monacoRef), expressionType: varType })
         }
     }
 

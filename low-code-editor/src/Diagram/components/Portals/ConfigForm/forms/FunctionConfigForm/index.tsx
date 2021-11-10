@@ -73,11 +73,7 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
             .join("|");
         let returnTypeStr = returnType ? `returns ${returnType}` : "";
 
-        // If none of the types are optional, append `|error?` to the return types
-        if (returnTypeStr && returnTypes.every((item) => !item.isOptional)) {
-            // FIXME: if `error` type is selected, it would become `error|error?`
-            returnTypeStr = `${returnTypeStr}|error?`;
-        }
+
 
         const modifications: STModification[] = [];
         if (model && STKindChecker.isFunctionDefinition(model)) {
@@ -94,6 +90,13 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
                 )
             );
         } else {
+            // If none of the types are optional, append `|error?` or `|()` to the return types
+            if (returnTypeStr && returnTypes.every((item) => !item.isOptional)) {
+                // if `error` type is selected as one of mandatory return types, set return type as `..|error|()` else set return type as `..|error?`
+                const containsReturnType = !!returnTypes.find(item => item.type === 'error' && !item.isOptional);
+                returnTypeStr = containsReturnType ? `${returnTypeStr}|()` : `${returnTypeStr}|error?`;
+            }
+
             // Create new function if model does not exist
             modifications.push(
                 createFunctionSignature(

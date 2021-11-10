@@ -20,8 +20,8 @@ import { FormHelperText } from "@material-ui/core";
 import CheckBoxGroup from "../../../../../Elements/CheckBox";
 import { SelectDropdownWithButton } from "../../../../../Elements/DropDown/SelectDropdownWithButton";
 import ExpressionEditor from "../../../../../Elements/ExpressionEditor";
-import { FormTextInput } from "../../../../../Elements/TextField/FormTextInput";
 import { FormElementProps } from "../../../../../types";
+import { VariableNameInput } from "../../../../Components/VariableNameInput";
 import { useStyles as useFormStyles } from "../../../../style";
 import { ListenerConfigFormState, ServiceConfigActions, ServiceConfigActionTypes } from "../util/reducer";
 
@@ -83,20 +83,19 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
     )
 
     const listenerNameInputComponent = (
-        <>
-            <div className={formClasses.labelWrapper}>
-                <FormHelperText className={formClasses.inputLabelForRequired}>
-                    <FormattedMessage
-                        id="lowcode.develop.connectorForms.HTTP.listenerName"
-                        defaultMessage="Listener Name :"
-                    />
-                </FormHelperText>
-            </div>
-            <FormTextInput
-                dataTestId="listener-name"
-                onChange={onListenerNameChange}
-            />
-        </>
+        <VariableNameInput
+            displayName="Listener Name"
+            isEdit={false}
+            onValueChange={onListenerNameChange}
+            validateExpression={validateField}
+            position={{
+                startLine: targetPosition.startLine,
+                endLine: targetPosition.startLine,
+                startColumn: 0,
+                endColumn: 0
+            }}
+            value={state.listenerName}
+        />
     )
 
     const portNumberExpressionEditorProps: FormElementProps = {

@@ -50,9 +50,7 @@ export function CallStatementC(props: CallStatementProps) {
 
     return (
         <span>
-            <button className={overlayClasses.expressionElement} onClick={onClickOnExpression}>
-                {expressionComponent}
-            </button>
+            {expressionComponent}
             <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
                 {model.semicolonToken.value}
             </span>

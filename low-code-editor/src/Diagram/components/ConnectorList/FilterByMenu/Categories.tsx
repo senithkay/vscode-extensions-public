@@ -34,7 +34,6 @@ function Categories(props: CategoriesProps) {
     const { selectedCategory, setCategory } = props;
 
     const [ noOfCategoriesDisplayed, setNoOfCategoriesDisplayed ] = useState(10);
-    const [ activeCategory, setActiveCategory ] = useState(selectedCategory);
     const defaultExpanded = [ "" ];
 
     const onSeeMoreClick = () => {
@@ -46,9 +45,8 @@ function Categories(props: CategoriesProps) {
     };
 
     const onLabelClick = (selectedNode: string) => {
-        if (activeCategory !== selectedNode) {
+        if (selectedCategory !== selectedNode) {
             setCategory(selectedNode);
-            setActiveCategory(selectedNode);
         }
     };
 
@@ -79,7 +77,7 @@ function Categories(props: CategoriesProps) {
                     defaultCollapseIcon={<ExpandMore />}
                     defaultExpandIcon={<ChevronRight />}
                     className={classes.categoriesRoot}
-                    selected={activeCategory || ''}
+                    selected={selectedCategory || ''}
                     defaultExpanded={defaultExpanded}
                 >
                     { connectorCategories.categories
@@ -122,7 +120,7 @@ function Categories(props: CategoriesProps) {
                         startIcon={<ExpandMore />}
                     >
                         <FormattedMessage
-                            id="modules.marketplace.FilterByMenu.FilterByMenu.Categories.SeeMore"
+                            id="lowcode.develop.configForms.connectorList.FilterByMenu.FilterByMenu.Categories.SeeMore"
                             defaultMessage="See More"
                         />
                     </Button>
@@ -135,7 +133,7 @@ function Categories(props: CategoriesProps) {
                         startIcon={<ExpandLess />}
                     >
                         <FormattedMessage
-                            id="modules.marketplace.FilterByMenu.FilterByMenu.Categories.SeeLess"
+                            id="lowcode.develop.configForms.connectorList.FilterByMenu.FilterByMenu.Categories.SeeLess"
                             defaultMessage="See Less"
                         />
                     </Button>

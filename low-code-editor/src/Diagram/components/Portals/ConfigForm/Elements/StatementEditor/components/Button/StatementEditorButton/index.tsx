@@ -14,8 +14,10 @@
 import * as React from "react";
 
 import Button from '@material-ui/core/Button';
-import { Theme, withStyles } from '@material-ui/core/styles';
 
+import StatementExpandIcon from "../../../../../../../../../assets/icons/StatementExpandIcon";
+
+import { useStyles } from "./style";
 
 export interface StatementEditorButtonProps {
     onClick?: () => void,
@@ -24,39 +26,17 @@ export interface StatementEditorButtonProps {
 
 export function StatementEditorButton(props: StatementEditorButtonProps) {
     const { onClick, disabled } = props;
-
-    const EditorButton = withStyles((theme: Theme) => ({
-        root: {
-            textTransform: "capitalize",
-            border: 0,
-            background: "none",
-            padding: 0,
-            fontFamily: "arial, sans-seriff",
-            color: theme.palette.primary.main,
-            fontSize: 13,
-            textDecoration: "underline",
-            cursor: "pointer",
-            "&:hover , &:focus, &:active": {
-                backgroundColor: "#fff",
-                color: theme.palette.primary.dark,
-                boxShadow: "none",
-                cursor: "pointer",
-            },
-            '&:disabled': {
-                opacity: 0.5,
-                background: '#fff',
-                color: theme.palette.primary.light,
-              },
-        },
-      }))(Button) as typeof Button;
+    const classes = useStyles();
 
     return (
-            <EditorButton
-                onClick={onClick}
-                disabled={disabled}
-            >
-                Statement Editor
-            </EditorButton>
+        <Button
+            className={classes.expressionButtonWrapper}
+            onClick={onClick}
+            disabled={disabled}
+        >
+            <StatementExpandIcon />
+            <span className={classes.expressionTitle}>Statement Editor</span>
+        </Button>
     );
 }
 

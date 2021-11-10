@@ -62,7 +62,8 @@ export function VariableNameInput(props: VariableNameInputProps) {
                 endColumn: position.endColumn
             },
             customTemplate,
-            hideSuggestions: true
+            hideSuggestions: true,
+            hideExpand: true
         },
         onChange: onValueChange,
         defaultValue: value,

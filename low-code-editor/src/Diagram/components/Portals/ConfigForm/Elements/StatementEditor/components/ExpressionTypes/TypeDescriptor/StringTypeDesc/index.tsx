@@ -11,11 +11,14 @@
  * associated services.
  */
 // tslint:disable: jsx-wrap-multiline
-import React from "react";
+import React, { useContext } from "react";
 
 import { StringTypeDesc } from "@ballerina/syntax-tree";
 
+import { TYPE_DESCRIPTOR } from "../../../../constants";
 import { VariableUserInputs } from "../../../../models/definitions";
+import { SuggestionsContext } from "../../../../store/suggestions-context";
+import { getSuggestionsBasedOnExpressionKind } from "../../../../utils";
 import { useStatementEditorStyles } from "../../../ViewContainer/styles";
 
 interface StringTypeDescProps {
@@ -28,10 +31,17 @@ export function StringTypeDescComponent(props: StringTypeDescProps) {
     const { model } = props;
 
     const overlayClasses = useStatementEditorStyles();
+    const { expressionHandler } = useContext(SuggestionsContext);
+
+    const onClickOnType = (event: any) => {
+        event.stopPropagation()
+        expressionHandler(model, false, { expressionSuggestions: getSuggestionsBasedOnExpressionKind(TYPE_DESCRIPTOR) })
+    };
 
     return (
         <button
             className={overlayClasses.expressionElement}
+            onClick={onClickOnType}
         >
             {model.name.value}
         </button>

@@ -37,6 +37,7 @@ export interface ConnectorConfigWizardProps {
     targetPosition: NodePosition;
     model?: STNode;
     onClose: () => void;
+    onSave: () => void;
     selectedConnector?: LocalVarDecl;
     isAction?: boolean;
     isEdit?: boolean;
@@ -76,6 +77,7 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
         targetPosition,
         model,
         onClose,
+        onSave,
         selectedConnector,
         isAction,
         isEdit
@@ -133,12 +135,15 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
         toggleDiagramOverlay();
     };
 
+    const handleSave = () => {
+        onSave();
+    };
+
     return (
         <div>
             { !isCodeEditorActive ? (
                 <FormGenerator
                     onCancel={handleClose}
-                    // onSave={onSave}
                     configOverlayFormStatus={ {
                         formType: "Connector",
                         formArgs: {
@@ -148,6 +153,7 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
                             connectorInfo,
                             isAction,
                             onClose: handleClose,
+                            onSave: handleSave,
                         },
                         isLoading: true,
                     } }
