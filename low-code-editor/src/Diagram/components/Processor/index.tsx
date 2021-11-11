@@ -17,11 +17,13 @@ import {
     AssignmentStatement,
     CallStatement,
     FunctionCall,
+    JsonTypeDesc,
     LocalVarDecl,
     NodePosition,
     QualifiedNameReference,
     STKindChecker,
-    STNode
+    STNode,
+    TypedBindingPattern
 } from "@ballerina/syntax-tree";
 import cn from "classnames";
 
@@ -192,6 +194,7 @@ export function DataProcessor(props: ProcessorProps) {
     const toolTip = isReferencedVariable ? "Variable is referred in the code below" : undefined;
     // If only processor is a initialized variable or log stmt or draft stmt Show the edit btn other.
     // Else show the delete button only.
+    const localModel = (model as LocalVarDecl);
     const editAndDeleteButtons = (
         <>
             <g className={isReferencedVariable ? "disable" : ""}>
@@ -214,6 +217,7 @@ export function DataProcessor(props: ProcessorProps) {
     );
 
     let assignmentText = null;
+    let statmentTypeText = null;
     if (!isDraftStatement && STKindChecker?.isCallStatement(model)) {
         if (STKindChecker.isFunctionCall(model.expression)) {
             assignmentText = model.expression.arguments[0]?.source;
@@ -225,11 +229,13 @@ export function DataProcessor(props: ProcessorProps) {
     } else if (!isDraftStatement && STKindChecker?.isAssignmentStatement(model)) {
         assignmentText = (model as AssignmentStatement)?.expression?.source;
     } else if (!isDraftStatement && STKindChecker?.isLocalVarDecl(model)) {
-        assignmentText = (model as LocalVarDecl)?.initializer?.source;
+        assignmentText = localModel?.initializer?.source;
+        const typedBindingPattern = (localModel.typedBindingPattern as TypedBindingPattern).typeDescriptor as JsonTypeDesc;
+        statmentTypeText = typedBindingPattern.name.value;
     }
 
     const processWrapper = isDraftStatement ? cn("main-process-wrapper active-data-processor") : cn("main-process-wrapper data-processor");
-    const processStyles = diagnostics && !isDraftStatement ? cn("main-process-wrapper data-processor-error ") : processWrapper
+    const processStyles = diagnostics && !isDraftStatement ? cn("main-process-wrapper data-processor-error ") : processWrapper;
 
     const component: React.ReactNode = (!viewState.collapsed &&
         (
@@ -239,6 +245,7 @@ export function DataProcessor(props: ProcessorProps) {
                         {(processType !== "Log" && processType !== "Call") && !isDraftStatement &&
                             <VariableName
                                 processType={processType}
+                                statementType={statmentTypeText}
                                 variableName={processName}
                                 x={cx - (VARIABLE_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
                                 y={cy + PROCESS_SVG_HEIGHT / 4}

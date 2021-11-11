@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js align  jsx-wrap-multiline
 import React, { useContext, useState } from "react";
 
-import { LocalVarDecl, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { JsonTypeDesc, LocalVarDecl, STKindChecker, STNode, TypedBindingPattern } from "@ballerina/syntax-tree";
 import cn from "classnames";
 
 import { WizardType } from "../../../../ConfigurationSpec/types";
@@ -196,6 +196,10 @@ export function ActionProcessor(props: ProcessorProps) {
         </>
     );
 
+    const localModel = model as LocalVarDecl;
+    const localTypedBindingPattern = (localModel.typedBindingPattern as TypedBindingPattern).typeDescriptor as JsonTypeDesc;
+    const statmentTypeText = localTypedBindingPattern.name.value;
+
     const processWrapper = isDraftStatement ? cn("main-process-wrapper active-data-processor") : cn("main-process-wrapper data-processor");
     const component: React.ReactNode = (!viewState.collapsed &&
         (
@@ -206,6 +210,7 @@ export function ActionProcessor(props: ProcessorProps) {
                             (
                                 <VariableName
                                     processType={processType}
+                                    statementType={statmentTypeText}
                                     variableName={processName}
                                     x={cx - (VARIABLE_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
                                     y={cy + PROCESS_SVG_HEIGHT / 4}

@@ -22,17 +22,27 @@ import "./style.scss";
 export let VARIABLE_NAME_WIDTH = 125;
 export const ICON_SVG_WRAPPER_WIDTH = 25;
 
-export function VariableName(props: { x: number, y: number, variableName: string, processType: string, key_id: number }) {
-    const { processType, variableName, key_id, ...xyProps } = props;
+export function VariableName(props: { x: number, y: number, variableName: string, processType: string, key_id: number, statementType?: string }) {
+    const { processType, variableName, key_id, statementType, ...xyProps } = props;
     const [textWidth, setTextWidth] = useState(VARIABLE_NAME_WIDTH);
+    const [statementTextWidth, setStatementTextWidth] = useState(VARIABLE_NAME_WIDTH);
 
     useEffect(() => {
         setTextWidth(document.getElementById("variableLegnth_" + key_id).getBoundingClientRect().width);
+        setStatementTextWidth(document.getElementById("statementLegnth_" + key_id).getBoundingClientRect().width);
     }, []);
 
     const variableMaxWidth = variableName.length >= 15;
     const variableWidth = textWidth
     let variableX = 0;
+
+    const statementTypeMaxWidth = 132;
+    const statementWidth = statementTextWidth;
+    const statmentTypeX = statementTypeMaxWidth - statementWidth;
+
+    const statementRectPadding = 20;
+    const statementRectwidth = statementWidth + statementRectPadding;
+    const statementRectX = statementTypeMaxWidth - (statementWidth + (statementRectPadding / 3));
 
     variableX = (variableWidth > VARIABLE_NAME_WIDTH) ? variableWidth - ICON_SVG_WRAPPER_WIDTH : variableX = (VARIABLE_NAME_WIDTH - variableWidth - (DefaultConfig.dotGap * 2));
 
@@ -43,15 +53,29 @@ export function VariableName(props: { x: number, y: number, variableName: string
             <tspan
                 id={"variableLegnth_" + key_id}
                 x={variableX}
-                y="15"
+                y="25"
             >
                 {variableMaxWidth ? variableName.slice(0, 10) + "..." : variableName}
             </tspan>
         </text>
     );
 
+    const statementTextComp: ReactElement = (
+        <g>
+            <text className="statement-name">
+                <tspan x={statmentTypeX} id={"statementLegnth_" + key_id} y="10">
+                    {statementType}
+                </tspan>
+            </text>
+            <g className="statement-text-wrapper">
+                <rect width={statementWidth} height="14" rx="4" stroke="none" />
+                <rect x={statementRectX} y="0" width={statementRectwidth} height="13.25" rx="3.625" fill="none" />
+            </g>
+        </g>
+    );
+
     return (
-        <svg {...xyProps} width="150" height="24" >
+        <svg {...xyProps} width="150" height="24" className="variable-wrapper">
             {variableMaxWidth ?
                 <Tooltip arrow={true} placement="top-start" title={variableName} inverted={false} interactive={true}>
                     {variableTextComp}
@@ -59,17 +83,7 @@ export function VariableName(props: { x: number, y: number, variableName: string
                 :
                 variableTextComp
             }
-            {processType === "Variable" &&
-                (
-                    <g id="Reactangle_wrapper" fill="#fff" stroke="#ccd1f2" strokeMiterlimit="10" strokeWidth="1" transform="translate(18 0)">
-                        <rect x={iconX} width="24" height="24" rx="4" stroke="none" />
-                        <rect x={iconX + 0.5} y="0.5" width="23" height="23" rx="3.5" fill="none" />
-                    </g>
-                )
-            }
-            < g id="Variable_icon" transform="translate(4 4)">
-                {(processType === "Variable" || processType === "Action") && <PropertyIcon height={16} width={16} x={iconX + 18} y={0} transform="translate(0 0)" />}
-            </g>
+            {statementTextComp}
         </svg >
     );
 }
