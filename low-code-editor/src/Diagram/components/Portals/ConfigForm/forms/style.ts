@@ -642,5 +642,10 @@ export const useStyles = makeStyles((theme: Theme) =>
             paddingTop: theme.spacing(1.25),
             position: 'relative'
         },
+        toggle: {
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: theme.spacing(1)
+        }
     }),
 );
