@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode } from "react";
 
-import { TooltipCodeSnippet } from "../../../components/Tooltip";
+import Tooltip from "../../../components/TooltipV2";
 
 export const IFELSE_SVG_WIDTH_WITH_SHADOW = 66.686;
 export const IFELSE_SVG_HEIGHT_WITH_SHADOW = 66.686;
@@ -23,10 +23,13 @@ export const IFELSE_SHADOW_OFFSET = IFELSE_SVG_HEIGHT_WITH_SHADOW - IFELSE_SVG_H
 
 export function IfElseSVG(props: {
     x: number, y: number, text: string, codeSnippet: string, conditionType: string,
-    openInCodeView?: () => void, codeSnippetOnSvg: string
+    openInCodeView?: () => void, codeSnippetOnSvg: string, diagnostics?:any 
 }) {
-    const { text, codeSnippet, openInCodeView, conditionType, codeSnippetOnSvg, ...xyProps } = props;
+    const { text, codeSnippet, openInCodeView, conditionType, codeSnippetOnSvg,diagnostics, ...xyProps } = props;
     const ifXPosition = (text === "IF") ? "45%" : "44%";
+    const tooltipText = {
+        code: codeSnippet
+    }
 
     let icon: ReactNode = null;
     if (conditionType === "If") {
@@ -108,9 +111,21 @@ export function IfElseSVG(props: {
                     <feComposite in="SourceGraphic" />
                 </filter>
             </defs>
-            {/* <g> */}
-            <TooltipCodeSnippet openInCodeView={openInCodeView} content={codeSnippet} placement="right" arrow={true}>
-                <g id="IfElse" className="if-else-group if-else-group-active" transform="translate(7 6)">
+            {diagnostics?.diagnosticMsgs ?
+             <Tooltip type={"diagram-diagnostic"} onClick={openInCodeView} diagnostic={diagnostics} placement="right" arrow={true}>
+             <g id="IfElse" className="if-else-group if-else-group-active" transform="translate(7 6)">
+                <g transform="matrix(1, 0, 0, 1, -7, -6)" >
+                    <g id="IfElsePolygon" transform="translate(33.5, 3) rotate(45)">
+                        <rect width="40.903" height="40.903" className="if-else-rect" rx="6" stroke="none" />
+                        <rect x="0.5" y="0.5" width="39.903" className="if-else-rect click-effect" height="39.903" rx="5.5" fill="none" />
+                    </g>
+                </g>
+                {icon}
+            </g>
+        </Tooltip>
+        :
+        <Tooltip type={"diagram-code"} onClick={openInCodeView} text={tooltipText} placement="right" arrow={true}>
+        <g id="IfElse" className="if-else-group if-else-group-active" transform="translate(7 6)">
                     <g transform="matrix(1, 0, 0, 1, -7, -6)" >
                         <g id="IfElsePolygon" transform="translate(33.5, 3) rotate(45)">
                             <rect width="40.903" height="40.903" className="if-else-rect" rx="6" stroke="none" />
@@ -119,7 +134,8 @@ export function IfElseSVG(props: {
                     </g>
                     {icon}
                 </g>
-            </TooltipCodeSnippet>
+            </Tooltip>
+            }
         </svg>
     )
 }

@@ -23,7 +23,7 @@ import cn from "classnames";
 
 import { WizardType } from "../../../ConfigurationSpec/types";
 import { Context } from "../../../Contexts/Diagram";
-import { getDraftComponent, getSTComponents } from "../../utils";
+import { getDiagnosticMsgs, getDraftComponent, getSTComponents } from "../../utils";
 import { getConditionConfig, getRandomInt } from "../../utils/diagram-util";
 import { findActualEndPositionOfIfElseStatement } from "../../utils/st-util";
 import { BlockViewState, ControlFlowLineState, ElseViewState, IfViewState } from "../../view-state";
@@ -125,7 +125,7 @@ export function IfElse(props: IfElseProps) {
     const diagnostics = (model as IfElseStatement)?.condition.typeData?.diagnostics;
 
     if (model) {
-        codeSnippet = diagnostics.length !== 0 ? "Code has errors\n" + model.source : model.source.trim().split(')')[0];
+        codeSnippet = model.source.trim().split(')')[0];
         codeSnippetOnSvg = codeSnippet.substring(4, 13)
         codeSnippet = codeSnippet + ')'
     }
@@ -158,7 +158,14 @@ export function IfElse(props: IfElseProps) {
 
     let assignmentText: any = (!isDraftStatement && STKindChecker?.isIfElseStatement(model));
     assignmentText = (model as IfElseStatement)?.condition.source;
-
+    let diagnosticMsgs ;
+    if(diagnostics?.length != 0){
+        diagnosticMsgs = getDiagnosticMsgs(diagnostics);
+    }
+    let errorSnippet = {
+        diagnosticMsgs:diagnosticMsgs,
+        code:codeSnippet,
+    }
     const assignmentTextWidth = assignmentText?.length * 8 + DefaultConfig.dotGap;
 
     if (model === null) {
@@ -177,6 +184,7 @@ export function IfElse(props: IfElseProps) {
                     codeSnippet={codeSnippet}
                     codeSnippetOnSvg={codeSnippetOnSvg}
                     conditionType={conditionType}
+                    diagnostics={errorSnippet}
                     openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && onClickOpenInCodeView}
                 />
                 <ContitionAssignment
@@ -334,6 +342,7 @@ export function IfElse(props: IfElseProps) {
                             text={componentName}
                             data-testid="ifelse-block"
                             codeSnippet={codeSnippet}
+                            diagnostics={errorSnippet}
                             codeSnippetOnSvg={codeSnippetOnSvg}
                             conditionType={conditionType}
                             openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && onClickOpenInCodeView}
