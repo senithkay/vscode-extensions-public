@@ -34,6 +34,7 @@ import { BALLERINA_COMMANDS, PALETTE_COMMANDS, runCommand } from "../project";
 import { getChoreoKeytarSession } from "../choreo-auth/auth-session";
 import { showChoreoPushMessage } from "../editor-support/git-status";
 import { showConfigEditor } from "../config-editor/configEditorPanel";
+import { showChoreoPushMessage } from "../editor-support/git-status";
 
 export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverviewDataProvider {
 

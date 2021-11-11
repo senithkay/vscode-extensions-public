@@ -18,7 +18,6 @@
 import { Event, EventEmitter, ProviderResult, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri } from "vscode";
 import { join } from "path";
 import { BallerinaExtension, ChoreoSession } from "../core";
-import { PALETTE_COMMANDS } from "../project";
 
 export class SessionDataProvider implements TreeDataProvider<TreeItem> {
     private ballerinaExtension: BallerinaExtension;
