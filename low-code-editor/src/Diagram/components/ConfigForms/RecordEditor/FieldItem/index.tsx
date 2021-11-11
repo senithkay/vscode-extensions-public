@@ -102,11 +102,11 @@ export function FieldItem(props: FieldItemProps) {
                 </div>
                 {!state.isEditorInvalid && (
                     <div className={recordClasses.btnWrapper}>
-                        <div className={recordClasses.actionBtnWrapper} onClick={handleEdit}>
-                            <EditButton/>
+                        <div className={recordClasses.actionBtnWrapper}>
+                            <EditButton onClick={handleEdit}/>
                         </div>
-                        <div className={recordClasses.actionBtnWrapper} onClick={handleDelete}>
-                            <DeleteButton/>
+                        <div className={recordClasses.actionBtnWrapper}>
+                            <DeleteButton  onClick={handleDelete}/>
                         </div>
                     </div>
                 )}

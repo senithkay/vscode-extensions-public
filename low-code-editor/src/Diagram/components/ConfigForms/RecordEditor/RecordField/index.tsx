@@ -155,8 +155,8 @@ export function RecordField(props: CodePanelProps) {
     if (isFieldAddInProgress) {
         // Adding draft field
         fieldItems.push(
-            <div className={recordClasses.draftBtnWrapper} onClick={handleDraftFieldDelete}>
-                <div className={recordClasses.actionBtnWrapper}>
+            <div className={recordClasses.draftBtnWrapper}>
+                <div className={recordClasses.actionBtnWrapper} onClick={handleDraftFieldDelete}>
                     <DeleteButton/>
                 </div>
             </div>
@@ -224,12 +224,12 @@ export function RecordField(props: CodePanelProps) {
                         )}
                     </div>
                     <div className={recordModel.isTypeDefinition ? recordClasses.typeDefEditBtnWrapper : recordClasses.recordHeaderBtnWrapper}>
-                        <div className={recordClasses.actionBtnWrapper} onClick={handleRecordEdit}>
-                            <EditButton />
+                        <div className={recordClasses.actionBtnWrapper}>
+                            <EditButton onClick={handleRecordEdit}/>
                         </div>
                         {!recordModel.isTypeDefinition && (
-                            <div className={recordClasses.actionBtnWrapper} onClick={handleRecordDelete}>
-                                <DeleteButton />
+                            <div className={recordClasses.actionBtnWrapper}>
+                                <DeleteButton onClick={handleRecordDelete}/>
                             </div>
                         )}
                     </div>

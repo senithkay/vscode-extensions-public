@@ -207,7 +207,7 @@ export const recordStyles = makeStyles((theme: Theme) =>
             color: '#1E00FF'
         },
         typeDefNameWrapper: {
-            maxWidth: 130,
+            maxWidth: 100,
             marginLeft: 5,
             fontFamily: "inherit",
             color: '#00819C',
