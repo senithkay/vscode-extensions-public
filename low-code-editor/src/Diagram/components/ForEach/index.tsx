@@ -231,13 +231,13 @@ export function ForEach(props: ForeachProps) {
     const diagnostics = forEachModel?.actionOrExpressionNode?.typeData.diagnostics;
     let foreachWrapper = cn("foreach-block") ;
     let diagnosticMsgs ;
-    if(diagnostics?.length != 0){
+    if (diagnostics?.length !== 0){
         diagnosticMsgs = getDiagnosticMsgs(diagnostics);
         foreachWrapper = cn("foreach-block-error");
     }
-    let errorSnippet = {
-        diagnosticMsgs:diagnosticMsgs,
-        code:codeSnippet,
+    const errorSnippet = {
+        diagnosticMsgs,
+        code: codeSnippet,
     }
 
     const unFoldedComponent = (

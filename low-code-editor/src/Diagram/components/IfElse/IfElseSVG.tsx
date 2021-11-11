@@ -23,9 +23,9 @@ export const IFELSE_SHADOW_OFFSET = IFELSE_SVG_HEIGHT_WITH_SHADOW - IFELSE_SVG_H
 
 export function IfElseSVG(props: {
     x: number, y: number, text: string, codeSnippet: string, conditionType: string,
-    openInCodeView?: () => void, codeSnippetOnSvg: string, diagnostics?:any 
+    openInCodeView?: () => void, codeSnippetOnSvg: string, diagnostics?: any
 }) {
-    const { text, codeSnippet, openInCodeView, conditionType, codeSnippetOnSvg,diagnostics, ...xyProps } = props;
+    const { text, codeSnippet, openInCodeView, conditionType, codeSnippetOnSvg, diagnostics, ...xyProps } = props;
     const ifXPosition = (text === "IF") ? "45%" : "44%";
     const tooltipText = {
         code: codeSnippet
@@ -112,6 +112,7 @@ export function IfElseSVG(props: {
                 </filter>
             </defs>
             {diagnostics?.diagnosticMsgs ?
+            (
              <Tooltip type={"diagram-diagnostic"} onClick={openInCodeView} diagnostic={diagnostics} placement="right" arrow={true}>
              <g id="IfElse" className="if-else-group if-else-group-active" transform="translate(7 6)">
                 <g transform="matrix(1, 0, 0, 1, -7, -6)" >
@@ -123,7 +124,9 @@ export function IfElseSVG(props: {
                 {icon}
             </g>
         </Tooltip>
+            )
         :
+        (
         <Tooltip type={"diagram-code"} onClick={openInCodeView} text={tooltipText} placement="right" arrow={true}>
         <g id="IfElse" className="if-else-group if-else-group-active" transform="translate(7 6)">
                     <g transform="matrix(1, 0, 0, 1, -7, -6)" >
@@ -135,7 +138,7 @@ export function IfElseSVG(props: {
                     {icon}
                 </g>
             </Tooltip>
-            }
+        )}
         </svg>
     )
 }

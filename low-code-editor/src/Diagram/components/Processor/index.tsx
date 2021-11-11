@@ -27,6 +27,7 @@ import cn from "classnames";
 
 import { WizardType } from "../../../ConfigurationSpec/types";
 import { Context } from "../../../Contexts/Diagram";
+import { getDiagnosticMsgs } from "../../utils";
 import { getOverlayFormConfig, getRandomInt } from "../../utils/diagram-util";
 import { BlockViewState, StatementViewState } from "../../view-state";
 import { DraftStatementViewState } from "../../view-state/draft";
@@ -41,7 +42,6 @@ import { VariableName, VARIABLE_NAME_WIDTH } from "../VariableName";
 
 import { ProcessSVG, PROCESS_SVG_HEIGHT, PROCESS_SVG_HEIGHT_WITH_SHADOW, PROCESS_SVG_SHADOW_OFFSET, PROCESS_SVG_WIDTH, PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW } from "./ProcessSVG";
 import "./style.scss";
-import { getDiagnosticMsgs } from "../../utils";
 
 export interface ProcessorProps {
     model: STNode;
@@ -84,7 +84,7 @@ export function DataProcessor(props: ProcessorProps) {
     let isReferencedVariable = false;
     let diagnosticMsgs ;
 
-    if(diagnostics?.length != 0){
+    if (diagnostics?.length !== 0){
         diagnosticMsgs = getDiagnosticMsgs(diagnostics);
     }
 
@@ -133,9 +133,9 @@ export function DataProcessor(props: ProcessorProps) {
         const draftViewState = blockViewState.draft[1] as DraftStatementViewState;
         processType = draftViewState.subType;
     }
-    let errorSnippet = {
-        diagnosticMsgs:diagnosticMsgs,
-        code:sourceSnippet,
+    const errorSnippet = {
+        diagnosticMsgs,
+        code: sourceSnippet,
     }
     const h: number = viewState.dataProcess.h;
     const w: number = viewState.dataProcess.w;
@@ -237,7 +237,7 @@ export function DataProcessor(props: ProcessorProps) {
     }
 
     const processWrapper = isDraftStatement ? cn("main-process-wrapper active-data-processor") : cn("main-process-wrapper data-processor");
-    const processStyles = diagnostics.length!=0 && !isDraftStatement ? cn("main-process-wrapper data-processor-error ") : processWrapper
+    const processStyles = diagnostics.length !== 0 && !isDraftStatement ? cn("main-process-wrapper data-processor-error ") : processWrapper
 
     const component: React.ReactNode = (!viewState.collapsed &&
         (

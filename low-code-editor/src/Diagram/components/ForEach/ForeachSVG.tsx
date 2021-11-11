@@ -21,8 +21,8 @@ export const FOREACH_SVG_WIDTH = 54.845;
 export const FOREACH_SVG_HEIGHT = 52.845;
 export const FOREACH_SHADOW_OFFSET = FOREACH_SVG_HEIGHT_WITH_SHADOW - FOREACH_SVG_HEIGHT;
 
-export function ForeachSVG(props: { x: number, y: number, text: string, openInCodeView?: () => void, codeSnippet?: string, diagnostics?:any }) {
-    const { text, openInCodeView, codeSnippet,diagnostics, ...xyProps } = props;
+export function ForeachSVG(props: { x: number, y: number, text: string, openInCodeView?: () => void, codeSnippet?: string, diagnostics?: any }) {
+    const { text, openInCodeView, codeSnippet, diagnostics, ...xyProps } = props;
     const tooltipText = {
         code: codeSnippet
     }
@@ -49,8 +49,8 @@ export function ForeachSVG(props: { x: number, y: number, text: string, openInCo
                 </filter>
             </defs>
             {diagnostics?.diagnosticMsgs ?
+            (
              <Tooltip type={"diagram-diagnostic"} onClick={openInCodeView} diagnostic={diagnostics} placement="right" arrow={true}>
-
              <g id="Foreach" className="foreach-group" transform="translate(7 6)">
                  <g transform="matrix(1, 0, 0, 1, -7, -6)" >
                      <g id="IfElsePolygon" transform="translate(33.5, 3) rotate(45)">
@@ -64,7 +64,9 @@ export function ForeachSVG(props: { x: number, y: number, text: string, openInCo
                  </g>
              </g>
          </Tooltip>
+         )
          :
+         (
             <Tooltip type={"diagram-code"} onClick={openInCodeView} text={tooltipText} placement="right" arrow={true}>
 
                 <g id="Foreach" className="foreach-group" transform="translate(7 6)">
@@ -80,7 +82,7 @@ export function ForeachSVG(props: { x: number, y: number, text: string, openInCo
                     </g>
                 </g>
             </Tooltip>
-}
+        )}
         </svg>
     )
 }

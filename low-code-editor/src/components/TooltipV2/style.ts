@@ -100,7 +100,7 @@ const useStyles = makeStyles(() =>
             marginTop: 6,
             borderRadius: 4
         },
-        diagnosticWrapper:{
+        diagnosticWrapper: {
             width: '231px',
             color: '#FE523C',
             fontFamily: "Droid Sans Mono",

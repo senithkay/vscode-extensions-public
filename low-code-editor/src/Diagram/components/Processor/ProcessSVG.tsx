@@ -29,7 +29,7 @@ export const PROCESS_SVG_HEIGHT = 48 + PROCESS_STROKE_HEIGHT;
 export const PROCESS_SVG_SHADOW_OFFSET = PROCESS_SVG_HEIGHT_WITH_SHADOW - PROCESS_SVG_HEIGHT;
 
 
-export function ProcessSVG(props: { x: number, y: number, varName: any, sourceSnippet: any, position: NodePosition, openInCodeView?: () => void, processType: string, diagnostics?:any }) {
+export function ProcessSVG(props: { x: number, y: number, varName: any, sourceSnippet: any, position: NodePosition, openInCodeView?: () => void, processType: string, diagnostics?: any }) {
     const { varName, sourceSnippet, processType, openInCodeView, diagnostics, ...xyProps } = props;
     const processTypeIndicator: JSX.Element[] = [];
     const tooltipText = {
@@ -80,6 +80,7 @@ export function ProcessSVG(props: { x: number, y: number, varName: any, sourceSn
             </defs>
             <g>
             {diagnostics?.diagnosticMsgs ?
+            (
                 <Tooltip type={"diagram-diagnostic"} onClick={openInCodeView} diagnostic={diagnostics} placement="right" arrow={true}>
                     <g id="Process" className="data-processor process-active" transform="translate(-221.5 -506)">
                         <g transform="matrix(1, 0, 0, 1, 222, 509)">
@@ -91,7 +92,9 @@ export function ProcessSVG(props: { x: number, y: number, varName: any, sourceSn
                         {processTypeIndicator}
                     </g>
                 </Tooltip>
+            )
             :
+            (
                 <Tooltip type={"diagram-code"} onClick={openInCodeView} text={tooltipText} placement="right" arrow={true}>
                     <g id="Process" className="data-processor process-active" transform="translate(-221.5 -506)">
                         <g transform="matrix(1, 0, 0, 1, 222, 509)">
@@ -103,7 +106,7 @@ export function ProcessSVG(props: { x: number, y: number, varName: any, sourceSn
                         {processTypeIndicator}
                     </g>
                 </Tooltip>
-                }
+            )}
             </g>
         </svg>
     )

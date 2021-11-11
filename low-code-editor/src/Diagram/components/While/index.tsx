@@ -95,7 +95,7 @@ export function While(props: WhileProps) {
 
     let diagnosticMsgs ;
 
-    if(diagnostics?.length != 0){
+    if (diagnostics?.length !== 0){
         diagnosticMsgs = getDiagnosticMsgs(diagnostics);
         whileWrapper = cn("while-error-wrapper");
     }
@@ -103,11 +103,11 @@ export function While(props: WhileProps) {
     let codeSnippet = modelWhile?.source?.trim().split('{')[0];
     let codeSnippetOnSvg = "WHILE";
 
-    let errorSnippet = {
-        diagnosticMsgs:diagnosticMsgs,
-        code:codeSnippet,
+    const errorSnippet = {
+        diagnosticMsgs,
+        code: codeSnippet,
     }
-    
+
     if (model) {
         codeSnippet = codeSnippet;
         const firstBraceIndex = codeSnippet.indexOf("(");

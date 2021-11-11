@@ -159,12 +159,12 @@ export function IfElse(props: IfElseProps) {
     let assignmentText: any = (!isDraftStatement && STKindChecker?.isIfElseStatement(model));
     assignmentText = (model as IfElseStatement)?.condition.source;
     let diagnosticMsgs ;
-    if(diagnostics?.length != 0){
+    if (diagnostics?.length !== 0){
         diagnosticMsgs = getDiagnosticMsgs(diagnostics);
     }
-    let errorSnippet = {
-        diagnosticMsgs:diagnosticMsgs,
-        code:codeSnippet,
+    const errorSnippet = {
+        diagnosticMsgs,
+        code: codeSnippet,
     }
     const assignmentTextWidth = assignmentText?.length * 8 + DefaultConfig.dotGap;
 
