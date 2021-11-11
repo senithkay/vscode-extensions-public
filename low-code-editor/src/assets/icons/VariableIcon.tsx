@@ -12,9 +12,13 @@
  */
 import React from 'react';
 
-export default function VariableIcon() {
+export interface VariableIconProps {
+    className?: string
+}
+
+export default function VariableIcon(props: VariableIconProps) {
     return (
-        <svg width="15px" height="16px" viewBox="0 0 15 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
+        <svg width="15px" height="16px" viewBox="0 0 15 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" className={props?.className ? props.className : "dark-fill"}>
         <title>8C0B1349-E4C3-47C6-B322-1EB71F62D2AF</title>
         <g id="var-icon" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
             <g id="var-icon-body" className="svg-plus-option-icon" transform="translate(-712.000000, -112.000000)" fill-rule="nonzero">

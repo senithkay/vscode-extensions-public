@@ -47,7 +47,7 @@
             .plus-option {
                 .plus-option-icon {
                     .svg-sub-menu-plus-option-icon {
-                        fill: #5668d5;
+                        fill: #cbcddb;
                     }
                 }
             }
@@ -82,7 +82,7 @@
 
                 .plus-option-icon {
                     .svg-plus-option-icon {
-                        fill: #5668d5;
+                        fill: #cbcddb;
                     }
                 }
             }
@@ -148,9 +148,21 @@
     }
 }
 
-.service-config-form-fill {
+.service-config-light-fill {
     .svg-plus-option-icon {
         fill: #cbcedb;
+    }
+}
+
+.dark-fill {
+    .svg-plus-option-icon {
+        fill: #40404b;
+    }
+}
+
+.sub-menu-dark-fill {
+    .svg-sub-menu-plus-option-icon {
+        fill: #40404b;
     }
 }
 

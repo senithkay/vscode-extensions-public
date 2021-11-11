@@ -12,9 +12,13 @@
  */
 import React from 'react';
 
-export default function ModuleVariableIcon() {
+export interface ModuleVariableIconProps {
+    className?: string
+}
+
+export default function ModuleVariableIcon(props: ModuleVariableIconProps) {
     return (
-        <svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
+        <svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" className={props?.className ? props.className : "sub-menu-dark-fill"}>
             <title>769D5A93-DF29-4D38-8DAA-2CE761CE1F94</title>
             <g id="module-var-icon" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                 <g id="module-var-icon-body" className="svg-sub-menu-plus-option-icon" transform="translate(-907.000000, -208.000000)" fill-rule="nonzero">
