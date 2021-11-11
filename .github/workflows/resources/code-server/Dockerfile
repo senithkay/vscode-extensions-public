@@ -24,3 +24,5 @@ RUN sudo apt-get update && \
     wget "https://github.com/wso2/ballerina-plugin-vscode/releases/download/v0.0.1-preview/be5invis.toml-0.5.1.vsix" && \
     code-server --user-data-dir /config/data --extensions-dir /config/extensions --install-extension be5invis.toml-0.5.1.vsix && \
     rm ballerina.deb ballerina.vsix be5invis.toml-0.5.1.vsix
+
+RUN echo "{\n\"workbench.startupEditor\": \"none\"\n}" > /config/data/User/settings.json

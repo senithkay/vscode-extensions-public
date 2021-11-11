@@ -32,6 +32,7 @@ import { existsSync, mkdirSync, open, rm, rmdir } from 'fs';
 import { join } from 'path';
 import { BALLERINA_COMMANDS, PALETTE_COMMANDS, runCommand } from "../project";
 import { getChoreoKeytarSession } from "../choreo-auth/auth-session";
+import { showChoreoPushMessage } from "../editor-support/git-status";
 
 export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverviewDataProvider {
 
@@ -170,18 +171,3 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
     return packageTreeDataProvider;
 }
 
-export function showChoreoPushMessage(ballerinaExtInstance: BallerinaExtension) {
-    if (!ballerinaExtInstance.getCodeServerContext().codeServerEnv ||
-        !ballerinaExtInstance.getCodeServerContext().showInfo) {
-        return;
-    }
-    ballerinaExtInstance.getCodeServerContext().showInfo = false;
-    const push = "Push Changes";
-    window.showInformationMessage('Push your project changes and try out in the Choreo development ' +
-        'environment. Do you want to push your changes? ', push).then((selection) => {
-            if (push === selection) {
-                commands.executeCommand(PALETTE_COMMANDS.CHOREO_COMMIT_AND_PUSH,
-                    [ballerinaExtInstance.getCodeServerContext().statusBarItem]);
-            }
-        });
-}

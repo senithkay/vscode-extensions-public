@@ -81,8 +81,11 @@ export interface ChoreoSession {
 interface CodeServerContext {
     codeServerEnv: boolean;
     manageChoreoRedirectUri?: string;
-    showInfo: boolean;
     statusBarItem?: gitStatusBarItem;
+    infoMessageStatus: {
+        syncChoreoMessage: boolean;
+        sourceControlMessage: boolean;
+    }
 }
 
 export class BallerinaExtension {
@@ -129,7 +132,10 @@ export class BallerinaExtension {
         this.codeServerContext = {
             codeServerEnv: process.env.CODE_SERVER_ENV === 'true',
             manageChoreoRedirectUri: process.env.VSCODE_CHOREO_DEPLOY_URI,
-            showInfo: true
+            infoMessageStatus: {
+                sourceControlMessage: true,
+                syncChoreoMessage: true
+            }
         }
     }
 

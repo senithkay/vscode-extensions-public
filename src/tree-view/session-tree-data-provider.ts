@@ -18,7 +18,6 @@
 import { Event, EventEmitter, ProviderResult, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri } from "vscode";
 import { join } from "path";
 import { BallerinaExtension, ChoreoSession } from "../core";
-import { PALETTE_COMMANDS } from "../project";
 
 export class SessionDataProvider implements TreeDataProvider<TreeItem> {
     private ballerinaExtension: BallerinaExtension;
@@ -57,19 +56,6 @@ export class SessionDataProvider implements TreeDataProvider<TreeItem> {
             treeItems.push(session);
 
             if (this.ballerinaExtension.getCodeServerContext().codeServerEnv) {
-                const commit = new TreeItem(`Push Changes to Choreo...`, TreeItemCollapsibleState.None);
-                commit.command = {
-                    command: PALETTE_COMMANDS.CHOREO_COMMIT_AND_PUSH,
-                    title: `Commit Changes`,
-                    arguments: [this.ballerinaExtension.getCodeServerContext().statusBarItem]
-                };
-                commit.iconPath = {
-                    light: join(this.ballerinaExtension.extension.extensionPath,
-                        'resources', 'images', 'icons', 'commit.svg'),
-                    dark: join(this.ballerinaExtension.extension.extensionPath,
-                        'resources', 'images', 'icons', 'commit-inverse.svg')
-                }
-                treeItems.push(commit);
                 const manage = new TreeItem(`Deploy and Manage in Choreo...`, TreeItemCollapsibleState.None);
                 manage.command = {
                     command: 'vscode.open', title: 'Open Choreo Manage Portal',

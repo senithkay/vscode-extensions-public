@@ -34,7 +34,8 @@ export enum PALETTE_COMMANDS {
     PASTE_JSON_AS_RECORD = 'ballerina.pasteAsRecord',
     CHOREO_SIGNIN = 'ballerina.choreo.signin',
     CHOREO_SIGNOUT = 'ballerina.choreo.signout',
-    CHOREO_COMMIT_AND_PUSH = 'git.commitAndPush.choreo'
+    FOCUS_SOURCE_CONTROL = 'workbench.view.scm',
+    CHOREO_SYNC_CHANGES = 'ballerina.choreo.sync'
 }
 
 export enum BALLERINA_COMMANDS {

@@ -19,8 +19,8 @@
 import simpleGit, { SimpleGit, SimpleGitOptions } from 'simple-git';
 import { BallerinaExtension } from '../core';
 import { commands, StatusBarAlignment, StatusBarItem, ThemeColor, window, workspace } from 'vscode';
-import { debug } from '../utils';
 import { PALETTE_COMMANDS } from '../project';
+const schedule = require('node-schedule');
 
 export class gitStatusBarItem {
     private statusBarItem: StatusBarItem;
@@ -41,49 +41,17 @@ export class gitStatusBarItem {
             if (error) {
                 this.statusBarItem.hide();
             } else if (status.files.length > 0 || status.ahead > 0) {
-                this.statusBarItem.text = `$(cloud-upload) Push Changes to Choreo`;
+                this.statusBarItem.text = `$(cloud-upload) Sync with Choreo upsteam`;
                 this.statusBarItem.backgroundColor = new ThemeColor('statusBarItem.errorBackground');
                 this.statusBarItem.command = {
-                    command: PALETTE_COMMANDS.CHOREO_COMMIT_AND_PUSH,
-                    arguments: [this],
-                    title: 'Push Changes'
+                    command: PALETTE_COMMANDS.CHOREO_SYNC_CHANGES,
+                    title: 'Focus Source Control'
                 };
                 this.statusBarItem.show();
             } else {
-                this.statusBarItem.text = `$(compare-changes) Even with Choreo upsteam`;
+                this.statusBarItem.text = `$(compare-changes) In sync with Choreo upsteam`;
                 this.statusBarItem.backgroundColor = new ThemeColor('statusBarItem.activeBackground');
                 this.statusBarItem.show();
-            }
-        });
-    }
-
-    async commitAll(message: string) {
-        this.createSimpleGit();
-        if (!this.git) {
-            return;
-        }
-        const status = await this.git.status();
-        this.git.add(status.files.map(f => { return f.path }));
-        await this.git.commit(message, (error, result) => {
-            if (error) {
-                debug(error.message);
-                return;
-            } else {
-                var message = `Committed to branch ${result.branch} (${result.commit})\n${result.summary.changes} change(s),`
-                    + `\n${result.summary.insertions} addition(s), \n${result.summary.deletions} deletion(s)`;
-                debug(message);
-            }
-        })
-    }
-
-    async push() {
-        this.createSimpleGit();
-        if (!this.git) {
-            return;
-        }
-        await this.git.push(message => {
-            if (message) {
-                debug(message.message);
             }
         });
     }
@@ -109,6 +77,8 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     if (!ballerinaExtInstance.getCodeServerContext().codeServerEnv) {
         return;
     }
+
+    // Update status bar
     const statusBarItem = new gitStatusBarItem();
     ballerinaExtInstance.getCodeServerContext().statusBarItem = statusBarItem;
     workspace.onDidChangeTextDocument(_event => {
@@ -117,22 +87,41 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     workspace.onDidOpenTextDocument(_event => {
         statusBarItem.updateGitStatus();
     });
+    const rule = new schedule.RecurrenceRule();
+    rule.second = 5;
+    schedule.scheduleJob(rule, function () {
+        statusBarItem.updateGitStatus();
+    });
 
-    const commitAndPush = commands.registerCommand(PALETTE_COMMANDS.CHOREO_COMMIT_AND_PUSH,
-        async (barItem: gitStatusBarItem) => {
-        commands.executeCommand(PALETTE_COMMANDS.SAVE_ALL);
-        window.showInputBox({
-            placeHolder: "Enter the commit message"
-        }).then(async (message) => {
-            if (message === undefined) {
-                return;
-            } else {
-                await barItem.commitAll(message);
+    const commitAndPush = commands.registerCommand(PALETTE_COMMANDS.CHOREO_SYNC_CHANGES, () => {
+        commands.executeCommand(PALETTE_COMMANDS.FOCUS_SOURCE_CONTROL);
+        if (!ballerinaExtInstance.getCodeServerContext().infoMessageStatus.sourceControlMessage) {
+            return;
+        }
+        const stopPopup = "Don't show this message";
+        window.showInformationMessage('Make sure you commit and push project changes using the VS Code ' +
+            'Source Control activity. Refer to [documentation](https://wso2.com/choreo/docs/) ' +
+            'for more information.', stopPopup).then((selection) => {
+                if (stopPopup === selection) {
+                    ballerinaExtInstance.getCodeServerContext().infoMessageStatus.sourceControlMessage = false;
             }
         });
-        await barItem.push();
-        barItem.updateGitStatus();
-    })
+    });
 
     ballerinaExtInstance.context!.subscriptions.push(commitAndPush);
+}
+
+export function showChoreoPushMessage(ballerinaExtInstance: BallerinaExtension) {
+    if (!ballerinaExtInstance.getCodeServerContext().codeServerEnv ||
+        !ballerinaExtInstance.getCodeServerContext().infoMessageStatus.syncChoreoMessage) {
+        return;
+    }
+    ballerinaExtInstance.getCodeServerContext().infoMessageStatus.syncChoreoMessage = false;
+    const sync = "Sync Changes with Choreo";
+    window.showInformationMessage('Sync your project changes with Choreo and try out on its development ' +
+        'environment. Do you want to sync your changes? ', sync).then((selection) => {
+            if (sync === selection) {
+                commands.executeCommand(PALETTE_COMMANDS.FOCUS_SOURCE_CONTROL);
+            }
+        });
 }

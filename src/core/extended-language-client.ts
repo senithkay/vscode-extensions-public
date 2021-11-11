@@ -32,7 +32,7 @@ import {
     BallerinaConnectorsRequest
 } from "@wso2-enterprise/ballerina-low-code-editor/build/Definitions";
 import { BallerinaExtension } from "./index";
-import { showChoreoPushMessage } from "../tree-view";
+import { showChoreoPushMessage } from "../editor-support/git-status";
 
 export const BALLERINA_LANG_ID = "ballerina";
 const NOT_SUPPORTED = {};
