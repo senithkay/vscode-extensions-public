@@ -2,7 +2,7 @@
     "files": [],
     "references": [
       {
-        "path": "./form-field-generator/tsconfig.ref.json"
+        "path": "./statement-editor/tsconfig.ref.json"
       },
       {
         "path": "./lang-service/tsconfig.ref.json"
