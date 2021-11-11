@@ -11,16 +11,13 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, SyntheticEvent, useContext, useState } from "react";
-import { FormattedMessage } from "react-intl";
+import React, { useContext } from "react";
 
 import { LocalVarDecl } from "@ballerina/syntax-tree";
-import { Box, CircularProgress, FormControl, Grid, Typography } from "@material-ui/core";
-import { CloseRounded } from "@material-ui/icons";
 
 import { Context } from "../../../../../Contexts/Diagram";
 import { DiagramEditorLangClientInterface } from "../../../../../Definitions/diagram-editor-lang-client-interface";
-import { BallerinaConnectorInfo, BallerinaConnectorsRequest, BallerinaConnectorsResponse, Connector } from "../../../../../Definitions/lang-client-extended";
+import { BallerinaConnectorInfo, BallerinaConnectorsRequest, BallerinaConnectorsResponse, BallerinaModuleResponse, Connector } from "../../../../../Definitions/lang-client-extended";
 import {
     EVENT_TYPE_AZURE_APP_INSIGHTS,
     LowcodeEvent,
@@ -35,6 +32,8 @@ import { FormGeneratorProps } from "../../FormGenerator";
 import FilterByMenu from "./FilterByMenu";
 import SearchBar from "./SearchBar";
 import useStyles from "./style";
+import { UserState } from "../../../../../types";
+import { BallerinaModuleType, FilterStateMap, Marketplace } from "../../../Marketplace";
 
 export interface ConnectorListProps {
     onSelect: (connector: BallerinaConnectorInfo, selectedConnector: LocalVarDecl) => void;
@@ -43,257 +42,44 @@ export interface ConnectorListProps {
     collapsed?: (value: APIHeightStates) => void;
 }
 
-export interface ConnctorComponent {
-    connectorInfo: BallerinaConnectorInfo;
-    component: ReactNode;
-}
-
-export interface Connctors {
-    connector: ConnctorComponent[];
-    selectedCompoent: string;
-}
-
-export interface ExisitingConnctorComponent {
-    connectorInfo: BallerinaConnectorInfo;
-    component: ReactNode;
-    key: string;
-}
-
-export interface FilterStateMap {
-    [key: string]: boolean;
-}
-
 export function ConnectorList(props: FormGeneratorProps) {
-    const classes = useStyles();
-    const formClasses = useFormStyles();
     const {
-        props: { langServerURL, stSymbolInfo, currentFile, userInfo },
+        props: { langServerURL },
         api: {
-            helpPanel: { openConnectorHelp },
-            insights: { onEvent },
             ls: { getDiagramEditorLangClient },
-        },
+        }
     } = useContext(Context);
     const { onSelect } = props.configOverlayFormStatus.formArgs as ConnectorListProps;
-
-    const [centralConnectors, setCentralConnectors] = useState<Connector[]>([]);
-    const [localConnectors, setLocalConnectors] = useState<Connector[]>([]);
-    const [isSearchResultsFetching, setIsSearchResultsFetching] = useState(true);
-    const [searchQuery, setSearchQuery] = useState("");
-    const [selectedCategory, setSelectedCategory] = useState("");
-    const [filterState, setFilterState] = useState<FilterStateMap>({});
-    const [currentPage, setCurrentPage] = useState(1);
-    const [isNextPageFetching, setIsNextPageFetching] = useState(false);
-
-    const connectorLimit = 14;
-
-    React.useEffect(() => {
-        fetchConnectorList();
-    }, [searchQuery, selectedCategory, filterState]);
-
-    let centralConnectorComponents: ReactNode[] = [];
-    let localConnectorComponents: ReactNode[] = [];
-
-    const onSelectConnector = (connector: BallerinaConnectorInfo) => {
-        const event: LowcodeEvent = {
-            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
-            name: START_CONNECTOR_ADD_INSIGHTS,
-            property: connector.displayName || connector.package.name,
+    const fetchConnectorsList = async (searchQuery: string, selectedCategory: string, connectorLimit: number, currentFilePath: string,
+                                       filterState: FilterStateMap, userInfo: UserState, page?: number): Promise<BallerinaModuleResponse> => {
+        const langClient: DiagramEditorLangClientInterface = await getDiagramEditorLangClient(langServerURL);
+        const request: BallerinaConnectorsRequest = {
+            targetFile: currentFilePath,
+            query: searchQuery,
+            keyword: selectedCategory,
+            limit: connectorLimit,
         };
-        onEvent(event);
-        onSelect(connector, undefined);
-        openConnectorHelp(connector);
-    };
 
-    const getConnectorComponents = (connectors: Connector[]): ReactNode[] => {
-        const componentList: ReactNode[] = [];
-        connectors?.forEach((connector: Connector) => {
-            const connectorName = (connector.displayAnnotation?.label || `${connector.package?.name} / ${connector.name}`).replace(/["']/g, "");
-            const component: ReactNode = (
-                <Grid item={true} sm={6} alignItems="center">
-                    <div key={connectorName} onClick={onSelectConnector.bind(this, connector)} data-testid={connectorName.toLowerCase()}>
-                        <div className={classes.connector}>
-                            <div>{getConnectorIconSVG(connector)}</div>
-                            <div className={classes.connectorName}>{connectorName}</div>
-                            <div className={classes.orgName}>by {connector.package.organization}</div>
-                        </div>
-                    </div>
-                </Grid>
-            );
-            componentList.push(component);
-        });
-        return componentList;
-    };
-
-    const fetchConnectorList = (page?: number) => {
-        page ? setIsNextPageFetching(true) : setIsSearchResultsFetching(true);
-        getDiagramEditorLangClient(langServerURL).then((langClient: DiagramEditorLangClientInterface) => {
-            const request: BallerinaConnectorsRequest = {
-                targetFile: currentFile.path,
-                query: searchQuery,
-                keyword: selectedCategory,
-                limit: connectorLimit,
-            };
-
-            const hasUserOrgFilter = filterState.hasOwnProperty("My Organization") ? filterState["My Organization"] : false;
-            if (hasUserOrgFilter && userInfo) {
-                request.organization = userInfo.selectedOrgHandle;
-            }
-
-            if (page) {
-                request.offset = (page - 1) * connectorLimit;
-            }
-
-            langClient.getConnectors(request).then((response: BallerinaConnectorsResponse) => {
-                if (response.central?.length > 0) {
-                    page ? setCentralConnectors([...centralConnectors, ...response.central]) : setCentralConnectors(response.central);
-                }
-                if (response.local?.length > 0) {
-                    setLocalConnectors(response.local);
-                }
-                page ? setIsNextPageFetching(false) : setIsSearchResultsFetching(false);
-            });
-        });
-    };
-
-    const preventDiagramScrolling = (e: SyntheticEvent) => {
-        e.stopPropagation();
-    };
-
-    const onSearchButtonClick = (query: string) => {
-        setSearchQuery(query);
-    };
-
-    const updateCategory = (category: string) => {
-        setSelectedCategory(category);
-    };
-
-    const clearCategory = () => {
-        setSelectedCategory("");
-    };
-
-    const handleConnectorListScroll = (e: React.UIEvent<HTMLElement>) => {
-        const bottom = e.currentTarget.scrollHeight - e.currentTarget.scrollTop === e.currentTarget.clientHeight;
-        if (bottom && !isSearchResultsFetching) {
-            fetchConnectorList(currentPage + 1);
-            setCurrentPage(currentPage + 1);
+        const hasUserOrgFilter = filterState.hasOwnProperty("My Organization") ? filterState["My Organization"] : false;
+        if (hasUserOrgFilter && userInfo) {
+            request.organization = userInfo.selectedOrgHandle;
         }
+
+        if (page) {
+            request.offset = (page - 1) * connectorLimit;
+        }
+
+        return langClient.getConnectors(request);
+
     };
-
-    if (!isSearchResultsFetching) {
-        centralConnectorComponents = getConnectorComponents(centralConnectors);
-        localConnectorComponents = getConnectorComponents(localConnectors);
-    }
-
     return (
-        <FormControl data-testid="connector-list-form" className={classes.container}>
-            <div className={formClasses.formWrapper}>
-                <div className={formClasses.formFeilds}>
-                    <div className={formClasses.formWrapper}>
-                        <div className={formClasses.formTitleWrapper}>
-                            <div className={formClasses.mainTitleWrapper}>
-                                <Typography variant="h4">
-                                    <Box paddingTop={2} paddingBottom={2}>
-                                        <FormattedMessage id="lowcode.develop.configForms.connectorList.title" defaultMessage="API Connection" />
-                                    </Box>
-                                </Typography>
-                            </div>
-                        </div>
-
-                        <div onWheel={preventDiagramScrolling} className={classes.container}>
-                            <SearchBar searchQuery={searchQuery} onSearchButtonClick={onSearchButtonClick} />
-                            <Grid item={true} sm={12} container={true}>
-                                <Grid item={true} sm={5}>
-                                    <FilterByMenu
-                                        filterState={filterState}
-                                        setFilterState={setFilterState}
-                                        filterValues={[]}
-                                        selectedCategory={selectedCategory}
-                                        setCategory={updateCategory}
-                                    />
-                                </Grid>
-                                <Grid sm={7} container={true} item={true} className={classes.resultsContainer}>
-                                    {isSearchResultsFetching && (
-                                        <Grid sm={12} item={true} container={true} className={classes.msgContainer}>
-                                            <Grid item={true} sm={12}>
-                                                <Box display="flex" justifyContent="center">
-                                                    <CircularProgress data-testid="marketplace-search-loader" />
-                                                </Box>
-                                                <Box display="flex" justifyContent="center">
-                                                    <Typography variant="body1">Loading...</Typography>
-                                                </Box>
-                                            </Grid>
-                                        </Grid>
-                                    )}
-
-                                    {!isSearchResultsFetching && selectedCategory !== "" && (
-                                        <Grid sm={12} item={true} container={true} alignItems="center" className={classes.filterTagWrap}>
-                                            <Box display="flex" justifyContent="center" alignItems="center" className={classes.filterTag}>
-                                                <Typography variant="body1">{selectedCategory}</Typography>
-                                                <ButtonWithIcon
-                                                    className={classes.filterRemoveBtn}
-                                                    onClick={clearCategory}
-                                                    icon={<CloseRounded fontSize="small" />}
-                                                />
-                                            </Box>
-                                        </Grid>
-                                    )}
-
-                                    <Grid
-                                        item={true}
-                                        sm={12}
-                                        container={true}
-                                        direction="row"
-                                        justifyContent="flex-start"
-                                        alignContent="flex-start"
-                                        spacing={2}
-                                        className={classes.connectorListWrap}
-                                        onScroll={handleConnectorListScroll}
-                                    >
-                                        {!isSearchResultsFetching && localConnectors?.length > 0 && (
-                                            <>
-                                                <Grid item={true} sm={12} className={classes.connectorSectionWrap}>
-                                                    <Grid item={true} sm={6} md={6} lg={6}>
-                                                        <Typography variant="h4">Local APIs</Typography>
-                                                    </Grid>
-                                                </Grid>
-                                                {localConnectorComponents}
-                                            </>
-                                        )}
-                                        {!isSearchResultsFetching && centralConnectors?.length > 0 && (
-                                            <>
-                                                <Grid item={true} sm={12} className={classes.connectorSectionWrap}>
-                                                    <Grid item={true} sm={6} md={6} lg={6}>
-                                                        <Typography variant="h4">Public APIs</Typography>
-                                                    </Grid>
-                                                </Grid>
-                                                {centralConnectorComponents}
-                                            </>
-                                        )}
-                                        {!isSearchResultsFetching && isNextPageFetching && (
-                                            <Grid item={true} sm={12} className={classes.connectorSectionWrap}>
-                                                <Box display="flex" justifyContent="center">
-                                                    <Typography variant="body1">Loading more APIs...</Typography>
-                                                </Box>
-                                            </Grid>
-                                        )}
-                                    </Grid>
-
-                                    {!isSearchResultsFetching && centralConnectorComponents.length === 0 && localConnectors.length === 0 && (
-                                        <Grid sm={12} item={true} container={true} alignItems="center" className={classes.msgContainer}>
-                                            <Grid item={true} sm={12}>
-                                                <Box display="flex" justifyContent="center">
-                                                    <Typography variant="body1">No APIs found.</Typography>
-                                                </Box>
-                                            </Grid>
-                                        </Grid>
-                                    )}
-                                </Grid>
-                            </Grid>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </FormControl>
+        <Marketplace
+            balModuleType={BallerinaModuleType.Connector}
+            onSelect={onSelect}
+            fetchModulesList={fetchConnectorsList}
+            title="API Calls"
+            shortName="APIs"
+        />
     );
 }
+

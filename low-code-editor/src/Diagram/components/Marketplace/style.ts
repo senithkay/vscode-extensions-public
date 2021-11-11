@@ -19,12 +19,12 @@ import {
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
-        triggerListWrap: {
+        balModuleListWrap: {
             marginTop: theme.spacing(2),
             height: '80vh',
             overflowY: 'scroll',
         },
-        triggerSectionWrap: {
+        balModuleSectionWrap: {
             marginTop: theme.spacing(6),
             '&:first-child': {
                 marginTop: 0
@@ -56,7 +56,7 @@ const useStyles = makeStyles((theme: Theme) =>
         filterRemoveBtn: {
             padding: '8px',
         },
-        trigger: {
+        balModule: {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -74,7 +74,7 @@ const useStyles = makeStyles((theme: Theme) =>
                 border: '1px solid #5567D5',
             },
         },
-        triggerName: {
+        balModuleName: {
             color: '#222228',
             fontSize: 13,
             width: '100%',
@@ -93,7 +93,6 @@ const useStyles = makeStyles((theme: Theme) =>
             textOverflow: 'ellipsis',
             textAlign: 'center',
         },
-        triggerWrap: { overflowY: 'scroll' }
     })
 );
 

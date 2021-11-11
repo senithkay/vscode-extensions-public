@@ -19,12 +19,12 @@ import {
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
-        connectorListWrap: {
+        balModuleListWrap: {
             marginTop: theme.spacing(2),
             height: '80vh',
             overflowY: 'scroll',
         },
-        connectorSectionWrap: {
+        balModuleSectionWrap: {
             marginTop: theme.spacing(6),
             '&:first-child': {
                 marginTop: 0
@@ -56,7 +56,7 @@ const useStyles = makeStyles((theme: Theme) =>
         filterRemoveBtn: {
             padding: '8px',
         },
-        connector: {
+        balModule: {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -74,7 +74,7 @@ const useStyles = makeStyles((theme: Theme) =>
                 border: '1px solid #5567D5',
             },
         },
-        connectorName: {
+        balModuleName: {
             color: '#222228',
             fontSize: 13,
             width: '100%',

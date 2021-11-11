@@ -11,106 +11,30 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, SyntheticEvent, useContext, useState } from "react";
+import React from "react";
 
 import { LocalVarDecl } from "@ballerina/syntax-tree";
-import { Box, CircularProgress, Grid, Typography } from "@material-ui/core";
 
-import Tooltip from "../../../components/TooltipV2";
-import { Context } from "../../../Contexts/Diagram";
-import { Package } from "../../../Definitions";
-import { Trigger } from "../../../Definitions/lang-client-extended";
-import {
-    EVENT_TYPE_AZURE_APP_INSIGHTS,
-    LowcodeEvent,
-    TRIGGER_SELECTED_INSIGHTS,
-} from "../../models";
-import FilterByMenu from "../ConnectorList/FilterByMenu";
-import SearchBar from "../ConnectorList/SearchBar";
-import { getConnectorIconSVG } from "../Portals/utils";
-
-import useStyles from './style';
-
-export interface FilterStateMap {
-    [ key: string ]: boolean;
-}
+import { BallerinaModuleResponse, Package, Trigger } from "../../../Definitions";
+import { UserState } from "../../../types";
+import { BallerinaModuleType, FilterStateMap, Marketplace } from "../Marketplace";
 
 export function TriggerList() {
-    const classes = useStyles();
-    const {
-        props: { langServerURL, stSymbolInfo, currentFile },
-        api: {
-            helpPanel: {
-                openConnectorHelp,
-            },
-            insights: {
-                onEvent
-            },
-            ls: {
-                getDiagramEditorLangClient, // This will be used to fetch the triggers from the Balleirna Central
-            }
-        }
-    } = useContext(Context);
-
     const showTriggerForm = (
         trigger: Trigger,
         varNode: LocalVarDecl
     ) => {
         // TODO: Show trigger form
     };
-
-    const [ centralTriggers, setCentralTriggers ] = useState<Trigger[]>([]);
-    const [ localTriggers, setLocalTriggers ] = useState<Trigger[]>([]);
-    const [ isSearchResultsFetching, setIsSearchResultsFetching ] = useState(true);
-    const [ searchQuery, setSearchQuery ] = useState("");
-    const [selectedCategory, setSelectedCategory] = useState("");
-    const [ filterState, setFilterState ] = useState<FilterStateMap>({});
-
-    React.useEffect(() => {
-        fetchTriggersList();
-    }, [searchQuery, selectedCategory]);
-
-    let centralTriggerComponents: ReactNode[] = [];
-    let localTriggerComponents: ReactNode[] = [];
-
-    const onSelectTrigger = (trigger: Trigger) => {
-        const event: LowcodeEvent = {
-            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
-            name: TRIGGER_SELECTED_INSIGHTS,
-            property: trigger.displayName || trigger.package.name
+    const fetchTriggersList = async (searchQuery: string, selectedCategory: string, connectorLimit: number, currentFilePath: string,
+                                     filterState: FilterStateMap, userInfo: UserState, page?: number): Promise<BallerinaModuleResponse> => {
+        // Hardcode the slack trigger for now
+        // TODO: remove this and call the lang server to fetch the triggers
+        const slackPackage: Package = {
+            organization: 'ballerinax',
+            name: 'trigger.slack',
+            version: '0.2.0'
         };
-        onEvent(event);
-        showTriggerForm(trigger, undefined);
-        openConnectorHelp(trigger);
-    };
-
-    const getTriggerComponents = (triggers: Trigger[]): ReactNode[] => {
-        const componentList: ReactNode[] = [];
-        triggers?.forEach((trigger: Trigger) => {
-            const triggerName = (trigger.displayAnnotation?.label || `${trigger.package?.name} / ${trigger.name}`).replace(/["']/g, "");
-            const component: ReactNode = (
-                <Grid item={true} sm={6} alignItems="center">
-                    <div key={triggerName} onClick={onSelectTrigger.bind(this, trigger)} data-testid={triggerName.toLowerCase()}>
-                        <div className={classes.trigger}>
-                            <div>{getConnectorIconSVG(trigger)}</div>
-                            <div className={classes.triggerName}>{triggerName}</div>
-                            <div className={classes.orgName}>by {trigger.package.organization}</div>
-                        </div>
-                    </div>
-                </Grid>
-            );
-            componentList.push(component);
-        });
-        return componentList;
-    };
-
-    const slackPackage: Package = {
-        organization: 'ballerinax',
-        name: 'trigger.slack',
-        version: '0.2.0'
-    };
-
-    const fetchTriggersList = () => {
         const slackTrigger: Trigger = {
             name: "slack",
             package: slackPackage,
@@ -119,125 +43,18 @@ export function TriggerList() {
         }
         let triggersList: Trigger[];
         triggersList = [slackTrigger];
-        setIsSearchResultsFetching(true);
-        setCentralTriggers(triggersList);
-        setIsSearchResultsFetching(false);
+        const response: BallerinaModuleResponse = {
+            central: triggersList
+        };
+        return response;
+
     };
-
-    const preventDiagramScrolling = (e: SyntheticEvent) => {
-        e.stopPropagation();
-    };
-
-    const onSearchButtonClick = (query: string) => {
-        setSearchQuery(query);
-    };
-
-    const updateCategory = (category: string) => {
-        setSelectedCategory(category);
-    };
-
-    if (!isSearchResultsFetching) {
-        centralTriggerComponents = getTriggerComponents(centralTriggers);
-        localTriggerComponents = getTriggerComponents(localTriggers);
-    }
-
     return (
-        <div onWheel={preventDiagramScrolling} className={classes.container} >
-            <SearchBar
-                searchQuery={searchQuery}
-                onSearchButtonClick={onSearchButtonClick}
-            />
-            <Grid item={true} sm={12} container={true}>
-                <Grid item={true} sm={5}>
-                    <FilterByMenu
-                        filterState={filterState}
-                        setFilterState={setFilterState}
-                        filterValues={[]}
-                        setCategory={updateCategory}
-                        selectedCategory={selectedCategory}
-                    />
-                </Grid>
-                <Grid
-                    sm={7}
-                    container={true}
-                    item={true}
-                    alignItems="flex-start"
-                >
-                    { isSearchResultsFetching && (
-                        <Grid
-                            sm={12}
-                            item={true}
-                            container={true}
-                            alignItems="center"
-                            className={classes.msgContainer}
-                        >
-                            <Grid item={true} sm={12}>
-                                <Box display="flex" justifyContent="center">
-                                    <CircularProgress data-testid="marketplace-search-loader" />
-                                </Box>
-                                <Box display="flex" justifyContent="center">
-                                    <Typography variant="body1">
-                                        Loading...
-                                    </Typography>
-                                </Box>
-                            </Grid>
-                        </Grid>
-                    ) }
-
-                    <Grid
-                        item={true}
-                        sm={12}
-                        container={true}
-                        direction="row"
-                        justifyContent="flex-start"
-                        spacing={2}
-                        className={classes.triggerWrap}
-                    >
-                        { centralTriggers?.length > 0 && (
-                            <>
-                                <Grid item={true} sm={12} className={classes.triggerListWrap}>
-                                    <Grid item={true} sm={6} md={6} lg={6}>
-                                        <Typography variant="h4">
-                                            Public Connectors
-                                        </Typography>
-                                    </Grid>
-                                </Grid>
-                                {centralTriggerComponents}
-                            </>
-                        ) }
-                        { localTriggers?.length > 0 && (
-                            <>
-                                <Grid item={true} sm={12} className={classes.triggerListWrap}>
-                                    <Grid item={true} sm={6} md={6} lg={6}>
-                                        <Typography variant="h4">
-                                            Local Connectors
-                                        </Typography>
-                                    </Grid>
-                                </Grid>
-                                {localTriggerComponents}
-                            </>
-                        ) }
-                    </Grid>
-
-                    { !isSearchResultsFetching && centralTriggerComponents.length === 0 && localTriggers.length === 0 && (
-                        <Grid
-                            sm={12}
-                            item={true}
-                            container={true}
-                            alignItems="center"
-                            className={classes.msgContainer}
-                        >
-                            <Grid item={true} sm={12}>
-                                <Box display="flex" justifyContent="center">
-                                    <Typography variant="body1">
-                                        No connectors found.
-                                    </Typography>
-                                </Box>
-                            </Grid>
-                        </Grid>
-                    ) }
-                </Grid>
-            </Grid>
-        </div >
+        <Marketplace
+            balModuleType={BallerinaModuleType.Trigger}
+            onSelect={showTriggerForm}
+            fetchModulesList={fetchTriggersList}
+            title="Triggers"
+        />
     );
 }
