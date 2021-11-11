@@ -12,7 +12,7 @@
  */
 // tslint:disable: ordered-imports
 import { FunctionDefinition, NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
-import { Diagnostic, Range } from "monaco-languageclient";
+import { CompletionItemKind, Diagnostic, InsertTextFormat, Range } from "monaco-languageclient";
 import { ExpEditorExpandSvg, ExpEditorCollapseSvg, EditIcon, ConfigurableIconSvg } from "../../../../../../assets";
 
 import * as monaco from 'monaco-editor';
@@ -35,12 +35,14 @@ import {
     DIAGNOSTIC_MAX_LENGTH,
     SUGGEST_CAST_MAP,
     CONFIGURABLE_WIDGET_ID,
+    acceptedKind
 } from "./constants";
 import "./style.scss";
 import { ExpressionEditorHintProps, HintType } from "../ExpressionEditorHint";
 import MonacoEditor from "react-monaco-editor";
 import { InsertorDelete } from "../../../../../utils/modification-util";
 import { InjectableItem } from "../../../../FormGenerator";
+import { CompletionParams, CompletionResponse, ExpressionEditorLangClientInterface, TextEdit } from "../../../../../../Definitions";
 
 
 // return true if there is any diagnostic of severity === 1
@@ -555,4 +557,134 @@ export const getHints = (diagnostics: Diagnostic[], varType: string, varName: st
     }
 
     return hints;
+}
+
+export interface GetExpCompletionsProps {
+    getExpressionEditorLangClient: (url: string) => Promise<ExpressionEditorLangClientInterface>;
+    langServerURL: string;
+    completionParams: CompletionParams;
+    model: any; // FIXME: Assign proper type once model prop in exp editor has been updated,
+    monacoRef: React.MutableRefObject<MonacoEditor>;
+    varType: string;
+    varName: string;
+    snippetTargetPosition: number;
+}
+export const getStandardExpCompletions = async ({
+    getExpressionEditorLangClient,
+    langServerURL,
+    completionParams,
+    model,
+    monacoRef,
+    varType,
+    varName,
+    snippetTargetPosition,
+}: GetExpCompletionsProps): Promise<monaco.languages.CompletionList> => {
+    const langClient: ExpressionEditorLangClientInterface = await getExpressionEditorLangClient(langServerURL);
+    const values: CompletionResponse[] = await langClient.getCompletion(completionParams);
+    const completionItems: monaco.languages.CompletionItem[] = [];
+
+    if (model?.customAutoComplete) {
+        const completionItemCustom: monaco.languages.CompletionItem[] = Array.from(model.customAutoComplete).map((customCompletion: string, order: number) => {
+            return {
+                range: null,
+                label: customCompletion,
+                kind: monaco.languages.CompletionItemKind.Enum,
+                insertText: customCompletion,
+                sortText: `0${createSortText(order)}`
+            }
+        })
+        completionItems.push(...completionItemCustom);
+    }
+    if (model.aiSuggestion) {
+        const completionItemAI: monaco.languages.CompletionItem = {
+            preselect: true,
+            range: null,
+            label: model.aiSuggestion,
+            kind: 1 as CompletionItemKind,
+            insertText: model.aiSuggestion,
+            sortText: '1'
+        }
+        completionItems.push(completionItemAI);
+    }
+    if (varType === "boolean") {
+        const completionItemTemplate: monaco.languages.CompletionItem = {
+            preselect: true,
+            range: null,
+            label: 'true',
+            kind: monaco.languages.CompletionItemKind.Keyword,
+            insertText: 'true',
+            insertTextRules: monaco.languages.CompletionItemInsertTextRule.KeepWhitespace,
+            sortText: '2'
+        }
+        const completionItemTemplate1: monaco.languages.CompletionItem = {
+            range: null,
+            label: 'false',
+            kind: monaco.languages.CompletionItemKind.Keyword,
+            insertText: 'false',
+            insertTextRules: monaco.languages.CompletionItemInsertTextRule.KeepWhitespace,
+            sortText: '2'
+        }
+        completionItems.push(completionItemTemplate);
+        completionItems.push(completionItemTemplate1);
+    }
+
+    const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (
+        (!completionResponse.kind || acceptedKind.includes(completionResponse.kind as CompletionItemKind)) &&
+        completionResponse.label !== varName &&
+        completionResponse.label !== model.aiSuggestion &&
+        !(completionResponse.label.includes("main") && completionResponse.detail === "Function")
+    ));
+    const lsCompletionItems: monaco.languages.CompletionItem[] = filteredCompletionItem.map((completionResponse: CompletionResponse, order: number) => {
+        if (completionResponse.kind === CompletionItemKind.Field && completionResponse.additionalTextEdits) {
+            return {
+                range: null,
+                label: completionResponse.label,
+                detail: completionResponse.detail,
+                kind: completionResponse.kind as CompletionItemKind,
+                insertText: completionResponse.insertText,
+                insertTextFormat: completionResponse.insertTextFormat as InsertTextFormat,
+                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                sortText: createSortText(order),
+                documentation: completionResponse.documentation,
+                command: {
+                    id: monacoRef.current.editor.addCommand(0, (_, args: TextEdit[]) => {
+                        if (args.length > 0) {
+                            const startColumn = args[0].range.start.character - snippetTargetPosition + 2
+                            const endColumn = args[0].range.end.character - snippetTargetPosition + 2
+                            const edit: monaco.editor.IIdentifiedSingleEditOperation[] = [{
+                                text: args[0].newText,
+                                range: new monaco.Range(1, startColumn, 1, endColumn)
+                            }];
+                            monacoRef.current.editor.executeEdits("completion-edit", edit)
+                        }
+                    }, ''),
+                    title: "completion-edit",
+                    arguments: [completionResponse.additionalTextEdits]
+                }
+            }
+        } else {
+            return {
+                range: null,
+                label: completionResponse.label,
+                detail: completionResponse.detail,
+                kind: completionResponse.kind as CompletionItemKind,
+                insertText: completionResponse.insertText,
+                insertTextFormat: completionResponse.insertTextFormat as InsertTextFormat,
+                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                sortText: createSortText(order),
+                documentation: completionResponse.documentation
+            }
+        }
+    });
+    completionItems.push(...lsCompletionItems);
+
+    if (completionItems.length > 0) {
+        completionItems[0] = { ...completionItems[0], preselect: true }
+    }
+
+    const completionList: monaco.languages.CompletionList = {
+        incomplete: false,
+        suggestions: completionItems
+    };
+    return completionList;
 }
