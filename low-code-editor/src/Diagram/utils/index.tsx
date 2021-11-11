@@ -12,6 +12,7 @@ import { Respond } from "../components/Respond";
 import { Statement } from "../components/Statement";
 import { BlockViewState } from "../view-state";
 import { DraftStatementViewState } from "../view-state/draft";
+import { Diagnostic } from "monaco-languageclient";
 
 export function getSTComponents(nodeArray: any): React.ReactNode[] {
     // Convert to array
@@ -95,4 +96,12 @@ export function getDraftComponent(viewState: BlockViewState, state: any, insertC
     }
 
     return draftComponents;
+}
+
+export function getDiagnosticMsgs(diagnostics: Diagnostic[]):string{
+    let diagnosticMsgsArray : string[] =[];
+    for (let i=0;i<diagnostics.length;i++){
+        diagnosticMsgsArray.push((diagnostics[i].message));
+    }
+    return diagnosticMsgsArray.join(',\n');
 }
