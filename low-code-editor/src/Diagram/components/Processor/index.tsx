@@ -41,6 +41,7 @@ import { VariableName, VARIABLE_NAME_WIDTH } from "../VariableName";
 
 import { ProcessSVG, PROCESS_SVG_HEIGHT, PROCESS_SVG_HEIGHT_WITH_SHADOW, PROCESS_SVG_SHADOW_OFFSET, PROCESS_SVG_WIDTH, PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW } from "./ProcessSVG";
 import "./style.scss";
+import { getDiagnosticMsgs } from "../../utils";
 
 export interface ProcessorProps {
     model: STNode;
@@ -75,17 +76,21 @@ export function DataProcessor(props: ProcessorProps) {
     let processType = "STATEMENT";
     let processName = "Variable";
     let sourceSnippet = "Source";
-    let diagnostics;
+    const diagnostics =  model.typeData?.diagnostics;
 
     let isIntializedVariable = false;
     let isLogStmt = false;
 
     let isReferencedVariable = false;
+    let diagnosticMsgs ;
+
+    if(diagnostics?.length != 0){
+        diagnosticMsgs = getDiagnosticMsgs(diagnostics);
+    }
 
     if (model) {
         processType = "Variable";
-        diagnostics = model.typeData?.diagnostics[0]?.message;
-        sourceSnippet = diagnostics ? "Code has errors\n" + model.source : model.source;
+        sourceSnippet = model.source;
         if (STKindChecker.isCallStatement(model)) {
             const callStatement: CallStatement = model as CallStatement;
             const stmtFunctionCall: FunctionCall = callStatement.expression as FunctionCall;
@@ -128,7 +133,10 @@ export function DataProcessor(props: ProcessorProps) {
         const draftViewState = blockViewState.draft[1] as DraftStatementViewState;
         processType = draftViewState.subType;
     }
-
+    let errorSnippet = {
+        diagnosticMsgs:diagnosticMsgs,
+        code:sourceSnippet,
+    }
     const h: number = viewState.dataProcess.h;
     const w: number = viewState.dataProcess.w;
     const cx: number = blockViewState ? (viewState.bBox.cx - (PROCESS_SVG_WIDTH / 2)) : (viewState.bBox.cx - (w / 2));
@@ -229,7 +237,7 @@ export function DataProcessor(props: ProcessorProps) {
     }
 
     const processWrapper = isDraftStatement ? cn("main-process-wrapper active-data-processor") : cn("main-process-wrapper data-processor");
-    const processStyles = diagnostics && !isDraftStatement ? cn("main-process-wrapper data-processor-error ") : processWrapper
+    const processStyles = diagnostics.length!=0 && !isDraftStatement ? cn("main-process-wrapper data-processor-error ") : processWrapper
 
     const component: React.ReactNode = (!viewState.collapsed &&
         (
@@ -252,6 +260,7 @@ export function DataProcessor(props: ProcessorProps) {
                             processType={processType}
                             sourceSnippet={sourceSnippet}
                             position={model?.position}
+                            diagnostics={errorSnippet}
                             openInCodeView={!isReadOnly && !isCodeEditorActive && !isWaitingOnWorkspace && model && model.position && onClickOpenInCodeView}
                         />
                         <Assignment
