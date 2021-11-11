@@ -29,6 +29,7 @@ import { RecordEditor } from "./RecordEditor";
 import { ApiConfigureWizard } from "./ResourceConfigForm/ApiConfigureWizard";
 import { ServiceConfigForm } from './ServiceConfigForm';
 import { TypeDefinitionConfigForm } from "./TypeDefinitionConfigForm";
+import { TriggerList } from "../../TriggerList";
 
 export { APIConfigForm as apiConfig };
 export { ConnectorInitForm as connectorInit };
@@ -53,3 +54,4 @@ export { ConfigurableForm as Configurable };
 export { ListenerConfigForm as ListenerDeclaration };
 export { ConstantConfigForm as ConstDeclaration }
 export { TypeDefinitionConfigForm as TypeDefinition };
+export { TriggerList as TriggerList };

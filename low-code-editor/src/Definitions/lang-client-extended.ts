@@ -241,3 +241,13 @@ export interface PerformanceGraphRequest {
     file: string;
     data: GraphData;
 }
+
+export interface Trigger {
+    id?: string;
+    name: string;
+    displayName?: string;
+    moduleName?: string;
+    package: Package;
+    displayAnnotation?: any;
+    serviceTypes?: any;
+}
