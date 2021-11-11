@@ -67,7 +67,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     } = useContext(Context);
 
     const [initialized, setIsInitialized] = useState<boolean>(true);
-    const [isToggleHidden, setIsToggleHidden] = useState<boolean>(false);
+    const [isToggleHidden, setToggleHidden] = useState<boolean>(false);
 
     let initialModelType: string = 'json';
     let modelType;
@@ -126,7 +126,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
 
         if (type === "var") {
             setIsInitialized(true);
-            setIsToggleHidden(true);
+            setToggleHidden(true);
         }
 
         if (type !== "other") {
@@ -399,7 +399,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
 
                                 )
                                 : (
-                                    <>
+                                    <div>
                                         <div className={classnames(classes.activeWrapper, classes.blockWrapper)}>
                                             <div className={classes.dropdownWrapper}>
                                                 {typeDropDown}
@@ -409,19 +409,19 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                                             </div>
                                             {
                                                 initialized && (
-                                                    <>
+                                                    <div className={classes.inlineWrapper}>
                                                         <div className={classes.codeText}>
                                                             <Typography variant='body2' className={classes.endCode}>=</Typography>
                                                         </div>
                                                         <div className={classes.variableExpEditorWrapper}>
                                                             {expressionEditor}
                                                         </div>
-                                                    </>
+                                                    </div>
                                                 )
                                             }
                                         </div>
                                         {!isToggleHidden && initializedToggle}
-                                    </>
+                                    </div>
                                 )
                             }
                         </div>

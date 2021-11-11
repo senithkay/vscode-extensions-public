@@ -646,6 +646,9 @@ export const useStyles = makeStyles((theme: Theme) =>
             display: 'inline-flex',
             alignItems: 'center',
             gap: theme.spacing(1)
+        },
+        inlineWrapper: {
+            display: 'inline-flex'
         }
     }),
 );
