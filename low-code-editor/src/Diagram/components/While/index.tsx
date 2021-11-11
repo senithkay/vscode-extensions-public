@@ -23,7 +23,7 @@ import cn from "classnames";
 
 import { WizardType } from "../../../ConfigurationSpec/types";
 import { Context } from "../../../Contexts/Diagram";
-import { getDraftComponent, getSTComponents } from "../../utils";
+import { getDiagnosticMsgs, getDraftComponent, getSTComponents } from "../../utils";
 import { getConditionConfig, getRandomInt } from "../../utils/diagram-util";
 import { BlockViewState } from "../../view-state";
 import { WhileViewState } from "../../view-state/while";
@@ -76,6 +76,7 @@ export function While(props: WhileProps) {
 
     const [isConfigWizardOpen, setConfigWizardOpen] = useState(false);
     const [whileConfigOverlayState, setWhileConfigOverlayState] = useState(undefined);
+    // const [isDiagnostic,setDiagnostic] = useState(false);
 
     const pluses: React.ReactNode[] = [];
     const modelWhile: WhileStatement = model as WhileStatement;
@@ -90,14 +91,26 @@ export function While(props: WhileProps) {
     const y: number = viewState.whileHead.cy - (viewState.whileHead.h / 2) - (WHILE_SHADOW_OFFSET / 2);
     const r: number = DefaultConfig.forEach.radius;
     const paddingUnfold = DefaultConfig.forEach.paddingUnfold;
-
-    let codeSnippet = "WHILE CODE SNIPPET";
-    let codeSnippetOnSvg = "WHILE";
     const diagnostics = modelWhile?.condition?.typeData?.diagnostics;
-    const whileWrapper = diagnostics?.length !== 0 ? cn("while-error-wrapper") : cn("while-wrapper") ;
+    let whileWrapper = cn("while-wrapper") ;
 
+    let diagnosticMsgs ;
+
+    if(diagnostics?.length != 0){
+        diagnosticMsgs = getDiagnosticMsgs(diagnostics);
+        whileWrapper = cn("while-error-wrapper");
+    }
+
+    let codeSnippet = modelWhile?.source?.trim().split('{')[0];
+    let codeSnippetOnSvg = "WHILE";
+
+    let errorSnippet = {
+        diagnosticMsgs:diagnosticMsgs,
+        code:codeSnippet,
+    }
+    
     if (model) {
-        codeSnippet = modelWhile.source.trim().split('{')[0];
+        codeSnippet = codeSnippet;
         const firstBraceIndex = codeSnippet.indexOf("(");
         const lastBraceIndex = codeSnippet.lastIndexOf(")");
         codeSnippetOnSvg = codeSnippet.substring(firstBraceIndex + 1, lastBraceIndex);
@@ -209,6 +222,7 @@ export function While(props: WhileProps) {
                     y={y}
                     codeSnippet={codeSnippet}
                     codeSnippetOnSvg={codeSnippetOnSvg}
+                    diagnostics={errorSnippet}
                     openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && onClickOpenInCodeView}
                 />
                 <ContitionAssignment
@@ -277,6 +291,7 @@ export function While(props: WhileProps) {
                     y={y}
                     codeSnippet={codeSnippet}
                     codeSnippetOnSvg={codeSnippetOnSvg}
+                    diagnostics={errorSnippet}
                     openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && onClickOpenInCodeView}
                 />
                 <ContitionAssignment
