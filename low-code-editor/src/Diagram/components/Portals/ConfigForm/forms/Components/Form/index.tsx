@@ -52,10 +52,10 @@ export function Form(props: FormProps) {
         onValidate(isAllValid(validFieldChecker.current, emptyFieldChecker.current, false, true, true));
     };
 
-    const fieldTypesList = ["string" , "int" , "boolean" , "float" , "decimal" , "array" , "map" , "union" , 
+    const fieldTypesList = ["string" , "int" , "boolean" , "float" , "decimal" , "array" , "map" , "union" ,
     "json" , "httpRequest" , "handle" , "object {public string[] & readonly strings;public Value[] insertions;}"]
     fields?.map((field, index) => {
-        if (!field.hide && ( fieldTypesList.includes(field.typeName) || (field.typeName === 'record' && !field.isReference) )) {
+        if (!field.hide && (fieldTypesList.includes(field.typeName) || (field.typeName === 'record' && !field.isReference))) {
             const elementProps: FormElementProps = {
                 model: field,
                 index,

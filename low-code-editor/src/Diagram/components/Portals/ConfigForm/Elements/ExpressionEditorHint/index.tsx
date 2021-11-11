@@ -76,7 +76,7 @@ export function ExpressionEditorHint(props: ExpressionEditorHintProps) {
         id: "lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage.addDoubleQuotesToEmptyExpr.text",
         defaultMessage: " to make an empty string"
     })
-    
+
     const addBackTicksToEmptyExpr = intl.formatMessage({
         id: "lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage.addBackTicksToEmptyExpr.text",
         defaultMessage: " to make an empty query"

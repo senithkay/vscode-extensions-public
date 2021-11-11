@@ -565,7 +565,7 @@ export const getHints = (diagnostics: Diagnostic[], varType: string, varName: st
         } else if (suggestCastChecker(expectedType, foundType)) {
             hints.push({ type: HintType.SUGGEST_CAST, onClickHere: () => hintHandlers.addTypeCast(foundType, varType, monacoRef), expressionType: varType })
         } else if (varType === "sql:ParameterizedQuery") {
-            if(monacoRef.current) {
+            if (monacoRef.current) {
                 const editorContent = monacoRef.current.editor.getModel().getValue();
                 if (editorContent === "") {
                     // Add empty back ticks if the input field is empty for string type
@@ -574,10 +574,8 @@ export const getHints = (diagnostics: Diagnostic[], varType: string, varName: st
                     // Add back ticks around the input, if its parameterized query input type
                     hints.push({ type: HintType.ADD_BACK_TICKS, onClickHere: () => hintHandlers.addBackTicks(monacoRef), editorContent })
                 }
+            }
         }
     }
-}
-    
-
     return hints;
 }
