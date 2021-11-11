@@ -122,7 +122,10 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
             }
             if (formField.typeName === "string" && (formField.value || formField.defaultValue)) {
                 paramString += formField.value || formField.defaultValue;
-            } else if (formField.typeName === "array" && !formField.hide && (formField.value || formField.defaultValue)) {
+            } else if (formField.typeName === "object {public string[] & readonly strings;public Value[] insertions;}" && (formField.value || formField.defaultValue)) {
+                paramString += formField.value || formField.defaultValue;
+            }
+            else if (formField.typeName === "array" && !formField.hide && (formField.value || formField.defaultValue)) {
                 paramString += formField.value.toString() || formField.defaultValue;
             } else if (formField.typeName === "map" && (formField.value || formField.defaultValue)) {
                 paramString += formField.value || formField.defaultValue;
@@ -145,7 +148,15 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
                             firstRecordField = true;
                         }
                         recordFieldsString += getFieldName(field.name) + ": " + field.value;
-                    } else if ((field.typeName === "int" || field.typeName === "boolean" || field.typeName === "float" || formField.typeName === "decimal") && field.value) {
+                    } else if (field.typeName === "object {public string[] & readonly strings;public Value[] insertions;}" && field.value) {
+                        if (firstRecordField) {
+                            recordFieldsString += ", ";
+                        } else {
+                            firstRecordField = true;
+                        }
+                        recordFieldsString += getFieldName(field.name) + ": " + field.value;
+                    }
+                    else if ((field.typeName === "int" || field.typeName === "boolean" || field.typeName === "float" || formField.typeName === "decimal") && field.value) {
                         if (firstRecordField) {
                             recordFieldsString += ", ";
                         } else {
