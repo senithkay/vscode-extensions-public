@@ -98,7 +98,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         if (!ballerinaExtInstance.getCodeServerContext().infoMessageStatus.sourceControlMessage) {
             return;
         }
-        const stopPopup = "Don't show this message";
+        const stopPopup = "Don't show again!";
         window.showInformationMessage('Make sure you commit and push project changes using the VS Code ' +
             'Source Control activity. Refer to [documentation](https://wso2.com/choreo/docs/) ' +
             'for more information.', stopPopup).then((selection) => {

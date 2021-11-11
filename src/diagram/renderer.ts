@@ -28,7 +28,7 @@ export function render(filePath: Uri, startLine: number, startColumn: number): s
 function renderDiagram(filePath: Uri, startLine: number, startColumn: number): string {
 
     const body = `
-        <div class="ballerina-editor design-view-container" id="diagram"></div>
+        <div class="ballerina-editor design-view-container" id="diagram"><div class="loader" /></div>
     `;
 
     const bodyCss = "diagram";
@@ -46,7 +46,8 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
         #diagram {
             height: 100%;
             display: inline-block;
-            width: 100%
+            width: 100%;
+            background-color: #f8f9fb;
         }
         #errors {
             display: table;
@@ -71,6 +72,20 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
         }
         #warning p {
             line-height: 25px;
+        }
+        .loader {
+            border: 3px solid #edf0ff;
+            border-top: 3px solid #5463dc;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            animation: spin 1s linear infinite;
+            margin: auto;
+            margin-top: 38%;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     `;
 
