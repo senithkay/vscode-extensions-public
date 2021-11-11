@@ -70,6 +70,7 @@ export class UndoRedoManager {
             }
             this.undoStack.set(this.path, sourcestack);
         }
+        this.content = source;
     }
 
     public getFilePath() {

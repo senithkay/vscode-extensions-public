@@ -230,7 +230,6 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                         });
                                         if (parseSuccess) {
                                             undoRedo.addModification(source);
-                                            undoRedo.updateContent(filePath, source);
                                             const pfSession = await props.getPFSession();
                                             const vistedSyntaxTree: STNode = await getLowcodeST(newST, filePath,
                                                                                                 langClient, pfSession,
