@@ -18,7 +18,7 @@ import cn from "classnames";
 
 import { WizardType } from "../../../ConfigurationSpec/types";
 import { Context } from "../../../Contexts/Diagram";
-import { getDraftComponent, getSTComponents } from "../../utils";
+import { getDiagnosticMsgs, getDraftComponent, getSTComponents } from "../../utils";
 import { getConditionConfig, getRandomInt } from "../../utils/diagram-util";
 import { BlockViewState, ForEachViewState } from "../../view-state";
 import { DefaultConfig } from "../../visitors/default";
@@ -76,7 +76,8 @@ export function ForEach(props: ForeachProps) {
             isReadOnly,
             isMutationProgress,
             stSymbolInfo,
-            isWaitingOnWorkspace
+            isWaitingOnWorkspace,
+            isCodeEditorActive
         }
     } = useContext(Context); // TODO: Get diagramCleanDraw, diagramRedraw from state
 
@@ -206,7 +207,7 @@ export function ForEach(props: ForeachProps) {
         cx: viewState.bBox.cx - (EDIT_SVG_WIDTH_WITH_SHADOW / 2) + EDIT_SVG_OFFSET,
         cy: viewState.bBox.cy + ((FOREACH_SVG_HEIGHT / 2)) - (EDIT_SVG_HEIGHT_WITH_SHADOW / 3)
     };
-    let codeSnippet = "IF ELSE CODE SNIPPET"
+    let codeSnippet = "FOR EACH CODE SNIPPET";
 
     if (model) {
         codeSnippet = model.source.trim().split(')')[0]
@@ -228,7 +229,16 @@ export function ForEach(props: ForeachProps) {
     const forEachSource = forEachModel?.actionOrExpressionNode?.source;
     assignmentText = variableName + " " + keyWord + " " + forEachSource;
     const diagnostics = forEachModel?.actionOrExpressionNode?.typeData.diagnostics;
-    const ForeachWrapper = diagnostics?.length !== 0 ? cn("foreach-block-error") : cn("foreach-block") ;
+    let foreachWrapper = cn("foreach-block") ;
+    let diagnosticMsgs ;
+    if(diagnostics?.length != 0){
+        diagnosticMsgs = getDiagnosticMsgs(diagnostics);
+        foreachWrapper = cn("foreach-block-error");
+    }
+    let errorSnippet = {
+        diagnosticMsgs:diagnosticMsgs,
+        code:codeSnippet,
+    }
 
     const unFoldedComponent = (
         <g className="foreach-block" data-testid="foreach-block">
@@ -239,6 +249,9 @@ export function ForEach(props: ForeachProps) {
                     y={y}
                     text="FOR EACH"
                     codeSnippet={codeSnippet}
+                    diagnostics={errorSnippet}
+                    openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && onClickOpenInCodeView}
+
                 />
 
                 <ContitionAssignment
@@ -370,7 +383,7 @@ export function ForEach(props: ForeachProps) {
     );
 
     return (
-        <g className={ForeachWrapper}>
+        <g className={foreachWrapper}>
             <g>
                 {foreachComponent}
             </g>

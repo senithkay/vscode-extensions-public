@@ -76,7 +76,6 @@ export function While(props: WhileProps) {
 
     const [isConfigWizardOpen, setConfigWizardOpen] = useState(false);
     const [whileConfigOverlayState, setWhileConfigOverlayState] = useState(undefined);
-    // const [isDiagnostic,setDiagnostic] = useState(false);
 
     const pluses: React.ReactNode[] = [];
     const modelWhile: WhileStatement = model as WhileStatement;
