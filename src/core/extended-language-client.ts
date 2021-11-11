@@ -33,6 +33,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-editor/build/Definitions";
 import { BallerinaExtension } from "./index";
 import { showChoreoPushMessage } from "../editor-support/git-status";
+import { MESSAGE_TYPE } from "../utils/showMessage";
 
 export const BALLERINA_LANG_ID = "ballerina";
 const NOT_SUPPORTED = {};
@@ -293,6 +294,10 @@ export class ExtendedLangClient extends LanguageClient {
         return this.sendRequest(EXTENDED_APIS.PERF_ANALYZER_GRAPH_DATA, params);
     }
     getRealtimePerformanceData(params: PerformanceAnalyzerGraphRequest): Promise<PerformanceAnalyzerRealtimeResponse> {
+        if (!this.ballerinaExtInstance?.enabledPerformanceForecasting() ||
+            !this.ballerinaExtInstance?.getChoreoSession().loginStatus) {
+            return Promise.resolve({ type: MESSAGE_TYPE.IGNORE, message: '', concurrency: '', tps: '', latency: '' });
+        }
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.PERF_ANALYZER_REALTIME_DATA)) {
             Promise.resolve(NOT_SUPPORTED);
         }

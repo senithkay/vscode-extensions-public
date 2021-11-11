@@ -35,7 +35,7 @@ import { debug, log, getOutputChannel, outputChannel, isWindows } from '../utils
 import { AssertionError } from "assert";
 import {
     BALLERINA_HOME, ENABLE_ALL_CODELENS, ENABLE_EXECUTOR_CODELENS, ENABLE_TELEMETRY,
-    ENABLE_SEMANTIC_HIGHLIGHTING, OVERRIDE_BALLERINA_HOME, BALLERINA_LOW_CODE_MODE
+    ENABLE_SEMANTIC_HIGHLIGHTING, OVERRIDE_BALLERINA_HOME, BALLERINA_LOW_CODE_MODE, ENABLE_PERFORMANCE_FORECAST
 }
     from "./preferences";
 import TelemetryReporter from "vscode-extension-telemetry";
@@ -515,6 +515,10 @@ export class BallerinaExtension {
     public isBallerinaLowCodeMode(): boolean {
         return <boolean>workspace.getConfiguration().get(BALLERINA_LOW_CODE_MODE) ||
             process.env.LOW_CODE_MODE === 'true';
+    }
+
+    public enabledPerformanceForecasting(): boolean {
+        return <boolean>workspace.getConfiguration().get(ENABLE_PERFORMANCE_FORECAST);
     }
 
     public getDocumentContext(): DocumentContext {

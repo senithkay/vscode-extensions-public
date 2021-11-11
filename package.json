@@ -127,6 +127,11 @@
                     "type": "boolean",
                     "default": true,
                     "description": "Enable semantic highlighting for Ballerina source."
+                },
+                "ballerina.enablePerformanceForecast": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable real-time performance forecasting."
                 }
             }
         },

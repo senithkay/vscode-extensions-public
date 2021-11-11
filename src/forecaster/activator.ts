@@ -99,6 +99,10 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
 export async function createPerformanceGraphAndCodeLenses(uri: string | undefined, pos: Range,
     type: ANALYZETYPE, name: String | undefined) {
 
+    if (!extension.enabledPerformanceForecasting()) {
+        return;
+    }
+
     if (!extension.getChoreoSession().loginStatus) {
         showMessage("Please sign in to Choreo to view performance predictions.", MESSAGE_TYPE.INFO, true);
         return;

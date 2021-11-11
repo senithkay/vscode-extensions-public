@@ -24,3 +24,4 @@ export const ENABLE_ALL_CODELENS = "ballerina.codeLens.all.enabled";
 export const ENABLE_EXECUTOR_CODELENS = "ballerina.codeLens.executor.enabled";
 export const BALLERINA_LOW_CODE_MODE = "ballerina.lowCodeMode";
 export const ENABLE_SEMANTIC_HIGHLIGHTING = "ballerina.enableSemanticHighlighting";
+export const ENABLE_PERFORMANCE_FORECAST = "ballerina.enablePerformanceForecast";

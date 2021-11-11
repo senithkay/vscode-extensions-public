@@ -241,6 +241,9 @@ class DiagramPanel {
 			{
 				methodName: "showMessage",
 				handler: async (args: any[]): Promise<boolean> => {
+					if (!ballerinaExtension.enabledPerformanceForecasting()) {
+						return false;
+					}
 					showMessage(args[0], args[1], args[2]);
 					return true;
 				}

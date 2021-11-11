@@ -22,7 +22,8 @@ import { window } from "vscode";
 export enum MESSAGE_TYPE {
     ERROR,
     WARNING,
-    INFO
+    INFO,
+    IGNORE
 }
 
 const DONT_SHOW = "Don't show again!";
@@ -35,7 +36,7 @@ const AVOIDED: string[] = [];
  * @param isIgnorable Is ignorable message
  */
 export function showMessage(message: string, type: MESSAGE_TYPE, isIgnorable: boolean) {
-    if (AVOIDED.includes(message)) {
+    if (AVOIDED.includes(message) || message === 'IGNORE') {
         return;
     }
 
@@ -59,8 +60,10 @@ export function showMessage(message: string, type: MESSAGE_TYPE, isIgnorable: bo
             });
             break;
         }
+        case MESSAGE_TYPE.IGNORE: {
+            break;
+        }
     }
-
 }
 
 function addToAvoidList(response, message) {
