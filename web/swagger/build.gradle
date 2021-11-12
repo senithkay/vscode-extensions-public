@@ -23,7 +23,7 @@ configurations {
     swaggerviewer
 }
 
-task buildSwaggerviewer {
+task buildSwaggerViewer {
     PatternSet patternSet = new PatternSet();
 	patternSet.exclude("**/node_modules/**");
     patternSet.exclude("**/build/**");
