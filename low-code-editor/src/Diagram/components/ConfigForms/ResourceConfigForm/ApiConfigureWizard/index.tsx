@@ -640,7 +640,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     >
       <Grid container={true} spacing={1}>
         <Grid item={true} xs={2}>
-          <ResourceIcon color={'#CBCEDB'} />
+          <ResourceIcon className={"service-config-light-fill"} />
         </Grid>
         <Grid item={true} xs={10}>
           <Typography variant="h4">
