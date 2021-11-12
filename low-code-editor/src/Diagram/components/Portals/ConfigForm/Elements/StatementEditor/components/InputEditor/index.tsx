@@ -62,7 +62,7 @@ export function InputEditor(props: InputEditorProps) {
             syntaxTree,
         },
         api: {
-            ls: ls
+            ls
         }
     } = useContext(Context);
 
@@ -111,7 +111,8 @@ export function InputEditor(props: InputEditorProps) {
     }
     const [userInput, setUserInput] = useState(value);
 
-    const targetPosition = stmtCtx.formCtx.formModel && stmtCtx.formCtx.formModel.position ? stmtCtx.formCtx.formModel.position : getTargetPosition(targetPositionDraft, syntaxTree);
+    const targetPosition = stmtCtx.formCtx.formModel && stmtCtx.formCtx.formModel.position ?
+        stmtCtx.formCtx.formModel.position : getTargetPosition(targetPositionDraft, syntaxTree);
     const textLabel = userInputs && userInputs.formField ? userInputs.formField : "modelName"
     const varName = userInputs && userInputs.varName ? userInputs.varName : "temp_" + (textLabel).replace(/[^A-Z0-9]+/ig, "");
     const varType = userInputs ? userInputs.selectedType : 'string';
@@ -148,14 +149,14 @@ export function InputEditor(props: InputEditorProps) {
     async function addStatementToTargetLine(currentFileContent: string, position: NodePosition, currentStatement: string): Promise<string> {
         const modelContent: string[] = currentFileContent.split(/\n/g) || [];
         if (position?.startColumn && position?.endColumn && position?.endLine) {
-             return updateModel(currentStatement, position);
+            return getModifiedStatement(currentStatement, position);
         } else {
             modelContent.splice(position?.startLine, 0, currentStatement);
             return modelContent.join('\n');
         }
     }
 
-    async function updateModel (codeSnippet : string, position: NodePosition) : Promise<string> {
+    async function getModifiedStatement(codeSnippet: string, position: NodePosition): Promise<string> {
         const stModification = {
             startLine: position.startLine,
             startColumn: position.startColumn,
@@ -375,7 +376,7 @@ export function InputEditor(props: InputEditorProps) {
                 onBlur={inputBlurHandler}
                 onInput={inputChangeHandler}
                 autoFocus={true}
-                style={{maxWidth: userInput === '' ? '10px' : 'fit-content'}}
+                style={{ maxWidth: userInput === '' ? '10px' : 'fit-content' }}
             />
         ) : (
             <div
