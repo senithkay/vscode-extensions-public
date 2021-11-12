@@ -20,7 +20,7 @@ import { WizardType } from "../../../../ConfigurationSpec/types";
 import { Context } from "../../../../Contexts/Diagram";
 import { BallerinaConnectorInfo } from "../../../../Definitions";
 import { getOverlayFormConfig, getRandomInt } from "../../../utils/diagram-util";
-import { getMatchingConnector } from "../../../utils/st-util";
+import { getMatchingConnector, getStatementTypesFromST } from "../../../utils/st-util";
 import { BlockViewState, StatementViewState } from "../../../view-state";
 import { DraftStatementViewState } from "../../../view-state/draft";
 import { DefaultConfig } from "../../../visitors/default";
@@ -29,6 +29,7 @@ import { DeleteBtn } from "../../DiagramActions/DeleteBtn";
 import { DELETE_SVG_HEIGHT_WITH_SHADOW, DELETE_SVG_WIDTH_WITH_SHADOW } from "../../DiagramActions/DeleteBtn/DeleteSVG";
 import { EditBtn } from "../../DiagramActions/EditBtn";
 import { EDIT_SVG_OFFSET, EDIT_SVG_WIDTH_WITH_SHADOW } from "../../DiagramActions/EditBtn/EditSVG";
+import { StatementTypes } from "../../StatementTypes";
 import { VariableName, VARIABLE_NAME_WIDTH } from "../../VariableName";
 
 import { ProcessSVG, PROCESS_SVG_HEIGHT, PROCESS_SVG_HEIGHT_WITH_SHADOW, PROCESS_SVG_SHADOW_OFFSET, PROCESS_SVG_WIDTH, PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW } from "./ProcessSVG";
@@ -197,8 +198,7 @@ export function ActionProcessor(props: ProcessorProps) {
     );
 
     const localModel = model as LocalVarDecl;
-    const localTypedBindingPattern = (localModel.typedBindingPattern as TypedBindingPattern).typeDescriptor as JsonTypeDesc;
-    const statmentTypeText = localTypedBindingPattern.name.value;
+    const statmentTypeText = getStatementTypesFromST(localModel);
 
     const processWrapper = isDraftStatement ? cn("main-process-wrapper active-data-processor") : cn("main-process-wrapper data-processor");
     const component: React.ReactNode = (!viewState.collapsed &&
@@ -208,14 +208,21 @@ export function ActionProcessor(props: ProcessorProps) {
                     <React.Fragment>
                         {!isDraftStatement &&
                             (
-                                <VariableName
-                                    processType={processType}
-                                    statementType={statmentTypeText}
-                                    variableName={processName}
-                                    x={cx - (VARIABLE_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
-                                    y={cy + PROCESS_SVG_HEIGHT / 4}
-                                    key_id={getRandomInt(1000)}
-                                />
+                                <>
+                                    <StatementTypes
+                                        statementType={statmentTypeText}
+                                        x={cx - (VARIABLE_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
+                                        y={cy + PROCESS_SVG_HEIGHT / 4}
+                                        key_id={getRandomInt(1000)}
+                                    />
+                                    <VariableName
+                                        processType={processType}
+                                        variableName={processName}
+                                        x={cx - (VARIABLE_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
+                                        y={cy + PROCESS_SVG_HEIGHT / 4}
+                                        key_id={getRandomInt(1000)}
+                                    />
+                                </>
                             )
                         }
                         <ProcessSVG

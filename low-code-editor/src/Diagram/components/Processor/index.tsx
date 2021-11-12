@@ -30,6 +30,7 @@ import cn from "classnames";
 import { WizardType } from "../../../ConfigurationSpec/types";
 import { Context } from "../../../Contexts/Diagram";
 import { getOverlayFormConfig, getRandomInt } from "../../utils/diagram-util";
+import { getStatementTypesFromST } from "../../utils/st-util";
 import { BlockViewState, StatementViewState } from "../../view-state";
 import { DraftStatementViewState } from "../../view-state/draft";
 import { DefaultConfig } from "../../visitors/default";
@@ -39,6 +40,7 @@ import { DELETE_SVG_HEIGHT_WITH_SHADOW, DELETE_SVG_WIDTH_WITH_SHADOW } from "../
 import { EditBtn } from "../DiagramActions/EditBtn";
 import { EDIT_SVG_OFFSET, EDIT_SVG_WIDTH_WITH_SHADOW } from "../DiagramActions/EditBtn/EditSVG";
 import { FormGenerator } from "../FormGenerator";
+import { StatementTypes } from "../StatementTypes";
 import { VariableName, VARIABLE_NAME_WIDTH } from "../VariableName";
 
 import { ProcessSVG, PROCESS_SVG_HEIGHT, PROCESS_SVG_HEIGHT_WITH_SHADOW, PROCESS_SVG_SHADOW_OFFSET, PROCESS_SVG_WIDTH, PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW } from "./ProcessSVG";
@@ -229,9 +231,8 @@ export function DataProcessor(props: ProcessorProps) {
     } else if (!isDraftStatement && STKindChecker?.isAssignmentStatement(model)) {
         assignmentText = (model as AssignmentStatement)?.expression?.source;
     } else if (!isDraftStatement && STKindChecker?.isLocalVarDecl(model)) {
-        assignmentText = localModel?.initializer?.source;
-        const typedBindingPattern = (localModel.typedBindingPattern as TypedBindingPattern).typeDescriptor as JsonTypeDesc;
-        statmentTypeText = typedBindingPattern.name.value;
+        assignmentText = model?.initializer?.source;
+        statmentTypeText = getStatementTypesFromST(localModel);
     }
 
     const processWrapper = isDraftStatement ? cn("main-process-wrapper active-data-processor") : cn("main-process-wrapper data-processor");
@@ -243,14 +244,21 @@ export function DataProcessor(props: ProcessorProps) {
                 <g className={processStyles} data-testid="data-processor-block" z-index="1000" >
                     <React.Fragment>
                         {(processType !== "Log" && processType !== "Call") && !isDraftStatement &&
-                            <VariableName
-                                processType={processType}
-                                statementType={statmentTypeText}
-                                variableName={processName}
-                                x={cx - (VARIABLE_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
-                                y={cy + PROCESS_SVG_HEIGHT / 4}
-                                key_id={getRandomInt(1000)}
-                            />
+                            <>
+                                <StatementTypes
+                                    statementType={statmentTypeText}
+                                    x={cx - (VARIABLE_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
+                                    y={cy + PROCESS_SVG_HEIGHT / 4}
+                                    key_id={getRandomInt(1000)}
+                                />
+                                <VariableName
+                                    processType={processType}
+                                    variableName={processName}
+                                    x={cx - (VARIABLE_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
+                                    y={cy + PROCESS_SVG_HEIGHT / 4}
+                                    key_id={getRandomInt(1000)}
+                                />
+                            </>
                         }
                         <ProcessSVG
                             x={cx - (PROCESS_SVG_SHADOW_OFFSET / 2)}
