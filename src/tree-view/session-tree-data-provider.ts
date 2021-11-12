@@ -18,6 +18,7 @@
 import { Event, EventEmitter, ProviderResult, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri } from "vscode";
 import { join } from "path";
 import { BallerinaExtension, ChoreoSession } from "../core";
+import { PALETTE_COMMANDS } from "../project";
 
 export class SessionDataProvider implements TreeDataProvider<TreeItem> {
     private ballerinaExtension: BallerinaExtension;
@@ -68,6 +69,34 @@ export class SessionDataProvider implements TreeDataProvider<TreeItem> {
                         'resources', 'images', 'icons', 'choreo-inverse.svg')
                 }
                 treeItems.push(manage);
+            }
+
+            if (this.ballerinaExtension.enabledPerformanceForecasting()) {
+                const perf = new TreeItem(`Disable performance forecasting...`, TreeItemCollapsibleState.None);
+                perf.command = {
+                    command: PALETTE_COMMANDS.PERFORMANCE_FORECAST_DISABLE, title: 'Disable Forecasting',
+                    arguments: []
+                };
+                perf.iconPath = {
+                    light: join(this.ballerinaExtension.extension.extensionPath,
+                        'resources', 'images', 'icons', 'disable.svg'),
+                    dark: join(this.ballerinaExtension.extension.extensionPath,
+                        'resources', 'images', 'icons', 'disable-inverse.svg')
+                }
+                treeItems.push(perf);
+            } else {
+                const perf = new TreeItem(`Enable performance forecasting...`, TreeItemCollapsibleState.None);
+                perf.command = {
+                    command: PALETTE_COMMANDS.PERFORMANCE_FORECAST_ENABLE, title: 'Enable Forecasting',
+                    arguments: []
+                };
+                perf.iconPath = {
+                    light: join(this.ballerinaExtension.extension.extensionPath,
+                        'resources', 'images', 'icons', 'enable.svg'),
+                    dark: join(this.ballerinaExtension.extension.extensionPath,
+                        'resources', 'images', 'icons', 'enable-inverse.svg')
+                }
+                treeItems.push(perf);
             }
 
             const signoutItem = new TreeItem("Sign out from Choreo...", TreeItemCollapsibleState.None);

@@ -35,7 +35,9 @@ export enum PALETTE_COMMANDS {
     CHOREO_SIGNIN = 'ballerina.choreo.signin',
     CHOREO_SIGNOUT = 'ballerina.choreo.signout',
     FOCUS_SOURCE_CONTROL = 'workbench.view.scm',
-    CHOREO_SYNC_CHANGES = 'ballerina.choreo.sync'
+    CHOREO_SYNC_CHANGES = 'ballerina.choreo.sync',
+    PERFORMANCE_FORECAST_ENABLE = 'performance.forecasting.enable',
+    PERFORMANCE_FORECAST_DISABLE = 'performance.forecasting.disable'
 }
 
 export enum BALLERINA_COMMANDS {

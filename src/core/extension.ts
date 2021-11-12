@@ -521,6 +521,10 @@ export class BallerinaExtension {
         return <boolean>workspace.getConfiguration().get(ENABLE_PERFORMANCE_FORECAST);
     }
 
+    public async updatePerformanceForecastSetting(status: boolean) {
+        await workspace.getConfiguration().update(ENABLE_PERFORMANCE_FORECAST, status);
+    }
+
     public getDocumentContext(): DocumentContext {
         return this.documentContext;
     }
