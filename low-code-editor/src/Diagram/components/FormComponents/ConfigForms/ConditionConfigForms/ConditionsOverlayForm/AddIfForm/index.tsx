@@ -168,6 +168,7 @@ export function AddIfForm(props: IfProps) {
             formArgs: {formArgs},
             isMutationInProgress,
             validForm: !isInvalid,
+            config: condition,
             onSave: handleOnSaveClick,
             onChange: handleExpEditorChange(0),
             validate: validateField

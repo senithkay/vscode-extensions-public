@@ -178,7 +178,8 @@ export function ForEach(props: ForeachProps) {
         const conditionConfigFormState = getConditionConfig("ForEach", position, WizardType.EXISTING, undefined, {
             type: "ForEach",
             conditionExpression,
-            conditionPosition: conditionUpdatePosition
+            conditionPosition: conditionUpdatePosition,
+            model
         }, stSymbolInfo, model)
 
         setForEachConfigOverlayState(conditionConfigFormState);

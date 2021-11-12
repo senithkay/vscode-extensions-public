@@ -224,6 +224,7 @@ export function AddForeachForm(props: ForeachProps) {
             formArgs: {formArgs},
             isMutationInProgress,
             validForm: !isInvalid,
+            config: condition,
             onSave: handleSave,
             onChange: handleExpEditorChange,
             validate: validateField

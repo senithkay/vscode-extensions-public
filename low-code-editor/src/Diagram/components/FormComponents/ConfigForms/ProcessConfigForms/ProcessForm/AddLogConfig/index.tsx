@@ -121,6 +121,7 @@ export function AddLogConfig(props: LogConfigProps) {
             formArgs: {formArgs},
             isMutationInProgress,
             validForm: !!isFormValid,
+            config,
             onSave: onSaveBtnClick,
             onChange: onExpressionChange,
             validate: validateExpression

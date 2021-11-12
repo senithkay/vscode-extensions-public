@@ -18,11 +18,13 @@ import { NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
 
 import { Context } from '../../../../../../../Contexts/Diagram';
 import { wizardStyles } from "../../../../ConfigForms/style";
+import { ConditionConfig, EndConfig, ProcessConfig } from "../../../../types";
 import { PrimaryButton } from "../../../Button/PrimaryButton";
 import { SecondaryButton } from "../../../Button/SecondaryButton";
 import { VariableUserInputs } from '../../models/definitions';
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
 import { getPartialSTForStatement } from "../../utils";
+import { createStatement, updateStatement } from "../../utils/statement-modifications";
 import { LeftPane } from '../LeftPane';
 import { RightPane } from '../RightPane';
 
@@ -34,6 +36,7 @@ export interface ViewProps {
     formArgs: any,
     userInputs?: VariableUserInputs,
     validate?: (field: string, isInvalid: boolean, isEmpty: boolean) => void
+    config?: ProcessConfig | EndConfig | ConditionConfig
     isMutationInProgress?: boolean
     validForm?: boolean
     onCancel?: () => void
@@ -49,7 +52,10 @@ export function ViewContainer(props: ViewProps) {
             langServerURL,
         },
         api: {
-            ls
+            ls,
+            code: {
+                modifyDiagram
+            }
         }
     } = useContext(Context);
     const {
@@ -57,9 +63,8 @@ export function ViewContainer(props: ViewProps) {
         initialSource,
         formArgs,
         userInputs,
+        config,
         validate,
-        isMutationInProgress,
-        validForm,
         onCancel,
         onSave,
         onChange,
@@ -132,6 +137,29 @@ export function ViewContainer(props: ViewProps) {
         defaultMessage: "Cancel"
     });
 
+    const onSaveClick = () => {
+        if (STKindChecker.isLocalVarDecl(model)
+                || STKindChecker.isCallStatement(model)
+                || STKindChecker.isReturnStatement(model)
+                || (config && config.type === 'Custom')) {
+            if (config.model) {
+                modifyDiagram([updateStatement(model.source, formArgs.formArgs?.model.position)]);
+            } else {
+                modifyDiagram([createStatement(model.source, formArgs.formArgs?.targetPosition)]);
+            }
+        }
+
+        if (STKindChecker.isWhileStatement(model)
+                || STKindChecker.isIfElseStatement(model)
+                || STKindChecker.isForeachStatement(model)) {
+            if (!formArgs.formArgs?.config) {
+                modifyDiagram([createStatement(model.source, formArgs.formArgs?.targetPosition)]);
+            } else {
+                modifyDiagram([updateStatement(model.source, config.model.position)]);
+            }
+        }
+    };
+
     return (
         model && (
             <div className={overlayClasses.stmtEditor}>
@@ -165,9 +193,9 @@ export function ViewContainer(props: ViewProps) {
                         <PrimaryButton
                             dataTestId="save-btn"
                             text={saveVariableButtonText}
-                            disabled={isMutationInProgress || !validForm}
+                            disabled={false}
                             fullWidth={false}
-                            onClick={onSave}
+                            onClick={onSaveClick}
                         />
                     </div>
                 </div>

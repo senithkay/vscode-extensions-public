@@ -27,6 +27,7 @@ export const useStatementEditor = (props: ViewProps) => {
         formArgs,
         userInputs,
         validate,
+        config,
         isMutationInProgress,
         validForm,
         onSave,
@@ -72,6 +73,7 @@ export const useStatementEditor = (props: ViewProps) => {
                     userInputs={userInputs}
                     isMutationInProgress={isMutationInProgress}
                     validForm={validForm}
+                    config={config}
                     onCancel={handleStmtEditorCancel}
                     onSave={onSave}
                     onChange={onChange}

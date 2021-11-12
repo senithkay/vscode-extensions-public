@@ -233,6 +233,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             userInputs,
             isMutationInProgress,
             validForm,
+            config,
             onSave: handleSave,
             onChange: onPropertyChange,
             validate: validateExpression,

@@ -148,6 +148,7 @@ export function AddRespondForm(props: RespondFormProps) {
             formArgs: {formArgs},
             isMutationInProgress,
             validForm,
+            config,
             onSave: onSaveWithTour,
             onChange: onExpressionChange,
             validate: validateExpression
