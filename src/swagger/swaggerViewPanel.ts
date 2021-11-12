@@ -20,11 +20,11 @@
 import { ViewColumn, window, WebviewPanel } from "vscode";
 import { WebViewRPCHandler, getCommonWebViewOptions } from '../utils';
 import { render } from './render';
-import { ExtendedLangClient } from "../core";
+import { ExtendedLangClient, OASpec } from "../core";
 
 let swaggerViewPanel: WebviewPanel | undefined;
 
-export function showSwaggerView(langClient: ExtendedLangClient, ): void {
+export function showSwaggerView(langClient: ExtendedLangClient, specs: OASpec[]): void {
     if (swaggerViewPanel) {
         swaggerViewPanel.dispose();
     }
@@ -38,7 +38,7 @@ export function showSwaggerView(langClient: ExtendedLangClient, ): void {
     );
 
     WebViewRPCHandler.create(swaggerViewPanel, langClient);
-    const html = render({ name: 'data.name', data: 'data.graphData' });
+    const html = render({ specs: specs });
     if (swaggerViewPanel && html) {
         swaggerViewPanel.webview.html = html;
     }

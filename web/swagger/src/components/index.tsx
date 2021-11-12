@@ -21,10 +21,9 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { SwaggerView as SwaggerView } from "./swagger-view/SwaggerView";
 
-
 export function renderSwagger(data: any) {
     ReactDOM.render(
-        <SwaggerView name={data.name} data={data.data} />,
+        <SwaggerView specs={data.specs} />,
         document.getElementById("swagger-view")
     );
 }

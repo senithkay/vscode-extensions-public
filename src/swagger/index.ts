@@ -18,14 +18,22 @@
  */
 
 import { PALETTE_COMMANDS } from "../project";
-import { commands } from "vscode";
+import { commands, window } from "vscode";
 import { BallerinaExtension, ExtendedLangClient } from "../core";
 import { showSwaggerView } from "./swaggerViewPanel";
-
 
 export async function activate(ballerinaExtInstance: BallerinaExtension) {
     commands.registerCommand(PALETTE_COMMANDS.SWAGGER_VIEW, async () => {
         const langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
-        showSwaggerView(langClient);
+        const documentFilePath = window.activeTextEditor?.document.fileName!;
+        await langClient.convertToOpenAPI({
+            documentFilePath
+        }).then(async (response) => {
+            showSwaggerView(langClient, response.specs);
+
+        }).catch((err) => {
+            console.log(err);
+
+        });
     });
 }
