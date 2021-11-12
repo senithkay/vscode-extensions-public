@@ -67,10 +67,12 @@ export const recordStyles = makeStyles((theme: Theme) =>
             width: '100%',
         },
         editItemContentWrapper: {
-            margin: `5px 10px 0 0`,
+            padding: 5,
+            margin: 5,
             flexDirection: 'row',
             display: 'flex',
             width: '100%',
+            backgroundColor: "#f1f1f5",
         },
         activeItemContentWrapper: {
             marginLeft: 10,
@@ -102,7 +104,7 @@ export const recordStyles = makeStyles((theme: Theme) =>
             minWidth: `92px !important`,
         },
         editNameWrapper: {
-            maxWidth: 80,
+            minWidth: 100,
             marginLeft: 5,
             "& .MuiFormControl-marginNormal": {
                 margin: '0',
@@ -323,6 +325,10 @@ export const recordStyles = makeStyles((theme: Theme) =>
             marginLeft: 20,
             flexDirection: `column`,
             borderLeft: `1px solid #cdcdcd`
-        }
+        },
+        editFieldDelBtn: {
+            marginTop: 10,
+            marginLeft: 10
+        },
     }),
 );

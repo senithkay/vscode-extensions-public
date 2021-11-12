@@ -18,7 +18,7 @@ export interface SimpleField {
     value?: string;
     isArray?: boolean;
     isActive?: boolean;
-    isNewField?: boolean;
+    isEditInProgress?: boolean;
 }
 
 export interface RecordModel {

@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useIntl } from "react-intl";
 
 import { RecordTypeDesc } from "@ballerina/syntax-tree";
@@ -19,7 +19,7 @@ import { Box, FormControl, Typography } from "@material-ui/core";
 
 import { FormField } from "../../../../../ConfigurationSpec/types";
 import { useDiagramContext } from "../../../../../Contexts/Diagram";
-import { FormState, useRecordEditorContext } from "../../../../../Contexts/RecordEditor";
+import { useRecordEditorContext } from "../../../../../Contexts/RecordEditor";
 import { PrimaryButton } from "../../../Portals/ConfigForm/Elements/Button/PrimaryButton";
 import CheckBoxGroup from "../../../Portals/ConfigForm/Elements/CheckBox";
 import { SelectDropdownWithButton } from "../../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
@@ -30,7 +30,6 @@ import { FormElementProps } from "../../../Portals/ConfigForm/types";
 import { keywords } from "../../../Portals/utils/constants";
 import { variableTypes } from "../../ProcessConfigForms/ProcessForm/AddVariableConfig";
 import { recordStyles } from "../style";
-import { RecordModel, SimpleField } from "../types";
 
 export function EditFieldForm() {
 
@@ -41,25 +40,13 @@ export function EditFieldForm() {
     const recordClasses = recordStyles();
     const intl = useIntl();
 
-    const titleAdd = intl.formatMessage({
-        id: "lowcode.develop.configForms.recordEditor.editField.addTitle",
-        defaultMessage: "Add Field"
-    });
-    const titleUpdate = intl.formatMessage({
-        id: "lowcode.develop.configForms.recordEditor.editField.updateTitle",
-        defaultMessage: "Update Field"
-    });
-    const addButtonText = intl.formatMessage({
-        id: "lowcode.develop.configForms.recordEditor.addButton.text",
-        defaultMessage: "Add"
+    const editFieldiTitle = intl.formatMessage({
+        id: "lowcode.develop.configForms.recordEditor.editField.editTitle",
+        defaultMessage: "Edit Field"
     });
     const jsonGenText = intl.formatMessage({
         id: "lowcode.develop.configForms.recordEditor.jsonButton.text",
         defaultMessage: "Import JSON"
-    });
-    const updateButtonText = intl.formatMessage({
-        id: "lowcode.develop.configForms.recordEditor.updateButton.text",
-        defaultMessage: "Update"
     });
     const fieldNameText = intl.formatMessage({
         id: "lowcode.develop.configForms.recordEditor.fieldName.text",
@@ -78,21 +65,9 @@ export function EditFieldForm() {
         defaultMessage: "Default Value"
     });
 
-    const isFieldUpdate = state.currentForm === FormState.UPDATE_FIELD;
-    const type = isFieldUpdate ? state.currentField.type : "int";
-    const fieldName = isFieldUpdate ? state.currentField.name : "";
-    const fieldOptianality = isFieldUpdate ? state.currentField.isFieldOptional : false;
-    const typeOptianality = isFieldUpdate ? state.currentField.isFieldTypeOptional : false;
-    const isArrayDefaultVal = isFieldUpdate ? state.currentField.isArray : false;
-    const defaultVal = isFieldUpdate ? state.currentField.value : "";
+    const defaultValue = state.currentField ? state.currentField.value : "";
 
-    const [selectedType, setSelectedType] = useState(type);
-    const [name, setName] = useState(fieldName);
     const [nameError, setNameError] = useState("");
-    const [isFieldOptional, setIsFieldOptional] = useState(fieldOptianality);
-    const [isTypeOptional, setIsTypeOptional] = useState(typeOptianality);
-    const [isArray, setIsArray] = useState(isArrayDefaultVal);
-    const [defaultValue, setDefaultValue] = useState(defaultVal);
     const [validDefaultValue, setValidDefaultValue] = useState(true);
     const [clearExpEditor, setClearExpEditor] = useState(false);
 
@@ -105,13 +80,13 @@ export function EditFieldForm() {
     })
 
     const handleTypeSelect = (typeSelected: string) => {
-        setSelectedType(typeSelected);
-        setDefaultValue("");
+        state.currentField.type = typeSelected;
         setClearExpEditor(true);
+        callBacks.onUpdateCurrentField(state.currentField);
     };
 
     const handleNameChange = (inputText: string) => {
-        setName(inputText);
+        state.currentField.name = inputText;
         const isNameAlreadyExists = state.currentRecord.fields.find(field => (field.name === inputText)) &&
             !(state.currentField?.name === inputText);
         if (isNameAlreadyExists) {
@@ -123,10 +98,12 @@ export function EditFieldForm() {
         } else {
             setNameError("");
         }
+        callBacks.onUpdateCurrentField(state.currentField);
     };
 
     const handleDefaultValueChange = (inputText: string) => {
-        setDefaultValue(inputText);
+        state.currentField.value = inputText;
+        callBacks.onUpdateCurrentField(state.currentField);
     };
 
     const validateDefaultValue = (fName: string, isInvalidFromField: boolean) => {
@@ -135,126 +112,35 @@ export function EditFieldForm() {
 
     const handleOptionalFieldChange = (text: string[]) => {
         if (text) {
-            setIsFieldOptional(text.length > 0);
+            state.currentField.isFieldOptional = (text.length > 0);
         }
-        setDefaultValue("");
+        state.currentField.value = "";
+        callBacks.onUpdateCurrentField(state.currentField);
     };
 
     const handleOptionalTypeChange = (text: string[]) => {
         if (text) {
-            setIsTypeOptional(text.length > 0);
+            state.currentField.isFieldTypeOptional = (text.length > 0);
         }
+        callBacks.onUpdateCurrentField(state.currentField);
     };
 
     const handleArrayChange = (text: string[]) => {
         if (text) {
-            setIsArray(text.length > 0);
+            state.currentField.isArray = (text.length > 0);
         }
-    };
-
-    const handleFieldAdd = () => {
-        if (!isFieldUpdate) {
-            if (state.currentField) {
-                state.currentField.isActive = false;
-            }
-            state.currentField = undefined;
-            if (selectedType === "record") {
-                if (state.currentRecord?.isActive) {
-                    state.currentRecord.isActive = false;
-                }
-                const recordModel: RecordModel = {
-                    name,
-                    isArray,
-                    isOptional: isFieldOptional,
-                    isActive: true,
-                    type: selectedType,
-                    isTypeDefinition: false,
-                    isInline: true,
-                    fields: []
-                };
-                state.currentRecord.fields.push(recordModel);
-                state.currentRecord = recordModel;
-                callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
-            } else {
-                // Avoiding field add in field updates
-                const field: SimpleField = {
-                    name,
-                    isFieldOptional,
-                    isArray,
-                    isFieldTypeOptional: isTypeOptional,
-                    type: selectedType,
-                    isActive: true,
-                    value: defaultValue
-                };
-                state.currentRecord.fields.push(field);
-                callBacks.onUpdateCurrentField(field);
-                callBacks.onChangeFormState(FormState.UPDATE_FIELD);
-            }
-        } else {
-            // Avoiding field add in field updates
-            if (selectedType === "record") {
-                const foundIndex = state.currentRecord.fields.indexOf(state.currentField);
-                state.currentRecord.isActive = false;
-                state.currentRecord.fields[foundIndex] = {
-                    name,
-                    isArray,
-                    isOptional: isFieldOptional,
-                    isActive: true,
-                    type: selectedType,
-                    isTypeDefinition: false,
-                    isInline: true,
-                    fields: []
-                };
-                callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
-            } else {
-                // Updating a simple field
-                const curField: SimpleField = {
-                    name,
-                    isFieldOptional,
-                    isFieldTypeOptional: isTypeOptional,
-                    type: selectedType,
-                    value: defaultValue,
-                    isArray,
-                    isActive: true
-                };
-                callBacks.updateCurrentField(curField);
-                callBacks.onChangeFormState(FormState.UPDATE_FIELD);
-            }
-        }
-        callBacks.onUpdateModel(state.recordModel);
+        callBacks.onUpdateCurrentField(state.currentField);
     };
 
     const revertClearInput = () => {
         setClearExpEditor(false);
     };
 
-    const resetFields = () => {
-        setSelectedType("int");
-        setName("");
-        setIsFieldOptional(false);
-        setNameError("");
-        setIsTypeOptional(false);
-        setValidDefaultValue(true);
-        setIsArray(false);
-        setDefaultValue("");
-        setClearExpEditor(true);
-    };
-
-    const updateFields = () => {
-        setSelectedType(state.currentField.type);
-        setName(state.currentField.name);
-        setIsFieldOptional(state.currentField.isFieldOptional);
-        setNameError("");
-        setIsTypeOptional(state.currentField.isFieldTypeOptional);
-        setIsArray(state.currentField.isArray);
-        setDefaultValue(state.currentField.value);
-    };
-
     const formField: FormField = {
         name: "defaultValue",
         optional: true,
         displayName: defaultValText,
-        typeName: isArray ? `${selectedType}[]` : selectedType,
+        typeName: state.currentField?.isArray ? `${state.currentField?.type}[]` : state.currentField?.type,
         value: defaultValue
     }
     const defaultValueProps: FormElementProps = {
@@ -269,32 +155,16 @@ export function EditFieldForm() {
         defaultValue
     };
 
-    const isAddButtonDisabled = (nameError !== "") || (selectedType === "") || (name === "") ||
-        (!isFieldOptional && !validDefaultValue);
-
-    useEffect(() => {
-        // Checks whether add from is completed and reset field addition
-        if (state.currentForm === FormState.ADD_FIELD) {
-            resetFields();
-        }
-    }, [state.currentForm]);
-
-    useEffect(() => {
-        if (state?.currentField) {
-            updateFields();
-        }
-    }, [state.currentRecord, state?.currentField]);
-
     return (
         <FormControl data-testid="record-form" className={classes.wizardFormControl}>
             <div className={classes.formTitleWrapper}>
                 <Typography variant="h4">
-                    <Box paddingTop={2} paddingBottom={2}>{isFieldUpdate ? titleUpdate : titleAdd}</Box>
+                    <Box paddingTop={2} paddingBottom={2}>{editFieldiTitle}</Box>
                 </Typography>
             </div>
             <SelectDropdownWithButton
                 dataTestId="field-type"
-                defaultValue={selectedType}
+                defaultValue={state.currentField?.type}
                 customProps={
                     {
                         values: allVariableTypes,
@@ -308,23 +178,23 @@ export function EditFieldForm() {
             <CheckBoxGroup
                 testId="is-optional-type"
                 values={["Is optional ?"]}
-                defaultValues={isTypeOptional ? ["Is optional ?"] : []}
+                defaultValues={state.currentField?.isFieldTypeOptional ? ["Is optional ?"] : []}
                 onChange={handleOptionalTypeChange}
             />
             <CheckBoxGroup
                 testId="is-array"
                 values={["Is Array ?"]}
-                defaultValues={isArray ? ["Is Array ?"] : []}
+                defaultValues={state.currentField?.isArray ? ["Is Array ?"] : []}
                 onChange={handleArrayChange}
             />
             <div className={classes.sectionSeparator} />
             <FormTextInput
                 dataTestId="field-name"
                 customProps={{
-                    clearInput: (name === ""),
+                    clearInput: (state.currentField?.name === ""),
                     isErrored: (nameError !== "")
                 }}
-                defaultValue={name}
+                defaultValue={state.currentField?.name}
                 onChange={handleNameChange}
                 label={fieldNameText}
                 errorMessage={nameError}
@@ -333,10 +203,11 @@ export function EditFieldForm() {
             <CheckBoxGroup
                 testId="is-optional-field"
                 values={["Is optional ?"]}
-                defaultValues={isFieldOptional ? ["Is optional ?"] : []}
+                defaultValues={state.currentField?.isFieldOptional ? ["Is optional ?"] : []}
                 onChange={handleOptionalFieldChange}
             />
-            {!isFieldOptional && (selectedType !== "record") && (variableTypes.includes(selectedType)) && (
+            {!state.currentField?.isFieldOptional && (state.currentField?.type !== "record") &&
+            (variableTypes.includes(state.currentField?.type)) && (
                 <div>
                     <div className={classes.sectionSeparator} />
                     <ExpressionEditor {...defaultValueProps} />
@@ -344,24 +215,17 @@ export function EditFieldForm() {
             )}
 
             <div className={recordClasses.fieldAddButtonWrapper}>
-                {(!isFieldUpdate && (selectedType === "record")) && (
+                {(state.currentField?.type === "record") && (
                     <div className={recordClasses.jsonButtonWrapper}>
                         <PrimaryButton
                             dataTestId={"import-json"}
                             text={jsonGenText}
-                            disabled={isAddButtonDisabled}
+                            disabled={false}
                             fullWidth={false}
                             onClick={null}
                         />
                     </div>
                 )}
-                <PrimaryButton
-                    dataTestId={"record-add-btn"}
-                    text={isFieldUpdate ? updateButtonText : addButtonText}
-                    disabled={isAddButtonDisabled}
-                    fullWidth={false}
-                    onClick={handleFieldAdd}
-                />
             </div>
         </FormControl>
 

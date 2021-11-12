@@ -49,6 +49,8 @@ export function RecordField(props: CodePanelProps) {
 
     const [isFieldAddInProgress, setIsFieldAddInProgress] = useState(false);
     const [isRecordExpanded, setIsRecordExpanded] = useState(true);
+    const [isRecordEditInProgress, setIsRecordEditInProgress] = useState((recordModel.name === "") ||
+        (recordModel.name === undefined));
 
     const handleFieldEdit = (field: SimpleField) => {
         const index = recordModel.fields.indexOf(field);
@@ -60,8 +62,10 @@ export function RecordField(props: CodePanelProps) {
             // Changes the active state to selected field
             if (state.currentField) {
                 state.currentField.isActive = false;
+                state.currentField.isEditInProgress = false;
             }
             field.isActive = true;
+            field.isEditInProgress = true;
 
             callBacks.onUpdateCurrentField(field);
             callBacks.onUpdateCurrentRecord(recordModel);
@@ -114,12 +118,11 @@ export function RecordField(props: CodePanelProps) {
         }
     };
 
-    const addNewField = () => {
+    const getNewField = () : SimpleField => {
         const newField: SimpleField = {type: "int", name: "", isFieldOptional: false, isActive: true,
-                                       isNewField: true};
+                                       isEditInProgress: true};
         recordModel.fields.push(newField);
-        state.currentField = newField;
-        callBacks.onUpdateCurrentField(state.currentField);
+        return newField;
     };
 
     const handleAddField = () => {
@@ -127,7 +130,7 @@ export function RecordField(props: CodePanelProps) {
         state.currentRecord.isActive = false;
         recordModel.isActive = true;
 
-        addNewField();
+        const newField = getNewField();
 
         if (!recordModel.name) {
             recordModel.name = genRecordName("Record", []);
@@ -136,11 +139,13 @@ export function RecordField(props: CodePanelProps) {
         // Changes the active state to selected field
         if (state.currentField) {
             state.currentField.isActive = false;
+            state.currentField.isEditInProgress = false;
         }
 
         callBacks.onChangeFormState(FormState.ADD_FIELD);
         callBacks.onUpdateCurrentRecord(recordModel);
         callBacks.onUpdateModel(state.recordModel);
+        callBacks.onUpdateCurrentField(newField);
         setIsFieldAddInProgress(true);
     };
 
@@ -153,26 +158,61 @@ export function RecordField(props: CodePanelProps) {
             if (!event.target.value) {
                 recordModel.name = genRecordName("Record", []);
             } else {
-                addNewField();
+                state.currentField = getNewField();
+                callBacks.onUpdateCurrentField(state.currentField);
                 setIsFieldAddInProgress(true);
             }
+            setIsRecordEditInProgress(false);
+            callBacks.onUpdateRecordSelection(false);
         } else {
             state.currentRecord.name = event.target.value;
         }
         callBacks.onUpdateModel(state.recordModel);
-    }
+        callBacks.onChangeFormState(FormState.ADD_FIELD);
+    };
 
     const handleOnBlur = (event: any) => {
         if (!event.target.value) {
             recordModel.name = genRecordName("Record", []);
             callBacks.onUpdateModel(state.recordModel);
         }
-        setIsFieldAddInProgress(false);
-    }
+        setIsRecordEditInProgress(false);
+        callBacks.onUpdateRecordSelection(false);
+    };
+
+    const handleFieldEditorChange = (event: any) => {
+        if (event.key === 'Enter') {
+            if (!event.target.value) {
+                state.currentField.name = genRecordName("field", []);
+            }
+            state.currentField.isEditInProgress = false;
+            state.currentField.isActive = true;
+            setIsFieldAddInProgress(false);
+        } else {
+            state.currentField.name = event.target.value;
+        }
+        callBacks.onUpdateCurrentField(state.currentField);
+    };
+
+    const handleSubItemFocusLost = (event: any) => {
+        if (!event.target.value) {
+            state.currentField.name = genRecordName("field", []);
+        }
+    };
+
+    const handleRecordClick = () => {
+        state.currentRecord.isActive = false;
+        recordModel.isActive = true;
+        setIsRecordEditInProgress(true);
+        callBacks.onUpdateCurrentRecord(recordModel);
+        callBacks.onUpdateModel(state.recordModel);
+        callBacks.onUpdateRecordSelection(true);
+        callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
+    };
 
     const fieldItems: ReactNode[] = [];
     recordModel.fields.forEach((field: SimpleField | RecordModel) => {
-        if ((field.type !== "record") && !(field as SimpleField).isNewField) {
+        if ((field.type !== "record") && !(field as SimpleField).isEditInProgress) {
             // Rendering configured fields
             fieldItems.push(
                 <FieldItem
@@ -181,19 +221,20 @@ export function RecordField(props: CodePanelProps) {
                     onEditCLick={handleFieldEdit}
                 />
             )
+        } else if ((field.type !== "record") && (field as SimpleField).isEditInProgress) {
+            fieldItems.push(
+                <FieldEditor
+                    field={state.currentField}
+                    onChange={handleFieldEditorChange}
+                    onDeleteClick={handleFieldDelete}
+                    onFocusLost={handleSubItemFocusLost}
+                    onEnterPress={null}
+                />
+            );
         } else if (field.type === "record") {
             fieldItems.push(<RecordField recordModel={field as RecordModel} parentRecordModel={recordModel} />);
         }
     });
-
-    if (isFieldAddInProgress) {
-        // Adding a field in edit mode
-        fieldItems.push(
-            <div className={recordClasses.draftBtnWrapper}>
-                <FieldEditor field={state.currentField} onDeleteClick={null} onFocusLost={null} onEnterPress={null} />
-            </div>
-        )
-    }
 
     const accessModifier = `${recordModel.isPublic ? "public " : ""}`;
     const recordTypeNVisibility = `${recordModel.isTypeDefinition ? `${accessModifier} type` : ""}`;
@@ -204,11 +245,26 @@ export function RecordField(props: CodePanelProps) {
     const typeDefName = `${recordModel.isTypeDefinition ? `${recordModel.name ? recordModel.name : ""}` : ""}`;
 
     useEffect(() => {
-        // Checks whether add from is completed and reset field addition
+        // Checks whether add form is completed and reset field addition
         if ((state.currentForm !== FormState.ADD_FIELD) || (state.currentRecord.name !== recordModel.name)) {
             setIsFieldAddInProgress(false);
         }
     }, [state.currentForm, state.currentRecord?.name]);
+
+    useEffect(() => {
+        // Checks whether record is clicked to edit, if so resetting field insertion
+        if (state.isRecordSelected) {
+            if (state.currentRecord !== recordModel) {
+                // Setting all other objects record editing false except the record being edited;
+                setIsRecordEditInProgress(false);
+            }
+            if (state.currentField) {
+                state.currentField.isEditInProgress = false;
+                state.currentField.isActive = false;
+            }
+            callBacks.onUpdateCurrentField(state.currentField);
+        }
+    }, [state.isRecordSelected]);
 
     return (
         <div>
@@ -229,13 +285,13 @@ export function RecordField(props: CodePanelProps) {
                                 {recordTypeNVisibility}
                             </Typography>
                         )}
-                        {recordModel.isTypeDefinition && (
+                        {recordModel.isTypeDefinition && isRecordEditInProgress && (
                             <div className={recordClasses.typeDefNameWrapper}>
                                 <FormTextInput
                                     dataTestId="record-name"
                                     customProps={{
                                         isErrored: false,
-                                        focused: (typeDefName === "")
+                                        focused: true
                                     }}
                                     defaultValue={typeDefName}
                                     onKeyUp={handleKeyUp}
@@ -245,6 +301,15 @@ export function RecordField(props: CodePanelProps) {
                                     size="small"
                                 />
                             </div>
+                        )}
+                        {typeDefName && !isRecordEditInProgress && (
+                            <Typography
+                                variant='body2'
+                                className={recordClasses.typeDefNameWrapper}
+                                onClick={handleRecordClick}
+                            >
+                                {typeDefName}
+                            </Typography>
                         )}
                         <Typography
                             variant='body2'
@@ -266,7 +331,7 @@ export function RecordField(props: CodePanelProps) {
                     </div>
                     <div className={recordModel.isTypeDefinition ? recordClasses.typeDefEditBtnWrapper : recordClasses.recordHeaderBtnWrapper}>
                         <div className={recordClasses.actionBtnWrapper}>
-                            <EditButton onClick={handleRecordEdit}/>
+                            <EditButton onClick={handleRecordClick}/>
                         </div>
                         {!recordModel.isTypeDefinition && (
                             <div className={recordClasses.actionBtnWrapper}>

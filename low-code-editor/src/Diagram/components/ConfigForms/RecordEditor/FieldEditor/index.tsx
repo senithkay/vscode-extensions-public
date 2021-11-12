@@ -25,24 +25,25 @@ import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/Fo
 import { variableTypes } from "../../ProcessConfigForms/ProcessForm/AddVariableConfig";
 import { recordStyles } from "../style";
 import { SimpleField } from "../types";
+import { genRecordName } from "../utils";
 
 export interface FieldEditorProps {
     field: SimpleField;
-    onDeleteClick: () => void;
+    onDeleteClick: (field: SimpleField) => void;
+    onChange: (event: any) => void;
     onFocusLost: (field: SimpleField) => void;
     onEnterPress: (field: SimpleField) => void;
 }
 
 export function FieldEditor(props: FieldEditorProps) {
-    const { field, onDeleteClick, onEnterPress, onFocusLost } = props;
+    const { field, onDeleteClick, onChange, onEnterPress, onFocusLost } = props;
 
     const recordClasses = recordStyles();
 
     const { props: { stSymbolInfo } } = useDiagramContext();
-    const { state } = useRecordEditorContext();
+    const { state, callBacks } = useRecordEditorContext();
 
     const typeProperty = `${field.isArray ? "[]" : ""}${field.isFieldTypeOptional ? "?" : ""}`;
-    const selectedType = field.type ? field.type : "int";
     const allVariableTypes: string[] = variableTypes.slice();
     allVariableTypes.push("record");
     stSymbolInfo.recordTypeDescriptions.forEach((value: RecordTypeDesc) => {
@@ -50,20 +51,27 @@ export function FieldEditor(props: FieldEditorProps) {
     })
 
     const handleDelete = () => {
-        onDeleteClick();
+        onDeleteClick(field);
     };
-    const handleTypeSelect = () => {
-    //    TODO: implement
+    const handleKeyUp = (event: any) => {
+        onChange(event)
+    };
+    const handleTypeSelect = (selectedType: string) => {
+        state.currentField.type = selectedType;
+        callBacks.onUpdateCurrentField(state.currentField);
+    };
+    const handleFocusLost = (event: any) => {
+        onFocusLost(event);
     };
 
     return (
         <div className={recordClasses.itemWrapper}>
-            <div className={field.isActive ? recordClasses.activeItemContentWrapper : recordClasses.editItemContentWrapper}>
+            <div className={recordClasses.editItemContentWrapper}>
                 <div className={recordClasses.itemLabelWrapper}>
                     <div className={recordClasses.editTypeWrapper}>
                         <SelectDropdownWithButton
                             dataTestId="field-type"
-                            defaultValue={selectedType}
+                            defaultValue={field.type}
                             customProps={
                                 {
                                     values: allVariableTypes,
@@ -85,13 +93,14 @@ export function FieldEditor(props: FieldEditorProps) {
                         <FormTextInput
                             dataTestId="record-name"
                             customProps={{
-                                isErrored: false
+                                isErrored: false,
+                                focused: true
                             }}
                             defaultValue={field.name}
-                            // onKeyUp={handleKeyUp}
-                            // onBlur={handleOnBlur}
+                            onKeyUp={handleKeyUp}
+                            onBlur={handleFocusLost}
                             errorMessage={""}
-                            placeholder={"Enter name"}
+                            placeholder={"Field name"}
                             size="small"
                         />
                     </div>
@@ -121,18 +130,15 @@ export function FieldEditor(props: FieldEditorProps) {
                     {/*)}*/}
                     <Typography
                         variant='body2'
-                        className={classnames(recordClasses.singleTokenWrapper)}
+                        className={classnames(recordClasses.editSingleTokenWrapper)}
                     >
                         ;
                     </Typography>
-                </div>
-                {!state.isEditorInvalid && (
-                    <div className={recordClasses.btnWrapper}>
-                        <div className={recordClasses.actionBtnWrapper}>
-                            <DeleteButton  onClick={handleDelete}/>
-                        </div>
+                    <div className={recordClasses.editFieldDelBtn}>
+                        <DeleteButton onClick={handleDelete}/>
                     </div>
-                )}
+                </div>
+
             </div>
         </div>
     );
