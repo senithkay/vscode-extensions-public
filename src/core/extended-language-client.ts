@@ -31,6 +31,8 @@ import {
     ExpressionTypeResponse,
     BallerinaConnectorsRequest
 } from "@wso2-enterprise/ballerina-low-code-editor/build/Definitions";
+import { BallerinaExtension } from "./index";
+import { showChoreoPushMessage } from "../tree-view";
 
 export const BALLERINA_LANG_ID = "ballerina";
 const NOT_SUPPORTED = {};
@@ -285,11 +287,13 @@ export class ExtendedLangClient extends LanguageClient {
     private ballerinaExtendedServices: Set<String> | undefined;
     private isDynamicRegistrationSupported: boolean;
     isInitialized: boolean = true;
+    private ballerinaExtInstance: BallerinaExtension | undefined;
 
     constructor(id: string, name: string, serverOptions: ServerOptions, clientOptions: LanguageClientOptions,
-        forceDebug?: boolean) {
+        ballerinaExtInstance: BallerinaExtension | undefined, forceDebug?: boolean) {
         super(id, name, serverOptions, clientOptions, forceDebug);
         this.isDynamicRegistrationSupported = true;
+        this.ballerinaExtInstance = ballerinaExtInstance;
     }
 
     didOpen(params: DidOpenParams): void {
@@ -357,6 +361,9 @@ export class ExtendedLangClient extends LanguageClient {
         return this.sendRequest<BallerinaSTModifyResponse>(EXTENDED_APIS.DOCUMENT_AST_MODIFY, params);
     }
     stModify(params: BallerinaSTModifyRequest): Thenable<BallerinaSTModifyResponse> {
+        if (this.ballerinaExtInstance) {
+            showChoreoPushMessage(this.ballerinaExtInstance);
+        }
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_ST_MODIFY)) {
             Promise.resolve(NOT_SUPPORTED);
         }

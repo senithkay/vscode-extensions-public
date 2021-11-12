@@ -89,12 +89,9 @@ export function activate(context: ExtensionContext): Promise<any> {
         activateSwaggerView(ballerinaExtInstance);
         // Enable the Choreo authentication
         activateChoreoAuth(ballerinaExtInstance);
-
-        if (ballerinaExtInstance.isSwanLake()) {
-            // Enable Ballerina Telemetry listener
-            activateTelemetryListener(ballerinaExtInstance);
-            activateTesting(ballerinaExtInstance);
-        }
+        // Enable Ballerina Telemetry listener
+        activateTelemetryListener(ballerinaExtInstance);
+        activateTesting(ballerinaExtInstance);
 
         ballerinaExtInstance.onReady().then(() => {
             langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
