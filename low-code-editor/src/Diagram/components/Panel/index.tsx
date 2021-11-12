@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import classnames from 'classnames';
 
@@ -21,6 +21,7 @@ import { ButtonWithIcon } from "../Portals/ConfigForm/Elements/Button/ButtonWith
 import { DiagramOverlayContainer } from "../Portals/Overlay";
 
 import "./style.scss";
+import MouseTrap from './util/mousetrap';
 
 interface PanelProps {
     children: JSX.Element,
@@ -30,6 +31,14 @@ interface PanelProps {
 export function Panel(props: PanelProps) {
     const { children, onClose } = props;
     const [isVisible, setIsVisible] = useState(true);
+
+    useEffect(() => {
+        MouseTrap.pause();
+
+        return () => {
+            MouseTrap.unpause();
+        }
+    })
 
     const onCloseEvent = (evt: React.MouseEvent) => {
         evt.stopPropagation();

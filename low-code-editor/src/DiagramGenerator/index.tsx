@@ -5,12 +5,12 @@ import { monaco } from "react-monaco-editor";
 import { FunctionDefinition, ModulePart, NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import { MuiThemeProvider } from "@material-ui/core/styles";
 import cloneDeep from "lodash.clonedeep";
-import Mousetrap from 'mousetrap';
 
 import LowCodeEditor, { BlockViewState, getSymbolInfo, InsertorDelete } from "..";
 import "../assets/fonts/Glimer/glimer.css";
 import { WizardType } from "../ConfigurationSpec/types";
 import { Connector, STModification, STSymbolInfo } from "../Definitions";
+import mouseTrap from "../Diagram/components/Panel/util/mousetrap";
 import { ConditionConfig } from "../Diagram/components/Portals/ConfigForm/types";
 import { UndoRedoManager } from "../Diagram/components/UndoRedoManager";
 import { LowcodeEvent, TriggerType } from "../Diagram/models";
@@ -22,6 +22,7 @@ import { getDefaultSelectedPosition, getLowcodeST, getSyntaxTree } from "./gener
 import { useGeneratorStyles } from "./styles";
 import { theme } from "./theme";
 import { EditorProps } from "./vscode/Diagram";
+
 export interface DiagramGeneratorProps extends EditorProps {
     scale: string;
     panX: string;
@@ -72,16 +73,13 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     }, [lastUpdatedAt]);
 
     React.useEffect(() => {
-        Mousetrap.bind(['command+z', 'ctrl+z'], () => {
+        mouseTrap.bind(['command+z', 'ctrl+z'], () => {
             undo();
-            return false;
         });
-        Mousetrap.bind(['command+shift+z', 'ctrl+y'], () => {
+        mouseTrap.bind(['command+shift+z', 'ctrl+y'], () => {
             redo();
-            return false;
         });
     }, []);
-
 
     function zoomIn() {
         const newZoomStatus = cloneDeep(zoomStatus);
