@@ -21,6 +21,7 @@ import { PALETTE_COMMANDS } from "../project";
 import { commands, window } from "vscode";
 import { BallerinaExtension, ExtendedLangClient } from "../core";
 import { showSwaggerView } from "./swaggerViewPanel";
+import { MESSAGE_TYPE, showMessage } from "../utils/showMessage";
 
 export async function activate(ballerinaExtInstance: BallerinaExtension) {
     commands.registerCommand(PALETTE_COMMANDS.SWAGGER_VIEW, async () => {
@@ -29,11 +30,15 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
         await langClient.convertToOpenAPI({
             documentFilePath
         }).then(async (response) => {
-            showSwaggerView(langClient, response.specs);
+            if (response.error) {
+                showMessage(`Unable to open the swagger view. ${response.error}`,
+                    MESSAGE_TYPE.ERROR, false);
+                return;
+            }
+            showSwaggerView(langClient, response.content);
 
         }).catch((err) => {
             console.log(err);
-
         });
     });
 }
