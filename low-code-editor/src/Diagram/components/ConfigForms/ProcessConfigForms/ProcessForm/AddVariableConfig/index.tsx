@@ -159,15 +159,17 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     };
 
     const handleSave = () => {
-        if (initialized){
+        if (initialized) {
             if (variableExpression) {
-                config.config = otherType ? otherType + " " + varName + " = " + variableExpression + ";" :
-                    selectedType + " " + varName + " = " + variableExpression + ";";
+                config.config = otherType
+                    ? otherType + " " + varName + " = " + variableExpression + ";"
+                    : selectedType + " " + varName + " = " + variableExpression + ";";
                 onSave();
             }
-        }else {
-            config.config = otherType ? otherType + " " + varName + ";" :
-                selectedType + " " + varName + ";";
+        } else {
+            config.config = otherType
+                ? otherType + " " + varName + ";"
+                : selectedType + " " + varName + ";";
             onSave();
         }
     };
