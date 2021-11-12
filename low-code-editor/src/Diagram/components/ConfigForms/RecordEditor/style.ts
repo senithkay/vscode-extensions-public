@@ -66,6 +66,12 @@ export const recordStyles = makeStyles((theme: Theme) =>
             display: 'flex',
             width: '100%',
         },
+        editItemContentWrapper: {
+            margin: `5px 10px 0 0`,
+            flexDirection: 'row',
+            display: 'flex',
+            width: '100%',
+        },
         activeItemContentWrapper: {
             marginLeft: 10,
             marginRight: 10,
@@ -91,6 +97,16 @@ export const recordStyles = makeStyles((theme: Theme) =>
             width: "80%",
             display: "flex",
             flexDirection: "row"
+        },
+        editTypeWrapper: {
+            minWidth: `92px !important`,
+        },
+        editNameWrapper: {
+            maxWidth: 80,
+            marginLeft: 5,
+            "& .MuiFormControl-marginNormal": {
+                margin: '0',
+            }
         },
         typeWrapper: {
             maxWidth: 80,
@@ -118,6 +134,10 @@ export const recordStyles = makeStyles((theme: Theme) =>
             maxWidth: 15,
             color: "#000",
         },
+        editOptionalNArray: {
+            maxWidth: 15,
+            marginLeft: 5,
+        },
         btnWrapper: {
             display: "none",
             flexDirection: "row",
@@ -136,10 +156,7 @@ export const recordStyles = makeStyles((theme: Theme) =>
             display: "flex",
             flexDirection: "row",
             padding: 10,
-            margin: "0 10px",
-            borderRadius: 5,
-            border: "1px solid #A6B3FF",
-            justifyContent: "center"
+            margin: "5px 10px",
         },
         addFieldBtn: {
             outline: "none",
@@ -207,13 +224,11 @@ export const recordStyles = makeStyles((theme: Theme) =>
             color: '#1E00FF'
         },
         typeDefNameWrapper: {
-            maxWidth: 100,
+            width: 100,
             marginLeft: 5,
-            fontFamily: "inherit",
-            color: '#00819C',
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            textOverflow: "ellipsis"
+            "& .MuiFormControl-marginNormal": {
+                margin: '0',
+            }
         },
         recordKeywordWrapper: {
             width: 40,
@@ -249,6 +264,10 @@ export const recordStyles = makeStyles((theme: Theme) =>
         singleTokenWrapper: {
             width: 10,
             color: "#000"
+        },
+        editSingleTokenWrapper: {
+            width: 10,
+            marginLeft: 5
         },
         equalTokenWrapper: {
             margin: "0 5px",

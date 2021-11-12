@@ -171,3 +171,13 @@ export function getGeneratedCode(model: Field, isTypeDef: boolean): string {
     }
     return codeGenerated;
 }
+
+export function genRecordName(defaultName: string, variables: string[]): string {
+    let index = 0;
+    let varName = defaultName;
+    while (variables.includes(defaultName)) {
+        index++;
+        varName = defaultName + index;
+    }
+    return varName;
+}
