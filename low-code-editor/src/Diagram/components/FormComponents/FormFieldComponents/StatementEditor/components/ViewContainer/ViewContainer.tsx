@@ -35,7 +35,6 @@ export interface ViewProps {
     initialSource: string,
     formArgs: any,
     userInputs?: VariableUserInputs,
-    validate?: (field: string, isInvalid: boolean, isEmpty: boolean) => void
     config?: ProcessConfig | EndConfig | ConditionConfig
     isMutationInProgress?: boolean
     validForm?: boolean
@@ -63,7 +62,6 @@ export function ViewContainer(props: ViewProps) {
         formArgs,
         userInputs,
         config,
-        validate,
         onCancel,
         onSave,
         handleNameOnChange,
@@ -72,6 +70,7 @@ export function ViewContainer(props: ViewProps) {
     const intl = useIntl();
 
     const [model, setModel] = useState<STNode>(null);
+    const [isStatementValid, setIsStatementValid] = useState(false);
 
     if (!userInputs?.varName && !!handleNameOnChange){
         handleNameOnChange("default")
@@ -115,6 +114,10 @@ export function ViewContainer(props: ViewProps) {
     const onCancelHandler = () => {
         setOnCancel(true);
     }
+
+    const validateStatement = (isValid: boolean) => {
+        setIsStatementValid(isValid);
+    };
 
     useEffect(() => {
         return () => {
@@ -166,9 +169,9 @@ export function ViewContainer(props: ViewProps) {
                         model={model}
                         onCancelClicked={onCancelClicked}
                         onSave={onSave}
-                        validate={validate}
                         updateModel={updateModel}
                         formModel={formArgs.formArgs.model}
+                        validateStatement={validateStatement}
                     >
                         <LeftPane
                             currentModel={currentModel}
@@ -190,7 +193,7 @@ export function ViewContainer(props: ViewProps) {
                         <PrimaryButton
                             dataTestId="save-btn"
                             text={saveVariableButtonText}
-                            disabled={false}
+                            disabled={!isStatementValid}
                             fullWidth={false}
                             onClick={onSaveClick}
                         />

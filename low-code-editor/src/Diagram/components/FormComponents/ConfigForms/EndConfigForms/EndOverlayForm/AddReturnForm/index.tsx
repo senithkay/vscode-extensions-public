@@ -90,8 +90,7 @@ export function AddReturnForm(props: ReturnFormProps) {
             isMutationInProgress,
             validForm: isValidValue,
             config,
-            onSave: onReturnExpressionSave,
-            validate: validateExpression
+            onSave: onReturnExpressionSave
         }
     );
 

@@ -122,8 +122,7 @@ export function AddLogConfig(props: LogConfigProps) {
             isMutationInProgress,
             validForm: !!isFormValid,
             config,
-            onSave: onSaveBtnClick,
-            validate: validateExpression
+            onSave: onSaveBtnClick
         }
     );
 

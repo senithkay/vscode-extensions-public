@@ -192,9 +192,9 @@ export function InputEditor(props: InputEditorProps) {
     }
 
     const handleDiagnostic = () => {
-        const hasDiagnostic = !inputEditorState.diagnostic.length // true if there are no diagnostics
+        const hasDiagnostic = !!inputEditorState.diagnostic.length;
 
-        stmtCtx.formCtx.validate('', !hasDiagnostic, false);
+        stmtCtx.statementCtx.validateStatement(!hasDiagnostic);
 
         // TODO: Need to obtain the default value as a prop
         if (!placeHolders.some(word => currentContent.includes(word))) {

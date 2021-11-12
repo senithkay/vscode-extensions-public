@@ -149,8 +149,7 @@ export function AddRespondForm(props: RespondFormProps) {
             isMutationInProgress,
             validForm,
             config,
-            onSave: onSaveWithTour,
-            validate: validateExpression
+            onSave: onSaveWithTour
         }
     );
 

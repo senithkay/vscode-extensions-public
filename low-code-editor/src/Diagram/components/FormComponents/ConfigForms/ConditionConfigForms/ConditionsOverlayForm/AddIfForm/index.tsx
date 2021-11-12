@@ -169,8 +169,7 @@ export function AddIfForm(props: IfProps) {
             isMutationInProgress,
             validForm: !isInvalid,
             config: condition,
-            onSave: handleOnSaveClick,
-            validate: validateField
+            onSave: handleOnSaveClick
         }
     );
 
