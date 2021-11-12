@@ -5,12 +5,14 @@ import { monaco } from "react-monaco-editor";
 import { FunctionDefinition, ModulePart, NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import { MuiThemeProvider } from "@material-ui/core/styles";
 import cloneDeep from "lodash.clonedeep";
+import Mousetrap from 'mousetrap';
 
 import LowCodeEditor, { BlockViewState, getSymbolInfo, InsertorDelete } from "..";
 import "../assets/fonts/Glimer/glimer.css";
 import { WizardType } from "../ConfigurationSpec/types";
 import { Connector, STModification, STSymbolInfo } from "../Definitions";
 import { ConditionConfig } from "../Diagram/components/Portals/ConfigForm/types";
+import { UndoRedoManager } from "../Diagram/components/UndoRedoManager";
 import { LowcodeEvent, TriggerType } from "../Diagram/models";
 import messages from '../lang/en.json';
 import { CirclePreloader } from "../PreLoader/CirclePreloader";
@@ -29,10 +31,7 @@ export interface DiagramGeneratorProps extends EditorProps {
 const ZOOM_STEP = 0.1;
 const MAX_ZOOM = 2;
 const MIN_ZOOM = 0.6;
-const undoStack: Map<string, string[]> = new Map();
-const redoStack: Map<string, string[]> = new Map();
-let currentFileContent = "";
-let currentFilePath = "";
+const undoRedo = new UndoRedoManager();
 
 export function DiagramGenerator(props: DiagramGeneratorProps) {
     const { langClient, filePath, startLine, startColumn, lastUpdatedAt, scale, panX, panY } = props;
@@ -64,9 +63,8 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                 }
                 setSyntaxTree(vistedSyntaxTree);
                 const content = await props.getFileContent(filePath);
+                undoRedo.updateContent(filePath, content);
                 setFileContent(content);
-                currentFilePath = filePath;
-                currentFileContent = content;
             } catch (err) {
                 throw err;
             }
@@ -74,20 +72,16 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     }, [lastUpdatedAt]);
 
     React.useEffect(() => {
-        const keyPress = (e: any) => {
-            const file = currentFilePath;
-            const evtobj = e;
-            if (evtobj.keyCode === 90 && (evtobj.ctrlKey || evtobj.metaKey)) {
-                undo();
-            } else if (evtobj.keyCode === 89 && (evtobj.ctrlKey || evtobj.metaKey)) {
-                redo();
-            }
-        }
-        document.onkeydown = keyPress;
-        return () => {
-            document.onkeydown = undefined;
-        };
+        Mousetrap.bind(['command+z', 'ctrl+z'], () => {
+            undo();
+            return false;
+        });
+        Mousetrap.bind(['command+shift+z', 'ctrl+y'], () => {
+            redo();
+            return false;
+        });
     }, []);
+
 
     function zoomIn() {
         const newZoomStatus = cloneDeep(zoomStatus);
@@ -113,21 +107,10 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     }
 
     const undo = async () => {
-        if (undoStack.get(currentFilePath)?.length) {
-            const uri = monaco.Uri.file(currentFilePath).toString();
-
-            const redoSourceStack = redoStack.get(currentFilePath);
-            if (!redoSourceStack) {
-                redoStack.set(currentFilePath, [currentFileContent]);
-            } else {
-                redoSourceStack.push(currentFileContent);
-                if (redoSourceStack.length >= 100) {
-                    redoSourceStack.shift();
-                }
-                redoStack.set(currentFilePath, redoSourceStack);
-            }
-            const lastsource = undoStack.get(currentFilePath).pop();
-
+        const path = undoRedo.getFilePath();
+        const uri = monaco.Uri.file(path).toString();
+        const lastsource = undoRedo.undo();
+        if (lastsource) {
             langClient.didChange({
                 contentChanges: [
                     {
@@ -139,31 +122,22 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                     version: 1
                 }
             });
-            const genSyntaxTree = await getSyntaxTree(currentFilePath, langClient);
+            const genSyntaxTree = await getSyntaxTree(path, langClient);
             const pfSession = await props.getPFSession();
-            const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, currentFilePath,
+            const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, path,
                                                                 langClient, pfSession,
                                                                 props.showPerformanceGraph, props.showMessage);
             setSyntaxTree(vistedSyntaxTree);
             setFileContent(lastsource);
-            currentFileContent = lastsource;
-            props.updateFileContent(currentFilePath, lastsource);
+            props.updateFileContent(path, lastsource);
         }
     }
 
     const redo = async () => {
-        if (redoStack.get(currentFilePath)?.length) {
-            const uri = monaco.Uri.file(currentFilePath).toString();
-
-            const undoSourceStack = undoStack.get(currentFilePath);
-            undoSourceStack.push(currentFileContent);
-            if (undoSourceStack.length >= 100) {
-                undoSourceStack.shift();
-            }
-            undoStack.set(currentFilePath, undoSourceStack);
-
-            const lastUndoSource = redoStack.get(currentFilePath).pop();
-
+        const path = undoRedo.getFilePath();
+        const uri = monaco.Uri.file(path).toString();
+        const lastUndoSource = undoRedo.redo();
+        if (lastUndoSource) {
             langClient.didChange({
                 contentChanges: [
                     {
@@ -175,15 +149,14 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                     version: 1
                 }
             });
-            const genSyntaxTree = await getSyntaxTree(currentFilePath, langClient);
+            const genSyntaxTree = await getSyntaxTree(path, langClient);
             const pfSession = await props.getPFSession();
-            const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, currentFilePath,
+            const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, path,
                 langClient, pfSession,
                 props.showPerformanceGraph, props.showMessage);
             setSyntaxTree(vistedSyntaxTree);
             setFileContent(lastUndoSource);
-            currentFileContent = lastUndoSource;
-            props.updateFileContent(currentFilePath, lastUndoSource);
+            props.updateFileContent(path, lastUndoSource);
         }
     }
 
@@ -256,23 +229,13 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                             }
                                         });
                                         if (parseSuccess) {
-                                            const sourcestack = undoStack.get(filePath);
-                                            if (!sourcestack) {
-                                                undoStack.set(filePath, [fileContent]);
-                                            } else {
-                                                sourcestack.push(fileContent);
-                                                if (sourcestack.length >= 100) {
-                                                    sourcestack.shift();
-                                                }
-                                                undoStack.set(filePath, sourcestack);
-                                            }
+                                            undoRedo.addModification(source);
                                             const pfSession = await props.getPFSession();
                                             const vistedSyntaxTree: STNode = await getLowcodeST(newST, filePath,
                                                                                                 langClient, pfSession,
                                                                                                 props.showPerformanceGraph, props.showMessage);
                                             setSyntaxTree(vistedSyntaxTree);
                                             setFileContent(source);
-                                            currentFileContent = source;
                                             props.updateFileContent(filePath, source);
                                         } else {
                                             // TODO show error
@@ -310,4 +273,3 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         </MuiThemeProvider>
     );
 }
-

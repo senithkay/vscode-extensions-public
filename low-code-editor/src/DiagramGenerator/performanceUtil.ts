@@ -36,6 +36,7 @@ const ESTIMATOR_ERROR = "AI service is currently unavailable (ID2)";
 const UNKNOWN_ANALYSIS_TYPE = "Invalid request sent to AI service (ID7)";
 const INVALID_DATA = "Request with invalid data sent to AI service (ID8)";
 const SUCCESS = "Success";
+const IGNORE = "IGNORE";
 let syntaxTree: any;
 let langClient: DiagramEditorLangClientInterface;
 let filePath: string;
@@ -142,6 +143,9 @@ async function getRealtimeData(range: Range): Promise<PerformanceAnalyzerRealtim
             choreoCookie: pfSession.choreoCookie,
         }).then(async (response: PerformanceAnalyzerRealtimeResponse) => {
 
+            if (response.type === IGNORE) {
+                return;
+            }
             if (response.type !== SUCCESS) {
                 checkErrors(response);
                 return resolve(null);
