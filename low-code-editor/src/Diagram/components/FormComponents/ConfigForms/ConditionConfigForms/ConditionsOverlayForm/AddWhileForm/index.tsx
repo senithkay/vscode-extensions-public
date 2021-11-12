@@ -118,7 +118,6 @@ export function AddWhileForm(props: WhileProps) {
             validForm: !isInvalid,
             config: condition,
             onSave: handleOnSaveClick,
-            onChange: handleExpEditorChange,
             validate: validateField
         }
     );

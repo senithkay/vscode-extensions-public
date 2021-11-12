@@ -41,7 +41,6 @@ export interface ViewProps {
     validForm?: boolean
     onCancel?: () => void
     onSave?: () => void
-    onChange?: (property: string) => void,
     handleNameOnChange?: (name: string) => void
     handleTypeChange?: (name: string) => void
 }
@@ -67,7 +66,6 @@ export function ViewContainer(props: ViewProps) {
         validate,
         onCancel,
         onSave,
-        onChange,
         handleNameOnChange,
         handleTypeChange
     } = props;
@@ -168,7 +166,6 @@ export function ViewContainer(props: ViewProps) {
                         model={model}
                         onCancelClicked={onCancelClicked}
                         onSave={onSave}
-                        onChange={onChange}
                         validate={validate}
                         updateModel={updateModel}
                         formModel={formArgs.formArgs.model}

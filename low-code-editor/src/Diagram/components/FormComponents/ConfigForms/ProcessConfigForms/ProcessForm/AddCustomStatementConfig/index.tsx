@@ -98,7 +98,6 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
             isMutationInProgress,
             validForm: isFormValid,
             onSave: onSaveBtnClick,
-            onChange: onExpressionChange,
             validate: validateExpression
         }
     );

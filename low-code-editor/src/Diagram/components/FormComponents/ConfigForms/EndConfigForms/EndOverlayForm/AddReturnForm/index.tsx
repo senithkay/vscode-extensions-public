@@ -91,7 +91,6 @@ export function AddReturnForm(props: ReturnFormProps) {
             validForm: isValidValue,
             config,
             onSave: onReturnExpressionSave,
-            onChange: onReturnValueChange,
             validate: validateExpression
         }
     );

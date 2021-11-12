@@ -170,7 +170,6 @@ export function AddIfForm(props: IfProps) {
             validForm: !isInvalid,
             config: condition,
             onSave: handleOnSaveClick,
-            onChange: handleExpEditorChange(0),
             validate: validateField
         }
     );

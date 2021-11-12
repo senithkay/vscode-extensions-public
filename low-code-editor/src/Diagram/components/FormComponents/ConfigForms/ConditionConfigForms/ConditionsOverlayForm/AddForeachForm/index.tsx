@@ -226,7 +226,6 @@ export function AddForeachForm(props: ForeachProps) {
             validForm: !isInvalid,
             config: condition,
             onSave: handleSave,
-            onChange: handleExpEditorChange,
             validate: validateField
         }
     );

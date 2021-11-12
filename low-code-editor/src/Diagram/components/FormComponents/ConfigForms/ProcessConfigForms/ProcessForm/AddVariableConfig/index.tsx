@@ -235,7 +235,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             validForm,
             config,
             onSave: handleSave,
-            onChange: onPropertyChange,
             validate: validateExpression,
             handleNameOnChange,
             handleTypeChange

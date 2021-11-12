@@ -123,7 +123,6 @@ export function AddLogConfig(props: LogConfigProps) {
             validForm: !!isFormValid,
             config,
             onSave: onSaveBtnClick,
-            onChange: onExpressionChange,
             validate: validateExpression
         }
     );

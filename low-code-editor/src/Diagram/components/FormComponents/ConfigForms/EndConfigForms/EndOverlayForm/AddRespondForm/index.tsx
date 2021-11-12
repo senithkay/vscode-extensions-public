@@ -150,7 +150,6 @@ export function AddRespondForm(props: RespondFormProps) {
             validForm,
             config,
             onSave: onSaveWithTour,
-            onChange: onExpressionChange,
             validate: validateExpression
         }
     );
