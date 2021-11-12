@@ -57,7 +57,7 @@ enum EXTENDED_APIS {
     EXAMPLE_LIST = 'ballerinaExample/list',
     PERF_ANALYZER_GRAPH_DATA = 'performanceAnalyzer/getGraphData',
     PERF_ANALYZER_REALTIME_DATA = 'performanceAnalyzer/getRealtimeData',
-    BALLERINA_TO_OPENAPI = 'openAPILSExtension/generateOpenAPIJson'
+    BALLERINA_TO_OPENAPI = 'openAPILSExtension/generateOpenAPI'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -267,7 +267,7 @@ export interface OpenAPIConverterRequest {
 }
 
 export interface OpenAPIConverterResponse {
-    specs: OASpec[];
+    content: OASpec[];
     error?: string;
 }
 
@@ -488,7 +488,7 @@ export class ExtendedLangClient extends LanguageClient {
                 { name: EXTENDED_APIS_ORG.JSON_TO_RECORD, convert: true },
                 { name: EXTENDED_APIS_ORG.PERF_ANALYZER, getGraphData: true, getRealtimeData: true },
                 { name: EXTENDED_APIS_ORG.PARTIAL_PARSER, getSTForSingleStatement: true, getSTForExpression: true },
-                { name: EXTENDED_APIS_ORG.BALLERINA_TO_OPENAPI, generateOpenAPIJson: true}
+                { name: EXTENDED_APIS_ORG.BALLERINA_TO_OPENAPI, generateOpenAPI: true}
             ]
         }).then(response => {
             this.ballerinaExtendedServices = new Set();
