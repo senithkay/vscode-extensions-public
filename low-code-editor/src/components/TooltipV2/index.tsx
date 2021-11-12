@@ -250,11 +250,10 @@ function DiagramDiagnosticTooltip(props: Partial<TooltipPropsExtended>) {
 
     );
     const Diagnostic = () => (
-        <><div className={classes.iconWrapper}>{errorIconComponent}</div>
-        <div className={classes.diagnosticWrapper}>
-            {diagnostic.diagnosticMsgs}
-        </div></>
-
+        <div>
+            <div className={classes.iconWrapper}>{errorIconComponent}</div>
+            <div className={classes.diagnosticWrapper}>{diagnostic.diagnosticMsgs}</div>
+        </div>
     );
     const OpenInCodeLink = () => (
         <React.Fragment>
