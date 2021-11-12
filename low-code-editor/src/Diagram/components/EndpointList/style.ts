@@ -22,13 +22,10 @@ const useStyles = makeStyles((theme: Theme) =>
         container: {
             width: 270,
         },
-        // connectorSectionWrap: {
-        //     marginTop: theme.spacing(6),
-        //     '&:first-child': {
-        //         marginTop: 0
-        //     }
-        // },
-
+        emptyTitle: {
+            marginTop: theme.spacing(6),
+            color: theme.palette.text.secondary
+        },
     })
 );
 

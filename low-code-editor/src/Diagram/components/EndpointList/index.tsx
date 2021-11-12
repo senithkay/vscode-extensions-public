@@ -31,11 +31,12 @@ export function EndpointList(props: FormGeneratorProps) {
     const classes = useStyles();
     const formClasses = useFormStyles();
     const {
-        props: { langServerURL, stSymbolInfo, currentFile, userInfo },
+        props: { stSymbolInfo },
     } = useContext(Context);
     const { onSelect } = props.configOverlayFormStatus.formArgs as EndpointListProps;
-
+    const isEndpointExists = stSymbolInfo?.endpoints && stSymbolInfo.endpoints.size > 0;
     const endpointList: ReactNode[] = [];
+
     stSymbolInfo?.endpoints.forEach((node, name) => {
         const handleOnSelect = () => {
             onSelect(node);
@@ -67,17 +68,17 @@ export function EndpointList(props: FormGeneratorProps) {
                         </div>
 
                         <div className={classes.container}>
-                            {!stSymbolInfo?.endpoints && (
+                            {!isEndpointExists && (
                                 <Box>
-                                    <Typography>
+                                    <Typography className={classes.emptyTitle}>
                                         <FormattedMessage
                                             id="lowcode.develop.configForms.endpoint.empty"
-                                            defaultMessage="No API connection found"
+                                            defaultMessage="No API connections found"
                                         />
                                     </Typography>
                                 </Box>
                             )}
-                            {(
+                            {isEndpointExists && (
                                 <>
                                     <Typography>
                                         <FormattedMessage
