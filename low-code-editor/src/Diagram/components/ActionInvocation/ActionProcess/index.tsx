@@ -29,6 +29,7 @@ import { DeleteBtn } from "../../DiagramActions/DeleteBtn";
 import { DELETE_SVG_HEIGHT_WITH_SHADOW, DELETE_SVG_WIDTH_WITH_SHADOW } from "../../DiagramActions/DeleteBtn/DeleteSVG";
 import { EditBtn } from "../../DiagramActions/EditBtn";
 import { EDIT_SVG_OFFSET, EDIT_SVG_WIDTH_WITH_SHADOW } from "../../DiagramActions/EditBtn/EditSVG";
+import { FormGenerator } from "../../FormGenerator";
 import { VariableName, VARIABLE_NAME_WIDTH } from "../../VariableName";
 
 import { ProcessSVG, PROCESS_SVG_HEIGHT, PROCESS_SVG_HEIGHT_WITH_SHADOW, PROCESS_SVG_SHADOW_OFFSET, PROCESS_SVG_WIDTH, PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW } from "./ProcessSVG";
@@ -65,6 +66,7 @@ export function ActionProcessor(props: ProcessorProps) {
     const { model, blockViewState } = props;
     const [configOverlayFormState, updateConfigOverlayFormState] = useState(undefined);
     const [isConfigWizardOpen, setConfigWizardOpen] = useState(false);
+    const [selectedEndpoint, setSelectedEndpoint] = useState<STNode>();
 
     const viewState: StatementViewState = model === null ? blockViewState.draft[1] : model.viewState;
     const isDraftStatement: boolean = blockViewState
@@ -143,6 +145,11 @@ export function ActionProcessor(props: ProcessorProps) {
         setIsConnectorEdit(false);
     };
 
+    const onActionFormClose = () => {
+        setIsConnectorEdit(false);
+        setConnector(undefined);
+    };
+
     const onSave = () => {
         setConfigWizardOpen(false);
         dispatchCloseConfigOverlayForm();
@@ -172,6 +179,27 @@ export function ActionProcessor(props: ProcessorProps) {
         setCodeToHighlight(model.position)
     }
 
+    const onEndpointSelect = (actionInvo: STNode) => {
+        const matchedConnector = getMatchingConnector(actionInvo, stSymbolInfo);
+        if (matchedConnector) {
+            setSelectedEndpoint(actionInvo);
+            setConnector(matchedConnector);
+        }
+    }
+
+    const endpointList = (
+        <FormGenerator
+            onCancel={onWizardClose}
+            configOverlayFormStatus={ {
+                formType: "EndpointList",
+                formArgs: {
+                    onSelect: onEndpointSelect,
+                },
+                isLoading: true,
+            } }
+        />
+    );
+
     const toolTip = isReferencedVariable ? "Variable is referred in the code below" : undefined;
     // If only processor is a initialized variable or log stmt or draft stmt Show the edit btn other.
     // Else show the delete button only.
@@ -197,76 +225,79 @@ export function ActionProcessor(props: ProcessorProps) {
     );
 
     const processWrapper = isDraftStatement ? cn("main-process-wrapper active-data-processor") : cn("main-process-wrapper data-processor");
-    const component: React.ReactNode = (!viewState.collapsed &&
-        (
-            <g>
-                <g className={processWrapper} data-testid="data-processor-block" >
-                    <React.Fragment>
-                        {!isDraftStatement &&
-                            (
-                                <VariableName
-                                    processType={processType}
-                                    variableName={processName}
-                                    x={cx - (VARIABLE_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
-                                    y={cy + PROCESS_SVG_HEIGHT / 4}
-                                    key_id={getRandomInt(1000)}
-                                />
-                            )
-                        }
-                        <ProcessSVG
-                            x={cx - (PROCESS_SVG_SHADOW_OFFSET / 2)}
-                            y={cy - (PROCESS_SVG_SHADOW_OFFSET / 2)}
-                            varName={variableName}
+    const component: React.ReactNode = !viewState.collapsed && (
+        <g>
+            <g className={processWrapper} data-testid="data-processor-block">
+                <React.Fragment>
+                    {!isDraftStatement && (
+                        <VariableName
                             processType={processType}
-                            sourceSnippet={sourceSnippet}
-                            position={model?.position}
-                            openInCodeView={!isReadOnly && !isCodeEditorActive && !isWaitingOnWorkspace && model && model.position && onClickOpenInCodeView}
+                            variableName={processName}
+                            x={cx - (VARIABLE_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
+                            y={cy + PROCESS_SVG_HEIGHT / 4}
+                            key_id={getRandomInt(1000)}
                         />
-                        {!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace &&
-                            <g
-                                className="process-options-wrapper"
-                                height={PROCESS_SVG_HEIGHT_WITH_SHADOW}
-                                width={PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW}
-                                x={cx - (PROCESS_SVG_SHADOW_OFFSET / 2)}
-                                y={cy - (PROCESS_SVG_SHADOW_OFFSET / 2)}
-                            >
-                                <g>
-                                    {((model === null || isEditConnector)) && (
-                                        <ConnectorConfigWizard
-                                            connectorInfo={connector}
-                                            position={{
-                                                x: viewState.bBox.cx + 80,
-                                                y: viewState.bBox.cy,
-                                            }}
-                                            targetPosition={draftViewState.targetPosition}
-                                            selectedConnector={draftViewState.selectedConnector}
-                                            model={model}
-                                            onClose={onWizardClose}
-                                            onSave={onWizardClose}
-                                            isAction={true}
-                                            isEdit={isEditConnector}
-                                        />
-                                    )}
-                                </g>
-                                {!isConfigWizardOpen && (
-                                    <>
-                                        <rect
-                                            x={cx + (PROCESS_SVG_WIDTH / 6.5)}
-                                            y={cy + (PROCESS_SVG_HEIGHT / 3)}
-                                            rx="7"
-                                            className="process-rect"
-                                        />
-
-                                        {editAndDeleteButtons}
-                                    </>
+                    )}
+                    <ProcessSVG
+                        x={cx - PROCESS_SVG_SHADOW_OFFSET / 2}
+                        y={cy - PROCESS_SVG_SHADOW_OFFSET / 2}
+                        varName={variableName}
+                        processType={processType}
+                        sourceSnippet={sourceSnippet}
+                        position={model?.position}
+                        openInCodeView={
+                            !isReadOnly &&
+                            !isCodeEditorActive &&
+                            !isWaitingOnWorkspace &&
+                            model &&
+                            model.position &&
+                            onClickOpenInCodeView
+                        }
+                    />
+                    {!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace && (
+                        <g
+                            className="process-options-wrapper"
+                            height={PROCESS_SVG_HEIGHT_WITH_SHADOW}
+                            width={PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW}
+                            x={cx - PROCESS_SVG_SHADOW_OFFSET / 2}
+                            y={cy - PROCESS_SVG_SHADOW_OFFSET / 2}
+                        >
+                            <g>
+                                {!model && !connector && endpointList}
+                                {(model === null || isEditConnector) && connector && (
+                                    <ConnectorConfigWizard
+                                        connectorInfo={connector}
+                                        position={{
+                                            x: viewState.bBox.cx + 80,
+                                            y: viewState.bBox.cy,
+                                        }}
+                                        targetPosition={draftViewState.targetPosition}
+                                        selectedConnector={draftViewState.selectedConnector}
+                                        model={model || selectedEndpoint}
+                                        onClose={onActionFormClose}
+                                        onSave={onWizardClose}
+                                        isAction={true}
+                                        isEdit={isEditConnector}
+                                    />
                                 )}
                             </g>
-                        }
-                    </React.Fragment>
+                            {!isConfigWizardOpen && (
+                                <>
+                                    <rect
+                                        x={cx + PROCESS_SVG_WIDTH / 6.5}
+                                        y={cy + PROCESS_SVG_HEIGHT / 3}
+                                        rx="7"
+                                        className="process-rect"
+                                    />
 
-                </g>
+                                    {editAndDeleteButtons}
+                                </>
+                            )}
+                        </g>
+                    )}
+                </React.Fragment>
             </g>
-        )
+        </g>
     );
 
     return (

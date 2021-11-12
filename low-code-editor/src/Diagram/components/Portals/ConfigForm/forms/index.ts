@@ -19,6 +19,7 @@ import { ApiConfigureWizard } from "../../../ConfigForms/ResourceConfigForm/ApiC
 import { TypeDefinitionConfigForm } from "../../../ConfigForms/TypeDefinitionConfigForm";
 import { ConnectorForm } from "../../../ConnectorConfigWizard/Components/ConnectorForm";
 import { ConnectorList } from "../../../ConnectorList";
+import { EndpointList } from "../../../EndpointList";
 
 import { APIConfigForm } from "./APIConfigForm";
 import { ConfigurableForm } from './ConfigurableForm';
@@ -37,6 +38,7 @@ export { ProcessConfigForm as Variable };
 export { ProcessConfigForm as Log };
 export { ConnectorList as ConnectorList };
 export { ConnectorForm as Connector };
+export { EndpointList as EndpointList };
 export { ProcessConfigForm as Custom };
 export { ProcessConfigForm as DataMapper };
 export { EndConfigForm as Return };

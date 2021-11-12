@@ -123,6 +123,12 @@ export function StatementOptions(props: StatementOptionsProps) {
                 id: "lowcode.develop.plusHolder.plusElements.statements.connector.tooltip.title",
                 defaultMessage: "An API Call can be used to make external app requests."
             })
+        },
+        actionStatement: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.plusHolder.plusElements.statements.action.tooltip.title",
+                defaultMessage: "An API Connection can be used to make multiple request from a existing API Call."
+            })
         }
     }
 
@@ -260,6 +266,34 @@ export function StatementOptions(props: StatementOptionsProps) {
             </Tooltip>
         ),
     };
+    const actionStatement: StatementComponent = {
+        name: "action",
+        category: "process",
+        component: (
+            <Tooltip
+                title={plusHolderStatementTooltipMessages.actionStatement.title}
+                placement="left"
+                arrow={true}
+                interactive={true}
+            >
+                <div
+                    className="sub-option enabled"
+                    data-testid="addAction"
+                    onClick={onSelectStatement.bind(undefined, "Action")}
+                >
+                    <div className="icon-wrapper">
+                        <LogIcon />
+                    </div>
+                    <div className="text-label">
+                        <FormattedMessage
+                            id="lowcode.develop.plusHolder.plusElements.statements.action.title"
+                            defaultMessage="API Connection"
+                        />
+                    </div>
+                </div>
+            </Tooltip>
+        ),
+    };
 
     const returnStm: StatementComponent = {
         name: "return",
@@ -365,17 +399,13 @@ export function StatementOptions(props: StatementOptionsProps) {
     // statements.push(datamappingStatement);
     statements.push(customStatement);
     statements.push(connectorStatement);
+    statements.push(actionStatement);
 
     const initStatements: Statements = {
         statement: statements,
         selectedCompoent: ""
     };
     const [selectedCompName, setSelectedCompName] = useState("");
-
-    const handleSearchChange = (evt: any) => {
-        setSelectedCompName(evt.target.value);
-    };
-
 
     const processComp: ReactNode[] = [];
     const conditionComp: ReactNode[] = [];
@@ -403,27 +433,13 @@ export function StatementOptions(props: StatementOptionsProps) {
         });
     }
 
-    const searchPlaceholder = intl.formatMessage({
-        id: "lowcode.develop.plusHolder.plusElements.statements.search.placeholder",
-        defaultMessage: "Search"
-    })
-
     return (
         <>
             <div className="search-options-wrapper">
                 <label><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.chooseFromList.label" defaultMessage="Select from list" /></label>
-
-                <input
-                    type="search"
-                    placeholder={searchPlaceholder}
-                    value={selectedCompName}
-                    onChange={handleSearchChange}
-                    className='search-wrapper'
-                />
             </div>
             <div className="element-option-holder" >
                 <div className="options-wrapper">
-                    {/* {(processComp.length > 0 ? <Divider /> : null)} */}
                     {processComp}
                     {(conditionComp.length > 0 ? <Divider /> : null)}
                     {conditionComp}

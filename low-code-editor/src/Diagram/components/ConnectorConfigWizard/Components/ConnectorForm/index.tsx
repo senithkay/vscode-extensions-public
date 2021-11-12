@@ -234,18 +234,21 @@ export function ConnectorForm(props: FormGeneratorProps) {
             config.action.fields
         ).join()});`;
 
-        if (isNewConnectorInitWizard) {
-            const endpointStatement = `${moduleName}:${connector.name} ${config.name} = ${isInitReturnError ? "check" : ""} new (${getParams(
-                config.connectorInit
-            ).join()});`;
+        if (isNewConnectorInitWizard && !isAction) {
+            const endpointStatement = `${moduleName}:${connector.name} ${config.name} = ${
+                isInitReturnError ? "check" : ""
+            } new (${getParams(config.connectorInit).join()});`;
             const addConnectorInit = createPropertyStatement(endpointStatement, targetPosition);
             modifications.push(addConnectorInit);
+        }
+
+        if (!isNewConnectorInitWizard && isAction) {
+            const updateActionInvocation = updatePropertyStatement(actionStatement, model.position);
+            modifications.push(updateActionInvocation);
+        }else{
             const addActionInvocation = createPropertyStatement(actionStatement, targetPosition);
             modifications.push(addActionInvocation);
             onActionAddEvent();
-        } else {
-            const updateActionInvocation = updatePropertyStatement(actionStatement, model.position);
-            modifications.push(updateActionInvocation);
         }
 
         if (modifications.length > 0) {

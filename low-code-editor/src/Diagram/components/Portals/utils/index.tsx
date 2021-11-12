@@ -114,7 +114,8 @@ export function getFieldName(fieldName: string): string {
 export function getParams(formFields: FormField[], depth = 1): string[] {
     const paramStrings: string[] = [];
     formFields.forEach(formField => {
-        const skipDefaultValue = formField.defaultValue && formField.optional;
+        const skipDefaultValue = (!formField.value && (formField.defaultable || formField.optional)) ||
+            (formField.value && formField.defaultValue && formField.defaultValue === formField.value);
         let paramString: string = "";
         if (!formField.noCodeGen && !skipDefaultValue) {
             if (formField.defaultable && formField.value) {
