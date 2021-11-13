@@ -13,18 +13,18 @@
 // tslint:disable: jsx-no-multiline-js
 // tslint:disable: ordered-imports
 import React, { useContext, useState } from "react";
+import { FormattedMessage, useIntl } from "react-intl";
+
 import { Box, FormControl, Typography } from "@material-ui/core";
+
 import { Context } from "../../../../../../../Contexts/Diagram";
+import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
+import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";
+import { useStatementEdior } from "../../../../FormFieldComponents/StatementEditor/hooks";
 import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
 import { CustomExpressionConfig, ProcessConfig } from "../../../../Types";
 import { wizardStyles } from "../../../style";
-import { FormattedMessage, useIntl } from "react-intl";
-
-import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
-import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";
-import { ViewContainer } from "../../../../FormFieldComponents/StatementEditor/components/ViewContainer/ViewContainer";
-import { StatementEditorButton } from "../../../../FormFieldComponents/Button/StatementEditorButton";
 
 interface LogConfigProps {
     config: ProcessConfig;

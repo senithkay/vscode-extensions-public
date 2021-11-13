@@ -14,8 +14,8 @@ import React, { useContext } from "react";
 
 import { FunctionBodyBlock } from "@ballerina/syntax-tree";
 
-import { Context } from "../../../../../../Contexts/Diagram";
 import { getDraftComponent, getSTComponents } from "../../../../../utils";
+import { Context } from "../../../Context/diagram";
 import { BlockViewState } from "../../../ViewState";
 import { PlusButton } from "../../PlusButtons/Plus";
 import { Collapse } from "../Collapse";

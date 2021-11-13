@@ -11,13 +11,17 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useRef, useState } from 'react'
+import React, { useContext, useState } from 'react'
 
 import { ListenerDeclaration, STNode } from "@ballerina/syntax-tree";
 
 import DeleteButton from "../../../../../../assets/icons/DeleteButton";
 import EditButton from "../../../../../../assets/icons/EditButton";
 import ListenerIcon from "../../../../../../assets/icons/ListenerIcon";
+import Tooltip from '../../../../../../components/Tooltip';
+import { Context } from '../../../../../../Contexts/Diagram';
+import { removeStatement } from '../../../../../utils/modification-util';
+import { FormGenerator } from '../../../../FormComponents/FormGenerator';
 
 import "./style.scss";
 
@@ -39,7 +43,7 @@ export function ListenerC(props: ListenerProps) {
                 modifyDiagram
             }
         }
-    } = useContext(DiagramContext);
+    } = useContext(Context);
 
     const [isEditable, setIsEditable] = useState(false);
     const [editingEnabled, setEditingEnabled] = useState(false);

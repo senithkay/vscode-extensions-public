@@ -4,7 +4,7 @@ import { NodePosition, STNode } from "@ballerina/syntax-tree";
 
 import { recalculateSizingAndPositioning, sizingAndPositioning } from "../Utils";
 
-import { LowCodeDiagramContext, LowCodeDiagramState, LowCodeEditorProps } from "./types";
+import { LowCodeDiagramContext, LowCodeDiagramProps, LowCodeDiagramState } from "./types";
 
 const defaultState: any = {};
 export const Context = React.createContext<LowCodeDiagramContext>(defaultState);
@@ -72,7 +72,7 @@ const editorComponentStart = (dispatch: any) => {
     }
 }
 
-export const Provider: React.FC<LowCodeEditorProps> = (props) => {
+export const Provider: React.FC<LowCodeDiagramProps> = (props) => {
     const { children, api, ...restProps } = props;
 
     const [state, dispatch] = useReducer(reducer, {});

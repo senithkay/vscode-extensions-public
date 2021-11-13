@@ -12,20 +12,18 @@
  */
 // tslint:disable: jsx-no-multiline-js ordered-imports
 import React, { useContext, useState } from "react";
+import { FormattedMessage, useIntl } from "react-intl";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
 
 import { FormField } from "../../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../../Contexts/Diagram";
-import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
-import { ConditionConfig, FormElementProps } from "../../../../Types";
-import { wizardStyles } from "../../../style";
-import { FormattedMessage, useIntl } from "react-intl";
-import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
+import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
 import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";
-import { ViewContainer } from "../../../../FormFieldComponents/StatementEditor/components/ViewContainer/ViewContainer";
-import { StatementEditorButton } from "../../../../FormFieldComponents/Button/StatementEditorButton";
+import { useStatementEdior } from "../../../../FormFieldComponents/StatementEditor/hooks";
+import { ConditionConfig, FormElementProps } from "../../../../Types";
+import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 
 interface IfProps {
     condition: ConditionConfig;

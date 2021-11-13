@@ -13,24 +13,23 @@
 // tslint:disable: jsx-no-multiline-js
 // tslint:disable: ordered-imports
 import React, { useContext, useState } from "react";
+import { FormattedMessage, useIntl } from "react-intl";
 
 import { BinaryExpression, ForeachStatement } from "@ballerina/syntax-tree";
-import { Box, FormControl, Typography } from "@material-ui/core";
+import { FormControl, Typography } from "@material-ui/core";
 
 import { FormField } from "../../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../../Contexts/Diagram";
+import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { getAllVariables } from "../../../../../../utils/mixins";
+import { genVariableName } from "../../../../../Portals/utils";
+import { useStyles } from "../../../../DynamicConnectorForm/style";
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
 import { FormTextInput } from "../../../../FormFieldComponents/TextField/FormTextInput";
-import { useStyles } from "../../../../DynamicConnectorForm/style";
-import { ConditionConfig, ForeachConfig, FormElementProps } from "../../../../Types";
-import { genVariableName } from "../../../../../Portals/utils";
-import { wizardStyles } from "../../../style";
-import { FormattedMessage, useIntl } from "react-intl";
-import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";
-import { ViewContainer } from "../../../../FormFieldComponents/StatementEditor/components/ViewContainer/ViewContainer";
-import { StatementEditorButton } from "../../../../FormFieldComponents/Button/StatementEditorButton";
+import { useStatementEdior } from "../../../../FormFieldComponents/StatementEditor/hooks";
+import { ConditionConfig, ForeachConfig, FormElementProps } from "../../../../Types";
+import { wizardStyles } from "../../../style";
 
 interface Iterations {
     start?: string;

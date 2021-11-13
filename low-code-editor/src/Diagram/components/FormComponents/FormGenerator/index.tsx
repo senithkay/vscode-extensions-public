@@ -14,7 +14,7 @@ import React, { useState } from "react";
 
 import { NodePosition, STNode } from "@ballerina/syntax-tree";
 
-import { ConfigOverlayFormStatus } from "../../../../Definitions";
+import { ConfigOverlayFormStatus, STModification } from "../../../../Definitions";
 import { Panel } from "../../Panel";
 import { getForm } from "../Utils";
 

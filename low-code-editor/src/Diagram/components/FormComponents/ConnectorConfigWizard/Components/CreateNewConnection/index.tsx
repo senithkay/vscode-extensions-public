@@ -27,6 +27,7 @@ import { useStyles } from "../../../DynamicConnectorForm/style";
 import { LinePrimaryButton } from "../../../FormFieldComponents/Button/LinePrimaryButton";
 import { PrimaryButton } from "../../../FormFieldComponents/Button/PrimaryButton";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
+import { ExpressionInjectablesProps } from "../../../FormGenerator";
 import { wizardStyles } from "../../style";
 
 interface CreateConnectorFormProps {

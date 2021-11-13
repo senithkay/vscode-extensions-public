@@ -10,13 +10,18 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
-import React, { useContext, useState } from 'react';
+
+import React, { useState } from 'react';
 
 import { ClassDefinition } from '@ballerina/syntax-tree';
 import classNames from 'classnames';
 
 import ClassIcon from '../../../../../../../assets/icons/ClassIcon';
+import DeleteButton from '../../../../../../../assets/icons/DeleteButton';
+import EditButton from '../../../../../../../assets/icons/EditButton';
+import { useDiagramContext } from '../../../../../../../Contexts/Diagram';
+import { removeStatement } from '../../../../../../utils/modification-util';
+import { UnsupportedConfirmButtons } from '../../../../../FormComponents/DialogBoxes/UnsupportedConfirmButtons';
 import { ComponentExpandButton } from '../../../../Components/ComponentExpandButton';
 
 interface ClassHeaderProps {

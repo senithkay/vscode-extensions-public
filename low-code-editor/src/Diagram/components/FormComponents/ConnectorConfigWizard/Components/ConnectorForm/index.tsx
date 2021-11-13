@@ -78,7 +78,7 @@ import {
   matchEndpointToFormField,
 } from "../../../../Portals/utils";
 import { defaultOrgs } from "../../../../Portals/utils/constants";
-import { FormGeneratorProps } from "../../../FormGenerator";
+import { ExpressionInjectablesProps, FormGeneratorProps, InjectableItem } from "../../../FormGenerator";
 import {
   ConnectionType,
   OauthConnectButton,

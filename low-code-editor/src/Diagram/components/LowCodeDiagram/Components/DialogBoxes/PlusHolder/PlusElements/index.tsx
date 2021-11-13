@@ -84,7 +84,7 @@ export function PlusElements(props: PlusElementsProps) {
     const onStatementTypeSelect = (processType: string) => {
         if (processType === "Connector"){
             onChange("APIS", "New", null);
-        }else{
+        } else{
             onChange("STATEMENT", processType);
         }
         if (processType === "Respond") {

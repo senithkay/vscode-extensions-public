@@ -17,7 +17,7 @@ import { STNode } from "@ballerina/syntax-tree";
 import * as c from "../../../constants";
 import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
-import { statementEditorStyles } from "../../ViewContainer/styles";
+import { useStatementEditorStyles } from "../../ViewContainer/styles";
 
 interface VariableStatementProps {
     model: STNode,
@@ -30,7 +30,7 @@ interface VariableStatementProps {
 export function VariableStatement(props: VariableStatementProps) {
     const {model, expressionHandler, isRoot, component, userInputs} = props;
 
-    const overlayClasses = statementEditorStyles();
+    const overlayClasses = useStatementEditorStyles();
 
     const onClickOnRootExpression = (event: any) => {
         event.stopPropagation()

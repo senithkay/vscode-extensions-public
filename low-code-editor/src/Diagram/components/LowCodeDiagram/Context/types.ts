@@ -2,7 +2,7 @@ import { ModulePart, NodePosition, STNode } from "@ballerina/syntax-tree";
 
 import { ConfigOverlayFormStatus } from "../../../../Definitions";
 
-export interface LowCodeEditorProps extends LowCodeDiagramProperties {
+export interface LowCodeDiagramProps extends LowCodeDiagramProperties {
     api?: LowCodeDiagramAPI;
 }
 

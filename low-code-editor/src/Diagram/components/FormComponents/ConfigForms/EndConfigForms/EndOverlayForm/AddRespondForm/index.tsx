@@ -17,16 +17,14 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { Box, FormControl, Typography } from "@material-ui/core";
 import cn from "classnames";
 
-import { httpResponse, PrimitiveBalType, WizardType } from "../../../../../../../ConfigurationSpec/types";
+import { httpResponse, PrimitiveBalType } from "../../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
-import { StatementEditorButton } from "../../../../FormFieldComponents/Button/StatementEditorButton";
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
 import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";
-import { ViewContainer } from "../../../../FormFieldComponents/StatementEditor/components/ViewContainer/ViewContainer";
+import { useStatementEdior } from "../../../../FormFieldComponents/StatementEditor/hooks";
 import { EndConfig, RespondConfig } from "../../../../Types";
-import { wizardStyles } from "../../../style";
 
 interface RespondFormProps {
     config: EndConfig;

@@ -36,6 +36,7 @@ import { functionParamTypes } from "../../../LowCodeDiagram/Components/DialogBox
 import { PrimaryButton } from "../../FormFieldComponents/Button/PrimaryButton";
 import { SecondaryButton } from "../../FormFieldComponents/Button/SecondaryButton";
 import { FormTextInput } from "../../FormFieldComponents/TextField/FormTextInput";
+import { functionReturnTypes } from "../ResourceConfigForm/ApiConfigureWizard/util";
 import { wizardStyles as useFormStyles } from "../style";
 
 interface FunctionConfigFormProps {

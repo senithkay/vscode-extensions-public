@@ -27,7 +27,9 @@ import { PrimitiveBalType } from "../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../Contexts/Diagram";
 import { CompletionParams, CompletionResponse, ExpressionEditorLangClientInterface, TextEdit } from "../../../../../Definitions";
 import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
+import { ExpressionInjectablesProps } from "../../FormGenerator";
 import { FormElementProps } from "../../Types";
+import { configurableTypes, ExpressionConfigurable } from "../ExpressionConfigurable";
 import { ExpressionEditorHint, ExpressionEditorHintProps } from "../ExpressionEditorHint";
 import { ExpressionEditorLabel } from "../ExpressionEditorLabel";
 
@@ -524,7 +526,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 monacoRef.current.editor.removeContentWidget(configurableWidget);
             }
         }
-    }, [configurableTypes, expressionInjectables])
+    }, [configurableTypes, expressionInjectables]);
 
     useEffect(() => {
         // Programatically clear exp-editor

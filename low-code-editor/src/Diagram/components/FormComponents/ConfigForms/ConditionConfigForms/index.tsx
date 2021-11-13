@@ -27,6 +27,7 @@ import {
     updateIfStatementCondition, updateWhileStatementCondition
 } from "../../../../utils/modification-util";
 import { DiagramOverlayPosition } from "../../../Portals/Overlay";
+import { InjectableItem } from "../../FormGenerator";
 import { ConditionConfig, ForeachConfig } from "../../Types";
 
 import { ConditionsOverlayForm } from "./ConditionsOverlayForm";

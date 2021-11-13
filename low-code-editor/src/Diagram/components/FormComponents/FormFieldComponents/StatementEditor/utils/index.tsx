@@ -18,7 +18,7 @@ import { STNode } from "@ballerina/syntax-tree";
 import {
     ExpressionEditorLangClientInterface, PartialSTRequest,
     PartialSTResponse
-} from "../../../../../../../Definitions";
+} from "../../../../../../Definitions";
 import * as expressionTypeComponents from '../components/ExpressionTypes';
 import * as statementTypeComponents from '../components/Statements';
 import * as c from "../constants";

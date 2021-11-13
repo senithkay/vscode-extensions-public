@@ -25,8 +25,7 @@ import { wizardStyles } from "../../../style";
 import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";
-import { ViewContainer } from "../../../../FormFieldComponents/StatementEditor/components/ViewContainer/ViewContainer";
-import { StatementEditorButton } from "../../../../FormFieldComponents/Button/StatementEditorButton";
+import { useStatementEdior } from "../../../../FormFieldComponents/StatementEditor/hooks";
 
 interface ReturnFormProps {
     config: EndConfig;
@@ -38,7 +37,6 @@ interface ReturnFormProps {
 export function AddReturnForm(props: ReturnFormProps) {
     const {
         props: {
-            isCodeEditorActive,
             currentApp,
             isMutationProgress: isMutationInProgress
         }
@@ -46,7 +44,6 @@ export function AddReturnForm(props: ReturnFormProps) {
     const triggerType = currentApp ? currentApp.displayType : undefined;
     const { config, formArgs, onCancel, onSave } = props;
     const classes = useStyles();
-    const overlayClasses = wizardStyles();
     const intl = useIntl();
 
     const [returnExpression, setReturnExpression] = useState(config.expression);
@@ -64,7 +61,6 @@ export function AddReturnForm(props: ReturnFormProps) {
         setIsValidValue(!isInvalid || (returnExpression === ""));
     };
 
-    const isButtonDisabled = isMutationInProgress || !isValidValue;
 
     const saveReturnButtonLabel = intl.formatMessage({
         id: "lowcode.develop.configForms.return.saveButton.label",
@@ -86,7 +82,6 @@ export function AddReturnForm(props: ReturnFormProps) {
         }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
     };
 
-    const containsMainFunction = triggerType && (triggerType === "Manual" || triggerType === "Schedule"); // todo: this is not working due to triggerType is blank.
 
     const {stmtEditorButton , stmtEditorComponent} = useStatementEdior(
         {

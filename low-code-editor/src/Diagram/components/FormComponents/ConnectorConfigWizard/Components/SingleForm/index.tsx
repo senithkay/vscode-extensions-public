@@ -27,6 +27,7 @@ import { Form } from "../../../DynamicConnectorForm";
 import { useStyles } from "../../../DynamicConnectorForm/style";
 import { PrimaryButton } from "../../../FormFieldComponents/Button/PrimaryButton";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
+import { ExpressionInjectablesProps } from '../../../FormGenerator';
 import { wizardStyles } from "../../style";
 import { ConnectorOperation } from '../ConnectorForm';
 

@@ -29,6 +29,7 @@ import {
 } from "../../../../utils/modification-util";
 import { generateInlineRecordForJson, getDefaultValueForType } from "../../../LowCodeDiagram/Components/RenderingComponents/DataMapper/util";
 import { DiagramOverlayPosition } from "../../../Portals/Overlay";
+import { InjectableItem } from "../../FormGenerator";
 import { CustomExpressionConfig, DataMapperConfig, LogConfig, ProcessConfig } from "../../Types";
 
 import { ProcessForm } from "./ProcessForm";

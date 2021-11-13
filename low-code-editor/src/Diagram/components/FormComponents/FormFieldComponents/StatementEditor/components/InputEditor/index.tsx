@@ -23,9 +23,9 @@ import {
     traversNode
 } from "@ballerina/syntax-tree";
 import debounce from "lodash.debounce";
-import { monaco } from "react-monaco-editor";
+
 import { Context } from "../../../../../../../Contexts/Diagram";
-import { ExpressionEditorLangClientInterface } from "../../../../../../../Definitions";
+import { CompletionParams, CompletionResponse, ExpressionEditorLangClientInterface } from "../../../../../../../Definitions";
 import { addToTargetLine, addToTargetPosition, getDiagnosticMessage, getFilteredDiagnostics, getTargetPosition } from "../../../ExpressionEditor/utils";
 import * as c from "../../constants";
 import { SuggestionItem, VariableUserInputs } from "../../models/definitions";

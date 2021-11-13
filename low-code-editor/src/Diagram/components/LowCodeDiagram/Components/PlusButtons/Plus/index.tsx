@@ -46,7 +46,7 @@ export const PlusButton = (props: PlusProps) => {
             syntaxTree,
             isReadOnly
         },
-        actions: { diagramCleanDraw, diagramRedraw }
+        actions: { diagramCleanDraw, diagramRedraw },
     } = useContext(Context);
 
     const { viewState, model, initPlus } = props;

@@ -13,7 +13,7 @@
 // tslint:disable: ordered-imports
 import { FunctionDefinition, NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import { Diagnostic, Range } from "monaco-languageclient";
-import { ExpEditorExpandSvg, ExpEditorCollapseSvg } from "../../../../../assets";
+import { ExpEditorExpandSvg, ExpEditorCollapseSvg, ConfigurableIconSvg } from "../../../../../assets";
 
 import * as monaco from 'monaco-editor';
 
@@ -39,8 +39,8 @@ import {
 import "./style.scss";
 import { ExpressionEditorHintProps, HintType } from "../ExpressionEditorHint";
 import MonacoEditor from "react-monaco-editor";
-import { InsertorDelete } from "../../../../../utils/modification-util";
-import { InjectableItem } from "../../../../FormGenerator";
+import { InjectableItem } from "../../FormGenerator";
+import { InsertorDelete } from "../../../../utils/modification-util";
 
 
 // return true if there is any diagnostic of severity === 1

@@ -11,8 +11,8 @@
  * associated services.
  */
 import { BinaryExpressionC } from './BinaryExpression';
-import { CaptureBindingPatternC } from './BindingPattern/CaptureBindingPattern';
 import { BracedExpressionC } from './BracedExpression';
+import { CaptureBindingPatternC } from './CaptureBindingPattern';
 import { BooleanLiteralC } from './Literal/Boolean';
 import { NumericLiteralC } from './Literal/Numeric';
 import { StringLiteralC } from './Literal/String';

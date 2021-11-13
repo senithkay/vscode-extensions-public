@@ -19,7 +19,9 @@ import { FormHelperText } from "@material-ui/core";
 
 import CheckBoxGroup from "../../../../../FormFieldComponents/CheckBox";
 import { SelectDropdownWithButton } from "../../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
+import ExpressionEditor from "../../../../../FormFieldComponents/ExpressionEditor";
 import { FormTextInput } from "../../../../../FormFieldComponents/TextField/FormTextInput";
+import { FormElementProps } from "../../../../../Types";
 import { wizardStyles as useFormStyles } from "../../../../style";
 import { ListenerConfigFormState, ServiceConfigActions, ServiceConfigActionTypes } from "../util/reducer";
 
@@ -78,7 +80,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                 defaultValue={!state.createNewListener ? state.listenerName : 'Create New'}
             />
         </>
-    )
+    );
 
     const listenerNameInputComponent = (
         <>

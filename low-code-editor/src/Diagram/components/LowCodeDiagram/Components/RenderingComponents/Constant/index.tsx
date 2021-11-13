@@ -19,6 +19,11 @@ import classNames from "classnames";
 import ConstantIcon from "../../../../../../assets/icons/ConstantIcon";
 import DeleteButton from "../../../../../../assets/icons/DeleteButton";
 import EditButton from "../../../../../../assets/icons/EditButton";
+import Tooltip from "../../../../../../components/Tooltip";
+import { useDiagramContext } from "../../../../../../Contexts/Diagram";
+import { removeStatement } from "../../../../../utils/modification-util";
+import { UnsupportedConfirmButtons } from "../../../../FormComponents/DialogBoxes/UnsupportedConfirmButtons";
+import { FormGenerator } from "../../../../FormComponents/FormGenerator";
 
 import "./style.scss";
 

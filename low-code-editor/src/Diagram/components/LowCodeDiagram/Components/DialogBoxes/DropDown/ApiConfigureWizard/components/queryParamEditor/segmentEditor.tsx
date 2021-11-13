@@ -28,15 +28,16 @@ import { useStyles } from './style';
 
 interface PathSegmentEditorProps {
     id?: number;
-    segment?: QueryParam,
+    segment?: QueryParam;
     onSave?: (segment: QueryParam) => void;
     onCancel?: () => void;
-    params?: QueryParam[],
+    params?: QueryParam[];
     types?: string[];
+    validateParams?: (paramName: string) => { error: boolean, message: string };
 }
 
 export function QueryParamSegmentEditor(props: PathSegmentEditorProps) {
-    const { segment, onSave, id, onCancel, types, params } = props;
+    const { segment, onSave, id, onCancel, types, params, validateParams } = props;
     const classes = useStyles();
     const { props: { stSymbolInfo } } = useContext(Context);
     const initValue: QueryParam = segment ? { ...segment } : {
@@ -64,18 +65,12 @@ export function QueryParamSegmentEditor(props: PathSegmentEditorProps) {
 
     const validateNameValue = (value: string) => {
         if (value) {
-            if (params){
-                if (params.some(item => item.name === value)){
-                    setParamError(`${value} already exists`);
-                    return false;
-                }
-            }else{
-                const varValidationResponse = checkVariableName("query param name", value,
-                "", stSymbolInfo);
-                if (varValidationResponse?.error) {
-                    setParamError(varValidationResponse.message);
-                    return false;
-                }
+            const varValidationResponse = validateParams
+                ? validateParams(value)
+                : checkVariableName("query param name", value, "", stSymbolInfo);
+            if (varValidationResponse?.error) {
+                setParamError(varValidationResponse.message);
+                return false;
             }
         }
         setParamError("");

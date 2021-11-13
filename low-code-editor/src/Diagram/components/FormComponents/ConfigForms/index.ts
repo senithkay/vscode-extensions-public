@@ -11,12 +11,12 @@
  * associated services.
  */
 
-import { APIOptions } from "../../LowCodeDiagram/Components/DialogBoxes/PlusHolder/PlusElementOptions/APIOptions";
 import { ConnectorForm } from "../ConnectorConfigWizard/Components/ConnectorForm";
 
 import { APIConfigForm } from "./APIConfigForm";
 import { ConditionConfigForm } from "./ConditionConfigForms";
 import { ConnectorInitForm } from "./ConnectorInitForm";
+import { ConnectorList } from "./ConnectorList";
 import { EndConfigForm } from "./EndConfigForms";
 import { FunctionConfigForm } from './FunctionConfigForm';
 import { ProcessConfigForm } from "./ProcessConfigForms";
@@ -35,7 +35,7 @@ export { ConditionConfigForm as ForEach };
 export { ConditionConfigForm as While };
 export { ProcessConfigForm as Variable };
 export { ProcessConfigForm as Log };
-export { APIOptions as ConnectorList };
+export { ConnectorList as ConnectorList };
 export { ConnectorForm as Connector };
 export { ProcessConfigForm as Custom };
 export { ProcessConfigForm as DataMapper };

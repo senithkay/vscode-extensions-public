@@ -15,11 +15,9 @@ import React from 'react';
 import { Story } from '@storybook/react';
 
 import { LowCodeEditorProps } from '../../../../../../..';
-import { Provider as DiagramProvider } from '../../../../../../Contexts/Diagram';
 
 import { ClassComponent } from '.';
 import classDecl from "./story-data/classdef-st-raw.json";
-
 
 // tslint:disable-next-line: no-submodule-imports
 
@@ -30,9 +28,7 @@ export default {
 
 const Template: Story<LowCodeEditorProps> = (args: LowCodeEditorProps) =>
 (
-    <DiagramProvider {...args} >
-        <ClassComponent model={(args as any).model} />
-    </DiagramProvider>
+    <ClassComponent model={(args as any).model} />
 );
 
 export const ClassDeclaration = Template.bind({});

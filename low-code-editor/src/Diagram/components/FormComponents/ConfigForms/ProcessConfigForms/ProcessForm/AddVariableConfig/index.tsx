@@ -16,18 +16,16 @@ import { FormattedMessage, useIntl } from "react-intl";
 
 import { LocalVarDecl, STKindChecker } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
-import classnames from "classnames";
 
 import { PrimitiveBalType } from "../../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { checkVariableName } from "../../../../../Portals/utils";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
-import { StatementEditorButton } from "../../../../FormFieldComponents/Button/StatementEditorButton";
 import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
 import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";
-import { ViewContainer } from "../../../../FormFieldComponents/StatementEditor/components/ViewContainer/ViewContainer";
+import { useStatementEdior } from "../../../../FormFieldComponents/StatementEditor/hooks";
 import { FormTextInput } from "../../../../FormFieldComponents/TextField/FormTextInput";
 import { ProcessConfig } from "../../../../Types";
 import { wizardStyles } from "../../../style";

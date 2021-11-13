@@ -53,6 +53,7 @@ import { getUnionFormFieldName } from "../../FormComponents/FormFieldComponents/
 import { FormElementProps } from "../../FormComponents/Types";
 import * as OverlayElement from "../../LowCodeDiagram/Components/DialogBoxes";
 import * as ConnectorIcons from "../../LowCodeDiagram/Components/RenderingComponents/Connector/Icon";
+import { DefaultConnectorIcon } from "../../LowCodeDiagram/Components/RenderingComponents/Connector/Icon/DefaultConnectorIcon";
 import { StatementViewState } from "../../LowCodeDiagram/ViewState";
 
 import { keywords, symbolKind } from "./constants";

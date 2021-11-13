@@ -27,13 +27,14 @@ import { useStyles } from './style';
 interface PathSegmentEditorProps {
     id?: number;
     showDefaultError?: boolean;
-    segment?: ReturnType,
+    segment?: ReturnType;
     onSave?: (segment: ReturnType) => void;
     onCancel?: () => void;
+    returnTypesValues?: string[];
 }
 
 export function ReturnTypeSegmentEditor(props: PathSegmentEditorProps) {
-    const { segment, showDefaultError, onSave, id, onCancel } = props;
+    const { segment, showDefaultError, onSave, id, onCancel, returnTypesValues = returnTypes } = props;
     const classes = useStyles();
 
     const initValue: ReturnType = segment ? { ...segment } : {
@@ -82,7 +83,7 @@ export function ReturnTypeSegmentEditor(props: PathSegmentEditorProps) {
                             defaultValue={segmentState?.type === "error" ? "" : segmentState?.type}
                             customProps={
                                 {
-                                    values: returnTypes,
+                                    values: returnTypesValues,
                                     disableCreateNew: true,
                                 }
                             }

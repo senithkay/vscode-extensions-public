@@ -1,19 +1,13 @@
 import React from "react";
 
-import { CanvasDiagram } from "./CanvasContainer";
-import { Provider as DiagramContext } from "./Context/diagram";
-import { LowCodeEditorProps } from "./Context/types";
-import { getSTComponent } from "./Utils";
+import LowCodeDiagramRenderer from "./container";
+import { Provider as  DiagramContext} from "./Context/diagram";
+import { LowCodeDiagramProps } from "./Context/types";
 
-export default function LowCodeDiagram(props: LowCodeEditorProps) {
-    const {syntaxTree} = props;
-    const child = getSTComponent(syntaxTree);
-
+export default function LowCodeDiagram(props: LowCodeDiagramProps) {
     return (
         <DiagramContext {...props}>
-            <CanvasDiagram>
-                {child}
-            </CanvasDiagram>
+            <LowCodeDiagramRenderer />
         </DiagramContext>
     );
 }
