@@ -11,32 +11,71 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React  from 'react';
+import React from 'react';
 
-import { STNode } from "@ballerina/syntax-tree";
+import { NodePosition, RecordTypeDesc, STKindChecker, TypeDefinition } from "@ballerina/syntax-tree";
 
 import { ConfigOverlayFormStatus } from "../../../../../Definitions";
 
-import { RecordFromJson } from "./RecordFromJson";
+import { Record } from "./Record";
+import { RecordModel } from "./types";
+import { getRecordModel } from "./utils";
 
 export interface RecordEditorProps {
-    model?: STNode;
-    configOverlayFormStatus: ConfigOverlayFormStatus;
-    onCancel?: () => void;
-    onSave?: () => void;
+    name: string;
+    existingModel?: RecordModel;
+    model?: RecordTypeDesc | TypeDefinition;
+    targetPosition?: NodePosition;
+    isTypeDefinition?: boolean;
+    onCancel: () => void;
+    onSave: (typeDesc: string, recModel: RecordModel) => void;
 }
 
 export function RecordEditor(props: RecordEditorProps) {
-    const { onCancel, onSave, configOverlayFormStatus } = props;
-    const { formArgs, formType } = configOverlayFormStatus;
+    const { existingModel, name, onCancel, onSave, model, targetPosition, isTypeDefinition = true } = props;
+    let recordModel: RecordModel;
+    if (model && STKindChecker.isRecordTypeDesc(model)) {
+        recordModel = getRecordModel(model, name, true, "record");
+        recordModel.isActive = true;
+    } else if (model && STKindChecker.isTypeDefinition(model)) {
+        if (STKindChecker.isRecordTypeDesc(model.typeDescriptor)) {
+            recordModel = getRecordModel(model.typeDescriptor, model.typeName.value, true, "record");
+            recordModel.isActive = true;
+            recordModel.isPublic = (model?.visibilityQualifier?.value === "public");
+        }
+    } else if (existingModel) {
+        recordModel = existingModel;
+    } else if (targetPosition) {
+        // Constructs a new model
+        recordModel = {
+            name,
+            isClosed: false,
+            isOptional: false,
+            isArray: false,
+            fields: [],
+            type: "record",
+            isInline: true,
+            isActive: true
+        }
+    }
+    recordModel.isTypeDefinition = (isTypeDefinition || STKindChecker.isTypeDefinition(model));
 
     return (
-        <div>
-            {formArgs.targetPosition && (
-                <div>
-                    <RecordFromJson onCancel={onCancel} onSave={onSave} targetPosition={formArgs.targetPosition} />
-                </div>
+        <RecordEditorProvider
+            state={{
+                recordModel,
+                currentForm: FormState.EDIT_RECORD_FORM,
+                currentRecord: recordModel,
+                sourceModel: model,
+                isEditorInvalid: false,
+                targetPosition,
+                onSave,
+                onCancel
+            }}
+        >
+            {recordModel && (
+                <Record/>
             )}
-        </div>
+        </RecordEditorProvider>
     );
 }

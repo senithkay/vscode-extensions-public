@@ -166,14 +166,15 @@ export function ActionProcessor(props: ProcessorProps) {
     // let exsitingWizard: ReactNode = null;
     const toggleSelection = () => {
         const connectorInit: LocalVarDecl = model as LocalVarDecl;
-        // setConnector(getMatchingConnector(connectorInit, connectors, stSymbolInfo));
+        const matchedConnector = getMatchingConnector(connectorInit, stSymbolInfo);
+        if (matchedConnector) {
+            setConnector(matchedConnector);
+        }
         setIsConnectorEdit(!isEditConnector);
     };
 
     const onClickOpenInCodeView = () => {
-        // maximizeCodeView("home", "vertical", appId);
-        // handleRightPanelContent('Code');
-        // setCodeToHighlight(model.position)
+        setCodeToHighlight(model.position)
     }
 
     const toolTip = isReferencedVariable ? "Variable is referred in the code below" : undefined;
@@ -246,7 +247,9 @@ export function ActionProcessor(props: ProcessorProps) {
                                             selectedConnector={draftViewState.selectedConnector}
                                             model={model}
                                             onClose={onWizardClose}
+                                            onSave={onWizardClose}
                                             isAction={true}
+                                            isEdit={isEditConnector}
                                         />
                                     )}
                                 </g>

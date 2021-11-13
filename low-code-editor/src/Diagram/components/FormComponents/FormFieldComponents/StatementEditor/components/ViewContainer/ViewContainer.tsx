@@ -11,25 +11,25 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useIntl } from "react-intl";
 
-import { STNode } from "@ballerina/syntax-tree";
+import { NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
 
 import { wizardStyles } from "../../../../ConfigForms/style";
 import { PrimaryButton } from "../../../Button/PrimaryButton";
 import { SecondaryButton } from "../../../Button/SecondaryButton";
 import { VariableUserInputs } from '../../models/definitions';
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
-import { getDefaultModel } from "../../utils";
+import { getPartialSTForStatement } from "../../utils";
 import { LeftPane } from '../LeftPane';
 import { RightPane } from '../RightPane';
 
 import { useStatementEditorStyles } from "./styles";
 
 export interface ViewProps {
-    kind: string,
     label: string,
+    initialSource: string,
     formArgs: any,
     userInputs?: VariableUserInputs,
     validate?: (field: string, isInvalid: boolean, isEmpty: boolean) => void
@@ -37,13 +37,23 @@ export interface ViewProps {
     validForm?: boolean
     onCancel?: () => void
     onSave?: () => void
-    onChange?: (property: string) => void
+    onChange?: (property: string) => void,
+    handleNameOnChange?: (name: string) => void
+    handleTypeChange?: (name: string) => void
 }
 
 export function ViewContainer(props: ViewProps) {
     const {
-        kind,
+        props: {
+            langServerURL,
+        },
+        api: {
+            ls
+        }
+    } = useContext(Context);
+    const {
         label,
+        initialSource,
         formArgs,
         userInputs,
         validate,
@@ -51,13 +61,42 @@ export function ViewContainer(props: ViewProps) {
         validForm,
         onCancel,
         onSave,
-        onChange
+        onChange,
+        handleNameOnChange,
+        handleTypeChange
     } = props;
     const intl = useIntl();
 
-    const stmtModel = formArgs.model ? formArgs.model : getDefaultModel(kind);
+    const [model, setModel] = useState<STNode>(null);
 
-    const [model] = useState({ ...stmtModel });
+    if (!userInputs?.varName && !!handleNameOnChange){
+        handleNameOnChange("default")
+    }
+
+    useEffect(() => {
+        (async () => {
+            const partialST: STNode = await getPartialSTForStatement({codeSnippet: initialSource}, langServerURL, ls);
+            setModel(partialST);
+        })();
+    }, []);
+
+    useEffect(() => {
+        if (!!model && STKindChecker.isLocalVarDecl(model)) {
+            handleNameOnChange(model.typedBindingPattern.bindingPattern.source)
+            handleTypeChange(model.typedBindingPattern.typeDescriptor.source)
+        }
+    }, [model]);
+    const updateModel = async (codeSnippet : string, position: NodePosition) => {
+        const stModification = {
+            startLine: position.startLine,
+            startColumn: position.startColumn,
+            endLine: position.endLine,
+            endColumn: position.endColumn,
+            newCodeSnippet: codeSnippet
+        }
+        const partialST: STNode = await getPartialSTForStatement({codeSnippet : model.source, stModification}, langServerURL, ls);
+        setModel(partialST);
+    }
 
     const [currentModel, setCurrentModel] = useState({ model });
 
@@ -93,43 +132,44 @@ export function ViewContainer(props: ViewProps) {
     });
 
     return (
-        <div className={overlayClasses.stmtEditor}>
-            <div className={overlayClasses.titleLine}/>
-            <div className={overlayClasses.contentPane}>
-                <StatementEditorContextProvider
-                    model={model}
-                    onCancelClicked={onCancelClicked}
-                    onSave={onSave}
-                    onChange={onChange}
-                    validate={validate}
-                >
-                    <LeftPane
-                        currentModel={currentModel}
-                        kind={kind}
-                        label={label}
-                        userInputs={userInputs}
-                        currentModelHandler={currentModelHandler}
-                    />
-                </StatementEditorContextProvider>
-                <div className={overlayClasses.vl}/>
-                <RightPane/>
-            </div>
-            <div className={overlayClasses.bottomPane}>
-                <div className={wizardStylesClasses.buttonWrapper}>
-                    <SecondaryButton
-                        text={cancelVariableButtonText}
-                        fullWidth={false}
-                        onClick={onCancelHandler}
-                    />
-                    <PrimaryButton
-                        dataTestId="save-btn"
-                        text={saveVariableButtonText}
-                        disabled={isMutationInProgress || !validForm}
-                        fullWidth={false}
-                        onClick={onSave}
-                    />
+        model && (
+            <div className={overlayClasses.stmtEditor}>
+                <div className={overlayClasses.contentPane}>
+                    <StatementEditorContextProvider
+                        model={model}
+                        onCancelClicked={onCancelClicked}
+                        onSave={onSave}
+                        onChange={onChange}
+                        validate={validate}
+                        updateModel={updateModel}
+                    >
+                        <LeftPane
+                            currentModel={currentModel}
+                            label={label}
+                            userInputs={userInputs}
+                            currentModelHandler={currentModelHandler}
+                        />
+                    </StatementEditorContextProvider>
+                    <div className={overlayClasses.vl}/>
+                    <RightPane/>
+                </div>
+                <div className={overlayClasses.bottomPane}>
+                    <div className={wizardStylesClasses.buttonWrapper}>
+                        <SecondaryButton
+                            text={cancelVariableButtonText}
+                            fullWidth={false}
+                            onClick={onCancelHandler}
+                        />
+                        <PrimaryButton
+                            dataTestId="save-btn"
+                            text={saveVariableButtonText}
+                            disabled={isMutationInProgress || !validForm}
+                            fullWidth={false}
+                            onClick={onSave}
+                        />
+                    </div>
                 </div>
             </div>
-        </div>
+        )
     )
 }

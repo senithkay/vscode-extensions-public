@@ -90,18 +90,18 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
     }
 
-    const {stmtEditorButton , stmtEditorComponent} = useStatementEdior(
+    const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {
-            kind: "DefaultString",
-            label: "Variable Statement",
+            label: intl.formatMessage({id: "lowcode.develop.configForms.customStatement.statementEditor.label"}),
+            initialSource: expression,
             formArgs: {formArgs},
             isMutationInProgress,
             validForm: isFormValid,
             onSave: onSaveBtnClick,
             onChange: onExpressionChange,
             validate: validateExpression
-        },
-        true);
+        }
+    );
 
     if (!stmtEditorComponent){
         return (

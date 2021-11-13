@@ -13,11 +13,7 @@
 import { ListenerConfig } from "./types";
 
 export function isListenerConfigValid(config: ListenerConfig): boolean {
-    const { listenerName, listenerPort } = config;
+    const { listenerName, listenerPort, isExpressionValid: isListenerNameValid } = config;
 
-    const portNumberRegex = new RegExp("^[0-9]*$");
-    const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
-
-    return listenerPort.length > 0 && portNumberRegex.test(listenerPort)
-            && listenerName.length > 0 && nameRegex.test(listenerName);
+    return listenerPort.length > 0 && listenerName.length > 0 && isListenerNameValid;
 }

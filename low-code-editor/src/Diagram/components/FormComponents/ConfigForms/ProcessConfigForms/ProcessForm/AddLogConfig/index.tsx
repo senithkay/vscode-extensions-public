@@ -108,19 +108,23 @@ export function AddLogConfig(props: LogConfigProps) {
         }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
     }
 
+    const initialSource = getInitialSource(createLogStatement(
+        logType,
+        expression ? expression : 'EXPRESSION'
+    ));
 
-    const {stmtEditorButton , stmtEditorComponent} = useStatementEdior(
-                                                {
-                                                    kind: "DefaultString",
-                                                    label: "Variable Statement",
-                                                    formArgs: {formArgs},
-                                                    isMutationInProgress,
-                                                    validForm: !!isFormValid,
-                                                    onSave: onSaveBtnClick,
-                                                    onChange: onExpressionChange,
-                                                    validate: validateExpression
-                                                },
-                                                true);
+    const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
+        {
+            label: intl.formatMessage({id: "lowcode.develop.configForms.log.statementEditor.label"}),
+            initialSource,
+            formArgs: {formArgs},
+            isMutationInProgress,
+            validForm: !!isFormValid,
+            onSave: onSaveBtnClick,
+            onChange: onExpressionChange,
+            validate: validateExpression
+        }
+    );
 
     if (!stmtEditorComponent) {
         return (
@@ -148,14 +152,18 @@ export function AddLogConfig(props: LogConfigProps) {
                             />
                             <div className="exp-wrapper">
                                 <ExpressionEditor
-                                    model={{ name: "expression", type: 'string' }}
+                                    model={{ name: "expression", value: expression, typeName: 'string' }}
                                     customProps={{
                                         validate: validateExpression,
                                         tooltipTitle: logTooltipMessages.title,
                                         tooltipActionText: logTooltipMessages.actionText,
                                         tooltipActionLink: logTooltipMessages.actionLink,
                                         interactive: true,
-                                        statementType: 'string'
+                                        statementType: 'string',
+                                        expressionInjectables: {
+                                            list: formArgs?.expressionInjectables?.list,
+                                            setInjectables: formArgs?.expressionInjectables?.setInjectables
+                                        }
                                     }}
                                     onChange={onExpressionChange}
                                     defaultValue={expression}

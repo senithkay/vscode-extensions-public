@@ -54,7 +54,7 @@ export function ProcessConfigForm(props: any) {
                 modifyDiagram,
             }
         },
-        props: { currentApp, stSymbolInfo }
+        props: { stSymbolInfo }
     } = useContext(Context);
 
     const { onCancel, onSave, configOverlayFormStatus, targetPosition } = props as AddProcessFormProps;
@@ -142,9 +142,7 @@ export function ProcessConfigForm(props: any) {
                             break;
                         case 'record':
                             const outputTypeInfo = datamapperConfig.outputType?.typeInfo;
-                            outputType = outputTypeInfo.moduleName === currentApp.name ?
-                                outputTypeInfo.name
-                                : `${outputTypeInfo.moduleName}:${outputTypeInfo.name}`
+                            outputType = `${outputTypeInfo.moduleName}:${outputTypeInfo.name}`
                             break;
                         default:
                             outputType = datamapperConfig.outputType.type;

@@ -96,9 +96,7 @@ export function Respond(props: RespondProps) {
     };
 
     const onClickOpenInCodeView = () => {
-        // maximizeCodeView("home", "vertical", appId);
-        // handleRightPanelContent('Code');
-        // setCodeToHighlight(model.position);
+        setCodeToHighlight(model.position)
     }
 
     const component: React.ReactElement = (!model?.viewState.collapsed &&

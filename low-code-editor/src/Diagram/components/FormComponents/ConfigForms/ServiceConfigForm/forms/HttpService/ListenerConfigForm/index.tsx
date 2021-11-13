@@ -83,20 +83,19 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
     );
 
     const listenerNameInputComponent = (
-        <>
-            <div className={formClasses.labelWrapper}>
-                <FormHelperText className={formClasses.inputLabelForRequired}>
-                    <FormattedMessage
-                        id="lowcode.develop.connectorForms.HTTP.listenerName"
-                        defaultMessage="Listener Name :"
-                    />
-                </FormHelperText>
-            </div>
-            <FormTextInput
-                dataTestId="listener-name"
-                onChange={onListenerNameChange}
-            />
-        </>
+        <VariableNameInput
+            displayName="Listener Name"
+            isEdit={false}
+            onValueChange={onListenerNameChange}
+            validateExpression={validateField}
+            position={{
+                startLine: targetPosition.startLine,
+                endLine: targetPosition.startLine,
+                startColumn: 0,
+                endColumn: 0
+            }}
+            value={state.listenerName}
+        />
     )
 
     const portNumberExpressionEditorProps: FormElementProps = {
@@ -123,7 +122,6 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
     const listenerPortInputComponent = (
         <ExpressionEditor
             {...portNumberExpressionEditorProps}
-
         />
     )
 

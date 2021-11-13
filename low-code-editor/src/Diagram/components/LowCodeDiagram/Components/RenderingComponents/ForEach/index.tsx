@@ -64,16 +64,11 @@ export function ForEach(props: ForeachProps) {
             diagramCleanDraw, diagramRedraw, insertComponentStart
         },
         api: {
-            splitPanel: {
-                handleRightPanelContent,
-                maximize: maximizeCodeView,
-            },
             code: {
                 setCodeLocationToHighlight: setCodeToHighlight,
             }
         },
         props: {
-            currentApp,
             syntaxTree,
             isReadOnly,
             isMutationProgress,
@@ -99,8 +94,6 @@ export function ForEach(props: ForeachProps) {
     const y: number = viewState.foreachHead.cy - (viewState.foreachHead.h / 2) - (FOREACH_SHADOW_OFFSET / 2);
     const r: number = DefaultConfig.forEach.radius;
     const paddingUnfold = DefaultConfig.forEach.paddingUnfold;
-
-    const { id: appId } = currentApp || {};
 
     let drafts: React.ReactNode[] = [];
     if (bodyViewState.draft) {
@@ -218,8 +211,6 @@ export function ForEach(props: ForeachProps) {
     }
 
     const onClickOpenInCodeView = () => {
-        maximizeCodeView("home", "vertical", appId);
-        handleRightPanelContent('Code');
         setCodeToHighlight(model?.position)
     }
 
@@ -233,6 +224,8 @@ export function ForEach(props: ForeachProps) {
     const keyWord = forEachModel.inKeyword.value
     const forEachSource = forEachModel?.actionOrExpressionNode?.source;
     assignmentText = variableName + " " + keyWord + " " + forEachSource;
+    const diagnostics = forEachModel?.actionOrExpressionNode?.typeData.diagnostics;
+    const ForeachWrapper = diagnostics?.length !== 0 ? cn("foreach-block-error") : cn("foreach-block") ;
 
     const unFoldedComponent = (
         <g className="foreach-block" data-testid="foreach-block">
@@ -374,7 +367,7 @@ export function ForEach(props: ForeachProps) {
     );
 
     return (
-        <g className="foreach-wrapper">
+        <g className={ForeachWrapper}>
             <g>
                 {foreachComponent}
             </g>

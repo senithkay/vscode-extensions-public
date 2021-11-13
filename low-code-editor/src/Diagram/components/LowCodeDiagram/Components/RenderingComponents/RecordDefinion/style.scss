@@ -50,6 +50,7 @@
             .record-name {
                 padding-left: 10px;
                 color: #8d91a3;
+                font-weight: normal;
             }
         }
 
@@ -99,6 +100,16 @@
                 color: #1d2028;
                 margin-left: 12px;
             }
+        }
+    }
+
+    .show-on-hover {
+        display: none;
+    }
+
+    &:hover {
+        .show-on-hover {
+            display: block;
         }
     }
 }

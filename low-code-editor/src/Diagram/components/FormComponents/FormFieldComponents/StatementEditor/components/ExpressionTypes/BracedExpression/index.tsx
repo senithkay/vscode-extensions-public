@@ -24,7 +24,7 @@ interface BracedExprProps {
     diagnosticHandler: (diagnostics: string) => void
 }
 
-export function BracedExpressionC(props: BracedExprProps) {
+export function BracedExpressionComponent(props: BracedExprProps) {
     const { model, userInputs, diagnosticHandler } = props;
 
     const expressionComponent: ReactNode = <ExpressionComponent

@@ -1,0 +1,30 @@
+name: "Daily Publish Low Code Editor"
+
+on:
+  workflow_dispatch:
+    branches: [main]
+  schedule:
+    - cron: '0 0 * * *'
+
+defaults:
+  run:
+    working-directory: low-code-editor
+
+jobs:
+  publish-package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup NodeJS
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16.x'
+          registry-url: 'https://npm.pkg.github.com'
+      - name: Get current timestamp
+        id: timestamp
+        run: echo "::set-output name=timestamp::$(date +'%Y%m%d-%H%M')"
+      - run: npm version prepatch --preid=${{ steps.timestamp.outputs.timestamp }}
+      - run: npm publish --tag next
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}

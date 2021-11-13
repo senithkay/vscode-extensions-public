@@ -22,13 +22,13 @@ import { ConfigOverlayFormStatus } from "../../../../../Definitions";
 import { STModification } from "../../../../../Definitions/lang-client-extended";
 import { EVENT_TYPE_AZURE_APP_INSIGHTS, FINISH_STATEMENT_ADD_INSIGHTS, LowcodeEvent } from "../../../../models";
 import {
-    createForeachStatement,
-    createIfStatement, createWhileStatement, updateForEachCondition,
+    createElseIfStatement, createElseStatement,
+    createForeachStatement, createIfStatement, createWhileStatement, updateForEachCondition,
     updateIfStatementCondition, updateWhileStatementCondition
 } from "../../../../utils/modification-util";
 import { DiagramOverlayPosition } from "../../../Portals/Overlay";
 import { InjectableItem } from "../../FormGenerator";
-import { ConditionConfig, ForeachConfig } from "../../Types";
+import { ConditionConfig, ElseIfConfig, ForeachConfig } from "../../Types";
 
 import { ConditionsOverlayForm } from "./ConditionsOverlayForm";
 
@@ -56,10 +56,19 @@ export function ConditionConfigForm(props: ConditionConfigFormProps) {
 
     switch (formType) {
         case "If":
+            conditionConfig = {
+                type: formType,
+                conditionExpression: formArgs?.config && formArgs?.config.conditionExpression
+                    ? formArgs?.config.conditionExpression
+                    : {values: [{id: 0, expression: "", position: formArgs?.targetPosition}]},
+                scopeSymbols: [],
+            };
+            break;
         case "While":
             conditionConfig = {
                 type: formType,
-                conditionExpression: formArgs?.config && formArgs?.config.conditionExpression ? formArgs?.config.conditionExpression : '',
+                conditionExpression: formArgs?.config && formArgs?.config.conditionExpression
+                    ? formArgs?.config.conditionExpression : '',
                 scopeSymbols: [],
             };
             break;
@@ -93,8 +102,8 @@ export function ConditionConfigForm(props: ConditionConfigFormProps) {
             }
 
             if (formType === "If") {
-                const ifConfig: ConditionConfig = conditionConfig as ConditionConfig;
-                const conditionExpression: string = ifConfig.conditionExpression as string;
+                const ifConfig: ElseIfConfig = conditionConfig.conditionExpression as ElseIfConfig;
+                const compList = ifConfig?.values;
                 if (!formArgs?.config) {
                     const event: LowcodeEvent = {
                         type: EVENT_TYPE_AZURE_APP_INSIGHTS,
@@ -102,9 +111,17 @@ export function ConditionConfigForm(props: ConditionConfigFormProps) {
                         property: formType
                     };
                     onEvent(event);
-                    modifications.push(createIfStatement(conditionExpression, formArgs?.targetPosition));
+                    modifications.push(createIfStatement(compList[0]?.expression, formArgs?.targetPosition));
+                    if (compList.length > 1){
+                        ifConfig?.values.slice(1).forEach((value) => {
+                            modifications.push(createElseIfStatement(value.expression, formArgs?.targetPosition));
+                        })
+                    }
+                    modifications.push(createElseStatement(formArgs?.targetPosition));
                 } else {
-                    modifications.push(updateIfStatementCondition(conditionExpression, formArgs?.config.conditionPosition));
+                    ifConfig?.values.forEach((value) => {
+                        modifications.push(updateIfStatementCondition(value.expression, value.position));
+                    })
                 }
             } else if (formType === "ForEach") {
                 const conditionExpression: ForeachConfig = conditionConfig.conditionExpression as

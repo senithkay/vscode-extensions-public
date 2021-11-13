@@ -20,26 +20,79 @@ import {
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         connectorListWrap: {
+            marginTop: theme.spacing(2),
+            height: '80vh',
+            overflowY: 'scroll',
+        },
+        connectorSectionWrap: {
             marginTop: theme.spacing(6),
+            '&:first-child': {
+                marginTop: 0
+            }
         },
         container: {
             width: 600,
-            margin: "0 1.5rem"
+            height: '85vh',
+            '& .MuiFormControl-marginNormal': {
+                margin: '0 !important',
+            },
         },
         msgContainer: {
             height: '80vh',
             alignContent: 'center',
             alignItems: 'center',
         },
+        resultsContainer: {
+            marginTop: theme.spacing(6),
+        },
+        filterTagWrap: {
+            maxHeight: '48px',
+        },
+        filterTag: {
+            border: '1px solid #E6E7EC',
+            borderRadius: '8px',
+            paddingLeft: '8px'
+        },
+        filterRemoveBtn: {
+            padding: '8px',
+        },
         connector: {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            height: 100,
+            boxSizing: 'border-box',
+            height: '140px',
+            border: '1px solid #E6E7EC',
+            borderRadius: '10px',
+            backgroundColor: '#FFFFFF',
+            padding: theme.spacing(2),
+            cursor: 'pointer',
+            '&:hover': {
+                overflow: 'visible',
+                transform: 'scale3d(1.04, 1.04, 1)',
+                border: '1px solid #5567D5',
+            },
         },
-        connectorName: { color: "#222228", fontSize: 13 },
-        connectorWrap: { overflowY: 'scroll' }
+        connectorName: {
+            color: '#222228',
+            fontSize: 13,
+            width: '100%',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            fontWeight: 500,
+            textAlign: 'center',
+        },
+        orgName: {
+            color: '#CBCEDB',
+            fontSize: 13,
+            width: '100%',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            textAlign: 'center',
+        },
     })
 );
 

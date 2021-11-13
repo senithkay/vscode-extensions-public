@@ -16,6 +16,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 
 import {Box, FormControl, Typography} from "@material-ui/core";
 import classnames from "classnames";
+import { createWhileStatement, getInitialSource } from "../../../../../utils/modification-util";
 
 import { FormField } from "../../../../../../../ConfigurationSpec/types";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
@@ -41,7 +42,6 @@ export function AddWhileForm(props: WhileProps) {
 
     const [isInvalid, setIsInvalid] = useState(true);
     const [conditionState, setConditionState] = useState(condition);
-
 
     const handleExpEditorChange = (value: string) => {
         setConditionState({ ...conditionState, conditionExpression: value })
@@ -105,18 +105,22 @@ export function AddWhileForm(props: WhileProps) {
         defaultMessage: "Cancel"
     });
 
-    const {stmtEditorButton , stmtEditorComponent} = useStatementEdior(
+    const initialSource = getInitialSource(createWhileStatement(
+        conditionState.conditionExpression ? conditionState.conditionExpression as string : 'EXPRESSION'
+    ));
+
+    const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {
-            kind: "DefaultBoolean",
-            label: "While Statement",
+            label: intl.formatMessage({id: "lowcode.develop.configForms.while.statementEditor.label"}),
+            initialSource,
             formArgs: {formArgs},
             isMutationInProgress,
             validForm: !isInvalid,
             onSave: handleOnSaveClick,
             onChange: handleExpEditorChange,
             validate: validateField
-        },
-        true);
+        }
+    );
 
     if (!stmtEditorComponent) {
         return  (
@@ -175,7 +179,4 @@ export function AddWhileForm(props: WhileProps) {
     else {
         return stmtEditorComponent;
     }
-
-
 }
-

@@ -56,30 +56,8 @@ const api = {
     code: {
         modifyDiagram: dummyFunction,
         onMutate: dummyFunction,
-        modifyTrigger: dummyFunction,
         setCodeLocationToHighlight: dummyFunction,
         gotoSource: dummyFunction
-    },
-    connections: {
-        getAllConnections: async (orgHandle: string): Promise<ConnectionDetails[]> => {
-            const completions: ConnectionDetails[] = [];
-            return completions;
-        }
-    },
-    ai: {},
-    splitPanel: {
-        maximize: dummyFunction,
-        minimize: dummyFunction,
-        setPrimaryRatio: dummyFunction,
-        setSecondaryRatio: dummyFunction,
-        handleRightPanelContent: dummyFunction
-    },
-    data: {
-        getGsheetList: async (): Promise<any> => ([]),
-    },
-    oauth: {
-        dispatchGetAllConfiguration: async (): Promise<void> => {
-        },
     },
     panNZoom: {
         pan: dummyFunction,
@@ -98,19 +76,6 @@ const api = {
 
 const props = {
     api,
-    // @ts-ignore
-    currentAppType: undefined,
-    currentApp: {
-        workingFile: "/apps/username/apName/project/choreo.bal",
-        id: 1,
-        name: '',
-        displayName: '',
-        org: '',
-        organizationId: 0,
-        // @ts-ignore
-        template: undefined,
-        createdAt: ''
-    },
     currentFile: {
         // @ts-ignore
         type: undefined,
@@ -173,7 +138,9 @@ export const IfElseStmt = Template.bind({});
 
 export const OtherStmt = Template.bind({});
 
+export const IfElseBooleanLiteralStmt = Template.bind({});
 
+export const ReturnStmt = Template.bind({});
 
 VarDeclBinaryExprStmt.args = {
     kind: "DefaultString",
@@ -271,6 +238,42 @@ OtherStmt.args = {
     formArgs: { model: panicModel},
     userInputs: {
         "selectedType": "",
+        "varName": "",
+        "variableExpression": "",
+        "formField": "Expression"
+    },
+    validate: dummyFunction,
+    isMutationInProgress: false,
+    validForm: true,
+    onCancel: dummyFunctionWithoutArgs,
+    onSave: dummyFunctionWithoutArgs,
+    onChange: dummyFunction
+}
+
+IfElseBooleanLiteralStmt.args = {
+    kind: "DefaultBoolean",
+    label: "If-Else Statement",
+    formArgs: { model: ifElseBooleanModel},
+    userInputs: {
+        "selectedType": "",
+        "varName": "",
+        "variableExpression": "",
+        "formField": "Expression"
+    },
+    validate: dummyFunction,
+    isMutationInProgress: false,
+    validForm: true,
+    onCancel: dummyFunctionWithoutArgs,
+    onSave: dummyFunctionWithoutArgs,
+    onChange: dummyFunction
+}
+
+ReturnStmt.args = {
+    kind: "DefaultReturn",
+    label: "Return Statement",
+    formArgs: { model: returnModel },
+    userInputs: {
+        "selectedType": "string",
         "varName": "",
         "variableExpression": "",
         "formField": "Expression"

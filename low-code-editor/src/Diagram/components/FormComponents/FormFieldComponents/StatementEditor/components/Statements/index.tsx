@@ -10,10 +10,12 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { CallStatementC } from "./CallStatement";
 import { ForeachStatementC } from "./ForeachStatement";
 import { IfStatementC } from "./IfStatement";
 import { LocalVarDeclC } from './LocalVarDecl';
 import { OtherStatementTypes } from "./OtherStatement";
+import { ReturnStatementC } from "./ReturnStatement";
 import { WhileStatementC } from "./WhileStatement";
 
 
@@ -22,3 +24,5 @@ export { WhileStatementC as WhileStatement };
 export { ForeachStatementC as ForeachStatement };
 export { IfStatementC as IfElseStatement };
 export { OtherStatementTypes as OtherStatement };
+export { ReturnStatementC as ReturnStatement };
+export { CallStatementC as CallStatement };

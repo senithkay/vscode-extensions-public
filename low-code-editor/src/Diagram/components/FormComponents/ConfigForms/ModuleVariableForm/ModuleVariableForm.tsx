@@ -129,6 +129,15 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
         disabled: false
     };
 
+    let namePosition: NodePosition = { startLine: 0, startColumn: 0, endLine: 0, endColumn: 0 }
+
+    if (model) {
+        namePosition = getVariableNameFromST(model).position;
+    } else {
+        namePosition.startLine = targetPosition.startLine;
+        namePosition.endLine = targetPosition.startLine;
+    }
+
     return (
         <FormControl data-testid="module-variable-config-form" className={formClasses.wizardFormControl}>
             <div className={formClasses.formTitleWrapper}>
@@ -158,13 +167,13 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
                 label={"Select type"}
                 onChange={onVarTypeChange}
             />
-            <FormTextInput
-                customProps={variableNameTextFieldCustomProps}
-                defaultValue={state.varName}
-                onChange={handleOnVarNameChange}
-                label={"Variable Name"}
-                errorMessage={"Invalid Variable Name"}
-                placeholder={"Enter Variable Name"}
+            <VariableNameInput
+                displayName={'Variable Name'}
+                value={state.varName}
+                onValueChange={handleOnVarNameChange}
+                validateExpression={updateExpressionValidity}
+                position={namePosition}
+                isEdit={!!model}
             />
             <ExpressionEditor
                 {...expressionEditorConfig}

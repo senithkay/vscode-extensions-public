@@ -28,7 +28,7 @@ export const PROCESS_SVG_HEIGHT = 48 + PROCESS_STROKE_HEIGHT;
 export const PROCESS_SVG_SHADOW_OFFSET = PROCESS_SVG_HEIGHT_WITH_SHADOW - PROCESS_SVG_HEIGHT;
 
 
-export function ProcessSVG(props: { x: number, y: number, varName: any, sourceSnippet: any, position: ModelCodePosition, openInCodeView?: () => void, processType: string }) {
+export function ProcessSVG(props: { x: number, y: number, varName: any, sourceSnippet: any, position: NodePosition, openInCodeView?: () => void, processType: string }) {
     const { varName, sourceSnippet, processType, openInCodeView, ...xyProps } = props;
 
     return (

@@ -47,24 +47,18 @@ export function DataMapper(props: DataMapperProps) {
         api: {
             panNZoom: { fitToScreen },
             code: {
-                onMutate,
+                modifyDiagram: dispatchMutations
             },
             ls: {
                 getDiagramEditorLangClient
             }
         },
         props: {
-            currentApp,
             stSymbolInfo,
             isMutationProgress,
             langServerURL
         }
     } = useContext(DiagramContext);
-
-    // ToDo: Get the modifyDiagram from the proper context.
-    const dispatchMutations = (mutations: STModification[], options: any = {}) => {
-        onMutate('DIAGRAM', { mutations, ...options });
-    }
 
     useEffect(() => {
         fitToScreen();

@@ -11,7 +11,7 @@
  * associated services.
  */
 
-import { ModuleVariableFormState } from ".";
+import { ModuleVariableFormStateWithValidity } from ".";
 
 export enum ModuleVarFormActionTypes {
     UPDATE_ACCESS_MODIFIER,
@@ -31,7 +31,7 @@ export type ModuleVarFormAction =
     | { type: ModuleVarFormActionTypes.UPDATE_EXPRESSION_VALIDITY, payload: boolean }
     | { type: ModuleVarFormActionTypes.RESET_VARIABLE_TYPE };
 
-export function moduleVarFormReducer(state: ModuleVariableFormState, action: ModuleVarFormAction): ModuleVariableFormState {
+export function moduleVarFormReducer(state: ModuleVariableFormStateWithValidity, action: ModuleVarFormAction): ModuleVariableFormStateWithValidity {
     switch (action.type) {
         case ModuleVarFormActionTypes.SET_VAR_NAME:
             return { ...state, varName: action.payload };

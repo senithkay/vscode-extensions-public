@@ -15,7 +15,7 @@ import React, { useContext, useState } from "react";
 
 import {
     BlockStatement,
-    IfElseStatement,
+    IfElseStatement, NodePosition,
     STKindChecker,
     STNode
 } from "@ballerina/syntax-tree";
@@ -72,15 +72,10 @@ export function IfElse(props: IfElseProps) {
         api: {
             code: {
                 setCodeLocationToHighlight: setCodeToHighlight
-            },
-            splitPanel: {
-                handleRightPanelContent,
-                maximize: maximizeCodeView,
             }
         },
         props: {
             isCodeEditorActive,
-            currentApp,
             isMutationProgress,
             syntaxTree,
             stSymbolInfo,
@@ -88,7 +83,6 @@ export function IfElse(props: IfElseProps) {
             isWaitingOnWorkspace
         }
     } = useContext(Context);
-    const { id: appId } = currentApp || {};
     const { model, blockViewState, name } = props;
 
     const [isConfigWizardOpen, setConfigWizardOpen] = useState(false);
@@ -127,16 +121,15 @@ export function IfElse(props: IfElseProps) {
 
     let codeSnippet = "IF ELSE CODE SNIPPET"
     let codeSnippetOnSvg = "IF"
+    const diagnostics = (model as IfElseStatement)?.condition.typeData?.diagnostics;
 
     if (model) {
-        codeSnippet = model.source.trim().split(')')[0]
+        codeSnippet = diagnostics.length !== 0 ? "Code has errors\n" + model.source : model.source.trim().split(')')[0];
         codeSnippetOnSvg = codeSnippet.substring(4, 13)
         codeSnippet = codeSnippet + ')'
     }
 
     const onClickOpenInCodeView = () => {
-        maximizeCodeView("home", "vertical", appId);
-        handleRightPanelContent('Code');
         setCodeToHighlight(model?.position)
     }
 
@@ -157,7 +150,10 @@ export function IfElse(props: IfElseProps) {
     };
 
     const isDraftStatement: boolean = viewState instanceof DraftStatementViewState;
-    const ConditionWrapper = isDraftStatement ? cn("main-condition-wrapper active-condition") : cn("main-condition-wrapper if-condition-wrapper");
+    const conditionWrapper = isDraftStatement ? (diagnostics?.length !== 0 ?
+        cn("main-condition-wrapper active-condition-error") : cn("main-condition-wrapper active-condition")) :
+        (diagnostics?.length !== 0 ?
+        cn("main-condition-wrapper if-condition-error-wrapper") : cn("main-condition-wrapper if-condition-wrapper"));
 
     let assignmentText: any = (!isDraftStatement && STKindChecker?.isIfElseStatement(model));
     assignmentText = (model as IfElseStatement)?.condition.source;
@@ -180,7 +176,7 @@ export function IfElse(props: IfElseProps) {
                     codeSnippet={codeSnippet}
                     codeSnippetOnSvg={codeSnippetOnSvg}
                     conditionType={conditionType}
-                    openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && appId && onClickOpenInCodeView}
+                    openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && onClickOpenInCodeView}
                 />
                 <ContitionAssignment
                     x={x - (CONDITION_ASSIGNMENT_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
@@ -279,18 +275,36 @@ export function IfElse(props: IfElseProps) {
             children.push(<Collapse blockViewState={bodyViewState} />)
         }
 
+        const getExpressions = () : ElseIfConfig => {
+            const conditions: {id: number, expression: string, position: NodePosition}[] = [];
+            conditions.push({id: 0, expression: conditionExpr?.source.trim().match(/\(([^)]+)\)/)[1], position: conditionExpr?.position});
+            if (model) {
+                if (isElseIfExist) {
+                    let block = ifStatement.elseBody?.elseBody as IfElseStatement;
+                    let isElseIfBlockExist: boolean = block?.kind === "IfElseStatement";
+                    let id = 1;
+                    while (isElseIfBlockExist) {
+                        const expression = block?.condition?.source.trim().match(/\(([^)]+)\)/)[1];
+                        const position = block?.condition?.position;
+                        conditions.push({id, expression, position});
+                        isElseIfBlockExist = (block?.elseBody?.elseBody as IfElseStatement)?.kind === "IfElseStatement";
+                        block = block.elseBody?.elseBody as IfElseStatement;
+                        id = id + 1;
+                    }
+                }
+            }
+            return {values: conditions};
+        }
+
         const onIfHeadClick = () => {
             const conditionExpression = STKindChecker.isBracedExpression(conditionExpr) ?
-                conditionExpr.expression.source : conditionExpr.source;
-            const position = {
-                startColumn: model.position.startColumn,
-                startLine: model.position.startLine
-            };
+                getExpressions() : conditionExpr.source;
+            const position = getExpressions()?.values[0]?.position;
             setConfigWizardOpen(true);
             const conditionConfigState = getConditionConfig("If", position, WizardType.EXISTING, undefined, {
                 type: "If",
                 conditionExpression,
-                conditionPosition: conditionExpr.position
+                conditionPosition: getExpressions()?.values[0]?.position
             });
             setIfElseConditionConfigState(conditionConfigState);
         };
@@ -339,7 +353,7 @@ export function IfElse(props: IfElseProps) {
                             codeSnippet={codeSnippet}
                             codeSnippetOnSvg={codeSnippetOnSvg}
                             conditionType={conditionType}
-                            openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && appId && onClickOpenInCodeView}
+                            openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && onClickOpenInCodeView}
                         />
                         <ContitionAssignment
                             x={x - (CONDITION_ASSIGNMENT_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
@@ -376,7 +390,7 @@ export function IfElse(props: IfElseProps) {
                                             configOverlayFormStatus={ifElseConfigOverlayFormState}
                                         />
                                     }
-                                    {!isDraftStatement &&
+                                    {(!isDraftStatement && !viewState?.isElseIf) &&
                                         <>
                                             <DeleteBtn
                                                 {...deleteTriggerPosition}
@@ -407,7 +421,7 @@ export function IfElse(props: IfElseProps) {
     }
 
     return (
-        <g className={ConditionWrapper}>
+        <g className={conditionWrapper}>
             {component}
         </g>
     );

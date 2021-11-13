@@ -13,7 +13,7 @@
 import React, { useState } from "react";
 import { FormattedMessage } from "react-intl";
 
-import { ListenerDeclaration, NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { ListenerDeclaration, NodePosition, STKindChecker } from "@ballerina/syntax-tree";
 import { Box, FormControl, FormHelperText, Typography } from "@material-ui/core";
 
 import { ListenerFormIcon } from "../../../../../assets/icons";
@@ -46,32 +46,32 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
         defaultState = {
             listenerName: model.variableName.value,
             listenerPort: model.initializer.parenthesizedArgList.arguments[0].source,
-            listenerType: model.typeDescriptor.modulePrefix.value.toUpperCase()
+            listenerType: model.typeDescriptor.modulePrefix.value.toUpperCase(),
+            isExpressionValid: true
         };
     } else {
         defaultState = {
             listenerName: '',
             listenerPort: '',
-            listenerType: 'HTTP'
+            listenerType: 'HTTP',
+            isExpressionValid: false
         }
     }
 
     const [config, setCofig] = useState<ListenerConfig>(defaultState);
-    const saveBtnEnabled = isListenerConfigValid(config);
+    const saveBtnEnabled = !isListenerConfigValid(config);
 
     const onListenerNameChange = (listenerName: string) => {
         setCofig({
-            listenerName,
-            listenerPort: config.listenerPort,
-            listenerType: config.listenerType
+            ...config,
+            listenerName
         });
     }
 
     const onListenerPortChange = (listenerPort: string) => {
         setCofig({
-            listenerName: config.listenerName,
-            listenerPort,
-            listenerType: config.listenerType
+            ...config,
+            listenerPort
         });
     }
 
@@ -104,6 +104,49 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
         onSave();
     }
 
+    const updateExpressionValidity = (fieldName: string, isInValid: boolean) => {
+        setCofig({
+            ...config,
+            isExpressionValid: !isInValid
+        });
+    }
+
+    const portNumberExpressionEditorProps: FormElementProps = {
+        model: {
+            name: "listenerPort",
+            displayName: "Listener Port",
+            typeName: "int"
+        },
+        customProps: {
+            validate: updateExpressionValidity,
+            interactive: true,
+            statementType: 'int',
+            editPosition: {
+                startLine: model ? model.position.startLine : targetPosition.startLine,
+                endLine: model ? model.position.startLine : targetPosition.startLine,
+                startColumn: 0,
+                endColumn: 0
+            }
+        },
+        onChange: onListenerPortChange,
+        defaultValue: config.listenerPort,
+    };
+
+    const listenerPortInputComponent = (
+        <ExpressionEditor
+            {...portNumberExpressionEditorProps}
+        />
+    )
+
+    let namePosition: NodePosition = { startLine: 0, startColumn: 0, endLine: 0, endColumn: 0 }
+
+    if (model) {
+        namePosition = model.variableName.position;
+    } else {
+        namePosition.startLine = targetPosition.startLine;
+        namePosition.endLine = targetPosition.startLine;
+    }
+
     return (
         <FormControl data-testid="log-form" className={formClasses.wizardFormControl}>
             <div className={formClasses.formTitleWrapper}>
@@ -130,32 +173,15 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                         defaultValue={config.listenerType}
                         placeholder="Select Type"
                     />
-                    <div className={formClasses.labelWrapper}>
-                        <FormHelperText className={formClasses.inputLabelForRequired}>
-                            <FormattedMessage
-                                id="lowcode.develop.connectorForms.HTTP.listenerName"
-                                defaultMessage="Listener Name :"
-                            />
-                        </FormHelperText>
-                    </div>
-                    <FormTextInput
-                        dataTestId="listener-name"
-                        defaultValue={config.listenerName}
-                        onChange={onListenerNameChange}
+                    <VariableNameInput
+                        displayName={'Listener Name'}
+                        value={defaultState.listenerName}
+                        onValueChange={onListenerNameChange}
+                        validateExpression={updateExpressionValidity}
+                        position={namePosition}
+                        isEdit={!!model}
                     />
-                    <div className={formClasses.labelWrapper}>
-                        <FormHelperText className={formClasses.inputLabelForRequired}>
-                            <FormattedMessage
-                                id="lowcode.develop.connectorForms.HTTP.listenerPortNumber"
-                                defaultMessage="Listener Port :"
-                            />
-                        </FormHelperText>
-                    </div>
-                    <FormTextInput
-                        dataTestId="listener-port"
-                        defaultValue={config.listenerPort}
-                        onChange={onListenerPortChange}
-                    />
+                    {listenerPortInputComponent}
                 </>
             </div>
             <div className={formClasses.wizardBtnHolder}>
@@ -166,7 +192,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                 />
                 <PrimaryButton
                     text="Save"
-                    disabled={!saveBtnEnabled}
+                    disabled={saveBtnEnabled}
                     fullWidth={false}
                     onClick={handleOnSave}
                 />

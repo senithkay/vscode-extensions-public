@@ -46,25 +46,12 @@ const api = {
         setCodeLocationToHighlight: dummyFunction,
         gotoSource: dummyFunction
     },
-    connections: {
-        getAllConnections: async (orgHandle: string): Promise<ConnectionDetails[]> => {
-            const completions: ConnectionDetails[] = [];
-            return completions;
-        }},
-    ai: {},
     splitPanel: {
         maximize: dummyFunction,
         minimize: dummyFunction,
         setPrimaryRatio: dummyFunction,
         setSecondaryRatio: dummyFunction,
         handleRightPanelContent: dummyFunction
-    },
-    data: {
-        getGsheetList: async (): Promise<any> => ([]),
-    },
-    oauth: {
-        // tslint:disable-next-line:no-empty
-        dispatchGetAllConfiguration:  async (): Promise<void> => {},
     },
     panNZoom: {
         pan: dummyFunction,
@@ -81,21 +68,8 @@ const api = {
 }
 
 
-const props = {
+export const mockedEditorProps = {
     api,
-    // @ts-ignore
-    currentAppType: undefined,
-    currentApp: {
-        workingFile: "/apps/username/apName/project/choreo.bal",
-        id: 1,
-        name: '',
-        displayName: '',
-        org: '',
-        organizationId: 0,
-        // @ts-ignore
-        template: undefined,
-        createdAt: ''
-    },
     currentFile: {
         // @ts-ignore
         type: undefined,
@@ -127,7 +101,7 @@ const props = {
 
 const Template: Story<WhileProps> = (args: WhileProps) => {
     return(
-        <LowCodeEditorProvider {...props} >
+        <LowCodeEditorProvider {...mockedEditorProps} >
             <AddWhileForm {...args}/>
         </LowCodeEditorProvider>
     );

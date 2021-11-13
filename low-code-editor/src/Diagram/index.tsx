@@ -35,35 +35,15 @@ import { DefaultConfig } from "./visitors/default";
 
 export function Diagram() {
     const {
-        state: {
-            isDataMapperShown,
-            isConfigOverlayFormOpen,
-        },
-        api: {
-            code: { hasConfigurables },
-            ls: {
-                getDiagramEditorLangClient
-            },
-        },
         props: {
             diagnostics,
             warnings,
             syntaxTree,
-            isWaitingOnWorkspace,
             isMutationProgress,
-            isReadOnly,
-            currentApp,
-            isConfigPanelOpen,
-            isCodeEditorActive,
             isLoadingAST,
-            originalSyntaxTree,
             error,
-            langServerURL
         },
     } = useContext(DiagramContext);
-
-    // FIXME remove the need for passing down current APP to low code editor
-    const triggerType = currentApp ? currentApp.displayType : "";
 
     const classes = useStyles();
     const diagnosticInDiagram = diagnostics && diagnostics.length > 0;
@@ -131,20 +111,6 @@ export function Diagram() {
         </div>
     );
 
-    const disableIconClassCheck = (triggerType === "API") ? classes.disableAPIDiagramIcon : classes.disableDiagramIcon;
-    const enableIconClassCheck = (triggerType === "API") ? classes.diagramAPIStateWrapper : classes.diagramStateWrapper;
-
-    const diagramDisabledStatus = (
-        <div className={disableIconClassCheck}>
-            <DiagramDisableState />
-        </div>
-    );
-    const diagramDisabledWithTextLoaderStatus = (
-        <div className={classes.disableDiagramIconWithTextLoader}>
-            <DiagramDisableState />
-        </div>
-    );
-
     const diagramErrorMessage = (
         <div className={classes.diagramErrorStateWrapper}>
             <DiagramErrorState x={5} y={-100} errorCount={numberOfErrors} warningCount={numberOfWarnings} onClose={closeErrorDialog} onOpen={openErrorDialog} isErrorMsgVisible={isErrorStateDialogOpen} />
@@ -175,49 +141,34 @@ export function Diagram() {
         h = h + (window.innerHeight - h);
     }
 
-    let hasConfigurable = false;
-    if (originalSyntaxTree) {
-        hasConfigurable = hasConfigurables(originalSyntaxTree as ModulePart)
-    }
+    // let hasConfigurable = false;
+    // if (originalSyntaxTree) {
+    //     hasConfigurable = hasConfigurables(originalSyntaxTree as ModulePart)
+    // }
 
     return (
         <div id="canvas">
             {(codeTriggerredUpdateInProgress || isMutationProgress) && textLoader}
-            {triggerType !== undefined && isWaitingOnWorkspace && textLoader && diagramDisabledWithTextLoaderStatus}
-            {(isWaitingOnWorkspace && (triggerType !== undefined)) ? textLoader : null}
-
-            <div className={enableIconClassCheck}>
-                {(!isCodeEditorActive && !isWaitingOnWorkspace) && !isConfigPanelOpen && !isReadOnly && diagramStatus}
-                {isWaitingOnWorkspace && !isConfigPanelOpen && !isReadOnly && diagramDisabledWithTextLoaderStatus}
-                {isCodeEditorActive && diagramDisabledStatus}
-            </div>
 
             {(diagnosticInDiagram || warningsInDiagram) && (
-                <div className={classnames(classes.diagramErrorStateWrapper, hasConfigurable && classes.diagramErrorStateWrapperWithConfig)}>
+                <div className={classnames(classes.diagramErrorStateWrapper)}>
                     {diagnosticInDiagram && <OverlayBackground />}
                     {diagramStatus}
                 </div>
             )}
-
             {isErrorDetailsOpen && <ErrorList />}
-
             <Container className={classes.DesignContainer}>
-                {isDataMapperShown && (
-                    <DataMapper width={w} />
-                )}
-                {!isDataMapperShown && (
-                    <LowCodeDiagram
-                        syntaxTree={syntaxTree}
-                        originalSyntaxTree={originalSyntaxTree}
-                        isReadOnly={isReadOnly}
-                        api={{
-                            edit: {
-                                renderAddForm: handleDiagramAdd,
-                                renderEditForm: handleDiagramEdit
-                            }
-                        }}
-                    />
-                )}
+                <LowCodeDiagram
+                    syntaxTree={syntaxTree}
+                    originalSyntaxTree={originalSyntaxTree}
+                    isReadOnly={isReadOnly}
+                    api={{
+                        edit: {
+                            renderAddForm: handleDiagramAdd,
+                            renderEditForm: handleDiagramEdit
+                        }
+                    }}
+                />
                 {isFormOpen && (
                     <FormGenerator {...formConfig} />
                 )}

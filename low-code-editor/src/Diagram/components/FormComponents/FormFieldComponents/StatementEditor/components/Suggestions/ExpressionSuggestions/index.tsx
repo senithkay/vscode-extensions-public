@@ -11,13 +11,14 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline jsx-no-lambda
-import React from "react";
+import React, { useContext } from "react";
 
-import { STNode } from "@ballerina/syntax-tree";
+import { BinaryExpression, STKindChecker, STNode } from "@ballerina/syntax-tree";
 
 import * as c from "../../../constants";
 import { SuggestionItem } from "../../../models/definitions";
-import { addExpression, addOperator } from "../../../utils/utils";
+import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { generateExpressionTemplate } from "../../../utils/utils";
 import { useStatementEditorStyles } from "../../ViewContainer/styles";
 
 export interface ExpressionSuggestionsProps {
@@ -31,14 +32,22 @@ export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
     const overlayClasses = useStatementEditorStyles();
     const { model, suggestions, suggestionHandler } = props;
 
+    const {
+        modelCtx: {
+            updateModel,
+        }
+    } = useContext(StatementEditorContext);
+
     const onClickExpressionSuggestion = (kind: string) => {
-        addExpression(model, kind);
+        updateModel(generateExpressionTemplate(kind), model.position);
         suggestionHandler();
     }
 
     const onClickOperatorSuggestion = (operator: SuggestionItem) => {
-        addOperator(model, operator);
-        suggestionHandler();
+        if (STKindChecker.isBinaryExpression(model)) {
+            updateModel(operator.value, model.operator.position);
+            suggestionHandler();
+        }
     }
 
     return (
@@ -51,7 +60,6 @@ export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
                                 className={overlayClasses.suggestionButton}
                                 key={index}
                                 onClick={() => onClickOperatorSuggestion(suggestion)}
-                                disabled={suggestion.kind !== "PlusToken"}
                             >
                                 {suggestion.value}
                             </button>
@@ -63,7 +71,6 @@ export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
                                 className={overlayClasses.suggestionButton}
                                 key={index}
                                 onClick={() => onClickExpressionSuggestion(suggestion.value)}
-                                disabled={(suggestion.value !== c.ARITHMETIC && suggestion.value !== c.STRING_LITERAL)}
                             >
                                 {suggestion.value}
                             </button>

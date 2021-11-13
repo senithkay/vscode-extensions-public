@@ -55,7 +55,7 @@ export function ModuleVariable(props: ModuleVariableProps) {
         const moduleMemberModel: ModuleVarDecl = model as ModuleVarDecl;
         varType = (moduleMemberModel.typedBindingPattern.bindingPattern as CaptureBindingPattern)?.typeData?.
             typeSymbol?.typeKind;
-        varName = (moduleMemberModel.typedBindingPattern.bindingPattern as CaptureBindingPattern)?.variableName.value;
+        varName = (moduleMemberModel.typedBindingPattern.bindingPattern as CaptureBindingPattern)?.variableName?.value;
         varValue = model.source.trim();
         isConfigurable = model && model.qualifiers.length > 0
             && model.qualifiers.filter(qualifier => STKindChecker.isConfigurableKeyword(qualifier)).length > 0;
@@ -65,8 +65,8 @@ export function ModuleVariable(props: ModuleVariableProps) {
         varValue = model.source.trim();
     }
 
-    const typeMaxWidth = varType.length >= 10;
-    const nameMaxWidth = varName.length >= 20;
+    const typeMaxWidth = varType?.length >= 10;
+    const nameMaxWidth = varName?.length >= 20;
 
     const handleOnDeleteCancel = () => {
         setDeleteFormVisible(false);

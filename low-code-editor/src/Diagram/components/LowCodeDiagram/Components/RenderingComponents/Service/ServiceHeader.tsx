@@ -15,9 +15,9 @@
 import React, { useContext } from "react";
 
 import {
-  ListenerDeclaration,
-  ServiceDeclaration,
-  STKindChecker,
+    ListenerDeclaration,
+    ServiceDeclaration,
+    STKindChecker,
 } from "@ballerina/syntax-tree";
 
 import { ServiceIconLight } from "../../../../../../assets/icons/ServiceIcon";
@@ -43,71 +43,74 @@ export const SERVICE_PATH_TEXT_PADDING_LEFT: number = 15;
 export const SERVICE_LISTENER_AND_PATH_GAP: number = 100;
 
 export interface ServiceHeaderProps {
-  model: ServiceDeclaration;
-  isExpanded: boolean;
-  onExpandClick: () => void;
+    model: ServiceDeclaration;
+    isExpanded: boolean;
+    onExpandClick: () => void;
 }
 
 export function ServiceHeader(props: ServiceHeaderProps) {
-  const { model, isExpanded, onExpandClick } = props;
-  const {
-    props: { stSymbolInfo },
-    api: {
-      code: { modifyDiagram },
-    },
-  } = useContext(DiagramContext);
+    const { model, isExpanded, onExpandClick } = props;
+    const {
+        props: { stSymbolInfo },
+        api: {
+            code: { modifyDiagram },
+        },
+    } = useContext(DiagramContext);
 
-  let servicePath = "";
+    let servicePath = "";
 
-  model.absoluteResourcePath.forEach((pathSegment) => {
-    servicePath += pathSegment.value;
-  });
+    model.absoluteResourcePath.forEach((pathSegment) => {
+        servicePath += pathSegment.value;
+    });
 
-  let serviceType = "";
-  let listeningOnText = "";
+    let serviceType = "";
+    let listeningOnText = "";
 
-  if (STKindChecker.isExplicitNewExpression(model.expressions[0])) {
-    if (
-      STKindChecker.isQualifiedNameReference(
-        model.expressions[0].typeDescriptor
-      )
-    ) {
-      serviceType = model.expressions[0].typeDescriptor.modulePrefix.value.toUpperCase();
-      listeningOnText = model.expressions[0].source;
+    if (STKindChecker.isExplicitNewExpression(model.expressions[0])) {
+        if (
+            STKindChecker.isQualifiedNameReference(
+                model.expressions[0].typeDescriptor
+            )
+        ) {
+            serviceType = model.expressions[0].typeDescriptor.modulePrefix.value.toUpperCase();
+            listeningOnText = model.expressions[0].source;
+        }
+    } else if (STKindChecker.isSimpleNameReference(model.expressions[0])) {
+        const listenerNode: ListenerDeclaration = stSymbolInfo.listeners.get(
+            model.expressions[0].name.value
+        ) as ListenerDeclaration;
+        if (STKindChecker.isQualifiedNameReference(listenerNode.typeDescriptor)) {
+            serviceType = listenerNode.typeDescriptor.modulePrefix.value.toUpperCase();
+            listeningOnText = model.expressions[0].source;
+        }
     }
-  } else if (STKindChecker.isSimpleNameReference(model.expressions[0])) {
-    const listenerNode: ListenerDeclaration = stSymbolInfo.listeners.get(
-      model.expressions[0].name.value
-    ) as ListenerDeclaration;
-    if (STKindChecker.isQualifiedNameReference(listenerNode.typeDescriptor)) {
-      serviceType = listenerNode.typeDescriptor.modulePrefix.value.toUpperCase();
-      listeningOnText = model.expressions[0].source;
-    }
-  }
 
-  const handleDeleteConfirm = () => {
-    modifyDiagram([removeStatement(model.position)]);
-  };
+    const handleDeleteConfirm = () => {
+        modifyDiagram([removeStatement(model.position)]);
+    };
 
-  return (
-    <div className={"service-header"}>
-      <div className={"header-segement-container"}>
-        <div className={"header-segment"}>
-          <ServiceIconLight />
-        </div>
-        <div className={"header-segment"}>{serviceType}</div>
-        <div className={"header-segment-path"}>{servicePath}</div>
-        <div className={"header-segment-listener"}>
-          {listeningOnText.length > 0 ? `listening on ${listeningOnText}` : ""}
-        </div>
-      </div>
-      <HeaderActions
-        model={model}
-        deleteText="Delete this Service?"
-        isExpanded={isExpanded}
-        onExpandClick={onExpandClick}
-        onConfirmDelete={handleDeleteConfirm}
-      />
-    </div>
-  );
+    return (
+        <HeaderWrapper
+            className={"service-header"}
+            onClick={onExpandClick}
+        >
+            <div className={"header-segement-container"}>
+                <div className={"header-segment"}>
+                    <ServiceIconLight className="dark-fill"/>
+                </div>
+                <div className={"header-segment"}>{serviceType}</div>
+                <div className={"header-segment-path"}>{servicePath}</div>
+                <div className={"header-segment-listener"}>
+                    {listeningOnText.length > 0 ? `listening on ${listeningOnText}` : ""}
+                </div>
+            </div>
+            <HeaderActions
+                model={model}
+                deleteText="Delete this Service?"
+                isExpanded={isExpanded}
+                onExpandClick={onExpandClick}
+                onConfirmDelete={handleDeleteConfirm}
+            />
+        </HeaderWrapper >
+    );
 }

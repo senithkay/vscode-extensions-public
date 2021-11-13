@@ -15,6 +15,7 @@ import React, { ReactNode, useContext } from "react";
 
 import { BinaryExpression } from "@ballerina/syntax-tree";
 
+import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getKindBasedOnOperator, getOperatorSuggestions, getSuggestionsBasedOnExpressionKind } from "../../../utils";
@@ -27,7 +28,7 @@ interface BinaryProps {
     diagnosticHandler: (diagnostics: string) => void
 }
 
-export function BinaryExpressionC(props: BinaryProps) {
+export function BinaryExpressionComponent(props: BinaryProps) {
     const { model, userInputs, diagnosticHandler } = props;
 
     const overlayClasses = useStatementEditorStyles();
@@ -55,12 +56,12 @@ export function BinaryExpressionC(props: BinaryProps) {
 
     const onClickOnLhsExpression = (event: any) => {
         event.stopPropagation()
-        expressionHandler(model.lhsExpr, false, { expressionSuggestions: getSuggestionsBasedOnExpressionKind(kind) })
+        expressionHandler(model.lhsExpr, false, { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
     };
 
     const onClickOnRhsExpression = (event: any) => {
         event.stopPropagation()
-        expressionHandler(model.rhsExpr, false, { expressionSuggestions: getSuggestionsBasedOnExpressionKind(kind) })
+        expressionHandler(model.rhsExpr, false, { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
     };
 
     return (

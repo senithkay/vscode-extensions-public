@@ -14,11 +14,11 @@
 // tslint:disable: jsx-no-lambda
 import React, { useState } from 'react';
 
-import { Grid, InputBase } from '@material-ui/core';
+import { Grid, InputBase } from "@material-ui/core";
 
 import { PrimaryButtonSquare } from '../../../../Buttons/PrimaryButtonSquare';
 
-import useStyles from './style';
+import useStyles from "./style";
 
 export interface SearchBarProps {
     searchQuery: string;
@@ -29,45 +29,35 @@ function SearchBar(props: SearchBarProps) {
     const classes = useStyles();
     const { onSearchButtonClick, searchQuery } = props;
 
-    const [ searchString, setSearchString ] = useState(searchQuery);
+    const [searchString, setSearchString] = useState(searchQuery);
 
-    const onSearchFieldChange = (
-        event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
-    ) => {
+    const onSearchFieldChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
         setSearchString(event.target.value);
     };
 
-    const onKeyDown = (
-        event: React.KeyboardEvent<HTMLTextAreaElement | HTMLInputElement>
-    ) => {
-        if (event.key === 'Enter') {
+    const onKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+        if (event.key === "Enter") {
             onSearchButtonClick(searchString);
         }
     };
 
     return (
         <Grid container={true} classes={{ root: classes.searchBarRoot }}>
+            <SearchIcon className={classes.searchIcon} />
             <Grid item={true} container={true} xs={true}>
                 <InputBase
                     classes={{ root: classes.searchText }}
-                    placeholder="Search for connectors"
+                    placeholder="Search for APIs"
                     value={searchString}
                     onChange={onSearchFieldChange}
                     onKeyDown={onKeyDown}
                     aria-label="search-for-connectors"
                 />
             </Grid>
-            <Grid
-                item={true}
-                container={true}
-                xs={2}
-                justifyContent="flex-end"
-                data-testid="search-button"
-            >
-                <PrimaryButtonSquare
-                    onClick={() => onSearchButtonClick(searchString)}
-                    text="Search"
-                />
+            <Grid item={true} container={true} xs={2} justifyContent="flex-end" data-testid="search-button">
+                <PrimaryRounded variant="contained" color="primary" className={classes.searchBtn} onClick={() => onSearchButtonClick(searchString)}>
+                    <FormattedMessage id="lowcode.develop.configForms.connectorList.SearchBar.Search" defaultMessage="Search" />
+                </PrimaryRounded>
             </Grid>
         </Grid>
     );

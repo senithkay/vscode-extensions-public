@@ -15,7 +15,7 @@ import React, { useContext } from "react";
 import { Context } from "../../../../../../Contexts/Diagram";
 import { ConfigOverlayFormStatus } from "../../../../../../Definitions";
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
-import { ConditionConfig } from "../../../Types";
+import { ConditionConfig, ElseIfConfig } from "../../../Types";
 
 import { AddForeachForm } from "./AddForeachForm";
 import { AddIfForm } from "./AddIfForm/index";
@@ -41,9 +41,13 @@ export function ConditionsOverlayForm(props: ConditionsWizardProps) {
         }
     } = useContext(Context);
 
-    if (formType === "if" || formType === "While") {
+    if (formType === "While") {
         if (!condition.conditionExpression) {
             condition.conditionExpression = "";
+        }
+    } else if (formType === "If") {
+        if (!condition.conditionExpression) {
+            condition.conditionExpression = condition?.conditionExpression as ElseIfConfig
         }
     } else if (formType === "ForEach") {
         if (!condition.conditionExpression) {

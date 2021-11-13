@@ -14,7 +14,7 @@
 import React, { useContext, useState} from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { LocalVarDecl, STKindChecker } from "@ballerina/syntax-tree";
+import { CaptureBindingPattern, LocalVarDecl, STKindChecker } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 
 import { PrimitiveBalType } from "../../../../../../../ConfigurationSpec/types";
@@ -40,6 +40,9 @@ interface AddVariableConfigProps {
 const defaultJsonVal = `{“key”: “Click the Tooltip for examples”}`;
 const defaultXmlVal = `xml \`<obj>Click the Tooltip for examples</obj>\``;
 const defaultValues = [defaultJsonVal, defaultXmlVal];
+// todo: Support other data types
+export const variableTypes: string[] = ["var", "int", "float", "decimal", "boolean", "string", "json",
+    "xml", "error", "any", "anydata", "other"];
 
 export function AddVariableConfig(props: AddVariableConfigProps) {
     const classes = useStyles();
@@ -58,7 +61,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     let initialModelType: string = 'json';
     let modelType;
     let variableName: string = '';
-    let varExpression;
+    let varExpression: string = '';
     const formField: string = 'Expression';
 
     const existingProperty = config && config.model;
@@ -79,27 +82,19 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             initialModelType = "other";
             modelType = typeDescriptor.source.trim();
         }
-        variableName = localVarDec.typedBindingPattern.bindingPattern.source.trim();
+        variableName = getVariableNameFromST(config.model).value;
         varExpression = localVarDec.initializer.source;
     } else {
-        variableName = null;
-        varExpression = null;
+        variableName = '';
+        varExpression = '';
     }
 
     const [selectedType, setSelectedType] = useState(initialModelType);
     const [otherType, setOtherType] = useState<string>(modelType);
     const [varName, setVarName] = useState(variableName);
-    const [defaultVarName, setDefaultVarName] = useState<string>(undefined);
-    const [varNameError, setVarNameError] = useState("");
-    const [isValidVarName, setIsValidVarName] = useState(false);
     const [validExpresssionValue, setValidExpresssionValue] = useState(config.config !== "");
     const [variableExpression, setVariableExpression] = useState<string>(varExpression);
     const [editorFocus, setEditorFocus] = useState<boolean>(false);
-    const [isStringType, setIsStringType] = useState(initialModelType === 'string');
-
-    if (defaultVarName === undefined) {
-        setDefaultVarName(variableName);
-    }
 
     const onPropertyChange = (property: string) => {
         setVariableExpression(property);
@@ -116,12 +111,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
 
     const handleTypeChange = (type: string) => {
         setSelectedType(type);
-        if (type === "string") {
-            setIsStringType(true);
-        } else {
-            setIsStringType(false);
-        }
-
         setValidExpresssionValue(false);
         if (type !== "other") {
             setOtherType(undefined);
@@ -139,22 +128,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                 onPropertyChange("");
             }
         }
-    };
-
-    const validateNameValue = (value: string) => {
-        if (value !== undefined && value !== null) {
-            const varValidationResponse = checkVariableName("variable name", value, defaultVarName, stSymbolInfo);
-            if (varValidationResponse?.error) {
-                setVarNameError(varValidationResponse.message);
-                setIsValidVarName(false);
-                return false;
-            }
-        } else if (value === null) {
-            setIsValidVarName(false);
-            return true;
-        }
-        setIsValidVarName(true);
-        return true;
     };
 
     let variableHasReferences = false;
@@ -240,36 +213,106 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
 
     modelType = (selectedType === "other") ? otherType : selectedType;
 
-    const validForm: boolean = (isValidVarName && validExpresssionValue);
-
-    // todo: Support other data types
-    const variableTypes: string[] = ["var", "int", "float", "decimal", "boolean", "string", "json", "xml", "error", "any", "anydata", "other"];
+    const validForm: boolean = varName.length > 0 && variableExpression.length > 0 && validExpresssionValue;
 
     const userInputs = {
-            selectedType,
-            otherType,
-            varName,
-            variableExpression,
-            formField
+        selectedType,
+        otherType,
+        varName,
+        variableExpression,
+        formField
     };
 
-    const {stmtEditorButton , stmtEditorComponent} = useStatementEdior(
-                                                {
-                                                    kind: "DefaultString",
-                                                    label: "Variable Statement",
-                                                    formArgs: {formArgs},
-                                                    userInputs,
-                                                    isMutationInProgress,
-                                                    validForm,
-                                                    onSave: handleSave,
-                                                    onChange: onPropertyChange,
-                                                    validate: validateExpression
-                                                },
-                                                !isStringType);
+    const variableNameConfig: VariableNameInputProps = {
+        displayName: 'Variable Name',
+        value: varName,
+        onValueChange: setVarName,
+        validateExpression,
+        position: config.model ?
+            getVariableNameFromST(config.model as LocalVarDecl).position
+            : formArgs.targetPosition,
+        isEdit: !!config.model,
+    }
+
+    const expressionEditorConfig = {
+        key: selectedType,
+        model: {
+            name: "Expression",
+            displayName: "Value Expression",
+            typeName: (modelType ? modelType : "other"),
+            value: variableExpression,
+        },
+        customProps: {
+            validate: validateExpression,
+            interactive: true,
+            statementType: (modelType ? modelType : "other"),
+            tooltipTitle: variableTooltipMessages.expressionEditor.title,
+            tooltipActionText: variableTooltipMessages.expressionEditor.actionText,
+            tooltipActionLink: variableTooltipMessages.expressionEditor.actionLink,
+            expressionInjectables: {
+                list: formArgs?.expressionInjectables?.list,
+                setInjectables: formArgs?.expressionInjectables?.setInjectables
+            }
+        },
+        onChange: onPropertyChange,
+        defaultValue: variableExpression,
+    };
+
+    const initialSource = getInitialSource(createModuleVarDecl(
+        {
+            varName: varName ? varName : "default",
+            varOptions: [],
+            varType:  selectedType === "other" ? otherType : selectedType,
+            varValue: variableExpression ? variableExpression : "EXPRESSION"
+        }
+    ));
+
+    const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
+        {
+            label: intl.formatMessage({id: "lowcode.develop.configForms.variable.statementEditor.label"}),
+            initialSource,
+            formArgs: {formArgs},
+            userInputs,
+            isMutationInProgress,
+            validForm,
+            onSave: handleSave,
+            onChange: onPropertyChange,
+            validate: validateExpression,
+            handleNameOnChange,
+            handleTypeChange
+        }
+    );
+
+    const typeDropDown = (
+        <SelectDropdownWithButton
+            defaultValue={selectedType === "other" ? "other" : modelType}
+            customProps={{
+                disableCreateNew: true,
+                values: variableTypes,
+            }}
+            label={variableTypeLabel}
+            onChange={handleTypeChange}
+        />
+    );
+
+    const variableNameInput = (
+        <div className="exp-wrapper">
+            <VariableNameInput {...variableNameConfig} />
+        </div>
+    );
+
+    const expressionEditor = (
+        <div className="exp-wrapper">
+            <ExpressionEditor
+                hideLabelTooltips={true}
+                {...expressionEditorConfig}
+            />
+        </div>
+    );
 
     if (!stmtEditorComponent) {
         return (
-            <FormControl data-testid="property-form" className={classes.wizardFormControl}>
+            <FormControl data-testid="property-form" className={classnames(classes.wizardFormControl, classes.fitContent)}>
                 <div>
                     <div className={classes.formFeilds}>
                         <div className={classes.formTitleWrapper}>
@@ -286,54 +329,51 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                             {stmtEditorButton}
                         </div>
                         <div className={classes.activeWrapper}>
-                            <SelectDropdownWithButton
-                                defaultValue={selectedType === "other" ? "other" : modelType}
-                                customProps={{
-                                    disableCreateNew: true,
-                                    values: variableTypes,
-                                }}
-                                label={variableTypeLabel}
-                                onChange={handleTypeChange}
-                            />
-                            {(selectedType === "other") && (
-                                <FormTextInput
-                                    defaultValue={otherType}
-                                    onChange={handleOtherTypeOnChange}
-                                    label={otherTypeLabel}
-                                    placeholder={enterTypePlaceholder}
-                                />
-                            )}
-                            <FormTextInput
-                                dataTestId="variable-name"
-                                customProps={{
-                                    validate: validateNameValue,
-                                    disabled: variableHasReferences
-                                }}
-                                defaultValue={varName}
-                                onChange={handleNameOnChange}
-                                label={addVariableNameLabel}
-                                errorMessage={varNameError}
-                                placeholder={addVariablePlaceholder}
-                            />
-                            <div className="exp-wrapper">
-                                <ExpressionEditor
-                                    key={selectedType}
-                                    model={{ name: "Expression", value: variableExpression, type: (modelType ? modelType : "other") }}
-                                    customProps={{
-                                        validate: validateExpression,
-                                        expandDefault: (selectedType === "other"),
-                                        tooltipTitle: variableTooltipMessages.expressionEditor.title,
-                                        tooltipActionText: variableTooltipMessages.expressionEditor.actionText,
-                                        tooltipActionLink: variableTooltipMessages.expressionEditor.actionLink,
-                                        interactive: true,
-                                        focus: editorFocus,
-                                        statementType: (modelType ? modelType : "other") as PrimitiveBalType,
-                                        revertFocus: revertEditorFocus
-                                    }}
-                                    onChange={onPropertyChange}
-                                    defaultValue={variableExpression}
-                                />
-                            </div>
+                            {(selectedType === "other")
+                                ? (
+                                    <div>
+                                        <div className={classes.typeContainer}>
+                                            {typeDropDown}
+                                        </div>
+                                        <div className={classnames(classes.activeWrapper, classes.blockWrapper)}>
+                                            <div className={classes.dropdownWrapper}>
+                                                <FormTextInput
+                                                    defaultValue={otherType}
+                                                    onChange={handleOtherTypeOnChange}
+                                                    label={otherTypeLabel}
+                                                    placeholder={enterTypePlaceholder}
+                                                />
+                                            </div>
+                                            <div className={classes.nameExpEditorWrapper}>
+                                                {variableNameInput}
+                                            </div>
+                                            <div className={classes.codeText}>
+                                                <Typography variant='body2' className={classes.endCode}>=</Typography>
+                                            </div>
+                                            <div className={classes.variableExpEditorWrapper}>
+                                                {expressionEditor}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                )
+                                : (
+                                    <div className={classnames(classes.activeWrapper, classes.blockWrapper)}>
+                                        <div className={classes.dropdownWrapper}>
+                                            {typeDropDown}
+                                        </div>
+                                        <div className={classes.nameExpEditorWrapper}>
+                                            {variableNameInput}
+                                        </div>
+                                        <div className={classes.codeText}>
+                                            <Typography variant='body2' className={classes.endCode}>=</Typography>
+                                        </div>
+                                        <div className={classes.variableExpEditorWrapper}>
+                                            {expressionEditor}
+                                        </div>
+                                    </div>
+                                )
+                            }
                         </div>
                     </div>
                     <FormActionButtons
@@ -348,7 +388,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             </FormControl >
         );
     }
-    else{
+    else {
         return stmtEditorComponent;
     }
 }

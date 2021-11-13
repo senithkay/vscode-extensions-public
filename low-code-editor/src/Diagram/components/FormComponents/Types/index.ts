@@ -31,8 +31,6 @@ export interface FormElementProps<T = {}> extends FormElementEvents {
     onFieldValueChange?: (isRequiredFieldsFilled: boolean) => void;
     size?: "small" | "medium";
     type?: "string" | "number" | "array" | "record" | "|" | "varref" | "int" | "float" | "boolean" | "json" | "var";
-    currentFile?: ApplicationFile;
-    currentApp?: AppInfo;
     editorDiagnostics?: Diagnostic[];
     mainDiagnostics?: Diagnostic[];
     targetPositionDraft?: any;
@@ -53,7 +51,7 @@ export interface FormElementEvents {
 
 export interface ConditionConfig {
     type: string;
-    conditionExpression?: string | ForeachConfig;
+    conditionExpression?: string | ForeachConfig | ElseIfConfig;
     scopeSymbols?: string[];
     conditionPosition?: NodePosition;
     model?: STNode
@@ -64,6 +62,10 @@ export interface ForeachConfig {
     collection: string;
     type: string;
     model?: STNode
+}
+
+export interface ElseIfConfig {
+    values: {id: number, expression: string, position: NodePosition}[]
 }
 
 export interface ProcessConfig {

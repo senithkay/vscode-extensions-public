@@ -136,6 +136,15 @@ export function ConstantConfigForm(props: ConstantConfigFormProps) {
 
     const disableSaveBtn: boolean = !isFormConfigValid(config);
 
+    let namePosition: NodePosition = { startLine: 0, startColumn: 0, endLine: 0, endColumn: 0 }
+
+    if (model) {
+        namePosition = model.variableName.position;
+    } else {
+        namePosition.startLine = targetPosition.startLine;
+        namePosition.endLine = targetPosition.startLine;
+    }
+
     return (
         <FormControl data-testid="module-variable-config-form" className={formClasses.wizardFormControl}>
             <div className={formClasses.formTitleWrapper}>
@@ -160,13 +169,13 @@ export function ConstantConfigForm(props: ConstantConfigFormProps) {
                 defaultValues={config.isPublic ? ["public"] : []}
                 onChange={handleAccessModifierChange}
             />
-            <FormTextInput
-                customProps={variableNameTextFieldCustomProps}
-                defaultValue={config.constantName}
-                onChange={handleNameChange}
-                label={"Constant Name"}
-                errorMessage={"Invalid Constant Name"}
-                placeholder={"Enter Constant Name"}
+            <VariableNameInput
+                displayName={"Constant Name"}
+                value={config.constantName}
+                onValueChange={handleNameChange}
+                validateExpression={updateExpressionValidity}
+                position={namePosition}
+                isEdit={!!model}
             />
             <CheckBoxGroup
                 values={["Include type in declaration"]}

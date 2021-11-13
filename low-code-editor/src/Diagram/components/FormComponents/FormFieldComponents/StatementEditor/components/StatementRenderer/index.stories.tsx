@@ -25,6 +25,7 @@ import ifElseBooleanLiteralModel from "./data/ifelse-booleaLiteral-st-model.json
 import ifElseModel from "./data/ifelse-st-model.json";
 import varDeclBinaryExpr from "./data/local-var-decl-with-binary-expr-st-model.json";
 import panicModel from "./data/panic-st-model.json";
+import returnModel from "./data/return-st-model.json";
 import varDeclStringLiteral from "./data/varDecl-stringLiteral-model.json";
 import whileModel from "./data/while-st-model.json";
 import { StatementRenderer, StatementRendererProps } from "./index";
@@ -49,30 +50,8 @@ const api = {
     code: {
         modifyDiagram: dummyFunction,
         onMutate: dummyFunction,
-        modifyTrigger: dummyFunction,
         setCodeLocationToHighlight: dummyFunction,
         gotoSource: dummyFunction
-    },
-    connections: {
-        getAllConnections: async (orgHandle: string): Promise<ConnectionDetails[]> => {
-            const completions: ConnectionDetails[] = [];
-            return completions;
-        }
-    },
-    ai: {},
-    splitPanel: {
-        maximize: dummyFunction,
-        minimize: dummyFunction,
-        setPrimaryRatio: dummyFunction,
-        setSecondaryRatio: dummyFunction,
-        handleRightPanelContent: dummyFunction
-    },
-    data: {
-        getGsheetList: async (): Promise<any> => ([]),
-    },
-    oauth: {
-        dispatchGetAllConfiguration: async (): Promise<void> => {
-        },
     },
     panNZoom: {
         pan: dummyFunction,
@@ -91,19 +70,6 @@ const api = {
 
 const props = {
     api,
-    // @ts-ignore
-    currentAppType: undefined,
-    currentApp: {
-        workingFile: "/apps/username/apName/project/choreo.bal",
-        id: 1,
-        name: '',
-        displayName: '',
-        org: '',
-        organizationId: 0,
-        // @ts-ignore
-        template: undefined,
-        createdAt: ''
-    },
     currentFile: {
         // @ts-ignore
         type: undefined,
@@ -179,6 +145,8 @@ export const IfElseBooleanLiteralStmt = Template.bind({});
 
 export const OtherStmt = Template.bind({});
 
+export const ReturnStmt = Template.bind({});
+
 VarDeclBinaryExprStmt.args = {
     model: varDeclBinaryExpr,
     userInputs: {
@@ -248,6 +216,17 @@ IfElseBooleanLiteralStmt.args = {
 
 OtherStmt.args = {
     model: panicModel,
+    userInputs: {
+        "selectedType": "",
+        "varName": "",
+        "variableExpression": "",
+        "formField": "Expression"
+    },
+    diagnosticHandler: dummyDiagnosticHandler
+}
+
+ReturnStmt.args = {
+    model: returnModel,
     userInputs: {
         "selectedType": "",
         "varName": "",

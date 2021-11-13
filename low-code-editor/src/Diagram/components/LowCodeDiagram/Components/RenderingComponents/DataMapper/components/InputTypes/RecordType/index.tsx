@@ -40,7 +40,6 @@ interface RecordTypeProps {
 }
 
 export function RecordType(props: RecordTypeProps) {
-    const { props: { currentApp } } = useContext(DiagramContext);
     const { model, isMain, onDataPointClick, offSetCorrection, isTarget, removeInputType } = props;
     const svgTextRef = useRef(null);
     const hasConnections = hasReferenceConnections(model);
@@ -54,7 +53,7 @@ export function RecordType(props: RecordTypeProps) {
     let type;
 
     if (!viewState.hasInlineRecordDescription) {
-        type = typeInfo.moduleName === currentApp.name ? typeInfo.name : `${typeInfo.moduleName}:${typeInfo.name}`;
+        type = `${typeInfo.moduleName}:${typeInfo.name}`;
     }
 
     const fields: JSX.Element[] = [];

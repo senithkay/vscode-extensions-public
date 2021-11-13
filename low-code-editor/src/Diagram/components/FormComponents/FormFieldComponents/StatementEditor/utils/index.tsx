@@ -13,7 +13,7 @@
 // tslint:disable: jsx-wrap-multiline
 import React, { ReactNode } from 'react';
 
-import { STNode } from "@ballerina/syntax-tree";
+import { STKindChecker, STNode } from "@ballerina/syntax-tree";
 
 import {
     ExpressionEditorLangClientInterface, PartialSTRequest,
@@ -24,7 +24,6 @@ import * as statementTypeComponents from '../components/Statements';
 import * as c from "../constants";
 import { SuggestionItem, VariableUserInputs } from '../models/definitions';
 
-import { DefaultModelsByKind } from "./sample-model";
 import {
     DataTypeByExpressionKind,
     ExpressionKindByOperator,
@@ -52,8 +51,16 @@ export async function getPartialSTForExpression(
     return resp.syntaxTree;
 }
 
-export function getDefaultModel(kind: string): STNode {
-    return DefaultModelsByKind[kind];
+export function getExpressionSource(model: STNode): string {
+    if (STKindChecker.isCallStatement(model) || STKindChecker.isReturnStatement(model)) {
+        return model.expression.source;
+    } else if (STKindChecker.isForeachStatement(model)) {
+        return model.actionOrExpressionNode.source;
+    } else if (STKindChecker.isIfElseStatement(model) || STKindChecker.isWhileStatement(model)) {
+        return model.condition.source;
+    } else if (STKindChecker.isLocalVarDecl(model)) {
+        return model.initializer.source;
+    }
 }
 
 export function getSuggestionsBasedOnExpressionKind(kind: string): SuggestionItem[] {
@@ -80,10 +87,10 @@ export function getExpressionTypeComponent(
     userInputs: VariableUserInputs,
     diagnosticHandler: (diagnostics: string) => void
 ): ReactNode {
-    const ExprTypeComponent = (expressionTypeComponents as any)[expression.kind];
+    let ExprTypeComponent = (expressionTypeComponents as any)[expression.kind];
 
     if (!ExprTypeComponent) {
-        return null;
+        ExprTypeComponent = (expressionTypeComponents as any)[c.OTHER_EXPRESSION];
     }
 
     return <ExprTypeComponent

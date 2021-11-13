@@ -11,220 +11,52 @@
  * associated services.
  */
 import {
-    BinaryExpression,
-    BracedExpression,
+    BinaryExpression, BooleanLiteral, BooleanTypeDesc,
+    BracedExpression, ConditionalExpression,
     NumericLiteral,
-    SimpleNameReference,
+    SimpleNameReference, STKindChecker,
     STNode,
-    StringLiteral
+    StringLiteral, StringTypeDesc, TypeTestExpression
 } from "@ballerina/syntax-tree";
 
 import * as c from "../constants";
-import {SuggestionItem} from "../models/definitions";
+import { SuggestionItem } from "../models/definitions";
 
-export function addOperator(model: STNode, operator: SuggestionItem) {
-    const expression: any = model;
-    if ("typeDescriptor" in expression) {
-        expression.typeDescriptor = operator.value;
-    } else {
-        expression.operator.value = operator.value;
-        expression.operator.kind = operator.kind;
-    }
-}
-
-export function addVariableSuggestion(model: STNode, suggestion: SuggestionItem) {
-    const initialKeys = Object.keys(model);
-    initialKeys.forEach((key) => {
-        delete model[key];
-    });
-    if (suggestion.kind === "string") {
-        Object.assign(model, createSimpleNameReference(suggestion.value));
-    }
-}
-
-export function addExpression(model: any, kind: string, value?: any) {
-    const initialKeys = Object.keys(model);
-    initialKeys.forEach((key) => {
-        delete model[key];
-    });
-
+export function generateExpressionTemplate (kind: string, value?: any) {
     if (kind === c.ARITHMETIC) {
-        Object.assign(model, createArithmetic());
+        return "(EXPRESSION + EXPRESSION)";
     } else if (kind === c.RELATIONAL) {
-        Object.assign(model, createRelational());
+        return "(EXPRESSION > EXPRESSION)";
     } else if (kind === c.EQUALITY) {
-        Object.assign(model, createEquality());
+        return "(EXPRESSION === EXPRESSION)";
+    } else if (kind === c.LOGICAL) {
+        return "(EXPRESSION && EXPRESSION)";
+    } else if (kind === c.CONDITIONAL) {
+        return "(EXPRESSION ? EXPRESSION : EXPRESSION)";
+    } else if (kind === c.RANGE) {
+        return "(EXPRESSION ... EXPRESSION)";
+    } else if (kind === c.TYPE_TEST) {
+        return "(EXPRESSION is TYPE_DESCRIPTOR)";
     } else if (kind === c.STRING_LITERAL) {
-        if (value) {
-            Object.assign(model, createStringLiteral(value));
-        } else {
-            Object.assign(model, createStringLiteral(""));
-        }
+        return "\" \"";
     } else if (kind === c.NUMERIC_LITERAL) {
-        if (value) {
-            Object.assign(model, createNumericLiteral(value));
-        } else {
-            Object.assign(model, createNumericLiteral(""));
-        }
+        return "0";
+    } else if (kind === c.BOOLEAN_LITERAL) {
+        return "true";
     } else if (kind === c.SIMPLE_NAME_REFERENCE) {
-        Object.assign(model, createSimpleNameReference(value));
-    } else {
-        // tslint:disable-next-line:no-console
-        console.log(`Unsupported kind. (${kind})`);
-    }
-}
-
-function createArithmetic(): BracedExpression {
-    return {
-        kind: "BracedExpression",
-        source: "",
-        closeParen: {
-            kind: "CloseParenToken",
-            isToken: true,
-            value: ")",
-            source: "",
-        },
-        expression: {
-            kind: "BinaryExpression",
-            lhsExpr: {
-                kind: "NumericLiteral",
-                literalToken: {
-                    kind: "DecimalIntegerLiteralToken",
-                    isToken: false,
-                    value: "expression",
-                    source: ""
-                },
-                source: ""
-            },
-            operator: {
-                kind: "PlusToken",
-                isToken: false,
-                value: "+",
-                source: ""
-            },
-            rhsExpr: {
-                kind: "NumericLiteral",
-                literalToken: {
-                    kind: "DecimalIntegerLiteralToken",
-                    isToken: false,
-                    value: "expression",
-                    source: ""
-                },
-                source: ""
-            },
-            source: ""
-        },
-        openParen: {
-            kind: "OpenParenToken",
-            isToken: true,
-            value: "(",
-            source: ""
-        }
-    };
-}
-
-function createRelational(): BinaryExpression {
-    return {
-        kind: "BinaryExpression",
-        lhsExpr: {
-            kind: "NumericLiteral",
-            literalToken: {
-                kind: "DecimalIntegerLiteralToken",
-                isToken: false,
-                value: "expression",
-                source: ""
-            },
-            source: ""
-        },
-        operator: {
-            kind: "GtToken",
-            isToken: false,
-            value: ">",
-            source: ""
-        },
-        rhsExpr: {
-            kind: "NumericLiteral",
-            literalToken: {
-                kind: "DecimalIntegerLiteralToken",
-                isToken: false,
-                value: "expression",
-                source: ""
-            },
-            source: ""
-        },
-        source: ""
-    };
-}
-
-function createEquality(): BinaryExpression {
-    return {
-        kind: "BinaryExpression",
-        lhsExpr: {
-            kind: "NumericLiteral",
-            literalToken: {
-                kind: "DecimalIntegerLiteralToken",
-                isToken: false,
-                value: "expression",
-                source: ""
-            },
-            source: ""
-        },
-        operator: {
-            kind: "TrippleEqualToken",
-            isToken: false,
-            value: "===",
-            source: ""
-        },
-        rhsExpr: {
-            kind: "NumericLiteral",
-            literalToken: {
-                kind: "DecimalIntegerLiteralToken",
-                isToken: false,
-                value: "expression",
-                source: ""
-            },
-            source: ""
-        },
-        source: ""
-    };
-}
-
-function createStringLiteral(value: string): StringLiteral {
-    return {
-        "kind": "StringLiteral",
-        "literalToken": {
-            "kind": "StringLiteralToken",
-            "isToken": true,
-            "value": value,
-            "source": ""
-        },
-        "source": ""
-    };
-}
-
-function createNumericLiteral(value: string): NumericLiteral {
-    return {
-        "kind": "NumericLiteral",
-        "literalToken": {
-            "kind": "DecimalIntegerLiteralToken",
-            "isToken": true,
-            "value": value,
-            "source": ""
-        },
-        "source": ""
-    };
-}
-
-function createSimpleNameReference(value: string): SimpleNameReference {
-    return {
-        "kind": "SimpleNameReference",
-        "name": {
-            "kind": "IdentifierToken",
-            "isToken": true,
-            "value": value,
-            "source": "",
-        },
-        "source": ""
+        return value;
+    } else if (kind === c.BOOLEAN_TYPE_DESC) {
+        return "boolean";
+    } else if (kind === c.STRING_TYPE_DESC) {
+        return "string";
+    } else if (kind === c.DECIMAL_TYPE_DESC) {
+        return "decimal";
+    } else if (kind === c.FLOAT_TYPE_DESC) {
+        return "float";
+    } else if (kind === c.INT_TYPE_DESC) {
+        return "int";
+    } else if (kind === c.JSON_TYPE_DESC) {
+        return "json";
     }
 }
 
@@ -232,9 +64,9 @@ export const ExpressionKindByOperator: { [key: string]: string } = {
     AsteriskToken: c.ARITHMETIC,
     BitwiseAndToken: c.ARITHMETIC,
     BitwiseXorToken: c.ARITHMETIC,
-    DoubleDotLtToken: c.ARITHMETIC,
+    DoubleDotLtToken: c.RANGE,
     DoubleEqualToken: c.EQUALITY,
-    EllipsisToken: c.ARITHMETIC,
+    EllipsisToken: c.RANGE,
     ElvisToken: c.ARITHMETIC,
     GtEqualToken: c.RELATIONAL,
     GtToken: c.RELATIONAL,
@@ -253,130 +85,169 @@ export const ExpressionKindByOperator: { [key: string]: string } = {
 
 export const OperatorsForExpressionKind: { [key: string]: SuggestionItem[] } = {
     Arithmetic: [
-        {value: "+", kind: "PlusToken"},
-        {value: "-", kind: "MinusToken"},
-        {value: "*", kind: "AsteriskToken"},
-        {value: "/", kind: "SlashToken"},
-        {value: "%", kind: "PercentToken"}
+        { value: "+", kind: "PlusToken" },
+        { value: "-", kind: "MinusToken" },
+        { value: "*", kind: "AsteriskToken" },
+        { value: "/", kind: "SlashToken" },
+        { value: "%", kind: "PercentToken" }
     ],
     Relational: [
-        {value: ">", kind: "GtToken"},
-        {value: ">=", kind: "GtEqualToken"},
-        {value: "<", kind: "LtToken"},
-        {value: "<=", kind: "LtEqualToken"}
+        { value: ">", kind: "GtToken" },
+        { value: ">=", kind: "GtEqualToken" },
+        { value: "<", kind: "LtToken" },
+        { value: "<=", kind: "LtEqualToken" }
     ],
     Equality: [
-        {value: "==", kind: "DoubleEqualToken"},
-        {value: "!=", kind: "NotEqualToken"},
-        {value: "===", kind: "TrippleEqualToken"},
-        {value: "!==", kind: "NotDoubleEqualToken"}
+        { value: "==", kind: "DoubleEqualToken" },
+        { value: "!=", kind: "NotEqualToken" },
+        { value: "===", kind: "TrippleEqualToken" },
+        { value: "!==", kind: "NotDoubleEqualToken" }
     ],
     Logical: [
-        {value: "&&", kind: "LogicalAndToken"},
-        {value: "||", kind: "LogicalOrToken"}
+        { value: "&&", kind: "LogicalAndToken" },
+        { value: "||", kind: "LogicalOrToken" }
     ],
     Unary: [
-        {value: "+", kind: "PlusToken"},
-        {value: "-", kind: "MinusToken"},
-        {value: "!", kind: "Unknown"},
-        {value: "~", kind: "Unknown"}
+        { value: "+", kind: "PlusToken" },
+        { value: "-", kind: "MinusToken" },
+        { value: "!", kind: "Unknown" },
+        { value: "~", kind: "Unknown" }
     ],
     Shift: [
-        {value: "<<", kind: "Unknown"},
-        {value: ">>", kind: "Unknown"},
-        {value: ">>>", kind: "Unknown"}
+        { value: "<<", kind: "Unknown" },
+        { value: ">>", kind: "Unknown" },
+        { value: ">>>", kind: "Unknown" }
     ],
     Range: [
-        {value: "...", kind: "Unknown"},
-        {value: "..<", kind: "DoubleDotLtToken"}
+        { value: "...", kind: "EllipsisToken" },
+        { value: "..<", kind: "DoubleDotLtToken" }
     ]
 }
 
 export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = {
     BooleanLiteral: [
-        {value: c.RELATIONAL},
-        {value: c.EQUALITY},
-        {value: c.LOGICAL},
-        {value: c.TYPE_CHECK},
-        {value: c.CONDITIONAL},
-        {value: c.UNARY}
+        { value: c.RELATIONAL },
+        { value: c.EQUALITY },
+        { value: c.LOGICAL },
+        { value: c.TYPE_TEST },
+        { value: c.CONDITIONAL },
+        // { value: c.UNARY }
     ],
     StringLiteral: [
-        {value: c.STRING_LITERAL},
-        {value: c.CONDITIONAL},
-        {value: c.STRING_TEMPLATE},
-        {value: c.ARITHMETIC}
+        { value: c.STRING_LITERAL },
+        { value: c.CONDITIONAL },
+        { value: c.STRING_TEMPLATE },
+        { value: c.ARITHMETIC }
     ],
     NumericLiteral: [],
     Relational: [
-        {value: c.ARITHMETIC},
-        {value: c.CONDITIONAL},
-        {value: c.TYPE_CHECK},
-        {value: c.RELATIONAL},
-        {value: c.NUMERIC_LITERAL}
+        { value: c.ARITHMETIC },
+        { value: c.CONDITIONAL },
+        { value: c.TYPE_TEST },
+        { value: c.RELATIONAL },
+        { value: c.NUMERIC_LITERAL }
     ],
     Arithmetic: [
-        {value: c.NUMERIC_LITERAL},
-        {value: c.ARITHMETIC},
-        {value: c.CONDITIONAL},
-        {value: c.STRING_LITERAL}
+        { value: c.NUMERIC_LITERAL },
+        { value: c.ARITHMETIC },
+        { value: c.CONDITIONAL },
+        { value: c.STRING_LITERAL }
     ],
     Logical: [
-        {value: c.RELATIONAL},
-        {value: c.LOGICAL},
-        {value: c.CONDITIONAL},
-        {value: c.STRING_LITERAL}
+        { value: c.RELATIONAL },
+        { value: c.LOGICAL },
+        { value: c.CONDITIONAL },
+        { value: c.STRING_LITERAL }
     ],
     Conditional: [
-        {value: c.STRING_LITERAL},
-        {value: c.NUMERIC_LITERAL},
-        {value: c.RELATIONAL},
-        {value: c.TYPE_CHECK},
-        {value: c.CONDITIONAL}
+        { value: c.STRING_LITERAL },
+        { value: c.NUMERIC_LITERAL },
+        { value: c.RELATIONAL },
+        { value: c.TYPE_TEST },
+        { value: c.CONDITIONAL }
     ],
     Equality: [
-        {value: c.ARITHMETIC},
-        {value: c.CONDITIONAL},
-        {value: c.STRING_LITERAL},
-        {value: c.NUMERIC_LITERAL},
-        {value: c.STRING_TEMPLATE}
+        { value: c.ARITHMETIC },
+        { value: c.CONDITIONAL },
+        { value: c.STRING_LITERAL },
+        { value: c.NUMERIC_LITERAL },
+        // { value: c.STRING_TEMPLATE }
     ],
     DefaultBoolean: [
-        {value: c.RELATIONAL},
-        {value: c.EQUALITY},
-        {value: c.LOGICAL},
-        {value: c.STRING_LITERAL},
-        {value: c.TYPE_CHECK},
-        {value: c.CONDITIONAL},
-        {value: c.UNARY}
+        { value: c.RELATIONAL },
+        { value: c.EQUALITY },
+        { value: c.LOGICAL },
+        { value: c.BOOLEAN_LITERAL },
+        { value: c.TYPE_TEST },
+        { value: c.CONDITIONAL },
+        // { value: c.UNARY }
     ],
     DefaultInteger: [
-        {value: c.ARITHMETIC},
-        {value: c.NUMERIC_LITERAL},
-        {value: c.CONDITIONAL},
-        {value: c.UNARY}
+        { value: c.ARITHMETIC },
+        { value: c.NUMERIC_LITERAL },
+        { value: c.CONDITIONAL },
+        // { value: c.UNARY }
     ],
     DefaultString: [
-        {value: c.STRING_LITERAL},
-        {value: c.CONDITIONAL},
-        {value: c.STRING_TEMPLATE},
-        {value: c.ARITHMETIC}
-    ],
-    TypeCheck: [
-        {value: c.STRING_LITERAL},
-        {value: c.NUMERIC_LITERAL},
-        {value: c.CONDITIONAL}
+        { value: c.STRING_LITERAL },
+        { value: c.CONDITIONAL },
+        // { value: c.STRING_TEMPLATE },
+        { value: c.ARITHMETIC }
     ],
     Unary: [
-        {value: c.NUMERIC_LITERAL},
-        {value: c.RELATIONAL},
-        {value: c.EQUALITY},
-        {value: c.ARITHMETIC}
+        { value: c.NUMERIC_LITERAL },
+        { value: c.RELATIONAL },
+        { value: c.EQUALITY },
+        { value: c.ARITHMETIC }
     ],
     StringTemplate: [
-        {value: c.STRING_TEMPLATE},
-        {value: c.ARITHMETIC},
-        {value: c.CONDITIONAL}
+        { value: c.STRING_TEMPLATE },
+        { value: c.ARITHMETIC },
+        { value: c.CONDITIONAL }
+    ],
+    DefaultReturn: [
+        { value: c.STRING_LITERAL },
+        { value: c.NUMERIC_LITERAL },
+        { value: c.BOOLEAN_LITERAL },
+        { value: c.ARITHMETIC },
+        { value: c.RELATIONAL },
+        { value: c.EQUALITY },
+        { value: c.TYPE_TEST },
+        { value: c.LOGICAL },
+        { value: c.CONDITIONAL },
+        { value: c.RANGE }
+    ],
+    TypeDescriptor: [
+        { value: c.STRING_TYPE_DESC },
+        { value: c.BOOLEAN_TYPE_DESC },
+        { value: c.JSON_TYPE_DESC },
+        { value: c.DECIMAL_TYPE_DESC },
+        { value: c.FLOAT_TYPE_DESC },
+        { value: c.INT_TYPE_DESC },
+        // { value: c.VAR_TYPE_DESC }, // TODO: Enable var-type-desc when syntax-tree-interfaces are supported
+    ],
+    DefaultExpressions: [
+        { value: c.ARITHMETIC },
+        { value: c.RELATIONAL },
+        { value: c.EQUALITY },
+        { value: c.LOGICAL },
+        { value: c.STRING_LITERAL },
+        { value: c.NUMERIC_LITERAL },
+        { value: c.BOOLEAN_LITERAL },
+        { value: c.TYPE_TEST },
+        { value: c.CONDITIONAL },
+        { value: c.RANGE }
+    ],
+    Range: [
+        { value: c.ARITHMETIC },
+        { value: c.RELATIONAL },
+        { value: c.EQUALITY },
+        { value: c.LOGICAL },
+        { value: c.STRING_LITERAL },
+        { value: c.NUMERIC_LITERAL },
+        { value: c.BOOLEAN_LITERAL },
+        { value: c.CONDITIONAL },
+        { value: c.RANGE }
     ]
 }
 

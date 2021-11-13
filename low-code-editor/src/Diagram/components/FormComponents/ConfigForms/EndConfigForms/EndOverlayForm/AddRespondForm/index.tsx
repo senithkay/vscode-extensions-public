@@ -42,11 +42,6 @@ export function AddRespondForm(props: RespondFormProps) {
         props: {
             isCodeEditorActive,
             isMutationProgress: isMutationInProgress
-        },
-        api: {
-            tour: {
-                goToNextTourStep: dispatchGoToNextTourStep
-            }
         }
     } = useContext(Context);
     const { config, formArgs, onCancel, onSave } = props;
@@ -66,14 +61,10 @@ export function AddRespondForm(props: RespondFormProps) {
     const onExpressionChange = (value: any) => {
         respondFormConfig.respondExpression = value;
         setResExp(value);
-        if (value === "jsonPayload") {
-            dispatchGoToNextTourStep('CONFIG_RESPOND_SELECT_JSON');
-        }
         setValidForm(false);
     };
 
     const onSaveWithTour = () => {
-        dispatchGoToNextTourStep('CONFIG_RESPOND_CONFIG_SAVE');
         respondFormConfig.responseCode = statusCodeState;
         respondFormConfig.respondExpression = resExp;
         onSave();
@@ -142,18 +133,25 @@ export function AddRespondForm(props: RespondFormProps) {
     );
     const disableSave = (isMutationInProgress || !validForm || !validStatusCode);
 
-    const {stmtEditorButton , stmtEditorComponent} = useStatementEdior(
+    const initialSource = getInitialSource(createRespond(
+        respondFormConfig.genType,
+        respondFormConfig.variable,
+        respondFormConfig.caller,
+        resExp
+    ));
+
+    const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {
-            kind: "DefaultString",
-            label: "Variable Statement",
+            label: intl.formatMessage({id: "lowcode.develop.configForms.respond.statementEditor.label"}),
+            initialSource,
             formArgs: {formArgs},
             isMutationInProgress,
             validForm,
             onSave: onSaveWithTour,
             onChange: onExpressionChange,
             validate: validateExpression
-        },
-        !true);
+        }
+    );
 
 
     if (!stmtEditorComponent) {

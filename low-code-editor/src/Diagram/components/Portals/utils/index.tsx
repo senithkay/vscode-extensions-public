@@ -25,7 +25,6 @@ import {
 import { Avatar } from "@material-ui/core";
 import { DocumentSymbol, SymbolInformation } from "monaco-languageclient";
 
-import { ConnectionDetails } from "../../../../api/models";
 import * as ConstructIcons from "../../../../assets/icons"
 import {
     ActionConfig,
@@ -355,14 +354,19 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                     if (specificField.valueExpr.kind === 'MappingConstructor') {
                         const mappingField = specificField.valueExpr as MappingConstructor;
                         if (formField.typeName === "union") {
-                            formField.fields.forEach(subFormField => {
+                            formField.members.forEach(subFormField => {
                                 if (subFormField.typeName === "record" && subFormField.fields) {
                                     const subFields = subFormField.fields;
                                     if (subFields) {
                                         mapRecordLiteralToRecordTypeFormField(mappingField.fields as SpecificField[], subFields);
                                         // find selected data type using non optional field's value
-                                        const valueFilled = subFields.find(field => (field.optional === false && field.value));
-                                        if (valueFilled) {
+                                        let allFieldsFilled = true;
+                                        subFields.forEach(field => {
+                                            if (field.optional === false && !field.value){
+                                                allFieldsFilled = false;
+                                            }
+                                        });
+                                        if (allFieldsFilled) {
                                             formField.selectedDataType = getUnionFormFieldName(subFormField);
                                         }
                                     }
@@ -496,9 +500,9 @@ export function getExistingConnectorIconSVG(iconId: string, scale: number = 1): 
 }
 
 
-export function getConstructIcon(iconId: string, args: any) {
+export function getConstructIcon(iconId: string) {
     const Icon = (ConstructIcons as any)[iconId];
-    return <Icon {...args} />
+    return <Icon/>
 }
 
 export function getConnectorIconId(connector: BallerinaConnectorInfo) {
@@ -630,29 +634,42 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
                                          : Promise<ConfigWizardState> {
 
     // get form fields from browser cache
-    let cachedConnector = getConnectorFromCache(connector);
+    let connectorInfo = getConnectorFromCache(connector);
     let functionDefInfo: Map<string, FunctionDefinitionInfo> = new Map();
     const connectorConfig = new ConnectorConfig();
+    const connectorRequest: BallerinaConnectorRequest = {};
 
-    if ((connector as BallerinaConnectorInfo).functions?.length > 0){
-        cachedConnector = connector as BallerinaConnectorInfo;
+    // Connector request with connector_id
+    if (!connectorInfo && connector && connector.id){
+        connectorRequest.id = connector.id;
     }
 
-    if (!cachedConnector) {
+    // Connector request with FQN
+    if (!connectorInfo && connector && connector.moduleName && connector.package){
+        connectorRequest.name = connector.name;
+        connectorRequest.moduleName = connector.moduleName;
+        connectorRequest.orgName = connector.package.organization;
+        connectorRequest.packageName = connector.package.name;
+        connectorRequest.version = connector.package.version;
+    }
+
+    if (!connectorInfo && connectorRequest) {
         // generate form fields form connector syntax tree
         const langClient: DiagramEditorLangClientInterface = await getDiagramEditorLangClient(langServerURL);
-        if (connector) {
-            const connectorResp = await langClient.getConnector(connector);
-            if (connectorResp) {
-                cachedConnector = connectorResp as BallerinaConnectorInfo;
-                connector = cachedConnector;
-                // save form fields in browser cache
-                await addConnectorToCache(cachedConnector);
-            }
+        const connectorResp = await langClient?.getConnector(connectorRequest);
+        if (connectorResp) {
+            connectorInfo = connectorResp as BallerinaConnectorInfo;
+            connector = connectorInfo;
+            // save form fields in browser cache
+            await addConnectorToCache(connectorInfo);
         }
     }
 
-    cachedConnector?.functions.forEach((functionInfo: FunctionDefinitionInfo) => {
+    if (!connectorInfo){
+        return null;
+    }
+
+    connectorInfo?.functions.forEach((functionInfo: FunctionDefinitionInfo) => {
         functionDefInfo.set(functionInfo.name, functionInfo);
     });
 
@@ -715,9 +732,7 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
                 connectorConfig.name = endpointVarName;
             }
         }
-        connectorConfig.connectorInit = functionDefInfo.get("init") ?
-            functionDefInfo.get("init").parameters
-            : functionDefInfo.get("__init").parameters;
+        connectorConfig.connectorInit = functionDefInfo.get("init") ? functionDefInfo.get("init").parameters : [];
         const matchingEndPoint: LocalVarDecl = symbolInfo.endpoints.get(connectorConfig.name) as LocalVarDecl;
         if (matchingEndPoint) {
             connectorConfig.initPosition = matchingEndPoint.position;
@@ -730,60 +745,12 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
     return {
         isLoading: false,
         connector,
-        wizardType: model ? WizardType.EXISTING : WizardType.NEW,
         functionDefInfo,
         connectorConfig,
         model
     };
 }
 
-export const getKeyFromConnection = (connection: ConnectionDetails, key: string) => {
-    return connection?.codeVariableKeys.find((keys: { name: string; }) => keys.name === key)?.codeVariableKey || "";
-};
-
-export function getOauthParamsFromConnection(connectorName: string, connectionDetail: ConnectionDetails, type?: string): any {
-    let tokenObjectName = "oauthClientConfig";
-    switch (connectorName) {
-        case "github": {
-            return [`{
-                accessToken: ${getKeyFromConnection(connectionDetail, 'accessTokenKey')}}`];
-        }
-        case "google calendar": {
-            tokenObjectName = "oauth2Config";
-            break;
-        }
-        case "google drive": {
-            tokenObjectName = "clientConfig";
-            break;
-        }
-        case "gmail":
-        case "google sheets": {
-            tokenObjectName = "oauthClientConfig";
-            break;
-        }
-    }
-    if (type && type === "OAuth2RefreshTokenGrantConfig") {
-        let refreshUrl = getKeyFromConnection(connectionDetail, 'refreshUrlKey')
-        if (refreshUrl === ""){
-                refreshUrl = getKeyFromConnection(connectionDetail, 'tokenEpKey');
-        }
-
-        return [`{
-            ${tokenObjectName}: {
-                clientId: ${getKeyFromConnection(connectionDetail, 'clientIdKey')},
-                clientSecret: ${getKeyFromConnection(connectionDetail, 'clientSecretKey')},
-                refreshToken: ${getKeyFromConnection(connectionDetail, 'refreshTokenKey')},
-                refreshUrl : ${refreshUrl}
-            }
-         }`];
-    } else if (type && type === "BearerTokenConfig") {
-        return [`{
-            ${tokenObjectName}: {
-                token: ${getKeyFromConnection(connectionDetail, 'tokenKey')}
-            }
-         }`];
-    }
-}
 
 export function getInitReturnType(functionDefinitions: Map<string, FunctionDefinitionInfo>): boolean {
     const returnTypeField = functionDefinitions.get("init")?.returnType;
@@ -988,94 +955,6 @@ export function getOauthParamsFromFormFields(connectorName: string, formFields: 
              }`);
         }
     }
-}
-
-export function getOauthConnectionConfigurables(connectorName: string, connectionDetail: ConnectionDetails, configurables?: Map<string, STNode>, type?: string): any {
-    switch (connectorName) {
-        case "github": {
-            const githubAccessToken = getKeyFromConnection(connectionDetail, 'accessTokenKey');
-            if (!configurables?.get(githubAccessToken)) {
-                return `configurable string ${githubAccessToken} = ?;`;
-            }
-            break;
-        }
-        case "google sheets":
-        case "google calendar":
-        case "google drive":
-        case "gmail": {
-            const clientId = getKeyFromConnection(connectionDetail, 'clientIdKey');
-            const clientSecret = getKeyFromConnection(connectionDetail, 'clientSecretKey');
-            let refreshUrl = getKeyFromConnection(connectionDetail, 'refreshUrlKey');
-            if (refreshUrl === ""){
-                refreshUrl = getKeyFromConnection(connectionDetail, 'tokenEpKey');
-            }
-            const refreshToken = getKeyFromConnection(connectionDetail, 'refreshTokenKey');
-            const token = getKeyFromConnection(connectionDetail, 'tokenKey');
-            let statement = '';
-
-            if (type && type === "OAuth2RefreshTokenGrantConfig") {
-                if (!configurables?.get(clientId)) {
-                    statement += `configurable string ${clientId} = ?;\n`;
-                }
-                if (!configurables?.get(clientSecret)) {
-                    statement += `configurable string ${clientSecret} = ?;\n`;
-                }
-                if (!configurables?.get(refreshUrl)) {
-                    statement += `configurable string ${refreshUrl} = ?;\n`;
-                }
-                if (!configurables?.get(refreshToken)) {
-                    statement += `configurable string ${refreshToken} = ?;\n`;
-                }
-            } else if (type && type === "BearerTokenConfig") {
-                if (!configurables?.get(token)) {
-                    statement += `configurable string ${token} = ?;\n`;
-                }
-            }
-
-            return statement !== '' ? statement : null;
-        }
-    }
-    return null;
-}
-
-export function getOauthConnectionFromFormField(formField: FormField, allConnections: ConnectionDetails[]): ConnectionDetails {
-    const connectorModuleName = formField?.typeInfo.moduleName;
-    let variableKey: string;
-    let activeConnection: ConnectionDetails;
-
-    switch (connectorModuleName) {
-        case "github":
-            variableKey = formField.fields?.find(field => field.name === "accessToken")?.value;
-            break;
-        case "googleapis.gmail":
-        case "googleapis.sheets":
-            variableKey = formField.fields?.find(field => field.name === "oauthClientConfig")?.
-                fields?.find(field => field.typeInfo.name === "OAuth2RefreshTokenGrantConfig")?.fields.find(field => field.name === "clientId")?.value;
-            if (!variableKey) {
-                variableKey = formField.fields?.find(field => field.name === "oauthClientConfig")?.
-                    fields?.find(field => field.typeInfo.name === "BearerTokenConfig")?.fields.find(field => field.name === "token")?.value;
-            }
-            break;
-        case "googleapis.calendar": {
-            variableKey = formField.fields?.find(field => field.name === "oauth2Config")?.
-                fields?.find(field => field.typeInfo.name === "OAuth2RefreshTokenGrantConfig")?.fields.find(field => field.name === "clientId")?.value;
-            if (!variableKey) {
-                variableKey = formField.fields?.find(field => field.name === "oauth2Config")?.
-                    fields?.find(field => field.typeInfo.name === "BearerTokenConfig")?.fields.find(field => field.name === "token")?.value;
-            }
-            break;
-        }
-        default:
-            return null;
-    }
-
-    allConnections.forEach(connection => {
-        if (connection.codeVariableKeys.find(key => key.codeVariableKey === variableKey)) {
-            activeConnection = connection;
-        }
-    });
-
-    return activeConnection;
 }
 
 export function checkErrorsReturnType(action: string, functionDefinitions: Map<string, FunctionDefinitionInfo>): boolean {

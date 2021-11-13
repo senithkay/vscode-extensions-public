@@ -24,6 +24,7 @@
         flex-direction: row;
         padding: 15px;
         border-bottom: 1px #e6e7ec solid;
+        cursor: pointer;
 
         .header-segement-container {
             display: flex;
@@ -37,14 +38,14 @@
 
             .header-segment-path {
                 margin-right: 4px;
-                font-weight: 300;
+                font-weight: normal;
                 color: #8d91a3;
             }
 
             .header-segment-listener {
                 margin-right: 15px;
-                font-weight: 300;
                 color: #8d91a3;
+                font-weight: normal;
             }
         }
 

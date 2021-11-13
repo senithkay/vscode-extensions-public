@@ -17,17 +17,27 @@ export interface EditorState {
     lastUpdatedAt: string;
 }
 
+export interface PFSession {
+    choreoAPI: string,
+    choreoToken: string | undefined,
+    choreoCookie?: string | undefined
+}
+
 export interface EditorAPI {
     getFileContent: (url: string) => Promise<string>;
     updateFileContent: (filePath: string, content: string) => Promise<boolean>;
     gotoSource: (filePath: string, position: { startLine: number, startColumn: number }) => Promise<boolean>;
+    getPFSession: () => Promise<PFSession>;
+    showPerformanceGraph: () => Promise<boolean>;
+    showMessage: () => Promise<boolean>;
 }
 
 export type EditorProps = EditorState & EditorAPI;
 
 export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
 
-    const { getFileContent, updateFileContent, gotoSource, ...restProps } = props;
+    const { getFileContent, updateFileContent, gotoSource, getPFSession,
+            showPerformanceGraph, showMessage, ...restProps } = props;
     const [state, setState] = React.useState<EditorState>(restProps);
 
     React.useEffect(() => {
@@ -42,6 +52,9 @@ export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
                     getFileContent={getFileContent}
                     updateFileContent={updateFileContent}
                     gotoSource={gotoSource}
+                    getPFSession={getPFSession}
+                    showPerformanceGraph={showPerformanceGraph}
+                    showMessage={showMessage}
                     panX="-30"
                     panY="0"
                     scale="0.9"

@@ -22,11 +22,12 @@ import { FormElementProps } from "../../Types";
 
 interface RecordProps {
     validate?: (field: string, isInvalid: boolean, isEmpty: boolean) => void;
+    expressionInjectables?: ExpressionInjectablesProps;
 }
 
 export function Record(props: FormElementProps<RecordProps>) {
     const { model, customProps } = props;
-    const { validate } = customProps;
+    const { validate, expressionInjectables } = customProps;
     const classes = useStyles();
     const validFieldChecker = React.useRef(new Map<string, boolean>());
     const emptyFieldChecker = React.useRef(new Map<string, boolean>());
@@ -52,7 +53,8 @@ export function Record(props: FormElementProps<RecordProps>) {
                         model: field,
                         index,
                         customProps: {
-                            validate: validateField
+                            validate: validateField,
+                            expressionInjectables,
                         }
                     };
 

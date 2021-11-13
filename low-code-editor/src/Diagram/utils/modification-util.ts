@@ -23,24 +23,49 @@ import { HeaderObjectConfig } from "../components/FormComponents/ConnectorExtens
 import { getFormattedModuleName, getParams } from "../components/Portals/utils";
 
 /* tslint:disable ordered-imports */
-import { getInsertComponentSource } from "./template-utils";
+import { getComponentSource, getInsertComponentSource } from "./template-utils";
 
-export function createIfStatement(conditionExpression: string, targetPosition: NodePosition): STModification {
+export function createIfStatement(condition: string, targetPosition?: NodePosition): STModification {
     const ifStatement: STModification = {
-        startLine: targetPosition.startLine,
+        startLine: targetPosition ? targetPosition.startLine : 0,
         startColumn: 0,
-        endLine: targetPosition.startLine,
+        endLine: targetPosition ? targetPosition.startLine : 0,
         endColumn: 0,
-        type: "IF_STATEMENT",
+        type: "IF_CONDITION",
         config: {
-            "CONDITION": conditionExpression,
+            "CONDITION": condition,
         }
     };
 
     return ifStatement;
 }
 
-export function updateIfStatementCondition(conditionExpression: string, targetPosition: NodePosition): STModification {
+export function createElseIfStatement(condition: string, targetPosition?: NodePosition): STModification {
+    const elseIfStatement: STModification = {
+        startLine: targetPosition.startLine,
+        startColumn: 0,
+        endLine: targetPosition.startLine,
+        endColumn: 0,
+        type: "ELSE_IF_CONDITION",
+        config: {
+            "CONDITION": condition,
+        }
+    };
+    return elseIfStatement;
+}
+
+export function createElseStatement(targetPosition?: NodePosition): STModification {
+    const elseStatement: STModification = {
+        startLine: targetPosition.startLine,
+        startColumn: 0,
+        endLine: targetPosition.startLine,
+        endColumn: 0,
+        type: "ELSE_STATEMENT"
+    };
+    return elseStatement;
+}
+
+export function updateIfStatementCondition(condition: string, targetPosition: NodePosition): STModification {
     const updatedIfStatement: STModification = {
         startLine: targetPosition.startLine,
         startColumn: targetPosition.startColumn,
@@ -48,18 +73,18 @@ export function updateIfStatementCondition(conditionExpression: string, targetPo
         endColumn: targetPosition.endColumn,
         type: "IF_STATEMENT_CONDITION",
         config: {
-            "CONDITION": conditionExpression,
+            "CONDITION": condition,
         }
     };
 
     return updatedIfStatement;
 }
 
-export function createForeachStatement(collection: string, variableName: string, type: string, targetPosition: NodePosition): STModification {
+export function createForeachStatement(collection: string, variableName: string, type: string, targetPosition?: NodePosition): STModification {
     const foreachStatement: STModification = {
-        startLine: targetPosition.startLine,
+        startLine: targetPosition ? targetPosition.startLine : 0,
         startColumn: 0,
-        endLine: targetPosition.startLine,
+        endLine: targetPosition ? targetPosition.startLine : 0,
         endColumn: 0,
         type: "FOREACH_STATEMENT",
         config: {
@@ -89,11 +114,11 @@ export function updateForEachCondition(collection: string, variableName: string,
     return foreachStatement;
 }
 
-export function createWhileStatement(conditionExpression: string, targetPosition: NodePosition): STModification {
+export function createWhileStatement(conditionExpression: string, targetPosition?: NodePosition): STModification {
     const ifStatement: STModification = {
-        startLine: targetPosition.startLine,
+        startLine: targetPosition ? targetPosition.startLine : 0,
         startColumn: 0,
-        endLine: targetPosition.startLine,
+        endLine: targetPosition ? targetPosition.startLine : 0,
         endColumn: 0,
         type: "WHILE_STATEMENT",
         config: {
@@ -190,11 +215,11 @@ export function updateResourceSignature(method: string, path: string, queryParam
     return resourceSignature;
 }
 
-export function createLogStatement(type: string, logExpr: string, targetPosition: NodePosition): STModification {
+export function createLogStatement(type: string, logExpr: string, targetPosition?: NodePosition): STModification {
     const propertyStatement: STModification = {
-        startLine: targetPosition.startLine,
+        startLine: targetPosition ? targetPosition.startLine : 0,
         startColumn: 0,
-        endLine: targetPosition.startLine,
+        endLine: targetPosition ? targetPosition.startLine : 0,
         endColumn: 0,
         type: "LOG_STATEMENT",
         config: {
@@ -222,11 +247,11 @@ export function updateLogStatement(type: string, logExpr: string, targetPosition
     return propertyStatement;
 }
 
-export function createReturnStatement(returnExpr: string, targetPosition: NodePosition): STModification {
+export function createReturnStatement(returnExpr: string, targetPosition?: NodePosition): STModification {
     const returnStatement: STModification = {
-        startLine: targetPosition.startLine,
+        startLine: targetPosition ? targetPosition.startLine : 0,
         startColumn: 0,
-        endLine: targetPosition.startLine,
+        endLine: targetPosition ? targetPosition.startLine : 0,
         endColumn: 0,
         type: "RETURN_STATEMENT",
         config: {
@@ -424,11 +449,11 @@ export function updateServiceCallForPayload(type: string, variable: string, call
     return modification;
 }
 
-export function createRespond(type: string, variable: string, callerName: string, expression: string, targetPosition: NodePosition): STModification {
+export function createRespond(type: string, variable: string, callerName: string, expression: string, targetPosition?: NodePosition): STModification {
     const respond: STModification = {
-        startLine: targetPosition.startLine,
+        startLine: targetPosition ? targetPosition.startLine : 0,
         startColumn: 0,
-        endLine: targetPosition.startLine,
+        endLine: targetPosition ? targetPosition.startLine : 0,
         endColumn: 0,
         type: "RESPOND",
         config: {
@@ -509,12 +534,12 @@ export function createCheckedPayloadFunctionInvocation(variable: string, type: s
     return checkedPayloadInvo;
 }
 
-export function createModuleVarDecl(config: ModuleVariableFormState, targetPosition: NodePosition): STModification {
+export function createModuleVarDecl(config: ModuleVariableFormState, targetPosition?: NodePosition): STModification {
     const { varName, varOptions, varType, varValue } = config;
 
     return {
-        startLine: targetPosition.startLine,
-        endLine: targetPosition.startLine,
+        startLine: targetPosition ? targetPosition.startLine : 0,
+        endLine: targetPosition ? targetPosition.startLine : 0,
         startColumn: 0,
         endColumn: 0,
         type: 'MODULE_VAR_DECL_WITH_INIT',
@@ -920,4 +945,38 @@ export function updateFunctionSignature(name: string, parameters: string, return
     };
 
     return functionStatement;
+}
+
+export function mutateTypeDefinition(typeName: string, typeDesc: string, targetPosition: NodePosition, isNew: boolean,
+                                     accessModifier?: string): STModification {
+    let modification: STModification;
+    if (isNew) {
+        modification = {
+            startLine: targetPosition.startLine,
+            endLine: targetPosition.startLine,
+            startColumn: 0,
+            endColumn: 0,
+            type: ''
+        };
+    } else {
+        modification = {
+            ...targetPosition,
+            type: ''
+        };
+    }
+
+    return {
+        ...modification,
+        type: 'TYPE_DEFINITION',
+        config: {
+            'ACCESS_MODIFIER': accessModifier,
+            'TYPE_NAME': typeName,
+            'TYPE_DESCRIPTOR': typeDesc
+        }
+    }
+}
+
+export function getInitialSource(modification: STModification): string {
+    const source = getComponentSource(modification.type, modification.config);
+    return source;
 }

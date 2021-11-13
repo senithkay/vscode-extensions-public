@@ -60,11 +60,6 @@ export function ProcessForm(props: ProcessFormProps) {
             type: "",
             expression: ""
         };
-    } else if (formType === "DataMapper") {
-        config.config = {
-            inputTypes: [],
-            outputType: undefined
-        }
     } else if (formType === "Call" || formType === "Custom") {
         config.config = {
             expression: ""
@@ -87,7 +82,6 @@ export function ProcessForm(props: ProcessFormProps) {
             <>
                 {formType === "Variable" && <AddVariableConfig config={config} formArgs={formArgs} onSave={onSave} onCancel={onCancel} />}
                 {formType === "Log" && <AddLogConfig config={config} formArgs={formArgs} onSave={onSave} onCancel={onCancel} />}
-                {formType === "DataMapper" && <AddDataMappingConfig processConfig={config} onSave={onSave} onCancel={onCancel} />}
                 {(formType === "Custom" || formType === "Call") && <AddCustomStatementConfig config={config} formArgs={formArgs} onSave={onSave} onCancel={onCancel} />}
             </>
         );

@@ -20,6 +20,8 @@ import FormAccordion from "../FormAccordion";
 import { ExpressionInjectablesProps } from "../FormGenerator";
 import { FormElementProps } from "../Types";
 
+import { useStyles } from "./styles";
+
 export interface FormProps {
     fields: FormField[];
     onValidate?: (isRequiredFieldsFilled: boolean) => void;
@@ -90,7 +92,7 @@ export function Form(props: FormProps) {
     });
 
     return (
-        <form className={classes.inputUrl} noValidate={true} autoComplete="off">
+        <form className={classes.fullWidth} noValidate={true} autoComplete="off">
             <FormAccordion
                 depth={1}
                 mandatoryFields={elements}

@@ -13,6 +13,8 @@
 
 import { CaptureBindingPattern, ModuleVarDecl, STKindChecker, TypedBindingPattern } from "@ballerina/syntax-tree";
 
+import { getVariableNameFromST } from "../../../../../../utils/st-util";
+
 export const ModuleVarNameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 
 export interface ModuleVariableFormState {
@@ -20,6 +22,9 @@ export interface ModuleVariableFormState {
     varName: string;
     varValue: string;
     varOptions: string[];
+}
+
+export interface ModuleVariableFormStateWithValidity extends ModuleVariableFormState{
     isExpressionValid: boolean;
 }
 
@@ -28,9 +33,9 @@ export enum VariableOptions {
     PUBLIC = 'public',
 }
 
-export function getFormConfigFromModel(model: any): ModuleVariableFormState {
+export function getFormConfigFromModel(model: any): ModuleVariableFormStateWithValidity {
     // FixMe: model is set to any type due to missing properties in ST interface
-    const defaultFormState: ModuleVariableFormState = {
+    const defaultFormState: ModuleVariableFormStateWithValidity = {
         varType: 'int',
         varName: '',
         varValue: '',
@@ -58,8 +63,7 @@ export function getFormConfigFromModel(model: any): ModuleVariableFormState {
         }
 
         defaultFormState.varValue = model.initializer.source;
-        defaultFormState.varName = ((model.typedBindingPattern as TypedBindingPattern)
-            ?.bindingPattern as CaptureBindingPattern)?.variableName?.value;
+        defaultFormState.varName = getVariableNameFromST(model).value;
 
         return defaultFormState;
     }
@@ -67,7 +71,7 @@ export function getFormConfigFromModel(model: any): ModuleVariableFormState {
     return defaultFormState;
 }
 
-export function isFormConfigValid(config: ModuleVariableFormState): boolean {
+export function isFormConfigValid(config: ModuleVariableFormStateWithValidity): boolean {
     const { varName, varValue, isExpressionValid } = config;
 
     return varName.length > 0 && ModuleVarNameRegex.test(varName) && varValue.length > 0 && isExpressionValid;
