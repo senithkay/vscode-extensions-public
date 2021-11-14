@@ -14,7 +14,8 @@ import React from 'react';
 
 import { Story } from '@storybook/react';
 
-import { LowCodeEditorProps } from '../../../../../../..';
+import { Provider } from '../../../../../../Contexts/Diagram';
+import { LowCodeEditorProps } from '../../../../../../types';
 
 import { ClassComponent } from '.';
 import classDecl from "./story-data/classdef-st-raw.json";
@@ -28,7 +29,9 @@ export default {
 
 const Template: Story<LowCodeEditorProps> = (args: LowCodeEditorProps) =>
 (
-    <ClassComponent model={(args as any).model} />
+    <Provider {...args} >
+        <ClassComponent model={(args as any).model} />
+    </Provider>
 );
 
 export const ClassDeclaration = Template.bind({});
