@@ -69,10 +69,7 @@ export enum MESSAGE_TYPE {
  * @param showPerf Show performance graph function
  * @param showMsg Show alerts in vscode side
  */
-export async function addPerformanceData(st: any, file: string, lc: DiagramEditorLangClientInterface,
-    session: PFSession, showPerf: (request: PerformanceGraphRequest) => Promise<boolean>,
-    showMsg: (message: string, type: MESSAGE_TYPE, isIgnorable: boolean) => Promise<boolean>) {
-
+export async function addPerformanceData(st: any, file: string, lc: DiagramEditorLangClientInterface, session: PFSession, showPerf: (request: PerformanceGraphRequest) => Promise<boolean>, showMsg: (message: string, type: MESSAGE_TYPE, isIgnorable: boolean) => Promise<boolean>) {
     if (!st || !file || !lc || !session) {
         return;
     }
