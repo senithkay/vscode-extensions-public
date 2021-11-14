@@ -11,9 +11,9 @@
  * associated services.
  */
 
-import { CaptureBindingPattern, ModuleVarDecl, STKindChecker, TypedBindingPattern } from "@ballerina/syntax-tree";
+import { STKindChecker } from "@ballerina/syntax-tree";
 
-import { getVariableNameFromST } from "../../../../../../utils/st-util";
+import { getVariableNameFromST } from "../../../../../utils/st-util";
 
 export const ModuleVarNameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 

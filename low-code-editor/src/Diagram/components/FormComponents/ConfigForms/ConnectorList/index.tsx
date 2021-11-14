@@ -18,19 +18,18 @@ import { LocalVarDecl } from "@ballerina/syntax-tree";
 import { Box, CircularProgress, FormControl, Grid, Typography } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
 
-import Tooltip from "../../../../../components/TooltipV2";
 import { Context } from "../../../../../Contexts/Diagram";
 import { DiagramEditorLangClientInterface } from "../../../../../Definitions/diagram-editor-lang-client-interface";
 import { BallerinaConnectorInfo, BallerinaConnectorsRequest, BallerinaConnectorsResponse, Connector } from "../../../../../Definitions/lang-client-extended";
 import {
     EVENT_TYPE_AZURE_APP_INSIGHTS,
     LowcodeEvent,
-    START_CONNECTOR_ADD_INSIGHTS,
-    START_EXISTING_CONNECTOR_ADD_INSIGHTS
-} from "../../../../models";
+    START_CONNECTOR_ADD_INSIGHTS} from "../../../../models";
 import { APIHeightStates } from "../../../LowCodeDiagram/Components/DialogBoxes/PlusHolder";
 import { PlusViewState } from "../../../LowCodeDiagram/ViewState";
-import { getConnectorIconSVG, getExistingConnectorIconSVG, getFormattedModuleName } from "../../../Portals/utils";
+import { getConnectorIconSVG } from "../../../Portals/utils";
+import { wizardStyles as useFormStyles} from "../../ConfigForms/style";
+import { ButtonWithIcon } from "../../FormFieldComponents/Button/ButtonWithIcon";
 import { FormGeneratorProps } from "../../FormGenerator";
 
 import FilterByMenu from "./FilterByMenu";

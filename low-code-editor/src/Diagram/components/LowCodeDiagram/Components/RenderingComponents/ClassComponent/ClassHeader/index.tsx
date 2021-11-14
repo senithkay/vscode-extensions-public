@@ -22,6 +22,7 @@ import { useDiagramContext } from '../../../../../../../Contexts/Diagram';
 import { removeStatement } from '../../../../../../utils/modification-util';
 import { UnsupportedConfirmButtons } from '../../../../../FormComponents/DialogBoxes/UnsupportedConfirmButtons';
 import { ComponentExpandButton } from '../../../../Components/ComponentExpandButton';
+import { HeaderWrapper } from '../../../../HeaderWrapper';
 
 interface ClassHeaderProps {
     model: ClassDefinition;

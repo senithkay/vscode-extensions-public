@@ -18,6 +18,7 @@ import {isAllEmpty, isAllOptional, isAllValid} from "../../../../../utils/valida
 import { getFormElement } from "../../../Portals/utils";
 import { useStyles } from "../../DynamicConnectorForm/style";
 import FormAccordion from "../../FormAccordion";
+import { ExpressionInjectablesProps } from "../../FormGenerator";
 import { FormElementProps } from "../../Types";
 
 interface RecordProps {

@@ -96,7 +96,7 @@ export function Respond(props: RespondProps) {
     };
 
     const onClickOpenInCodeView = () => {
-        setCodeToHighlight(model.position)
+        // setCodeToHighlight(model.position);
     }
 
     const component: React.ReactElement = (!model?.viewState.collapsed &&

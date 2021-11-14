@@ -13,7 +13,8 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from "react";
 
-import { ModelCodePosition } from "../../../../../../api/models";
+import { NodePosition } from "@ballerina/syntax-tree";
+
 import Tooltip from "../../../../../../components/TooltipV2";
 
 import "./style.scss";

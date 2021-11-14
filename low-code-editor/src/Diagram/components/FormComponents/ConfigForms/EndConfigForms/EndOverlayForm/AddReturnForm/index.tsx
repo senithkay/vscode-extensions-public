@@ -11,21 +11,20 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-// tslint:disable: ordered-imports
 import React, { useContext, useState } from "react";
+import { FormattedMessage, useIntl } from "react-intl";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
-import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
-import { useStyles } from "../../../../DynamicConnectorForm/style";
-import { EndConfig } from "../../../../Types";
-import { wizardStyles } from "../../../style";
-
-import { FormattedMessage, useIntl } from "react-intl";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
+import { createReturnStatement, getInitialSource } from "../../../../../../utils/modification-util";
+import { useStyles } from "../../../../DynamicConnectorForm/style";
+import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
 import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";
-import { useStatementEdior } from "../../../../FormFieldComponents/StatementEditor/hooks";
+import { useStatementEditor } from "../../../../FormFieldComponents/StatementEditor/hooks";
+import { EndConfig } from "../../../../Types";
+
 
 interface ReturnFormProps {
     config: EndConfig;

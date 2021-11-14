@@ -18,12 +18,6 @@ import { FormattedMessage } from "react-intl";
 import { CaptureBindingPattern, LocalVarDecl, NodePosition, STKindChecker } from "@ballerina/syntax-tree";
 import { Box, Divider, FormControl, Typography } from "@material-ui/core";
 
-const GITHUB_CONNECTOR = "GitHub";
-import {
-  AiSuggestionsReq,
-  ConnectionDetails,
-  OauthProviderConfig,
-} from "../../../../../../api/models";
 import {
   ActionConfig,
   ConnectorConfig,
@@ -32,51 +26,35 @@ import {
   WizardType,
 } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
-import { STSymbolInfo } from "../../../../../../Definitions";
 import {
   BallerinaConnectorInfo,
   STModification,
 } from "../../../../../../Definitions/lang-client-extended";
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
 import {
-  CONNECTOR_CLOSED,
   CONTINUE_TO_INVOKE_API,
   EVENT_TYPE_AZURE_APP_INSIGHTS,
   FINISH_CONNECTOR_ACTION_ADD_INSIGHTS,
   FINISH_CONNECTOR_INIT_ADD_INSIGHTS,
   LowcodeEvent,
 } from "../../../../../models";
-import { getAllVariables, getModuleVariable } from "../../../../../utils/mixins";
+import { getAllVariables } from "../../../../../utils/mixins";
 import {
-  createCheckedPayloadFunctionInvocation,
   createImportStatement,
-  createObjectDeclaration,
   createPropertyStatement,
   updatePropertyStatement,
 } from "../../../../../utils/modification-util";
 import {
   genVariableName,
   getActionReturnType,
-  getAllVariablesForAi,
   getConnectorComponent,
   getConnectorIcon,
   getFormattedModuleName,
   getInitReturnType,
-  getManualConnectionDetailsFromFormFields,
-  getManualConnectionTypeFromFormFields,
-  getMapTo,
-  getOauthConnectionConfigurables,
-  getOauthConnectionFromFormField,
-  getOauthParamsFromConnection,
   getParams,
-  matchEndpointToFormField,
 } from "../../../../Portals/utils";
-import { defaultOrgs } from "../../../../Portals/utils/constants";
+import { wizardStyles as useFormStyles } from "../../../ConfigForms/style";
 import { ExpressionInjectablesProps, FormGeneratorProps, InjectableItem } from "../../../FormGenerator";
-import {
-  ConnectionType,
-  OauthConnectButton,
-} from "../../../OauthConnectButton";
 import { ConfigWizardState } from "../../index";
 import { wizardStyles } from "../../style";
 import "../../style.scss";

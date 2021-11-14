@@ -174,7 +174,7 @@ export function ActionProcessor(props: ProcessorProps) {
     };
 
     const onClickOpenInCodeView = () => {
-        setCodeToHighlight(model.position)
+        // setCodeToHighlight(model.position);
     }
 
     const toolTip = isReferencedVariable ? "Variable is referred in the code below" : undefined;

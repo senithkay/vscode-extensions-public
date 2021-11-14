@@ -13,10 +13,12 @@
 // tslint:disable: jsx-no-multiline-js
 // tslint:disable: jsx-no-lambda
 import React, { useState } from 'react';
+import { FormattedMessage } from 'react-intl';
 
 import { Grid, InputBase } from "@material-ui/core";
 
-import { PrimaryButtonSquare } from '../../../../Buttons/PrimaryButtonSquare';
+import SearchIcon from '../../../../../../assets/icons/SearchIcon';
+import PrimaryRounded from '../../../../Buttons/PrimaryRounded';
 
 import useStyles from "./style";
 

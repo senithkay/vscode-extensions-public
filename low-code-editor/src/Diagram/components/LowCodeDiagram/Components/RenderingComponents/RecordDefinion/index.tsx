@@ -16,10 +16,10 @@ import React, { useContext, useState } from "react"
 
 import { RecordFieldWithDefaultValue, RecordTypeDesc, STKindChecker, TypeDefinition } from "@ballerina/syntax-tree";
 
-import DeleteButton from "../../../../../../assets/icons/DeleteButton";
-import EditButton from "../../../../../../assets/icons/EditButton";
 import RecordIcon from "../../../../../../assets/icons/RecordIcon";
-import { ComponentExpandButton } from "../../ComponentExpandButton";
+import { Context } from "../../../../../../Contexts/Diagram";
+import { removeStatement } from "../../../../../utils/modification-util";
+import { HeaderActions } from "../../../HeaderActions";
 
 import "./style.scss";
 
@@ -38,7 +38,7 @@ export function RecordDefinitionComponent(props: RecordDefComponentProps) {
         api: {
             code: { modifyDiagram },
         },
-    } = useContext(DiagramContext);
+    } = useContext(Context);
 
     const [isExpanded, setIsExpanded] = useState(false);
 

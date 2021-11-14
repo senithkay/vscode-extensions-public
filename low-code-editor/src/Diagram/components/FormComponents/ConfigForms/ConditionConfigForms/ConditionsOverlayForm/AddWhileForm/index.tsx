@@ -14,17 +14,17 @@
 import React, { useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import {Box, FormControl, Typography} from "@material-ui/core";
 import classnames from "classnames";
-import { createWhileStatement, getInitialSource } from "../../../../../utils/modification-util";
+import {Box, FormControl, Typography} from "@material-ui/core";
 
 import { FormField } from "../../../../../../../ConfigurationSpec/types";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { Context } from "../../../../../../../Contexts/Diagram";
+import { createWhileStatement, getInitialSource } from "../../../../../../utils/modification-util";
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";
-import { useStatementEdior } from "../../../../FormFieldComponents/StatementEditor/hooks";
+import { useStatementEditor } from "../../../../FormFieldComponents/StatementEditor/hooks";
 import { ConditionConfig, FormElementProps } from "../../../../Types";
 
 export interface WhileProps {

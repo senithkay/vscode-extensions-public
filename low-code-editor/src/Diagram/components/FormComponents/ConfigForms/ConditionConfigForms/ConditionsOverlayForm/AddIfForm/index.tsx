@@ -14,16 +14,21 @@
 import React, { useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { Box, FormControl, Typography } from "@material-ui/core";
+import { NodePosition } from "@ballerina/syntax-tree";
+import classnames from "classnames";
+import { Box, FormControl, IconButton, Typography } from "@material-ui/core";
+import { ControlPoint, RemoveCircleOutlineRounded } from "@material-ui/icons";
 
 import { FormField } from "../../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../../Contexts/Diagram";
+import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
+import { createIfStatement, getInitialSource } from "../../../../../../utils/modification-util";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
 import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";
-import { useStatementEdior } from "../../../../FormFieldComponents/StatementEditor/hooks";
-import { ConditionConfig, FormElementProps } from "../../../../Types";
-import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
+import { useStatementEditor } from "../../../../FormFieldComponents/StatementEditor/hooks";
+import { ConditionConfig, ElseIfConfig, FormElementProps } from "../../../../Types";
+
 
 interface IfProps {
     condition: ConditionConfig;

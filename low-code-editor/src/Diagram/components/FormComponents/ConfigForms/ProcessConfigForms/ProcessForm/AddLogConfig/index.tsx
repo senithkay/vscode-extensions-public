@@ -24,8 +24,9 @@ import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/sty
 import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
 import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";
-import { useStatementEdior } from "../../../../FormFieldComponents/StatementEditor/hooks";
+import { useStatementEditor } from "../../../../FormFieldComponents/StatementEditor/hooks";
 import { LogConfig, ProcessConfig } from "../../../../Types";
+import { createLogStatement, getInitialSource } from "../../../../../../utils/modification-util";
 
 interface LogConfigProps {
     config: ProcessConfig;

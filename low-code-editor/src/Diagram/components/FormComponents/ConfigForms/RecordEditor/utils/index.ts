@@ -18,6 +18,7 @@ import {
 } from "@ballerina/syntax-tree";
 
 import { DiagramEditorLangClientInterface, JsonToRecordResponse, STSymbolInfo } from "../../../../../../Definitions";
+import { Field, RecordModel, SimpleField } from "../types";
 
 export async function convertToRecord(json: string, lsUrl: string, ls?: any): Promise<string> {
     const langClient: DiagramEditorLangClientInterface = await ls.getDiagramEditorLangClient(lsUrl);

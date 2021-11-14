@@ -15,7 +15,7 @@ import * as React from "react";
 
 import Button from '@material-ui/core/Button';
 
-import StatementExpandIcon from "../../../../../../../../../assets/icons/StatementExpandIcon";
+import StatementExpandIcon from "../../../../../../../../assets/icons/StatementExpandIcon";
 
 import { useStyles } from "./style";
 

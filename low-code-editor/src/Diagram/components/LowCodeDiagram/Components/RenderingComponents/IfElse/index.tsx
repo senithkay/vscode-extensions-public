@@ -28,6 +28,7 @@ import { getConditionConfig, getRandomInt } from "../../../../../utils/diagram-u
 import { findActualEndPositionOfIfElseStatement } from "../../../../../utils/st-util";
 import { DefaultConfig } from "../../../../../visitors/default";
 import { FormGenerator } from "../../../../FormComponents/FormGenerator";
+import { ElseIfConfig } from "../../../../FormComponents/Types";
 import { DeleteBtn } from "../../../Components/DiagramActions/DeleteBtn";
 import {
     DELETE_SVG_HEIGHT_WITH_SHADOW,

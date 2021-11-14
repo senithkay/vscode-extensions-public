@@ -15,7 +15,6 @@ import React from 'react';
 
 import { Story } from '@storybook/react/types-6-0';
 
-import { ConnectionDetails } from "../../../../../../../api/models";
 import { Provider as LowCodeEditorProvider } from "../../../../../../../Contexts/Diagram";
 import { InputEditorContextProvider } from "../../store/input-editor-context";
 import { StatementEditorContextProvider } from '../../store/statement-editor-context';

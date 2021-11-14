@@ -22,11 +22,14 @@ import { useDiagramContext } from "../../../../../Contexts/Diagram";
 import { createImportStatement, createListenerDeclartion } from "../../../../utils/modification-util";
 import { SecondaryButton } from "../../FormFieldComponents/Button/SecondaryButton";
 import { SelectDropdownWithButton } from "../../FormFieldComponents/DropDown/SelectDropdownWithButton";
-import { FormTextInput } from "../../FormFieldComponents/TextField/FormTextInput";
+import ExpressionEditor from "../../FormFieldComponents/ExpressionEditor";
+import { FormElementProps } from "../../Types";
+import { VariableNameInput } from "../Components/VariableNameInput";
 
 import { useStyles } from "./style";
 import { isListenerConfigValid } from "./util";
 import { ListenerConfig } from "./util/types";
+
 
 interface ListenerConfigFormProps {
     model?: ListenerDeclaration;

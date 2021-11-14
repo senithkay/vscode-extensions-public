@@ -15,8 +15,9 @@ import React from "react";
 
 import { NodePosition } from "@ballerina/syntax-tree";
 
-import ExpressionEditor, { ExpressionEditorCustomTemplate, ExpressionEditorProps } from "../../../Elements/ExpressionEditor";
-import { FormElementProps } from "../../../types";
+import ExpressionEditor, { ExpressionEditorCustomTemplate, ExpressionEditorProps } from "../../../FormFieldComponents/ExpressionEditor";
+import { FormElementProps } from "../../../Types";
+
 export interface VariableNameInputProps {
     displayName: string;
     value: string;

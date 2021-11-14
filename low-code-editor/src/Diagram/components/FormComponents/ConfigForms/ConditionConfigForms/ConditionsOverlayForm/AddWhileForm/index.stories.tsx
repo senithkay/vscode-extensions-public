@@ -15,9 +15,6 @@ import React from 'react';
 // tslint:disable-next-line: no-submodule-imports
 import {Story} from '@storybook/react/types-6-0';
 
-import {
-    ConnectionDetails
-} from "../../../../../../../api/models";
 import { Provider as LowCodeEditorProvider } from "../../../../../../../Contexts/Diagram";
 
 import {AddWhileForm, WhileProps } from "./index";

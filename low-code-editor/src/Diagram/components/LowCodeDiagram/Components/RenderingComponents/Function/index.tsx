@@ -21,9 +21,10 @@ import {
 import classNames from "classnames";
 import { v4 as uuid } from "uuid";
 
-import { Context } from "../../../../../../Contexts/Diagram";
+import { Context, useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { Provider as FunctionProvider } from "../../../../../../Contexts/Function";
-import { useSelectedStatus } from "../../../../../hooks";
+import { addAdvancedLabels } from "../../../../../../DiagramGenerator/performanceUtil";
+import { useOverlayRef, useSelectedStatus } from "../../../../../hooks";
 import { useStyles } from "../../../../../styles";
 import { Canvas } from "../../../Canvas";
 import { BlockViewState, FunctionViewState } from "../../../ViewState";

@@ -20,8 +20,8 @@ import { FormHelperText } from "@material-ui/core";
 import CheckBoxGroup from "../../../../../FormFieldComponents/CheckBox";
 import { SelectDropdownWithButton } from "../../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import ExpressionEditor from "../../../../../FormFieldComponents/ExpressionEditor";
-import { FormTextInput } from "../../../../../FormFieldComponents/TextField/FormTextInput";
 import { FormElementProps } from "../../../../../Types";
+import { VariableNameInput } from "../../../../Components/VariableNameInput";
 import { wizardStyles as useFormStyles } from "../../../../style";
 import { ListenerConfigFormState, ServiceConfigActions, ServiceConfigActionTypes } from "../util/reducer";
 

@@ -14,6 +14,7 @@
 import React, { ReactNode, useContext, useState } from "react"
 
 import { ForeachStatement, NodePosition, STKindChecker, STNode, TypedBindingPattern } from "@ballerina/syntax-tree";
+import cn from 'classnames';
 
 import { WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";

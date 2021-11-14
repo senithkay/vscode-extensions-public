@@ -24,6 +24,7 @@ import { ServiceIconLight } from "../../../../../../assets/icons/ServiceIcon";
 import { Context as DiagramContext } from "../../../../../../Contexts/Diagram";
 import { removeStatement } from "../../../../../utils/modification-util";
 import { HeaderActions } from "../../../HeaderActions";
+import { HeaderWrapper } from "../../../HeaderWrapper";
 
 import "./style.scss";
 

@@ -24,6 +24,7 @@ import FunctionIcon from "../../../../../../assets/icons/FunctionIcon";
 import { useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { removeStatement } from "../../../../../utils/modification-util";
 import { HeaderActions } from "../../../HeaderActions";
+import { HeaderWrapper } from "../../../HeaderWrapper";
 
 import "./style.scss";
 

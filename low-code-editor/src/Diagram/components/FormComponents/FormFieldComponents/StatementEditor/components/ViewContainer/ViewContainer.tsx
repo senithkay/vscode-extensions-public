@@ -16,6 +16,7 @@ import { useIntl } from "react-intl";
 
 import { NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
 
+import { Context } from '../../../../../../../Contexts/Diagram';
 import { wizardStyles } from "../../../../ConfigForms/style";
 import { PrimaryButton } from "../../../Button/PrimaryButton";
 import { SecondaryButton } from "../../../Button/SecondaryButton";

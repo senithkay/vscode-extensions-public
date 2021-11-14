@@ -16,18 +16,21 @@ import React, { useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { BinaryExpression, ForeachStatement } from "@ballerina/syntax-tree";
-import { FormControl, Typography } from "@material-ui/core";
+import classnames from "classnames";
+import { Box, FormControl, Typography } from "@material-ui/core";
 
 import { FormField } from "../../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { getAllVariables } from "../../../../../../utils/mixins";
+import { createForeachStatement, getInitialSource } from "../../../../../../utils/modification-util";
 import { genVariableName } from "../../../../../Portals/utils";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
+import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
-import { FormTextInput } from "../../../../FormFieldComponents/TextField/FormTextInput";
 import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";
-import { useStatementEdior } from "../../../../FormFieldComponents/StatementEditor/hooks";
+import { FormTextInput } from "../../../../FormFieldComponents/TextField/FormTextInput";
+import { useStatementEditor } from "../../../../FormFieldComponents/StatementEditor/hooks";
 import { ConditionConfig, ForeachConfig, FormElementProps } from "../../../../Types";
 import { wizardStyles } from "../../../style";
 

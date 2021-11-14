@@ -26,13 +26,12 @@ import { SecondaryButton } from '../../FormFieldComponents/Button/SecondaryButto
 import CheckBoxGroup from '../../FormFieldComponents/CheckBox';
 import { SelectDropdownWithButton } from '../../FormFieldComponents/DropDown/SelectDropdownWithButton';
 import ExpressionEditor from '../../FormFieldComponents/ExpressionEditor';
-import { FormTextInput } from '../../FormFieldComponents/TextField/FormTextInput';
 import { InjectableItem } from '../../FormGenerator';
+import { VariableNameInput } from '../Components/VariableNameInput';
 import { wizardStyles as useFormStyles } from "../style";
 
-import { ConfigurableFormState, getFormConfigFromModel, isFormConfigValid, ModuleVarNameRegex } from './util';
+import { ConfigurableFormState, getFormConfigFromModel, isFormConfigValid } from './util';
 import { ConfigurableFormActionTypes, moduleVarFormReducer } from './util/reducer';
-
 
 const variableTypes: string[] = ["int", "float", "boolean", "string", "xml"];
 interface ConfigurableFormProps {

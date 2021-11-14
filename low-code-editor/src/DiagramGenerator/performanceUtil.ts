@@ -70,8 +70,8 @@ export enum MESSAGE_TYPE {
  * @param showMsg Show alerts in vscode side
  */
 export async function addPerformanceData(st: any, file: string, lc: DiagramEditorLangClientInterface,
-                                         session: PFSession, showPerf: (request: PerformanceGraphRequest) => Promise<boolean>,
-                                         showMsg: (message: string, type: MESSAGE_TYPE, isIgnorable: boolean) => Promise<boolean>) {
+    session: PFSession, showPerf: (request: PerformanceGraphRequest) => Promise<boolean>,
+    showMsg: (message: string, type: MESSAGE_TYPE, isIgnorable: boolean) => Promise<boolean>) {
 
     if (!st || !file || !lc || !session) {
         return;
@@ -142,16 +142,17 @@ async function getRealtimeData(range: Range): Promise<PerformanceAnalyzerRealtim
             choreoToken: `Bearer ${pfSession.choreoToken}`,
             choreoCookie: pfSession.choreoCookie,
         }).then(async (response: PerformanceAnalyzerRealtimeResponse) => {
-
-            if (response.type === IGNORE) {
+            if (!response) {
+                return resolve(null);
+            }
+            if (response.type && response.type === IGNORE) {
                 return;
             }
-            if (response.type !== SUCCESS) {
+            if (response.type && response.type !== SUCCESS) {
                 checkErrors(response);
                 return resolve(null);
             }
             return resolve(response);
-
         });
     });
 }

@@ -23,14 +23,6 @@ import {
 } from "@ballerina/syntax-tree";
 
 import { Context } from "../../../../../../Contexts/Diagram";
-import {
-    TriggerType,
-    TRIGGER_TYPES,
-    TRIGGER_TYPE_API
-} from "../../../../../models";
-import { DefaultConfig } from "../../../../../visitors/default";
-import { DiagramOverlayPosition } from "../../../../Portals/Overlay";
-import { TriggerDropDown } from "../../../Components/DialogBoxes";
 import { PlusButton } from "../../PlusButtons/Plus";
 
 import {

@@ -20,12 +20,13 @@ import { VariableIcon } from '../../../../../assets/icons';
 import { useDiagramContext } from '../../../../../Contexts/Diagram';
 import { STModification } from '../../../../../Definitions';
 import { createModuleVarDecl, updateModuleVarDecl } from '../../../../utils/modification-util';
+import { getVariableNameFromST } from '../../../../utils/st-util';
 import { PrimaryButton } from '../../FormFieldComponents/Button/PrimaryButton';
 import { SecondaryButton } from '../../FormFieldComponents/Button/SecondaryButton';
 import CheckBoxGroup from '../../FormFieldComponents/CheckBox';
 import { SelectDropdownWithButton } from '../../FormFieldComponents/DropDown/SelectDropdownWithButton';
 import ExpressionEditor from '../../FormFieldComponents/ExpressionEditor';
-import { FormTextInput } from '../../FormFieldComponents/TextField/FormTextInput';
+import { VariableNameInput } from '../Components/VariableNameInput';
 import { wizardStyles as useFormStyles } from "../style";
 
 import { getFormConfigFromModel, isFormConfigValid, ModuleVarNameRegex, VariableOptions } from './util';

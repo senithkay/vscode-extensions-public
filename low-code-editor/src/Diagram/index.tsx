@@ -41,6 +41,7 @@ export function Diagram() {
             syntaxTree,
             isMutationProgress,
             isLoadingAST,
+            isReadOnly,
             error,
         },
     } = useContext(DiagramContext);
@@ -160,7 +161,6 @@ export function Diagram() {
             <Container className={classes.DesignContainer}>
                 <LowCodeDiagram
                     syntaxTree={syntaxTree}
-                    originalSyntaxTree={originalSyntaxTree}
                     isReadOnly={isReadOnly}
                     api={{
                         edit: {

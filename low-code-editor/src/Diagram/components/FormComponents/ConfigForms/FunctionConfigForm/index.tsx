@@ -24,10 +24,6 @@ import {
   createFunctionSignature,
   updateFunctionSignature,
 } from "../../../../utils/modification-util";
-import { QueryParamItem as FunctionParamItem } from "../../../LowCodeDiagram/Components/DialogBoxes/DropDown/ApiConfigureWizard/components/queryParamEditor/queryParamItem";
-import { QueryParamSegmentEditor as FunctionParamSegmentEditor } from "../../../LowCodeDiagram/Components/DialogBoxes/DropDown/ApiConfigureWizard/components/queryParamEditor/segmentEditor";
-import { ReturnTypeItem } from "../../../LowCodeDiagram/Components/DialogBoxes/DropDown/ApiConfigureWizard/components/ReturnTypeEditor/ReturnTypeItem";
-import { ReturnTypeSegmentEditor } from "../../../LowCodeDiagram/Components/DialogBoxes/DropDown/ApiConfigureWizard/components/ReturnTypeEditor/SegmentEditor";
 import {
   QueryParam,
   ReturnType,
@@ -35,7 +31,11 @@ import {
 import { functionParamTypes } from "../../../LowCodeDiagram/Components/DialogBoxes/DropDown/ApiConfigureWizard/util";
 import { PrimaryButton } from "../../FormFieldComponents/Button/PrimaryButton";
 import { SecondaryButton } from "../../FormFieldComponents/Button/SecondaryButton";
-import { FormTextInput } from "../../FormFieldComponents/TextField/FormTextInput";
+import { VariableNameInput, VariableNameInputProps } from "../Components/VariableNameInput";
+import { QueryParamItem as FunctionParamItem } from "../ResourceConfigForm/ApiConfigureWizard/components/queryParamEditor/queryParamItem";
+import { QueryParamSegmentEditor as FunctionParamSegmentEditor } from "../ResourceConfigForm/ApiConfigureWizard/components/queryParamEditor/segmentEditor";
+import { ReturnTypeItem } from "../ResourceConfigForm/ApiConfigureWizard/components/ReturnTypeEditor/ReturnTypeItem";
+import { ReturnTypeSegmentEditor } from "../ResourceConfigForm/ApiConfigureWizard/components/ReturnTypeEditor/SegmentEditor";
 import { functionReturnTypes } from "../ResourceConfigForm/ApiConfigureWizard/util";
 import { wizardStyles as useFormStyles } from "../style";
 

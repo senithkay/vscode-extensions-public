@@ -15,7 +15,7 @@ import React from 'react';
 
 import { NodePosition, RecordTypeDesc, STKindChecker, TypeDefinition } from "@ballerina/syntax-tree";
 
-import { ConfigOverlayFormStatus } from "../../../../../Definitions";
+import { FormState, Provider as RecordEditorProvider} from "../../../../../Contexts/RecordEditor"
 
 import { Record } from "./Record";
 import { RecordModel } from "./types";

@@ -11,8 +11,8 @@
  * associated services.
  */
 import { BinaryExpressionComponent } from './BinaryExpression';
-import { CaptureBindingPatternComponent } from './BindingPattern/CaptureBindingPattern';
 import { BracedExpressionComponent } from './BracedExpression';
+import { CaptureBindingPatternComponent } from './CaptureBindingPattern';
 import { ConditionalExpressionComponent } from "./ConditionalExpression";
 import { FieldAccessComponent } from "./FieldAccess";
 import { FunctionCallComponent } from "./FunctionCall";

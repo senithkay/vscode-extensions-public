@@ -13,7 +13,6 @@
 import { NodePosition, STNode } from "@ballerina/syntax-tree";
 import { Diagnostic } from "monaco-languageclient";
 
-import { AppInfo, ApplicationFile } from "../../../../api/models";
 import { FormField, WizardType } from "../../../../ConfigurationSpec/types";
 import { ExpressionEditorState } from "../../../../Definitions";
 import { GenerationType } from "../ConfigForms/ProcessConfigForms/ProcessForm/AddDataMappingConfig/OutputTypeSelector";

@@ -15,7 +15,6 @@ export interface LowCodeDiagramContext {
 
 export interface LowCodeDiagramProperties {
     syntaxTree: STNode;
-    originalSyntaxTree: ModulePart;
     isReadOnly: boolean;
     error?: Error;
     selectedPosition?: SelectedPosition;

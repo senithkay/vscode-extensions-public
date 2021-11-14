@@ -11,4 +11,3 @@
  * associated services.
  */
 export * from "./DropDownMenu";
-export * from "./TriggerDropDown";
