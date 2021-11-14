@@ -26,7 +26,7 @@ import { FieldEditor } from "../FieldEditor";
 import { FieldItem } from "../FieldItem";
 import { recordStyles } from "../style";
 import { RecordModel, SimpleField } from "../types";
-import { genRecordName } from "../utils";
+import { genRecordName, getFieldNames } from "../utils";
 
 export interface CodePanelProps {
     recordModel: RecordModel;
@@ -88,22 +88,6 @@ export function RecordField(props: CodePanelProps) {
         }
     };
 
-    const handleRecordEdit = () => {
-        // Changes the active state to selected record model
-        state.currentRecord.isActive = false;
-        recordModel.isActive = true;
-
-        // Changes the active state to selected field
-        if (state.currentField) {
-            state.currentField.isActive = false;
-        }
-
-        callBacks.onUpdateCurrentField(undefined);
-        callBacks.onUpdateCurrentRecord(recordModel);
-        callBacks.onUpdateModel(state.recordModel);
-        callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
-    };
-
     const handleRecordDelete = () => {
         if (parentRecordModel) {
             const index = parentRecordModel.fields.indexOf(recordModel);
@@ -157,11 +141,9 @@ export function RecordField(props: CodePanelProps) {
         if (event.key === 'Enter') {
             if (!event.target.value) {
                 recordModel.name = genRecordName("Record", []);
-            } else {
-                state.currentField = getNewField();
-                callBacks.onUpdateCurrentField(state.currentField);
-                setIsFieldAddInProgress(true);
             }
+            state.currentField = getNewField();
+            callBacks.onUpdateCurrentField(state.currentField);
             setIsRecordEditInProgress(false);
             callBacks.onUpdateRecordSelection(false);
         } else {
@@ -183,7 +165,7 @@ export function RecordField(props: CodePanelProps) {
     const handleFieldEditorChange = (event: any) => {
         if (event.key === 'Enter') {
             if (!event.target.value) {
-                state.currentField.name = genRecordName("field", []);
+                state.currentField.name = genRecordName("f", getFieldNames(state.currentRecord.fields));
             }
             state.currentField.isEditInProgress = false;
             state.currentField.isActive = true;
@@ -196,7 +178,9 @@ export function RecordField(props: CodePanelProps) {
 
     const handleSubItemFocusLost = (event: any) => {
         if (!event.target.value) {
-            state.currentField.name = genRecordName("field", []);
+            state.currentField.name = state.currentField.type === "record" ?
+                genRecordName("Record", getFieldNames(state.currentRecord.fields)) :
+                genRecordName("f", getFieldNames(state.currentRecord.fields));
         }
     };
 
@@ -286,7 +270,7 @@ export function RecordField(props: CodePanelProps) {
                             </Typography>
                         )}
                         {recordModel.isTypeDefinition && isRecordEditInProgress && (
-                            <div className={recordClasses.typeDefNameWrapper}>
+                            <div className={recordClasses.typeTextFieldWrapper}>
                                 <FormTextInput
                                     dataTestId="record-name"
                                     customProps={{
@@ -343,12 +327,10 @@ export function RecordField(props: CodePanelProps) {
                 {isRecordExpanded && (
                     <div className={recordModel?.isActive ? recordClasses.activeRecordSubFieldWrapper : recordClasses.recordSubFieldWrapper}>
                         {fieldItems}
-                        {!isFieldAddInProgress && (
                             <div className={recordClasses.addFieldBtnWrap} onClick={handleAddField}>
                                 <AddIcon/>
                                 <p>{addFieldText}</p>
                             </div>
-                        )}
                     </div>
                 )}
                 <div className={recordClasses.endRecordCodeWrapper}>
@@ -359,7 +341,7 @@ export function RecordField(props: CodePanelProps) {
                         {recordEn}
                     </Typography>
                     {!recordModel.isTypeDefinition && isRecordEditInProgress && (
-                        <div className={recordClasses.typeDefNameWrapper}>
+                        <div className={recordClasses.typeTextFieldWrapper}>
                             <FormTextInput
                                 dataTestId="record-name"
                                 customProps={{

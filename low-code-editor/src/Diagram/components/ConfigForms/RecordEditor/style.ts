@@ -226,6 +226,12 @@ export const recordStyles = makeStyles((theme: Theme) =>
             color: '#1E00FF'
         },
         typeDefNameWrapper: {
+            marginLeft: 5,
+            "& .MuiFormControl-marginNormal": {
+                margin: '0',
+            }
+        },
+        typeTextFieldWrapper: {
             width: 100,
             marginLeft: 5,
             "& .MuiFormControl-marginNormal": {

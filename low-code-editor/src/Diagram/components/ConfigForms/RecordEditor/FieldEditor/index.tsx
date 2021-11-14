@@ -53,7 +53,7 @@ export function FieldEditor(props: FieldEditorProps) {
         onDeleteClick(field);
     };
     const handleKeyUp = (event: any) => {
-        onChange(event)
+        onChange(event);
     };
     const handleTypeSelect = (selectedType: string) => {
         if (selectedType === "record") {

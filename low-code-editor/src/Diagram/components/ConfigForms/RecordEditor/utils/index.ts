@@ -175,9 +175,17 @@ export function getGeneratedCode(model: Field, isTypeDef: boolean): string {
 export function genRecordName(defaultName: string, variables: string[]): string {
     let index = 0;
     let varName = defaultName;
-    while (variables.includes(defaultName)) {
+    while (variables.includes(varName)) {
         index++;
         varName = defaultName + index;
     }
     return varName;
+}
+
+export function getFieldNames(fields: Field[]): string[] {
+    const fieldNames: string[] = [];
+    fields.forEach((field) => {
+        fieldNames.push(field.name);
+    });
+    return fieldNames;
 }
