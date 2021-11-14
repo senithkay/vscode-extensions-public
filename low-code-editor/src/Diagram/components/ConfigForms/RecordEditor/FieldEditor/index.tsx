@@ -19,13 +19,12 @@ import classnames from "classnames";
 
 import DeleteButton from "../../../../../assets/icons/DeleteButton";
 import { useDiagramContext } from "../../../../../Contexts/Diagram";
-import { useRecordEditorContext } from "../../../../../Contexts/RecordEditor";
+import { FormState, useRecordEditorContext } from "../../../../../Contexts/RecordEditor";
 import { SelectDropdownWithButton } from "../../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
 import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
 import { variableTypes } from "../../ProcessConfigForms/ProcessForm/AddVariableConfig";
 import { recordStyles } from "../style";
-import { SimpleField } from "../types";
-import { genRecordName } from "../utils";
+import { RecordModel, SimpleField } from "../types";
 
 export interface FieldEditorProps {
     field: SimpleField;
@@ -57,7 +56,32 @@ export function FieldEditor(props: FieldEditorProps) {
         onChange(event)
     };
     const handleTypeSelect = (selectedType: string) => {
-        state.currentField.type = selectedType;
+        if (selectedType === "record") {
+            if (state.currentRecord?.isActive) {
+                state.currentRecord.isActive = false;
+            }
+
+            // Remove the draft field and add new record model
+            const index = state.currentRecord.fields.indexOf(field);
+            if (index !== -1) {
+                state.currentRecord.fields.splice(index, 1);
+            }
+            const newRecordModel: RecordModel = {
+                name: state.currentField.name,
+                isArray: false,
+                isOptional: false,
+                isActive: true,
+                type: selectedType,
+                isTypeDefinition: false,
+                isInline: true,
+                fields: []
+            };
+            state.currentRecord.fields.push(newRecordModel);
+            state.currentRecord = newRecordModel;
+            callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
+        } else {
+            state.currentField.type = selectedType;
+        }
         callBacks.onUpdateCurrentField(state.currentField);
     };
     const handleFocusLost = (event: any) => {

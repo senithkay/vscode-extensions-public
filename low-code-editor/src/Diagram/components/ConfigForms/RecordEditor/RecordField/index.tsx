@@ -168,7 +168,7 @@ export function RecordField(props: CodePanelProps) {
             state.currentRecord.name = event.target.value;
         }
         callBacks.onUpdateModel(state.recordModel);
-        callBacks.onChangeFormState(FormState.ADD_FIELD);
+        callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
     };
 
     const handleOnBlur = (event: any) => {
@@ -358,10 +358,28 @@ export function RecordField(props: CodePanelProps) {
                     >
                         {recordEn}
                     </Typography>
-                    {typeDescName && (
+                    {!recordModel.isTypeDefinition && isRecordEditInProgress && (
+                        <div className={recordClasses.typeDefNameWrapper}>
+                            <FormTextInput
+                                dataTestId="record-name"
+                                customProps={{
+                                    isErrored: false,
+                                    focused: true
+                                }}
+                                defaultValue={typeDescName}
+                                onKeyUp={handleKeyUp}
+                                onBlur={handleOnBlur}
+                                errorMessage={""}
+                                placeholder={"Enter name"}
+                                size="small"
+                            />
+                        </div>
+                    )}
+                    {!isRecordEditInProgress && typeDescName && (
                         <Typography
                             variant='body2'
                             className={recordClasses.endRecordCode}
+                            onClick={handleRecordClick}
                         >
                             {typeDescName}
                         </Typography>

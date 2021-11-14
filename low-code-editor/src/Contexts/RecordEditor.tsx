@@ -21,7 +21,6 @@ export enum FormState {
     EDIT_RECORD_FORM = 1,
     ADD_FIELD = 2,
     UPDATE_FIELD = 3,
-    ADD_RECORD = 4
 }
 
 export interface RecordEditorState {
