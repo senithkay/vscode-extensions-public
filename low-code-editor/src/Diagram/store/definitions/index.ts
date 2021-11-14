@@ -16,7 +16,7 @@ import { Diagnostic } from "monaco-languageclient";
 
 import { BallerinaConnectorInfo } from "../../../Definitions/lang-client-extended";
 import { STSymbolInfo } from "../../../Definitions/store";
-import { BlockViewState } from "../../view-state";
+import { BlockViewState } from "../../components/LowCodeDiagram/ViewState";
 
 export interface DiagramCoordinates {
     start: RectCoordinates;

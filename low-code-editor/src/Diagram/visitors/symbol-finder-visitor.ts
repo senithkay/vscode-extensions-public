@@ -31,7 +31,7 @@ import {
 } from "@ballerina/syntax-tree";
 
 import { STSymbolInfo } from "../../Definitions";
-import { StatementViewState } from "../view-state";
+import { StatementViewState } from "../components/LowCodeDiagram/ViewState";
 
 const endPoints: Map<string, STNode> = new Map();
 const actions: Map<string, STNode> = new Map();
