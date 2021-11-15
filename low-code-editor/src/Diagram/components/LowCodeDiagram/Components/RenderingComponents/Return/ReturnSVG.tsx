@@ -14,12 +14,14 @@
 import * as React from "react";
 
 import { TooltipCodeSnippet } from "../../../../../../components/Tooltip";
+import { DefaultConfig } from "../../../../../visitors/default";
+import { VARIABLE_NAME_WIDTH } from "../VariableName";
 
 export const RETURN_SVG_HEIGHT = 34;
 export const RETURN_SVG_WIDTH = 73;
 
-export function ReturnSVG(props: { x: number, y: number, text: string, sourceSnippet?: string, openInCodeView?: () => void }) {
-    const { text, sourceSnippet, openInCodeView, ...xyProps } = props;
+export function ReturnSVG(props: { x: number, y: number, text?: string, openInCodeView?: () => void }) {
+    const { text, openInCodeView, ...xyProps } = props;
     return (
         <svg {...xyProps} height={RETURN_SVG_HEIGHT} width={RETURN_SVG_WIDTH} className="return">
             <defs>
@@ -27,14 +29,21 @@ export function ReturnSVG(props: { x: number, y: number, text: string, sourceSni
                     <stop offset="0" stopColor="#fcfcfd" />
                     <stop offset="1" stopColor="#f7f8fb" />
                 </linearGradient>
-                <filter id="ReturnFilter" x="0" y="0" width="96" height="46" filterUnits="userSpaceOnUse">
+                <filter id="ReturnFilter" x="0" y="0" width={RETURN_SVG_WIDTH} height={RETURN_SVG_HEIGHT} filterUnits="userSpaceOnUse">
                     <feOffset dy="1" in="SourceAlpha" />
                     <feGaussianBlur stdDeviation="2" result="blur" />
                     <feFlood floodColor="#a9acb6" floodOpacity="0.388" />
                     <feComposite operator="in" in2="blur" />
                     <feComposite in="SourceGraphic" />
                 </filter>
-                <filter id="ReturnFilterHover" x="0" y="0" width="103" height="61" filterUnits="userSpaceOnUse">
+                <filter
+                    id="ReturnFilterHover"
+                    x="0"
+                    y="0"
+                    width={RETURN_SVG_WIDTH + 7}
+                    height={RETURN_SVG_HEIGHT + 15}
+                    filterUnits="userSpaceOnUse"
+                >
                     <feOffset dy="3" dx="1" in="SourceAlpha" />
                     <feGaussianBlur stdDeviation="6" result="blur" />
                     <feFlood floodColor="#a9acb6" floodOpacity="0.388" />
@@ -42,7 +51,7 @@ export function ReturnSVG(props: { x: number, y: number, text: string, sourceSni
                     <feComposite in="SourceGraphic" />
                 </filter>
             </defs>
-            <TooltipCodeSnippet openInCodeView={openInCodeView} content={sourceSnippet} placement="right" arrow={true}>
+            <TooltipCodeSnippet openInCodeView={openInCodeView} content={text} placement="right" arrow={true}>
                 <g className="return-comp return-active" transform="translate(-512.5 -588)">
                     <g transform="translate(513.5 590.5)">
                         <g data-type="innerShadowGroup">

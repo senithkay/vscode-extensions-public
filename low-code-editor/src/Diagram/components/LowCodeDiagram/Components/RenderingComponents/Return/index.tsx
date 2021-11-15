@@ -13,11 +13,11 @@
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
 import React, { useContext, useState } from "react";
 
-import { ActionStatement, STNode } from "@ballerina/syntax-tree";
+import { ActionStatement, ReturnStatement, STNode } from "@ballerina/syntax-tree";
 
 import { WizardType } from "../../../../../../ConfigurationSpec/types";
 import { ConfigOverlayFormStatus } from "../../../../../../Definitions";
-import { getOverlayFormConfig } from "../../../../../utils/diagram-util";
+import { getOverlayFormConfig, getRandomInt } from "../../../../../utils/diagram-util";
 import { DefaultConfig } from "../../../../../visitors/default";
 import { DeleteBtn } from "../../../Components/DiagramActions/DeleteBtn";
 import { DELETE_SVG_WIDTH_WITH_SHADOW } from "../../../Components/DiagramActions/DeleteBtn/DeleteSVG";
@@ -30,6 +30,7 @@ import { PROCESS_SVG_HEIGHT, PROCESS_SVG_HEIGHT_WITH_SHADOW, PROCESS_SVG_SHADOW_
 
 import { ReturnSVG, RETURN_SVG_HEIGHT, RETURN_SVG_WIDTH, } from "./ReturnSVG";
 import "./style.scss";
+import { VariableName, VARIABLE_NAME_WIDTH } from "../VariableName";
 
 export interface ReturnProps {
     model?: STNode;
@@ -99,8 +100,7 @@ export function Return(props: ReturnProps) {
                 <ReturnSVG
                     x={cx - (RETURN_SVG_WIDTH / 2)}
                     y={cy - DefaultConfig.dotGap / 4}
-                    text={compType}
-                    sourceSnippet={sourceSnippet}
+                    text={(model as ReturnStatement).expression?.source}
                     openInCodeView={!isWaitingOnWorkspace && model && model.position && onClickOpenInCodeView}
                 />
             </g>
@@ -133,7 +133,7 @@ export function Return(props: ReturnProps) {
     }, []);
 
     const onEditClick = () => {
-        const overlayFormConfig = getOverlayFormConfig("Respond", model.position, WizardType.EXISTING,
+        const overlayFormConfig = getOverlayFormConfig("Return", model.position, WizardType.EXISTING,
             blockViewState, undefined, stSymbolInfo, model);
         renderEditForm(model, model.position, overlayFormConfig as ConfigOverlayFormStatus, onCancel, onSave);
     }
@@ -144,6 +144,12 @@ export function Return(props: ReturnProps) {
 
     return (
         <g className="return-contect-wrapper">
+            <VariableName
+                variableName={(model as ReturnStatement).expression.source}
+                x={cx - (RETURN_SVG_WIDTH * 2 + DefaultConfig.textAlignmentOffset + DefaultConfig.textAlignmentOffset / 4)}
+                y={cy}
+                key_id={getRandomInt(1000)}
+            />
             {component}
             <>
                 {(!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace) && (
