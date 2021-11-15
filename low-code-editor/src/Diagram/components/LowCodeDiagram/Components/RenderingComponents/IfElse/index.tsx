@@ -23,7 +23,7 @@ import cn from "classnames";
 
 import { WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
-import { getDiagnosticMsgs,getDraftComponent, getSTComponents } from "../../../../../utils";
+import { getDiagnosticMsgs, getDraftComponent, getSTComponents } from "../../../../../utils";
 import { getConditionConfig, getRandomInt } from "../../../../../utils/diagram-util";
 import { findActualEndPositionOfIfElseStatement } from "../../../../../utils/st-util";
 import { DefaultConfig } from "../../../../../visitors/default";

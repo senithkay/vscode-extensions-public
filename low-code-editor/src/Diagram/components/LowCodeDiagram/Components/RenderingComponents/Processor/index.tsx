@@ -26,9 +26,9 @@ import cn from "classnames";
 
 import { WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
+import { getDiagnosticMsgs } from "../../../../../utils";
 import { getOverlayFormConfig, getRandomInt } from "../../../../../utils/diagram-util";
 import { getStatementTypesFromST } from "../../../../../utils/st-util";
-import { getDiagnosticMsgs } from "../../../../../utils";
 import { DefaultConfig } from "../../../../../visitors/default";
 import { FormGenerator } from "../../../../FormComponents/FormGenerator";
 import { DeleteBtn } from "../../../Components/DiagramActions/DeleteBtn";
