@@ -20,8 +20,9 @@ import { Box, FormControl, List, ListItem, Typography } from "@material-ui/core"
 import { Context } from "../../../../../Contexts/Diagram";
 import { useFunctionContext } from "../../../../../Contexts/Function";
 import { wizardStyles as useFormStyles } from "../../ConfigForms/style";
-import useStyles from "./style";
 import { FormGeneratorProps } from "../../FormGenerator";
+
+import useStyles from "./style";
 
 export interface EndpointListProps {
     onSelect: (actionInvo: STNode) => void;

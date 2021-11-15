@@ -11,14 +11,16 @@
  * associated services.
  */
 
+import { ConnectorForm } from "../ConnectorConfigWizard/Components/ConnectorForm";
+
 import { APIConfigForm } from "./APIConfigForm";
 import { ConditionConfigForm } from "./ConditionConfigForms";
 import { ConfigurableForm } from "./ConfigurableForm";
 import { ConnectorInitForm } from "./ConnectorInitForm";
 import { ConnectorList } from "./ConnectorList";
-import { ConnectorForm } from "../ConnectorConfigWizard/Components/ConnectorForm";
 import { ConstantConfigForm } from "./ConstantConfigForm";
 import { EndConfigForm } from "./EndConfigForms";
+import { EndpointList } from "./EndpointList";
 import { FunctionConfigForm } from './FunctionConfigForm';
 import { ListenerConfigForm } from "./ListenerConfigForm";
 import { ModuleDeclForm } from './ModuleVariableForm';
@@ -27,7 +29,6 @@ import { RecordEditor } from "./RecordEditor";
 import { ApiConfigureWizard } from "./ResourceConfigForm/ApiConfigureWizard";
 import { ServiceConfigForm } from './ServiceConfigForm';
 import { TypeDefinitionConfigForm } from "./TypeDefinitionConfigForm";
-import { EndpointList } from "./EndpointList";
 
 export { APIConfigForm as apiConfig };
 export { ConnectorInitForm as connectorInit };

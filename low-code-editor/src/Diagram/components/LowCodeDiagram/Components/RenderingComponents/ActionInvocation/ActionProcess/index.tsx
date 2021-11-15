@@ -22,6 +22,7 @@ import { getOverlayFormConfig, getRandomInt } from "../../../../../../utils/diag
 import { getMatchingConnector, getStatementTypesFromST } from "../../../../../../utils/st-util";
 import { DefaultConfig } from "../../../../../../visitors/default";
 import { ConnectorConfigWizard } from "../../../../../FormComponents/ConnectorConfigWizard";
+import { FormGenerator } from "../../../../../FormComponents/FormGenerator";
 import { Context } from "../../../../Context/diagram";
 import { BlockViewState, StatementViewState } from "../../../../ViewState";
 import { DraftStatementViewState } from "../../../../ViewState/draft";
@@ -34,7 +35,6 @@ import { VariableName, VARIABLE_NAME_WIDTH } from "../../VariableName";
 
 import { ProcessSVG, PROCESS_SVG_HEIGHT, PROCESS_SVG_HEIGHT_WITH_SHADOW, PROCESS_SVG_SHADOW_OFFSET, PROCESS_SVG_WIDTH, PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW } from "./ProcessSVG";
 import "./style.scss";
-import { FormGenerator } from "../../../../../FormComponents/FormGenerator";
 
 export interface ProcessorProps {
     model: STNode;
