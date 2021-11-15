@@ -20,7 +20,8 @@ import {
     SimpleNameReference,
     STKindChecker,
     STNode,
-    StringLiteral} from "@ballerina/syntax-tree";
+    StringLiteral
+} from "@ballerina/syntax-tree";
 import debounce from "lodash.debounce";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
@@ -337,7 +338,12 @@ export function InputEditor(props: InputEditorProps) {
 
     const inputChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
         const currentStatement = stmtCtx.modelCtx.statementModel.source;
-        const updatedStatement = addExpressionToTargetPosition(currentStatement, model.position.startColumn + 1, event.target.value ? event.target.value : "", model.position.endColumn + 1);
+        const updatedStatement = addExpressionToTargetPosition(
+            currentStatement,
+            model.position.startColumn,
+            event.target.value ? event.target.value : "",
+            model.position.endColumn
+        );
         debouncedContentChange(updatedStatement, "");
         getContextBasedCompletions(event.target.value);
         setUserInput(event.target.value);

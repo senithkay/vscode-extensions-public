@@ -78,7 +78,8 @@ export function ViewContainer(props: ViewProps) {
 
     useEffect(() => {
         (async () => {
-            const partialST: STNode = await getPartialSTForStatement({codeSnippet: initialSource}, langServerURL, ls);
+            const partialST: STNode = await getPartialSTForStatement(
+                {codeSnippet: initialSource.trim()}, langServerURL, ls);
             setModel(partialST);
         })();
     }, []);
@@ -97,7 +98,8 @@ export function ViewContainer(props: ViewProps) {
             endColumn: position.endColumn,
             newCodeSnippet: codeSnippet
         }
-        const partialST: STNode = await getPartialSTForStatement({codeSnippet : model.source, stModification}, langServerURL, ls);
+        const partialST: STNode = await getPartialSTForStatement(
+            {codeSnippet : model.source, stModification}, langServerURL, ls);
         setModel(partialST);
     }
 
