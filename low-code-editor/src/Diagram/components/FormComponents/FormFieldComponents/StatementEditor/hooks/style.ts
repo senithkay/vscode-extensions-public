@@ -18,7 +18,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             display: 'flex',
             flexDirection: 'row',
             alignItems: 'center',
-            margin: '-2.25rem 0.55rem 0 0',
+            margin: '-0.75rem 0.55rem 0 0',
             "& img": {
                 marginRight: '1rem'
             }
@@ -27,7 +27,8 @@ export const useStyles = makeStyles((theme: Theme) =>
             width: "auto",
             zIndex: 100,
             position: "absolute",
-            top: "-42px"
+            top: "-42px",
+            paddingLeft: theme.spacing(1),
         },
         statementEditorButton: {
             display: 'inline-flex',

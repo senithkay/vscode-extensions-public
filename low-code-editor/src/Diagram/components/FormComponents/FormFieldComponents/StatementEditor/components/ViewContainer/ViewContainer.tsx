@@ -134,8 +134,8 @@ export function ViewContainer(props: ViewProps) {
 
     return (
         model && (
-            <div className={overlayClasses.stmtEditor}>
-                <div className={overlayClasses.contentPane}>
+            <div className={overlayClasses.mainStatementWrapper}>
+                <div className={overlayClasses.statementExpressionWrapper}>
                     <StatementEditorContextProvider
                         model={model}
                         onCancelClicked={onCancelClicked}
@@ -152,23 +152,23 @@ export function ViewContainer(props: ViewProps) {
                             currentModelHandler={currentModelHandler}
                         />
                     </StatementEditorContextProvider>
-                    <div className={overlayClasses.vl}/>
-                    <RightPane/>
                 </div>
-                <div className={overlayClasses.bottomPane}>
-                    <div className={wizardStylesClasses.buttonWrapper}>
-                        <SecondaryButton
-                            text={cancelVariableButtonText}
-                            fullWidth={false}
-                            onClick={onCancelHandler}
-                        />
-                        <PrimaryButton
-                            dataTestId="save-btn"
-                            text={saveVariableButtonText}
-                            disabled={isMutationInProgress || !validForm}
-                            fullWidth={false}
-                            onClick={onSave}
-                        />
+                <div className={overlayClasses.statementBtnWrapper}>
+                    <div className={overlayClasses.bottomPane}>
+                        <div className={wizardStylesClasses.buttonWrapper}>
+                            <SecondaryButton
+                                text={cancelVariableButtonText}
+                                fullWidth={false}
+                                onClick={onCancelHandler}
+                            />
+                            <PrimaryButton
+                                dataTestId="save-btn"
+                                text={saveVariableButtonText}
+                                disabled={isMutationInProgress || !validForm}
+                                fullWidth={false}
+                                onClick={onSave}
+                            />
+                        </div>
                     </div>
                 </div>
             </div>

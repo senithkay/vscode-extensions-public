@@ -16,6 +16,7 @@ export const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         wizardFormControl: {
             width: 270,
+            padding: '1rem',
             "& .MuiFormControl-marginNormal": {
                 margin: '0',
             },

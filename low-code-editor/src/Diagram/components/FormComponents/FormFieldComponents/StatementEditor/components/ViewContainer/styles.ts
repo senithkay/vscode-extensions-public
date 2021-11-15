@@ -12,9 +12,57 @@
  */
 // tslint:disable: ordered-imports
 import { createStyles, makeStyles } from '@material-ui/core/styles';
+import { theme } from '../../../../../../../DiagramGenerator/theme';
 
 export const useStatementEditorStyles = makeStyles(() =>
     createStyles({
+        mainStatementWrapper: {
+            display: 'flex',
+            height: 'auto',
+            width: 700,
+            flexDirection: 'column',
+        },
+        statementExpressionWrapper: {
+            height: 'auto',
+        },
+        sugessionsSection: {
+            display: 'flex',
+            borderBottom: '1px solid #e6e7ec'
+        },
+        sugessionsMainWrapper: {
+            backgroundColor: '#f9fafc',
+            display: 'flex',
+            flexDirection: 'column',
+            padding: theme.spacing(1.5),
+            borderBottom: '1px solid #e6e7ec'
+        },
+        sugessionsWrapper: {
+            width: '50%',
+            height: 'auto',
+            padding: theme.spacing(1.5),
+            borderRight: '1px solid #e6e7ec'
+        },
+        projectSugessionsWrapper: {
+            width: '50%',
+        },
+        statementExpressionTitle: {
+            paddingTop: theme.spacing(1.5),
+            paddingBottom: theme.spacing(1),
+        },
+        statementExpressionContent: {
+            paddingTop: theme.spacing(1.5),
+            paddingBottom: theme.spacing(1),
+        },
+        variableSugession: {
+            padding: theme.spacing(1.5),
+        },
+        expressionSugession: {
+            padding: theme.spacing(1.5),
+        },
+        statementBtnWrapper: {
+            height: 'auto',
+            padding: theme.spacing(1.5),
+        },
         stmtEditor: {
             display: "flex",
             flexDirection: 'column',
@@ -64,7 +112,7 @@ export const useStatementEditorStyles = makeStyles(() =>
         rightPane: {
             display: 'flex',
             flexDirection: 'column',
-            width: '40%',
+            width: 'auto%',
             height: '100%'
         },
         leftPane: {
@@ -124,17 +172,16 @@ export const useStatementEditorStyles = makeStyles(() =>
         },
         suggestionButton: {
             boxSizing: 'border-box',
-            height: '29px',
             border: '1px solid #CBCEDB',
             borderRadius: '4px',
+            fontFamily:'inherit',
             backgroundColor: 'rgba(255,255,255,0.5)',
-            minWidth: '70px',
             marginLeft: '2%',
             marginTop: '3%',
             color: '#40404B',
-            fontSize: '12px',
+            fontSize: 12,
+            padding: '5px 10px',
             letterSpacing: 0,
-            lineHeight: '24px',
             '&:hover': {
                 backgroundColor: '#8e9bdc',
                 color: 'white'
@@ -220,7 +267,6 @@ export const useStatementEditorStyles = makeStyles(() =>
         rhsShortcutPanel: {
             display: 'flex',
             flexDirection: 'row',
-            height: '8%',
             width: '90%',
             marginLeft: '5%'
         },

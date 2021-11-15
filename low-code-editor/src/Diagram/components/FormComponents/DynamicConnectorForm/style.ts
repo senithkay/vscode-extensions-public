@@ -389,9 +389,10 @@ export const useStyles = makeStyles((theme: Theme) =>
             width: "100%",
             zIndex: 100,
             position: 'absolute',
-            top: theme.spacing(-9),
+            top: theme.spacing(-6.25),
             height: theme.spacing(6),
-            display: 'inline-flex'
+            display: 'inline-flex',
+            padding: '5px 10px',
         },
         formWrapper: {
             width: '100%',
@@ -514,7 +515,8 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         formFeilds: {
             marginBottom: '50px',
-            width: '100%'
+            width: '100%',
+            padding: theme.spacing(1),
         },
         codeWrapper: {
             width: '100%',

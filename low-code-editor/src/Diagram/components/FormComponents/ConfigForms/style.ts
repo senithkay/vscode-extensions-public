@@ -487,7 +487,7 @@ export const wizardStyles = makeStyles((theme: Theme) =>
         },
         formWrapper: {
             width: '100%',
-            flexDirection: "row"
+            flexDirection: "row",
         },
         oauthWrapper: {
             paddingTop: "5rem"
