@@ -232,7 +232,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             initialSource,
             formArgs: {formArgs},
             userInputs,
-            isMutationInProgress,
             validForm,
             config,
             done,

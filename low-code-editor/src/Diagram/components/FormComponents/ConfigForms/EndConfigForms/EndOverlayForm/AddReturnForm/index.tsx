@@ -88,7 +88,6 @@ export function AddReturnForm(props: ReturnFormProps) {
             label: intl.formatMessage({id: "lowcode.develop.configForms.return.statementEditor.label"}),
             initialSource,
             formArgs: {formArgs},
-            isMutationInProgress,
             validForm: isValidValue,
             config,
             done

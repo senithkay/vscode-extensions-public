@@ -115,7 +115,6 @@ export function AddWhileForm(props: WhileProps) {
             label: intl.formatMessage({id: "lowcode.develop.configForms.while.statementEditor.label"}),
             initialSource,
             formArgs: {formArgs},
-            isMutationInProgress,
             validForm: !isInvalid,
             config: condition,
             done

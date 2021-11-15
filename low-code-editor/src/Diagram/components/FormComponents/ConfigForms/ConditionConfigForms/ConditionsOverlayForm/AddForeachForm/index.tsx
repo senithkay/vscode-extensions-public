@@ -223,7 +223,6 @@ export function AddForeachForm(props: ForeachProps) {
             label: intl.formatMessage({id: "lowcode.develop.configForms.forEach.statementEditor.label"}),
             initialSource,
             formArgs: {formArgs},
-            isMutationInProgress,
             validForm: !isInvalid,
             config: condition,
             done

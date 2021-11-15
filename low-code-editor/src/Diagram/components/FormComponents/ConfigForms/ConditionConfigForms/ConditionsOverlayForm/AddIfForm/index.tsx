@@ -167,7 +167,6 @@ export function AddIfForm(props: IfProps) {
             label: intl.formatMessage({id: "lowcode.develop.configForms.if.statementEditor.label"}),
             initialSource,
             formArgs: {formArgs},
-            isMutationInProgress,
             validForm: !isInvalid,
             config: condition,
             done

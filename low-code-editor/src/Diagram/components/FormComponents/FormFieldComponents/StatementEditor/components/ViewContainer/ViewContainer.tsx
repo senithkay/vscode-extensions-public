@@ -31,17 +31,16 @@ import { RightPane } from '../RightPane';
 import { useStatementEditorStyles } from "./styles";
 
 export interface ViewProps {
-    label: string,
-    initialSource: string,
-    formArgs: any,
-    userInputs?: VariableUserInputs,
-    config?: ProcessConfig | EndConfig | ConditionConfig
-    isMutationInProgress?: boolean
-    validForm?: boolean
-    done: () => void
-    onCancel?: () => void
-    handleNameOnChange?: (name: string) => void
-    handleTypeChange?: (name: string) => void
+    label: string;
+    initialSource: string;
+    formArgs: any;
+    userInputs?: VariableUserInputs;
+    config?: ProcessConfig | EndConfig | ConditionConfig;
+    validForm?: boolean;
+    done: () => void;
+    onCancel?: () => void;
+    handleNameOnChange?: (name: string) => void;
+    handleTypeChange?: (name: string) => void;
 }
 
 export function ViewContainer(props: ViewProps) {

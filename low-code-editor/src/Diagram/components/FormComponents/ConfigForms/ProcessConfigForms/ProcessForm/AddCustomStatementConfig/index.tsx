@@ -96,7 +96,6 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
             label: intl.formatMessage({id: "lowcode.develop.configForms.customStatement.statementEditor.label"}),
             initialSource: expression,
             formArgs: {formArgs},
-            isMutationInProgress,
             validForm: isFormValid,
             done
         }
