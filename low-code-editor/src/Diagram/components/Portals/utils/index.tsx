@@ -115,7 +115,7 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
         const skipDefaultValue = formField.defaultValue && formField.optional;
         let paramString: string = "";
         if (!formField.noCodeGen && !skipDefaultValue) {
-            if (formField.isDefaultableParam && formField.value) {
+            if (formField.defaultable && formField.value) {
                 paramString += `${formField.name} = `;
             }
             if (formField.typeName === "string" && (formField.value || formField.defaultValue)) {
@@ -674,7 +674,7 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
     });
 
     // Filter connector functions to have better usability.
-    functionDefInfo = filterConnectorFunctions(connector, functionDefInfo, connectorConfig, userEmail);
+    functionDefInfo = filterConnectorFunctions(connector, functionDefInfo);
     if (model) {
         const variable: LocalVarDecl = model as LocalVarDecl;
         const viewState: StatementViewState = model.viewState as StatementViewState;
