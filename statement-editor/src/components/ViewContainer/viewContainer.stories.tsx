@@ -16,16 +16,16 @@ import React from 'react';
 import { Story } from '@storybook/react/types-6-0';
 
 import { Provider as LowCodeEditorProvider } from "../../../../../../../Contexts/Diagram";
-import foreachModel from "../../../../../../FormComponents/FormFieldComponents/StatementEditor/components/StatementRenderer/data/foreach-st-model.json";
-import ifElseModel from "../../../../../../FormComponents/FormFieldComponents/StatementEditor/components/StatementRenderer/data/ifelse-st-model.json";
-import varDeclBinaryExprModel from "../../../../../../FormComponents/FormFieldComponents/StatementEditor/components/StatementRenderer/data/local-var-decl-with-binary-expr-st-model.json";
-import panicModel from "../../../../../../FormComponents/FormFieldComponents/StatementEditor/components/StatementRenderer/data/panic-st-model.json";
-import stringModel from "../../../../../../FormComponents/FormFieldComponents/StatementEditor/components/StatementRenderer/data/varDecl-stringLiteral-model.json";
-import whileStmtModel from "../../../../../../FormComponents/FormFieldComponents/StatementEditor/components/StatementRenderer/data/while-st-model.json";
 import { InputEditorContextProvider } from "../../store/input-editor-context";
 import { StatementEditorContextProvider } from '../../store/statement-editor-context';
+import foreachModel from "../StatementRenderer/data/foreach-st-model.json";
 import ifElseBooleanModel from "../StatementRenderer/data/ifelse-booleaLiteral-st-model.json";
+import ifElseModel from "../StatementRenderer/data/ifelse-st-model.json";
+import varDeclBinaryExprModel from "../StatementRenderer/data/local-var-decl-with-binary-expr-st-model.json";
+import panicModel from "../StatementRenderer/data/panic-st-model.json";
 import returnModel from "../StatementRenderer/data/return-st-model.json";
+import stringModel from "../StatementRenderer/data/varDecl-stringLiteral-model.json";
+import whileStmtModel from "../StatementRenderer/data/while-st-model.json";
 
 import { ViewContainer, ViewProps } from "./ViewContainer";
 

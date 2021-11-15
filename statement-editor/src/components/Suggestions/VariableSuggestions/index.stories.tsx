@@ -15,8 +15,8 @@ import React from 'react';
 // tslint:disable-next-line: no-submodule-imports
 import { Story } from '@storybook/react/types-6-0';
 
-import varDeclBinaryExprModel from "../../../../../../../FormComponents/FormFieldComponents/StatementEditor/components/StatementRenderer/data/local-var-decl-with-binary-expr-st-model.json";
 import { SuggestionItem } from "../../../models/definitions";
+import varDeclBinaryExprModel from "../../StatementRenderer/data/local-var-decl-with-binary-expr-st-model.json";
 
 import { VariableSuggestions, VariableSuggestionsProps } from "./index";
 

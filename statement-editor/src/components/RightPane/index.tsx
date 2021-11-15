@@ -12,8 +12,8 @@
  */
 import React from "react";
 
-import ComponentExpandIcon from "../../../../../../../assets/icons/ComponentExpandIcon";
 import { ButtonWithIcon } from "../../../Button/ButtonWithIcon";
+import ComponentExpandIcon from "../../assets/icons/ComponentExpandIcon";
 import { useStatementEditorStyles } from "../ViewContainer/styles";
 
 export function RightPane() {
