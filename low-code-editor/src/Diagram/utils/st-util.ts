@@ -11,7 +11,7 @@
  * associated services.
  */
 import {
-    ActionStatement, CaptureBindingPattern, CheckAction, ElseBlock, FunctionDefinition, IdentifierToken, IfElseStatement, LocalVarDecl,
+    ActionStatement, CallStatement, CaptureBindingPattern, CheckAction, ElseBlock, FunctionDefinition, IdentifierToken, IfElseStatement, LocalVarDecl,
     ModulePart, ModuleVarDecl, QualifiedNameReference, RemoteMethodCallAction, ResourceKeyword, ServiceDeclaration,
     STKindChecker,
     STNode, traversNode, TypeCastExpression, VisibleEndpoint
@@ -659,5 +659,11 @@ export function getVariableNameFromST(node: LocalVarDecl | ModuleVarDecl): Ident
 export function getStatementTypesFromST(model: LocalVarDecl): string {
     if (STKindChecker.isTypedBindingPattern(model.typedBindingPattern)) {
         return model.typedBindingPattern.typeDescriptor.source.trim();
+    }
+}
+
+export function getMethodFunctionName(model: CallStatement): string {
+    if (STKindChecker.isFunctionCall(model.expression)) {
+        return model.expression.functionName.source.trim();
     }
 }

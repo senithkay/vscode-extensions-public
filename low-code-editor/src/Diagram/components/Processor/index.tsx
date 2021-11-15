@@ -30,7 +30,7 @@ import cn from "classnames";
 import { WizardType } from "../../../ConfigurationSpec/types";
 import { Context } from "../../../Contexts/Diagram";
 import { getOverlayFormConfig, getRandomInt } from "../../utils/diagram-util";
-import { getStatementTypesFromST } from "../../utils/st-util";
+import { getMethodFunctionName, getStatementTypesFromST } from "../../utils/st-util";
 import { BlockViewState, StatementViewState } from "../../view-state";
 import { DraftStatementViewState } from "../../view-state/draft";
 import { DefaultConfig } from "../../visitors/default";
@@ -40,6 +40,7 @@ import { DELETE_SVG_HEIGHT_WITH_SHADOW, DELETE_SVG_WIDTH_WITH_SHADOW } from "../
 import { EditBtn } from "../DiagramActions/EditBtn";
 import { EDIT_SVG_OFFSET, EDIT_SVG_WIDTH_WITH_SHADOW } from "../DiagramActions/EditBtn/EditSVG";
 import { FormGenerator } from "../FormGenerator";
+import { MethodCall } from "../MethodCall";
 import { StatementTypes } from "../StatementTypes";
 import { VariableName, VARIABLE_NAME_WIDTH } from "../VariableName";
 
@@ -220,9 +221,13 @@ export function DataProcessor(props: ProcessorProps) {
 
     let assignmentText = null;
     let statmentTypeText = null;
+    let methodCallText = null;
     if (!isDraftStatement && STKindChecker?.isCallStatement(model)) {
         if (STKindChecker.isFunctionCall(model.expression)) {
             assignmentText = model.expression.arguments[0]?.source;
+            processType === "Log" ?
+            methodCallText = getMethodFunctionName(model).replace("log:print", "").trim().toLocaleLowerCase()
+            : methodCallText = getMethodFunctionName(model);
         } else if (STKindChecker.isCheckExpression(model.expression)) {
             if (STKindChecker.isFunctionCall(model.expression.expression)) {
                 assignmentText = model.expression.expression.source;
@@ -237,6 +242,7 @@ export function DataProcessor(props: ProcessorProps) {
 
     const processWrapper = isDraftStatement ? cn("main-process-wrapper active-data-processor") : cn("main-process-wrapper data-processor");
     const processStyles = diagnostics && !isDraftStatement ? cn("main-process-wrapper data-processor-error ") : processWrapper;
+    const prosessTypes = (processType === "Log" || processType === "Call");
 
     const component: React.ReactNode = (!viewState.collapsed &&
         (
@@ -271,9 +277,15 @@ export function DataProcessor(props: ProcessorProps) {
                         />
                         <Assignment
                             x={cx + PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW / 2 + (DefaultConfig.dotGap * 3)}
-                            y={cy + PROCESS_SVG_HEIGHT / 3}
+                            y={prosessTypes ? (cy + PROCESS_SVG_HEIGHT / 2) : (cy + PROCESS_SVG_HEIGHT / 3)}
                             assignment={assignmentText}
                             className="assignment-text"
+                            key_id={getRandomInt(1000)}
+                        />
+                        <MethodCall
+                            x={cx + PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW / 2 + (DefaultConfig.dotGap * 3)}
+                            y={(cy + PROCESS_SVG_HEIGHT / 4) - (DefaultConfig.dotGap / 2)}
+                            methodCall={methodCallText}
                             key_id={getRandomInt(1000)}
                         />
 
