@@ -38,7 +38,7 @@ export function EndpointList(props: FormGeneratorProps) {
     } = useContext(Context);
     const { functionNode } = useFunctionContext();
     const { onSelect } = props.configOverlayFormStatus.formArgs as EndpointListProps;
-    const isEndpointExists = moduleEndpoints.size > 0 || localEndpoints.size > 0;
+    let isEndpointExists = false;
     const endpointList: ReactNode[] = [];
 
     const getListComponent = (node: STNode, name: string) => {
@@ -54,6 +54,7 @@ export function EndpointList(props: FormGeneratorProps) {
 
     moduleEndpoints?.forEach((node, name) => {
         endpointList.push(getListComponent(node, name));
+        isEndpointExists = true;
     });
 
     localEndpoints?.forEach((node, name) => {
@@ -62,6 +63,7 @@ export function EndpointList(props: FormGeneratorProps) {
             functionNode.position.endLine > node.position.endLine
         ) {
             endpointList.push(getListComponent(node, name));
+            isEndpointExists = true;
         }
     });
 
