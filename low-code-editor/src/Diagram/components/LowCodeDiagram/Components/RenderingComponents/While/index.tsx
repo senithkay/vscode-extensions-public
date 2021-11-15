@@ -61,7 +61,7 @@ export function While(props: WhileProps) {
     const {
         state,
         actions: { diagramCleanDraw, diagramRedraw, insertComponentStart },
-        props: { isCodeEditorActive, syntaxTree, isReadOnly, isMutationProgress, isWaitingOnWorkspace },
+        props: { isCodeEditorActive, syntaxTree,  stSymbolInfo, isReadOnly, isMutationProgress, isWaitingOnWorkspace },
         api: {
             code: {
                 setCodeLocationToHighlight: setCodeToHighlight
@@ -165,7 +165,7 @@ export function While(props: WhileProps) {
             type: "While",
             conditionExpression,
             conditionPosition: conditionExpr.position
-        });
+        }, stSymbolInfo, model);
         setWhileConfigOverlayState(conditionConfigState);
     };
 
