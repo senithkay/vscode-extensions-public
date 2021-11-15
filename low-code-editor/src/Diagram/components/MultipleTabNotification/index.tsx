@@ -15,7 +15,7 @@ import React from "react";
 
 import { Typography } from "@material-ui/core";
 
-import { PrimaryButton } from "../Portals/ConfigForm/Elements/Button/PrimaryButton";
+import { PrimaryButton } from "../FormComponents/FormFieldComponents/Button/PrimaryButton";
 
 import { useStyles } from "./style";
 
