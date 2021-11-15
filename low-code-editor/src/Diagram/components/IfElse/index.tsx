@@ -307,7 +307,7 @@ export function IfElse(props: IfElseProps) {
                 type: "If",
                 conditionExpression,
                 conditionPosition: getExpressions()?.values[0]?.position
-            });
+            }, stSymbolInfo, model);
             setIfElseConditionConfigState(conditionConfigState);
         };
 
