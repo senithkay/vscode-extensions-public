@@ -18,7 +18,7 @@ import { NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
 
 import { Context } from '../../../../../../../Contexts/Diagram';
 import { wizardStyles } from "../../../../ConfigForms/style";
-import { ConditionConfig, EndConfig, ProcessConfig } from "../../../../types";
+import { ConditionConfig, EndConfig, ProcessConfig } from "../../../../Types";
 import { PrimaryButton } from "../../../Button/PrimaryButton";
 import { SecondaryButton } from "../../../Button/SecondaryButton";
 import { VariableUserInputs } from '../../models/definitions';

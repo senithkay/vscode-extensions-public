@@ -12,7 +12,7 @@
  */
 import { NodePosition } from "@ballerina/syntax-tree";
 
-import { STModification } from "../../../../../../../Definitions";
+import { STModification } from "../../../../../../Definitions";
 
 export function createStatement(property: string, targetPosition: NodePosition): STModification {
     const modification: STModification = {
