@@ -50,7 +50,7 @@ export function EndpointList(props: FormGeneratorProps) {
     });
 
     return (
-        <FormControl data-testid="log-form" className={classes.container}>
+        <FormControl data-testid="endpoint-list-form" className={classes.container}>
             <div className={formClasses.formWrapper}>
                 <div className={formClasses.formFeilds}>
                     <div className={formClasses.formWrapper}>
@@ -60,7 +60,7 @@ export function EndpointList(props: FormGeneratorProps) {
                                     <Box paddingTop={2} paddingBottom={2}>
                                         <FormattedMessage
                                             id="lowcode.develop.configForms.endpoint.title"
-                                            defaultMessage="API Connections"
+                                            defaultMessage="API Invocation"
                                         />
                                     </Box>
                                 </Typography>
@@ -82,7 +82,7 @@ export function EndpointList(props: FormGeneratorProps) {
                                 <>
                                     <Typography>
                                         <FormattedMessage
-                                            id="lowcode.develop.configForms.endpoint.empty"
+                                            id="lowcode.develop.configForms.endpoint.subtitle"
                                             defaultMessage="Select an API connection"
                                         />
                                     </Typography>

@@ -121,13 +121,13 @@ export function StatementOptions(props: StatementOptionsProps) {
         connectorStatement: {
             title: intl.formatMessage({
                 id: "lowcode.develop.plusHolder.plusElements.statements.connector.tooltip.title",
-                defaultMessage: "An API Call can be used to make external app requests."
+                defaultMessage: "An API connection can be used to make external app requests."
             })
         },
         actionStatement: {
             title: intl.formatMessage({
                 id: "lowcode.develop.plusHolder.plusElements.statements.action.tooltip.title",
-                defaultMessage: "An API Connection can be used to make multiple request from a existing API Call."
+                defaultMessage: "An API invocation can be used to make multiple request from a existing API connections."
             })
         }
     }
@@ -259,7 +259,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                     <div className="text-label">
                         <FormattedMessage
                             id="lowcode.develop.plusHolder.plusElements.statements.connector.title"
-                            defaultMessage="API Call"
+                            defaultMessage="API Connection"
                         />
                     </div>
                 </div>
@@ -287,7 +287,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                     <div className="text-label">
                         <FormattedMessage
                             id="lowcode.develop.plusHolder.plusElements.statements.action.title"
-                            defaultMessage="API Connection"
+                            defaultMessage="API Invocation"
                         />
                     </div>
                 </div>

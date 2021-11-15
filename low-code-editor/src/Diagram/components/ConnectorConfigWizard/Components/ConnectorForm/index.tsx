@@ -414,7 +414,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
 
     return (
         <>
-            <FormControl data-testid="log-form" className={formClasses.wizardFormControl}>
+            <FormControl data-testid="connector-form" className={formClasses.wizardFormControl}>
                 <div className={formClasses.formWrapper}>
                     <div className={formClasses.formFeilds}>
                         <div className={formClasses.formWrapper}>
@@ -422,7 +422,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
                                 <div className={formClasses.mainTitleWrapper}>
                                     <Typography variant="h4">
                                         <Box paddingTop={2} paddingBottom={2}>
-                                            <FormattedMessage id="lowcode.develop.configForms.connector.title" defaultMessage="API Call" />
+                                            <FormattedMessage id="lowcode.develop.configForms.connector.title" defaultMessage="API Connection" />
                                         </Box>
                                     </Typography>
                                 </div>
