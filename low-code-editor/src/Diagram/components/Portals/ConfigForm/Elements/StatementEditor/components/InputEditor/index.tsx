@@ -299,8 +299,8 @@ export function InputEditor(props: InputEditorProps) {
                 triggerKind: 1
             },
             position: {
-                character: (codeSnippet.length + (snippetTargetPosition - 1)),
-                line: targetPosition.startLine
+                character: ((model.position.startColumn) + codeSnippet.length),
+                line: targetPosition.startLine + 1
             }
         }
 
@@ -310,9 +310,7 @@ export function InputEditor(props: InputEditorProps) {
             langClient.getCompletion(completionParams).then((values: CompletionResponse[]) => {
                 const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (
                     (!completionResponse.kind || acceptedCompletionKind.includes(completionResponse.kind)) &&
-                    ((varType === "string") ? completionResponse.detail === varType : acceptedDataType.includes(completionResponse.detail)) &&
-                    completionResponse.label !== varName &&
-                    ((completionResponse.label.replace(/["]+/g, '')).startsWith(codeSnippet)) &&
+                    completionResponse.label !== varName.trim() &&
                     !(completionResponse.label.includes("main"))
                 ));
 
@@ -355,8 +353,8 @@ export function InputEditor(props: InputEditorProps) {
         const currentStatement = stmtCtx.modelCtx.statementModel.source;
         const updatedStatement = addExpressionToTargetPosition(currentStatement, model.position.startColumn + 1, event.target.value ? event.target.value : "", model.position.endColumn + 1);
         debouncedContentChange(updatedStatement, "");
-        getContextBasedCompletions(event.target.value);
         setUserInput(event.target.value);
+        getContextBasedCompletions(event.target.value);
     };
 
     const debouncedContentChange = debounce(handleContentChange, 500);
