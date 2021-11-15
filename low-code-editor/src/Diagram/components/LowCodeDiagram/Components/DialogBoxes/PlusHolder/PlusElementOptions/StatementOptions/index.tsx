@@ -127,7 +127,7 @@ export function StatementOptions(props: StatementOptionsProps) {
         actionStatement: {
             title: intl.formatMessage({
                 id: "lowcode.develop.plusHolder.plusElements.statements.action.tooltip.title",
-                defaultMessage: "An API invocation can be used to make multiple request from a existing API connections."
+                defaultMessage: "An API invocation can be used to invoke operations of an existing API connection."
             })
         }
     }
