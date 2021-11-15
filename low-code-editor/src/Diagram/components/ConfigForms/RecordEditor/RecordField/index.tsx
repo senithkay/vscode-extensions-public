@@ -47,7 +47,6 @@ export function RecordField(props: CodePanelProps) {
 
     const { state, callBacks } = useContext(Context);
 
-    const [isFieldAddInProgress, setIsFieldAddInProgress] = useState(false);
     const [isRecordExpanded, setIsRecordExpanded] = useState(true);
     const [isRecordEditInProgress, setIsRecordEditInProgress] = useState((recordModel.name === "") ||
         (recordModel.name === undefined));
@@ -130,7 +129,6 @@ export function RecordField(props: CodePanelProps) {
         callBacks.onUpdateCurrentRecord(recordModel);
         callBacks.onUpdateModel(state.recordModel);
         callBacks.onUpdateCurrentField(newField);
-        setIsFieldAddInProgress(true);
     };
 
     const handleRecordExpand = () => {
@@ -146,11 +144,12 @@ export function RecordField(props: CodePanelProps) {
             callBacks.onUpdateCurrentField(state.currentField);
             setIsRecordEditInProgress(false);
             callBacks.onUpdateRecordSelection(false);
+            callBacks.onChangeFormState(FormState.UPDATE_FIELD);
         } else {
             state.currentRecord.name = event.target.value;
+            callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
         }
         callBacks.onUpdateModel(state.recordModel);
-        callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
     };
 
     const handleOnBlur = (event: any) => {
@@ -169,7 +168,6 @@ export function RecordField(props: CodePanelProps) {
             }
             state.currentField.isEditInProgress = false;
             state.currentField.isActive = true;
-            setIsFieldAddInProgress(false);
         } else {
             state.currentField.name = event.target.value;
         }
@@ -227,13 +225,6 @@ export function RecordField(props: CodePanelProps) {
         ""}${recordModel.isOptional ? "?" : ""}`;
     const typeDescName = `${recordModel.isTypeDefinition ? "" : `${recordModel.name}`}`;
     const typeDefName = `${recordModel.isTypeDefinition ? `${recordModel.name ? recordModel.name : ""}` : ""}`;
-
-    useEffect(() => {
-        // Checks whether add form is completed and reset field addition
-        if ((state.currentForm !== FormState.ADD_FIELD) || (state.currentRecord.name !== recordModel.name)) {
-            setIsFieldAddInProgress(false);
-        }
-    }, [state.currentForm, state.currentRecord?.name]);
 
     useEffect(() => {
         // Checks whether record is clicked to edit, if so resetting field insertion
@@ -368,7 +359,8 @@ export function RecordField(props: CodePanelProps) {
                     )}
                     <Typography
                         variant='body2'
-                        className={recordClasses.singleTokenWrapper}
+                        className={(!recordModel.isTypeDefinition && isRecordEditInProgress) ?
+                            recordClasses.editRecordEndSemicolonWrapper : recordClasses.recordEndSemicolonWrapper}
                     >
                         ;
                     </Typography>
