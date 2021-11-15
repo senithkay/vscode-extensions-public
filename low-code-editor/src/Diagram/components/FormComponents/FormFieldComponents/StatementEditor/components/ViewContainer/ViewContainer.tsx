@@ -84,7 +84,7 @@ export function ViewContainer(props: ViewProps) {
     }, []);
 
     useEffect(() => {
-        if (!!model && STKindChecker.isLocalVarDecl(model)) {
+        if (!!model && STKindChecker.isLocalVarDecl(model) && handleNameOnChange && handleTypeChange) {
             handleNameOnChange(model.typedBindingPattern.bindingPattern.source)
             handleTypeChange(model.typedBindingPattern.typeDescriptor.source)
         }

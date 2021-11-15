@@ -97,6 +97,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
             initialSource: expression,
             formArgs: {formArgs},
             validForm: isFormValid,
+            config,
             done
         }
     );
