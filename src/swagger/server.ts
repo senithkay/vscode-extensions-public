@@ -16,21 +16,36 @@
  * under the License.
  *
  */
-import cors_proxy from 'cors-anywhere';
 
-// Listen on a specific host via the HOST environment variable
-var host = process.env.HOST || '127.0.0.1';
-// Listen on a specific port via the PORT environment variable
-var port = process.env.PORT || 18512;
+import cors_proxy from 'cors-anywhere';
+import { Server } from 'http';
+import { getPortPromise } from 'portfinder';
+
+const host = '127.0.0.1';
+let port: number;
+let server: Server;
 
 export class PreviewServer {
-  initiateServer() {
-    cors_proxy.createServer({
+  /**
+   * Create proxy server.
+   * 
+   * @returns Server port
+   */
+  async initiateServer(): Promise<number> {
+    if (server && server.listening && port) {
+      return port;
+    }
+
+    server = cors_proxy.createServer({
       originWhitelist: [], // Allow all origins
       requireHeader: ['origin', 'x-requested-with'],
       // removeHeaders: ['cookie', 'cookie2']
       setHeaders: { "Access-Control-Allow-Headers": "*" }
 
-    }).listen(port, host, function () { });
+    });
+
+    port = await getPortPromise({ port: 18000, stopPort: 20000 });
+    server.listen(port, host, function () { });
+    return port;
   }
 }

@@ -25,6 +25,7 @@ import "./style.css";
 import "swagger-ui-react/swagger-ui.css";
 import 'react-dropdown/style.css';
 interface OASpec {
+    file: string;
     serviceName: string;
     spec: any;
     diagnostics: OADiagnostic[];
@@ -45,15 +46,28 @@ interface LinePosition {
     offset: number;
 }
 
-export const SwaggerView = (data: any) => {
+export const SwaggerView = (props: any) => {
     const services: Option[] = [];
-    const specs: OASpec[] = data.specs;
+    const specs: OASpec[] = props.data.specs;
+    const proxyPort: number = props.data.proxyPort;
+    const file: string | undefined = props.data.file;
+    const serviceName: string = props.data.serviceName;
+
+    let selectedService = 0;
     specs.forEach((spec, index) => {
-        services.push({ value: String(index), label: spec.serviceName });
+        services.push({
+            value: String(index),
+            label: `${spec.file} - /${spec.serviceName}`
+        });
+
+        if (file && file === spec.file &&
+            serviceName.toLocaleLowerCase() === `/${spec.serviceName.toLocaleLowerCase()}`) {
+            selectedService = index;
+        }
     });
 
-    const [spec, setService] = useState(specs[0].spec);
-    const [selectedOption, setOption] = useState(services[0]);
+    const [spec, setService] = useState(specs[selectedService].spec);
+    const [selectedOption, setOption] = useState(services[selectedService]);
 
 
     function selectService(option: Option) {
@@ -63,7 +77,7 @@ export const SwaggerView = (data: any) => {
     }
 
     function requestInterceptor(req: any) {
-        req.url = `http://localhost:18512/${req.url}`;
+        req.url = `http://localhost:${proxyPort}/${req.url}`;
         return req;
     }
 

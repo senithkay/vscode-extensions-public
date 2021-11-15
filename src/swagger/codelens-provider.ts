@@ -25,10 +25,12 @@ import {
 } from 'vscode';
 import { SyntaxTree, Member } from '../diagram';
 import { PALETTE_COMMANDS } from '../project';
+import { sep } from 'path';
 
 interface Service {
     position: Position,
     name: string | undefined
+    file: string
 }
 
 interface Position {
@@ -36,6 +38,11 @@ interface Position {
     startColumn: number;
     endLine: number;
     endColumn: number;
+}
+
+interface Token {
+    kind: string;
+    value: string;
 }
 
 let langClient: ExtendedLangClient;
@@ -90,7 +97,7 @@ export class TryOutCodeLensProvider implements CodeLensProvider {
             title: "Try it",
             tooltip: "Try running this service on swagger view",
             command: PALETTE_COMMANDS.SWAGGER_VIEW,
-            arguments: []
+            arguments: [service.file, service.name]
         };
         return codeLens;
     }
@@ -108,6 +115,7 @@ export class TryOutCodeLensProvider implements CodeLensProvider {
             return services;
         }
 
+        const file = activeEditor.document.uri.fsPath.split(sep).pop()!;
         await langClient.onReady().then(async () => {
             await langClient.getSyntaxTree({
                 documentIdentifier: {
@@ -121,12 +129,23 @@ export class TryOutCodeLensProvider implements CodeLensProvider {
                 const members: Member[] = syntaxTree.members;
                 for (const member of members) {
                     if (member.kind === 'ServiceDeclaration') {
-                        services.push({ position: member.position, name: member.functionName?.value })
+                        services.push({
+                            position: member.position,
+                            name: this.getResourcePath((member as any).absoluteResourcePath),
+                            file: file
+                        })
                     }
                 }
             });
         });
         return services;
     }
-}
 
+    private getResourcePath(tokens: Token[]): string {
+        let path = "";
+        tokens.forEach((token) => {
+            path += token.value;
+        });
+        return path;
+    }
+}

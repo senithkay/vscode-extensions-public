@@ -23,7 +23,7 @@ import { SwaggerView as SwaggerView } from "./swagger-view/SwaggerView";
 
 export function renderSwagger(data: any) {
     ReactDOM.render(
-        <SwaggerView specs={data.specs} />,
+        <SwaggerView data={data} />,
         document.getElementById("swagger-view")
     );
 }

@@ -25,12 +25,13 @@ import { PreviewServer } from "./server";
 
 let swaggerViewPanel: WebviewPanel | undefined;
 
-export function showSwaggerView(langClient: ExtendedLangClient, specs: OASpec[]): void {
+export async function showSwaggerView(langClient: ExtendedLangClient,
+    specs: OASpec[], file: string | undefined, serviceName: string): Promise<void> {
     if (swaggerViewPanel) {
         swaggerViewPanel.dispose();
     }
     let previewServer: PreviewServer = new PreviewServer();
-    previewServer.initiateServer();
+    const port = await previewServer.initiateServer();
 
     // Create and show a new SwaggerView
     swaggerViewPanel = window.createWebviewPanel(
@@ -41,7 +42,7 @@ export function showSwaggerView(langClient: ExtendedLangClient, specs: OASpec[])
     );
 
     WebViewRPCHandler.create(swaggerViewPanel, langClient);
-    const html = render({ specs: specs });
+    const html = render({ specs, proxyPort: port, file, serviceName });
     if (swaggerViewPanel && html) {
         swaggerViewPanel.webview.html = html;
     }

@@ -272,6 +272,7 @@ export interface OpenAPIConverterResponse {
 }
 
 export interface OASpec {
+    file: string;
     serviceName: string;
     spec: any;
     diagnostics: OADiagnostic[];

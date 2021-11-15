@@ -23,11 +23,18 @@ import { BallerinaExtension, ExtendedLangClient, LANGUAGE } from "../core";
 import { showSwaggerView } from "./swaggerViewPanel";
 import { MESSAGE_TYPE, showMessage } from "../utils/showMessage";
 import { TryOutCodeLensProvider } from "./codelens-provider";
+import { log } from "../utils";
 
 export async function activate(ballerinaExtInstance: BallerinaExtension) {
-    commands.registerCommand(PALETTE_COMMANDS.SWAGGER_VIEW, async () => {
+    commands.registerCommand(PALETTE_COMMANDS.SWAGGER_VIEW, async (...args: any[]) => {
         const langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
         const documentFilePath = window.activeTextEditor?.document.fileName!;
+        let file;
+        let serviceName;
+        if (args && args.length == 2) {
+            file = args[0];
+            serviceName = args[1];
+        }
         await langClient.convertToOpenAPI({
             documentFilePath
         }).then(async (response) => {
@@ -36,10 +43,9 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
                     MESSAGE_TYPE.ERROR, false);
                 return;
             }
-            showSwaggerView(langClient, response.content);
-
+            showSwaggerView(langClient, response.content, file, serviceName);
         }).catch((err) => {
-            console.log(err);
+            log(err);
         });
     });
 
