@@ -13,6 +13,19 @@ if ({{{ CONDITION }}}) {
 } else {
 
 }`,
+
+    IF_CONDITION: `
+if ({{{ CONDITION }}}) {
+
+`,
+    ELSE_IF_CONDITION: `
+} else if ({{{ CONDITION }}}) {
+
+`,
+    ELSE_STATEMENT: `
+} else {
+
+}`,
     IMPORT: 'import {{{ TYPE }}};',
     LOG_STATEMENT: 'log:print{{{ TYPE }}}({{{ LOG_EXPR }}});',
     PROPERTY_STATEMENT: '{{{ PROPERTY }}}',
