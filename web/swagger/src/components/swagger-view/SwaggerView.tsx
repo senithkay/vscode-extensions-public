@@ -62,11 +62,16 @@ export const SwaggerView = (data: any) => {
         setOption(services[index]);
     }
 
+    function requestInterceptor(req: any) {
+        req.url = `http://localhost:18512/${req.url}`;
+        return req;
+    }
+
     return (
         <div>
             <div className='dropdown-container'>
                 <Dropdown options={services} onChange={selectService} value={selectedOption} placeholder="Select a service" />
             </div>
-            <SwaggerUI spec={spec} />
+            <SwaggerUI requestInterceptor={requestInterceptor} spec={spec} showMutatedRequest={false} />
         </div>);
 };

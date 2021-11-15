@@ -21,6 +21,7 @@ import { ViewColumn, window, WebviewPanel } from "vscode";
 import { WebViewRPCHandler, getCommonWebViewOptions } from '../utils';
 import { render } from './render';
 import { ExtendedLangClient, OASpec } from "../core";
+import { PreviewServer } from "./server";
 
 let swaggerViewPanel: WebviewPanel | undefined;
 
@@ -28,6 +29,8 @@ export function showSwaggerView(langClient: ExtendedLangClient, specs: OASpec[])
     if (swaggerViewPanel) {
         swaggerViewPanel.dispose();
     }
+    let previewServer: PreviewServer = new PreviewServer();
+    previewServer.initiateServer();
 
     // Create and show a new SwaggerView
     swaggerViewPanel = window.createWebviewPanel(
