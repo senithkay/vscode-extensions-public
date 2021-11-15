@@ -14,7 +14,7 @@
 import { STNode } from "@ballerina/syntax-tree";
 import { Diagnostic } from "monaco-languageclient";
 
-import { BlockViewState } from "../Diagram/view-state";
+import { BlockViewState } from "../Diagram/components/LowCodeDiagram/ViewState";
 
 import { BallerinaConnectorInfo, Connector } from "./lang-client-extended";
 
