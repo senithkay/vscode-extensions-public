@@ -17,23 +17,12 @@ import { LocalVarDecl } from "@ballerina/syntax-tree";
 
 import { Context } from "../../../../../Contexts/Diagram";
 import { DiagramEditorLangClientInterface } from "../../../../../Definitions/diagram-editor-lang-client-interface";
-import { BallerinaConnectorInfo, BallerinaConnectorsRequest, BallerinaConnectorsResponse, BallerinaModuleResponse, Connector } from "../../../../../Definitions/lang-client-extended";
-import {
-    EVENT_TYPE_AZURE_APP_INSIGHTS,
-    LowcodeEvent,
-    START_CONNECTOR_ADD_INSIGHTS} from "../../../../models";
+import { BallerinaConnectorInfo, BallerinaConnectorsRequest, BallerinaModuleResponse } from "../../../../../Definitions/lang-client-extended";
+import { UserState } from "../../../../../types";
 import { APIHeightStates } from "../../../LowCodeDiagram/Components/DialogBoxes/PlusHolder";
 import { PlusViewState } from "../../../LowCodeDiagram/ViewState";
-import { getConnectorIconSVG } from "../../../Portals/utils";
-import { wizardStyles as useFormStyles} from "../../ConfigForms/style";
-import { ButtonWithIcon } from "../../FormFieldComponents/Button/ButtonWithIcon";
 import { FormGeneratorProps } from "../../FormGenerator";
-
-import FilterByMenu from "./FilterByMenu";
-import SearchBar from "./SearchBar";
-import useStyles from "./style";
-import { UserState } from "../../../../../types";
-import { BallerinaModuleType, FilterStateMap, Marketplace } from "../../../Marketplace";
+import { BallerinaModuleType, FilterStateMap, Marketplace } from "../Marketplace";
 
 export interface ConnectorListProps {
     onSelect: (connector: BallerinaConnectorInfo, selectedConnector: LocalVarDecl) => void;

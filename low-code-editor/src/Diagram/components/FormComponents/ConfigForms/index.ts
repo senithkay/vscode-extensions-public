@@ -28,8 +28,8 @@ import { ProcessConfigForm } from "./ProcessConfigForms";
 import { RecordEditor } from "./RecordEditor";
 import { ApiConfigureWizard } from "./ResourceConfigForm/ApiConfigureWizard";
 import { ServiceConfigForm } from './ServiceConfigForm';
+import { TriggerList } from "./TriggerList";
 import { TypeDefinitionConfigForm } from "./TypeDefinitionConfigForm";
-import { TriggerList } from "../../TriggerList";
 
 export { APIConfigForm as apiConfig };
 export { ConnectorInitForm as connectorInit };

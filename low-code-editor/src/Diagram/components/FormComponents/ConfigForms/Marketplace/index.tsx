@@ -18,15 +18,15 @@ import { LocalVarDecl } from "@ballerina/syntax-tree";
 import { Box, CircularProgress, FormControl, Grid, Typography } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
 
-import { Context } from "../../../Contexts/Diagram";
-import { BallerinaModule, BallerinaModuleResponse } from "../../../Definitions/lang-client-extended";
-import { UserState } from "../../../types";
-import { EVENT_TYPE_AZURE_APP_INSIGHTS, LowcodeEvent, START_CONNECTOR_ADD_INSIGHTS } from "../../models";
-import { PlusViewState } from "../../view-state/plus";
-import { ButtonWithIcon } from "../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
-import { useStyles as useFormStyles } from "../Portals/ConfigForm/forms/style";
-import { APIHeightStates } from "../Portals/Overlay/Elements/PlusHolder/PlusElements";
-import { getConnectorIconSVG } from "../Portals/utils";
+import { Context } from "../../../../../Contexts/Diagram";
+import { BallerinaModule, BallerinaModuleResponse } from "../../../../../Definitions/lang-client-extended";
+import { UserState } from "../../../../../types";
+import { EVENT_TYPE_AZURE_APP_INSIGHTS, LowcodeEvent, START_CONNECTOR_ADD_INSIGHTS } from "../../../../models";
+import { APIHeightStates } from "../../../LowCodeDiagram/Components/DialogBoxes/PlusHolder/PlusElements";
+import { PlusViewState } from "../../../LowCodeDiagram/ViewState/plus";
+import { getConnectorIconSVG } from "../../../Portals/utils";
+import { wizardStyles as useFormStyles} from "../../ConfigForms/style";
+import { ButtonWithIcon } from "../../FormFieldComponents/Button/ButtonWithIcon";
 
 import FilterByMenu from "./FilterByMenu";
 import SearchBar from "./SearchBar";

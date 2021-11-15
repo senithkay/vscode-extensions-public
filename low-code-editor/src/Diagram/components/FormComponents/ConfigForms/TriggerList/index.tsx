@@ -15,8 +15,8 @@ import React from "react";
 
 import { LocalVarDecl } from "@ballerina/syntax-tree";
 
-import { BallerinaModuleResponse, Package, Trigger } from "../../../Definitions";
-import { UserState } from "../../../types";
+import { BallerinaModuleResponse, Package, Trigger } from "../../../../../Definitions/lang-client-extended";
+import { UserState } from "../../../../../types";
 import { BallerinaModuleType, FilterStateMap, Marketplace } from "../Marketplace";
 
 export function TriggerList() {
