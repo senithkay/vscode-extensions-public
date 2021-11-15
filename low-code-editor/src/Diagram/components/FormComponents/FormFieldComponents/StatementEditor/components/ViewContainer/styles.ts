@@ -42,7 +42,8 @@ export const useStatementEditorStyles = makeStyles(() =>
             fontSize: '13px',
             letterSpacing: 0,
             lineHeight: '14px',
-            paddingTop: '10px'
+            paddingTop: '10px',
+            paddingBottom: '15px'
         },
         codeLine: {
             height: '24px',
@@ -112,7 +113,7 @@ export const useStatementEditorStyles = makeStyles(() =>
         contextSensitivePane: {
             display: 'flex',
             position: 'relative',
-            height: '55%',
+            height: 'fit-content',
             width: '90%',
             top: '5%'
         },

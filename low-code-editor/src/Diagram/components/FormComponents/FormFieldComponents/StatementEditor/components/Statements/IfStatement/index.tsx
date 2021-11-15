@@ -45,7 +45,7 @@ export function IfStatementC(props: IfStatementProps) {
 
     const onClickOnConditionExpression = (event: any) => {
         event.stopPropagation()
-        expressionHandler(model.condition, false,
+        expressionHandler(model.condition, false, false,
             { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
     };
 

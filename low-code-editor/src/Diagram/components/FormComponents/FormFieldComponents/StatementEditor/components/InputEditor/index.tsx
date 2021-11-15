@@ -313,7 +313,7 @@ export function InputEditor(props: InputEditorProps) {
                     return { value: obj.label, kind: obj.detail }
                 });
 
-                expressionHandler(model, false, { variableSuggestions });
+                expressionHandler(model, false, false, { variableSuggestions });
             });
         });
     }
@@ -326,7 +326,7 @@ export function InputEditor(props: InputEditorProps) {
         setIsEditing(false);
         if (userInput !== "") {
             stmtCtx.modelCtx.updateModel(userInput, model.position);
-            expressionHandler(model, false, { expressionSuggestions: [] });
+            expressionHandler(model, false, false, { expressionSuggestions: [] });
 
             const ignore = handleOnOutFocus();
         }

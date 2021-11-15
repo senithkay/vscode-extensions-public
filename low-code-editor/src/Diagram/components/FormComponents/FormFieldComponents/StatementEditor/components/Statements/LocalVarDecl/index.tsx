@@ -54,7 +54,7 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
 
     const onClickOnExpression = (event: any) => {
         event.stopPropagation()
-        expressionHandler(model.initializer, false,
+        expressionHandler(model.initializer, false, false,
             { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
     };
 
