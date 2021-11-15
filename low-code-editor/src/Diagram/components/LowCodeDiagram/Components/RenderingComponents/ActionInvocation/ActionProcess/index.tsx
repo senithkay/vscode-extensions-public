@@ -19,9 +19,10 @@ import cn from "classnames";
 import { WizardType } from "../../../../../../../ConfigurationSpec/types";
 import { BallerinaConnectorInfo } from "../../../../../../../Definitions";
 import { getOverlayFormConfig, getRandomInt } from "../../../../../../utils/diagram-util";
-import { getMatchingConnector } from "../../../../../../utils/st-util";
+import { getMatchingConnector, getStatementTypesFromST } from "../../../../../../utils/st-util";
 import { DefaultConfig } from "../../../../../../visitors/default";
 import { ConnectorConfigWizard } from "../../../../../FormComponents/ConnectorConfigWizard";
+import { StatementTypes } from "../../../../../StatementTypes";
 import { Context } from "../../../../Context/diagram";
 import { BlockViewState, StatementViewState } from "../../../../ViewState";
 import { DraftStatementViewState } from "../../../../ViewState/draft";
@@ -201,6 +202,9 @@ export function ActionProcessor(props: ProcessorProps) {
         </>
     );
 
+    const localModel = model as LocalVarDecl;
+    const statmentTypeText = getStatementTypesFromST(localModel);
+
     const processWrapper = isDraftStatement ? cn("main-process-wrapper active-data-processor") : cn("main-process-wrapper data-processor");
     const component: React.ReactNode = (!viewState.collapsed &&
         (
@@ -209,13 +213,21 @@ export function ActionProcessor(props: ProcessorProps) {
                     <React.Fragment>
                         {!isDraftStatement &&
                             (
-                                <VariableName
-                                    processType={processType}
-                                    variableName={processName}
-                                    x={cx - (VARIABLE_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
-                                    y={cy + PROCESS_SVG_HEIGHT / 4}
-                                    key_id={getRandomInt(1000)}
-                                />
+                                <>
+                                    <StatementTypes
+                                        statementType={statmentTypeText}
+                                        x={cx - (VARIABLE_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
+                                        y={cy + PROCESS_SVG_HEIGHT / 4}
+                                        key_id={getRandomInt(1000)}
+                                    />
+                                    <VariableName
+                                        processType={processType}
+                                        variableName={processName}
+                                        x={cx - (VARIABLE_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
+                                        y={cy + PROCESS_SVG_HEIGHT / 4}
+                                        key_id={getRandomInt(1000)}
+                                    />
+                                </>
                             )
                         }
                         <ProcessSVG
