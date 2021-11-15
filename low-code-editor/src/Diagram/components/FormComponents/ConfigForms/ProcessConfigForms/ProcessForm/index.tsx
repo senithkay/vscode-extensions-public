@@ -20,11 +20,11 @@ import { ConfigOverlayFormStatus } from "../../../../../../Definitions";
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
 import { ProcessConfig } from "../../../Types";
 
+import { AddAssignmentConfig } from "./AddAssignmentConfig";
 import { AddCustomStatementConfig } from "./AddCustomStatementConfig";
 import { AddDataMappingConfig } from "./AddDataMappingConfig";
 import { AddLogConfig } from "./AddLogConfig";
 import { AddVariableConfig } from "./AddVariableConfig";
-import { AddAssignmentConfig } from "./AddAssignmentConfig";
 
 interface ProcessFormProps {
     config: ProcessConfig;

@@ -18,11 +18,11 @@ import { STKindChecker } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 import classnames from "classnames";
 
-import { Context } from "../../../../../../Contexts/Diagram";
-import ExpressionEditor, { ExpressionEditorProps } from "../../../../Portals/ConfigForm/Elements/ExpressionEditor";
-import { FormActionButtons } from "../../../../Portals/ConfigForm/Elements/FormActionButtons";
-import { useStyles } from "../../../../Portals/ConfigForm/forms/style";
-import { FormElementProps, ProcessConfig } from "../../../../Portals/ConfigForm/types";
+import { Context } from "../../../../../../../Contexts/Diagram";
+import { useStyles } from "../../../../DynamicConnectorForm/style";
+import ExpressionEditor, { ExpressionEditorProps } from "../../../../FormFieldComponents/ExpressionEditor";
+import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";
+import { FormElementProps, ProcessConfig } from "../../../../Types";
 
 interface AddAssignmentConfigProps {
     config: ProcessConfig;
@@ -44,7 +44,7 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
     const existingProperty = config && config.model;
     if (existingProperty && STKindChecker.isAssignmentStatement(config.model)) {
         varExpression = config.model.expression?.source;
-        if(STKindChecker.isSimpleNameReference(config.model?.varRef)){
+        if (STKindChecker.isSimpleNameReference(config.model?.varRef)){
             variableName = config.model?.varRef?.name.value;
         }
     }
@@ -120,9 +120,10 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
                 list: formArgs?.expressionInjectables?.list,
                 setInjectables: formArgs?.expressionInjectables?.setInjectables
             },
+            editPosition: config?.model?.position || formArgs.targetPosition,
             customTemplate: {
                 defaultCodeSnippet: `${varName || 'any|error assignment'} = ;`,
-                targetColumn: varName ? (varName.length + 3) :24
+                targetColumn: varName ? (varName.length + 3) : 24
             },
         },
         onChange: onPropertyChange,
