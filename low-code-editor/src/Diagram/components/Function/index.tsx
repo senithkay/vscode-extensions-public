@@ -122,7 +122,7 @@ export function Function(props: FunctionProps) {
 
     const functionBody = (
         <div className={"lowcode-diagram"}>
-            <FunctionProvider overlayId={overlayId} overlayNode={overlayNode}>
+            <FunctionProvider overlayId={overlayId} overlayNode={overlayNode} functionNode={model}>
                 <PanAndZoom>
                     <div ref={overlayRef} id={overlayId} className={classes.OverlayContainer} />
                     <Canvas h={model.viewState.bBox.h} w={model.viewState.bBox.w}>

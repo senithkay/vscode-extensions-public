@@ -29,7 +29,6 @@ import * as ConstructIcons from "../../../../assets/icons"
 import { ActionConfig, ConnectorConfig, FormField, FormFieldReturnType, FunctionDefinitionInfo, ManualConfigType, PrimitiveBalType, WizardType } from "../../../../ConfigurationSpec/types";
 import { DiagramEditorLangClientInterface, STSymbolInfo } from "../../../../Definitions";
 import { BallerinaConnectorInfo, BallerinaConnectorRequest, Connector } from "../../../../Definitions/lang-client-extended";
-import { filterConnectorFunctions } from "../../../utils/connector-form-util";
 import { getAllVariables as retrieveVariables } from "../../../utils/mixins";
 import {
     addConnectorToCache,
@@ -570,7 +569,7 @@ export function getAllVariablesForAi(symbolInfo: STSymbolInfo): { [key: string]:
             }
         });
     });
-    symbolInfo.endpoints.forEach((variableNodes: STNode, type: string) => {
+    symbolInfo.localEndpoints.forEach((variableNodes: STNode, type: string) => {
         const variableDef: LocalVarDecl = variableNodes as LocalVarDecl;
         const variable: CaptureBindingPattern = variableDef.typedBindingPattern.bindingPattern as
             CaptureBindingPattern;
@@ -638,7 +637,7 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
 
     // get form fields from browser cache
     let connectorInfo = getConnectorFromCache(connector);
-    let functionDefInfo: Map<string, FunctionDefinitionInfo> = new Map();
+    const functionDefInfo: Map<string, FunctionDefinitionInfo> = new Map();
     const connectorConfig = new ConnectorConfig();
     const connectorRequest: BallerinaConnectorRequest = {};
 
@@ -676,8 +675,6 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
         functionDefInfo.set(functionInfo.name, functionInfo);
     });
 
-    // Filter connector functions to have better usability.
-    functionDefInfo = filterConnectorFunctions(connector, functionDefInfo);
     if (model) {
         const variable: LocalVarDecl = model as LocalVarDecl;
         const viewState: StatementViewState = model.viewState as StatementViewState;
@@ -736,7 +733,7 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
             }
         }
         connectorConfig.connectorInit = functionDefInfo.get("init") ? functionDefInfo.get("init").parameters : [];
-        const matchingEndPoint: LocalVarDecl = symbolInfo.endpoints.get(connectorConfig.name) as LocalVarDecl;
+        const matchingEndPoint: LocalVarDecl = symbolInfo.localEndpoints.get(connectorConfig.name) as LocalVarDecl;
         if (matchingEndPoint) {
             connectorConfig.initPosition = matchingEndPoint.position;
             matchEndpointToFormField(matchingEndPoint, connectorConfig.connectorInit);

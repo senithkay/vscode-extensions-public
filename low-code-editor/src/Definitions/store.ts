@@ -96,7 +96,8 @@ export interface ExpressionEditorState {
 }
 
 export interface STSymbolInfo {
-    endpoints: Map<string, STNode>;
+    moduleEndpoints: Map<string, STNode>;
+    localEndpoints: Map<string, STNode>;
     actions: Map<string, STNode>;
     variables: Map<string, STNode[]>;
     configurables: Map<string, STNode>;

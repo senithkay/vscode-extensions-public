@@ -18,6 +18,7 @@ import { STNode } from "@ballerina/syntax-tree";
 import { Box, FormControl, List, ListItem, Typography } from "@material-ui/core";
 
 import { Context } from "../../../Contexts/Diagram";
+import { useFunctionContext } from "../../../Contexts/Function";
 import { FormGeneratorProps } from "../FormGenerator";
 import { useStyles as useFormStyles } from "../Portals/ConfigForm/forms/style";
 
@@ -31,22 +32,37 @@ export function EndpointList(props: FormGeneratorProps) {
     const classes = useStyles();
     const formClasses = useFormStyles();
     const {
-        props: { stSymbolInfo },
+        props: {
+            stSymbolInfo: { moduleEndpoints, localEndpoints },
+        },
     } = useContext(Context);
+    const { functionNode } = useFunctionContext();
     const { onSelect } = props.configOverlayFormStatus.formArgs as EndpointListProps;
-    const isEndpointExists = stSymbolInfo?.endpoints && stSymbolInfo.endpoints.size > 0;
+    const isEndpointExists = moduleEndpoints.size > 0 || localEndpoints.size > 0;
     const endpointList: ReactNode[] = [];
 
-    stSymbolInfo?.endpoints.forEach((node, name) => {
+    const getListComponent = (node: STNode, name: string) => {
         const handleOnSelect = () => {
             onSelect(node);
         };
-
-        endpointList.push (
+        return (
             <ListItem key={`endpoint-${name.toLowerCase()}`} button={true} onClick={handleOnSelect}>
                 <Typography variant="h4">{name}</Typography>
             </ListItem>
         );
+    };
+
+    moduleEndpoints?.forEach((node, name) => {
+        endpointList.push(getListComponent(node, name));
+    });
+
+    localEndpoints?.forEach((node, name) => {
+        if (
+            functionNode.position.startLine < node.position.startLine &&
+            functionNode.position.endLine > node.position.endLine
+        ) {
+            endpointList.push(getListComponent(node, name));
+        }
     });
 
     return (

@@ -27,13 +27,15 @@ import {
     SimpleNameReference,
     STKindChecker,
     STNode,
+    TypedBindingPattern,
     Visitor
 } from "@ballerina/syntax-tree";
 
 import { STSymbolInfo } from "../../Definitions";
 import { StatementViewState } from "../view-state";
 
-const endPoints: Map<string, STNode> = new Map();
+const moduleEndpoints: Map<string, STNode> = new Map();
+const localEndpoints: Map<string, STNode> = new Map();
 const actions: Map<string, STNode> = new Map();
 const variables: Map<string, STNode[]> = new Map();
 const configurables: Map<string, STNode> = new Map();
@@ -50,7 +52,7 @@ class SymbolFindingVisitor implements Visitor {
         if (stmtViewState && stmtViewState.isEndpoint) {
             const captureBindingPattern: CaptureBindingPattern =
                 node.typedBindingPattern.bindingPattern as CaptureBindingPattern;
-            endPoints.set(captureBindingPattern.variableName.value, node);
+            localEndpoints.set(captureBindingPattern.variableName.value, node);
         } else if (stmtViewState && stmtViewState.isAction) {
             const captureBindingPattern: CaptureBindingPattern =
                 node.typedBindingPattern.bindingPattern as CaptureBindingPattern;
@@ -150,10 +152,16 @@ class SymbolFindingVisitor implements Visitor {
     }
 
     public beginVisitModuleVarDecl(node: ModuleVarDecl) {
-        if (STKindChecker.isCaptureBindingPattern(node.typedBindingPattern.bindingPattern) &&
-            node.qualifiers.find(token => token.value === "configurable")) {
-            const varName = node.typedBindingPattern.bindingPattern.variableName.value;
-            configurables.set(varName, node);
+        if (STKindChecker.isCaptureBindingPattern(node.typedBindingPattern.bindingPattern)) {
+            const bindingPattern = node.typedBindingPattern.bindingPattern;
+            const varName = bindingPattern.variableName.value;
+
+            if (node.qualifiers.find(token => STKindChecker.isConfigurableKeyword(token))) {
+                configurables.set(varName, node);
+            }
+            if (bindingPattern.typeData?.isEndpoint) {
+                moduleEndpoints.set(varName, node);
+            }
         }
     }
 
@@ -226,7 +234,7 @@ function getType(typeNode: any): any {
 }
 
 export function cleanLocalSymbols() {
-    endPoints.clear();
+    localEndpoints.clear();
     actions.clear();
     variables.clear();
     callStatement.clear();
@@ -242,7 +250,8 @@ export function cleanModuleLevelSymbols(){
 
 export function getSymbolInfo(): STSymbolInfo {
     return {
-        endpoints: endPoints,
+        moduleEndpoints,
+        localEndpoints,
         actions,
         variables,
         configurables,

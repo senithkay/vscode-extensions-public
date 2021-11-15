@@ -352,8 +352,8 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     const handleOnOperationSelect = (operation: string) => {
         connectorConfig.action.name = operation;
         setSelectedOperation(operation);
-        const connector = (symbolInfo.endpoints.get(connectorConfig.name)?.typeData?.typeSymbol?.moduleID) as Connector;
-        const name = symbolInfo.endpoints.get(connectorConfig.name)?.typeData?.typeSymbol?.name;
+        const connector = (symbolInfo.localEndpoints.get(connectorConfig.name)?.typeData?.typeSymbol?.moduleID) as Connector;
+        const name = symbolInfo.localEndpoints.get(connectorConfig.name)?.typeData?.typeSymbol?.name;
         if (connector){
             const {moduleName, package: {version, organization}} = connector;
             openConnectorHelp({moduleName, package: {name, version, organization}, name}, operation);

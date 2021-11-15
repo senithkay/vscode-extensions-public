@@ -62,7 +62,7 @@ export function PlusElements(props: PlusElementsProps) {
 
     // const [isAPICallsExisting] = useState(stSymbolInfo.endpoints && Array.from(stSymbolInfo.endpoints).length > 0);
 
-    if (stSymbolInfo.endpoints && Array.from(stSymbolInfo.endpoints).length > 0) {
+    if (stSymbolInfo.localEndpoints && Array.from(stSymbolInfo.localEndpoints).length > 0) {
         viewState.isAPICallsExisting = true;
     }
 
