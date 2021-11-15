@@ -32,6 +32,7 @@ interface RespondFormProps {
     formArgs: any;
     onCancel: () => void;
     onSave: () => void;
+    done: () => void;
 }
 
 export const DEFINE_RESPOND_EXP: string = "Define Respond Expression";
@@ -45,7 +46,7 @@ export function AddRespondForm(props: RespondFormProps) {
             isMutationProgress: isMutationInProgress
         }
     } = useContext(Context);
-    const { config, formArgs, onCancel, onSave } = props;
+    const { config, formArgs, onCancel, onSave, done } = props;
 
     const respondFormConfig: RespondConfig = config.expression as RespondConfig;
 
@@ -149,7 +150,7 @@ export function AddRespondForm(props: RespondFormProps) {
             isMutationInProgress,
             validForm,
             config,
-            onSave: onSaveWithTour
+            done
         }
     );
 

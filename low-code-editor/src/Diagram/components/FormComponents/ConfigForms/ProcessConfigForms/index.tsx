@@ -174,6 +174,12 @@ export function ProcessConfigForm(props: any) {
     };
 
     return (
-        <ProcessForm config={processConfig} onCancel={onCancel} onSave={onSaveClick} configOverlayFormStatus={configOverlayFormStatus} />
+        <ProcessForm
+            config={processConfig}
+            onCancel={onCancel}
+            onSave={onSaveClick}
+            done={onSave}
+            configOverlayFormStatus={configOverlayFormStatus}
+        />
     );
 }

@@ -167,6 +167,7 @@ export function EndConfigForm(props: any) {
             config={endConfig}
             onCancel={onCancelClick}
             onSave={onSaveClick}
+            done={onSave}
         />
     );
 }

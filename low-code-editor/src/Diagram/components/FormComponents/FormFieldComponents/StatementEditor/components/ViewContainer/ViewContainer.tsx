@@ -38,8 +38,8 @@ export interface ViewProps {
     config?: ProcessConfig | EndConfig | ConditionConfig
     isMutationInProgress?: boolean
     validForm?: boolean
+    done: () => void
     onCancel?: () => void
-    onSave?: () => void
     handleNameOnChange?: (name: string) => void
     handleTypeChange?: (name: string) => void
 }
@@ -63,7 +63,7 @@ export function ViewContainer(props: ViewProps) {
         userInputs,
         config,
         onCancel,
-        onSave,
+        done,
         handleNameOnChange,
         handleTypeChange
     } = props;
@@ -161,6 +161,8 @@ export function ViewContainer(props: ViewProps) {
                 modifyDiagram([updateStatement(model.source, config.model.position)]);
             }
         }
+
+        done();
     };
 
     return (
@@ -170,7 +172,6 @@ export function ViewContainer(props: ViewProps) {
                     <StatementEditorContextProvider
                         model={model}
                         onCancelClicked={onCancelClicked}
-                        onSave={onSave}
                         updateModel={updateModel}
                         formModel={formArgs.formArgs.model}
                         validateStatement={validateStatement}

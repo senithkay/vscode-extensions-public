@@ -24,7 +24,6 @@ export const StatementEditorContext = React.createContext({
     },
     formCtx: {
         onCancel: false,
-        onSave: () => {},
         formModel: null
     },
     statementCtx: {
@@ -36,13 +35,12 @@ interface CtxProviderProps {
     children?: React.ReactNode,
     model: STNode,
     onCancelClicked: boolean,
-    onSave?: () => void,
     updateModel? : (codeSnippet: string, position: NodePosition) => void,
     formModel?: STNode,
     validateStatement: (isValid: boolean) => void
 }
 export const StatementEditorContextProvider = (props: CtxProviderProps) => {
-    const { children, model, onCancelClicked, onSave, updateModel, formModel, validateStatement } = props;
+    const { children, model, onCancelClicked, updateModel, formModel, validateStatement } = props;
 
     return (
         <StatementEditorContext.Provider
@@ -53,7 +51,6 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
             },
             formCtx: {
                 onCancel: onCancelClicked,
-                onSave,
                 formModel
             },
             statementCtx: {

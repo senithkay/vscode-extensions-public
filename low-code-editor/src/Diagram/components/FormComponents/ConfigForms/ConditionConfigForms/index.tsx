@@ -168,8 +168,8 @@ export function ConditionConfigForm(props: ConditionConfigFormProps) {
             condition={conditionConfig}
             onCancel={onCancel}
             onSave={onSaveClick}
+            done={onSave}
             configOverlayFormStatus={configOverlayFormStatus}
         />
     )
 }
-

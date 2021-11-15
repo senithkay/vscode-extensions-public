@@ -10,6 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
 import React, { useContext } from "react";
 
 import { ActionStatement, ExpressionFunctionBody, RemoteMethodCallAction, ReturnStatement, STKindChecker } from "@ballerina/syntax-tree";
@@ -25,11 +26,12 @@ interface EndOverlayFormProps {
     config: EndConfig;
     onCancel: () => void;
     onSave: () => void;
+    done: () => void;
     configOverlayFormStatus: ConfigOverlayFormStatus;
 }
 
 export function EndOverlayForm(props: EndOverlayFormProps) {
-    const { config, onCancel, onSave, configOverlayFormStatus } = props;
+    const { config, onCancel, onSave, done, configOverlayFormStatus } = props;
     const { isLoading, error, formType, formArgs } = configOverlayFormStatus;
     const isExpressionFunctionBody: boolean = config.model ?
     STKindChecker.isExpressionFunctionBody(config.model) : false;
@@ -85,8 +87,26 @@ export function EndOverlayForm(props: EndOverlayFormProps) {
     } else {
         return (
             <div>
-                {formType === "Return" && <AddReturnForm config={config} formArgs={formArgs} onSave={onSave} onCancel={onCancel} />}
-                {formType === "Respond" && <AddRespondForm config={config} formArgs={formArgs} onSave={onSave} onCancel={onCancel} />}
+                {
+                    formType === "Return" &&
+                    <AddReturnForm
+                        config={config}
+                        formArgs={formArgs}
+                        onSave={onSave}
+                        done={done}
+                        onCancel={onCancel}
+                    />
+                }
+                {
+                    formType === "Respond" &&
+                    <AddRespondForm
+                        config={config}
+                        formArgs={formArgs}
+                        onSave={onSave}
+                        done={done}
+                        onCancel={onCancel}
+                    />
+                }
             </div>
         );
     }

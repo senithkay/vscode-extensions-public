@@ -31,6 +31,7 @@ interface ReturnFormProps {
     formArgs: any;
     onCancel: () => void;
     onSave: () => void;
+    done: () => void;
 }
 
 export function AddReturnForm(props: ReturnFormProps) {
@@ -39,7 +40,7 @@ export function AddReturnForm(props: ReturnFormProps) {
             isMutationProgress: isMutationInProgress
         }
     } = useContext(Context);
-    const { config, formArgs, onCancel, onSave } = props;
+    const { config, formArgs, onCancel, onSave, done } = props;
     const classes = useStyles();
     const intl = useIntl();
 
@@ -90,7 +91,7 @@ export function AddReturnForm(props: ReturnFormProps) {
             isMutationInProgress,
             validForm: isValidValue,
             config,
-            onSave: onReturnExpressionSave
+            done
         }
     );
 
