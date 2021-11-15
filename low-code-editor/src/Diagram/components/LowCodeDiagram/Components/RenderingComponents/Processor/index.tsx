@@ -83,11 +83,7 @@ export function DataProcessor(props: ProcessorProps) {
     let isLogStmt = false;
 
     let isReferencedVariable = false;
-    let diagnosticMsgs ;
-
-    if (diagnostics?.length !== 0){
-        diagnosticMsgs = getDiagnosticMsgs(diagnostics);
-    }
+    const diagnosticMsgs = getDiagnosticMsgs(diagnostics) ? getDiagnosticMsgs(diagnostics) : undefined;
 
     if (model) {
         processType = "Variable";
@@ -241,7 +237,7 @@ export function DataProcessor(props: ProcessorProps) {
     }
 
     const processWrapper = isDraftStatement ? cn("main-process-wrapper active-data-processor") : cn("main-process-wrapper data-processor");
-    const processStyles = diagnostics && !isDraftStatement ? cn("main-process-wrapper data-processor-error ") : processWrapper;
+    const processStyles = diagnosticMsgs && !isDraftStatement ? cn("main-process-wrapper data-processor-error ") : processWrapper;
 
     const component: React.ReactNode = (!viewState.collapsed &&
         (

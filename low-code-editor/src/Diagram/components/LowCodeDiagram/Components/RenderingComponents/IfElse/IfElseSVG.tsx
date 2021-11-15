@@ -14,6 +14,7 @@
 import React, { ReactNode } from "react";
 
 import Tooltip from "../../../../../../components/TooltipV2";
+import { ErrorSnippet } from "../../../../../models";
 
 export const IFELSE_SVG_WIDTH_WITH_SHADOW = 66.686;
 export const IFELSE_SVG_HEIGHT_WITH_SHADOW = 66.686;
@@ -23,7 +24,7 @@ export const IFELSE_SHADOW_OFFSET = IFELSE_SVG_HEIGHT_WITH_SHADOW - IFELSE_SVG_H
 
 export function IfElseSVG(props: {
     x: number, y: number, text: string, codeSnippet: string, conditionType: string,
-    openInCodeView?: () => void, codeSnippetOnSvg: string, diagnostics?: any
+    openInCodeView?: () => void, codeSnippetOnSvg: string, diagnostics?: ErrorSnippet
 }) {
     const { text, codeSnippet, openInCodeView, conditionType, codeSnippetOnSvg, diagnostics, ...xyProps } = props;
     const ifXPosition = (text === "IF") ? "45%" : "44%";

@@ -14,6 +14,7 @@
 import * as React from "react";
 
 import Tooltip from "../../../../../../components/TooltipV2";
+import { ErrorSnippet } from "../../../../../models";
 
 export const FOREACH_SVG_WIDTH_WITH_SHADOW = 66.686;
 export const FOREACH_SVG_HEIGHT_WITH_SHADOW = 62.686;
@@ -21,7 +22,7 @@ export const FOREACH_SVG_WIDTH = 54.845;
 export const FOREACH_SVG_HEIGHT = 52.845;
 export const FOREACH_SHADOW_OFFSET = FOREACH_SVG_HEIGHT_WITH_SHADOW - FOREACH_SVG_HEIGHT;
 
-export function ForeachSVG(props: { x: number, y: number, text: string, openInCodeView?: () => void, codeSnippet?: string, diagnostics?: any }) {
+export function ForeachSVG(props: { x: number, y: number, text: string, openInCodeView?: () => void, codeSnippet?: string, diagnostics?: ErrorSnippet }) {
     const { text, openInCodeView, codeSnippet, diagnostics, ...xyProps } = props;
     const tooltipText = {
         code: codeSnippet

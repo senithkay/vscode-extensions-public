@@ -97,11 +97,16 @@ export function getDraftComponent(viewState: BlockViewState, state: any, insertC
     return draftComponents;
 }
 
-export function getDiagnosticMsgs(diagnostics: Diagnostic[]): string{
+export function getDiagnosticMsgs(diagnostics: Diagnostic[]){
      /* tslint:disable prefer-for-of */
     const diagnosticMsgsArray : string[] = [];
-    for (let i = 0; i < diagnostics.length; i++){
-        diagnosticMsgsArray.push((diagnostics[i].message));
+    if (diagnostics?.length === 0){
+        return undefined;
     }
-    return diagnosticMsgsArray.join(',\n');
+    else{
+        for (let i = 0; i < diagnostics.length; i++){
+        diagnosticMsgsArray.push((diagnostics[i]?.message));
+        return diagnosticMsgsArray.join(',\n');
+    }
+}
 }

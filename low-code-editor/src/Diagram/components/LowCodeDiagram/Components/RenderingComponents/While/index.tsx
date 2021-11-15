@@ -88,14 +88,9 @@ export function While(props: WhileProps) {
     const r: number = DefaultConfig.forEach.radius;
     const paddingUnfold = DefaultConfig.forEach.paddingUnfold;
     const diagnostics = modelWhile?.condition?.typeData?.diagnostics;
-    let whileWrapper = cn("while-wrapper") ;
 
-    let diagnosticMsgs ;
-
-    if (diagnostics?.length !== 0){
-        diagnosticMsgs = getDiagnosticMsgs(diagnostics);
-        whileWrapper = cn("while-error-wrapper");
-    }
+    const diagnosticMsgs = getDiagnosticMsgs(diagnostics) ? getDiagnosticMsgs(diagnostics) : undefined;
+    const whileWrapper = diagnosticMsgs ? cn("while-error-wrapper") : cn("while-wrapper") ;
 
     let codeSnippet = modelWhile?.source?.trim().split('{')[0];
     let codeSnippetOnSvg = "WHILE";

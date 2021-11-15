@@ -18,6 +18,7 @@ import { NodePosition } from "@ballerina/syntax-tree";
 import Tooltip from "../../../../../../components/TooltipV2";
 
 import "./style.scss";
+import { ErrorSnippet } from "../../../../../models";
 
 export const PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW = 62;
 export const PROCESS_SVG_HEIGHT_WITH_HOVER_SHADOW = 62;
@@ -29,7 +30,7 @@ export const PROCESS_SVG_HEIGHT = 48 + PROCESS_STROKE_HEIGHT;
 export const PROCESS_SVG_SHADOW_OFFSET = PROCESS_SVG_HEIGHT_WITH_SHADOW - PROCESS_SVG_HEIGHT;
 
 
-export function ProcessSVG(props: { x: number, y: number, varName: any, sourceSnippet: any, position: NodePosition, openInCodeView?: () => void, processType: string, diagnostics?: any }) {
+export function ProcessSVG(props: { x: number, y: number, varName: any, sourceSnippet: any, position: NodePosition, openInCodeView?: () => void, processType: string, diagnostics?: ErrorSnippet }) {
     const { varName, sourceSnippet, processType, openInCodeView, diagnostics, ...xyProps } = props;
     const processTypeIndicator: JSX.Element[] = [];
     const tooltipText = {

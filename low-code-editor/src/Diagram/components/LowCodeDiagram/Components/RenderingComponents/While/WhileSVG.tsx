@@ -14,6 +14,7 @@
 import * as React from "react";
 
 import Tooltip from "../../../../../../components/TooltipV2";
+import { ErrorSnippet } from "../../../../../models";
 
 export const WHILE_SVG_WIDTH_WITH_SHADOW = 66.686;
 export const WHILE_SVG_HEIGHT_WITH_SHADOW = 66.686;
@@ -21,7 +22,7 @@ export const WHILE_SVG_WIDTH = 54.845;
 export const WHILE_SVG_HEIGHT = 54.845;
 export const WHILE_SHADOW_OFFSET = WHILE_SVG_HEIGHT_WITH_SHADOW - WHILE_SVG_HEIGHT;
 
-export function WhileSVG(props: { x: number, y: number, openInCodeView?: () => void, codeSnippetOnSvg?: string, codeSnippet?: string, diagnostics?: any }) {
+export function WhileSVG(props: { x: number, y: number, openInCodeView?: () => void, codeSnippetOnSvg?: string, codeSnippet?: string, diagnostics?: ErrorSnippet }) {
     const { codeSnippet, openInCodeView, codeSnippetOnSvg, diagnostics, ...xyProps } = props;
     const tooltipText = {
         code: codeSnippet

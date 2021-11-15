@@ -227,12 +227,9 @@ export function ForEach(props: ForeachProps) {
     const forEachSource = forEachModel?.actionOrExpressionNode?.source;
     assignmentText = variableName + " " + keyWord + " " + forEachSource;
     const diagnostics = forEachModel?.actionOrExpressionNode?.typeData.diagnostics;
-    let foreachWrapper = cn("foreach-block") ;
-    let diagnosticMsgs ;
-    if (diagnostics?.length !== 0){
-        diagnosticMsgs = getDiagnosticMsgs(diagnostics);
-        foreachWrapper = cn("foreach-block-error");
-    }
+
+    const diagnosticMsgs = getDiagnosticMsgs(diagnostics) ? getDiagnosticMsgs(diagnostics) : undefined;
+    const foreachWrapper = diagnosticMsgs ? cn("foreach-block-error") : cn("foreach-block") ;
     const errorSnippet = {
         diagnosticMsgs,
         code: codeSnippet,
