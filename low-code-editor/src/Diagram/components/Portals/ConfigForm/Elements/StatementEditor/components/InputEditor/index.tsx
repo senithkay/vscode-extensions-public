@@ -15,7 +15,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { monaco } from "react-monaco-editor";
 
 import {
-    BooleanLiteral,
+    BooleanLiteral, NodePosition,
     NumericLiteral, QualifiedNameReference,
     SimpleNameReference,
     STKindChecker,
@@ -32,8 +32,6 @@ import {
     ExpressionEditorLangClientInterface
 } from "../../../../../../../../Definitions";
 import {
-    addToTargetLine,
-    addToTargetPosition,
     getDiagnosticMessage,
     getFilteredDiagnostics,
     getTargetPosition
@@ -43,7 +41,7 @@ import { SuggestionItem, VariableUserInputs } from "../../models/definitions";
 import { InputEditorContext } from "../../store/input-editor-context";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { SuggestionsContext } from "../../store/suggestions-context";
-import { getDataTypeOnExpressionKind, getExpressionSource } from "../../utils";
+import { getDataTypeOnExpressionKind, getExpressionSource, getPartialSTForStatement } from "../../utils";
 import { useStatementEditorStyles } from "../ViewContainer/styles";
 
 import { acceptedCompletionKind } from "./constants";
@@ -64,7 +62,7 @@ export function InputEditor(props: InputEditorProps) {
             syntaxTree,
         },
         api: {
-            ls: { getExpressionEditorLangClient }
+            ls
         }
     } = useContext(Context);
 
@@ -113,7 +111,8 @@ export function InputEditor(props: InputEditorProps) {
     }
     const [userInput, setUserInput] = useState(value);
 
-    const targetPosition = getTargetPosition(targetPositionDraft, syntaxTree);
+    const targetPosition = stmtCtx.formCtx.formModel && stmtCtx.formCtx.formModel.position ?
+        stmtCtx.formCtx.formModel.position : getTargetPosition(targetPositionDraft, syntaxTree);
     const textLabel = userInputs && userInputs.formField ? userInputs.formField : "modelName"
     const varName = userInputs && userInputs.varName ? userInputs.varName : "temp_" + (textLabel).replace(/[^A-Z0-9]+/ig, "");
     const varType = userInputs ? userInputs.selectedType : 'string';
@@ -147,14 +146,39 @@ export function InputEditor(props: InputEditorProps) {
         }
     }, [isEditing]);
 
+    async function addStatementToTargetLine(currentFileContent: string, position: NodePosition, currentStatement: string): Promise<string> {
+        const modelContent: string[] = currentFileContent.split(/\n/g) || [];
+        if (position?.startColumn && position?.endColumn && position?.endLine) {
+            return getModifiedStatement(currentStatement, position);
+        } else {
+            modelContent.splice(position?.startLine, 0, currentStatement);
+            return modelContent.join('\n');
+        }
+    }
+
+    async function getModifiedStatement(codeSnippet: string, position: NodePosition): Promise<string> {
+        const stModification = {
+            startLine: position.startLine,
+            startColumn: position.startColumn,
+            endLine: position.endLine,
+            endColumn: position.endColumn,
+            newCodeSnippet: codeSnippet
+        }
+        const partialST: STNode = await getPartialSTForStatement({
+            codeSnippet: currentFile.content,
+            stModification
+        }, langServerURL, ls);
+        return partialST.source;
+    }
+
     const handleOnFocus = async (currentStatement: string, EOL: string) => {
-        const initContent: string = addToTargetLine((currentFile.content), targetPosition, currentStatement, EOL);
+        const initContent: string = await addStatementToTargetLine(currentFile.content, targetPosition, currentStatement);
 
         inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
         inputEditorState.content = initContent;
         inputEditorState.uri = monaco.Uri.file(currentFile.path).toString();
 
-        const langClient = await getExpressionEditorLangClient(langServerURL);
+        const langClient = await ls.getExpressionEditorLangClient(langServerURL);
         langClient.didChange({
             contentChanges: [
                 {
@@ -190,16 +214,15 @@ export function InputEditor(props: InputEditorProps) {
     }
 
     const handleContentChange = async (currentStatement: string, EOL: string) => {
-        let newModel: string;
-        newModel = addToTargetLine((currentFile.content), targetPosition, currentStatement, EOL);
+        const initContent: string = await addStatementToTargetLine(currentFile.content, targetPosition, currentStatement);
 
         inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
-        inputEditorState.content = newModel;
+        inputEditorState.content = initContent;
         inputEditorState.uri = monaco.Uri.file(currentFile.path).toString();
 
         stmtCtx.formCtx.onChange(getExpressionSource(stmtCtx.modelCtx.statementModel));
 
-        const langClient = await getExpressionEditorLangClient(langServerURL);
+        const langClient = await ls.getExpressionEditorLangClient(langServerURL);
         langClient.didChange({
             contentChanges: [
                 {
@@ -228,7 +251,9 @@ export function InputEditor(props: InputEditorProps) {
         inputEditorState.content = currentFile.content;
         inputEditorState.uri = monaco.Uri.file(currentFile.path).toString();
 
-        const langClient = await getExpressionEditorLangClient(langServerURL);
+        stmtCtx.formCtx.onChange(getExpressionSource(stmtCtx.modelCtx.statementModel));
+
+        const langClient = await ls.getExpressionEditorLangClient(langServerURL);
         langClient.didChange({
             contentChanges: [
                 {
@@ -249,7 +274,7 @@ export function InputEditor(props: InputEditorProps) {
             inputEditorState.uri = inputEditorState?.uri;
             stmtCtx.formCtx.onChange("");
 
-            await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
+            await ls.getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
                 await langClient.didChange({
                     contentChanges: [
                         {
@@ -281,7 +306,7 @@ export function InputEditor(props: InputEditorProps) {
 
         const acceptedDataType: string[] = getDataTypeOnExpressionKind(model.kind);
 
-        getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
+        ls.getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
             langClient.getCompletion(completionParams).then((values: CompletionResponse[]) => {
                 const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (
                     (!completionResponse.kind || acceptedCompletionKind.includes(completionResponse.kind)) &&
@@ -317,15 +342,19 @@ export function InputEditor(props: InputEditorProps) {
     const inputEnterHandler = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === "Enter" || event.key === "Tab" || event.key === "Escape") {
             stmtCtx.modelCtx.updateModel(userInput, model.position);
-            const ignore = handleContentChange(stmtCtx.modelCtx.statementModel.source, "")
+            inputBlurHandler()
             getContextBasedCompletions(userInput);
         }
     };
 
+    function addExpressionToTargetPosition(oldLine: string, targetColumn: number, codeSnippet: string, endColumn?: number): string {
+        return oldLine.slice(0, targetColumn) + codeSnippet + oldLine.slice(endColumn || targetColumn);
+    }
+
     const inputChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const oldLine = stmtCtx.modelCtx.statementModel.source.trim();
-        const newLine = addToTargetPosition(oldLine, model.position.startColumn, event.target.value ? event.target.value : "", model.position.endColumn);
-        debouncedContentChange(newLine, "");
+        const currentStatement = stmtCtx.modelCtx.statementModel.source;
+        const updatedStatement = addExpressionToTargetPosition(currentStatement, model.position.startColumn + 1, event.target.value ? event.target.value : "", model.position.endColumn + 1);
+        debouncedContentChange(updatedStatement, "");
         getContextBasedCompletions(event.target.value);
         setUserInput(event.target.value);
     };
@@ -349,7 +378,7 @@ export function InputEditor(props: InputEditorProps) {
                 onBlur={inputBlurHandler}
                 onInput={inputChangeHandler}
                 autoFocus={true}
-                style={{maxWidth: userInput === '' ? '10px' : 'fit-content'}}
+                style={{ maxWidth: userInput === '' ? '10px' : 'fit-content' }}
             />
         ) : (
             <div

@@ -662,7 +662,7 @@ export function getStatementTypesFromST(model: LocalVarDecl): string {
     }
 }
 
-export function getMethodFunctionName(model: CallStatement): string {
+export function getMethodCallFunctionName(model: CallStatement): string {
     if (STKindChecker.isFunctionCall(model.expression)) {
         return model.expression.functionName.source.trim();
     }
