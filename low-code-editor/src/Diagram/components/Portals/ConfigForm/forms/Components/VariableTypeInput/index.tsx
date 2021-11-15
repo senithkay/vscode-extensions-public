@@ -65,11 +65,10 @@ export interface VariableTypeInputProps {
     onValueChange: (value: string) => void;
     validateExpression: (fieldName: string, isInValid: boolean) => void;
     position: NodePosition;
-    onBlur?: () => void;
 }
 
 export function VariableTypeInput(props: VariableTypeInputProps) {
-    const { onValueChange, validateExpression, position, value, displayName, isEdit, onBlur } = props;
+    const { onValueChange, validateExpression, position, value, displayName, isEdit } = props;
     const expressionEditorNameConfig: FormElementProps<ExpressionEditorProps> = {
         model: {
             name: "variableType",
@@ -91,7 +90,7 @@ export function VariableTypeInput(props: VariableTypeInputProps) {
             },
             hideExpand: true,
             getCompletions: getVarTypeCompletions,
-            onBlur,
+            showHints: false,
         },
         onChange: onValueChange,
         defaultValue: value,

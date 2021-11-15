@@ -161,8 +161,8 @@ export interface ExpressionEditorProps {
     expressionInjectables?: ExpressionInjectablesProps;
     hideSuggestions?: boolean;
     hideExpand?: boolean;
-    onBlur?: () => void;
-    getCompletions?: (completionProps: GetExpCompletionsProps) => Promise<monaco.languages.CompletionList> ;
+    getCompletions?: (completionProps: GetExpCompletionsProps) => Promise<monaco.languages.CompletionList>;
+    showHints?: boolean;
 }
 
 export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>) {
@@ -196,7 +196,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         customProps,
     } = props;
     const { validate, statementType, customTemplate, focus, expandDefault, clearInput, revertClearInput, changed,
-            subEditor, editPosition, expressionInjectables, hideSuggestions, hideExpand, getCompletions = getStandardExpCompletions, onBlur } = customProps;
+            subEditor, editPosition, expressionInjectables, hideSuggestions, hideExpand, getCompletions = getStandardExpCompletions, showHints = true } = customProps;
     const targetPosition = editPosition ? editPosition : getTargetPosition(targetPositionDraft, syntaxTree);
     const [invalidSourceCode, setInvalidSourceCode] = useState(false);
     const [expand, setExpand] = useState(expandDefault || false);
@@ -397,6 +397,12 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 handleOnOutFocus();
                 disposeAllTriggers();
             }));
+
+            const editorModel = monacoRef.current.editor.getModel();
+            if (editorModel && model.value) {
+                editorModel.setValue(model.value);
+                validateAndRevert(model.value, monacoRef.current.editor.getModel().getEOL());
+            }
         }
     }, [statementType, expressionInjectables?.list?.length]);
 
@@ -745,10 +751,6 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 }
             }
         }
-
-        if (onBlur) {
-            onBlur();
-        }
     }
 
     const handleEditorMount: EditorDidMount = (monacoEditor, { languages, editor }) => {
@@ -879,7 +881,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                     (
                         <>
                             {!(subEditor && cursorOnEditor) && <Diagnostic message={getDiagnosticMessage(expressionEditorState.diagnostic, varType)} />}
-                            {hints.map(hint => <ExpressionEditorHint key={hint.type} {...hint} />)}
+                            {showHints && hints.map(hint => <ExpressionEditorHint key={hint.type} {...hint} />)}
                         </>
                     ) : null
             }

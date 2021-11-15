@@ -66,7 +66,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         }
     } = useContext(Context);
 
-    let initialModelType: string = 'json';
+    let initialModelType: string = '';
     let variableName: string = '';
     let varExpression: string = '';
     const formField: string = 'Expression';
@@ -99,7 +99,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     const [varName, setVarName] = useState(variableName);
     const [validExpresssionValue, setValidExpresssionValue] = useState(config.config !== "");
     const [variableExpression, setVariableExpression] = useState<string>(varExpression);
-    const [editorFocus, setEditorFocus] = useState<boolean>(false);
 
     const onPropertyChange = (property: string) => {
         setVariableExpression(property);
@@ -113,8 +112,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     const handleTypeChange = (type: string) => {
         setSelectedType(type);
         setValidExpresssionValue(false);
-        setEditorFocus(true);
-
     };
 
     let variableHasReferences = false;
@@ -187,7 +184,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         (config.model as LocalVarDecl).typedBindingPattern.position
             : formArgs.targetPosition,
         isEdit: !!config.model,
-        onBlur: () => setEditorFocus(true),
     }
 
     const variableNameConfig: VariableNameInputProps = {
@@ -206,7 +202,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         model: {
             name: "Expression",
             displayName: "Value Expression",
-            typeName: selectedType,
+            typeName: selectedType || 'any|error',
             value: variableExpression,
         },
         customProps: {
@@ -220,8 +216,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                 list: formArgs?.expressionInjectables?.list,
                 setInjectables: formArgs?.expressionInjectables?.setInjectables
             },
-            focus: editorFocus,
-            revertFocus: () => setEditorFocus(false),
         },
         onChange: onPropertyChange,
         defaultValue: variableExpression,
