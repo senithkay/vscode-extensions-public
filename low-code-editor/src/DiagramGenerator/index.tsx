@@ -2,7 +2,7 @@ import * as React from "react";
 import { IntlProvider } from "react-intl";
 import { monaco } from "react-monaco-editor";
 
-import { FunctionDefinition, ModulePart, NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { FunctionDefinition, NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import { MuiThemeProvider } from "@material-ui/core/styles";
 import cloneDeep from "lodash.clonedeep";
 
@@ -10,10 +10,10 @@ import LowCodeEditor, { BlockViewState, getSymbolInfo, InsertorDelete } from "..
 import "../assets/fonts/Glimer/glimer.css";
 import { WizardType } from "../ConfigurationSpec/types";
 import { Connector, STModification, STSymbolInfo } from "../Definitions";
+import { ConditionConfig } from "../Diagram/components/FormComponents/Types";
+import { UndoRedoManager } from "../Diagram/components/FormComponents/UndoRedoManager";
 import mouseTrap from "../Diagram/components/Panel/util/mousetrap";
-import { ConditionConfig } from "../Diagram/components/Portals/ConfigForm/types";
-import { UndoRedoManager } from "../Diagram/components/UndoRedoManager";
-import { LowcodeEvent, TriggerType } from "../Diagram/models";
+import { LowcodeEvent } from "../Diagram/models";
 import messages from '../lang/en.json';
 import { CirclePreloader } from "../PreLoader/CirclePreloader";
 
