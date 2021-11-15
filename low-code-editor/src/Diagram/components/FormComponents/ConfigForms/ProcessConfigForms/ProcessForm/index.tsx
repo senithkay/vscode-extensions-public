@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
+// tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
 import { LocalVarDecl } from "@ballerina/syntax-tree";
@@ -83,34 +83,37 @@ export function ProcessForm(props: ProcessFormProps) {
         return (
             <>
                 {
-                    formType === "Variable" &&
-                    <AddVariableConfig
-                        config={config}
-                        formArgs={formArgs}
-                        onSave={onSave}
-                        done={done}
-                        onCancel={onCancel}
-                    />
+                    formType === "Variable" && (
+                        <AddVariableConfig
+                            config={config}
+                            formArgs={formArgs}
+                            onSave={onSave}
+                            done={done}
+                            onCancel={onCancel}
+                        />
+                    )
                 }
                 {
-                    formType === "Log" &&
-                    <AddLogConfig
-                        config={config}
-                        formArgs={formArgs}
-                        onSave={onSave}
-                        done={done}
-                        onCancel={onCancel}
-                    />
+                    formType === "Log" && (
+                        <AddLogConfig
+                            config={config}
+                            formArgs={formArgs}
+                            onSave={onSave}
+                            done={done}
+                            onCancel={onCancel}
+                        />
+                    )
                 }
                 {
-                    (formType === "Custom" || formType === "Call") &&
-                    <AddCustomStatementConfig
-                        config={config}
-                        formArgs={formArgs}
-                        onSave={onSave}
-                        done={done}
-                        onCancel={onCancel}
-                    />
+                    (formType === "Custom" || formType === "Call") && (
+                        <AddCustomStatementConfig
+                            config={config}
+                            formArgs={formArgs}
+                            onSave={onSave}
+                            done={done}
+                            onCancel={onCancel}
+                        />
+                    )
                 }
             </>
         );

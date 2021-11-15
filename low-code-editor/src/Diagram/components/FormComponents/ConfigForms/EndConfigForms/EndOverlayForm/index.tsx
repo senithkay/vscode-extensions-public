@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
+// tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
 import { ActionStatement, ExpressionFunctionBody, RemoteMethodCallAction, ReturnStatement, STKindChecker } from "@ballerina/syntax-tree";
@@ -88,24 +88,26 @@ export function EndOverlayForm(props: EndOverlayFormProps) {
         return (
             <div>
                 {
-                    formType === "Return" &&
-                    <AddReturnForm
-                        config={config}
-                        formArgs={formArgs}
-                        onSave={onSave}
-                        done={done}
-                        onCancel={onCancel}
-                    />
+                    formType === "Return" && (
+                        <AddReturnForm
+                            config={config}
+                            formArgs={formArgs}
+                            onSave={onSave}
+                            done={done}
+                            onCancel={onCancel}
+                        />
+                    )
                 }
                 {
-                    formType === "Respond" &&
-                    <AddRespondForm
-                        config={config}
-                        formArgs={formArgs}
-                        onSave={onSave}
-                        done={done}
-                        onCancel={onCancel}
-                    />
+                    formType === "Respond" && (
+                        <AddRespondForm
+                            config={config}
+                            formArgs={formArgs}
+                            onSave={onSave}
+                            done={done}
+                            onCancel={onCancel}
+                        />
+                    )
                 }
             </div>
         );
