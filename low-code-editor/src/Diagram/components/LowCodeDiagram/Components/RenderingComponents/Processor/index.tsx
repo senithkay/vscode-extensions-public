@@ -21,13 +21,13 @@ import {
     NodePosition,
     QualifiedNameReference,
     STKindChecker,
-    STNode
-} from "@ballerina/syntax-tree";
+    STNode} from "@ballerina/syntax-tree";
 import cn from "classnames";
 
 import { WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
 import { getOverlayFormConfig, getRandomInt } from "../../../../../utils/diagram-util";
+import { getStatementTypesFromST } from "../../../../../utils/st-util";
 import { DefaultConfig } from "../../../../../visitors/default";
 import { FormGenerator } from "../../../../FormComponents/FormGenerator";
 import { DeleteBtn } from "../../../Components/DiagramActions/DeleteBtn";
@@ -37,6 +37,7 @@ import { EDIT_SVG_OFFSET, EDIT_SVG_WIDTH_WITH_SHADOW } from "../../../Components
 import { BlockViewState, StatementViewState } from "../../../ViewState";
 import { DraftStatementViewState } from "../../../ViewState/draft";
 import { Assignment } from "../Assignment";
+import { StatementTypes } from "../StatementTypes";
 import { VariableName, VARIABLE_NAME_WIDTH } from "../VariableName";
 
 import { ProcessSVG, PROCESS_SVG_HEIGHT, PROCESS_SVG_HEIGHT_WITH_SHADOW, PROCESS_SVG_SHADOW_OFFSET, PROCESS_SVG_WIDTH, PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW } from "./ProcessSVG";
@@ -192,6 +193,7 @@ export function DataProcessor(props: ProcessorProps) {
     const toolTip = isReferencedVariable ? "Variable is referred in the code below" : undefined;
     // If only processor is a initialized variable or log stmt or draft stmt Show the edit btn other.
     // Else show the delete button only.
+    const localModel = (model as LocalVarDecl);
     const editAndDeleteButtons = (
         <>
             <g className={isReferencedVariable ? "disable" : ""}>
@@ -214,6 +216,7 @@ export function DataProcessor(props: ProcessorProps) {
     );
 
     let assignmentText = null;
+    let statmentTypeText = null;
     if (!isDraftStatement && STKindChecker?.isCallStatement(model)) {
         if (STKindChecker.isFunctionCall(model.expression)) {
             assignmentText = model.expression.arguments[0]?.source;
@@ -225,11 +228,12 @@ export function DataProcessor(props: ProcessorProps) {
     } else if (!isDraftStatement && STKindChecker?.isAssignmentStatement(model)) {
         assignmentText = (model as AssignmentStatement)?.expression?.source;
     } else if (!isDraftStatement && STKindChecker?.isLocalVarDecl(model)) {
-        assignmentText = (model as LocalVarDecl)?.initializer?.source;
+        assignmentText = model?.initializer?.source;
+        statmentTypeText = getStatementTypesFromST(localModel);
     }
 
     const processWrapper = isDraftStatement ? cn("main-process-wrapper active-data-processor") : cn("main-process-wrapper data-processor");
-    const processStyles = diagnostics && !isDraftStatement ? cn("main-process-wrapper data-processor-error ") : processWrapper
+    const processStyles = diagnostics && !isDraftStatement ? cn("main-process-wrapper data-processor-error ") : processWrapper;
 
     const component: React.ReactNode = (!viewState.collapsed &&
         (
@@ -237,13 +241,21 @@ export function DataProcessor(props: ProcessorProps) {
                 <g className={processStyles} data-testid="data-processor-block" z-index="1000" >
                     <React.Fragment>
                         {(processType !== "Log" && processType !== "Call") && !isDraftStatement &&
-                            <VariableName
-                                processType={processType}
-                                variableName={processName}
-                                x={cx - (VARIABLE_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
-                                y={cy + PROCESS_SVG_HEIGHT / 4}
-                                key_id={getRandomInt(1000)}
-                            />
+                            <>
+                                <StatementTypes
+                                    statementType={statmentTypeText}
+                                    x={cx - (VARIABLE_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
+                                    y={cy + PROCESS_SVG_HEIGHT / 4}
+                                    key_id={getRandomInt(1000)}
+                                />
+                                <VariableName
+                                    processType={processType}
+                                    variableName={processName}
+                                    x={cx - (VARIABLE_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
+                                    y={cy + PROCESS_SVG_HEIGHT / 4}
+                                    key_id={getRandomInt(1000)}
+                                />
+                            </>
                         }
                         <ProcessSVG
                             x={cx - (PROCESS_SVG_SHADOW_OFFSET / 2)}

@@ -655,3 +655,9 @@ export function recalculateSizingAndPositioningST(st: STNode): STNode {
 export function getVariableNameFromST(node: LocalVarDecl | ModuleVarDecl): IdentifierToken {
     return (node.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName;
 }
+
+export function getStatementTypesFromST(model: LocalVarDecl): string {
+    if (STKindChecker.isTypedBindingPattern(model.typedBindingPattern)) {
+        return model.typedBindingPattern.typeDescriptor.source.trim();
+    }
+}
