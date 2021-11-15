@@ -24,6 +24,7 @@ import { AddCustomStatementConfig } from "./AddCustomStatementConfig";
 import { AddDataMappingConfig } from "./AddDataMappingConfig";
 import { AddLogConfig } from "./AddLogConfig";
 import { AddVariableConfig } from "./AddVariableConfig";
+import { AddAssignmentConfig } from "./AddAssignmentConfig";
 
 interface ProcessFormProps {
     config: ProcessConfig;
@@ -81,6 +82,7 @@ export function ProcessForm(props: ProcessFormProps) {
         return (
             <>
                 {formType === "Variable" && <AddVariableConfig config={config} formArgs={formArgs} onSave={onSave} onCancel={onCancel} />}
+                {formType === "AssignmentStatement" && <AddAssignmentConfig config={config} formArgs={formArgs} onSave={onSave} onCancel={onCancel} />}
                 {formType === "Log" && <AddLogConfig config={config} formArgs={formArgs} onSave={onSave} onCancel={onCancel} />}
                 {(formType === "Custom" || formType === "Call") && <AddCustomStatementConfig config={config} formArgs={formArgs} onSave={onSave} onCancel={onCancel} />}
             </>

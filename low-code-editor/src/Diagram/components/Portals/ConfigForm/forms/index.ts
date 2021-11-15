@@ -34,6 +34,7 @@ export { ConditionConfigForm as If };
 export { ConditionConfigForm as ForEach };
 export { ConditionConfigForm as While };
 export { ProcessConfigForm as Variable };
+export { ProcessConfigForm as AssignmentStatement };
 export { ProcessConfigForm as Log };
 export { ConnectorList as ConnectorList };
 export { ConnectorForm as Connector };

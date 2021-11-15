@@ -115,7 +115,7 @@ export function DataProcessor(props: ProcessorProps) {
                 isIntializedVariable = true;
             }
         } else if (STKindChecker.isAssignmentStatement(model)) {
-            processType = "Custom";
+            processType = "AssignmentStatement";
             processName = "Assignment";
             if (STKindChecker.isSimpleNameReference(model?.varRef)) {
                 processName = model?.varRef?.name?.value
