@@ -46,7 +46,13 @@ export function showPerformanceGraph(langClient: ExtendedLangClient, data: Graph
         message => {
             switch (message.command) {
                 case 'updateCodeLenses':
-                    updateCodeLenses(message.text);
+                    for (let editor of window.visibleTextEditors) {
+                        if (editor.document.uri.path === currentFileUri.path) {
+                            updateCodeLenses(message.text);
+                            break;
+                        }
+                    }
+
                     refreshDiagramForPerformanceConcurrencyChanges(message.text);
                     return;
             }
