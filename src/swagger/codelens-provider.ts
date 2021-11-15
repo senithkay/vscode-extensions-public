@@ -48,7 +48,7 @@ interface Token {
 let langClient: ExtendedLangClient;
 
 /**
- * Codelense provider for performance forecaster.
+ * Codelense provider for swagger view.
  */
 export class TryOutCodeLensProvider implements CodeLensProvider {
     private _onDidChangeCodeLenses: EventEmitter<void> = new EventEmitter<void>();
