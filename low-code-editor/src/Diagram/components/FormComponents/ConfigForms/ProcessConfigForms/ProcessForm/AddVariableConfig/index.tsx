@@ -84,7 +84,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             initialModelType = typeDescriptor.source.trim();
         }
         variableName = getVariableNameFromST(config.model).value;
-        varExpression = localVarDec.initializer.source;
+        varExpression = localVarDec?.initializer?.source || '';
     } else {
         variableName = '';
         varExpression = '';
