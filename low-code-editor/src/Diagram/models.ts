@@ -72,3 +72,8 @@ export interface LowcodeEvent {
     name: EVENT_NAME;
     property?: any;
 }
+
+export interface ErrorSnippet{
+    diagnosticMsgs? : string,
+    code ?: string,
+}
