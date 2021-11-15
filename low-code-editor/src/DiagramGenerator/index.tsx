@@ -5,6 +5,7 @@ import { monaco } from "react-monaco-editor";
 import { FunctionDefinition, NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import { MuiThemeProvider } from "@material-ui/core/styles";
 import cloneDeep from "lodash.clonedeep";
+import mousetrap from 'mousetrap'
 
 import LowCodeEditor, { BlockViewState, getSymbolInfo, InsertorDelete } from "..";
 import "../assets/fonts/Glimer/glimer.css";
@@ -12,7 +13,6 @@ import { WizardType } from "../ConfigurationSpec/types";
 import { Connector, STModification, STSymbolInfo } from "../Definitions";
 import { ConditionConfig } from "../Diagram/components/FormComponents/Types";
 import { UndoRedoManager } from "../Diagram/components/FormComponents/UndoRedoManager";
-import mouseTrap from "../Diagram/components/Panel/util/mousetrap";
 import { LowcodeEvent } from "../Diagram/models";
 import messages from '../lang/en.json';
 import { CirclePreloader } from "../PreLoader/CirclePreloader";
@@ -73,10 +73,10 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     }, [lastUpdatedAt]);
 
     React.useEffect(() => {
-        mouseTrap.bind(['command+z', 'ctrl+z'], () => {
+        mousetrap.bind(['command+z', 'ctrl+z'], () => {
             undo();
         });
-        mouseTrap.bind(['command+shift+z', 'ctrl+y'], () => {
+        mousetrap.bind(['command+shift+z', 'ctrl+y'], () => {
             redo();
         });
     }, []);

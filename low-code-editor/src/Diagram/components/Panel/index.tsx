@@ -21,7 +21,8 @@ import { OverlayBackground } from "../OverlayBackground";
 import { DiagramOverlayContainer } from "../Portals/Overlay";
 
 import "./style.scss";
-import MouseTrap from './util/mousetrap';
+// tslint:disable-next-line: no-var-requires
+const mousetrap = require('mousetrap-pause')(require('mousetrap'));
 
 interface PanelProps {
     children: JSX.Element,
@@ -33,10 +34,10 @@ export function Panel(props: PanelProps) {
     const [isVisible, setIsVisible] = useState(true);
 
     useEffect(() => {
-        MouseTrap.pause();
+        mousetrap.pause();
 
         return () => {
-            MouseTrap.unpause();
+            mousetrap.unpause();
         }
     })
 
