@@ -251,6 +251,8 @@ export function InputEditor(props: InputEditorProps) {
         inputEditorState.content = currentFile.content;
         inputEditorState.uri = monaco.Uri.file(currentFile.path).toString();
 
+        stmtCtx.formCtx.onChange(getExpressionSource(stmtCtx.modelCtx.statementModel));
+
         const langClient = await ls.getExpressionEditorLangClient(langServerURL);
         langClient.didChange({
             contentChanges: [
@@ -340,7 +342,7 @@ export function InputEditor(props: InputEditorProps) {
     const inputEnterHandler = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === "Enter" || event.key === "Tab" || event.key === "Escape") {
             stmtCtx.modelCtx.updateModel(userInput, model.position);
-            const ignore = handleContentChange(stmtCtx.modelCtx.statementModel.source, "")
+            inputBlurHandler()
             getContextBasedCompletions(userInput);
         }
     };

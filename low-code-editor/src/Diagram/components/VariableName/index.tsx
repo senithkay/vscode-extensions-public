@@ -13,7 +13,6 @@
 // tslint:disable: jsx-no-multiline-js align  jsx-wrap-multiline
 import React, { ReactElement, useEffect, useState } from "react";
 
-import { PropertyIcon } from "../../../assets/icons";
 import Tooltip from '../../../components/Tooltip';
 import { DefaultConfig } from "../../visitors/default";
 
@@ -34,16 +33,15 @@ export function VariableName(props: { x: number, y: number, variableName: string
     const variableWidth = textWidth
     let variableX = 0;
 
-    variableX = (variableWidth > VARIABLE_NAME_WIDTH) ? variableWidth - ICON_SVG_WRAPPER_WIDTH : variableX = (VARIABLE_NAME_WIDTH - variableWidth - (DefaultConfig.dotGap * 2));
 
-    const iconX = (variableWidth > 125) ? VARIABLE_NAME_WIDTH : VARIABLE_NAME_WIDTH - (variableWidth + ICON_SVG_WRAPPER_WIDTH);
+    variableX = (variableWidth > VARIABLE_NAME_WIDTH) ? variableWidth - ICON_SVG_WRAPPER_WIDTH : variableX = (VARIABLE_NAME_WIDTH - variableWidth - (DefaultConfig.dotGap * 2));
 
     const variableTextComp: ReactElement = (
         <text id="getResponse" transform="translate(36 1)" className="variable-name">
             <tspan
                 id={"variableLegnth_" + key_id}
                 x={variableX}
-                y="15"
+                y="25"
             >
                 {variableMaxWidth ? variableName.slice(0, 10) + "..." : variableName}
             </tspan>
@@ -51,7 +49,7 @@ export function VariableName(props: { x: number, y: number, variableName: string
     );
 
     return (
-        <svg {...xyProps} width="150" height="24" >
+        <svg {...xyProps} width="150" height="24" className="variable-wrapper">
             {variableMaxWidth ?
                 <Tooltip arrow={true} placement="top-start" title={variableName} inverted={false} interactive={true}>
                     {variableTextComp}
@@ -59,17 +57,6 @@ export function VariableName(props: { x: number, y: number, variableName: string
                 :
                 variableTextComp
             }
-            {processType === "Variable" &&
-                (
-                    <g id="Reactangle_wrapper" fill="#fff" stroke="#ccd1f2" strokeMiterlimit="10" strokeWidth="1" transform="translate(18 0)">
-                        <rect x={iconX} width="24" height="24" rx="4" stroke="none" />
-                        <rect x={iconX + 0.5} y="0.5" width="23" height="23" rx="3.5" fill="none" />
-                    </g>
-                )
-            }
-            < g id="Variable_icon" transform="translate(4 4)">
-                {(processType === "Variable" || processType === "Action") && <PropertyIcon height={16} width={16} x={iconX + 18} y={0} transform="translate(0 0)" />}
-            </g>
         </svg >
     );
 }
