@@ -715,6 +715,8 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 // Enable configurable insertion icon when user deletes the whole expression
                 setOriginalValue("");
             }
+        } else {
+            setValidating(false);
         }
     }
     const debouncedContentChange = debounce(handleContentChange, 500);

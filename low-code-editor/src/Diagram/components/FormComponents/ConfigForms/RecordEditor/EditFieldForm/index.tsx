@@ -231,6 +231,7 @@ export function EditFieldForm() {
         customProps: {
             validate: validateDefaultValue,
             statementType: selectedType,
+            editPosition: state.sourceModel?.position || state.targetPosition,
             clearInput: clearExpEditor,
             revertClearInput
         },
