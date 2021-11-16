@@ -88,7 +88,7 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
     const nameExpressionEditorConfig: FormElementProps<ExpressionEditorProps> = {
         model: {
             name: "variableName",
-            displayName: "Name",
+            displayName: "Variable Name",
             isOptional: false,
         },
         customProps: {
