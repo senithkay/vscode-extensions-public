@@ -26,15 +26,11 @@ export interface StatementRendererProps {
 export function StatementRenderer(props: StatementRendererProps) {
     const { model, userInputs, diagnosticHandler } = props;
 
-    const overlayClasses = useStatementEditorStyles();
-
     const component = getStatementTypeComponent(model, userInputs, diagnosticHandler);
 
     return (
-        <button
-            className={overlayClasses.expressionElement}
-        >
+       <span>
             {component}
-        </button>
+       </span>
     );
 }
