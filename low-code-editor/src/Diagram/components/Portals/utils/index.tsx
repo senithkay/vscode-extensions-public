@@ -37,7 +37,6 @@ import {
 } from "../../../../ConfigurationSpec/types";
 import { DiagramEditorLangClientInterface, STSymbolInfo } from "../../../../Definitions";
 import { BallerinaConnectorInfo, BallerinaConnectorRequest, Connector } from "../../../../Definitions/lang-client-extended";
-import { filterConnectorFunctions } from "../../../utils/connector-form-util";
 import { getAllVariables as retrieveVariables } from "../../../utils/mixins";
 import {
     addConnectorToCache,
@@ -112,15 +111,19 @@ export function getFieldName(fieldName: string): string {
 export function getParams(formFields: FormField[], depth = 1): string[] {
     const paramStrings: string[] = [];
     formFields.forEach(formField => {
-        const skipDefaultValue = formField.defaultValue && formField.optional;
+        const skipDefaultValue = (!formField.value && (formField.defaultable || formField.optional)) ||
+            (formField.value && formField.defaultValue && formField.defaultValue === formField.value);
         let paramString: string = "";
         if (!formField.noCodeGen && !skipDefaultValue) {
-            if (formField.isDefaultableParam && formField.value) {
+            if (formField.defaultable && formField.value) {
                 paramString += `${formField.name} = `;
             }
             if (formField.typeName === "string" && (formField.value || formField.defaultValue)) {
                 paramString += formField.value || formField.defaultValue;
-            } else if (formField.typeName === "array" && !formField.hide && (formField.value || formField.defaultValue)) {
+            } else if (formField.typeName === "object {public string[] & readonly strings;public Value[] insertions;}" && (formField.value || formField.defaultValue)) {
+                paramString += formField.value || formField.defaultValue;
+            }
+            else if (formField.typeName === "array" && !formField.hide && (formField.value || formField.defaultValue)) {
                 paramString += formField.value.toString() || formField.defaultValue;
             } else if (formField.typeName === "map" && (formField.value || formField.defaultValue)) {
                 paramString += formField.value || formField.defaultValue;
@@ -143,7 +146,8 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
                             firstRecordField = true;
                         }
                         recordFieldsString += getFieldName(field.name) + ": " + field.value;
-                    } else if ((field.typeName === "int" || field.typeName === "boolean" || field.typeName === "float" || formField.typeName === "decimal") && field.value) {
+                    }
+                    else if ((field.typeName === "int" || field.typeName === "boolean" || field.typeName === "float" || formField.typeName === "decimal") && field.value) {
                         if (firstRecordField) {
                             recordFieldsString += ", ";
                         } else {
@@ -567,7 +571,7 @@ export function getAllVariablesForAi(symbolInfo: STSymbolInfo): { [key: string]:
             }
         });
     });
-    symbolInfo.endpoints.forEach((variableNodes: STNode, type: string) => {
+    symbolInfo.localEndpoints.forEach((variableNodes: STNode, type: string) => {
         const variableDef: LocalVarDecl = variableNodes as LocalVarDecl;
         const variable: CaptureBindingPattern = variableDef.typedBindingPattern.bindingPattern as
             CaptureBindingPattern;
@@ -635,7 +639,7 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
 
     // get form fields from browser cache
     let connectorInfo = getConnectorFromCache(connector);
-    let functionDefInfo: Map<string, FunctionDefinitionInfo> = new Map();
+    const functionDefInfo: Map<string, FunctionDefinitionInfo> = new Map();
     const connectorConfig = new ConnectorConfig();
     const connectorRequest: BallerinaConnectorRequest = {};
 
@@ -673,8 +677,6 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
         functionDefInfo.set(functionInfo.name, functionInfo);
     });
 
-    // Filter connector functions to have better usability.
-    functionDefInfo = filterConnectorFunctions(connector, functionDefInfo, connectorConfig, userEmail);
     if (model) {
         const variable: LocalVarDecl = model as LocalVarDecl;
         const viewState: StatementViewState = model.viewState as StatementViewState;
@@ -733,7 +735,7 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
             }
         }
         connectorConfig.connectorInit = functionDefInfo.get("init") ? functionDefInfo.get("init").parameters : [];
-        const matchingEndPoint: LocalVarDecl = symbolInfo.endpoints.get(connectorConfig.name) as LocalVarDecl;
+        const matchingEndPoint: LocalVarDecl = symbolInfo.localEndpoints.get(connectorConfig.name) as LocalVarDecl;
         if (matchingEndPoint) {
             connectorConfig.initPosition = matchingEndPoint.position;
             matchEndpointToFormField(matchingEndPoint, connectorConfig.connectorInit);
@@ -821,6 +823,20 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                 }
                 break;
 
+            case "stream":
+                if (formField?.memberType) {
+                    const returnTypeResponse = getFormFieldReturnType(formField.memberType, depth + 1);
+                    response.returnType = returnTypeResponse.returnType;
+                    response.hasError = returnTypeResponse.hasError || response.hasError;
+                    response.hasReturn = returnTypeResponse.hasReturn || response.hasReturn;
+                    response.importTypeInfo = [...response.importTypeInfo, ...returnTypeResponse.importTypeInfo];
+                }
+
+                if (response.returnType && formField.typeName === "stream") {
+                    response.returnType = "stream<record {}, sql:Error?>"
+                }
+                break;
+
             case "tuple":
                 formField?.fields.forEach(field => {
                     const returnTypeResponse = getFormFieldReturnType(field, depth + 1);
@@ -882,10 +898,10 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                     // set optional tag
                     type = type.includes('|') ? `(${type})?` : `${type}?`;
                 }
-                if (type !== "" && formField?.isStream) {
-                    // set stream tags
-                    type = `stream<${type}>`;
-                }
+                // if (type !== "" && formField?.isStream) {
+                //     // set stream tags
+                //     type = `stream<${type}>`; // do for stream obj
+                // }
 
                 if (type) {
                     response.returnType = type;

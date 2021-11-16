@@ -93,7 +93,8 @@ export interface SelectedPosition {
 }
 
 export interface STSymbolInfo {
-    endpoints: Map<string, STNode>;
+    moduleEndpoints: Map<string, STNode>;
+    localEndpoints: Map<string, STNode>;
     actions: Map<string, STNode>;
     variables: Map<string, STNode[]>;
     configurables: Map<string, STNode>;
@@ -102,4 +103,9 @@ export interface STSymbolInfo {
     assignmentStatement: Map<string, STNode[]>;
     recordTypeDescriptions: Map<string, STNode>;
     listeners: Map<string, STNode>;
+}
+
+export interface ErrorSnippet{
+    diagnosticMsgs? : string,
+    code ?: string,
 }

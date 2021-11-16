@@ -15,10 +15,10 @@ import React, { useContext } from "react";
 
 import { BooleanTypeDesc } from "@ballerina/syntax-tree";
 
-import { TYPE_DESCRIPTOR } from "../../../../constants";
 import { VariableUserInputs } from "../../../../models/definitions";
 import { SuggestionsContext } from "../../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind } from "../../../../utils";
+import { getTypeDescriptors } from "../../../../utils";
+import { InputEditor } from "../../../InputEditor";
 import { useStatementEditorStyles } from "../../../ViewContainer/styles";
 
 interface BooleanTypeDescProps {
@@ -28,14 +28,22 @@ interface BooleanTypeDescProps {
 }
 
 export function BooleanTypeDescComponent(props: BooleanTypeDescProps) {
-    const { model } = props;
+    const { model, userInputs, diagnosticHandler } = props;
 
     const overlayClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
 
     const onClickOnType = (event: any) => {
         event.stopPropagation()
-        expressionHandler(model, false, { expressionSuggestions: getSuggestionsBasedOnExpressionKind(TYPE_DESCRIPTOR) })
+        expressionHandler(model, false, true, { typeSuggestions: getTypeDescriptors() })
+    };
+
+    const inputEditorProps = {
+        statementType: model.kind,
+        model,
+        expressionHandler,
+        userInputs,
+        diagnosticHandler
     };
 
     return (
@@ -43,7 +51,7 @@ export function BooleanTypeDescComponent(props: BooleanTypeDescProps) {
             className={overlayClasses.expressionElement}
             onClick={onClickOnType}
         >
-            {model.name.value}
+            <InputEditor {...inputEditorProps} />
         </button>
     );
 }

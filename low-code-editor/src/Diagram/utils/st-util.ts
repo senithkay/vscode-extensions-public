@@ -340,6 +340,10 @@ export function getDraftComponentSizes(type: string, subType: string): { h: numb
                     h = PROCESS_SVG_HEIGHT;
                     w = PROCESS_SVG_WIDTH;
                     break;
+                case "AssignmentStatement":
+                    h = PROCESS_SVG_HEIGHT;
+                    w = PROCESS_SVG_WIDTH;
+                    break;
                 case "Custom":
                     h = PROCESS_SVG_HEIGHT;
                     w = PROCESS_SVG_WIDTH;
@@ -657,7 +661,7 @@ export function getVariableNameFromST(node: LocalVarDecl | ModuleVarDecl): Ident
 }
 
 export function getStatementTypesFromST(model: LocalVarDecl): string {
-    if (STKindChecker.isTypedBindingPattern(model.typedBindingPattern)) {
+    if (model && STKindChecker.isTypedBindingPattern(model.typedBindingPattern)) {
         return model.typedBindingPattern.typeDescriptor.source.trim();
     }
 }

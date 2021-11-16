@@ -15,6 +15,7 @@ import React, { useState } from "react"
 
 import { ServiceDeclaration } from "@ballerina/syntax-tree";
 
+import { useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { useSelectedStatus } from "../../../../../hooks";
 import { getSTComponent } from "../../../../../utils";
 import { TopLevelPlus } from "../../PlusButtons/TopLevelPlus";
@@ -54,9 +55,29 @@ export function Service(props: ServiceProps) {
         );
     });
 
+    const {
+        api: { webView: {
+            showSwaggerView
+        } },
+    } = useDiagramContext();
+
+    const onClickTryIt = async () => {
+        let servicePath = "";
+
+        model.absoluteResourcePath.forEach((pathSegment) => {
+            servicePath += pathSegment.value;
+        });
+        showSwaggerView(servicePath);
+    };
+
     return (
         <>
             <div className={'service'} >
+                <div className={"action-container"}>
+                    <p className={"action-text"} onClick={onClickTryIt}>
+                        {`Try it`}
+                    </p>
+                </div>
                 <ServiceHeader model={model} isExpanded={isExpanded} onExpandClick={onExpandClick} />
                 <div className={'content-container'}>
                     {isExpanded && (

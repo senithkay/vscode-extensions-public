@@ -17,7 +17,7 @@ import { QualifiedNameReference, STKindChecker } from "@ballerina/syntax-tree";
 import { Divider } from "@material-ui/core";
 import cn from "classnames";
 
-import { LogIcon, PropertyIcon, IfIcon, ForEachIcon, ReturnIcon, RespondIcon, CustomStatementIcon, DataMapperIcon } from "../../../../../../../../assets/icons";
+import { LogIcon, PropertyIcon, AssignmentIcon, IfIcon, ForEachIcon, ReturnIcon, RespondIcon, CustomStatementIcon, DataMapperIcon } from "../../../../../../../../assets/icons";
 
 import { Context } from "../../../../../../../../Contexts/Diagram";
 import { isSTResourceFunction } from "../../../../../../../utils/st-util";
@@ -77,6 +77,12 @@ export function StatementOptions(props: StatementOptionsProps) {
                 defaultMessage: "A variable statement holds the value of a specific data type (string, integer, etc.) so that it can be used later in the logical process of the service or integration."
             })
         },
+        assignmentStatement: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.plusHolder.plusElements.statements.assignment.tooltip.title",
+                defaultMessage: "An assignment statement lets you to assign a value to a variable that is already defined"
+            })
+        },
         ifStatement: {
             title: intl.formatMessage({
                 id: "lowcode.develop.plusHolder.plusElements.statements.if.tooltip.title",
@@ -121,7 +127,13 @@ export function StatementOptions(props: StatementOptionsProps) {
         connectorStatement: {
             title: intl.formatMessage({
                 id: "lowcode.develop.plusHolder.plusElements.statements.connector.tooltip.title",
-                defaultMessage: "An API Call can be used to make external app requests."
+                defaultMessage: "An API connection can be used to make external app requests."
+            })
+        },
+        actionStatement: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.plusHolder.plusElements.statements.action.tooltip.title",
+                defaultMessage: "An API invocation can be used to invoke operations of an existing API connection."
             })
         }
     }
@@ -171,6 +183,34 @@ export function StatementOptions(props: StatementOptionsProps) {
                         <PropertyIcon />
                     </div>
                     <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.variable.title" defaultMessage="Variable" /></div>
+                </div>
+            </Tooltip>
+        )
+    }
+    const assignmentStm: StatementComponent = {
+        name: "assignment",
+        category: 'process',
+        component: (
+            <Tooltip
+                title={plusHolderStatementTooltipMessages.assignmentStatement.title}
+                placement="right"
+                arrow={true}
+                interactive={true}
+            >
+                <div
+                    className="sub-option enabled"
+                    data-testid="addAssignment"
+                    onClick={onSelectStatement.bind(undefined, "AssignmentStatement")}
+                >
+                    <div className="icon-wrapper">
+                        <AssignmentIcon />
+                    </div>
+                    <div className="text-label">
+                        <FormattedMessage
+                            id="lowcode.develop.plusHolder.plusElements.statements.assignment.title"
+                            defaultMessage="Assignment"
+                        />
+                    </div>
                 </div>
             </Tooltip>
         )
@@ -253,7 +293,35 @@ export function StatementOptions(props: StatementOptionsProps) {
                     <div className="text-label">
                         <FormattedMessage
                             id="lowcode.develop.plusHolder.plusElements.statements.connector.title"
-                            defaultMessage="API Call"
+                            defaultMessage="API Connection"
+                        />
+                    </div>
+                </div>
+            </Tooltip>
+        ),
+    };
+    const actionStatement: StatementComponent = {
+        name: "action",
+        category: "process",
+        component: (
+            <Tooltip
+                title={plusHolderStatementTooltipMessages.actionStatement.title}
+                placement="left"
+                arrow={true}
+                interactive={true}
+            >
+                <div
+                    className="sub-option enabled"
+                    data-testid="addAction"
+                    onClick={onSelectStatement.bind(undefined, "Action")}
+                >
+                    <div className="icon-wrapper">
+                        <LogIcon />
+                    </div>
+                    <div className="text-label">
+                        <FormattedMessage
+                            id="lowcode.develop.plusHolder.plusElements.statements.action.title"
+                            defaultMessage="API Invocation"
                         />
                     </div>
                 </div>
@@ -357,6 +425,7 @@ export function StatementOptions(props: StatementOptionsProps) {
     const statements: StatementComponent[] = [];
     statements.push(logStm);
     statements.push(propertyStm);
+    statements.push(assignmentStm);
     statements.push(ifStm);
     statements.push(foreachStm);
     statements.push(whileStmt);
@@ -365,17 +434,13 @@ export function StatementOptions(props: StatementOptionsProps) {
     // statements.push(datamappingStatement);
     statements.push(customStatement);
     statements.push(connectorStatement);
+    statements.push(actionStatement);
 
     const initStatements: Statements = {
         statement: statements,
         selectedCompoent: ""
     };
     const [selectedCompName, setSelectedCompName] = useState("");
-
-    const handleSearchChange = (evt: any) => {
-        setSelectedCompName(evt.target.value);
-    };
-
 
     const processComp: ReactNode[] = [];
     const conditionComp: ReactNode[] = [];
@@ -403,27 +468,13 @@ export function StatementOptions(props: StatementOptionsProps) {
         });
     }
 
-    const searchPlaceholder = intl.formatMessage({
-        id: "lowcode.develop.plusHolder.plusElements.statements.search.placeholder",
-        defaultMessage: "Search"
-    })
-
     return (
         <>
             <div className="search-options-wrapper">
                 <label><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.chooseFromList.label" defaultMessage="Select from list" /></label>
-
-                <input
-                    type="search"
-                    placeholder={searchPlaceholder}
-                    value={selectedCompName}
-                    onChange={handleSearchChange}
-                    className='search-wrapper'
-                />
             </div>
             <div className="element-option-holder" >
                 <div className="options-wrapper">
-                    {/* {(processComp.length > 0 ? <Divider /> : null)} */}
                     {processComp}
                     {(conditionComp.length > 0 ? <Divider /> : null)}
                     {conditionComp}

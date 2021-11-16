@@ -18,10 +18,12 @@ import cn from "classnames";
 
 import { WizardType } from "../../../../../../../ConfigurationSpec/types";
 import { BallerinaConnectorInfo } from "../../../../../../../Definitions";
+import { getDiagnosticMsgs } from "../../../../../../utils";
 import { getOverlayFormConfig, getRandomInt } from "../../../../../../utils/diagram-util";
 import { getMatchingConnector, getStatementTypesFromST } from "../../../../../../utils/st-util";
 import { DefaultConfig } from "../../../../../../visitors/default";
 import { ConnectorConfigWizard } from "../../../../../FormComponents/ConnectorConfigWizard";
+import { FormGenerator } from "../../../../../FormComponents/FormGenerator";
 import { Context } from "../../../../Context/diagram";
 import { BlockViewState, StatementViewState } from "../../../../ViewState";
 import { DraftStatementViewState } from "../../../../ViewState/draft";
@@ -71,6 +73,7 @@ export function ActionProcessor(props: ProcessorProps) {
     const { model, blockViewState } = props;
     const [configOverlayFormState, updateConfigOverlayFormState] = useState(undefined);
     const [isConfigWizardOpen, setConfigWizardOpen] = useState(false);
+    const [selectedEndpoint, setSelectedEndpoint] = useState<STNode>();
 
     const viewState: StatementViewState = model === null ? blockViewState.draft[1] : model.viewState;
     const isDraftStatement: boolean = blockViewState
@@ -84,6 +87,9 @@ export function ActionProcessor(props: ProcessorProps) {
     const isLogStmt = false;
 
     let isReferencedVariable = false;
+
+    const diagnostics = model?.typeData?.diagnostics;
+    const diagnosticMsgs = getDiagnosticMsgs(diagnostics);
 
     if (model) {
         processType = "Variable";
@@ -104,7 +110,7 @@ export function ActionProcessor(props: ProcessorProps) {
                 isIntializedVariable = true;
             }
         } else if (STKindChecker.isAssignmentStatement(model)) {
-            processType = "Custom";
+            processType = "AssignmentStatement";
             processName = "Assignment";
             if (STKindChecker.isSimpleNameReference(model?.varRef)) {
                 processName = model?.varRef?.name?.value
@@ -149,6 +155,11 @@ export function ActionProcessor(props: ProcessorProps) {
         setIsConnectorEdit(false);
     };
 
+    const onActionFormClose = () => {
+        setIsConnectorEdit(false);
+        setConnector(undefined);
+    };
+
     const onSave = () => {
         setConfigWizardOpen(false);
         // dispatchCloseConfigOverlayForm();
@@ -178,6 +189,32 @@ export function ActionProcessor(props: ProcessorProps) {
         // setCodeToHighlight(model.position);
     }
 
+    const onEndpointSelect = (actionInvo: STNode) => {
+        const matchedConnector = getMatchingConnector(actionInvo, stSymbolInfo);
+        if (matchedConnector) {
+            setSelectedEndpoint(actionInvo);
+            setConnector(matchedConnector);
+        }
+    }
+
+    const errorSnippet = {
+        diagnosticMsgs,
+        code: sourceSnippet,
+    }
+
+    const endpointList = (
+        <FormGenerator
+            onCancel={onWizardClose}
+            configOverlayFormStatus={ {
+                formType: "EndpointList",
+                formArgs: {
+                    onSelect: onEndpointSelect,
+                },
+                isLoading: true,
+            } }
+        />
+    );
+
     const toolTip = isReferencedVariable ? "Variable is referred in the code below" : undefined;
     // If only processor is a initialized variable or log stmt or draft stmt Show the edit btn other.
     // Else show the delete button only.
@@ -206,84 +243,89 @@ export function ActionProcessor(props: ProcessorProps) {
     const statmentTypeText = getStatementTypesFromST(localModel);
 
     const processWrapper = isDraftStatement ? cn("main-process-wrapper active-data-processor") : cn("main-process-wrapper data-processor");
-    const component: React.ReactNode = (!viewState.collapsed &&
-        (
-            <g>
-                <g className={processWrapper} data-testid="data-processor-block" >
-                    <React.Fragment>
-                        {!isDraftStatement &&
-                            (
-                                <>
-                                    <StatementTypes
-                                        statementType={statmentTypeText}
-                                        x={cx - (VARIABLE_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
-                                        y={cy + PROCESS_SVG_HEIGHT / 4}
-                                        key_id={getRandomInt(1000)}
-                                    />
-                                    <VariableName
-                                        processType={processType}
-                                        variableName={processName}
-                                        x={cx - (VARIABLE_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
-                                        y={cy + PROCESS_SVG_HEIGHT / 4}
-                                        key_id={getRandomInt(1000)}
-                                    />
-                                </>
-                            )
-                        }
-                        <ProcessSVG
-                            x={cx - (PROCESS_SVG_SHADOW_OFFSET / 2)}
-                            y={cy - (PROCESS_SVG_SHADOW_OFFSET / 2)}
-                            varName={variableName}
-                            processType={processType}
-                            sourceSnippet={sourceSnippet}
-                            position={model?.position}
-                            openInCodeView={!isReadOnly && !isWaitingOnWorkspace && model && model.position && onClickOpenInCodeView}
-                        />
-                        {!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace &&
-                            <g
-                                className="process-options-wrapper"
-                                height={PROCESS_SVG_HEIGHT_WITH_SHADOW}
-                                width={PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW}
-                                x={cx - (PROCESS_SVG_SHADOW_OFFSET / 2)}
-                                y={cy - (PROCESS_SVG_SHADOW_OFFSET / 2)}
-                            >
-                                <g>
-                                    {((model === null || isEditConnector)) && (
-                                        <ConnectorConfigWizard
-                                            connectorInfo={connector}
-                                            position={{
-                                                x: viewState.bBox.cx + 80,
-                                                y: viewState.bBox.cy,
-                                            }}
-                                            targetPosition={draftViewState.targetPosition}
-                                            selectedConnector={draftViewState.selectedConnector}
-                                            model={model}
-                                            onClose={onWizardClose}
-                                            onSave={onWizardClose}
-                                            isAction={true}
-                                            isEdit={isEditConnector}
-                                        />
-                                    )}
-                                </g>
-                                {!isConfigWizardOpen && (
-                                    <>
-                                        <rect
-                                            x={cx + (PROCESS_SVG_WIDTH / 6.5)}
-                                            y={cy + (PROCESS_SVG_HEIGHT / 3)}
-                                            rx="7"
-                                            className="process-rect"
-                                        />
+    const processStyles = diagnosticMsgs && !isDraftStatement ? "main-process-wrapper data-processor-error " : processWrapper;
 
-                                        {editAndDeleteButtons}
-                                    </>
+    const component: React.ReactNode = !viewState.collapsed && (
+        <g>
+            <g className={processStyles} data-testid="data-processor-block">
+                <React.Fragment>
+                    {!isDraftStatement && (
+                        <>
+                            <StatementTypes
+                                statementType={statmentTypeText}
+                                x={cx - (VARIABLE_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
+                                y={cy + PROCESS_SVG_HEIGHT / 4}
+                                key_id={getRandomInt(1000)}
+                            />
+                            <VariableName
+                                processType={processType}
+                                variableName={processName}
+                                x={cx - (VARIABLE_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
+                                y={cy + PROCESS_SVG_HEIGHT / 4}
+                                key_id={getRandomInt(1000)}
+                            />
+                        </>
+                    )}
+                    <ProcessSVG
+                        x={cx - PROCESS_SVG_SHADOW_OFFSET / 2}
+                        y={cy - PROCESS_SVG_SHADOW_OFFSET / 2}
+                        varName={variableName}
+                        processType={processType}
+                        sourceSnippet={sourceSnippet}
+                        diagnostics={errorSnippet}
+                        position={model?.position}
+                        openInCodeView={
+                            !isReadOnly &&
+                            !isWaitingOnWorkspace &&
+                            model &&
+                            model.position &&
+                            onClickOpenInCodeView
+                        }
+                    />
+                    {!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace && (
+                        <g
+                            className="process-options-wrapper"
+                            height={PROCESS_SVG_HEIGHT_WITH_SHADOW}
+                            width={PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW}
+                            x={cx - PROCESS_SVG_SHADOW_OFFSET / 2}
+                            y={cy - PROCESS_SVG_SHADOW_OFFSET / 2}
+                        >
+                            <g>
+                                {!model && !connector && endpointList}
+                                {(model === null || isEditConnector) && connector && (
+                                    <ConnectorConfigWizard
+                                        connectorInfo={connector}
+                                        position={{
+                                            x: viewState.bBox.cx + 80,
+                                            y: viewState.bBox.cy,
+                                        }}
+                                        targetPosition={draftViewState.targetPosition}
+                                        selectedConnector={draftViewState.selectedConnector}
+                                        model={model || selectedEndpoint}
+                                        onClose={onActionFormClose}
+                                        onSave={onWizardClose}
+                                        isAction={true}
+                                        isEdit={isEditConnector}
+                                    />
                                 )}
                             </g>
-                        }
-                    </React.Fragment>
+                            {!isConfigWizardOpen && (
+                                <>
+                                    <rect
+                                        x={cx + PROCESS_SVG_WIDTH / 6.5}
+                                        y={cy + PROCESS_SVG_HEIGHT / 3}
+                                        rx="7"
+                                        className="process-rect"
+                                    />
 
-                </g>
+                                    {editAndDeleteButtons}
+                                </>
+                            )}
+                        </g>
+                    )}
+                </React.Fragment>
             </g>
-        )
+        </g>
     );
 
     return (

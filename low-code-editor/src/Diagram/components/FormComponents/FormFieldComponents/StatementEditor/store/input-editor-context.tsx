@@ -15,12 +15,12 @@ import React, { useState } from 'react';
 
 export interface InputEditorCtx {
     userInput: string,
-    onVariableSelection: (value: string) => void
+    onSelection: (value: string) => void
 }
 
 export const InputEditorContext = React.createContext<InputEditorCtx>({
     userInput: "",
-    onVariableSelection: (value: string) => {}
+    onSelection: (value: string) => {}
 });
 
 export const InputEditorContextProvider: React.FC = (props) => {
@@ -34,7 +34,7 @@ export const InputEditorContextProvider: React.FC = (props) => {
         <InputEditorContext.Provider
             value={{
                 userInput,
-                onVariableSelection: variableHandler
+                onSelection: variableHandler
             }}
         >
             {props.children}

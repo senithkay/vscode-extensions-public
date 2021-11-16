@@ -98,6 +98,9 @@ export interface LowCodeEditorAPI {
         configOverlayFormPrepareStart: () => void;
         closeConfigPanel: () => void;
     }
+    webView: {
+        showSwaggerView: (serviceName: string) => void;
+    }
 }
 
 // FIXME Some of these props should be moved to low code state
@@ -135,6 +138,7 @@ export interface LowCodeEditorProperties {
 export interface FunctionProperties {
     overlayId: string;
     overlayNode: HTMLDivElement;
+    functionNode: STNode;
 }
 
 export interface SelectedPosition {

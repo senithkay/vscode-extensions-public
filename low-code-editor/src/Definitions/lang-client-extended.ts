@@ -11,6 +11,8 @@
  * associated services.
  */
 
+// tslint:disable: no-empty-interface
+
 import { STNode } from "@ballerina/syntax-tree";
 
 import { FunctionDefinitionInfo } from "../ConfigurationSpec/types";
@@ -27,7 +29,7 @@ export interface STModification {
     isImport?: boolean;
 }
 
-export interface Connector {
+export interface BallerinaModule {
     id?: string;
     name: string;
     displayName?: string;
@@ -35,6 +37,10 @@ export interface Connector {
     package: Package;
     displayAnnotation?: any;
 }
+
+export interface Connector extends BallerinaModule {}
+
+export interface Trigger extends BallerinaModule {}
 
 export interface Package {
     organization: string;
@@ -88,7 +94,14 @@ export interface BallerinaConnectorsRequest {
     sort?: string;
     targetFile?: string;
 }
-export interface BallerinaConnectorsResponse {
+
+export interface BallerinaModuleResponse {
+    central: BallerinaModule[];
+    local?: BallerinaModule[];
+    error?: string;
+}
+
+export interface BallerinaConnectorsResponse extends BallerinaModuleResponse {
     central: Connector[];
     local?: Connector[];
     error?: string;

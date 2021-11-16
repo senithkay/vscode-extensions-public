@@ -22,10 +22,10 @@ import {
     QualifiedNameReference,
     STKindChecker,
     STNode} from "@ballerina/syntax-tree";
-import cn from "classnames";
 
 import { WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
+import { getDiagnosticMsgs } from "../../../../../utils";
 import { getOverlayFormConfig, getRandomInt } from "../../../../../utils/diagram-util";
 import { getMethodCallFunctionName, getStatementTypesFromST } from "../../../../../utils/st-util";
 import { DefaultConfig } from "../../../../../visitors/default";
@@ -77,17 +77,17 @@ export function DataProcessor(props: ProcessorProps) {
     let processType = "STATEMENT";
     let processName = "Variable";
     let sourceSnippet = "Source";
-    let diagnostics;
+    const diagnostics =  model?.typeData?.diagnostics;
 
     let isIntializedVariable = false;
     let isLogStmt = false;
 
     let isReferencedVariable = false;
+    const diagnosticMsgs = getDiagnosticMsgs(diagnostics);
 
     if (model) {
         processType = "Variable";
-        diagnostics = model.typeData?.diagnostics[0]?.message;
-        sourceSnippet = diagnostics ? "Code has errors\n" + model.source : model.source;
+        sourceSnippet = model.source;
         if (STKindChecker.isCallStatement(model)) {
             const callStatement: CallStatement = model as CallStatement;
             const stmtFunctionCall: FunctionCall = callStatement.expression as FunctionCall;
@@ -117,7 +117,7 @@ export function DataProcessor(props: ProcessorProps) {
                 isIntializedVariable = true;
             }
         } else if (STKindChecker.isAssignmentStatement(model)) {
-            processType = "Custom";
+            processType = "AssignmentStatement";
             processName = "Assignment";
             if (STKindChecker.isSimpleNameReference(model?.varRef)) {
                 processName = model?.varRef?.name?.value
@@ -130,7 +130,10 @@ export function DataProcessor(props: ProcessorProps) {
         const draftViewState = blockViewState.draft[1] as DraftStatementViewState;
         processType = draftViewState.subType;
     }
-
+    const errorSnippet = {
+        diagnosticMsgs,
+        code: sourceSnippet,
+    }
     const h: number = viewState.dataProcess.h;
     const w: number = viewState.dataProcess.w;
     const cx: number = blockViewState ? (viewState.bBox.cx - (PROCESS_SVG_WIDTH / 2)) : (viewState.bBox.cx - (w / 2));
@@ -232,13 +235,14 @@ export function DataProcessor(props: ProcessorProps) {
         }
     } else if (!isDraftStatement && STKindChecker?.isAssignmentStatement(model)) {
         assignmentText = (model as AssignmentStatement)?.expression?.source;
+        statmentTypeText = model.varRef?.typeData?.typeSymbol?.signature
     } else if (!isDraftStatement && STKindChecker?.isLocalVarDecl(model)) {
         assignmentText = model?.initializer?.source;
         statmentTypeText = getStatementTypesFromST(localModel);
     }
 
-    const processWrapper = isDraftStatement ? cn("main-process-wrapper active-data-processor") : cn("main-process-wrapper data-processor");
-    const processStyles = diagnostics && !isDraftStatement ? cn("main-process-wrapper data-processor-error ") : processWrapper;
+    const processWrapper = isDraftStatement ? "main-process-wrapper active-data-processor" : "main-process-wrapper data-processor";
+    const processStyles = diagnosticMsgs && !isDraftStatement ? "main-process-wrapper data-processor-error " : processWrapper;
     const prosessTypes = (processType === "Log" || processType === "Call");
 
     const component: React.ReactNode = (!viewState.collapsed &&
@@ -270,6 +274,7 @@ export function DataProcessor(props: ProcessorProps) {
                             processType={processType}
                             sourceSnippet={sourceSnippet}
                             position={model?.position}
+                            diagnostics={errorSnippet}
                             openInCodeView={!isReadOnly && !isCodeEditorActive && !isWaitingOnWorkspace && model && model.position && onClickOpenInCodeView}
                         />
                         <Assignment

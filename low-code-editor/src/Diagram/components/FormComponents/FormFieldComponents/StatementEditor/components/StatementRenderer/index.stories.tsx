@@ -63,6 +63,9 @@ const api = {
         closeConfigOverlayForm: dummyFunctionWithoutArgs,
         configOverlayFormPrepareStart: dummyFunctionWithoutArgs,
         closeConfigPanel: dummyFunctionWithoutArgs,
+    },
+    webView: {
+        showSwaggerView: dummyFunction,
     }
 }
 
@@ -114,7 +117,7 @@ const statementEditorContextProps = {
     onCancelClicked: false,
     onSave: dummyFunctionWithoutArgs,
     onChange: dummyFunction,
-    validate: dummyFunction
+    validateStatement: dummyFunction
 }
 
 const Template: Story<StatementRendererProps> = (args: StatementRendererProps) => (

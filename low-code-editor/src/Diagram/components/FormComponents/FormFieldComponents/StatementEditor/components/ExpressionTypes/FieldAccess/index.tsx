@@ -51,7 +51,8 @@ export function FieldAccessComponent(props: FieldAccessProps) {
 
     const onClickOnExpression = (event: any) => {
         event.stopPropagation()
-        expressionHandler(model.expression, true, { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
+        expressionHandler(model, true, false,
+            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
     }
 
     return (
@@ -59,6 +60,9 @@ export function FieldAccessComponent(props: FieldAccessProps) {
             <button
                 className={overlayClasses.expressionElement}
                 onClick={onClickOnExpression}
+            >
+            <button
+                className={overlayClasses.expressionElement}
             >
                 {expression}
             </button>
@@ -69,6 +73,7 @@ export function FieldAccessComponent(props: FieldAccessProps) {
                 className={overlayClasses.expressionElement}
             >
                 {fieldName}
+            </button>
             </button>
         </span>
     );

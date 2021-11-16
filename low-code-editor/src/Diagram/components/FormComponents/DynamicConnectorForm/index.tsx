@@ -52,11 +52,10 @@ export function Form(props: FormProps) {
         onValidate(isAllValid(validFieldChecker.current, emptyFieldChecker.current, false, true, true));
     };
 
+    const fieldTypesList = ["string" , "int" , "boolean" , "float" , "decimal" , "array" , "map" , "union" ,
+    "json" , "httpRequest" , "handle" , "object {public string[] & readonly strings;public Value[] insertions;}"]
     fields?.map((field, index) => {
-        if (!field.hide && (field.typeName === "string" || (field.typeName === 'record' && !field.isReference) || field.typeName === "int"
-            || field.typeName === "boolean" || field.typeName === "float" || field.typeName === "decimal" || field.typeName === "array"
-            || field.typeName === "map" || field.typeName === "union" || field.typeName === "json" ||
-            field.typeName === "httpRequest" || field.typeName === "handle")) {
+        if (!field.hide && (fieldTypesList.includes(field.typeName) || (field.typeName === 'record' && !field.isReference))) {
             const elementProps: FormElementProps = {
                 model: field,
                 index,
@@ -81,11 +80,13 @@ export function Form(props: FormProps) {
                 type = "restParam"
             } else if (field.typeName === "handle"){
                 type = "expression";
+            } else if (field.typeName === "object {public string[] & readonly strings;public Value[] insertions;}"){
+                type = "expression";
             }
             const element = getFormElement(elementProps, type);
 
             if (element) {
-                (field?.optional || field?.defaultValue) ? optionalElements.push(element) : elements.push(element);
+                (field?.optional || field?.defaultable) ? optionalElements.push(element) : elements.push(element);
             }
         }
     });

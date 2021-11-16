@@ -468,6 +468,10 @@ class InitVisitor implements Visitor {
                         const callerParam = currentFnBody.VisibleEndpoints.find((vEP: any) => vEP.isCaller);
                         stmtViewState.isCallerAction = callerParam && callerParam.name === simpleName.name.value;
                     }
+                    if (!allEndpoints.has(stmtViewState.action.endpointName)) {
+                        stmtViewState.isAction = false;
+                        return;
+                    }
                 } else if (node.initializer.kind === "CheckAction") {
                     const checkExpr: CheckAction = node.initializer as CheckAction;
                     const remoteActionCall: RemoteMethodCallAction = checkExpr.expression as RemoteMethodCallAction;
@@ -480,6 +484,10 @@ class InitVisitor implements Visitor {
                     stmtViewState.action.actionName = checkExprViewState.action.actionName;
                     stmtViewState.isCallerAction = checkExprViewState.isCallerAction;
                     stmtViewState.isAction = checkExprViewState.isAction;
+                    if (!allEndpoints.has(stmtViewState.action.endpointName)) {
+                        stmtViewState.isAction = false;
+                        return;
+                    }
                 } else if (node.initializer.kind === "TypeCastExpression") {
                     const typeCastExpression: TypeCastExpression = node.initializer as TypeCastExpression;
                     if (typeCastExpression.expression.kind === "RemoteMethodCallAction") {

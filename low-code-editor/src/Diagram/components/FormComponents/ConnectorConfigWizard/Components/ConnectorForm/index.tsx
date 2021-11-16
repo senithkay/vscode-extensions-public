@@ -243,18 +243,23 @@ export function ConnectorForm(props: FormGeneratorProps) {
             config.action.fields
         ).join()});`;
 
-        if (isNewConnectorInitWizard) {
-            const endpointStatement = `${moduleName}:${connector.name} ${config.name} = ${isInitReturnError ? "check" : ""} new (${getParams(
-                config.connectorInit
-            ).join()});`;
+        if (isNewConnectorInitWizard && !isAction) {
+            const endpointStatement = `${moduleName}:${connector.name} ${config.name} = ${
+                isInitReturnError ? "check" : ""
+            } new (${getParams(config.connectorInit).join()});`;
             const addConnectorInit = createPropertyStatement(endpointStatement, targetPosition);
             modifications.push(addConnectorInit);
+            const addImport: STModification = createImportStatement(connector.package.organization, connectorModule, targetPosition);
+            modifications.push(addImport);
+        }
+
+        if (!isNewConnectorInitWizard && isAction) {
+            const updateActionInvocation = updatePropertyStatement(actionStatement, model.position);
+            modifications.push(updateActionInvocation);
+        }else{
             const addActionInvocation = createPropertyStatement(actionStatement, targetPosition);
             modifications.push(addActionInvocation);
             onActionAddEvent();
-        } else {
-            const updateActionInvocation = updatePropertyStatement(actionStatement, model.position);
-            modifications.push(updateActionInvocation);
         }
 
         if (modifications.length > 0) {
@@ -420,7 +425,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
 
     return (
         <>
-            <FormControl data-testid="log-form" className={formClasses.wizardFormControl}>
+            <FormControl data-testid="connector-form" className={formClasses.wizardFormControl}>
                 <div className={formClasses.formWrapper}>
                     <div className={formClasses.formFeilds}>
                         <div className={formClasses.formWrapper}>
@@ -428,7 +433,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
                                 <div className={formClasses.mainTitleWrapper}>
                                     <Typography variant="h4">
                                         <Box paddingTop={2} paddingBottom={2}>
-                                            <FormattedMessage id="lowcode.develop.configForms.connector.title" defaultMessage="API Call" />
+                                            <FormattedMessage id="lowcode.develop.configForms.connector.title" defaultMessage="API Connection" />
                                         </Box>
                                     </Typography>
                                 </div>

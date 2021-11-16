@@ -114,6 +114,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
   const [validateToggle, setValidateToggle] = useState(false);
   const [duplicatedPathsInEdit, setDuplicatedPathsInEdit] = useState<boolean>(false);
   const [isValidReturnExpr, setIsValidReturnExpr] = useState(true);
+  const [toggleDropDownState, setToggleDropDownState] = useState(true);
 
   const funcSignature = (model as ResourceAccessorDefinition)?.functionSignature;
 
@@ -136,6 +137,10 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
           returnTypeWithoutError = returnTypeDesc.replace('|error?', '');
         } else if (returnTypeDesc.includes('error?')) {
           returnTypeWithoutError = returnTypeDesc.replace('error?', '');
+        } else if (returnTypeDesc.includes('|error')) {
+          returnTypeWithoutError = returnTypeDesc.replace('|error', '');
+        } else if (returnTypeDesc.includes('error')) {
+          returnTypeWithoutError = returnTypeDesc.replace('error', '');
         }
         resourceMember = {
           id: 0,
@@ -186,6 +191,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     const updatedResources = resource;
     updatedResources.method = methodType.toLowerCase();
     setResource(updatedResources);
+    setToggleDropDownState(!toggleDropDownState);
   }
 
   function handleOnChangePath(text: string) {
@@ -422,7 +428,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
 
   const extractPayloadTitle = intl.formatMessage({
     id: "lowcode.develop.apiConfigWizard.extract.payload.title",
-    defaultMessage: "Extract Request Payload"
+    defaultMessage: "Payload"
   });
 
   const advancedTitle = intl.formatMessage({

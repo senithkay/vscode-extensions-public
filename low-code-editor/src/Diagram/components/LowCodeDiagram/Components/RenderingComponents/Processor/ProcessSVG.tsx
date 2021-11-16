@@ -16,6 +16,7 @@ import React, { ReactElement } from "react";
 import { NodePosition } from "@ballerina/syntax-tree";
 
 import Tooltip from "../../../../../../components/TooltipV2";
+import { ErrorSnippet } from "../../../Context/types";
 
 import "./style.scss";
 
@@ -29,9 +30,18 @@ export const PROCESS_SVG_HEIGHT = 48 + PROCESS_STROKE_HEIGHT;
 export const PROCESS_SVG_SHADOW_OFFSET = PROCESS_SVG_HEIGHT_WITH_SHADOW - PROCESS_SVG_HEIGHT;
 
 
-export function ProcessSVG(props: { x: number, y: number, varName: any, sourceSnippet: any, position: NodePosition, openInCodeView?: () => void, processType: string }) {
-    const { varName, sourceSnippet, processType, openInCodeView, ...xyProps } = props;
-
+export function ProcessSVG(props: {
+    x: number, y: number, varName: any,
+    sourceSnippet: any, position: NodePosition,
+    openInCodeView?: () => void,
+    processType: string, diagnostics?: ErrorSnippet
+    })
+    {
+    const { varName, sourceSnippet, processType, openInCodeView, diagnostics, ...xyProps } = props;
+    const processTypeIndicator: JSX.Element[] = [];
+    const tooltipText = {
+        code: sourceSnippet
+    }
     const logIcon: ReactElement = (
         <g transform="translate(242 522)">
             <path id="Path_23" d="M7.2,0a.8.8,0,0,1,.093,1.595L7.2,1.6H.8A.8.8,0,0,1,.707.005L.8,0Z" transform="translate(8 11.2)" fill="#5567d5" />
@@ -45,7 +55,6 @@ export function ProcessSVG(props: { x: number, y: number, varName: any, sourceSn
         </g>
     );
 
-    const processTypeIndicator: JSX.Element[] = [];
     switch (processType) {
         case 'Log':
         case 'Call':
@@ -69,9 +78,6 @@ export function ProcessSVG(props: { x: number, y: number, varName: any, sourceSn
             );
     }
 
-    const tooltipText = {
-        code: sourceSnippet
-    }
     return (
         <svg {...xyProps} width={PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW} height={PROCESS_SVG_HEIGHT_WITH_HOVER_SHADOW} className="process" >
             <defs>
@@ -95,6 +101,22 @@ export function ProcessSVG(props: { x: number, y: number, varName: any, sourceSn
                 </filter>
             </defs>
             <g>
+            {diagnostics?.diagnosticMsgs ?
+            (
+                <Tooltip type={"diagram-diagnostic"} onClick={openInCodeView} diagnostic={diagnostics} placement="right" arrow={true}>
+                    <g id="Process" className="data-processor process-active" transform="translate(-221.5 -506)">
+                        <g transform="matrix(1, 0, 0, 1, 222, 509)">
+                            <g id="ProcessRect-2" transform="translate(5.5 4)">
+                                <rect width="48" height="48" rx="4" />
+                                <rect x="-0.5" y="-0.5" width="49" height="49" rx="4.5" className="click-effect" />
+                            </g>
+                        </g>
+                        {processTypeIndicator}
+                    </g>
+                </Tooltip>
+            )
+            :
+            (
                 <Tooltip type={"diagram-code"} onClick={openInCodeView} text={tooltipText} placement="right" arrow={true}>
                     <g id="Process" className="data-processor process-active" transform="translate(-221.5 -506)">
                         <g transform="matrix(1, 0, 0, 1, 222, 509)">
@@ -106,6 +128,7 @@ export function ProcessSVG(props: { x: number, y: number, varName: any, sourceSn
                         {processTypeIndicator}
                     </g>
                 </Tooltip>
+            )}
             </g>
         </svg>
     )
