@@ -10,6 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
 import { Context } from "../../../../../../Contexts/Diagram";
@@ -25,12 +26,13 @@ interface ConditionsWizardProps {
     condition: ConditionConfig;
     onCancel: () => void;
     onSave: () => void;
+    onWizardClose: () => void;
     configOverlayFormStatus: ConfigOverlayFormStatus
 }
 
 
 export function ConditionsOverlayForm(props: ConditionsWizardProps) {
-    const { condition, onCancel, onSave, configOverlayFormStatus } = props;
+    const { condition, onCancel, onSave, onWizardClose, configOverlayFormStatus } = props;
     const { isLoading, error, formType, formArgs} = configOverlayFormStatus;
     const {
         api: {
@@ -74,11 +76,40 @@ export function ConditionsOverlayForm(props: ConditionsWizardProps) {
     } else {
         return (
             <div>
-                {formType === "If" && <AddIfForm condition={condition} formArgs={formArgs} onSave={onSave} onCancel={onCancel} />}
-                {formType === "ForEach" && <AddForeachForm condition={condition} formArgs={formArgs} onSave={onSave} onCancel={onCancel} />}
-                {formType === "While" && <AddWhileForm condition={condition} formArgs={formArgs} onSave={onSave} onCancel={onCancel} />}
+                {
+                    formType === "If" && (
+                        <AddIfForm
+                            condition={condition}
+                            formArgs={formArgs}
+                            onSave={onSave}
+                            onWizardClose={onWizardClose}
+                            onCancel={onCancel}
+                        />
+                    )
+                }
+                {
+                    formType === "ForEach" && (
+                        <AddForeachForm
+                            condition={condition}
+                            formArgs={formArgs}
+                            onSave={onSave}
+                            onWizardClose={onWizardClose}
+                            onCancel={onCancel}
+                        />
+                    )
+                }
+                {
+                    formType === "While" && (
+                        <AddWhileForm
+                            condition={condition}
+                            formArgs={formArgs}
+                            onSave={onSave}
+                            onWizardClose={onWizardClose}
+                            onCancel={onCancel}
+                        />
+                    )
+                }
             </div>
         );
     }
 }
-

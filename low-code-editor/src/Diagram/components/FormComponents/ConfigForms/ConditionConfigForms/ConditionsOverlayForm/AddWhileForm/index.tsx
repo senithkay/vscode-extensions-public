@@ -32,11 +32,12 @@ export interface WhileProps {
     formArgs: any;
     onCancel: () => void;
     onSave: () => void;
+    onWizardClose: () => void;
 }
 
 export function AddWhileForm(props: WhileProps) {
     const { props: { isMutationProgress: isMutationInProgress } } = useContext(Context);
-    const { condition, formArgs, onCancel, onSave } = props;
+    const { condition, formArgs, onCancel, onSave, onWizardClose } = props;
     const classes = useStyles();
     const intl = useIntl();
 
@@ -114,11 +115,9 @@ export function AddWhileForm(props: WhileProps) {
             label: intl.formatMessage({id: "lowcode.develop.configForms.while.statementEditor.label"}),
             initialSource,
             formArgs: {formArgs},
-            isMutationInProgress,
             validForm: !isInvalid,
-            onSave: handleOnSaveClick,
-            onChange: handleExpEditorChange,
-            validate: validateField
+            config: condition,
+            onWizardClose
         }
     );
 
