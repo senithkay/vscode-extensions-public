@@ -35,8 +35,6 @@ export function FieldItem(props: FieldItemProps) {
 
     const { state } = useRecordEditorContext();
 
-    const typeProperty = `${field.isArray ? "[]" : ""}${field.isFieldTypeOptional ? "?" : ""}`;
-
     const handleDelete = () => {
         onDeleteClick(field);
     };
@@ -55,14 +53,6 @@ export function FieldItem(props: FieldItemProps) {
                     >
                         {field.type}
                     </Typography>
-                    {typeProperty && (
-                        <Typography
-                            variant='body2'
-                            className={classnames(recordClasses.optionalNArray)}
-                        >
-                            {typeProperty}
-                        </Typography>
-                    )}
                     <Typography
                         variant='body2'
                         className={classnames(recordClasses.nameWrapper)}
