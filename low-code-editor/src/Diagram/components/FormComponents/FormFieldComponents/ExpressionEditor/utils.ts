@@ -43,6 +43,7 @@ import MonacoEditor from "react-monaco-editor";
 import { CompletionParams, CompletionResponse, ExpressionEditorLangClientInterface, TextEdit } from "../../../../../Definitions";
 import { InjectableItem } from "../../FormGenerator";
 import { InsertorDelete } from "../../../../utils/modification-util";
+import { GetExpCompletionsParams } from "./index";
 
 
 // return true if there is any diagnostic of severity === 1
@@ -559,16 +560,6 @@ export const getHints = (diagnostics: Diagnostic[], varType: string, varName: st
     return hints;
 }
 
-export interface GetExpCompletionsProps {
-    getExpressionEditorLangClient: (url: string) => Promise<ExpressionEditorLangClientInterface>;
-    langServerURL: string;
-    completionParams: CompletionParams;
-    model: any; // FIXME: Assign proper type once model prop in exp editor has been updated,
-    monacoRef: React.MutableRefObject<MonacoEditor>;
-    varType: string;
-    varName: string;
-    snippetTargetPosition: number;
-}
 export const getStandardExpCompletions = async ({
     getExpressionEditorLangClient,
     langServerURL,
@@ -578,7 +569,7 @@ export const getStandardExpCompletions = async ({
     varType,
     varName,
     snippetTargetPosition,
-}: GetExpCompletionsProps): Promise<monaco.languages.CompletionList> => {
+}: GetExpCompletionsParams): Promise<monaco.languages.CompletionList> => {
     const langClient: ExpressionEditorLangClientInterface = await getExpressionEditorLangClient(langServerURL);
     const values: CompletionResponse[] = await langClient.getCompletion(completionParams);
     const completionItems: monaco.languages.CompletionItem[] = [];
