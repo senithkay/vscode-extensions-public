@@ -1,0 +1,156 @@
+/*
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ * the WSO2 Commercial License available at http://wso2.com/licenses.
+ * For specific language governing the permissions and limitations under
+ * this license, please see the license as well as any agreement you’ve
+ * entered into with WSO2 governing the purchase of this software and any
+ * associated services.
+ */
+// tslint:disable: jsx-no-multiline-js
+// tslint:disable: jsx-wrap-multiline
+import React, { useContext, useEffect, useState } from "react";
+import { FormattedMessage, useIntl } from "react-intl";
+
+import { Box, FormControl, Typography } from "@material-ui/core";
+import { CloseRounded } from "@material-ui/icons";
+
+import { AddIcon } from "../../../../../../assets/icons";
+import { ButtonWithIcon } from "../../../FormFieldComponents/Button/ButtonWithIcon";
+import { SelectDropdownWithButton } from "../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
+import { FormActionButtons } from "../../../FormFieldComponents/FormActionButtons";
+import { FormGeneratorProps } from "../../../FormGenerator";
+import { wizardStyles as useFormStyles } from "../../style";
+import "../style.scss";
+import slackTrigger from "./slackTrigger.json";
+
+export interface TriggerParameters {
+    id: number;
+    name: string;
+    type?: string;
+}
+
+export function TriggerForm(props: FormGeneratorProps) {
+    const { onCancel } = props
+    const formClasses = useFormStyles();
+    const intl = useIntl();
+    const [validForm, setValidForm] = useState(false);
+    const [selectedChannels, setSelectedChannels] = useState([]);
+    // const triggerChannels = slackTrigger.serviceTypes.map((type: any) => type.name);
+    const [allServiceTypes, setAllServiceTypes] = useState(slackTrigger.serviceTypes.map((type: any) => type.name));
+    const [addNewChannel, setNewChannel] = useState(false);
+
+    // useEffect(() => {
+    //     selectedChannels.length !== 0 ? setAllServiceTypes(allServiceTypes.filter(elements => !selectedChannels.includes(elements))) : null;
+    // }, [selectedChannels]);
+
+
+    const addnewChannelView = () => setNewChannel(true);
+
+    const handleOnChannelSelect = (channel: string) => {
+        const abc: string[] = [...selectedChannels, channel];
+        setSelectedChannels(abc);
+        // setAllServiceTypes(allServiceTypes.filter(elements => !selectedChannels.includes(elements)));
+        setNewChannel(false);
+    }
+
+    const onDeleteChannel = (channelName: string) => {
+        setSelectedChannels(selectedChannels.filter((currentChannel) => currentChannel !== channelName));
+    }
+    const validateForm = (isRequiredFilled: boolean) => {
+        setValidForm(isRequiredFilled);
+    };
+
+    const SelectedTriggerItem = (prop: any) => {
+        return (
+            <div className={formClasses.headerWrapper}>
+                <div className={formClasses.headerLabel}>
+                    {prop.channelName}
+                    <ButtonWithIcon
+                        onClick={onDeleteChannel.bind(this, prop.channelName)}
+                        icon={<CloseRounded fontSize="small" />}
+                    />
+                </div>
+            </div>
+        )
+    }
+
+    return (
+        <>
+            <FormControl data-testid="log-form" className={formClasses.wizardFormControl}>
+                <div className={formClasses.formWrapper}>
+                    <div className={formClasses.formFeilds}>
+                        <div className={formClasses.formWrapper}>
+                            <div className={formClasses.formTitleWrapper}>
+                                <div className={formClasses.mainTitleWrapper}>
+                                    <Typography variant="h4">
+                                        <Box paddingTop={2} paddingBottom={2}>
+                                            <FormattedMessage id="lowcode.develop.triggerConfigForm.trigger.title" defaultMessage="Slack Trigger" />
+                                        </Box>
+                                    </Typography>
+                                </div>
+                            </div>
+
+                            {/* {(isLoading || isConnectorLoading) && (
+                                <div className={wizardClasses.loaderWrapper}>
+                                    <TextPreloaderVertical position="relative" />
+                                </div>
+                            )} */}
+                            <div>
+                                <Typography>
+                                    Service Config
+                                </Typography>
+                            </div>
+                            <div>
+                                {selectedChannels.map((channel, index) => (
+                                    <SelectedTriggerItem
+                                        key={index}
+                                        channelName={channel}
+                                    />
+                                ))}
+                                {addNewChannel || selectedChannels.length === 0 ? (
+                                    <SelectDropdownWithButton
+                                        defaultValue={""}
+                                        onChange={handleOnChannelSelect}
+                                        customProps={{
+                                            disableCreateNew: true,
+                                            values: allServiceTypes.filter(elements => !selectedChannels.includes(elements))
+                                        }}
+                                        placeholder=""
+                                        label="Select Channel"
+                                    />
+                                ) : (
+                                    (allServiceTypes.filter(elements => !selectedChannels.includes(elements))).length !== 0 ? (
+                                        <span
+                                            onClick={addnewChannelView}
+                                            className={formClasses.addPropertyBtn}
+                                        >
+                                            <AddIcon />
+                                            <p>
+                                                <FormattedMessage id="lowcode.develop.triggerConfigForm.trigger.addChannel.title" defaultMessage="Add Channel" /> </p>
+                                        </span>
+                                    ) : (null)
+                                )
+                                }
+                            </div>
+                            <div>
+                                <FormActionButtons
+                                    cancelBtnText="Cancel"
+                                    saveBtnText={"Create"}
+                                    isMutationInProgress={false}
+                                    validForm={true}
+                                    // tslint:disable-next-line: jsx-no-lambda
+                                    onSave={() => { return true }}
+                                    onCancel={onCancel}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </FormControl>
+        </>
+    );
+}
