@@ -73,7 +73,8 @@ export function IndexedExpressionComponent(props: IndexedExpressionProps) {
 
     const onClickOnExpression = (event: any) => {
         event.stopPropagation()
-        expressionHandler(model.containerExpression, false, { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
+        expressionHandler(model.containerExpression, false, false,
+            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
     };
 
     return (
