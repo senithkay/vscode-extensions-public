@@ -34,7 +34,6 @@ import { BALLERINA_COMMANDS, PALETTE_COMMANDS, runCommand } from "../project";
 import { getChoreoKeytarSession } from "../choreo-auth/auth-session";
 import { showChoreoPushMessage } from "../editor-support/git-status";
 import { showConfigEditor } from "../config-editor/configEditorPanel";
-import { showChoreoPushMessage } from "../editor-support/git-status";
 
 export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverviewDataProvider {
 
@@ -152,7 +151,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
     });
 
     commands.registerCommand(CONFIG_EDITOR_EXECUTE_COMMAND, async (filePath: string) => {
-        if (!langClient) {
+        if (!ballerinaExtInstance.langClient) {
             return;
         }
         await ballerinaExtInstance.langClient.getBallerinaProjectConfigSchema({
