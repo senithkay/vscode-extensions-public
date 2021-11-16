@@ -853,7 +853,10 @@ class SizingVisitor implements Visitor {
                 stmtViewState.collapsed = false;
             }
 
-            if (isSTActionInvocation(element) && !haveBlockStatement(element)) { // check if it's the same as actioninvocation
+            if (isSTActionInvocation(element)
+                && !haveBlockStatement(element)
+                && allEndpoints.has(stmtViewState.action.endpointName)
+                ) { // check if it's the same as actioninvocation
                 stmtViewState.isAction = true;
             }
             ++index;
