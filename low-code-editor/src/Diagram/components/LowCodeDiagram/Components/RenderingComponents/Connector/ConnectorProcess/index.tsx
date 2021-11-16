@@ -31,6 +31,7 @@ import { DraftStatementViewState } from "../../../../ViewState/draft";
 
 import { ConnectorProcessSVG, CONNECTOR_PROCESS_SHADOW_OFFSET, CONNECTOR_PROCESS_SVG_HEIGHT, CONNECTOR_PROCESS_SVG_HEIGHT_WITH_SHADOW, CONNECTOR_PROCESS_SVG_WIDTH, CONNECTOR_PROCESS_SVG_WIDTH_WITH_SHADOW } from "./ConnectorProcessSVG";
 import "./style.scss";
+import { getDiagnosticMsgs } from "../../../../../../utils";
 
 export interface ConnectorProcessProps {
     model: STNode;
@@ -41,6 +42,11 @@ export interface ConnectorProcessProps {
 export function ConnectorProcess(props: ConnectorProcessProps) {
     const {
         actions: { diagramCleanDraw },
+        api: {
+            code: {
+                setCodeLocationToHighlight: setCodeToHighlight,
+            }
+        },
         props: {
             syntaxTree,
             stSymbolInfo,
@@ -56,6 +62,17 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
         model === null
             ? blockViewState.draft[ 1 ]
             : (model.viewState as StatementViewState);
+
+    let sourceSnippet :string = model.source;
+
+    const diagnostics = model.typeData?.diagnostics;
+
+    const diagnosticMsgs = getDiagnosticMsgs(diagnostics);
+
+    const errorSnippet = {
+        diagnosticMsgs,
+        code: sourceSnippet,
+    }
 
     const x = viewState.bBox.cx - CONNECTOR_PROCESS_SVG_WIDTH / 2;
     const y = viewState.bBox.cy;
@@ -74,9 +91,11 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
 
     const isDraftStatement: boolean =
         viewState instanceof DraftStatementViewState;
-    const connectorWrapper = isDraftStatement
-        ? cn("main-connector-process-wrapper active-connector-processor")
-        : cn("main-connector-process-wrapper connector-processor");
+
+    const connectorWrapper = isDraftStatement 
+    ? cn("main-connector-process-wrapper active-connector-processor") 
+    : cn("main-connector-process-wrapper connector-processor");
+    const conProcessStyles = diagnosticMsgs && !isDraftStatement ? cn("main-connector-process-wrapper connector-processor") : connectorWrapper;
 
     // const connectorDefDeleteMutation = (delModel: STNode): STModification[] => {
     const connectorDefDeleteMutation = (): any => {
@@ -146,6 +165,10 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
         />
     );
 
+    const onClickOpenInCodeView = () => {
+        setCodeToHighlight(model.position)
+    }
+
     const connectorWizard = (
         <ConnectorConfigWizard
             connectorInfo={connector}
@@ -165,10 +188,14 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
 
     return (
         <>
-            <g className={connectorWrapper}>
+            <g className={conProcessStyles}>
                 <ConnectorProcessSVG
                     x={viewState.bBox.cx - CONNECTOR_PROCESS_SVG_WIDTH / 2}
                     y={viewState.bBox.cy}
+                    sourceSnippet={sourceSnippet}
+                    diagnostics={errorSnippet}
+                    openInCodeView={onClickOpenInCodeView}
+
                 />
                 {!model && !connector && connectorList}
                 {connector && connectorWizard}

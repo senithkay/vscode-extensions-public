@@ -83,7 +83,7 @@ export function DataProcessor(props: ProcessorProps) {
     let isLogStmt = false;
 
     let isReferencedVariable = false;
-    const diagnosticMsgs = getDiagnosticMsgs(diagnostics) ? getDiagnosticMsgs(diagnostics) : undefined;
+    const diagnosticMsgs = getDiagnosticMsgs(diagnostics);
 
     if (model) {
         processType = "Variable";

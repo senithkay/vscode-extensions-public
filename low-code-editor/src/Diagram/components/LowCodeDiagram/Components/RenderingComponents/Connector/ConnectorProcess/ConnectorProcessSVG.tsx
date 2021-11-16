@@ -11,6 +11,8 @@
  * associated services.
  */
 import * as React from "react";
+import Tooltip from "../../../../../../../components/TooltipV2";
+import { ErrorSnippet } from "../../../../Context/types";
 
 export const CONNECTOR_PROCESS_SVG_WIDTH_WITH_SHADOW = 65;
 export const CONNECTOR_PROCESS_SVG_HEIGHT_WITH_SHADOW = 65;
@@ -18,8 +20,11 @@ export const CONNECTOR_PROCESS_SVG_WIDTH = 55;
 export const CONNECTOR_PROCESS_SVG_HEIGHT = 55;
 export const CONNECTOR_PROCESS_SHADOW_OFFSET = CONNECTOR_PROCESS_SVG_WIDTH_WITH_SHADOW - CONNECTOR_PROCESS_SVG_WIDTH;
 
-export function ConnectorProcessSVG(props: { x: number, y: number }) {
-    const { ...xyProps } = props;
+export function ConnectorProcessSVG(props: { x: number, y: number, sourceSnippet?: string, diagnostics?: ErrorSnippet , openInCodeView?: () => void }) {
+    const { sourceSnippet, diagnostics, openInCodeView, ...xyProps } = props;
+    const tooltipText = {
+        code: sourceSnippet
+    }
     return (
         <svg {...xyProps} width={CONNECTOR_PROCESS_SVG_WIDTH} height={CONNECTOR_PROCESS_SVG_HEIGHT}>
             <defs>
@@ -35,17 +40,40 @@ export function ConnectorProcessSVG(props: { x: number, y: number }) {
                     <feComposite in="SourceGraphic" />
                 </filter>
             </defs>
-            <g id="Group_2_Copy_2" transform="translate(5 1)">
-                <g transform="matrix(1, 0, 0, 1, -3, -5.5)" filter="url(#default-filter)">
-                    <g id="Rectangle_Copy_17-2" transform="translate(1 5.5)" stroke="#5567d5" strokeMiterlimit="10" strokeWidth="1" fill="url(#default-linear-gradient)">
-                        <rect width="48" height="48" rx="4" stroke="none" />
-                        <rect x="-0.5" y="-0.5" width="49" height="49" rx="4.5" fill="none" />
-                    </g>
-                </g>
-                <text id="new" transform="translate(12 27.5)" className="connector-text">
-                    <tspan x="0" y="0">new</tspan>
-                </text>
-            </g>
+            {diagnostics?.diagnosticMsgs ?
+                (
+                    <Tooltip type={"diagram-diagnostic"} diagnostic={diagnostics} placement="right" onClick={openInCodeView} arrow={true}>
+
+                        <g id="Group_2_Copy_2" transform="translate(5 1)" >
+                            <g transform="matrix(1, 0, 0, 1, -3, -5.5)">
+                                <g id="Rectangle_Copy_17-2" transform="translate(1 5.5)" stroke="#FE523C" strokeMiterlimit="10" strokeWidth="2" fill="url(#default-linear-gradient)">
+                                    <rect width="48" height="48" rx="4" />
+                                    <rect x="-0.5" y="-0.5" width="49" height="49" rx="4.5"  />
+                                </g>
+                            </g>
+                            <text id="new" transform="translate(12 27.5)" className="connector-text">
+                                <tspan x="0" y="0">new</tspan>
+                            </text>
+                        </g>
+                    </Tooltip>
+                )
+                :
+                (
+                    <Tooltip type={"diagram-code"} text={tooltipText} placement="right" onClick={openInCodeView}arrow={true}>
+
+                        <g id="Group_2_Copy_2" transform="translate(5 1)" >
+                            <g transform="matrix(1, 0, 0, 1, -3, -5.5)">
+                                <g id="Rectangle_Copy_17-2" transform="translate(1 5.5)" stroke="#5567d5" strokeMiterlimit="10" strokeWidth="1" fill="url(#default-linear-gradient)">
+                                    <rect width="48" height="48" rx="4" />
+                                    <rect x="-0.5" y="-0.5" width="49" height="49" rx="4.5" />
+                                </g>
+                            </g>
+                            <text id="new" transform="translate(12 27.5)" className="connector-text">
+                                <tspan x="0" y="0">new</tspan>
+                            </text>
+                        </g>
+                    </Tooltip>
+                )}
         </svg>
     )
 }

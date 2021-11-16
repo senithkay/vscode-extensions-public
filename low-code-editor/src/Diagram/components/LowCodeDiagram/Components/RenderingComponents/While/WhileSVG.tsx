@@ -14,7 +14,7 @@
 import * as React from "react";
 
 import Tooltip from "../../../../../../components/TooltipV2";
-import { ErrorSnippet } from "../../../../../models";
+import { ErrorSnippet } from "../../../Context/types";
 
 export const WHILE_SVG_WIDTH_WITH_SHADOW = 66.686;
 export const WHILE_SVG_HEIGHT_WITH_SHADOW = 66.686;

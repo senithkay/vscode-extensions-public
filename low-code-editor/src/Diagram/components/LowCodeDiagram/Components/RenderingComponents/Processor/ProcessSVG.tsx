@@ -16,9 +16,9 @@ import * as React from "react";
 import { NodePosition } from "@ballerina/syntax-tree";
 
 import Tooltip from "../../../../../../components/TooltipV2";
+import { ErrorSnippet } from "../../../Context/types";
 
 import "./style.scss";
-import { ErrorSnippet } from "../../../../../models";
 
 export const PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW = 62;
 export const PROCESS_SVG_HEIGHT_WITH_HOVER_SHADOW = 62;
