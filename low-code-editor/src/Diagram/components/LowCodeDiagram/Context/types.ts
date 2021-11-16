@@ -110,10 +110,3 @@ export interface ErrorSnippet{
     code ?: string,
 }
 
-export interface Diagnostic{
-    diagnosticInfo: {
-        code: string,
-        severity: string
-    }
-    message: string
-}
