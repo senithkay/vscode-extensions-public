@@ -2,6 +2,7 @@ import React from "react";
 
 import { NodePosition } from "@ballerina/syntax-tree";
 
+import { Diagnostic } from "../../DiagramGenerator/generatorUtil";
 import * as stComponents from '../components/LowCodeDiagram/Components/RenderingComponents';
 import { ActionProcessor } from "../components/LowCodeDiagram/Components/RenderingComponents/ActionInvocation/ActionProcess";
 import { ConnectorProcess } from "../components/LowCodeDiagram/Components/RenderingComponents/Connector/ConnectorProcess";
@@ -9,7 +10,6 @@ import { IfElse } from "../components/LowCodeDiagram/Components/RenderingCompone
 import { DataProcessor } from "../components/LowCodeDiagram/Components/RenderingComponents/Processor";
 import { Respond } from "../components/LowCodeDiagram/Components/RenderingComponents/Respond";
 import { Statement } from "../components/LowCodeDiagram/Components/RenderingComponents/Statement";
-import { Diagnostic } from "../components/LowCodeDiagram/Context/types";
 import { BlockViewState } from "../components/LowCodeDiagram/ViewState";
 import { DraftStatementViewState } from "../components/LowCodeDiagram/ViewState/draft";
 
