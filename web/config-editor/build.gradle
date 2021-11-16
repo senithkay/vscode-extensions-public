@@ -51,7 +51,7 @@ task buildConfigEditor {
         copy {
             from './build'
             into './../../resources/jslibs'
-            include 'WebViews.js'
+            include 'ConfigEditor.js'
         }
     }
 }

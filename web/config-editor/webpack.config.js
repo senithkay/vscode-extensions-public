@@ -7,8 +7,8 @@ module.exports = {
   mode: "development",
   output: {
     path: path.resolve(__dirname, "build"),
-    filename: "WebViews.js",
-    library: 'webViews',
+    filename: "ConfigEditor.js",
+    library: 'configEditor',
   },
   resolve: {
     extensions: [".js", ".jsx", ".json", ".ts", ".tsx"],

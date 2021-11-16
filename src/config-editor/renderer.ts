@@ -26,12 +26,12 @@ export function render(data: any): string {
     const styles = ``;
     const scripts = `
              function loadedScript() {
-                window.webViews.renderConfigEditor(${JSON.stringify(data)});
+                window.configEditor.renderConfigEditor(${JSON.stringify(data)});
              }
          `;
 
     const webViewOptions: WebViewOptions = {
-        ...getComposerWebViewOptions("WebViews"),
+        ...getComposerWebViewOptions("ConfigEditor"),
         body, scripts, styles, bodyCss
     };
 

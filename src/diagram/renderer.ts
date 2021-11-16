@@ -206,7 +206,7 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
                             showPerformanceGraph,
                             showMessage,
                             lastUpdatedAt,
-                            resolveMissingDependency
+                            resolveMissingDependency,
                             createSwaggerView
                         }
                     };
