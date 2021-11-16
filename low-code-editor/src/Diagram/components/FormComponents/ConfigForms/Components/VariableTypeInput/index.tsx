@@ -15,37 +15,33 @@ import React from "react";
 
 import { NodePosition } from "@ballerina/syntax-tree";
 
-import ExpressionEditor, { ExpressionEditorProps } from "../../../FormFieldComponents/ExpressionEditor";
+import ExpressionEditor, { ExpressionEditorProps, ExpressionEditorCustomTemplate } from "../../../FormFieldComponents/ExpressionEditor";
 import { FormElementProps } from "../../../Types";
 
 import { getVarTypeCompletions } from './utils';
 export interface VariableTypeInputProps {
     displayName: string;
     value: string;
-    isEdit: boolean;
     onValueChange: (value: string) => void;
     validateExpression: (fieldName: string, isInValid: boolean) => void;
     position: NodePosition;
+    overrideTemplate?: ExpressionEditorCustomTemplate;
 }
 
 export function VariableTypeInput(props: VariableTypeInputProps) {
-    const { onValueChange, validateExpression, position, value, displayName, isEdit } = props;
+    const { onValueChange, validateExpression, position, value, displayName, overrideTemplate } = props;
     const expressionEditorNameConfig: FormElementProps<ExpressionEditorProps> = {
         model: {
             name: "variableType",
             displayName,
-            isOptional: false
+            isOptional: false,
+            value,
         },
         customProps: {
             validate: validateExpression,
             interactive: true,
-            editPosition: {
-                startLine: position.startLine,
-                startColumn: position.startColumn,
-                endLine: isEdit ? 0 : position.endLine,
-                endColumn: isEdit ? 0 : position.endColumn
-            },
-            customTemplate: {
+            editPosition: position,
+            customTemplate: overrideTemplate ? overrideTemplate : {
                 defaultCodeSnippet: `  tempVarType;`,
                 targetColumn: 1
             },

@@ -414,7 +414,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 validateAndRevert(model.value, monacoRef.current.editor.getModel().getEOL());
             }
         }
-    }, [statementType, expressionInjectables?.list?.length]);
+    }, [statementType, expressionInjectables?.list?.length, customTemplate?.defaultCodeSnippet]);
 
     useEffect(() => {
         // Programatically focus exp-editor
