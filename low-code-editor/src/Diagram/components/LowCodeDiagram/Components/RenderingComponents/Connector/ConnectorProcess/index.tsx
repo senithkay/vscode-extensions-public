@@ -95,7 +95,6 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
     const connectorWrapper = isDraftStatement
     ? cn("main-connector-process-wrapper active-connector-processor")
     : cn("main-connector-process-wrapper connector-processor");
-    const conProcessStyles = diagnosticMsgs && !isDraftStatement ? cn("main-connector-process-wrapper connector-processor") : connectorWrapper;
 
     // const connectorDefDeleteMutation = (delModel: STNode): STModification[] => {
     const connectorDefDeleteMutation = (): any => {
@@ -188,7 +187,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
 
     return (
         <>
-            <g className={conProcessStyles}>
+            <g className={connectorWrapper}>
                 <ConnectorProcessSVG
                     x={viewState.bBox.cx - CONNECTOR_PROCESS_SVG_WIDTH / 2}
                     y={viewState.bBox.cy}
