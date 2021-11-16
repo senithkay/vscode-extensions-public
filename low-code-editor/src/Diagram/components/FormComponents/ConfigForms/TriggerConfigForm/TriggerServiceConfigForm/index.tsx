@@ -19,12 +19,15 @@ import { Box, FormControl, Typography } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
 
 import { AddIcon } from "../../../../../../assets/icons";
+import { useDiagramContext } from "../../../../../../Contexts/Diagram";
+import { createImportStatement, createTrigger } from "../../../../../utils/modification-util";
 import { ButtonWithIcon } from "../../../FormFieldComponents/Button/ButtonWithIcon";
 import { SelectDropdownWithButton } from "../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import { FormActionButtons } from "../../../FormFieldComponents/FormActionButtons";
 import { FormGeneratorProps } from "../../../FormGenerator";
 import { wizardStyles as useFormStyles } from "../../style";
 import "../style.scss";
+
 import slackTrigger from "./slackTrigger.json";
 
 export interface TriggerParameters {
@@ -34,35 +37,42 @@ export interface TriggerParameters {
 }
 
 export function TriggerForm(props: FormGeneratorProps) {
-    const { onCancel } = props
+    const { onCancel, onSave, targetPosition } = props
     const formClasses = useFormStyles();
     const intl = useIntl();
-    const [validForm, setValidForm] = useState(false);
     const [selectedChannels, setSelectedChannels] = useState([]);
-    // const triggerChannels = slackTrigger.serviceTypes.map((type: any) => type.name);
     const [allServiceTypes, setAllServiceTypes] = useState(slackTrigger.serviceTypes.map((type: any) => type.name));
     const [addNewChannel, setNewChannel] = useState(false);
-
-    // useEffect(() => {
-    //     selectedChannels.length !== 0 ? setAllServiceTypes(allServiceTypes.filter(elements => !selectedChannels.includes(elements))) : null;
-    // }, [selectedChannels]);
-
+    const { api: { code: { modifyDiagram } } } = useDiagramContext();
 
     const addnewChannelView = () => setNewChannel(true);
 
     const handleOnChannelSelect = (channel: string) => {
         const abc: string[] = [...selectedChannels, channel];
         setSelectedChannels(abc);
-        // setAllServiceTypes(allServiceTypes.filter(elements => !selectedChannels.includes(elements)));
         setNewChannel(false);
+    }
+
+    const createTriggerCode = () => {
+        modifyDiagram([
+            createImportStatement(
+                "ballerina",
+                "http",
+                targetPosition
+            ),
+            createImportStatement(
+                "ballerinax",
+                slackTrigger.moduleName,
+                targetPosition
+            ),
+            createTrigger(slackTrigger, targetPosition)
+        ]);
+        onSave();
     }
 
     const onDeleteChannel = (channelName: string) => {
         setSelectedChannels(selectedChannels.filter((currentChannel) => currentChannel !== channelName));
     }
-    const validateForm = (isRequiredFilled: boolean) => {
-        setValidForm(isRequiredFilled);
-    };
 
     const SelectedTriggerItem = (prop: any) => {
         return (
@@ -130,7 +140,8 @@ export function TriggerForm(props: FormGeneratorProps) {
                                         >
                                             <AddIcon />
                                             <p>
-                                                <FormattedMessage id="lowcode.develop.triggerConfigForm.trigger.addChannel.title" defaultMessage="Add Channel" /> </p>
+                                                <FormattedMessage id="lowcode.develop.triggerConfigForm.trigger.addChannel.title" defaultMessage="Add Channel" />
+                                            </p>
                                         </span>
                                     ) : (null)
                                 )
@@ -142,8 +153,7 @@ export function TriggerForm(props: FormGeneratorProps) {
                                     saveBtnText={"Create"}
                                     isMutationInProgress={false}
                                     validForm={true}
-                                    // tslint:disable-next-line: jsx-no-lambda
-                                    onSave={() => { return true }}
+                                    onSave={createTriggerCode}
                                     onCancel={onCancel}
                                 />
                             </div>

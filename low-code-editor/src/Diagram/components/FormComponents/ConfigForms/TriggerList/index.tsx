@@ -15,26 +15,24 @@ import React, { useContext, useEffect, useState } from "react";
 
 import { LocalVarDecl } from "@ballerina/syntax-tree";
 
+import { useDiagramContext } from "../../../../../Contexts/Diagram";
 import { BallerinaModuleResponse, Package, Trigger } from "../../../../../Definitions/lang-client-extended";
 import { UserState } from "../../../../../types";
 // import { Context } from "../../../LowCodeDiagram/Context/diagram";
 import { FormGenerator, FormGeneratorProps } from "../../FormGenerator";
 import { BallerinaModuleType, FilterStateMap, Marketplace } from "../Marketplace";
 import { TriggerForm } from "../TriggerConfigForm/TriggerServiceConfigForm";
-import { Context } from "../../../LowCodeDiagram/Context/diagram";
+
 
 export function TriggerList(props: FormGeneratorProps) {
     const { onCancel, onSave, configOverlayFormStatus, model, targetPosition } = props
     const [isMarketPlaceOpen, setMarketPlaceOpen] = useState(true);
-    // const { api: { edit: { renderAddForm } } } = useContext(Context)
 
     const showTriggerForm = (trigger: Trigger, varNode: LocalVarDecl) => {
         setMarketPlaceOpen(false);
-        // renderAddForm(targetPosition, { formType: "TriggerForm", isLoading: false }, onCancel, onSave)
-
     };
     const fetchTriggersList = async (searchQuery: string, selectedCategory: string, connectorLimit: number, currentFilePath: string,
-        filterState: FilterStateMap, userInfo: UserState, page?: number): Promise<BallerinaModuleResponse> => {
+                                     filterState: FilterStateMap, userInfo: UserState, page?: number): Promise<BallerinaModuleResponse> => {
         // Hardcode the slack trigger for now
         // TODO: remove this and call the lang server to fetch the triggers
         const slackPackage: Package = {
@@ -69,6 +67,7 @@ export function TriggerList(props: FormGeneratorProps) {
                             title="Triggers"
                         />
                     ) : (
+                        // TODO:This is a temporary one. This form need to be rendered using the context.
                         <FormGenerator
                             onCancel={onCancel}
                             configOverlayFormStatus={{ formType: "TriggerForm", isLoading: false }}

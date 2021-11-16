@@ -982,3 +982,16 @@ export function getInitialSource(modification: STModification): string {
     const source = getComponentSource(modification.type, modification.config);
     return source;
 }
+
+export function createTrigger(config: any, targetPosition?: NodePosition): STModification {
+    const triggerStatement: STModification = {
+        startLine: targetPosition ? targetPosition.startLine : 0,
+        startColumn: 0,
+        endLine: targetPosition ? targetPosition.startLine : 0,
+        endColumn: 0,
+        type: "TRIGGER",
+        config
+    };
+
+    return triggerStatement;
+}
