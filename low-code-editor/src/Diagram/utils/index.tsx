@@ -104,7 +104,7 @@ export function getDiagnosticMsgs(diagnostics: Diagnostic[]){
         return undefined;
     }
     else{
-        for (let i = 0; i < diagnostics.length; i++){
+        for (let i = 0; i < diagnostics?.length; i++){
         diagnosticMsgsArray.push((diagnostics[i]?.message));
         return diagnosticMsgsArray.join(',\n');
     }

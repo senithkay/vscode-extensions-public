@@ -154,7 +154,7 @@ export function IfElse(props: IfElseProps) {
 
     let assignmentText: any = (!isDraftStatement && STKindChecker?.isIfElseStatement(model));
     assignmentText = (model as IfElseStatement)?.condition.source;
-    const diagnosticMsgs = getDiagnosticMsgs(diagnostics) ? getDiagnosticMsgs(diagnostics) : undefined;
+    const diagnosticMsgs = getDiagnosticMsgs(diagnostics);
 
     const conditionWrapper = isDraftStatement ? (diagnosticMsgs ?
         cn("main-condition-wrapper active-condition-error") : cn("main-condition-wrapper active-condition")) :

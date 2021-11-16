@@ -77,7 +77,7 @@ export function DataProcessor(props: ProcessorProps) {
     let processType = "STATEMENT";
     let processName = "Variable";
     let sourceSnippet = "Source";
-    const diagnostics =  model.typeData?.diagnostics;
+    const diagnostics =  model?.typeData?.diagnostics;
 
     let isIntializedVariable = false;
     let isLogStmt = false;

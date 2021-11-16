@@ -65,7 +65,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
 
     const sourceSnippet : string = model.source;
 
-    const diagnostics = model.typeData?.diagnostics;
+    const diagnostics = model?.typeData?.diagnostics;
 
     const diagnosticMsgs = getDiagnosticMsgs(diagnostics);
 
