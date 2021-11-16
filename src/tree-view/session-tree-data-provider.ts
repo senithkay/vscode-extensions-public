@@ -57,15 +57,6 @@ export class SessionDataProvider implements TreeDataProvider<TreeItem> {
             treeItems.push(session);
 
             if (this.ballerinaExtension.getCodeServerContext().codeServerEnv) {
-                const commit = new TreeItem(`Push Changes to Choreo...`, TreeItemCollapsibleState.None);
-                commit.command = { command: PALETTE_COMMANDS.CHOREO_COMMIT_AND_PUSH, title: `Commit Changes` };
-                commit.iconPath = {
-                    light: join(this.ballerinaExtension.extension.extensionPath,
-                        'resources', 'images', 'icons', 'commit.svg'),
-                    dark: join(this.ballerinaExtension.extension.extensionPath,
-                        'resources', 'images', 'icons', 'commit-inverse.svg')
-                }
-                treeItems.push(commit);
                 const manage = new TreeItem(`Deploy and Manage in Choreo...`, TreeItemCollapsibleState.None);
                 manage.command = {
                     command: 'vscode.open', title: 'Open Choreo Manage Portal',
@@ -78,6 +69,34 @@ export class SessionDataProvider implements TreeDataProvider<TreeItem> {
                         'resources', 'images', 'icons', 'choreo-inverse.svg')
                 }
                 treeItems.push(manage);
+            }
+
+            if (this.ballerinaExtension.enabledPerformanceForecasting()) {
+                const perf = new TreeItem(`Disable performance forecasting...`, TreeItemCollapsibleState.None);
+                perf.command = {
+                    command: PALETTE_COMMANDS.PERFORMANCE_FORECAST_DISABLE, title: 'Disable Forecasting',
+                    arguments: []
+                };
+                perf.iconPath = {
+                    light: join(this.ballerinaExtension.extension.extensionPath,
+                        'resources', 'images', 'icons', 'disable.svg'),
+                    dark: join(this.ballerinaExtension.extension.extensionPath,
+                        'resources', 'images', 'icons', 'disable-inverse.svg')
+                }
+                treeItems.push(perf);
+            } else {
+                const perf = new TreeItem(`Enable performance forecasting...`, TreeItemCollapsibleState.None);
+                perf.command = {
+                    command: PALETTE_COMMANDS.PERFORMANCE_FORECAST_ENABLE, title: 'Enable Forecasting',
+                    arguments: []
+                };
+                perf.iconPath = {
+                    light: join(this.ballerinaExtension.extension.extensionPath,
+                        'resources', 'images', 'icons', 'enable.svg'),
+                    dark: join(this.ballerinaExtension.extension.extensionPath,
+                        'resources', 'images', 'icons', 'enable-inverse.svg')
+                }
+                treeItems.push(perf);
             }
 
             const signoutItem = new TreeItem("Sign out from Choreo...", TreeItemCollapsibleState.None);
