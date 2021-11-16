@@ -137,11 +137,22 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
                     );
                 })
             }
-            function showMessage(message, type, isIgnorable) {
+            function resolveMissingDependency(filePath, fileContent) {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'resolveMissingDependency',
+                        [filePath, fileContent],
+                        (response) => {
+                            resolve(response);
+                        }
+                    );
+                });
+            }
+            function showMessage(message, type, isIgnorable, filePath, fileContent) {
                 return new Promise((resolve, _reject) => {
                     webViewRPCHandler.invokeRemoteMethod(
                         'showMessage',
-                        [message, type, isIgnorable],
+                        [message, type, isIgnorable, filePath, fileContent],
                         (response) => {
                             resolve(response);
                         }
@@ -168,7 +179,8 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
                             getPFSession,
                             showPerformanceGraph,
                             showMessage,
-                            lastUpdatedAt
+                            lastUpdatedAt,
+                            resolveMissingDependency
                         }
                     };
                     BLCEditor.renderDiagramEditor(options);

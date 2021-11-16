@@ -19,7 +19,7 @@
 
 import {
 	commands, window, Uri, ViewColumn, ExtensionContext, WebviewPanel, Disposable, workspace, WorkspaceEdit, Range,
-	Position, TextDocumentShowOptions
+	Position, TextDocumentShowOptions, ProgressLocation
 } from 'vscode';
 import * as _ from 'lodash';
 import { render } from './renderer';
@@ -119,6 +119,48 @@ export function activate(ballerinaExtInstance: BallerinaExtension, diagramOvervi
 		}
 		commands.executeCommand('workbench.action.splitEditor');
 		commands.executeCommand('vscode.open', path);
+	});
+}
+
+function resolveMissingDependency(filePath: string, fileContent: string, langClient: ExtendedLangClient) {
+	// Show the progress bar.
+	window.withProgress({
+		location: ProgressLocation.Notification,
+		title: "Resolving dependencies...",
+		cancellable: false
+	}, async (progress) => {
+		progress.report({ increment: 0 });
+
+		// Resolve missing dependencies.
+		const response = await langClient.resolveMissingDependencies({
+			documentIdentifier: {
+				uri: `file://${filePath}`
+			}
+		});
+
+		progress.report({ increment: 20, message: "Updating code file..." });
+
+		if (response.parseSuccess) {
+			progress.report({ increment: 50, message: "Updating code file..." });
+
+			// Rebuild the file to update the LS.
+			await langClient.didChange({
+				contentChanges: [
+					{
+						text: fileContent
+					}
+				],
+				textDocument: {
+					uri: Uri.file(filePath).toString(),
+					version: 1
+				}
+			});
+			progress.report({ increment: 70, message: "Updating diagram..." });
+
+			// Update the diagram.
+			callUpdateDiagramMethod();
+			progress.report({ increment: 100, message: "Updating diagram..." });
+		}
 	});
 }
 
@@ -238,9 +280,19 @@ class DiagramPanel {
 				}
 			},
 			{
+				methodName: "resolveMissingDependency",
+				handler: async (args: any[]): Promise<boolean> => {
+					resolveMissingDependency(args[0], args[1], langClient);
+					return true;
+				}
+			},
+			{
 				methodName: "showMessage",
 				handler: async (args: any[]): Promise<boolean> => {
-					showMessage(args[0], args[1], args[2]);
+					let callBack = (filePath: string, fileContent: string) => {
+						resolveMissingDependency(filePath, fileContent, langClient);
+					};
+					showMessage(args[0], args[1], args[2], args[3], args[4], callBack);
 					return true;
 				}
 			},

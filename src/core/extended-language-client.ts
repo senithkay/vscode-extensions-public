@@ -56,7 +56,8 @@ enum EXTENDED_APIS {
     PARTIAL_PARSE_EXPRESSION = 'partialParser/getSTForExpression',
     EXAMPLE_LIST = 'ballerinaExample/list',
     PERF_ANALYZER_GRAPH_DATA = 'performanceAnalyzer/getGraphData',
-    PERF_ANALYZER_REALTIME_DATA = 'performanceAnalyzer/getRealtimeData'
+    PERF_ANALYZER_REALTIME_DATA = 'performanceAnalyzer/getRealtimeData',
+    RESOLVE_MISSING_DEPENDENCIES = 'ballerinaDocument/resolveMissingDependencies'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -434,6 +435,13 @@ export class ExtendedLangClient extends LanguageClient {
         return this.sendRequest(EXTENDED_APIS.PARTIAL_PARSE_EXPRESSION, params);
     }
 
+    resolveMissingDependencies(req: GetSyntaxTreeParams): Thenable<GetSyntaxTreeResponse> {
+        if (!this.isExtendedServiceSupported(EXTENDED_APIS.RESOLVE_MISSING_DEPENDENCIES)) {
+            Promise.resolve(NOT_SUPPORTED);
+        }
+        return this.sendRequest(EXTENDED_APIS.RESOLVE_MISSING_DEPENDENCIES, req);
+    }
+
     initBalServices(params: BallerinaInitializeParams): Promise<BallerinaInitializeResult> {
         return this.sendRequest("initBalServices", params);
     }
@@ -447,7 +455,8 @@ export class ExtendedLangClient extends LanguageClient {
             ballerinaClientCapabilities: [
                 {
                     name: EXTENDED_APIS_ORG.DOCUMENT, syntaxTreeNode: true, executorPositions: true,
-                    syntaxTreeModify: true, diagnostics: true, syntaxTree: true, astModify: true, triggerModify: true
+                    syntaxTreeModify: true, diagnostics: true, syntaxTree: true, astModify: true, triggerModify: true,
+                    resolveMissingDependencies: true
                 },
                 { name: EXTENDED_APIS_ORG.PACKAGE, components: true, metadata: true },
                 { name: EXTENDED_APIS_ORG.SYMBOL, type: true },

@@ -152,6 +152,11 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
         handler: (args: any[]) => {
             return langClient.getPerformanceGraphData(args[0]);
         }
+    }, {
+        methodName: 'resolveMissingDependencies',
+        handler: (args: any[]) => {
+            return langClient.resolveMissingDependencies(args[0]);
+        }
     }
     ];
 };

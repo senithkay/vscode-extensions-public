@@ -280,6 +280,13 @@ function getLangClient() {
                     resolve(resp);
                 });
             })
+        },
+        resolveMissingDependencies: (params) => {
+            return new Promise((resolve, _reject) => {
+                webViewRPCHandler.invokeRemoteMethod('resolveMissingDependencies', [params], (resp) => {
+                    resolve(resp);
+                });
+            })
         }
     }
 }
