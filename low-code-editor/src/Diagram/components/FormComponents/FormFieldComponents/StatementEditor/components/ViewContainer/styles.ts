@@ -111,18 +111,12 @@ export const useStatementEditorStyles = makeStyles(() =>
             overflowY: 'scroll'
         },
         contextSensitivePane: {
-            display: 'flex',
             position: 'relative',
-            height: 'fit-content',
+            height: '95%',
             width: '90%',
             top: '5%'
         },
         variableSuggestionsInner: {
-            display: 'flex',
-            position: 'relative',
-            height: '95%',
-            width: '90%',
-            bottom: '5%',
             overflowY: 'scroll'
         },
         diagnosticsPane: {

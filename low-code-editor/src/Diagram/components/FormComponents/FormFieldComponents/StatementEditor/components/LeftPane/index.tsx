@@ -109,16 +109,6 @@ export function LeftPane(props: ModelProps) {
             </div>
             <div className={overlayClasses.contextSensitivePane}>
                 {
-                    (!isTypeDescSuggestion && suggestionList.length > 0) && (
-                        <ExpressionSuggestions
-                            model={currentModel.model}
-                            suggestions={suggestionList}
-                            operator={isOperator}
-                            suggestionHandler={suggestionHandler}
-                        />
-                    )
-                }
-                {
                     (!isTypeDescSuggestion && variableList.length > 0) && (
                         <div className={overlayClasses.variableSuggestionsInner}>
                             <VariableSuggestions
@@ -127,6 +117,16 @@ export function LeftPane(props: ModelProps) {
                                 suggestionHandler={suggestionHandler}
                             />
                         </div>
+                    )
+                }
+                {
+                    (!isTypeDescSuggestion && suggestionList.length > 0) && (
+                        <ExpressionSuggestions
+                            model={currentModel.model}
+                            suggestions={suggestionList}
+                            operator={isOperator}
+                            suggestionHandler={suggestionHandler}
+                        />
                     )
                 }
                 {
