@@ -23,7 +23,7 @@ import { commands, Uri, window, workspace } from 'vscode';
 import {
     CMP_KIND, TREE_ELEMENT_EXECUTE_COMMAND, OUTLINE_TREE_REFRESH_COMMAND, EXPLORER_TREE_REFRESH_COMMAND,
     EXPLORER_ITEM_KIND, EXPLORER_TREE_NEW_FILE_COMMAND, EXPLORER_TREE_NEW_FOLDER_COMMAND, ExplorerTreeItem,
-    EXPLORER_TREE_NEW_MODULE_COMMAND, EXPLRER_TREE_DELETE_FILE_COMMAND
+    EXPLORER_TREE_NEW_MODULE_COMMAND, EXPLRER_TREE_DELETE_FILE_COMMAND, CONFIG_EDITOR_EXECUTE_COMMAND
 } from "./model";
 import { PackageOverviewDataProvider } from "./outline-tree-data-provider";
 import { SessionDataProvider } from "./session-tree-data-provider";
@@ -33,6 +33,7 @@ import { join } from 'path';
 import { BALLERINA_COMMANDS, PALETTE_COMMANDS, runCommand } from "../project";
 import { getChoreoKeytarSession } from "../choreo-auth/auth-session";
 import { showChoreoPushMessage } from "../editor-support/git-status";
+import { showConfigEditor } from "../config-editor/configEditorPanel";
 
 export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverviewDataProvider {
 
@@ -146,6 +147,21 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
             startLine,
             startColumn,
             name
+        });
+    });
+
+    commands.registerCommand(CONFIG_EDITOR_EXECUTE_COMMAND, async (filePath: string) => {
+        await ballerinaExtInstance.langClient!.getBallerinaProjectConfigSchema({
+            documentIdentifier: {
+                uri: filePath
+            }
+        }).then(data => {
+            if (data.configSchema == null) {
+                window.showErrorMessage('Unable to render the configurable editor: Error while '
+                    + 'retrieving the configurable schema.');
+                return Promise.reject();
+            }
+            showConfigEditor(ballerinaExtInstance.langClient!, data.configSchema, Uri.parse(filePath));
         });
     });
 

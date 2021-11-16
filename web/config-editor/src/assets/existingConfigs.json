@@ -1,0 +1,44 @@
+[
+    {
+        "moduleName": "default",
+        "properties": [
+            {
+                "id": "default-itemCode",
+                "name": "itemCode",
+                "type": "string",
+                "description": "description",
+                "required": false,
+                "value": "0005AB"
+            },
+            {
+                "id": "default-discount",
+                "name": "discount",
+                "type": "number",
+                "description": "description",
+                "required": false,
+                "value": "1500"
+            },
+            {
+                "id": "default-testMode",
+                "name": "testMode",
+                "type": "boolean",
+                "description": "description",
+                "required": true,
+                "value": "false"
+            }
+        ]
+    },
+    {
+        "moduleName": "mod1",
+        "properties": [
+            {
+                "id": "mod1-nameVal",
+                "name": "nameVal",
+                "type": "string",
+                "description": "description",
+                "required": false,
+                "value": "hello"
+            }
+        ]
+    }
+]

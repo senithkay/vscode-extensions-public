@@ -217,6 +217,10 @@ export interface PartialSTResponse {
     syntaxTree: any;
 }
 
+export interface PackageConfigSchemaResponse {
+    configSchema: any;
+}
+
 export interface PartialSTModification {
     startLine: number;
     startColumn: number;
@@ -437,7 +441,7 @@ export class ExtendedLangClient extends LanguageClient {
         return this.sendRequest(EXTENDED_APIS.PACKAGE_COMPONENTS, params);
     }
 
-    getBallerinaProjectConfigSchema(params: GetBallerinaPackagesParams): Thenable<BallerinaProject> {
+    getBallerinaProjectConfigSchema(params: GetBallerinaProjectParams): Thenable<PackageConfigSchemaResponse> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.PACKAGE_CONFIG_SCHEMA)) {
             Promise.resolve(NOT_SUPPORTED);
         }

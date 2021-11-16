@@ -19,7 +19,9 @@ import { BallerinaExtension, LANGUAGE } from "../core";
 import {
     Event, EventEmitter, FileStat, FileType, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri, workspace
 } from "vscode";
-import { ExplorerTreeItem, EXPLORER_ITEM_KIND, FILE_EXTENSION, TREE_ELEMENT_EXECUTE_COMMAND } from "./model";
+import {
+    CONFIG_EDITOR_EXECUTE_COMMAND, ExplorerTreeItem, EXPLORER_ITEM_KIND, FILE_EXTENSION, TREE_ELEMENT_EXECUTE_COMMAND
+} from "./model";
 import * as fs from 'fs';
 import * as path from 'path';
 import { BAL_TOML } from "../project";
@@ -92,6 +94,14 @@ export class ExplorerDataProvider implements TreeDataProvider<ExplorerTreeItem> 
                         element.label
                     ]
                 };
+            } else if (element.getKind() === EXPLORER_ITEM_KIND.CONFIG_TOML_FILE) {
+                treeItem.command = {
+                    command: CONFIG_EDITOR_EXECUTE_COMMAND,
+                    title: "Execute Config Editor Command",
+                    arguments: [
+                        element.getUri().fsPath
+                    ]
+                };
             } else {
                 treeItem.command = {
                     command: 'vscode.open',
@@ -142,11 +152,16 @@ export class ExplorerDataProvider implements TreeDataProvider<ExplorerTreeItem> 
                 }
             } else {
                 const extension: string = path.extname(filePath.fsPath);
+                const fileName: string = path.basename(filePath.fsPath);
                 let kind = EXPLORER_ITEM_KIND.OTHER_FILE;
                 if (extension === FILE_EXTENSION.BAL) {
                     kind = EXPLORER_ITEM_KIND.BAL_FILE;
                 } else if (extension === FILE_EXTENSION.TOML) {
-                    kind = EXPLORER_ITEM_KIND.TOML_FILE;
+                    if (fileName == 'Config.toml') {
+                        kind = EXPLORER_ITEM_KIND.CONFIG_TOML_FILE;
+                    } else {
+                        kind = EXPLORER_ITEM_KIND.TOML_FILE;
+                    }
                 }
                 files.push(new ExplorerTreeItem(child[0], TreeItemCollapsibleState.None,
                     kind, filePath, FileType.File));
