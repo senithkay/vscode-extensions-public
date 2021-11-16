@@ -23,6 +23,7 @@ export enum MESSAGE_TYPE {
     ERROR,
     WARNING,
     INFO,
+    CLICKABLE_INFO,
     IGNORE
 }
 
@@ -35,7 +36,7 @@ const AVOIDED: string[] = [];
  * @param type Message type
  * @param isIgnorable Is ignorable message
  */
-export function showMessage(message: string, type: MESSAGE_TYPE, isIgnorable: boolean) {
+export function showMessage(message: string, type: MESSAGE_TYPE, isIgnorable: boolean, filePath?: string, fileContent?: string, callBack?: (filePath: string, fileContent: string) => void) {
     if (AVOIDED.includes(message) || message === 'IGNORE') {
         return;
     }
@@ -57,6 +58,14 @@ export function showMessage(message: string, type: MESSAGE_TYPE, isIgnorable: bo
         case MESSAGE_TYPE.INFO: {
             window.showInformationMessage(message, ...button).then((response) => {
                 addToAvoidList(response, message);
+            });
+            break;
+        }
+        case MESSAGE_TYPE.CLICKABLE_INFO: {
+            window.showInformationMessage(message, 'Resolve').then((response) => {
+                if (response === "Resolve" && callBack && filePath && fileContent) {
+                    callBack(filePath, fileContent);
+                }
             });
             break;
         }
