@@ -148,13 +148,6 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
                             firstRecordField = true;
                         }
                         recordFieldsString += getFieldName(field.name) + ": " + field.value;
-                    } else if (field.typeName === "object {public string[] & readonly strings;public Value[] insertions;}" && field.value) {
-                        if (firstRecordField) {
-                            recordFieldsString += ", ";
-                        } else {
-                            firstRecordField = true;
-                        }
-                        recordFieldsString += getFieldName(field.name) + ": " + field.value;
                     }
                     else if ((field.typeName === "int" || field.typeName === "boolean" || field.typeName === "float" || formField.typeName === "decimal") && field.value) {
                         if (firstRecordField) {
@@ -834,6 +827,20 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                 }
                 break;
 
+            case "stream":
+                if (formField?.memberType) {
+                    const returnTypeResponse = getFormFieldReturnType(formField.memberType, depth + 1);
+                    response.returnType = returnTypeResponse.returnType;
+                    response.hasError = returnTypeResponse.hasError || response.hasError;
+                    response.hasReturn = returnTypeResponse.hasReturn || response.hasReturn;
+                    response.importTypeInfo = [...response.importTypeInfo, ...returnTypeResponse.importTypeInfo];
+                }
+
+                if (response.returnType && formField.typeName === "stream") {
+                    response.returnType = "stream<record {}, sql:Error?>"
+                }
+                break;
+
             case "tuple":
                 formField?.fields.forEach(field => {
                     const returnTypeResponse = getFormFieldReturnType(field, depth + 1);
@@ -895,10 +902,10 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                     // set optional tag
                     type = type.includes('|') ? `(${type})?` : `${type}?`;
                 }
-                if (type !== "" && formField?.isStream) {
-                    // set stream tags
-                    type = `stream<${type}>`;
-                }
+                // if (type !== "" && formField?.isStream) {
+                //     // set stream tags
+                //     type = `stream<${type}>`; // do for stream obj
+                // }
 
                 if (type) {
                     response.returnType = type;
