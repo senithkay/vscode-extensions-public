@@ -82,12 +82,12 @@ export function Return(props: ReturnProps) {
 
     const deleteTriggerPosition = {
         cx: cx - (DELETE_SVG_WIDTH_WITH_SHADOW / 2) - (DefaultConfig.dotGap / 2),
-        cy: cy + (RETURN_SVG_HEIGHT / 4)
+        cy: cy + (RETURN_SVG_HEIGHT / 7)
     };
 
     const editTriggerPosition = {
         cx: cx - (EDIT_SVG_WIDTH_WITH_SHADOW / 2) + PROCESS_SVG_WIDTH / 3 + (DefaultConfig.dotGap / 2),
-        cy: cy + (RETURN_SVG_HEIGHT / 4)
+        cy: cy + (RETURN_SVG_HEIGHT / 7)
     };
 
     const onClickOpenInCodeView = () => {
@@ -163,7 +163,7 @@ export function Return(props: ReturnProps) {
                         {!isConfigWizardOpen && (
                             <>
                                 <rect
-                                    x={cx - (PROCESS_SVG_WIDTH / 3) - DefaultConfig.dotGap * 1.5}
+                                    x={cx - (PROCESS_SVG_WIDTH / 3) - DefaultConfig.dotGap * 2}
                                     y={cy + (PROCESS_SVG_HEIGHT / 4)}
                                     className="return-rect"
                                 />
