@@ -5,7 +5,7 @@ import { monaco } from "react-monaco-editor";
 import { FunctionDefinition, NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import { MuiThemeProvider } from "@material-ui/core/styles";
 import cloneDeep from "lodash.clonedeep";
-import mousetrap from 'mousetrap'
+import Mousetrap from 'mousetrap';
 
 import LowCodeEditor, { BlockViewState, getSymbolInfo, InsertorDelete } from "..";
 import "../assets/fonts/Glimer/glimer.css";
@@ -22,7 +22,6 @@ import { getDefaultSelectedPosition, getLowcodeST, getSyntaxTree } from "./gener
 import { useGeneratorStyles } from "./styles";
 import { theme } from "./theme";
 import { EditorProps } from "./vscode/Diagram";
-
 export interface DiagramGeneratorProps extends EditorProps {
     scale: string;
     panX: string;
@@ -73,13 +72,16 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     }, [lastUpdatedAt]);
 
     React.useEffect(() => {
-        mousetrap.bind(['command+z', 'ctrl+z'], () => {
+        Mousetrap.bind(['command+z', 'ctrl+z'], () => {
             undo();
+            return false;
         });
-        mousetrap.bind(['command+shift+z', 'ctrl+y'], () => {
+        Mousetrap.bind(['command+shift+z', 'ctrl+y'], () => {
             redo();
+            return false;
         });
     }, []);
+
 
     function zoomIn() {
         const newZoomStatus = cloneDeep(zoomStatus);

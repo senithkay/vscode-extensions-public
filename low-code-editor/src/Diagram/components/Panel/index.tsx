@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 import classnames from 'classnames';
 
@@ -21,8 +21,6 @@ import { OverlayBackground } from "../OverlayBackground";
 import { DiagramOverlayContainer } from "../Portals/Overlay";
 
 import "./style.scss";
-// tslint:disable-next-line: no-var-requires
-const mousetrap = require('mousetrap-pause')(require('mousetrap'));
 
 interface PanelProps {
     children: JSX.Element,
@@ -32,14 +30,6 @@ interface PanelProps {
 export function Panel(props: PanelProps) {
     const { children, onClose } = props;
     const [isVisible, setIsVisible] = useState(true);
-
-    useEffect(() => {
-        mousetrap.pause();
-
-        return () => {
-            mousetrap.unpause();
-        }
-    })
 
     const onCloseEvent = (evt: React.MouseEvent) => {
         evt.stopPropagation();
