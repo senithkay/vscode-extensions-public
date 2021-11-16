@@ -41,6 +41,7 @@ interface AddVariableConfigProps {
     formArgs: any;
     onCancel: () => void;
     onSave: () => void;
+    onWizardClose: () => void;
 }
 
 // FIXME: remove variableTypes array once its references are removed from other places
@@ -51,7 +52,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     const classes = useStyles();
     const overlayClasses = wizardStyles();
     const intl = useIntl();
-    const { config, formArgs, onCancel, onSave } = props;
+    const { config, formArgs, onCancel, onSave, onWizardClose } = props;
 
     const {
         props: {
@@ -231,11 +232,9 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             initialSource,
             formArgs: {formArgs},
             userInputs,
-            isMutationInProgress,
             validForm,
-            onSave: handleSave,
-            onChange: onPropertyChange,
-            validate: validateExpression,
+            config,
+            onWizardClose,
             handleNameOnChange,
             handleTypeChange
         }

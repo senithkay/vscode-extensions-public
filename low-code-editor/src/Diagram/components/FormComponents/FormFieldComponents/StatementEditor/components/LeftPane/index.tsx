@@ -93,11 +93,13 @@ export function LeftPane(props: ModelProps) {
             </div>
             <span className={overlayClasses.subHeader}>Variables</span>
             <div className={overlayClasses.contextSensitivePane}>
-                <VariableSuggestions
-                    model={currentModel.model}
-                    variableSuggestions={variableList}
-                    suggestionHandler={suggestionHandler}
-                />
+                <div className={overlayClasses.variableSuggestionsInner}>
+                    <VariableSuggestions
+                        model={currentModel.model}
+                        variableSuggestions={variableList}
+                        suggestionHandler={suggestionHandler}
+                    />
+                </div>
             </div>
             <span className={overlayClasses.subHeader}>Expression</span>
             <div className={overlayClasses.contextSensitivePane}>

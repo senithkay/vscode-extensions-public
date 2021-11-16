@@ -12,4 +12,8 @@ export const acceptedCompletionKind : number[] = [
     // Method
     2 ,
     // Function
-    3];
+    3,
+    // Type
+    11,
+    // Record
+    22];

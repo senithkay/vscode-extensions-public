@@ -237,12 +237,12 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                             if (newST?.typeData?.diagnostics && newST?.typeData?.diagnostics?.length > 0 && isUnresolvedModulesAvailable(newST?.typeData?.diagnostics as Diagnostic[])) {
                                                 resolveMissingDependency(filePath, source);
                                             }
+                                            setFileContent(source);
+                                            props.updateFileContent(filePath, source);
                                             const vistedSyntaxTree: STNode = await getLowcodeST(newST, filePath,
                                                 langClient, pfSession,
                                                 props.showPerformanceGraph, props.showMessage);
                                             setSyntaxTree(vistedSyntaxTree);
-                                            setFileContent(source);
-                                            props.updateFileContent(filePath, source);
                                         } else {
                                             // TODO show error
                                         }
