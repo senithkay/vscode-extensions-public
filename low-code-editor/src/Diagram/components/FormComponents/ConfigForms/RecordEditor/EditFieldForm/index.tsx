@@ -21,6 +21,7 @@ import { FormField } from '../../../../../../ConfigurationSpec/types';
 import { useDiagramContext } from '../../../../../../Contexts/Diagram';
 import { FormState, useRecordEditorContext } from '../../../../../../Contexts/RecordEditor';
 import { keywords } from "../../../../Portals/utils/constants";
+import { VariableTypeInput, VariableTypeInputProps } from "../../../ConfigForms/Components/VariableTypeInput";
 import { PrimaryButton } from '../../../FormFieldComponents/Button/PrimaryButton';
 import CheckBoxGroup from '../../../FormFieldComponents/CheckBox';
 import { SelectDropdownWithButton } from '../../../FormFieldComponents/DropDown/SelectDropdownWithButton';
@@ -82,33 +83,19 @@ export function EditFieldForm() {
     const type = isFieldUpdate ? state.currentField.type : "int";
     const fieldName = isFieldUpdate ? state.currentField.name : "";
     const fieldOptianality = isFieldUpdate ? state.currentField.isFieldOptional : false;
-    const typeOptianality = isFieldUpdate ? state.currentField.isFieldTypeOptional : false;
-    const isArrayDefaultVal = isFieldUpdate ? state.currentField.isArray : false;
     const defaultVal = isFieldUpdate ? state.currentField.value : "";
 
     const [selectedType, setSelectedType] = useState(type);
     const [name, setName] = useState(fieldName);
     const [nameError, setNameError] = useState("");
     const [isFieldOptional, setIsFieldOptional] = useState(fieldOptianality);
-    const [isTypeOptional, setIsTypeOptional] = useState(typeOptianality);
-    const [isArray, setIsArray] = useState(isArrayDefaultVal);
     const [defaultValue, setDefaultValue] = useState(defaultVal);
     const [validDefaultValue, setValidDefaultValue] = useState(true);
+    const [validType, setValidType] = useState(true);
     const [clearExpEditor, setClearExpEditor] = useState(false);
 
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 
-    const allVariableTypes: string[] = variableTypes.slice();
-    allVariableTypes.push("record");
-    stSymbolInfo.recordTypeDescriptions.forEach((value: RecordTypeDesc) => {
-        allVariableTypes.push(value?.typeData?.typeSymbol?.name);
-    })
-
-    const handleTypeSelect = (typeSelected: string) => {
-        setSelectedType(typeSelected);
-        setDefaultValue("");
-        setClearExpEditor(true);
-    };
 
     const handleNameChange = (inputText: string) => {
         setName(inputText);
@@ -133,23 +120,15 @@ export function EditFieldForm() {
         setValidDefaultValue(!isInvalidFromField);
     }
 
+    const validateTypeName = (fName: string, isInvalidFromField: boolean) => {
+        setValidType(!isInvalidFromField);
+    }
+
     const handleOptionalFieldChange = (text: string[]) => {
         if (text) {
             setIsFieldOptional(text.length > 0);
         }
         setDefaultValue("");
-    };
-
-    const handleOptionalTypeChange = (text: string[]) => {
-        if (text) {
-            setIsTypeOptional(text.length > 0);
-        }
-    };
-
-    const handleArrayChange = (text: string[]) => {
-        if (text) {
-            setIsArray(text.length > 0);
-        }
     };
 
     const handleFieldAdd = () => {
@@ -164,7 +143,6 @@ export function EditFieldForm() {
                 }
                 const recordModel: RecordModel = {
                     name,
-                    isArray,
                     isOptional: isFieldOptional,
                     isActive: true,
                     type: selectedType,
@@ -180,8 +158,6 @@ export function EditFieldForm() {
                 const field: SimpleField = {
                     name,
                     isFieldOptional,
-                    isArray,
-                    isFieldTypeOptional: isTypeOptional,
                     type: selectedType,
                     isActive: true,
                     value: defaultValue
@@ -197,7 +173,6 @@ export function EditFieldForm() {
                 state.currentRecord.isActive = false;
                 state.currentRecord.fields[foundIndex] = {
                     name,
-                    isArray,
                     isOptional: isFieldOptional,
                     isActive: true,
                     type: selectedType,
@@ -211,10 +186,8 @@ export function EditFieldForm() {
                 const curField: SimpleField = {
                     name,
                     isFieldOptional,
-                    isFieldTypeOptional: isTypeOptional,
                     type: selectedType,
                     value: defaultValue,
-                    isArray,
                     isActive: true
                 };
                 callBacks.updateCurrentField(curField);
@@ -233,9 +206,7 @@ export function EditFieldForm() {
         setName("");
         setIsFieldOptional(false);
         setNameError("");
-        setIsTypeOptional(false);
         setValidDefaultValue(true);
-        setIsArray(false);
         setDefaultValue("");
         setClearExpEditor(true);
     };
@@ -245,8 +216,6 @@ export function EditFieldForm() {
         setName(state.currentField.name);
         setIsFieldOptional(state.currentField.isFieldOptional);
         setNameError("");
-        setIsTypeOptional(state.currentField.isFieldTypeOptional);
-        setIsArray(state.currentField.isArray);
         setDefaultValue(state.currentField.value);
     };
 
@@ -254,14 +223,15 @@ export function EditFieldForm() {
         name: "defaultValue",
         optional: true,
         displayName: defaultValText,
-        typeName: isArray ? `${selectedType}[]` : selectedType,
-        value: defaultValue
+        typeName: selectedType,
+        value: defaultValue || ""
     }
     const defaultValueProps: FormElementProps = {
         model: formField,
         customProps: {
             validate: validateDefaultValue,
-            statementType: formField.typeName,
+            statementType: selectedType,
+            editPosition: state.sourceModel?.position || state.targetPosition,
             clearInput: clearExpEditor,
             revertClearInput
         },
@@ -269,8 +239,20 @@ export function EditFieldForm() {
         defaultValue
     };
 
+    const varTypeProps: VariableTypeInputProps = {
+        displayName: typeLabel,
+        value: selectedType,
+        onValueChange: setSelectedType,
+        validateExpression: validateTypeName,
+        position: state.sourceModel?.position || state.targetPosition,
+        overrideTemplate: {
+            defaultCodeSnippet: `type tempRecordName record {  ${selectedType === 'record' ? '{}' : ''} varType; };`,
+            targetColumn: 30
+        },
+    };
+
     const isAddButtonDisabled = (nameError !== "") || (selectedType === "") || (name === "") ||
-        (!isFieldOptional && !validDefaultValue);
+        (!isFieldOptional && !validDefaultValue) || !validType;
 
     useEffect(() => {
         // Checks whether add from is completed and reset field addition
@@ -292,31 +274,7 @@ export function EditFieldForm() {
                     <Box paddingTop={2} paddingBottom={2}>{isFieldUpdate ? titleUpdate : titleAdd}</Box>
                 </Typography>
             </div>
-            <SelectDropdownWithButton
-                dataTestId="field-type"
-                defaultValue={selectedType}
-                customProps={
-                    {
-                        values: allVariableTypes,
-                        disableCreateNew: true
-                    }
-                }
-                label={typeLabel}
-                placeholder={typePlaceholder}
-                onChange={handleTypeSelect}
-            />
-            <CheckBoxGroup
-                testId="is-optional-type"
-                values={["Is optional ?"]}
-                defaultValues={isTypeOptional ? ["Is optional ?"] : []}
-                onChange={handleOptionalTypeChange}
-            />
-            <CheckBoxGroup
-                testId="is-array"
-                values={["Is Array ?"]}
-                defaultValues={isArray ? ["Is Array ?"] : []}
-                onChange={handleArrayChange}
-            />
+            <VariableTypeInput {...varTypeProps} key={`${name}-typeSelector`} />
             <div className={classes.sectionSeparator} />
             <FormTextInput
                 dataTestId="field-name"
@@ -336,10 +294,10 @@ export function EditFieldForm() {
                 defaultValues={isFieldOptional ? ["Is optional ?"] : []}
                 onChange={handleOptionalFieldChange}
             />
-            {!isFieldOptional && (selectedType !== "record") && (variableTypes.includes(selectedType)) && (
+            {!isFieldOptional && (selectedType !== "record") && (
                 <div>
                     <div className={classes.sectionSeparator} />
-                    <ExpressionEditor {...defaultValueProps} />
+                    <ExpressionEditor {...defaultValueProps} key={`${state.currentField?.name}-${selectedType}`} />
                 </div>
             )}
 
