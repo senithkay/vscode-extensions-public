@@ -197,11 +197,20 @@ export function StatementOptions(props: StatementOptionsProps) {
                 arrow={true}
                 interactive={true}
             >
-                <div className="sub-option enabled" data-testid="addAssignment" onClick={onSelectStatement.bind(undefined, "AssignmentStatement")}>
+                <div
+                    className="sub-option enabled"
+                    data-testid="addAssignment"
+                    onClick={onSelectStatement.bind(undefined, "AssignmentStatement")}
+                >
                     <div className="icon-wrapper">
                         <AssignmentIcon />
                     </div>
-                    <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.assignment.title" defaultMessage="Assignment" /></div>
+                    <div className="text-label">
+                        <FormattedMessage
+                            id="lowcode.develop.plusHolder.plusElements.statements.assignment.title"
+                            defaultMessage="Assignment"
+                        />
+                    </div>
                 </div>
             </Tooltip>
         )
