@@ -22,12 +22,17 @@ import React from "react";
 import { useState } from "react";
 import ConfigElements from "./ConfigElements";
 
+interface vscode {
+    postMessage(message: any): void;
+}
+
+declare const vscode: vscode;
+
 enum ConfigType {
-    Integer = 'integer',
-    String = 'string',
-    Float = 'float',
-    Boolean = 'boolean'
-  }
+    NUMBER = 'number',
+    STRING = 'string',
+    BOOLEAN = 'boolean'
+}
 
 export type ConfigProperty = {
     id: string,
@@ -134,8 +139,10 @@ export const ConfigForm = (props: any) => {
 
     const handleSubmit = (event: any) => {
         event.preventDefault();
-        console.log("Final" + JSON.stringify(configs));
-        return JSON.stringify(configs);
+        vscode.postMessage({
+            command: 'handleConfigInputs',
+            text: JSON.stringify(configs)
+        });
     }
 
     const handleSetConfigs = (e: ConfigProperties) => {
