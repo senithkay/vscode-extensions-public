@@ -25,7 +25,11 @@ import {
 import debounce from "lodash.debounce";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
-import { CompletionParams, CompletionResponse, ExpressionEditorLangClientInterface } from "../../../../../../../Definitions";
+import {
+    CompletionParams,
+    CompletionResponse,
+    ExpressionEditorLangClientInterface
+} from "../../../../../../../Definitions";
 import { getDiagnosticMessage, getFilteredDiagnostics, getTargetPosition } from "../../../ExpressionEditor/utils";
 import * as c from "../../constants";
 import { SuggestionItem, VariableUserInputs } from "../../models/definitions";
@@ -112,7 +116,7 @@ export function InputEditor(props: InputEditorProps) {
         || STKindChecker.isJsonTypeDesc(model)
         || STKindChecker.isVarTypeDesc(model)
         || STKindChecker.isSimpleNameReference(model))) {
-            value = model.name.value;
+        value = model.name.value;
     }
 
     const [userInput, setUserInput] = useState(value);
@@ -311,7 +315,7 @@ export function InputEditor(props: InputEditorProps) {
                 const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (
                     // TODO: Need to special case for simpleNameRef
                     (!completionResponse.kind ||
-                        ( isTypeDescriptor(model)?
+                        (isTypeDescriptor(model) ?
                                 acceptedCompletionKind.includes(completionResponse.kind) :
                                 acceptedCompletionKindForExpressions.includes(completionResponse.kind)
                         )
