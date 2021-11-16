@@ -15,11 +15,9 @@ import React, { useContext } from "react";
 
 import { StringTypeDesc } from "@ballerina/syntax-tree";
 
-import { TYPE_DESCRIPTOR } from "../../../../constants";
 import { VariableUserInputs } from "../../../../models/definitions";
 import { SuggestionsContext } from "../../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind } from "../../../../utils";
-import { useStatementEditorStyles } from "../../../ViewContainer/styles";
+import { InputEditor } from "../../../InputEditor";
 
 interface StringTypeDescProps {
     model: StringTypeDesc
@@ -28,22 +26,19 @@ interface StringTypeDescProps {
 }
 
 export function StringTypeDescComponent(props: StringTypeDescProps) {
-    const { model } = props;
+    const { model, userInputs, diagnosticHandler } = props;
 
-    const overlayClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
 
-    const onClickOnType = (event: any) => {
-        event.stopPropagation()
-        expressionHandler(model, false, { expressionSuggestions: getSuggestionsBasedOnExpressionKind(TYPE_DESCRIPTOR) })
+    const inputEditorProps = {
+        statementType: model.kind,
+        model,
+        expressionHandler,
+        userInputs,
+        diagnosticHandler
     };
 
     return (
-        <button
-            className={overlayClasses.expressionElement}
-            onClick={onClickOnType}
-        >
-            {model.name.value}
-        </button>
+        <InputEditor {...inputEditorProps} />
     );
 }
