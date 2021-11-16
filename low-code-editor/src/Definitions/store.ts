@@ -14,7 +14,7 @@
 import { STNode } from "@ballerina/syntax-tree";
 import { Diagnostic } from "monaco-languageclient";
 
-import { BlockViewState } from "../Diagram/view-state";
+import { BlockViewState } from "../Diagram/components/LowCodeDiagram/ViewState";
 
 import { BallerinaConnectorInfo, Connector } from "./lang-client-extended";
 
@@ -96,7 +96,8 @@ export interface ExpressionEditorState {
 }
 
 export interface STSymbolInfo {
-    endpoints: Map<string, STNode>;
+    moduleEndpoints: Map<string, STNode>;
+    localEndpoints: Map<string, STNode>;
     actions: Map<string, STNode>;
     variables: Map<string, STNode[]>;
     configurables: Map<string, STNode>;

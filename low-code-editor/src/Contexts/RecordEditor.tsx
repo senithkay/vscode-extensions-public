@@ -15,7 +15,7 @@ import React, { useContext, useReducer } from "react";
 
 import { NodePosition, RecordTypeDesc, TypeDefinition } from "@ballerina/syntax-tree";
 
-import { RecordModel, SimpleField } from "../Diagram/components/ConfigForms/RecordEditor/types";
+import { RecordModel, SimpleField } from "../Diagram/components/FormComponents/ConfigForms/RecordEditor/types";
 
 export enum FormState {
     EDIT_RECORD_FORM = 1,
