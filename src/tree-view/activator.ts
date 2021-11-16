@@ -152,7 +152,10 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
     });
 
     commands.registerCommand(CONFIG_EDITOR_EXECUTE_COMMAND, async (filePath: string) => {
-        await ballerinaExtInstance.langClient!.getBallerinaProjectConfigSchema({
+        if (!langClient) {
+            return;
+        }
+        await ballerinaExtInstance.langClient.getBallerinaProjectConfigSchema({
             documentIdentifier: {
                 uri: filePath
             }
