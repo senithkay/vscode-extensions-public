@@ -11,8 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, useContext, useState } from "react";
-import { useIntl } from "react-intl";
+import React, { ReactNode, useContext } from "react";
 
 import { LocalVarDecl } from "@ballerina/syntax-tree";
 import CloseIcon from '@material-ui/icons/Close';
@@ -55,53 +54,38 @@ export const PLUS_HOLDER_API_HEIGHT_COLLAPSED = 321;
 export const EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED = 660;
 
 export function PlusElements(props: PlusElementsProps) {
-    const { position, onClose, onChange, onComponentClick, initPlus, viewState } = props;
+    const { position, onClose, onChange, initPlus, viewState } = props;
     const {
-        actions: { diagramRedraw },
-        props: { isCodeEditorActive, stSymbolInfo, syntaxTree },
-        api: {
-            insights: {
-                onEvent,
-            },
-            helpPanel: {
-                openConnectorHelp
-            }
-        }
+        props: { isCodeEditorActive, stSymbolInfo }
     } = useContext(Context);
     const { overlayId, overlayNode } = useFunctionContext();
 
-    const intl = useIntl();
     // const [isAPICallsExisting] = useState(stSymbolInfo.endpoints && Array.from(stSymbolInfo.endpoints).length > 0);
-    const [isAPIHightState, setAPIHightState] = useState(APIHeightStates.SelectConnectors);
 
-    if (stSymbolInfo.endpoints && Array.from(stSymbolInfo.endpoints).length > 0) {
+    if (stSymbolInfo.localEndpoints && Array.from(stSymbolInfo.localEndpoints).length > 0) {
         viewState.isAPICallsExisting = true;
     }
 
-    const [selectedItem, setSelectedItem] = useState("STATEMENT");
-
-
     const onStatementTypeSelect = (processType: string) => {
-        if (processType === "Connector"){
-            onChange("APIS", "New", null);
-        } else{
-            onChange("STATEMENT", processType);
+        switch (processType) {
+            case "Connector":
+                onChange("APIS", "New", null);
+                break;
+            case "Action":
+                onChange("APIS", "Existing", null);
+                break;
+            default:
+                onChange("STATEMENT", processType);
+                break;
         }
-        if (processType === "Respond") {
-            // todo: handle the dispatch for the tour
-            // dispatchGoToNextTourStep("DIAGRAM_ADD_RESPOND");
-        }
+
         // if (processType === "DataMapper") {
         //     // FIXME: Found this while enabling types for context. We are reusing help panel action in a wrong way
         //     openConnectorHelp({moduleName: processType});
         // }
     };
 
-
-
     const plusContainer = initPlus ? "initPlus-container" : "plus-container";
-    const exitingApiCall = viewState.isAPICallsExisting ? "existing-holder-class" : "holder-wrapper-large"
-
 
     const plusHolder: ReactNode = (
         <div className="holder-wrapper-large">
@@ -138,7 +122,3 @@ export function PlusElements(props: PlusElementsProps) {
         </>
     );
 }
-
-// const mapDispatchToProps = {
-//     dispatchGoToNextTourStep: goToNextTourStep
-// }; todo: fix dispatch
