@@ -24,11 +24,11 @@ import { UserState } from "../../../../../types";
 import { EVENT_TYPE_AZURE_APP_INSIGHTS, LowcodeEvent, START_CONNECTOR_ADD_INSIGHTS } from "../../../../models";
 import { APIHeightStates } from "../../../LowCodeDiagram/Components/DialogBoxes/PlusHolder/PlusElements";
 import { PlusViewState } from "../../../LowCodeDiagram/ViewState/plus";
-import { getConnectorIconSVG } from "../../../Portals/utils";
 import { wizardStyles as useFormStyles} from "../../ConfigForms/style";
 import { ButtonWithIcon } from "../../FormFieldComponents/Button/ButtonWithIcon";
 
 import FilterByMenu from "./FilterByMenu";
+import ModuleCard from "./ModuleCard";
 import SearchBar from "./SearchBar";
 import useStyles from "./style";
 
@@ -98,18 +98,7 @@ export function Marketplace(props: MarketplaceProps) {
     const getModuleComponents = (balModules: BallerinaModule[]): ReactNode[] => {
         const componentList: ReactNode[] = [];
         balModules?.forEach((module: BallerinaModule) => {
-            const moduleName = (module.displayAnnotation?.label || `${module.package?.name} / ${module.name}`).replace(/["']/g, "");
-            const component: ReactNode = (
-                <Grid item={true} sm={6} alignItems="center">
-                    <div key={moduleName} onClick={onSelectModule.bind(this, module)} data-testid={moduleName.toLowerCase()}>
-                        <div className={classes.balModule}>
-                            <div>{getConnectorIconSVG(module)}</div>
-                            <div className={classes.balModuleName}>{moduleName}</div>
-                            <div className={classes.orgName}>by {module.package.organization}</div>
-                        </div>
-                    </div>
-                </Grid>
-            );
+            const component = <ModuleCard module={module} onSelectModule={onSelectModule}/>;
             componentList.push(component);
         });
         return componentList;
@@ -143,7 +132,7 @@ export function Marketplace(props: MarketplaceProps) {
         setSelectedCategory("");
     };
 
-    const handleConnectorListScroll = (e: React.UIEvent<HTMLElement>) => {
+    const handleModulesListScroll = (e: React.UIEvent<HTMLElement>) => {
         const bottom = e.currentTarget.scrollHeight - e.currentTarget.scrollTop === e.currentTarget.clientHeight;
         if (bottom && !isSearchResultsFetching) {
             fetchModulesList(currentPage + 1);
@@ -156,108 +145,135 @@ export function Marketplace(props: MarketplaceProps) {
         localModuleComponents = getModuleComponents(localModules);
     }
 
+    const renderModulesList = (modulesListTitle: string, modules: ReactNode[]): ReactNode => {
+        return (
+            <>
+                <Grid item={true} sm={12} className={classes.balModuleSectionWrap}>
+                    <Grid item={true} sm={6} md={6} lg={6}>
+                        <Typography variant="h4">{modulesListTitle}</Typography>
+                    </Grid>
+                </Grid>
+                {modules}
+            </>
+        );
+    }
+    ;
+
+    const title = (
+        <div className={formClasses.formTitleWrapper}>
+            <div className={formClasses.mainTitleWrapper}>
+                <Typography variant="h4">
+                    <Box paddingTop={2} paddingBottom={2}>
+                        <FormattedMessage id="lowcode.develop.configForms.connectorList.title" defaultMessage={props.title} />
+                    </Box>
+                </Typography>
+            </div>
+        </div>
+    );
+
+    const loadingScreen = (
+        <Grid sm={12} item={true} container={true} className={classes.msgContainer}>
+            <Grid item={true} sm={12}>
+                <Box display="flex" justifyContent="center">
+                    <CircularProgress data-testid="marketplace-search-loader" />
+                </Box>
+                <Box display="flex" justifyContent="center">
+                    <Typography variant="body1">Loading...</Typography>
+                </Box>
+            </Grid>
+        </Grid>
+    );
+
+    const modulesList = (
+        <Grid
+            item={true}
+            sm={12}
+            container={true}
+            direction="row"
+            justifyContent="flex-start"
+            alignContent="flex-start"
+            spacing={2}
+            className={classes.balModuleListWrap}
+            onScroll={handleModulesListScroll}
+        >
+            {!isSearchResultsFetching && localModules?.length > 0 && (
+                renderModulesList("Local " + shortName, localModuleComponents)
+            )}
+            {!isSearchResultsFetching && centralModules?.length > 0 && (
+                renderModulesList("Public " + shortName, centralModuleComponents)
+            )}
+            {!isSearchResultsFetching && isNextPageFetching && (
+                <Grid item={true} sm={12} className={classes.balModuleSectionWrap}>
+                    <Box display="flex" justifyContent="center">
+                        <Typography variant="body1">Loading more {shortName}...</Typography>
+                    </Box>
+                </Grid>
+            )}
+        </Grid>
+    );
+
+    const notFoundComponent = (
+        <Grid sm={12} item={true} container={true} alignItems="center" className={classes.msgContainer}>
+            <Grid item={true} sm={12}>
+                <Box display="flex" justifyContent="center">
+                    <Typography variant="body1">No {shortName} found.</Typography>
+                </Box>
+            </Grid>
+        </Grid>
+    );
+
+    const selectedCategoriesChips = (
+        <Grid sm={12} item={true} container={true} alignItems="center" className={classes.filterTagWrap}>
+            <Box display="flex" justifyContent="center" alignItems="center" className={classes.filterTag}>
+                <Typography variant="body1">{selectedCategory}</Typography>
+                <ButtonWithIcon
+                    className={classes.filterRemoveBtn}
+                    onClick={clearCategory}
+                    icon={<CloseRounded fontSize="small" />}
+                />
+            </Box>
+        </Grid>
+    );
+
+    const leftSidePanel = (
+        <Grid item={true} sm={5}>
+            <FilterByMenu
+                filterState={filterState}
+                setFilterState={setFilterState}
+                filterValues={[]}
+                selectedCategory={selectedCategory}
+                setCategory={updateCategory}
+            />
+        </Grid>
+    );
+
+    const searchBar = (
+        <SearchBar searchQuery={searchQuery} onSearchButtonClick={onSearchButtonClick} type={shortName} />
+    );
+
     return (
         <FormControl data-testid="log-form" className={classes.container}>
             <div className={formClasses.formWrapper}>
                 <div className={formClasses.formFeilds}>
                     <div className={formClasses.formWrapper}>
-                        <div className={formClasses.formTitleWrapper}>
-                            <div className={formClasses.mainTitleWrapper}>
-                                <Typography variant="h4">
-                                    <Box paddingTop={2} paddingBottom={2}>
-                                        <FormattedMessage id="lowcode.develop.configForms.connectorList.title" defaultMessage={props.title} />
-                                    </Box>
-                                </Typography>
-                            </div>
-                        </div>
-
+                        {title}
                         <div onWheel={preventDiagramScrolling} className={classes.container}>
-                            <SearchBar searchQuery={searchQuery} onSearchButtonClick={onSearchButtonClick} type={shortName}/>
+                            {searchBar}
                             <Grid item={true} sm={12} container={true}>
-                                <Grid item={true} sm={5}>
-                                    <FilterByMenu
-                                        filterState={filterState}
-                                        setFilterState={setFilterState}
-                                        filterValues={[]}
-                                        selectedCategory={selectedCategory}
-                                        setCategory={updateCategory}
-                                    />
-                                </Grid>
+                                {leftSidePanel}
                                 <Grid sm={7} container={true} item={true} className={classes.resultsContainer}>
                                     {isSearchResultsFetching && (
-                                        <Grid sm={12} item={true} container={true} className={classes.msgContainer}>
-                                            <Grid item={true} sm={12}>
-                                                <Box display="flex" justifyContent="center">
-                                                    <CircularProgress data-testid="marketplace-search-loader" />
-                                                </Box>
-                                                <Box display="flex" justifyContent="center">
-                                                    <Typography variant="body1">Loading...</Typography>
-                                                </Box>
-                                            </Grid>
-                                        </Grid>
+                                        loadingScreen
                                     )}
 
                                     {!isSearchResultsFetching && selectedCategory !== "" && (
-                                        <Grid sm={12} item={true} container={true} alignItems="center" className={classes.filterTagWrap}>
-                                            <Box display="flex" justifyContent="center" alignItems="center" className={classes.filterTag}>
-                                                <Typography variant="body1">{selectedCategory}</Typography>
-                                                <ButtonWithIcon
-                                                    className={classes.filterRemoveBtn}
-                                                    onClick={clearCategory}
-                                                    icon={<CloseRounded fontSize="small" />}
-                                                />
-                                            </Box>
-                                        </Grid>
+                                        selectedCategoriesChips
                                     )}
 
-                                    <Grid
-                                        item={true}
-                                        sm={12}
-                                        container={true}
-                                        direction="row"
-                                        justifyContent="flex-start"
-                                        alignContent="flex-start"
-                                        spacing={2}
-                                        className={classes.balModuleListWrap}
-                                        onScroll={handleConnectorListScroll}
-                                    >
-                                        {!isSearchResultsFetching && localModules?.length > 0 && (
-                                            <>
-                                                <Grid item={true} sm={12} className={classes.balModuleSectionWrap}>
-                                                    <Grid item={true} sm={6} md={6} lg={6}>
-                                                        <Typography variant="h4">Local {shortName}</Typography>
-                                                    </Grid>
-                                                </Grid>
-                                                {localModuleComponents}
-                                            </>
-                                        )}
-                                        {!isSearchResultsFetching && centralModules?.length > 0 && (
-                                            <>
-                                                <Grid item={true} sm={12} className={classes.balModuleSectionWrap}>
-                                                    <Grid item={true} sm={6} md={6} lg={6}>
-                                                        <Typography variant="h4">Public {shortName}</Typography>
-                                                    </Grid>
-                                                </Grid>
-                                                {centralModuleComponents}
-                                            </>
-                                        )}
-                                        {!isSearchResultsFetching && isNextPageFetching && (
-                                            <Grid item={true} sm={12} className={classes.balModuleSectionWrap}>
-                                                <Box display="flex" justifyContent="center">
-                                                    <Typography variant="body1">Loading more {shortName}...</Typography>
-                                                </Box>
-                                            </Grid>
-                                        )}
-                                    </Grid>
+                                    {modulesList}
 
                                     {!isSearchResultsFetching && centralModuleComponents.length === 0 && localModules.length === 0 && (
-                                        <Grid sm={12} item={true} container={true} alignItems="center" className={classes.msgContainer}>
-                                            <Grid item={true} sm={12}>
-                                                <Box display="flex" justifyContent="center">
-                                                    <Typography variant="body1">No {shortName} found.</Typography>
-                                                </Box>
-                                            </Grid>
-                                        </Grid>
+                                        notFoundComponent
                                     )}
                                 </Grid>
                             </Grid>
