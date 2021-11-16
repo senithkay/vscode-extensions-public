@@ -9,9 +9,9 @@ import { IfElse } from "../components/LowCodeDiagram/Components/RenderingCompone
 import { DataProcessor } from "../components/LowCodeDiagram/Components/RenderingComponents/Processor";
 import { Respond } from "../components/LowCodeDiagram/Components/RenderingComponents/Respond";
 import { Statement } from "../components/LowCodeDiagram/Components/RenderingComponents/Statement";
+import { Diagnostic } from "../components/LowCodeDiagram/Context/types";
 import { BlockViewState } from "../components/LowCodeDiagram/ViewState";
 import { DraftStatementViewState } from "../components/LowCodeDiagram/ViewState/draft";
-import { Diagnostic } from "../components/LowCodeDiagram/Context/types";
 
 export function getSTComponents(nodeArray: any): React.ReactNode[] {
     // Convert to array
@@ -108,10 +108,10 @@ export function getDiagnosticMsgs(diagnostics: Diagnostic[]){
     }
     else{
         for (let i = 0; i < diagnostics?.length; i++){
-            if(diagnostics[i]?.diagnosticInfo?.severity!=="WARNING"){
+            if (diagnostics[i]?.diagnosticInfo?.severity !== "WARNING"){
                 diagnosticMsgsArray.push((diagnostics[i]?.message));
             }
-        return diagnosticMsgsArray.join(',\n');
+            return diagnosticMsgsArray.join(',\n');
     }
 }
 }

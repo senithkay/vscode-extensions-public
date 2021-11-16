@@ -111,9 +111,9 @@ export interface ErrorSnippet{
 }
 
 export interface Diagnostic{
-    diagnosticInfo:{
-        code:string,
-        severity:string
+    diagnosticInfo: {
+        code: string,
+        severity: string
     }
-    message:string
+    message: string
 }
