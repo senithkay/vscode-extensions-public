@@ -62,6 +62,7 @@ export function ConditionConfigForm(props: ConditionConfigFormProps) {
                     ? formArgs?.config.conditionExpression
                     : {values: [{id: 0, expression: "", position: formArgs?.targetPosition}]},
                 scopeSymbols: [],
+                model: formArgs?.config && formArgs?.config.model
             };
             break;
         case "While":
@@ -70,6 +71,7 @@ export function ConditionConfigForm(props: ConditionConfigFormProps) {
                 conditionExpression: formArgs?.config && formArgs?.config.conditionExpression
                     ? formArgs?.config.conditionExpression : '',
                 scopeSymbols: [],
+                model: formArgs?.config && formArgs?.config.model
             };
             break;
         case "ForEach":
@@ -80,6 +82,7 @@ export function ConditionConfigForm(props: ConditionConfigFormProps) {
                         { variable: '', collection: '', type: '' }
                         : formArgs?.config.conditionExpression,
                 scopeSymbols: [],
+                model: formArgs?.config && formArgs?.config.model
             };
             break;
         default:
@@ -165,8 +168,8 @@ export function ConditionConfigForm(props: ConditionConfigFormProps) {
             condition={conditionConfig}
             onCancel={onCancel}
             onSave={onSaveClick}
+            onWizardClose={onSave}
             configOverlayFormStatus={configOverlayFormStatus}
         />
     )
 }
-

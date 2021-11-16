@@ -231,12 +231,12 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                         if (parseSuccess) {
                                             undoRedo.addModification(source);
                                             const pfSession = await props.getPFSession();
-                                            const vistedSyntaxTree: STNode = await getLowcodeST(newST, filePath,
-                                                                                                langClient, pfSession,
-                                                                                                props.showPerformanceGraph, props.showMessage);
-                                            setSyntaxTree(vistedSyntaxTree);
                                             setFileContent(source);
                                             props.updateFileContent(filePath, source);
+                                            const vistedSyntaxTree: STNode = await getLowcodeST(newST, filePath,
+                                                langClient, pfSession,
+                                                props.showPerformanceGraph, props.showMessage);
+                                            setSyntaxTree(vistedSyntaxTree);
                                         } else {
                                             // TODO show error
                                         }

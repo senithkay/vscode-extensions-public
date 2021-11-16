@@ -15,12 +15,13 @@ import React, { useContext, useEffect, useState } from "react";
 import { monaco } from "react-monaco-editor";
 
 import {
-    BooleanLiteral, NodePosition,
+    BooleanLiteral, BooleanTypeDesc, DecimalTypeDesc, FloatTypeDesc, IntTypeDesc, JsonTypeDesc, NodePosition,
     NumericLiteral, QualifiedNameReference,
     SimpleNameReference,
     STKindChecker,
     STNode,
-    StringLiteral} from "@ballerina/syntax-tree";
+    StringLiteral, StringTypeDesc
+} from "@ballerina/syntax-tree";
 import debounce from "lodash.debounce";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
@@ -31,7 +32,7 @@ import { SuggestionItem, VariableUserInputs } from "../../models/definitions";
 import { InputEditorContext } from "../../store/input-editor-context";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { SuggestionsContext } from "../../store/suggestions-context";
-import { getDataTypeOnExpressionKind, getExpressionSource, getPartialSTForStatement } from "../../utils";
+import { getDataTypeOnExpressionKind, getPartialSTForStatement } from "../../utils";
 import { useStatementEditorStyles } from "../ViewContainer/styles";
 
 import { acceptedCompletionKind } from "./constants";
@@ -100,7 +101,17 @@ export function InputEditor(props: InputEditorProps) {
         literalModel = model as BooleanLiteral;
         kind = c.BOOLEAN_LITERAL;
         value = literalModel.literalToken.value;
+    } else if ((STKindChecker.isStringTypeDesc(model)
+        || STKindChecker.isBooleanTypeDesc(model)
+        || STKindChecker.isDecimalTypeDesc(model)
+        || STKindChecker.isFloatTypeDesc(model)
+        || STKindChecker.isIntTypeDesc(model)
+        || STKindChecker.isJsonTypeDesc(model)
+        || STKindChecker.isVarTypeDesc(model)
+        || STKindChecker.isSimpleNameReference(model))) {
+            value = model.name.value;
     }
+
     const [userInput, setUserInput] = useState(value);
 
     const targetPosition = stmtCtx.formCtx.formModel && stmtCtx.formCtx.formModel.position ?
@@ -194,10 +205,9 @@ export function InputEditor(props: InputEditorProps) {
     }
 
     const handleDiagnostic = () => {
-        const hasDiagnostic = !inputEditorState.diagnostic.length // true if there are no diagnostics
+        const hasDiagnostic = !!inputEditorState.diagnostic.length;
 
-        stmtCtx.formCtx.onChange(getExpressionSource(stmtCtx.modelCtx.statementModel));
-        stmtCtx.formCtx.validate('', !hasDiagnostic, false);
+        stmtCtx.statementCtx.validateStatement(!hasDiagnostic);
 
         // TODO: Need to obtain the default value as a prop
         if (!placeHolders.some(word => currentContent.includes(word))) {
@@ -211,8 +221,6 @@ export function InputEditor(props: InputEditorProps) {
         inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
         inputEditorState.content = initContent;
         inputEditorState.uri = monaco.Uri.file(currentFile.path).toString();
-
-        stmtCtx.formCtx.onChange(getExpressionSource(stmtCtx.modelCtx.statementModel));
 
         const langClient = await ls.getExpressionEditorLangClient(langServerURL);
         langClient.didChange({
@@ -243,8 +251,6 @@ export function InputEditor(props: InputEditorProps) {
         inputEditorState.content = currentFile.content;
         inputEditorState.uri = monaco.Uri.file(currentFile.path).toString();
 
-        stmtCtx.formCtx.onChange(getExpressionSource(stmtCtx.modelCtx.statementModel));
-
         const langClient = await ls.getExpressionEditorLangClient(langServerURL);
         langClient.didChange({
             contentChanges: [
@@ -264,7 +270,6 @@ export function InputEditor(props: InputEditorProps) {
             inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
             inputEditorState.content = (currentFile.content);
             inputEditorState.uri = inputEditorState?.uri;
-            stmtCtx.formCtx.onChange("");
 
             await ls.getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
                 await langClient.didChange({
@@ -291,7 +296,7 @@ export function InputEditor(props: InputEditorProps) {
                 triggerKind: 1
             },
             position: {
-                character: (codeSnippet.length + (snippetTargetPosition - 1)),
+                character: (targetPosition.startColumn + (model.position.startColumn) + codeSnippet.length),
                 line: targetPosition.startLine
             }
         }
@@ -302,9 +307,7 @@ export function InputEditor(props: InputEditorProps) {
             langClient.getCompletion(completionParams).then((values: CompletionResponse[]) => {
                 const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (
                     (!completionResponse.kind || acceptedCompletionKind.includes(completionResponse.kind)) &&
-                    ((varType === "string") ? completionResponse.detail === varType : acceptedDataType.includes(completionResponse.detail)) &&
-                    completionResponse.label !== varName &&
-                    ((completionResponse.label.replace(/["]+/g, '')).startsWith(codeSnippet)) &&
+                    completionResponse.label !== varName.trim() &&
                     !(completionResponse.label.includes("main"))
                 ));
 
@@ -345,10 +348,15 @@ export function InputEditor(props: InputEditorProps) {
 
     const inputChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
         const currentStatement = stmtCtx.modelCtx.statementModel.source;
-        const updatedStatement = addExpressionToTargetPosition(currentStatement, model.position.startColumn + 1, event.target.value ? event.target.value : "", model.position.endColumn + 1);
+        const updatedStatement = addExpressionToTargetPosition(
+            currentStatement,
+            model.position.startColumn,
+            event.target.value ? event.target.value : "",
+            model.position.endColumn
+        );
         debouncedContentChange(updatedStatement, "");
-        getContextBasedCompletions(event.target.value);
         setUserInput(event.target.value);
+        getContextBasedCompletions(event.target.value);
     };
 
     const debouncedContentChange = debounce(handleContentChange, 500);

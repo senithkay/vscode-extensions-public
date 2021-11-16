@@ -20,6 +20,7 @@ import { ConnectorInitForm } from "./ConnectorInitForm";
 import { ConnectorList } from "./ConnectorList";
 import { ConstantConfigForm } from "./ConstantConfigForm";
 import { EndConfigForm } from "./EndConfigForms";
+import { EndpointList } from "./EndpointList";
 import { FunctionConfigForm } from './FunctionConfigForm';
 import { ListenerConfigForm } from "./ListenerConfigForm";
 import { ModuleDeclForm } from './ModuleVariableForm';
@@ -27,6 +28,7 @@ import { ProcessConfigForm } from "./ProcessConfigForms";
 import { RecordEditor } from "./RecordEditor";
 import { ApiConfigureWizard } from "./ResourceConfigForm/ApiConfigureWizard";
 import { ServiceConfigForm } from './ServiceConfigForm';
+import { TriggerList } from "./TriggerList";
 import { TypeDefinitionConfigForm } from "./TypeDefinitionConfigForm";
 
 export { APIConfigForm as apiConfig };
@@ -38,6 +40,7 @@ export { ProcessConfigForm as Variable };
 export { ProcessConfigForm as Log };
 export { ConnectorList as ConnectorList };
 export { ConnectorForm as Connector };
+export { EndpointList as EndpointList };
 export { ProcessConfigForm as Custom };
 export { ProcessConfigForm as DataMapper };
 export { EndConfigForm as Return };
@@ -51,3 +54,4 @@ export { ConfigurableForm as Configurable };
 export { ListenerConfigForm as ListenerDeclaration };
 export { ConstantConfigForm as ConstDeclaration }
 export { TypeDefinitionConfigForm as TypeDefinition };
+export { TriggerList as TriggerList };

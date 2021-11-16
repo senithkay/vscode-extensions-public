@@ -28,7 +28,8 @@ export default {
 };
 
 const symbolInfo: STSymbolInfo = {
-    endpoints: new Map<string, STNode>(),
+    moduleEndpoints: new Map<string, STNode>(),
+    localEndpoints: new Map<string, STNode>(),
     actions: new Map<string, STNode>(),
     variables: new Map<string, STNode[]>(),
     configurables: new Map<string, STNode>(),

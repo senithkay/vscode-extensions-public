@@ -354,7 +354,7 @@ export const wizardStyles = makeStyles((theme: Theme) =>
         mainTitleWrapper: {
             display: 'inline-flex',
             alignItems: 'center',
-            width: '20%'
+            width: 'auto'
         },
         iconWrapper: {
             marginRight: '1rem'

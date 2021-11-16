@@ -10,6 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext } from "react";
 
 import { LocalVarDecl } from "@ballerina/syntax-tree";
@@ -69,7 +70,9 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
                 {expressionComponent}
             </button>
             <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
-                {model.semicolonToken.value}
+                {/* TODO: use model.semicolonToken.isMissing when the ST interface is supporting */}
+                {model.semicolonToken.position.startColumn !== model.semicolonToken.position.endColumn &&
+                    model.semicolonToken.value}
             </span>
         </span>
     );
