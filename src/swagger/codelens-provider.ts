@@ -25,12 +25,10 @@ import {
 } from 'vscode';
 import { SyntaxTree, Member } from '../diagram';
 import { PALETTE_COMMANDS } from '../project';
-import { sep } from 'path';
 
 interface Service {
     position: Position,
     name: string | undefined
-    file: string
 }
 
 interface Position {
@@ -97,7 +95,7 @@ export class TryOutCodeLensProvider implements CodeLensProvider {
             title: "Try it",
             tooltip: "Try running this service on swagger view",
             command: PALETTE_COMMANDS.SWAGGER_VIEW,
-            arguments: [service.file, service.name]
+            arguments: [service.name]
         };
         return codeLens;
     }
@@ -115,7 +113,6 @@ export class TryOutCodeLensProvider implements CodeLensProvider {
             return services;
         }
 
-        const file = activeEditor.document.uri.fsPath.split(sep).pop()!;
         await langClient.onReady().then(async () => {
             await langClient.getSyntaxTree({
                 documentIdentifier: {
@@ -131,8 +128,7 @@ export class TryOutCodeLensProvider implements CodeLensProvider {
                     if (member.kind === 'ServiceDeclaration') {
                         services.push({
                             position: member.position,
-                            name: this.getResourcePath((member as any).absoluteResourcePath),
-                            file: file
+                            name: this.getResourcePath((member as any).absoluteResourcePath)
                         })
                     }
                 }

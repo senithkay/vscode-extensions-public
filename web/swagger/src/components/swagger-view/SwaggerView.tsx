@@ -51,7 +51,7 @@ export const SwaggerView = (props: any) => {
     const specs: OASpec[] = props.data.specs;
     const proxyPort: number = props.data.proxyPort;
     const file: string | undefined = props.data.file;
-    const serviceName: string = props.data.serviceName;
+    const serviceName: string | undefined = props.data.serviceName;
 
     let selectedService = 0;
     specs.forEach((spec, index) => {
@@ -60,20 +60,19 @@ export const SwaggerView = (props: any) => {
             label: `${spec.file} - /${spec.serviceName}`
         });
 
-        if (file && file === spec.file &&
+        if (file && serviceName && file === spec.file &&
             serviceName.toLocaleLowerCase() === `/${spec.serviceName.toLocaleLowerCase()}`) {
             selectedService = index;
         }
     });
 
-    const [spec, setService] = useState(specs[selectedService].spec);
-    const [selectedOption, setOption] = useState(services[selectedService]);
-
+    const [spec, setSpec] = useState(specs[selectedService].spec);
+    const [selectedOption, setSelectedOption] = useState(services[selectedService]);
 
     function selectService(option: Option) {
         const index = Number(option.value);
-        setService(specs[index].spec);
-        setOption(services[index]);
+        setSpec(specs[index].spec);
+        setSelectedOption(services[index]);
     }
 
     function requestInterceptor(req: any) {

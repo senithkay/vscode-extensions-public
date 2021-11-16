@@ -26,7 +26,7 @@ import { PreviewServer } from "./server";
 let swaggerViewPanel: WebviewPanel | undefined;
 
 export async function showSwaggerView(langClient: ExtendedLangClient,
-    specs: OASpec[], file: string | undefined, serviceName: string): Promise<void> {
+    specs: OASpec[], file: string, serviceName: string | undefined): Promise<void> {
     if (swaggerViewPanel) {
         swaggerViewPanel.dispose();
     }
@@ -35,7 +35,7 @@ export async function showSwaggerView(langClient: ExtendedLangClient,
 
     // Create and show a new SwaggerView
     swaggerViewPanel = window.createWebviewPanel(
-        'ballerinaExamples',
+        'ballerinaSwagger',
         `Swagger`,
         { viewColumn: ViewColumn.Beside, preserveFocus: true },
         getCommonWebViewOptions()

@@ -24,33 +24,45 @@ import { showSwaggerView } from "./swaggerViewPanel";
 import { MESSAGE_TYPE, showMessage } from "../utils/showMessage";
 import { TryOutCodeLensProvider } from "./codelens-provider";
 import { log } from "../utils";
+import path from "path";
 
+let langClient: ExtendedLangClient;
 export async function activate(ballerinaExtInstance: BallerinaExtension) {
     commands.registerCommand(PALETTE_COMMANDS.SWAGGER_VIEW, async (...args: any[]) => {
-        const langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
-        const documentFilePath = window.activeTextEditor?.document.fileName!;
-        let file;
-        let serviceName;
-        if (args && args.length == 2) {
-            file = args[0];
-            serviceName = args[1];
+        langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
+        const editor = window.activeTextEditor;
+
+        if (!editor) {
+            return;
         }
-        await langClient.convertToOpenAPI({
-            documentFilePath
-        }).then(async (response) => {
-            if (response.error) {
-                showMessage(`Unable to open the swagger view. ${response.error}`,
-                    MESSAGE_TYPE.ERROR, false);
-                return;
-            }
-            showSwaggerView(langClient, response.content, file, serviceName);
-        }).catch((err) => {
-            log(err);
-        });
+        const documentFilePath = editor.document.fileName!;
+
+        let serviceName;
+        if (args && args.length == 1) {
+            serviceName = args[0];
+        }
+        
+        await createSwaggerView(documentFilePath, serviceName);
     });
 
     if ((ballerinaExtInstance.isAllCodeLensEnabled() || ballerinaExtInstance.isExecutorCodeLensEnabled())) {
         languages.registerCodeLensProvider([{ language: LANGUAGE.BALLERINA }],
             new TryOutCodeLensProvider(ballerinaExtInstance));
     }
+}
+
+async function createSwaggerView(documentFilePath: string, serviceName: any) {
+    let file = path.basename(documentFilePath);
+    await langClient.convertToOpenAPI({
+        documentFilePath
+    }).then(async (response) => {
+        if (response.error) {
+            showMessage(`Unable to open the swagger view. ${response.error}`,
+                MESSAGE_TYPE.ERROR, false);
+            return;
+        }
+        showSwaggerView(langClient, response.content, file, serviceName);
+    }).catch((err) => {
+        log(err);
+    });
 }
