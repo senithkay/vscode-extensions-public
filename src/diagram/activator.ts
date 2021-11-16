@@ -203,6 +203,7 @@ class DiagramPanel {
 							}
 						});
 						writeFileSync(filePath, fileContent);
+						langClient.updateStatusBar();
 					}
 					return false;
 				}
@@ -241,6 +242,9 @@ class DiagramPanel {
 			{
 				methodName: "showMessage",
 				handler: async (args: any[]): Promise<boolean> => {
+					if (!ballerinaExtension.enabledPerformanceForecasting()) {
+						return false;
+					}
 					showMessage(args[0], args[1], args[2]);
 					return true;
 				}
@@ -454,7 +458,8 @@ export async function renderFirstDiagramElement(client: ExtendedLangClient) {
 			if (defaultModules.length == 0) {
 				return;
 			}
-			if (defaultModules[0].functions && defaultModules[0].functions.length > 0) {
+			if ((defaultModules[0].functions && defaultModules[0].functions.length > 0) ||
+				(defaultModules[0].services && defaultModules[0].services.length > 0)) {
 				const mainFunctionNodes = defaultModules[0].functions.filter(fn => {
 					return fn.name === 'main';
 				});
@@ -483,6 +488,16 @@ export async function renderFirstDiagramElement(client: ExtendedLangClient) {
 							break;
 						}
 					}
+				} else if (defaultModules[0].functions.length > 0) {
+					const path = join(folder.uri.path, defaultModules[0].functions[0].filePath);
+					await showDiagramEditor(0, 0, path);
+					diagramElement = {
+						isDiagram: true,
+						fileUri: Uri.file(path),
+						startLine: defaultModules[0].functions[0].endLine,
+						startColumn: defaultModules[0].functions[0].endColumn - 1
+					}
+					callUpdateDiagramMethod();
 				}
 			}
 		});

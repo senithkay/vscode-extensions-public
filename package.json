@@ -127,6 +127,11 @@
                     "type": "boolean",
                     "default": true,
                     "description": "Enable semantic highlighting for Ballerina source."
+                },
+                "ballerina.enablePerformanceForecast": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable real-time performance forecasting."
                 }
             }
         },
@@ -492,6 +497,7 @@
         "file-uri-to-path": "^2.0.0",
         "glob": "^7.1.7",
         "monaco-languageclient": "^0.13.0",
+        "node-schedule": "^2.0.0",
         "portfinder": "^1.0.28",
         "simple-git": "^2.47.0",
         "vscode-debugprotocol": "^1.44.0",

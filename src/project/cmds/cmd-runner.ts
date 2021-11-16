@@ -34,10 +34,11 @@ export enum PALETTE_COMMANDS {
     PASTE_JSON_AS_RECORD = 'ballerina.pasteAsRecord',
     CHOREO_SIGNIN = 'ballerina.choreo.signin',
     CHOREO_SIGNOUT = 'ballerina.choreo.signout',
-    SWAGGER_VIEW = 'ballerina.swaggerView.open',
-    CHOREO_COMMIT = 'git.commit.choreo',
-    CHOREO_PUSH = 'git.push.choreo',
-    CHOREO_COMMIT_AND_PUSH = 'git.commitAndPush.choreo'
+    FOCUS_SOURCE_CONTROL = 'workbench.view.scm',
+    CHOREO_SYNC_CHANGES = 'ballerina.choreo.sync',
+    PERFORMANCE_FORECAST_ENABLE = 'performance.forecasting.enable',
+    PERFORMANCE_FORECAST_DISABLE = 'performance.forecasting.disable',
+    SWAGGER_VIEW = 'ballerina.swaggerView.open'
 }
 
 export enum BALLERINA_COMMANDS {
