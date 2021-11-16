@@ -27,6 +27,7 @@ import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDo
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
 import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";
 import { useStatementEditor } from "../../../../FormFieldComponents/StatementEditor/hooks";
+import {SwitchToggle} from "../../../../FormFieldComponents/SwitchToggle";
 import { FormTextInput } from "../../../../FormFieldComponents/TextField/FormTextInput";
 import { ProcessConfig } from "../../../../Types";
 import { VariableNameInput, VariableNameInputProps } from "../../../Components/VariableNameInput";
@@ -66,6 +67,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     let variableName: string = '';
     let varExpression: string = '';
     const formField: string = 'Expression';
+    let initializedState;
 
     const existingProperty = config && config.model;
     if (existingProperty && STKindChecker.isLocalVarDecl(config.model)) {
@@ -86,15 +88,18 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         }
         variableName = getVariableNameFromST(config.model).value;
         varExpression = localVarDec?.initializer?.source || '';
+        initializedState = localVarDec?.initializer ? true : false;
     } else {
         variableName = '';
         varExpression = '';
+        initializedState = true;
     }
 
     const [selectedType, setSelectedType] = useState(initialModelType);
     const [varName, setVarName] = useState(variableName);
     const [validExpresssionValue, setValidExpresssionValue] = useState(config.config !== "");
     const [variableExpression, setVariableExpression] = useState<string>(varExpression);
+    const [initialized, setIsInitialized] = useState<boolean>(initializedState);
 
     const onPropertyChange = (property: string) => {
         setVariableExpression(property);
@@ -122,8 +127,13 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     };
 
     const handleSave = () => {
-        if (variableExpression) {
-            config.config = selectedType + " " + varName + " = " + variableExpression + ";";
+        if (initialized) {
+            if (variableExpression) {
+                config.config = selectedType + " " + varName + " = " + variableExpression + ";";
+                onSave();
+            }
+        } else {
+            config.config = selectedType + " " + varName + ";";
             onSave();
         }
     };
@@ -162,7 +172,9 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     };
 
 
-    const validForm: boolean = varName.length > 0 && variableExpression.length > 0 && validExpresssionValue;
+    const validForm: boolean = initialized
+        ? varName.length > 0 && variableExpression.length > 0 && validExpresssionValue
+        : varName.length > 0;
 
     const userInputs = {
         selectedType,
@@ -261,6 +273,22 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         </div>
     );
 
+    const handleVarInitialize = () => {
+        setIsInitialized(!initialized);
+    };
+
+    const initializedToggle = (
+        <div className={classes.toggle}>
+            <Typography variant="body1">
+                <FormattedMessage
+                    id="lowcode.develop.configForms.variable.initialize.button"
+                    defaultMessage="Initialize Variable"
+                />
+            </Typography>
+            <SwitchToggle onChange={handleVarInitialize} initSwitch={initialized}/>
+        </div>
+    );
+
     if (!stmtEditorComponent) {
         return (
             <FormControl data-testid="property-form" className={classnames(classes.wizardFormControl, classes.fitContent)}>
@@ -287,13 +315,20 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                                 <div className={classes.nameExpEditorWrapper}>
                                     {variableNameInput}
                                 </div>
-                                <div className={classes.codeText}>
-                                    <Typography variant='body2' className={classes.endCode}>=</Typography>
-                                </div>
-                                <div className={classes.variableExpEditorWrapper}>
-                                    {expressionEditor}
-                                </div>
+                                {
+                                    initialized && (
+                                        <div className={classes.inlineWrapper}>
+                                            <div className={classes.codeText}>
+                                                <Typography variant='body2' className={classes.endCode}>=</Typography>
+                                            </div>
+                                            <div className={classes.variableExpEditorWrapper}>
+                                                {expressionEditor}
+                                            </div>
+                                        </div>
+                                    )
+                                }
                             </div>
+                            {initializedToggle}
                         </div>
                     </div>
                     <FormActionButtons

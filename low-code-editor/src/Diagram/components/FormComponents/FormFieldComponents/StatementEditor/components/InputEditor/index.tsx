@@ -90,6 +90,8 @@ export function InputEditor(props: InputEditorProps) {
         literalModel = model as NumericLiteral;
         kind = c.NUMERIC_LITERAL;
         value = literalModel.literalToken.value;
+    } else if (STKindChecker.isIdentifierToken(model)) {
+        value = model.value;
     } else if (STKindChecker.isSimpleNameReference(model)) {
         literalModel = model as SimpleNameReference;
         kind = c.SIMPLE_NAME_REFERENCE;
