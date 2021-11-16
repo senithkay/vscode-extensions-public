@@ -14,12 +14,8 @@
 import React, { ReactNode } from 'react';
 
 import {
-    BooleanTypeDesc,
-    DecimalTypeDesc,
-    FloatTypeDesc, IntTypeDesc, JsonTypeDesc, NumericLiteral, QualifiedNameReference, SimpleNameReference,
     STKindChecker,
-    STNode, StringLiteral,
-    StringTypeDesc, VarTypeDesc
+    STNode
 } from "@ballerina/syntax-tree";
 
 import {
