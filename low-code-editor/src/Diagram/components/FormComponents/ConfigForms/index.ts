@@ -28,6 +28,7 @@ import { ProcessConfigForm } from "./ProcessConfigForms";
 import { RecordEditor } from "./RecordEditor";
 import { ApiConfigureWizard } from "./ResourceConfigForm/ApiConfigureWizard";
 import { ServiceConfigForm } from './ServiceConfigForm';
+import { TriggerList } from "./TriggerList";
 import { TypeDefinitionConfigForm } from "./TypeDefinitionConfigForm";
 
 export { APIConfigForm as apiConfig };
@@ -36,6 +37,7 @@ export { ConditionConfigForm as If };
 export { ConditionConfigForm as ForEach };
 export { ConditionConfigForm as While };
 export { ProcessConfigForm as Variable };
+export { ProcessConfigForm as AssignmentStatement };
 export { ProcessConfigForm as Log };
 export { ConnectorList as ConnectorList };
 export { ConnectorForm as Connector };
@@ -53,3 +55,4 @@ export { ConfigurableForm as Configurable };
 export { ListenerConfigForm as ListenerDeclaration };
 export { ConstantConfigForm as ConstDeclaration }
 export { TypeDefinitionConfigForm as TypeDefinition };
+export { TriggerList as TriggerList };

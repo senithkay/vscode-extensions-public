@@ -35,6 +35,7 @@ interface IfProps {
     formArgs: any;
     onCancel: () => void;
     onSave: () => void;
+    onWizardClose: () => void;
 }
 
 export const DEFINE_CONDITION: string = "Define Condition Expression";
@@ -51,7 +52,7 @@ export function AddIfForm(props: IfProps) {
             isMutationProgress: isMutationInProgress
         }
     } = useContext(Context);
-    const { condition, formArgs, onCancel, onSave } = props;
+    const { condition, formArgs, onCancel, onSave, onWizardClose } = props;
     const classes = useStyles();
     const intl = useIntl();
 
@@ -166,11 +167,9 @@ export function AddIfForm(props: IfProps) {
             label: intl.formatMessage({ id: "lowcode.develop.configForms.if.statementEditor.label" }),
             initialSource,
             formArgs: { formArgs },
-            isMutationInProgress,
             validForm: !isInvalid,
-            onSave: handleOnSaveClick,
-            onChange: handleExpEditorChange(0),
-            validate: validateField
+            config: condition,
+            onWizardClose
         }
     );
 
@@ -221,7 +220,7 @@ export function AddIfForm(props: IfProps) {
                     statementEditor={false}
                     formTitle={"lowcode.develop.configForms.if.title"}
                     defaultMessage={"If"}
-                // TODO: Add after statement editor support  statementEditorBtnOnClick={handleStmtEditorButtonClick}
+                    statementEditorBtnOnClick={handleStmtEditorButtonClick}
                 />
                 <div className={classes.formWrapper}>
                     <div className={classes.formFeilds}>

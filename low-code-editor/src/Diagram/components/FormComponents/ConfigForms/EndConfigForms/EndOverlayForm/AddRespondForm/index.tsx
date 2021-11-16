@@ -33,6 +33,7 @@ interface RespondFormProps {
     formArgs: any;
     onCancel: () => void;
     onSave: () => void;
+    onWizardClose: () => void;
 }
 
 export const DEFINE_RESPOND_EXP: string = "Define Respond Expression";
@@ -46,7 +47,7 @@ export function AddRespondForm(props: RespondFormProps) {
             isMutationProgress: isMutationInProgress
         }
     } = useContext(Context);
-    const { config, formArgs, onCancel, onSave } = props;
+    const { config, formArgs, onCancel, onSave, onWizardClose } = props;
 
     const respondFormConfig: RespondConfig = config.expression as RespondConfig;
 
@@ -146,12 +147,10 @@ export function AddRespondForm(props: RespondFormProps) {
         {
             label: intl.formatMessage({ id: "lowcode.develop.configForms.respond.statementEditor.label" }),
             initialSource,
-            formArgs: { formArgs },
-            isMutationInProgress,
+            formArgs: {formArgs},
             validForm,
-            onSave: onSaveWithTour,
-            onChange: onExpressionChange,
-            validate: validateExpression
+            config,
+            onWizardClose
         }
     );
 

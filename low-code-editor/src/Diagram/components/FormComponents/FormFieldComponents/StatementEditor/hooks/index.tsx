@@ -26,11 +26,9 @@ export const useStatementEditor = (props: ViewProps) => {
         initialSource,
         formArgs,
         userInputs,
-        validate,
-        isMutationInProgress,
+        config,
         validForm,
-        onSave,
-        onChange,
+        onWizardClose,
         handleNameOnChange,
         handleTypeChange,
         onCancel
@@ -65,18 +63,16 @@ export const useStatementEditor = (props: ViewProps) => {
                 />
                 <div>
                     <ViewContainer
-                        label={label}
-                        initialSource={initialSource}
-                        formArgs={formArgs}
-                        userInputs={userInputs}
-                        isMutationInProgress={isMutationInProgress}
-                        validForm={validForm}
-                        onCancel={handleStmtEditorCancel}
-                        onSave={onSave}
-                        onChange={onChange}
-                        validate={validate}
-                        handleNameOnChange={handleNameOnChange}
-                        handleTypeChange={handleTypeChange}
+                         label={label}
+                         initialSource={initialSource}
+                         formArgs={formArgs}
+                         userInputs={userInputs}
+                         validForm={validForm}
+                         config={config}
+                         onCancel={handleStmtEditorCancel}
+                         onWizardClose={onWizardClose}
+                         handleNameOnChange={handleNameOnChange}
+                         handleTypeChange={handleTypeChange}
                     />
                 </div>
             </FormControl>

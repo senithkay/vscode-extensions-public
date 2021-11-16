@@ -32,6 +32,7 @@ interface LogConfigProps {
     formArgs: any;
     onCancel: () => void;
     onSave: () => void;
+    onWizardClose: () => void;
 }
 
 export function AddCustomStatementConfig(props: LogConfigProps) {
@@ -45,7 +46,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
             isCodeEditorActive
         }
     } = useContext(Context);
-    const { config, formArgs, onCancel, onSave } = props;
+    const { config, formArgs, onCancel, onSave, onWizardClose } = props;
 
     const expressionFormConfig: CustomExpressionConfig = config.config as CustomExpressionConfig;
 
@@ -95,12 +96,10 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         {
             label: intl.formatMessage({ id: "lowcode.develop.configForms.customStatement.statementEditor.label" }),
             initialSource: expression,
-            formArgs: { formArgs },
-            isMutationInProgress,
+            formArgs: {formArgs},
             validForm: isFormValid,
-            onSave: onSaveBtnClick,
-            onChange: onExpressionChange,
-            validate: validateExpression
+            config,
+            onWizardClose
         }
     );
 

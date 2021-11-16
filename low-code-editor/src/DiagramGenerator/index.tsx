@@ -2,7 +2,7 @@ import * as React from "react";
 import { IntlProvider } from "react-intl";
 import { monaco } from "react-monaco-editor";
 
-import { FunctionDefinition, NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { FunctionDefinition, ModulePart, NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import { MuiThemeProvider } from "@material-ui/core/styles";
 import cloneDeep from "lodash.clonedeep";
 import Mousetrap from 'mousetrap';
@@ -18,7 +18,7 @@ import messages from '../lang/en.json';
 import { CirclePreloader } from "../PreLoader/CirclePreloader";
 
 import { DiagramGenErrorBoundary } from "./ErrorBoundrary";
-import { getDefaultSelectedPosition, getLowcodeST, getSyntaxTree } from "./generatorUtil";
+import { Diagnostic, getDefaultSelectedPosition, getLowcodeST, getSyntaxTree, isUnresolvedModulesAvailable, resolveMissingDependencies } from "./generatorUtil";
 import { useGeneratorStyles } from "./styles";
 import { theme } from "./theme";
 import { EditorProps } from "./vscode/Diagram";
@@ -34,7 +34,7 @@ const MIN_ZOOM = 0.6;
 const undoRedo = new UndoRedoManager();
 
 export function DiagramGenerator(props: DiagramGeneratorProps) {
-    const { langClient, filePath, startLine, startColumn, lastUpdatedAt, scale, panX, panY } = props;
+    const { langClient, filePath, startLine, startColumn, lastUpdatedAt, scale, panX, panY, resolveMissingDependency } = props;
     const classes = useGeneratorStyles();
     const defaultScale = scale ? Number(scale) : 1;
     const defaultPanX = panX ? Number(panX) : 0;
@@ -53,16 +53,19 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     React.useEffect(() => {
         (async () => {
             try {
-                const genSyntaxTree = await getSyntaxTree(filePath, langClient);
+                const genSyntaxTree: ModulePart = await getSyntaxTree(filePath, langClient);
                 const pfSession = await props.getPFSession();
+                const content = await props.getFileContent(filePath);
+                // if (genSyntaxTree?.typeData?.diagnostics && genSyntaxTree?.typeData?.diagnostics?.length > 0) {
+                //     resolveMissingDependency(filePath, content);
+                // }
                 const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, filePath,
-                                                                    langClient, pfSession,
-                                                                    props.showPerformanceGraph, props.showMessage);
+                    langClient, pfSession,
+                    props.showPerformanceGraph, props.showMessage);
                 if (!vistedSyntaxTree) {
                     return (<div><h1>Parse error...!</h1></div>);
                 }
                 setSyntaxTree(vistedSyntaxTree);
-                const content = await props.getFileContent(filePath);
                 undoRedo.updateContent(filePath, content);
                 setFileContent(content);
             } catch (err) {
@@ -125,8 +128,8 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
             const genSyntaxTree = await getSyntaxTree(path, langClient);
             const pfSession = await props.getPFSession();
             const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, path,
-                                                                langClient, pfSession,
-                                                                props.showPerformanceGraph, props.showMessage);
+                langClient, pfSession,
+                props.showPerformanceGraph, props.showMessage);
             setSyntaxTree(vistedSyntaxTree);
             setFileContent(lastsource);
             props.updateFileContent(path, lastsource);
@@ -231,12 +234,15 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                         if (parseSuccess) {
                                             undoRedo.addModification(source);
                                             const pfSession = await props.getPFSession();
-                                            const vistedSyntaxTree: STNode = await getLowcodeST(newST, filePath,
-                                                                                                langClient, pfSession,
-                                                                                                props.showPerformanceGraph, props.showMessage);
-                                            setSyntaxTree(vistedSyntaxTree);
+                                            if (newST?.typeData?.diagnostics && newST?.typeData?.diagnostics?.length > 0 && isUnresolvedModulesAvailable(newST?.typeData?.diagnostics as Diagnostic[])) {
+                                                resolveMissingDependency(filePath, source);
+                                            }
                                             setFileContent(source);
                                             props.updateFileContent(filePath, source);
+                                            const vistedSyntaxTree: STNode = await getLowcodeST(newST, filePath,
+                                                langClient, pfSession,
+                                                props.showPerformanceGraph, props.showMessage);
+                                            setSyntaxTree(vistedSyntaxTree);
                                         } else {
                                             // TODO show error
                                         }
@@ -258,9 +264,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                     zoomOut
                                 },
                                 configPanel: {
-                                    dispactchConfigOverlayForm: (type: string, targetPosition: NodePosition,
-                                                                 wizardType: WizardType, blockViewState?: BlockViewState, config?: ConditionConfig,
-                                                                 symbolInfo?: STSymbolInfo, model?: STNode) => undefined,
+                                    dispactchConfigOverlayForm: (type: string, targetPosition: NodePosition, wizardType: WizardType, blockViewState?: BlockViewState, config?: ConditionConfig, symbolInfo?: STSymbolInfo, model?: STNode) => undefined,
                                     closeConfigOverlayForm: () => undefined,
                                     configOverlayFormPrepareStart: () => undefined,
                                     closeConfigPanel: () => undefined,

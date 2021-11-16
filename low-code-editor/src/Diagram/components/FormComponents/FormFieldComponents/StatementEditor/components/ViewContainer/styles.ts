@@ -164,6 +164,14 @@ export const useStatementEditorStyles = makeStyles(() =>
             width: '90%',
             top: '5%'
         },
+        variableSuggestionsInner: {
+            display: 'flex',
+            position: 'relative',
+            height: '95%',
+            width: '90%',
+            bottom: '5%',
+            overflowY: 'scroll'
+        },
         diagnosticsPane: {
             color: '#ea4c4d',
             display: 'flex',

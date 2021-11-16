@@ -91,33 +91,49 @@ export function LeftPane(props: ModelProps) {
                         message={diagnosticList}
                     />
                 </div>
-            </div>
-            <div className={overlayClasses.sugessionsSection}>
-                <div className={overlayClasses.sugessionsWrapper}>
-                    <div className={overlayClasses.variableSugession}>
-                        <span className={overlayClasses.subHeader}>Variables</span>
-                        <div className={overlayClasses.contextSensitivePane}>
-                            <VariableSuggestions
-                                model={currentModel.model}
-                                variableSuggestions={variableList}
-                                suggestionHandler={suggestionHandler}
-                            />
-                        </div>
-                    </div>
-                    <div className={overlayClasses.variableSugession}>
-                        <span className={overlayClasses.subHeader}>Expression</span>
-                        <div className={overlayClasses.expressionSugession}>
-                            <ExpressionSuggestions
-                                model={currentModel.model}
-                                suggestions={suggestionList}
-                                operator={isOperator}
-                                suggestionHandler={suggestionHandler}
-                            />
-                        </div>
+                <div className={overlayClasses.leftPaneDivider} />
+                <div className={overlayClasses.diagnosticsPane}>
+                    <Diagnostics
+                        message={diagnosticList}
+                    />
+                </div>
+                <span className={overlayClasses.subHeader}>Variables</span>
+                <div className={overlayClasses.contextSensitivePane}>
+                    <div className={overlayClasses.variableSuggestionsInner}>
+                        <VariableSuggestions
+                            model={currentModel.model}
+                            variableSuggestions={variableList}
+                            suggestionHandler={suggestionHandler}
+                        />
                     </div>
                 </div>
-                <div className={overlayClasses.projectSugessionsWrapper}>
-                    <RightPane />
+                <div className={overlayClasses.sugessionsSection}>
+                    <div className={overlayClasses.sugessionsWrapper}>
+                        <div className={overlayClasses.variableSugession}>
+                            <span className={overlayClasses.subHeader}>Variables</span>
+                            <div className={overlayClasses.contextSensitivePane}>
+                                <VariableSuggestions
+                                    model={currentModel.model}
+                                    variableSuggestions={variableList}
+                                    suggestionHandler={suggestionHandler}
+                                />
+                            </div>
+                        </div>
+                        <div className={overlayClasses.variableSugession}>
+                            <span className={overlayClasses.subHeader}>Expression</span>
+                            <div className={overlayClasses.expressionSugession}>
+                                <ExpressionSuggestions
+                                    model={currentModel.model}
+                                    suggestions={suggestionList}
+                                    operator={isOperator}
+                                    suggestionHandler={suggestionHandler}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                    <div className={overlayClasses.projectSugessionsWrapper}>
+                        <RightPane />
+                    </div>
                 </div>
             </div>
         </div>

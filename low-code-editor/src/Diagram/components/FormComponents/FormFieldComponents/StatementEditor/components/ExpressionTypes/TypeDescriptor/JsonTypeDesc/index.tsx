@@ -15,10 +15,9 @@ import React, { useContext } from "react";
 
 import { JsonTypeDesc } from "@ballerina/syntax-tree";
 
-import { TYPE_DESCRIPTOR } from "../../../../constants";
 import { VariableUserInputs } from "../../../../models/definitions";
 import { SuggestionsContext } from "../../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind } from "../../../../utils";
+import { InputEditor } from "../../../InputEditor";
 import { useStatementEditorStyles } from "../../../ViewContainer/styles";
 
 interface JsonTypeDescProps {
@@ -28,22 +27,22 @@ interface JsonTypeDescProps {
 }
 
 export function JsonTypeDescComponent(props: JsonTypeDescProps) {
-    const { model } = props;
+    const { model, userInputs, diagnosticHandler } = props;
 
     const overlayClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
 
-    const onClickOnType = (event: any) => {
-        event.stopPropagation()
-        expressionHandler(model, false, { expressionSuggestions: getSuggestionsBasedOnExpressionKind(TYPE_DESCRIPTOR) })
+    const inputEditorProps = {
+        statementType: model.kind,
+        model,
+        expressionHandler,
+        userInputs,
+        diagnosticHandler
     };
 
     return (
-        <button
-            className={overlayClasses.expressionElement}
-            onClick={onClickOnType}
-        >
-            {model.name.value}
+        <button className={overlayClasses.expressionElement}>
+            <InputEditor {...inputEditorProps} />
         </button>
     );
 }

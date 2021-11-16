@@ -249,6 +249,8 @@ export function ConnectorForm(props: FormGeneratorProps) {
             } new (${getParams(config.connectorInit).join()});`;
             const addConnectorInit = createPropertyStatement(endpointStatement, targetPosition);
             modifications.push(addConnectorInit);
+            const addImport: STModification = createImportStatement(connector.package.organization, connectorModule, targetPosition);
+            modifications.push(addImport);
         }
 
         if (!isNewConnectorInitWizard && isAction) {

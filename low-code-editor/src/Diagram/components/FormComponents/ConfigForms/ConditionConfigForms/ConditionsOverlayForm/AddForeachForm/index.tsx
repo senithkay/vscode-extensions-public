@@ -45,6 +45,7 @@ interface ForeachProps {
     formArgs: any;
     onCancel: () => void;
     onSave: () => void;
+    onWizardClose: () => void;
 }
 
 export const DEFINE_RANGE: string = "Define Range";
@@ -58,7 +59,7 @@ export function AddForeachForm(props: ForeachProps) {
             stSymbolInfo
         }
     } = useContext(Context);
-    const { condition, formArgs, onCancel, onSave } = props;
+    const { condition, formArgs, onCancel, onSave, onWizardClose } = props;
 
     const [conditionExpression] = useState(condition.conditionExpression);
     let initCollectionDefined: boolean = (condition.scopeSymbols.length > 0);
@@ -223,11 +224,9 @@ export function AddForeachForm(props: ForeachProps) {
             label: intl.formatMessage({ id: "lowcode.develop.configForms.forEach.statementEditor.label" }),
             initialSource,
             formArgs: { formArgs },
-            isMutationInProgress,
             validForm: !isInvalid,
-            onSave: handleSave,
-            onChange: handleExpEditorChange,
-            validate: validateField
+            config: condition,
+            onWizardClose
         }
     );
 
@@ -311,4 +310,3 @@ export function AddForeachForm(props: ForeachProps) {
         return stmtEditorComponent;
     }
 }
-

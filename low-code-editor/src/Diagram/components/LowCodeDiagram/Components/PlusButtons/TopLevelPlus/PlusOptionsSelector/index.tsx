@@ -47,6 +47,7 @@ const moduleLevelEntries: PlusMenuEntry[] = [
     { name: 'Record', type: 'RecordEditor' },
     { name: 'Class', type: 'ClassDefinition' },
     { name: 'Function', type: 'FunctionDefinition' },
+    { name: 'Trigger', type: 'TriggerList' },
     { name: 'Other', type: 'Custom' }
 ];
 
