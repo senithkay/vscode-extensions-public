@@ -109,4 +109,3 @@ export interface ErrorSnippet{
     diagnosticMsgs? : string,
     code ?: string,
 }
-
