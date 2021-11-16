@@ -29,10 +29,14 @@ import {
 import { mergeAnalysisDetails } from "./mergePerformanceData";
 import { PFSession } from "./vscode/Diagram";
 
-const CHOREO_AUTH_ERR = "Choreo Authentication error.";
-const NETWORK_ERR = "Network error. Please check you internet connection.";
-const MODEL_NOT_FOUND = "AI service does not have enough data to forecast."
+const CHOREO_AUTH_ERR = "Authentication error for accessing AI service (ID6)";
+const NETWORK_ERR = "Network error. Please check you internet connection";
+const MODEL_NOT_FOUND = "AI service does not have enough data to forecast";
+const ESTIMATOR_ERROR = "AI service is currently unavailable (ID2)";
+const UNKNOWN_ANALYSIS_TYPE = "Invalid request sent to AI service (ID7)";
+const INVALID_DATA = "Request with invalid data sent to AI service (ID8)";
 const SUCCESS = "Success";
+const IGNORE = "IGNORE";
 let syntaxTree: any;
 let langClient: DiagramEditorLangClientInterface;
 let filePath: string;
@@ -65,10 +69,7 @@ export enum MESSAGE_TYPE {
  * @param showPerf Show performance graph function
  * @param showMsg Show alerts in vscode side
  */
-export async function addPerformanceData(st: any, file: string, lc: DiagramEditorLangClientInterface,
-                                         session: PFSession, showPerf: (request: PerformanceGraphRequest) => Promise<boolean>,
-                                         showMsg: (message: string, type: MESSAGE_TYPE, isIgnorable: boolean) => Promise<boolean>) {
-
+export async function addPerformanceData(st: any, file: string, lc: DiagramEditorLangClientInterface, session: PFSession, showPerf: (request: PerformanceGraphRequest) => Promise<boolean>, showMsg: (message: string, type: MESSAGE_TYPE, isIgnorable: boolean) => Promise<boolean>) {
     if (!st || !file || !lc || !session) {
         return;
     }
@@ -138,13 +139,17 @@ async function getRealtimeData(range: Range): Promise<PerformanceAnalyzerRealtim
             choreoToken: `Bearer ${pfSession.choreoToken}`,
             choreoCookie: pfSession.choreoCookie,
         }).then(async (response: PerformanceAnalyzerRealtimeResponse) => {
-
-            if (response.type !== SUCCESS) {
+            if (!response) {
+                return resolve(null);
+            }
+            if (response.type && response.type === IGNORE) {
+                return;
+            }
+            if (response.type && response.type !== SUCCESS) {
                 checkErrors(response);
                 return resolve(null);
             }
             return resolve(response);
-
         });
     });
 }
@@ -227,8 +232,23 @@ function checkErrors(response: PerformanceAnalyzerRealtimeResponse | Performance
         // AI Error
         showMessage(MODEL_NOT_FOUND, MESSAGE_TYPE.INFO, true);
 
+    } else if (response.message === 'NO_DATA') {
+        // This happens when there is no action invocations in the code.
+        // No need to show any error/info since there is no invocations.
+
+    } else if (response.message === 'ESTIMATOR_ERROR') {
+        // AI Error
+        showMessage(ESTIMATOR_ERROR, MESSAGE_TYPE.ERROR, true);
+
+    } else if (response.message === 'UNKNOWN_ANALYSIS_TYPE') {
+        // AI Error
+        showMessage(UNKNOWN_ANALYSIS_TYPE, MESSAGE_TYPE.ERROR, true);
+
+    } else if (response.message === 'INVALID_DATA') {
+        // AI Error
+        showMessage(INVALID_DATA, MESSAGE_TYPE.INFO, true);
+
     } else {
-        // Other error
         showMessage(response.message, MESSAGE_TYPE.ERROR, true);
 
     }
