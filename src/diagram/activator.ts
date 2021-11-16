@@ -38,6 +38,7 @@ import { PALETTE_COMMANDS } from '../project';
 import { sep } from "path";
 import { DiagramOptions, Member, SyntaxTree } from './model';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { createSwaggerView } from '../swagger';
 
 const NO_DIAGRAM_VIEWS: string = 'No Ballerina diagram views found!';
 
@@ -248,6 +249,13 @@ class DiagramPanel {
 				methodName: 'focusDiagram',
 				handler: (_args: any[]): Promise<boolean> => {
 					ballerinaExtension.setDiagramActiveContext(true);
+					return Promise.resolve(true);
+				}
+			},
+			{
+				methodName: "createSwaggerView",
+				handler: async (args: any[]): Promise<boolean> => {
+					await createSwaggerView(args[0], args[1]);
 					return Promise.resolve(true);
 				}
 			}

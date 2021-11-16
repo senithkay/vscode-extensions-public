@@ -28,8 +28,8 @@ import path from "path";
 
 let langClient: ExtendedLangClient;
 export async function activate(ballerinaExtInstance: BallerinaExtension) {
+    langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
     commands.registerCommand(PALETTE_COMMANDS.SWAGGER_VIEW, async (...args: any[]) => {
-        langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
         const editor = window.activeTextEditor;
 
         if (!editor) {
@@ -41,7 +41,7 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
         if (args && args.length == 1) {
             serviceName = args[0];
         }
-        
+
         await createSwaggerView(documentFilePath, serviceName);
     });
 
@@ -51,8 +51,12 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
     }
 }
 
-async function createSwaggerView(documentFilePath: string, serviceName: any) {
+export async function createSwaggerView(documentFilePath: string, serviceName: any) {
     const file = path.basename(documentFilePath);
+
+    if (!langClient) {
+        return;
+    }
     await langClient.convertToOpenAPI({
         documentFilePath
     }).then(async (response) => {

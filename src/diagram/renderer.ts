@@ -148,6 +148,17 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
                     );
                 })
             }
+            function createSwaggerView(documentFilePath, serviceName) {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'createSwaggerView',
+                        [documentFilePath, serviceName],
+                        (response) => {
+                            resolve(response);
+                        }
+                    );
+                })
+            }
             function drawDiagram({
                 filePath,
                 startLine,
@@ -168,6 +179,7 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
                             getPFSession,
                             showPerformanceGraph,
                             showMessage,
+                            createSwaggerView,
                             lastUpdatedAt
                         }
                     };
