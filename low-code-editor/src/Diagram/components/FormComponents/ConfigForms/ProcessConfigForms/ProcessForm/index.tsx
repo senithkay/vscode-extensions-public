@@ -30,12 +30,12 @@ interface ProcessFormProps {
     config: ProcessConfig;
     onCancel: () => void;
     onSave: () => void;
-    done: () => void;
+    onWizardClose: () => void;
     configOverlayFormStatus: ConfigOverlayFormStatus;
 }
 
 export function ProcessForm(props: ProcessFormProps) {
-    const { config, onCancel, onSave, done, configOverlayFormStatus } = props;
+    const { config, onCancel, onSave, onWizardClose, configOverlayFormStatus } = props;
     const { isLoading, error, formType, formArgs } = configOverlayFormStatus;
     const {
         api: {
@@ -88,7 +88,7 @@ export function ProcessForm(props: ProcessFormProps) {
                             config={config}
                             formArgs={formArgs}
                             onSave={onSave}
-                            done={done}
+                            onWizardClose={onWizardClose}
                             onCancel={onCancel}
                         />
                     )
@@ -99,7 +99,7 @@ export function ProcessForm(props: ProcessFormProps) {
                             config={config}
                             formArgs={formArgs}
                             onSave={onSave}
-                            done={done}
+                            onWizardClose={onWizardClose}
                             onCancel={onCancel}
                         />
                     )
@@ -110,7 +110,7 @@ export function ProcessForm(props: ProcessFormProps) {
                             config={config}
                             formArgs={formArgs}
                             onSave={onSave}
-                            done={done}
+                            onWizardClose={onWizardClose}
                             onCancel={onCancel}
                         />
                     )

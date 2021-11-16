@@ -36,7 +36,7 @@ export interface ViewProps {
     userInputs?: VariableUserInputs;
     config: ProcessConfig | EndConfig | ConditionConfig;
     validForm?: boolean;
-    done: () => void;
+    onWizardClose: () => void;
     onCancel?: () => void;
     handleNameOnChange?: (name: string) => void;
     handleTypeChange?: (name: string) => void;
@@ -61,7 +61,7 @@ export function ViewContainer(props: ViewProps) {
         userInputs,
         config,
         onCancel,
-        done,
+        onWizardClose,
         handleNameOnChange,
         handleTypeChange
     } = props;
@@ -141,7 +141,7 @@ export function ViewContainer(props: ViewProps) {
     const onSaveClick = () => {
         const modifications = getModifications(model, config, formArgs);
         modifyDiagram(modifications);
-        done();
+        onWizardClose();
     };
 
     return (

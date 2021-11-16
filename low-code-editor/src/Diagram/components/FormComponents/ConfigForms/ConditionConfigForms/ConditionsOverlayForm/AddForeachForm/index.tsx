@@ -44,7 +44,7 @@ interface ForeachProps {
     formArgs: any;
     onCancel: () => void;
     onSave: () => void;
-    done: () => void;
+    onWizardClose: () => void;
 }
 
 export const DEFINE_RANGE: string = "Define Range";
@@ -58,7 +58,7 @@ export function AddForeachForm(props: ForeachProps) {
             stSymbolInfo
         }
     } = useContext(Context);
-    const { condition, formArgs, onCancel, onSave, done } = props;
+    const { condition, formArgs, onCancel, onSave, onWizardClose } = props;
 
     const [conditionExpression] = useState(condition.conditionExpression);
     let initCollectionDefined: boolean = (condition.scopeSymbols.length > 0);
@@ -225,7 +225,7 @@ export function AddForeachForm(props: ForeachProps) {
             formArgs: {formArgs},
             validForm: !isInvalid,
             config: condition,
-            done
+            onWizardClose
         }
     );
 

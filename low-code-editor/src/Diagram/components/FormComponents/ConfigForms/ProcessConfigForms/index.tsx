@@ -178,7 +178,7 @@ export function ProcessConfigForm(props: any) {
             config={processConfig}
             onCancel={onCancel}
             onSave={onSaveClick}
-            done={onSave}
+            onWizardClose={onSave}
             configOverlayFormStatus={configOverlayFormStatus}
         />
     );

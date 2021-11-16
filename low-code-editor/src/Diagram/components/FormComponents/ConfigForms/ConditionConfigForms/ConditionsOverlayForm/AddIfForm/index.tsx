@@ -35,7 +35,7 @@ interface IfProps {
     formArgs: any;
     onCancel: () => void;
     onSave: () => void;
-    done: () => void;
+    onWizardClose: () => void;
 }
 
 export const DEFINE_CONDITION: string = "Define Condition Expression";
@@ -52,7 +52,7 @@ export function AddIfForm(props: IfProps) {
             isMutationProgress: isMutationInProgress
         }
     } = useContext(Context);
-    const { condition, formArgs, onCancel, onSave, done } = props;
+    const { condition, formArgs, onCancel, onSave, onWizardClose } = props;
     const classes = useStyles();
     const intl = useIntl();
 
@@ -169,7 +169,7 @@ export function AddIfForm(props: IfProps) {
             formArgs: {formArgs},
             validForm: !isInvalid,
             config: condition,
-            done
+            onWizardClose
         }
     );
 

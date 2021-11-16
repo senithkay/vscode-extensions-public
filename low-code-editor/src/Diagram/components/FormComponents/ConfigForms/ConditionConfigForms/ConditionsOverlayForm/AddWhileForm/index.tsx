@@ -32,12 +32,12 @@ export interface WhileProps {
     formArgs: any;
     onCancel: () => void;
     onSave: () => void;
-    done: () => void;
+    onWizardClose: () => void;
 }
 
 export function AddWhileForm(props: WhileProps) {
     const { props: { isMutationProgress: isMutationInProgress } } = useContext(Context);
-    const { condition, formArgs, onCancel, onSave, done } = props;
+    const { condition, formArgs, onCancel, onSave, onWizardClose } = props;
     const classes = useStyles();
     const intl = useIntl();
 
@@ -117,7 +117,7 @@ export function AddWhileForm(props: WhileProps) {
             formArgs: {formArgs},
             validForm: !isInvalid,
             config: condition,
-            done
+            onWizardClose
         }
     );
 

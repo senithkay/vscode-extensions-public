@@ -26,13 +26,13 @@ interface ConditionsWizardProps {
     condition: ConditionConfig;
     onCancel: () => void;
     onSave: () => void;
-    done: () => void;
+    onWizardClose: () => void;
     configOverlayFormStatus: ConfigOverlayFormStatus
 }
 
 
 export function ConditionsOverlayForm(props: ConditionsWizardProps) {
-    const { condition, onCancel, onSave, done, configOverlayFormStatus } = props;
+    const { condition, onCancel, onSave, onWizardClose, configOverlayFormStatus } = props;
     const { isLoading, error, formType, formArgs} = configOverlayFormStatus;
     const {
         api: {
@@ -82,7 +82,7 @@ export function ConditionsOverlayForm(props: ConditionsWizardProps) {
                             condition={condition}
                             formArgs={formArgs}
                             onSave={onSave}
-                            done={done}
+                            onWizardClose={onWizardClose}
                             onCancel={onCancel}
                         />
                     )
@@ -93,7 +93,7 @@ export function ConditionsOverlayForm(props: ConditionsWizardProps) {
                             condition={condition}
                             formArgs={formArgs}
                             onSave={onSave}
-                            done={done}
+                            onWizardClose={onWizardClose}
                             onCancel={onCancel}
                         />
                     )
@@ -104,7 +104,7 @@ export function ConditionsOverlayForm(props: ConditionsWizardProps) {
                             condition={condition}
                             formArgs={formArgs}
                             onSave={onSave}
-                            done={done}
+                            onWizardClose={onWizardClose}
                             onCancel={onCancel}
                         />
                     )

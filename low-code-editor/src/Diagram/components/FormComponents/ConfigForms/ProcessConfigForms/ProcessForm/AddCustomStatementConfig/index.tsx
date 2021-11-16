@@ -31,7 +31,7 @@ interface LogConfigProps {
     formArgs: any;
     onCancel: () => void;
     onSave: () => void;
-    done: () => void;
+    onWizardClose: () => void;
 }
 
 export function AddCustomStatementConfig(props: LogConfigProps) {
@@ -45,7 +45,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
             isCodeEditorActive
         }
     } = useContext(Context);
-    const { config, formArgs, onCancel, onSave, done } = props;
+    const { config, formArgs, onCancel, onSave, onWizardClose } = props;
 
     const expressionFormConfig: CustomExpressionConfig = config.config as CustomExpressionConfig;
 
@@ -98,7 +98,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
             formArgs: {formArgs},
             validForm: isFormValid,
             config,
-            done
+            onWizardClose
         }
     );
 

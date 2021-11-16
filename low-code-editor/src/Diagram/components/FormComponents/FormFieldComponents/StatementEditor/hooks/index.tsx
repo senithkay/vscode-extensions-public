@@ -28,7 +28,7 @@ export const useStatementEditor = (props: ViewProps) => {
         userInputs,
         config,
         validForm,
-        done,
+        onWizardClose,
         handleNameOnChange,
         handleTypeChange
     } = props;
@@ -71,7 +71,7 @@ export const useStatementEditor = (props: ViewProps) => {
                     validForm={validForm}
                     config={config}
                     onCancel={handleStmtEditorCancel}
-                    done={done}
+                    onWizardClose={onWizardClose}
                     handleNameOnChange={handleNameOnChange}
                     handleTypeChange={handleTypeChange}
                 />

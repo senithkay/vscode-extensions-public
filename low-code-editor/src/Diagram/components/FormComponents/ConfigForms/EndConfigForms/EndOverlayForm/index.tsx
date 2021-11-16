@@ -26,12 +26,12 @@ interface EndOverlayFormProps {
     config: EndConfig;
     onCancel: () => void;
     onSave: () => void;
-    done: () => void;
+    onWizardClose: () => void;
     configOverlayFormStatus: ConfigOverlayFormStatus;
 }
 
 export function EndOverlayForm(props: EndOverlayFormProps) {
-    const { config, onCancel, onSave, done, configOverlayFormStatus } = props;
+    const { config, onCancel, onSave, onWizardClose, configOverlayFormStatus } = props;
     const { isLoading, error, formType, formArgs } = configOverlayFormStatus;
     const isExpressionFunctionBody: boolean = config.model ?
     STKindChecker.isExpressionFunctionBody(config.model) : false;
@@ -93,7 +93,7 @@ export function EndOverlayForm(props: EndOverlayFormProps) {
                             config={config}
                             formArgs={formArgs}
                             onSave={onSave}
-                            done={done}
+                            onWizardClose={onWizardClose}
                             onCancel={onCancel}
                         />
                     )
@@ -104,7 +104,7 @@ export function EndOverlayForm(props: EndOverlayFormProps) {
                             config={config}
                             formArgs={formArgs}
                             onSave={onSave}
-                            done={done}
+                            onWizardClose={onWizardClose}
                             onCancel={onCancel}
                         />
                     )
