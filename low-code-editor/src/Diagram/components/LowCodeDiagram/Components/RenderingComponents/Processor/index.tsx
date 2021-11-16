@@ -22,7 +22,6 @@ import {
     QualifiedNameReference,
     STKindChecker,
     STNode} from "@ballerina/syntax-tree";
-import cn from "classnames";
 
 import { WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
@@ -237,8 +236,8 @@ export function DataProcessor(props: ProcessorProps) {
         statmentTypeText = getStatementTypesFromST(localModel);
     }
 
-    const processWrapper = isDraftStatement ? cn("main-process-wrapper active-data-processor") : cn("main-process-wrapper data-processor");
-    const processStyles = diagnosticMsgs && !isDraftStatement ? cn("main-process-wrapper data-processor-error ") : processWrapper;
+    const processWrapper = isDraftStatement ? "main-process-wrapper active-data-processor" : "main-process-wrapper data-processor";
+    const processStyles = diagnosticMsgs && !isDraftStatement ? "main-process-wrapper data-processor-error " : processWrapper;
 
     const component: React.ReactNode = (!viewState.collapsed &&
         (

@@ -14,7 +14,6 @@
 import React, { ReactNode, useContext, useState } from "react"
 
 import { ForeachStatement, NodePosition, STKindChecker, STNode, TypedBindingPattern } from "@ballerina/syntax-tree";
-import cn from 'classnames';
 
 import { WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
@@ -230,7 +229,7 @@ export function ForEach(props: ForeachProps) {
     const diagnostics = forEachModel?.actionOrExpressionNode?.typeData.diagnostics;
 
     const diagnosticMsgs = getDiagnosticMsgs(diagnostics);
-    const foreachWrapper = diagnosticMsgs ? cn("foreach-block-error") : cn("foreach-block") ;
+    const foreachWrapper = diagnosticMsgs ? "foreach-block-error" : "foreach-block" ;
     const errorSnippet = {
         diagnosticMsgs,
         code: codeSnippet,

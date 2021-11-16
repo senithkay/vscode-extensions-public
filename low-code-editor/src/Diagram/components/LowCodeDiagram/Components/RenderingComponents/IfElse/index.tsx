@@ -19,7 +19,6 @@ import {
     STKindChecker,
     STNode
 } from "@ballerina/syntax-tree";
-import cn from "classnames";
 
 import { WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
@@ -157,9 +156,9 @@ export function IfElse(props: IfElseProps) {
     const diagnosticMsgs = getDiagnosticMsgs(diagnostics);
 
     const conditionWrapper = isDraftStatement ? (diagnosticMsgs ?
-        cn("main-condition-wrapper active-condition-error") : cn("main-condition-wrapper active-condition")) :
+        "main-condition-wrapper active-condition-error" : "main-condition-wrapper active-condition") :
         (diagnosticMsgs ?
-        cn("main-condition-wrapper if-condition-error-wrapper") : cn("main-condition-wrapper if-condition-wrapper"));
+        "main-condition-wrapper if-condition-error-wrapper" : "main-condition-wrapper if-condition-wrapper");
 
     const errorSnippet = {
         diagnosticMsgs,

@@ -19,7 +19,6 @@ import {
     STNode,
     WhileStatement
 } from "@ballerina/syntax-tree";
-import cn from "classnames";
 
 import { WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
@@ -90,7 +89,7 @@ export function While(props: WhileProps) {
     const diagnostics = modelWhile?.condition?.typeData?.diagnostics;
 
     const diagnosticMsgs = getDiagnosticMsgs(diagnostics);
-    const whileWrapper = diagnosticMsgs ? cn("while-error-wrapper") : cn("while-wrapper") ;
+    const whileWrapper = diagnosticMsgs ? "while-error-wrapper" : "while-wrapper" ;
 
     let codeSnippet = modelWhile?.source?.trim().split('{')[0];
     let codeSnippetOnSvg = "WHILE";
