@@ -21,6 +21,7 @@ import { httpResponse, PrimitiveBalType } from "../../../../../../../Configurati
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { createRespond, getInitialSource } from "../../../../../../utils/modification-util";
+import { FormHeaderSection } from "../../../../Commons/FormHeaderSection";
 import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
 import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";
@@ -141,11 +142,11 @@ export function AddRespondForm(props: RespondFormProps) {
         resExp
     ));
 
-    const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
+    const { handleStmtEditorButtonClick, stmtEditorComponent } = useStatementEditor(
         {
-            label: intl.formatMessage({id: "lowcode.develop.configForms.respond.statementEditor.label"}),
+            label: intl.formatMessage({ id: "lowcode.develop.configForms.respond.statementEditor.label" }),
             initialSource,
-            formArgs: {formArgs},
+            formArgs: { formArgs },
             isMutationInProgress,
             validForm,
             onSave: onSaveWithTour,
@@ -157,66 +158,63 @@ export function AddRespondForm(props: RespondFormProps) {
 
     if (!stmtEditorComponent) {
         return (
-                <FormControl data-testid="respond-form" className={cn(formClasses.wizardFormControl)}>
-                    <div className={formClasses.formWrapper}>
-                        <div className={formClasses.formFeilds}>
-                            <div className={formClasses.formTitleWrapper}>
-                                <div className={formClasses.mainTitleWrapper}>
-                                    <Typography variant="h4">
-                                        <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.Respond.title" defaultMessage="Respond" /></Box>
-                                    </Typography>
-                                </div>
-                                {stmtEditorButton}
-                            </div>
-                            <div className={formClasses.formWrapper}>
-                                <div className="exp-wrapper product-tour-payload-jsonpayload">
-                                    <ExpressionEditor
-                                        model={{
-                                            name: "respond expression",
-                                            value: respondFormConfig.respondExpression,
-                                            type: PrimitiveBalType.Union,
-                                            fields: [
-                                                {
-                                                    type: PrimitiveBalType.String
-                                                },
-                                                {
-                                                    type: PrimitiveBalType.Xml
-                                                },
-                                                {
-                                                    type: PrimitiveBalType.Json
-                                                },
-                                                {
-                                                    type: PrimitiveBalType.Record,
-                                                    typeInfo: httpResponse
-                                                }
-                                            ]
-                                        }}
-                                        customProps={{
-                                            validate: validateExpression,
-                                            tooltipTitle: respondStatementTooltipMessages.title,
-                                            tooltipActionText: respondStatementTooltipMessages.actionText,
-                                            tooltipActionLink: respondStatementTooltipMessages.actionLink,
-                                            interactive: true,
-                                            statementType: [PrimitiveBalType.String, PrimitiveBalType.Xml, PrimitiveBalType.Json, httpResponse]
-                                        }}
-                                        onChange={onExpressionChange}
-                                    />
-                                </div>
-
-                                {(!config.model) ? statusCodeComp : null}
-                            </div>
+            <FormControl data-testid="respond-form" className={cn(formClasses.wizardFormControl)}>
+                <FormHeaderSection
+                    onCancel={onCancel}
+                    statementEditor={true}
+                    formTitle={"lowcode.develop.configForms.Respond.title"}
+                    defaultMessage={"Respond"}
+                    statementEditorBtnOnClick={handleStmtEditorButtonClick}
+                />
+                <div className={formClasses.formWrapper}>
+                    <div className={formClasses.formFeilds}>
+                        <div className="exp-wrapper product-tour-payload-jsonpayload">
+                            <ExpressionEditor
+                                model={{
+                                    name: "respond expression",
+                                    value: respondFormConfig.respondExpression,
+                                    type: PrimitiveBalType.Union,
+                                    fields: [
+                                        {
+                                            type: PrimitiveBalType.String
+                                        },
+                                        {
+                                            type: PrimitiveBalType.Xml
+                                        },
+                                        {
+                                            type: PrimitiveBalType.Json
+                                        },
+                                        {
+                                            type: PrimitiveBalType.Record,
+                                            typeInfo: httpResponse
+                                        }
+                                    ]
+                                }}
+                                customProps={{
+                                    validate: validateExpression,
+                                    tooltipTitle: respondStatementTooltipMessages.title,
+                                    tooltipActionText: respondStatementTooltipMessages.actionText,
+                                    tooltipActionLink: respondStatementTooltipMessages.actionLink,
+                                    interactive: true,
+                                    statementType: [PrimitiveBalType.String, PrimitiveBalType.Xml, PrimitiveBalType.Json, httpResponse]
+                                }}
+                                onChange={onExpressionChange}
+                            />
                         </div>
-                        <FormActionButtons
-                            cancelBtnText="Cancel"
-                            saveBtnText={saveRespondButtonLabel}
-                            isMutationInProgress={isMutationInProgress}
-                            validForm={validForm}
-                            onSave={onSaveWithTour}
-                            onCancel={onCancel}
-                        />
+                        {(!config.model) ? statusCodeComp : null}
+
                     </div>
-                </FormControl>
-            );
+                    <FormActionButtons
+                        cancelBtnText="Cancel"
+                        saveBtnText={saveRespondButtonLabel}
+                        isMutationInProgress={isMutationInProgress}
+                        validForm={validForm}
+                        onSave={onSaveWithTour}
+                        onCancel={onCancel}
+                    />
+                </div>
+            </FormControl>
+        );
     }
     else {
         return stmtEditorComponent;

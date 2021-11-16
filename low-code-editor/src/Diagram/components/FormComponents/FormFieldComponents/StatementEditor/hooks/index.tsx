@@ -11,10 +11,10 @@
  * associated services.
  */
 import React, { useState } from "react";
-import { FormattedMessage } from "react-intl";
 
-import { Box, FormControl, Typography } from "@material-ui/core";
+import { FormControl } from "@material-ui/core";
 
+import { FormHeaderSection } from "../../../Commons/FormHeaderSection";
 import { StatementEditorButton } from "../components/Button/StatementEditorButton";
 import { ViewContainer, ViewProps } from "../components/ViewContainer/ViewContainer";
 
@@ -32,7 +32,8 @@ export const useStatementEditor = (props: ViewProps) => {
         onSave,
         onChange,
         handleNameOnChange,
-        handleTypeChange
+        handleTypeChange,
+        onCancel
     } = props;
     const classes = useStyles();
 
@@ -49,38 +50,36 @@ export const useStatementEditor = (props: ViewProps) => {
 
     const stmtEditorButton =
         (
-            <div style={{display: 'inline-flex', width: "100%", marginLeft: "auto", marginRight: '8px', justifyContent: 'flex-end'}}>
+            <div style={{ display: 'inline-flex', width: "100%", marginLeft: "auto", marginRight: '8px', justifyContent: 'flex-end' }}>
                 <StatementEditorButton onClick={handleStmtEditorButtonClick} />
             </div>
         );
 
     const stmtEditorComponent =
         isStmtEditor && (
-        <FormControl data-testid="property-form">
-            <div>
-                <div className={classes.formTitleWrapper}>
-                    <div className={classes.mainTitleWrapper}>
-                        <Typography variant="h4">
-                            <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.statementEditor.title" defaultMessage="Statement jhkhkj" /></Box>
-                        </Typography>
-                    </div>
-                </div>
-                <ViewContainer
-                    label={label}
-                    initialSource={initialSource}
-                    formArgs={formArgs}
-                    userInputs={userInputs}
-                    isMutationInProgress={isMutationInProgress}
-                    validForm={validForm}
-                    onCancel={handleStmtEditorCancel}
-                    onSave={onSave}
-                    onChange={onChange}
-                    validate={validate}
-                    handleNameOnChange={handleNameOnChange}
-                    handleTypeChange={handleTypeChange}
+            <FormControl data-testid="property-form">
+                <FormHeaderSection
+                    onCancel={onCancel}
+                    formTitle={"lowcode.develop.configForms.statementEditor.title"}
+                    defaultMessage={"Statement Editor"}
                 />
-            </div>
-        </FormControl>
+                <div>
+                    <ViewContainer
+                        label={label}
+                        initialSource={initialSource}
+                        formArgs={formArgs}
+                        userInputs={userInputs}
+                        isMutationInProgress={isMutationInProgress}
+                        validForm={validForm}
+                        onCancel={handleStmtEditorCancel}
+                        onSave={onSave}
+                        onChange={onChange}
+                        validate={validate}
+                        handleNameOnChange={handleNameOnChange}
+                        handleTypeChange={handleTypeChange}
+                    />
+                </div>
+            </FormControl>
         );
 
     return {

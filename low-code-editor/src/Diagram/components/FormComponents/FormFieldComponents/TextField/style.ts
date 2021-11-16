@@ -195,5 +195,6 @@ export const useStyles = makeStyles((theme: Theme) =>
     codeWrapper: {
       margin: '-5px 0 7px !important'
     }
-  })
+  }),
+  { index: 1 }
 );

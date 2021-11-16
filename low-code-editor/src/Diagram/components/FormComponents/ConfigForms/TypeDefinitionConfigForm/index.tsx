@@ -20,6 +20,7 @@ import EditButton from "../../../../../assets/icons/EditButton";
 import { PrimaryButton } from "../../../../../components/Buttons/PrimaryButton";
 import { useDiagramContext } from "../../../../../Contexts/Diagram";
 import { mutateTypeDefinition } from "../../../../utils/modification-util";
+import { FormHeaderSection } from "../../Commons/FormHeaderSection";
 import { SecondaryButton } from "../../FormFieldComponents/Button/SecondaryButton";
 import { SelectDropdownWithButton } from "../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import { FormTextInput } from "../../FormFieldComponents/TextField/FormTextInput";
@@ -155,72 +156,74 @@ export function TypeDefinitionConfigForm(props: TypeDefFormProps) {
         <>
             {!isTypeDescConfigsProgress ? (
                 <FormControl data-testid="log-form" className={formClasses.wizardFormControl}>
-                    <div className={formClasses.formTitleWrapper}>
-                        <Typography variant="h4">
-                            <Box paddingTop={2} paddingBottom={2}>Type Definition</Box>
-                        </Typography>
-                    </div>
-                    <FormTextInput
-                        dataTestId="field-name"
-                        customProps={{
-                            validate: validateNameValue,
-                        }}
-                        defaultValue={name}
-                        onChange={handleNameChange}
-                        label={"Field name"}
-                        errorMessage={!isValidName ? "Variable name already exists" : null}
-                        placeholder={"Enter field name"}
+                    <FormHeaderSection
+                        onCancel={onCancel}
+                        formTitle={"lowcode.develop.configForms.TypeDefiniConfigForm.title"}
+                        defaultMessage={"Type Definition"}
                     />
-                    <SelectDropdownWithButton
-                        dataTestId="visibility"
-                        defaultValue={visibility}
-                        customProps={
-                            {
-                                values: ["public", "private"],
-                                disableCreateNew: true
+                    <div className={formClasses.formWrapper}>
+                        <FormTextInput
+                            dataTestId="field-name"
+                            customProps={{
+                                validate: validateNameValue,
+                            }}
+                            defaultValue={name}
+                            onChange={handleNameChange}
+                            label={"Field name"}
+                            errorMessage={!isValidName ? "Variable name already exists" : null}
+                            placeholder={"Enter field name"}
+                        />
+                        <SelectDropdownWithButton
+                            dataTestId="visibility"
+                            defaultValue={visibility}
+                            customProps={
+                                {
+                                    values: ["public", "private"],
+                                    disableCreateNew: true
+                                }
                             }
-                        }
-                        label="Visibility"
-                        placeholder="Select Visibility"
-                        onChange={handleVisibilitySelect}
-                    />
-                    <SelectDropdownWithButton
-                        dataTestId="type"
-                        defaultValue={type}
-                        customProps={
-                            {
-                                values: ["int", "string", "record"],
-                                disableCreateNew: true
+                            label="Visibility"
+                            placeholder="Select Visibility"
+                            onChange={handleVisibilitySelect}
+                        />
+                        <SelectDropdownWithButton
+                            dataTestId="type"
+                            defaultValue={type}
+                            customProps={
+                                {
+                                    values: ["int", "string", "record"],
+                                    disableCreateNew: true
+                                }
                             }
-                        }
-                        label="Type"
-                        placeholder="Select Type"
-                        onChange={handleTypeSelect}
-                    />
-                    {typeDescConfigs && (
-                        <div className={recordClasses.activeItemContentWrapper}>
-                            <div className={recordClasses.typeWrapper}>
-                                {typeDescConfigs}
-                            </div>
-                            <div className={recordClasses.btnWrapper}>
-                                <div className={recordClasses.actionBtnWrapper} onClick={handleRecordEdit}>
-                                    <EditButton />
+                            label="Type"
+                            placeholder="Select Type"
+                            onChange={handleTypeSelect}
+                        />
+                        {typeDescConfigs && (
+                            <div className={recordClasses.activeItemContentWrapper}>
+                                <div className={recordClasses.typeWrapper}>
+                                    {typeDescConfigs}
+                                </div>
+                                <div className={recordClasses.btnWrapper}>
+                                    <div className={recordClasses.actionBtnWrapper} onClick={handleRecordEdit}>
+                                        <EditButton />
+                                    </div>
                                 </div>
                             </div>
+                        )}
+                        <div className={formClasses.wizardBtnHolder}>
+                            <SecondaryButton
+                                text="Cancel"
+                                fullWidth={false}
+                                onClick={onCancel}
+                            />
+                            <PrimaryButton
+                                text={buttonText}
+                                disabled={false}
+                                fullWidth={false}
+                                onClick={handleOnSave}
+                            />
                         </div>
-                    )}
-                    <div className={formClasses.wizardBtnHolder}>
-                        <SecondaryButton
-                            text="Cancel"
-                            fullWidth={false}
-                            onClick={onCancel}
-                        />
-                        <PrimaryButton
-                            text={buttonText}
-                            disabled={false}
-                            fullWidth={false}
-                            onClick={handleOnSave}
-                        />
                     </div>
                 </FormControl>
             ) : (

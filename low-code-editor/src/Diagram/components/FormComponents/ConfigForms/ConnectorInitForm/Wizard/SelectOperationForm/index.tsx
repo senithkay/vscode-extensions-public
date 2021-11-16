@@ -16,21 +16,22 @@ import React from "react";
 import { Box, FormControl, FormHelperText, Typography } from "@material-ui/core";
 
 import { ActionConfig, ConnectorConfig, FormField } from "../../../../../../../ConfigurationSpec/types";
+import { FormHeaderSection } from "../../../../Commons/FormHeaderSection";
 import { PrimaryButton } from "../../../../FormFieldComponents/Button/PrimaryButton";
 import { SecondaryButton } from "../../../../FormFieldComponents/Button/SecondaryButton";
 import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import { wizardStyles } from "../../../style";
-import "../style.scss"
-
+import "../style.scss";
 interface SelectOperationFormProps {
     actions: Map<string, FormField[]>;
     connectorConfig: ConnectorConfig;
     onBackClick?: () => void;
     onSave?: () => void;
+    onCancel?: () => void;
 }
 
 export function SelectOperationForm(props: SelectOperationFormProps) {
-    const { onBackClick, onSave, actions, connectorConfig } = props;
+    const { onBackClick, onSave, actions, connectorConfig, onCancel } = props;
 
     const classes = wizardStyles();
 
@@ -68,26 +69,28 @@ export function SelectOperationForm(props: SelectOperationFormProps) {
     return (
         <div className={classes.configPanel}>
             <FormControl className={classes.wizardFormControl}>
-            <Typography variant="h4">
-                <Box paddingTop={2} paddingBottom={2}>Select an operation</Box>
-            </Typography>
-            <div className={classes.labelWrapper}>
-                <FormHelperText className={classes.inputLabelForRequired}>Select an operation</FormHelperText>
-                <FormHelperText className={classes.starLabelForRequired}>*</FormHelperText>
-            </div>
-            <SelectDropdownWithButton
-                defaultValue={action.name}
-                onChange={handleOnChangeOperation}
-                customProps={{
-                    values: operations,
-                    disableCreateNew: true
-                }}
-            />
-            <div className={classes.wizardBtnHolder}>
-                <SecondaryButton text="Back" fullWidth={false} onClick={onBackClick} />
-                <PrimaryButton text="Save &amp; Next" fullWidth={false} onClick={handleOnNext} />
-            </div>
-        </FormControl>
+                <FormHeaderSection
+                    onCancel={onCancel}
+                    formTitle={"lowcode.develop.configForms.selectOprationForm.title"}
+                    defaultMessage={"Select an operation"}
+                />
+                <div className={classes.labelWrapper}>
+                    <FormHelperText className={classes.inputLabelForRequired}>Select an operation</FormHelperText>
+                    <FormHelperText className={classes.starLabelForRequired}>*</FormHelperText>
+                </div>
+                <SelectDropdownWithButton
+                    defaultValue={action.name}
+                    onChange={handleOnChangeOperation}
+                    customProps={{
+                        values: operations,
+                        disableCreateNew: true
+                    }}
+                />
+                <div className={classes.wizardBtnHolder}>
+                    <SecondaryButton text="Back" fullWidth={false} onClick={onBackClick} />
+                    <PrimaryButton text="Save &amp; Next" fullWidth={false} onClick={handleOnNext} />
+                </div>
+            </FormControl>
         </div>
     );
 }

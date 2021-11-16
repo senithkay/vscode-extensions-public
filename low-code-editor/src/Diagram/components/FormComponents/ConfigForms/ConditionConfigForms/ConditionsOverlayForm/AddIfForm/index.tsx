@@ -28,7 +28,7 @@ import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
 import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";
 import { useStatementEditor } from "../../../../FormFieldComponents/StatementEditor/hooks";
 import { ConditionConfig, ElseIfConfig, FormElementProps } from "../../../../Types";
-
+import { FormHeaderSection } from "../../../../Commons/FormHeaderSection";
 
 interface IfProps {
     condition: ConditionConfig;
@@ -57,20 +57,20 @@ export function AddIfForm(props: IfProps) {
 
     const [isInvalid, setIsInvalid] = useState(true);
 
-    let statementConditions : ExpressionsArray[];
+    let statementConditions: ExpressionsArray[];
     statementConditions = ((condition.conditionExpression as ElseIfConfig)?.values)
         ? (condition.conditionExpression as ElseIfConfig).values
-        : [{id: 0, expression: "", position: {}}];
+        : [{ id: 0, expression: "", position: {} }];
     const [compList, setCompList] = useState(statementConditions);
 
     const handlePlusButton = (order: number) => () => {
-        if (order === -1){
+        if (order === -1) {
             setCompList((prev) => {
-                return [...prev, {id: prev.length, expression: "", position: {}}]
+                return [...prev, { id: prev.length, expression: "", position: {} }]
             });
-        }else {
+        } else {
             setCompList((prev) => {
-                return [...prev.slice(0, order), {id: order, expression: "", position: {}}, ...prev.slice(order, prev.length)];
+                return [...prev.slice(0, order), { id: order, expression: "", position: {} }, ...prev.slice(order, prev.length)];
             });
         }
     }
@@ -83,7 +83,7 @@ export function AddIfForm(props: IfProps) {
 
     const handleExpEditorChange = (order: number) => (value: string) => {
         setCompList((prevState) => {
-            return [...prevState.slice(0, order), {...prevState[order], expression: value}, ...prevState.slice(order + 1, prevState.length)];
+            return [...prevState.slice(0, order), { ...prevState[order], expression: value }, ...prevState.slice(order + 1, prevState.length)];
         });
     }
 
@@ -143,7 +143,7 @@ export function AddIfForm(props: IfProps) {
     }
 
     const handleOnSaveClick = () => {
-        condition.conditionExpression = {values: compList}
+        condition.conditionExpression = { values: compList }
         onSave();
     }
 
@@ -161,11 +161,11 @@ export function AddIfForm(props: IfProps) {
         condition.conditionExpression ? condition.conditionExpression as string : 'EXPRESSION'
     ));
 
-    const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
+    const { handleStmtEditorButtonClick, stmtEditorComponent } = useStatementEditor(
         {
-            label: intl.formatMessage({id: "lowcode.develop.configForms.if.statementEditor.label"}),
+            label: intl.formatMessage({ id: "lowcode.develop.configForms.if.statementEditor.label" }),
             initialSource,
-            formArgs: {formArgs},
+            formArgs: { formArgs },
             isMutationInProgress,
             validForm: !isInvalid,
             onSave: handleOnSaveClick,
@@ -189,7 +189,7 @@ export function AddIfForm(props: IfProps) {
                                     onClick={handleMinusButton(order)}
                                     className={classes.button}
                                 >
-                                    <RemoveCircleOutlineRounded/>
+                                    <RemoveCircleOutlineRounded />
                                 </IconButton>
                             </div>
                         )
@@ -215,85 +215,77 @@ export function AddIfForm(props: IfProps) {
 
     if (!stmtEditorComponent) {
         return (
-                <FormControl data-testid="if-form" className={classes.wizardFormControl}>
-                    <div className={classes.formWrapper}>
-                        <div className={classes.formFeilds}>
-                            <div className={classes.formWrapper}>
-                                <div className={classes.formTitleWrapper}>
-                                    <div className={classes.mainTitleWrapper}>
-                                        <Typography variant="h4">
-                                            <Box paddingTop={2} paddingBottom={2}>
-                                                <FormattedMessage
-                                                    id="lowcode.develop.configForms.if.title"
-                                                    defaultMessage="If"
-                                                />
-                                            </Box>
-                                        </Typography>
-                                    </div>
-                                    {/* TODO: Add after statement editor support {stmtEditorButton}*/}
-                                </div>
-                                <div className={classes.blockWrapper}>
-                                    <div className={classes.codeText}>
-                                        <Typography variant='body2' className={classnames(classes.startCode)}>if</Typography>
-                                    </div>
-                                    <div className={classes.ifEditorWrapper}>
-                                        <div className="exp-wrapper">
-                                            <ExpressionEditor {...setElementProps(0)} hideLabelTooltips={true} />
-                                        </div>
-                                    </div>
-                                    <div className={classes.codeText}>
-                                        <Typography variant='body2' className={classnames(classes.endCode)}>{`{`}</Typography>
-                                    </div>
-                                </div>
-                                <div className={classes.codeWrapper}>
-                                    <Typography variant='body2' className={classes.middleCode}>...</Typography>
-                                </div>
-                                {compList.slice(1, compList.length).map((comp) => {
-                                    return <React.Fragment key={comp.id}>{ElseIfElement(comp.id)}</React.Fragment>
-                                })}
-                                <div className={classes.blockWrapper}>
-                                    <div className={classes.codeText}>
-                                        <Typography variant='body2' className={classes.endCode}>{`}`}</Typography>
-                                    </div>
-                                    {
-                                        formArgs?.wizardType === 0 && (
-                                            <div className={classes.codeText}>
-                                                <IconButton
-                                                    color="primary"
-                                                    onClick={handlePlusButton(-1)}
-                                                    className={classes.button}
-                                                >
-                                                    <ControlPoint/>
-                                                </IconButton>
-                                            </div>
-                                        )
-                                    }
-                                    <div className={classes.codeText}>
-                                        <Typography variant='body2' className={classes.startCode}>else</Typography>
-                                    </div>
-                                    <div className={classes.codeText}>
-                                        <Typography variant='body2' className={classes.endCode}>{`{`}</Typography>
-                                    </div>
-                                </div>
-                                <div className={classes.codeWrapper}>
-                                    <Typography variant='body2' className={classes.middleCode}>{`...`}</Typography>
-                                </div>
-                                <div className={classes.codeWrapper}>
-                                    <Typography variant='body2' className={classes.endCode}>{`}`}</Typography>
+            <FormControl data-testid="if-form" className={classes.wizardFormControl}>
+                <FormHeaderSection
+                    onCancel={onCancel}
+                    statementEditor={false}
+                    formTitle={"lowcode.develop.configForms.if.title"}
+                    defaultMessage={"If"}
+                // TODO: Add after statement editor support  statementEditorBtnOnClick={handleStmtEditorButtonClick}
+                />
+                <div className={classes.formWrapper}>
+                    <div className={classes.formFeilds}>
+                        <div className={classes.blockWrapper}>
+                            <div className={classes.codeText}>
+                                <Typography variant='body2' className={classnames(classes.startCode)}>if</Typography>
+                            </div>
+                            <div className={classes.ifEditorWrapper}>
+                                <div className="exp-wrapper">
+                                    <ExpressionEditor {...setElementProps(0)} hideLabelTooltips={true} />
                                 </div>
                             </div>
+                            <div className={classes.codeText}>
+                                <Typography variant='body2' className={classnames(classes.endCode)}>{`{`}</Typography>
+                            </div>
                         </div>
-                        <FormActionButtons
-                            cancelBtnText={cancelIfButtonLabel}
-                            saveBtnText={saveIfConditionButtonLabel}
-                            isMutationInProgress={isMutationInProgress}
-                            validForm={!isInvalid}
-                            onSave={handleOnSaveClick}
-                            onCancel={onCancel}
-                        />
+                        <div className={classes.codeWrapper}>
+                            <Typography variant='body2' className={classes.middleCode}>...</Typography>
+                        </div>
+                        {compList.slice(1, compList.length).map((comp) => {
+                            return <React.Fragment key={comp.id}>{ElseIfElement(comp.id)}</React.Fragment>
+                        })}
+                        <div className={classes.blockWrapper}>
+                            <div className={classes.codeText}>
+                                <Typography variant='body2' className={classes.endCode}>{`}`}</Typography>
+                            </div>
+                            {
+                                formArgs?.wizardType === 0 && (
+                                    <div className={classes.codeText}>
+                                        <IconButton
+                                            color="primary"
+                                            onClick={handlePlusButton(-1)}
+                                            className={classes.button}
+                                        >
+                                            <ControlPoint />
+                                        </IconButton>
+                                    </div>
+                                )
+                            }
+                            <div className={classes.codeText}>
+                                <Typography variant='body2' className={classes.startCode}>else</Typography>
+                            </div>
+                            <div className={classes.codeText}>
+                                <Typography variant='body2' className={classes.endCode}>{`{`}</Typography>
+                            </div>
+                        </div>
+                        <div className={classes.codeWrapper}>
+                            <Typography variant='body2' className={classes.middleCode}>{`...`}</Typography>
+                        </div>
+                        <div className={classes.codeWrapper}>
+                            <Typography variant='body2' className={classes.endCode}>{`}`}</Typography>
+                        </div>
                     </div>
-                </FormControl>
-            );
+                    <FormActionButtons
+                        cancelBtnText={cancelIfButtonLabel}
+                        saveBtnText={saveIfConditionButtonLabel}
+                        isMutationInProgress={isMutationInProgress}
+                        validForm={!isInvalid}
+                        onSave={handleOnSaveClick}
+                        onCancel={onCancel}
+                    />
+                </div>
+            </FormControl>
+        );
     }
     else {
         return stmtEditorComponent;

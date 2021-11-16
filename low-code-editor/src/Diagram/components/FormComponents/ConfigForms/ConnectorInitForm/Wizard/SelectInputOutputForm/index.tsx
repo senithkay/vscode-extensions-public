@@ -20,6 +20,7 @@ import { Context } from "../../../../../../../Contexts/Diagram";
 import { STModification } from "../../../../../../../Definitions/lang-client-extended";
 import { getAllVariables } from "../../../../../../utils/mixins";
 import { genVariableName } from "../../../../../Portals/utils";
+import { FormHeaderSection } from "../../../../Commons/FormHeaderSection";
 import { Form } from "../../../../DynamicConnectorForm";
 import { PrimaryButton } from "../../../../FormFieldComponents/Button/PrimaryButton";
 import { SecondaryButton } from "../../../../FormFieldComponents/Button/SecondaryButton";
@@ -35,6 +36,7 @@ interface SelectInputOutputFormProps {
     onBackClick?: () => void;
     onSave?: (sourceModifications?: STModification[]) => void;
     isNewConnectorInitWizard: boolean;
+    onCancel?: () => void;
 }
 
 interface ReturnNameState {
@@ -55,7 +57,7 @@ const NO_PAYLOAD = "No Payload";
 
 export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     const { props: { isMutationProgress: isMutationInProgress, stSymbolInfo} } = useContext(Context);
-    const { onBackClick, onSave, actions, connectorConfig, isNewConnectorInitWizard } = props;
+    const { onBackClick, onSave, actions, connectorConfig, isNewConnectorInitWizard, onCancel } = props;
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
     const classes = wizardStyles();
     const defaultActionName = connectorConfig && connectorConfig.action && connectorConfig.action.name ? connectorConfig.action.name : "";
@@ -266,9 +268,11 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     return (
         <div className={classes.configPanel}>
             <FormControl className={classes.wizardFormControl}>
-                <Typography variant="h4">
-                    <Box paddingTop={2} paddingBottom={2}>Map Input and Output</Box>
-                </Typography>
+                <FormHeaderSection
+                    onCancel={onCancel}
+                    formTitle={"lowcode.develop.configForms.selectOutputForm.title"}
+                    defaultMessage={"Map Input and Output"}
+                />
                 <div className={classes.labelWrapper}>
                     <FormHelperText className={classes.inputLabelForRequired}>Select an Operation</FormHelperText>
                     <FormHelperText className={classes.starLabelForRequired}>*</FormHelperText>

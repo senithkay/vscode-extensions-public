@@ -50,7 +50,7 @@ export function FormGenerator(props: FormGeneratorProps) {
   if (configOverlayFormStatus.formArgs) {
     configOverlayFormStatus.formArgs.expressionInjectables = expressionInjectables;
   }
-  const args = { onCancel, configOverlayFormStatus, ...restProps }; // FixMe: Sort out form args
+  const args = { onCancel, configOverlayFormStatus, formType, ...restProps }; // FixMe: Sort out form args
 
   return (
     <Panel onClose={onCancel}>

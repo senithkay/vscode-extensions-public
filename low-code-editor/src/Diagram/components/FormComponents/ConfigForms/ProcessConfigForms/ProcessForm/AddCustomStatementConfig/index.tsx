@@ -25,6 +25,7 @@ import { useStatementEditor } from "../../../../FormFieldComponents/StatementEdi
 import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
 import { CustomExpressionConfig, ProcessConfig } from "../../../../Types";
 import { wizardStyles } from "../../../style";
+import { FormHeaderSection } from "../../../../Commons/FormHeaderSection";
 
 interface LogConfigProps {
     config: ProcessConfig;
@@ -90,11 +91,11 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
     }
 
-    const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
+    const { handleStmtEditorButtonClick, stmtEditorComponent } = useStatementEditor(
         {
-            label: intl.formatMessage({id: "lowcode.develop.configForms.customStatement.statementEditor.label"}),
+            label: intl.formatMessage({ id: "lowcode.develop.configForms.customStatement.statementEditor.label" }),
             initialSource: expression,
-            formArgs: {formArgs},
+            formArgs: { formArgs },
             isMutationInProgress,
             validForm: isFormValid,
             onSave: onSaveBtnClick,
@@ -103,58 +104,53 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         }
     );
 
-    if (!stmtEditorComponent){
+    if (!stmtEditorComponent) {
         return (
-                <FormControl data-testid="custom-expression-form" className={formClasses.wizardFormControl}>
-                    <div className={formClasses.formWrapper}>
-                        <div className={formClasses.formFeilds}>
-                            <div className={formClasses.formWrapper}>
-                                <div className={formClasses.formTitleWrapper}>
-                                    <div className={formClasses.mainTitleWrapper}>
-                                        <Typography variant="h4">
-                                            <Box paddingTop={2} paddingBottom={2}>
-                                                <FormattedMessage
-                                                    id="lowcode.develop.configForms.customStatement.title"
-                                                    defaultMessage="Other"
-                                                />
-                                            </Box>
-                                        </Typography>
-                                    </div>
-                                    {stmtEditorButton}
-                                </div>
-                                <div className="exp-wrapper">
-                                    <ExpressionEditor
-                                        model={{ name: "statement", value: expression }}
-                                        customProps={{
-                                            validate: validateExpression,
-                                            tooltipTitle: customStatementTooltipMessages.title,
-                                            tooltipActionText: customStatementTooltipMessages.actionText,
-                                            tooltipActionLink: customStatementTooltipMessages.actionLink,
-                                            interactive: true,
-                                            customTemplate: {
-                                                defaultCodeSnippet: '',
-                                                targetColumn: 1,
-                                            },
-                                            editPosition: config?.targetPosition
-                                        }}
-                                        onChange={onExpressionChange}
-                                    />
-                                </div>
+            <FormControl data-testid="custom-expression-form" className={formClasses.wizardFormControl}>
+                <FormHeaderSection
+                    onCancel={onCancel}
+                    statementEditor={true}
+                    formTitle={"lowcode.develop.configForms.customStatement.title"}
+                    defaultMessage={"Other"}
+                    statementEditorBtnOnClick={handleStmtEditorButtonClick}
+                />
+                <div className={formClasses.formWrapper}>
+                    <div className={formClasses.formFeilds}>
+                        <div className={formClasses.formWrapper}>
+
+                            <div className="exp-wrapper">
+                                <ExpressionEditor
+                                    model={{ name: "statement", value: expression }}
+                                    customProps={{
+                                        validate: validateExpression,
+                                        tooltipTitle: customStatementTooltipMessages.title,
+                                        tooltipActionText: customStatementTooltipMessages.actionText,
+                                        tooltipActionLink: customStatementTooltipMessages.actionLink,
+                                        interactive: true,
+                                        customTemplate: {
+                                            defaultCodeSnippet: '',
+                                            targetColumn: 1,
+                                        },
+                                        editPosition: config?.targetPosition
+                                    }}
+                                    onChange={onExpressionChange}
+                                />
                             </div>
                         </div>
-                        <FormActionButtons
-                            cancelBtnText="Cancel"
-                            saveBtnText={saveCustomStatementButtonLabel}
-                            isMutationInProgress={isMutationInProgress}
-                            validForm={isFormValid}
-                            onSave={onSaveBtnClick}
-                            onCancel={onCancel}
-                        />
                     </div>
-                </FormControl>
-            );
+                    <FormActionButtons
+                        cancelBtnText="Cancel"
+                        saveBtnText={saveCustomStatementButtonLabel}
+                        isMutationInProgress={isMutationInProgress}
+                        validForm={isFormValid}
+                        onSave={onSaveBtnClick}
+                        onCancel={onCancel}
+                    />
+                </div>
+            </FormControl>
+        );
     }
-    else{
+    else {
         return stmtEditorComponent;
     }
 }

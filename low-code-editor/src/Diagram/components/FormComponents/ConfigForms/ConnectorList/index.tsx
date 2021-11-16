@@ -24,11 +24,13 @@ import { BallerinaConnectorInfo, BallerinaConnectorsRequest, BallerinaConnectors
 import {
     EVENT_TYPE_AZURE_APP_INSIGHTS,
     LowcodeEvent,
-    START_CONNECTOR_ADD_INSIGHTS} from "../../../../models";
+    START_CONNECTOR_ADD_INSIGHTS
+} from "../../../../models";
 import { APIHeightStates } from "../../../LowCodeDiagram/Components/DialogBoxes/PlusHolder";
 import { PlusViewState } from "../../../LowCodeDiagram/ViewState";
 import { getConnectorIconSVG } from "../../../Portals/utils";
-import { wizardStyles as useFormStyles} from "../../ConfigForms/style";
+import { FormHeaderSection } from "../../Commons/FormHeaderSection";
+import { wizardStyles as useFormStyles } from "../../ConfigForms/style";
 import { ButtonWithIcon } from "../../FormFieldComponents/Button/ButtonWithIcon";
 import { FormGeneratorProps } from "../../FormGenerator";
 
@@ -41,6 +43,7 @@ export interface ConnectorListProps {
     onChange?: (type: string, subType: string, connector?: BallerinaConnectorInfo) => void;
     viewState?: PlusViewState;
     collapsed?: (value: APIHeightStates) => void;
+    onCancel?: () => void;
 }
 
 export interface ConnctorComponent {
@@ -74,7 +77,7 @@ export function ConnectorList(props: FormGeneratorProps) {
             ls: { getDiagramEditorLangClient },
         },
     } = useContext(Context);
-    const { onSelect } = props.configOverlayFormStatus.formArgs as ConnectorListProps;
+    const { onSelect, onCancel } = props.configOverlayFormStatus.formArgs as ConnectorListProps;
 
     const [centralConnectors, setCentralConnectors] = useState<Connector[]>([]);
     const [localConnectors, setLocalConnectors] = useState<Connector[]>([]);
@@ -187,110 +190,104 @@ export function ConnectorList(props: FormGeneratorProps) {
 
     return (
         <FormControl data-testid="connector-list-form" className={classes.container}>
+            <FormHeaderSection
+                onCancel={onCancel}
+                formTitle={"lowcode.develop.configForms.connectorList.title"}
+                defaultMessage={"API Connection"}
+            />
             <div className={formClasses.formWrapper}>
                 <div className={formClasses.formFeilds}>
-                    <div className={formClasses.formWrapper}>
-                        <div className={formClasses.formTitleWrapper}>
-                            <div className={formClasses.mainTitleWrapper}>
-                                <Typography variant="h4">
-                                    <Box paddingTop={2} paddingBottom={2}>
-                                        <FormattedMessage id="lowcode.develop.configForms.connectorList.title" defaultMessage="API Connection" />
-                                    </Box>
-                                </Typography>
-                            </div>
-                        </div>
 
-                        <div onWheel={preventDiagramScrolling} className={classes.container}>
-                            <SearchBar searchQuery={searchQuery} onSearchButtonClick={onSearchButtonClick} />
-                            <Grid item={true} sm={12} container={true}>
-                                <Grid item={true} sm={5}>
-                                    <FilterByMenu
-                                        filterState={filterState}
-                                        setFilterState={setFilterState}
-                                        filterValues={[]}
-                                        selectedCategory={selectedCategory}
-                                        setCategory={updateCategory}
-                                    />
-                                </Grid>
-                                <Grid sm={7} container={true} item={true} className={classes.resultsContainer}>
-                                    {isSearchResultsFetching && (
-                                        <Grid sm={12} item={true} container={true} className={classes.msgContainer}>
-                                            <Grid item={true} sm={12}>
-                                                <Box display="flex" justifyContent="center">
-                                                    <CircularProgress data-testid="marketplace-search-loader" />
-                                                </Box>
-                                                <Box display="flex" justifyContent="center">
-                                                    <Typography variant="body1">Loading...</Typography>
-                                                </Box>
-                                            </Grid>
+                    <div onWheel={preventDiagramScrolling} className={classes.container}>
+                        <SearchBar searchQuery={searchQuery} onSearchButtonClick={onSearchButtonClick} />
+                        <Grid item={true} sm={12} container={true}>
+                            <Grid item={true} sm={5}>
+                                <FilterByMenu
+                                    filterState={filterState}
+                                    setFilterState={setFilterState}
+                                    filterValues={[]}
+                                    selectedCategory={selectedCategory}
+                                    setCategory={updateCategory}
+                                />
+                            </Grid>
+                            <Grid sm={7} container={true} item={true} className={classes.resultsContainer}>
+                                {isSearchResultsFetching && (
+                                    <Grid sm={12} item={true} container={true} className={classes.msgContainer}>
+                                        <Grid item={true} sm={12}>
+                                            <Box display="flex" justifyContent="center">
+                                                <CircularProgress data-testid="marketplace-search-loader" />
+                                            </Box>
+                                            <Box display="flex" justifyContent="center">
+                                                <Typography variant="body1">Loading...</Typography>
+                                            </Box>
                                         </Grid>
-                                    )}
+                                    </Grid>
+                                )}
 
-                                    {!isSearchResultsFetching && selectedCategory !== "" && (
-                                        <Grid sm={12} item={true} container={true} alignItems="center" className={classes.filterTagWrap}>
-                                            <Box display="flex" justifyContent="center" alignItems="center" className={classes.filterTag}>
-                                                <Typography variant="body1">{selectedCategory}</Typography>
-                                                <ButtonWithIcon
-                                                    className={classes.filterRemoveBtn}
-                                                    onClick={clearCategory}
-                                                    icon={<CloseRounded fontSize="small" />}
-                                                />
+                                {!isSearchResultsFetching && selectedCategory !== "" && (
+                                    <Grid sm={12} item={true} container={true} alignItems="center" className={classes.filterTagWrap}>
+                                        <Box display="flex" justifyContent="center" alignItems="center" className={classes.filterTag}>
+                                            <Typography variant="body1">{selectedCategory}</Typography>
+                                            <ButtonWithIcon
+                                                className={classes.filterRemoveBtn}
+                                                onClick={clearCategory}
+                                                icon={<CloseRounded fontSize="small" />}
+                                            />
+                                        </Box>
+                                    </Grid>
+                                )}
+
+                                <Grid
+                                    item={true}
+                                    sm={12}
+                                    container={true}
+                                    direction="row"
+                                    justifyContent="flex-start"
+                                    alignContent="flex-start"
+                                    spacing={2}
+                                    className={classes.connectorListWrap}
+                                    onScroll={handleConnectorListScroll}
+                                >
+                                    {!isSearchResultsFetching && localConnectors?.length > 0 && (
+                                        <>
+                                            <Grid item={true} sm={12} className={classes.connectorSectionWrap}>
+                                                <Grid item={true} sm={6} md={6} lg={6}>
+                                                    <Typography variant="h4">Local APIs</Typography>
+                                                </Grid>
+                                            </Grid>
+                                            {localConnectorComponents}
+                                        </>
+                                    )}
+                                    {!isSearchResultsFetching && centralConnectors?.length > 0 && (
+                                        <>
+                                            <Grid item={true} sm={12} className={classes.connectorSectionWrap}>
+                                                <Grid item={true} sm={6} md={6} lg={6}>
+                                                    <Typography variant="h4">Public APIs</Typography>
+                                                </Grid>
+                                            </Grid>
+                                            {centralConnectorComponents}
+                                        </>
+                                    )}
+                                    {!isSearchResultsFetching && isNextPageFetching && (
+                                        <Grid item={true} sm={12} className={classes.connectorSectionWrap}>
+                                            <Box display="flex" justifyContent="center">
+                                                <Typography variant="body1">Loading more APIs...</Typography>
                                             </Box>
                                         </Grid>
                                     )}
-
-                                    <Grid
-                                        item={true}
-                                        sm={12}
-                                        container={true}
-                                        direction="row"
-                                        justifyContent="flex-start"
-                                        alignContent="flex-start"
-                                        spacing={2}
-                                        className={classes.connectorListWrap}
-                                        onScroll={handleConnectorListScroll}
-                                    >
-                                        {!isSearchResultsFetching && localConnectors?.length > 0 && (
-                                            <>
-                                                <Grid item={true} sm={12} className={classes.connectorSectionWrap}>
-                                                    <Grid item={true} sm={6} md={6} lg={6}>
-                                                        <Typography variant="h4">Local APIs</Typography>
-                                                    </Grid>
-                                                </Grid>
-                                                {localConnectorComponents}
-                                            </>
-                                        )}
-                                        {!isSearchResultsFetching && centralConnectors?.length > 0 && (
-                                            <>
-                                                <Grid item={true} sm={12} className={classes.connectorSectionWrap}>
-                                                    <Grid item={true} sm={6} md={6} lg={6}>
-                                                        <Typography variant="h4">Public APIs</Typography>
-                                                    </Grid>
-                                                </Grid>
-                                                {centralConnectorComponents}
-                                            </>
-                                        )}
-                                        {!isSearchResultsFetching && isNextPageFetching && (
-                                            <Grid item={true} sm={12} className={classes.connectorSectionWrap}>
-                                                <Box display="flex" justifyContent="center">
-                                                    <Typography variant="body1">Loading more APIs...</Typography>
-                                                </Box>
-                                            </Grid>
-                                        )}
-                                    </Grid>
-
-                                    {!isSearchResultsFetching && centralConnectorComponents.length === 0 && localConnectors.length === 0 && (
-                                        <Grid sm={12} item={true} container={true} alignItems="center" className={classes.msgContainer}>
-                                            <Grid item={true} sm={12}>
-                                                <Box display="flex" justifyContent="center">
-                                                    <Typography variant="body1">No APIs found.</Typography>
-                                                </Box>
-                                            </Grid>
-                                        </Grid>
-                                    )}
                                 </Grid>
+
+                                {!isSearchResultsFetching && centralConnectorComponents.length === 0 && localConnectors.length === 0 && (
+                                    <Grid sm={12} item={true} container={true} alignItems="center" className={classes.msgContainer}>
+                                        <Grid item={true} sm={12}>
+                                            <Box display="flex" justifyContent="center">
+                                                <Typography variant="body1">No APIs found.</Typography>
+                                            </Box>
+                                        </Grid>
+                                    </Grid>
+                                )}
                             </Grid>
-                        </div>
+                        </Grid>
                     </div>
                 </div>
             </div>

@@ -21,12 +21,12 @@ import { StatementEditorButton } from "../../../FormFieldComponents/StatementEdi
 interface FormTitleProps {
     statementEditor?: boolean;
     statementEditorBtnOnClick?: () => void;
-    formId: string;
+    formTitle: string;
     defaultMessage: string;
 }
 
 export function FormTitle(props: FormTitleProps) {
-    const { formId, defaultMessage, statementEditor, statementEditorBtnOnClick } = props;
+    const { formTitle, defaultMessage, statementEditor, statementEditorBtnOnClick } = props;
     const formClasses = useStyles();
     const intl = useIntl();
 
@@ -35,11 +35,11 @@ export function FormTitle(props: FormTitleProps) {
             <div className={formClasses.mainTitleWrapper}>
                 <Typography variant="h4">
                     <Box paddingTop={2} paddingBottom={2}>
-                        <FormattedMessage id={formId} defaultMessage={defaultMessage} />
+                        <FormattedMessage id={formTitle} defaultMessage={defaultMessage} />
                     </Box>
                 </Typography>
             </div>
-            <StatementEditorButton onClick={statementEditorBtnOnClick}/>
+            <StatementEditorButton onClick={statementEditorBtnOnClick} />
         </div>
     );
 }

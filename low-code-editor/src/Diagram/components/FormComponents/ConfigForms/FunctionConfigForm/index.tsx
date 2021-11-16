@@ -21,14 +21,15 @@ import { Section } from "../../../../../components/ConfigPanel";
 import { useDiagramContext } from "../../../../../Contexts/Diagram";
 import { STModification } from "../../../../../Definitions";
 import {
-  createFunctionSignature,
-  updateFunctionSignature,
+    createFunctionSignature,
+    updateFunctionSignature,
 } from "../../../../utils/modification-util";
 import {
-  QueryParam,
-  ReturnType,
+    QueryParam,
+    ReturnType,
 } from "../../../LowCodeDiagram/Components/DialogBoxes/DropDown/ApiConfigureWizard/types";
 import { functionParamTypes } from "../../../LowCodeDiagram/Components/DialogBoxes/DropDown/ApiConfigureWizard/util";
+import { FormHeaderSection } from "../../Commons/FormHeaderSection";
 import { PrimaryButton } from "../../FormFieldComponents/Button/PrimaryButton";
 import { SecondaryButton } from "../../FormFieldComponents/Button/SecondaryButton";
 import { VariableNameInput, VariableNameInputProps } from "../Components/VariableNameInput";
@@ -207,94 +208,88 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
     };
 
     return (
-        <FormControl
-            data-testid="log-form"
-            className={formClasses.wizardFormControl}
-        >
-            <div className={formClasses.formTitleWrapper}>
-                <div className={formClasses.mainTitleWrapper}>
-                    <FunctionIcon className="function-config-form-fill" />
-                    <Typography variant="h4">
-                        <Box paddingLeft={2} paddingY={2}>
-                            Function
-                        </Box>
-                    </Typography>
+        <FormControl data-testid="log-form" className={formClasses.wizardFormControl}  >
+            <FormHeaderSection
+                onCancel={onCancel}
+                formTitle={"lowcode.develop.configForms.functionForms.title"}
+                defaultMessage={"Function"}
+            />
+            <div className={formClasses.formWrapper}>
+                <div className={formClasses.sectionSeparator}>
+                    <VariableNameInput {...functionNameConfig} />
                 </div>
-            </div>
-            <div className={formClasses.sectionSeparator}>
-                <VariableNameInput {...functionNameConfig} />
-            </div>
-            <div className={formClasses.sectionSeparator}>
-                <Section title={"Parameters"}>
-                    {parameters.map((param) => (
-                        <FunctionParamItem
-                            key={param.id}
-                            queryParam={param}
-                            onDelete={onDeleteParam}
-                        />
-                    ))}
-                    {addingNewParam ? (
-                        <FunctionParamSegmentEditor
-                            id={parameters.length}
-                            onCancel={closeNewParamView}
-                            types={functionParamTypes}
-                            onSave={onSaveNewParam}
-                            validateParams={validateParams}
-                        // params={parameters}
-                        />
-                    ) : (
-                        <span
-                            onClick={openNewParamView}
-                            className={formClasses.addPropertyBtn}
-                        >
-                            <AddIcon />
-                            <p>Add parameter</p>
-                        </span>
-                    )}
-                </Section>
-            </div>
+                <div className={formClasses.sectionSeparator}>
+                    <Section title={"Parameters"}>
+                        {parameters.map((param) => (
+                            <FunctionParamItem
+                                key={param.id}
+                                queryParam={param}
+                                onDelete={onDeleteParam}
+                            />
+                        ))}
+                        {addingNewParam ? (
+                            <FunctionParamSegmentEditor
+                                id={parameters.length}
+                                onCancel={closeNewParamView}
+                                types={functionParamTypes}
+                                onSave={onSaveNewParam}
+                                validateParams={validateParams}
+                            // params={parameters}
+                            />
+                        ) : (
+                            <span
+                                onClick={openNewParamView}
+                                className={formClasses.addPropertyBtn}
+                            >
+                                <AddIcon />
+                                <p>Add parameter</p>
+                            </span>
+                        )}
+                    </Section>
+                </div>
 
-            <div className={formClasses.sectionSeparator}>
-                <Section title={"Return Type"}>
-                    {returnTypes.map((returnType) => (
-                        <ReturnTypeItem
-                            key={returnType.id}
-                            returnType={returnType}
-                            onDelete={onDeleteReturnType}
-                        />
-                    ))}
-                    {addingNewReturnType ? (
-                        <ReturnTypeSegmentEditor
-                            id={returnTypes.length}
-                            showDefaultError={false}
-                            onCancel={closeNewReturnTypeView}
-                            onSave={onSaveNewReturnType}
-                            returnTypesValues={functionReturnTypes}
-                        />
-                    ) : (
-                        <span
-                            onClick={openNewReturnTypeView}
-                            className={formClasses.addPropertyBtn}
-                        >
-                            <AddIcon />
-                            <p>Add return type</p>
-                        </span>
-                    )}
-                </Section>
-            </div>
+                <div className={formClasses.sectionSeparator}>
+                    <Section title={"Return Type"}>
+                        {returnTypes.map((returnType) => (
+                            <ReturnTypeItem
+                                key={returnType.id}
+                                returnType={returnType}
+                                onDelete={onDeleteReturnType}
+                            />
+                        ))}
+                        {addingNewReturnType ? (
+                            <ReturnTypeSegmentEditor
+                                id={returnTypes.length}
+                                showDefaultError={false}
+                                onCancel={closeNewReturnTypeView}
+                                onSave={onSaveNewReturnType}
+                                returnTypesValues={functionReturnTypes}
+                            />
+                        ) : (
+                            <span
+                                onClick={openNewReturnTypeView}
+                                className={formClasses.addPropertyBtn}
+                            >
+                                <AddIcon />
+                                <p>Add return type</p>
+                            </span>
+                        )}
+                    </Section>
+                </div>
 
-            <div className={formClasses.wizardBtnHolder}>
-                <SecondaryButton
-                    text="Cancel"
-                    fullWidth={false}
-                    onClick={onCancel}
-                />
-                <PrimaryButton
-                    text={"Save"}
-                    disabled={disableSaveBtn}
-                    fullWidth={false}
-                    onClick={handleOnSave}
-                />
+                <div className={formClasses.wizardBtnHolder}>
+                    <SecondaryButton
+                        text="Cancel"
+                        fullWidth={false}
+                        onClick={onCancel}
+                    />
+                    <PrimaryButton
+                        text={"Save"}
+                        disabled={disableSaveBtn}
+                        fullWidth={false}
+                        onClick={handleOnSave}
+                    />
+                </div>
             </div>
         </FormControl>
     );

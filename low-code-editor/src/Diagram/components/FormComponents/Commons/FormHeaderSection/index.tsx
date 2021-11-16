@@ -12,23 +12,30 @@
  */
 import React from "react";
 
+import { getConstructIcon } from "../../../Portals/utils";
+import { useStyles } from "../../DynamicConnectorForm/style";
+
 import { CloseButton } from "./CloseButton";
 import { FormTitle } from "./FormTitle";
 
-interface FormHeaderProps {
+interface FormHeaderSectionProps {
     onCancel: () => void;
-    statementEditor: boolean;
-    formId: string;
+    statementEditor?: boolean;
+    formTitle: string;
     defaultMessage: string;
     statementEditorBtnOnClick?: () => void;
+    formType?: string;
 }
 
-export function FormHeader(props: FormHeaderProps) {
-    const { onCancel, statementEditor, formId, defaultMessage, statementEditorBtnOnClick } = props;
+export function FormHeaderSection(props: FormHeaderSectionProps) {
+    const { onCancel, statementEditor, formTitle, defaultMessage, statementEditorBtnOnClick, formType } = props;
+    const formClasses = useStyles();
+    const icon = (formType && formType.length > 0) ? getConstructIcon(formType) : null;
 
     return (
-        <div>
-            <FormTitle statementEditor={statementEditor} formId={formId} defaultMessage={defaultMessage} statementEditorBtnOnClick={statementEditorBtnOnClick} />
+        <div className={formClasses.formHeaderTitleWrapper}>
+            {formType ? <div className={formClasses.titleIcon}>{icon}</div> : null}
+            <FormTitle statementEditor={statementEditor} formTitle={formTitle} defaultMessage={defaultMessage} statementEditorBtnOnClick={statementEditorBtnOnClick} />
             <CloseButton onCancel={onCancel} />
         </div>
     );

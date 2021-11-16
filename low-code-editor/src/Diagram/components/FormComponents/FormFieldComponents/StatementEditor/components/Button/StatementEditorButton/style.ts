@@ -32,8 +32,8 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginTop: theme.spacing(0.875),
             borderRadius: 5,
             display: 'flex',
-            width: theme.spacing(18.25),
-            marginRight: theme.spacing(2.25),
+            width: theme.spacing(17.5),
+            marginLeft: theme.spacing(1.25),
             "&:hover , &:focus, &:active": {
                 background: '#f4f8ff',
                 boxShadow: "none",

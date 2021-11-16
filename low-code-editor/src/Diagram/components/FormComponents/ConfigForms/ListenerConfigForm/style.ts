@@ -15,8 +15,7 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 export const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         wizardFormControl: {
-            width: 270,
-            padding: '1rem',
+            width: 300,
             "& .MuiFormControl-marginNormal": {
                 margin: '0',
             },
@@ -53,7 +52,8 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         formWrapper: {
             width: '100%',
-            flexDirection: "row"
+            flexDirection: "row",
+            padding: theme.spacing(1.25),
         },
     }),
 );

@@ -18,7 +18,7 @@ import { formCreateSvg } from "../../../../assets";
 export const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         wizardFormControl: {
-            width: 270,
+            width: 300,
             "& .MuiFormControl-marginNormal": {
                 margin: '0 !important',
             },
@@ -57,6 +57,18 @@ export const useStyles = makeStyles((theme: Theme) =>
             fontSize: "13px !important",
             textTransform: 'capitalize',
             lineHeight: '40px',
+        },
+        formHeaderTitleWrapper: {
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-around',
+            borderBottom: '1px solid #d8d8d8',
+            padding: "4px 0 8px 0"
+        },
+        titleIcon: {
+            display: 'flex',
+            padding: theme.spacing(1),
         },
         inputLabelWrapperText: {
             textTransform: 'none'
@@ -253,7 +265,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         mainTitleWrapper: {
             display: 'inline-flex',
             alignItems: 'center',
-            width: '100%',
+            width: 'auto'
         },
         iconWrapper: {
             marginRight: '1rem'
@@ -388,14 +400,16 @@ export const useStyles = makeStyles((theme: Theme) =>
         formTitleWrapper: {
             width: "100%",
             zIndex: 100,
-            position: 'absolute',
             height: theme.spacing(6),
-            display: 'inline-flex',
-            padding: '5px 10px',
+            display: 'flex',
+            justifyContent: 'space-bitween',
+            alignItems: 'center',
+            paddingLeft: theme.spacing(1.25),
         },
         formWrapper: {
             width: '100%',
-            flexDirection: "row"
+            flexDirection: "row",
+            padding: theme.spacing(1),
         },
         oauthWrapper: {
             paddingTop: "5rem"
@@ -515,7 +529,6 @@ export const useStyles = makeStyles((theme: Theme) =>
         formFeilds: {
             marginBottom: '50px',
             width: '100%',
-            padding: theme.spacing(1),
         },
         codeWrapper: {
             width: '100%',
@@ -586,7 +599,7 @@ export const useStyles = makeStyles((theme: Theme) =>
                 background: '#e6e7ec',
                 borderRadius: '2px'
             },
-            '&::-webkit-scrollbar-track':  {
+            '&::-webkit-scrollbar-track': {
                 backgroundColor: 'transparent'
             },
             '&::-webkit-scrollbar-corner': {
@@ -645,4 +658,5 @@ export const useStyles = makeStyles((theme: Theme) =>
             position: 'relative'
         },
     }),
+    { index: 1 }
 );

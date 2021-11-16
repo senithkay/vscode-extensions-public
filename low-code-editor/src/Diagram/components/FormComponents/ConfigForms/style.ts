@@ -128,7 +128,7 @@ export const wizardStyles = makeStyles((theme: Theme) =>
             marginTop: "0.75rem"
         },
         wizardFormControl: {
-            width: 270,
+            width: 300,
             "& .MuiFormControl-marginNormal": {
                 margin: '0 !important',
             },
@@ -481,13 +481,12 @@ export const wizardStyles = makeStyles((theme: Theme) =>
         formTitleWrapper: {
             width: "100%",
             zIndex: 100,
-            position: 'absolute',
-            top: theme.spacing(-9),
             height: theme.spacing(6)
         },
         formWrapper: {
             width: '100%',
             flexDirection: "row",
+            padding: theme.spacing(1.25),
         },
         oauthWrapper: {
             paddingTop: "5rem"
@@ -641,4 +640,5 @@ export const wizardStyles = makeStyles((theme: Theme) =>
             width: '5%'
         }
     }),
+    { index: 1 }
 );

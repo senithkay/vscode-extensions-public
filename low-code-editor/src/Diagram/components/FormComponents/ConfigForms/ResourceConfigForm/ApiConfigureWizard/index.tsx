@@ -24,6 +24,7 @@ import { validatePath } from "../../../../../../utils/validator";
 import { ServiceMethodType, SERVICE_METHODS, TriggerType } from "../../../../../models";
 import { createResource, updateResourceSignature } from "../../../../../utils/modification-util";
 import { DiagramOverlayPosition } from "../../../../Portals/Overlay";
+import { FormHeaderSection } from "../../../Commons/FormHeaderSection";
 import { useStyles as useFormStyles } from "../../../DynamicConnectorForm/style";
 import { PrimaryButton } from "../../../FormFieldComponents/Button/PrimaryButton";
 import { SecondaryButton } from "../../../FormFieldComponents/Button/SecondaryButton";
@@ -643,9 +644,11 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
           <ResourceIcon className={"service-config-light-fill"} />
         </Grid>
         <Grid item={true} xs={10}>
-          <Typography variant="h4">
-            <Box paddingTop={0} paddingBottom={5} paddingLeft={0}>{resourceConfigTitle}</Box>
-          </Typography>
+          <FormHeaderSection
+            onCancel={onCancel}
+            formTitle={resourceConfigTitle}
+            defaultMessage={'Configure Resource'}
+          />
         </Grid>
       </Grid>
       <Grid container={true} spacing={1}>

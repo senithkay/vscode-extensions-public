@@ -17,6 +17,7 @@ import { Box, FormControl, FormHelperText, InputAdornment, TextField, Typography
 
 import { Context } from "../../../../../Contexts/Diagram";
 import { ServiceMethodType, SERVICE_METHODS } from "../../../../models";
+import { FormHeaderSection } from "../../Commons/FormHeaderSection";
 import { PrimaryButton } from "../../FormFieldComponents/Button/PrimaryButton";
 import { SecondaryButton } from "../../FormFieldComponents/Button/SecondaryButton";
 import CheckBoxGroup from "../../FormFieldComponents/CheckBox";
@@ -55,9 +56,11 @@ export function APIConfigForm(props: APIConfigFormProps) {
 
     return (
         <FormControl className={formClasses.wizardFormControl}>
-            <Typography variant="h4">
-                <Box paddingTop={2} paddingBottom={2}>API Configuration</Box>
-            </Typography>
+            <FormHeaderSection
+                onCancel={onClose}
+                formTitle={"lowcode.develop.configForms.apiConfig.title"}
+                defaultMessage={"API Configuration"}
+            />
             <CheckBoxGroup className={formClasses.groupedForm} values={SERVICE_METHODS} defaultValues={methods} onChange={handleMethodsChange} label="HTTP Method" />
             <div className={formClasses.labelWrapper}>
                 <FormHelperText className={formClasses.inputLabelForRequired}>Path</FormHelperText>

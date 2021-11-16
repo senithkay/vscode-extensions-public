@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
-import React, { useContext, useState} from "react";
+import React, { useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { LocalVarDecl, STKindChecker } from "@ballerina/syntax-tree";
@@ -22,6 +22,7 @@ import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { createModuleVarDecl, getInitialSource } from "../../../../../../utils/modification-util";
 import { getVariableNameFromST } from "../../../../../../utils/st-util";
+import { FormHeaderSection } from "../../../../Commons/FormHeaderSection";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
@@ -264,16 +265,16 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         {
             varName: varName ? varName : "default",
             varOptions: [],
-            varType:  selectedType === "other" ? otherType : selectedType,
+            varType: selectedType === "other" ? otherType : selectedType,
             varValue: variableExpression ? variableExpression : "EXPRESSION"
         }
     ));
 
-    const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
+    const { handleStmtEditorButtonClick, stmtEditorComponent } = useStatementEditor(
         {
-            label: intl.formatMessage({id: "lowcode.develop.configForms.variable.statementEditor.label"}),
+            label: intl.formatMessage({ id: "lowcode.develop.configForms.variable.statementEditor.label" }),
             initialSource,
-            formArgs: {formArgs},
+            formArgs: { formArgs },
             userInputs,
             isMutationInProgress,
             validForm,
@@ -315,21 +316,16 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     if (!stmtEditorComponent) {
         return (
             <FormControl data-testid="property-form" className={classnames(classes.wizardFormControl, classes.fitContent)}>
+                <FormHeaderSection
+                    onCancel={onCancel}
+                    statementEditor={true}
+                    formTitle={"lowcode.develop.configForms.variable.title"}
+                    defaultMessage={"Variable"}
+                    statementEditorBtnOnClick={handleStmtEditorButtonClick}
+                />
                 <div>
                     <div className={classes.formFeilds}>
-                        <div className={classes.formTitleWrapper}>
-                            <div className={classes.mainTitleWrapper}>
-                                <Typography variant="h4">
-                                    <Box paddingTop={2} paddingBottom={2}>
-                                        <FormattedMessage
-                                            id="lowcode.develop.configForms.variable.title"
-                                            defaultMessage="Variable"
-                                        />
-                                    </Box>
-                                </Typography>
-                            </div>
-                            {stmtEditorButton}
-                        </div>
+
                         <div className={classes.activeWrapper}>
                             {(selectedType === "other")
                                 ? (
