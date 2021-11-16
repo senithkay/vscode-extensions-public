@@ -325,7 +325,12 @@ export function InputEditor(props: InputEditorProps) {
                 });
 
                 if (isTypeDescriptor(model)) {
-                    expressionHandler(model, false, true, { typeSuggestions: variableSuggestions });
+                    // TODO: Handle simpleNameReference suggestions to support both types/variables
+                    if (STKindChecker.isSimpleNameReference(model)) {
+                        expressionHandler(model, false, false, { variableSuggestions });
+                    } else {
+                        expressionHandler(model, false, true, { typeSuggestions: variableSuggestions });
+                    }
                 } else {
                     expressionHandler(model, false, false, { variableSuggestions });
                 }
