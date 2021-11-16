@@ -33,20 +33,29 @@
                     }
                 }
 
+                .return-icon {
+                    fill: #5567d5;
+                    stroke: #5567d5;
+                    stroke-miterlimit: 10;
+                    stroke-width: 1;
+                }
+
                 &:hover {
                     rect {
                         cursor: pointer;
                         stroke: #c0ceff8a;
                         stroke-miterlimit: 10;
-                        stroke-width: 9;
+                        stroke-width: 1;
                         fill: url(#ReturnLinearGradient) #fafafc;
                         filter: none;
+
+                        &.click-effect {
+                            stroke-width: 1px !important;
+                            stroke: #5566d5 !important;
+                        }
                     }
 
-                    .click-effect {
-                        stroke-width: 1px !important;
-                        stroke: #5566d5 !important;
-                    }
+                    
                 }
 
                 &:active {

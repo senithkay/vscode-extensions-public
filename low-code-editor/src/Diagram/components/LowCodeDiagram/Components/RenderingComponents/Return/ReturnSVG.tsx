@@ -52,41 +52,20 @@ export function ReturnSVG(props: { x: number, y: number, text?: string, openInCo
                 </filter>
             </defs>
             <TooltipCodeSnippet openInCodeView={openInCodeView} content={text} placement="right" arrow={true}>
-                <g className="return-comp return-active" transform="translate(-512.5 -588)">
-                    <g transform="translate(513.5 590.5)">
-                        <g data-type="innerShadowGroup">
-                            <rect width="72" height="32" rx="16" />
-                            <g transform="matrix(1, 0, 0, 1, -1, -1)" >
-                                <rect width="72" height="32" rx="16" transform="translate(1 1)" />
-                            </g>
-                            <g fill="none" stroke="#5567d5" stroke-miterlimit="10" stroke-width="1">
-                                <rect width="72" height="32" rx="16" stroke="none" />
-                                <rect x="-0.5" y="-0.5" width="74" height="34" rx="16.5" fill="none" />
-                            </g>
+                <g className="return-comp return-active" transform="translate(7 6)">
+                    <g transform="matrix(1, 0, 0, 1, -7, -6)">
+                        <g id="Rectangle-2" transform="translate(7 6)">
+                            <rect width="82" height="32" rx="16" stroke="none" />
+                            <rect x="-0.5" y="-0.5" width="83" height="33" rx="16.5" fill="none" className="click-effect" />
                         </g>
                     </g>
-                    <g transform="translate(0.63)">
-                        <text
-                            transform="translate(539.5 609.5)"
-                            font-size="12"
-                            font-family="GilmerMedium, Gilmer Medium"
-                        >
+                    <g>
+                        <text transform="translate(41 19.5)" >
                             <tspan x="0" y="0">return</tspan>
                         </text>
-                        <g id="Shape_Arrow_dotted_Copy_5" transform="translate(534.826 603)">
-                            <path
-                                d="M-3.5,0-7,4H0Z"
-                                transform="translate(-10.957) rotate(-90)"
-                                fill="#5567d5"
-                            />
-                            <path
-                                d="M-7,.5H0"
-                                transform="translate(0 3)"
-                                fill="none"
-                                stroke="#5567d5"
-                                stroke-miterlimit="10"
-                                stroke-width="1"
-                            />
+                        <g id="returnIcon" transform="translate(534.826 603)" className="return-icon">
+                            <path d="M-3.5,0-7,4H0Z" transform="translate(-10.957) rotate(-90)" />
+                            <path d="M-7,.5H0" transform="translate(0 3)" />
                         </g>
                     </g>
                 </g>

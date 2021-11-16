@@ -27,10 +27,10 @@ import { Context } from "../../../Context/diagram";
 import { BlockViewState } from "../../../ViewState";
 import { DraftStatementViewState } from "../../../ViewState/draft";
 import { PROCESS_SVG_HEIGHT, PROCESS_SVG_HEIGHT_WITH_SHADOW, PROCESS_SVG_SHADOW_OFFSET, PROCESS_SVG_WIDTH, PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW } from "../Processor/ProcessSVG";
+import { VariableName, VARIABLE_NAME_WIDTH } from "../VariableName";
 
 import { ReturnSVG, RETURN_SVG_HEIGHT, RETURN_SVG_WIDTH, } from "./ReturnSVG";
 import "./style.scss";
-import { VariableName, VARIABLE_NAME_WIDTH } from "../VariableName";
 
 export interface ReturnProps {
     model?: STNode;
