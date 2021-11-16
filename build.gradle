@@ -48,7 +48,6 @@ npmBuild() {
     dependsOn ':perf-viewer:buildPerfViewer'
     dependsOn ':swagger-viewer:buildSwaggerViewer'
     dependsOn ':config-editor:buildConfigEditor'
-    dependsOn ':swagger-viewer:buildSwaggerViewer'
     dependsOn copyDeps
     PatternSet patternSet = new PatternSet();
     patternSet.exclude("**/node_modules/**");

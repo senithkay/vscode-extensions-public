@@ -24,7 +24,3 @@ project(':swagger-viewer').projectDir = file('web/swagger')
 include(':config-editor')
 
 project(':config-editor').projectDir = file('web/config-editor')
-
-include(':swagger-viewer')
-
-project(':swagger-viewer').projectDir = file('web/swagger')
