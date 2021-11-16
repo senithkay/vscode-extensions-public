@@ -389,7 +389,6 @@ export const useStyles = makeStyles((theme: Theme) =>
             width: "100%",
             zIndex: 100,
             position: 'absolute',
-            top: theme.spacing(-6.25),
             height: theme.spacing(6),
             display: 'inline-flex',
             padding: '5px 10px',

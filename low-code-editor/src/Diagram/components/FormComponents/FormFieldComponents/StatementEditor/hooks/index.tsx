@@ -85,6 +85,7 @@ export const useStatementEditor = (props: ViewProps) => {
 
     return {
         stmtEditorButton,
-        stmtEditorComponent
+        stmtEditorComponent,
+        handleStmtEditorButtonClick
     }
 }

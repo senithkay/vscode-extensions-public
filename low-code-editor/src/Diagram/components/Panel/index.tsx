@@ -45,13 +45,13 @@ export function Panel(props: PanelProps) {
         <div onClick={onDivClick} >
             <DiagramOverlayContainer>
                 <div className={classnames("panel", isVisible ? 'panel-slide-in' : 'panel-slide-out')}>
-                    <div className="close-btn-wrap">
+                    {/* <div className="close-btn-wrap">
                         <ButtonWithIcon
                             className="panel-close-button"
                             onClick={onCloseEvent}
                             icon={<CloseRounded fontSize="small" />}
                         />
-                    </div>
+                    </div> */}
                     <div className="panel-form-wrapper">
                         {children}
                     </div>

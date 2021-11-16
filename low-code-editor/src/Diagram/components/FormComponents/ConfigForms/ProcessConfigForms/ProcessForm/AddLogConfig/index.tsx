@@ -27,6 +27,7 @@ import { FormActionButtons } from "../../../../FormFieldComponents/FormActionBut
 import { useStatementEditor } from "../../../../FormFieldComponents/StatementEditor/hooks";
 import { LogConfig, ProcessConfig } from "../../../../Types";
 import { createLogStatement, getInitialSource } from "../../../../../../utils/modification-util";
+import { FormHeader } from "../../../../Commons/FormHeader";
 
 interface LogConfigProps {
     config: ProcessConfig;
@@ -114,11 +115,11 @@ export function AddLogConfig(props: LogConfigProps) {
         expression ? expression : 'EXPRESSION'
     ));
 
-    const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
+    const { handleStmtEditorButtonClick, stmtEditorComponent } = useStatementEditor(
         {
-            label: intl.formatMessage({id: "lowcode.develop.configForms.log.statementEditor.label"}),
+            label: intl.formatMessage({ id: "lowcode.develop.configForms.log.statementEditor.label" }),
             initialSource,
-            formArgs: {formArgs},
+            formArgs: { formArgs },
             isMutationInProgress,
             validForm: !!isFormValid,
             onSave: onSaveBtnClick,
@@ -133,14 +134,21 @@ export function AddLogConfig(props: LogConfigProps) {
                 <div className={formClasses.formWrapper}>
                     <div className={formClasses.formFeilds}>
                         <div className={formClasses.formWrapper}>
-                            <div className={formClasses.formTitleWrapper}>
+                            {/* <div className={formClasses.formTitleWrapper}>
                                 <div className={formClasses.mainTitleWrapper}>
                                     <Typography variant="h4">
                                         <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.log.title" defaultMessage="Log" /></Box>
                                     </Typography>
                                 </div>
                                 {stmtEditorButton}
-                            </div>
+                            </div> */}
+                            <FormHeader
+                                onCancel={onCancel}
+                                statementEditor={true}
+                                formId={"lowcode.develop.configForms.log.title"}
+                                defaultMessage={"Log"}
+                                statementEditorBtnOnClick={handleStmtEditorButtonClick}
+                            />
                             <SelectDropdownWithButton
                                 defaultValue={logType}
                                 onChange={onTypeChange}

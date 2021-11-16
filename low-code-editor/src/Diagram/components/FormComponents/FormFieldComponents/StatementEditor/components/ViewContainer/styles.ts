@@ -174,7 +174,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             boxSizing: 'border-box',
             border: '1px solid #CBCEDB',
             borderRadius: '4px',
-            fontFamily:'inherit',
+            fontFamily: 'inherit',
             backgroundColor: 'rgba(255,255,255,0.5)',
             marginLeft: '2%',
             marginTop: '3%',
