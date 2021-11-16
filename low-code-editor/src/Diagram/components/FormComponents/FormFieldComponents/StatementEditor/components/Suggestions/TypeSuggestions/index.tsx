@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js jsx-wrap-multiline jsx-no-lambda
+// tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext } from "react";
 
 import { STNode } from "@ballerina/syntax-tree";
@@ -20,15 +20,15 @@ import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { useStatementEditorStyles } from "../../ViewContainer/styles";
 
-export interface VariableSuggestionsProps {
+export interface TypeSuggestionsProps {
     model: STNode
-    variableSuggestions?: SuggestionItem[],
+    typeSuggestions?: SuggestionItem[],
     suggestionHandler: () => void
 }
 
-export function VariableSuggestions(props: VariableSuggestionsProps) {
+export function TypeSuggestions(props: TypeSuggestionsProps) {
     const overlayClasses = useStatementEditorStyles();
-    const { model, variableSuggestions, suggestionHandler } = props;
+    const { model, typeSuggestions, suggestionHandler } = props;
 
     const inputEditorCtx = useContext(InputEditorContext);
 
@@ -38,7 +38,7 @@ export function VariableSuggestions(props: VariableSuggestionsProps) {
         }
     } = useContext(StatementEditorContext);
 
-    const onClickVariableSuggestion = (suggestion: SuggestionItem) => {
+    const onClickTypeSuggestion = (suggestion: SuggestionItem) => {
         updateModel(suggestion.value, model.position);
         inputEditorCtx.onSelection(suggestion.value);
         suggestionHandler();
@@ -46,16 +46,15 @@ export function VariableSuggestions(props: VariableSuggestionsProps) {
 
     return (
         <div>
-            <div className={overlayClasses.subHeader}>Variables</div>
+            <div className={overlayClasses.subHeader}>Types</div>
             {
-                variableSuggestions.map((suggestion: SuggestionItem, index: number) => (
+                typeSuggestions.map((suggestion: SuggestionItem, index: number) => (
                     <button
                         className={overlayClasses.suggestionButton}
                         key={index}
-                        onClick={() => onClickVariableSuggestion(suggestion)}
+                        onClick={() => onClickTypeSuggestion(suggestion)}
                     >
                         {suggestion.value}
-                        <span className={overlayClasses.dataTypeTemplate}>{suggestion.kind}</span>
                     </button>
                 ))
             }

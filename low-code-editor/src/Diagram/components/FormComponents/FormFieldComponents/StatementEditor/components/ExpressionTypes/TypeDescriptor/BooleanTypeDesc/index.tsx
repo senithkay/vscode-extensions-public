@@ -17,6 +17,7 @@ import { BooleanTypeDesc } from "@ballerina/syntax-tree";
 
 import { VariableUserInputs } from "../../../../models/definitions";
 import { SuggestionsContext } from "../../../../store/suggestions-context";
+import { getTypeDescriptors } from "../../../../utils";
 import { InputEditor } from "../../../InputEditor";
 import { useStatementEditorStyles } from "../../../ViewContainer/styles";
 
@@ -32,6 +33,11 @@ export function BooleanTypeDescComponent(props: BooleanTypeDescProps) {
     const overlayClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
 
+    const onClickOnType = (event: any) => {
+        event.stopPropagation()
+        expressionHandler(model, false, true, { typeSuggestions: getTypeDescriptors() })
+    };
+
     const inputEditorProps = {
         statementType: model.kind,
         model,
@@ -41,7 +47,10 @@ export function BooleanTypeDescComponent(props: BooleanTypeDescProps) {
     };
 
     return (
-        <button className={overlayClasses.expressionElement}>
+        <button
+            className={overlayClasses.expressionElement}
+            onClick={onClickOnType}
+        >
             <InputEditor {...inputEditorProps} />
         </button>
     );

@@ -54,7 +54,7 @@ export function ForeachStatementC(props: ForeachStatementProps) {
 
     const onClickOnActionOrExpr = (event: any) => {
         event.stopPropagation()
-        expressionHandler(model.actionOrExpressionNode, false,
+        expressionHandler(model.actionOrExpressionNode, false, false,
             { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
     };
 

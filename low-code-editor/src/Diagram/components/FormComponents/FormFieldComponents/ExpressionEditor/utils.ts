@@ -497,6 +497,19 @@ const hintHandlers = {
             }
         }
     },
+    /** Handler to add double quotes to input value in the expression editor */
+    addBackTicks: (monacoRef: React.MutableRefObject<MonacoEditor>) => {
+        if (monacoRef.current) {
+            const editorModel = monacoRef.current.editor.getModel();
+            if (editorModel) {
+                const editorContent = editorModel.getValue();
+                const startQuote = editorContent.trim().startsWith("\`") ? "" : "\`";
+                const endQuote = editorContent.trim().endsWith("\`") ? "" : "\`";
+                editorModel.setValue(startQuote + editorContent + endQuote);
+                monacoRef.current.editor.focus();
+            }
+        }
+    },
     /** Handler to prepend `check` statement to the expression editor input in order to handle expressions that could throw errors */
     addCheck: (monacoRef: React.MutableRefObject<MonacoEditor>) => {
         if (monacoRef.current) {
@@ -554,9 +567,19 @@ export const getHints = (diagnostics: Diagnostic[], varType: string, varName: st
             }
         } else if (suggestCastChecker(expectedType, foundType)) {
             hints.push({ type: HintType.SUGGEST_CAST, onClickHere: () => hintHandlers.addTypeCast(foundType, varType, monacoRef), expressionType: varType })
+        } else if (varType === "sql:ParameterizedQuery") {
+            if (monacoRef.current) {
+                const editorContent = monacoRef.current.editor.getModel().getValue();
+                if (editorContent === "") {
+                    // Add empty back ticks if the input field is empty for string type
+                    hints.push({ type: HintType.ADD_BACK_TICKS_EMPTY, onClickHere: () => hintHandlers.addBackTicks(monacoRef) })
+                } else{
+                    // Add back ticks around the input, if its parameterized query input type
+                    hints.push({ type: HintType.ADD_BACK_TICKS, onClickHere: () => hintHandlers.addBackTicks(monacoRef), editorContent })
+                }
+            }
         }
     }
-
     return hints;
 }
 

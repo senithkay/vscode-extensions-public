@@ -31,6 +31,7 @@ export interface EditorAPI {
     showPerformanceGraph: () => Promise<boolean>;
     showMessage: () => Promise<boolean>;
     resolveMissingDependency: (filePath: string, fileContent: string) => Promise<boolean>;
+    createSwaggerView: (documentFilePath: string, serviceName: string) => Promise<boolean>;
 }
 
 export type EditorProps = EditorState & EditorAPI;
@@ -38,7 +39,7 @@ export type EditorProps = EditorState & EditorAPI;
 export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
 
     const { getFileContent, updateFileContent, gotoSource, getPFSession,
-            showPerformanceGraph, showMessage, resolveMissingDependency, ...restProps } = props;
+            showPerformanceGraph, showMessage, resolveMissingDependency, createSwaggerView, ...restProps } = props;
     const [state, setState] = React.useState<EditorState>(restProps);
 
     React.useEffect(() => {
@@ -57,6 +58,7 @@ export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
                     showPerformanceGraph={showPerformanceGraph}
                     showMessage={showMessage}
                     resolveMissingDependency={resolveMissingDependency}
+                    createSwaggerView={createSwaggerView}
                     panX="-30"
                     panY="0"
                     scale="0.9"

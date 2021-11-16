@@ -25,7 +25,9 @@ import { truncateText } from "./utils";
 export enum HintType {
     ADD_CHECK,
     ADD_DOUBLE_QUOTES,
+    ADD_BACK_TICKS,
     ADD_DOUBLE_QUOTES_EMPTY,
+    ADD_BACK_TICKS_EMPTY,
     ADD_TO_STRING,
     ADD_ELVIS_OPERATOR,
     SUGGEST_CAST,
@@ -65,9 +67,19 @@ export function ExpressionEditorHint(props: ExpressionEditorHintProps) {
         defaultMessage: " to change to "
     })
 
+    const addBackTicks = intl.formatMessage({
+        id: "lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage.addBackTicks.text",
+        defaultMessage: " to change to "
+    })
+
     const addDoubleQuotesToEmptyExpr = intl.formatMessage({
         id: "lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage.addDoubleQuotesToEmptyExpr.text",
         defaultMessage: " to make an empty string"
+    })
+
+    const addBackTicksToEmptyExpr = intl.formatMessage({
+        id: "lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage.addBackTicksToEmptyExpr.text",
+        defaultMessage: " to make an empty query"
     })
 
     const addToString = intl.formatMessage({
@@ -125,6 +137,31 @@ export function ExpressionEditorHint(props: ExpressionEditorHintProps) {
                     <FormHelperText className={formClasses.suggestionsText}>
                         {<a className={formClasses.suggestionsTextError} onClick={onClickHere}>{clickHereText}</a>}
                         {addDoubleQuotesToEmptyExpr}
+                    </FormHelperText>
+                </div>
+            )
+            break;
+        }
+        case HintType.ADD_BACK_TICKS: {
+            component = (
+                <div className={formClasses.suggestionsWrapper} >
+                    <img className={formClasses.suggestionsIcon} src={ErrorSvg} />
+                    <FormHelperText className={formClasses.suggestionsText}>
+                        {<a className={formClasses.suggestionsTextError} onClick={onClickHere}>{clickHereText}</a>}
+                        {addBackTicks}
+                        <CodeSnippet content={`\`${truncateText(editorContent)}\``} />
+                    </FormHelperText>
+                </div>
+            )
+            break;
+        }
+        case HintType.ADD_BACK_TICKS_EMPTY: {
+            component = (
+                <div className={formClasses.suggestionsWrapper} >
+                    <img className={formClasses.suggestionsIcon} src={ErrorSvg} />
+                    <FormHelperText className={formClasses.suggestionsText}>
+                        {<a className={formClasses.suggestionsTextError} onClick={onClickHere}>{clickHereText}</a>}
+                        {addBackTicksToEmptyExpr}
                     </FormHelperText>
                 </div>
             )

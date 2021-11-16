@@ -33,7 +33,8 @@ import {
     DataTypeByExpressionKind,
     ExpressionKindByOperator,
     ExpressionSuggestionsByKind,
-    OperatorsForExpressionKind
+    OperatorsForExpressionKind,
+    TypeDescriptors
 } from "./utils";
 
 export async function getPartialSTForStatement(
@@ -86,6 +87,10 @@ export function getModifications(
 
 export function getSuggestionsBasedOnExpressionKind(kind: string): SuggestionItem[] {
     return ExpressionSuggestionsByKind[kind];
+}
+
+export function getTypeDescriptors(): SuggestionItem[] {
+    return TypeDescriptors;
 }
 
 export function getKindBasedOnOperator(operator: string): string {
@@ -141,4 +146,16 @@ export function getStatementTypeComponent(
             diagnosticHandler={diagnosticHandler}
         />
     );
+}
+
+export function isTypeDescriptor(model: STNode): boolean {
+    return (STKindChecker.isStringTypeDesc(model)
+        || STKindChecker.isBooleanTypeDesc(model)
+        || STKindChecker.isDecimalTypeDesc(model)
+        || STKindChecker.isFloatTypeDesc(model)
+        || STKindChecker.isIntTypeDesc(model)
+        || STKindChecker.isJsonTypeDesc(model)
+        || STKindChecker.isVarTypeDesc(model)
+        || STKindChecker.isSimpleNameReference(model)
+    )
 }

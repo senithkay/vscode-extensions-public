@@ -10,15 +10,6 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import {
-    BinaryExpression, BooleanLiteral, BooleanTypeDesc,
-    BracedExpression, ConditionalExpression,
-    NumericLiteral,
-    SimpleNameReference, STKindChecker,
-    STNode,
-    StringLiteral, StringTypeDesc, TypeTestExpression
-} from "@ballerina/syntax-tree";
-
 import * as c from "../constants";
 import { SuggestionItem } from "../models/definitions";
 
@@ -217,15 +208,6 @@ export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = 
         { value: c.CONDITIONAL },
         { value: c.RANGE }
     ],
-    TypeDescriptor: [
-        { value: c.STRING_TYPE_DESC },
-        { value: c.BOOLEAN_TYPE_DESC },
-        { value: c.JSON_TYPE_DESC },
-        { value: c.DECIMAL_TYPE_DESC },
-        { value: c.FLOAT_TYPE_DESC },
-        { value: c.INT_TYPE_DESC },
-        // { value: c.VAR_TYPE_DESC }, // TODO: Enable var-type-desc when syntax-tree-interfaces are supported
-    ],
     DefaultExpressions: [
         { value: c.ARITHMETIC },
         { value: c.RELATIONAL },
@@ -250,6 +232,17 @@ export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = 
         { value: c.RANGE }
     ]
 }
+
+// TODO: Remove the below array when fetching type descriptors from the LS is implemented
+export const TypeDescriptors: SuggestionItem[] = [
+        { value: 'string', kind: c.STRING_TYPE_DESC },
+        { value: 'boolean', kind: c.BOOLEAN_TYPE_DESC },
+        { value: 'json', kind: c.JSON_TYPE_DESC },
+        { value: 'decimal', kind: c.DECIMAL_TYPE_DESC },
+        { value: 'float', kind: c.FLOAT_TYPE_DESC },
+        { value: 'int', kind: c.INT_TYPE_DESC }
+        // { value: 'var', kind: c.VAR_TYPE_DESC }, // TODO: Enable var-type-desc when syntax-tree-interfaces are supported
+];
 
 export const DataTypeByExpressionKind: { [key: string]: string[] } = {
     StringLiteral: ["string"],

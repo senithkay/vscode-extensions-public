@@ -21,7 +21,7 @@ import "./style.scss";
 export let VARIABLE_NAME_WIDTH = 125;
 export const ICON_SVG_WRAPPER_WIDTH = 25;
 
-export function VariableName(props: { x: number, y: number, variableName: string, processType: string, key_id: number }) {
+export function VariableName(props: { x: number, y: number, variableName: string, processType?: string, key_id: number }) {
     const { processType, variableName, key_id, ...xyProps } = props;
     const [textWidth, setTextWidth] = useState(VARIABLE_NAME_WIDTH);
 
