@@ -147,3 +147,15 @@ export function getStatementTypeComponent(
         />
     );
 }
+
+export function isTypeDescriptor(model: STNode): boolean {
+    return (STKindChecker.isStringTypeDesc(model)
+        || STKindChecker.isBooleanTypeDesc(model)
+        || STKindChecker.isDecimalTypeDesc(model)
+        || STKindChecker.isFloatTypeDesc(model)
+        || STKindChecker.isIntTypeDesc(model)
+        || STKindChecker.isJsonTypeDesc(model)
+        || STKindChecker.isVarTypeDesc(model)
+        || STKindChecker.isSimpleNameReference(model)
+    )
+}

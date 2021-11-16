@@ -32,10 +32,13 @@ import { SuggestionItem, VariableUserInputs } from "../../models/definitions";
 import { InputEditorContext } from "../../store/input-editor-context";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { SuggestionsContext } from "../../store/suggestions-context";
-import { getDataTypeOnExpressionKind, getPartialSTForStatement } from "../../utils";
+import { getDataTypeOnExpressionKind, getPartialSTForStatement, isTypeDescriptor } from "../../utils";
 import { useStatementEditorStyles } from "../ViewContainer/styles";
 
-import { acceptedCompletionKind } from "./constants";
+import {
+    acceptedCompletionKind,
+    acceptedCompletionKindForExpressions
+} from "./constants";
 
 export interface InputEditorProps {
     model: STNode,
@@ -304,7 +307,13 @@ export function InputEditor(props: InputEditorProps) {
         ls.getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
             langClient.getCompletion(completionParams).then((values: CompletionResponse[]) => {
                 const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (
-                    (!completionResponse.kind || acceptedCompletionKind.includes(completionResponse.kind)) &&
+                    // TODO: Need to special case for simpleNameRef
+                    (!completionResponse.kind ||
+                        ( isTypeDescriptor(model)?
+                                acceptedCompletionKind.includes(completionResponse.kind) :
+                                acceptedCompletionKindForExpressions.includes(completionResponse.kind)
+                        )
+                    ) &&
                     completionResponse.label !== varName.trim() &&
                     !(completionResponse.label.includes("main"))
                 ));
@@ -313,7 +322,11 @@ export function InputEditor(props: InputEditorProps) {
                     return { value: obj.label, kind: obj.detail }
                 });
 
-                expressionHandler(model, false, false, { variableSuggestions });
+                if (isTypeDescriptor(model)) {
+                    expressionHandler(model, false, true, { typeSuggestions: variableSuggestions });
+                } else {
+                    expressionHandler(model, false, false, { variableSuggestions });
+                }
             });
         });
     }
