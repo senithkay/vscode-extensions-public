@@ -100,7 +100,7 @@ export function getDraftComponent(viewState: BlockViewState, state: any, insertC
     return draftComponents;
 }
 
-export function getDiagnosticMsgs(diagnostics: Diagnostic[]){
+export function getDiagnosticMsgs(diagnostics: any[]){
      /* tslint:disable prefer-for-of */
     const diagnosticMsgsArray : string[] = [];
     if (diagnostics?.length === 0){
@@ -108,7 +108,9 @@ export function getDiagnosticMsgs(diagnostics: Diagnostic[]){
     }
     else{
         for (let i = 0; i < diagnostics?.length; i++){
-        diagnosticMsgsArray.push((diagnostics[i]?.message));
+            if(diagnostics[i]?.diagnosticInfo?.severity!=="WARNING"){
+                diagnosticMsgsArray.push((diagnostics[i]?.message));
+            }
         return diagnosticMsgsArray.join(',\n');
     }
 }
