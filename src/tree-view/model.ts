@@ -62,6 +62,11 @@ export enum FILE_EXTENSION {
     TOML = '.toml'
 }
 
+export enum FILE_NAME {
+    BALLERINA_TOML = 'Ballerina.bal',
+    CONFIG_TOML = 'Config.toml'
+}
+
 export const TREE_ELEMENT_EXECUTE_COMMAND: string = 'ballerina.executeTreeElement';
 export const OUTLINE_TREE_REFRESH_COMMAND: string = 'ballerina.refreshPackageTree';
 export const EXPLORER_TREE_REFRESH_COMMAND: string = 'ballerina.refreshExplorerTree';

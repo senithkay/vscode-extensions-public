@@ -18,7 +18,7 @@
  */
 
 import { ViewColumn, window, WebviewPanel, Uri } from "vscode";
-import { WebViewRPCHandler, getCommonWebViewOptions } from '../utils';
+import { getCommonWebViewOptions } from '../utils';
 import { render } from './renderer';
 import { ExtendedLangClient } from "../core";
 
@@ -37,17 +37,6 @@ export function showConfigEditor(langClient: ExtendedLangClient, configSchema: a
         getCommonWebViewOptions()
     );
 
-    // Update latency
-    configEditorPanel.webview.onDidReceiveMessage(
-        message => {
-            switch (message.command) {
-                case 'updateCodeLenses':
-                    return;
-            }
-        }
-    );
-
-    WebViewRPCHandler.create(configEditorPanel, langClient);
     const html = render({
         "$schema": "http://json-schema.org/draft-07/schema#",
         "type": "object",
@@ -68,9 +57,11 @@ export function showConfigEditor(langClient: ExtendedLangClient, configSchema: a
             }
         }
     });
+
     if (configEditorPanel && html) {
         configEditorPanel.webview.html = html;
     }
+
     configEditorPanel.onDidDispose(() => {
         configEditorPanel = undefined;
     });

@@ -19,8 +19,7 @@
 
 import { getLibraryWebViewContent, WebViewOptions, getComposerWebViewOptions } from '../utils';
 
-export function render(data: any)
-    : string {
+export function render(data: any): string {
 
     const body = `<div id="configEditor" class="config-editor-container" />`;
     const bodyCss = 'configEditor';

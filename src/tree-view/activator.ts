@@ -156,6 +156,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
                 uri: filePath
             }
         }).then(data => {
+            // TODO: Test the flow and uncomment
             // if (data.configSchema == null) {
             //     window.showErrorMessage('Unable to render the configurable editor: Error while '
             //         + 'retrieving the configurable schema.');

@@ -20,7 +20,7 @@ import {
     Event, EventEmitter, FileStat, FileType, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri, workspace
 } from "vscode";
 import {
-    CONFIG_EDITOR_EXECUTE_COMMAND, ExplorerTreeItem, EXPLORER_ITEM_KIND, FILE_EXTENSION, TREE_ELEMENT_EXECUTE_COMMAND
+    CONFIG_EDITOR_EXECUTE_COMMAND, ExplorerTreeItem, EXPLORER_ITEM_KIND, FILE_EXTENSION, FILE_NAME, TREE_ELEMENT_EXECUTE_COMMAND
 } from "./model";
 import * as fs from 'fs';
 import * as path from 'path';
@@ -157,7 +157,7 @@ export class ExplorerDataProvider implements TreeDataProvider<ExplorerTreeItem> 
                 if (extension === FILE_EXTENSION.BAL) {
                     kind = EXPLORER_ITEM_KIND.BAL_FILE;
                 } else if (extension === FILE_EXTENSION.TOML) {
-                    if (fileName == 'Config.toml') {
+                    if (fileName == FILE_NAME.CONFIG_TOML) {
                         kind = EXPLORER_ITEM_KIND.CONFIG_TOML_FILE;
                     } else {
                         kind = EXPLORER_ITEM_KIND.TOML_FILE;
