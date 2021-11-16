@@ -22,9 +22,9 @@ import * as ReactDOM from "react-dom";
 import { ConfigForm } from "./ConfigForm";
 
 
-export function renderPerformance(data: any) {
+export function renderConfigEditor(data: any) {
     ReactDOM.render(
         <ConfigForm configSchema={data} />,
-        document.getElementById("performance")
+        document.getElementById("configEditor")
     );
 }

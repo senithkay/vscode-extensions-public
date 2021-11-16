@@ -48,7 +48,26 @@ export function showConfigEditor(langClient: ExtendedLangClient, configSchema: a
     );
 
     WebViewRPCHandler.create(configEditorPanel, langClient);
-    const html = render({ configSchema });
+    const html = render({
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+            "dilhashanazeer": {
+                "type": "object",
+                "properties": {
+                    "simpleconfigs": {
+                        "type": "object",
+                        "properties": {
+                            "authToken": {
+                                "type": "string",
+                                "description": "description"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    });
     if (configEditorPanel && html) {
         configEditorPanel.webview.html = html;
     }

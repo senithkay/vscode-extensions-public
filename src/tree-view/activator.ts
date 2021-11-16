@@ -156,11 +156,11 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
                 uri: filePath
             }
         }).then(data => {
-            if (data.configSchema == null) {
-                window.showErrorMessage('Unable to render the configurable editor: Error while '
-                    + 'retrieving the configurable schema.');
-                return Promise.reject();
-            }
+            // if (data.configSchema == null) {
+            //     window.showErrorMessage('Unable to render the configurable editor: Error while '
+            //         + 'retrieving the configurable schema.');
+            //     return Promise.reject();
+            // }
             showConfigEditor(ballerinaExtInstance.langClient!, data.configSchema, Uri.parse(filePath));
         });
     });
