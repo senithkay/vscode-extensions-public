@@ -18,6 +18,7 @@ import { FloatTypeDesc } from "@ballerina/syntax-tree";
 import { VariableUserInputs } from "../../../../models/definitions";
 import { SuggestionsContext } from "../../../../store/suggestions-context";
 import { InputEditor } from "../../../InputEditor";
+import { useStatementEditorStyles } from "../../../ViewContainer/styles";
 
 interface FloatTypeDescProps {
     model: FloatTypeDesc
@@ -28,6 +29,7 @@ interface FloatTypeDescProps {
 export function FloatTypeDescComponent(props: FloatTypeDescProps) {
     const { model, userInputs, diagnosticHandler } = props;
 
+    const overlayClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
 
     const inputEditorProps = {
@@ -39,6 +41,8 @@ export function FloatTypeDescComponent(props: FloatTypeDescProps) {
     };
 
     return (
-        <InputEditor {...inputEditorProps} />
+        <button className={overlayClasses.expressionElement}>
+            <InputEditor {...inputEditorProps} />
+        </button>
     );
 }

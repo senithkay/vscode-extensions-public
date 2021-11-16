@@ -18,6 +18,7 @@ import { DecimalTypeDesc } from "@ballerina/syntax-tree";
 import { VariableUserInputs } from "../../../../models/definitions";
 import { SuggestionsContext } from "../../../../store/suggestions-context";
 import { InputEditor } from "../../../InputEditor";
+import { useStatementEditorStyles } from "../../../ViewContainer/styles";
 
 interface DecimalTypeDescProps {
     model: DecimalTypeDesc
@@ -28,6 +29,7 @@ interface DecimalTypeDescProps {
 export function DecimalTypeDescComponent(props: DecimalTypeDescProps) {
     const { model, userInputs, diagnosticHandler } = props;
 
+    const overlayClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
 
     const inputEditorProps = {
@@ -39,6 +41,8 @@ export function DecimalTypeDescComponent(props: DecimalTypeDescProps) {
     };
 
     return (
-        <InputEditor {...inputEditorProps} />
+        <button className={overlayClasses.expressionElement}>
+            <InputEditor {...inputEditorProps} />
+        </button>
     );
 }
