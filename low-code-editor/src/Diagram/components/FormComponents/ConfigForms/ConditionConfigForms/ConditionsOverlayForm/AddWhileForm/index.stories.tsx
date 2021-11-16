@@ -61,6 +61,9 @@ const api = {
         closeConfigOverlayForm: dummyFunctionWithoutArgs,
         configOverlayFormPrepareStart: dummyFunctionWithoutArgs,
         closeConfigPanel: dummyFunctionWithoutArgs,
+    },
+    webView: {
+        showSwaggerView: dummyFunction,
     }
 }
 

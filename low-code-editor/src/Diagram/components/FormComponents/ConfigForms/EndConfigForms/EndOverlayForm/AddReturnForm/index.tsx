@@ -31,6 +31,7 @@ interface ReturnFormProps {
     formArgs: any;
     onCancel: () => void;
     onSave: () => void;
+    onWizardClose: () => void;
 }
 
 export function AddReturnForm(props: ReturnFormProps) {
@@ -39,7 +40,7 @@ export function AddReturnForm(props: ReturnFormProps) {
             isMutationProgress: isMutationInProgress
         }
     } = useContext(Context);
-    const { config, formArgs, onCancel, onSave } = props;
+    const { config, formArgs, onCancel, onSave, onWizardClose } = props;
     const classes = useStyles();
     const intl = useIntl();
 
@@ -87,11 +88,9 @@ export function AddReturnForm(props: ReturnFormProps) {
             label: intl.formatMessage({id: "lowcode.develop.configForms.return.statementEditor.label"}),
             initialSource,
             formArgs: {formArgs},
-            isMutationInProgress,
             validForm: isValidValue,
-            onSave: onReturnExpressionSave,
-            onChange: onReturnValueChange,
-            validate: validateExpression
+            config,
+            onWizardClose
         }
     );
 

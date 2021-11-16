@@ -10,25 +10,31 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-wrap-multiline
 import React, { ReactNode } from 'react';
 
-import { STKindChecker, STNode } from "@ballerina/syntax-tree";
+import {
+    STKindChecker,
+    STNode
+} from "@ballerina/syntax-tree";
 
 import {
-    ExpressionEditorLangClientInterface, PartialSTRequest,
-    PartialSTResponse
+    ExpressionEditorLangClientInterface,
+    PartialSTRequest,
+    STModification
 } from "../../../../../../Definitions";
+import { ConditionConfig, EndConfig, ProcessConfig } from "../../../Types";
 import * as expressionTypeComponents from '../components/ExpressionTypes';
 import * as statementTypeComponents from '../components/Statements';
 import * as c from "../constants";
 import { SuggestionItem, VariableUserInputs } from '../models/definitions';
 
+import { createStatement, updateStatement } from "./statement-modifications";
 import {
     DataTypeByExpressionKind,
     ExpressionKindByOperator,
     ExpressionSuggestionsByKind,
-    OperatorsForExpressionKind
+    OperatorsForExpressionKind,
+    TypeDescriptors
 } from "./utils";
 
 export async function getPartialSTForStatement(
@@ -51,20 +57,40 @@ export async function getPartialSTForExpression(
     return resp.syntaxTree;
 }
 
-export function getExpressionSource(model: STNode): string {
-    if (STKindChecker.isCallStatement(model) || STKindChecker.isReturnStatement(model)) {
-        return model.expression.source;
-    } else if (STKindChecker.isForeachStatement(model)) {
-        return model.actionOrExpressionNode.source;
-    } else if (STKindChecker.isIfElseStatement(model) || STKindChecker.isWhileStatement(model)) {
-        return model.condition.source;
-    } else if (STKindChecker.isLocalVarDecl(model)) {
-        return model.initializer.source;
+export function getModifications(
+        model: STNode, config: ProcessConfig | EndConfig | ConditionConfig, formArgs: any): STModification[] {
+    const modifications: STModification[] = [];
+
+    if (STKindChecker.isLocalVarDecl(model) ||
+            STKindChecker.isCallStatement(model) ||
+            STKindChecker.isReturnStatement(model) ||
+            (config && config.type === 'Custom')) {
+        if (config.model) {
+            modifications.push(updateStatement(model.source, formArgs.formArgs?.model.position));
+        } else {
+            modifications.push(createStatement(model.source, formArgs.formArgs?.targetPosition));
+        }
     }
+
+    if (STKindChecker.isWhileStatement(model) ||
+            STKindChecker.isIfElseStatement(model) ||
+            STKindChecker.isForeachStatement(model)) {
+        if (!formArgs.formArgs?.config) {
+            modifications.push(createStatement(model.source, formArgs.formArgs?.targetPosition));
+        } else {
+            modifications.push(updateStatement(model.source, config.model.position));
+        }
+    }
+
+    return modifications;
 }
 
 export function getSuggestionsBasedOnExpressionKind(kind: string): SuggestionItem[] {
     return ExpressionSuggestionsByKind[kind];
+}
+
+export function getTypeDescriptors(): SuggestionItem[] {
+    return TypeDescriptors;
 }
 
 export function getKindBasedOnOperator(operator: string): string {
@@ -93,11 +119,13 @@ export function getExpressionTypeComponent(
         ExprTypeComponent = (expressionTypeComponents as any)[c.OTHER_EXPRESSION];
     }
 
-    return <ExprTypeComponent
-        model={expression}
-        userInputs={userInputs}
-        diagnosticHandler={diagnosticHandler}
-    />;
+    return (
+        <ExprTypeComponent
+            model={expression}
+            userInputs={userInputs}
+            diagnosticHandler={diagnosticHandler}
+        />
+    );
 }
 
 export function getStatementTypeComponent(
@@ -111,9 +139,23 @@ export function getStatementTypeComponent(
         StatementTypeComponent = (statementTypeComponents as any)[c.OTHER_STATEMENT];
     }
 
-    return <StatementTypeComponent
-        model={model}
-        userInputs={userInputs}
-        diagnosticHandler={diagnosticHandler}
-    />;
+    return (
+        <StatementTypeComponent
+            model={model}
+            userInputs={userInputs}
+            diagnosticHandler={diagnosticHandler}
+        />
+    );
+}
+
+export function isTypeDescriptor(model: STNode): boolean {
+    return (STKindChecker.isStringTypeDesc(model)
+        || STKindChecker.isBooleanTypeDesc(model)
+        || STKindChecker.isDecimalTypeDesc(model)
+        || STKindChecker.isFloatTypeDesc(model)
+        || STKindChecker.isIntTypeDesc(model)
+        || STKindChecker.isJsonTypeDesc(model)
+        || STKindChecker.isVarTypeDesc(model)
+        || STKindChecker.isSimpleNameReference(model)
+    )
 }

@@ -15,10 +15,10 @@ import React, { useContext } from "react";
 
 import { FloatTypeDesc } from "@ballerina/syntax-tree";
 
-import { TYPE_DESCRIPTOR } from "../../../../constants";
 import { VariableUserInputs } from "../../../../models/definitions";
 import { SuggestionsContext } from "../../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind } from "../../../../utils";
+import { getTypeDescriptors } from "../../../../utils";
+import { InputEditor } from "../../../InputEditor";
 import { useStatementEditorStyles } from "../../../ViewContainer/styles";
 
 interface FloatTypeDescProps {
@@ -28,14 +28,22 @@ interface FloatTypeDescProps {
 }
 
 export function FloatTypeDescComponent(props: FloatTypeDescProps) {
-    const { model } = props;
+    const { model, userInputs, diagnosticHandler } = props;
 
     const overlayClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
 
+    const inputEditorProps = {
+        statementType: model.kind,
+        model,
+        expressionHandler,
+        userInputs,
+        diagnosticHandler
+    };
+
     const onClickOnType = (event: any) => {
         event.stopPropagation()
-        expressionHandler(model, false, { expressionSuggestions: getSuggestionsBasedOnExpressionKind(TYPE_DESCRIPTOR) })
+        expressionHandler(model, false, true, { typeSuggestions: getTypeDescriptors() })
     };
 
     return (
@@ -43,7 +51,7 @@ export function FloatTypeDescComponent(props: FloatTypeDescProps) {
             className={overlayClasses.expressionElement}
             onClick={onClickOnType}
         >
-            {model.name.value}
+            <InputEditor {...inputEditorProps} />
         </button>
     );
 }

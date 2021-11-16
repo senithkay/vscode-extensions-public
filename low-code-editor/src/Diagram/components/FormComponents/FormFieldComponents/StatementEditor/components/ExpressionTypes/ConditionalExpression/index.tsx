@@ -57,17 +57,20 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
 
     const onClickOnLhsExpression = (event: any) => {
         event.stopPropagation()
-        expressionHandler(model.lhsExpression, true, { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
+        expressionHandler(model.lhsExpression, true, false,
+            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
     }
 
     const onClickOnMiddleExpression = (event: any) => {
         event.stopPropagation()
-        expressionHandler(model.middleExpression, false, { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
+        expressionHandler(model.middleExpression, false, false,
+            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
     };
 
     const onClickOnEndExpression = (event: any) => {
         event.stopPropagation()
-        expressionHandler(model.endExpression, false, { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
+        expressionHandler(model.endExpression, false, false,
+            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
     };
 
 

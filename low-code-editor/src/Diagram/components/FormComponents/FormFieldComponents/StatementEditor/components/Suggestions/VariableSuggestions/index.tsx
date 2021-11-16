@@ -40,12 +40,13 @@ export function VariableSuggestions(props: VariableSuggestionsProps) {
 
     const onClickVariableSuggestion = (suggestion: SuggestionItem) => {
         updateModel(suggestion.value, model.position);
-        inputEditorCtx.onVariableSelection(suggestion.value);
+        inputEditorCtx.onSelection(suggestion.value);
         suggestionHandler();
     }
 
     return (
         <div>
+            <div className={overlayClasses.subHeader}>Variables</div>
             {
                 variableSuggestions.map((suggestion: SuggestionItem, index: number) => (
                     <button

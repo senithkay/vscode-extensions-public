@@ -19,11 +19,10 @@ import {
     STKindChecker,
     STNode
 } from "@ballerina/syntax-tree";
-import cn from "classnames";
 
 import { WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
-import { getDraftComponent, getSTComponents } from "../../../../../utils";
+import { getDiagnosticMsgs, getDraftComponent, getSTComponents } from "../../../../../utils";
 import { getConditionConfig, getRandomInt } from "../../../../../utils/diagram-util";
 import { findActualEndPositionOfIfElseStatement } from "../../../../../utils/st-util";
 import { DefaultConfig } from "../../../../../visitors/default";
@@ -125,7 +124,7 @@ export function IfElse(props: IfElseProps) {
     const diagnostics = (model as IfElseStatement)?.condition.typeData?.diagnostics;
 
     if (model) {
-        codeSnippet = diagnostics.length !== 0 ? "Code has errors\n" + model.source : model.source.trim().split(')')[0];
+        codeSnippet = model.source.trim().split(')')[0];
         codeSnippetOnSvg = codeSnippet.substring(4, 13)
         codeSnippet = codeSnippet + ')'
     }
@@ -151,14 +150,20 @@ export function IfElse(props: IfElseProps) {
     };
 
     const isDraftStatement: boolean = viewState instanceof DraftStatementViewState;
-    const conditionWrapper = isDraftStatement ? (diagnostics?.length !== 0 ?
-        cn("main-condition-wrapper active-condition-error") : cn("main-condition-wrapper active-condition")) :
-        (diagnostics?.length !== 0 ?
-        cn("main-condition-wrapper if-condition-error-wrapper") : cn("main-condition-wrapper if-condition-wrapper"));
 
     let assignmentText: any = (!isDraftStatement && STKindChecker?.isIfElseStatement(model));
     assignmentText = (model as IfElseStatement)?.condition.source;
+    const diagnosticMsgs = getDiagnosticMsgs(diagnostics);
 
+    const conditionWrapper = isDraftStatement ? (diagnosticMsgs ?
+        "main-condition-wrapper active-condition-error" : "main-condition-wrapper active-condition") :
+        (diagnosticMsgs ?
+        "main-condition-wrapper if-condition-error-wrapper" : "main-condition-wrapper if-condition-wrapper");
+
+    const errorSnippet = {
+        diagnosticMsgs,
+        code: codeSnippet,
+    }
     const assignmentTextWidth = assignmentText?.length * 8 + DefaultConfig.dotGap;
 
     if (model === null) {
@@ -177,6 +182,7 @@ export function IfElse(props: IfElseProps) {
                     codeSnippet={codeSnippet}
                     codeSnippetOnSvg={codeSnippetOnSvg}
                     conditionType={conditionType}
+                    diagnostics={errorSnippet}
                     openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && onClickOpenInCodeView}
                 />
                 <ContitionAssignment
@@ -305,7 +311,8 @@ export function IfElse(props: IfElseProps) {
             const conditionConfigState = getConditionConfig("If", position, WizardType.EXISTING, undefined, {
                 type: "If",
                 conditionExpression,
-                conditionPosition: getExpressions()?.values[0]?.position
+                conditionPosition: getExpressions()?.values[0]?.position,
+                model
             }, stSymbolInfo, model);
             setIfElseConditionConfigState(conditionConfigState);
         };
@@ -352,6 +359,7 @@ export function IfElse(props: IfElseProps) {
                             text={componentName}
                             data-testid="ifelse-block"
                             codeSnippet={codeSnippet}
+                            diagnostics={errorSnippet}
                             codeSnippetOnSvg={codeSnippetOnSvg}
                             conditionType={conditionType}
                             openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && onClickOpenInCodeView}

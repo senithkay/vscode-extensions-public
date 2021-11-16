@@ -52,6 +52,7 @@ import { LISTENER_HEIGHT, LISTENER_WIDTH } from "../Components/RenderingComponen
 import { MIN_MODULE_VAR_WIDTH, MODULE_VAR_HEIGHT } from "../Components/RenderingComponents/ModuleVariable";
 import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH, PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW } from "../Components/RenderingComponents/Processor/ProcessSVG";
 import { RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH } from "../Components/RenderingComponents/Respond/RespondSVG";
+import { RETURN_SVG_HEIGHT, RETURN_SVG_WIDTH } from "../Components/RenderingComponents/Return/ReturnSVG";
 import { DEFAULT_SERVICE_WIDTH } from "../Components/RenderingComponents/Service";
 import { SERVICE_HEADER_HEIGHT } from "../Components/RenderingComponents/Service/ServiceHeader";
 import { START_SVG_HEIGHT, START_SVG_WIDTH } from "../Components/RenderingComponents/Start/StartSVG";
@@ -811,6 +812,9 @@ class SizingVisitor implements Visitor {
             if (viewState.isCallerAction) {
                 viewState.bBox.h = RESPOND_SVG_HEIGHT;
                 viewState.bBox.w = RESPOND_SVG_WIDTH;
+            } else if (STKindChecker.isReturnStatement(node)) {
+                viewState.bBox.h = RETURN_SVG_HEIGHT;
+                viewState.bBox.w = RETURN_SVG_WIDTH;
             } else {
                 viewState.dataProcess.h = PROCESS_SVG_HEIGHT;
                 viewState.dataProcess.w = PROCESS_SVG_WIDTH;
@@ -853,7 +857,10 @@ class SizingVisitor implements Visitor {
                 stmtViewState.collapsed = false;
             }
 
-            if (isSTActionInvocation(element) && !haveBlockStatement(element)) { // check if it's the same as actioninvocation
+            if (isSTActionInvocation(element)
+                && !haveBlockStatement(element)
+                && allEndpoints.has(stmtViewState.action.endpointName)
+                ) { // check if it's the same as actioninvocation
                 stmtViewState.isAction = true;
             }
             ++index;

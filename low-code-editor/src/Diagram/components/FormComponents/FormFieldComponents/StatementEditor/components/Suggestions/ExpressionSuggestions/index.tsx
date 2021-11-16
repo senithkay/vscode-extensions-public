@@ -52,6 +52,7 @@ export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
 
     return (
         <div>
+            <div className={overlayClasses.subHeader}>Expressions</div>
             {
                 suggestions.map((suggestion: SuggestionItem, index: number) => (
                     (suggestion.kind) ?
@@ -76,7 +77,8 @@ export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
                             </button>
                         )
 
-                ))}
+                ))
+            }
         </div>
     );
 }

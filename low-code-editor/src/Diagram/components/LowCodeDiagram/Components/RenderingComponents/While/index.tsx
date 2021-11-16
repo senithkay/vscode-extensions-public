@@ -19,11 +19,10 @@ import {
     STNode,
     WhileStatement
 } from "@ballerina/syntax-tree";
-import cn from "classnames";
 
 import { WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
-import { getDraftComponent, getSTComponents } from "../../../../../utils";
+import { getDiagnosticMsgs, getDraftComponent, getSTComponents } from "../../../../../utils";
 import { getConditionConfig, getRandomInt } from "../../../../../utils/diagram-util";
 import { DefaultConfig } from "../../../../../visitors/default";
 import { FormGenerator } from "../../../../FormComponents/FormGenerator";
@@ -87,14 +86,21 @@ export function While(props: WhileProps) {
     const y: number = viewState.whileHead.cy - (viewState.whileHead.h / 2) - (WHILE_SHADOW_OFFSET / 2);
     const r: number = DefaultConfig.forEach.radius;
     const paddingUnfold = DefaultConfig.forEach.paddingUnfold;
-
-    let codeSnippet = "WHILE CODE SNIPPET";
-    let codeSnippetOnSvg = "WHILE";
     const diagnostics = modelWhile?.condition?.typeData?.diagnostics;
-    const whileWrapper = diagnostics?.length !== 0 ? cn("while-error-wrapper") : cn("while-wrapper") ;
+
+    const diagnosticMsgs = getDiagnosticMsgs(diagnostics);
+    const whileWrapper = diagnosticMsgs ? "while-error-wrapper" : "while-wrapper" ;
+
+    let codeSnippet = modelWhile?.source?.trim().split('{')[0];
+    let codeSnippetOnSvg = "WHILE";
+
+    const errorSnippet = {
+        diagnosticMsgs,
+        code: codeSnippet,
+    }
 
     if (model) {
-        codeSnippet = modelWhile.source.trim().split('{')[0];
+        codeSnippet = codeSnippet;
         const firstBraceIndex = codeSnippet.indexOf("(");
         const lastBraceIndex = codeSnippet.lastIndexOf(")");
         codeSnippetOnSvg = codeSnippet.substring(firstBraceIndex + 1, lastBraceIndex);
@@ -164,7 +170,8 @@ export function While(props: WhileProps) {
         const conditionConfigState = getConditionConfig("While", position, WizardType.EXISTING, undefined, {
             type: "While",
             conditionExpression,
-            conditionPosition: conditionExpr.position
+            conditionPosition: conditionExpr.position,
+            model
         }, stSymbolInfo, model);
         setWhileConfigOverlayState(conditionConfigState);
     };
@@ -206,6 +213,7 @@ export function While(props: WhileProps) {
                     y={y}
                     codeSnippet={codeSnippet}
                     codeSnippetOnSvg={codeSnippetOnSvg}
+                    diagnostics={errorSnippet}
                     openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && onClickOpenInCodeView}
                 />
                 <ContitionAssignment
@@ -274,6 +282,7 @@ export function While(props: WhileProps) {
                     y={y}
                     codeSnippet={codeSnippet}
                     codeSnippetOnSvg={codeSnippetOnSvg}
+                    diagnostics={errorSnippet}
                     openInCodeView={!isCodeEditorActive && !isWaitingOnWorkspace && model && model?.position && onClickOpenInCodeView}
                 />
                 <ContitionAssignment

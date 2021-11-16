@@ -33,6 +33,7 @@ interface LogConfigProps {
     formArgs: any;
     onCancel: () => void;
     onSave: () => void;
+    onWizardClose: () => void;
 }
 
 export const DEFINE_LOG_EXR: string = "Define Log Expression";
@@ -48,7 +49,7 @@ export function AddLogConfig(props: LogConfigProps) {
             isCodeEditorActive
         }
     } = useContext(Context);
-    const { config, formArgs, onCancel, onSave } = props;
+    const { config, formArgs, onCancel, onSave, onWizardClose } = props;
     const logTypeFunctionNameMap: Map<string, string> = new Map([
         ['printInfo', 'Info'],
         ['printDebug', 'Debug'],
@@ -119,11 +120,9 @@ export function AddLogConfig(props: LogConfigProps) {
             label: intl.formatMessage({id: "lowcode.develop.configForms.log.statementEditor.label"}),
             initialSource,
             formArgs: {formArgs},
-            isMutationInProgress,
             validForm: !!isFormValid,
-            onSave: onSaveBtnClick,
-            onChange: onExpressionChange,
-            validate: validateExpression
+            config,
+            onWizardClose
         }
     );
 

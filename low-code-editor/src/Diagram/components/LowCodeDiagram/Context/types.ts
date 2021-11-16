@@ -104,3 +104,8 @@ export interface STSymbolInfo {
     recordTypeDescriptions: Map<string, STNode>;
     listeners: Map<string, STNode>;
 }
+
+export interface ErrorSnippet{
+    diagnosticMsgs? : string,
+    code ?: string,
+}

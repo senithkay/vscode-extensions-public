@@ -25,6 +25,7 @@ import useStyles from "./style";
 export interface SearchBarProps {
     searchQuery: string;
     onSearchButtonClick: (searchString: string) => void;
+    type: string,
 }
 
 function SearchBar(props: SearchBarProps) {
@@ -49,7 +50,7 @@ function SearchBar(props: SearchBarProps) {
             <Grid item={true} container={true} xs={true}>
                 <InputBase
                     classes={{ root: classes.searchText }}
-                    placeholder="Search for APIs"
+                    placeholder={"Search for " + props.type}
                     value={searchString}
                     onChange={onSearchFieldChange}
                     onKeyDown={onKeyDown}

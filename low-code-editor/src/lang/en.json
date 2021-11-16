@@ -44,7 +44,7 @@
     "lowcode.develop.apiConfigWizard.advanced.title": "Advanced",
     "lowcode.develop.apiConfigWizard.advanced.tooltip.example": "http:Request request http:Caller caller",
     "lowcode.develop.apiConfigWizard.delete.resource.title": "Delete Resource",
-    "lowcode.develop.apiConfigWizard.extract.payload.title": "Extract Request Payload",
+    "lowcode.develop.apiConfigWizard.extract.payload.title": "Payload",
     "lowcode.develop.apiConfigWizard.httpMethod.title": "HTTP Method",
     "lowcode.develop.apiConfigWizard.path.duplicate.errorMessage": "Path already exists for the selected method",
     "lowcode.develop.apiConfigWizard.path.errorMessage": "Please enter a valid path",

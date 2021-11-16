@@ -1,6 +1,7 @@
 import React from "react";
 
 import { NodePosition } from "@ballerina/syntax-tree";
+import { Diagnostic } from "monaco-languageclient";
 
 import * as stComponents from '../components/LowCodeDiagram/Components/RenderingComponents';
 import { ActionProcessor } from "../components/LowCodeDiagram/Components/RenderingComponents/ActionInvocation/ActionProcess";
@@ -76,6 +77,9 @@ export function getDraftComponent(viewState: BlockViewState, state: any, insertC
                 case "Variable":
                     draftComponents.push(<DataProcessor model={null} blockViewState={viewState} />);
                     break;
+                case "AssignmentStatement":
+                    draftComponents.push(<DataProcessor model={null} blockViewState={viewState} />);
+                    break;
                 case "DataMapper":
                     draftComponents.push(<DataProcessor model={null} blockViewState={viewState} />);
                     break;
@@ -94,4 +98,18 @@ export function getDraftComponent(viewState: BlockViewState, state: any, insertC
     }
 
     return draftComponents;
+}
+
+export function getDiagnosticMsgs(diagnostics: Diagnostic[]){
+     /* tslint:disable prefer-for-of */
+    const diagnosticMsgsArray : string[] = [];
+    if (diagnostics?.length === 0){
+        return undefined;
+    }
+    else{
+        for (let i = 0; i < diagnostics?.length; i++){
+        diagnosticMsgsArray.push((diagnostics[i]?.message));
+        return diagnosticMsgsArray.join(',\n');
+    }
+}
 }
