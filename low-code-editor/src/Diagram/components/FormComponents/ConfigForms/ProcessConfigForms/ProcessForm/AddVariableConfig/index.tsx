@@ -62,12 +62,11 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         }
     } = useContext(Context);
 
-    const [initialized, setIsInitialized] = useState<boolean>(true);
-
     let initialModelType: string = '';
     let variableName: string = '';
     let varExpression: string = '';
     const formField: string = 'Expression';
+    let initializedState;
 
     const existingProperty = config && config.model;
     if (existingProperty && STKindChecker.isLocalVarDecl(config.model)) {
@@ -88,15 +87,18 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         }
         variableName = getVariableNameFromST(config.model).value;
         varExpression = localVarDec?.initializer?.source || '';
+        initializedState = localVarDec?.initializer ? true : false;
     } else {
         variableName = '';
         varExpression = '';
+        initializedState = true;
     }
 
     const [selectedType, setSelectedType] = useState(initialModelType);
     const [varName, setVarName] = useState(variableName);
     const [validExpresssionValue, setValidExpresssionValue] = useState(config.config !== "");
     const [variableExpression, setVariableExpression] = useState<string>(varExpression);
+    const [initialized, setIsInitialized] = useState<boolean>(initializedState);
 
     const onPropertyChange = (property: string) => {
         setVariableExpression(property);
