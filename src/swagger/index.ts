@@ -52,7 +52,7 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
 }
 
 async function createSwaggerView(documentFilePath: string, serviceName: any) {
-    let file = path.basename(documentFilePath);
+    const file = path.basename(documentFilePath);
     await langClient.convertToOpenAPI({
         documentFilePath
     }).then(async (response) => {
