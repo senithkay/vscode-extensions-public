@@ -165,7 +165,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
             //         + 'retrieving the configurable schema.');
             //     return Promise.reject();
             // }
-            showConfigEditor(ballerinaExtInstance.langClient!, data.configSchema, Uri.parse(filePath));
+            showConfigEditor(data.configSchema, Uri.parse(filePath));
         });
     });
 
