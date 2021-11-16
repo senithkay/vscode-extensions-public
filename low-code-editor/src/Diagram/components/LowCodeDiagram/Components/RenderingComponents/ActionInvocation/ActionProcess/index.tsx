@@ -18,6 +18,7 @@ import cn from "classnames";
 
 import { WizardType } from "../../../../../../../ConfigurationSpec/types";
 import { BallerinaConnectorInfo } from "../../../../../../../Definitions";
+import { getDiagnosticMsgs } from "../../../../../../utils";
 import { getOverlayFormConfig, getRandomInt } from "../../../../../../utils/diagram-util";
 import { getMatchingConnector, getStatementTypesFromST } from "../../../../../../utils/st-util";
 import { DefaultConfig } from "../../../../../../visitors/default";
@@ -86,6 +87,9 @@ export function ActionProcessor(props: ProcessorProps) {
     const isLogStmt = false;
 
     let isReferencedVariable = false;
+
+    const diagnostics = model?.typeData?.diagnostics;
+    const diagnosticMsgs = getDiagnosticMsgs(diagnostics);
 
     if (model) {
         processType = "Variable";
@@ -193,6 +197,11 @@ export function ActionProcessor(props: ProcessorProps) {
         }
     }
 
+    const errorSnippet = {
+        diagnosticMsgs,
+        code: sourceSnippet,
+    }
+
     const endpointList = (
         <FormGenerator
             onCancel={onWizardClose}
@@ -234,9 +243,11 @@ export function ActionProcessor(props: ProcessorProps) {
     const statmentTypeText = getStatementTypesFromST(localModel);
 
     const processWrapper = isDraftStatement ? cn("main-process-wrapper active-data-processor") : cn("main-process-wrapper data-processor");
+    const processStyles = diagnosticMsgs && !isDraftStatement ? "main-process-wrapper data-processor-error " : processWrapper;
+
     const component: React.ReactNode = !viewState.collapsed && (
         <g>
-            <g className={processWrapper} data-testid="data-processor-block">
+            <g className={processStyles} data-testid="data-processor-block">
                 <React.Fragment>
                     {!isDraftStatement && (
                         <>
@@ -261,6 +272,7 @@ export function ActionProcessor(props: ProcessorProps) {
                         varName={variableName}
                         processType={processType}
                         sourceSnippet={sourceSnippet}
+                        diagnostics={errorSnippet}
                         position={model?.position}
                         openInCodeView={
                             !isReadOnly &&

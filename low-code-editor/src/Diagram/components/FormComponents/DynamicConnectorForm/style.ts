@@ -675,6 +675,14 @@ export const useStyles = makeStyles((theme: Theme) =>
         advancedSwitchText: {
             textAlign: 'right',
             padding: '0 5px 15px'
+        },
+        toggle: {
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: theme.spacing(1)
+        },
+        inlineWrapper: {
+            display: 'inline-flex'
         }
     }),
     { index: 1 }

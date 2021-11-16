@@ -166,7 +166,6 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
         setToggleMainAdvancedMenu(!toggleMainAdvancedMenu);
     }
 
-
     const onPayloadToggleSelect = (checked: boolean) => {
         setTogglePayload(!togglePayload);
         const updatedResources = resource;
