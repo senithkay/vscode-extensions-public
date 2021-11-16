@@ -81,7 +81,7 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
             <span
                 className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}
             >
-                &nbsp;{model.openBrace.value}
+                {model.openBrace.value}
             </span>
             {fieldsComponent}
             <span
