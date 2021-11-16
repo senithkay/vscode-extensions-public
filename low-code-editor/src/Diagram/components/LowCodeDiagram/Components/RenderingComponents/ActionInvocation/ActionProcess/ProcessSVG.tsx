@@ -31,11 +31,8 @@ export const PROCESS_SVG_SHADOW_OFFSET = PROCESS_SVG_HEIGHT_WITH_SHADOW - PROCES
 
 
 export function ProcessSVG(props: {
-    x: number,
-    y: number,
-    varName: any,
-    sourceSnippet: string,
-    position: NodePosition,
+    x: number, y: number, varName: any,
+    sourceSnippet: string, position: NodePosition,
     openInCodeView?: () => void,
     processType: string,
     diagnostics?: ErrorSnippet
@@ -88,7 +85,9 @@ export function ProcessSVG(props: {
                     )
                 }
             </g>
-        </Tooltip>) :
+        </Tooltip>
+
+        ) :
                 (
                     <Tooltip type={"diagram-code"} onClick={openInCodeView} text={tooltipText} placement="right" arrow={true}>
                     <g id="Process" className="data-processor process-active" transform="translate(-221.5 -506)">
@@ -110,6 +109,7 @@ export function ProcessSVG(props: {
                         }
                     </g>
                 </Tooltip>
+
                 )}
             </g>
         </svg>

@@ -22,7 +22,12 @@ export const WHILE_SVG_WIDTH = 54.845;
 export const WHILE_SVG_HEIGHT = 54.845;
 export const WHILE_SHADOW_OFFSET = WHILE_SVG_HEIGHT_WITH_SHADOW - WHILE_SVG_HEIGHT;
 
-export function WhileSVG(props: { x: number, y: number, openInCodeView?: () => void, codeSnippetOnSvg?: string, codeSnippet?: string, diagnostics?: ErrorSnippet }) {
+export function WhileSVG(props: {
+    x: number, y: number,
+    openInCodeView?: () => void,
+    codeSnippetOnSvg?: string,
+    codeSnippet?: string, diagnostics?: ErrorSnippet
+    }) {
     const { codeSnippet, openInCodeView, codeSnippetOnSvg, diagnostics, ...xyProps } = props;
     const tooltipText = {
         code: codeSnippet

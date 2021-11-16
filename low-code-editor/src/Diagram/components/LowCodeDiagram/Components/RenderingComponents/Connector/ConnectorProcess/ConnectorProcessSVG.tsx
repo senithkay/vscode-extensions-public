@@ -22,7 +22,11 @@ export const CONNECTOR_PROCESS_SVG_WIDTH = 55;
 export const CONNECTOR_PROCESS_SVG_HEIGHT = 55;
 export const CONNECTOR_PROCESS_SHADOW_OFFSET = CONNECTOR_PROCESS_SVG_WIDTH_WITH_SHADOW - CONNECTOR_PROCESS_SVG_WIDTH;
 
-export function ConnectorProcessSVG(props: { x: number, y: number, sourceSnippet?: string, diagnostics?: ErrorSnippet , openInCodeView?: () => void }) {
+export function ConnectorProcessSVG(props: {
+    x: number, y: number,
+    sourceSnippet?: string, diagnostics?: ErrorSnippet ,
+    openInCodeView?: () => void
+}) {
     const { sourceSnippet, diagnostics, openInCodeView, ...xyProps } = props;
     const tooltipText = {
         code: sourceSnippet
