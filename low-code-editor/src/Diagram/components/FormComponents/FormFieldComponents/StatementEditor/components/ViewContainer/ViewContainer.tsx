@@ -23,8 +23,7 @@ import { PrimaryButton } from "../../../Button/PrimaryButton";
 import { SecondaryButton } from "../../../Button/SecondaryButton";
 import { VariableUserInputs } from '../../models/definitions';
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
-import { getPartialSTForStatement } from "../../utils";
-import { createStatement, updateStatement } from "../../utils/statement-modifications";
+import { getModifications, getPartialSTForStatement } from "../../utils";
 import { LeftPane } from '../LeftPane';
 import { RightPane } from '../RightPane';
 
@@ -35,7 +34,7 @@ export interface ViewProps {
     initialSource: string;
     formArgs: any;
     userInputs?: VariableUserInputs;
-    config?: ProcessConfig | EndConfig | ConditionConfig;
+    config: ProcessConfig | EndConfig | ConditionConfig;
     validForm?: boolean;
     done: () => void;
     onCancel?: () => void;
@@ -140,27 +139,8 @@ export function ViewContainer(props: ViewProps) {
     });
 
     const onSaveClick = () => {
-        if (STKindChecker.isLocalVarDecl(model)
-                || STKindChecker.isCallStatement(model)
-                || STKindChecker.isReturnStatement(model)
-                || (config && config.type === 'Custom')) {
-            if (config.model) {
-                modifyDiagram([updateStatement(model.source, formArgs.formArgs?.model.position)]);
-            } else {
-                modifyDiagram([createStatement(model.source, formArgs.formArgs?.targetPosition)]);
-            }
-        }
-
-        if (STKindChecker.isWhileStatement(model)
-                || STKindChecker.isIfElseStatement(model)
-                || STKindChecker.isForeachStatement(model)) {
-            if (!formArgs.formArgs?.config) {
-                modifyDiagram([createStatement(model.source, formArgs.formArgs?.targetPosition)]);
-            } else {
-                modifyDiagram([updateStatement(model.source, config.model.position)]);
-            }
-        }
-
+        const modifications = getModifications(model, config, formArgs);
+        modifyDiagram(modifications);
         done();
     };
 
