@@ -52,6 +52,7 @@ enum EXTENDED_APIS {
     CONNECTOR_RECORD = 'ballerinaConnector/record',
     PACKAGE_COMPONENTS = 'ballerinaPackage/components',
     PACKAGE_METADATA = 'ballerinaPackage/metadata',
+    PACKAGE_CONFIG_SCHEMA = 'ballerinaPackage/configSchema',
     JSON_TO_RECORD_CONVERT = 'jsonToRecord/convert',
     PARTIAL_PARSE_SINGLE_STATEMENT = 'partialParser/getSTForSingleStatement',
     PARTIAL_PARSE_EXPRESSION = 'partialParser/getSTForExpression',
@@ -214,6 +215,10 @@ export interface PartialSTRequestParams {
 
 export interface PartialSTResponse {
     syntaxTree: any;
+}
+
+export interface PackageConfigSchemaResponse {
+    configSchema: any;
 }
 
 export interface PartialSTModification {
@@ -436,6 +441,13 @@ export class ExtendedLangClient extends LanguageClient {
         return this.sendRequest(EXTENDED_APIS.PACKAGE_COMPONENTS, params);
     }
 
+    getBallerinaProjectConfigSchema(params: GetBallerinaProjectParams): Thenable<PackageConfigSchemaResponse> {
+        if (!this.isExtendedServiceSupported(EXTENDED_APIS.PACKAGE_CONFIG_SCHEMA)) {
+            Promise.resolve(NOT_SUPPORTED);
+        }
+        return this.sendRequest(EXTENDED_APIS.PACKAGE_CONFIG_SCHEMA, params);
+    }
+
     getSyntaxTreeNode(params: SyntaxTreeNodeRequestParams): Thenable<SyntaxTreeNodeResponse> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_ST_NODE)) {
             Promise.resolve(NOT_SUPPORTED);
@@ -501,7 +513,7 @@ export class ExtendedLangClient extends LanguageClient {
                     syntaxTreeModify: true, diagnostics: true, syntaxTree: true, astModify: true, triggerModify: true,
                     resolveMissingDependencies: true
                 },
-                { name: EXTENDED_APIS_ORG.PACKAGE, components: true, metadata: true },
+                { name: EXTENDED_APIS_ORG.PACKAGE, components: true, metadata: true, configSchema: true},
                 { name: EXTENDED_APIS_ORG.SYMBOL, type: true },
                 {
                     name: EXTENDED_APIS_ORG.CONNECTOR, connectors: true, connector: true, record: true

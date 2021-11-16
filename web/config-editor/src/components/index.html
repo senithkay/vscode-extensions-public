@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>React-Webpack Setup</title>
+</head>
+
+<body>
+  <div id="configEditor"></div>
+  <script>
+    var data = {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "dilhashanazeer": {
+          "type": "object",
+          "properties": {
+            "simpleconfigs": {
+              "type": "object",
+              "properties": {
+                "accessToken": {
+                  "type": "number",
+                  "description": "description"
+                }
+              }
+            }
+          }
+        }
+      }
+    };
+    function render() {
+      window.webViews.renderConfigEditor(data);
+    }
+    window.onload = render;
+  </script>
+</body>
+
+</html>

@@ -53,12 +53,18 @@ export enum EXPLORER_ITEM_KIND {
     BAL_FILE = 'ballerina_file',
     TOML_FILE = 'toml_file',
     OTHER_FILE = 'other_file',
+    CONFIG_TOML_FILE = 'config_toml_file',
     FOLDER = 'folder'
 }
 
 export enum FILE_EXTENSION {
     BAL = '.bal',
     TOML = '.toml'
+}
+
+export enum FILE_NAME {
+    BALLERINA_TOML = 'Ballerina.bal',
+    CONFIG_TOML = 'Config.toml'
 }
 
 export const TREE_ELEMENT_EXECUTE_COMMAND: string = 'ballerina.executeTreeElement';
@@ -68,6 +74,7 @@ export const EXPLORER_TREE_NEW_FILE_COMMAND: string = 'ballerina.newFileExplorer
 export const EXPLORER_TREE_NEW_FOLDER_COMMAND: string = 'ballerina.newFolderExplorerTree';
 export const EXPLRER_TREE_DELETE_FILE_COMMAND: string = 'ballerina.deleteFileExplorerTree';
 export const EXPLORER_TREE_NEW_MODULE_COMMAND: string = 'ballerina.new.module';
+export const CONFIG_EDITOR_EXECUTE_COMMAND: string = 'ballerina.executeConfigEditor';
 
 export class ExplorerTreeItem extends TreeItem {
     private folder: WorkspaceFolder | undefined;
