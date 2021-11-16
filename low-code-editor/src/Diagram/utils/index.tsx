@@ -1,8 +1,8 @@
 import React from "react";
 
 import { NodePosition } from "@ballerina/syntax-tree";
-import { Diagnostic } from "monaco-languageclient";
 
+import { Diagnostic } from "../../DiagramGenerator/generatorUtil";
 import * as stComponents from '../components/LowCodeDiagram/Components/RenderingComponents';
 import { ActionProcessor } from "../components/LowCodeDiagram/Components/RenderingComponents/ActionInvocation/ActionProcess";
 import { ConnectorProcess } from "../components/LowCodeDiagram/Components/RenderingComponents/Connector/ConnectorProcess";
@@ -108,8 +108,10 @@ export function getDiagnosticMsgs(diagnostics: Diagnostic[]){
     }
     else{
         for (let i = 0; i < diagnostics?.length; i++){
-        diagnosticMsgsArray.push((diagnostics[i]?.message));
-        return diagnosticMsgsArray.join(',\n');
+            if (diagnostics[i]?.diagnosticInfo?.severity !== "WARNING"){
+                diagnosticMsgsArray.push((diagnostics[i]?.message));
+            }
+            return diagnosticMsgsArray.join(',\n');
     }
 }
 }
