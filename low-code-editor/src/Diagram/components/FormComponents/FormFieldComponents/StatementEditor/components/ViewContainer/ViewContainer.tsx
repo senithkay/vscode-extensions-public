@@ -76,7 +76,7 @@ export function ViewContainer(props: ViewProps) {
 
     useEffect(() => {
         (async () => {
-            const partialST: STNode = await getPartialSTForStatement({codeSnippet: initialSource}, langServerURL, ls);
+            const partialST: STNode = await getPartialSTForStatement({codeSnippet: initialSource.trim()}, langServerURL, ls);
             setModel(partialST);
         })();
     }, []);

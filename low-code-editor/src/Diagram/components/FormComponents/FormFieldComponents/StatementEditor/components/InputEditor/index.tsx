@@ -15,12 +15,13 @@ import React, { useContext, useEffect, useState } from "react";
 import { monaco } from "react-monaco-editor";
 
 import {
-    BooleanLiteral, NodePosition,
+    BooleanLiteral, BooleanTypeDesc, DecimalTypeDesc, FloatTypeDesc, IntTypeDesc, JsonTypeDesc, NodePosition,
     NumericLiteral, QualifiedNameReference,
     SimpleNameReference,
     STKindChecker,
     STNode,
-    StringLiteral} from "@ballerina/syntax-tree";
+    StringLiteral, StringTypeDesc
+} from "@ballerina/syntax-tree";
 import debounce from "lodash.debounce";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
@@ -31,7 +32,12 @@ import { SuggestionItem, VariableUserInputs } from "../../models/definitions";
 import { InputEditorContext } from "../../store/input-editor-context";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { SuggestionsContext } from "../../store/suggestions-context";
-import { getDataTypeOnExpressionKind, getExpressionSource, getPartialSTForStatement } from "../../utils";
+import {
+    getDataTypeOnExpressionKind,
+    getExpressionSource,
+    getPartialSTForStatement, getTypeDescriptorModel,
+    isTypeDescriptor
+} from "../../utils";
 import { useStatementEditorStyles } from "../ViewContainer/styles";
 
 import { acceptedCompletionKind } from "./constants";
@@ -98,7 +104,10 @@ export function InputEditor(props: InputEditorProps) {
         literalModel = model as BooleanLiteral;
         kind = c.BOOLEAN_LITERAL;
         value = literalModel.literalToken.value;
+    } else if (isTypeDescriptor(model)) {
+        value = getTypeDescriptorModel(model);
     }
+
     const [userInput, setUserInput] = useState(value);
 
     const targetPosition = stmtCtx.formCtx.formModel && stmtCtx.formCtx.formModel.position ?
@@ -289,8 +298,8 @@ export function InputEditor(props: InputEditorProps) {
                 triggerKind: 1
             },
             position: {
-                character: ((model.position.startColumn) + codeSnippet.length),
-                line: targetPosition.startLine + 1
+                character: (targetPosition.startColumn + (model.position.startColumn) + codeSnippet.length),
+                line: targetPosition.startLine
             }
         }
 
@@ -341,7 +350,7 @@ export function InputEditor(props: InputEditorProps) {
 
     const inputChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
         const currentStatement = stmtCtx.modelCtx.statementModel.source;
-        const updatedStatement = addExpressionToTargetPosition(currentStatement, model.position.startColumn + 1, event.target.value ? event.target.value : "", model.position.endColumn + 1);
+        const updatedStatement = addExpressionToTargetPosition(currentStatement, model.position.startColumn, event.target.value ? event.target.value : "", model.position.endColumn);
         debouncedContentChange(updatedStatement, "");
         setUserInput(event.target.value);
         getContextBasedCompletions(event.target.value);
