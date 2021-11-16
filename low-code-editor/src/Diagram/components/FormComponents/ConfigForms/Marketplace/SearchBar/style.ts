@@ -23,6 +23,7 @@ const useStyles = makeStyles((theme: Theme) =>
             flexDirection: 'row',
             alignItems: 'center',
             border: '1px solid #E6E7EC',
+            width: '95%',
         },
         searchIcon: {
             height: theme.spacing(2.375),

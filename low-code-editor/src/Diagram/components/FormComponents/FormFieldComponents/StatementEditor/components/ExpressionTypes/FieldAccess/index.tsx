@@ -51,7 +51,8 @@ export function FieldAccessComponent(props: FieldAccessProps) {
 
     const onClickOnExpression = (event: any) => {
         event.stopPropagation()
-        expressionHandler(model.expression, true, { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
+        expressionHandler(model.expression, true, false,
+            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
     }
 
     return (

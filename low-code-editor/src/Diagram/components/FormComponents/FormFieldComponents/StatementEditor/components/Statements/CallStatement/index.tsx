@@ -44,7 +44,7 @@ export function CallStatementC(props: CallStatementProps) {
 
     const onClickOnExpression = (event: any) => {
         event.stopPropagation()
-        expressionHandler(model.expression, false,
+        expressionHandler(model.expression, false, false,
             { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
     };
 

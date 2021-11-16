@@ -27,7 +27,8 @@ export const useStatementEditorStyles = makeStyles(() =>
         },
         sugessionsSection: {
             display: 'flex',
-            borderBottom: '1px solid #e6e7ec'
+            borderBottom: '1px solid #e6e7ec',
+            minHeight: '50vh',
         },
         sugessionsMainWrapper: {
             backgroundColor: '#f9fafc',
@@ -90,7 +91,8 @@ export const useStatementEditorStyles = makeStyles(() =>
             fontSize: '13px',
             letterSpacing: 0,
             lineHeight: '14px',
-            paddingTop: '10px'
+            paddingTop: '10px',
+            paddingBottom: '15px'
         },
         codeLine: {
             height: '24px',
@@ -158,18 +160,12 @@ export const useStatementEditorStyles = makeStyles(() =>
             overflowY: 'scroll'
         },
         contextSensitivePane: {
-            display: 'flex',
             position: 'relative',
-            height: '55%',
+            height: '95%',
             width: '90%',
             top: '5%'
         },
         variableSuggestionsInner: {
-            display: 'flex',
-            position: 'relative',
-            height: '95%',
-            width: '90%',
-            bottom: '5%',
             overflowY: 'scroll'
         },
         diagnosticsPane: {
