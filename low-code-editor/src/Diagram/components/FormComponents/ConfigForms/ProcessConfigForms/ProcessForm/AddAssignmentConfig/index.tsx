@@ -109,7 +109,7 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
     const expressionEditorConfig: FormElementProps<ExpressionEditorProps> = {
         model: {
             name: "Expression",
-            displayName: "Expression",
+            displayName: "Value Expression",
             value: variableExpression,
         },
         customProps: {
