@@ -17,6 +17,7 @@ import { FloatTypeDesc } from "@ballerina/syntax-tree";
 
 import { VariableUserInputs } from "../../../../models/definitions";
 import { SuggestionsContext } from "../../../../store/suggestions-context";
+import { getTypeDescriptors } from "../../../../utils";
 import { InputEditor } from "../../../InputEditor";
 import { useStatementEditorStyles } from "../../../ViewContainer/styles";
 
@@ -40,8 +41,16 @@ export function FloatTypeDescComponent(props: FloatTypeDescProps) {
         diagnosticHandler
     };
 
+    const onClickOnType = (event: any) => {
+        event.stopPropagation()
+        expressionHandler(model, false, true, { typeSuggestions: getTypeDescriptors() })
+    };
+
     return (
-        <button className={overlayClasses.expressionElement}>
+        <button
+            className={overlayClasses.expressionElement}
+            onClick={onClickOnType}
+        >
             <InputEditor {...inputEditorProps} />
         </button>
     );

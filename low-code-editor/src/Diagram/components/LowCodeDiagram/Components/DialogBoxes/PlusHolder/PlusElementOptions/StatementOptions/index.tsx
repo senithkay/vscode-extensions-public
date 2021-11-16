@@ -17,7 +17,7 @@ import { QualifiedNameReference, STKindChecker } from "@ballerina/syntax-tree";
 import { Divider } from "@material-ui/core";
 import cn from "classnames";
 
-import { LogIcon, PropertyIcon, IfIcon, ForEachIcon, ReturnIcon, RespondIcon, CustomStatementIcon, DataMapperIcon } from "../../../../../../../../assets/icons";
+import { LogIcon, PropertyIcon, AssignmentIcon, IfIcon, ForEachIcon, ReturnIcon, RespondIcon, CustomStatementIcon, DataMapperIcon } from "../../../../../../../../assets/icons";
 
 import { Context } from "../../../../../../../../Contexts/Diagram";
 import { isSTResourceFunction } from "../../../../../../../utils/st-util";
@@ -75,6 +75,12 @@ export function StatementOptions(props: StatementOptionsProps) {
             title: intl.formatMessage({
                 id: "lowcode.develop.plusHolder.plusElements.statements.variable.tooltip.title",
                 defaultMessage: "A variable statement holds the value of a specific data type (string, integer, etc.) so that it can be used later in the logical process of the service or integration."
+            })
+        },
+        assignmentStatement: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.plusHolder.plusElements.statements.assignment.tooltip.title",
+                defaultMessage: "An assignment statement lets you to assign a value to a variable that is already defined"
             })
         },
         ifStatement: {
@@ -177,6 +183,34 @@ export function StatementOptions(props: StatementOptionsProps) {
                         <PropertyIcon />
                     </div>
                     <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.variable.title" defaultMessage="Variable" /></div>
+                </div>
+            </Tooltip>
+        )
+    }
+    const assignmentStm: StatementComponent = {
+        name: "assignment",
+        category: 'process',
+        component: (
+            <Tooltip
+                title={plusHolderStatementTooltipMessages.assignmentStatement.title}
+                placement="right"
+                arrow={true}
+                interactive={true}
+            >
+                <div
+                    className="sub-option enabled"
+                    data-testid="addAssignment"
+                    onClick={onSelectStatement.bind(undefined, "AssignmentStatement")}
+                >
+                    <div className="icon-wrapper">
+                        <AssignmentIcon />
+                    </div>
+                    <div className="text-label">
+                        <FormattedMessage
+                            id="lowcode.develop.plusHolder.plusElements.statements.assignment.title"
+                            defaultMessage="Assignment"
+                        />
+                    </div>
                 </div>
             </Tooltip>
         )
@@ -391,6 +425,7 @@ export function StatementOptions(props: StatementOptionsProps) {
     const statements: StatementComponent[] = [];
     statements.push(logStm);
     statements.push(propertyStm);
+    statements.push(assignmentStm);
     statements.push(ifStm);
     statements.push(foreachStm);
     statements.push(whileStmt);

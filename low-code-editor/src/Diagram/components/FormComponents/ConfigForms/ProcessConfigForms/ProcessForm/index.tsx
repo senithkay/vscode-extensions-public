@@ -21,6 +21,7 @@ import { ConfigOverlayFormStatus } from "../../../../../../Definitions";
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
 import { ProcessConfig } from "../../../Types";
 
+import { AddAssignmentConfig } from "./AddAssignmentConfig";
 import { AddCustomStatementConfig } from "./AddCustomStatementConfig";
 import { AddDataMappingConfig } from "./AddDataMappingConfig";
 import { AddLogConfig } from "./AddLogConfig";
@@ -89,6 +90,16 @@ export function ProcessForm(props: ProcessFormProps) {
                             formArgs={formArgs}
                             onSave={onSave}
                             onWizardClose={onWizardClose}
+                            onCancel={onCancel}
+                        />
+                    )
+                }
+                {
+                    formType === "AssignmentStatement" && (
+                        <AddAssignmentConfig
+                            config={config}
+                            formArgs={formArgs}
+                            onSave={onSave}
                             onCancel={onCancel}
                         />
                     )

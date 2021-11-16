@@ -50,7 +50,8 @@ export function TypeTestExpressionComponent(props: TypeTestExpressionProps) {
 
     const onClickOnTypeDescriptor = (event: any) => {
         event.stopPropagation()
-        expressionHandler(model.typeDescriptor, false, { expressionSuggestions: getSuggestionsBasedOnExpressionKind(TYPE_DESCRIPTOR) })
+        expressionHandler(model.typeDescriptor, false, true,
+            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(TYPE_DESCRIPTOR) })
     };
 
     return (

@@ -83,6 +83,13 @@ export function ProcessConfigForm(props: any) {
                     );
                     modifications.push(updatePropertyStmt);
                     break;
+                case 'AssignmentStatement':
+                    const assignmentConfig: string = processConfig.config as string;
+                    const updateAssignmentStmt: STModification = updatePropertyStatement(
+                        assignmentConfig, formArgs?.model.position
+                    );
+                    modifications.push(updateAssignmentStmt);
+                    break;
                 case 'Log':
                     const logConfig: LogConfig = processConfig.config as LogConfig;
                     const updateLogStmt: STModification = updateLogStatement(
@@ -108,6 +115,11 @@ export function ProcessConfigForm(props: any) {
                     const addPropertyStatement: STModification = createPropertyStatement(
                         propertyConfig, formArgs?.targetPosition);
                     modifications.push(addPropertyStatement);
+                } else if (processConfig.type === "AssignmentStatement") {
+                    const assignmentConfig: string = processConfig.config as string;
+                    const addAssignmentStatement: STModification = createPropertyStatement(
+                        assignmentConfig, formArgs?.targetPosition);
+                    modifications.push(addAssignmentStatement);
                 } else if (processConfig.type === "Log") {
                     const logConfig: LogConfig = processConfig.config as
                         LogConfig;
