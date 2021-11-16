@@ -12,7 +12,10 @@
  */
 import React, { ReactNode } from 'react';
 
-import { STKindChecker, STNode } from "@ballerina/syntax-tree";
+import {
+    STKindChecker,
+    STNode
+} from "@ballerina/syntax-tree";
 
 import {
     ExpressionEditorLangClientInterface,

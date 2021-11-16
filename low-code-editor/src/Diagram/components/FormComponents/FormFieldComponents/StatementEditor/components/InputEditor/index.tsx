@@ -15,12 +15,12 @@ import React, { useContext, useEffect, useState } from "react";
 import { monaco } from "react-monaco-editor";
 
 import {
-    BooleanLiteral, NodePosition,
+    BooleanLiteral, BooleanTypeDesc, DecimalTypeDesc, FloatTypeDesc, IntTypeDesc, JsonTypeDesc, NodePosition,
     NumericLiteral, QualifiedNameReference,
     SimpleNameReference,
     STKindChecker,
     STNode,
-    StringLiteral
+    StringLiteral, StringTypeDesc
 } from "@ballerina/syntax-tree";
 import debounce from "lodash.debounce";
 
@@ -99,7 +99,17 @@ export function InputEditor(props: InputEditorProps) {
         literalModel = model as BooleanLiteral;
         kind = c.BOOLEAN_LITERAL;
         value = literalModel.literalToken.value;
+    } else if ((STKindChecker.isStringTypeDesc(model)
+        || STKindChecker.isBooleanTypeDesc(model)
+        || STKindChecker.isDecimalTypeDesc(model)
+        || STKindChecker.isFloatTypeDesc(model)
+        || STKindChecker.isIntTypeDesc(model)
+        || STKindChecker.isJsonTypeDesc(model)
+        || STKindChecker.isVarTypeDesc(model)
+        || STKindChecker.isSimpleNameReference(model))) {
+            value = model.name.value;
     }
+
     const [userInput, setUserInput] = useState(value);
 
     const targetPosition = stmtCtx.formCtx.formModel && stmtCtx.formCtx.formModel.position ?
@@ -284,7 +294,7 @@ export function InputEditor(props: InputEditorProps) {
                 triggerKind: 1
             },
             position: {
-                character: (codeSnippet.length + (snippetTargetPosition - 1)),
+                character: (targetPosition.startColumn + (model.position.startColumn) + codeSnippet.length),
                 line: targetPosition.startLine
             }
         }
@@ -295,9 +305,7 @@ export function InputEditor(props: InputEditorProps) {
             langClient.getCompletion(completionParams).then((values: CompletionResponse[]) => {
                 const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (
                     (!completionResponse.kind || acceptedCompletionKind.includes(completionResponse.kind)) &&
-                    ((varType === "string") ? completionResponse.detail === varType : acceptedDataType.includes(completionResponse.detail)) &&
-                    completionResponse.label !== varName &&
-                    ((completionResponse.label.replace(/["]+/g, '')).startsWith(codeSnippet)) &&
+                    completionResponse.label !== varName.trim() &&
                     !(completionResponse.label.includes("main"))
                 ));
 
@@ -345,8 +353,8 @@ export function InputEditor(props: InputEditorProps) {
             model.position.endColumn
         );
         debouncedContentChange(updatedStatement, "");
-        getContextBasedCompletions(event.target.value);
         setUserInput(event.target.value);
+        getContextBasedCompletions(event.target.value);
     };
 
     const debouncedContentChange = debounce(handleContentChange, 500);
