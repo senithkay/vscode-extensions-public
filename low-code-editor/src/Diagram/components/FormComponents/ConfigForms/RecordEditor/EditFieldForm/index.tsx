@@ -14,26 +14,21 @@
 import React, { useEffect, useState } from 'react';
 import { useIntl } from "react-intl";
 
-import { RecordTypeDesc } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 
 import { FormField } from '../../../../../../ConfigurationSpec/types';
-import { useDiagramContext } from '../../../../../../Contexts/Diagram';
-import { FormState, useRecordEditorContext } from '../../../../../../Contexts/RecordEditor';
+import { useRecordEditorContext } from '../../../../../../Contexts/RecordEditor';
 import { keywords } from "../../../../Portals/utils/constants";
-import { VariableTypeInput, VariableTypeInputProps } from "../../../ConfigForms/Components/VariableTypeInput";
 import { PrimaryButton } from '../../../FormFieldComponents/Button/PrimaryButton';
 import CheckBoxGroup from '../../../FormFieldComponents/CheckBox';
 import ExpressionEditor from '../../../FormFieldComponents/ExpressionEditor';
 import { FormTextInput } from '../../../FormFieldComponents/TextField/FormTextInput';
 import { FormElementProps } from "../../../Types";
-import { variableTypes } from '../../ProcessConfigForms/ProcessForm/AddVariableConfig';
 import { wizardStyles as useStyles } from "../../style";
 import { recordStyles } from "../style";
 
 export function EditFieldForm() {
 
-    const { props: { stSymbolInfo } } = useDiagramContext();
     const { state, callBacks } = useRecordEditorContext();
 
     const classes = useStyles();
@@ -48,14 +43,6 @@ export function EditFieldForm() {
         id: "lowcode.develop.configForms.recordEditor.jsonButton.text",
         defaultMessage: "Import JSON"
     });
-    const fieldNameText = intl.formatMessage({
-        id: "lowcode.develop.configForms.recordEditor.fieldName.text",
-        defaultMessage: "Field name"
-    });
-    const typeLabel = intl.formatMessage({
-        id: "lowcode.develop.configForms.recordEditor.type.label",
-        defaultMessage: "Type"
-    });
     const defaultValText = intl.formatMessage({
         id: "lowcode.develop.configForms.recordEditor.defaultVal.text",
         defaultMessage: "Default Value"
@@ -64,21 +51,8 @@ export function EditFieldForm() {
     const [nameError, setNameError] = useState("");
     const [clearExpEditor, setClearExpEditor] = useState(false);
     const [defaultValue, setDefaultValue] = useState(state.currentField.value);
-    const [validType, setValidType] = useState(true);
 
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
-
-    const allVariableTypes: string[] = variableTypes.slice();
-    allVariableTypes.push("record");
-    stSymbolInfo.recordTypeDescriptions.forEach((value: RecordTypeDesc) => {
-        allVariableTypes.push(value?.typeData?.typeSymbol?.name);
-    });
-
-    const handleTypeSelect = (typeSelected: string) => {
-        state.currentField.type = typeSelected;
-        setClearExpEditor(true);
-        callBacks.onUpdateCurrentField(state.currentField);
-    };
 
     const handleNameChange = (inputText: string) => {
         state.currentField.name = inputText;
@@ -104,31 +78,13 @@ export function EditFieldForm() {
         state.currentField.isValueInvalid = isInvalidFromField;
         callBacks.onUpdateCurrentField(state.currentField);
         callBacks.updateEditorValidity(isInvalidFromField || state.currentField.isNameInvalid);
-    }
-
-    const validateTypeName = (fName: string, isInvalidFromField: boolean) => {
-        setValidType(!isInvalidFromField);
-    }
+    };
 
     const handleOptionalFieldChange = (text: string[]) => {
         if (text) {
             state.currentField.isFieldOptional = (text.length > 0);
         }
         state.currentField.value = "";
-        callBacks.onUpdateCurrentField(state.currentField);
-    };
-
-    const handleOptionalTypeChange = (text: string[]) => {
-        if (text) {
-            state.currentField.isFieldTypeOptional = (text.length > 0);
-        }
-        callBacks.onUpdateCurrentField(state.currentField);
-    };
-
-    const handleArrayChange = (text: string[]) => {
-        if (text) {
-            state.currentField.isArray = (text.length > 0);
-        }
         callBacks.onUpdateCurrentField(state.currentField);
     };
 
@@ -155,18 +111,6 @@ export function EditFieldForm() {
         defaultValue
     };
 
-    const varTypeProps: VariableTypeInputProps = {
-        displayName: typeLabel,
-        value: state.currentField.type,
-        onValueChange: handleTypeSelect,
-        validateExpression: validateTypeName,
-        position: state.sourceModel?.position || state.targetPosition,
-        overrideTemplate: {
-            defaultCodeSnippet: `type tempRecordName record {  ${state.currentField.type === 'record' ? '{}' : ''} varType; };`,
-            targetColumn: 30
-        },
-    };
-
     useEffect(() => {
         state.currentField.value = defaultValue;
         callBacks.updateCurrentField(state.currentField);
@@ -183,28 +127,13 @@ export function EditFieldForm() {
                     <Box paddingTop={2} paddingBottom={2}>{editFieldiTitle}</Box>
                 </Typography>
             </div>
-            <VariableTypeInput {...varTypeProps} key={`${state.currentField.name}-typeSelector`} />
-            <div className={classes.sectionSeparator} />
-            <FormTextInput
-                dataTestId="field-name"
-                customProps={{
-                    clearInput: (state.currentField?.name === ""),
-                    isErrored: (nameError !== "")
-                }}
-                defaultValue={state.currentField?.name}
-                onChange={handleNameChange}
-                label={fieldNameText}
-                errorMessage={nameError}
-                placeholder={"Enter field name"}
-            />
             <CheckBoxGroup
                 testId="is-optional-field"
-                values={["Is optional ?"]}
-                defaultValues={state.currentField?.isFieldOptional ? ["Is optional ?"] : []}
+                values={["Is field optional ?"]}
+                defaultValues={state.currentField?.isFieldOptional ? ["Is field optional ?"] : []}
                 onChange={handleOptionalFieldChange}
             />
-            {!state.currentField?.isFieldOptional && (state.currentField?.type !== "record") &&
-            (variableTypes.includes(state.currentField?.type)) && (
+            {!state.currentField?.isFieldOptional && (state.currentField?.type !== "record") && (
                 <div>
                     <div className={classes.sectionSeparator} />
                     <ExpressionEditor {...defaultValueProps} />

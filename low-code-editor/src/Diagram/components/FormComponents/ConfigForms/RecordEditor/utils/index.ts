@@ -62,7 +62,7 @@ export function getRecordModel(typeDesc: RecordTypeDesc, name: string, isInline:
                 const recField: SimpleField = STKindChecker.isArrayTypeDesc(field.typeName.typeDescriptor) ?
                     (getArrayField(field) as SimpleField) : {
                         name: field.fieldName.value,
-                        type: field.typeName.typeDescriptor.source.trim(),
+                        type: field.typeName.source.trim(),
                         isFieldOptional: STKindChecker.isRecordField(field) ? (field.questionMarkToken !== undefined) :
                             false
                     };
@@ -102,7 +102,6 @@ export function getRecordModel(typeDesc: RecordTypeDesc, name: string, isInline:
                     type: field.typeName.source.trim(),
                     isFieldOptional: STKindChecker.isRecordField(field) ? (field.questionMarkToken !== undefined) :
                         false,
-                    isFieldTypeOptional: false,
                 }
                 if (STKindChecker.isRecordFieldWithDefaultValue(field)) {
                     recField.value = field.expression.literalToken ? field.expression.literalToken.value :
@@ -121,11 +120,9 @@ export function getArrayField(field: RecordField | RecordFieldWithDefaultValue) 
         STKindChecker.isArrayTypeDesc(field.typeName.typeDescriptor)) {
         recField = {
             name: field.fieldName.value,
-            type: field.typeName.typeDescriptor.memberTypeDesc.source.trim(),
+            type: field.typeName.source.trim(),
             isFieldOptional: STKindChecker.isRecordField(field) ? (field.questionMarkToken !== undefined) :
                 false,
-            isFieldTypeOptional: false,
-            isArray: true,
         }
     } else if (STKindChecker.isArrayTypeDesc(field.typeName)) {
         if (STKindChecker.isRecordTypeDesc(field.typeName.memberTypeDesc)) {
@@ -136,11 +133,9 @@ export function getArrayField(field: RecordField | RecordFieldWithDefaultValue) 
         } else {
             recField = {
                 name: field.fieldName.value,
-                type: field.typeName.memberTypeDesc.source.trim(),
+                type: field.typeName.source.trim(),
                 isFieldOptional: STKindChecker.isRecordField(field) ? (field.questionMarkToken !== undefined) :
                     false,
-                isFieldTypeOptional: false,
-                isArray: true,
             }
         }
     }

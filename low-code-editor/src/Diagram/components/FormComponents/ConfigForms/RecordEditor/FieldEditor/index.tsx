@@ -12,19 +12,18 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React  from "react";
+import { useIntl } from "react-intl";
 
-import { RecordTypeDesc } from "@ballerina/syntax-tree";
 import { Typography } from "@material-ui/core";
 import classnames from "classnames";
 
-import DeleteButton from "../../../../../assets/icons/DeleteButton";
-import { useDiagramContext } from "../../../../../Contexts/Diagram";
-import { FormState, useRecordEditorContext } from "../../../../../Contexts/RecordEditor";
-import { variableTypes } from "../../../FormComponents/ConfigForms/ProcessConfigForms/ProcessForm/AddVariableConfig";
-import { recordStyles } from "../../../FormComponents/ConfigForms/RecordEditor/style";
-import { RecordModel, SimpleField } from "../../../FormComponents/ConfigForms/RecordEditor/types";
-import { SelectDropdownWithButton } from "../../../FormComponents/FormFieldComponents/DropDown/SelectDropdownWithButton";
-import { FormTextInput } from "../../../FormComponents/FormFieldComponents/TextField/FormTextInput";
+import DeleteButton from "../../../../../../assets/icons/DeleteButton";
+import { useDiagramContext } from "../../../../../../Contexts/Diagram";
+import { FormState, useRecordEditorContext } from "../../../../../../Contexts/RecordEditor";
+import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
+import { VariableTypeInput, VariableTypeInputProps } from "../../Components/VariableTypeInput";
+import { recordStyles } from "../style";
+import { RecordModel, SimpleField } from "../types";
 
 export interface FieldEditorProps {
     field: SimpleField;
@@ -38,16 +37,16 @@ export function FieldEditor(props: FieldEditorProps) {
     const { field, onDeleteClick, onChange, onEnterPress, onFocusLost } = props;
 
     const recordClasses = recordStyles();
+    const intl = useIntl();
+    const typeLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.recordEditor.type.label",
+        defaultMessage: "Type"
+    });
 
     const { props: { stSymbolInfo } } = useDiagramContext();
     const { state, callBacks } = useRecordEditorContext();
 
     const typeProperty = `${field.isArray ? "[]" : ""}${field.isFieldTypeOptional ? "?" : ""}`;
-    const allVariableTypes: string[] = variableTypes.slice();
-    allVariableTypes.push("record");
-    stSymbolInfo.recordTypeDescriptions.forEach((value: RecordTypeDesc) => {
-        allVariableTypes.push(value?.typeData?.typeSymbol?.name);
-    })
 
     const handleDelete = () => {
         onDeleteClick(field);
@@ -79,6 +78,7 @@ export function FieldEditor(props: FieldEditorProps) {
             state.currentRecord.fields.push(newRecordModel);
             state.currentRecord = newRecordModel;
             callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
+            callBacks.onUpdateCurrentRecord(state.currentRecord);
         } else {
             state.currentField.type = selectedType;
         }
@@ -87,32 +87,34 @@ export function FieldEditor(props: FieldEditorProps) {
     const handleFocusLost = (event: any) => {
         onFocusLost(event);
     };
+    const validateTypeName = (fName: string, isInvalidFromField: boolean) => {
+        // FIXME: Handle record type validations. Currently disabled due to an issue in handling nested records
+        // state.currentField.isTypeInvalid = isInvalidFromField;
+        // callBacks.onUpdateCurrentField(state.currentField);
+        // callBacks.updateEditorValidity(isInvalidFromField || state.currentField.isNameInvalid ||
+        //     state.currentField.isValueInvalid);
+    };
+
+    const varTypeProps: VariableTypeInputProps = {
+        displayName: typeLabel,
+        value: `${state.currentField.type}`,
+        hideLabel: true,
+        onValueChange: handleTypeSelect,
+        validateExpression: validateTypeName,
+        position: state.sourceModel?.position || state.targetPosition,
+        overrideTemplate: {
+            defaultCodeSnippet: `type tempRecordName record {  ${state.currentField.type === 'record' ? '{}' : ''} varType; };`,
+            targetColumn: 30
+        },
+    };
 
     return (
         <div className={recordClasses.itemWrapper}>
             <div className={recordClasses.editItemContentWrapper}>
                 <div className={recordClasses.itemLabelWrapper}>
                     <div className={recordClasses.editTypeWrapper}>
-                        <SelectDropdownWithButton
-                            dataTestId="field-type"
-                            defaultValue={field.type}
-                            customProps={
-                                {
-                                    values: allVariableTypes,
-                                    disableCreateNew: true
-                                }
-                            }
-                            onChange={handleTypeSelect}
-                        />
+                        <VariableTypeInput {...varTypeProps} key={`${state.currentField.name}-typeSelector`} />
                     </div>
-                    {typeProperty && (
-                        <Typography
-                            variant='body2'
-                            className={classnames(recordClasses.editOptionalNArray)}
-                        >
-                            {typeProperty}
-                        </Typography>
-                    )}
                     <div className={recordClasses.editNameWrapper}>
                         <FormTextInput
                             dataTestId="field-name"

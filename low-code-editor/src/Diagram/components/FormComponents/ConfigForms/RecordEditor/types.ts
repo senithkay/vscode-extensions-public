@@ -21,6 +21,7 @@ export interface SimpleField {
     isEditInProgress?: boolean;
     isNameInvalid?: boolean;
     isValueInvalid?: boolean;
+    isTypeInvalid?: boolean;
 }
 
 export interface RecordModel {
