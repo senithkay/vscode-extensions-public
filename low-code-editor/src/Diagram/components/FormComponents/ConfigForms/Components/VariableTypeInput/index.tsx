@@ -15,7 +15,7 @@ import React from "react";
 
 import { NodePosition } from "@ballerina/syntax-tree";
 
-import ExpressionEditor, { ExpressionEditorProps, ExpressionEditorCustomTemplate } from "../../../FormFieldComponents/ExpressionEditor";
+import ExpressionEditor, { ExpressionEditorCustomTemplate, ExpressionEditorProps } from "../../../FormFieldComponents/ExpressionEditor";
 import { FormElementProps } from "../../../Types";
 
 import { getVarTypeCompletions } from './utils';

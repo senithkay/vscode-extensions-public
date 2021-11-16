@@ -21,6 +21,7 @@ import { FormField } from '../../../../../../ConfigurationSpec/types';
 import { useDiagramContext } from '../../../../../../Contexts/Diagram';
 import { FormState, useRecordEditorContext } from '../../../../../../Contexts/RecordEditor';
 import { keywords } from "../../../../Portals/utils/constants";
+import { VariableTypeInput, VariableTypeInputProps } from "../../../ConfigForms/Components/VariableTypeInput";
 import { PrimaryButton } from '../../../FormFieldComponents/Button/PrimaryButton';
 import CheckBoxGroup from '../../../FormFieldComponents/CheckBox';
 import { SelectDropdownWithButton } from '../../../FormFieldComponents/DropDown/SelectDropdownWithButton';
@@ -31,7 +32,6 @@ import { variableTypes } from '../../ProcessConfigForms/ProcessForm/AddVariableC
 import { wizardStyles as useStyles } from "../../style";
 import { recordStyles } from "../style";
 import { RecordModel, SimpleField } from "../types";
-import { VariableTypeInput, VariableTypeInputProps } from "../../../ConfigForms/Components/VariableTypeInput";
 
 export function EditFieldForm() {
 
