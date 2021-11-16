@@ -171,7 +171,8 @@ export function While(props: WhileProps) {
         const conditionConfigState = getConditionConfig("While", position, WizardType.EXISTING, undefined, {
             type: "While",
             conditionExpression,
-            conditionPosition: conditionExpr.position
+            conditionPosition: conditionExpr.position,
+            model
         }, stSymbolInfo, model);
         setWhileConfigOverlayState(conditionConfigState);
     };

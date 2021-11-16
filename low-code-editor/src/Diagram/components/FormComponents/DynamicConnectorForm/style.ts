@@ -613,7 +613,8 @@ export const useStyles = makeStyles((theme: Theme) =>
         nameExpEditorWrapper: {
             minWidth: `164px !important`,
             paddingRight: theme.spacing(1),
-            position: 'relative'
+            position: 'relative',
+            marginTop: theme.spacing(1.5),
         },
         variableExpEditorWrapper: {
             minWidth: `164px !important`,

@@ -11,11 +11,13 @@
  * associated services.
  */
 // tslint:disable: jsx-wrap-multiline
-import React from "react";
+import React, { useContext } from "react";
 
 import { VarTypeDesc } from "@ballerina/syntax-tree";
 
 import { VariableUserInputs } from "../../../../models/definitions";
+import { SuggestionsContext } from "../../../../store/suggestions-context";
+import { InputEditor } from "../../../InputEditor";
 import { useStatementEditorStyles } from "../../../ViewContainer/styles";
 
 interface VarTypeDescProps {
@@ -25,15 +27,22 @@ interface VarTypeDescProps {
 }
 
 export function VarTypeDescComponent(props: VarTypeDescProps) {
-    const { model } = props;
+    const { model, userInputs, diagnosticHandler } = props;
 
     const overlayClasses = useStatementEditorStyles();
+    const { expressionHandler } = useContext(SuggestionsContext);
+
+    const inputEditorProps = {
+        statementType: model.kind,
+        model,
+        expressionHandler,
+        userInputs,
+        diagnosticHandler
+    };
 
     return (
-        <button
-            className={overlayClasses.expressionElement}
-        >
-            {model.name.value}
+        <button className={overlayClasses.expressionElement}>
+            <InputEditor {...inputEditorProps} />
         </button>
     );
 }

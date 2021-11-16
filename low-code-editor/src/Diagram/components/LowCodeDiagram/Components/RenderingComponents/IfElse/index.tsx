@@ -312,7 +312,8 @@ export function IfElse(props: IfElseProps) {
             const conditionConfigState = getConditionConfig("If", position, WizardType.EXISTING, undefined, {
                 type: "If",
                 conditionExpression,
-                conditionPosition: getExpressions()?.values[0]?.position
+                conditionPosition: getExpressions()?.values[0]?.position,
+                model
             }, stSymbolInfo, model);
             setIfElseConditionConfigState(conditionConfigState);
         };

@@ -92,4 +92,7 @@ export interface DiagramEditorLangClientInterface extends BaseLangClientInterfac
     getRealtimePerformanceData: (
         params: PerformanceAnalyzerRequest
     ) => Thenable<PerformanceAnalyzerRealtimeResponse>;
+    resolveMissingDependencies: (
+        params: GetSyntaxTreeParams
+    ) => Thenable<GetSyntaxTreeResponse>;
 }

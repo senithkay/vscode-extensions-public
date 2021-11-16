@@ -30,6 +30,7 @@ export interface EditorAPI {
     getPFSession: () => Promise<PFSession>;
     showPerformanceGraph: () => Promise<boolean>;
     showMessage: () => Promise<boolean>;
+    resolveMissingDependency: (filePath: string, fileContent: string) => Promise<boolean>;
 }
 
 export type EditorProps = EditorState & EditorAPI;
@@ -37,7 +38,7 @@ export type EditorProps = EditorState & EditorAPI;
 export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
 
     const { getFileContent, updateFileContent, gotoSource, getPFSession,
-            showPerformanceGraph, showMessage, ...restProps } = props;
+            showPerformanceGraph, showMessage, resolveMissingDependency, ...restProps } = props;
     const [state, setState] = React.useState<EditorState>(restProps);
 
     React.useEffect(() => {
@@ -55,6 +56,7 @@ export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
                     getPFSession={getPFSession}
                     showPerformanceGraph={showPerformanceGraph}
                     showMessage={showMessage}
+                    resolveMissingDependency={resolveMissingDependency}
                     panX="-30"
                     panY="0"
                     scale="0.9"
