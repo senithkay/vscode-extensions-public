@@ -39,6 +39,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     const defaultScale = scale ? Number(scale) : 1;
     const defaultPanX = panX ? Number(panX) : 0;
     const defaultPanY = panY ? Number(panY) : 0;
+    const createSwaggerView = props.createSwaggerView;
 
     const defaultZoomStatus = {
         scale: defaultScale,
@@ -107,6 +108,10 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         newZoomStatus.panX = newPanX;
         newZoomStatus.panY = newPanY;
         setZoomStatus(newZoomStatus);
+    }
+
+    async function showSwaggerView(serviceName: string) {
+        createSwaggerView(filePath, serviceName);
     }
 
     const undo = async () => {
@@ -268,6 +273,9 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                     closeConfigOverlayForm: () => undefined,
                                     configOverlayFormPrepareStart: () => undefined,
                                     closeConfigPanel: () => undefined,
+                                },
+                                webView: {
+                                    showSwaggerView
                                 }
                             }}
                         />
