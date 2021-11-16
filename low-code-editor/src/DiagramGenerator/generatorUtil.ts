@@ -26,9 +26,7 @@ export async function resolveMissingDependencies(filePath: string, langClient: D
     return resp;
 }
 
-export async function getLowcodeST(payload: any, filePath: string, langClient: DiagramEditorLangClientInterface,
-                                   pfSession: PFSession, showPerformanceGraph: () => Promise<boolean>,
-                                   showMessage: (message: string, type: MESSAGE_TYPE, isIgnorable: boolean) => Promise<boolean>) {
+export async function getLowcodeST(payload: any, filePath: string, langClient: DiagramEditorLangClientInterface, pfSession: PFSession, showPerformanceGraph: () => Promise<boolean>, showMessage: (message: string, type: MESSAGE_TYPE, isIgnorable: boolean) => Promise<boolean>) {
     const modulePart: ModulePart = payload;
     const members: STNode[] = modulePart?.members || [];
     const st = sizingAndPositioningST(payload);
@@ -74,4 +72,25 @@ export function sizingAndPositioningST(st: STNode): STNode {
     traversNode(st, positionVisitor);
     const clone = { ...st };
     return clone;
+}
+
+export interface DiagnosticInfo {
+    code: string,
+    severity: string
+}
+
+export interface Diagnostic {
+    message: string,
+    diagnosticInfo: DiagnosticInfo
+}
+
+export function isUnresolvedModulesAvailable(diagnostics: Diagnostic[]): boolean {
+    let unresolvedModuleAvailable = false;
+    for (const diagnostic of diagnostics) {
+        if (diagnostic.diagnosticInfo.code === "BCE2003") {
+            unresolvedModuleAvailable = true;
+            break;
+        }
+    }
+    return unresolvedModuleAvailable;
 }

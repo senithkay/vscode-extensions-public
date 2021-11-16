@@ -18,7 +18,7 @@ import messages from '../lang/en.json';
 import { CirclePreloader } from "../PreLoader/CirclePreloader";
 
 import { DiagramGenErrorBoundary } from "./ErrorBoundrary";
-import { getDefaultSelectedPosition, getLowcodeST, getSyntaxTree, resolveMissingDependencies } from "./generatorUtil";
+import { Diagnostic, getDefaultSelectedPosition, getLowcodeST, getSyntaxTree, isUnresolvedModulesAvailable, resolveMissingDependencies } from "./generatorUtil";
 import { useGeneratorStyles } from "./styles";
 import { theme } from "./theme";
 import { EditorProps } from "./vscode/Diagram";
@@ -56,9 +56,9 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                 const genSyntaxTree: ModulePart = await getSyntaxTree(filePath, langClient);
                 const pfSession = await props.getPFSession();
                 const content = await props.getFileContent(filePath);
-                if (genSyntaxTree?.typeData?.diagnostics && genSyntaxTree?.typeData?.diagnostics?.length > 0) {
-                    resolveMissingDependency(filePath, content);
-                }
+                // if (genSyntaxTree?.typeData?.diagnostics && genSyntaxTree?.typeData?.diagnostics?.length > 0) {
+                //     resolveMissingDependency(filePath, content);
+                // }
                 const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, filePath,
                     langClient, pfSession,
                     props.showPerformanceGraph, props.showMessage);
@@ -234,7 +234,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                         if (parseSuccess) {
                                             undoRedo.addModification(source);
                                             const pfSession = await props.getPFSession();
-                                            if (newST?.typeData?.diagnostics && newST?.typeData?.diagnostics?.length > 0) {
+                                            if (newST?.typeData?.diagnostics && newST?.typeData?.diagnostics?.length > 0 && isUnresolvedModulesAvailable(newST?.typeData?.diagnostics as Diagnostic[])) {
                                                 resolveMissingDependency(filePath, source);
                                             }
                                             const vistedSyntaxTree: STNode = await getLowcodeST(newST, filePath,
