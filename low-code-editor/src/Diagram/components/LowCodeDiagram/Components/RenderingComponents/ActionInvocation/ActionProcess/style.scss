@@ -107,6 +107,64 @@
             }
         }
     }
+    &.data-processor-error {
+        .process {
+            user-select: none;
+
+            .data-processor {
+                rect {
+                    stroke: #FE523C;
+                    stroke-miterlimit: 10;
+                    stroke-width: 2;
+                    fill: url(#ProcessLinearGradient) #fafafc;
+                    filter: url(#ProcessFilterDefault) #fafafc;
+                }
+                .process-text {
+                    tspan {
+                        font-weight: 500;
+                        fill: #40404b;
+                        font-size: 12px;
+                        font-family: inherit;
+                        letter-spacing: 0.05em;
+                        text-anchor: middle;
+                        text-align: center;
+                        user-select: none;
+                    }
+                }
+
+                .process-icon {
+                    fill: #5566d5;
+                }
+            }
+
+            :hover {
+                rect {
+                    cursor: pointer;
+                    stroke: #FE523C;
+                    stroke-miterlimit: 10;
+                    stroke-width: 2;
+                    fill: url(#ProcessLinearGradient) #fafafc;
+                    filter: url(#ProcessFilterHover) #fafafc;
+                }
+            }
+
+            :active {
+                rect {
+                    cursor: pointer;
+                    stroke: #FE523C;
+                    stroke-miterlimit: 10;
+                    stroke-width: 9;
+                    fill: url(#ProcessLinearGradient) #fafafc;
+                    filter: none;
+                }
+
+                .click-effect {
+                    stroke-width: 1px !important;
+                    stroke: #FE523C !important;
+                }
+            }
+        }
+    }
 
     .process-options-wrapper {
         fill: none;
