@@ -117,3 +117,28 @@ export function getStatementTypeComponent(
         diagnosticHandler={diagnosticHandler}
     />;
 }
+
+export function isTypeDescriptor(model: STNode): boolean {
+    return (STKindChecker.isStringTypeDesc(model)
+        || STKindChecker.isBooleanTypeDesc(model)
+        || STKindChecker.isDecimalTypeDesc(model)
+        || STKindChecker.isFloatTypeDesc(model)
+        || STKindChecker.isIntTypeDesc(model)
+        || STKindChecker.isJsonTypeDesc(model)
+        || STKindChecker.isVarTypeDesc(model)
+        || STKindChecker.isSimpleNameReference(model)
+    )
+}
+
+export function getTypeDescriptorModel(model: STNode): string {
+    if (STKindChecker.isStringTypeDesc(model)
+        || STKindChecker.isBooleanTypeDesc(model)
+        || STKindChecker.isDecimalTypeDesc(model)
+        || STKindChecker.isFloatTypeDesc(model)
+        || STKindChecker.isIntTypeDesc(model)
+        || STKindChecker.isJsonTypeDesc(model)
+        || STKindChecker.isVarTypeDesc(model)
+        || STKindChecker.isSimpleNameReference(model)) {
+            return model.name.value;
+    }
+}
