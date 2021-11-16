@@ -895,6 +895,8 @@ export async function InsertorDelete(modifications: STModification[]): Promise<S
                     "STATEMENT": source,
                 }
             }
+        } else if (value.type && value.type.toLowerCase() === 'insert') {
+            stModification = value;
         } else {
             const source = await getInsertComponentSource(value.type, value.config);
             stModification = {

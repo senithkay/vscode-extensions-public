@@ -45,7 +45,7 @@ const statementEditorContextProps = {
     onCancelClicked: false,
     onSave: dummyFunctionWithoutArgs,
     onChange: dummyFunction,
-    validate: dummyFunction
+    validateStatement: dummyFunction
 }
 
 const api = {

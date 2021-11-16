@@ -32,11 +32,7 @@ import { SuggestionItem, VariableUserInputs } from "../../models/definitions";
 import { InputEditorContext } from "../../store/input-editor-context";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { SuggestionsContext } from "../../store/suggestions-context";
-import {
-    getDataTypeOnExpressionKind,
-    getExpressionSource,
-    getPartialSTForStatement,
-} from "../../utils";
+import { getDataTypeOnExpressionKind, getPartialSTForStatement } from "../../utils";
 import { useStatementEditorStyles } from "../ViewContainer/styles";
 
 import { acceptedCompletionKind } from "./constants";
@@ -207,10 +203,9 @@ export function InputEditor(props: InputEditorProps) {
     }
 
     const handleDiagnostic = () => {
-        const hasDiagnostic = !inputEditorState.diagnostic.length // true if there are no diagnostics
+        const hasDiagnostic = !!inputEditorState.diagnostic.length;
 
-        stmtCtx.formCtx.onChange(getExpressionSource(stmtCtx.modelCtx.statementModel));
-        stmtCtx.formCtx.validate('', !hasDiagnostic, false);
+        stmtCtx.statementCtx.validateStatement(!hasDiagnostic);
 
         // TODO: Need to obtain the default value as a prop
         if (!placeHolders.some(word => currentContent.includes(word))) {
@@ -224,8 +219,6 @@ export function InputEditor(props: InputEditorProps) {
         inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
         inputEditorState.content = initContent;
         inputEditorState.uri = monaco.Uri.file(currentFile.path).toString();
-
-        stmtCtx.formCtx.onChange(getExpressionSource(stmtCtx.modelCtx.statementModel));
 
         const langClient = await ls.getExpressionEditorLangClient(langServerURL);
         langClient.didChange({
@@ -256,8 +249,6 @@ export function InputEditor(props: InputEditorProps) {
         inputEditorState.content = currentFile.content;
         inputEditorState.uri = monaco.Uri.file(currentFile.path).toString();
 
-        stmtCtx.formCtx.onChange(getExpressionSource(stmtCtx.modelCtx.statementModel));
-
         const langClient = await ls.getExpressionEditorLangClient(langServerURL);
         langClient.didChange({
             contentChanges: [
@@ -277,7 +268,6 @@ export function InputEditor(props: InputEditorProps) {
             inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
             inputEditorState.content = (currentFile.content);
             inputEditorState.uri = inputEditorState?.uri;
-            stmtCtx.formCtx.onChange("");
 
             await ls.getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
                 await langClient.didChange({
@@ -356,7 +346,12 @@ export function InputEditor(props: InputEditorProps) {
 
     const inputChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
         const currentStatement = stmtCtx.modelCtx.statementModel.source;
-        const updatedStatement = addExpressionToTargetPosition(currentStatement, model.position.startColumn, event.target.value ? event.target.value : "", model.position.endColumn);
+        const updatedStatement = addExpressionToTargetPosition(
+            currentStatement,
+            model.position.startColumn,
+            event.target.value ? event.target.value : "",
+            model.position.endColumn
+        );
         debouncedContentChange(updatedStatement, "");
         setUserInput(event.target.value);
         getContextBasedCompletions(event.target.value);

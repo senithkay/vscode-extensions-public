@@ -105,7 +105,7 @@ export const wizardStyles = makeStyles((theme: Theme) =>
         },
         buttonSm: {
             height: "35px !important",
-            marginTop: "1rem"
+            marginTop: "2rem"
         },
 
         userDetailWrapper: {

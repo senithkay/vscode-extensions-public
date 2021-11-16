@@ -37,7 +37,6 @@ import {
 } from "../../../../ConfigurationSpec/types";
 import { DiagramEditorLangClientInterface, STSymbolInfo } from "../../../../Definitions";
 import { BallerinaConnectorInfo, BallerinaConnectorRequest, Connector } from "../../../../Definitions/lang-client-extended";
-import { filterConnectorFunctions } from "../../../utils/connector-form-util";
 import { getAllVariables as retrieveVariables } from "../../../utils/mixins";
 import {
     addConnectorToCache,
@@ -112,10 +111,11 @@ export function getFieldName(fieldName: string): string {
 export function getParams(formFields: FormField[], depth = 1): string[] {
     const paramStrings: string[] = [];
     formFields.forEach(formField => {
-        const skipDefaultValue = formField.defaultValue && formField.optional;
+        const skipDefaultValue = (!formField.value && (formField.defaultable || formField.optional)) ||
+            (formField.value && formField.defaultValue && formField.defaultValue === formField.value);
         let paramString: string = "";
         if (!formField.noCodeGen && !skipDefaultValue) {
-            if (formField.isDefaultableParam && formField.value) {
+            if (formField.defaultable && formField.value) {
                 paramString += `${formField.name} = `;
             }
             if (formField.typeName === "string" && (formField.value || formField.defaultValue)) {
@@ -567,7 +567,7 @@ export function getAllVariablesForAi(symbolInfo: STSymbolInfo): { [key: string]:
             }
         });
     });
-    symbolInfo.endpoints.forEach((variableNodes: STNode, type: string) => {
+    symbolInfo.localEndpoints.forEach((variableNodes: STNode, type: string) => {
         const variableDef: LocalVarDecl = variableNodes as LocalVarDecl;
         const variable: CaptureBindingPattern = variableDef.typedBindingPattern.bindingPattern as
             CaptureBindingPattern;
@@ -635,7 +635,7 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
 
     // get form fields from browser cache
     let connectorInfo = getConnectorFromCache(connector);
-    let functionDefInfo: Map<string, FunctionDefinitionInfo> = new Map();
+    const functionDefInfo: Map<string, FunctionDefinitionInfo> = new Map();
     const connectorConfig = new ConnectorConfig();
     const connectorRequest: BallerinaConnectorRequest = {};
 
@@ -673,8 +673,6 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
         functionDefInfo.set(functionInfo.name, functionInfo);
     });
 
-    // Filter connector functions to have better usability.
-    functionDefInfo = filterConnectorFunctions(connector, functionDefInfo, connectorConfig, userEmail);
     if (model) {
         const variable: LocalVarDecl = model as LocalVarDecl;
         const viewState: StatementViewState = model.viewState as StatementViewState;
@@ -733,7 +731,7 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
             }
         }
         connectorConfig.connectorInit = functionDefInfo.get("init") ? functionDefInfo.get("init").parameters : [];
-        const matchingEndPoint: LocalVarDecl = symbolInfo.endpoints.get(connectorConfig.name) as LocalVarDecl;
+        const matchingEndPoint: LocalVarDecl = symbolInfo.localEndpoints.get(connectorConfig.name) as LocalVarDecl;
         if (matchingEndPoint) {
             connectorConfig.initPosition = matchingEndPoint.position;
             matchEndpointToFormField(matchingEndPoint, connectorConfig.connectorInit);

@@ -18,29 +18,28 @@ import { NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
 
 import { Context } from '../../../../../../../Contexts/Diagram';
 import { wizardStyles } from "../../../../ConfigForms/style";
+import { ConditionConfig, EndConfig, ProcessConfig } from "../../../../Types";
 import { PrimaryButton } from "../../../Button/PrimaryButton";
 import { SecondaryButton } from "../../../Button/SecondaryButton";
 import { VariableUserInputs } from '../../models/definitions';
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
-import { getPartialSTForStatement } from "../../utils";
+import { getModifications, getPartialSTForStatement } from "../../utils";
 import { LeftPane } from '../LeftPane';
 import { RightPane } from '../RightPane';
 
 import { useStatementEditorStyles } from "./styles";
 
 export interface ViewProps {
-    label: string,
-    initialSource: string,
-    formArgs: any,
-    userInputs?: VariableUserInputs,
-    validate?: (field: string, isInvalid: boolean, isEmpty: boolean) => void
-    isMutationInProgress?: boolean
-    validForm?: boolean
-    onCancel?: () => void
-    onSave?: () => void
-    onChange?: (property: string) => void,
-    handleNameOnChange?: (name: string) => void
-    handleTypeChange?: (name: string) => void
+    label: string;
+    initialSource: string;
+    formArgs: any;
+    userInputs?: VariableUserInputs;
+    config: ProcessConfig | EndConfig | ConditionConfig;
+    validForm?: boolean;
+    onWizardClose: () => void;
+    onCancel?: () => void;
+    handleNameOnChange?: (name: string) => void;
+    handleTypeChange?: (name: string) => void;
 }
 
 export function ViewContainer(props: ViewProps) {
@@ -49,7 +48,10 @@ export function ViewContainer(props: ViewProps) {
             langServerURL,
         },
         api: {
-            ls
+            ls,
+            code: {
+                modifyDiagram
+            }
         }
     } = useContext(Context);
     const {
@@ -57,18 +59,16 @@ export function ViewContainer(props: ViewProps) {
         initialSource,
         formArgs,
         userInputs,
-        validate,
-        isMutationInProgress,
-        validForm,
+        config,
         onCancel,
-        onSave,
-        onChange,
+        onWizardClose,
         handleNameOnChange,
         handleTypeChange
     } = props;
     const intl = useIntl();
 
     const [model, setModel] = useState<STNode>(null);
+    const [isStatementValid, setIsStatementValid] = useState(false);
 
     if (!userInputs?.varName && !!handleNameOnChange){
         handleNameOnChange("default")
@@ -76,13 +76,14 @@ export function ViewContainer(props: ViewProps) {
 
     useEffect(() => {
         (async () => {
-            const partialST: STNode = await getPartialSTForStatement({codeSnippet: initialSource.trim()}, langServerURL, ls);
+            const partialST: STNode = await getPartialSTForStatement(
+                {codeSnippet: initialSource.trim()}, langServerURL, ls);
             setModel(partialST);
         })();
     }, []);
 
     useEffect(() => {
-        if (!!model && STKindChecker.isLocalVarDecl(model)) {
+        if (!!model && STKindChecker.isLocalVarDecl(model) && handleNameOnChange && handleTypeChange) {
             handleNameOnChange(model.typedBindingPattern.bindingPattern.source)
             handleTypeChange(model.typedBindingPattern.typeDescriptor.source)
         }
@@ -95,7 +96,8 @@ export function ViewContainer(props: ViewProps) {
             endColumn: position.endColumn,
             newCodeSnippet: codeSnippet
         }
-        const partialST: STNode = await getPartialSTForStatement({codeSnippet : model.source, stModification}, langServerURL, ls);
+        const partialST: STNode = await getPartialSTForStatement(
+            {codeSnippet : model.source, stModification}, langServerURL, ls);
         setModel(partialST);
     }
 
@@ -112,6 +114,10 @@ export function ViewContainer(props: ViewProps) {
     const onCancelHandler = () => {
         setOnCancel(true);
     }
+
+    const validateStatement = (isValid: boolean) => {
+        setIsStatementValid(isValid);
+    };
 
     useEffect(() => {
         return () => {
@@ -132,6 +138,12 @@ export function ViewContainer(props: ViewProps) {
         defaultMessage: "Cancel"
     });
 
+    const onSaveClick = () => {
+        const modifications = getModifications(model, config, formArgs);
+        modifyDiagram(modifications);
+        onWizardClose();
+    };
+
     return (
         model && (
             <div className={overlayClasses.stmtEditor}>
@@ -139,11 +151,9 @@ export function ViewContainer(props: ViewProps) {
                     <StatementEditorContextProvider
                         model={model}
                         onCancelClicked={onCancelClicked}
-                        onSave={onSave}
-                        onChange={onChange}
-                        validate={validate}
                         updateModel={updateModel}
                         formModel={formArgs.formArgs.model}
+                        validateStatement={validateStatement}
                     >
                         <LeftPane
                             currentModel={currentModel}
@@ -165,9 +175,9 @@ export function ViewContainer(props: ViewProps) {
                         <PrimaryButton
                             dataTestId="save-btn"
                             text={saveVariableButtonText}
-                            disabled={isMutationInProgress || !validForm}
+                            disabled={!isStatementValid}
                             fullWidth={false}
-                            onClick={onSave}
+                            onClick={onSaveClick}
                         />
                     </div>
                 </div>
