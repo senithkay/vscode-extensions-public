@@ -71,7 +71,6 @@ export function ResourceQueryParams(props: ResourceQueryParamsProps) {
         .map((param: RequiredParam, i) => (
             <span key={i}>
                 {i !== 0 ? "&" : ""}
-                <span>&nbsp;</span>
                 {param.paramName.value}
                 <sub className={'type-descriptor'}>{(param.typeName as AnyTypeDesc)?.name?.value}</sub>
             </span>
