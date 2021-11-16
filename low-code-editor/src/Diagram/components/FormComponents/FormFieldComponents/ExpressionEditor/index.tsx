@@ -55,7 +55,6 @@ import {
     diagnosticCheckerExp,
     diagnosticInRange,
     getDiagnosticMessage,
-    GetExpCompletionsProps,
     getFilteredDiagnostics,
     getHints,
     getInitialValue,
@@ -141,6 +140,17 @@ export interface ExpressionEditorCustomTemplate {
     targetColumn: number;
 }
 
+export interface GetExpCompletionsParams {
+    getExpressionEditorLangClient: (url: string) => Promise<ExpressionEditorLangClientInterface>;
+    langServerURL: string;
+    completionParams: CompletionParams;
+    model: any; // FIXME: Assign proper type once model prop in exp editor has been updated,
+    monacoRef: React.MutableRefObject<MonacoEditor>;
+    varType: string;
+    varName: string;
+    snippetTargetPosition: number;
+}
+
 export interface ExpressionEditorProps {
     validate?: (field: string, isInvalid: boolean, isEmpty: boolean) => void;
     clearInput?: boolean;
@@ -161,7 +171,7 @@ export interface ExpressionEditorProps {
     expressionInjectables?: ExpressionInjectablesProps;
     hideSuggestions?: boolean;
     hideExpand?: boolean;
-    getCompletions?: (completionProps: GetExpCompletionsProps) => Promise<monaco.languages.CompletionList>;
+    getCompletions?: (completionProps: GetExpCompletionsParams) => Promise<monaco.languages.CompletionList>;
     showHints?: boolean;
 }
 
