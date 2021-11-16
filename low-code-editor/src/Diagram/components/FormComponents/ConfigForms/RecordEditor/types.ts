@@ -19,6 +19,8 @@ export interface SimpleField {
     isArray?: boolean;
     isActive?: boolean;
     isEditInProgress?: boolean;
+    isNameInvalid?: boolean;
+    isValueInvalid?: boolean;
 }
 
 export interface RecordModel {

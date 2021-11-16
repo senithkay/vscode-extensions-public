@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { useIntl } from "react-intl";
 
 import { RecordTypeDesc } from "@ballerina/syntax-tree";
@@ -19,7 +19,7 @@ import { Box, FormControl, Typography } from "@material-ui/core";
 
 import { FormField } from '../../../../../../ConfigurationSpec/types';
 import { useDiagramContext } from '../../../../../../Contexts/Diagram';
-import { FormState, useRecordEditorContext } from '../../../../../../Contexts/RecordEditor';
+import { useRecordEditorContext } from '../../../../../../Contexts/RecordEditor';
 import { keywords } from "../../../../Portals/utils/constants";
 import { PrimaryButton } from '../../../FormFieldComponents/Button/PrimaryButton';
 import CheckBoxGroup from '../../../FormFieldComponents/CheckBox';
@@ -65,11 +65,9 @@ export function EditFieldForm() {
         defaultMessage: "Default Value"
     });
 
-    const defaultValue = state.currentField ? state.currentField.value : "";
-
     const [nameError, setNameError] = useState("");
-    const [validDefaultValue, setValidDefaultValue] = useState(true);
     const [clearExpEditor, setClearExpEditor] = useState(false);
+    const [defaultValue, setDefaultValue] = useState(state.currentField.value);
 
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 
@@ -102,12 +100,13 @@ export function EditFieldForm() {
     };
 
     const handleDefaultValueChange = (inputText: string) => {
-        state.currentField.value = inputText;
-        callBacks.onUpdateCurrentField(state.currentField);
+        setDefaultValue(inputText);
     };
 
     const validateDefaultValue = (fName: string, isInvalidFromField: boolean) => {
-        setValidDefaultValue(!isInvalidFromField);
+        state.currentField.isValueInvalid = isInvalidFromField;
+        callBacks.onUpdateCurrentField(state.currentField);
+        callBacks.updateEditorValidity(isInvalidFromField || state.currentField.isNameInvalid);
     }
 
     const handleOptionalFieldChange = (text: string[]) => {
@@ -154,6 +153,15 @@ export function EditFieldForm() {
         onChange: handleDefaultValueChange,
         defaultValue
     };
+
+    useEffect(() => {
+        state.currentField.value = defaultValue;
+        callBacks.updateCurrentField(state.currentField);
+    }, [defaultValue]);
+
+    useEffect(() => {
+        setClearExpEditor(state.currentField.value === "" || state.currentField.value === undefined);
+    }, [state.currentField.value]);
 
     return (
         <FormControl data-testid="record-form" className={classes.wizardFormControl}>

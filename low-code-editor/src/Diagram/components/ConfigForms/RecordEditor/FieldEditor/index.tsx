@@ -31,7 +31,7 @@ export interface FieldEditorProps {
     onDeleteClick: (field: SimpleField) => void;
     onChange: (event: any) => void;
     onFocusLost: (field: SimpleField) => void;
-    onEnterPress: (field: SimpleField) => void;
+    onEnterPress?: (field: SimpleField) => void;
 }
 
 export function FieldEditor(props: FieldEditorProps) {
@@ -115,7 +115,7 @@ export function FieldEditor(props: FieldEditorProps) {
                     )}
                     <div className={recordClasses.editNameWrapper}>
                         <FormTextInput
-                            dataTestId="record-name"
+                            dataTestId="field-name"
                             customProps={{
                                 isErrored: false,
                                 focused: true
@@ -123,7 +123,6 @@ export function FieldEditor(props: FieldEditorProps) {
                             defaultValue={field.name}
                             onKeyUp={handleKeyUp}
                             onBlur={handleFocusLost}
-                            errorMessage={""}
                             placeholder={"Field name"}
                             size="small"
                         />

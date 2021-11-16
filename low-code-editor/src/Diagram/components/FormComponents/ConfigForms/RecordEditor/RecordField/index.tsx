@@ -22,6 +22,7 @@ import EditButton from "../../../../../../assets/icons/EditButton";
 import { Context, FormState } from "../../../../../../Contexts/RecordEditor";
 import { FieldEditor } from "../../../../ConfigForms/RecordEditor/FieldEditor";
 import { ComponentExpandButton } from "../../../../LowCodeDiagram/Components/ComponentExpandButton";
+import { keywords } from "../../../../Portals/utils/constants";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
 import { FieldItem } from "../FieldItem";
 import { recordStyles } from "../style";
@@ -50,6 +51,7 @@ export function RecordField(props: CodePanelProps) {
     const [isRecordExpanded, setIsRecordExpanded] = useState(true);
     const [isRecordEditInProgress, setIsRecordEditInProgress] = useState((recordModel.name === "") ||
         (recordModel.name === undefined));
+    const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 
     const handleFieldEdit = (field: SimpleField) => {
         const index = recordModel.fields.indexOf(field);
@@ -166,10 +168,31 @@ export function RecordField(props: CodePanelProps) {
             if (!event.target.value) {
                 state.currentField.name = genRecordName("f", getFieldNames(state.currentRecord.fields));
             }
-            state.currentField.isEditInProgress = false;
-            state.currentField.isActive = true;
+            if (!state.currentField.isNameInvalid) {
+                state.currentField.isEditInProgress = false;
+                state.currentField.isActive = true;
+            }
         } else {
             state.currentField.name = event.target.value;
+        }
+        const isNameAlreadyExists = state.currentRecord.fields.find(field => (field.name === event.target.value)) &&
+            !(state.currentField?.name === event.target.value);
+        if (isNameAlreadyExists) {
+            state.currentField.isNameInvalid = true;
+            callBacks.updateEditorValidity(state.currentField.isNameInvalid ||
+                state.currentField.isValueInvalid);
+        } else if (keywords.includes(event.target.value)) {
+            state.currentField.isNameInvalid = true;
+            callBacks.updateEditorValidity(state.currentField.isNameInvalid ||
+                state.currentField.isValueInvalid);
+        } else if ((event.target.value !== "") && !nameRegex.test(event.target.value)) {
+            state.currentField.isNameInvalid = true;
+            callBacks.updateEditorValidity(state.currentField.isNameInvalid ||
+                state.currentField.isValueInvalid);
+        } else {
+            state.currentField.isNameInvalid = false;
+            callBacks.updateEditorValidity(state.currentField.isNameInvalid ||
+                state.currentField.isValueInvalid);
         }
         callBacks.onUpdateCurrentField(state.currentField);
     };
@@ -180,16 +203,19 @@ export function RecordField(props: CodePanelProps) {
                 genRecordName("Record", getFieldNames(state.currentRecord.fields)) :
                 genRecordName("f", getFieldNames(state.currentRecord.fields));
         }
+        callBacks.onUpdateCurrentField(state.currentField);
     };
 
     const handleRecordClick = () => {
-        state.currentRecord.isActive = false;
-        recordModel.isActive = true;
-        setIsRecordEditInProgress(true);
-        callBacks.onUpdateCurrentRecord(recordModel);
-        callBacks.onUpdateModel(state.recordModel);
-        callBacks.onUpdateRecordSelection(true);
-        callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
+        if (!state.isEditorInvalid) {
+            state.currentRecord.isActive = false;
+            recordModel.isActive = true;
+            setIsRecordEditInProgress(true);
+            callBacks.onUpdateCurrentRecord(recordModel);
+            callBacks.onUpdateModel(state.recordModel);
+            callBacks.onUpdateRecordSelection(true);
+            callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
+        }
     };
 
     const fieldItems: ReactNode[] = [];
@@ -272,7 +298,7 @@ export function RecordField(props: CodePanelProps) {
                                     onKeyUp={handleKeyUp}
                                     onBlur={handleOnBlur}
                                     errorMessage={""}
-                                    placeholder={"Enter name"}
+                                    placeholder={"Record name"}
                                     size="small"
                                 />
                             </div>
@@ -304,24 +330,28 @@ export function RecordField(props: CodePanelProps) {
                             </div>
                         )}
                     </div>
-                    <div className={recordModel.isTypeDefinition ? recordClasses.typeDefEditBtnWrapper : recordClasses.recordHeaderBtnWrapper}>
-                        <div className={recordClasses.actionBtnWrapper}>
-                            <EditButton onClick={handleRecordClick}/>
-                        </div>
-                        {!recordModel.isTypeDefinition && (
+                    {!state.isEditorInvalid && (
+                        <div className={recordModel.isTypeDefinition ? recordClasses.typeDefEditBtnWrapper : recordClasses.recordHeaderBtnWrapper}>
                             <div className={recordClasses.actionBtnWrapper}>
-                                <DeleteButton onClick={handleRecordDelete}/>
+                                <EditButton onClick={handleRecordClick}/>
                             </div>
-                        )}
-                    </div>
+                            {!recordModel.isTypeDefinition && (
+                                <div className={recordClasses.actionBtnWrapper}>
+                                    <DeleteButton onClick={handleRecordDelete}/>
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
                 {isRecordExpanded && (
                     <div className={recordModel?.isActive ? recordClasses.activeRecordSubFieldWrapper : recordClasses.recordSubFieldWrapper}>
                         {fieldItems}
+                        {!state.isEditorInvalid && (
                             <div className={recordClasses.addFieldBtnWrap} onClick={handleAddField}>
                                 <AddIcon/>
                                 <p>{addFieldText}</p>
                             </div>
+                        )}
                     </div>
                 )}
                 <div className={recordClasses.endRecordCodeWrapper}>
@@ -343,7 +373,7 @@ export function RecordField(props: CodePanelProps) {
                                 onKeyUp={handleKeyUp}
                                 onBlur={handleOnBlur}
                                 errorMessage={""}
-                                placeholder={"Enter name"}
+                                placeholder={"Record name"}
                                 size="small"
                             />
                         </div>
