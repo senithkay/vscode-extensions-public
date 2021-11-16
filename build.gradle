@@ -46,6 +46,7 @@ task copyDeps(type: Copy) {
 npmBuild() {
     dependsOn ':bbe-viewer:buildBBEViewer'
     dependsOn ':perf-viewer:buildPerfViewer'
+    dependsOn ':swagger-viewer:buildSwaggerViewer'
     dependsOn copyDeps
     PatternSet patternSet = new PatternSet();
     patternSet.exclude("**/node_modules/**");

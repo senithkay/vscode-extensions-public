@@ -37,7 +37,8 @@ export enum PALETTE_COMMANDS {
     FOCUS_SOURCE_CONTROL = 'workbench.view.scm',
     CHOREO_SYNC_CHANGES = 'ballerina.choreo.sync',
     PERFORMANCE_FORECAST_ENABLE = 'performance.forecasting.enable',
-    PERFORMANCE_FORECAST_DISABLE = 'performance.forecasting.disable'
+    PERFORMANCE_FORECAST_DISABLE = 'performance.forecasting.disable',
+    SWAGGER_VIEW = 'ballerina.swaggerView.open'
 }
 
 export enum BALLERINA_COMMANDS {

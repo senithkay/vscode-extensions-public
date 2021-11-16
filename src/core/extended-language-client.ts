@@ -57,7 +57,8 @@ enum EXTENDED_APIS {
     PARTIAL_PARSE_EXPRESSION = 'partialParser/getSTForExpression',
     EXAMPLE_LIST = 'ballerinaExample/list',
     PERF_ANALYZER_GRAPH_DATA = 'performanceAnalyzer/getGraphData',
-    PERF_ANALYZER_REALTIME_DATA = 'performanceAnalyzer/getRealtimeData'
+    PERF_ANALYZER_REALTIME_DATA = 'performanceAnalyzer/getRealtimeData',
+    BALLERINA_TO_OPENAPI = 'openAPILSExtension/generateOpenAPI'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -68,7 +69,8 @@ enum EXTENDED_APIS_ORG {
     SYMBOL = 'ballerinaSymbol',
     CONNECTOR = 'ballerinaConnector',
     PERF_ANALYZER = 'performanceAnalyzer',
-    PARTIAL_PARSER = 'partialParser'
+    PARTIAL_PARSER = 'partialParser',
+    BALLERINA_TO_OPENAPI = 'openAPILSExtension'
 }
 
 export interface ExtendedClientCapabilities extends ClientCapabilities {
@@ -261,6 +263,28 @@ export interface SequenceGraphPointValue {
     tps: String;
 }
 
+export interface OpenAPIConverterRequest {
+    documentFilePath: string;
+}
+
+export interface OpenAPIConverterResponse {
+    content: OASpec[];
+    error?: string;
+}
+
+export interface OASpec {
+    file: string;
+    serviceName: string;
+    spec: any;
+    diagnostics: OADiagnostic[];
+}
+
+export interface OADiagnostic {
+    message: string;
+    serverity: string;
+    location?: LineRange;
+}
+
 export class ExtendedLangClient extends LanguageClient {
     private ballerinaExtendedServices: Set<String> | undefined;
     private isDynamicRegistrationSupported: boolean;
@@ -450,6 +474,13 @@ export class ExtendedLangClient extends LanguageClient {
         return this.sendRequest("initBalServices", params);
     }
 
+    convertToOpenAPI(params: OpenAPIConverterRequest): Promise<OpenAPIConverterResponse> {
+        if (!this.isExtendedServiceSupported(EXTENDED_APIS.BALLERINA_TO_OPENAPI)) {
+            Promise.resolve(NOT_SUPPORTED);
+        }
+        return this.sendRequest(EXTENDED_APIS.BALLERINA_TO_OPENAPI, params);
+    }
+
     async registerExtendedAPICapabilities() {
         if (!this.isDynamicRegistrationSupported) {
             return;
@@ -469,7 +500,8 @@ export class ExtendedLangClient extends LanguageClient {
                 { name: EXTENDED_APIS_ORG.EXAMPLE, list: true },
                 { name: EXTENDED_APIS_ORG.JSON_TO_RECORD, convert: true },
                 { name: EXTENDED_APIS_ORG.PERF_ANALYZER, getGraphData: true, getRealtimeData: true },
-                { name: EXTENDED_APIS_ORG.PARTIAL_PARSER, getSTForSingleStatement: true, getSTForExpression: true }
+                { name: EXTENDED_APIS_ORG.PARTIAL_PARSER, getSTForSingleStatement: true, getSTForExpression: true },
+                { name: EXTENDED_APIS_ORG.BALLERINA_TO_OPENAPI, generateOpenAPI: true}
             ]
         }).then(response => {
             this.ballerinaExtendedServices = new Set();

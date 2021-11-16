@@ -31,6 +31,7 @@ import { activate as activateChoreoAuth } from './choreo-auth/activator';
 import { StaticFeature, DocumentSelector, ServerCapabilities, InitializeParams } from 'vscode-languageclient';
 import { ExtendedClientCapabilities, ExtendedLangClient } from './core/extended-language-client';
 import { activate as activatePerformanceForecaster } from './forecaster';
+import { activate as activateSwaggerView } from './swagger';
 import { debug, log } from './utils';
 
 let langClient: ExtendedLangClient;
@@ -84,6 +85,8 @@ export function activate(context: ExtensionContext): Promise<any> {
         activateEditorSupport(ballerinaExtInstance);
         // Enable performance forecaster
         activatePerformanceForecaster(ballerinaExtInstance);
+        // Enable swagger view
+        activateSwaggerView(ballerinaExtInstance);
         // Enable the Choreo authentication
         activateChoreoAuth(ballerinaExtInstance);
         // Enable Ballerina Telemetry listener
