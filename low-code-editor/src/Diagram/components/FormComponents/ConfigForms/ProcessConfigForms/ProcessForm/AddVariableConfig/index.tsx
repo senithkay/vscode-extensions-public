@@ -51,7 +51,6 @@ export const variableTypes: string[] = ["var", "int", "float", "decimal", "boole
 
 export function AddVariableConfig(props: AddVariableConfigProps) {
     const classes = useStyles();
-    const overlayClasses = wizardStyles();
     const intl = useIntl();
     const { config, formArgs, onCancel, onSave, onWizardClose } = props;
 
@@ -264,7 +263,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
 
     if (!stmtEditorComponent) {
         return (
-            <FormControl data-testid="property-form" className={classnames(classes.wizardFormControl, classes.fitContent)}>
+            <FormControl data-testid="property-form" className={classes.wizardFormControl}>
                 <FormHeaderSection
                     onCancel={onCancel}
                     statementEditor={true}
@@ -272,9 +271,8 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                     defaultMessage={"Variable"}
                     statementEditorBtnOnClick={handleStmtEditorButtonClick}
                 />
-                <div>
+                <div className={classes.formWrapper}>
                     <div className={classes.formFeilds}>
-
                         <div className={classes.activeWrapper}>
                             <div className={classnames(classes.activeWrapper, classes.blockWrapper)}>
                                 <div className={classes.nameExpEditorWrapper}>

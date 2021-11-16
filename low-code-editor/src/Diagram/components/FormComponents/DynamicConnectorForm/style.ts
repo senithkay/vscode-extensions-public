@@ -402,7 +402,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             zIndex: 100,
             height: theme.spacing(6),
             display: 'flex',
-            justifyContent: 'space-bitween',
+            justifyContent: 'space-between',
             alignItems: 'center',
             paddingLeft: theme.spacing(1.25),
         },
@@ -572,15 +572,16 @@ export const useStyles = makeStyles((theme: Theme) =>
             width: '5%'
         },
         blockWrapper: {
-            display: 'inline-flex',
-            width: '100%'
+            display: 'flex',
+            width: '100%',
+            flexDirection: 'column'
         },
         dropdownWrapper: {
             minWidth: `92px !important`,
             paddingRight: theme.spacing(1)
         },
         codeText: {
-            paddingTop: theme.spacing(5),
+            paddingTop: theme.spacing(1.25),
             paddingRight: theme.spacing(1)
         },
         editorWrapper: {
@@ -658,6 +659,23 @@ export const useStyles = makeStyles((theme: Theme) =>
             paddingTop: theme.spacing(1.25),
             position: 'relative'
         },
+        resourceMethodPathWrapper: {
+            display: 'flex',
+            flexDirection: 'row',
+            padding: '15px 5px'
+        },
+        resourceMethodTitle: {
+            width: '100%',
+            marginRight: 5,
+        },
+        resourcePathWrapper: {
+            width: '60%',
+            marginLeft: theme.spacing(1.25)
+        },
+        advancedSwitchText: {
+            textAlign: 'right',
+            padding: '0 5px 15px'
+        }
     }),
     { index: 1 }
 );

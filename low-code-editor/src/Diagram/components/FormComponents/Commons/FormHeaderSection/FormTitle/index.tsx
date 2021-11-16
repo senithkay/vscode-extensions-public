@@ -39,7 +39,7 @@ export function FormTitle(props: FormTitleProps) {
                     </Box>
                 </Typography>
             </div>
-            <StatementEditorButton onClick={statementEditorBtnOnClick} />
+            {statementEditor && <StatementEditorButton onClick={statementEditorBtnOnClick} />}
         </div>
     );
 }
