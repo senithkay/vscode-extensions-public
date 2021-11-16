@@ -17,6 +17,15 @@ export async function getSyntaxTree(filePath: string, langClient: DiagramEditorL
     return resp.syntaxTree;
 }
 
+export async function resolveMissingDependencies(filePath: string, langClient: DiagramEditorLangClientInterface) {
+    const resp = await langClient.resolveMissingDependencies({
+        documentIdentifier: {
+            uri: `file://${filePath}`
+        }
+    });
+    return resp;
+}
+
 export async function getLowcodeST(payload: any, filePath: string, langClient: DiagramEditorLangClientInterface,
                                    pfSession: PFSession, showPerformanceGraph: () => Promise<boolean>,
                                    showMessage: (message: string, type: MESSAGE_TYPE, isIgnorable: boolean) => Promise<boolean>) {
