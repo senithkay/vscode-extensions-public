@@ -1,7 +1,6 @@
 import React from "react";
 
 import { NodePosition } from "@ballerina/syntax-tree";
-import { Diagnostic } from "monaco-languageclient";
 
 import * as stComponents from '../components/LowCodeDiagram/Components/RenderingComponents';
 import { ActionProcessor } from "../components/LowCodeDiagram/Components/RenderingComponents/ActionInvocation/ActionProcess";
@@ -12,6 +11,7 @@ import { Respond } from "../components/LowCodeDiagram/Components/RenderingCompon
 import { Statement } from "../components/LowCodeDiagram/Components/RenderingComponents/Statement";
 import { BlockViewState } from "../components/LowCodeDiagram/ViewState";
 import { DraftStatementViewState } from "../components/LowCodeDiagram/ViewState/draft";
+import { Diagnostic } from "../components/LowCodeDiagram/Context/types";
 
 export function getSTComponents(nodeArray: any): React.ReactNode[] {
     // Convert to array
@@ -100,7 +100,7 @@ export function getDraftComponent(viewState: BlockViewState, state: any, insertC
     return draftComponents;
 }
 
-export function getDiagnosticMsgs(diagnostics: any[]){
+export function getDiagnosticMsgs(diagnostics: Diagnostic[]){
      /* tslint:disable prefer-for-of */
     const diagnosticMsgsArray : string[] = [];
     if (diagnostics?.length === 0){

@@ -109,3 +109,11 @@ export interface ErrorSnippet{
     diagnosticMsgs? : string,
     code ?: string,
 }
+
+export interface Diagnostic{
+    diagnosticInfo:{
+        code:string,
+        severity:string
+    }
+    message:string
+}
