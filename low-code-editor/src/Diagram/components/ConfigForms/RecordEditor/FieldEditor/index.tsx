@@ -20,11 +20,11 @@ import classnames from "classnames";
 import DeleteButton from "../../../../../assets/icons/DeleteButton";
 import { useDiagramContext } from "../../../../../Contexts/Diagram";
 import { FormState, useRecordEditorContext } from "../../../../../Contexts/RecordEditor";
-import { SelectDropdownWithButton } from "../../../Portals/ConfigForm/Elements/DropDown/SelectDropdownWithButton";
-import { FormTextInput } from "../../../Portals/ConfigForm/Elements/TextField/FormTextInput";
-import { variableTypes } from "../../ProcessConfigForms/ProcessForm/AddVariableConfig";
-import { recordStyles } from "../style";
-import { RecordModel, SimpleField } from "../types";
+import { variableTypes } from "../../../FormComponents/ConfigForms/ProcessConfigForms/ProcessForm/AddVariableConfig";
+import { recordStyles } from "../../../FormComponents/ConfigForms/RecordEditor/style";
+import { RecordModel, SimpleField } from "../../../FormComponents/ConfigForms/RecordEditor/types";
+import { SelectDropdownWithButton } from "../../../FormComponents/FormFieldComponents/DropDown/SelectDropdownWithButton";
+import { FormTextInput } from "../../../FormComponents/FormFieldComponents/TextField/FormTextInput";
 
 export interface FieldEditorProps {
     field: SimpleField;
