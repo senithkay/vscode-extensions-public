@@ -18,6 +18,7 @@ import cn from "classnames";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BallerinaConnectorInfo } from "../../../../../../../Definitions";
+import { getDiagnosticMsgs } from "../../../../../../utils";
 import { getMatchingConnector } from "../../../../../../utils/st-util";
 import { ConnectorConfigWizard } from "../../../../../FormComponents/ConnectorConfigWizard";
 import { FormGenerator } from "../../../../../FormComponents/FormGenerator";
@@ -31,7 +32,6 @@ import { DraftStatementViewState } from "../../../../ViewState/draft";
 
 import { ConnectorProcessSVG, CONNECTOR_PROCESS_SHADOW_OFFSET, CONNECTOR_PROCESS_SVG_HEIGHT, CONNECTOR_PROCESS_SVG_HEIGHT_WITH_SHADOW, CONNECTOR_PROCESS_SVG_WIDTH, CONNECTOR_PROCESS_SVG_WIDTH_WITH_SHADOW } from "./ConnectorProcessSVG";
 import "./style.scss";
-import { getDiagnosticMsgs } from "../../../../../../utils";
 
 export interface ConnectorProcessProps {
     model: STNode;
@@ -63,7 +63,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
             ? blockViewState.draft[ 1 ]
             : (model.viewState as StatementViewState);
 
-    let sourceSnippet :string = model.source;
+    const sourceSnippet : string = model.source;
 
     const diagnostics = model.typeData?.diagnostics;
 
@@ -92,8 +92,8 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
     const isDraftStatement: boolean =
         viewState instanceof DraftStatementViewState;
 
-    const connectorWrapper = isDraftStatement 
-    ? cn("main-connector-process-wrapper active-connector-processor") 
+    const connectorWrapper = isDraftStatement
+    ? cn("main-connector-process-wrapper active-connector-processor")
     : cn("main-connector-process-wrapper connector-processor");
     const conProcessStyles = diagnosticMsgs && !isDraftStatement ? cn("main-connector-process-wrapper connector-processor") : connectorWrapper;
 

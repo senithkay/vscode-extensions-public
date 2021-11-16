@@ -10,7 +10,9 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
 import * as React from "react";
+
 import Tooltip from "../../../../../../../components/TooltipV2";
 import { ErrorSnippet } from "../../../../Context/types";
 
@@ -41,26 +43,24 @@ export function ConnectorProcessSVG(props: { x: number, y: number, sourceSnippet
                 </filter>
             </defs>
             {diagnostics?.diagnosticMsgs ?
-                (
-                    <Tooltip type={"diagram-diagnostic"} diagnostic={diagnostics} placement="right" onClick={openInCodeView} arrow={true}>
-
-                        <g id="Group_2_Copy_2" transform="translate(5 1)" >
-                            <g transform="matrix(1, 0, 0, 1, -3, -5.5)">
-                                <g id="Rectangle_Copy_17-2" transform="translate(1 5.5)" stroke="#FE523C" strokeMiterlimit="10" strokeWidth="2" fill="url(#default-linear-gradient)">
-                                    <rect width="48" height="48" rx="4" />
-                                    <rect x="-0.5" y="-0.5" width="49" height="49" rx="4.5"  />
-                                </g>
+            (
+                <Tooltip type={"diagram-diagnostic"} diagnostic={diagnostics} placement="right" onClick={openInCodeView} arrow={true}>
+                     <g id="Group_2_Copy_2" transform="translate(5 1)" >
+                        <g transform="matrix(1, 0, 0, 1, -3, -5.5)">
+                            <g id="Rectangle_Copy_17-2" transform="translate(1 5.5)" stroke="#FE523C" strokeMiterlimit="10" strokeWidth="2" fill="url(#default-linear-gradient)">
+                                <rect width="48" height="48" rx="4" />
+                                <rect x="-0.5" y="-0.5" width="49" height="49" rx="4.5"  />
                             </g>
+                        </g>
                             <text id="new" transform="translate(12 27.5)" className="connector-text">
-                                <tspan x="0" y="0">new</tspan>
+                            <tspan x="0" y="0">new</tspan>
                             </text>
                         </g>
                     </Tooltip>
-                )
-                :
-                (
+            )
+            :
+            (
                     <Tooltip type={"diagram-code"} text={tooltipText} placement="right" onClick={openInCodeView}arrow={true}>
-
                         <g id="Group_2_Copy_2" transform="translate(5 1)" >
                             <g transform="matrix(1, 0, 0, 1, -3, -5.5)">
                                 <g id="Rectangle_Copy_17-2" transform="translate(1 5.5)" stroke="#5567d5" strokeMiterlimit="10" strokeWidth="1" fill="url(#default-linear-gradient)">
@@ -73,7 +73,7 @@ export function ConnectorProcessSVG(props: { x: number, y: number, sourceSnippet
                             </text>
                         </g>
                     </Tooltip>
-                )}
+            )}
         </svg>
     )
 }
