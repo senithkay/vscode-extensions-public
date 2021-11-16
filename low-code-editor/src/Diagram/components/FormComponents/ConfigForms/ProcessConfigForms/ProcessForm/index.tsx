@@ -10,6 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
 import { LocalVarDecl } from "@ballerina/syntax-tree";
@@ -30,11 +31,12 @@ interface ProcessFormProps {
     config: ProcessConfig;
     onCancel: () => void;
     onSave: () => void;
+    onWizardClose: () => void;
     configOverlayFormStatus: ConfigOverlayFormStatus;
 }
 
 export function ProcessForm(props: ProcessFormProps) {
-    const { config, onCancel, onSave, configOverlayFormStatus } = props;
+    const { config, onCancel, onSave, onWizardClose, configOverlayFormStatus } = props;
     const { isLoading, error, formType, formArgs } = configOverlayFormStatus;
     const {
         api: {
@@ -81,13 +83,50 @@ export function ProcessForm(props: ProcessFormProps) {
     } else {
         return (
             <>
-                {formType === "Variable" && <AddVariableConfig config={config} formArgs={formArgs} onSave={onSave} onCancel={onCancel} />}
-                {formType === "AssignmentStatement" && <AddAssignmentConfig config={config} formArgs={formArgs} onSave={onSave} onCancel={onCancel} />}
-                {formType === "Log" && <AddLogConfig config={config} formArgs={formArgs} onSave={onSave} onCancel={onCancel} />}
-                {(formType === "Custom" || formType === "Call") && <AddCustomStatementConfig config={config} formArgs={formArgs} onSave={onSave} onCancel={onCancel} />}
+                {
+                    formType === "Variable" && (
+                        <AddVariableConfig
+                            config={config}
+                            formArgs={formArgs}
+                            onSave={onSave}
+                            onWizardClose={onWizardClose}
+                            onCancel={onCancel}
+                        />
+                    )
+                }
+                {
+                    formType === "AssignmentStatement" && (
+                        <AddAssignmentConfig
+                            config={config}
+                            formArgs={formArgs}
+                            onSave={onSave}
+                            onCancel={onCancel}
+                        />
+                    )
+                }
+                {
+                    formType === "Log" && (
+                        <AddLogConfig
+                            config={config}
+                            formArgs={formArgs}
+                            onSave={onSave}
+                            onWizardClose={onWizardClose}
+                            onCancel={onCancel}
+                        />
+                    )
+                }
+                {
+                    (formType === "Custom" || formType === "Call") && (
+                        <AddCustomStatementConfig
+                            config={config}
+                            formArgs={formArgs}
+                            onSave={onSave}
+                            onWizardClose={onWizardClose}
+                            onCancel={onCancel}
+                        />
+                    )
+                }
             </>
         );
     }
 }
-
-
