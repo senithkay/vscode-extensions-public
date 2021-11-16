@@ -17,7 +17,8 @@ import { FunctionProperties } from "../types";
 
 const defaultState: FunctionProperties = {
     overlayId: '',
-    overlayNode: undefined
+    overlayNode: undefined,
+    functionNode: undefined
 }
 
 export const Context = React.createContext<FunctionProperties>(defaultState);

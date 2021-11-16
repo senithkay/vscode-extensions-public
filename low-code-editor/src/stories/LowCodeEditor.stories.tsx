@@ -5,7 +5,7 @@ import { ComponentStory } from '@storybook/react';
 
 import { WizardType } from '../ConfigurationSpec/types';
 import { Connector, STModification, STSymbolInfo } from '../Definitions';
-import { ConditionConfig } from '../Diagram/components/Portals/ConfigForm/types';
+import { ConditionConfig } from '../Diagram/components/FormComponents/Types';
 import { LowcodeEvent, TriggerType } from '../Diagram/models';
 import { sizingAndPositioningST } from '../DiagramGenerator/generatorUtil';
 
