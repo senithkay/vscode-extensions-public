@@ -35,8 +35,7 @@ import { SuggestionsContext } from "../../store/suggestions-context";
 import {
     getDataTypeOnExpressionKind,
     getExpressionSource,
-    getPartialSTForStatement, getTypeDescriptorModel,
-    isTypeDescriptor
+    getPartialSTForStatement,
 } from "../../utils";
 import { useStatementEditorStyles } from "../ViewContainer/styles";
 
@@ -104,8 +103,15 @@ export function InputEditor(props: InputEditorProps) {
         literalModel = model as BooleanLiteral;
         kind = c.BOOLEAN_LITERAL;
         value = literalModel.literalToken.value;
-    } else if (isTypeDescriptor(model)) {
-        value = getTypeDescriptorModel(model);
+    } else if ((STKindChecker.isStringTypeDesc(model)
+        || STKindChecker.isBooleanTypeDesc(model)
+        || STKindChecker.isDecimalTypeDesc(model)
+        || STKindChecker.isFloatTypeDesc(model)
+        || STKindChecker.isIntTypeDesc(model)
+        || STKindChecker.isJsonTypeDesc(model)
+        || STKindChecker.isVarTypeDesc(model)
+        || STKindChecker.isSimpleNameReference(model))) {
+            value = model.name.value;
     }
 
     const [userInput, setUserInput] = useState(value);
