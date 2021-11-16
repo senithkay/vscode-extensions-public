@@ -24,6 +24,7 @@ import { ExecutorCodeLensProvider } from "./codelens-provider";
 import { log } from "../utils";
 import { showPerformanceGraph } from "./performanceGraphPanel";
 import { MESSAGE_TYPE, showMessage } from "../utils/showMessage";
+import { PALETTE_COMMANDS } from "../project";
 
 export const CHOREO_API_PF = "http://choreocontrolplane.preview-dv.choreo.dev/performance-analyzer/1.0.0/get_estimations/2.0";
 const CHOREO_AUTH_ERR = "Authentication error for accessing AI service (ID6)";
@@ -94,10 +95,24 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
         languages.registerCodeLensProvider([{ language: LANGUAGE.BALLERINA }],
             new ExecutorCodeLensProvider(ballerinaExtInstance));
     }
+
+    commands.registerCommand(PALETTE_COMMANDS.PERFORMANCE_FORECAST_ENABLE, async () => {
+        await extension.updatePerformanceForecastSetting(true);
+        extension.getChoreoSessionTreeProvider()?.refresh();
+    });
+
+    commands.registerCommand(PALETTE_COMMANDS.PERFORMANCE_FORECAST_DISABLE, async () => {
+        await extension.updatePerformanceForecastSetting(false);
+        extension.getChoreoSessionTreeProvider()?.refresh();
+    });
 }
 
 export async function createPerformanceGraphAndCodeLenses(uri: string | undefined, pos: Range,
     type: ANALYZETYPE, name: String | undefined) {
+
+    if (!extension.enabledPerformanceForecasting()) {
+        return;
+    }
 
     if (!extension.getChoreoSession().loginStatus) {
         showMessage("Please sign in to Choreo to view performance predictions.", MESSAGE_TYPE.INFO, true);

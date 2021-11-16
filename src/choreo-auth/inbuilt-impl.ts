@@ -73,8 +73,6 @@ export class OAuthTokenHandler {
             ).then(async (response) => {
                 if (response.data) {
                     let token = response.data.access_token;
-                    console.debug("Choreo Access Token: " + token);
-
                     let decoded: JSON = jwt_decode(token);
                     let userName: string = decoded["name"];
                     if (userName) {

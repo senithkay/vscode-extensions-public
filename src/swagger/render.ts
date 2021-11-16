@@ -17,11 +17,24 @@
  *
  */
 
-export const BALLERINA_HOME = "ballerina.home";
-export const OVERRIDE_BALLERINA_HOME = "ballerina.pluginDevMode";
-export const ENABLE_TELEMETRY = "ballerina.enableTelemetry";
-export const ENABLE_ALL_CODELENS = "ballerina.codeLens.all.enabled";
-export const ENABLE_EXECUTOR_CODELENS = "ballerina.codeLens.executor.enabled";
-export const BALLERINA_LOW_CODE_MODE = "ballerina.lowCodeMode";
-export const ENABLE_SEMANTIC_HIGHLIGHTING = "ballerina.enableSemanticHighlighting";
-export const ENABLE_PERFORMANCE_FORECAST = "ballerina.enablePerformanceForecast";
+import { getLibraryWebViewContent, WebViewOptions, getComposerWebViewOptions } from '../utils';
+
+export function render(data: any)
+    : string {
+
+    const body = `<div id="swagger-view" class="swagger-container" />`;
+    const bodyCss = "swagger";
+    const styles = ``;
+    const scripts = `
+             function loadedScript() {
+                window.swaggerView.renderSwagger(${JSON.stringify(data)});
+             }
+         `;
+
+    const webViewOptions: WebViewOptions = {
+        ...getComposerWebViewOptions("SwaggerView"),
+        body, scripts, styles, bodyCss
+    };
+
+    return getLibraryWebViewContent(webViewOptions);
+}

@@ -38,6 +38,7 @@ import { PALETTE_COMMANDS } from '../project';
 import { sep } from "path";
 import { DiagramOptions, Member, SyntaxTree } from './model';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { createSwaggerView } from '../swagger';
 
 const NO_DIAGRAM_VIEWS: string = 'No Ballerina diagram views found!';
 
@@ -244,6 +245,7 @@ class DiagramPanel {
 							}
 						});
 						writeFileSync(filePath, fileContent);
+						langClient.updateStatusBar();
 					}
 					return false;
 				}
@@ -292,6 +294,9 @@ class DiagramPanel {
 					let callBack = (filePath: string, fileContent: string) => {
 						resolveMissingDependency(filePath, fileContent, langClient);
 					};
+					if (!ballerinaExtension.enabledPerformanceForecasting()) {
+						return false;
+					}
 					showMessage(args[0], args[1], args[2], args[3], args[4], callBack);
 					return true;
 				}
@@ -300,6 +305,13 @@ class DiagramPanel {
 				methodName: 'focusDiagram',
 				handler: (_args: any[]): Promise<boolean> => {
 					ballerinaExtension.setDiagramActiveContext(true);
+					return Promise.resolve(true);
+				}
+			},
+			{
+				methodName: "createSwaggerView",
+				handler: async (args: any[]): Promise<boolean> => {
+					await createSwaggerView(args[0], args[1]);
 					return Promise.resolve(true);
 				}
 			}
@@ -498,7 +510,8 @@ export async function renderFirstDiagramElement(client: ExtendedLangClient) {
 			if (defaultModules.length == 0) {
 				return;
 			}
-			if (defaultModules[0].functions && defaultModules[0].functions.length > 0) {
+			if ((defaultModules[0].functions && defaultModules[0].functions.length > 0) ||
+				(defaultModules[0].services && defaultModules[0].services.length > 0)) {
 				const mainFunctionNodes = defaultModules[0].functions.filter(fn => {
 					return fn.name === 'main';
 				});
@@ -527,6 +540,16 @@ export async function renderFirstDiagramElement(client: ExtendedLangClient) {
 							break;
 						}
 					}
+				} else if (defaultModules[0].functions.length > 0) {
+					const path = join(folder.uri.path, defaultModules[0].functions[0].filePath);
+					await showDiagramEditor(0, 0, path);
+					diagramElement = {
+						isDiagram: true,
+						fileUri: Uri.file(path),
+						startLine: defaultModules[0].functions[0].endLine,
+						startColumn: defaultModules[0].functions[0].endColumn - 1
+					}
+					callUpdateDiagramMethod();
 				}
 			}
 		});

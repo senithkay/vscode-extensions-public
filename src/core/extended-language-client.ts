@@ -32,7 +32,8 @@ import {
     BallerinaConnectorsRequest
 } from "@wso2-enterprise/ballerina-low-code-editor/build/Definitions";
 import { BallerinaExtension } from "./index";
-import { showChoreoPushMessage } from "../tree-view";
+import { showChoreoPushMessage } from "../editor-support/git-status";
+import { MESSAGE_TYPE } from "../utils/showMessage";
 
 export const BALLERINA_LANG_ID = "ballerina";
 const NOT_SUPPORTED = {};
@@ -57,7 +58,8 @@ enum EXTENDED_APIS {
     EXAMPLE_LIST = 'ballerinaExample/list',
     PERF_ANALYZER_GRAPH_DATA = 'performanceAnalyzer/getGraphData',
     PERF_ANALYZER_REALTIME_DATA = 'performanceAnalyzer/getRealtimeData',
-    RESOLVE_MISSING_DEPENDENCIES = 'ballerinaDocument/resolveMissingDependencies'
+    RESOLVE_MISSING_DEPENDENCIES = 'ballerinaDocument/resolveMissingDependencies',
+    BALLERINA_TO_OPENAPI = 'openAPILSExtension/generateOpenAPI'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -68,7 +70,8 @@ enum EXTENDED_APIS_ORG {
     SYMBOL = 'ballerinaSymbol',
     CONNECTOR = 'ballerinaConnector',
     PERF_ANALYZER = 'performanceAnalyzer',
-    PARTIAL_PARSER = 'partialParser'
+    PARTIAL_PARSER = 'partialParser',
+    BALLERINA_TO_OPENAPI = 'openAPILSExtension'
 }
 
 export interface ExtendedClientCapabilities extends ClientCapabilities {
@@ -261,6 +264,28 @@ export interface SequenceGraphPointValue {
     tps: String;
 }
 
+export interface OpenAPIConverterRequest {
+    documentFilePath: string;
+}
+
+export interface OpenAPIConverterResponse {
+    content: OASpec[];
+    error?: string;
+}
+
+export interface OASpec {
+    file: string;
+    serviceName: string;
+    spec: any;
+    diagnostics: OADiagnostic[];
+}
+
+export interface OADiagnostic {
+    message: string;
+    serverity: string;
+    location?: LineRange;
+}
+
 export class ExtendedLangClient extends LanguageClient {
     private ballerinaExtendedServices: Set<String> | undefined;
     private isDynamicRegistrationSupported: boolean;
@@ -294,6 +319,10 @@ export class ExtendedLangClient extends LanguageClient {
         return this.sendRequest(EXTENDED_APIS.PERF_ANALYZER_GRAPH_DATA, params);
     }
     getRealtimePerformanceData(params: PerformanceAnalyzerGraphRequest): Promise<PerformanceAnalyzerRealtimeResponse> {
+        if (!this.ballerinaExtInstance?.enabledPerformanceForecasting() ||
+            !this.ballerinaExtInstance?.getChoreoSession().loginStatus) {
+            return Promise.resolve({ type: MESSAGE_TYPE.IGNORE, message: '', concurrency: '', tps: '', latency: '' });
+        }
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.PERF_ANALYZER_REALTIME_DATA)) {
             Promise.resolve(NOT_SUPPORTED);
         }
@@ -359,6 +388,13 @@ export class ExtendedLangClient extends LanguageClient {
     }
 
     public close(): void {
+    }
+
+    public updateStatusBar() {
+        if (!this.ballerinaExtInstance || !this.ballerinaExtInstance.getCodeServerContext().statusBarItem) {
+            return;
+        }
+        this.ballerinaExtInstance.getCodeServerContext().statusBarItem?.updateGitStatus();
     }
 
     getDidOpenParams(): DidOpenParams {
@@ -446,6 +482,13 @@ export class ExtendedLangClient extends LanguageClient {
         return this.sendRequest("initBalServices", params);
     }
 
+    convertToOpenAPI(params: OpenAPIConverterRequest): Promise<OpenAPIConverterResponse> {
+        if (!this.isExtendedServiceSupported(EXTENDED_APIS.BALLERINA_TO_OPENAPI)) {
+            Promise.resolve(NOT_SUPPORTED);
+        }
+        return this.sendRequest(EXTENDED_APIS.BALLERINA_TO_OPENAPI, params);
+    }
+
     async registerExtendedAPICapabilities() {
         if (!this.isDynamicRegistrationSupported) {
             return;
@@ -466,7 +509,8 @@ export class ExtendedLangClient extends LanguageClient {
                 { name: EXTENDED_APIS_ORG.EXAMPLE, list: true },
                 { name: EXTENDED_APIS_ORG.JSON_TO_RECORD, convert: true },
                 { name: EXTENDED_APIS_ORG.PERF_ANALYZER, getGraphData: true, getRealtimeData: true },
-                { name: EXTENDED_APIS_ORG.PARTIAL_PARSER, getSTForSingleStatement: true, getSTForExpression: true }
+                { name: EXTENDED_APIS_ORG.PARTIAL_PARSER, getSTForSingleStatement: true, getSTForExpression: true },
+                { name: EXTENDED_APIS_ORG.BALLERINA_TO_OPENAPI, generateOpenAPI: true}
             ]
         }).then(response => {
             this.ballerinaExtendedServices = new Set();

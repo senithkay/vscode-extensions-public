@@ -23,7 +23,8 @@ export enum MESSAGE_TYPE {
     ERROR,
     WARNING,
     INFO,
-    CLICKABLE_INFO
+    CLICKABLE_INFO,
+    IGNORE
 }
 
 const DONT_SHOW = "Don't show again!";
@@ -36,7 +37,7 @@ const AVOIDED: string[] = [];
  * @param isIgnorable Is ignorable message
  */
 export function showMessage(message: string, type: MESSAGE_TYPE, isIgnorable: boolean, filePath?: string, fileContent?: string, callBack?: (filePath: string, fileContent: string) => void) {
-    if (AVOIDED.includes(message)) {
+    if (AVOIDED.includes(message) || message === 'IGNORE') {
         return;
     }
 
@@ -68,8 +69,10 @@ export function showMessage(message: string, type: MESSAGE_TYPE, isIgnorable: bo
             });
             break;
         }
+        case MESSAGE_TYPE.IGNORE: {
+            break;
+        }
     }
-
 }
 
 function addToAvoidList(response, message) {
