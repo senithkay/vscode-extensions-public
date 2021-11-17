@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 Inc. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -10,8 +10,6 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
-// tslint:disable: jsx-wrap-multiline
 import React, { useContext, useEffect, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -44,7 +42,7 @@ export function TriggerForm(props: FormGeneratorProps) {
     const [allServiceTypes, setAllServiceTypes] = useState(slackTrigger.serviceTypes.map((type: any) => type.name));
     const [addNewChannel, setNewChannel] = useState(false);
     const { api: { code: { modifyDiagram } } } = useDiagramContext();
-
+    const notSelectedChannels = allServiceTypes.filter(elements => !selectedChannels.includes(elements));
     const addnewChannelView = () => setNewChannel(true);
 
     const handleOnChannelSelect = (channel: string) => {
@@ -52,6 +50,29 @@ export function TriggerForm(props: FormGeneratorProps) {
         setSelectedChannels(abc);
         setNewChannel(false);
     }
+
+    const dropDownWithButton = (
+        <SelectDropdownWithButton
+            defaultValue={""}
+            onChange={handleOnChannelSelect}
+            customProps={{ disableCreateNew: true, values: notSelectedChannels }}
+            placeholder=""
+            label="Select Channel"
+        />
+    );
+
+    // const preLoader = (
+    //     <div className={wizardClasses.loaderWrapper}>
+    //         <TextPreloaderVertical position="relative" />
+    //     </div>
+    // )
+
+    const addNewChannelButton = (
+        <span onClick={addnewChannelView} className={formClasses.addPropertyBtn}    >
+            <AddIcon />
+            <p><FormattedMessage id="lowcode.develop.triggerConfigForm.trigger.addChannel.title" defaultMessage="Add Channel" /></p>
+        </span>
+    );
 
     const createTriggerCode = () => {
         modifyDiagram([
@@ -103,49 +124,15 @@ export function TriggerForm(props: FormGeneratorProps) {
                                     </Typography>
                                 </div>
                             </div>
-
-                            {/* {(isLoading || isConnectorLoading) && (
-                                <div className={wizardClasses.loaderWrapper}>
-                                    <TextPreloaderVertical position="relative" />
-                                </div>
-                            )} */}
+                            {/* {(isLoading || isConnectorLoading) && (preLoader)} */}
                             <div>
                                 <Typography>
                                     Service Config
                                 </Typography>
                             </div>
                             <div>
-                                {selectedChannels.map((channel, index) => (
-                                    <SelectedTriggerItem
-                                        key={index}
-                                        channelName={channel}
-                                    />
-                                ))}
-                                {addNewChannel || selectedChannels.length === 0 ? (
-                                    <SelectDropdownWithButton
-                                        defaultValue={""}
-                                        onChange={handleOnChannelSelect}
-                                        customProps={{
-                                            disableCreateNew: true,
-                                            values: allServiceTypes.filter(elements => !selectedChannels.includes(elements))
-                                        }}
-                                        placeholder=""
-                                        label="Select Channel"
-                                    />
-                                ) : (
-                                    (allServiceTypes.filter(elements => !selectedChannels.includes(elements))).length !== 0 ? (
-                                        <span
-                                            onClick={addnewChannelView}
-                                            className={formClasses.addPropertyBtn}
-                                        >
-                                            <AddIcon />
-                                            <p>
-                                                <FormattedMessage id="lowcode.develop.triggerConfigForm.trigger.addChannel.title" defaultMessage="Add Channel" />
-                                            </p>
-                                        </span>
-                                    ) : (null)
-                                )
-                                }
+                                {selectedChannels.map((channel, index) => (<SelectedTriggerItem key={index} channelName={channel} />))}
+                                {addNewChannel || selectedChannels.length === 0 ? dropDownWithButton : (notSelectedChannels.length !== 0 ? addNewChannelButton : (null))}
                             </div>
                             <div>
                                 <FormActionButtons
