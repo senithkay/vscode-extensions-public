@@ -136,26 +136,27 @@ export function showConfigEditor(configSchema: any, currentFileUri: Uri): void {
         });
     }
 
-    const html = render({
-        "$schema": "http://json-schema.org/draft-07/schema#",
-        "type": "object",
-        "properties": {
-            "dilhashanazeer": {
-                "type": "object",
-                "properties": {
-                    "simpleconfigs": {
-                        "type": "object",
-                        "properties": {
-                            "token": {
-                                "type": "string",
-                                "description": "description"
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    });
+    // const html = render({
+    //     "$schema": "http://json-schema.org/draft-07/schema#",
+    //     "type": "object",
+    //     "properties": {
+    //         "dilhashanazeer": {
+    //             "type": "object",
+    //             "properties": {
+    //                 "simpleconfigs": {
+    //                     "type": "object",
+    //                     "properties": {
+    //                         "token": {
+    //                             "type": "string",
+    //                             "description": "description"
+    //                         }
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    // });
+    const html = render(configSchema);
     console.log("configSchema: " + configSchema);
 
     if (configEditorPanel && html) {
