@@ -225,6 +225,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                 list: formArgs?.expressionInjectables?.list,
                 setInjectables: formArgs?.expressionInjectables?.setInjectables
             },
+            editPosition: config.model?.position || formArgs.targetPosition,
         },
         onChange: onPropertyChange,
         defaultValue: variableExpression,
