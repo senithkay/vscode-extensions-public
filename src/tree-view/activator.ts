@@ -156,16 +156,15 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
         }
         await ballerinaExtInstance.langClient.getBallerinaProjectConfigSchema({
             documentIdentifier: {
-                uri: filePath
+                uri: Uri.file(filePath).toString()
             }
         }).then(data => {
-            // TODO: Test the flow and uncomment
-            // if (data.configSchema == null) {
-            //     window.showErrorMessage('Unable to render the configurable editor: Error while '
-            //         + 'retrieving the configurable schema.');
-            //     return Promise.reject();
-            // }
-            showConfigEditor(ballerinaExtInstance.langClient!, data.configSchema, Uri.parse(filePath));
+            if (data.configSchema == null) {
+                window.showErrorMessage('Unable to render the configurable editor: Error while '
+                    + 'retrieving the configurable schema.');
+                return Promise.reject();
+            }
+            showConfigEditor(data.configSchema, Uri.parse(filePath));
         });
     });
 

@@ -36,13 +36,18 @@ function ConfigElement(props: any) {
         props.setConfigValue(configProperty);
     }
 
+    let type: string = props.type;
+    if (props.type === 'integer') {
+        type = 'number';
+    }
+
     return (
         <div className="ConfigElement">
             <TextField
                 id={props.id}
                 required={props.required}
                 label={props.name}
-                type={props.type}
+                type={type}
                 margin="normal"
                 fullWidth
                 value={props.value}
