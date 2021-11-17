@@ -17,9 +17,9 @@ import { BlockStatement, FunctionBodyBlock, LocalVarDecl } from "@ballerina/synt
 import { ClickAwayListener } from "@material-ui/core";
 import cn from "classnames";
 
+import { useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { BallerinaConnectorInfo } from "../../../../../../Definitions/lang-client-extended";
 import { DefaultConfig } from "../../../../../visitors/default";
-import { useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { BlockViewState } from "../../../ViewState";
 import { PlusViewState } from "../../../ViewState/plus";
 import { PlusElements } from "../../DialogBoxes/PlusHolder";
