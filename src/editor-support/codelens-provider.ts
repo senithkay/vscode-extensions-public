@@ -17,7 +17,7 @@
  *
  */
 
-import { BallerinaExtension, ExecutorPosition, LANGUAGE } from '../core';
+import { BallerinaExtension, ExecutorPosition, ExtendedLangClient, LANGUAGE } from '../core';
 import {
     CancellationToken, CodeLens, CodeLensProvider, commands, debug, DebugConfiguration, Event, EventEmitter,
     ProviderResult, Range, TextDocument, Uri, window, workspace, WorkspaceFolder
@@ -28,6 +28,7 @@ import {
     CMP_EXECUTOR_CODELENS, sendTelemetryEvent, TM_EVENT_SOURCE_DEBUG_CODELENS, TM_EVENT_TEST_DEBUG_CODELENS
 } from '../telemetry';
 import { DEBUG_CONFIG, DEBUG_REQUEST } from '../debugger';
+import { TryOutCodeLensProvider } from '../swagger/codelens-provider';
 
 export enum EXEC_POSITION_TYPE {
     SOURCE = 'source',
@@ -53,6 +54,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
     public readonly onDidChangeCodeLenses: Event<void> = this._onDidChangeCodeLenses.event;
 
     private ballerinaExtension: BallerinaExtension;
+    private tryOutCodeLensProvider = new TryOutCodeLensProvider();
 
     constructor(extensionInstance: BallerinaExtension) {
         this.ballerinaExtension = extensionInstance;
@@ -96,7 +98,13 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
 
     private async getCodeLensList(): Promise<CodeLens[]> {
         let codeLenses: CodeLens[] = [];
-        await this.ballerinaExtension.langClient!.getExecutorPositions({
+        let langClient: ExtendedLangClient | undefined = this.ballerinaExtension.langClient;
+
+        if (!langClient) {
+            return codeLenses;
+        }
+
+        await langClient.getExecutorPositions({
             documentIdentifier: {
                 uri: window.activeTextEditor!.document.uri.toString()
             }
@@ -110,6 +118,10 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
         }, _error => {
             return codeLenses;
         });
+
+        const tryItCodelenses = await this.tryOutCodeLensProvider.getCodeLensList(langClient);
+        codeLenses.push(...tryItCodelenses);
+
         return codeLenses;
     }
 

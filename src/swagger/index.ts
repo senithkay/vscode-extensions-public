@@ -18,11 +18,10 @@
  */
 
 import { PALETTE_COMMANDS } from "../project";
-import { commands, languages, window } from "vscode";
-import { BallerinaExtension, ExtendedLangClient, LANGUAGE } from "../core";
+import { commands, window } from "vscode";
+import { BallerinaExtension, ExtendedLangClient } from "../core";
 import { showSwaggerView } from "./swaggerViewPanel";
 import { MESSAGE_TYPE, showMessage } from "../utils/showMessage";
-import { TryOutCodeLensProvider } from "./codelens-provider";
 import { log } from "../utils";
 import path from "path";
 
@@ -44,11 +43,6 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
 
         await createSwaggerView(documentFilePath, serviceName);
     });
-
-    if ((ballerinaExtInstance.isAllCodeLensEnabled() || ballerinaExtInstance.isExecutorCodeLensEnabled())) {
-        languages.registerCodeLensProvider([{ language: LANGUAGE.BALLERINA }],
-            new TryOutCodeLensProvider(ballerinaExtInstance));
-    }
 }
 
 export async function createSwaggerView(documentFilePath: string, serviceName: any) {
