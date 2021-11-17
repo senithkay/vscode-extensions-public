@@ -10,6 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { AssignmentStatementComponent } from "./AssignmentStatement";
 import { CallStatementC } from "./CallStatement";
 import { ForeachStatementC } from "./ForeachStatement";
 import { IfStatementC } from "./IfStatement";
@@ -26,3 +27,4 @@ export { IfStatementC as IfElseStatement };
 export { OtherStatementTypes as OtherStatement };
 export { ReturnStatementC as ReturnStatement };
 export { CallStatementC as CallStatement };
+export { AssignmentStatementComponent as AssignmentStatement };
