@@ -11,20 +11,25 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import { LocalVarDecl } from "@ballerina/syntax-tree";
 
+import { useDiagramContext } from "../../../../../Contexts/Diagram";
 import { BallerinaModuleResponse, Package, Trigger } from "../../../../../Definitions/lang-client-extended";
 import { UserState } from "../../../../../types";
+// import { Context } from "../../../LowCodeDiagram/Context/diagram";
+import { FormGenerator, FormGeneratorProps } from "../../FormGenerator";
 import { BallerinaModuleType, FilterStateMap, Marketplace } from "../Marketplace";
+import { TriggerForm } from "../TriggerConfigForm/TriggerServiceConfigForm";
 
-export function TriggerList() {
-    const showTriggerForm = (
-        trigger: Trigger,
-        varNode: LocalVarDecl
-    ) => {
-        // TODO: Show trigger form
+
+export function TriggerList(props: FormGeneratorProps) {
+    const { onCancel, onSave, configOverlayFormStatus, model, targetPosition } = props
+    const [isMarketPlaceOpen, setMarketPlaceOpen] = useState(true);
+
+    const showTriggerForm = (trigger: Trigger, varNode: LocalVarDecl) => {
+        setMarketPlaceOpen(false);
     };
     const fetchTriggersList = async (searchQuery: string, selectedCategory: string, connectorLimit: number, currentFilePath: string,
                                      filterState: FilterStateMap, userInfo: UserState, page?: number): Promise<BallerinaModuleResponse> => {
@@ -49,12 +54,29 @@ export function TriggerList() {
         return response;
 
     };
+
     return (
-        <Marketplace
-            balModuleType={BallerinaModuleType.Trigger}
-            onSelect={showTriggerForm}
-            fetchModulesList={fetchTriggersList}
-            title="Triggers"
-        />
+        <>
+            {
+                isMarketPlaceOpen ?
+                    (
+                        <Marketplace
+                            balModuleType={BallerinaModuleType.Trigger}
+                            onSelect={showTriggerForm}
+                            fetchModulesList={fetchTriggersList}
+                            title="Triggers"
+                        />
+                    ) : (
+                        // TODO:This is a temporary one. This form need to be rendered using the context.
+                        <FormGenerator
+                            onCancel={onCancel}
+                            configOverlayFormStatus={{ formType: "TriggerForm", isLoading: false }}
+                            targetPosition={targetPosition}
+                            onSave={onSave}
+                        />
+                    )}
+        </>
+
+
     );
 }

@@ -63,7 +63,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
             ? blockViewState.draft[ 1 ]
             : (model.viewState as StatementViewState);
 
-    const sourceSnippet : string = model.source;
+    const sourceSnippet : string = model?.source;
 
     const diagnostics = model?.typeData?.diagnostics;
 

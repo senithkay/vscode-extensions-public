@@ -188,10 +188,11 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         value: selectedType,
         onValueChange: setSelectedType,
         validateExpression,
-        position: config.model ?
-        (config.model as LocalVarDecl).typedBindingPattern.position
-            : formArgs.targetPosition,
-        isEdit: !!config.model,
+        position: config.model ? {
+            ...(config.model as LocalVarDecl).typedBindingPattern.position,
+            endLine: 0,
+            endColumn: 0,
+        } : formArgs.targetPosition,
     }
 
     const variableNameConfig: VariableNameInputProps = {
@@ -224,6 +225,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                 list: formArgs?.expressionInjectables?.list,
                 setInjectables: formArgs?.expressionInjectables?.setInjectables
             },
+            editPosition: config.model?.position || formArgs.targetPosition,
         },
         onChange: onPropertyChange,
         defaultValue: variableExpression,
