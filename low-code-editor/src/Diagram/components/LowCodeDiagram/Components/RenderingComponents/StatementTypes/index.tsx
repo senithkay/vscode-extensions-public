@@ -42,8 +42,20 @@ export function StatementTypes(props: { x: number, y: number, key_id: number, st
 
     const statementRect: ReactElement = (
         <g className="statement-text-wrapper">
-            <rect width={statmentTypeMaxWidth ? maxStatementRectX : statementRectwidth} height="14" rx="4" stroke="none" />
-            <rect x={statmentTypeMaxWidth ? statementRectX - statementtextPadding : statementRectX} y="0" width={statmentTypeMaxWidth ? maxStatementRectX : statementRectwidth} height="13.25" rx="3.625" fill="none" />
+            <rect
+                width={statmentTypeMaxWidth ? maxStatementRectX : statementRectwidth}
+                height="14"
+                rx="4"
+                stroke="none"
+            />
+            <rect
+                x={statmentTypeMaxWidth ? statementRectX - statementtextPadding : statementRectX}
+                y="0"
+                width={statmentTypeMaxWidth ? maxStatementRectX : statementRectwidth}
+                height="13.25"
+                rx="3.625"
+                fill="none"
+            />
         </g>
     );
 
@@ -51,12 +63,16 @@ export function StatementTypes(props: { x: number, y: number, key_id: number, st
         <svg {...xyProps} width="150" height="24" className="statement-wrapper">
             <g>
                 <text className="statement-name">
-                    <tspan x={statmentTypeMaxWidth ? statmentTypeX - statementtextPadding : statmentTypeX} id={"statementLegnth_" + key_id} y="10">
+                    <tspan
+                        x={statmentTypeMaxWidth ? statmentTypeX - statementtextPadding : statmentTypeX}
+                        id={"statementLegnth_" + key_id}
+                        y="10"
+                    >
                         {statmentTypeMaxWidth ? statementType.slice(0, 12) + "..." : statementType}
                     </tspan>
                 </text>
                 {statementType.length > 0 && statementRect}
             </g>
-        </svg >
+        </svg>
     );
 }
