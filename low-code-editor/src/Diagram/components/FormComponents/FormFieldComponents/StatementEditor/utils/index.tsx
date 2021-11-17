@@ -64,6 +64,7 @@ export function getModifications(
     if (STKindChecker.isLocalVarDecl(model) ||
             STKindChecker.isCallStatement(model) ||
             STKindChecker.isReturnStatement(model) ||
+            STKindChecker.isAssignmentStatement(model) ||
             (config && config.type === 'Custom')) {
         if (config.model) {
             modifications.push(updateStatement(model.source, formArgs.formArgs?.model.position));
