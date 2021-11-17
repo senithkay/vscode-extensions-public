@@ -25,6 +25,7 @@ import { useStatementEditor } from "../../../../FormFieldComponents/StatementEdi
 import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
 import { CustomExpressionConfig, ProcessConfig } from "../../../../Types";
 import { wizardStyles } from "../../../style";
+import { STNode } from "@ballerina/syntax-tree";
 
 interface LogConfigProps {
     config: ProcessConfig;
@@ -91,14 +92,20 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
     }
 
+    const handleStatementEditorChange = (partialModel: STNode) => {
+        setExpression(partialModel.source.trim());
+    }
+
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {
             label: intl.formatMessage({id: "lowcode.develop.configForms.customStatement.statementEditor.label"}),
-            initialSource: expression,
+            initialSource: expression ? expression : "EXPRESSION",
             formArgs: {formArgs},
             validForm: isFormValid,
             config,
-            onWizardClose
+            onWizardClose,
+            handleStatementEditorChange,
+            onCancel
         }
     );
 

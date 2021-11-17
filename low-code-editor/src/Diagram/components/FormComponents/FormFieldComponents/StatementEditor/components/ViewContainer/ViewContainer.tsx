@@ -40,6 +40,7 @@ export interface ViewProps {
     onCancel?: () => void;
     handleNameOnChange?: (name: string) => void;
     handleTypeChange?: (name: string) => void;
+    handleStatementEditorChange?: (partialModel: STNode) => void;
 }
 
 export function ViewContainer(props: ViewProps) {
@@ -63,7 +64,8 @@ export function ViewContainer(props: ViewProps) {
         onCancel,
         onWizardClose,
         handleNameOnChange,
-        handleTypeChange
+        handleTypeChange,
+        handleStatementEditorChange
     } = props;
     const intl = useIntl();
 
@@ -110,6 +112,12 @@ export function ViewContainer(props: ViewProps) {
             model: cModel
         });
     };
+
+    useEffect(() => {
+        if (!!model){
+            handleStatementEditorChange(model);
+        }
+    }, [model])
 
     const onCancelHandler = () => {
         setOnCancel(true);
