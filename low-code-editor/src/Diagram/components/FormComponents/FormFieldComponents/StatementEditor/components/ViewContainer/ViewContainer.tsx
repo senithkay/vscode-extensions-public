@@ -115,7 +115,7 @@ export function ViewContainer(props: ViewProps) {
 
     useEffect(() => {
         if (!!model){
-        handleStatementEditorChange(model);
+            handleStatementEditorChange(model);
         }
     }, [model])
 
