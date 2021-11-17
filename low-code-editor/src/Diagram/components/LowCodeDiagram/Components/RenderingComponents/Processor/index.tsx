@@ -22,14 +22,15 @@ import {
     QualifiedNameReference,
     STKindChecker,
     STNode} from "@ballerina/syntax-tree";
-import cn from "classnames";
 
 import { WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
+import { getDiagnosticMsgs } from "../../../../../utils";
 import { getOverlayFormConfig, getRandomInt } from "../../../../../utils/diagram-util";
-import { getStatementTypesFromST } from "../../../../../utils/st-util";
+import { getMethodCallFunctionName, getStatementTypesFromST } from "../../../../../utils/st-util";
 import { DefaultConfig } from "../../../../../visitors/default";
 import { FormGenerator } from "../../../../FormComponents/FormGenerator";
+import { MethodCall } from "../../../../MethodCall";
 import { DeleteBtn } from "../../../Components/DiagramActions/DeleteBtn";
 import { DELETE_SVG_HEIGHT_WITH_SHADOW, DELETE_SVG_WIDTH_WITH_SHADOW } from "../../../Components/DiagramActions/DeleteBtn/DeleteSVG";
 import { EditBtn } from "../../../Components/DiagramActions/EditBtn";
@@ -76,17 +77,17 @@ export function DataProcessor(props: ProcessorProps) {
     let processType = "STATEMENT";
     let processName = "Variable";
     let sourceSnippet = "Source";
-    let diagnostics;
+    const diagnostics =  model?.typeData?.diagnostics;
 
     let isIntializedVariable = false;
     let isLogStmt = false;
 
     let isReferencedVariable = false;
+    const diagnosticMsgs = getDiagnosticMsgs(diagnostics);
 
     if (model) {
         processType = "Variable";
-        diagnostics = model.typeData?.diagnostics[0]?.message;
-        sourceSnippet = diagnostics ? "Code has errors\n" + model.source : model.source;
+        sourceSnippet = model.source;
         if (STKindChecker.isCallStatement(model)) {
             const callStatement: CallStatement = model as CallStatement;
             const stmtFunctionCall: FunctionCall = callStatement.expression as FunctionCall;
@@ -129,7 +130,10 @@ export function DataProcessor(props: ProcessorProps) {
         const draftViewState = blockViewState.draft[1] as DraftStatementViewState;
         processType = draftViewState.subType;
     }
-
+    const errorSnippet = {
+        diagnosticMsgs,
+        code: sourceSnippet,
+    }
     const h: number = viewState.dataProcess.h;
     const w: number = viewState.dataProcess.w;
     const cx: number = blockViewState ? (viewState.bBox.cx - (PROCESS_SVG_WIDTH / 2)) : (viewState.bBox.cx - (w / 2));
@@ -217,9 +221,13 @@ export function DataProcessor(props: ProcessorProps) {
 
     let assignmentText = null;
     let statmentTypeText = null;
+    let methodCallText = null;
     if (!isDraftStatement && STKindChecker?.isCallStatement(model)) {
         if (STKindChecker.isFunctionCall(model.expression)) {
             assignmentText = model.expression.arguments[0]?.source;
+            processType === "Log" ?
+            methodCallText = getMethodCallFunctionName(model).replace("log:print", "").trim().toLocaleLowerCase()
+            : methodCallText = getMethodCallFunctionName(model);
         } else if (STKindChecker.isCheckExpression(model.expression)) {
             if (STKindChecker.isFunctionCall(model.expression.expression)) {
                 assignmentText = model.expression.expression.source;
@@ -233,8 +241,9 @@ export function DataProcessor(props: ProcessorProps) {
         statmentTypeText = getStatementTypesFromST(localModel);
     }
 
-    const processWrapper = isDraftStatement ? cn("main-process-wrapper active-data-processor") : cn("main-process-wrapper data-processor");
-    const processStyles = diagnostics && !isDraftStatement ? cn("main-process-wrapper data-processor-error ") : processWrapper;
+    const processWrapper = isDraftStatement ? "main-process-wrapper active-data-processor" : "main-process-wrapper data-processor";
+    const processStyles = diagnosticMsgs && !isDraftStatement ? "main-process-wrapper data-processor-error " : processWrapper;
+    const prosessTypes = (processType === "Log" || processType === "Call");
 
     const component: React.ReactNode = (!viewState.collapsed &&
         (
@@ -265,13 +274,20 @@ export function DataProcessor(props: ProcessorProps) {
                             processType={processType}
                             sourceSnippet={sourceSnippet}
                             position={model?.position}
+                            diagnostics={errorSnippet}
                             openInCodeView={!isReadOnly && !isCodeEditorActive && !isWaitingOnWorkspace && model && model.position && onClickOpenInCodeView}
                         />
                         <Assignment
                             x={cx + PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW / 2 + (DefaultConfig.dotGap * 3)}
-                            y={cy + PROCESS_SVG_HEIGHT / 3}
+                            y={prosessTypes ? (cy + PROCESS_SVG_HEIGHT / 2) : (cy + PROCESS_SVG_HEIGHT / 3)}
                             assignment={assignmentText}
                             className="assignment-text"
+                            key_id={getRandomInt(1000)}
+                        />
+                        <MethodCall
+                            x={cx + PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW / 2 + (DefaultConfig.dotGap * 3)}
+                            y={(cy + PROCESS_SVG_HEIGHT / 4) - (DefaultConfig.dotGap / 2)}
+                            methodCall={methodCallText}
                             key_id={getRandomInt(1000)}
                         />
 

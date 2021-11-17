@@ -99,6 +99,13 @@ const useStyles = makeStyles(() =>
             backgroundColor: "#eff1f5",
             marginTop: 6,
             borderRadius: 4
+        },
+        diagnosticWrapper: {
+            width: '231px',
+            color: '#FE523C',
+            fontFamily: "Droid Sans Mono",
+            fontSize: '12px',
+            letterSpacing: '0',
         }
     }),
 );

@@ -23,6 +23,7 @@ import { getSuggestionsBasedOnExpressionKind } from "../../utils";
 import { Diagnostics } from "../Diagnostics";
 import { StatementRenderer } from "../StatementRenderer";
 import { ExpressionSuggestions } from "../Suggestions/ExpressionSuggestions";
+import { TypeSuggestions } from "../Suggestions/TypeSuggestions";
 import { VariableSuggestions } from "../Suggestions/VariableSuggestions";
 import { useStatementEditorStyles } from "../ViewContainer/styles";
 
@@ -44,17 +45,32 @@ export function LeftPane(props: ModelProps) {
     const [, setIsSuggestionClicked] = useState(false);
     const [isOperator, setIsOperator] = useState(false);
     const [variableList, setVariableList] = useState([]);
+    const [typeDescriptorList, setTypeDescriptorList] = useState([]);
+    const [isTypeDescSuggestion, setIsTypeDescSuggestion] = useState(false);
 
-    const expressionHandler = (cModel: STNode, operator: boolean, suggestionsList: { variableSuggestions?: SuggestionItem[], expressionSuggestions?: SuggestionItem[] }) => {
+    const expressionHandler = (
+            cModel: STNode,
+            operator: boolean,
+            isTypeDesc: boolean,
+            suggestionsList: {
+                variableSuggestions?: SuggestionItem[],
+                expressionSuggestions?: SuggestionItem[],
+                typeSuggestions?: SuggestionItem[]
+            }) => {
         currentModelHandler(cModel);
         if (suggestionsList.expressionSuggestions) {
-            setSuggestionsList(suggestionsList.expressionSuggestions)
+            setSuggestionsList(suggestionsList.expressionSuggestions);
         }
-        setIsSuggestionClicked(false)
-        setIsOperator(operator)
         if (suggestionsList.variableSuggestions) {
-            setVariableList(suggestionsList.variableSuggestions)
+            setVariableList(suggestionsList.variableSuggestions);
         }
+        if (suggestionsList.typeSuggestions) {
+            setTypeDescriptorList(suggestionsList.typeSuggestions);
+        }
+
+        setIsTypeDescSuggestion(isTypeDesc);
+        setIsSuggestionClicked(false);
+        setIsOperator(operator);
     }
 
     const suggestionHandler = () => {
@@ -91,24 +107,37 @@ export function LeftPane(props: ModelProps) {
                     message={diagnosticList}
                 />
             </div>
-            <span className={overlayClasses.subHeader}>Variables</span>
             <div className={overlayClasses.contextSensitivePane}>
-                <div className={overlayClasses.variableSuggestionsInner}>
-                    <VariableSuggestions
-                        model={currentModel.model}
-                        variableSuggestions={variableList}
-                        suggestionHandler={suggestionHandler}
-                    />
-                </div>
-            </div>
-            <span className={overlayClasses.subHeader}>Expression</span>
-            <div className={overlayClasses.contextSensitivePane}>
-                <ExpressionSuggestions
-                    model={currentModel.model}
-                    suggestions={suggestionList}
-                    operator={isOperator}
-                    suggestionHandler={suggestionHandler}
-                />
+                {
+                    (!isTypeDescSuggestion && variableList.length > 0) && (
+                        <div className={overlayClasses.variableSuggestionsInner}>
+                            <VariableSuggestions
+                                model={currentModel.model}
+                                variableSuggestions={variableList}
+                                suggestionHandler={suggestionHandler}
+                            />
+                        </div>
+                    )
+                }
+                {
+                    (!isTypeDescSuggestion && suggestionList.length > 0) && (
+                        <ExpressionSuggestions
+                            model={currentModel.model}
+                            suggestions={suggestionList}
+                            operator={isOperator}
+                            suggestionHandler={suggestionHandler}
+                        />
+                    )
+                }
+                {
+                    isTypeDescSuggestion && (
+                        <TypeSuggestions
+                            model={currentModel.model}
+                            typeSuggestions={typeDescriptorList}
+                            suggestionHandler={suggestionHandler}
+                        />
+                    )
+                }
             </div>
         </div>
     );

@@ -46,6 +46,8 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
         varExpression = config.model.expression?.source;
         if (STKindChecker.isSimpleNameReference(config.model?.varRef)){
             variableName = config.model?.varRef?.name.value;
+        } else if (STKindChecker.isFieldAccess(config.model?.varRef)){
+            variableName = config.model?.varRef?.source?.trim();
         }
     }
 

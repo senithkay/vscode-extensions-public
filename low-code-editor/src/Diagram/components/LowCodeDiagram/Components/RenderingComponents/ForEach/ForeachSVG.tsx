@@ -13,7 +13,9 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from "react";
 
-import { TooltipCodeSnippet } from "../../../../../../components/Tooltip";
+import Tooltip from "../../../../../../components/TooltipV2";
+import { ErrorSnippet } from "../../../Context/types";
+
 
 export const FOREACH_SVG_WIDTH_WITH_SHADOW = 66.686;
 export const FOREACH_SVG_HEIGHT_WITH_SHADOW = 62.686;
@@ -21,8 +23,11 @@ export const FOREACH_SVG_WIDTH = 54.845;
 export const FOREACH_SVG_HEIGHT = 52.845;
 export const FOREACH_SHADOW_OFFSET = FOREACH_SVG_HEIGHT_WITH_SHADOW - FOREACH_SVG_HEIGHT;
 
-export function ForeachSVG(props: { x: number, y: number, text: string, openInCodeView?: () => void, codeSnippet?: string }) {
-    const { text, openInCodeView, codeSnippet, ...xyProps } = props;
+export function ForeachSVG(props: { x: number, y: number, text: string, openInCodeView?: () => void, codeSnippet?: string, diagnostics?: ErrorSnippet }) {
+    const { text, openInCodeView, codeSnippet, diagnostics, ...xyProps } = props;
+    const tooltipText = {
+        code: codeSnippet
+    }
     return (
         <svg {...xyProps} width={FOREACH_SVG_WIDTH_WITH_SHADOW} height={FOREACH_SVG_HEIGHT_WITH_SHADOW}>
             <defs>
@@ -45,7 +50,26 @@ export function ForeachSVG(props: { x: number, y: number, text: string, openInCo
                     <feComposite in="SourceGraphic" />
                 </filter>
             </defs>
-            <TooltipCodeSnippet openInCodeView={openInCodeView} content={codeSnippet} placement="right" arrow={true}>
+            {diagnostics?.diagnosticMsgs ?
+            (
+             <Tooltip type={"diagram-diagnostic"} onClick={openInCodeView} diagnostic={diagnostics} placement="right" arrow={true}>
+             <g id="Foreach" className="foreach-group" transform="translate(7 6)">
+                 <g transform="matrix(1, 0, 0, 1, -7, -6)" >
+                     <g id="IfElsePolygon" transform="translate(33.5, 3) rotate(45)">
+                         <rect width="40.903" height="40.903" className="for-each-rect" rx="6" stroke="none" />
+                         <rect x="0.5" y="0.5" width="39.903" className="for-each-rect click-effect" height="39.903" rx="5.5" fill="none" />
+                     </g>
+                 </g>
+                 <g id="Foreach_icon" transform="translate(17, 15)">
+                     <path id="Combined_Shape" d="M6.29,14.71a1,1,0,0,1-.083-1.32l.083-.094L7.585,12H6A6,6,0,0,1,5.775,0L6,0a1,1,0,0,1,.116,1.993L6,2a4,4,0,0,0-.2,8L6,10H7.586L6.29,8.7a1,1,0,0,1-.083-1.32l.083-.094a1,1,0,0,1,1.32-.084l.095.084,3,3,.009.009.7.7-.692.693-.03.03L7.7,14.71a1,1,0,0,1-1.415,0Z" transform="translate(0 4)" fill="#5567d5" />
+                     <path id="Combined_Shape-2" d="M6.29,14.71a1,1,0,0,1-.083-1.32l.083-.094L7.585,12H6A6,6,0,0,1,5.775,0L6,0a1,1,0,0,1,.116,1.993L6,2a4,4,0,0,0-.2,8L6,10H7.586L6.29,8.7a1,1,0,0,1-.083-1.32l.083-.094a1,1,0,0,1,1.32-.084l.095.084,3,3,.009.009.7.7-.692.693-.03.03L7.7,14.71a1,1,0,0,1-1.415,0Z" transform="translate(19.914 16.002) rotate(-180)" fill="#ccd1f2" />
+                 </g>
+             </g>
+         </Tooltip>
+         )
+         :
+         (
+            <Tooltip type={"diagram-code"} onClick={openInCodeView} text={tooltipText} placement="right" arrow={true}>
 
                 <g id="Foreach" className="foreach-group" transform="translate(7 6)">
                     <g transform="matrix(1, 0, 0, 1, -7, -6)" >
@@ -59,7 +83,8 @@ export function ForeachSVG(props: { x: number, y: number, text: string, openInCo
                         <path id="Combined_Shape-2" d="M6.29,14.71a1,1,0,0,1-.083-1.32l.083-.094L7.585,12H6A6,6,0,0,1,5.775,0L6,0a1,1,0,0,1,.116,1.993L6,2a4,4,0,0,0-.2,8L6,10H7.586L6.29,8.7a1,1,0,0,1-.083-1.32l.083-.094a1,1,0,0,1,1.32-.084l.095.084,3,3,.009.009.7.7-.692.693-.03.03L7.7,14.71a1,1,0,0,1-1.415,0Z" transform="translate(19.914 16.002) rotate(-180)" fill="#ccd1f2" />
                     </g>
                 </g>
-            </TooltipCodeSnippet>
+            </Tooltip>
+        )}
         </svg>
     )
 }
