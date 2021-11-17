@@ -160,7 +160,7 @@ export function ViewContainer(props: ViewProps) {
                         model={model}
                         onCancelClicked={onCancelClicked}
                         updateModel={updateModel}
-                        formModel={formArgs.formArgs.model}
+                        formArgs={formArgs}
                         validateStatement={validateStatement}
                     >
                         <LeftPane
