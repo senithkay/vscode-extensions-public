@@ -115,6 +115,14 @@ export function AddLogConfig(props: LogConfigProps) {
         expression ? expression : 'EXPRESSION'
     ));
 
+    const handleStatementEditorChange = (partialModel: CallStatement) => {
+        const functionCallModel: FunctionCall = partialModel.expression as FunctionCall;
+        setLogType(logTypeFunctionNameMap.get((functionCallModel.functionName as QualifiedNameReference).identifier.value));
+        setExpression(functionCallModel.arguments[0].source);
+
+
+    }
+
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {
             label: intl.formatMessage({id: "lowcode.develop.configForms.log.statementEditor.label"}),
@@ -122,7 +130,9 @@ export function AddLogConfig(props: LogConfigProps) {
             formArgs: {formArgs},
             validForm: !!isFormValid,
             config,
-            onWizardClose
+            onWizardClose,
+            handleStatementEditorChange,
+            onCancel
         }
     );
 

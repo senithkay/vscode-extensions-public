@@ -218,6 +218,13 @@ export function AddForeachForm(props: ForeachProps) {
         selectedType
     ));
 
+    const handleStatementEditorChange = (partialModel: ForeachStatement) => {
+        conditionExpression.type = partialModel.typedBindingPattern.typeDescriptor.source.trim();
+        conditionExpression.variable = partialModel.typedBindingPattern.bindingPattern.source.trim();
+        conditionExpression.collection = partialModel.actionOrExpressionNode.source.trim();
+        setSelectedType(partialModel.typedBindingPattern.typeDescriptor.source.trim());
+    }
+
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {
             label: intl.formatMessage({id: "lowcode.develop.configForms.forEach.statementEditor.label"}),
@@ -225,7 +232,9 @@ export function AddForeachForm(props: ForeachProps) {
             formArgs: {formArgs},
             validForm: !isInvalid,
             config: condition,
-            onWizardClose
+            onWizardClose,
+            handleStatementEditorChange,
+            onCancel
         }
     );
 

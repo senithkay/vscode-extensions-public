@@ -15,19 +15,17 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 export const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         mainTitleWrapper: {
-            display: 'flex',
-            flexDirection: 'row',
+            display: 'inline-flex',
             alignItems: 'center',
-            margin: '-2.25rem 0.55rem 0 0',
-            "& img": {
-                marginRight: '1rem'
-            }
+            width: '100%',
         },
         formTitleWrapper: {
-            width: "auto",
+            width: "100%",
             zIndex: 100,
-            position: "absolute",
-            top: "-42px"
+            position: 'absolute',
+            top: theme.spacing(-9),
+            height: theme.spacing(6),
+            display: 'inline-flex'
         },
         statementEditorButton: {
             display: 'inline-flex',

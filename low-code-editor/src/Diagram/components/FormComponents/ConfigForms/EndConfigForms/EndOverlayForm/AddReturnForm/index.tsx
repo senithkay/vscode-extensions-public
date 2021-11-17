@@ -14,6 +14,7 @@
 import React, { useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
+import { ReturnStatement } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
@@ -83,6 +84,11 @@ export function AddReturnForm(props: ReturnFormProps) {
         returnExpression ? returnExpression as string : 'EXPRESSION'
     ));
 
+
+    const handleStatementEditorChange = (partialModel: ReturnStatement) => {
+        setReturnExpression(partialModel.expression?.source.trim())
+    }
+
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {
             label: intl.formatMessage({id: "lowcode.develop.configForms.return.statementEditor.label"}),
@@ -90,7 +96,9 @@ export function AddReturnForm(props: ReturnFormProps) {
             formArgs: {formArgs},
             validForm: isValidValue,
             config,
-            onWizardClose
+            onWizardClose,
+            handleStatementEditorChange,
+            onCancel
         }
     );
 
