@@ -54,6 +54,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
     public readonly onDidChangeCodeLenses: Event<void> = this._onDidChangeCodeLenses.event;
 
     private ballerinaExtension: BallerinaExtension;
+    private tryOutCodeLensProvider = new TryOutCodeLensProvider();
 
     constructor(extensionInstance: BallerinaExtension) {
         this.ballerinaExtension = extensionInstance;
@@ -102,7 +103,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
         if (!langClient) {
             return codeLenses;
         }
-        
+
         await langClient.getExecutorPositions({
             documentIdentifier: {
                 uri: window.activeTextEditor!.document.uri.toString()
@@ -118,8 +119,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
             return codeLenses;
         });
 
-        const tryOutCodeLensProvider = new TryOutCodeLensProvider();
-        const tryItCodelenses = await tryOutCodeLensProvider.getCodeLensList(langClient);
+        const tryItCodelenses = await this.tryOutCodeLensProvider.getCodeLensList(langClient);
         codeLenses.push(...tryItCodelenses);
 
         return codeLenses;
