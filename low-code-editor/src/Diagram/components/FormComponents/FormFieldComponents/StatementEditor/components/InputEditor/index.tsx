@@ -121,8 +121,7 @@ export function InputEditor(props: InputEditorProps) {
 
     const [userInput, setUserInput] = useState(value);
 
-    const targetPosition = stmtCtx.formCtx.formModel && stmtCtx.formCtx.formModel.position ?
-        stmtCtx.formCtx.formModel.position : getTargetPosition(targetPositionDraft, syntaxTree);
+    const targetPosition = stmtCtx.formCtx.formModelPosition;
     const textLabel = userInputs && userInputs.formField ? userInputs.formField : "modelName"
     const varName = userInputs && userInputs.varName ? userInputs.varName : "temp_" + (textLabel).replace(/[^A-Z0-9]+/ig, "");
     const varType = userInputs ? userInputs.selectedType : 'string';

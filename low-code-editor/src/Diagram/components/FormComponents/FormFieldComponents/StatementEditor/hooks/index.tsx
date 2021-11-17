@@ -30,15 +30,17 @@ export const useStatementEditor = (props: ViewProps) => {
         validForm,
         onWizardClose,
         handleNameOnChange,
-        handleTypeChange
+        handleTypeChange,
+        handleStatementEditorChange,
+        onCancel
     } = props;
     const classes = useStyles();
 
     const [isStmtEditor, setIsStmtEditor] = useState(false);
 
 
-    const handleStmtEditorButtonClick = () => {
-        setIsStmtEditor(true);
+    const handleStmtEditorToggle = () => {
+        setIsStmtEditor(!isStmtEditor);
     };
 
     const handleStmtEditorCancel = () => {
@@ -47,8 +49,8 @@ export const useStatementEditor = (props: ViewProps) => {
 
     const stmtEditorButton =
         (
-            <div style={{display: 'inline-flex', width: "100%", marginLeft: "auto", marginRight: '8px', justifyContent: 'flex-end'}}>
-                <StatementEditorButton onClick={handleStmtEditorButtonClick} />
+            <div style={{display: 'inline-flex', width: "100%", alignItems: 'center', marginLeft: "auto", marginRight: '8px', justifyContent: 'flex-end'}}>
+                <StatementEditorButton handleChange={handleStmtEditorToggle} checked={false} />
             </div>
         );
 
@@ -62,6 +64,9 @@ export const useStatementEditor = (props: ViewProps) => {
                             <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.statementEditor.title" defaultMessage="Statement jhkhkj" /></Box>
                         </Typography>
                     </div>
+                    <div style={{display: 'inline-flex', width: "100%", alignItems: 'center', marginLeft: "auto", marginRight: '8px', justifyContent: 'flex-end'}}>
+                        <StatementEditorButton handleChange={handleStmtEditorToggle} checked={true}/>
+                    </div>
                 </div>
                 <ViewContainer
                     label={label}
@@ -74,6 +79,7 @@ export const useStatementEditor = (props: ViewProps) => {
                     onWizardClose={onWizardClose}
                     handleNameOnChange={handleNameOnChange}
                     handleTypeChange={handleTypeChange}
+                    handleStatementEditorChange={handleStatementEditorChange}
                 />
             </div>
         </FormControl>

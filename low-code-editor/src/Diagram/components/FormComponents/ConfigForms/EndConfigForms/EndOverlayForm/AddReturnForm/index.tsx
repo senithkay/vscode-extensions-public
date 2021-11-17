@@ -14,6 +14,7 @@
 import React, { useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
+import { ReturnStatement } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
@@ -83,62 +84,72 @@ export function AddReturnForm(props: ReturnFormProps) {
         returnExpression ? returnExpression as string : 'EXPRESSION'
     ));
 
+    const handleStatementEditorChange = (partialModel: ReturnStatement) => {
+        setReturnExpression(partialModel.expression?.source.trim())
+    }
+
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {
-            label: intl.formatMessage({id: "lowcode.develop.configForms.return.statementEditor.label"}),
+            label: intl.formatMessage({ id: "lowcode.develop.configForms.return.statementEditor.label" }),
             initialSource,
-            formArgs: {formArgs},
+            formArgs: { formArgs },
             validForm: isValidValue,
             config,
-            onWizardClose
+            onWizardClose,
+            handleStatementEditorChange,
+            onCancel
         }
     );
 
-    if (!stmtEditorComponent){
+    if (!stmtEditorComponent) {
         return (
-                <FormControl data-testid="return-form" className={classes.wizardFormControl}>
-                    <div className={classes.formWrapper}>
-                        <div className={classes.formFeilds}>
-                            <div className={classes.formTitleWrapper}>
-                                <div className={classes.mainTitleWrapper}>
-                                    <Typography variant="h4">
-                                        <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.Return.title" defaultMessage="Return" /></Box>
-                                    </Typography>
-                                </div>
-                                <div className={classes.statementEditor}>
-                                    {stmtEditorButton}
-                                </div>
+            <FormControl data-testid="return-form" className={classes.wizardFormControl}>
+                <div className={classes.formWrapper}>
+                    <div className={classes.formFeilds}>
+                        <div className={classes.formTitleWrapper}>
+                            <div className={classes.mainTitleWrapper}>
+                                <Typography variant="h4">
+                                    <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.Return.title" defaultMessage="Return" /></Box>
+                                </Typography>
                             </div>
-                            <div className={classes.blockWrapper}>
-                                <div className={classes.returnWrapper}>
-                                    <div className="exp-wrapper">
-                                        <ExpressionEditor
-                                            model={{ name: "return expression", type: "var", value: config.expression }}
-                                            customProps={{
-                                                validate: validateExpression,
-                                                tooltipTitle: returnStatementTooltipMessages.title,
-                                                tooltipActionText: returnStatementTooltipMessages.actionText,
-                                                tooltipActionLink: returnStatementTooltipMessages.actionLink,
-                                                interactive: true,
-                                                statementType: 'var'
-                                            }}
-                                            onChange={onReturnValueChange}
-                                        />
-                                    </div>
+                            <div className={classes.statementEditor}>
+                                {stmtEditorButton}
+                            </div>
+                        </div>
+                        <div className={classes.blockWrapper}>
+                            <div className={classes.returnWrapper}>
+                                <div className="exp-wrapper">
+                                    <ExpressionEditor
+                                        model={{ name: "return expression", value: config.expression }}
+                                        customProps={{
+                                            validate: validateExpression,
+                                            tooltipTitle: returnStatementTooltipMessages.title,
+                                            tooltipActionText: returnStatementTooltipMessages.actionText,
+                                            tooltipActionLink: returnStatementTooltipMessages.actionLink,
+                                            interactive: true,
+                                            customTemplate: {
+                                                defaultCodeSnippet: 'return ;',
+                                                targetColumn: 8
+                                            },
+                                            editPosition: formArgs.targetPosition,
+                                        }}
+                                        onChange={onReturnValueChange}
+                                    />
                                 </div>
                             </div>
                         </div>
-                        <FormActionButtons
-                            cancelBtnText="Cancel"
-                            saveBtnText={saveReturnButtonLabel}
-                            isMutationInProgress={isMutationInProgress}
-                            validForm={isValidValue}
-                            onSave={onReturnExpressionSave}
-                            onCancel={onCancel}
-                        />
                     </div>
-                </FormControl>
-            );
+                    <FormActionButtons
+                        cancelBtnText="Cancel"
+                        saveBtnText={saveReturnButtonLabel}
+                        isMutationInProgress={isMutationInProgress}
+                        validForm={isValidValue}
+                        onSave={onReturnExpressionSave}
+                        onCancel={onCancel}
+                    />
+                </div>
+            </FormControl>
+        );
     }
     else {
         return stmtEditorComponent

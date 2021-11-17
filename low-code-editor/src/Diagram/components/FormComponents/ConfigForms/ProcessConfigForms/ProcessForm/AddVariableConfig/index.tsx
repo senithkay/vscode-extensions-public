@@ -225,6 +225,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                 list: formArgs?.expressionInjectables?.list,
                 setInjectables: formArgs?.expressionInjectables?.setInjectables
             },
+            editPosition: config.model?.position || formArgs.targetPosition,
         },
         onChange: onPropertyChange,
         defaultValue: variableExpression,
@@ -234,10 +235,17 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         {
             varName: varName ? varName : "default",
             varOptions: [],
-            varType: selectedType,
+            varType: selectedType ? selectedType : "var",
             varValue: variableExpression ? variableExpression : "EXPRESSION"
         }
     ));
+
+    const handleStatementEditorChange = (partialModel: LocalVarDecl) => {
+        setSelectedType(partialModel.typedBindingPattern.typeDescriptor.source.trim())
+        setVarName(partialModel.typedBindingPattern.bindingPattern.source.trim())
+        setVariableExpression(partialModel.initializer.source.trim())
+        setValidExpresssionValue(false);
+    }
 
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {
@@ -248,8 +256,8 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             validForm,
             config,
             onWizardClose,
-            handleNameOnChange,
-            handleTypeChange
+            handleStatementEditorChange,
+            onCancel
         }
     );
 

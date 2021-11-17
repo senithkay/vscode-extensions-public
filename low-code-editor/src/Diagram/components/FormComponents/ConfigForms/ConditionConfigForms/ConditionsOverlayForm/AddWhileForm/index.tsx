@@ -14,6 +14,7 @@
 import React, { useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
+import { WhileStatement } from "@ballerina/syntax-tree";
 import classnames from "classnames";
 import {Box, FormControl, Typography} from "@material-ui/core";
 
@@ -51,6 +52,11 @@ export function AddWhileForm(props: WhileProps) {
     const validateField = (fieldName: string, isInvalidFromField: boolean) => {
         setIsInvalid(isInvalidFromField)
     }
+
+    const handleStatementEditorChange = (partialModel: WhileStatement) => {
+        setConditionState({ ...conditionState, conditionExpression: partialModel.condition.source.trim() })
+    }
+
 
     const formField: FormField = {
         name: "condition",
@@ -117,7 +123,9 @@ export function AddWhileForm(props: WhileProps) {
             formArgs: {formArgs},
             validForm: !isInvalid,
             config: condition,
-            onWizardClose
+            onWizardClose,
+            handleStatementEditorChange,
+            onCancel
         }
     );
 

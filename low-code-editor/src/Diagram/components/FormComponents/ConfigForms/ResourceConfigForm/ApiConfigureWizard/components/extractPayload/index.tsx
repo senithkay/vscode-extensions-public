@@ -155,7 +155,7 @@ export function PayloadEditor(props: PayloadEditorProps) {
         validateExpression,
         position: updateNodePosition,
         overrideTemplate,
-        hideTextLabel: true,
+        hideLabel: true,
         disabled,
     }
 
