@@ -90,7 +90,6 @@ export function EndConfigForm(props: any) {
                         modifications.push(updateRespond);
                         break;
                 }
-                modifyDiagram(modifications);
             } else {
                 if (endConfig.type === "Return") {
                     const event: LowcodeEvent = {
