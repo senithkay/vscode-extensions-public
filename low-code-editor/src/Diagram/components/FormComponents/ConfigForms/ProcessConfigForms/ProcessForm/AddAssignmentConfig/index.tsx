@@ -14,7 +14,7 @@
 import React, { useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { STKindChecker } from "@ballerina/syntax-tree";
+import { AssignmentStatement, STKindChecker } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 import classnames from "classnames";
 
@@ -150,6 +150,11 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
         </div>
     );
 
+    const handleStatementEditorChange = (partialModel: AssignmentStatement) => {
+        setVarName(partialModel.varRef.source.trim());
+        setVariableExpression(partialModel.expression.source.trim());
+    }
+
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {
             label: intl.formatMessage({id: "lowcode.develop.configForms.assignment.statementEditor.label", defaultMessage: 'Assignment'}),
@@ -158,6 +163,7 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
             validForm,
             config,
             onWizardClose,
+            handleStatementEditorChange
         }
     );
 
