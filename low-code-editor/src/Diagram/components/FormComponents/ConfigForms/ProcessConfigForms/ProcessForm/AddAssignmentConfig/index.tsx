@@ -22,6 +22,7 @@ import { Context } from "../../../../../../../Contexts/Diagram";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import ExpressionEditor, { ExpressionEditorProps } from "../../../../FormFieldComponents/ExpressionEditor";
 import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";
+import { useStatementEditor } from "../../../../FormFieldComponents/StatementEditor/hooks";
 import { FormElementProps, ProcessConfig } from "../../../../Types";
 
 interface AddAssignmentConfigProps {
@@ -29,12 +30,13 @@ interface AddAssignmentConfigProps {
     formArgs: any;
     onCancel: () => void;
     onSave: () => void;
+    onWizardClose: () => void;
 }
 
 export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
     const classes = useStyles();
     const intl = useIntl();
-    const { config, formArgs, onCancel, onSave } = props;
+    const { config, formArgs, onCancel, onSave, onWizardClose } = props;
 
     const { props: { isMutationProgress: isMutationInProgress }} = useContext(Context);
 
@@ -148,7 +150,19 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
         </div>
     );
 
-    return (
+    const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
+        {
+            label: intl.formatMessage({id: "lowcode.develop.configForms.assignment.statementEditor.label", defaultMessage: 'Assignment'}),
+            initialSource: `${varName} = ${variableExpression};`,
+            formArgs: {formArgs},
+            validForm,
+            config,
+            onWizardClose,
+        }
+    );
+
+    if (!stmtEditorComponent) {
+        return (
             <FormControl data-testid="property-form" className={classnames(classes.wizardFormControl, classes.fitContent)}>
                 <div>
                     <div className={classes.formFeilds}>
@@ -163,6 +177,7 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
                                     </Box>
                                 </Typography>
                             </div>
+                            {stmtEditorButton}
                         </div>
                         <div className={classes.activeWrapper}>
                             <div className={classnames(classes.activeWrapper, classes.blockWrapper)}>
@@ -188,5 +203,9 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
                     />
                 </div>
             </FormControl >
-    );
+        );
+    }
+    else {
+        return stmtEditorComponent;
+    }
 }
