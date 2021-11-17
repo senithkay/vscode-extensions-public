@@ -58,13 +58,50 @@ export function getRecordModel(typeDesc: RecordTypeDesc, name: string, isInline:
                 const subRecModels = getRecordModel(field.typeName, field.fieldName.value, true, "record",
                     (field as RecordField)?.questionMarkToken !== undefined);
                 recordModel.fields.push(subRecModels);
+            } else if (STKindChecker.isOptionalTypeDesc(field.typeName)) {
+                const recField: SimpleField = STKindChecker.isArrayTypeDesc(field.typeName.typeDescriptor) ?
+                    (getArrayField(field) as SimpleField) : {
+                        name: field.fieldName.value,
+                        type: field.typeName.source.trim(),
+                        isFieldOptional: STKindChecker.isRecordField(field) ? (field.questionMarkToken !== undefined) :
+                            false
+                    };
+                recField.isFieldTypeOptional = true;
+                if (STKindChecker.isRecordFieldWithDefaultValue(field)) {
+                    recField.value = field.expression.literalToken ? field.expression.literalToken.value :
+                        field.expression.source.trim();
+                }
+                recordModel.fields.push(recField);
+            } else if (STKindChecker.isArrayTypeDesc(field.typeName)) {
+                const recField = (getArrayField(field) as SimpleField)
+                if (STKindChecker.isRecordFieldWithDefaultValue(field)) {
+                    recField.value = field.expression.literalToken ? field.expression.literalToken.value :
+                        field.expression.source.trim();
+                }
+                recordModel.fields.push(recField);
+            } else if (STKindChecker.isIntTypeDesc(field.typeName) || STKindChecker.isBooleanTypeDesc(field.typeName)
+                || STKindChecker.isFloatTypeDesc(field.typeName) || STKindChecker.isStringTypeDesc(field.typeName) ||
+                STKindChecker.isErrorTypeDesc(field.typeName) || STKindChecker.isNeverTypeDesc(field.typeName) ||
+                STKindChecker.isSimpleNameReference(field.typeName)) {
+                // when there is a simple field or when there is a referenced record
+                const recField: SimpleField = {
+                    name: field.fieldName.value,
+                    type: field.typeName.name.value,
+                    isFieldOptional: STKindChecker.isRecordField(field) ? (field.questionMarkToken !== undefined) :
+                        false,
+                    isFieldTypeOptional: false,
+                }
+                if (STKindChecker.isRecordFieldWithDefaultValue(field)) {
+                    recField.value = field.expression.literalToken ? field.expression.literalToken.value :
+                        field.expression.source.trim();
+                }
+                recordModel.fields.push(recField);
             } else {
                 const recField: SimpleField = {
                     name: field.fieldName.value,
                     type: field.typeName.source.trim(),
                     isFieldOptional: STKindChecker.isRecordField(field) ? (field.questionMarkToken !== undefined) :
                         false,
-                    isFieldTypeOptional: false,
                 }
                 if (STKindChecker.isRecordFieldWithDefaultValue(field)) {
                     recField.value = field.expression.literalToken ? field.expression.literalToken.value :
@@ -83,11 +120,9 @@ export function getArrayField(field: RecordField | RecordFieldWithDefaultValue) 
         STKindChecker.isArrayTypeDesc(field.typeName.typeDescriptor)) {
         recField = {
             name: field.fieldName.value,
-            type: field.typeName.typeDescriptor.memberTypeDesc.source.trim(),
+            type: field.typeName.source.trim(),
             isFieldOptional: STKindChecker.isRecordField(field) ? (field.questionMarkToken !== undefined) :
                 false,
-            isFieldTypeOptional: false,
-            isArray: true,
         }
     } else if (STKindChecker.isArrayTypeDesc(field.typeName)) {
         if (STKindChecker.isRecordTypeDesc(field.typeName.memberTypeDesc)) {
@@ -98,11 +133,9 @@ export function getArrayField(field: RecordField | RecordFieldWithDefaultValue) 
         } else {
             recField = {
                 name: field.fieldName.value,
-                type: field.typeName.memberTypeDesc.source.trim(),
+                type: field.typeName.source.trim(),
                 isFieldOptional: STKindChecker.isRecordField(field) ? (field.questionMarkToken !== undefined) :
                     false,
-                isFieldTypeOptional: false,
-                isArray: true,
             }
         }
     }
@@ -132,4 +165,22 @@ export function getGeneratedCode(model: Field, isTypeDef: boolean): string {
             fieldModel.value ? ` = ${fieldModel.value}` : ""};\n`;
     }
     return codeGenerated;
+}
+
+export function genRecordName(defaultName: string, variables: string[]): string {
+    let index = 0;
+    let varName = defaultName;
+    while (variables.includes(varName)) {
+        index++;
+        varName = defaultName + index;
+    }
+    return varName;
+}
+
+export function getFieldNames(fields: Field[]): string[] {
+    const fieldNames: string[] = [];
+    fields.forEach((field) => {
+        fieldNames.push(field.name);
+    });
+    return fieldNames;
 }

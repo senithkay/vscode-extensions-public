@@ -59,12 +59,18 @@ export const recordStyles = makeStyles((theme: Theme) =>
             marginTop: 15.5
         },
         itemContentWrapper: {
-            marginLeft: 10,
-            marginRight: 10,
-            margin: `5px 0`,
+            margin: 5,
             flexDirection: 'row',
             display: 'flex',
             width: '100%',
+        },
+        editItemContentWrapper: {
+            padding: 5,
+            margin: 5,
+            flexDirection: 'row',
+            display: 'flex',
+            width: '100%',
+            backgroundColor: "#f1f1f5",
         },
         activeItemContentWrapper: {
             marginLeft: 10,
@@ -80,7 +86,9 @@ export const recordStyles = makeStyles((theme: Theme) =>
             flexDirection: `row`,
             minWidth: 250,
             "&:hover": {
-                background: "#ededf1",
+                "& $itemLabelWrapper": {
+                    background: "#ededf1",
+                },
                 cursor: "pointer",
                 "& $btnWrapper": {
                     display: "flex"
@@ -89,8 +97,20 @@ export const recordStyles = makeStyles((theme: Theme) =>
         },
         itemLabelWrapper: {
             width: "80%",
+            marginLeft: 5,
+            marginRight: 5,
             display: "flex",
             flexDirection: "row"
+        },
+        editTypeWrapper: {
+            minWidth: `92px !important`,
+        },
+        editNameWrapper: {
+            minWidth: 100,
+            marginLeft: 5,
+            "& .MuiFormControl-marginNormal": {
+                margin: '0',
+            }
         },
         typeWrapper: {
             maxWidth: 80,
@@ -118,6 +138,11 @@ export const recordStyles = makeStyles((theme: Theme) =>
             maxWidth: 15,
             color: "#000",
         },
+        editOptionalNArray: {
+            maxWidth: 15,
+            marginTop: "3px !important",
+            marginLeft: 5,
+        },
         btnWrapper: {
             display: "none",
             flexDirection: "row",
@@ -136,10 +161,7 @@ export const recordStyles = makeStyles((theme: Theme) =>
             display: "flex",
             flexDirection: "row",
             padding: 10,
-            margin: "0 10px",
-            borderRadius: 5,
-            border: "1px solid #A6B3FF",
-            justifyContent: "center"
+            margin: "5px 10px",
         },
         addFieldBtn: {
             outline: "none",
@@ -182,17 +204,18 @@ export const recordStyles = makeStyles((theme: Theme) =>
                     display: "flex",
                     flexDirection: "row",
                     width: "25%",
+                    marginTop: 8,
                     alignItems: "center"
                 },
                 "& $recordExpandBtnWrapper": {
-                    marginTop: 10,
+                    marginTop: 13,
                     marginLeft: 0
                 },
                 "& $typeDefEditBtnWrapper": {
                     display: "flex",
                     flexDirection: "row",
                     width: "10%",
-                    marginTop: 5,
+                    marginTop: 8,
                     justifyContent: "flex-end"
                 }
             }
@@ -202,6 +225,7 @@ export const recordStyles = makeStyles((theme: Theme) =>
             width: "80%"
         },
         typeNVisibilityWrapper: {
+            marginTop: "3px !important",
             maxWidth: 70,
             fontFamily: "inherit",
             color: '#1E00FF'
@@ -209,46 +233,78 @@ export const recordStyles = makeStyles((theme: Theme) =>
         typeDefNameWrapper: {
             maxWidth: 130,
             marginLeft: 5,
-            fontFamily: "inherit",
-            color: '#00819C',
+            marginTop: "3px !important",
+            color: "#00819C",
             whiteSpace: "nowrap",
             overflow: "hidden",
-            textOverflow: "ellipsis"
+            textOverflow: "ellipsis",
+            "& .MuiFormControl-marginNormal": {
+                margin: '0',
+            }
+        },
+        typeTextFieldWrapper: {
+            width: 100,
+            marginLeft: 5,
+            "& .MuiFormControl-marginNormal": {
+                margin: '0',
+            }
         },
         recordKeywordWrapper: {
             width: 40,
             marginLeft: 5,
+            marginTop: "3px !important",
             fontFamily: "inherit",
             color: '#1E00FF'
         },
         openBraceTokenWrapper: {
             width: 15,
+            marginLeft: 5,
+            marginTop: "3px !important",
             fontFamily: "inherit",
             color: '#000'
         },
         dotExpander: {
             marginLeft: 5,
+            marginTop: 3,
             cursor: "pointer"
         },
         endRecordCode: {
             maxWidth: 200,
             marginLeft: 5,
+            marginTop: 3,
             fontFamily: "inherit",
             color: '#000'
         },
         closeBraceTokenWrapper: {
             maxWidth: 40,
+            marginTop: "3px !important",
             fontFamily: "inherit",
             color: '#000'
         },
         endRecordCodeWrapper: {
             display: "flex",
             flexDirection: "row",
+            marginTop: "3px !important",
             marginLeft: 20,
         },
         singleTokenWrapper: {
             width: 10,
             color: "#000"
+        },
+        recordEndSemicolonWrapper: {
+            width: 10,
+            marginTop: "3px !important",
+            color: "#000"
+        },
+        editRecordEndSemicolonWrapper: {
+            width: 10,
+            marginTop: "3px !important",
+            marginLeft: 5
+        },
+        editSingleTokenWrapper: {
+            width: 10,
+            marginTop: "3px !important",
+            marginLeft: 5
         },
         equalTokenWrapper: {
             margin: "0 5px",
@@ -263,7 +319,7 @@ export const recordStyles = makeStyles((theme: Theme) =>
         },
         recordExpandBtnWrapper: {
             width: 20,
-            marginTop: 10
+            marginTop: 13
         },
         typeDefEditBtnWrapper: {
             display: "none",
@@ -304,6 +360,10 @@ export const recordStyles = makeStyles((theme: Theme) =>
             marginLeft: 20,
             flexDirection: `column`,
             borderLeft: `1px solid #cdcdcd`
-        }
+        },
+        editFieldDelBtn: {
+            marginTop: 7,
+            marginLeft: 10
+        },
     }),
 );
