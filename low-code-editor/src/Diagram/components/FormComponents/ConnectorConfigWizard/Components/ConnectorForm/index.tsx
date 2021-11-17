@@ -234,6 +234,16 @@ export function ConnectorForm(props: FormGeneratorProps) {
             modifications.push(item.modification);
         });
 
+        if (isNewConnectorInitWizard && !isAction) {
+            const addImport: STModification = createImportStatement(connector.package.organization, connectorModule, targetPosition);
+            modifications.push(addImport);
+            const endpointStatement = `${moduleName}:${connector.name} ${config.name} = ${
+                isInitReturnError ? "check" : ""
+            } new (${getParams(config.connectorInit).join()});`;
+            const addConnectorInit = createPropertyStatement(endpointStatement, targetPosition);
+            modifications.push(addConnectorInit);
+        }
+
         let actionStatement = "";
         if (currentActionReturnType.hasReturn) {
             addReturnImportsModifications(modifications, currentActionReturnType);
@@ -242,16 +252,6 @@ export function ConnectorForm(props: FormGeneratorProps) {
         actionStatement += `${currentActionReturnType.hasError ? "check" : ""} ${config.name}->${config.action.name}(${getParams(
             config.action.fields
         ).join()});`;
-
-        if (isNewConnectorInitWizard && !isAction) {
-            const endpointStatement = `${moduleName}:${connector.name} ${config.name} = ${
-                isInitReturnError ? "check" : ""
-            } new (${getParams(config.connectorInit).join()});`;
-            const addConnectorInit = createPropertyStatement(endpointStatement, targetPosition);
-            modifications.push(addConnectorInit);
-            const addImport: STModification = createImportStatement(connector.package.organization, connectorModule, targetPosition);
-            modifications.push(addImport);
-        }
 
         if (!isNewConnectorInitWizard && isAction) {
             const updateActionInvocation = updatePropertyStatement(actionStatement, model.position);

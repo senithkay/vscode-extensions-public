@@ -219,14 +219,23 @@ export function AddForeachForm(props: ForeachProps) {
         selectedType
     ));
 
-    const { handleStmtEditorButtonClick, stmtEditorComponent } = useStatementEditor(
+    const handleStatementEditorChange = (partialModel: ForeachStatement) => {
+        conditionExpression.type = partialModel.typedBindingPattern.typeDescriptor.source.trim();
+        conditionExpression.variable = partialModel.typedBindingPattern.bindingPattern.source.trim();
+        conditionExpression.collection = partialModel.actionOrExpressionNode.source.trim();
+        setSelectedType(partialModel.typedBindingPattern.typeDescriptor.source.trim());
+    }
+
+    const {handleStmtEditorToggle , stmtEditorComponent} = useStatementEditor(
         {
             label: intl.formatMessage({ id: "lowcode.develop.configForms.forEach.statementEditor.label" }),
             initialSource,
             formArgs: { formArgs },
             validForm: !isInvalid,
             config: condition,
-            onWizardClose
+            onWizardClose,
+            handleStatementEditorChange,
+            onCancel
         }
     );
 
@@ -238,7 +247,8 @@ export function AddForeachForm(props: ForeachProps) {
                     statementEditor={true}
                     formTitle={"lowcode.develop.configForms.foreach.title"}
                     defaultMessage={"Foreach"}
-                    statementEditorBtnOnClick={handleStmtEditorButtonClick}
+                    handleStmtEditorToggle={handleStmtEditorToggle}
+                    toggleChecked={false}
                 />
                 <div className={classes.formWrapper}>
                     <div className={classes.formFeilds}>

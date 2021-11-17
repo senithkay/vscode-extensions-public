@@ -162,7 +162,7 @@ export function AddIfForm(props: IfProps) {
         condition.conditionExpression ? condition.conditionExpression as string : 'EXPRESSION'
     ));
 
-    const { handleStmtEditorButtonClick, stmtEditorComponent } = useStatementEditor(
+    const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
         {
             label: intl.formatMessage({ id: "lowcode.develop.configForms.if.statementEditor.label" }),
             initialSource,
@@ -220,7 +220,8 @@ export function AddIfForm(props: IfProps) {
                     statementEditor={false}
                     formTitle={"lowcode.develop.configForms.if.title"}
                     defaultMessage={"If"}
-                    statementEditorBtnOnClick={handleStmtEditorButtonClick}
+                    handleStmtEditorToggle={handleStmtEditorToggle}
+                    toggleChecked={false}
                 />
                 <div className={classes.formWrapper}>
                     <div className={classes.formFeilds}>

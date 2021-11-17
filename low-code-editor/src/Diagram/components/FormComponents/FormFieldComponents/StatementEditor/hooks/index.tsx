@@ -15,10 +15,7 @@ import React, { useState } from "react";
 import { FormControl } from "@material-ui/core";
 
 import { FormHeaderSection } from "../../../Commons/FormHeaderSection";
-import { StatementEditorButton } from "../components/Button/StatementEditorButton";
 import { ViewContainer, ViewProps } from "../components/ViewContainer/ViewContainer";
-
-import { useStyles } from "./style";
 
 export const useStatementEditor = (props: ViewProps) => {
     const {
@@ -31,27 +28,19 @@ export const useStatementEditor = (props: ViewProps) => {
         onWizardClose,
         handleNameOnChange,
         handleTypeChange,
+        handleStatementEditorChange,
         onCancel
     } = props;
-    const classes = useStyles();
 
     const [isStmtEditor, setIsStmtEditor] = useState(false);
 
-
-    const handleStmtEditorButtonClick = () => {
-        setIsStmtEditor(true);
+    const handleStmtEditorToggle = () => {
+        setIsStmtEditor(!isStmtEditor);
     };
 
     const handleStmtEditorCancel = () => {
         setIsStmtEditor(false);
     };
-
-    const stmtEditorButton =
-        (
-            <div style={{ display: 'inline-flex', width: "100%", marginLeft: "auto", marginRight: '8px', justifyContent: 'flex-end' }}>
-                <StatementEditorButton onClick={handleStmtEditorButtonClick} />
-            </div>
-        );
 
     const stmtEditorComponent =
         isStmtEditor && (
@@ -60,27 +49,28 @@ export const useStatementEditor = (props: ViewProps) => {
                     onCancel={onCancel}
                     formTitle={"lowcode.develop.configForms.statementEditor.title"}
                     defaultMessage={"Statement Editor"}
+                    statementEditor={true}
+                    handleStmtEditorToggle={handleStmtEditorToggle}
+                    toggleChecked={true}
                 />
-                <div>
-                    <ViewContainer
-                         label={label}
-                         initialSource={initialSource}
-                         formArgs={formArgs}
-                         userInputs={userInputs}
-                         validForm={validForm}
-                         config={config}
-                         onCancel={handleStmtEditorCancel}
-                         onWizardClose={onWizardClose}
-                         handleNameOnChange={handleNameOnChange}
-                         handleTypeChange={handleTypeChange}
-                    />
-                </div>
+                <ViewContainer
+                    label={label}
+                    initialSource={initialSource}
+                    formArgs={formArgs}
+                    userInputs={userInputs}
+                    validForm={validForm}
+                    config={config}
+                    onCancel={handleStmtEditorCancel}
+                    onWizardClose={onWizardClose}
+                    handleNameOnChange={handleNameOnChange}
+                    handleTypeChange={handleTypeChange}
+                    handleStatementEditorChange={handleStatementEditorChange}
+                />
             </FormControl>
         );
 
     return {
-        stmtEditorButton,
         stmtEditorComponent,
-        handleStmtEditorButtonClick
+        handleStmtEditorToggle
     }
 }

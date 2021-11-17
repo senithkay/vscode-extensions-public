@@ -661,9 +661,7 @@ export function getVariableNameFromST(node: LocalVarDecl | ModuleVarDecl): Ident
 }
 
 export function getStatementTypesFromST(model: LocalVarDecl): string {
-    if (model && STKindChecker.isTypedBindingPattern(model.typedBindingPattern)) {
-        return model.typedBindingPattern.typeDescriptor.source.trim();
-    }
+    return model.typeData.typeSymbol?.signature.trim();
 }
 
 export function getMethodCallFunctionName(model: CallStatement): string {

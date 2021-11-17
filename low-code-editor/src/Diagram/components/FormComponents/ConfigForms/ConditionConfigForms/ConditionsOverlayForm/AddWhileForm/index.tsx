@@ -14,6 +14,7 @@
 import React, { useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
+import { WhileStatement } from "@ballerina/syntax-tree";
 import classnames from "classnames";
 import {FormControl, Typography } from "@material-ui/core";
 
@@ -52,6 +53,11 @@ export function AddWhileForm(props: WhileProps) {
     const validateField = (fieldName: string, isInvalidFromField: boolean) => {
         setIsInvalid(isInvalidFromField)
     }
+
+    const handleStatementEditorChange = (partialModel: WhileStatement) => {
+        setConditionState({ ...conditionState, conditionExpression: partialModel.condition.source.trim() })
+    }
+
 
     const formField: FormField = {
         name: "condition",
@@ -111,14 +117,16 @@ export function AddWhileForm(props: WhileProps) {
         conditionState.conditionExpression ? conditionState.conditionExpression as string : 'EXPRESSION'
     ));
 
-    const { handleStmtEditorButtonClick, stmtEditorComponent } = useStatementEditor(
+    const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
         {
             label: intl.formatMessage({ id: "lowcode.develop.configForms.while.statementEditor.label" }),
             initialSource,
             formArgs: {formArgs},
             validForm: !isInvalid,
             config: condition,
-            onWizardClose
+            onWizardClose,
+            handleStatementEditorChange,
+            onCancel
         }
     );
 
@@ -130,7 +138,9 @@ export function AddWhileForm(props: WhileProps) {
                     statementEditor={true}
                     formTitle={"lowcode.develop.configForms.while.title"}
                     defaultMessage={"While"}
-                    statementEditorBtnOnClick={handleStmtEditorButtonClick}
+                    handleStmtEditorToggle={handleStmtEditorToggle}
+                    toggleChecked={false}
+
                 />
                 <div className={classes.formWrapper}>
                     <div className={classes.formFeilds}>

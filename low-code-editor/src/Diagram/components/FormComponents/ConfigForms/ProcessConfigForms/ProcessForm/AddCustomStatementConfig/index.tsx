@@ -25,6 +25,7 @@ import { useStatementEditor } from "../../../../FormFieldComponents/StatementEdi
 import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
 import { CustomExpressionConfig, ProcessConfig } from "../../../../Types";
 import { wizardStyles } from "../../../style";
+import { STNode } from "@ballerina/syntax-tree";
 import { FormHeaderSection } from "../../../../Commons/FormHeaderSection";
 
 interface LogConfigProps {
@@ -92,14 +93,20 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
     }
 
-    const { handleStmtEditorButtonClick, stmtEditorComponent } = useStatementEditor(
+    const handleStatementEditorChange = (partialModel: STNode) => {
+        setExpression(partialModel.source.trim());
+    }
+
+    const {handleStmtEditorToggle, stmtEditorComponent} = useStatementEditor(
         {
-            label: intl.formatMessage({ id: "lowcode.develop.configForms.customStatement.statementEditor.label" }),
-            initialSource: expression,
+            label: intl.formatMessage({id: "lowcode.develop.configForms.customStatement.statementEditor.label"}),
+            initialSource: expression ? expression : "EXPRESSION",
             formArgs: {formArgs},
             validForm: isFormValid,
             config,
-            onWizardClose
+            onWizardClose,
+            handleStatementEditorChange,
+            onCancel
         }
     );
 
@@ -111,7 +118,8 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                     statementEditor={true}
                     formTitle={"lowcode.develop.configForms.customStatement.title"}
                     defaultMessage={"Other"}
-                    statementEditorBtnOnClick={handleStmtEditorButtonClick}
+                    handleStmtEditorToggle={handleStmtEditorToggle}
+                    toggleChecked={false}
                 />
                 <div className={formClasses.formWrapper}>
                     <div className={formClasses.formFeilds}>

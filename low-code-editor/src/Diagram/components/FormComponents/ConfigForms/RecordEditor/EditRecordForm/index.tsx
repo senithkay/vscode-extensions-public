@@ -93,12 +93,6 @@ export function EditRecordForm() {
         // TODO: implement this method
     }
 
-    useEffect(() => {
-        if (((state.currentRecord.name === "") || (state.currentRecord.name === undefined)) && !state.isEditorInvalid) {
-            callBacks.updateEditorValidity(true);
-        }
-    }, [state.currentRecord.name]);
-
     return (
         <FormControl data-testid="record-form" className={classes.wizardFormControl}>
             <FormHeaderSection

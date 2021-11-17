@@ -235,12 +235,19 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         {
             varName: varName ? varName : "default",
             varOptions: [],
-            varType: selectedType,
+            varType: selectedType ? selectedType : "var",
             varValue: variableExpression ? variableExpression : "EXPRESSION"
         }
     ));
 
-    const { handleStmtEditorButtonClick, stmtEditorComponent } = useStatementEditor(
+    const handleStatementEditorChange = (partialModel: LocalVarDecl) => {
+        setSelectedType(partialModel.typedBindingPattern.typeDescriptor.source.trim())
+        setVarName(partialModel.typedBindingPattern.bindingPattern.source.trim())
+        setVariableExpression(partialModel.initializer.source.trim())
+        setValidExpresssionValue(false);
+    }
+
+    const {handleStmtEditorToggle , stmtEditorComponent} = useStatementEditor(
         {
             label: intl.formatMessage({ id: "lowcode.develop.configForms.variable.statementEditor.label" }),
             initialSource,
@@ -249,8 +256,8 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             validForm,
             config,
             onWizardClose,
-            handleNameOnChange,
-            handleTypeChange
+            handleStatementEditorChange,
+            onCancel
         }
     );
 
@@ -299,7 +306,8 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                     statementEditor={true}
                     formTitle={"lowcode.develop.configForms.variable.title"}
                     defaultMessage={"Variable"}
-                    statementEditorBtnOnClick={handleStmtEditorButtonClick}
+                    handleStmtEditorToggle={handleStmtEditorToggle}
+                    toggleChecked={false}
                 />
                 <div className={classes.formWrapper}>
                     <div className={classes.formFeilds}>

@@ -528,7 +528,7 @@
     "lowcode.develop.configForms.recordEditor.addButton.text": "Add",
     "lowcode.develop.configForms.recordEditor.jsonButton.text": "Import JSON",
     "lowcode.develop.configForms.recordEditor.updateButton.text": "Update",
-    "lowcode.develop.configForms.recordEditor.editField.addTitle": "Add Field",
+    "lowcode.develop.configForms.recordEditor.editField.EditTitle": "Edit Field",
     "lowcode.develop.configForms.recordEditor.editField.updateTitle": "Update Field",
     "lowcode.develop.configForms.recordEditor.fieldName.text": "Field name",
     "lowcode.develop.configForms.recordEditor.type.label": "Type",

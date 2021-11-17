@@ -14,6 +14,7 @@
 import React, { ReactNode, useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
+import { ActionStatement, RemoteMethodCallAction } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 import cn from "classnames";
 
@@ -99,6 +100,13 @@ export function AddRespondForm(props: RespondFormProps) {
         setStatusCode(value);
     }
 
+    const handleStatementEditorChange = (partialModel: ActionStatement) => {
+        const remoteCallModel: RemoteMethodCallAction = partialModel?.expression.expression as RemoteMethodCallAction;
+        respondFormConfig.respondExpression = remoteCallModel?.arguments[0].source;
+        setResExp(remoteCallModel?.arguments[0].source);
+        setValidForm(false);
+    }
+
     const saveRespondButtonLabel = intl.formatMessage({
         id: "lowcode.develop.configForms.respond.saveButton.label",
         defaultMessage: "Save"
@@ -143,17 +151,18 @@ export function AddRespondForm(props: RespondFormProps) {
         resExp
     ));
 
-    const { handleStmtEditorButtonClick, stmtEditorComponent } = useStatementEditor(
+    const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
         {
             label: intl.formatMessage({ id: "lowcode.develop.configForms.respond.statementEditor.label" }),
             initialSource,
             formArgs: {formArgs},
             validForm,
             config,
-            onWizardClose
+            onWizardClose,
+            handleStatementEditorChange,
+            onCancel
         }
     );
-
 
     if (!stmtEditorComponent) {
         return (
@@ -163,7 +172,8 @@ export function AddRespondForm(props: RespondFormProps) {
                     statementEditor={true}
                     formTitle={"lowcode.develop.configForms.Respond.title"}
                     defaultMessage={"Respond"}
-                    statementEditorBtnOnClick={handleStmtEditorButtonClick}
+                    handleStmtEditorToggle={handleStmtEditorToggle}
+                    toggleChecked={false}
                 />
                 <div className={formClasses.formWrapper}>
                     <div className={formClasses.formFeilds}>

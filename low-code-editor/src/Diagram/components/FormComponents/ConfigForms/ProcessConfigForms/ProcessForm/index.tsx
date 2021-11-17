@@ -100,6 +100,7 @@ export function ProcessForm(props: ProcessFormProps) {
                             config={config}
                             formArgs={formArgs}
                             onSave={onSave}
+                            onWizardClose={onWizardClose}
                             onCancel={onCancel}
                         />
                     )

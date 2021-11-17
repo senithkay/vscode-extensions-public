@@ -116,14 +116,24 @@ export function AddLogConfig(props: LogConfigProps) {
         expression ? expression : 'EXPRESSION'
     ));
 
-    const { handleStmtEditorButtonClick, stmtEditorComponent } = useStatementEditor(
+    const handleStatementEditorChange = (partialModel: CallStatement) => {
+        const functionCallModel: FunctionCall = partialModel.expression as FunctionCall;
+        setLogType(logTypeFunctionNameMap.get((functionCallModel.functionName as QualifiedNameReference).identifier.value));
+        setExpression(functionCallModel.arguments[0].source);
+
+
+    }
+
+    const {handleStmtEditorToggle , stmtEditorComponent} = useStatementEditor(
         {
             label: intl.formatMessage({ id: "lowcode.develop.configForms.log.statementEditor.label" }),
             initialSource,
             formArgs: {formArgs},
             validForm: !!isFormValid,
             config,
-            onWizardClose
+            onWizardClose,
+            handleStatementEditorChange,
+            onCancel
         }
     );
 
@@ -135,7 +145,8 @@ export function AddLogConfig(props: LogConfigProps) {
                     statementEditor={true}
                     formTitle={"lowcode.develop.configForms.log.title"}
                     defaultMessage={"Log"}
-                    statementEditorBtnOnClick={handleStmtEditorButtonClick}
+                    handleStmtEditorToggle={handleStmtEditorToggle}
+                    toggleChecked={false}
                 />
                 <div className={formClasses.formWrapper}>
                     <div className={formClasses.formFeilds}>

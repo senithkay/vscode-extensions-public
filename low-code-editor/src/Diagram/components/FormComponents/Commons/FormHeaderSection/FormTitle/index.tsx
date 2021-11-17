@@ -20,13 +20,14 @@ import { StatementEditorButton } from "../../../FormFieldComponents/StatementEdi
 
 interface FormTitleProps {
     statementEditor?: boolean;
-    statementEditorBtnOnClick?: () => void;
+    handleStmtEditorToggle?: () => void;
+    toggleChecked?: boolean;
     formTitle: string;
     defaultMessage: string;
 }
 
 export function FormTitle(props: FormTitleProps) {
-    const { formTitle, defaultMessage, statementEditor, statementEditorBtnOnClick } = props;
+    const { formTitle, defaultMessage, statementEditor, handleStmtEditorToggle, toggleChecked } = props;
     const formClasses = useStyles();
     const intl = useIntl();
 
@@ -39,7 +40,7 @@ export function FormTitle(props: FormTitleProps) {
                     </Box>
                 </Typography>
             </div>
-            {statementEditor && <StatementEditorButton onClick={statementEditorBtnOnClick} />}
+            {statementEditor && <StatementEditorButton handleChange={handleStmtEditorToggle} checked={toggleChecked} />}
         </div>
     );
 }

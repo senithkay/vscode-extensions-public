@@ -41,7 +41,12 @@ export interface FormElementProps<T = {}> extends FormElementEvents {
 }
 
 export interface FormElementEvents {
+    // Should use either KeyUp or OnChange callBack
     onChange?: (event: any) => void;
+    // This callback is to detect KeyUp event
+    onKeyUp?: (event: any) => void;
+    // This callback is to detect focus out
+    onBlur?: (event: any) => void;
     onClick?: () => void;
     dispatchExprEditorStart?: (editor: ExpressionEditorState) => void;
     dispatchExprEditorContentChange?: (editor: ExpressionEditorState) => void;

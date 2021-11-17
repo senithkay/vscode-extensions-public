@@ -13,30 +13,24 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from "react";
 
-import Button from '@material-ui/core/Button';
-
-import StatementExpandIcon from "../../../../../../../../assets/icons/StatementExpandIcon";
+import { FormControlLabel, FormGroup, Switch } from "@material-ui/core";
 
 import { useStyles } from "./style";
 
 export interface StatementEditorButtonProps {
+    handleChange?: () => void,
+    checked?: boolean;
     onClick?: () => void,
-    disabled?: boolean;
 }
 
 export function StatementEditorButton(props: StatementEditorButtonProps) {
-    const { onClick, disabled } = props;
+    const { handleChange, checked, onClick } = props;
     const classes = useStyles();
 
     return (
-        <Button
-            className={classes.expressionButtonWrapper}
-            onClick={onClick}
-            disabled={disabled}
-        >
-            <StatementExpandIcon />
-            <span className={classes.expressionTitle}>Statement Editor</span>
-        </Button>
+        <FormGroup >
+            <FormControlLabel className={classes.expressionTitle} control={<Switch onChange={handleChange} checked={checked} onClick={onClick}/>} label="Statement Editor" />
+        </FormGroup>
     );
 }
 

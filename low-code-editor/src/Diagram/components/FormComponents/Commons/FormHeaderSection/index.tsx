@@ -23,19 +23,26 @@ interface FormHeaderSectionProps {
     statementEditor?: boolean;
     formTitle: string;
     defaultMessage: string;
-    statementEditorBtnOnClick?: () => void;
     formType?: string;
+    handleStmtEditorToggle?: () => void;
+    toggleChecked?: boolean;
 }
 
 export function FormHeaderSection(props: FormHeaderSectionProps) {
-    const { onCancel, statementEditor, formTitle, defaultMessage, statementEditorBtnOnClick, formType } = props;
+    const { onCancel, statementEditor, formTitle, defaultMessage, formType, handleStmtEditorToggle, toggleChecked } = props;
     const formClasses = useStyles();
     const icon = (formType && formType.length > 0) ? getConstructIcon(formType) : null;
 
     return (
         <div className={formClasses.formHeaderTitleWrapper}>
             {formType ? <div className={formClasses.titleIcon}>{icon}</div> : null}
-            <FormTitle statementEditor={statementEditor} formTitle={formTitle} defaultMessage={defaultMessage} statementEditorBtnOnClick={statementEditorBtnOnClick} />
+            <FormTitle
+                statementEditor={statementEditor}
+                formTitle={formTitle}
+                defaultMessage={defaultMessage}
+                handleStmtEditorToggle={handleStmtEditorToggle}
+                toggleChecked={toggleChecked}
+            />
             {onCancel && <CloseButton onCancel={onCancel} />}
         </div>
     );

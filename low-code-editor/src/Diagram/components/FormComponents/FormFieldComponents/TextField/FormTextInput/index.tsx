@@ -40,6 +40,8 @@ export function FormTextInput(props: FormElementProps<FormTextInputProps>) {
         index,
         customProps,
         onChange,
+        onKeyUp,
+        onBlur,
         defaultValue,
         label,
         placeholder,
@@ -97,6 +99,15 @@ export function FormTextInput(props: FormElementProps<FormTextInputProps>) {
             setIsInvalid(!customProps.validate(event.target.value));
         }
         setInputValue(event.target.value);
+    };
+
+    const handleOnKeyUp = (event: any) => {
+        event.preventDefault();
+        onKeyUp(event);
+    };
+
+    const handleOnBlur = (event: any) => {
+        onBlur(event);
     };
 
     return (
@@ -162,6 +173,8 @@ export function FormTextInput(props: FormElementProps<FormTextInputProps>) {
                 margin="normal"
                 InputLabelProps={{ shrink: true }}
                 onChange={handleOnChange}
+                onKeyUp={handleOnKeyUp}
+                onBlur={handleOnBlur}
                 value={inputValue}
                 helperText={isInvalid ? errorMsg : ""}
                 autoFocus={customProps?.focused}
