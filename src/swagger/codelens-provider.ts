@@ -17,12 +17,9 @@
  *
  */
 
-import { BallerinaExtension, ExtendedLangClient, LANGUAGE } from '../core';
+import { ExtendedLangClient } from '../core';
 import {
-    CancellationToken, CodeLens, CodeLensProvider,
-    Event, EventEmitter,
-    ProviderResult, Range, TextDocument, window, workspace
-} from 'vscode';
+    CodeLens, Range, window} from 'vscode';
 import { SyntaxTree, Member } from '../diagram';
 import { PALETTE_COMMANDS } from '../project';
 
@@ -48,30 +45,10 @@ let langClient: ExtendedLangClient;
 /**
  * Codelense provider for swagger view.
  */
-export class TryOutCodeLensProvider implements CodeLensProvider {
-    private _onDidChangeCodeLenses: EventEmitter<void> = new EventEmitter<void>();
-    public readonly onDidChangeCodeLenses: Event<void> = this._onDidChangeCodeLenses.event;
+export class TryOutCodeLensProvider {
 
-    constructor(extensionInstance: BallerinaExtension) {
-        langClient = <ExtendedLangClient>extensionInstance.langClient;
-        workspace.onDidOpenTextDocument(async (document) => {
-            if (document.languageId === LANGUAGE.BALLERINA) {
-                this._onDidChangeCodeLenses.fire();
-            }
-        });
-
-        workspace.onDidChangeTextDocument(async (activatedTextEditor) => {
-            if (activatedTextEditor && activatedTextEditor.document.languageId === LANGUAGE.BALLERINA) {
-                this._onDidChangeCodeLenses.fire();
-            }
-        });
-    }
-
-    provideCodeLenses(_document: TextDocument, _token: CancellationToken): ProviderResult<any[]> {
-        return this.getCodeLensList();
-    }
-
-    private async getCodeLensList(): Promise<CodeLens[]> {
+    public async getCodeLensList(lClient: ExtendedLangClient): Promise<CodeLens[]> {
+        langClient = lClient;
         let codeLenses: CodeLens[] = [];
         await this.findServices().then(services => {
             services.forEach(service => {
