@@ -19,7 +19,7 @@ import cn from "classnames";
 
 import { BallerinaConnectorInfo } from "../../../../../../Definitions/lang-client-extended";
 import { DefaultConfig } from "../../../../../visitors/default";
-import { Context } from "../../../Context/diagram";
+import { useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { BlockViewState } from "../../../ViewState";
 import { PlusViewState } from "../../../ViewState/plus";
 import { PlusElements } from "../../DialogBoxes/PlusHolder";
@@ -47,7 +47,7 @@ export const PlusButton = (props: PlusProps) => {
             isReadOnly
         },
         actions: { diagramCleanDraw, diagramRedraw },
-    } = useContext(Context);
+    } = useDiagramContext();
 
     const { viewState, model, initPlus } = props;
     const plusRef = useRef(null);
@@ -160,7 +160,7 @@ export const PlusButton = (props: PlusProps) => {
     };
 
     const handlePlusHolderItemClick = (type: string, subType: string,
-                                       connectorType: BallerinaConnectorInfo = undefined, isExisting?: boolean, selectedConnector?: LocalVarDecl) => {
+        connectorType: BallerinaConnectorInfo = undefined, isExisting?: boolean, selectedConnector?: LocalVarDecl) => {
         setStates({
             isPlusHolderShown: false,
             isSmallPlusShown: false,
