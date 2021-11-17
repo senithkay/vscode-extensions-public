@@ -249,7 +249,7 @@ export function ActionProcessor(props: ProcessorProps) {
         <g>
             <g className={processStyles} data-testid="data-processor-block">
                 <React.Fragment>
-                    {!isDraftStatement && (
+                    {!isDraftStatement && statmentTypeText && processName && (
                         <>
                             <StatementTypes
                                 statementType={statmentTypeText}

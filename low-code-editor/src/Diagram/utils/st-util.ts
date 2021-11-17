@@ -661,7 +661,7 @@ export function getVariableNameFromST(node: LocalVarDecl | ModuleVarDecl): Ident
 }
 
 export function getStatementTypesFromST(model: LocalVarDecl): string {
-    return model.typeData.typeSymbol?.signature.trim();
+    return model?.typeData.typeSymbol?.signature.trim();
 }
 
 export function getMethodCallFunctionName(model: CallStatement): string {
