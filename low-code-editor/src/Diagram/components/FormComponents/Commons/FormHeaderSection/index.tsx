@@ -19,7 +19,7 @@ import { CloseButton } from "./CloseButton";
 import { FormTitle } from "./FormTitle";
 
 interface FormHeaderSectionProps {
-    onCancel: () => void;
+    onCancel?: () => void;
     statementEditor?: boolean;
     formTitle: string;
     defaultMessage: string;
@@ -36,7 +36,7 @@ export function FormHeaderSection(props: FormHeaderSectionProps) {
         <div className={formClasses.formHeaderTitleWrapper}>
             {formType ? <div className={formClasses.titleIcon}>{icon}</div> : null}
             <FormTitle statementEditor={statementEditor} formTitle={formTitle} defaultMessage={defaultMessage} statementEditorBtnOnClick={statementEditorBtnOnClick} />
-            <CloseButton onCancel={onCancel} />
+            {onCancel && <CloseButton onCancel={onCancel} />}
         </div>
     );
 }

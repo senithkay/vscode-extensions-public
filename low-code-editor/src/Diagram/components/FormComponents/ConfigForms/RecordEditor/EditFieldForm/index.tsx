@@ -21,6 +21,7 @@ import { FormField } from '../../../../../../ConfigurationSpec/types';
 import { useDiagramContext } from '../../../../../../Contexts/Diagram';
 import { FormState, useRecordEditorContext } from '../../../../../../Contexts/RecordEditor';
 import { keywords } from "../../../../Portals/utils/constants";
+import { FormHeaderSection } from '../../../Commons/FormHeaderSection';
 import { VariableTypeInput, VariableTypeInputProps } from "../../../ConfigForms/Components/VariableTypeInput";
 import { PrimaryButton } from '../../../FormFieldComponents/Button/PrimaryButton';
 import CheckBoxGroup from '../../../FormFieldComponents/CheckBox';
@@ -269,57 +270,59 @@ export function EditFieldForm() {
 
     return (
         <FormControl data-testid="record-form" className={classes.wizardFormControl}>
-            <div className={classes.formTitleWrapper}>
-                <Typography variant="h4">
-                    <Box paddingTop={2} paddingBottom={2}>{isFieldUpdate ? titleUpdate : titleAdd}</Box>
-                </Typography>
-            </div>
-            <VariableTypeInput {...varTypeProps} key={`${name}-typeSelector`} />
-            <div className={classes.sectionSeparator} />
-            <FormTextInput
-                dataTestId="field-name"
-                customProps={{
-                    clearInput: (name === ""),
-                    isErrored: (nameError !== "")
-                }}
-                defaultValue={name}
-                onChange={handleNameChange}
-                label={fieldNameText}
-                errorMessage={nameError}
-                placeholder={"Enter field name"}
+            <FormHeaderSection
+                onCancel={state.onCancel}
+                formTitle={"lowcode.develop.configForms.recordEditor.editField.addTitle"}
+                defaultMessage={"Add Field"}
             />
-            <CheckBoxGroup
-                testId="is-optional-field"
-                values={["Is optional ?"]}
-                defaultValues={isFieldOptional ? ["Is optional ?"] : []}
-                onChange={handleOptionalFieldChange}
-            />
-            {!isFieldOptional && (selectedType !== "record") && (
-                <div>
-                    <div className={classes.sectionSeparator} />
-                    <ExpressionEditor {...defaultValueProps} key={`${state.currentField?.name}-${selectedType}`} />
-                </div>
-            )}
-
-            <div className={recordClasses.fieldAddButtonWrapper}>
-                {(!isFieldUpdate && (selectedType === "record")) && (
-                    <div className={recordClasses.jsonButtonWrapper}>
-                        <PrimaryButton
-                            dataTestId={"import-json"}
-                            text={jsonGenText}
-                            disabled={isAddButtonDisabled}
-                            fullWidth={false}
-                            onClick={null}
-                        />
+            <div className={classes.formWrapper}>
+                <VariableTypeInput {...varTypeProps} key={`${name}-typeSelector`} />
+                <div className={classes.sectionSeparator} />
+                <FormTextInput
+                    dataTestId="field-name"
+                    customProps={{
+                        clearInput: (name === ""),
+                        isErrored: (nameError !== "")
+                    }}
+                    defaultValue={name}
+                    onChange={handleNameChange}
+                    label={fieldNameText}
+                    errorMessage={nameError}
+                    placeholder={"Enter field name"}
+                />
+                <CheckBoxGroup
+                    testId="is-optional-field"
+                    values={["Is optional ?"]}
+                    defaultValues={isFieldOptional ? ["Is optional ?"] : []}
+                    onChange={handleOptionalFieldChange}
+                />
+                {!isFieldOptional && (selectedType !== "record") && (
+                    <div>
+                        <div className={classes.sectionSeparator} />
+                        <ExpressionEditor {...defaultValueProps} key={`${state.currentField?.name}-${selectedType}`} />
                     </div>
                 )}
-                <PrimaryButton
-                    dataTestId={"record-add-btn"}
-                    text={isFieldUpdate ? updateButtonText : addButtonText}
-                    disabled={isAddButtonDisabled}
-                    fullWidth={false}
-                    onClick={handleFieldAdd}
-                />
+
+                <div className={recordClasses.fieldAddButtonWrapper}>
+                    {(!isFieldUpdate && (selectedType === "record")) && (
+                        <div className={recordClasses.jsonButtonWrapper}>
+                            <PrimaryButton
+                                dataTestId={"import-json"}
+                                text={jsonGenText}
+                                disabled={isAddButtonDisabled}
+                                fullWidth={false}
+                                onClick={null}
+                            />
+                        </div>
+                    )}
+                    <PrimaryButton
+                        dataTestId={"record-add-btn"}
+                        text={isFieldUpdate ? updateButtonText : addButtonText}
+                        disabled={isAddButtonDisabled}
+                        fullWidth={false}
+                        onClick={handleFieldAdd}
+                    />
+                </div>
             </div>
         </FormControl>
 
