@@ -22,8 +22,8 @@ import { Context } from "../../../../../../../Contexts/Diagram";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import ExpressionEditor, { ExpressionEditorProps } from "../../../../FormFieldComponents/ExpressionEditor";
 import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";
-import { FormElementProps, ProcessConfig } from "../../../../Types";
 import { useStatementEditor } from "../../../../FormFieldComponents/StatementEditor/hooks";
+import { FormElementProps, ProcessConfig } from "../../../../Types";
 
 interface AddAssignmentConfigProps {
     config: ProcessConfig;
