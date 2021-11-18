@@ -1,4 +1,4 @@
-<?xml version="1.0" standalone="no"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
  ~   Copyright 2021, WSO2 Inc. (http://www.wso2.com)
  ~
@@ -14,20 +14,11 @@
  ~   See the License for the specific language governing permissions and
  ~   limitations under the License.
 -->
-<svg version="1.0" xmlns="http://www.w3.org/2000/svg"
- width="225.000000pt" height="225.000000pt" viewBox="0 0 225.000000 225.000000"
- preserveAspectRatio="xMidYMid meet">
-    <g transform="translate(0.000000,225.000000) scale(0.100000,-0.100000)"
-    fill="#000000" stroke="none">
-        <path d="M776 2220 c-72 -22 -106 -85 -106 -195 l0 -75 -157 0 c-131 0 -164
-        -3 -192 -18 -60 -30 -76 -62 -79 -163 l-4 -89 887 0 887 0 -4 89 c-2 71 -7 95
-        -24 118 -39 53 -75 63 -226 63 l-138 0 0 81 c0 94 -21 143 -73 175 -30 18 -57
-        19 -387 21 -195 1 -368 -2 -384 -7z m714 -200 l0 -70 -345 0 -345 0 0 70 0 70
-        345 0 345 0 0 -70z"/>
-        <path d="M380 832 l0 -707 25 -37 c48 -70 33 -69 742 -66 620 3 632 3 659 24
-        15 11 37 33 48 48 21 27 21 38 24 737 l3 709 -751 0 -750 0 0 -708z m410 -47
-        l0 -485 -70 0 -70 0 0 485 0 485 70 0 70 0 0 -485z m270 0 l0 -485 -70 0 -70
-        0 0 485 0 485 70 0 70 0 0 -485z m270 0 l0 -485 -70 0 -70 0 0 485 0 485 70 0
-        70 0 0 -485z m270 0 l0 -485 -70 0 -70 0 0 485 0 485 70 0 70 0 0 -485z"/>
+<svg width="14px" height="14px" viewBox="0 0 14 14" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>92998634-206B-4E9C-9A7F-471160622846</title>
+    <g id="Home" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="VSC-icons" transform="translate(-821.000000, -133.000000)" fill="#000000" fill-rule="nonzero">
+            <path d="M833,137 L833,146.5 L832.5,147 L823.5,147 L823,146.5 L823,137 L833,137 Z M832,138 L824,138 L824,146 L832,146 L832,138 Z M827,140 L827,144 L826,144 L826,140 L827,140 Z M830,140 L830,144 L829,144 L829,140 L830,140 Z M831,133 L831,135 L835,135 L835,136 L821,136 L821,135 L825,135 L825,133 L831,133 Z M830,134 L826,134 L826,135 L830,135 L830,134 Z" id="Delete"></path>
+        </g>
     </g>
 </svg>

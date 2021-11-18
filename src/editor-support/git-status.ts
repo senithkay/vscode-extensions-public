@@ -88,7 +88,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         statusBarItem.updateGitStatus();
     });
     const rule = new schedule.RecurrenceRule();
-    rule.second = 5;
+    rule.second = 2;
     schedule.scheduleJob(rule, function () {
         statusBarItem.updateGitStatus();
     });
