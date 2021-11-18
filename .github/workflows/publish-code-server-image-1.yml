@@ -1,5 +1,5 @@
-# Build and push the code server image daily
-name: Daily Code Server Image
+# Build and push the code server image using the git released Ballerina distribution and the latest git released VSIX.
+name: Daily Code Server Image (Daily build)
 
 on:
   workflow_dispatch:
@@ -26,7 +26,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: .github/workflows/resources/code-server/Dockerfile
+          file: .github/workflows/resources/code-server/1/Dockerfile
           platforms: linux/amd64
           push: true
           tags: prabushi/lowcode-code-server:0.0.${{ github.run_number }}
