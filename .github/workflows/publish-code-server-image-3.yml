@@ -1,11 +1,9 @@
-# Build and push the code server image daily
-name: Daily Code Server Image
+# Build and push the code server image using the Ballerina distribution of the latest daily build and the latest git released VSIX.
+name: Daily Code Server Image 3
 
 on:
   workflow_dispatch:
-    branches: [main]
-  schedule:
-    - cron: '0 1 * * *'
+    branches: [master]
 
 jobs:
   build_docker:
@@ -22,13 +20,16 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y%m%d.%H%M')"
       - name: Docker Build and Push
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: .github/workflows/resources/code-server/Dockerfile
+          file: .github/workflows/resources/code-server/3/Dockerfile
           platforms: linux/amd64
           push: true
-          tags: prabushi/lowcode-code-server:0.0.${{ github.run_number }}
+          tags: prabushi/lowcode-code-server:0.${{ steps.date.outputs.date }}
           build-args: |
-            REDIRECT_URI=${{ github.event.inputs.redirect }}
+            GIT_PAT: ${{ secrets.PUBLISH_PAT }}
