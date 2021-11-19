@@ -300,7 +300,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
         if (returnTypeStr?.includes("()")) {
             returnTypeStr = returnTypeStr.replace("()", "error|()");
         } else if (returnTypeStr) {
-            returnTypeStr = returnTypeStr + "|error|()";
+            returnTypeStr = returnTypeStr.replaceAll("?", "") + "|error|()";
         } else {
             returnTypeStr = "returns error|()";
         }
