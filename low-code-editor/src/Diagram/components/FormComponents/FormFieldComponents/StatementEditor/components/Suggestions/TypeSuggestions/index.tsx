@@ -40,7 +40,7 @@ export function TypeSuggestions(props: TypeSuggestionsProps) {
 
     const onClickTypeSuggestion = (suggestion: SuggestionItem) => {
         updateModel(suggestion.value, model.position);
-        inputEditorCtx.onSelection(suggestion.value);
+        // inputEditorCtx.onSelection(suggestion.value);
         suggestionHandler();
     }
 

@@ -53,11 +53,9 @@ export interface InputEditorProps {
 
 export function InputEditor(props: InputEditorProps) {
     const {
-        state: { targetPosition: targetPositionDraft },
         props: {
             currentFile,
-            langServerURL,
-            syntaxTree,
+            langServerURL
         },
         api: {
             ls
@@ -74,11 +72,10 @@ export function InputEditor(props: InputEditorProps) {
 
     const { model, statementType, diagnosticHandler, userInputs, isTypeDescriptor } = props;
 
-    const inputEditorCtx = useContext(InputEditorContext);
     const stmtCtx = useContext(StatementEditorContext);
     const { expressionHandler } = useContext(SuggestionsContext);
 
-    const [currentContent, setCurrentContent] = useState(stmtCtx.modelCtx.statementModel.source);
+    let currentContent = stmtCtx.modelCtx.statementModel.source;
 
     const overlayClasses = useStatementEditorStyles();
 
@@ -114,8 +111,7 @@ export function InputEditor(props: InputEditorProps) {
         || STKindChecker.isFloatTypeDesc(model)
         || STKindChecker.isIntTypeDesc(model)
         || STKindChecker.isJsonTypeDesc(model)
-        || STKindChecker.isVarTypeDesc(model)
-        || STKindChecker.isSimpleNameReference(model))) {
+        || STKindChecker.isVarTypeDesc(model))) {
         value = model.name.value;
     }
 
@@ -125,8 +121,6 @@ export function InputEditor(props: InputEditorProps) {
     const textLabel = userInputs && userInputs.formField ? userInputs.formField : "modelName"
     const varName = userInputs && userInputs.varName ? userInputs.varName : "temp_" + (textLabel).replace(/[^A-Z0-9]+/ig, "");
     const varType = userInputs ? userInputs.selectedType : 'string';
-    const defaultCodeSnippet = varType + " " + varName + " = ;";
-    const snippetTargetPosition = defaultCodeSnippet.length;
     const isCustomTemplate = false;
 
     const placeHolders: string[] = ['EXPRESSION', 'TYPE_DESCRIPTOR'];
@@ -142,18 +136,18 @@ export function InputEditor(props: InputEditorProps) {
         handleDiagnostic();
     }, [inputEditorState.diagnostic]);
 
-    useEffect(() => {
-        setUserInput(value);
-        handleContentChange(currentContent, "").then(() => {
-            handleOnOutFocus().then();
-        });
-    }, [inputEditorCtx.userInput]);
+    // useEffect(() => {
+    //     // setUserInput(value);
+    //     handleContentChange(currentContent, value, "").then(() => {
+    //         handleOnOutFocus().then();
+    //     });
+    // }, [inputEditorCtx.userInput]);
 
     useEffect(() => {
         if (userInput === '') {
             setIsEditing(true);
         }
-    }, [isEditing]);
+    }, [isEditing, userInput]);
 
     async function addStatementToTargetLine(currentFileContent: string, position: NodePosition, currentStatement: string): Promise<string> {
         const modelContent: string[] = currentFileContent.split(/\n/g) || [];
@@ -204,10 +198,12 @@ export function InputEditor(props: InputEditorProps) {
                 uri: inputEditorState.uri,
             }
         })
-        setInputEditorState({
-            ...inputEditorState,
-            diagnostic: diagResp[0]?.diagnostics ? getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) : []
-        })
+        if (diagResp[0].diagnostics) {
+            setInputEditorState({
+                ...inputEditorState,
+                diagnostic: getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate)
+            })
+        }
     }
 
     const handleDiagnostic = () => {
@@ -245,11 +241,13 @@ export function InputEditor(props: InputEditorProps) {
                 uri: inputEditorState.uri,
             }
         })
-        setInputEditorState({
-            ...inputEditorState,
-            diagnostic: diagResp[0]?.diagnostics ? getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) : []
-        })
-        setCurrentContent(currentStatement);
+        if (diagResp[0].diagnostics) {
+            setInputEditorState({
+                ...inputEditorState,
+                diagnostic: getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate)
+            })
+        }
+        currentContent = currentStatement;
     }
 
     const handleOnOutFocus = async () => {
@@ -389,8 +387,8 @@ export function InputEditor(props: InputEditorProps) {
             <input
                 value={placeHolders.indexOf(userInput) > -1 ? "" : userInput}
                 className={overlayClasses.inputEditorTemplate}
-                onKeyDown={inputEnterHandler}
-                onBlur={inputBlurHandler}
+                // onKeyDown={inputEnterHandler}
+                // onBlur={inputBlurHandler}
                 onInput={inputChangeHandler}
                 autoFocus={true}
                 style={{ maxWidth: userInput === '' ? '10px' : 'fit-content' }}
