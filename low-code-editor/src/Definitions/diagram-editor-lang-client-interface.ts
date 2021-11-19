@@ -15,7 +15,7 @@ import {
     DocumentSymbol,
     DocumentSymbolParams,
     SymbolInformation,
-} from "monaco-languageclient";
+} from "vscode-languageserver-protocol";
 
 import { BaseLangClientInterface } from "./base-lang-client-interface";
 import { PublishDiagnosticsParams } from "./expression-editor-lang-client-interface";

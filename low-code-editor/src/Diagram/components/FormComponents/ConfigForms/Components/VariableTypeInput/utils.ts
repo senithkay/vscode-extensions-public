@@ -1,5 +1,5 @@
 import * as monaco from 'monaco-editor';
-import { CompletionItemKind, InsertTextFormat } from "monaco-languageclient";
+import { CompletionItemKind, InsertTextFormat } from "vscode-languageserver-protocol";
 
 import { CompletionResponse, ExpressionEditorLangClientInterface } from "../../../../../../Definitions";
 import { GetExpCompletionsParams } from "../../../FormFieldComponents/ExpressionEditor";
