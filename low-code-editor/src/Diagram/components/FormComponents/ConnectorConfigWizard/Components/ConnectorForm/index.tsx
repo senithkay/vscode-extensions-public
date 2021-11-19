@@ -297,12 +297,12 @@ export function ConnectorForm(props: FormGeneratorProps) {
             return undefined;
         }
 
-        if (returnTypeStr?.includes("()")) {
-            returnTypeStr = returnTypeStr.replace("()", "error|()");
+        if (returnTypeStr?.includes("?") || returnTypeStr?.includes("()")) {
+            returnTypeStr = returnTypeStr + "|error";
         } else if (returnTypeStr) {
-            returnTypeStr = returnTypeStr.replaceAll("?", "") + "|error|()";
+            returnTypeStr = returnTypeStr + "|error?";
         } else {
-            returnTypeStr = "returns error|()";
+            returnTypeStr = "returns error?";
         }
 
         return updateFunctionSignature(activeFunction.functionName.value, parametersStr, returnTypeStr, {
