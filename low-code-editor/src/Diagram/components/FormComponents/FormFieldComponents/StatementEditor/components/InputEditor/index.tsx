@@ -15,12 +15,14 @@ import React, { useContext, useEffect, useState } from "react";
 import { monaco } from "react-monaco-editor";
 
 import {
-    BooleanLiteral, BooleanTypeDesc, DecimalTypeDesc, FloatTypeDesc, IntTypeDesc, JsonTypeDesc, NodePosition,
-    NumericLiteral, QualifiedNameReference,
+    BooleanLiteral,
+    NodePosition,
+    NumericLiteral,
+    QualifiedNameReference,
     SimpleNameReference,
     STKindChecker,
     STNode,
-    StringLiteral, StringTypeDesc
+    StringLiteral
 } from "@ballerina/syntax-tree";
 import debounce from "lodash.debounce";
 
@@ -30,13 +32,12 @@ import {
     CompletionResponse,
     ExpressionEditorLangClientInterface
 } from "../../../../../../../Definitions";
-import { getDiagnosticMessage, getFilteredDiagnostics, getTargetPosition } from "../../../ExpressionEditor/utils";
+import { getDiagnosticMessage, getFilteredDiagnostics } from "../../../ExpressionEditor/utils";
 import * as c from "../../constants";
 import { SuggestionItem, VariableUserInputs } from "../../models/definitions";
-import { InputEditorContext } from "../../store/input-editor-context";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { SuggestionsContext } from "../../store/suggestions-context";
-import { getDataTypeOnExpressionKind, getPartialSTForStatement } from "../../utils";
+import { getPartialSTForStatement } from "../../utils";
 import { useStatementEditorStyles } from "../ViewContainer/styles";
 
 import {
@@ -44,11 +45,11 @@ import {
 } from "./constants";
 
 export interface InputEditorProps {
-    model: STNode,
-    statementType: any,
-    diagnosticHandler: (diagnostics: string) => void,
-    userInputs: VariableUserInputs,
-    isTypeDescriptor: boolean
+    model: STNode;
+    statementType: any;
+    diagnosticHandler: (diagnostics: string) => void;
+    userInputs: VariableUserInputs;
+    isTypeDescriptor: boolean;
 }
 
 export function InputEditor(props: InputEditorProps) {
@@ -74,8 +75,6 @@ export function InputEditor(props: InputEditorProps) {
 
     const stmtCtx = useContext(StatementEditorContext);
     const { expressionHandler } = useContext(SuggestionsContext);
-
-    let currentContent = stmtCtx.modelCtx.statementModel.source;
 
     const overlayClasses = useStatementEditorStyles();
 
@@ -117,16 +116,12 @@ export function InputEditor(props: InputEditorProps) {
 
     const [userInput, setUserInput] = useState(value);
 
-    useEffect(() => {
-        setUserInput(value);
-        handleContentChange(currentContent, "").then();
-    }, [value]);
-
     const targetPosition = stmtCtx.formCtx.formModelPosition;
     const textLabel = userInputs && userInputs.formField ? userInputs.formField : "modelName"
     const varName = userInputs && userInputs.varName ? userInputs.varName : "temp_" + (textLabel).replace(/[^A-Z0-9]+/ig, "");
     const varType = userInputs ? userInputs.selectedType : 'string';
     const isCustomTemplate = false;
+    let currentContent = stmtCtx.modelCtx.statementModel.source;
 
     const placeHolders: string[] = ['EXPRESSION', 'TYPE_DESCRIPTOR'];
 
@@ -141,12 +136,10 @@ export function InputEditor(props: InputEditorProps) {
         handleDiagnostic();
     }, [inputEditorState.diagnostic]);
 
-    // useEffect(() => {
-    //     // setUserInput(value);
-    //     handleContentChange(currentContent, value, "").then(() => {
-    //         handleOnOutFocus().then();
-    //     });
-    // }, [inputEditorCtx.userInput]);
+    useEffect(() => {
+        setUserInput(value);
+        handleContentChange(currentContent).then();
+    }, [value]);
 
     useEffect(() => {
         if (userInput === '') {
@@ -203,12 +196,10 @@ export function InputEditor(props: InputEditorProps) {
                 uri: inputEditorState.uri,
             }
         })
-        if (diagResp[0].diagnostics) {
-            setInputEditorState({
-                ...inputEditorState,
-                diagnostic: getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate)
-            })
-        }
+        setInputEditorState({
+            ...inputEditorState,
+            diagnostic: getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate)
+        })
     }
 
     const handleDiagnostic = () => {
@@ -222,7 +213,7 @@ export function InputEditor(props: InputEditorProps) {
         }
     }
 
-    const handleContentChange = async (currentStatement: string, EOL: string) => {
+    const handleContentChange = async (currentStatement: string) => {
         const initContent: string = await addStatementToTargetLine(currentFile.content, targetPosition, currentStatement);
 
         inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
@@ -246,12 +237,10 @@ export function InputEditor(props: InputEditorProps) {
                 uri: inputEditorState.uri,
             }
         })
-        if (diagResp[0].diagnostics) {
-            setInputEditorState({
-                ...inputEditorState,
-                diagnostic: getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate)
-            })
-        }
+        setInputEditorState({
+            ...inputEditorState,
+            diagnostic: getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate)
+        })
         currentContent = currentStatement;
     }
 
@@ -309,8 +298,6 @@ export function InputEditor(props: InputEditorProps) {
                 line: targetPosition.startLine
             }
         }
-
-        const acceptedDataType: string[] = getDataTypeOnExpressionKind(model.kind);
 
         ls.getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
             langClient.getCompletion(completionParams).then((values: CompletionResponse[]) => {
@@ -372,7 +359,7 @@ export function InputEditor(props: InputEditorProps) {
             event.target.value ? event.target.value : "",
             model.position.endColumn
         );
-        debouncedContentChange(updatedStatement, "");
+        debouncedContentChange(updatedStatement);
         setUserInput(event.target.value);
         getContextBasedCompletions(event.target.value);
     };
