@@ -40,6 +40,7 @@ export function FieldAccessComponent(props: FieldAccessProps) {
         isRoot={false}
         userInputs={userInputs}
         diagnosticHandler={diagnosticHandler}
+        isTypeDescriptor={false}
     />;
 
     const fieldName: ReactNode = <ExpressionComponent
@@ -47,6 +48,7 @@ export function FieldAccessComponent(props: FieldAccessProps) {
         isRoot={false}
         userInputs={userInputs}
         diagnosticHandler={diagnosticHandler}
+        isTypeDescriptor={false}
     />;
 
     const onClickOnExpression = (event: any) => {

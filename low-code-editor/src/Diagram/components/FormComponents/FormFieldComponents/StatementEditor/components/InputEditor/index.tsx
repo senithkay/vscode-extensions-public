@@ -36,19 +36,19 @@ import { SuggestionItem, VariableUserInputs } from "../../models/definitions";
 import { InputEditorContext } from "../../store/input-editor-context";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { SuggestionsContext } from "../../store/suggestions-context";
-import { getDataTypeOnExpressionKind, getPartialSTForStatement, isTypeDescriptor } from "../../utils";
+import { getDataTypeOnExpressionKind, getPartialSTForStatement } from "../../utils";
 import { useStatementEditorStyles } from "../ViewContainer/styles";
 
 import {
-    acceptedCompletionKind,
-    acceptedCompletionKindForExpressions
+    acceptedCompletionKindForExpressions, acceptedCompletionKindForTypes
 } from "./constants";
 
 export interface InputEditorProps {
     model: STNode,
     statementType: any,
     diagnosticHandler: (diagnostics: string) => void,
-    userInputs: VariableUserInputs
+    userInputs: VariableUserInputs,
+    isTypeDescriptor: boolean
 }
 
 export function InputEditor(props: InputEditorProps) {
@@ -72,7 +72,7 @@ export function InputEditor(props: InputEditorProps) {
         diagnostic: [],
     });
 
-    const { model, statementType, diagnosticHandler, userInputs } = props;
+    const { model, statementType, diagnosticHandler, userInputs, isTypeDescriptor } = props;
 
     const inputEditorCtx = useContext(InputEditorContext);
     const stmtCtx = useContext(StatementEditorContext);
@@ -312,10 +312,9 @@ export function InputEditor(props: InputEditorProps) {
         ls.getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
             langClient.getCompletion(completionParams).then((values: CompletionResponse[]) => {
                 const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (
-                    // TODO: Need to special case for simpleNameRef
                     (!completionResponse.kind ||
-                        (isTypeDescriptor(model) ?
-                                acceptedCompletionKind.includes(completionResponse.kind) :
+                        (isTypeDescriptor ?
+                                acceptedCompletionKindForTypes.includes(completionResponse.kind) :
                                 acceptedCompletionKindForExpressions.includes(completionResponse.kind)
                         )
                     ) &&
@@ -327,13 +326,8 @@ export function InputEditor(props: InputEditorProps) {
                     return { value: obj.label, kind: obj.detail }
                 });
 
-                if (isTypeDescriptor(model)) {
-                    // TODO: Handle simpleNameReference suggestions to support both types/variables
-                    if (STKindChecker.isSimpleNameReference(model)) {
-                        expressionHandler(model, false, false, { variableSuggestions });
-                    } else {
-                        expressionHandler(model, false, true, { typeSuggestions: variableSuggestions });
-                    }
+                if (isTypeDescriptor) {
+                    expressionHandler(model, false, true, { typeSuggestions: variableSuggestions });
                 } else {
                     expressionHandler(model, false, false, { variableSuggestions });
                 }

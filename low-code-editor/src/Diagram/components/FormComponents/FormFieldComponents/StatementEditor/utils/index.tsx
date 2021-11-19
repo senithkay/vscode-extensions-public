@@ -112,7 +112,8 @@ export function getDataTypeOnExpressionKind(kind: string): string[] {
 export function getExpressionTypeComponent(
     expression: STNode,
     userInputs: VariableUserInputs,
-    diagnosticHandler: (diagnostics: string) => void
+    diagnosticHandler: (diagnostics: string) => void,
+    isTypeDescriptor: boolean
 ): ReactNode {
     let ExprTypeComponent = (expressionTypeComponents as any)[expression.kind];
 
@@ -125,6 +126,7 @@ export function getExpressionTypeComponent(
             model={expression}
             userInputs={userInputs}
             diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={isTypeDescriptor}
         />
     );
 }
@@ -147,16 +149,4 @@ export function getStatementTypeComponent(
             diagnosticHandler={diagnosticHandler}
         />
     );
-}
-
-export function isTypeDescriptor(model: STNode): boolean {
-    return (STKindChecker.isStringTypeDesc(model)
-        || STKindChecker.isBooleanTypeDesc(model)
-        || STKindChecker.isDecimalTypeDesc(model)
-        || STKindChecker.isFloatTypeDesc(model)
-        || STKindChecker.isIntTypeDesc(model)
-        || STKindChecker.isJsonTypeDesc(model)
-        || STKindChecker.isVarTypeDesc(model)
-        || STKindChecker.isSimpleNameReference(model)
-    )
 }

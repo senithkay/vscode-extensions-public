@@ -23,10 +23,11 @@ interface QualifiedNameReferenceProps {
     model: QualifiedNameReference
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
+    isTypeDescriptor: boolean
 }
 
 export function QualifiedNameReferenceComponent(props: QualifiedNameReferenceProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+    const { model, userInputs, diagnosticHandler, isTypeDescriptor } = props;
 
     const { expressionHandler } = useContext(SuggestionsContext);
 
@@ -35,7 +36,8 @@ export function QualifiedNameReferenceComponent(props: QualifiedNameReferencePro
         model,
         expressionHandler,
         userInputs,
-        diagnosticHandler
+        diagnosticHandler,
+        isTypeDescriptor
     };
 
     return (

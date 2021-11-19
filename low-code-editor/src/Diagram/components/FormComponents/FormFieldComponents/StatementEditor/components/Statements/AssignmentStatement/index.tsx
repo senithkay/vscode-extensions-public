@@ -35,6 +35,7 @@ export function AssignmentStatementComponent(props: AssignmentStatementProps) {
             isRoot={false}
             userInputs={userInputs}
             diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
         />
     );
 
@@ -44,6 +45,7 @@ export function AssignmentStatementComponent(props: AssignmentStatementProps) {
             isRoot={false}
             userInputs={userInputs}
             diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
         />
     );
 

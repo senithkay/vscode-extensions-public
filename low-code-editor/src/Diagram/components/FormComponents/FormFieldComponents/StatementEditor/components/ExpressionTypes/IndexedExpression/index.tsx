@@ -39,6 +39,7 @@ export function IndexedExpressionComponent(props: IndexedExpressionProps) {
         isRoot={false}
         userInputs={userInputs}
         diagnosticHandler={diagnosticHandler}
+        isTypeDescriptor={false}
     />;
 
     const keyExpressions: ReactNode[] = [];
@@ -49,6 +50,7 @@ export function IndexedExpressionComponent(props: IndexedExpressionProps) {
             isRoot={false}
             userInputs={userInputs}
             diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
         />;
         keyExpressions.push(expression)
 

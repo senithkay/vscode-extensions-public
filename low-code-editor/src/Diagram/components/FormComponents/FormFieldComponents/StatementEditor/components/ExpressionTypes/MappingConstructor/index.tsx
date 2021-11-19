@@ -42,6 +42,7 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
                 isRoot={false}
                 userInputs={userInputs}
                 diagnosticHandler={diagnosticHandler}
+                isTypeDescriptor={false}
             />;
             fields.push(expr)
         }

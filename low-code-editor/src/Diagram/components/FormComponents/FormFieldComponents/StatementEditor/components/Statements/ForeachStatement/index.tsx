@@ -39,6 +39,7 @@ export function ForeachStatementC(props: ForeachStatementProps) {
             isRoot={false}
             userInputs={userInputs}
             diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
         />
     );
 
@@ -48,6 +49,7 @@ export function ForeachStatementC(props: ForeachStatementProps) {
             isRoot={false}
             userInputs={userInputs}
             diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
         />
     );
 

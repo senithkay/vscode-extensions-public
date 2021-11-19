@@ -23,10 +23,11 @@ interface NameRefProps {
     model: SimpleNameReference
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
+    isTypeDescriptor: boolean
 }
 
 export function SimpleNameReferenceComponent(props: NameRefProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+    const { model, userInputs, diagnosticHandler, isTypeDescriptor} = props;
 
     const { expressionHandler } = useContext(SuggestionsContext);
 
@@ -35,7 +36,8 @@ export function SimpleNameReferenceComponent(props: NameRefProps) {
         model,
         expressionHandler,
         userInputs,
-        diagnosticHandler
+        diagnosticHandler,
+        isTypeDescriptor
     };
 
     return (

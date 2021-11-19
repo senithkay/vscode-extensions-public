@@ -32,6 +32,7 @@ export function BracedExpressionComponent(props: BracedExprProps) {
         isRoot={false}
         userInputs={userInputs}
         diagnosticHandler={diagnosticHandler}
+        isTypeDescriptor={false}
     />;
 
     return (

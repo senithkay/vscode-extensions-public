@@ -40,6 +40,7 @@ export function WhileStatementC(props: WhileStatementProps) {
             isRoot={false}
             userInputs={userInputs}
             diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
         />
     );
 

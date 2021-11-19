@@ -36,6 +36,7 @@ export function FunctionCallComponent(props: FunctionCallProps) {
         isRoot={false}
         userInputs={userInputs}
         diagnosticHandler={diagnosticHandler}
+        isTypeDescriptor={false}
     />;
 
     const exprArguments: (ReactNode | string)[] = [];
@@ -49,6 +50,7 @@ export function FunctionCallComponent(props: FunctionCallProps) {
                 isRoot={false}
                 userInputs={userInputs}
                 diagnosticHandler={diagnosticHandler}
+                isTypeDescriptor={false}
             />;
             exprArguments.push(expression)
         }

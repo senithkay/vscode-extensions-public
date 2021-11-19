@@ -25,10 +25,11 @@ interface SpecificFieldProps {
     model: SpecificField
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
+    isTypeDescriptor: boolean
 }
 
 export function SpecificFieldComponent(props: SpecificFieldProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+    const { model, userInputs, diagnosticHandler, isTypeDescriptor } = props;
 
     const overlayClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
@@ -41,7 +42,8 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
             model: model.fieldName,
             expressionHandler,
             userInputs,
-            diagnosticHandler
+            diagnosticHandler,
+            isTypeDescriptor
         };
 
         fieldName =  <InputEditor {...inputEditorProps} />
@@ -51,6 +53,7 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
             isRoot={false}
             userInputs={userInputs}
             diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
         />;
     }
 
@@ -59,6 +62,7 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
         isRoot={false}
         userInputs={userInputs}
         diagnosticHandler={diagnosticHandler}
+        isTypeDescriptor={false}
     />;
 
     return (

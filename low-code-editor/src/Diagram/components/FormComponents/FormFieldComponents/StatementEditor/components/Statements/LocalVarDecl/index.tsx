@@ -40,6 +40,7 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
             isRoot={false}
             userInputs={userInputs}
             diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
         />
     );
 
@@ -49,6 +50,7 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
             isRoot={false}
             userInputs={userInputs}
             diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
         />
     );
 
