@@ -198,7 +198,7 @@ export function InputEditor(props: InputEditorProps) {
         })
         setInputEditorState({
             ...inputEditorState,
-            diagnostic: getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate)
+            diagnostic: diagResp[0]?.diagnostics ? getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) : []
         })
     }
 
@@ -239,7 +239,7 @@ export function InputEditor(props: InputEditorProps) {
         })
         setInputEditorState({
             ...inputEditorState,
-            diagnostic: getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate)
+            diagnostic: diagResp[0]?.diagnostics ? getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) : []
         })
         currentContent = currentStatement;
     }
