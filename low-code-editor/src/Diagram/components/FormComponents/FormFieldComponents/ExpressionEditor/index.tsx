@@ -483,7 +483,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     useEffect(() => {
         if (monacoRef.current) {
             // FIXME: Need to change the theme when editor is disabled
-            monacoRef.current.editor.updateOptions({ readOnly: disabled })
+            monacoRef.current.editor.updateOptions({ readOnly: disabled });
         }
     }, [disabled])
 
@@ -869,7 +869,13 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 style={{ height: expand ? (superExpand ? '200px' : '100px') : '34px' }}
             >
                 <div className="exp-absolute-wrapper">
-                    <div className="exp-editor" style={{ height: expand ? (superExpand ? '200px' : '100px') : '34px' }} >
+                    <div
+                        className="exp-editor"
+                        style={{
+                            height: expand ? (superExpand ? '200px' : '100px') : '34px',
+                            opacity: disabled ? 0.5 : 1
+                        }}
+                    >
                         <MonacoEditor
                             key={index}
                             theme='exp-theme'
