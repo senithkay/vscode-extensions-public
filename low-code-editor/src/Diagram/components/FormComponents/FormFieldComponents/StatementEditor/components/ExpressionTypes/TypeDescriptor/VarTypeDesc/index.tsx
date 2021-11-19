@@ -24,10 +24,11 @@ interface VarTypeDescProps {
     model: VarTypeDesc
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
+    isTypeDescriptor: boolean
 }
 
 export function VarTypeDescComponent(props: VarTypeDescProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+    const { model, userInputs, diagnosticHandler, isTypeDescriptor } = props;
 
     const overlayClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
@@ -37,7 +38,8 @@ export function VarTypeDescComponent(props: VarTypeDescProps) {
         model,
         expressionHandler,
         userInputs,
-        diagnosticHandler
+        diagnosticHandler,
+        isTypeDescriptor
     };
 
     return (

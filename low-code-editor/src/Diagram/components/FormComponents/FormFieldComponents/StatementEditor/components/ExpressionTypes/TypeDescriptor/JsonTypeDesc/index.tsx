@@ -25,10 +25,11 @@ interface JsonTypeDescProps {
     model: JsonTypeDesc
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
+    isTypeDescriptor: boolean
 }
 
 export function JsonTypeDescComponent(props: JsonTypeDescProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+    const { model, userInputs, diagnosticHandler, isTypeDescriptor } = props;
 
     const overlayClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
@@ -38,7 +39,8 @@ export function JsonTypeDescComponent(props: JsonTypeDescProps) {
         model,
         expressionHandler,
         userInputs,
-        diagnosticHandler
+        diagnosticHandler,
+        isTypeDescriptor
     };
 
     const onClickOnType = (event: any) => {

@@ -39,6 +39,7 @@ export function IfStatementC(props: IfStatementProps) {
             isRoot={false}
             userInputs={userInputs}
             diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
         />
     );
 

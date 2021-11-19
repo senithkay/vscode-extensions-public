@@ -39,12 +39,14 @@ export function BinaryExpressionComponent(props: BinaryProps) {
         isRoot={false}
         userInputs={userInputs}
         diagnosticHandler={diagnosticHandler}
+        isTypeDescriptor={false}
     />;
     const rhs: ReactNode = <ExpressionComponent
         model={model.rhsExpr}
         isRoot={false}
         userInputs={userInputs}
         diagnosticHandler={diagnosticHandler}
+        isTypeDescriptor={false}
     />;
 
     const kind = getKindBasedOnOperator(model.operator.kind);

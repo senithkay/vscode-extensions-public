@@ -39,6 +39,7 @@ export function TypeTestExpressionComponent(props: TypeTestExpressionProps) {
         isRoot={false}
         userInputs={userInputs}
         diagnosticHandler={diagnosticHandler}
+        isTypeDescriptor={false}
     />;
 
     const typeDescriptor: ReactNode = <ExpressionComponent
@@ -46,6 +47,7 @@ export function TypeTestExpressionComponent(props: TypeTestExpressionProps) {
         isRoot={false}
         userInputs={userInputs}
         diagnosticHandler={diagnosticHandler}
+        isTypeDescriptor={true}
     />;
 
     const onClickOnTypeDescriptor = (event: any) => {

@@ -39,6 +39,7 @@ export function CallStatementC(props: CallStatementProps) {
             isRoot={false}
             userInputs={userInputs}
             diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
         />
     );
 

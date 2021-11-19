@@ -39,6 +39,7 @@ export function MethodCallComponent(props: MethodCallProps) {
         isRoot={false}
         userInputs={userInputs}
         diagnosticHandler={diagnosticHandler}
+        isTypeDescriptor={false}
     />;
 
     const methodName: ReactNode = <ExpressionComponent
@@ -46,6 +47,7 @@ export function MethodCallComponent(props: MethodCallProps) {
         isRoot={false}
         userInputs={userInputs}
         diagnosticHandler={diagnosticHandler}
+        isTypeDescriptor={false}
     />;
 
     const exprArguments: (ReactNode | string)[] = [];
@@ -59,6 +61,7 @@ export function MethodCallComponent(props: MethodCallProps) {
                 isRoot={false}
                 userInputs={userInputs}
                 diagnosticHandler={diagnosticHandler}
+                isTypeDescriptor={false}
             />;
             exprArguments.push(expressionArg)
         }
