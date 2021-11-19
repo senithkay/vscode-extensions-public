@@ -628,7 +628,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     <div className={classes.returnTextBoxWrapper}>
       <VariableTypeInput
         hideLabel={true}
-        displayName={'Variable Type'}//
+        displayName={'Variable Type'}
         value={returnType === "" ? `error?` : returnType + ` | error?`}
         onValueChange={handleOnChangeReturnType}
         validateExpression={validateReturnTypeExpression}
