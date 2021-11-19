@@ -22,7 +22,6 @@ import varDeclBinaryExprModel from "../../../../../../FormComponents/FormFieldCo
 import panicModel from "../../../../../../FormComponents/FormFieldComponents/StatementEditor/components/StatementRenderer/data/panic-st-model.json";
 import stringModel from "../../../../../../FormComponents/FormFieldComponents/StatementEditor/components/StatementRenderer/data/varDecl-stringLiteral-model.json";
 import whileStmtModel from "../../../../../../FormComponents/FormFieldComponents/StatementEditor/components/StatementRenderer/data/while-st-model.json";
-import { InputEditorContextProvider } from "../../store/input-editor-context";
 import { StatementEditorContextProvider } from '../../store/statement-editor-context';
 import ifElseBooleanModel from "../StatementRenderer/data/ifelse-booleaLiteral-st-model.json";
 import returnModel from "../StatementRenderer/data/return-st-model.json";
@@ -109,23 +108,10 @@ const props = {
     zoomStatus: undefined
 }
 
-const inputEditorContextProps: any = {
-    userInputs: {
-        "selectedType": "string",
-        "varName": "ga",
-        "variableExpression": "(expression+expression)",
-        "formField": "Expression"
-    },
-    onVariableSelection: (value: string) => {
-    }
-}
-
 const Template: Story<ViewProps> = (args: ViewProps) => (
     <LowCodeEditorProvider {...props} >
         <StatementEditorContextProvider {...statementEditorContextProps}>
-            <InputEditorContextProvider {...inputEditorContextProps}>
-                <ViewContainer {...args} />;
-            </InputEditorContextProvider>
+            <ViewContainer {...args} />;
         </StatementEditorContextProvider>
     </LowCodeEditorProvider>
 );

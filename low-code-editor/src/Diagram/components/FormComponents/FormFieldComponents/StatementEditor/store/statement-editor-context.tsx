@@ -15,8 +15,6 @@ import React from 'react';
 
 import { NodePosition, STNode } from "@ballerina/syntax-tree";
 
-import { InputEditorContextProvider } from "./input-editor-context";
-
 export const StatementEditorContext = React.createContext({
     modelCtx: {
         statementModel: null,
@@ -58,9 +56,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
             }
         }}
         >
-            <InputEditorContextProvider>
-                {children}
-            </InputEditorContextProvider>
+            {children}
         </StatementEditorContext.Provider>
     );
 }

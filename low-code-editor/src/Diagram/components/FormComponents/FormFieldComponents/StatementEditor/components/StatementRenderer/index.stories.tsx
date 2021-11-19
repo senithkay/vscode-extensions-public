@@ -16,7 +16,6 @@ import React from 'react';
 import { Story } from '@storybook/react/types-6-0';
 
 import { Provider as LowCodeEditorProvider } from "../../../../../../../Contexts/Diagram";
-import { InputEditorContextProvider } from "../../store/input-editor-context";
 import { StatementEditorContextProvider } from '../../store/statement-editor-context';
 
 import foreachModel from "./data/foreach-st-model.json";
@@ -101,17 +100,6 @@ const props = {
     zoomStatus: undefined
 }
 
-const inputEditorContextProps: any = {
-    userInputs: {
-        "selectedType": "string",
-        "varName": "ga",
-        "variableExpression": "(expression+expression)",
-        "formField": "Expression"
-    },
-    onVariableSelection: (value: string) => {
-    }
-}
-
 const statementEditorContextProps = {
     model: varDeclBinaryExpr,
     onCancelClicked: false,
@@ -123,9 +111,7 @@ const statementEditorContextProps = {
 const Template: Story<StatementRendererProps> = (args: StatementRendererProps) => (
     <LowCodeEditorProvider {...props} >
         <StatementEditorContextProvider {...statementEditorContextProps}>
-            <InputEditorContextProvider {...inputEditorContextProps}>
-                <StatementRenderer {...args} />
-            </InputEditorContextProvider>
+            <StatementRenderer {...args} />
         </StatementEditorContextProvider>
     </LowCodeEditorProvider>
 );
