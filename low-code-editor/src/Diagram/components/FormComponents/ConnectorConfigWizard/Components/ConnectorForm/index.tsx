@@ -96,7 +96,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
             code: { modifyDiagram },
             insights: { onEvent },
         },
-        props: { syntaxTree, stSymbolInfo, isMutationProgress },
+        props: { stSymbolInfo, isMutationProgress },
     } = useContext(Context);
     const { functionNode } = useFunctionContext();
 
@@ -296,7 +296,14 @@ export function ConnectorForm(props: FormGeneratorProps) {
         if (returnTypeStr?.includes("error")) {
             return undefined;
         }
-        returnTypeStr = returnTypeStr ? returnTypeStr + "|error?" : "returns error?";
+
+        if (returnTypeStr?.includes("()")) {
+            returnTypeStr = returnTypeStr.replace("()", "error|()");
+        } else if (returnTypeStr) {
+            returnTypeStr = returnTypeStr + "|error|()";
+        } else {
+            returnTypeStr = "returns error|()";
+        }
 
         return updateFunctionSignature(activeFunction.functionName.value, parametersStr, returnTypeStr, {
             ...activeFunction.functionSignature.position,
