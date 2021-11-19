@@ -1,5 +1,5 @@
 # Build and push the code server image using the given Ballerina distribution deb uri and the given VSIX uri.
-name: Daily Code Server Image 2 (Daily build)
+name: Daily Code Server Image 2
 
 on:
   workflow_dispatch:
