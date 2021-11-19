@@ -117,6 +117,11 @@ export function InputEditor(props: InputEditorProps) {
 
     const [userInput, setUserInput] = useState(value);
 
+    useEffect(() => {
+        setUserInput(value);
+        handleContentChange(currentContent, "").then();
+    }, [value]);
+
     const targetPosition = stmtCtx.formCtx.formModelPosition;
     const textLabel = userInputs && userInputs.formField ? userInputs.formField : "modelName"
     const varName = userInputs && userInputs.varName ? userInputs.varName : "temp_" + (textLabel).replace(/[^A-Z0-9]+/ig, "");
@@ -387,8 +392,8 @@ export function InputEditor(props: InputEditorProps) {
             <input
                 value={placeHolders.indexOf(userInput) > -1 ? "" : userInput}
                 className={overlayClasses.inputEditorTemplate}
-                // onKeyDown={inputEnterHandler}
-                // onBlur={inputBlurHandler}
+                onKeyDown={inputEnterHandler}
+                onBlur={inputBlurHandler}
                 onInput={inputChangeHandler}
                 autoFocus={true}
                 style={{ maxWidth: userInput === '' ? '10px' : 'fit-content' }}
