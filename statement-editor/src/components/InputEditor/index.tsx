@@ -22,6 +22,7 @@ import {
     STNode,
     StringLiteral, StringTypeDesc
 } from "@ballerina/syntax-tree";
+import { getDiagnosticMessage, getFilteredDiagnostics } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import debounce from "lodash.debounce";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
@@ -30,7 +31,6 @@ import {
     CompletionResponse,
     ExpressionEditorLangClientInterface
 } from "../../../../../../../Definitions";
-import { getDiagnosticMessage, getFilteredDiagnostics, getTargetPosition } from "../../../ExpressionEditor/utils";
 import * as c from "../../constants";
 import { SuggestionItem, VariableUserInputs } from "../../models/definitions";
 import { InputEditorContext } from "../../store/input-editor-context";
