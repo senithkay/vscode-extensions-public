@@ -17,11 +17,10 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { FormHelperText } from "@material-ui/core";
 import { AddRounded } from "@material-ui/icons";
 import CloseRounded from "@material-ui/icons/CloseRounded";
+import { ButtonWithIcon, IconBtnWithText } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { useStyles } from "../../DynamicConnectorForm/style"
 import { FormElementProps } from "../../Types";
-import { ButtonWithIcon } from "../Button/ButtonWithIcon";
-import { IconBtnWithText } from "../Button/IconBtnWithText";
 import ExpressionEditor, { ExpressionEditorProps } from "../ExpressionEditor";
 import { ExpressionEditorLabel } from "../ExpressionEditorLabel";
 

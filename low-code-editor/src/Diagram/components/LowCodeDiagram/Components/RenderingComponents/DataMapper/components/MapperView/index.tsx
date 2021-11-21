@@ -15,12 +15,10 @@ import React, { useContext, useRef, useState } from 'react';
 
 import { CaptureBindingPattern, STKindChecker, STNode } from '@ballerina/syntax-tree';
 import Typography from '@material-ui/core/Typography';
-import { PrimitiveBalType, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { PrimaryButton, PrimitiveBalType, SecondaryButton, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
 import { updatePropertyStatement } from '../../../../../../../utils/modification-util';
 import { wizardStyles } from '../../../../../../FormComponents/ConfigForms/style';
-import { PrimaryButton } from '../../../../../../FormComponents/FormFieldComponents/Button/PrimaryButton';
-import { SecondaryButton } from '../../../../../../FormComponents/FormFieldComponents/Button/SecondaryButton';
 import ExpressionEditor from '../../../../../../FormComponents/FormFieldComponents/ExpressionEditor';
 import { DataMapperInputTypeInfo } from '../../../../../../FormComponents/Types';
 import { DiagramOverlay, DiagramOverlayContainer } from '../../../../../../Portals/Overlay';

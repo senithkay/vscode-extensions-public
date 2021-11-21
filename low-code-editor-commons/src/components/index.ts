@@ -10,6 +10,5 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-export * from "./lib";
-export * from "./types";
-export * from "./components";
+export * from "./buttons";
+

@@ -18,9 +18,9 @@ import Typography from '@material-ui/core/Typography';
 
 import { useStyles } from "../style";
 
-export interface ButtonProps {
+export interface LinkButtonProps {
     children?: string;
-    onClick?: (param?: any) => void,
+    onClick: (param?: any) => void,
     text?: string;
     variant?: string;
     className?: string;
@@ -30,21 +30,17 @@ export interface ButtonProps {
     startIcon?: JSX.Element;
     fullWidth?: boolean;
     disabled?: boolean;
-    dataTestId?: string;
 }
 
-export function SecondaryButton(props: ButtonProps) {
+export function LinkButton(props: LinkButtonProps) {
     const classes = useStyles();
-    const { text, startIcon, onClick, fullWidth, disabled, className, dataTestId } = props;
-
+    const {text, startIcon, onClick, fullWidth, disabled} = props;
     return (
         <Button
-            data-testid={dataTestId}
             onClick={onClick}
             variant="contained"
             classes={{
-                root: classes.secondaryBtn,
-                disabled: classes.disabled
+                root: classes.linkBtn
             }}
             role="button"
             startIcon={startIcon}
@@ -52,9 +48,8 @@ export function SecondaryButton(props: ButtonProps) {
             disableFocusRipple={true}
             fullWidth={fullWidth}
             disabled={disabled}
-            className={className}
         >
-            {text ? (<Typography variant="h5">{text}</Typography>) : null}
+            {text ? (<Typography variant="body1">{text}</Typography>) : null}
         </Button>
     );
 }

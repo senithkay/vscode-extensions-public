@@ -18,6 +18,7 @@ import { CaptureBindingPattern, CheckAction, LocalVarDecl, NodePosition, Positio
 import Typography from "@material-ui/core/Typography";
 import { CloseRounded } from "@material-ui/icons";
 import { ActionConfig, Connector, ConnectorConfig, FormField, FunctionDefinitionInfo, STModification, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ButtonWithIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { Context } from "../../../../../Contexts/Diagram";
 import {
@@ -44,7 +45,6 @@ import {
 } from "../../../../utils/modification-util";
 import { genVariableName, getConnectorIcon, getParams } from "../../../Portals/utils";
 import { wizardStyles } from "../../ConnectorConfigWizard/style";
-import { ButtonWithIcon } from "../../FormFieldComponents/Button/ButtonWithIcon";
 
 import { CreateConnectorForm } from "./CreateConnectorForm";
 import { HeaderObjectConfig } from "./HTTPHeaders";

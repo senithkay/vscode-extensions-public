@@ -19,7 +19,7 @@ import classNames from "classnames";
 
 import { useStyles } from "../style";
 
-export interface ButtonProps {
+export interface PrimaryButtonProps {
     children?: string;
     onClick?: () => void,
     text?: string;
@@ -34,7 +34,7 @@ export interface ButtonProps {
     dataTestId?: string;
 }
 
-export function PrimaryButton(props: ButtonProps) {
+export function PrimaryButton(props: PrimaryButtonProps) {
     const classes = useStyles();
     const {text, startIcon, onClick, fullWidth, disabled, className, dataTestId} = props;
     return (

@@ -16,7 +16,7 @@ import { FormattedMessage, useIntl } from 'react-intl';
 
 import { Box, IconButton, Typography } from "@material-ui/core";
 import EditIcon from '@material-ui/icons/Edit';
-import { ConnectorConfig, FormField, FunctionDefinitionInfo, STModification, STSymbolInfo  } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ConnectorConfig, FormField, FunctionDefinitionInfo, PrimaryButton, STModification, STSymbolInfo  } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import classNames from 'classnames';
 
 import { Context } from '../../../../../../Contexts/Diagram';
@@ -24,7 +24,6 @@ import { getAllVariables } from "../../../../../utils/mixins";
 import { checkVariableName, genVariableName, getActionReturnType } from "../../../../Portals/utils";
 import { Form } from "../../../DynamicConnectorForm";
 import { useStyles } from "../../../DynamicConnectorForm/style";
-import { PrimaryButton } from "../../../FormFieldComponents/Button/PrimaryButton";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
 import { ExpressionInjectablesProps } from '../../../FormGenerator';
 import { wizardStyles } from "../../style";

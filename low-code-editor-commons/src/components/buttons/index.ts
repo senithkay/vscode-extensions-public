@@ -10,6 +10,12 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-export * from "./lib";
-export * from "./types";
-export * from "./components";
+export * from "./ButtonWithIcon";
+export * from "./IconBtnWithText";
+export * from "./LinePrimaryButton";
+export * from "./LinkButton";
+export * from "./PrimaryButton";
+export * from "./SecondaryButton";
+export * from "./StatementEditorButton";
+
+

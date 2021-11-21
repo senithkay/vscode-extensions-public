@@ -22,7 +22,7 @@ import {
     Connector,
     ConnectorConfig,
     FormField,
-    FunctionDefinitionInfo, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+    FunctionDefinitionInfo, PrimaryButton, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import classNames from "classnames";
 
 import { Context } from "../../../../../../Contexts/Diagram";
@@ -31,7 +31,6 @@ import { checkVariableName, genVariableName } from "../../../../Portals/utils";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";
 import { Form } from "../../../DynamicConnectorForm";
 import { useStyles } from "../../../DynamicConnectorForm/style";
-import { PrimaryButton } from "../../../FormFieldComponents/Button/PrimaryButton";
 import { SelectDropdownWithButton } from "../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import { SwitchToggle } from "../../../FormFieldComponents/SwitchToggle";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";

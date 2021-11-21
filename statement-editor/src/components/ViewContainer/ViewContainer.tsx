@@ -15,10 +15,8 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useIntl } from "react-intl";
 
 import { NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
-import { ExpressionEditorLangClientInterface, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ExpressionEditorLangClientInterface, PrimaryButton, SecondaryButton, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { PrimaryButton } from "../../../Button/PrimaryButton";
-import { SecondaryButton } from "../../../Button/SecondaryButton";
 import { VariableUserInputs } from '../../models/definitions';
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
 import { getModifications, getPartialSTForStatement } from "../../utils";

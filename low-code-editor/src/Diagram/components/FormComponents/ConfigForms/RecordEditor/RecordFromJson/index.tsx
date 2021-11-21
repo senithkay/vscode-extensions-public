@@ -15,15 +15,13 @@ import React, { useContext, useEffect, useReducer } from 'react';
 
 import { NodePosition } from '@ballerina/syntax-tree';
 import { Box, FormControl, FormHelperText, Typography } from "@material-ui/core";
-import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { PrimaryButton, SecondaryButton, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { Context } from "../../../../../../Contexts/Diagram";
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
 import { createPropertyStatement } from "../../../../../utils/modification-util";
 import { keywords } from "../../../../Portals/utils/constants";
 import { useStyles } from "../../../DynamicConnectorForm/style";
-import { PrimaryButton } from "../../../FormFieldComponents/Button/PrimaryButton";
-import { SecondaryButton } from "../../../FormFieldComponents/Button/SecondaryButton";
 import { FormTextArea } from "../../../FormFieldComponents/TextField/FormTextArea";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
 import { wizardStyles } from "../../style";

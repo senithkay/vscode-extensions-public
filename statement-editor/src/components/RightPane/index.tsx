@@ -12,7 +12,8 @@
  */
 import React from "react";
 
-import { ButtonWithIcon } from "../../../Button/ButtonWithIcon";
+import { ButtonWithIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+
 import ComponentExpandIcon from "../../assets/icons/ComponentExpandIcon";
 import { useStatementEditorStyles } from "../ViewContainer/styles";
 

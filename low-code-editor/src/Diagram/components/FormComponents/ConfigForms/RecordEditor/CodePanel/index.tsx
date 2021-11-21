@@ -16,12 +16,11 @@ import { useIntl } from "react-intl";
 
 import { NodePosition } from "@ballerina/syntax-tree";
 import { Box, Typography } from "@material-ui/core";
+import { PrimaryButton, SecondaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { useRecordEditorContext} from "../../../../../../Contexts/RecordEditor";
 import { mutateTypeDefinition } from "../../../../../utils/modification-util";
-import { PrimaryButton } from "../../../FormFieldComponents/Button/PrimaryButton";
-import { SecondaryButton } from "../../../FormFieldComponents/Button/SecondaryButton";
 import { wizardStyles } from "../../style";
 import { RecordField } from "../RecordField";
 import { recordStyles } from "../style";

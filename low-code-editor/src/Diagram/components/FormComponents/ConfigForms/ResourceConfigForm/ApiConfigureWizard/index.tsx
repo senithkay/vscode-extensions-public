@@ -15,7 +15,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 
 import { FunctionDefinition, NodePosition, ObjectMethodDefinition, ResourceAccessorDefinition } from "@ballerina/syntax-tree";
 import { Box, FormControl, Grid, Link, Typography } from "@material-ui/core";
-import { ConfigOverlayFormStatus, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ConfigOverlayFormStatus, PrimaryButton, SecondaryButton, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { ResourceIcon } from "../../../../../../assets/icons";
 import { Section } from "../../../../../../components/ConfigPanel";
@@ -25,8 +25,6 @@ import { ServiceMethodType, SERVICE_METHODS, TriggerType } from "../../../../../
 import { createResource, updateResourceSignature } from "../../../../../utils/modification-util";
 import { DiagramOverlayPosition } from "../../../../Portals/Overlay";
 import { useStyles as useFormStyles } from "../../../DynamicConnectorForm/style";
-import { PrimaryButton } from "../../../FormFieldComponents/Button/PrimaryButton";
-import { SecondaryButton } from "../../../FormFieldComponents/Button/SecondaryButton";
 import { SelectDropdownWithButton } from "../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import ExpressionEditor from "../../../FormFieldComponents/ExpressionEditor";
 import { SwitchToggle } from "../../../FormFieldComponents/SwitchToggle";
