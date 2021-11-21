@@ -217,10 +217,10 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                     triggerSuccessNotification: (msg: Error | string) => undefined,
                                 },
                                 ls: {
-                                    getDiagramEditorLangClient: (url: string) => {
+                                    getDiagramEditorLangClient: () => {
                                         return Promise.resolve(langClient);
                                     },
-                                    getExpressionEditorLangClient: (url: string) => {
+                                    getExpressionEditorLangClient: () => {
                                         return Promise.resolve(langClient);
                                     }
                                 },

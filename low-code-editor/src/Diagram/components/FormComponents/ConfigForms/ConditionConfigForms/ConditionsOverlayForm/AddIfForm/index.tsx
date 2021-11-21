@@ -26,7 +26,7 @@ import { createIfStatement, getInitialSource } from "../../../../../../utils/mod
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
 import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";
-import { useStatementEditor } from "../../../../FormFieldComponents/StatementEditor/hooks";
+import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { ConditionConfig, ElseIfConfig, FormElementProps } from "../../../../Types";
 
 
@@ -49,7 +49,12 @@ export function AddIfForm(props: IfProps) {
     const {
         props: {
             isCodeEditorActive,
-            isMutationProgress: isMutationInProgress
+            isMutationProgress: isMutationInProgress,
+            currentFile
+        },
+        api: {
+            ls: { getExpressionEditorLangClient },
+            code: { modifyDiagram }
         }
     } = useContext(Context);
     const { condition, formArgs, onCancel, onSave, onWizardClose } = props;
@@ -169,7 +174,10 @@ export function AddIfForm(props: IfProps) {
             formArgs: {formArgs},
             validForm: !isInvalid,
             config: condition,
-            onWizardClose
+            onWizardClose,
+            currentFile,
+            getLangClient: getExpressionEditorLangClient,
+            applyModifications: modifyDiagram
         }
     );
 

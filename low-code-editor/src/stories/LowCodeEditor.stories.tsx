@@ -36,10 +36,10 @@ const lowCodeEditorArgs: LowCodeEditorProps = {
         triggerSuccessNotification: (msg: Error | string) => undefined,
     },
     ls: {
-        getDiagramEditorLangClient: (url: string) => {
+        getDiagramEditorLangClient: () => {
           return {} as any;
         },
-        getExpressionEditorLangClient: (url: string) => {
+        getExpressionEditorLangClient: () => {
           return {} as any;
         }
     },

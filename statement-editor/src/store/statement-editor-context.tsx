@@ -33,7 +33,7 @@ export const StatementEditorContext = React.createContext({
         validateStatement: (isValid: boolean) => {}
     },
     getLangClient: () => (Promise.resolve({} as any)),
-    applyModifications: (modifications: STModification[]) => (Promise.resolve()),
+    applyModifications: (modifications: STModification[]) => (undefined),
     currentFile: {
         content: "",
         path: "",

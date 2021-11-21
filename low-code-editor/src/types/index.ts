@@ -67,8 +67,8 @@ export interface LowCodeEditorAPI {
         triggerSuccessNotification?: (msg: Error | string) => void;
     }
     ls: {
-        getDiagramEditorLangClient?: (url: string) => Promise<DiagramEditorLangClientInterface>;
-        getExpressionEditorLangClient?: (url: string) => Promise<ExpressionEditorLangClientInterface>;
+        getDiagramEditorLangClient?: () => Promise<DiagramEditorLangClientInterface>;
+        getExpressionEditorLangClient?: () => Promise<ExpressionEditorLangClientInterface>;
     }
     // This has to come from Lang-server
     insights: {

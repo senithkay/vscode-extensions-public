@@ -44,7 +44,6 @@ export function ErrorList() {
             }
         },
         props: {
-            langServerURL,
             currentFile,
             isCodeEditorActive,
             diagnostics,
@@ -66,7 +65,7 @@ export function ErrorList() {
 
     useEffect(() => {
         setCodeActions([])
-        getDiagramEditorLangClient(langServerURL).then(async (langClient: any) => {
+        getDiagramEditorLangClient().then(async (langClient: any) => {
             const actionsArr = [];
             for (const diagnostic of diagnostics){
                 const params: CodeActionParams = {

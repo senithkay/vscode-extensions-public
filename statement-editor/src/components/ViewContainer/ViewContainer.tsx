@@ -27,7 +27,7 @@ import { useStatementEditorStyles } from "./styles";
 
 export interface LowCodeEditorProps {
     getLangClient: () => Promise<ExpressionEditorLangClientInterface>,
-    applyModifications: (modifications: STModification[]) => Promise<void>,
+    applyModifications: (modifications: STModification[]) => void,
     currentFile: {
         content: string,
         path: string,
@@ -41,7 +41,7 @@ export interface ViewProps extends LowCodeEditorProps {
     userInputs?: VariableUserInputs;
     config: {
         type: string;
-        model: STNode;
+        model?: STNode;
     }
     validForm?: boolean;
     onWizardClose: () => void;

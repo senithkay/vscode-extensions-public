@@ -32,7 +32,6 @@ export interface ConnectorListProps {
 
 export function ConnectorList(props: FormGeneratorProps) {
     const {
-        props: { langServerURL },
         api: {
             ls: { getDiagramEditorLangClient },
         }
@@ -40,7 +39,7 @@ export function ConnectorList(props: FormGeneratorProps) {
     const { onSelect } = props.configOverlayFormStatus.formArgs as ConnectorListProps;
     const fetchConnectorsList = async (searchQuery: string, selectedCategory: string, connectorLimit: number, currentFilePath: string,
                                        filterState: FilterStateMap, userInfo: UserState, page?: number): Promise<BallerinaModuleResponse> => {
-        const langClient: DiagramEditorLangClientInterface = await getDiagramEditorLangClient(langServerURL);
+        const langClient: DiagramEditorLangClientInterface = await getDiagramEditorLangClient();
         const request: BallerinaConnectorsRequest = {
             targetFile: currentFilePath,
             query: searchQuery,

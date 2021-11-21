@@ -59,7 +59,7 @@ export function getModifications(
         model: STNode,
         config: {
             type: string;
-            model: STNode;
+            model?: STNode;
         },
         formArgs: any): STModification[] {
     const modifications: STModification[] = [];

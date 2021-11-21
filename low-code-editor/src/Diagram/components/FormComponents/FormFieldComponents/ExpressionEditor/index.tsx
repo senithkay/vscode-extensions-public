@@ -514,7 +514,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         expressionEditorState.content = initContent;
         expressionEditorState.uri = monaco.Uri.file(currentFile.path).toString();
 
-        await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
+        await getExpressionEditorLangClient().then(async (langClient: ExpressionEditorLangClientInterface) => {
             langClient.didChange({
                 contentChanges: [
                     {
@@ -528,7 +528,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             });
         });
 
-        await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
+        await getExpressionEditorLangClient().then(async (langClient: ExpressionEditorLangClientInterface) => {
             await langClient.getDiagnostics({
                 documentIdentifier: {
                     uri: expressionEditorState.uri,
@@ -544,7 +544,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         // Revert the file content
         expressionEditorState.content = (currentFile.content);
 
-        await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
+        await getExpressionEditorLangClient().then(async (langClient: ExpressionEditorLangClientInterface) => {
             langClient.didChange({
                 contentChanges: [
                     {
@@ -580,7 +580,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         expressionEditorState.content = initContent;
         expressionEditorState.uri = monaco.Uri.file(currentFile.path).toString();
 
-        await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
+        await getExpressionEditorLangClient().then(async (langClient: ExpressionEditorLangClientInterface) => {
             langClient.didChange({
                 contentChanges: [
                     {
@@ -594,7 +594,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             });
         });
 
-        await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
+        await getExpressionEditorLangClient().then(async (langClient: ExpressionEditorLangClientInterface) => {
             await langClient.getDiagnostics({
                 documentIdentifier: {
                     uri: expressionEditorState.uri,
@@ -659,7 +659,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 onChange(monacoRef.current.editor.getModel().getValue());
             }
 
-            const langClient = await getExpressionEditorLangClient(langServerURL);
+            const langClient = await getExpressionEditorLangClient();
             langClient.didChange({
                 contentChanges: [
                     {
@@ -740,7 +740,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             expressionEditorState.content = (currentFile.content);
             expressionEditorState.uri = expressionEditorState?.uri;
 
-            await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
+            await getExpressionEditorLangClient().then(async (langClient: ExpressionEditorLangClientInterface) => {
                 langClient.didChange({
                     contentChanges: [
                         {

@@ -16,6 +16,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 
 import { LocalVarDecl, STKindChecker } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
+import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import classnames from "classnames";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
@@ -26,7 +27,6 @@ import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
 import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";
-import { useStatementEditor } from "../../../../FormFieldComponents/StatementEditor/hooks";
 import {SwitchToggle} from "../../../../FormFieldComponents/SwitchToggle";
 import { FormTextInput } from "../../../../FormFieldComponents/TextField/FormTextInput";
 import { ProcessConfig } from "../../../../Types";
@@ -57,9 +57,13 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
 
     const {
         props: {
-            isCodeEditorActive,
+            currentFile,
             isMutationProgress: isMutationInProgress,
             stSymbolInfo
+        },
+        api: {
+            ls: { getExpressionEditorLangClient },
+            code: { modifyDiagram }
         }
     } = useContext(Context);
 
@@ -257,7 +261,10 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             config,
             onWizardClose,
             handleStatementEditorChange,
-            onCancel
+            onCancel,
+            currentFile,
+            getLangClient: getExpressionEditorLangClient,
+            applyModifications: modifyDiagram
         }
     );
 

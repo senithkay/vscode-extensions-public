@@ -25,7 +25,7 @@ import { createWhileStatement, getInitialSource } from "../../../../../../utils/
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";
-import { useStatementEditor } from "../../../../FormFieldComponents/StatementEditor/hooks";
+import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { ConditionConfig, FormElementProps } from "../../../../Types";
 
 export interface WhileProps {
@@ -37,7 +37,13 @@ export interface WhileProps {
 }
 
 export function AddWhileForm(props: WhileProps) {
-    const { props: { isMutationProgress: isMutationInProgress } } = useContext(Context);
+    const {
+        props: { isMutationProgress: isMutationInProgress, currentFile },
+        api: {
+            ls: { getExpressionEditorLangClient },
+            code: { modifyDiagram }
+        }
+    } = useContext(Context);
     const { condition, formArgs, onCancel, onSave, onWizardClose } = props;
     const classes = useStyles();
     const intl = useIntl();
@@ -125,7 +131,10 @@ export function AddWhileForm(props: WhileProps) {
             config: condition,
             onWizardClose,
             handleStatementEditorChange,
-            onCancel
+            onCancel,
+            currentFile,
+            getLangClient: getExpressionEditorLangClient,
+            applyModifications: modifyDiagram
         }
     );
 
