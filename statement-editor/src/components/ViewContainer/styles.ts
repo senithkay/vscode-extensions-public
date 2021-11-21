@@ -246,6 +246,13 @@ export const useStatementEditorStyles = makeStyles(() =>
             width: '90%',
             opacity: 0.52,
             backgroundColor: '#DCDEE4'
+        },
+        buttonWrapper: {
+            height: 'auto',
+            display: 'flex',
+            justifyContent: 'flex-end',
+            width: '100%',
+            zIndex: 100,
         }
     }),
 );

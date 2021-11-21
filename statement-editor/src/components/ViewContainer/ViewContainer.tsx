@@ -17,7 +17,6 @@ import { useIntl } from "react-intl";
 import { NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import { ExpressionEditorLangClientInterface, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { wizardStyles } from "../../../../ConfigForms/style";
 import { PrimaryButton } from "../../../Button/PrimaryButton";
 import { SecondaryButton } from "../../../Button/SecondaryButton";
 import { VariableUserInputs } from '../../models/definitions';
@@ -137,7 +136,6 @@ export function ViewContainer(props: ViewProps) {
     }, [onCancelClicked])
 
     const overlayClasses = useStatementEditorStyles();
-    const wizardStylesClasses = wizardStyles();
 
     const saveVariableButtonText = intl.formatMessage({
         id: "lowcode.develop.configForms.variable.saveButton.text",
@@ -180,7 +178,7 @@ export function ViewContainer(props: ViewProps) {
                     <RightPane/>
                 </div>
                 <div className={overlayClasses.bottomPane}>
-                    <div className={wizardStylesClasses.buttonWrapper}>
+                    <div className={overlayClasses.buttonWrapper}>
                         <SecondaryButton
                             text={cancelVariableButtonText}
                             fullWidth={false}
