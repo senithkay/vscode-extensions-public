@@ -15,8 +15,8 @@ import React, { useEffect, useState } from 'react';
 import { useIntl } from "react-intl";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
+import { FormField } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
-import { FormField } from '../../../../../../ConfigurationSpec/types';
 import { useRecordEditorContext } from '../../../../../../Contexts/RecordEditor';
 import { keywords } from "../../../../Portals/utils/constants";
 import { PrimaryButton } from '../../../FormFieldComponents/Button/PrimaryButton';

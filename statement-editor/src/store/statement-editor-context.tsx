@@ -14,6 +14,9 @@
 import React from 'react';
 
 import { NodePosition, STNode } from "@ballerina/syntax-tree";
+import { STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+
+import { LowCodeEditorProps } from '../components/ViewContainer/ViewContainer';
 
 import { InputEditorContextProvider } from "./input-editor-context";
 
@@ -28,10 +31,17 @@ export const StatementEditorContext = React.createContext({
     },
     statementCtx: {
         validateStatement: (isValid: boolean) => {}
+    },
+    getLangClient: () => (Promise.resolve({} as any)),
+    applyModifications: (modifications: STModification[]) => (Promise.resolve()),
+    currentFile: {
+        content: "",
+        path: "",
+        size: 0
     }
 });
 
-interface CtxProviderProps {
+interface CtxProviderProps extends LowCodeEditorProps {
     children?: React.ReactNode,
     model: STNode,
     onCancelClicked: boolean,
@@ -40,7 +50,7 @@ interface CtxProviderProps {
     validateStatement: (isValid: boolean) => void
 }
 export const StatementEditorContextProvider = (props: CtxProviderProps) => {
-    const { children, model, onCancelClicked, updateModel, formArgs, validateStatement } = props;
+    const { children, model, onCancelClicked, updateModel, formArgs, validateStatement, ...restProps } = props;
 
     return (
         <StatementEditorContext.Provider
@@ -55,7 +65,8 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
             },
             statementCtx: {
                 validateStatement
-            }
+            },
+            ...restProps
         }}
         >
             <InputEditorContextProvider>

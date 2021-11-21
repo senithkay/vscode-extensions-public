@@ -14,9 +14,7 @@
 import { STNode } from "@ballerina/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
-import { BlockViewState } from "../Diagram/components/LowCodeDiagram/ViewState";
-
-import { BallerinaConnectorInfo, Connector } from "./lang-client-extended";
+import { Connector } from "./lang-client-extended";
 
 export interface DiagramCoordinates {
     start: RectCoordinates;
@@ -50,7 +48,7 @@ export interface ConfigPanelStatus {
     isOpen?: boolean;
     formArgs?: any;
     formType?: string;
-    blockViewState?: BlockViewState;
+    blockViewState?: any; // FIXME - For mono repo migration
     error?: any;
 }
 
@@ -59,7 +57,7 @@ export interface ConfigOverlayFormStatus {
     isOpen?: boolean;
     formArgs?: any;
     formType?: string;
-    blockViewState?: BlockViewState;
+    blockViewState?: any; // FIXME - For mono repo migration
     error?: any;
 }
 

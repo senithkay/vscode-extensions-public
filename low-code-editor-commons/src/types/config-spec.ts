@@ -13,7 +13,6 @@
 
 import { NodePosition } from "@ballerina/syntax-tree";
 
-
 export enum PrimitiveBalType {
     String = "string",
     Record = "record",

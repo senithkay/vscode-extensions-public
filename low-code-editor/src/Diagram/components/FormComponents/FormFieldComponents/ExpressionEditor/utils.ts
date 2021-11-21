@@ -18,11 +18,6 @@ import { ExpEditorExpandSvg, ExpEditorCollapseSvg, ConfigurableIconSvg } from ".
 import * as monaco from 'monaco-editor';
 
 import {
-    FormField,
-    NonPrimitiveBal,
-    PrimitiveBalType
-} from "../../../../../ConfigurationSpec/types";
-import {
     COLLAPSE_WIDGET_ID,
     DOUBLE_QUOTE_ERR_CODE,
     EXPAND_WIDGET_ID,
@@ -40,7 +35,8 @@ import {
 import "./style.scss";
 import { ExpressionEditorHintProps, HintType } from "../ExpressionEditorHint";
 import MonacoEditor from "react-monaco-editor";
-import { CompletionParams, CompletionResponse, ExpressionEditorLangClientInterface, TextEdit } from "../../../../../Definitions";
+import { CompletionResponse, ExpressionEditorLangClientInterface, TextEdit,
+    FormField, NonPrimitiveBal, PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { InjectableItem } from "../../FormGenerator";
 import { InsertorDelete } from "../../../../utils/modification-util";
 import { GetExpCompletionsParams } from "./index";

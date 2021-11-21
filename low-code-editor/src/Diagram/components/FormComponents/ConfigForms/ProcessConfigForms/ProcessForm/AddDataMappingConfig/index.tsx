@@ -15,8 +15,8 @@
 import React, { useContext, useEffect } from 'react';
 
 import { CaptureBindingPattern, SimpleNameReference, STKindChecker, STNode, traversNode, TypedBindingPattern } from '@ballerina/syntax-tree';
+import { PrimitiveBalType } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
-import { PrimitiveBalType } from '../../../../../../../ConfigurationSpec/types';
 import { Context as DiagramContext } from '../../../../../../../Contexts/Diagram';
 import { getAllVariables } from "../../../../../../utils/mixins";
 import { DataMapperInitVisitor, VisitingType } from '../../../../../LowCodeDiagram/Components/RenderingComponents/DataMapper/util/data-mapper-init-visitor';

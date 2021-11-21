@@ -15,10 +15,9 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useIntl } from "react-intl";
 
 import { NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { ExpressionEditorLangClientInterface, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { Context } from '../../../../../../../Contexts/Diagram';
 import { wizardStyles } from "../../../../ConfigForms/style";
-import { ConditionConfig, EndConfig, ProcessConfig } from "../../../../Types";
 import { PrimaryButton } from "../../../Button/PrimaryButton";
 import { SecondaryButton } from "../../../Button/SecondaryButton";
 import { VariableUserInputs } from '../../models/definitions';
@@ -29,32 +28,33 @@ import { RightPane } from '../RightPane';
 
 import { useStatementEditorStyles } from "./styles";
 
-export interface ViewProps {
+export interface LowCodeEditorProps {
+    getLangClient: () => Promise<ExpressionEditorLangClientInterface>,
+    applyModifications: (modifications: STModification[]) => Promise<void>,
+    currentFile: {
+        content: string,
+        path: string,
+        size: number
+    };
+}
+export interface ViewProps extends LowCodeEditorProps {
     label: string;
     initialSource: string;
     formArgs: any;
     userInputs?: VariableUserInputs;
-    config: ProcessConfig | EndConfig | ConditionConfig;
+    config: {
+        type: string;
+        model: STNode;
+    }
     validForm?: boolean;
     onWizardClose: () => void;
     onCancel?: () => void;
     handleNameOnChange?: (name: string) => void;
     handleTypeChange?: (name: string) => void;
-    handleStatementEditorChange?: (partialModel: STNode) => void;
+    handleStatementEditorChange?: (partialModel: STNode) => void,
 }
 
 export function ViewContainer(props: ViewProps) {
-    const {
-        props: {
-            langServerURL,
-        },
-        api: {
-            ls,
-            code: {
-                modifyDiagram
-            }
-        }
-    } = useContext(Context);
     const {
         label,
         initialSource,
@@ -65,7 +65,10 @@ export function ViewContainer(props: ViewProps) {
         onWizardClose,
         handleNameOnChange,
         handleTypeChange,
-        handleStatementEditorChange
+        handleStatementEditorChange,
+        getLangClient,
+        applyModifications,
+        currentFile
     } = props;
     const intl = useIntl();
 
@@ -79,7 +82,7 @@ export function ViewContainer(props: ViewProps) {
     useEffect(() => {
         (async () => {
             const partialST: STNode = await getPartialSTForStatement(
-                {codeSnippet: initialSource.trim()}, langServerURL, ls);
+                {codeSnippet: initialSource.trim()}, getLangClient);
             setModel(partialST);
         })();
     }, []);
@@ -99,7 +102,7 @@ export function ViewContainer(props: ViewProps) {
             newCodeSnippet: codeSnippet
         }
         const partialST: STNode = await getPartialSTForStatement(
-            {codeSnippet : model.source, stModification}, langServerURL, ls);
+            {codeSnippet : model.source, stModification}, getLangClient);
         setModel(partialST);
     }
 
@@ -148,7 +151,7 @@ export function ViewContainer(props: ViewProps) {
 
     const onSaveClick = () => {
         const modifications = getModifications(model, config, formArgs);
-        modifyDiagram(modifications);
+        applyModifications(modifications);
         onWizardClose();
     };
 
@@ -162,6 +165,9 @@ export function ViewContainer(props: ViewProps) {
                         updateModel={updateModel}
                         formArgs={formArgs}
                         validateStatement={validateStatement}
+                        applyModifications={applyModifications}
+                        currentFile={currentFile}
+                        getLangClient={getLangClient}
                     >
                         <LeftPane
                             currentModel={currentModel}

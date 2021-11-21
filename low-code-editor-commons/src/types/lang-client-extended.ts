@@ -15,7 +15,7 @@
 
 import { STNode } from "@ballerina/syntax-tree";
 
-import { FunctionDefinitionInfo } from "../ConfigurationSpec/types";
+import { FunctionDefinitionInfo } from "./config-spec";
 
 export type STModificationConfig = {};
 

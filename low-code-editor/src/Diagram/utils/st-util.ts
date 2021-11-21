@@ -16,13 +16,11 @@ import {
     STKindChecker,
     STNode, traversNode, TypeCastExpression, VisibleEndpoint
 } from '@ballerina/syntax-tree';
+import { BallerinaConnectorInfo, BallerinaRecord, Connector, FunctionDefinitionInfo, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { subMinutes } from "date-fns";
 import { Diagnostic } from 'vscode-languageserver-protocol';
 
 import { AnalyzePayloadVisitor, initVisitor, positionVisitor, sizingVisitor } from '../..';
-import { FunctionDefinitionInfo } from "../../ConfigurationSpec/types";
-import { STSymbolInfo } from '../../Definitions';
-import { BallerinaConnectorInfo, BallerinaRecord, Connector } from '../../Definitions/lang-client-extended';
 import { CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH } from "../../Diagram/components/LowCodeDiagram/Components/RenderingComponents/Connector/ConnectorHeader/ConnectorClientSVG";
 import { IFELSE_SVG_HEIGHT, IFELSE_SVG_WIDTH } from "../components/LowCodeDiagram/Components/RenderingComponents/IfElse/IfElseSVG";
 import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH } from "../components/LowCodeDiagram/Components/RenderingComponents/Processor/ProcessSVG";

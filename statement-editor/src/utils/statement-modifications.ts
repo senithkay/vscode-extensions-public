@@ -11,8 +11,7 @@
  * associated services.
  */
 import { NodePosition } from "@ballerina/syntax-tree";
-
-import { STModification } from "../../../../../../Definitions";
+import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 export function createStatement(property: string, targetPosition: NodePosition): STModification {
     const modification: STModification = {

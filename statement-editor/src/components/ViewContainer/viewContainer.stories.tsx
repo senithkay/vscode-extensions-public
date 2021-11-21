@@ -15,7 +15,6 @@ import React from 'react';
 
 import { Story } from '@storybook/react/types-6-0';
 
-import { Provider as LowCodeEditorProvider } from "../../../../../../../Contexts/Diagram";
 import { InputEditorContextProvider } from "../../store/input-editor-context";
 import { StatementEditorContextProvider } from '../../store/statement-editor-context';
 import foreachModel from "../StatementRenderer/data/foreach-st-model.json";
@@ -45,68 +44,14 @@ const statementEditorContextProps = {
     onCancelClicked: false,
     onSave: dummyFunctionWithoutArgs,
     onChange: dummyFunction,
-    validateStatement: dummyFunction
-}
-
-const api = {
-    tour: { goToNextTourStep: dummyFunction },
-    helpPanel: { openConnectorHelp: dummyFunction },
-    notifications: {},
-    ls: {},
-    insights: { trackTriggerSelection: dummyFunction },
-    code: {
-        modifyDiagram: dummyFunction,
-        onMutate: dummyFunction,
-        setCodeLocationToHighlight: dummyFunction,
-        gotoSource: dummyFunction
-    },
-    panNZoom: {
-        pan: dummyFunction,
-        fitToScreen: dummyFunctionWithoutArgs,
-        zoomIn: dummyFunctionWithoutArgs,
-        zoomOut: dummyFunctionWithoutArgs,
-    },
-    configPanel: {
-        dispactchConfigOverlayForm: dummyFunction,
-        closeConfigOverlayForm: dummyFunctionWithoutArgs,
-        configOverlayFormPrepareStart: dummyFunctionWithoutArgs,
-        closeConfigPanel: dummyFunctionWithoutArgs,
-    },
-    webView: {
-        showSwaggerView: dummyFunction,
-    }
-}
-
-
-const props = {
-    api,
+    validateStatement: dummyFunction,
+    getLangClient: () => (Promise.resolve({} as any)),
+    applyModifications: () => (Promise.resolve({} as any)),
     currentFile: {
-        // @ts-ignore
-        type: undefined,
-        path: '',
-        size: 3,
-        content: ''
-    },
-    // @ts-ignore
-    syntaxTree: undefined,
-    // @ts-ignore
-    originalSyntaxTree: undefined,
-    // @ts-ignore
-    stSymbolInfo: undefined,
-    langServerURL: '',
-    // @ts-ignore
-    configOverlayFormStatus: undefined,
-    // @ts-ignore
-    configPanelStatus: undefined,
-    isCodeEditorActive: false,
-    isPerformanceViewOpen: false,
-    isLoadingSuccess: false,
-    isWaitingOnWorkspace: false,
-    isMutationProgress: false,
-    isCodeChangeInProgress: false,
-    isReadOnly: false,
-    // @ts-ignore
-    zoomStatus: undefined
+        content: "",
+        path: "",
+        size: 0
+    }
 }
 
 const inputEditorContextProps: any = {
@@ -121,13 +66,11 @@ const inputEditorContextProps: any = {
 }
 
 const Template: Story<ViewProps> = (args: ViewProps) => (
-    <LowCodeEditorProvider {...props} >
         <StatementEditorContextProvider {...statementEditorContextProps}>
             <InputEditorContextProvider {...inputEditorContextProps}>
                 <ViewContainer {...args} />;
             </InputEditorContextProvider>
         </StatementEditorContextProvider>
-    </LowCodeEditorProvider>
 );
 
 export const VarDeclBinaryExprStmt = Template.bind({});

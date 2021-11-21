@@ -22,17 +22,8 @@ import { useStyles } from "./style";
 
 export const useStatementEditor = (props: ViewProps) => {
     const {
-        label,
-        initialSource,
-        formArgs,
-        userInputs,
-        config,
-        validForm,
-        onWizardClose,
-        handleNameOnChange,
-        handleTypeChange,
-        handleStatementEditorChange,
-        onCancel
+        onCancel,
+        ...restProps
     } = props;
     const classes = useStyles();
 
@@ -69,17 +60,8 @@ export const useStatementEditor = (props: ViewProps) => {
                     </div>
                 </div>
                 <ViewContainer
-                    label={label}
-                    initialSource={initialSource}
-                    formArgs={formArgs}
-                    userInputs={userInputs}
-                    validForm={validForm}
-                    config={config}
                     onCancel={handleStmtEditorCancel}
-                    onWizardClose={onWizardClose}
-                    handleNameOnChange={handleNameOnChange}
-                    handleTypeChange={handleTypeChange}
-                    handleStatementEditorChange={handleStatementEditorChange}
+                    {...restProps}
                 />
             </div>
         </FormControl>

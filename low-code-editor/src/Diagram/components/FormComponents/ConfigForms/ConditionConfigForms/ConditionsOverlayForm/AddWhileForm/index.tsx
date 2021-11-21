@@ -18,7 +18,7 @@ import { WhileStatement } from "@ballerina/syntax-tree";
 import classnames from "classnames";
 import {Box, FormControl, Typography} from "@material-ui/core";
 
-import { FormField } from "../../../../../../../ConfigurationSpec/types";
+import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { createWhileStatement, getInitialSource } from "../../../../../../utils/modification-util";

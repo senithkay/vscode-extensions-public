@@ -15,11 +15,9 @@
 import React, { useContext } from "react";
 
 import { NodePosition } from "@ballerina/syntax-tree";
+import { ConfigOverlayFormStatus, STModification, WizardType  } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { WizardType } from "../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../Contexts/Diagram";
-import { ConfigOverlayFormStatus } from "../../../../../Definitions";
-import { STModification } from "../../../../../Definitions/lang-client-extended";
 import { EVENT_TYPE_AZURE_APP_INSIGHTS, FINISH_STATEMENT_ADD_INSIGHTS, LowcodeEvent } from "../../../../models";
 import {
     createElseIfStatement, createElseStatement,

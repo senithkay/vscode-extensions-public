@@ -15,22 +15,20 @@ import React, { useContext, useEffect, useState } from "react";
 import { monaco } from "react-monaco-editor";
 
 import {
-    BooleanLiteral, BooleanTypeDesc, DecimalTypeDesc, FloatTypeDesc, IntTypeDesc, JsonTypeDesc, NodePosition,
+    BooleanLiteral, NodePosition,
     NumericLiteral, QualifiedNameReference,
     SimpleNameReference,
     STKindChecker,
     STNode,
     StringLiteral, StringTypeDesc
 } from "@ballerina/syntax-tree";
-import { getDiagnosticMessage, getFilteredDiagnostics } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { CompletionParams,
+    CompletionResponse,
+    ExpressionEditorLangClientInterface,
+    getDiagnosticMessage,
+    getFilteredDiagnostics } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import debounce from "lodash.debounce";
 
-import { Context } from "../../../../../../../Contexts/Diagram";
-import {
-    CompletionParams,
-    CompletionResponse,
-    ExpressionEditorLangClientInterface
-} from "../../../../../../../Definitions";
 import * as c from "../../constants";
 import { SuggestionItem, VariableUserInputs } from "../../models/definitions";
 import { InputEditorContext } from "../../store/input-editor-context";
@@ -52,17 +50,6 @@ export interface InputEditorProps {
 }
 
 export function InputEditor(props: InputEditorProps) {
-    const {
-        state: { targetPosition: targetPositionDraft },
-        props: {
-            currentFile,
-            langServerURL,
-            syntaxTree,
-        },
-        api: {
-            ls
-        }
-    } = useContext(Context);
 
     const [isEditing, setIsEditing] = useState(false);
     const [inputEditorState, setInputEditorState] = useState({
@@ -77,6 +64,7 @@ export function InputEditor(props: InputEditorProps) {
     const inputEditorCtx = useContext(InputEditorContext);
     const stmtCtx = useContext(StatementEditorContext);
     const { expressionHandler } = useContext(SuggestionsContext);
+    const { currentFile, getLangClient }  = stmtCtx;
 
     const [currentContent, setCurrentContent] = useState(stmtCtx.modelCtx.statementModel.source);
 
@@ -176,7 +164,7 @@ export function InputEditor(props: InputEditorProps) {
         const partialST: STNode = await getPartialSTForStatement({
             codeSnippet: currentFile.content,
             stModification
-        }, langServerURL, ls);
+        }, getLangClient);
         return partialST.source;
     }
 
@@ -187,7 +175,7 @@ export function InputEditor(props: InputEditorProps) {
         inputEditorState.content = initContent;
         inputEditorState.uri = monaco.Uri.file(currentFile.path).toString();
 
-        const langClient = await ls.getExpressionEditorLangClient(langServerURL);
+        const langClient = await getLangClient();
         langClient.didChange({
             contentChanges: [
                 {
@@ -228,7 +216,7 @@ export function InputEditor(props: InputEditorProps) {
         inputEditorState.content = initContent;
         inputEditorState.uri = monaco.Uri.file(currentFile.path).toString();
 
-        const langClient = await ls.getExpressionEditorLangClient(langServerURL);
+        const langClient = await getLangClient();
         langClient.didChange({
             contentChanges: [
                 {
@@ -257,7 +245,7 @@ export function InputEditor(props: InputEditorProps) {
         inputEditorState.content = currentFile.content;
         inputEditorState.uri = monaco.Uri.file(currentFile.path).toString();
 
-        const langClient = await ls.getExpressionEditorLangClient(langServerURL);
+        const langClient = await getLangClient();
         langClient.didChange({
             contentChanges: [
                 {
@@ -277,7 +265,7 @@ export function InputEditor(props: InputEditorProps) {
             inputEditorState.content = (currentFile.content);
             inputEditorState.uri = inputEditorState?.uri;
 
-            await ls.getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
+            await getLangClient().then(async (langClient: ExpressionEditorLangClientInterface) => {
                 await langClient.didChange({
                     contentChanges: [
                         {
@@ -309,7 +297,7 @@ export function InputEditor(props: InputEditorProps) {
 
         const acceptedDataType: string[] = getDataTypeOnExpressionKind(model.kind);
 
-        ls.getExpressionEditorLangClient(langServerURL).then((langClient: ExpressionEditorLangClientInterface) => {
+        getLangClient().then((langClient: ExpressionEditorLangClientInterface) => {
             langClient.getCompletion(completionParams).then((values: CompletionResponse[]) => {
                 const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (
                     (!completionResponse.kind ||

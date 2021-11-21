@@ -11,3 +11,4 @@
  * associated services.
  */
 export * from "./lib";
+export * from "./types";

@@ -14,10 +14,9 @@
 import React, { useContext } from "react";
 
 import { LocalVarDecl } from "@ballerina/syntax-tree";
+import { BallerinaConnectorInfo, BallerinaConnectorsRequest, BallerinaModuleResponse, DiagramEditorLangClientInterface } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { Context } from "../../../../../Contexts/Diagram";
-import { DiagramEditorLangClientInterface } from "../../../../../Definitions/diagram-editor-lang-client-interface";
-import { BallerinaConnectorInfo, BallerinaConnectorsRequest, BallerinaModuleResponse } from "../../../../../Definitions/lang-client-extended";
 import { UserState } from "../../../../../types";
 import { APIHeightStates } from "../../../LowCodeDiagram/Components/DialogBoxes/PlusHolder";
 import { PlusViewState } from "../../../LowCodeDiagram/ViewState";

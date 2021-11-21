@@ -17,15 +17,15 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { LocalVarDecl, STNode } from "@ballerina/syntax-tree";
 import { Box, FormControl, FormHelperText, IconButton, Typography } from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
-import classNames from "classnames";
-
 import {
     ActionConfig,
+    Connector,
     ConnectorConfig,
     FormField,
-    FunctionDefinitionInfo} from "../../../../../../ConfigurationSpec/types";
+    FunctionDefinitionInfo, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import classNames from "classnames";
+
 import { Context } from "../../../../../../Contexts/Diagram";
-import { Connector, STSymbolInfo } from "../../../../../../Definitions";
 import { getAllVariables } from "../../../../../utils/mixins";
 import { checkVariableName, genVariableName } from "../../../../Portals/utils";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";

@@ -2,9 +2,8 @@ import React from 'react';
 
 import { ModulePart, NodePosition, STNode } from '@ballerina/syntax-tree';
 import { ComponentStory } from '@storybook/react';
+import { Connector, STModification, STSymbolInfo, WizardType } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
-import { WizardType } from '../ConfigurationSpec/types';
-import { Connector, STModification, STSymbolInfo } from '../Definitions';
 import { ConditionConfig } from '../Diagram/components/FormComponents/Types';
 import { LowcodeEvent, TriggerType } from '../Diagram/models';
 import { sizingAndPositioningST } from '../DiagramGenerator/generatorUtil';

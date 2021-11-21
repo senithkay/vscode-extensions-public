@@ -17,9 +17,9 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { FormHelperText } from "@material-ui/core";
 import AddRounded from "@material-ui/icons/AddRounded";
 import CloseRounded from "@material-ui/icons/CloseRounded";
+import { FormField, getType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import classNames from "classnames";
 
-import { FormField, getType } from "../../../../../ConfigurationSpec/types";
 import { getFormElement, getParams } from "../../../Portals/utils";
 import "../../DynamicConnectorForm/ConnectorInitForm/Wizard/style.scss"
 import { useStyles } from "../../DynamicConnectorForm/style";

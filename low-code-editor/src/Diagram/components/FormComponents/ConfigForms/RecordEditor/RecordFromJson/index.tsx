@@ -15,9 +15,9 @@ import React, { useContext, useEffect, useReducer } from 'react';
 
 import { NodePosition } from '@ballerina/syntax-tree';
 import { Box, FormControl, FormHelperText, Typography } from "@material-ui/core";
+import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { Context } from "../../../../../../Contexts/Diagram";
-import { STModification } from "../../../../../../Definitions";
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
 import { createPropertyStatement } from "../../../../../utils/modification-util";
 import { keywords } from "../../../../Portals/utils/constants";

@@ -15,8 +15,8 @@ import React, { useEffect, useState } from "react";
 import { FormattedMessage } from "react-intl";
 
 import { FormHelperText } from "@material-ui/core";
+import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { FormField } from "../../../../../ConfigurationSpec/types";
 import { Form } from "../../DynamicConnectorForm";
 import { useStyles } from "../../DynamicConnectorForm/style";
 import { FormElementProps } from "../../Types";

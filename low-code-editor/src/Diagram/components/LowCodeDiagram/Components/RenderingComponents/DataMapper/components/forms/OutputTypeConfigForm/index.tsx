@@ -18,10 +18,9 @@
 import React, { useContext, useEffect, useState } from 'react';
 
 import { CaptureBindingPattern, LocalVarDecl, NodePosition, STKindChecker, STNode } from '@ballerina/syntax-tree';
+import { FormField, PrimitiveBalType, STModification, WizardType } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
-import { FormField, PrimitiveBalType, WizardType } from '../../../../../../../../../ConfigurationSpec/types';
 import { Context as DiagramContext } from '../../../../../../../../../Contexts/Diagram';
-import { STModification } from '../../../../../../../../../Definitions';
 import { getAllVariables } from '../../../../../../../../utils/mixins';
 import { createPropertyStatement, updatePropertyStatement } from '../../../../../../../../utils/modification-util';
 import { wizardStyles } from "../../../../../../../FormComponents/ConfigForms/style";

@@ -18,13 +18,11 @@ import StepConnector from "@material-ui/core/StepConnector";
 import StepLabel from "@material-ui/core/StepLabel";
 import Stepper from "@material-ui/core/Stepper";
 import { withStyles } from "@material-ui/core/styles";
+import { Connector, ConnectorConfig, FormField, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import classNames from "classnames";
 import clsx from "clsx";
 
-import { ConnectorConfig, FormField } from "../../../../../../ConfigurationSpec/types";
-import { Connector, STModification } from "../../../../../../Definitions/lang-client-extended";
 import { SelectConnectionForm } from "../../../ConnectorConfigWizard/Components/SelectExistingConnection";
-
 
 import { SelectInputOutputForm } from "./SelectInputOutputForm";
 import { SelectOperationForm } from "./SelectOperationForm";

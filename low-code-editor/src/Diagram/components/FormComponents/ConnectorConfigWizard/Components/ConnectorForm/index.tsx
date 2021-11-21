@@ -17,19 +17,17 @@ import { FormattedMessage } from "react-intl";
 
 import { CaptureBindingPattern, LocalVarDecl, NodePosition, STKindChecker } from "@ballerina/syntax-tree";
 import { Box, Divider, FormControl, Typography } from "@material-ui/core";
-
 import {
   ActionConfig,
+  BallerinaConnectorInfo,
   ConnectorConfig,
   FormField,
   FormFieldReturnType,
-  WizardType,
-} from "../../../../../../ConfigurationSpec/types";
-import { Context } from "../../../../../../Contexts/Diagram";
-import {
-  BallerinaConnectorInfo,
   STModification,
-} from "../../../../../../Definitions/lang-client-extended";
+  WizardType,
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+
+import { Context } from "../../../../../../Contexts/Diagram";
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
 import {
   CONTINUE_TO_INVOKE_API,

@@ -16,13 +16,12 @@ import {
     STKindChecker,
     STNode
 } from "@ballerina/syntax-tree";
-
 import {
     ExpressionEditorLangClientInterface,
     PartialSTRequest,
     STModification
-} from "../../../../../../Definitions";
-import { ConditionConfig, EndConfig, ProcessConfig } from "../../../Types";
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+
 import * as expressionTypeComponents from '../components/ExpressionTypes';
 import * as statementTypeComponents from '../components/Statements';
 import * as c from "../constants";
@@ -39,10 +38,9 @@ import {
 
 export async function getPartialSTForStatement(
             partialSTRequest: PartialSTRequest,
-            lsUrl: string,
-            ls?: any
+            getLangClient: () => Promise<ExpressionEditorLangClientInterface>
         ): Promise<STNode> {
-    const langClient: ExpressionEditorLangClientInterface = await ls.getExpressionEditorLangClient(lsUrl);
+    const langClient: ExpressionEditorLangClientInterface = await getLangClient();
     const resp = await langClient.getSTForSingleStatement(partialSTRequest);
     return resp.syntaxTree;
 }
@@ -58,7 +56,12 @@ export async function getPartialSTForExpression(
 }
 
 export function getModifications(
-        model: STNode, config: ProcessConfig | EndConfig | ConditionConfig, formArgs: any): STModification[] {
+        model: STNode,
+        config: {
+            type: string;
+            model: STNode;
+        },
+        formArgs: any): STModification[] {
     const modifications: STModification[] = [];
 
     if (STKindChecker.isLocalVarDecl(model) ||

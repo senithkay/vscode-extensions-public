@@ -15,11 +15,11 @@ import React, { useEffect, useRef, useState } from "react";
 
 import { FunctionDefinition, NodePosition, STKindChecker } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
+import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { AddIcon, FunctionIcon } from "../../../../../assets/icons";
 import { Section } from "../../../../../components/ConfigPanel";
 import { useDiagramContext } from "../../../../../Contexts/Diagram";
-import { STModification } from "../../../../../Definitions";
 import {
   createFunctionSignature,
   updateFunctionSignature,

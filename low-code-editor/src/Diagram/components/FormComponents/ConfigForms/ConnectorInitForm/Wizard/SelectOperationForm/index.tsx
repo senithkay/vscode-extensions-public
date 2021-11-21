@@ -14,8 +14,8 @@
 import React from "react";
 
 import { Box, FormControl, FormHelperText, Typography } from "@material-ui/core";
+import { ActionConfig, ConnectorConfig, FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { ActionConfig, ConnectorConfig, FormField } from "../../../../../../../ConfigurationSpec/types";
 import { PrimaryButton } from "../../../../FormFieldComponents/Button/PrimaryButton";
 import { SecondaryButton } from "../../../../FormFieldComponents/Button/SecondaryButton";
 import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";

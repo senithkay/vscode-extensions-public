@@ -16,10 +16,10 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 
 import { AssignmentStatement, LocalVarDecl, MappingConstructor, NodePosition, RecordTypeDesc, SpecificField, STKindChecker, STNode } from '@ballerina/syntax-tree';
+import { PrimitiveBalType } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import classNames from 'classnames';
 
 import Tooltip from '../../../../../../../../../components/Tooltip';
-import { PrimitiveBalType } from '../../../../../../../../../ConfigurationSpec/types';
 import { removeStatement } from '../../../../../../../../../Diagram/utils/modification-util';
 import { DefaultConfig } from '../../../../../../../../../Diagram/visitors/default';
 import { DeleteSVG } from '../../../../../../Components/DiagramActions/DeleteBtn/DeleteSVG';

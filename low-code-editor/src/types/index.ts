@@ -15,14 +15,14 @@
 // Should move these to ../Definitions/*
 
 import { ModulePart, NodePosition, STNode } from "@ballerina/syntax-tree";
+import { BallerinaConnectorInfo, ConfigOverlayFormStatus, ConfigPanelStatus, Connector,
+    DiagramEditorLangClientInterface, ExpressionEditorLangClientInterface, STModification,
+    STSymbolInfo, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
 import { BlockViewState } from "..";
-import { WizardType } from "../ConfigurationSpec/types";
-import { ConfigOverlayFormStatus, ConfigPanelStatus, DiagramEditorLangClientInterface, ExpressionEditorLangClientInterface, STSymbolInfo } from "../Definitions";
-import { BallerinaConnectorInfo, Connector, STModification } from "../Definitions/lang-client-extended";
 import { ConditionConfig, DataMapperConfig } from "../Diagram/components/FormComponents/Types";
-import { LowcodeEvent, TriggerType } from "../Diagram/models";
+import { LowcodeEvent } from "../Diagram/models";
 import { Warning } from "../Diagram/utils/st-util";
 
 export interface ZoomStatus {

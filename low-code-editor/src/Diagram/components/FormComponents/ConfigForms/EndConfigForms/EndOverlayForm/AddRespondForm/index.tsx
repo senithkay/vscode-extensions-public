@@ -16,9 +16,9 @@ import { FormattedMessage, useIntl } from "react-intl";
 
 import { ActionStatement, RemoteMethodCallAction } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
+import { httpResponse, PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import cn from "classnames";
 
-import { httpResponse, PrimitiveBalType } from "../../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { createRespond, getInitialSource } from "../../../../../../utils/modification-util";

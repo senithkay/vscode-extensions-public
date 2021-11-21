@@ -23,20 +23,19 @@ import {
     STNode, StringLiteral, TypeCastExpression
 } from "@ballerina/syntax-tree";
 import { Avatar, colors } from "@material-ui/core";
+import {
+    ActionConfig,
+    BallerinaConnectorInfo,
+    BallerinaConnectorRequest,
+    Connector,
+    ConnectorConfig,
+    DiagramEditorLangClientInterface,
+    FormField, FormFieldReturnType,
+    FunctionDefinitionInfo, PrimitiveBalType, STSymbolInfo 
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { DocumentSymbol, SymbolInformation } from "vscode-languageserver-protocol";
 
 import * as ConstructIcons from "../../../../assets/icons"
-import {
-    ActionConfig,
-    ConnectorConfig,
-    FormField,
-    FormFieldReturnType,
-    FunctionDefinitionInfo,
-    PrimitiveBalType,
-    WizardType
-} from "../../../../ConfigurationSpec/types";
-import { DiagramEditorLangClientInterface, STSymbolInfo } from "../../../../Definitions";
-import { BallerinaConnectorInfo, BallerinaConnectorRequest, Connector } from "../../../../Definitions/lang-client-extended";
 import { getAllVariables as retrieveVariables } from "../../../utils/mixins";
 import {
     addConnectorToCache,
