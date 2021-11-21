@@ -25,10 +25,11 @@ interface FloatTypeDescProps {
     model: FloatTypeDesc
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
+    isTypeDescriptor: boolean
 }
 
 export function FloatTypeDescComponent(props: FloatTypeDescProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+    const { model, userInputs, diagnosticHandler, isTypeDescriptor } = props;
 
     const overlayClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
@@ -38,7 +39,8 @@ export function FloatTypeDescComponent(props: FloatTypeDescProps) {
         model,
         expressionHandler,
         userInputs,
-        diagnosticHandler
+        diagnosticHandler,
+        isTypeDescriptor
     };
 
     const onClickOnType = (event: any) => {

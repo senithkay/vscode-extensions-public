@@ -22,12 +22,13 @@ export interface ExpressionComponentProps {
     isRoot: boolean,
     userInputs?: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
+    isTypeDescriptor: boolean
 }
 
 export function ExpressionComponent(props: ExpressionComponentProps) {
-    const { model, isRoot, userInputs, diagnosticHandler } = props;
+    const { model, isRoot, userInputs, diagnosticHandler, isTypeDescriptor } = props;
 
-    const component = getExpressionTypeComponent(model, userInputs, diagnosticHandler);
+    const component = getExpressionTypeComponent(model, userInputs, diagnosticHandler, isTypeDescriptor);
 
     return (
         <span>{component}</span>

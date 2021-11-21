@@ -39,6 +39,7 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
         isRoot={false}
         userInputs={userInputs}
         diagnosticHandler={diagnosticHandler}
+        isTypeDescriptor={false}
     />;
 
     const middleExpression: ReactNode = <ExpressionComponent
@@ -46,6 +47,7 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
         isRoot={false}
         userInputs={userInputs}
         diagnosticHandler={diagnosticHandler}
+        isTypeDescriptor={false}
     />;
 
     const endExpression: ReactNode = <ExpressionComponent
@@ -53,6 +55,7 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
         isRoot={false}
         userInputs={userInputs}
         diagnosticHandler={diagnosticHandler}
+        isTypeDescriptor={false}
     />;
 
     const onClickOnLhsExpression = (event: any) => {

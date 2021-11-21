@@ -41,6 +41,7 @@ export function ListConstructorComponent(props: ListConstructorProps) {
                 isRoot={false}
                 userInputs={userInputs}
                 diagnosticHandler={diagnosticHandler}
+                isTypeDescriptor={false}
             />;
             expressions.push(expr)
         }

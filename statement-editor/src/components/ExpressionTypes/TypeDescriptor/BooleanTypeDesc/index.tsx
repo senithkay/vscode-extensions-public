@@ -25,10 +25,11 @@ interface BooleanTypeDescProps {
     model: BooleanTypeDesc
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
+    isTypeDescriptor: boolean
 }
 
 export function BooleanTypeDescComponent(props: BooleanTypeDescProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+    const { model, userInputs, diagnosticHandler, isTypeDescriptor } = props;
 
     const overlayClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
@@ -43,7 +44,8 @@ export function BooleanTypeDescComponent(props: BooleanTypeDescProps) {
         model,
         expressionHandler,
         userInputs,
-        diagnosticHandler
+        diagnosticHandler,
+        isTypeDescriptor
     };
 
     return (

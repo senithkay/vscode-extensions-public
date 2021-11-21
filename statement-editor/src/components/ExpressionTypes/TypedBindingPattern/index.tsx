@@ -35,12 +35,14 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
         isRoot={false}
         userInputs={userInputs}
         diagnosticHandler={diagnosticHandler}
+        isTypeDescriptor={true}
     />;
     const bindingPatternComponent: ReactNode = <ExpressionComponent
         model={model.bindingPattern}
         isRoot={false}
         userInputs={userInputs}
         diagnosticHandler={diagnosticHandler}
+        isTypeDescriptor={false}
     />;
 
 

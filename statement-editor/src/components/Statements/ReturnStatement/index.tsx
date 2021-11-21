@@ -40,6 +40,7 @@ export function ReturnStatementC(props: ReturnStatementProps) {
             isRoot={false}
             userInputs={userInputs}
             diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
         />
     );
 

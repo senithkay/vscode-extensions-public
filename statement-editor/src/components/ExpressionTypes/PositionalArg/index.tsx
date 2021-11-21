@@ -39,6 +39,7 @@ export function PositionalArgComponent(props: PositionalArgProps) {
         isRoot={false}
         userInputs={userInputs}
         diagnosticHandler={diagnosticHandler}
+        isTypeDescriptor={false}
     />;
 
     const onClickOnExpression = (event: any) => {

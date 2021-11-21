@@ -25,10 +25,11 @@ interface DecimalTypeDescProps {
     model: DecimalTypeDesc
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
+    isTypeDescriptor: boolean
 }
 
 export function DecimalTypeDescComponent(props: DecimalTypeDescProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+    const { model, userInputs, diagnosticHandler, isTypeDescriptor} = props;
 
     const overlayClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
@@ -38,7 +39,8 @@ export function DecimalTypeDescComponent(props: DecimalTypeDescProps) {
         model,
         expressionHandler,
         userInputs,
-        diagnosticHandler
+        diagnosticHandler,
+        isTypeDescriptor
     };
 
     const onClickOnType = (event: any) => {

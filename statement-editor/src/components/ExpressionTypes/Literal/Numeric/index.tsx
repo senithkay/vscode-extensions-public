@@ -22,15 +22,17 @@ interface NumericLiteralProps {
     model: NumericLiteral
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
+    isTypeDescriptor: boolean
 }
 
 export function NumericLiteralComponent(props: NumericLiteralProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+    const { model, userInputs, diagnosticHandler, isTypeDescriptor } = props;
     const inputEditorProps = {
         statementType: model.kind,
         model,
         userInputs,
-        diagnosticHandler
+        diagnosticHandler,
+        isTypeDescriptor
     };
 
     return (
