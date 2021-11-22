@@ -134,7 +134,7 @@ export function InputEditor(props: InputEditorProps) {
 
     useEffect(() => {
         setUserInput(value);
-        handleContentChange(currentContent, "").then(() => {
+        handleContentChange(currentContent).then(() => {
             handleOnOutFocus().then();
         });
     }, [inputEditorCtx.userInput]);
@@ -211,7 +211,7 @@ export function InputEditor(props: InputEditorProps) {
         }
     }
 
-    const handleContentChange = async (currentStatement: string, EOL: string) => {
+    const handleContentChange = async (currentStatement: string, currentCodeSnippet?: string) => {
         const initContent: string = await addStatementToTargetLine(currentFile.content, targetPosition, currentStatement);
 
         inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
@@ -240,6 +240,10 @@ export function InputEditor(props: InputEditorProps) {
             diagnostic: diagResp[0]?.diagnostics ? getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) : []
         })
         setCurrentContent(currentStatement);
+
+        if (isEditing) {
+            getContextBasedCompletions(currentCodeSnippet != null ? currentCodeSnippet : userInput);
+        }
     }
 
     const handleOnOutFocus = async () => {
@@ -360,15 +364,14 @@ export function InputEditor(props: InputEditorProps) {
 
     const inputChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
         const currentStatement = stmtCtx.modelCtx.statementModel.source;
+        setUserInput(event.target.value);
         const updatedStatement = addExpressionToTargetPosition(
             currentStatement,
             model.position.startColumn,
             event.target.value ? event.target.value : "",
             model.position.endColumn
         );
-        debouncedContentChange(updatedStatement, "");
-        setUserInput(event.target.value);
-        getContextBasedCompletions(event.target.value);
+        debouncedContentChange(updatedStatement, event.target.value);
     };
 
     const debouncedContentChange = debounce(handleContentChange, 500);
