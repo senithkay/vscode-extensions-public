@@ -28,6 +28,7 @@ export interface ConnectorListProps {
     onChange?: (type: string, subType: string, connector?: BallerinaConnectorInfo) => void;
     viewState?: PlusViewState;
     collapsed?: (value: APIHeightStates) => void;
+    onCancel?: () => void;
 }
 
 export function ConnectorList(props: FormGeneratorProps) {
@@ -36,7 +37,7 @@ export function ConnectorList(props: FormGeneratorProps) {
             ls: { getDiagramEditorLangClient },
         }
     } = useContext(Context);
-    const { onSelect } = props.configOverlayFormStatus.formArgs as ConnectorListProps;
+    const { onSelect, onCancel } = props.configOverlayFormStatus.formArgs as ConnectorListProps;
     const fetchConnectorsList = async (searchQuery: string, selectedCategory: string, connectorLimit: number, currentFilePath: string,
                                        filterState: FilterStateMap, userInfo: UserState, page?: number): Promise<BallerinaModuleResponse> => {
         const langClient: DiagramEditorLangClientInterface = await getDiagramEditorLangClient();

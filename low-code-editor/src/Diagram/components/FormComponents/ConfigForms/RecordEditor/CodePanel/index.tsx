@@ -15,11 +15,11 @@ import React from "react";
 import { useIntl } from "react-intl";
 
 import { NodePosition } from "@ballerina/syntax-tree";
-import { Box, Typography } from "@material-ui/core";
-import { PrimaryButton, SecondaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { Box, FormControl, Typography } from "@material-ui/core";
+import { FormHeaderSection, PrimaryButton, SecondaryButton } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
 import { useDiagramContext } from "../../../../../../Contexts/Diagram";
-import { useRecordEditorContext} from "../../../../../../Contexts/RecordEditor";
+import { useRecordEditorContext } from "../../../../../../Contexts/RecordEditor";
 import { mutateTypeDefinition } from "../../../../../utils/modification-util";
 import { wizardStyles } from "../../style";
 import { RecordField } from "../RecordField";
@@ -82,27 +82,28 @@ export function CodePanel() {
     };
 
     return (
-        <div>
-            <div className={recordClasses.recordConfigTitleWrapper}>
-                <Typography variant="h4">
-                    <Box paddingTop={2} paddingBottom={2}>{title}</Box>
-                </Typography>
-            </div>
-            <div className={recordClasses.recordFieldWrapper}>
-                <RecordField recordModel={state.recordModel}/>
-            </div>
-            <div className={recordClasses.configButtonWrapper}>
-                <div className={overlayClasses.buttonWrapper}>
-                    <SecondaryButton text={cancelButtonText} fullWidth={false} onClick={state.onCancel}/>
-                    <PrimaryButton
-                        dataTestId={"record-from-json-save-btn"}
-                        text={saveButtonText}
-                        disabled={state.isEditorInvalid}
-                        fullWidth={false}
-                        onClick={handleRecordSave}
-                    />
+        <FormControl data-testid="record-form" className={overlayClasses.wizardFormControl}>
+            <FormHeaderSection
+                formTitle={"lowcode.develop.configForms.recordEditor.codePanel.title"}
+                defaultMessage={"Record Configuration"}
+            />
+            <div className={overlayClasses.formWrapper}>
+                <div className={recordClasses.recordFieldWrapper}>
+                    <RecordField recordModel={state.recordModel} />
+                </div>
+                <div className={recordClasses.configButtonWrapper}>
+                    <div className={overlayClasses.buttonWrapper}>
+                        <SecondaryButton text={cancelButtonText} fullWidth={false} onClick={state.onCancel} />
+                        <PrimaryButton
+                            dataTestId={"record-from-json-save-btn"}
+                            text={saveButtonText}
+                            disabled={state.isEditorInvalid}
+                            fullWidth={false}
+                            onClick={handleRecordSave}
+                        />
+                    </div>
                 </div>
             </div>
-        </div>
+        </FormControl>
     )
 }

@@ -15,7 +15,7 @@ import { FormattedMessage } from 'react-intl';
 
 import { ModuleVarDecl, NodePosition } from '@ballerina/syntax-tree';
 import { Box, FormControl, FormHelperText, Typography } from '@material-ui/core';
-import { PrimaryButton, SecondaryButton, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { FormHeaderSection, PrimaryButton, SecondaryButton, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
 import { VariableIcon } from '../../../../../assets/icons';
 import { useDiagramContext } from '../../../../../Contexts/Diagram';
@@ -36,12 +36,13 @@ interface ModuleVariableFormProps {
     targetPosition?: NodePosition;
     onCancel: () => void;
     onSave: () => void;
+    formType: string;
 }
 
 export function ModuleVariableForm(props: ModuleVariableFormProps) {
     const formClasses = useFormStyles();
     const { api: { code: { modifyDiagram } } } = useDiagramContext();
-    const { onSave, onCancel, targetPosition, model } = props;
+    const { onSave, onCancel, targetPosition, model, formType } = props;
     const [state, dispatch] = useReducer(moduleVarFormReducer, getFormConfigFromModel(model));
     const variableTypes: string[] = ["int", "float", "boolean", "string", "json", "xml"];
 
@@ -139,56 +140,56 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
 
     return (
         <FormControl data-testid="module-variable-config-form" className={formClasses.wizardFormControl}>
-            <div className={formClasses.formTitleWrapper}>
-                <div className={formClasses.mainTitleWrapper}>
-                    <VariableIcon />
-                    <Typography variant="h4">
-                        <Box paddingTop={2} paddingBottom={2} paddingLeft={15}>Variable</Box>
-                    </Typography>
+            <FormHeaderSection
+                onCancel={onCancel}
+                formTitle={"lowcode.develop.configForms.ModuleVarDecl.title"}
+                defaultMessage={"Variables"}
+                formType={formType}
+            />
+            <div className={formClasses.formWrapper}>
+                <div className={formClasses.labelWrapper}>
+                    <FormHelperText className={formClasses.inputLabelForRequired}>
+                        <FormattedMessage
+                            id="lowcode.develop.configForms.ModuleVarDecl.variableQualifier"
+                            defaultMessage="Select Variable Options :"
+                        />
+                    </FormHelperText>
                 </div>
-            </div>
-            <div className={formClasses.labelWrapper}>
-                <FormHelperText className={formClasses.inputLabelForRequired}>
-                    <FormattedMessage
-                        id="lowcode.develop.configForms.ModuleVarDecl.variableQualifier"
-                        defaultMessage="Select Variable Options :"
+                <CheckBoxGroup
+                    values={['public', 'final']}
+                    defaultValues={state.varOptions}
+                    onChange={onAccessModifierChange}
+                />
+                <SelectDropdownWithButton
+                    defaultValue={state.varType}
+                    customProps={typeSelectorCustomProps}
+                    label={"Select type"}
+                    onChange={onVarTypeChange}
+                />
+                <VariableNameInput
+                    displayName={'Variable Name'}
+                    value={state.varName}
+                    onValueChange={handleOnVarNameChange}
+                    validateExpression={updateExpressionValidity}
+                    position={namePosition}
+                    isEdit={!!model}
+                />
+                <ExpressionEditor
+                    {...expressionEditorConfig}
+                />
+                <div className={formClasses.wizardBtnHolder}>
+                    <SecondaryButton
+                        text="Cancel"
+                        fullWidth={false}
+                        onClick={onCancel}
                     />
-                </FormHelperText>
-            </div>
-            <CheckBoxGroup
-                values={['public', 'final']}
-                defaultValues={state.varOptions}
-                onChange={onAccessModifierChange}
-            />
-            <SelectDropdownWithButton
-                defaultValue={state.varType}
-                customProps={typeSelectorCustomProps}
-                label={"Select type"}
-                onChange={onVarTypeChange}
-            />
-            <VariableNameInput
-                displayName={'Variable Name'}
-                value={state.varName}
-                onValueChange={handleOnVarNameChange}
-                validateExpression={updateExpressionValidity}
-                position={namePosition}
-                isEdit={!!model}
-            />
-            <ExpressionEditor
-                {...expressionEditorConfig}
-            />
-            <div className={formClasses.wizardBtnHolder}>
-                <SecondaryButton
-                    text="Cancel"
-                    fullWidth={false}
-                    onClick={onCancel}
-                />
-                <PrimaryButton
-                    text="Save"
-                    disabled={disableSaveBtn}
-                    fullWidth={false}
-                    onClick={handleOnSave}
-                />
+                    <PrimaryButton
+                        text="Save"
+                        disabled={disableSaveBtn}
+                        fullWidth={false}
+                        onClick={handleOnSave}
+                    />
+                </div>
             </div>
         </FormControl>
     )

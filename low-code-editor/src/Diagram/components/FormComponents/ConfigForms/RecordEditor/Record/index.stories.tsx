@@ -18,7 +18,7 @@ import { Story } from '@storybook/react/types-6-0';
 
 import { Provider as LowCodeEditorProvider } from "../../../../../../Contexts/Diagram";
 import { FormState, Provider as RecordEditorProvider } from "../../../../../../Contexts/RecordEditor";
-import { mockedEditorProps } from "../../../../FormComponents/ConfigForms/ConditionConfigForms/ConditionsOverlayForm/AddWhileForm/index.stories";
+import { mockedEditorProps } from "../../ConditionConfigForms/ConditionsOverlayForm/AddWhileForm/index.stories";
 
 import { Record } from "./index";
 

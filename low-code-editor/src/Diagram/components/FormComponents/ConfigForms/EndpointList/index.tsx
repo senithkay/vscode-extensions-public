@@ -19,8 +19,8 @@ import { Box, FormControl, List, ListItem, Typography } from "@material-ui/core"
 
 import { Context } from "../../../../../Contexts/Diagram";
 import { useFunctionContext } from "../../../../../Contexts/Function";
-import { wizardStyles as useFormStyles } from "../../ConfigForms/style";
 import { FormGeneratorProps } from "../../FormGenerator";
+import { wizardStyles as useFormStyles } from "../style";
 
 import useStyles from "./style";
 
