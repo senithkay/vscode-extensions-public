@@ -10,7 +10,25 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-export * from "./lib";
-export * from "./types";
-export * from "./components";
-export * from "./themes"
+import React from "react";
+
+import { CloseRounded } from "@material-ui/icons";
+
+import { ButtonWithIcon } from "../../../buttons/ButtonWithIcon";
+
+interface CloseButtonProps {
+    onCancel: () => void;
+}
+
+export function CloseButton(props: CloseButtonProps) {
+    const { onCancel } = props;
+    return (
+        <div className="close-btn-wrap">
+            <ButtonWithIcon
+                className="panel-close-button"
+                onClick={onCancel}
+                icon={<CloseRounded fontSize="small" />}
+            />
+        </div>
+    );
+}
