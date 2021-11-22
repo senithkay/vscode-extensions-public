@@ -14,10 +14,10 @@ import React, { useState } from "react";
 
 import { NodePosition, ServiceDeclaration } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
+import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { ServiceIcon } from "../../../../../assets/icons";
 import { useDiagramContext } from "../../../../../Contexts/Diagram";
-import { FormHeaderSection } from "../../Commons/FormHeaderSection";
 import { wizardStyles as useFormStyles } from "../style";
 
 import { HttpServiceForm } from "./forms/HttpService";

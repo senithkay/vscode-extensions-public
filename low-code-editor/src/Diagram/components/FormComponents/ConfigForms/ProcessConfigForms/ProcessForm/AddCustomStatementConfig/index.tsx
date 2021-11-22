@@ -26,7 +26,7 @@ import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/sty
 import { CustomExpressionConfig, ProcessConfig } from "../../../../Types";
 import { wizardStyles } from "../../../style";
 import { STNode } from "@ballerina/syntax-tree";
-import { FormHeaderSection } from "../../../../Commons/FormHeaderSection";
+import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 interface LogConfigProps {
     config: ProcessConfig;

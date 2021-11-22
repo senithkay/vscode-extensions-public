@@ -27,7 +27,7 @@ import { FormActionButtons } from "../../../../FormFieldComponents/FormActionBut
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { LogConfig, ProcessConfig } from "../../../../Types";
 import { createLogStatement, getInitialSource } from "../../../../../../utils/modification-util";
-import { FormHeaderSection } from "../../../../Commons/FormHeaderSection";
+import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 interface LogConfigProps {
     config: ProcessConfig;
@@ -128,11 +128,11 @@ export function AddLogConfig(props: LogConfigProps) {
 
     }
 
-    const {handleStmtEditorToggle , stmtEditorComponent} = useStatementEditor(
+    const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
         {
             label: intl.formatMessage({ id: "lowcode.develop.configForms.log.statementEditor.label" }),
             initialSource,
-            formArgs: {formArgs},
+            formArgs: { formArgs },
             validForm: !!isFormValid,
             config,
             onWizardClose,

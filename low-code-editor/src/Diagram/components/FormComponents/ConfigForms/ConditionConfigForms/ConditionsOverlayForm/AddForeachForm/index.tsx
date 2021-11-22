@@ -19,7 +19,7 @@ import { BinaryExpression, ForeachStatement } from "@ballerina/syntax-tree";
 import classnames from "classnames";
 import { Box, FormControl, Typography } from "@material-ui/core";
 
-import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormField, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { getAllVariables } from "../../../../../../utils/mixins";
@@ -33,7 +33,6 @@ import { FormTextInput } from "../../../../FormFieldComponents/TextField/FormTex
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { ConditionConfig, ForeachConfig, FormElementProps } from "../../../../Types";
 import { wizardStyles } from "../../../style";
-import { FormHeaderSection } from "../../../../Commons/FormHeaderSection";
 
 interface Iterations {
     start?: string;
