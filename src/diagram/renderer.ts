@@ -174,11 +174,11 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
                     );
                 })
             }
-            function createSwaggerView(documentFilePath, serviceName) {
+            function runCommand(command, args) {
                 return new Promise((resolve, _reject) => {
                     webViewRPCHandler.invokeRemoteMethod(
-                        'createSwaggerView',
-                        [documentFilePath, serviceName],
+                        'runCommand',
+                        [command, args],
                         (response) => {
                             resolve(response);
                         }
@@ -207,7 +207,7 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
                             showMessage,
                             lastUpdatedAt,
                             resolveMissingDependency,
-                            createSwaggerView
+                            runCommand
                         }
                     };
                     BLCEditor.renderDiagramEditor(options);

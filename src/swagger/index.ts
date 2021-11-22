@@ -31,21 +31,33 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
     commands.registerCommand(PALETTE_COMMANDS.SWAGGER_VIEW, async (...args: any[]) => {
         const editor = window.activeTextEditor;
 
-        if (!editor) {
+        if (!args) {
             return;
         }
-        const documentFilePath = editor.document.fileName!;
 
         let serviceName;
-        if (args && args.length == 1) {
+        let documentFilePath;
+
+        if (args.length == 1) {
             serviceName = args[0];
+
+        } else if (args.length == 2) {
+            serviceName = args[0];
+            documentFilePath = args[1];
+        }
+
+        if (!documentFilePath) {
+            if (!editor) {
+                return;
+            }
+            documentFilePath = editor.document.fileName!;
         }
 
         await createSwaggerView(documentFilePath, serviceName);
     });
 }
 
-export async function createSwaggerView(documentFilePath: string, serviceName: any) {
+async function createSwaggerView(documentFilePath: string, serviceName: any) {
     const file = path.basename(documentFilePath);
 
     if (!langClient) {
