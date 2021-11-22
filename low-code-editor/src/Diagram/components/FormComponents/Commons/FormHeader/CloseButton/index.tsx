@@ -10,24 +10,25 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
+import React from "react";
 
-export const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        formSave: {
-            width: '100%',
-            right: theme.spacing(2.5),
-            backgroundColor: '#fff',
-        },
-        buttonWrapper: {
-            height: 'auto',
-            display: 'inline-flex',
-            justifyContent: 'flex-end',
-            width: '100%',
-            zIndex: 100,
-        },
-        spaceBetween: {
-            padding: theme.spacing(1)
-        }
-    })
-);
+import { CloseRounded } from "@material-ui/icons";
+
+import { ButtonWithIcon } from "../../../FormFieldComponents/Button/ButtonWithIcon";
+
+interface CloseButtonProps {
+    onCancel: () => void;
+}
+
+export function CloseButton(props: CloseButtonProps) {
+    const { onCancel } = props;
+    return (
+        <div className="close-btn-wrap">
+            <ButtonWithIcon
+                className="panel-close-button"
+                onClick={onCancel}
+                icon={<CloseRounded fontSize="small" />}
+            />
+        </div>
+    );
+}

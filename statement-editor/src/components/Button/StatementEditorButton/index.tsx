@@ -20,15 +20,16 @@ import { useStyles } from "./style";
 export interface StatementEditorButtonProps {
     handleChange?: () => void,
     checked?: boolean;
+    onClick?: () => void,
 }
 
 export function StatementEditorButton(props: StatementEditorButtonProps) {
-    const { handleChange, checked } = props;
+    const { handleChange, checked, onClick } = props;
     const classes = useStyles();
 
     return (
         <FormGroup >
-            <FormControlLabel className={classes.expressionTitle} control={<Switch onChange={handleChange} checked={checked}/>} label="Statement Editor" />
+            <FormControlLabel className={classes.expressionTitle} control={<Switch onChange={handleChange} checked={checked} onClick={onClick}/>} label="Statement Editor" />
         </FormGroup>
     );
 }

@@ -15,13 +15,12 @@ import React, { useEffect, useState } from 'react';
 import { useIntl } from "react-intl";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
-import { FormField, PrimaryButton } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { FormField, FormHeaderSection, PrimaryButton } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
 import { useRecordEditorContext } from '../../../../../../Contexts/RecordEditor';
 import { keywords } from "../../../../Portals/utils/constants";
 import CheckBoxGroup from '../../../FormFieldComponents/CheckBox';
 import ExpressionEditor from '../../../FormFieldComponents/ExpressionEditor';
-import { FormTextInput } from '../../../FormFieldComponents/TextField/FormTextInput';
 import { FormElementProps } from "../../../Types";
 import { wizardStyles as useStyles } from "../../style";
 import { recordStyles } from "../style";
@@ -121,36 +120,38 @@ export function EditFieldForm() {
 
     return (
         <FormControl data-testid="record-form" className={classes.wizardFormControl}>
-            <div className={classes.formTitleWrapper}>
-                <Typography variant="h4">
-                    <Box paddingTop={2} paddingBottom={2}>{editFieldiTitle}</Box>
-                </Typography>
-            </div>
-            <CheckBoxGroup
-                testId="is-optional-field"
-                values={["Is field optional ?"]}
-                defaultValues={state.currentField?.isFieldOptional ? ["Is field optional ?"] : []}
-                onChange={handleOptionalFieldChange}
+            <FormHeaderSection
+                onCancel={state.onCancel}
+                formTitle={"lowcode.develop.configForms.recordEditor.editField.addTitle"}
+                defaultMessage={"Add Field"}
             />
-            {!state.currentField?.isFieldOptional && (state.currentField?.type !== "record") && (
-                <div>
-                    <div className={classes.sectionSeparator} />
-                    <ExpressionEditor {...defaultValueProps} />
-                </div>
-            )}
-
-            <div className={recordClasses.fieldAddButtonWrapper}>
-                {(state.currentField?.type === "record") && (
-                    <div className={recordClasses.jsonButtonWrapper}>
-                        <PrimaryButton
-                            dataTestId={"import-json"}
-                            text={jsonGenText}
-                            disabled={false}
-                            fullWidth={false}
-                            onClick={null}
-                        />
+            <div className={classes.formWrapper}>
+                <CheckBoxGroup
+                    testId="is-optional-field"
+                    values={["Is field optional ?"]}
+                    defaultValues={state.currentField?.isFieldOptional ? ["Is field optional ?"] : []}
+                    onChange={handleOptionalFieldChange}
+                />
+                {!state.currentField?.isFieldOptional && (state.currentField?.type !== "record") && (
+                    <div>
+                        <div className={classes.sectionSeparator} />
+                        <ExpressionEditor {...defaultValueProps} />
                     </div>
                 )}
+
+                <div className={recordClasses.fieldAddButtonWrapper}>
+                    {(state.currentField?.type === "record") && (
+                        <div className={recordClasses.jsonButtonWrapper}>
+                            <PrimaryButton
+                                dataTestId={"import-json"}
+                                text={jsonGenText}
+                                disabled={false}
+                                fullWidth={false}
+                                onClick={null}
+                            />
+                        </div>
+                    )}
+                </div>
             </div>
         </FormControl>
 

@@ -21,6 +21,7 @@ import { StatementEditorContext } from "../../store/statement-editor-context";
 import { SuggestionsContext } from "../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../utils";
 import { Diagnostics } from "../Diagnostics";
+import { RightPane } from "../RightPane";
 import { StatementRenderer } from "../StatementRenderer";
 import { ExpressionSuggestions } from "../Suggestions/ExpressionSuggestions";
 import { TypeSuggestions } from "../Suggestions/TypeSuggestions";
@@ -49,14 +50,14 @@ export function LeftPane(props: ModelProps) {
     const [isTypeDescSuggestion, setIsTypeDescSuggestion] = useState(false);
 
     const expressionHandler = (
-            cModel: STNode,
-            operator: boolean,
-            isTypeDesc: boolean,
-            suggestionsList: {
-                variableSuggestions?: SuggestionItem[],
-                expressionSuggestions?: SuggestionItem[],
-                typeSuggestions?: SuggestionItem[]
-            }) => {
+        cModel: STNode,
+        operator: boolean,
+        isTypeDesc: boolean,
+        suggestionsList: {
+            variableSuggestions?: SuggestionItem[],
+            expressionSuggestions?: SuggestionItem[],
+            typeSuggestions?: SuggestionItem[]
+        }) => {
         currentModelHandler(cModel);
         if (suggestionsList.expressionSuggestions) {
             setSuggestionsList(suggestionsList.expressionSuggestions);
@@ -84,60 +85,69 @@ export function LeftPane(props: ModelProps) {
     }
 
     return (
-        <div className={overlayClasses.leftPane}>
-            <SuggestionsContext.Provider
-                value={{
-                    expressionHandler
-                }}
-            >
-                <span className={overlayClasses.subHeader}>{label}</span>
-                <div className={overlayClasses.templateEditor}>
-                    <div className={overlayClasses.templateEditorInner}>
+        <div>
+            <div className={overlayClasses.sugessionsMainWrapper}>
+                <SuggestionsContext.Provider
+                    value={{
+                        expressionHandler
+                    }}
+                >
+                    <div className={overlayClasses.statementExpressionTitle}>{label}</div>
+                    <div className={overlayClasses.statementExpressionContent}>
                         <StatementRenderer
                             model={modelCtx.statementModel}
                             userInputs={userInputs}
                             diagnosticHandler={diagnosticHandler}
                         />
                     </div>
+
+                </SuggestionsContext.Provider>
+                <div className={overlayClasses.diagnosticsPane}>
+                    <Diagnostics
+                        message={diagnosticList}
+                    />
                 </div>
-            </SuggestionsContext.Provider>
-            <div className={overlayClasses.leftPaneDivider}/>
-            <div className={overlayClasses.diagnosticsPane}>
-                <Diagnostics
-                    message={diagnosticList}
-                />
             </div>
-            <div className={overlayClasses.contextSensitivePane}>
-                {
-                    (!isTypeDescSuggestion && variableList.length > 0) && (
-                        <div className={overlayClasses.variableSuggestionsInner}>
-                            <VariableSuggestions
-                                model={currentModel.model}
-                                variableSuggestions={variableList}
-                                suggestionHandler={suggestionHandler}
-                            />
+            <div className={overlayClasses.sugessionsSection}>
+                <div className={overlayClasses.sugessionsWrapper}>
+                    <div className={overlayClasses.variableSugession}>
+                        <div className={overlayClasses.contextSensitivePane}>
+                            {
+                                (!isTypeDescSuggestion && variableList.length > 0) && (
+                                    <div className={overlayClasses.variableSuggestionsInner}>
+                                        <VariableSuggestions
+                                            model={currentModel.model}
+                                            variableSuggestions={variableList}
+                                            suggestionHandler={suggestionHandler}
+                                        />
+                                    </div>
+                                )
+                            }
+                            {
+                                (!isTypeDescSuggestion && suggestionList.length > 0) && (
+                                    <ExpressionSuggestions
+                                        model={currentModel.model}
+                                        suggestions={suggestionList}
+                                        operator={isOperator}
+                                        suggestionHandler={suggestionHandler}
+                                    />
+                                )
+                            }
+                            {
+                                isTypeDescSuggestion && (
+                                    <TypeSuggestions
+                                        model={currentModel.model}
+                                        typeSuggestions={typeDescriptorList}
+                                        suggestionHandler={suggestionHandler}
+                                    />
+                                )
+                            }
                         </div>
-                    )
-                }
-                {
-                    (!isTypeDescSuggestion && suggestionList.length > 0) && (
-                        <ExpressionSuggestions
-                            model={currentModel.model}
-                            suggestions={suggestionList}
-                            operator={isOperator}
-                            suggestionHandler={suggestionHandler}
-                        />
-                    )
-                }
-                {
-                    isTypeDescSuggestion && (
-                        <TypeSuggestions
-                            model={currentModel.model}
-                            typeSuggestions={typeDescriptorList}
-                            suggestionHandler={suggestionHandler}
-                        />
-                    )
-                }
+                    </div>
+                </div>
+                <div className={overlayClasses.projectSugessionsWrapper}>
+                    <RightPane />
+                </div>
             </div>
         </div>
     );

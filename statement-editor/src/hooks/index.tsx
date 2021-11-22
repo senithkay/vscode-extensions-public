@@ -11,24 +11,19 @@
  * associated services.
  */
 import React, { useState } from "react";
-import { FormattedMessage } from "react-intl";
 
-import { Box, FormControl, Typography } from "@material-ui/core";
+import { FormControl } from "@material-ui/core";
 
-import { StatementEditorButton } from "../components/Button/StatementEditorButton";
+import { FormHeaderSection } from "../../../Commons/FormHeaderSection";
 import { ViewContainer, ViewProps } from "../components/ViewContainer/ViewContainer";
-
-import { useStyles } from "./style";
 
 export const useStatementEditor = (props: ViewProps) => {
     const {
         onCancel,
         ...restProps
     } = props;
-    const classes = useStyles();
 
     const [isStmtEditor, setIsStmtEditor] = useState(false);
-
 
     const handleStmtEditorToggle = () => {
         setIsStmtEditor(!isStmtEditor);
@@ -38,37 +33,26 @@ export const useStatementEditor = (props: ViewProps) => {
         setIsStmtEditor(false);
     };
 
-    const stmtEditorButton =
-        (
-            <div style={{display: 'inline-flex', width: "100%", alignItems: 'center', marginLeft: "auto", marginRight: '8px', justifyContent: 'flex-end'}}>
-                <StatementEditorButton handleChange={handleStmtEditorToggle} checked={false} />
-            </div>
-        );
-
     const stmtEditorComponent =
         isStmtEditor && (
-        <FormControl data-testid="property-form">
-            <div>
-                <div className={classes.formTitleWrapper}>
-                    <div className={classes.mainTitleWrapper}>
-                        <Typography variant="h4">
-                            <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.statementEditor.title" defaultMessage="Statement jhkhkj" /></Box>
-                        </Typography>
-                    </div>
-                    <div style={{display: 'inline-flex', width: "100%", alignItems: 'center', marginLeft: "auto", marginRight: '8px', justifyContent: 'flex-end'}}>
-                        <StatementEditorButton handleChange={handleStmtEditorToggle} checked={true}/>
-                    </div>
-                </div>
+            <FormControl data-testid="property-form">
+                <FormHeaderSection
+                    onCancel={onCancel}
+                    formTitle={"lowcode.develop.configForms.statementEditor.title"}
+                    defaultMessage={"Statement Editor"}
+                    statementEditor={true}
+                    handleStmtEditorToggle={handleStmtEditorToggle}
+                    toggleChecked={true}
+                />
                 <ViewContainer
                     onCancel={handleStmtEditorCancel}
                     {...restProps}
                 />
-            </div>
-        </FormControl>
+            </FormControl>
         );
 
     return {
-        stmtEditorButton,
-        stmtEditorComponent
+        stmtEditorComponent,
+        handleStmtEditorToggle
     }
 }

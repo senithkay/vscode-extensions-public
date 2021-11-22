@@ -16,7 +16,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 
 import { WhileStatement } from "@ballerina/syntax-tree";
 import classnames from "classnames";
-import {Box, FormControl, Typography} from "@material-ui/core";
+import {FormControl, Typography } from "@material-ui/core";
 
 import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
@@ -27,6 +27,7 @@ import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { ConditionConfig, FormElementProps } from "../../../../Types";
+import { FormHeaderSection } from "../../../../Commons/FormHeaderSection";
 
 export interface WhileProps {
     condition: ConditionConfig;
@@ -122,9 +123,9 @@ export function AddWhileForm(props: WhileProps) {
         conditionState.conditionExpression ? conditionState.conditionExpression as string : 'EXPRESSION'
     ));
 
-    const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
+    const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
         {
-            label: intl.formatMessage({id: "lowcode.develop.configForms.while.statementEditor.label"}),
+            label: intl.formatMessage({ id: "lowcode.develop.configForms.while.statementEditor.label" }),
             initialSource,
             formArgs: {formArgs},
             validForm: !isInvalid,
@@ -139,58 +140,52 @@ export function AddWhileForm(props: WhileProps) {
     );
 
     if (!stmtEditorComponent) {
-        return  (
-                <FormControl data-testid="while-form" className={classes.wizardFormControl}>
-                    <div className={classes.formWrapper}>
-                        <div className={classes.formFeilds}>
-                            <div className={classes.formWrapper}>
-                                <div className={classes.formTitleWrapper}>
-                                    <div className={classes.mainTitleWrapper}>
-                                        <Typography variant="h4">
-                                            <Box paddingTop={2} paddingBottom={2}>
-                                                <FormattedMessage
-                                                    id="lowcode.develop.configForms.while.title"
-                                                    defaultMessage="While"
-                                                />
-                                            </Box>
-                                        </Typography>
-                                    </div>
-                                    {stmtEditorButton}
-                                </div>
-                                <div className={classes.codeWrapper}>
-                                    <div className={classes.start}>
-                                        <Typography variant='body2' className={classnames(classes.startCode, classes.code)}>while</Typography>
-                                    </div>
-                                    <div className={classes.middle}>
-                                        <ExpressionEditor {...expElementProps} hideLabelTooltips={true} />
-                                    </div>
-                                    <div className={classes.end}>
-                                        <Typography variant='body2' className={classnames(classes.endCode, classes.code)}>{`{`}</Typography>
-                                    </div>
-                                </div>
-                                <div className={classes.codeWrapper}>
-                                    <div>
-                                        <Typography variant='body2' className={classnames(classes.middleCode, classes.code)}>...</Typography>
-                                    </div>
-                                </div>
-                                <div className={classes.codeWrapper}>
-                                    <div>
-                                        <Typography variant='body2' className={classnames(classes.endCode, classes.code)}>{`}`}</Typography>
-                                    </div>
-                                </div>
+        return (
+            <FormControl data-testid="while-form" className={classes.wizardFormControl}>
+                <FormHeaderSection
+                    onCancel={onCancel}
+                    statementEditor={true}
+                    formTitle={"lowcode.develop.configForms.while.title"}
+                    defaultMessage={"While"}
+                    handleStmtEditorToggle={handleStmtEditorToggle}
+                    toggleChecked={false}
+
+                />
+                <div className={classes.formWrapper}>
+                    <div className={classes.formFeilds}>
+                        <div className={classes.codeWrapper}>
+                            <div className={classes.start}>
+                                <Typography variant='body2' className={classnames(classes.startCode, classes.code)}>while</Typography>
+                            </div>
+                            <div className={classes.middle}>
+                                <ExpressionEditor {...expElementProps} hideLabelTooltips={true} />
+                            </div>
+                            <div className={classes.end}>
+                                <Typography variant='body2' className={classnames(classes.endCode, classes.code)}>{`{`}</Typography>
                             </div>
                         </div>
-                        <FormActionButtons
-                            cancelBtnText={cancelWhileButtonLabel}
-                            saveBtnText={saveWhileButtonLabel}
-                            isMutationInProgress={isMutationInProgress}
-                            validForm={!isInvalid}
-                            onSave={handleOnSaveClick}
-                            onCancel={onCancel}
-                        />
+                        <div className={classes.codeWrapper}>
+                            <div>
+                                <Typography variant='body2' className={classnames(classes.middleCode, classes.code)}>...</Typography>
+                            </div>
+                        </div>
+                        <div className={classes.codeWrapper}>
+                            <div>
+                                <Typography variant='body2' className={classnames(classes.endCode, classes.code)}>{`}`}</Typography>
+                            </div>
+                        </div>
                     </div>
-                </FormControl>
-            );
+                    <FormActionButtons
+                        cancelBtnText={cancelWhileButtonLabel}
+                        saveBtnText={saveWhileButtonLabel}
+                        isMutationInProgress={isMutationInProgress}
+                        validForm={!isInvalid}
+                        onSave={handleOnSaveClick}
+                        onCancel={onCancel}
+                    />
+                </div>
+            </FormControl>
+        );
     }
     else {
         return stmtEditorComponent;
