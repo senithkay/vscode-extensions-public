@@ -14,8 +14,8 @@
 import React, { ReactNode, useContext, useState } from "react"
 
 import { ForeachStatement, NodePosition, STKindChecker, STNode, TypedBindingPattern } from "@ballerina/syntax-tree";
+import { WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
 import { getDiagnosticMsgs, getDraftComponent, getSTComponents } from "../../../../../utils";
 import { getConditionConfig, getRandomInt } from "../../../../../utils/diagram-util";

@@ -14,8 +14,8 @@
 import React, { useContext, useState } from "react";
 
 import { STNode } from "@ballerina/syntax-tree";
+import { WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
 import { getConditionConfig } from "../../../../../utils/diagram-util";
 import { DefaultConfig } from "../../../../../visitors/default";

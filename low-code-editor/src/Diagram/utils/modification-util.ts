@@ -11,9 +11,8 @@
  * associated services.
  */
 import { NodePosition } from "@ballerina/syntax-tree";
+import { FormField, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { FormField } from "../../ConfigurationSpec/types";
-import { STModification } from "../../Definitions/lang-client-extended";
 import { ConfigurableFormState } from "../components/FormComponents/ConfigForms/ConfigurableForm/util";
 import { ConstantConfigFormState } from "../components/FormComponents/ConfigForms/ConstantConfigForm/util";
 import { ListenerConfig } from "../components/FormComponents/ConfigForms/ListenerConfigForm/util/types";
@@ -22,8 +21,9 @@ import { HTTPServiceConfigState } from "../components/FormComponents/ConfigForms
 import { HeaderObjectConfig } from "../components/FormComponents/ConnectorExtensions/HTTPWizard/HTTPHeaders";
 import { getFormattedModuleName, getParams } from "../components/Portals/utils";
 
-/* tslint:disable ordered-imports */
 import { getComponentSource, getInsertComponentSource } from "./template-utils";
+
+/* tslint:disable ordered-imports */
 
 export function createIfStatement(condition: string, targetPosition?: NodePosition): STModification {
     const ifStatement: STModification = {

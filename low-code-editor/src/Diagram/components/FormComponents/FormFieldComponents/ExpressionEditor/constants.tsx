@@ -1,4 +1,4 @@
-import { CompletionItemKind } from "monaco-languageclient";
+import { CompletionItemKind } from "vscode-languageserver-protocol";
 
 export const acceptedKind: CompletionItemKind[] = [
     // Operator

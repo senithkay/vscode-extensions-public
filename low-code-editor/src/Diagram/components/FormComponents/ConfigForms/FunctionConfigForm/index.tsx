@@ -15,11 +15,11 @@ import React, { useEffect, useRef, useState } from "react";
 
 import { FunctionDefinition, NodePosition, STKindChecker } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
+import { PrimaryButton, SecondaryButton, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { AddIcon, FunctionIcon } from "../../../../../assets/icons";
 import { Section } from "../../../../../components/ConfigPanel";
 import { useDiagramContext } from "../../../../../Contexts/Diagram";
-import { STModification } from "../../../../../Definitions";
 import {
   createFunctionSignature,
   updateFunctionSignature,
@@ -29,8 +29,6 @@ import {
   ReturnType,
 } from "../../../LowCodeDiagram/Components/DialogBoxes/DropDown/ApiConfigureWizard/types";
 import { functionParamTypes } from "../../../LowCodeDiagram/Components/DialogBoxes/DropDown/ApiConfigureWizard/util";
-import { PrimaryButton } from "../../FormFieldComponents/Button/PrimaryButton";
-import { SecondaryButton } from "../../FormFieldComponents/Button/SecondaryButton";
 import { VariableNameInput, VariableNameInputProps } from "../Components/VariableNameInput";
 import { QueryParamItem as FunctionParamItem } from "../ResourceConfigForm/ApiConfigureWizard/components/queryParamEditor/queryParamItem";
 import { QueryParamSegmentEditor as FunctionParamSegmentEditor } from "../ResourceConfigForm/ApiConfigureWizard/components/queryParamEditor/segmentEditor";

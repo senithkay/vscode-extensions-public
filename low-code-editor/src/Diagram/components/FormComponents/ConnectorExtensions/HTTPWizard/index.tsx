@@ -17,11 +17,9 @@ import { FormattedMessage } from "react-intl";
 import { CaptureBindingPattern, CheckAction, LocalVarDecl, NodePosition, PositionalArg, RemoteMethodCallAction, SimpleNameReference, STNode, TypeCastExpression } from "@ballerina/syntax-tree";
 import Typography from "@material-ui/core/Typography";
 import { CloseRounded } from "@material-ui/icons";
+import { ActionConfig, ButtonWithIcon, Connector, ConnectorConfig, FormField, FunctionDefinitionInfo, STModification, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { ActionConfig, ConnectorConfig, FormField, FunctionDefinitionInfo } from "../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../Contexts/Diagram";
-import { STSymbolInfo } from "../../../../../Definitions";
-import { Connector, STModification } from "../../../../../Definitions/lang-client-extended";
 import {
     CONNECTOR_CLOSED,
     CONTINUE_TO_INVOKE_API,
@@ -46,7 +44,6 @@ import {
 } from "../../../../utils/modification-util";
 import { genVariableName, getConnectorIcon, getParams } from "../../../Portals/utils";
 import { wizardStyles } from "../../ConnectorConfigWizard/style";
-import { ButtonWithIcon } from "../../FormFieldComponents/Button/ButtonWithIcon";
 
 import { CreateConnectorForm } from "./CreateConnectorForm";
 import { HeaderObjectConfig } from "./HTTPHeaders";

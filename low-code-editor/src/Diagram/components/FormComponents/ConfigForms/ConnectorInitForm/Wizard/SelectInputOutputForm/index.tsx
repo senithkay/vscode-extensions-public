@@ -14,15 +14,12 @@
 import React, { useContext, useState } from "react";
 
 import { Box, FormControl, FormHelperText, Typography } from "@material-ui/core";
+import { ActionConfig, ConnectorConfig, FormField, PrimaryButton, SecondaryButton, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { ActionConfig, ConnectorConfig, FormField } from "../../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../../Contexts/Diagram";
-import { STModification } from "../../../../../../../Definitions/lang-client-extended";
 import { getAllVariables } from "../../../../../../utils/mixins";
 import { genVariableName } from "../../../../../Portals/utils";
 import { Form } from "../../../../DynamicConnectorForm";
-import { PrimaryButton } from "../../../../FormFieldComponents/Button/PrimaryButton";
-import { SecondaryButton } from "../../../../FormFieldComponents/Button/SecondaryButton";
 import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import { RadioControl } from "../../../../FormFieldComponents/RadioControl/FormRadioControl";
 import { FormTextInput } from "../../../../FormFieldComponents/TextField/FormTextInput";

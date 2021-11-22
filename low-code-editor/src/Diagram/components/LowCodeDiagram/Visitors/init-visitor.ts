@@ -29,7 +29,7 @@ import {
     Visitor,
     WhileStatement
 } from "@ballerina/syntax-tree";
-import { Diagnostic } from "monaco-languageclient";
+import { Diagnostic } from "vscode-languageserver-protocol";
 
 import { Endpoint, isSTActionInvocation } from "../../../utils/st-util";
 import { DefaultConfig } from "../../../visitors/default";

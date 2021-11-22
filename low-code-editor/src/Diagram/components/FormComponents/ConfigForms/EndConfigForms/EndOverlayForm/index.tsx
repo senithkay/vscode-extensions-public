@@ -14,9 +14,9 @@
 import React, { useContext } from "react";
 
 import { ActionStatement, ExpressionFunctionBody, RemoteMethodCallAction, ReturnStatement, STKindChecker } from "@ballerina/syntax-tree";
+import { ConfigOverlayFormStatus } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { Context } from "../../../../../../Contexts/Diagram";
-import { ConfigOverlayFormStatus } from "../../../../../../Definitions";
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
 import { EndConfig, RespondConfig } from "../../../Types";
 

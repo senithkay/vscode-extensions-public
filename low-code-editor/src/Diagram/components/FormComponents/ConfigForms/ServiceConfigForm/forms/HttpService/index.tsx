@@ -16,13 +16,13 @@ import { FormattedMessage } from "react-intl";
 
 import { ListenerDeclaration, NodePosition, ServiceDeclaration, STKindChecker } from "@ballerina/syntax-tree";
 import { FormHelperText } from "@material-ui/core";
+import { SecondaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import classNames from "classnames";
 
 import { PrimaryButton } from "../../../../../../../components/Buttons/PrimaryButton";
 import { useDiagramContext } from "../../../../../../../Contexts/Diagram";
 import { isServicePathValid } from "../../../../../../../utils/validator";
 import { createImportStatement, createServiceDeclartion, updateServiceDeclartion } from "../../../../../../utils/modification-util";
-import { SecondaryButton } from "../../../../FormFieldComponents/Button/SecondaryButton";
 import { FormTextInput } from "../../../../FormFieldComponents/TextField/FormTextInput";
 import { wizardStyles as useFormStyles } from "../../../style";
 

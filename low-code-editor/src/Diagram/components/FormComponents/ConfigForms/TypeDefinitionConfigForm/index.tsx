@@ -15,12 +15,12 @@ import React, { useState } from "react";
 
 import { NodePosition, RecordTypeDesc, STKindChecker, TypeDefinition } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
+import { SecondaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import EditButton from "../../../../../assets/icons/EditButton";
 import { PrimaryButton } from "../../../../../components/Buttons/PrimaryButton";
 import { useDiagramContext } from "../../../../../Contexts/Diagram";
 import { mutateTypeDefinition } from "../../../../utils/modification-util";
-import { SecondaryButton } from "../../FormFieldComponents/Button/SecondaryButton";
 import { SelectDropdownWithButton } from "../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import { FormTextInput } from "../../FormFieldComponents/TextField/FormTextInput";
 import { RecordEditor } from "../RecordEditor";

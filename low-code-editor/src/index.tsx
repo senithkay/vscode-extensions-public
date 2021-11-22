@@ -12,8 +12,9 @@
  */
 import React from "react";
 
+import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+
 import { Provider as DiagramProvider } from "./Contexts/Diagram";
-import { STModification } from "./Definitions";
 import DiagramContainer from "./Diagram/Container";
 import { TriggerType } from "./Diagram/models";
 import { LowCodeEditorProps as Props } from "./types";
@@ -48,7 +49,7 @@ export {
     ConfigPanelStatus,
     STSymbolInfo,
     ConfigOverlayFormStatus as ConfigOverlayFormStatusDef
-} from "./Definitions";
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 export { AnalyzerRequestPayload } from "./Diagram/visitors/AnalyzerPayload";
 export { Diagram } from "./Diagram";
 export {
