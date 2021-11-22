@@ -10,6 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable:jsx-no-multiline-js
 import React from "react";
 
 import { CloseButton } from "./CloseButton";
@@ -36,8 +37,8 @@ export function FormHeaderSection(props: FormHeaderSectionProps) {
 
     return (
         <div className={formClasses.formHeaderTitleWrapper}>
-            // TODO need to move the assests folder to commens module
-            {/* {formType ? <div className={formClasses.titleIcon}>{icon}</div> : null} */}
+            {/* TODO need to move the assests folder to commens module
+             {formType ? <div className={formClasses.titleIcon}>{icon}</div> : null}  */}
             <FormTitle
                 statementEditor={statementEditor}
                 formTitle={formTitle}

@@ -27,8 +27,20 @@ export const useStyles = makeStyles((theme: Theme) =>
             display: 'flex',
             padding: theme.spacing(1),
         },
-        formTitleWrapper: {},
-        mainTitleWrapper: {},
+        formTitleWrapper: {
+            width: "100%",
+            zIndex: 100,
+            height: theme.spacing(6),
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            paddingLeft: theme.spacing(1.25),
+        },
+        mainTitleWrapper: {
+            display: 'inline-flex',
+            alignItems: 'center',
+            width: 'auto'
+        },
     }),
     { index: 1 }
 );
