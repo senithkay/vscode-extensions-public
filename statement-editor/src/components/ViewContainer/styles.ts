@@ -12,7 +12,7 @@
  */
 // tslint:disable: ordered-imports
 import { createStyles, makeStyles } from '@material-ui/core/styles';
-import { theme } from '../../../../../../../DiagramGenerator/theme';
+import { theme } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
 export const useStatementEditorStyles = makeStyles(() =>
     createStyles({

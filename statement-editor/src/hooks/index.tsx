@@ -13,8 +13,8 @@
 import React, { useState } from "react";
 
 import { FormControl } from "@material-ui/core";
+import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { FormHeaderSection } from "../../../Commons/FormHeaderSection";
 import { ViewContainer, ViewProps } from "../components/ViewContainer/ViewContainer";
 
 export const useStatementEditor = (props: ViewProps) => {
