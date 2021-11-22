@@ -162,7 +162,7 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
         setVariableExpression(partialModel.expression.source.trim());
     }
 
-    const {handleStmtEditorToggle , stmtEditorComponent} = useStatementEditor(
+    const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
         {
             label: intl.formatMessage({ id: "lowcode.develop.configForms.assignment.statementEditor.label", defaultMessage: 'Assignment' }),
             initialSource: `${varName} = ${variableExpression};`,
@@ -179,7 +179,7 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
 
     if (!stmtEditorComponent) {
         return (
-            <FormControl data-testid="property-form" className={classnames(classes.wizardFormControl, classes.fitContent)}>
+            <FormControl data-testid="property-form" className={classnames(classes.wizardFormControl)}>
                 <FormHeaderSection
                     onCancel={onCancel}
                     statementEditor={true}
@@ -188,31 +188,29 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={false}
                 />
-                <div>
-                    <div className={classes.formFeilds}>
-                        <div className={classes.activeWrapper}>
-                            <div className={classnames(classes.activeWrapper, classes.blockWrapper)}>
-                                <div className={classes.nameExpEditorWrapper}>
-                                    {nameExpressionEditor}
-                                </div>
-                                <div className={classes.codeText}>
-                                    <Typography variant='body2' className={classes.endCode}>=</Typography>
-                                </div>
-                                <div className={classes.nameExpEditorWrapper}>
-                                    {expressionEditor}
-                                </div>
+                <div className={classes.formFeilds}>
+                    <div className={classes.activeWrapper}>
+                        <div className={classnames(classes.activeWrapper, classes.blockWrapper)}>
+                            <div className={classes.nameExpEditorWrapper}>
+                                {nameExpressionEditor}
+                            </div>
+                            <div className={classes.codeText}>
+                                <Typography variant='body2' className={classes.endCode}>=</Typography>
+                            </div>
+                            <div className={classes.nameExpEditorWrapper}>
+                                {expressionEditor}
                             </div>
                         </div>
                     </div>
-                    <FormActionButtons
-                        cancelBtnText={cancelVariableButtonText}
-                        saveBtnText={saveVariableButtonText}
-                        isMutationInProgress={isMutationInProgress}
-                        validForm={validForm}
-                        onSave={handleSave}
-                        onCancel={onCancel}
-                    />
                 </div>
+                <FormActionButtons
+                    cancelBtnText={cancelVariableButtonText}
+                    saveBtnText={saveVariableButtonText}
+                    isMutationInProgress={isMutationInProgress}
+                    validForm={validForm}
+                    onSave={handleSave}
+                    onCancel={onCancel}
+                />
             </FormControl >
         );
     }

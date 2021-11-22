@@ -577,8 +577,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             flexDirection: 'column'
         },
         dropdownWrapper: {
-            minWidth: `92px !important`,
-            paddingRight: theme.spacing(1)
+            minWidth: `92px !important`
         },
         codeText: {
             paddingTop: theme.spacing(1.25),
@@ -586,7 +585,6 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         editorWrapper: {
             minWidth: `110px !important`,
-            paddingRight: theme.spacing(1),
             '& .MuiInputBase-root': {
                 marginBottom: theme.spacing(0.625)
             }
@@ -612,7 +610,6 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         expEditorWrapper: {
             minWidth: `164px !important`,
-            paddingRight: theme.spacing(1),
             paddingTop: theme.spacing(1.25),
             position: 'relative'
         },
@@ -632,7 +629,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginTop: theme.spacing(1.5),
         },
         variableExpEditorWrapper: {
-            minWidth: `164px !important`,
+            width: '100%',
             paddingRight: theme.spacing(1),
             position: 'relative',
             marginTop: theme.spacing(1.5)

@@ -248,7 +248,7 @@ export function AddForeachForm(props: ForeachProps) {
 
     if (!stmtEditorComponent) {
         return (
-            <FormControl data-testid="foreach-form" className={classnames(classes.wizardFormControl, classes.fitContent)}>
+            <FormControl data-testid="foreach-form" className={classnames(classes.wizardFormControl)}>
                 <FormHeaderSection
                     onCancel={onCancel}
                     statementEditor={true}
