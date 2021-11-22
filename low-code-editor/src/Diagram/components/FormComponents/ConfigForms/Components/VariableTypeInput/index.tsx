@@ -27,10 +27,11 @@ export interface VariableTypeInputProps {
     validateExpression: (fieldName: string, isInValid: boolean) => void;
     position: NodePosition;
     overrideTemplate?: ExpressionEditorCustomTemplate;
+    ignoredCompletions?: string[];
 }
 
 export function VariableTypeInput(props: VariableTypeInputProps) {
-    const { onValueChange, validateExpression, position, value, displayName, overrideTemplate, hideLabel } = props;
+    const { onValueChange, validateExpression, position, value, displayName, overrideTemplate, hideLabel, ignoredCompletions = [] } = props;
     const expressionEditorNameConfig: FormElementProps<ExpressionEditorProps> = {
         model: {
             name: "variableType",
@@ -47,7 +48,7 @@ export function VariableTypeInput(props: VariableTypeInputProps) {
                 targetColumn: 1
             },
             hideExpand: true,
-            getCompletions: getVarTypeCompletions,
+            getCompletions: getVarTypeCompletions(ignoredCompletions),
             showHints: false,
             hideTextLabel: hideLabel
         },
