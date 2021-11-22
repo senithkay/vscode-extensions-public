@@ -16,6 +16,5 @@ export * from "./LinePrimaryButton";
 export * from "./LinkButton";
 export * from "./PrimaryButton";
 export * from "./SecondaryButton";
-export * from "./StatementEditorButton";
 
 

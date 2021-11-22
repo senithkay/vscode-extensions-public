@@ -31,7 +31,7 @@ import {
     ConnectorConfig,
     DiagramEditorLangClientInterface,
     FormField, FormFieldReturnType,
-    FunctionDefinitionInfo, PrimitiveBalType, STSymbolInfo 
+    FunctionDefinitionInfo, PrimitiveBalType, STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { DocumentSymbol, SymbolInformation } from "vscode-languageserver-protocol";
 
