@@ -22,11 +22,13 @@ import {
     STNode,
     StringLiteral, StringTypeDesc
 } from "@ballerina/syntax-tree";
-import { CompletionParams,
+import {
+    CompletionParams,
     CompletionResponse,
     ExpressionEditorLangClientInterface,
     getDiagnosticMessage,
-    getFilteredDiagnostics } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+    getFilteredDiagnostics
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import debounce from "lodash.debounce";
 
 import * as c from "../../constants";
@@ -64,7 +66,7 @@ export function InputEditor(props: InputEditorProps) {
     const inputEditorCtx = useContext(InputEditorContext);
     const stmtCtx = useContext(StatementEditorContext);
     const { expressionHandler } = useContext(SuggestionsContext);
-    const { currentFile, getLangClient }  = stmtCtx;
+    const { currentFile, getLangClient } = stmtCtx;
 
     const [currentContent, setCurrentContent] = useState(stmtCtx.modelCtx.statementModel.source);
 
@@ -297,6 +299,9 @@ export function InputEditor(props: InputEditorProps) {
 
         const acceptedDataType: string[] = getDataTypeOnExpressionKind(model.kind);
 
+        // CodeSnippet is split to get the suggestions for field-access-expr (expression.field-name)
+        const splitCodeSnippet = codeSnippet.split('.');
+
         getLangClient().then((langClient: ExpressionEditorLangClientInterface) => {
             langClient.getCompletion(completionParams).then((values: CompletionResponse[]) => {
                 const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (
@@ -307,7 +312,11 @@ export function InputEditor(props: InputEditorProps) {
                         )
                     ) &&
                     completionResponse.label !== varName.trim() &&
-                    !(completionResponse.label.includes("main"))
+                    !(completionResponse.label.includes("main")) &&
+                    (splitCodeSnippet.some((element) => (
+                            ((completionResponse.label.toLowerCase()).includes(element.toLowerCase()))
+                        )
+                    ))
                 ));
 
                 const variableSuggestions: SuggestionItem[] = filteredCompletionItem.map((obj) => {
