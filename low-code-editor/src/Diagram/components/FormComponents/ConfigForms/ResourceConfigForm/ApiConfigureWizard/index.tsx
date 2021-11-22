@@ -26,9 +26,9 @@ import { createResource, updateResourceSignature } from "../../../../../utils/mo
 import { DiagramOverlayPosition } from "../../../../Portals/Overlay";
 import { useStyles as useFormStyles } from "../../../DynamicConnectorForm/style";
 import { SelectDropdownWithButton } from "../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
-import ExpressionEditor from "../../../FormFieldComponents/ExpressionEditor";
 import { SwitchToggle } from "../../../FormFieldComponents/SwitchToggle";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
+import { VariableTypeInput } from "../../Components/VariableTypeInput";
 import { useStyles } from "../styles";
 
 import { AdvancedEditor } from "./components/advanced";
@@ -377,6 +377,8 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
         return validPath;
     }
 
+    const validateReturnTypeExpression = (_name: string, isInvalid: boolean) => setIsValidReturnExpr(!isInvalid);
+
     const resourceConfigTitle = intl.formatMessage({
         id: "lowcode.develop.apiConfigWizard.resourceConfig.title",
         defaultMessage: "Configure Resource"
@@ -616,11 +618,14 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
 
     const returnUIWithExpressionEditor = (
         <div className={classes.returnTextBoxWrapper}>
-            <ExpressionEditor
-                model={{ name: "Other type" }}
-                customProps={{ validate: (_name: string, isInvalid: boolean) => setIsValidReturnExpr(!isInvalid), interactive: true, customTemplate: { defaultCodeSnippet: "", targetColumn: 1 }, editPosition: getReturnTypePosition(funcSignature?.returnTypeDesc), hideTextLabel: true }}
-                onChange={handleOnChangeReturnType}
-                defaultValue={(returnType === "" ? `error?` : returnType + ` | error?`)}
+            <VariableTypeInput
+              hideLabel={true}
+              displayName={'Variable Type'}
+              value={returnType === "" ? `error?` : returnType + ` | error?`}
+              onValueChange={handleOnChangeReturnType}
+              validateExpression={validateReturnTypeExpression}
+              position={getReturnTypePosition(funcSignature?.returnTypeDesc)}
+              overrideTemplate={{ defaultCodeSnippet: "", targetColumn: 1 }}
             />
         </div>
     );
