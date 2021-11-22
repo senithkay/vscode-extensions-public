@@ -16,11 +16,13 @@ import { useIntl } from "react-intl";
 
 import { NodePosition } from "@ballerina/syntax-tree";
 import { Box, Typography } from "@material-ui/core";
-import { PrimaryButton, SecondaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
+import { GreyButton } from "../../../../../../components/Buttons/GreyButton";
+import { PrimaryButtonSquare } from "../../../../../../components/Buttons/PrimaryButtonSquare";
 import { useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { useRecordEditorContext} from "../../../../../../Contexts/RecordEditor";
 import { mutateTypeDefinition } from "../../../../../utils/modification-util";
+import { useStyles} from "../../../FormFieldComponents/FormActionButtons/style";
 import { wizardStyles } from "../../style";
 import { RecordField } from "../RecordField";
 import { recordStyles } from "../style";
@@ -32,6 +34,7 @@ export function CodePanel() {
 
     const overlayClasses = wizardStyles();
     const recordClasses = recordStyles();
+    const formFieldClasses = useStyles();
     const intl = useIntl();
 
     const title = intl.formatMessage({
@@ -93,14 +96,19 @@ export function CodePanel() {
             </div>
             <div className={recordClasses.configButtonWrapper}>
                 <div className={overlayClasses.buttonWrapper}>
-                    <SecondaryButton text={cancelButtonText} fullWidth={false} onClick={state.onCancel}/>
-                    <PrimaryButton
-                        dataTestId={"record-from-json-save-btn"}
-                        text={saveButtonText}
-                        disabled={state.isEditorInvalid}
-                        fullWidth={false}
-                        onClick={handleRecordSave}
-                    />
+                    <div className={formFieldClasses.spaceBetween}>
+                        <GreyButton text={cancelButtonText} fullWidth={false} onClick={state.onCancel}/>
+                    </div>
+                    <div className={formFieldClasses.spaceBetween}>
+                        <PrimaryButtonSquare
+                            data-testid="record-editor-save"
+                            text={saveButtonText}
+                            disabled={state.isEditorInvalid || state.currentField?.name === "" ||
+                            state.currentField?.type === ""}
+                            fullWidth={false}
+                            onClick={handleRecordSave}
+                        />
+                    </div>
                 </div>
             </div>
         </div>
