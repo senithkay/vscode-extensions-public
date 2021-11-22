@@ -11,10 +11,9 @@
  * associated services.
  */
 import { NodePosition, STNode } from "@ballerina/syntax-tree";
-import { Diagnostic } from "monaco-languageclient";
+import { ExpressionEditorState, FormField, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { Diagnostic } from "vscode-languageserver-protocol";
 
-import { FormField, WizardType } from "../../../../ConfigurationSpec/types";
-import { ExpressionEditorState } from "../../../../Definitions";
 import { GenerationType } from "../ConfigForms/ProcessConfigForms/ProcessForm/AddDataMappingConfig/OutputTypeSelector";
 
 export interface FormElementProps<T = {}> extends FormElementEvents {

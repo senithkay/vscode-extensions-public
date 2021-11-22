@@ -1,7 +1,7 @@
+import { CompletionResponse, ExpressionEditorLangClientInterface } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import * as monaco from 'monaco-editor';
-import { CompletionItemKind, InsertTextFormat } from "monaco-languageclient";
+import { CompletionItemKind, InsertTextFormat } from "vscode-languageserver-protocol";
 
-import { CompletionResponse, ExpressionEditorLangClientInterface } from "../../../../../../Definitions";
 import { GetExpCompletionsParams } from "../../../FormFieldComponents/ExpressionEditor";
 import { createSortText } from "../../../FormFieldComponents/ExpressionEditor/utils";
 

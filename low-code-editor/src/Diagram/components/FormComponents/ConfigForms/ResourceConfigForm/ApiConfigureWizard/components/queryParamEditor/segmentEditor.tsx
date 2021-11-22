@@ -13,11 +13,10 @@
 import React, { useContext, useState } from "react";
 
 import { Grid } from "@material-ui/core";
+import { PrimaryButton, SecondaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { Context } from "../../../../../../../../Contexts/Diagram";
 import { checkVariableName } from "../../../../../../Portals/utils";
-import { PrimaryButton } from "../../../../../FormFieldComponents/Button/PrimaryButton";
-import { SecondaryButton } from "../../../../../FormFieldComponents/Button/SecondaryButton";
 import { SelectDropdownWithButton } from "../../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import { FormTextInput } from "../../../../../FormFieldComponents/TextField/FormTextInput";
 import { QueryParam } from "../../types";

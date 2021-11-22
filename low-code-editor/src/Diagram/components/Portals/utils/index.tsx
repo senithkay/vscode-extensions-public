@@ -22,21 +22,20 @@ import {
     STKindChecker,
     STNode, StringLiteral, TypeCastExpression
 } from "@ballerina/syntax-tree";
-import { Avatar } from "@material-ui/core";
-import { DocumentSymbol, SymbolInformation } from "monaco-languageclient";
-
-import * as ConstructIcons from "../../../../assets/icons"
+import { Avatar, colors } from "@material-ui/core";
 import {
     ActionConfig,
+    BallerinaConnectorInfo,
+    BallerinaConnectorRequest,
+    Connector,
     ConnectorConfig,
-    FormField,
-    FormFieldReturnType,
-    FunctionDefinitionInfo,
-    PrimitiveBalType,
-    WizardType
-} from "../../../../ConfigurationSpec/types";
-import { DiagramEditorLangClientInterface, STSymbolInfo } from "../../../../Definitions";
-import { BallerinaConnectorInfo, BallerinaConnectorRequest, Connector } from "../../../../Definitions/lang-client-extended";
+    DiagramEditorLangClientInterface,
+    FormField, FormFieldReturnType,
+    FunctionDefinitionInfo, PrimitiveBalType, STSymbolInfo
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { DocumentSymbol, SymbolInformation } from "vscode-languageserver-protocol";
+
+import * as ConstructIcons from "../../../../assets/icons"
 import { getAllVariables as retrieveVariables } from "../../../utils/mixins";
 import {
     addConnectorToCache,

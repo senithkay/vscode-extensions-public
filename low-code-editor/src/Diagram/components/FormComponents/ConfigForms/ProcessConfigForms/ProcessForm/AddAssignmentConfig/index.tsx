@@ -16,13 +16,13 @@ import { FormattedMessage, useIntl } from "react-intl";
 
 import { AssignmentStatement, STKindChecker } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
+import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import classnames from "classnames";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import ExpressionEditor, { ExpressionEditorProps } from "../../../../FormFieldComponents/ExpressionEditor";
 import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";
-import { useStatementEditor } from "../../../../FormFieldComponents/StatementEditor/hooks";
 import { FormElementProps, ProcessConfig } from "../../../../Types";
 
 interface AddAssignmentConfigProps {
@@ -38,7 +38,13 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
     const intl = useIntl();
     const { config, formArgs, onCancel, onSave, onWizardClose } = props;
 
-    const { props: { isMutationProgress: isMutationInProgress }} = useContext(Context);
+    const {
+        props: { isMutationProgress: isMutationInProgress, currentFile },
+        api: {
+            ls: { getExpressionEditorLangClient },
+            code: { modifyDiagram }
+        }
+    } = useContext(Context);
 
     let variableName: string = '';
     let varExpression: string = '';
@@ -163,7 +169,10 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
             validForm,
             config,
             onWizardClose,
-            handleStatementEditorChange
+            handleStatementEditorChange,
+            currentFile,
+            getLangClient: getExpressionEditorLangClient,
+            applyModifications: modifyDiagram
         }
     );
 

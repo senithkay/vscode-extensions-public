@@ -15,10 +15,10 @@ import React, { useContext, useRef, useState } from "react";
 
 import { BlockStatement, FunctionBodyBlock, LocalVarDecl } from "@ballerina/syntax-tree";
 import { ClickAwayListener } from "@material-ui/core";
+import { BallerinaConnectorInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import cn from "classnames";
 
 import { useDiagramContext } from "../../../../../../Contexts/Diagram";
-import { BallerinaConnectorInfo } from "../../../../../../Definitions/lang-client-extended";
 import { DefaultConfig } from "../../../../../visitors/default";
 import { BlockViewState } from "../../../ViewState";
 import { PlusViewState } from "../../../ViewState/plus";

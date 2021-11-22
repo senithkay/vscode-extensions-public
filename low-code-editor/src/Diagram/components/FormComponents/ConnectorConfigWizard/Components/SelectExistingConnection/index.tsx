@@ -16,10 +16,9 @@ import { FormattedMessage } from "react-intl";
 
 import { CaptureBindingPattern, LocalVarDecl } from "@ballerina/syntax-tree";
 import { FormControl, FormHelperText } from "@material-ui/core";
+import { Connector, ConnectorConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import classNames from "classnames";
 
-import { ConnectorConfig } from "../../../../../../ConfigurationSpec/types";
-import { Connector } from "../../../../../../Definitions/lang-client-extended";
 import { matchEndpointToFormField } from "../../../../Portals/utils";
 import { useStyles } from "../../../DynamicConnectorForm/style";
 import { SelectDropdownWithButton } from "../../../FormFieldComponents/DropDown/SelectDropdownWithButton";

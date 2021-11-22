@@ -1,8 +1,8 @@
 import React from "react";
 
 import { Grid } from "@material-ui/core";
+import { BallerinaModule } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { BallerinaModule } from "../../../../../../Definitions/lang-client-extended";
 import { getConnectorIconSVG } from "../../../../Portals/utils";
 
 import useStyles from "./style";

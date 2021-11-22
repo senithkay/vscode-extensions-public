@@ -1,4 +1,5 @@
-import { FormField } from "../ConfigurationSpec/types";
+import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+
 import { Resource } from "../Diagram/components/LowCodeDiagram/Components/DialogBoxes/DropDown/ApiConfigureWizard/types";
 import {
     convertReturnTypeStringToSegments,

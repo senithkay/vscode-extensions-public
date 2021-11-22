@@ -14,11 +14,10 @@
 import React, { useContext } from "react";
 
 import { Box, FormControl, FormHelperText, InputAdornment, TextField, Typography } from "@material-ui/core";
+import { PrimaryButton, SecondaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { Context } from "../../../../../Contexts/Diagram";
 import { ServiceMethodType, SERVICE_METHODS } from "../../../../models";
-import { PrimaryButton } from "../../FormFieldComponents/Button/PrimaryButton";
-import { SecondaryButton } from "../../FormFieldComponents/Button/SecondaryButton";
 import CheckBoxGroup from "../../FormFieldComponents/CheckBox";
 import { useStyles as useTextFieldStyles } from "../../FormFieldComponents/TextField/style";
 import { wizardStyles as useFormStyles } from "../style";

@@ -27,3 +27,9 @@ hs_err_pid*
 .idea/
 *.iws
 *.ipr
+
+node_modules/
+*.tsbuildinfo
+
+lib/
+build
