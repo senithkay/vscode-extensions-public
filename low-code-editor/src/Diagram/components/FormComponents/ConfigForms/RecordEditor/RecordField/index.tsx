@@ -104,15 +104,19 @@ export function RecordField(props: CodePanelProps) {
     };
 
     const getNewField = () : SimpleField => {
-        const newField: SimpleField = {type: "int", name: "", isFieldOptional: false, isActive: true,
-                                       isEditInProgress: true};
+        const newField: SimpleField = {type: "", name: "", isFieldOptional: false, isActive: true,
+                                       isNameInvalid: false, isEditInProgress: true};
         recordModel.fields.push(newField);
+        callBacks.updateEditorValidity(true);
         return newField;
     };
 
     const handleAddField = () => {
         // Changes the active state to selected record model
         state.currentRecord.isActive = false;
+        if (state.currentField && state.currentField.name === "") {
+            state.currentField.name = genRecordName("f", getFieldNames(state.currentRecord.fields));
+        }
         recordModel.isActive = true;
 
         const newField = getNewField();

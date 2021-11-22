@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useIntl } from "react-intl";
 
 import { Box, FormControl, FormHelperText, Typography } from "@material-ui/core";
@@ -19,31 +19,17 @@ import { Box, FormControl, FormHelperText, Typography } from "@material-ui/core"
 import { useRecordEditorContext } from "../../../../../../Contexts/RecordEditor";
 import { PrimaryButton } from '../../../FormFieldComponents/Button/PrimaryButton';
 import CheckBoxGroup from '../../../FormFieldComponents/CheckBox';
-import { FormTextInput } from '../../../FormFieldComponents/TextField/FormTextInput';
 import { wizardStyles as useStyles } from "../../style";
 
 export function EditTypeDefForm() {
     const { state, callBacks } = useRecordEditorContext();
 
     const classes = useStyles();
-
-    const [nameError, setNameError] = useState("");
-
-    const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
-
     const intl = useIntl();
 
     const title = intl.formatMessage({
         id: "lowcode.develop.configForms.recordEditor.editRecord.title",
         defaultMessage: "Edit Record"
-    });
-    const nameText = intl.formatMessage({
-        id: "lowcode.develop.configForms.recordEditor.editRecord.nameText",
-        defaultMessage: "Record name"
-    });
-    const namePlaceholder = intl.formatMessage({
-        id: "lowcode.develop.configForms.recordEditor.editRecord.namePlaceholder",
-        defaultMessage: "Enter record name"
     });
     const sampleButtonText = intl.formatMessage({
         id: "lowcode.develop.configForms.recordEditor.editRecord.sampleBtnText",
@@ -53,22 +39,6 @@ export function EditTypeDefForm() {
         id: "lowcode.develop.configForms.recordEditor.editRecord.visibilityText",
         defaultMessage: "Visibility"
     });
-
-    const handleNameChange = (inputText: string) => {
-        // TODO: Check with parent record fields
-        if ((inputText !== "") && !nameRegex.test(inputText)) {
-            callBacks.updateEditorValidity(true);
-            setNameError("Enter a valid name");
-        } else if (inputText === "") {
-            callBacks.updateEditorValidity(true);
-            setNameError("Name is required");
-        } else {
-            callBacks.updateEditorValidity(false);
-            setNameError("");
-        }
-        state.currentRecord.name = inputText;
-        callBacks.onUpdateModel(state.recordModel);
-    };
 
     const handleIsClosedChange = (text: string[]) => {
         if (text) {
@@ -95,17 +65,6 @@ export function EditTypeDefForm() {
                     <Box paddingTop={2} paddingBottom={2}>{title}</Box>
                 </Typography>
             </div>
-            <FormTextInput
-                dataTestId="record-name"
-                customProps={{
-                    isErrored: nameError !== "",
-                }}
-                defaultValue={state.currentRecord.name}
-                onChange={handleNameChange}
-                label={nameText}
-                errorMessage={nameError}
-                placeholder={namePlaceholder}
-            />
             <CheckBoxGroup
                 testId="is-closed"
                 values={["Is Closed ?"]}

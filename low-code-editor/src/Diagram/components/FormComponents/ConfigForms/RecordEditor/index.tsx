@@ -11,10 +11,11 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React from 'react';
+import React, { useContext } from 'react';
 
 import { NodePosition, RecordTypeDesc, STKindChecker, TypeDefinition } from "@ballerina/syntax-tree";
 
+import { Context } from "../../../../../Contexts/Diagram";
 import { FormState, Provider as RecordEditorProvider} from "../../../../../Contexts/RecordEditor"
 
 import { Record } from "./Record";
@@ -68,6 +69,7 @@ export function RecordEditor(props: RecordEditorProps) {
                 currentRecord: recordModel,
                 sourceModel: model,
                 isEditorInvalid: false,
+                LCEContext: useContext(Context),
                 targetPosition,
                 onSave,
                 onCancel

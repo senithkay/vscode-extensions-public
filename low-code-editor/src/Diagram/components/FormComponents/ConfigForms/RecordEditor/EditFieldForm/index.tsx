@@ -77,7 +77,11 @@ export function EditFieldForm() {
     const validateDefaultValue = (fName: string, isInvalidFromField: boolean) => {
         state.currentField.isValueInvalid = isInvalidFromField;
         callBacks.onUpdateCurrentField(state.currentField);
-        callBacks.updateEditorValidity(isInvalidFromField || state.currentField.isNameInvalid);
+        if (state.currentField.name === "" || state.currentField.type === "") {
+            callBacks.updateEditorValidity(true);
+        } else {
+            callBacks.updateEditorValidity(isInvalidFromField || state.currentField.isNameInvalid);
+        }
     };
 
     const handleOptionalFieldChange = (text: string[]) => {

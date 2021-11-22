@@ -27,10 +27,10 @@ export const recordStyles = makeStyles((theme: Theme) =>
             borderLeft: "1px solid #d8d8d8",
         },
         recordFieldWrapper: {
-            maxHeight: "83vh",
+            height: "83vh",
             marginRight: 10,
             paddingRight: 10,
-            overflow: "scroll",
+            overflowY: "scroll",
             "&::-webkit-scrollbar": {
                 width: 3
             },
@@ -103,7 +103,10 @@ export const recordStyles = makeStyles((theme: Theme) =>
             flexDirection: "row"
         },
         editTypeWrapper: {
-            minWidth: `92px !important`,
+            width: 100,
+            "& .MuiFormControl-marginNormal": {
+                margin: '0',
+            }
         },
         editNameWrapper: {
             minWidth: 100,
@@ -189,10 +192,10 @@ export const recordStyles = makeStyles((theme: Theme) =>
             }
         },
         recordEditorWrapper: {
-            minWidth: 250
+            minWidth: 270
         },
         activeRecordEditorWrapper: {
-            minWidth: 250,
+            minWidth: 270,
             boxSizing: "border-box",
             borderRadius: 4
         },
@@ -243,7 +246,7 @@ export const recordStyles = makeStyles((theme: Theme) =>
             }
         },
         typeTextFieldWrapper: {
-            width: 100,
+            width: 120,
             marginLeft: 5,
             "& .MuiFormControl-marginNormal": {
                 margin: '0',

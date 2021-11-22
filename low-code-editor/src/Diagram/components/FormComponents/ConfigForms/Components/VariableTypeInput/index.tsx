@@ -11,7 +11,7 @@
  * associated services.
  */
 
-import React from "react";
+import React, { useState } from "react";
 
 import { NodePosition } from "@ballerina/syntax-tree";
 
@@ -23,14 +23,24 @@ export interface VariableTypeInputProps {
     displayName: string;
     value: string;
     hideLabel?: boolean;
+    focus?: boolean;
     onValueChange: (value: string) => void;
     validateExpression: (fieldName: string, isInValid: boolean) => void;
     position: NodePosition;
     overrideTemplate?: ExpressionEditorCustomTemplate;
+    enterKeyPressed?: (value: string) => void;
 }
 
 export function VariableTypeInput(props: VariableTypeInputProps) {
-    const { onValueChange, validateExpression, position, value, displayName, overrideTemplate, hideLabel } = props;
+    const { onValueChange, validateExpression, position, value, displayName, overrideTemplate, hideLabel,
+            focus, enterKeyPressed } = props;
+
+    const [editorFocus, setEditorFocus] = useState<boolean>(focus);
+
+    const revertFocus = () => {
+        setEditorFocus(false);
+    };
+
     const expressionEditorNameConfig: FormElementProps<ExpressionEditorProps> = {
         model: {
             name: "variableType",
@@ -49,10 +59,13 @@ export function VariableTypeInput(props: VariableTypeInputProps) {
             hideExpand: true,
             getCompletions: getVarTypeCompletions,
             showHints: false,
-            hideTextLabel: hideLabel
+            hideTextLabel: hideLabel,
+            focus: editorFocus,
+            revertFocus,
+            enterKeyPressed
         },
         onChange: onValueChange,
-        defaultValue: value,
+        defaultValue: value
     };
 
     return (

@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React  from "react";
+import React, { useState } from "react";
 import { useIntl } from "react-intl";
 
 import { Typography } from "@material-ui/core";
@@ -46,12 +46,16 @@ export function FieldEditor(props: FieldEditorProps) {
     const { props: { stSymbolInfo } } = useDiagramContext();
     const { state, callBacks } = useRecordEditorContext();
 
+    const [typeEditorFocussed, setTypeEditorFocussed] = useState<boolean>(false);
+    const [typeEditorVisible, setTypeEditorVisible] = useState<boolean>(false);
+
     const typeProperty = `${field.isArray ? "[]" : ""}${field.isFieldTypeOptional ? "?" : ""}`;
 
     const handleDelete = () => {
         onDeleteClick(field);
     };
     const handleKeyUp = (event: any) => {
+        setTypeEditorFocussed(false);
         onChange(event);
     };
     const handleTypeSelect = (selectedType: string) => {
@@ -94,11 +98,16 @@ export function FieldEditor(props: FieldEditorProps) {
         // callBacks.updateEditorValidity(isInvalidFromField || state.currentField.isNameInvalid ||
         //     state.currentField.isValueInvalid);
     };
+    const handleTypeClick = () => {
+        setTypeEditorVisible(true);
+        setTypeEditorFocussed(true);
+    };
 
     const varTypeProps: VariableTypeInputProps = {
         displayName: typeLabel,
         value: `${state.currentField.type}`,
         hideLabel: true,
+        focus: typeEditorFocussed,
         onValueChange: handleTypeSelect,
         validateExpression: validateTypeName,
         position: state.sourceModel?.position || state.targetPosition,
@@ -113,14 +122,28 @@ export function FieldEditor(props: FieldEditorProps) {
             <div className={recordClasses.editItemContentWrapper}>
                 <div className={recordClasses.itemLabelWrapper}>
                     <div className={recordClasses.editTypeWrapper}>
-                        <VariableTypeInput {...varTypeProps} key={`${state.currentField.name}-typeSelector`} />
+                        {typeEditorVisible ? (
+                            <VariableTypeInput {...varTypeProps} key={`${state.currentField.name}-typeSelector`}/>
+                        ) : (
+                            <FormTextInput
+                                dataTestId="field-type"
+                                customProps={{
+                                    isErrored: false,
+                                    focused: false
+                                }}
+                                defaultValue={field.name}
+                                onClick={handleTypeClick}
+                                placeholder={"Type"}
+                                size="small"
+                            />
+                        )}
                     </div>
                     <div className={recordClasses.editNameWrapper}>
                         <FormTextInput
                             dataTestId="field-name"
                             customProps={{
                                 isErrored: false,
-                                focused: true
+                                focused: false
                             }}
                             defaultValue={field.name}
                             onKeyUp={handleKeyUp}
