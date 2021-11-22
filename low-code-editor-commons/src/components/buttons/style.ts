@@ -189,5 +189,6 @@ export const useStyles = makeStyles((theme: Theme) =>
             background: '#fff !important',
             color: '#5467d5 !important'
         },
-    })
+    }),
+    { index: 1 }
 );
