@@ -14,8 +14,9 @@
 import React, { useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { STKindChecker } from "@ballerina/syntax-tree";
+import { AssignmentStatement, STKindChecker } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
+import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import classnames from "classnames";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
@@ -29,14 +30,21 @@ interface AddAssignmentConfigProps {
     formArgs: any;
     onCancel: () => void;
     onSave: () => void;
+    onWizardClose: () => void;
 }
 
 export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
     const classes = useStyles();
     const intl = useIntl();
-    const { config, formArgs, onCancel, onSave } = props;
+    const { config, formArgs, onCancel, onSave, onWizardClose } = props;
 
-    const { props: { isMutationProgress: isMutationInProgress }} = useContext(Context);
+    const {
+        props: { isMutationProgress: isMutationInProgress, currentFile },
+        api: {
+            ls: { getExpressionEditorLangClient },
+            code: { modifyDiagram }
+        }
+    } = useContext(Context);
 
     let variableName: string = '';
     let varExpression: string = '';
@@ -46,6 +54,8 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
         varExpression = config.model.expression?.source;
         if (STKindChecker.isSimpleNameReference(config.model?.varRef)){
             variableName = config.model?.varRef?.name.value;
+        } else if (STKindChecker.isFieldAccess(config.model?.varRef)){
+            variableName = config.model?.varRef?.source?.trim();
         }
     }
 
@@ -146,7 +156,28 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
         </div>
     );
 
-    return (
+    const handleStatementEditorChange = (partialModel: AssignmentStatement) => {
+        setVarName(partialModel.varRef.source.trim());
+        setVariableExpression(partialModel.expression.source.trim());
+    }
+
+    const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
+        {
+            label: intl.formatMessage({id: "lowcode.develop.configForms.assignment.statementEditor.label", defaultMessage: 'Assignment'}),
+            initialSource: `${varName} = ${variableExpression};`,
+            formArgs: {formArgs},
+            validForm,
+            config,
+            onWizardClose,
+            handleStatementEditorChange,
+            currentFile,
+            getLangClient: getExpressionEditorLangClient,
+            applyModifications: modifyDiagram
+        }
+    );
+
+    if (!stmtEditorComponent) {
+        return (
             <FormControl data-testid="property-form" className={classnames(classes.wizardFormControl, classes.fitContent)}>
                 <div>
                     <div className={classes.formFeilds}>
@@ -161,6 +192,7 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
                                     </Box>
                                 </Typography>
                             </div>
+                            {stmtEditorButton}
                         </div>
                         <div className={classes.activeWrapper}>
                             <div className={classnames(classes.activeWrapper, classes.blockWrapper)}>
@@ -186,5 +218,9 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
                     />
                 </div>
             </FormControl >
-    );
+        );
+    }
+    else {
+        return stmtEditorComponent;
+    }
 }

@@ -15,10 +15,10 @@ import React, { useContext, useState } from "react";
 
 import { ModulePart, NodePosition, STNode } from "@ballerina/syntax-tree";
 import Container from "@material-ui/core/Container";
+import { ConfigOverlayFormStatus } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import classnames from 'classnames';
 
 import { Context as DiagramContext } from "../Contexts/Diagram";
-import { ConfigOverlayFormStatus } from "../Definitions";
 import { TextPreLoader } from "../PreLoader/TextPreLoader";
 
 import { FormGenerator, FormGeneratorProps } from "./components/FormComponents/FormGenerator";

@@ -15,14 +15,12 @@ import { FormattedMessage } from "react-intl";
 
 import { ConstDeclaration, NodePosition } from "@ballerina/syntax-tree"
 import { Box, FormControl, FormHelperText, Typography } from "@material-ui/core";
+import { PrimaryButton, SecondaryButton, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { v4 as uuid } from 'uuid';
 
 import { ConstantIcon } from "../../../../../assets/icons";
 import { useDiagramContext } from "../../../../../Contexts/Diagram";
-import { STModification } from "../../../../../Definitions";
 import { createConstDeclaration, updateConstDeclaration } from "../../../../utils/modification-util";
-import { PrimaryButton } from "../../FormFieldComponents/Button/PrimaryButton";
-import { SecondaryButton } from "../../FormFieldComponents/Button/SecondaryButton";
 import CheckBoxGroup from "../../FormFieldComponents/CheckBox";
 import { SelectDropdownWithButton } from "../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import ExpressionEditor from "../../FormFieldComponents/ExpressionEditor";

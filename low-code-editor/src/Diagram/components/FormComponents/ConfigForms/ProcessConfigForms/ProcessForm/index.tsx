@@ -14,10 +14,9 @@
 import React, { useContext } from "react";
 
 import { LocalVarDecl } from "@ballerina/syntax-tree";
+import { ConfigOverlayFormStatus, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
-import { ConfigOverlayFormStatus } from "../../../../../../Definitions";
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
 import { ProcessConfig } from "../../../Types";
 
@@ -100,6 +99,7 @@ export function ProcessForm(props: ProcessFormProps) {
                             config={config}
                             formArgs={formArgs}
                             onSave={onSave}
+                            onWizardClose={onWizardClose}
                             onCancel={onCancel}
                         />
                     )

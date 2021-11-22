@@ -11,25 +11,21 @@
  * associated services.
  */
 import {
-    ActionStatement, CaptureBindingPattern, CheckAction, ElseBlock, FunctionDefinition, IdentifierToken, IfElseStatement, LocalVarDecl,
+    ActionStatement, CallStatement, CaptureBindingPattern, CheckAction, ElseBlock, FunctionDefinition, IdentifierToken, IfElseStatement, LocalVarDecl,
     ModulePart, ModuleVarDecl, QualifiedNameReference, RemoteMethodCallAction, ResourceKeyword, ServiceDeclaration,
     STKindChecker,
     STNode, traversNode, TypeCastExpression, VisibleEndpoint
 } from '@ballerina/syntax-tree';
+import { BallerinaConnectorInfo, BallerinaRecord, Connector, FunctionDefinitionInfo, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { subMinutes } from "date-fns";
-import { Diagnostic } from 'monaco-languageclient';
+import { Diagnostic } from 'vscode-languageserver-protocol';
 
 import { AnalyzePayloadVisitor, initVisitor, positionVisitor, sizingVisitor } from '../..';
-import { FunctionDefinitionInfo } from "../../ConfigurationSpec/types";
-import { STSymbolInfo } from '../../Definitions';
-import { BallerinaConnectorInfo, BallerinaRecord, Connector } from '../../Definitions/lang-client-extended';
 import { CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH } from "../../Diagram/components/LowCodeDiagram/Components/RenderingComponents/Connector/ConnectorHeader/ConnectorClientSVG";
 import { IFELSE_SVG_HEIGHT, IFELSE_SVG_WIDTH } from "../components/LowCodeDiagram/Components/RenderingComponents/IfElse/IfElseSVG";
 import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH } from "../components/LowCodeDiagram/Components/RenderingComponents/Processor/ProcessSVG";
 import { RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH } from "../components/LowCodeDiagram/Components/RenderingComponents/Respond/RespondSVG";
 import { EndpointViewState, FunctionViewState, PlusViewState, StatementViewState } from "../components/LowCodeDiagram/ViewState";
-import { getFormattedModuleName } from '../components/Portals/utils';
-import { TriggerType } from '../models';
 import { ActionInvocationFinder } from '../visitors/action-invocation-finder';
 import { BlockStatementFinder } from '../visitors/block-statement-finder';
 import { DefaultConfig } from "../visitors/default";
@@ -661,7 +657,11 @@ export function getVariableNameFromST(node: LocalVarDecl | ModuleVarDecl): Ident
 }
 
 export function getStatementTypesFromST(model: LocalVarDecl): string {
-    if (model && STKindChecker.isTypedBindingPattern(model.typedBindingPattern)) {
-        return model.typedBindingPattern.typeDescriptor.source.trim();
+    return model?.typeData.typeSymbol?.signature.trim();
+}
+
+export function getMethodCallFunctionName(model: CallStatement): string {
+    if (STKindChecker.isFunctionCall(model.expression)) {
+        return model.expression.functionName.source.trim();
     }
 }

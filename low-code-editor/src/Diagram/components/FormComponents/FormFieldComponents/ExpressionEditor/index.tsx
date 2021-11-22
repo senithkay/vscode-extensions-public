@@ -15,18 +15,16 @@ import React, { useContext, useEffect, useState } from "react";
 import { FormattedMessage } from "react-intl";
 import MonacoEditor, { EditorDidMount } from "react-monaco-editor";
 
-import { ConfigurableKeyword, NodePosition, STKindChecker, TypedBindingPattern } from "@ballerina/syntax-tree";
 import { FormHelperText, LinearProgress } from "@material-ui/core";
+import { CompletionParams, ExpressionEditorLangClientInterface, PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import classNames from "classnames";
 import debounce from "lodash.debounce";
 import * as monaco from 'monaco-editor'
-import { CompletionItemKind, InsertTextFormat, Range } from "monaco-languageclient";
+import { Range } from "vscode-languageserver-protocol";
 
 import grammar from "../../../../../ballerina.monarch.json";
 import { TooltipCodeSnippet } from "../../../../../components/Tooltip";
-import { PrimitiveBalType } from "../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../Contexts/Diagram";
-import { CompletionParams, CompletionResponse, ExpressionEditorLangClientInterface, TextEdit } from "../../../../../Definitions";
 import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
 import { ExpressionInjectablesProps } from "../../FormGenerator";
 import { FormElementProps } from "../../Types";
@@ -518,7 +516,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         expressionEditorState.content = initContent;
         expressionEditorState.uri = monaco.Uri.file(currentFile.path).toString();
 
-        await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
+        await getExpressionEditorLangClient().then(async (langClient: ExpressionEditorLangClientInterface) => {
             langClient.didChange({
                 contentChanges: [
                     {
@@ -532,7 +530,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             });
         });
 
-        await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
+        await getExpressionEditorLangClient().then(async (langClient: ExpressionEditorLangClientInterface) => {
             await langClient.getDiagnostics({
                 documentIdentifier: {
                     uri: expressionEditorState.uri,
@@ -548,7 +546,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         // Revert the file content
         expressionEditorState.content = (currentFile.content);
 
-        await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
+        await getExpressionEditorLangClient().then(async (langClient: ExpressionEditorLangClientInterface) => {
             langClient.didChange({
                 contentChanges: [
                     {
@@ -584,7 +582,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         expressionEditorState.content = initContent;
         expressionEditorState.uri = monaco.Uri.file(currentFile.path).toString();
 
-        await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
+        await getExpressionEditorLangClient().then(async (langClient: ExpressionEditorLangClientInterface) => {
             langClient.didChange({
                 contentChanges: [
                     {
@@ -598,7 +596,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             });
         });
 
-        await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
+        await getExpressionEditorLangClient().then(async (langClient: ExpressionEditorLangClientInterface) => {
             await langClient.getDiagnostics({
                 documentIdentifier: {
                     uri: expressionEditorState.uri,
@@ -663,7 +661,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 onChange(monacoRef.current.editor.getModel().getValue());
             }
 
-            const langClient = await getExpressionEditorLangClient(langServerURL);
+            const langClient = await getExpressionEditorLangClient();
             langClient.didChange({
                 contentChanges: [
                     {
@@ -744,7 +742,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             expressionEditorState.content = (currentFile.content);
             expressionEditorState.uri = expressionEditorState?.uri;
 
-            await getExpressionEditorLangClient(langServerURL).then(async (langClient: ExpressionEditorLangClientInterface) => {
+            await getExpressionEditorLangClient().then(async (langClient: ExpressionEditorLangClientInterface) => {
                 langClient.didChange({
                     contentChanges: [
                         {

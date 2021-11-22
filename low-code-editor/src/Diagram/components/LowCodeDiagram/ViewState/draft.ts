@@ -1,6 +1,5 @@
 import { LocalVarDecl, NodePosition } from "@ballerina/syntax-tree";
-
-import { BallerinaConnectorInfo } from "../../../../Definitions/lang-client-extended";
+import { BallerinaConnectorInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { StatementViewState } from ".";
 

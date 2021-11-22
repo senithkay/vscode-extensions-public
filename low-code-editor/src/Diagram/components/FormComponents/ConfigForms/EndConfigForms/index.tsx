@@ -19,7 +19,7 @@ import { NodePosition, STNode } from "@ballerina/syntax-tree";
 
 import { Context } from "../../../../../Contexts/Diagram";
 
-import { ConfigOverlayFormStatus, STModification } from "../../../../../Definitions";
+import { ConfigOverlayFormStatus, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { getAllVariables } from "../../../../utils/mixins";
 import {
     createPropertyStatement,
@@ -90,7 +90,6 @@ export function EndConfigForm(props: any) {
                         modifications.push(updateRespond);
                         break;
                 }
-                modifyDiagram(modifications);
             } else {
                 if (endConfig.type === "Return") {
                     const event: LowcodeEvent = {

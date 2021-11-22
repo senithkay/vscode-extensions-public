@@ -16,8 +16,8 @@ import {
     RecordTypeDesc,
     STKindChecker
 } from "@ballerina/syntax-tree";
+import { DiagramEditorLangClientInterface, JsonToRecordResponse, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { DiagramEditorLangClientInterface, JsonToRecordResponse, STSymbolInfo } from "../../../../../../Definitions";
 import { Field, RecordModel, SimpleField } from "../types";
 
 export async function convertToRecord(json: string, lsUrl: string, ls?: any): Promise<string> {

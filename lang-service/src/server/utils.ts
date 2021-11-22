@@ -2,7 +2,7 @@ import { execSync } from "child_process";
 import * as fs from "fs";
 import { sync as globSync } from "glob";
 import * as path from "path";
-import URI from "vscode-uri";
+import { URI } from "vscode-uri";
 
 export function getBBEs(ballerinaHome: string = detectBallerinaHome()): string[] {
     const bbeFiles = globSync(path.join(ballerinaHome, "examples"

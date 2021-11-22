@@ -14,17 +14,18 @@
 import React, { useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
+import { WhileStatement } from "@ballerina/syntax-tree";
 import classnames from "classnames";
 import {Box, FormControl, Typography} from "@material-ui/core";
 
-import { FormField } from "../../../../../../../ConfigurationSpec/types";
+import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { createWhileStatement, getInitialSource } from "../../../../../../utils/modification-util";
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";
-import { useStatementEditor } from "../../../../FormFieldComponents/StatementEditor/hooks";
+import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { ConditionConfig, FormElementProps } from "../../../../Types";
 
 export interface WhileProps {
@@ -36,7 +37,13 @@ export interface WhileProps {
 }
 
 export function AddWhileForm(props: WhileProps) {
-    const { props: { isMutationProgress: isMutationInProgress } } = useContext(Context);
+    const {
+        props: { isMutationProgress: isMutationInProgress, currentFile },
+        api: {
+            ls: { getExpressionEditorLangClient },
+            code: { modifyDiagram }
+        }
+    } = useContext(Context);
     const { condition, formArgs, onCancel, onSave, onWizardClose } = props;
     const classes = useStyles();
     const intl = useIntl();
@@ -51,6 +58,11 @@ export function AddWhileForm(props: WhileProps) {
     const validateField = (fieldName: string, isInvalidFromField: boolean) => {
         setIsInvalid(isInvalidFromField)
     }
+
+    const handleStatementEditorChange = (partialModel: WhileStatement) => {
+        setConditionState({ ...conditionState, conditionExpression: partialModel.condition.source.trim() })
+    }
+
 
     const formField: FormField = {
         name: "condition",
@@ -117,7 +129,12 @@ export function AddWhileForm(props: WhileProps) {
             formArgs: {formArgs},
             validForm: !isInvalid,
             config: condition,
-            onWizardClose
+            onWizardClose,
+            handleStatementEditorChange,
+            onCancel,
+            currentFile,
+            getLangClient: getExpressionEditorLangClient,
+            applyModifications: modifyDiagram
         }
     );
 

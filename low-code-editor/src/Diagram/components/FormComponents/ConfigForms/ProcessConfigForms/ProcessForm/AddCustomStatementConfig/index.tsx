@@ -21,10 +21,11 @@ import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
 import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";
-import { useStatementEditor } from "../../../../FormFieldComponents/StatementEditor/hooks";
+import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
 import { CustomExpressionConfig, ProcessConfig } from "../../../../Types";
 import { wizardStyles } from "../../../style";
+import { STNode } from "@ballerina/syntax-tree";
 
 interface LogConfigProps {
     config: ProcessConfig;
@@ -42,7 +43,11 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
     const {
         props: {
             isMutationProgress: isMutationInProgress,
-            isCodeEditorActive
+            currentFile
+        },
+        api: {
+            ls: { getExpressionEditorLangClient },
+            code: { modifyDiagram }
         }
     } = useContext(Context);
     const { config, formArgs, onCancel, onSave, onWizardClose } = props;
@@ -91,14 +96,23 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
     }
 
+    const handleStatementEditorChange = (partialModel: STNode) => {
+        setExpression(partialModel.source.trim());
+    }
+
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {
             label: intl.formatMessage({id: "lowcode.develop.configForms.customStatement.statementEditor.label"}),
-            initialSource: expression,
+            initialSource: expression ? expression : "EXPRESSION",
             formArgs: {formArgs},
             validForm: isFormValid,
             config,
-            onWizardClose
+            onWizardClose,
+            handleStatementEditorChange,
+            onCancel,
+            currentFile,
+            getLangClient: getExpressionEditorLangClient,
+            applyModifications: modifyDiagram
         }
     );
 

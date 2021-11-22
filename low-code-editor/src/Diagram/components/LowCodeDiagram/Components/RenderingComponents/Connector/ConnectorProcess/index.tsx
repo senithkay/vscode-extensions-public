@@ -14,10 +14,10 @@
 import React, { useContext, useState } from "react";
 
 import { CaptureBindingPattern, LocalVarDecl, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { BallerinaConnectorInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import cn from "classnames";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
-import { BallerinaConnectorInfo } from "../../../../../../../Definitions";
 import { getDiagnosticMsgs } from "../../../../../../utils";
 import { getMatchingConnector } from "../../../../../../utils/st-util";
 import { ConnectorConfigWizard } from "../../../../../FormComponents/ConnectorConfigWizard";
@@ -63,7 +63,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
             ? blockViewState.draft[ 1 ]
             : (model.viewState as StatementViewState);
 
-    const sourceSnippet : string = model.source;
+    const sourceSnippet : string = model?.source;
 
     const diagnostics = model?.typeData?.diagnostics;
 

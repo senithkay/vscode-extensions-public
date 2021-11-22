@@ -17,19 +17,17 @@ import { FormattedMessage } from "react-intl";
 
 import { CaptureBindingPattern, LocalVarDecl, NodePosition, STKindChecker } from "@ballerina/syntax-tree";
 import { Box, Divider, FormControl, Typography } from "@material-ui/core";
-
 import {
   ActionConfig,
+  BallerinaConnectorInfo,
   ConnectorConfig,
   FormField,
   FormFieldReturnType,
-  WizardType,
-} from "../../../../../../ConfigurationSpec/types";
-import { Context } from "../../../../../../Contexts/Diagram";
-import {
-  BallerinaConnectorInfo,
   STModification,
-} from "../../../../../../Definitions/lang-client-extended";
+  WizardType,
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+
+import { Context } from "../../../../../../Contexts/Diagram";
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
 import {
   CONTINUE_TO_INVOKE_API,
@@ -234,6 +232,16 @@ export function ConnectorForm(props: FormGeneratorProps) {
             modifications.push(item.modification);
         });
 
+        if (isNewConnectorInitWizard && !isAction) {
+            const addImport: STModification = createImportStatement(connector.package.organization, connectorModule, targetPosition);
+            modifications.push(addImport);
+            const endpointStatement = `${moduleName}:${connector.name} ${config.name} = ${
+                isInitReturnError ? "check" : ""
+            } new (${getParams(config.connectorInit).join()});`;
+            const addConnectorInit = createPropertyStatement(endpointStatement, targetPosition);
+            modifications.push(addConnectorInit);
+        }
+
         let actionStatement = "";
         if (currentActionReturnType.hasReturn) {
             addReturnImportsModifications(modifications, currentActionReturnType);
@@ -242,16 +250,6 @@ export function ConnectorForm(props: FormGeneratorProps) {
         actionStatement += `${currentActionReturnType.hasError ? "check" : ""} ${config.name}->${config.action.name}(${getParams(
             config.action.fields
         ).join()});`;
-
-        if (isNewConnectorInitWizard && !isAction) {
-            const endpointStatement = `${moduleName}:${connector.name} ${config.name} = ${
-                isInitReturnError ? "check" : ""
-            } new (${getParams(config.connectorInit).join()});`;
-            const addConnectorInit = createPropertyStatement(endpointStatement, targetPosition);
-            modifications.push(addConnectorInit);
-            const addImport: STModification = createImportStatement(connector.package.organization, connectorModule, targetPosition);
-            modifications.push(addImport);
-        }
 
         if (!isNewConnectorInitWizard && isAction) {
             const updateActionInvocation = updatePropertyStatement(actionStatement, model.position);

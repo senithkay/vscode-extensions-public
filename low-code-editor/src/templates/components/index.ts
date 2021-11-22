@@ -87,5 +87,26 @@ service /{{{ BASE_PATH }}} on {{{ LISTENER_NAME }}}`,
 }
 {{{ACCESS_MODIFIER}}} {{{VAR_QUALIFIER}}} {{{VAR_TYPE}}} {{{VAR_NAME}}} = {{{VAR_VALUE}}};`,
     TYPE_DEFINITION: `
-{{#if ACCESS_MODIFIER }}{{{ ACCESS_MODIFIER }}} {{/if}}type {{{ TYPE_NAME }}} {{{ TYPE_DESCRIPTOR }}}`
+{{#if ACCESS_MODIFIER }}{{{ ACCESS_MODIFIER }}} {{/if}}type {{{ TYPE_NAME }}} {{{ TYPE_DESCRIPTOR }}}`,
+    TRIGGER: `
+    configurable {{triggerType}}:ListenerConfig userInput = {
+        verificationToken: "xxxxx"
+    };
+
+    listener http:Listener httpListener = new(8090);
+    listener {{triggerType}}:Listener webhookListener = new(userInput, httpListener);
+
+    {{#each serviceTypes}}
+    service {{../triggerType}}:{{ this.name }} on webhookListener {
+
+      {{#each this.functions}}
+        remote function {{ this.name }}({{#each this.parameters}}{{#if @index}}, {{/if}}{{../../../triggerType}}:{{this.typeInfo.name}} {{this.name}}{{/each}}) returns error? {
+            return error ("Not Implemented");
+        }
+      {{/each}}
+    }
+    {{/each}}
+
+    service /ignore on httpListener {}`,
+
 }

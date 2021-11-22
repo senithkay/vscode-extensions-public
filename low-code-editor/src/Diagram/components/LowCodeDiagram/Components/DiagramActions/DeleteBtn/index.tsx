@@ -14,16 +14,15 @@
 import React, { useContext, useState } from "react";
 
 import { STNode } from "@ballerina/syntax-tree";
+import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { Context } from "../../../../../../Contexts/Diagram";
-import { STModification } from "../../../../../../Definitions/lang-client-extended";
 import { removeStatement } from "../../../../../utils/modification-util";
 import { DefaultConfig } from "../../../../../visitors/default";
 import { DeleteConfirmDialog } from "../../DialogBoxes";
 
 import { DeleteSVG } from "./DeleteSVG";
 import "./style.scss";
-
 export interface DeleteBtnProps {
     cx: number;
     cy: number;

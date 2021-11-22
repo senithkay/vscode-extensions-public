@@ -16,6 +16,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 
 import { LocalVarDecl, STKindChecker } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
+import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import classnames from "classnames";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
@@ -26,7 +27,6 @@ import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
 import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";
-import { useStatementEditor } from "../../../../FormFieldComponents/StatementEditor/hooks";
 import {SwitchToggle} from "../../../../FormFieldComponents/SwitchToggle";
 import { FormTextInput } from "../../../../FormFieldComponents/TextField/FormTextInput";
 import { ProcessConfig } from "../../../../Types";
@@ -57,9 +57,13 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
 
     const {
         props: {
-            isCodeEditorActive,
+            currentFile,
             isMutationProgress: isMutationInProgress,
             stSymbolInfo
+        },
+        api: {
+            ls: { getExpressionEditorLangClient },
+            code: { modifyDiagram }
         }
     } = useContext(Context);
 
@@ -225,6 +229,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                 list: formArgs?.expressionInjectables?.list,
                 setInjectables: formArgs?.expressionInjectables?.setInjectables
             },
+            editPosition: config.model?.position || formArgs.targetPosition,
         },
         onChange: onPropertyChange,
         defaultValue: variableExpression,
@@ -234,10 +239,17 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         {
             varName: varName ? varName : "default",
             varOptions: [],
-            varType: selectedType,
+            varType: selectedType ? selectedType : "var",
             varValue: variableExpression ? variableExpression : "EXPRESSION"
         }
     ));
+
+    const handleStatementEditorChange = (partialModel: LocalVarDecl) => {
+        setSelectedType(partialModel.typedBindingPattern.typeDescriptor.source.trim())
+        setVarName(partialModel.typedBindingPattern.bindingPattern.source.trim())
+        setVariableExpression(partialModel.initializer.source.trim())
+        setValidExpresssionValue(false);
+    }
 
     const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
         {
@@ -248,8 +260,11 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             validForm,
             config,
             onWizardClose,
-            handleNameOnChange,
-            handleTypeChange
+            handleStatementEditorChange,
+            onCancel,
+            currentFile,
+            getLangClient: getExpressionEditorLangClient,
+            applyModifications: modifyDiagram
         }
     );
 

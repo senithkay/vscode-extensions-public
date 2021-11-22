@@ -2,8 +2,8 @@ import { ChildProcess } from "child_process";
 // tslint:disable:no-submodule-imports
 import { ConnectionCloseHandler, ConnectionErrorHandler,
     createConnection } from "monaco-languageclient/lib/connection";
-import { StreamMessageReader, StreamMessageWriter } from "vscode-languageserver-protocol";
-import { createMessageConnection } from "vscode-ws-jsonrpc";
+import { StreamMessageReader, StreamMessageWriter } from 'vscode-jsonrpc/node';
+import { createMessageConnection } from "@codingame/monaco-jsonrpc";
 
 import { BallerinaLangClient } from "./client";
 import { IBallerinaLangClient } from "./model";

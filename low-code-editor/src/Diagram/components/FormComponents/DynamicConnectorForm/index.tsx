@@ -12,7 +12,8 @@
  */
 import React, { ReactNode } from "react";
 
-import { FormField } from "../../../../ConfigurationSpec/types";
+import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+
 import {isAllValid} from "../../../../utils/validator";
 import { getFormElement } from "../../Portals/utils";
 import FormAccordion from "../FormAccordion";

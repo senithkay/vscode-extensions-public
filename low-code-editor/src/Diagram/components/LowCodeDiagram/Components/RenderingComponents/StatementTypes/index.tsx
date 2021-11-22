@@ -10,7 +10,9 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useEffect, useState } from "react";
+import React, { ReactElement, useEffect, useState } from "react";
+
+import { DefaultConfig } from "../../../../../visitors/default";
 
 import "./style.scss";
 
@@ -29,23 +31,60 @@ export function StatementTypes(props: { x: number, y: number, key_id: number, st
     const statementWidth = statementTextWidth;
     const statmentTypeX = statementTypeMaxWidth - statementWidth;
 
-    const statementRectPadding = 20;
+    const statementRectPadding = 25;
+    const statementTextPadding = DefaultConfig.dotGap;
     const statementRectwidth = statementWidth + statementRectPadding;
-    const statementRectX = statementTypeMaxWidth - (statementWidth + (statementRectPadding / 3));
+    const statementRectX = statementTypeMaxWidth - (statementWidth + (statementRectPadding / 4));
+
+    const maxStatementRectX = statementRectwidth + statementTextPadding;
+
+    const statmentTypeMaxWidth = statementType.length >= 12;
+    const statementReactX = statmentTypeMaxWidth ?
+        (statementRectX - statementTextPadding) : (statementRectX - statementTextPadding / 2);
+
+    const statementTruncate = statmentTypeMaxWidth && statementType.slice(0, 10);
+
+    const statementRect: ReactElement = (
+        <g className="statement-text-wrapper">
+            <rect
+                width={statmentTypeMaxWidth ? maxStatementRectX : statementRectwidth}
+                height="14"
+                rx="4"
+                stroke="none"
+            />
+            <rect
+                x={statementReactX}
+                y="0"
+                width={statmentTypeMaxWidth ? maxStatementRectX : statementRectwidth}
+                height="13.25"
+                rx="3.625"
+                fill="none"
+            />
+        </g>
+    );
+    const statementTruncateText: ReactElement = (
+        <>
+            {statementTruncate}
+            <tspan x={statementTruncate + statementTextPadding} y="10" className="dottedText">
+                ...
+            </tspan>
+        </>
+    )
 
     return (
         <svg {...xyProps} width="150" height="24" className="statement-wrapper">
             <g>
                 <text className="statement-name">
-                    <tspan x={statmentTypeX} id={"statementLegnth_" + key_id} y="10">
-                        {statementType}
+                    <tspan
+                        x={statmentTypeMaxWidth ? statmentTypeX - statementTextPadding : statmentTypeX}
+                        id={"statementLegnth_" + key_id}
+                        y="10"
+                    >
+                        {statmentTypeMaxWidth ? statementTruncateText : statementType}
                     </tspan>
                 </text>
-                <g className="statement-text-wrapper">
-                    <rect width={statementWidth} height="14" rx="4" stroke="none" />
-                    <rect x={statementRectX} y="0" width={statementRectwidth} height="13.25" rx="3.625" fill="none" />
-                </g>
+                {statementType.length > 0 && statementRect}
             </g>
-        </svg >
+        </svg>
     );
 }

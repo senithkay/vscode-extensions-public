@@ -21,7 +21,6 @@ import {
 } from '@ballerina/syntax-tree';
 
 import { Context as DiagramContext } from '../../../../../../Contexts/Diagram';
-import { STModification } from '../../../../../../Definitions';
 import { GenerationType } from '../../../../FormComponents/ConfigForms/ProcessConfigForms/ProcessForm/AddDataMappingConfig/OutputTypeSelector';
 import { DataMapperInputTypeInfo, DataMapperOutputTypeInfo } from '../../../../FormComponents/Types';
 
