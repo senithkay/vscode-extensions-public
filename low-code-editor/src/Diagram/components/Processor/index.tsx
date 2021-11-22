@@ -18,9 +18,11 @@ import {
     CallStatement,
     FunctionCall,
     JsonTypeDesc,
+    IdentifierToken,
     LocalVarDecl,
     NodePosition,
     QualifiedNameReference,
+    SimpleNameReference,
     STKindChecker,
     STNode,
     TypedBindingPattern
@@ -45,6 +47,8 @@ import { VariableName, VARIABLE_NAME_WIDTH } from "../VariableName";
 
 import { ProcessSVG, PROCESS_SVG_HEIGHT, PROCESS_SVG_HEIGHT_WITH_SHADOW, PROCESS_SVG_SHADOW_OFFSET, PROCESS_SVG_WIDTH, PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW } from "./ProcessSVG";
 import "./style.scss";
+import { ShowFuntionBtn } from "../DiagramActions/ShowFunctionBtn";
+import { SHOW_FUNCTION_SVG_HEIGHT_WITH_SHADOW, SHOW_FUNCTION_SVG_WIDTH_WITH_SHADOW } from "../DiagramActions/ShowFunctionBtn/ShowFunctionSVG";
 
 export interface ProcessorProps {
     model: STNode;
@@ -80,6 +84,8 @@ export function DataProcessor(props: ProcessorProps) {
     let processName = "Variable";
     let sourceSnippet = "Source";
     let diagnostics;
+    let haveFunction = false;
+    let functionName: IdentifierToken = null;
 
     let isIntializedVariable = false;
     let isLogStmt = false;
@@ -101,6 +107,9 @@ export function DataProcessor(props: ProcessorProps) {
             } else {
                 processType = "Call";
                 processName = processType;
+                haveFunction = true;
+                const simpleName: SimpleNameReference = stmtFunctionCall.functionName as SimpleNameReference;
+                functionName = simpleName.name;
             }
         } else if (STKindChecker.isLocalVarDecl(model)) {
 
@@ -117,6 +126,12 @@ export function DataProcessor(props: ProcessorProps) {
 
             if (model?.initializer && !STKindChecker.isImplicitNewExpression(model?.initializer)) {
                 isIntializedVariable = true;
+            }
+            if (model?.initializer && STKindChecker.isFunctionCall(model?.initializer)) {
+                const callStatement: FunctionCall = model?.initializer as FunctionCall;
+                const nameRef: SimpleNameReference = callStatement.functionName as SimpleNameReference;
+                haveFunction = true;
+                functionName = nameRef.name;
             }
         } else if (STKindChecker.isAssignmentStatement(model)) {
             processType = "Custom";
@@ -237,13 +252,17 @@ export function DataProcessor(props: ProcessorProps) {
 
     const processWrapper = isDraftStatement ? cn("main-process-wrapper active-data-processor") : cn("main-process-wrapper data-processor");
     const processStyles = diagnostics && !isDraftStatement ? cn("main-process-wrapper data-processor-error ") : processWrapper;
+    const assignmentTextcx = cx + PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW / 2 + (DefaultConfig.dotGap * 3);
+    const assignmentTextcy = cy + PROCESS_SVG_HEIGHT / 3;
+    const textWidth = assignmentText ? assignmentText.length : 0;
+    const textWidthFixed = textWidth >= 15 ? assignmentText?.slice(0, 16).length * 9 : textWidth * 9;
 
     const component: React.ReactNode = (!viewState.collapsed &&
         (
             <g>
                 <g className={processStyles} data-testid="data-processor-block" z-index="1000" >
                     <React.Fragment>
-                        {(processType !== "Log" && processType !== "Call") && !isDraftStatement &&
+                    {(processType !== "Log" && processType !== "Call") && !isDraftStatement &&
                             <>
                                 <StatementTypes
                                     statementType={statmentTypeText}
@@ -270,12 +289,24 @@ export function DataProcessor(props: ProcessorProps) {
                             openInCodeView={!isReadOnly && !isCodeEditorActive && !isWaitingOnWorkspace && model && model.position && onClickOpenInCodeView}
                         />
                         <Assignment
-                            x={cx + PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW / 2 + (DefaultConfig.dotGap * 3)}
-                            y={cy + PROCESS_SVG_HEIGHT / 3}
+                            x={assignmentTextcx}
+                            y={assignmentTextcy}
                             assignment={assignmentText}
                             className="assignment-text"
                             key_id={getRandomInt(1000)}
                         />
+                        {haveFunction ?
+                            <g>
+                                <ShowFuntionBtn
+                                    model={model}
+                                    functionName={functionName}
+                                    x={assignmentTextcx + textWidthFixed}
+                                    y={assignmentTextcy + 2}
+                                    onDraftDelete={onDraftDelete}
+                                />
+                            </g>
+                            : ''
+                        }
 
                         {!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace &&
                             <g

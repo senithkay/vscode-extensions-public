@@ -1081,6 +1081,16 @@ class SizingVisitor implements Visitor {
                     if ((width < stmtViewState.bBox.w) && !stmtViewState.collapsed) {
                         width = stmtViewState.bBox.w;
                     }
+
+                    if(stmtViewState.functionNode) {
+                        if(stmtViewState.functionNodeExpanded) {
+                            stmtViewState.bBox.h += stmtViewState.functionNode.viewState.bBox.h;
+                            height += stmtViewState.functionNode.viewState.bBox.h;
+                            if(width < stmtViewState.bBox.w + stmtViewState.functionNode.viewState.bBox.w) {
+                                width += stmtViewState.bBox.w + stmtViewState.functionNode.viewState.bBox.w;
+                            }
+                        }
+                    }
                 }
             }
 

@@ -10,6 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { FunctionDefinition } from "@ballerina/syntax-tree";
 import { ActionViewState } from "./action";
 import { EndpointViewState } from "./endpoint";
 import { SimpleBBox } from "./simple-bbox";
@@ -26,6 +27,8 @@ export class StatementViewState extends ViewState {
     public conditionAssignment: SimpleBBox = new SimpleBBox();
     public action: ActionViewState = new ActionViewState();
     public isReached: boolean;
+    public functionNodeExpanded: boolean;
+    public functionNode: FunctionDefinition;
 
     constructor() {
         super();
