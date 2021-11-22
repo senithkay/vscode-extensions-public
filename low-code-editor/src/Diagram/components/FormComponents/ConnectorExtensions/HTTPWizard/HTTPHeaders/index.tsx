@@ -19,11 +19,10 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { FormHelperText, TextField } from "@material-ui/core";
 import { AddRounded, CloseRounded } from "@material-ui/icons";
 import Autocomplete from "@material-ui/lab/Autocomplete";
+import { ButtonWithIcon, IconBtnWithText } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import classNames from "classnames";
 
 import { useStyles } from "../../../DynamicConnectorForm/style";
-import { ButtonWithIcon } from "../../../FormFieldComponents/Button/ButtonWithIcon";
-import { IconBtnWithText } from "../../../FormFieldComponents/Button/IconBtnWithText";
 import { SwitchToggle } from "../../../FormFieldComponents/SwitchToggle";
 import '../style.scss'
 

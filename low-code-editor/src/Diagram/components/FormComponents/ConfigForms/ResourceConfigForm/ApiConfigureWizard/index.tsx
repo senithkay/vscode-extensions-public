@@ -15,18 +15,16 @@ import { FormattedMessage, useIntl } from "react-intl";
 
 import { FunctionDefinition, NodePosition, ObjectMethodDefinition, ResourceAccessorDefinition } from "@ballerina/syntax-tree";
 import { Box, FormControl, Grid, Link, Typography } from "@material-ui/core";
+import { ConfigOverlayFormStatus, PrimaryButton, SecondaryButton, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { ResourceIcon } from "../../../../../../assets/icons";
 import { Section } from "../../../../../../components/ConfigPanel";
 import { Context } from "../../../../../../Contexts/Diagram";
-import { ConfigOverlayFormStatus, STModification } from "../../../../../../Definitions";
 import { validatePath } from "../../../../../../utils/validator";
 import { ServiceMethodType, SERVICE_METHODS, TriggerType } from "../../../../../models";
 import { createResource, updateResourceSignature } from "../../../../../utils/modification-util";
 import { DiagramOverlayPosition } from "../../../../Portals/Overlay";
 import { useStyles as useFormStyles } from "../../../DynamicConnectorForm/style";
-import { PrimaryButton } from "../../../FormFieldComponents/Button/PrimaryButton";
-import { SecondaryButton } from "../../../FormFieldComponents/Button/SecondaryButton";
 import { SelectDropdownWithButton } from "../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import { SwitchToggle } from "../../../FormFieldComponents/SwitchToggle";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";

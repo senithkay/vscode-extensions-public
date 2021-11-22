@@ -22,7 +22,6 @@ import { AddIcon } from "../../../../../../assets/icons";
 import { TooltipIcon } from "../../../../../../components/Tooltip";
 import { useStyles as useFormStyles } from "../../../DynamicConnectorForm/style";
 import { FormElementProps } from "../../../Types";
-import { LinkButton } from "../../Button/LinkButton";
 import { useStyles as useTextInputStyles } from "../style";
 
 export interface SelectDropdownProps {

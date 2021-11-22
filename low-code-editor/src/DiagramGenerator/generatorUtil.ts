@@ -1,6 +1,6 @@
 import { FunctionDefinition, ModulePart, ResourceAccessorDefinition, ServiceDeclaration, STKindChecker, STNode, traversNode } from "@ballerina/syntax-tree";
+import { DiagramEditorLangClientInterface } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { DiagramEditorLangClientInterface } from "../Definitions/diagram-editor-lang-client-interface";
 import { cleanLocalSymbols, cleanModuleLevelSymbols } from "../Diagram/visitors/symbol-finder-visitor";
 import { initVisitor, positionVisitor, sizingVisitor, SymbolVisitor } from "../index";
 import { SelectedPosition } from "../types";

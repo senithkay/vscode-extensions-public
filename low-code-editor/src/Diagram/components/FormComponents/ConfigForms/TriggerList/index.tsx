@@ -11,17 +11,15 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useEffect, useState } from "react";
+import React, { useState } from "react";
 
 import { LocalVarDecl } from "@ballerina/syntax-tree";
+import { BallerinaModuleResponse, Package, Trigger } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { useDiagramContext } from "../../../../../Contexts/Diagram";
-import { BallerinaModuleResponse, Package, Trigger } from "../../../../../Definitions/lang-client-extended";
 import { UserState } from "../../../../../types";
 // import { Context } from "../../../LowCodeDiagram/Context/diagram";
 import { FormGenerator, FormGeneratorProps } from "../../FormGenerator";
 import { BallerinaModuleType, FilterStateMap, Marketplace } from "../Marketplace";
-import { TriggerForm } from "../TriggerConfigForm/TriggerServiceConfigForm";
 
 
 export function TriggerList(props: FormGeneratorProps) {

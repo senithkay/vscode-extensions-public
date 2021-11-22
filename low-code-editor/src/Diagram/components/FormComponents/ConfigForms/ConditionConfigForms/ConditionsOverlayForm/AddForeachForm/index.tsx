@@ -19,7 +19,7 @@ import { BinaryExpression, ForeachStatement } from "@ballerina/syntax-tree";
 import classnames from "classnames";
 import { Box, FormControl, Typography } from "@material-ui/core";
 
-import { FormField } from "../../../../../../../ConfigurationSpec/types";
+import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { getAllVariables } from "../../../../../../utils/mixins";
@@ -30,7 +30,7 @@ import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDo
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
 import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";
 import { FormTextInput } from "../../../../FormFieldComponents/TextField/FormTextInput";
-import { useStatementEditor } from "../../../../FormFieldComponents/StatementEditor/hooks";
+import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { ConditionConfig, ForeachConfig, FormElementProps } from "../../../../Types";
 import { wizardStyles } from "../../../style";
 
@@ -55,7 +55,12 @@ export function AddForeachForm(props: ForeachProps) {
         props: {
             isCodeEditorActive,
             isMutationProgress: isMutationInProgress,
-            stSymbolInfo
+            stSymbolInfo,
+            currentFile
+        },
+        api: {
+            ls: { getExpressionEditorLangClient },
+            code: { modifyDiagram }
         }
     } = useContext(Context);
     const { condition, formArgs, onCancel, onSave, onWizardClose } = props;
@@ -234,7 +239,10 @@ export function AddForeachForm(props: ForeachProps) {
             config: condition,
             onWizardClose,
             handleStatementEditorChange,
-            onCancel
+            onCancel,
+            currentFile,
+            getLangClient: getExpressionEditorLangClient,
+            applyModifications: modifyDiagram
         }
     );
 

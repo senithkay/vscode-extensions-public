@@ -19,7 +19,7 @@ import { NodePosition, STNode } from "@ballerina/syntax-tree";
 
 import { Context } from "../../../../../Contexts/Diagram";
 
-import { ConfigOverlayFormStatus, STModification } from "../../../../../Definitions";
+import { ConfigOverlayFormStatus, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { getAllVariables } from "../../../../utils/mixins";
 import {
     createPropertyStatement,
