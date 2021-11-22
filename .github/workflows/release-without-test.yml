@@ -27,7 +27,7 @@ jobs:
       - run: find . -type f -name '*.vsix' -exec sh -c 'x="{}"; mv "$x" ballerina.vsix' \;
       - name: Get current date
         id: date
-        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
+        run: echo "::set-output name=date::$(date +'%Y%m%d-%H%M')"
       - name: Create a release in wso2/ballerina-plugin-vscode repo
         run: |
           createResponse=`curl -X POST  -H "Accept: application/vnd.github.v3+json" \
