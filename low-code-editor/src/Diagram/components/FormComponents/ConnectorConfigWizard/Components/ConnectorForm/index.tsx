@@ -15,7 +15,7 @@
 import React, { ReactNode, useContext, useEffect, useState } from "react";
 import { FormattedMessage } from "react-intl";
 
-import { CaptureBindingPattern, LocalVarDecl, NodePosition, STKindChecker } from "@ballerina/syntax-tree";
+import { CaptureBindingPattern, FunctionDefinition, LocalVarDecl, NodePosition, STKindChecker } from "@ballerina/syntax-tree";
 import { Box, Divider, FormControl, Typography } from "@material-ui/core";
 import {
   ActionConfig,
@@ -28,6 +28,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { Context } from "../../../../../../Contexts/Diagram";
+import { useFunctionContext } from "../../../../../../Contexts/Function";
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
 import {
   CONTINUE_TO_INVOKE_API,
@@ -40,6 +41,7 @@ import { getAllVariables } from "../../../../../utils/mixins";
 import {
   createImportStatement,
   createPropertyStatement,
+  updateFunctionSignature,
   updatePropertyStatement,
 } from "../../../../../utils/modification-util";
 import {
@@ -94,6 +96,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
         },
         props: { stSymbolInfo, isMutationProgress },
     } = useContext(Context);
+    const { functionNode } = useFunctionContext();
 
     const {
         targetPosition,
@@ -200,6 +203,13 @@ export function ConnectorForm(props: FormGeneratorProps) {
             modifications.push(item.modification);
         });
         const isInitReturnError = getInitReturnType(functionDefInfo);
+        if (isInitReturnError){
+            const functionSignature = updateFunctionSignatureWithError();
+            if (functionSignature){
+                modifications.push(functionSignature);
+            }
+        }
+
         const moduleName = getFormattedModuleName(connectorModule);
         const endpointStatement = `${moduleName}:${connector.name} ${config.name} = ${isInitReturnError ? "check" : ""} new (${getParams(
             config.connectorInit
@@ -260,11 +270,45 @@ export function ConnectorForm(props: FormGeneratorProps) {
             onActionAddEvent();
         }
 
+        if (isInitReturnError || currentActionReturnType.hasError){
+            const functionSignature = updateFunctionSignatureWithError();
+            if (functionSignature){
+                modifications.push(functionSignature);
+            }
+        }
+
         if (modifications.length > 0) {
             modifyDiagram(modifications);
             onSave();
         }
     };
+
+    const updateFunctionSignatureWithError = () => {
+        if (!(functionNode && STKindChecker.isFunctionDefinition(functionNode))) {
+            return undefined;
+        }
+        const activeFunction = functionNode as FunctionDefinition;
+        const parametersStr = activeFunction.functionSignature.parameters.map((item) => item.source).join(",");
+        let returnTypeStr = activeFunction.functionSignature.returnTypeDesc?.source.trim();
+
+        if (returnTypeStr?.includes("error")) {
+            return undefined;
+        }
+
+        if (returnTypeStr?.includes("?") || returnTypeStr?.includes("()")) {
+            returnTypeStr = returnTypeStr + "|error";
+        } else if (returnTypeStr) {
+            returnTypeStr = returnTypeStr + "|error?";
+        } else {
+            returnTypeStr = "returns error?";
+        }
+
+        return updateFunctionSignature(activeFunction.functionName.value, parametersStr, returnTypeStr, {
+            ...activeFunction.functionSignature.position,
+            startColumn: activeFunction.functionName.position.startColumn,
+        });
+    };
+
 
     const onConnectionNameChange = () => {
         if (isNewConnection) {
