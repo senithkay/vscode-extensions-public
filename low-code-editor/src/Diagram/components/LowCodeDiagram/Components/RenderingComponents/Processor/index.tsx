@@ -22,8 +22,8 @@ import {
     QualifiedNameReference,
     STKindChecker,
     STNode} from "@ballerina/syntax-tree";
+import { WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { WizardType } from "../../../../../../ConfigurationSpec/types";
 import { Context } from "../../../../../../Contexts/Diagram";
 import { getDiagnosticMsgs } from "../../../../../utils";
 import { getOverlayFormConfig, getRandomInt } from "../../../../../utils/diagram-util";

@@ -15,11 +15,11 @@ import { FormattedMessage, useIntl } from "react-intl";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
+import { ButtonWithIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { AddIcon } from "../../../../../../assets/icons";
 import { useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { createImportStatement, createTrigger } from "../../../../../utils/modification-util";
-import { ButtonWithIcon } from "../../../FormFieldComponents/Button/ButtonWithIcon";
 import { SelectDropdownWithButton } from "../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import { FormActionButtons } from "../../../FormFieldComponents/FormActionButtons";
 import { FormGeneratorProps } from "../../../FormGenerator";

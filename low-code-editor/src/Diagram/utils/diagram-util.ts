@@ -1,8 +1,7 @@
 
 import { FunctionDefinition, NodePosition, STKindChecker, STNode, traversNode } from "@ballerina/syntax-tree";
+import { ConfigOverlayFormStatus, ConfigPanelStatus, DiagramSize, STSymbolInfo, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { WizardType } from "../../ConfigurationSpec/types";
-import { ConfigOverlayFormStatus, ConfigPanelStatus, DiagramSize, STSymbolInfo } from "../../Definitions";
 import { SelectedPosition } from "../../types";
 import { ConditionConfig } from "../components/FormComponents/Types";
 import { BlockViewState, FunctionViewState } from "../components/LowCodeDiagram/ViewState";

@@ -1,4 +1,0 @@
-└─ @ballerina/form-field-generator@1.0.0
-   ├─ licenses: Apache-2.0
-   └─ path: /form-field-generator
-

@@ -32,13 +32,17 @@ export function StatementTypes(props: { x: number, y: number, key_id: number, st
     const statmentTypeX = statementTypeMaxWidth - statementWidth;
 
     const statementRectPadding = 25;
-    const statementtextPadding = DefaultConfig.dotGap;
+    const statementTextPadding = DefaultConfig.dotGap;
     const statementRectwidth = statementWidth + statementRectPadding;
-    const statementRectX = statementTypeMaxWidth - (statementWidth + (statementRectPadding / 3));
+    const statementRectX = statementTypeMaxWidth - (statementWidth + (statementRectPadding / 4));
 
-    const maxStatementRectX = statementRectwidth + (statementtextPadding * 2);
+    const maxStatementRectX = statementRectwidth + statementTextPadding;
 
     const statmentTypeMaxWidth = statementType.length >= 12;
+    const statementReactX = statmentTypeMaxWidth ?
+        (statementRectX - statementTextPadding) : (statementRectX - statementTextPadding / 2);
+
+    const statementTruncate = statmentTypeMaxWidth && statementType.slice(0, 10);
 
     const statementRect: ReactElement = (
         <g className="statement-text-wrapper">
@@ -49,7 +53,7 @@ export function StatementTypes(props: { x: number, y: number, key_id: number, st
                 stroke="none"
             />
             <rect
-                x={statmentTypeMaxWidth ? statementRectX - statementtextPadding : statementRectX}
+                x={statementReactX}
                 y="0"
                 width={statmentTypeMaxWidth ? maxStatementRectX : statementRectwidth}
                 height="13.25"
@@ -58,17 +62,25 @@ export function StatementTypes(props: { x: number, y: number, key_id: number, st
             />
         </g>
     );
+    const statementTruncateText: ReactElement = (
+        <>
+            {statementTruncate}
+            <tspan x={statementTruncate + statementTextPadding} y="10" className="dottedText">
+                ...
+            </tspan>
+        </>
+    )
 
     return (
         <svg {...xyProps} width="150" height="24" className="statement-wrapper">
             <g>
                 <text className="statement-name">
                     <tspan
-                        x={statmentTypeMaxWidth ? statmentTypeX - statementtextPadding : statmentTypeX}
+                        x={statmentTypeMaxWidth ? statmentTypeX - statementTextPadding : statmentTypeX}
                         id={"statementLegnth_" + key_id}
                         y="10"
                     >
-                        {statmentTypeMaxWidth ? statementType.slice(0, 12) + "..." : statementType}
+                        {statmentTypeMaxWidth ? statementTruncateText : statementType}
                     </tspan>
                 </text>
                 {statementType.length > 0 && statementRect}

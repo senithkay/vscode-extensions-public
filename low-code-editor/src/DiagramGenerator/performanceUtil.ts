@@ -18,13 +18,9 @@
  */
 
 import { NodePosition } from "@ballerina/syntax-tree";
+import { DiagramEditorLangClientInterface, GraphData, GraphPoint, PerformanceAnalyzerGraphResponse,
+    PerformanceAnalyzerRealtimeResponse, SequenceGraphPoint, SequenceGraphPointValue } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { Range } from "monaco-editor";
-
-import { DiagramEditorLangClientInterface } from "../Definitions";
-import {
-    GraphData, GraphPoint, PerformanceAnalyzerGraphResponse,
-    PerformanceAnalyzerRealtimeResponse, SequenceGraphPoint, SequenceGraphPointValue
-} from "../Definitions/lang-client-extended";
 
 import { mergeAnalysisDetails } from "./mergePerformanceData";
 import { PFSession } from "./vscode/Diagram";

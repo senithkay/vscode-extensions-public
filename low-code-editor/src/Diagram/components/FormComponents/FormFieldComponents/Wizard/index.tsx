@@ -21,12 +21,10 @@ import Stepper from '@material-ui/core/Stepper';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Check from '@material-ui/icons/Check';
+import { PrimaryButton, SecondaryButton } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import clsx from 'clsx';
 // tslint:disable-next-line: no-implicit-dependencies
 import PropTypes from 'prop-types';
-
-import { PrimaryButton } from '../Button/PrimaryButton';
-import { SecondaryButton } from '../Button/SecondaryButton';
 
 import "./style.scss"
 
