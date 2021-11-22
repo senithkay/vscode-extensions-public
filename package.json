@@ -12,7 +12,7 @@
       "build:st": "npm run build --workspace=syntax-tree",
       "build:ls": "npm run build --workspace=lang-service",
       "build:se": "npm run build --workspace=statement-editor",
-      "build:lce": "npm run build:tsc --workspace=low-code-editor",
+      "build:lce": "npm run build --workspace=low-code-editor",
       "build:lcec": "npm run build --workspace=low-code-editor-commons",
       "build": "npm run build --workspaces"
   }
