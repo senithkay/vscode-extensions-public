@@ -31,6 +31,7 @@ export const recordStyles = makeStyles((theme: Theme) =>
             marginRight: 10,
             paddingRight: 10,
             overflowY: "scroll",
+            overflowX: "hidden",
             "&::-webkit-scrollbar": {
                 width: 3
             },
@@ -84,7 +85,7 @@ export const recordStyles = makeStyles((theme: Theme) =>
         itemWrapper: {
             display: 'flex',
             flexDirection: `row`,
-            minWidth: 250,
+            minWidth: 350,
             "&:hover": {
                 "& $itemLabelWrapper": {
                     background: "#ededf1",
@@ -103,7 +104,7 @@ export const recordStyles = makeStyles((theme: Theme) =>
             flexDirection: "row"
         },
         editTypeWrapper: {
-            width: 100,
+            width: 150,
             "& .MuiFormControl-marginNormal": {
                 margin: '0',
             }

@@ -49,6 +49,7 @@ export function RecordField(props: CodePanelProps) {
     const { state, callBacks } = useContext(Context);
 
     const [isRecordExpanded, setIsRecordExpanded] = useState(true);
+    const [nameError, setNameError] = useState<string>("");
     const [isRecordEditInProgress, setIsRecordEditInProgress] = useState((recordModel.name === "") ||
         (recordModel.name === undefined));
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
@@ -86,6 +87,7 @@ export function RecordField(props: CodePanelProps) {
 
             callBacks.onUpdateModel(state.recordModel);
             callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
+            callBacks.updateEditorValidity(false);
         }
     };
 
@@ -182,18 +184,22 @@ export function RecordField(props: CodePanelProps) {
         const isNameAlreadyExists = state.currentRecord.fields.find(field => (field.name === event.target.value)) &&
             !(state.currentField?.name === event.target.value);
         if (isNameAlreadyExists) {
+            setNameError("Name already exists");
             state.currentField.isNameInvalid = true;
             callBacks.updateEditorValidity(state.currentField.isNameInvalid ||
                 state.currentField.isValueInvalid);
         } else if (keywords.includes(event.target.value)) {
+            setNameError("Keyword are not allowed");
             state.currentField.isNameInvalid = true;
             callBacks.updateEditorValidity(state.currentField.isNameInvalid ||
                 state.currentField.isValueInvalid);
         } else if ((event.target.value !== "") && !nameRegex.test(event.target.value)) {
+            setNameError("Invalid name");
             state.currentField.isNameInvalid = true;
             callBacks.updateEditorValidity(state.currentField.isNameInvalid ||
                 state.currentField.isValueInvalid);
         } else {
+            setNameError("");
             state.currentField.isNameInvalid = false;
             callBacks.updateEditorValidity(state.currentField.isNameInvalid ||
                 state.currentField.isValueInvalid);
@@ -237,6 +243,7 @@ export function RecordField(props: CodePanelProps) {
             fieldItems.push(
                 <FieldEditor
                     field={state.currentField}
+                    nameError={nameError}
                     onChange={handleFieldEditorChange}
                     onDeleteClick={handleFieldDelete}
                     onFocusLost={handleSubItemFocusLost}

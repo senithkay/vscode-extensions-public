@@ -69,7 +69,6 @@ export function RecordEditor(props: RecordEditorProps) {
                 currentRecord: recordModel,
                 sourceModel: model,
                 isEditorInvalid: false,
-                LCEContext: useContext(Context),
                 targetPosition,
                 onSave,
                 onCancel

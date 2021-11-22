@@ -18,7 +18,6 @@ import { Typography } from "@material-ui/core";
 import classnames from "classnames";
 
 import DeleteButton from "../../../../../../assets/icons/DeleteButton";
-import { useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { FormState, useRecordEditorContext } from "../../../../../../Contexts/RecordEditor";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
 import { VariableTypeInput, VariableTypeInputProps } from "../../Components/VariableTypeInput";
@@ -27,6 +26,7 @@ import { RecordModel, SimpleField } from "../types";
 
 export interface FieldEditorProps {
     field: SimpleField;
+    nameError?: string;
     onDeleteClick: (field: SimpleField) => void;
     onChange: (event: any) => void;
     onFocusLost: (field: SimpleField) => void;
@@ -34,7 +34,7 @@ export interface FieldEditorProps {
 }
 
 export function FieldEditor(props: FieldEditorProps) {
-    const { field, onDeleteClick, onChange, onEnterPress, onFocusLost } = props;
+    const { field, nameError, onDeleteClick, onChange, onEnterPress, onFocusLost } = props;
 
     const recordClasses = recordStyles();
     const intl = useIntl();
@@ -43,7 +43,6 @@ export function FieldEditor(props: FieldEditorProps) {
         defaultMessage: "Type"
     });
 
-    const { props: { stSymbolInfo } } = useDiagramContext();
     const { state, callBacks } = useRecordEditorContext();
 
     const [typeEditorFocussed, setTypeEditorFocussed] = useState<boolean>(false);
@@ -92,11 +91,10 @@ export function FieldEditor(props: FieldEditorProps) {
         onFocusLost(event);
     };
     const validateTypeName = (fName: string, isInvalidFromField: boolean) => {
-        // FIXME: Handle record type validations. Currently disabled due to an issue in handling nested records
-        // state.currentField.isTypeInvalid = isInvalidFromField;
-        // callBacks.onUpdateCurrentField(state.currentField);
-        // callBacks.updateEditorValidity(isInvalidFromField || state.currentField.isNameInvalid ||
-        //     state.currentField.isValueInvalid);
+        state.currentField.isTypeInvalid = isInvalidFromField;
+        callBacks.onUpdateCurrentField(state.currentField);
+        callBacks.updateEditorValidity(isInvalidFromField || state.currentField.isNameInvalid ||
+            state.currentField.isValueInvalid);
     };
     const handleTypeClick = () => {
         setTypeEditorVisible(true);
@@ -131,10 +129,9 @@ export function FieldEditor(props: FieldEditorProps) {
                                     isErrored: false,
                                     focused: false
                                 }}
-                                defaultValue={field.name}
+                                defaultValue={field.type}
                                 onClick={handleTypeClick}
                                 placeholder={"Type"}
-                                size="small"
                             />
                         )}
                     </div>
@@ -142,9 +139,10 @@ export function FieldEditor(props: FieldEditorProps) {
                         <FormTextInput
                             dataTestId="field-name"
                             customProps={{
-                                isErrored: false,
+                                isErrored: (nameError !== ""),
                                 focused: false
                             }}
+                            errorMessage={nameError}
                             defaultValue={field.name}
                             onKeyUp={handleKeyUp}
                             onBlur={handleFocusLost}

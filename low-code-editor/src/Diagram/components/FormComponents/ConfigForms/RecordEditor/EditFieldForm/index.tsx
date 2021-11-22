@@ -21,10 +21,10 @@ import { useRecordEditorContext } from '../../../../../../Contexts/RecordEditor'
 import { keywords } from "../../../../Portals/utils/constants";
 import CheckBoxGroup from '../../../FormFieldComponents/CheckBox';
 import ExpressionEditor from '../../../FormFieldComponents/ExpressionEditor';
-import { FormTextInput } from '../../../FormFieldComponents/TextField/FormTextInput';
 import { FormElementProps } from "../../../Types";
 import { wizardStyles as useStyles } from "../../style";
 import { recordStyles } from "../style";
+import { genRecordName, getFieldNames } from "../utils";
 
 export function EditFieldForm() {
 
@@ -101,14 +101,21 @@ export function EditFieldForm() {
         displayName: defaultValText,
         typeName: state.currentField?.isArray ? `${state.currentField?.type}[]` : state.currentField?.type,
         value: defaultValue
-    }
+    };
+    const handleDefaultValueFocus = (value: string) => {
+        if (!state.currentField.name) {
+            state.currentField.name = genRecordName("f", getFieldNames(state.currentRecord.fields));
+            callBacks.onUpdateCurrentField(state.currentField);
+        }
+    };
     const defaultValueProps: FormElementProps = {
         model: formField,
         customProps: {
             validate: validateDefaultValue,
             statementType: formField.typeName,
             clearInput: clearExpEditor,
-            revertClearInput
+            revertClearInput,
+            onFocus: handleDefaultValueFocus,
         },
         onChange: handleDefaultValueChange,
         defaultValue
