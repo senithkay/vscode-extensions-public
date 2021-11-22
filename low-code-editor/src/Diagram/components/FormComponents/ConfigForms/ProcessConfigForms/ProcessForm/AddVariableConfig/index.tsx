@@ -11,11 +11,12 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
-import React, { useContext, useState} from "react";
+import React, { useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { LocalVarDecl, STKindChecker } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
+import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import classnames from "classnames";
 
@@ -51,7 +52,6 @@ export const variableTypes: string[] = ["var", "int", "float", "decimal", "boole
 
 export function AddVariableConfig(props: AddVariableConfigProps) {
     const classes = useStyles();
-    const overlayClasses = wizardStyles();
     const intl = useIntl();
     const { config, formArgs, onCancel, onSave, onWizardClose } = props;
 
@@ -251,11 +251,11 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         setValidExpresssionValue(false);
     }
 
-    const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
+    const {handleStmtEditorToggle , stmtEditorComponent} = useStatementEditor(
         {
-            label: intl.formatMessage({id: "lowcode.develop.configForms.variable.statementEditor.label"}),
+            label: intl.formatMessage({ id: "lowcode.develop.configForms.variable.statementEditor.label" }),
             initialSource,
-            formArgs: {formArgs},
+            formArgs: { formArgs },
             userInputs,
             validForm,
             config,
@@ -307,22 +307,17 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
 
     if (!stmtEditorComponent) {
         return (
-            <FormControl data-testid="property-form" className={classnames(classes.wizardFormControl, classes.fitContent)}>
-                <div>
+            <FormControl data-testid="property-form" className={classes.wizardFormControl}>
+                <FormHeaderSection
+                    onCancel={onCancel}
+                    statementEditor={true}
+                    formTitle={"lowcode.develop.configForms.variable.title"}
+                    defaultMessage={"Variable"}
+                    handleStmtEditorToggle={handleStmtEditorToggle}
+                    toggleChecked={false}
+                />
+                <div className={classes.formWrapper}>
                     <div className={classes.formFeilds}>
-                        <div className={classes.formTitleWrapper}>
-                            <div className={classes.mainTitleWrapper}>
-                                <Typography variant="h4">
-                                    <Box paddingTop={2} paddingBottom={2}>
-                                        <FormattedMessage
-                                            id="lowcode.develop.configForms.variable.title"
-                                            defaultMessage="Variable"
-                                        />
-                                    </Box>
-                                </Typography>
-                            </div>
-                            {stmtEditorButton}
-                        </div>
                         <div className={classes.activeWrapper}>
                             <div className={classnames(classes.activeWrapper, classes.blockWrapper)}>
                                 <div className={classes.nameExpEditorWrapper}>

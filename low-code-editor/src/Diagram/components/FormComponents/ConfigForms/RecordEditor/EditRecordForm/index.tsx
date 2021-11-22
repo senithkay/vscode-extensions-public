@@ -15,7 +15,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useIntl } from "react-intl";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
-import { PrimaryButton } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { FormHeaderSection, PrimaryButton } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
 import { Context } from "../../../../../../Contexts/RecordEditor";
 import CheckBoxGroup from '../../../FormFieldComponents/CheckBox';
@@ -94,47 +94,49 @@ export function EditRecordForm() {
 
     return (
         <FormControl data-testid="record-form" className={classes.wizardFormControl}>
-            <div className={classes.formTitleWrapper}>
-                <Typography variant="h4">
-                    <Box paddingTop={2} paddingBottom={2}>{title}</Box>
-                </Typography>
-            </div>
-            <FormTextInput
-                dataTestId="record-name"
-                customProps={{
-                    isErrored: nameError !== "",
-                }}
-                defaultValue={state.currentRecord.name}
-                onChange={handleNameChange}
-                label={nameText}
-                placeholder={namePlaceholder}
-                errorMessage={nameError}
+            <FormHeaderSection
+                onCancel={state.onCancel}
+                formTitle={"lowcode.develop.configForms.recordEditor.editRecord.title"}
+                defaultMessage={"Edit Record"}
             />
-            <CheckBoxGroup
-                testId="is-optional-field"
-                values={["Is optional ?"]}
-                defaultValues={state.currentRecord.isOptional ? ["Is optional ?"] : []}
-                onChange={handleOptionalRecordChange}
-            />
-            <CheckBoxGroup
-                testId="is-array"
-                values={["Is Array ?"]}
-                defaultValues={state.currentRecord.isArray ? ["Is Array ?"] : []}
-                onChange={handleArrayChange}
-            />
-            <CheckBoxGroup
-                testId="is-closed"
-                values={["Is Closed ?"]}
-                defaultValues={state.currentRecord.isClosed ? ["Is Closed ?"] : []}
-                onChange={handleIsClosedChange}
-            />
+            <div className={classes.formWrapper}>
+                <FormTextInput
+                    dataTestId="record-name"
+                    customProps={{
+                        isErrored: nameError !== "",
+                    }}
+                    defaultValue={state.currentRecord.name}
+                    onChange={handleNameChange}
+                    label={nameText}
+                    placeholder={namePlaceholder}
+                    errorMessage={nameError}
+                />
+                <CheckBoxGroup
+                    testId="is-optional-field"
+                    values={["Is optional ?"]}
+                    defaultValues={state.currentRecord.isOptional ? ["Is optional ?"] : []}
+                    onChange={handleOptionalRecordChange}
+                />
+                <CheckBoxGroup
+                    testId="is-array"
+                    values={["Is Array ?"]}
+                    defaultValues={state.currentRecord.isArray ? ["Is Array ?"] : []}
+                    onChange={handleArrayChange}
+                />
+                <CheckBoxGroup
+                    testId="is-closed"
+                    values={["Is Closed ?"]}
+                    defaultValues={state.currentRecord.isClosed ? ["Is Closed ?"] : []}
+                    onChange={handleIsClosedChange}
+                />
 
-            <PrimaryButton
-                dataTestId={"update-from-sample-btn"}
-                text={sampleButtonText}
-                fullWidth={false}
-                onClick={handleGenerateFromSample}
-            />
+                <PrimaryButton
+                    dataTestId={"update-from-sample-btn"}
+                    text={sampleButtonText}
+                    fullWidth={false}
+                    onClick={handleGenerateFromSample}
+                />
+            </div>
         </FormControl>
 
     );
