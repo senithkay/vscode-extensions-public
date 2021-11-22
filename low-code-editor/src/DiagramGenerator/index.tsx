@@ -20,7 +20,7 @@ import { DiagramGenErrorBoundary } from "./ErrorBoundrary";
 import { Diagnostic, getDefaultSelectedPosition, getLowcodeST, getSyntaxTree, isUnresolvedModulesAvailable, resolveMissingDependencies } from "./generatorUtil";
 import { useGeneratorStyles } from "./styles";
 import { theme } from "./theme";
-import { EditorProps } from "./vscode/Diagram";
+import { EditorProps, PALETTE_COMMANDS } from "./vscode/Diagram";
 export interface DiagramGeneratorProps extends EditorProps {
     scale: string;
     panX: string;
@@ -38,7 +38,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     const defaultScale = scale ? Number(scale) : 1;
     const defaultPanX = panX ? Number(panX) : 0;
     const defaultPanY = panY ? Number(panY) : 0;
-    const createSwaggerView = props.createSwaggerView;
+    const runCommand = props.runCommand;
 
     const defaultZoomStatus = {
         scale: defaultScale,
@@ -110,7 +110,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     }
 
     async function showSwaggerView(serviceName: string) {
-        createSwaggerView(filePath, serviceName);
+        runCommand(PALETTE_COMMANDS.SWAGGER_VIEW, [serviceName, filePath]);
     }
 
     const undo = async () => {
