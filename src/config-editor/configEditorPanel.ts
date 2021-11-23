@@ -17,10 +17,11 @@
  *
  */
 
-import { ViewColumn, window, WebviewPanel, Uri } from "vscode";
+import { ViewColumn, window, WebviewPanel, Uri, commands } from "vscode";
 import { getCommonWebViewOptions } from '../utils';
 import { render } from './renderer';
 import { writeFile } from "fs";
+import { PALETTE_COMMANDS } from "../project";
 
 let configEditorPanel: WebviewPanel | undefined;
 
@@ -120,9 +121,12 @@ export function showConfigEditor(configSchema: any, currentFileUri: Uri): void {
     );
 
     // Retrieve user inputs
-    configEditorPanel.webview.onDidReceiveMessage(message => {
+    configEditorPanel.webview.onDidReceiveMessage(async message => {
         if (message.command === 'handleConfigInputs') {
             handleConfigInputs(message.text);
+            if (message.submitType === 'SaveRun') {
+                await commands.executeCommand(PALETTE_COMMANDS.RUN);
+            }
         }
         configEditorPanel?.dispose();
     });
