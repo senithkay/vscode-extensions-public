@@ -24,6 +24,7 @@ import {
 } from "../../telemetry";
 import { runCommand, BALLERINA_COMMANDS, PROJECT_TYPE, PALETTE_COMMANDS } from "./cmd-runner";
 import { getCurrentBallerinaProject, getCurrentBallerinaFile, getCurrenDirectoryPath } from "../../utils/project-utils";
+import { existsSync } from 'fs';
 
 function activateRunCommand() {
     // register ballerina run handler
@@ -38,7 +39,14 @@ function activateRunCommand() {
                 await commands.executeCommand(PALETTE_COMMANDS.SAVE_ALL);
             }
 
-            const currentProject = await getCurrentBallerinaProject();
+            let currentProject;
+            if (!window.activeTextEditor && args.length > 0 && existsSync(args[0])) {
+                const file = `file://${args.shift()}`;
+                currentProject = await getCurrentBallerinaProject(file);
+            } else {
+                currentProject = await getCurrentBallerinaProject();
+            }
+
             if (currentProject.kind !== PROJECT_TYPE.SINGLE_FILE) {
                 runCommand(currentProject, ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.RUN,
                     currentProject.path!, ...args);
