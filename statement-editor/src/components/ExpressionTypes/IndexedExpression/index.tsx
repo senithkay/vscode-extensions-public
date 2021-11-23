@@ -13,7 +13,7 @@
 // tslint:disable: jsx-wrap-multiline jsx-no-multiline-js
 import React, { ReactNode, useContext } from "react";
 
-import { IndexedExpression, STNode } from "@ballerina/syntax-tree";
+import { IndexedExpression, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";

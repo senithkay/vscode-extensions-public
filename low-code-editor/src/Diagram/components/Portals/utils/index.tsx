@@ -12,16 +12,6 @@
  */
 import React, { ReactNode } from "react";
 
-import {
-    ActionStatement,
-    CaptureBindingPattern, CheckAction,
-    CheckExpression,
-    ImplicitNewExpression, ListConstructor, LocalVarDecl, MappingConstructor, NamedArg, NodePosition, NumericLiteral,
-    ParenthesizedArgList,
-    PositionalArg, RemoteMethodCallAction, RequiredParam, SimpleNameReference, SpecificField,
-    STKindChecker,
-    STNode, StringLiteral, TypeCastExpression
-} from "@ballerina/syntax-tree";
 import { Avatar, colors } from "@material-ui/core";
 import {
     ActionConfig,
@@ -33,6 +23,16 @@ import {
     FormField, FormFieldReturnType,
     FunctionDefinitionInfo, PrimitiveBalType, STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    ActionStatement,
+    CaptureBindingPattern, CheckAction,
+    CheckExpression,
+    ImplicitNewExpression, ListConstructor, LocalVarDecl, MappingConstructor, NamedArg, NodePosition, NumericLiteral,
+    ParenthesizedArgList,
+    PositionalArg, RemoteMethodCallAction, RequiredParam, SimpleNameReference, SpecificField,
+    STKindChecker,
+    STNode, StringLiteral, TypeCastExpression
+} from "@wso2-enterprise/syntax-tree";
 import { DocumentSymbol, SymbolInformation } from "vscode-languageserver-protocol";
 
 import * as ConstructIcons from "../../../../assets/icons"

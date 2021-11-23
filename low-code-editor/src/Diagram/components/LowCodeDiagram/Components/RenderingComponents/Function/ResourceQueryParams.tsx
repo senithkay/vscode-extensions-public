@@ -23,7 +23,7 @@ import {
     RestParam,
     SlashToken,
     STKindChecker,
-} from "@ballerina/syntax-tree";
+} from "@wso2-enterprise/syntax-tree";
 
 import "./style.scss";
 

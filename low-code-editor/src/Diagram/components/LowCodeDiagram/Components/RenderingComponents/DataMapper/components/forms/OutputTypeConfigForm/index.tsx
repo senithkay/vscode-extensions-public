@@ -17,8 +17,8 @@
 
 import React, { useContext, useEffect, useState } from 'react';
 
-import { CaptureBindingPattern, LocalVarDecl, NodePosition, STKindChecker, STNode } from '@ballerina/syntax-tree';
 import { FormField, PrimaryButton, PrimitiveBalType, SecondaryButton, STModification, WizardType } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { CaptureBindingPattern, LocalVarDecl, NodePosition, STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
 
 import { Context as DiagramContext } from '../../../../../../../../../Contexts/Diagram';
 import { getAllVariables } from '../../../../../../../../utils/mixins';

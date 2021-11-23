@@ -1,7 +1,7 @@
 import {
     STNode,
     Visitor
-} from "@ballerina/syntax-tree";
+} from "@wso2-enterprise/syntax-tree";
 import { Diagnostic, DiagnosticSeverity } from "vscode-languageserver-protocol";
 
 let allDiagnostics: Diagnostic[] = [];

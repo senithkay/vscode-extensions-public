@@ -15,7 +15,7 @@
 import React, { useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { BinaryExpression, ForeachStatement } from "@ballerina/syntax-tree";
+import { BinaryExpression, ForeachStatement } from "@wso2-enterprise/syntax-tree";
 import classnames from "classnames";
 import { Box, FormControl, Typography } from "@material-ui/core";
 

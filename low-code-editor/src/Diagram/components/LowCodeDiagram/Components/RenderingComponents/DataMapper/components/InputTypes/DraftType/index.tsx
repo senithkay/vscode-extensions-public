@@ -12,7 +12,7 @@
  */
 import React from 'react';
 
-import { STNode } from '@ballerina/syntax-tree';
+import { STNode } from '@wso2-enterprise/syntax-tree';
 
 import { DraftFieldViewstate } from "../../../viewstate/draft-field-viestate";
 import { DraftFieldForm, JsonFieldTypes } from '../../forms/DraftFieldForm';

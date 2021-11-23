@@ -14,10 +14,10 @@
 import React, { ReactNode, useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { ActionStatement, RemoteMethodCallAction } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 import { FormHeaderSection, httpResponse, PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
+import { ActionStatement, RemoteMethodCallAction } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
 import { Context } from "../../../../../../../Contexts/Diagram";

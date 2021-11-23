@@ -13,9 +13,9 @@
 import React, { useState } from "react";
 import { FormattedMessage } from "react-intl";
 
-import { ListenerDeclaration, NodePosition, STKindChecker } from "@ballerina/syntax-tree";
 import { Box, FormControl, FormHelperText, Typography } from "@material-ui/core";
 import { FormHeaderSection, SecondaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ListenerDeclaration, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { ListenerFormIcon } from "../../../../../assets/icons";
 import { PrimaryButton } from "../../../../../components/Buttons/PrimaryButton";

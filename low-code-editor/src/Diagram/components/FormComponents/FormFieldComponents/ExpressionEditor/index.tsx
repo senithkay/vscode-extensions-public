@@ -172,6 +172,7 @@ export interface ExpressionEditorProps {
     hideExpand?: boolean;
     getCompletions?: (completionProps: GetExpCompletionsParams) => Promise<monaco.languages.CompletionList>;
     showHints?: boolean;
+    disabled?: boolean;
 }
 
 export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>) {
@@ -205,7 +206,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         customProps,
     } = props;
     const { validate, statementType, customTemplate, focus, expandDefault, clearInput, revertClearInput, changed,
-            subEditor, editPosition, expressionInjectables, hideSuggestions, hideExpand, getCompletions = getStandardExpCompletions, showHints = true } = customProps;
+            subEditor, editPosition, expressionInjectables, hideSuggestions, hideExpand, getCompletions = getStandardExpCompletions, showHints = true, disabled } = customProps;
     const targetPosition = editPosition ? editPosition : getTargetPosition(targetPositionDraft, syntaxTree);
     const [invalidSourceCode, setInvalidSourceCode] = useState(false);
     const [expand, setExpand] = useState(expandDefault || false);
@@ -477,6 +478,13 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             }
         }
     }, [clearInput]);
+
+    useEffect(() => {
+        if (monacoRef.current) {
+            // FIXME: Need to change the theme when editor is disabled
+            monacoRef.current.editor.updateOptions({ readOnly: disabled });
+        }
+    }, [disabled])
 
     useEffect(() => {
         handleDiagnostic();
@@ -860,7 +868,13 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 style={{ height: expand ? (superExpand ? '200px' : '100px') : '34px' }}
             >
                 <div className="exp-absolute-wrapper">
-                    <div className="exp-editor" style={{ height: expand ? (superExpand ? '200px' : '100px') : '34px' }} >
+                    <div
+                        className="exp-editor"
+                        style={{
+                            height: expand ? (superExpand ? '200px' : '100px') : '34px',
+                            opacity: disabled ? 0.5 : 1
+                        }}
+                    >
                         <MonacoEditor
                             key={index}
                             theme='exp-theme'
@@ -888,7 +902,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                         {!(subEditor && cursorOnEditor) && <Diagnostic message={mainDiagnostics[0]?.message} />}
                         <FormHelperText className={formClasses.invalidCode}><FormattedMessage id="lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage" defaultMessage="Error occurred in the code-editor. Please fix it first to continue." /></FormHelperText>
                     </>
-                ) : !validating && expressionEditorState.name === model?.name && expressionEditorState.diagnostic && getDiagnosticMessage(expressionEditorState.diagnostic, varType) ?
+                ) : !disabled && !validating && expressionEditorState.name === model?.name && expressionEditorState.diagnostic && getDiagnosticMessage(expressionEditorState.diagnostic, varType) ?
                     (
                         <>
                             {!(subEditor && cursorOnEditor) && <Diagnostic message={getDiagnosticMessage(expressionEditorState.diagnostic, varType)} />}

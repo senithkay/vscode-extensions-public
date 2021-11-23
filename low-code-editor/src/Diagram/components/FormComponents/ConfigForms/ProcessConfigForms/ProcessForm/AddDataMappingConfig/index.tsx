@@ -14,8 +14,8 @@
 // tslint:disable: jsx-wrap-multiline
 import React, { useContext, useEffect } from 'react';
 
-import { CaptureBindingPattern, SimpleNameReference, STKindChecker, STNode, traversNode, TypedBindingPattern } from '@ballerina/syntax-tree';
 import { PrimitiveBalType } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { CaptureBindingPattern, SimpleNameReference, STKindChecker, STNode, traversNode, TypedBindingPattern } from '@wso2-enterprise/syntax-tree';
 
 import { Context as DiagramContext } from '../../../../../../../Contexts/Diagram';
 import { getAllVariables } from "../../../../../../utils/mixins";

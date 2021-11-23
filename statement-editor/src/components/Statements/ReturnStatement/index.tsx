@@ -12,7 +12,7 @@
  */
 import React, { ReactNode, useContext } from "react";
 
-import { ReturnStatement } from "@ballerina/syntax-tree";
+import { ReturnStatement } from "@wso2-enterprise/syntax-tree";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";

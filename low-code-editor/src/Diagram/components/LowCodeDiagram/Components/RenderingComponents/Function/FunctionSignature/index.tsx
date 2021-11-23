@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useRef } from 'react';
 
-import { FunctionDefinition, IdentifierToken, ObjectMethodDefinition, RequiredParam, ResourceAccessorDefinition, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { FunctionDefinition, IdentifierToken, ObjectMethodDefinition, RequiredParam, ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from 'classnames';
 
 import FunctionIcon from '../../../../../../../assets/icons/FunctionIcon';

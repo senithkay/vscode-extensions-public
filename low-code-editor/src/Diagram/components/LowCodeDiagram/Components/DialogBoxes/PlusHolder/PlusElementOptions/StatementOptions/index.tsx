@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js, ordered-imports
 import React, { ReactNode, useContext, useState } from "react";
 
-import { QualifiedNameReference, STKindChecker } from "@ballerina/syntax-tree";
+import { QualifiedNameReference, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { Divider } from "@material-ui/core";
 import cn from "classnames";
 

@@ -15,7 +15,7 @@
 import React, { useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { CallStatement, FunctionCall, QualifiedNameReference } from "@ballerina/syntax-tree";
+import { CallStatement, FunctionCall, QualifiedNameReference } from "@wso2-enterprise/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 
 import { Context } from "../../../../../../../Contexts/Diagram";

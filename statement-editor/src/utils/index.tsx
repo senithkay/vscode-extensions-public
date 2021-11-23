@@ -13,14 +13,14 @@
 import React, { ReactNode } from 'react';
 
 import {
-    STKindChecker,
-    STNode
-} from "@ballerina/syntax-tree";
-import {
     ExpressionEditorLangClientInterface,
     PartialSTRequest,
     STModification
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    STKindChecker,
+    STNode
+} from "@wso2-enterprise/syntax-tree";
 
 import * as expressionTypeComponents from '../components/ExpressionTypes';
 import * as statementTypeComponents from '../components/Statements';

@@ -15,18 +15,20 @@ import React, { useContext, useEffect, useState } from "react";
 import { monaco } from "react-monaco-editor";
 
 import {
+    CompletionParams,
+    CompletionResponse,
+    ExpressionEditorLangClientInterface,
+    getDiagnosticMessage,
+    getFilteredDiagnostics
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
     BooleanLiteral, NodePosition,
     NumericLiteral, QualifiedNameReference,
     SimpleNameReference,
     STKindChecker,
     STNode,
     StringLiteral, StringTypeDesc
-} from "@ballerina/syntax-tree";
-import { CompletionParams,
-    CompletionResponse,
-    ExpressionEditorLangClientInterface,
-    getDiagnosticMessage,
-    getFilteredDiagnostics } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+} from "@wso2-enterprise/syntax-tree";
 import debounce from "lodash.debounce";
 
 import * as c from "../../constants";
@@ -64,7 +66,7 @@ export function InputEditor(props: InputEditorProps) {
     const inputEditorCtx = useContext(InputEditorContext);
     const stmtCtx = useContext(StatementEditorContext);
     const { expressionHandler } = useContext(SuggestionsContext);
-    const { currentFile, getLangClient }  = stmtCtx;
+    const { currentFile, getLangClient } = stmtCtx;
 
     const [currentContent, setCurrentContent] = useState(stmtCtx.modelCtx.statementModel.source);
 
@@ -132,7 +134,7 @@ export function InputEditor(props: InputEditorProps) {
 
     useEffect(() => {
         setUserInput(value);
-        handleContentChange(currentContent, "").then(() => {
+        handleContentChange(currentContent).then(() => {
             handleOnOutFocus().then();
         });
     }, [inputEditorCtx.userInput]);
@@ -209,7 +211,7 @@ export function InputEditor(props: InputEditorProps) {
         }
     }
 
-    const handleContentChange = async (currentStatement: string, EOL: string) => {
+    const handleContentChange = async (currentStatement: string, currentCodeSnippet?: string) => {
         const initContent: string = await addStatementToTargetLine(currentFile.content, targetPosition, currentStatement);
 
         inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
@@ -238,6 +240,10 @@ export function InputEditor(props: InputEditorProps) {
             diagnostic: diagResp[0]?.diagnostics ? getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) : []
         })
         setCurrentContent(currentStatement);
+
+        if (isEditing) {
+            getContextBasedCompletions(currentCodeSnippet != null ? currentCodeSnippet : userInput);
+        }
     }
 
     const handleOnOutFocus = async () => {
@@ -297,6 +303,9 @@ export function InputEditor(props: InputEditorProps) {
 
         const acceptedDataType: string[] = getDataTypeOnExpressionKind(model.kind);
 
+        // CodeSnippet is split to get the suggestions for field-access-expr (expression.field-name)
+        const splitCodeSnippet = codeSnippet.split('.');
+
         getLangClient().then((langClient: ExpressionEditorLangClientInterface) => {
             langClient.getCompletion(completionParams).then((values: CompletionResponse[]) => {
                 const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (
@@ -307,7 +316,11 @@ export function InputEditor(props: InputEditorProps) {
                         )
                     ) &&
                     completionResponse.label !== varName.trim() &&
-                    !(completionResponse.label.includes("main"))
+                    !(completionResponse.label.includes("main")) &&
+                    (splitCodeSnippet.some((element) => (
+                            ((completionResponse.label.toLowerCase()).includes(element.toLowerCase()))
+                        )
+                    ))
                 ));
 
                 const variableSuggestions: SuggestionItem[] = filteredCompletionItem.map((obj) => {
@@ -351,15 +364,14 @@ export function InputEditor(props: InputEditorProps) {
 
     const inputChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
         const currentStatement = stmtCtx.modelCtx.statementModel.source;
+        setUserInput(event.target.value);
         const updatedStatement = addExpressionToTargetPosition(
             currentStatement,
             model.position.startColumn,
             event.target.value ? event.target.value : "",
             model.position.endColumn
         );
-        debouncedContentChange(updatedStatement, "");
-        setUserInput(event.target.value);
-        getContextBasedCompletions(event.target.value);
+        debouncedContentChange(updatedStatement, event.target.value);
     };
 
     const debouncedContentChange = debounce(handleContentChange, 500);

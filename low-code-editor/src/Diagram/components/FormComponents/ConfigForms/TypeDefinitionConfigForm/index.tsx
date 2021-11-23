@@ -13,9 +13,9 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
-import { NodePosition, RecordTypeDesc, STKindChecker, TypeDefinition } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 import { FormHeaderSection, SecondaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition, RecordTypeDesc, STKindChecker, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 
 import EditButton from "../../../../../assets/icons/EditButton";
 import { PrimaryButton } from "../../../../../components/Buttons/PrimaryButton";

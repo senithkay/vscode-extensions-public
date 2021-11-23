@@ -13,9 +13,9 @@
 import React, { useContext, useEffect, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { FunctionDefinition, NodePosition, ObjectMethodDefinition, ResourceAccessorDefinition } from "@ballerina/syntax-tree";
 import { Box, FormControl, Grid, Link, Typography } from "@material-ui/core";
 import { ConfigOverlayFormStatus, FormHeaderSection, PrimaryButton, SecondaryButton, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FunctionDefinition, NodePosition, ObjectMethodDefinition, RequiredParam, ResourceAccessorDefinition } from "@wso2-enterprise/syntax-tree";
 
 import { ResourceIcon } from "../../../../../../assets/icons";
 import { Section } from "../../../../../../components/ConfigPanel";
@@ -26,9 +26,9 @@ import { createResource, updateResourceSignature } from "../../../../../utils/mo
 import { DiagramOverlayPosition } from "../../../../Portals/Overlay";
 import { useStyles as useFormStyles } from "../../../DynamicConnectorForm/style";
 import { SelectDropdownWithButton } from "../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
-import ExpressionEditor from "../../../FormFieldComponents/ExpressionEditor";
 import { SwitchToggle } from "../../../FormFieldComponents/SwitchToggle";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
+import { VariableTypeInput } from "../../Components/VariableTypeInput";
 import { useStyles } from "../styles";
 
 import { AdvancedEditor } from "./components/advanced";
@@ -113,6 +113,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     const [validateToggle, setValidateToggle] = useState(false);
     const [duplicatedPathsInEdit, setDuplicatedPathsInEdit] = useState<boolean>(false);
     const [isValidReturnExpr, setIsValidReturnExpr] = useState(true);
+    const [isValidPayload, setIsValidPayload] = useState(true);
 
     const funcSignature = (model as ResourceAccessorDefinition)?.functionSignature;
 
@@ -377,6 +378,8 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
         return validPath;
     }
 
+    const validateReturnTypeExpression = (_name: string, isInvalid: boolean) => setIsValidReturnExpr(!isInvalid);
+
     const resourceConfigTitle = intl.formatMessage({
         id: "lowcode.develop.apiConfigWizard.resourceConfig.title",
         defaultMessage: "Configure Resource"
@@ -599,7 +602,15 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                     tooltipWithExample={{ title: payloadContenttitle, content: payloadExample }}
                     button={<SwitchToggle initSwitch={togglePayload} onChange={onPayloadToggleSelect} />}
                 >
-                    <PayloadEditor disabled={!togglePayload} payload={resource.payload} onChange={handleOnChangePayloadFromUI} onError={handleOnPayloadErrorFromUI} />
+                    <PayloadEditor
+                      model={model}
+                      targetPosition={targetPosition}
+                      disabled={!togglePayload}
+                      payload={resource.payload}
+                      onChange={handleOnChangePayloadFromUI}
+                      onError={handleOnPayloadErrorFromUI}
+                      setIsValid={setIsValidPayload}
+                    />
                 </Section>
             </div>
             <div className={classes.sectionSeparator}>
@@ -616,11 +627,14 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
 
     const returnUIWithExpressionEditor = (
         <div className={classes.returnTextBoxWrapper}>
-            <ExpressionEditor
-                model={{ name: "Other type" }}
-                customProps={{ validate: (_name: string, isInvalid: boolean) => setIsValidReturnExpr(!isInvalid), interactive: true, customTemplate: { defaultCodeSnippet: "", targetColumn: 1 }, editPosition: getReturnTypePosition(funcSignature?.returnTypeDesc), hideTextLabel: true }}
-                onChange={handleOnChangeReturnType}
-                defaultValue={(returnType === "" ? `error?` : returnType + ` | error?`)}
+            <VariableTypeInput
+              hideLabel={true}
+              displayName={'Variable Type'}
+              value={returnType === "" ? `error?` : returnType + ` | error?`}
+              onValueChange={handleOnChangeReturnType}
+              validateExpression={validateReturnTypeExpression}
+              position={getReturnTypePosition(funcSignature?.returnTypeDesc)}
+              overrideTemplate={{ defaultCodeSnippet: "", targetColumn: 1 }}
             />
         </div>
     );
@@ -644,7 +658,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                     text={saveButtonText}
                     className={classes.saveBtn}
                     onClick={handleUserConfirm}
-                    disabled={isFileSaving || !isValidReturnExpr}
+                    disabled={isFileSaving || !isValidReturnExpr || (togglePayload && !isValidPayload)}
                 />
             </div>
         </div>

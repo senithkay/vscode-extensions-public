@@ -9,7 +9,6 @@
   "types": "build/index.d.ts",
   "typings": "build/index",
   "scripts": {
-    "prepublishOnly": "npm run build",
     "prebuild": "npm run lint",
     "build": "npm run build:webpack",
     "build:tsc": "tsc --pretty && npm run copy:assets",
@@ -20,14 +19,15 @@
     "lint": "tslint --project .",
     "lint:fix": "tslint --fix --project .",
     "stylelint": "stylelint 'src/**/*.scss' --config ./.stylelintrc.json --syntax scss --fix",
-    "watch": "tsc --pretty --watch",
+    "watch": "npm run watch:webpack",
+    "watch:tsc": "tsc --pretty --watch",
     "watch:webpack": "webpack-dev-server --mode=development --progress",
     "deploy": "npm publish",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
   },
   "dependencies": {
-    "@ballerina/syntax-tree": "*",
+    "@wso2-enterprise/syntax-tree": "*",
     "@wso2-enterprise/ballerina-low-code-edtior-commons": "*",
     "@wso2-enterprise/ballerina-statement-editor": "*",
     "@date-io/date-fns": "^1.3.13",
