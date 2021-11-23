@@ -16,7 +16,6 @@ import React, { useContext } from "react";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { SuggestionItem } from "../../../models/definitions";
-import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { useStatementEditorStyles } from "../../ViewContainer/styles";
 
@@ -30,8 +29,6 @@ export function TypeSuggestions(props: TypeSuggestionsProps) {
     const overlayClasses = useStatementEditorStyles();
     const { model, typeSuggestions, suggestionHandler } = props;
 
-    const inputEditorCtx = useContext(InputEditorContext);
-
     const {
         modelCtx: {
             updateModel,
@@ -40,7 +37,6 @@ export function TypeSuggestions(props: TypeSuggestionsProps) {
 
     const onClickTypeSuggestion = (suggestion: SuggestionItem) => {
         updateModel(suggestion.value, model.position);
-        inputEditorCtx.onSelection(suggestion.value);
         suggestionHandler();
     }
 

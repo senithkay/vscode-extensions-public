@@ -31,16 +31,16 @@ export function Union(props: FormElementProps<UnionProps>) {
     const classes = useStyles();
     const textLabel = model && model.displayName ? model.displayName : model.name;
 
-    const [ selectedType, setSelectedType ] = useState(model.selectedDataType);
+    const [selectedType, setSelectedType] = useState(model.selectedDataType);
 
     useEffect(() => {
         if (!selectedType) {
             const types = getTypes();
             if (types && types.length > 0) {
-                setSelectedType(types[ 0 ]);
+                setSelectedType(types[0]);
             }
         }
-    }, [ selectedType ]);
+    }, [selectedType]);
 
     const getTypes = () => {
         const types: string[] = [];
@@ -67,10 +67,16 @@ export function Union(props: FormElementProps<UnionProps>) {
         let element: React.ReactNode = null;
         const selectedField = getSelectedFormField();
         model.selectedDataType = selectedType;
-        if (selectedField && selectedField.typeName) {
+        if (selectedField && selectedField.typeName && selectedField.fields) {
             element = (
                 <div className={classes.removeInnerMargin}>
                     <Form fields={selectedField.fields} onValidate={validateForm} key={selectedType} />
+                </div>
+            );
+        } else if (selectedField && selectedField.typeName) {
+            element = (
+                <div className={classes.removeInnerMargin}>
+                    <Form fields={[selectedField]} onValidate={validateForm} key={selectedType} />
                 </div>
             );
         }
@@ -133,6 +139,5 @@ export function getUnionFormFieldName(field: FormField): string {
     if (!name) {
         name = field.typeName;
     }
-
     return name;
 }

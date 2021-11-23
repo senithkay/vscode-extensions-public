@@ -42,7 +42,7 @@ export function Form(props: FormProps) {
 
     React.useEffect(() => {
         // Set form as valid if there aren't any mandatory fields
-        if (isAllOptionalFields(fields)){
+        if (fields && isAllOptionalFields(fields)){
             onValidate(true);
         }
     }, []);
@@ -53,7 +53,7 @@ export function Form(props: FormProps) {
         onValidate(isAllValid(validFieldChecker.current, emptyFieldChecker.current, false, true, true));
     };
 
-    const fieldTypesList = ["string" , "int" , "boolean" , "float" , "decimal" , "array" , "map" , "union" ,
+    const fieldTypesList = ["string" , "int" , "boolean" , "float" , "decimal" , "array" , "map" , "union", "xml",
     "json" , "httpRequest" , "handle" , "object {public string[] & readonly strings;public Value[] insertions;}"]
     fields?.map((field, index) => {
         if (!field.hide && (fieldTypesList.includes(field.typeName) || (field.typeName === 'record' && !field.isReference))) {

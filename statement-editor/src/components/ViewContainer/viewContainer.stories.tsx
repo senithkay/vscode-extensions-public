@@ -15,7 +15,6 @@ import React from 'react';
 
 import { Story } from '@storybook/react/types-6-0';
 
-import { InputEditorContextProvider } from "../../store/input-editor-context";
 import { StatementEditorContextProvider } from '../../store/statement-editor-context';
 import foreachModel from "../StatementRenderer/data/foreach-st-model.json";
 import ifElseBooleanModel from "../StatementRenderer/data/ifelse-booleaLiteral-st-model.json";
@@ -54,22 +53,9 @@ const statementEditorContextProps = {
     }
 }
 
-const inputEditorContextProps: any = {
-    userInputs: {
-        "selectedType": "string",
-        "varName": "ga",
-        "variableExpression": "(expression+expression)",
-        "formField": "Expression"
-    },
-    onVariableSelection: (value: string) => {
-    }
-}
-
 const Template: Story<ViewProps> = (args: ViewProps) => (
         <StatementEditorContextProvider {...statementEditorContextProps}>
-            <InputEditorContextProvider {...inputEditorContextProps}>
-                <ViewContainer {...args} />;
-            </InputEditorContextProvider>
+            <ViewContainer {...args} />;
         </StatementEditorContextProvider>
 );
 

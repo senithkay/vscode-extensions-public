@@ -15,7 +15,6 @@ import React from 'react';
 
 import { Story } from '@storybook/react/types-6-0';
 
-import { InputEditorContextProvider } from "../../store/input-editor-context";
 import { StatementEditorContextProvider } from '../../store/statement-editor-context';
 
 import foreachModel from "./data/foreach-st-model.json";
@@ -39,15 +38,65 @@ const dummyFunction = (arg: any) => {
 const dummyFunctionWithoutArgs = () => {
 };
 
-const inputEditorContextProps: any = {
-    userInputs: {
-        "selectedType": "string",
-        "varName": "ga",
-        "variableExpression": "(expression+expression)",
-        "formField": "Expression"
+const api = {
+    tour: { goToNextTourStep: dummyFunction },
+    helpPanel: { openConnectorHelp: dummyFunction },
+    notifications: {},
+    ls: {},
+    insights: { trackTriggerSelection: dummyFunction },
+    code: {
+        modifyDiagram: dummyFunction,
+        onMutate: dummyFunction,
+        setCodeLocationToHighlight: dummyFunction,
+        gotoSource: dummyFunction
     },
-    onVariableSelection: (value: string) => {
+    panNZoom: {
+        pan: dummyFunction,
+        fitToScreen: dummyFunctionWithoutArgs,
+        zoomIn: dummyFunctionWithoutArgs,
+        zoomOut: dummyFunctionWithoutArgs,
+    },
+    configPanel: {
+        dispactchConfigOverlayForm: dummyFunction,
+        closeConfigOverlayForm: dummyFunctionWithoutArgs,
+        configOverlayFormPrepareStart: dummyFunctionWithoutArgs,
+        closeConfigPanel: dummyFunctionWithoutArgs,
+    },
+    webView: {
+        showSwaggerView: dummyFunction,
     }
+}
+
+
+const props = {
+    api,
+    currentFile: {
+        // @ts-ignore
+        type: undefined,
+        path: '',
+        size: 3,
+        content: ''
+    },
+    // @ts-ignore
+    syntaxTree: undefined,
+    // @ts-ignore
+    originalSyntaxTree: undefined,
+    // @ts-ignore
+    stSymbolInfo: undefined,
+    langServerURL: '',
+    // @ts-ignore
+    configOverlayFormStatus: undefined,
+    // @ts-ignore
+    configPanelStatus: undefined,
+    isCodeEditorActive: false,
+    isPerformanceViewOpen: false,
+    isLoadingSuccess: false,
+    isWaitingOnWorkspace: false,
+    isMutationProgress: false,
+    isCodeChangeInProgress: false,
+    isReadOnly: false,
+    // @ts-ignore
+    zoomStatus: undefined
 }
 
 const statementEditorContextProps = {
@@ -67,9 +116,7 @@ const statementEditorContextProps = {
 
 const Template: Story<StatementRendererProps> = (args: StatementRendererProps) => (
         <StatementEditorContextProvider {...statementEditorContextProps}>
-            <InputEditorContextProvider {...inputEditorContextProps}>
-                <StatementRenderer {...args} />
-            </InputEditorContextProvider>
+            <StatementRenderer {...args} />
         </StatementEditorContextProvider>
 );
 
