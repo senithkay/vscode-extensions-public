@@ -212,7 +212,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const [superExpand, setSuperExpand] = useState(false);
     const [cursorOnEditor, setCursorOnEditor] = useState(false);
 
-    const textLabel = model && model.displayName ? model.displayName : model.name;
+    const textLabel = model?.displayAnnotation?.label || model?.name || model.typeName;
     const varName = "temp_" + (textLabel).replace(/[^A-Z0-9]+/ig, "");
     const varType = transformFormFieldTypeToString(model);
     const initalValue = getInitialValue(defaultValue, model);

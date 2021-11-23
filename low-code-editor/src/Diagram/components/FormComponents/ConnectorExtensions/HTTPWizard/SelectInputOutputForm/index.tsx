@@ -61,7 +61,7 @@ interface PayloadState {
 }
 
 export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
-    const { onConnectionChange, onSave, functionDefinitions, connectorConfig, isNewConnectorInitWizard, model } = props;
+    const { onSave, functionDefinitions, connectorConfig, isNewConnectorInitWizard, model } = props;
     const actions = functionDefinitions;
     const {
         props: { isMutationProgress, stSymbolInfo },
@@ -76,20 +76,24 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     const classes = useStyles();
     const wizardClasses = wizardStyles();
     const intl = useIntl();
+    const defaultTargetType = "http:Response";
+    const targetTypes = [defaultTargetType, "string", "json", "xml"];
 
     const defaultActionName = connectorConfig && connectorConfig.action && connectorConfig.action.name ? connectorConfig.action.name : "";
     const [state, setDefaultActionName] = useState(defaultActionName);
     const [responseVarError, setResponseVarError] = useState("");
     const isFieldsAvailable = connectorConfig.action && connectorConfig.action.name && connectorConfig.action.fields.length > 0;
     const payloadType = connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.selectedPayloadType ? connectorConfig.responsePayloadMap.selectedPayloadType : "";
+    const isPayloadSelected = connectorConfig.responsePayloadMap?.isPayloadSelected;
     const payloadSelected = !(connectorConfig.responsePayloadMap &&
         (connectorConfig.responsePayloadMap.selectedPayloadType === "" ||
             connectorConfig.responsePayloadMap.selectedPayloadType === undefined));
-    const [isGenFieldsFilled, setIsGenFieldsFilled] = useState(!isNewConnectorInitWizard || connectorConfig?.action?.name === "get");
+    const [isGenFieldsFilled, setIsGenFieldsFilled] = useState(false);
     const [selectedOperation, setSelectedOperation] = useState<string>(connectorConfig?.action?.name);
+    const [selectedTargetType, setSelectedTargetType] = useState("");
     const httpVar = model as LocalVarDecl;
     const initialReturnNameState: ReturnNameState = {
-        value: connectorConfig.action.returnVariableName, // connectorConfig?.action?.returnVariableName || genVariableName(connectorConfig.action.name + "Response", getAllVariables(symbolInfo)),
+        value: connectorConfig.action.returnVariableName,
         isNameProvided: false,
         isValidName: true
     };
@@ -122,16 +126,15 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     }
 
     let responseVariableHasReferences: boolean = false;
-    let payloadVariableHasReferences: boolean = false;
-
     if (!isNewConnectorInitWizard) {
-        let symbolRefArray = symbolInfo.variableNameReferences.get(returnNameState.value);
+        const symbolRefArray = symbolInfo.variableNameReferences.get(returnNameState.value);
         responseVariableHasReferences = symbolRefArray ? symbolRefArray.length > 0 : false;
-
-        if (connectorConfig.responsePayloadMap.isPayloadSelected) {
-            symbolRefArray = symbolInfo.variableNameReferences.get(connectorConfig.responsePayloadMap.payloadVariableName);
-            payloadVariableHasReferences = symbolRefArray ? symbolRefArray.length > 0 : false;
+        const actionReturnType = httpVar.typedBindingPattern.typeDescriptor.source.trim();
+        if (selectedTargetType === "" && actionReturnType) {
+            setSelectedTargetType(actionReturnType);
         }
+    } else if (isNewConnectorInitWizard && selectedTargetType === "") {
+        setSelectedTargetType(defaultTargetType);
     }
 
     const onValidate = (isRequiredFieldsFilled: boolean) => {
@@ -158,14 +161,11 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                 :
                 connectorConfig.responsePayloadMap.payloadVariableName
         });
-        // TODO: tour step should update without redux store
-        // dispatchGoToNextTourStep("CONFIG_JSON_PAYLOAD");
     };
 
     const handleOnSave = () => {
-        // TODO: tour step should update without redux store
-        // dispatchGoToNextTourStep("CONFIG_SAVE_AND_DONE");
         action.returnVariableName = returnNameState.value;
+        action.fields.find(subField => subField.name === "targetType").selectedDataType = selectedTargetType;
         onSave();
     };
 
@@ -194,7 +194,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     const operations: string[] = [];
     if (actions) {
         actions.forEach((value, key) => {
-            if (key !== "init" && key !== "__init") {
+            if (key !== "init") {
                 operations.push(key);
             }
         });
@@ -207,56 +207,6 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         id: "lowcode.develop.configForms.HTTP.seletPayloadType",
         defaultMessage: "Select Type"
     });
-
-    const addResponseVariablePlaceholder = intl.formatMessage({
-        id: "lowcode.develop.configForms.HTTP.addResponseVariable.placeholder",
-        defaultMessage: "Enter response variable name"
-    });
-
-    const addResponseVariableLabel = intl.formatMessage({
-        id: "lowcode.develop.configForms.HTTP.addResponseVariable.label",
-        defaultMessage: "Response Variable Name"
-    });
-
-    const addPayloadVariablePlaceholder = intl.formatMessage({
-        id: "lowcode.develop.configForms.HTTP.addPayloadVariable.placeholder",
-        defaultMessage: "Enter Payload Variable Name"
-    });
-
-    const addPayloadVariableLabel = intl.formatMessage({
-        id: "lowcode.develop.configForms.HTTP.addPayloadVariable.label",
-        defaultMessage: "Payload Variable Name"
-    });
-
-    const saveConnectionButtonText = intl.formatMessage({
-        id: "lowcode.develop.configForms.HTTP.saveConnectionButton.text",
-        defaultMessage: "Save"
-    });
-
-    const HTTPtooltipMessages = {
-        HTTPPayload: {
-            title: intl.formatMessage({
-                id: "lowcode.develop.configForms.HTTP.HTTPPayload.tooltip.title",
-                defaultMessage: "Add a valid payload variable"
-            }),
-            content: intl.formatMessage({
-                id: "lowcode.develop.configForms.HTTP.HTTPPayload.tooltip.content",
-                defaultMessage: "jsonPayload \nxmlPayload \ntextPayload"
-            }),
-    },
-        payloadVariableName: {
-            title: intl.formatMessage({
-                id: "lowcode.develop.configForms.HTTP.HTTPPayloadName.tooltip.title",
-                defaultMessage: "Add a valid name for the payload variable. Avoid using special characters, having spaces in the middle, starting with a numerical character, and including keywords such as Return, Foreach, Resource, Object, etc."
-            })
-        },
-        responseVariableName: {
-            title: intl.formatMessage({
-                id: "lowcode.develop.configForms.HTTP.responseVariableNametooltip.title",
-                defaultMessage: "Add a valid name for the response variable. Avoid using special characters, having spaces in the middle, starting with a numerical character, and including keywords such as Return, Foreach, Resource, Object, etc."
-            }),
-    }
-    };
 
     let payloadComponent: React.ReactNode = null;
     if (connectorConfig.responsePayloadMap) {
@@ -281,10 +231,6 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                         customProps={{
                             values: payloadTypes,
                             disableCreateNew: true,
-                            // TODO: tour step should update without redux store
-                            // onOpenSelect: () => {
-                            //     dispatchGoToNextTourStep("CONFIG_PAYLOAD_CLICK")
-                            // },
                         }}
                     />
                 </div>
@@ -292,37 +238,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         );
     }
 
-    // when switched to payload component and selected a payload or
-    // when not switched to payload component
-    // the payload is valid
-    const isPayloadValid = (connectorConfig.responsePayloadMap.isPayloadSelected &&
-        connectorConfig.responsePayloadMap.selectedPayloadType ||
-        !connectorConfig.responsePayloadMap.isPayloadSelected);
-    const isSaveDisabled: boolean = isMutationProgress || !(responseVarError === "" || responseVarError === undefined)
-        || !(isGenFieldsFilled && returnNameState.isNameProvided && returnNameState.isValidName
-            && isPayloadValid);
-
-    const handleSwitchToggleChange = () => {
-        if (connectorConfig.responsePayloadMap) {
-            if (!connectorConfig.responsePayloadMap.isPayloadSelected) {
-                setPayloadState({
-                    ...payloadState,
-                    isPayloadSelected: true,
-                    selectedPayload: "",
-                });
-            } else {
-                setPayloadState({
-                    isPayloadSelected: false,
-                    selectedPayload: connectorConfig.responsePayloadMap.selectedPayloadType,
-                    isNameProvided: false,
-                    validPayloadName: true,
-                    variableName: ""
-                });
-            }
-            connectorConfig.responsePayloadMap.selectedPayloadType = "";
-            connectorConfig.responsePayloadMap.isPayloadSelected = !connectorConfig.responsePayloadMap.isPayloadSelected;
-        }
-    };
+    const isSaveDisabled = isMutationProgress || !isGenFieldsFilled;
 
     React.useEffect(() => {
         if (!isNewConnectorInitWizard) {
@@ -346,15 +262,15 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                 variableName: connectorConfig.responsePayloadMap.payloadVariableName
             });
         }
-    }, [connectorConfig.responsePayloadMap.isPayloadSelected]);
+    }, [isPayloadSelected]);
 
     const handleOnOperationSelect = (operation: string) => {
         connectorConfig.action.name = operation;
         setSelectedOperation(operation);
-        const connector = (symbolInfo.localEndpoints.get(connectorConfig.name)?.typeData?.typeSymbol?.moduleID) as Connector;
-        const name = symbolInfo.localEndpoints.get(connectorConfig.name)?.typeData?.typeSymbol?.name;
-        if (connector){
-            const {moduleName, package: {version, organization}} = connector;
+        if (symbolInfo.localEndpoints.get(connectorConfig.name)){
+            const typeSymbol = symbolInfo.localEndpoints.get(connectorConfig.name)?.typeData?.typeSymbol;
+            const {moduleName, orgName: organization, version} = typeSymbol?.moduleID;
+            const name = typeSymbol?.name;
             openConnectorHelp({moduleName, package: {name, version, organization}, name}, operation);
         }
         if (isNewConnectorInitWizard) {
@@ -385,6 +301,10 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
 
     const handleOperationChange = () => {
         setOnOperationChange(true);
+    }
+
+    const handleTypeChange = (value: string) => {
+        setSelectedTargetType(value);
     }
 
     return (
@@ -420,9 +340,20 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                                     </Box>
                                 </>
                                 <FormHelperText className={classes.subtitle}>Operation Inputs</FormHelperText>
+
                                 <div className={classNames(classes.groupedForm, classes.marginTB)}>
                                     {selectedOperationParams}
                                 </div>
+                                <SelectDropdownWithButton
+                                    onChange={handleTypeChange}
+                                    customProps={{
+                                        values: targetTypes,
+                                        disableCreateNew: true,
+                                    }}
+                                    defaultValue={selectedTargetType}
+                                    placeholder="Select Target Type"
+                                    label="Target Type"
+                                />
                                 <div className={classes.marginTB}>
                                     <FormTextInput
                                         dataTestId={"response-variable-name"}
@@ -437,26 +368,11 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                                         errorMessage={responseVarError}
                                     />
                                 </div>
-
-                                <SwitchToggle
-                                    text="Extract payload from response"
-                                    onChange={handleSwitchToggleChange}
-                                    initSwitch={connectorConfig.responsePayloadMap.isPayloadSelected}
-                                />
-                                {connectorConfig.responsePayloadMap.isPayloadSelected && (
-                                    <>
-                                        <FormHelperText className={classes.subtitle}>Output Payload</FormHelperText>
-                                        <div className={classNames(classes.groupedForm, classes.marginTB, "product-tour-grouped-form")}>
-                                            {payloadComponent}
-                                        </div>
-                                    </>
-                                )}
                             </div>
                         </div>
-                        <div className={classes.wizardBtnHolder}>
+                        <div className={classes.saveConnectorBtnHolder}>
                             <PrimaryButton
                                 dataTestId={"http-save-done"}
-                                className="product-tour-save-done"
                                 text="Save &amp; Done"
                                 fullWidth={false}
                                 disabled={isSaveDisabled}
@@ -469,8 +385,3 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         </div>
     );
 }
-
-// TODO: goToNextTourStep - tour step should update without redux store
-// const mapDispatchToProps = {
-//     dispatchGoToNextTourStep: goToNextTourStep,
-// };

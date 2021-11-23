@@ -125,8 +125,8 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
                     getDiagramEditorLangClient,
                     userInfo?.user?.email
                 );
-                connectorInfoResponse.wizardType = isEdit ? WizardType.EXISTING : WizardType.NEW;
                 if (connectorInfoResponse) {
+                    connectorInfoResponse.wizardType = isEdit ? WizardType.EXISTING : WizardType.NEW;
                     setWizardState(connectorInfoResponse);
                 } else {
                     triggerErrorNotification(new Error(connectionErrorMsgText));
