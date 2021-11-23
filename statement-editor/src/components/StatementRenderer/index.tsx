@@ -15,7 +15,7 @@ import React from "react";
 import { StatementNodes } from "../../constants";
 import { VariableUserInputs } from "../../models/definitions";
 import { getStatementTypeComponent } from "../../utils";
-import { useStatementEditorStyles } from "../ViewContainer/styles";
+import { useStatementEditorStyles } from "../styles";
 
 export interface StatementRendererProps {
     model: StatementNodes

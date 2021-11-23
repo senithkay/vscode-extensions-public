@@ -16,7 +16,7 @@ import React from "react";
 import { CaptureBindingPattern } from "@wso2-enterprise/syntax-tree";
 
 import { VariableUserInputs } from "../../../models/definitions";
-import { useStatementEditorStyles } from "../../ViewContainer/styles";
+import { useStatementEditorStyles } from "../../styles";
 
 interface CaptureBindingPatternProps {
     model: CaptureBindingPattern
@@ -27,11 +27,11 @@ interface CaptureBindingPatternProps {
 export function CaptureBindingPatternComponent(props: CaptureBindingPatternProps) {
     const { model } = props;
 
-    const overlayClasses = useStatementEditorStyles();
+    const statementEditorClasses = useStatementEditorStyles();
 
     return (
         <button
-            className={overlayClasses.expressionElement}
+            className={statementEditorClasses.expressionElement}
         >
             {model.variableName.value}
         </button>

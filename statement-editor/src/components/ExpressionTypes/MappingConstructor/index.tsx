@@ -14,13 +14,14 @@
 import React, { ReactNode, useContext } from "react";
 
 import { MappingConstructor, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import classNames from "classnames";
 
 import { MAPPING_CONSTRUCTOR } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { generateExpressionTemplate } from "../../../utils/utils";
 import { ExpressionComponent } from "../../Expression";
-import { useStatementEditorStyles } from "../../ViewContainer/styles";
+import { useStatementEditorStyles } from "../../styles";
 
 interface MappingConstructorProps {
     model: MappingConstructor
@@ -31,7 +32,7 @@ interface MappingConstructorProps {
 export function MappingConstructorComponent(props: MappingConstructorProps) {
     const { model, userInputs, diagnosticHandler } = props;
 
-    const overlayClasses = useStatementEditorStyles();
+    const statementEditorClasses = useStatementEditorStyles();
 
     const {
         modelCtx: {
@@ -67,7 +68,7 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
                                 <span
                                     key={index}
                                     className={
-                                        `${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`
+                                        classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)
                                     }
                                 >
                                     {expr}
@@ -76,7 +77,7 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
                             (
                                 <button
                                     key={index}
-                                    className={overlayClasses.expressionElement}
+                                    className={statementEditorClasses.expressionElement}
                                 >
                                     {expr}
                                 </button>
@@ -100,19 +101,19 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
     return (
         <span>
             <span
-                className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}
+                className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}
             >
                 {model.openBrace.value}
             </span>
             {fieldsComponent}
             <button
-                className={overlayClasses.plusIconBorder}
+                className={statementEditorClasses.plusIconBorder}
                 onClick={onClickOnPlusIcon}
             >
                 +
             </button>
             <span
-                className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}
+                className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}
             >
                 {model.closeBrace.value}
             </span>

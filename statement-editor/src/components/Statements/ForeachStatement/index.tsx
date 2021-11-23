@@ -13,13 +13,14 @@
 import React, { ReactNode, useContext } from "react";
 
 import { ForeachStatement } from "@wso2-enterprise/syntax-tree";
+import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
-import { useStatementEditorStyles } from "../../ViewContainer/styles";
+import { useStatementEditorStyles } from "../../styles";
 
 interface ForeachStatementProps {
     model: ForeachStatement
@@ -30,7 +31,7 @@ interface ForeachStatementProps {
 export function ForeachStatementC(props: ForeachStatementProps) {
     const { model, userInputs, diagnosticHandler } = props;
 
-    const overlayClasses = useStatementEditorStyles();
+    const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
 
     const typedBindingComponent: ReactNode = (
@@ -62,19 +63,19 @@ export function ForeachStatementC(props: ForeachStatementProps) {
 
     return (
         <span>
-            <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
+            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
                 {model.forEachKeyword.value}
             </span>
-            <button className={overlayClasses.expressionElement}>
+            <button className={statementEditorClasses.expressionElement}>
                 {typedBindingComponent}
             </button>
-            <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
+            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
                 &nbsp;{model.inKeyword.value}
             </span>
-            <button className={overlayClasses.expressionElement} onClick={onClickOnActionOrExpr}>
+            <button className={statementEditorClasses.expressionElement} onClick={onClickOnActionOrExpr}>
                 {actionOrExprComponent}
             </button>
-            <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
+            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
                 &nbsp;{model.blockStatement.openBraceToken.value}
                 <br/>
                 &nbsp;&nbsp;&nbsp;{"..."}

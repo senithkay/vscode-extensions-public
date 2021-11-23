@@ -19,7 +19,7 @@ import { VariableUserInputs } from "../../../../models/definitions";
 import { SuggestionsContext } from "../../../../store/suggestions-context";
 import { getTypeDescriptors } from "../../../../utils";
 import { InputEditor } from "../../../InputEditor";
-import { useStatementEditorStyles } from "../../../ViewContainer/styles";
+import { useStatementEditorStyles } from "../../../styles";
 
 interface IntTypeDescProps {
     model: IntTypeDesc
@@ -31,7 +31,7 @@ interface IntTypeDescProps {
 export function IntTypeDescComponent(props: IntTypeDescProps) {
     const { model, userInputs, diagnosticHandler, isTypeDescriptor } = props;
 
-    const overlayClasses = useStatementEditorStyles();
+    const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
 
     const inputEditorProps = {
@@ -50,7 +50,7 @@ export function IntTypeDescComponent(props: IntTypeDescProps) {
 
     return (
         <button
-            className={overlayClasses.expressionElement}
+            className={statementEditorClasses.expressionElement}
             onClick={onClickOnType}
         >
             <InputEditor {...inputEditorProps} />

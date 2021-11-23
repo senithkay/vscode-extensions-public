@@ -13,13 +13,14 @@
 import React, { ReactNode, useContext } from "react";
 
 import { IfElseStatement } from "@wso2-enterprise/syntax-tree"
+import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
-import { useStatementEditorStyles } from "../../ViewContainer/styles";
+import { useStatementEditorStyles } from "../../styles";
 
 interface IfStatementProps {
     model: IfElseStatement
@@ -30,7 +31,7 @@ interface IfStatementProps {
 export function IfStatementC(props: IfStatementProps) {
     const { model, userInputs, diagnosticHandler } = props;
 
-    const overlayClasses = useStatementEditorStyles();
+    const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
 
     const conditionComponent: ReactNode = (
@@ -52,21 +53,21 @@ export function IfStatementC(props: IfStatementProps) {
 
     return (
         <span>
-            <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
+            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
                 {model.ifKeyword.value}
             </span>
-             <button className={overlayClasses.expressionElement} onClick={onClickOnConditionExpression}>
+             <button className={statementEditorClasses.expressionElement} onClick={onClickOnConditionExpression}>
                 {conditionComponent}
             </button>
-            <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
+            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
                 &nbsp;{model.ifBody.openBraceToken.value}
                 <br/>
                 &nbsp;&nbsp;&nbsp;{"..."}
                 <br/>
                 &nbsp;{model.ifBody.closeBraceToken.value}
             </span>
-            <button className={overlayClasses.addNewExpressionButton}> + </button>
-            <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
+            <button className={statementEditorClasses.addNewExpressionButton}> + </button>
+            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
                 &nbsp;{model.elseBody.elseKeyword.value}
                 &nbsp;{model.ifBody.openBraceToken.value}
                 <br/>

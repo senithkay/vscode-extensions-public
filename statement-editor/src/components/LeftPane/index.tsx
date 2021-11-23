@@ -23,10 +23,10 @@ import { getSuggestionsBasedOnExpressionKind } from "../../utils";
 import { Diagnostics } from "../Diagnostics";
 import { RightPane } from "../RightPane";
 import { StatementRenderer } from "../StatementRenderer";
+import { useStatementEditorStyles } from "../styles";
 import { ExpressionSuggestions } from "../Suggestions/ExpressionSuggestions";
 import { TypeSuggestions } from "../Suggestions/TypeSuggestions";
 import { VariableSuggestions } from "../Suggestions/VariableSuggestions";
-import { useStatementEditorStyles } from "../ViewContainer/styles";
 
 interface ModelProps {
     label: string,
@@ -36,7 +36,7 @@ interface ModelProps {
 }
 
 export function LeftPane(props: ModelProps) {
-    const overlayClasses = useStatementEditorStyles();
+    const statementEditorClasses = useStatementEditorStyles();
     const { label, currentModel, userInputs, currentModelHandler } = props;
 
     const { modelCtx } = useContext(StatementEditorContext);
@@ -86,14 +86,14 @@ export function LeftPane(props: ModelProps) {
 
     return (
         <div>
-            <div className={overlayClasses.sugessionsMainWrapper}>
+            <div className={statementEditorClasses.sugessionsMainWrapper}>
                 <SuggestionsContext.Provider
                     value={{
                         expressionHandler
                     }}
                 >
-                    <div className={overlayClasses.statementExpressionTitle}>{label}</div>
-                    <div className={overlayClasses.statementExpressionContent}>
+                    <div className={statementEditorClasses.statementExpressionTitle}>{label}</div>
+                    <div className={statementEditorClasses.statementExpressionContent}>
                         <StatementRenderer
                             model={modelCtx.statementModel}
                             userInputs={userInputs}
@@ -102,19 +102,19 @@ export function LeftPane(props: ModelProps) {
                     </div>
 
                 </SuggestionsContext.Provider>
-                <div className={overlayClasses.diagnosticsPane}>
+                <div className={statementEditorClasses.diagnosticsPane}>
                     <Diagnostics
                         message={diagnosticList}
                     />
                 </div>
             </div>
-            <div className={overlayClasses.sugessionsSection}>
-                <div className={overlayClasses.sugessionsWrapper}>
-                    <div className={overlayClasses.variableSugession}>
-                        <div className={overlayClasses.contextSensitivePane}>
+            <div className={statementEditorClasses.sugessionsSection}>
+                <div className={statementEditorClasses.sugessionsWrapper}>
+                    <div className={statementEditorClasses.variableSugession}>
+                        <div className={statementEditorClasses.contextSensitivePane}>
                             {
                                 (!isTypeDescSuggestion && variableList.length > 0) && (
-                                    <div className={overlayClasses.variableSuggestionsInner}>
+                                    <div className={statementEditorClasses.variableSuggestionsInner}>
                                         <VariableSuggestions
                                             model={currentModel.model}
                                             variableSuggestions={variableList}
@@ -145,7 +145,7 @@ export function LeftPane(props: ModelProps) {
                         </div>
                     </div>
                 </div>
-                <div className={overlayClasses.projectSugessionsWrapper}>
+                <div className={statementEditorClasses.projectSugessionsWrapper}>
                     <RightPane />
                 </div>
             </div>

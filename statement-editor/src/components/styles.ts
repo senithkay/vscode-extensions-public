@@ -227,22 +227,6 @@ export const useStatementEditorStyles = makeStyles(() =>
                 color: '#fff'
             }
         },
-        plusIconBorder: {
-            boxSizing: 'border-box',
-            border: '1px dashed #A6B3FF',
-            borderRadius: '4px',
-            position: 'relative',
-            width: 'fit-content',
-            backgroundColor: '#F0F1FB',
-            fontFamily: "Droid Sans Mono",
-            color: '#0095FF',
-            marginLeft: '2px',
-            fontSize: '12px',
-            '&:hover': {
-                backgroundColor: '#5567D5',
-                color: '#fff'
-            }
-        },
         inputEditorTemplate: {
             // color: '#05A26B',
             color: '#5567D5',
@@ -316,6 +300,30 @@ export const useStatementEditorStyles = makeStyles(() =>
             justifyContent: 'flex-end',
             width: '100%',
             zIndex: 100,
+        },
+        plusIconBorder: {
+            boxSizing: 'border-box',
+            border: '1px dashed #A6B3FF',
+            borderRadius: '4px',
+            position: 'relative',
+            width: 'fit-content',
+            backgroundColor: '#F0F1FB',
+            fontFamily: "Droid Sans Mono",
+            color: '#0095FF',
+            marginLeft: '2px',
+            fontSize: '12px',
+            '&:hover': {
+                backgroundColor: '#5567D5',
+                color: '#fff'
+            }
+        },
+        mainExpStatementWrapper: {
+            display: 'flex',
+            flexDirection: 'row'
+        },
+        expressionComponent: {
+            display: 'flex',
+            flexDirection: 'row'
         }
     }),
 );

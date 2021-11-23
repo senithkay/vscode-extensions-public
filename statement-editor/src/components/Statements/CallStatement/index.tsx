@@ -13,13 +13,14 @@
 import React, { ReactNode, useContext } from "react";
 
 import { CallStatement } from "@wso2-enterprise/syntax-tree";
+import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
-import { useStatementEditorStyles } from "../../ViewContainer/styles";
+import { useStatementEditorStyles } from "../../styles";
 
 interface CallStatementProps {
     model: CallStatement
@@ -30,7 +31,7 @@ interface CallStatementProps {
 export function CallStatementC(props: CallStatementProps) {
     const { model, userInputs, diagnosticHandler } = props;
 
-    const overlayClasses = useStatementEditorStyles();
+    const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
 
     const expressionComponent: ReactNode = (
@@ -52,7 +53,7 @@ export function CallStatementC(props: CallStatementProps) {
     return (
         <span>
             {expressionComponent}
-            <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
+            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
                 {model.semicolonToken.value}
             </span>
         </span>

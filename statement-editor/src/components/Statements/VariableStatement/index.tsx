@@ -13,11 +13,12 @@
 import React, { ReactNode } from "react";
 
 import { STNode } from "@wso2-enterprise/syntax-tree";
+import classNames from "classnames";
 
 import * as c from "../../../constants";
 import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
-import { useStatementEditorStyles } from "../../ViewContainer/styles";
+import { useStatementEditorStyles } from "../../styles";
 
 interface VariableStatementProps {
     model: STNode,
@@ -28,9 +29,9 @@ interface VariableStatementProps {
 }
 
 export function VariableStatement(props: VariableStatementProps) {
-    const {model, expressionHandler, isRoot, component, userInputs} = props;
+    const { model, expressionHandler, isRoot, component, userInputs } = props;
 
-    const overlayClasses = useStatementEditorStyles();
+    const statementEditorClasses = useStatementEditorStyles();
 
     const onClickOnRootExpression = (event: any) => {
         event.stopPropagation()
@@ -42,7 +43,7 @@ export function VariableStatement(props: VariableStatementProps) {
     let varName: string = "x";
     if (userInputs) {
         type = (userInputs.selectedType === "other") ? (userInputs.otherType === "" ? "var" : userInputs.otherType) : userInputs.selectedType;
-        if (userInputs.varName){
+        if (userInputs.varName) {
             varName = userInputs.varName;
         }
     }
@@ -50,16 +51,16 @@ export function VariableStatement(props: VariableStatementProps) {
     return (
         isRoot ? (
             <span>
-                <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
+                <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
                     {type + " " + varName + " = "}
                 </span>
                 <button
-                    className={overlayClasses.expressionElement}
+                    className={statementEditorClasses.expressionElement}
                     onClick={onClickOnRootExpression}
                 >
                     {component}
                 </button>
-                <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
+                <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
                     {" ;"}
                 </span>
             </span>
