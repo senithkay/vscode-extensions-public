@@ -17,7 +17,6 @@ export const useStyles = makeStyles((theme: Theme) =>
         formSave: {
             width: '100%',
             right: theme.spacing(2.5),
-            padding: theme.spacing(1.25),
             backgroundColor: '#fff',
         },
         buttonWrapper: {

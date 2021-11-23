@@ -12,7 +12,7 @@
 //  */
 // import * as React from 'react';
 
-// import { BlockStatement, ForeachStatement } from '@ballerina/syntax-tree';
+// import { BlockStatement, ForeachStatement } from '@wso2-enterprise/syntax-tree';
 
 // import { render, RenderResult, waitForElement } from "../../../../../tests/utils/test-utils"
 // import { BlockViewState, ForEachViewState, SimpleBBox } from '../../view-state';

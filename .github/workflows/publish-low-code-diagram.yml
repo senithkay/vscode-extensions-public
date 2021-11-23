@@ -3,10 +3,6 @@ name: "Publish Low Code Editor"
 on:
   workflow_dispatch:
 
-defaults:
-  run:
-    working-directory: low-code-editor
-
 jobs:
   publish-package:
     runs-on: ubuntu-latest
@@ -18,6 +14,9 @@ jobs:
         with:
           node-version: '16.x'
           registry-url: 'https://npm.pkg.github.com'
-      - run: npm publish --tag latest
+      - run: npm run build
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+      - run: npm publish --tag latest --workspaces
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}

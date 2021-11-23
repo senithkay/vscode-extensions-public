@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { AssignmentStatement, ExplicitAnonymousFunctionExpression, FieldAccess, LocalVarDecl, RecordField, RecordFieldWithDefaultValue, RecordTypeDesc, RequiredParam, SpecificField, STKindChecker, Visitor } from '@ballerina/syntax-tree';
+import { AssignmentStatement, ExplicitAnonymousFunctionExpression, FieldAccess, LocalVarDecl, RecordField, RecordFieldWithDefaultValue, RecordTypeDesc, RequiredParam, SpecificField, STKindChecker, Visitor } from '@wso2-enterprise/syntax-tree';
 import { expression } from 'joi';
 
 import { DataMapperViewState, FieldViewState } from '../viewstate';

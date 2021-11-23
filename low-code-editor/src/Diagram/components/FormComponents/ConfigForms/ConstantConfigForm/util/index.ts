@@ -11,7 +11,7 @@
  * associated services.
  */
 
-import { ConstDeclaration, STKindChecker } from "@ballerina/syntax-tree";
+import { ConstDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 export const ConstantVarNameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 

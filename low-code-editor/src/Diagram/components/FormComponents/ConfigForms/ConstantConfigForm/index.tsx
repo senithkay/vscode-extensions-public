@@ -13,9 +13,9 @@
 import React, { useReducer } from "react"
 import { FormattedMessage } from "react-intl";
 
-import { ConstDeclaration, NodePosition } from "@ballerina/syntax-tree"
 import { Box, FormControl, FormHelperText, Typography } from "@material-ui/core";
-import { PrimaryButton, SecondaryButton, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormHeaderSection, PrimaryButton, SecondaryButton, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ConstDeclaration, NodePosition } from "@wso2-enterprise/syntax-tree"
 import { v4 as uuid } from 'uuid';
 
 import { ConstantIcon } from "../../../../../assets/icons";
@@ -35,12 +35,13 @@ interface ConstantConfigFormProps {
     targetPosition?: NodePosition;
     onCancel: () => void;
     onSave: () => void;
+    formType: string;
 }
 
 export function ConstantConfigForm(props: ConstantConfigFormProps) {
     const formClasses = useFormStyles();
     const { api: { code: { modifyDiagram } } } = useDiagramContext();
-    const { model, targetPosition, onCancel, onSave } = props;
+    const { model, targetPosition, onCancel, onSave, formType } = props;
     const [config, dispatch] = useReducer(constantConfigFormReducer, generateConfigFromModel(model));
 
     const variableTypes: string[] = ["int", "float", "byte", "boolean", "string"];
@@ -145,58 +146,58 @@ export function ConstantConfigForm(props: ConstantConfigFormProps) {
 
     return (
         <FormControl data-testid="module-variable-config-form" className={formClasses.wizardFormControl}>
-            <div className={formClasses.formTitleWrapper}>
-                <div className={formClasses.mainTitleWrapper}>
-                    <ConstantIcon />
-                    <Typography variant="h4">
-                        <Box paddingTop={2} paddingBottom={2} paddingLeft={15}>Constant</Box>
-                    </Typography>
-
+            <FormHeaderSection
+                onCancel={onCancel}
+                formTitle={"lowcode.develop.configForms.ConstDecl.title"}
+                defaultMessage={"Constant"}
+                formType={formType}
+            />
+            <div className={formClasses.formWrapper}>
+                <div className={formClasses.labelWrapper}>
+                    <FormHelperText className={formClasses.inputLabelForRequired}>
+                        <FormattedMessage
+                            id="lowcode.develop.configForms.ConstDecl.accessModifier"
+                            defaultMessage="Access Modifier :"
+                        />
+                    </FormHelperText>
+                </div>
+                <CheckBoxGroup
+                    values={["public"]}
+                    defaultValues={config.isPublic ? ["public"] : []}
+                    onChange={handleAccessModifierChange}
+                />
+                <VariableNameInput
+                    displayName={"Constant Name"}
+                    value={config.constantName}
+                    onValueChange={handleNameChange}
+                    validateExpression={updateExpressionValidity}
+                    position={namePosition}
+                    isEdit={!!model}
+                />
+                <CheckBoxGroup
+                    values={["Include type in declaration"]}
+                    defaultValues={config.isTypeDefined ? ["Include type in declaration"] : []}
+                    onChange={handleTypeEnableToggle}
+                />
+                {config.isTypeDefined && typeSelector}
+                <ExpressionEditor
+                    {...expressionEditorConfig}
+                />
+                <div className={formClasses.wizardBtnHolder}>
+                    <SecondaryButton
+                        text="Cancel"
+                        fullWidth={false}
+                        onClick={onCancel}
+                    />
+                    <PrimaryButton
+                        disabled={disableSaveBtn}
+                        text="Save"
+                        fullWidth={false}
+                        onClick={handleOnSave}
+                    />
                 </div>
             </div>
-            <div className={formClasses.labelWrapper}>
-                <FormHelperText className={formClasses.inputLabelForRequired}>
-                    <FormattedMessage
-                        id="lowcode.develop.configForms.ConstDecl.accessModifier"
-                        defaultMessage="Access Modifier :"
-                    />
-                </FormHelperText>
-            </div>
-            <CheckBoxGroup
-                values={["public"]}
-                defaultValues={config.isPublic ? ["public"] : []}
-                onChange={handleAccessModifierChange}
-            />
-            <VariableNameInput
-                displayName={"Constant Name"}
-                value={config.constantName}
-                onValueChange={handleNameChange}
-                validateExpression={updateExpressionValidity}
-                position={namePosition}
-                isEdit={!!model}
-            />
-            <CheckBoxGroup
-                values={["Include type in declaration"]}
-                defaultValues={config.isTypeDefined ? ["Include type in declaration"] : []}
-                onChange={handleTypeEnableToggle}
-            />
-            {config.isTypeDefined && typeSelector}
-            <ExpressionEditor
-                {...expressionEditorConfig}
-            />
-            <div className={formClasses.wizardBtnHolder}>
-                <SecondaryButton
-                    text="Cancel"
-                    fullWidth={false}
-                    onClick={onCancel}
-                />
-                <PrimaryButton
-                    disabled={disableSaveBtn}
-                    text="Save"
-                    fullWidth={false}
-                    onClick={handleOnSave}
-                />
-            </div>
+
         </FormControl>
     )
 }

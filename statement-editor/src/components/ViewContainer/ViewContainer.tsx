@@ -14,8 +14,13 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useIntl } from "react-intl";
 
-import { NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
-import { ExpressionEditorLangClientInterface, PrimaryButton, SecondaryButton, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    ExpressionEditorLangClientInterface,
+    PrimaryButton,
+    SecondaryButton,
+    STModification
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { VariableUserInputs } from '../../models/definitions';
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
@@ -72,14 +77,14 @@ export function ViewContainer(props: ViewProps) {
     const [model, setModel] = useState<STNode>(null);
     const [isStatementValid, setIsStatementValid] = useState(false);
 
-    if (!userInputs?.varName && !!handleNameOnChange){
+    if (!userInputs?.varName && !!handleNameOnChange) {
         handleNameOnChange("default")
     }
 
     useEffect(() => {
         (async () => {
             const partialST: STNode = await getPartialSTForStatement(
-                {codeSnippet: initialSource.trim()}, getLangClient);
+                { codeSnippet: initialSource.trim() }, getLangClient);
             setModel(partialST);
         })();
     }, []);
@@ -90,7 +95,7 @@ export function ViewContainer(props: ViewProps) {
             handleTypeChange(model.typedBindingPattern.typeDescriptor.source)
         }
     }, [model]);
-    const updateModel = async (codeSnippet : string, position: NodePosition) => {
+    const updateModel = async (codeSnippet: string, position: NodePosition) => {
         const stModification = {
             startLine: position.startLine,
             startColumn: position.startColumn,
@@ -99,7 +104,7 @@ export function ViewContainer(props: ViewProps) {
             newCodeSnippet: codeSnippet
         }
         const partialST: STNode = await getPartialSTForStatement(
-            {codeSnippet : model.source, stModification}, getLangClient);
+            { codeSnippet: model.source, stModification }, getLangClient);
         setModel(partialST);
     }
 
@@ -114,7 +119,7 @@ export function ViewContainer(props: ViewProps) {
     };
 
     useEffect(() => {
-        if (!!model){
+        if (!!model) {
             handleStatementEditorChange(model);
         }
     }, [model])
@@ -153,8 +158,8 @@ export function ViewContainer(props: ViewProps) {
 
     return (
         model && (
-            <div className={overlayClasses.stmtEditor}>
-                <div className={overlayClasses.contentPane}>
+            <div className={overlayClasses.mainStatementWrapper}>
+                <div className={overlayClasses.statementExpressionWrapper}>
                     <StatementEditorContextProvider
                         model={model}
                         onCancelClicked={onCancelClicked}
@@ -172,23 +177,23 @@ export function ViewContainer(props: ViewProps) {
                             currentModelHandler={currentModelHandler}
                         />
                     </StatementEditorContextProvider>
-                    <div className={overlayClasses.vl}/>
-                    <RightPane/>
                 </div>
-                <div className={overlayClasses.bottomPane}>
-                    <div className={overlayClasses.buttonWrapper}>
-                        <SecondaryButton
-                            text={cancelVariableButtonText}
-                            fullWidth={false}
-                            onClick={onCancelHandler}
-                        />
-                        <PrimaryButton
-                            dataTestId="save-btn"
-                            text={saveVariableButtonText}
-                            disabled={!isStatementValid}
-                            fullWidth={false}
-                            onClick={onSaveClick}
-                        />
+                <div className={overlayClasses.statementBtnWrapper}>
+                    <div className={overlayClasses.bottomPane}>
+                        <div className={overlayClasses.buttonWrapper}>
+                            <SecondaryButton
+                                text={cancelVariableButtonText}
+                                fullWidth={false}
+                                onClick={onCancelHandler}
+                            />
+                            <PrimaryButton
+                                dataTestId="save-btn"
+                                text={saveVariableButtonText}
+                                disabled={!isStatementValid}
+                                fullWidth={false}
+                                onClick={onSaveClick}
+                            />
+                        </div>
                     </div>
                 </div>
             </div>

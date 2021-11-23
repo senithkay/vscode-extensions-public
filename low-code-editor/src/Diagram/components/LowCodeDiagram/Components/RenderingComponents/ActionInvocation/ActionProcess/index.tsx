@@ -13,8 +13,8 @@
 // tslint:disable: jsx-no-multiline-js align  jsx-wrap-multiline
 import React, { useContext, useState } from "react";
 
-import { LocalVarDecl, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import { BallerinaConnectorInfo, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { LocalVarDecl, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
 import { getDiagnosticMsgs } from "../../../../../../utils";

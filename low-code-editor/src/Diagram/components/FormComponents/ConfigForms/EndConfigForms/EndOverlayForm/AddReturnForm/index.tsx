@@ -14,9 +14,10 @@
 import React, { useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { ReturnStatement } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
+import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
+import { ReturnStatement } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
@@ -93,7 +94,7 @@ export function AddReturnForm(props: ReturnFormProps) {
         setReturnExpression(partialModel.expression?.source.trim())
     }
 
-    const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
+    const {handleStmtEditorToggle , stmtEditorComponent} = useStatementEditor(
         {
             label: intl.formatMessage({ id: "lowcode.develop.configForms.return.statementEditor.label" }),
             initialSource,
@@ -112,18 +113,16 @@ export function AddReturnForm(props: ReturnFormProps) {
     if (!stmtEditorComponent) {
         return (
             <FormControl data-testid="return-form" className={classes.wizardFormControl}>
+                <FormHeaderSection
+                    onCancel={onCancel}
+                    statementEditor={true}
+                    formTitle={"lowcode.develop.configForms.Return.title"}
+                    defaultMessage={"Return"}
+                    handleStmtEditorToggle={handleStmtEditorToggle}
+                    toggleChecked={false}
+                />
                 <div className={classes.formWrapper}>
                     <div className={classes.formFeilds}>
-                        <div className={classes.formTitleWrapper}>
-                            <div className={classes.mainTitleWrapper}>
-                                <Typography variant="h4">
-                                    <Box paddingTop={2} paddingBottom={2}><FormattedMessage id="lowcode.develop.configForms.Return.title" defaultMessage="Return" /></Box>
-                                </Typography>
-                            </div>
-                            <div className={classes.statementEditor}>
-                                {stmtEditorButton}
-                            </div>
-                        </div>
                         <div className={classes.blockWrapper}>
                             <div className={classes.returnWrapper}>
                                 <div className="exp-wrapper">

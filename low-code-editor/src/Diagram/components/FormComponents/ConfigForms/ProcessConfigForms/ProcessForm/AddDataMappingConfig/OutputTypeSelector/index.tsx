@@ -15,8 +15,8 @@
 // tslint:disable: jsx-wrap-multiline
 import React, { useState } from 'react';
 
-import { LocalVarDecl } from "@ballerina/syntax-tree";
 import { Box, Typography } from '@material-ui/core';
+import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 
 import { checkVariableName } from '../../../../../../Portals/utils';
 import { useStyles as useFormStyles } from "../../../../../DynamicConnectorForm/style";

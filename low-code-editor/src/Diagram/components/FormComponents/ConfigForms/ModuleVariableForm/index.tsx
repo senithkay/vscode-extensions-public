@@ -13,7 +13,7 @@
  */
 import React from 'react';
 
-import { ModuleVarDecl, NodePosition, STKindChecker } from '@ballerina/syntax-tree';
+import { ModuleVarDecl, NodePosition, STKindChecker } from '@wso2-enterprise/syntax-tree';
 
 import { ConfigurableForm } from '../ConfigurableForm';
 
@@ -24,6 +24,7 @@ interface ModuleDeclFormProps {
     targetPosition?: NodePosition;
     onCancel: () => void;
     onSave: () => void;
+    formType: string;
 }
 
 export function ModuleDeclForm(props: ModuleDeclFormProps) {

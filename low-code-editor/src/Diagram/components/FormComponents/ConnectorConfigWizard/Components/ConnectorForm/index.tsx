@@ -15,43 +15,44 @@
 import React, { ReactNode, useContext, useEffect, useState } from "react";
 import { FormattedMessage } from "react-intl";
 
-import { CaptureBindingPattern, FunctionDefinition, LocalVarDecl, NodePosition, STKindChecker } from "@ballerina/syntax-tree";
 import { Box, Divider, FormControl, Typography } from "@material-ui/core";
 import {
-  ActionConfig,
-  BallerinaConnectorInfo,
-  ConnectorConfig,
-  FormField,
-  FormFieldReturnType,
-  STModification,
-  WizardType,
+    ActionConfig,
+    BallerinaConnectorInfo,
+    ConnectorConfig,
+    FormField,
+    FormFieldReturnType,
+    FormHeaderSection,
+    STModification,
+    WizardType,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { CaptureBindingPattern, FunctionDefinition, LocalVarDecl, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../Contexts/Diagram";
 import { useFunctionContext } from "../../../../../../Contexts/Function";
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
 import {
-  CONTINUE_TO_INVOKE_API,
-  EVENT_TYPE_AZURE_APP_INSIGHTS,
-  FINISH_CONNECTOR_ACTION_ADD_INSIGHTS,
-  FINISH_CONNECTOR_INIT_ADD_INSIGHTS,
-  LowcodeEvent,
+    CONTINUE_TO_INVOKE_API,
+    EVENT_TYPE_AZURE_APP_INSIGHTS,
+    FINISH_CONNECTOR_ACTION_ADD_INSIGHTS,
+    FINISH_CONNECTOR_INIT_ADD_INSIGHTS,
+    LowcodeEvent,
 } from "../../../../../models";
 import { getAllVariables } from "../../../../../utils/mixins";
 import {
-  createImportStatement,
-  createPropertyStatement,
-  updateFunctionSignature,
-  updatePropertyStatement,
+    createImportStatement,
+    createPropertyStatement,
+    updateFunctionSignature,
+    updatePropertyStatement,
 } from "../../../../../utils/modification-util";
 import {
-  genVariableName,
-  getActionReturnType,
-  getConnectorComponent,
-  getConnectorIcon,
-  getFormattedModuleName,
-  getInitReturnType,
-  getParams,
+    genVariableName,
+    getActionReturnType,
+    getConnectorComponent,
+    getConnectorIcon,
+    getFormattedModuleName,
+    getInitReturnType,
+    getParams,
 } from "../../../../Portals/utils";
 import { wizardStyles as useFormStyles } from "../../../ConfigForms/style";
 import { ExpressionInjectablesProps, FormGeneratorProps, InjectableItem } from "../../../FormGenerator";
@@ -203,9 +204,9 @@ export function ConnectorForm(props: FormGeneratorProps) {
             modifications.push(item.modification);
         });
         const isInitReturnError = getInitReturnType(functionDefInfo);
-        if (isInitReturnError){
+        if (isInitReturnError) {
             const functionSignature = updateFunctionSignatureWithError();
-            if (functionSignature){
+            if (functionSignature) {
                 modifications.push(functionSignature);
             }
         }
@@ -245,9 +246,8 @@ export function ConnectorForm(props: FormGeneratorProps) {
         if (isNewConnectorInitWizard && !isAction) {
             const addImport: STModification = createImportStatement(connector.package.organization, connectorModule, targetPosition);
             modifications.push(addImport);
-            const endpointStatement = `${moduleName}:${connector.name} ${config.name} = ${
-                isInitReturnError ? "check" : ""
-            } new (${getParams(config.connectorInit).join()});`;
+            const endpointStatement = `${moduleName}:${connector.name} ${config.name} = ${isInitReturnError ? "check" : ""
+                } new (${getParams(config.connectorInit).join()});`;
             const addConnectorInit = createPropertyStatement(endpointStatement, targetPosition);
             modifications.push(addConnectorInit);
         }
@@ -264,15 +264,15 @@ export function ConnectorForm(props: FormGeneratorProps) {
         if (!isNewConnectorInitWizard && isAction) {
             const updateActionInvocation = updatePropertyStatement(actionStatement, model.position);
             modifications.push(updateActionInvocation);
-        }else{
+        } else {
             const addActionInvocation = createPropertyStatement(actionStatement, targetPosition);
             modifications.push(addActionInvocation);
             onActionAddEvent();
         }
 
-        if (isInitReturnError || currentActionReturnType.hasError){
+        if (isInitReturnError || currentActionReturnType.hasError) {
             const functionSignature = updateFunctionSignatureWithError();
-            if (functionSignature){
+            if (functionSignature) {
                 modifications.push(functionSignature);
             }
         }
@@ -468,19 +468,15 @@ export function ConnectorForm(props: FormGeneratorProps) {
     return (
         <>
             <FormControl data-testid="connector-form" className={formClasses.wizardFormControl}>
+                <FormHeaderSection
+                    onCancel={onClose}
+                    statementEditor={false}
+                    formTitle={"lowcode.develop.configForms.connector.title"}
+                    defaultMessage={"API Connection"}
+                />
                 <div className={formClasses.formWrapper}>
                     <div className={formClasses.formFeilds}>
                         <div className={formClasses.formWrapper}>
-                            <div className={formClasses.formTitleWrapper}>
-                                <div className={formClasses.mainTitleWrapper}>
-                                    <Typography variant="h4">
-                                        <Box paddingTop={2} paddingBottom={2}>
-                                            <FormattedMessage id="lowcode.develop.configForms.connector.title" defaultMessage="API Connection" />
-                                        </Box>
-                                    </Typography>
-                                </div>
-                            </div>
-
                             {(isLoading || isConnectorLoading) && (
                                 <div className={wizardClasses.loaderWrapper}>
                                     <TextPreloaderVertical position="relative" />

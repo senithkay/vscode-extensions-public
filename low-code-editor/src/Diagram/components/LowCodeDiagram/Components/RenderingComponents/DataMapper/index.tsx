@@ -18,7 +18,7 @@ import {
     CaptureBindingPattern,
     STKindChecker,
     STNode,
-} from '@ballerina/syntax-tree';
+} from '@wso2-enterprise/syntax-tree';
 
 import { Context as DiagramContext } from '../../../../../../Contexts/Diagram';
 import { GenerationType } from '../../../../FormComponents/ConfigForms/ProcessConfigForms/ProcessForm/AddDataMappingConfig/OutputTypeSelector';

@@ -17,7 +17,7 @@ import {
     FunctionBodyBlock,
     FunctionDefinition,
     STKindChecker,
-} from "@ballerina/syntax-tree";
+} from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 import { v4 as uuid } from "uuid";
 

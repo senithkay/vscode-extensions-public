@@ -14,7 +14,7 @@ import {
     BracedExpression,
     STNode,
     Visitor
-} from "@ballerina/syntax-tree";
+} from "@wso2-enterprise/syntax-tree";
 
 const leafKind = ['PlusToken', 'MinusToken', 'AsteriskToken', 'SlashToken', 'PercentToken',
     'GtToken', 'GtEqualToken', 'LtToken', 'LtEqualToken',

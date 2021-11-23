@@ -14,8 +14,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from 'react';
 
-import { CaptureBindingPattern, STKindChecker, STNode } from '@ballerina/syntax-tree';
 import { PrimaryButton, SecondaryButton } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { CaptureBindingPattern, STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
 
 import { Context as DiagramContext } from '../../../../../../../../../Contexts/Diagram';
 import { wizardStyles } from "../../../../../../../FormComponents/ConfigForms/style";

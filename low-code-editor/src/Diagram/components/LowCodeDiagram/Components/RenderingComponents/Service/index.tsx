@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js  jsx-wrap-multiline
 import React, { useState } from "react"
 
-import { ServiceDeclaration } from "@ballerina/syntax-tree";
+import { ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
 
 import { useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { useSelectedStatus } from "../../../../../hooks";
