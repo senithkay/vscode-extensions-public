@@ -29,8 +29,8 @@ import {
     CompletionResponse,
     ExpressionTypeRequest,
     ExpressionTypeResponse,
-    BallerinaConnectorsRequest
-} from "@wso2-enterprise/ballerina-low-code-editor/build/Definitions";
+} from "@wso2-enterprise/ballerina-low-code-editor";
+import { BallerinaConnectorsRequest } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { BallerinaExtension } from "./index";
 import { showChoreoPushMessage } from "../editor-support/git-status";
 import { MESSAGE_TYPE } from "../utils/showMessage";
