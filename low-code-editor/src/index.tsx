@@ -12,8 +12,9 @@
  */
 import React from "react";
 
+import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+
 import { Provider as DiagramProvider } from "./Contexts/Diagram";
-import { STModification } from "./Definitions";
 import DiagramContainer from "./Diagram/Container";
 import { TriggerType } from "./Diagram/models";
 import { LowCodeEditorProps as Props } from "./types";
@@ -48,7 +49,7 @@ export {
     ConfigPanelStatus,
     STSymbolInfo,
     ConfigOverlayFormStatus as ConfigOverlayFormStatusDef
-} from "./Definitions";
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 export { AnalyzerRequestPayload } from "./Diagram/visitors/AnalyzerPayload";
 export { Diagram } from "./Diagram";
 export {
@@ -60,12 +61,12 @@ export {
     recalculateSizingAndPositioningST,
     getAnalyzerRequestPayload
 } from './Diagram/utils/st-util';
-export { visitor as initVisitor } from "./Diagram/visitors/init-visitor";
-export { visitor as positionVisitor } from "./Diagram/visitors/positioning-visitor";
-export { visitor as sizingVisitor } from "./Diagram/visitors/sizing-visitor";
+export { visitor as initVisitor } from "./Diagram/components/LowCodeDiagram/Visitors/init-visitor";
+export { visitor as positionVisitor } from "./Diagram/components/LowCodeDiagram/Visitors/positioning-visitor";
+export { visitor as sizingVisitor } from "./Diagram/components/LowCodeDiagram/Visitors/sizing-visitor";
 export { AnalyzePayloadVisitor } from "./Diagram/visitors/analyze-payload-visitor";
 export { cleanLocalSymbols, cleanModuleLevelSymbols, getSymbolInfo, visitor as SymbolVisitor } from "./Diagram/visitors/symbol-finder-visitor";
-export { BlockViewState } from './Diagram/view-state';
+export { BlockViewState } from './Diagram/components/LowCodeDiagram/ViewState';
 export { getTriggerSource, getSampleSource } from "./Diagram/utils/template-utils";
 export { InsertorDelete, createPropertyStatement } from "./Diagram/utils/modification-util";
 export { renderDiagramEditor } from "./DiagramGenerator/vscode";

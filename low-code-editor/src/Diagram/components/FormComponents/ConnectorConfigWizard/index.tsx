@@ -1,0 +1,172 @@
+/*
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ * the WSO2 Commercial License available at http://wso2.com/licenses.
+ * For specific language governing the permissions and limitations under
+ * this license, please see the license as well as any agreement you’ve
+ * entered into with WSO2 governing the purchase of this software and any
+ * associated services.
+ */
+// tslint:disable: jsx-no-multiline-js
+import React, { useContext, useState } from "react";
+import { useIntl } from "react-intl";
+
+import { LocalVarDecl, NodePosition, STNode } from "@ballerina/syntax-tree";
+import {
+  BallerinaConnectorInfo,
+  Connector,
+  ConnectorConfig,
+  FunctionDefinitionInfo,
+  WizardType,
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+
+import { Context } from "../../../../Contexts/Diagram";
+import { DefaultConfig } from "../../../visitors/default";
+import {
+  DiagramOverlayPosition,
+} from "../../Portals/Overlay";
+import { fetchConnectorInfo } from "../../Portals/utils";
+import { FormGenerator } from "../FormGenerator";
+
+export interface ConfigWizardState {
+    isLoading: boolean;
+    connector: Connector;
+    functionDefInfo: Map<string, FunctionDefinitionInfo>;
+    connectorConfig: ConnectorConfig;
+    model?: STNode;
+    wizardType?: WizardType;
+}
+export interface ConnectorConfigWizardProps {
+    position: DiagramOverlayPosition;
+    connectorInfo: BallerinaConnectorInfo;
+    targetPosition: NodePosition;
+    model?: STNode;
+    onClose: () => void;
+    onSave: () => void;
+    selectedConnector?: LocalVarDecl;
+    isAction?: boolean;
+    isEdit?: boolean;
+}
+
+export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
+    const {
+        actions: {
+            toggleDiagramOverlay
+        },
+        props: {
+            isCodeEditorActive,
+            userInfo,
+            langServerURL,
+            stSymbolInfo
+        },
+        api: {
+            ls: {
+                getDiagramEditorLangClient
+            },
+            panNZoom: {
+                pan,
+                fitToScreen
+            },
+            notifications: {
+                triggerErrorNotification,
+            },
+            configPanel: {
+                closeConfigOverlayForm: dispatchOverlayClose,
+            }
+        }
+    } = useContext(Context);
+
+    const {
+        position,
+        connectorInfo,
+        targetPosition,
+        model,
+        onClose,
+        onSave,
+        selectedConnector,
+        isAction,
+        isEdit
+    } = props;
+
+    const initWizardState: ConfigWizardState = {
+        isLoading: true,
+        connectorConfig: undefined,
+        functionDefInfo: undefined,
+        connector: undefined,
+        wizardType: isEdit ? WizardType.EXISTING : WizardType.NEW
+    };
+
+    const [ wizardState, setWizardState ] = useState<ConfigWizardState>(
+        initWizardState
+    );
+
+    const intl = useIntl();
+    const connectionErrorMsgText = intl.formatMessage({
+        id: "lowcode.develop.connectorForms.createConnection.errorMessage",
+        defaultMessage: "Something went wrong. Couldn't load the connection.",
+    });
+
+    React.useEffect(() => {
+        fitToScreen();
+        pan(0, -position.y + DefaultConfig.dotGap * 3);
+    }, []);
+
+    React.useEffect(() => {
+        if (wizardState.isLoading) {
+            (async () => {
+                const connectorInfoResponse = await fetchConnectorInfo(
+                    connectorInfo,
+                    model,
+                    stSymbolInfo,
+                    langServerURL,
+                    getDiagramEditorLangClient,
+                    userInfo?.user?.email
+                );
+                connectorInfoResponse.wizardType = isEdit ? WizardType.EXISTING : WizardType.NEW;
+                if (connectorInfoResponse) {
+                    setWizardState(connectorInfoResponse);
+                } else {
+                    triggerErrorNotification(new Error(connectionErrorMsgText));
+                    handleClose();
+                }
+            })();
+            toggleDiagramOverlay();
+        }
+    }, [ wizardState ]);
+
+    const handleClose = () => {
+        onClose();
+        dispatchOverlayClose();
+        toggleDiagramOverlay();
+    };
+
+    const handleSave = () => {
+        onSave();
+    };
+
+    return (
+        <div>
+            { !isCodeEditorActive ? (
+                <FormGenerator
+                    onCancel={handleClose}
+                    configOverlayFormStatus={ {
+                        formType: "Connector",
+                        formArgs: {
+                            selectedConnector,
+                            targetPosition,
+                            configWizardArgs: wizardState,
+                            connectorInfo,
+                            isAction,
+                            onClose: handleClose,
+                            onSave: handleSave,
+                        },
+                        isLoading: true,
+                    } }
+                />
+            ) : null }
+        </div>
+    );
+}

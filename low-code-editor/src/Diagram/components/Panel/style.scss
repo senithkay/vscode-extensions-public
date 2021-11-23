@@ -27,6 +27,7 @@
         right: -100vh;
         -webkit-animation: panel-slide-in-keyframe 0.5s forwards;
         animation: panel-slide-in-keyframe 0.5s forwards;
+        overflow-x: hidden;
     }
     
     @-webkit-keyframes panel-slide-in-keyframe {
@@ -65,19 +66,16 @@
     }
 
     .panel-form-wrapper {
-        padding: 1.75rem;
-        margin-right: 1px;
         max-width: fit-content;
     }
 
     .close-btn-wrap {
         display: flex;
         justify-content: flex-end;
-        width: 100%;
+        width: 30px;
         padding: 5px 5px 0 !important;
         height: 48px;
         align-items: center;
-        border-bottom: 1px solid #d8d8d8;
     }
 
     .panel-close-button {

@@ -15,14 +15,12 @@ import React, { useContext, useReducer } from "react";
 
 import { NodePosition, RecordTypeDesc, TypeDefinition } from "@ballerina/syntax-tree";
 
-import { RecordModel, SimpleField } from "../Diagram/components/ConfigForms/RecordEditor/types";
+import { RecordModel, SimpleField } from "../Diagram/components/FormComponents/ConfigForms/RecordEditor/types";
 
 export enum FormState {
     EDIT_RECORD_FORM = 1,
     ADD_FIELD = 2,
     UPDATE_FIELD = 3,
-    ADD_RECORD = 4,
-    UPDATE_RECORD = 5,
 }
 
 export interface RecordEditorState {
@@ -32,6 +30,7 @@ export interface RecordEditorState {
     currentForm?: FormState;
     targetPosition?: NodePosition;
     isEditorInvalid?: boolean;
+    isRecordSelected?: boolean;
     sourceModel?: TypeDefinition | RecordTypeDesc;
     onCancel?: () => void;
     onSave?: (typeDesc: string, recModel: RecordModel) => void;
@@ -45,6 +44,7 @@ export interface RecordEditorProps {
         onUpdateCurrentField?: (field: SimpleField) => void;
         onChangeFormState?: (formState: FormState) => void;
         updateEditorValidity?: (isInvalid: boolean) => void;
+        onUpdateRecordSelection?: (isSelected: boolean) => void;
         updateCurrentField?: (field: SimpleField) => void;
     };
 }
@@ -86,6 +86,11 @@ const reducer = (state: RecordEditorState, action: any) => {
             state.currentField.type = action.payload.type;
             return {
                 ...state
+            }
+        case 'RECORD_SELECTED':
+            return {
+                ...state,
+                isRecordSelected: action.payload
             }
     }
 };
@@ -137,13 +142,18 @@ export const Provider: React.FC<RecordEditorProps> = (props) => {
         dispatch({ type: 'UPDATE_FIELD', payload: field });
     }
 
+    const updateRecordSelection = (isSelected: boolean) => {
+        dispatch({ type: 'RECORD_SELECTED', payload: isSelected });
+    }
+
     const callBacks = {
         onUpdateModel: updateModel,
         onUpdateCurrentRecord: updateCurrentRecord,
         onUpdateCurrentField: updateCurrentField,
         onChangeFormState: updateFormState,
         updateEditorValidity: updateRecordEditorValidity,
-        updateCurrentField: updateField
+        updateCurrentField: updateField,
+        onUpdateRecordSelection: updateRecordSelection
     };
 
     return (

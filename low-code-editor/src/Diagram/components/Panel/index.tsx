@@ -13,11 +13,11 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
+import { ButtonWithIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import classnames from 'classnames';
 
 import { CloseRounded } from "../../../assets/icons";
 import { OverlayBackground } from "../OverlayBackground";
-import { ButtonWithIcon } from "../Portals/ConfigForm/Elements/Button/ButtonWithIcon";
 import { DiagramOverlayContainer } from "../Portals/Overlay";
 
 import "./style.scss";
@@ -45,13 +45,6 @@ export function Panel(props: PanelProps) {
         <div onClick={onDivClick} >
             <DiagramOverlayContainer>
                 <div className={classnames("panel", isVisible ? 'panel-slide-in' : 'panel-slide-out')}>
-                    <div className="close-btn-wrap">
-                        <ButtonWithIcon
-                            className="panel-close-button"
-                            onClick={onCloseEvent}
-                            icon={<CloseRounded fontSize="small" />}
-                        />
-                    </div>
                     <div className="panel-form-wrapper">
                         {children}
                     </div>

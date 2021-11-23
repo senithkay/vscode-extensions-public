@@ -23,41 +23,37 @@ import {
     STNode, StringLiteral, TypeCastExpression
 } from "@ballerina/syntax-tree";
 import { Avatar, colors } from "@material-ui/core";
-import { DocumentSymbol, SymbolInformation } from "monaco-languageclient";
+import {
+    ActionConfig,
+    BallerinaConnectorInfo,
+    BallerinaConnectorRequest,
+    Connector,
+    ConnectorConfig,
+    DiagramEditorLangClientInterface,
+    FormField, FormFieldReturnType,
+    FunctionDefinitionInfo, PrimitiveBalType, STSymbolInfo
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { DocumentSymbol, SymbolInformation } from "vscode-languageserver-protocol";
 
 import * as ConstructIcons from "../../../../assets/icons"
-import { ActionConfig, ConnectorConfig, FormField, FormFieldReturnType, FunctionDefinitionInfo, ManualConfigType, PrimitiveBalType, WizardType } from "../../../../ConfigurationSpec/types";
-import { DiagramEditorLangClientInterface, STSymbolInfo } from "../../../../Definitions";
-import { BallerinaConnectorInfo, BallerinaConnectorRequest, Connector } from "../../../../Definitions/lang-client-extended";
-import { filterConnectorFunctions } from "../../../utils/connector-form-util";
 import { getAllVariables as retrieveVariables } from "../../../utils/mixins";
 import {
     addConnectorToCache,
     getConnectorFromCache,
     isSTActionInvocation
 } from "../../../utils/st-util";
-import { StatementViewState } from "../../../view-state";
-import * as ConnectorIcons from "../../Connector/Icon";
-import { DefaultConnectorIcon } from "../../Connector/Icon/DefaultConnectorIcon";
-import { ConfigWizardState } from "../../ConnectorConfigWizard";
-import * as ConnectorExtension from "../../ConnectorExtensions";
-import * as Elements from "../ConfigForm/Elements";
-import { getUnionFormFieldName } from "../ConfigForm/Elements/Union";
-import * as Forms from "../ConfigForm/forms";
-import { FormElementProps } from "../ConfigForm/types";
-import * as OverlayElement from "../Overlay/Elements";
+import * as Forms from "../../FormComponents/ConfigForms";
+import { ConfigWizardState } from "../../FormComponents/ConnectorConfigWizard";
+import * as ConnectorExtension from "../../FormComponents/ConnectorExtensions";
+import * as Elements from "../../FormComponents/FormFieldComponents";
+import { getUnionFormFieldName } from "../../FormComponents/FormFieldComponents/Union";
+import { FormElementProps } from "../../FormComponents/Types";
+import * as OverlayElement from "../../LowCodeDiagram/Components/DialogBoxes";
+import * as ConnectorIcons from "../../LowCodeDiagram/Components/RenderingComponents/Connector/Icon";
+import { DefaultConnectorIcon } from "../../LowCodeDiagram/Components/RenderingComponents/Connector/Icon/DefaultConnectorIcon";
+import { StatementViewState } from "../../LowCodeDiagram/ViewState";
 
 import { keywords, symbolKind } from "./constants";
-
-const receivedRecords: Map<string, STNode> = new Map();
-// in order to ignore classes, object and enum type references
-const ignoreList = [
-    // sl alpha5
-    'ballerina/oauth2:1.1.0-alpha8:HttpVersion',
-    'ballerina/oauth2:1.1.0-alpha8:CredentialBearer',
-    'ballerina/oauth2:1.1.0-alpha8:ClientConfiguration',
-    'ballerina/oauth2:1.1.0-alpha8:ClientCredentialsGrantConfig',
-];
 
 export function getOverlayElement(
     type: string,
@@ -114,15 +110,19 @@ export function getFieldName(fieldName: string): string {
 export function getParams(formFields: FormField[], depth = 1): string[] {
     const paramStrings: string[] = [];
     formFields.forEach(formField => {
-        const skipDefaultValue = formField.defaultValue && formField.optional;
+        const skipDefaultValue = (!formField.value && (formField.defaultable || formField.optional)) ||
+            (formField.value && formField.defaultValue && formField.defaultValue === formField.value);
         let paramString: string = "";
         if (!formField.noCodeGen && !skipDefaultValue) {
-            if (formField.isDefaultableParam && formField.value) {
+            if (formField.defaultable && formField.value) {
                 paramString += `${formField.name} = `;
             }
             if (formField.typeName === "string" && (formField.value || formField.defaultValue)) {
                 paramString += formField.value || formField.defaultValue;
-            } else if (formField.typeName === "array" && !formField.hide && (formField.value || formField.defaultValue)) {
+            } else if (formField.typeName === "object {public string[] & readonly strings;public Value[] insertions;}" && (formField.value || formField.defaultValue)) {
+                paramString += formField.value || formField.defaultValue;
+            }
+            else if (formField.typeName === "array" && !formField.hide && (formField.value || formField.defaultValue)) {
                 paramString += formField.value.toString() || formField.defaultValue;
             } else if (formField.typeName === "map" && (formField.value || formField.defaultValue)) {
                 paramString += formField.value || formField.defaultValue;
@@ -145,7 +145,8 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
                             firstRecordField = true;
                         }
                         recordFieldsString += getFieldName(field.name) + ": " + field.value;
-                    } else if ((field.typeName === "int" || field.typeName === "boolean" || field.typeName === "float" || formField.typeName === "decimal") && field.value) {
+                    }
+                    else if ((field.typeName === "int" || field.typeName === "boolean" || field.typeName === "float" || formField.typeName === "decimal") && field.value) {
                         if (firstRecordField) {
                             recordFieldsString += ", ";
                         } else {
@@ -569,7 +570,7 @@ export function getAllVariablesForAi(symbolInfo: STSymbolInfo): { [key: string]:
             }
         });
     });
-    symbolInfo.endpoints.forEach((variableNodes: STNode, type: string) => {
+    symbolInfo.localEndpoints.forEach((variableNodes: STNode, type: string) => {
         const variableDef: LocalVarDecl = variableNodes as LocalVarDecl;
         const variable: CaptureBindingPattern = variableDef.typedBindingPattern.bindingPattern as
             CaptureBindingPattern;
@@ -637,7 +638,7 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
 
     // get form fields from browser cache
     let connectorInfo = getConnectorFromCache(connector);
-    let functionDefInfo: Map<string, FunctionDefinitionInfo> = new Map();
+    const functionDefInfo: Map<string, FunctionDefinitionInfo> = new Map();
     const connectorConfig = new ConnectorConfig();
     const connectorRequest: BallerinaConnectorRequest = {};
 
@@ -675,8 +676,6 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
         functionDefInfo.set(functionInfo.name, functionInfo);
     });
 
-    // Filter connector functions to have better usability.
-    functionDefInfo = filterConnectorFunctions(connector, functionDefInfo, connectorConfig, userEmail);
     if (model) {
         const variable: LocalVarDecl = model as LocalVarDecl;
         const viewState: StatementViewState = model.viewState as StatementViewState;
@@ -735,7 +734,7 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
             }
         }
         connectorConfig.connectorInit = functionDefInfo.get("init") ? functionDefInfo.get("init").parameters : [];
-        const matchingEndPoint: LocalVarDecl = symbolInfo.endpoints.get(connectorConfig.name) as LocalVarDecl;
+        const matchingEndPoint: LocalVarDecl = symbolInfo.localEndpoints.get(connectorConfig.name) as LocalVarDecl;
         if (matchingEndPoint) {
             connectorConfig.initPosition = matchingEndPoint.position;
             matchEndpointToFormField(matchingEndPoint, connectorConfig.connectorInit);
@@ -823,6 +822,20 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                 }
                 break;
 
+            case "stream":
+                if (formField?.memberType) {
+                    const returnTypeResponse = getFormFieldReturnType(formField.memberType, depth + 1);
+                    response.returnType = returnTypeResponse.returnType;
+                    response.hasError = returnTypeResponse.hasError || response.hasError;
+                    response.hasReturn = returnTypeResponse.hasReturn || response.hasReturn;
+                    response.importTypeInfo = [...response.importTypeInfo, ...returnTypeResponse.importTypeInfo];
+                }
+
+                if (response.returnType && formField.typeName === "stream") {
+                    response.returnType = "stream<record {}, sql:Error?>"
+                }
+                break;
+
             case "tuple":
                 formField?.fields.forEach(field => {
                     const returnTypeResponse = getFormFieldReturnType(field, depth + 1);
@@ -884,10 +897,10 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                     // set optional tag
                     type = type.includes('|') ? `(${type})?` : `${type}?`;
                 }
-                if (type !== "" && formField?.isStream) {
-                    // set stream tags
-                    type = `stream<${type}>`;
-                }
+                // if (type !== "" && formField?.isStream) {
+                //     // set stream tags
+                //     type = `stream<${type}>`; // do for stream obj
+                // }
 
                 if (type) {
                     response.returnType = type;

@@ -10,7 +10,8 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { BallerinaConnectorInfo, STSymbolInfo } from "../../Definitions";
+import { BallerinaConnectorInfo, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+
 import { getAllVariablesForAi, getFormattedModuleName } from "../../Diagram/components/Portals/utils";
 
 export function getAllVariables(symbolInfo: STSymbolInfo): string[] {

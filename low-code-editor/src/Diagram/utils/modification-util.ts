@@ -11,19 +11,19 @@
  * associated services.
  */
 import { NodePosition } from "@ballerina/syntax-tree";
+import { FormField, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { FormField } from "../../ConfigurationSpec/types";
-import { STModification } from "../../Definitions/lang-client-extended";
-import { ListenerConfig } from "../components/ConfigForms/ListenerConfigForm/util/types";
-import { HeaderObjectConfig } from "../components/ConnectorExtensions/HTTPWizard/HTTPHeaders";
-import { ConfigurableFormState } from "../components/Portals/ConfigForm/forms/ConfigurableForm/util";
-import { ConstantConfigFormState } from "../components/Portals/ConfigForm/forms/ConstantConfigForm/util";
-import { ModuleVariableFormState } from "../components/Portals/ConfigForm/forms/ModuleVariableForm/util";
-import { HTTPServiceConfigState } from "../components/Portals/ConfigForm/forms/ServiceConfigForm/forms/HttpService/util/reducer";
+import { ConfigurableFormState } from "../components/FormComponents/ConfigForms/ConfigurableForm/util";
+import { ConstantConfigFormState } from "../components/FormComponents/ConfigForms/ConstantConfigForm/util";
+import { ListenerConfig } from "../components/FormComponents/ConfigForms/ListenerConfigForm/util/types";
+import { ModuleVariableFormState } from "../components/FormComponents/ConfigForms/ModuleVariableForm/util";
+import { HTTPServiceConfigState } from "../components/FormComponents/ConfigForms/ServiceConfigForm/forms/HttpService/util/reducer";
+import { HeaderObjectConfig } from "../components/FormComponents/ConnectorExtensions/HTTPWizard/HTTPHeaders";
 import { getFormattedModuleName, getParams } from "../components/Portals/utils";
 
-/* tslint:disable ordered-imports */
 import { getComponentSource, getInsertComponentSource } from "./template-utils";
+
+/* tslint:disable ordered-imports */
 
 export function createIfStatement(condition: string, targetPosition?: NodePosition): STModification {
     const ifStatement: STModification = {
@@ -895,6 +895,8 @@ export async function InsertorDelete(modifications: STModification[]): Promise<S
                     "STATEMENT": source,
                 }
             }
+        } else if (value.type && value.type.toLowerCase() === 'insert') {
+            stModification = value;
         } else {
             const source = await getInsertComponentSource(value.type, value.config);
             stModification = {
@@ -979,4 +981,17 @@ export function mutateTypeDefinition(typeName: string, typeDesc: string, targetP
 export function getInitialSource(modification: STModification): string {
     const source = getComponentSource(modification.type, modification.config);
     return source;
+}
+
+export function createTrigger(config: any, targetPosition?: NodePosition): STModification {
+    const triggerStatement: STModification = {
+        startLine: targetPosition ? targetPosition.startLine : 0,
+        startColumn: 0,
+        endLine: targetPosition ? targetPosition.startLine : 0,
+        endColumn: 0,
+        type: "TRIGGER",
+        config
+    };
+
+    return triggerStatement;
 }

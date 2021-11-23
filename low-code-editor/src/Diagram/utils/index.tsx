@@ -2,16 +2,16 @@ import React from "react";
 
 import { NodePosition } from "@ballerina/syntax-tree";
 
-import * as stComponents from '../components';
-import { ActionProcessor } from "../components/ActionInvocation/ActionProcess";
-import { ConnectorProcess } from "../components/Connector/ConnectorProcess";
-// import { ConnectorHeader } from "../components/connector/ConnectorHeader";
-import { IfElse } from "../components/IfElse";
-import { DataProcessor } from "../components/Processor";
-import { Respond } from "../components/Respond";
-import { Statement } from "../components/Statement";
-import { BlockViewState } from "../view-state";
-import { DraftStatementViewState } from "../view-state/draft";
+import { Diagnostic } from "../../DiagramGenerator/generatorUtil";
+import * as stComponents from '../components/LowCodeDiagram/Components/RenderingComponents';
+import { ActionProcessor } from "../components/LowCodeDiagram/Components/RenderingComponents/ActionInvocation/ActionProcess";
+import { ConnectorProcess } from "../components/LowCodeDiagram/Components/RenderingComponents/Connector/ConnectorProcess";
+import { IfElse } from "../components/LowCodeDiagram/Components/RenderingComponents/IfElse";
+import { DataProcessor } from "../components/LowCodeDiagram/Components/RenderingComponents/Processor";
+import { Respond } from "../components/LowCodeDiagram/Components/RenderingComponents/Respond";
+import { Statement } from "../components/LowCodeDiagram/Components/RenderingComponents/Statement";
+import { BlockViewState } from "../components/LowCodeDiagram/ViewState";
+import { DraftStatementViewState } from "../components/LowCodeDiagram/ViewState/draft";
 
 export function getSTComponents(nodeArray: any): React.ReactNode[] {
     // Convert to array
@@ -77,6 +77,9 @@ export function getDraftComponent(viewState: BlockViewState, state: any, insertC
                 case "Variable":
                     draftComponents.push(<DataProcessor model={null} blockViewState={viewState} />);
                     break;
+                case "AssignmentStatement":
+                    draftComponents.push(<DataProcessor model={null} blockViewState={viewState} />);
+                    break;
                 case "DataMapper":
                     draftComponents.push(<DataProcessor model={null} blockViewState={viewState} />);
                     break;
@@ -95,4 +98,20 @@ export function getDraftComponent(viewState: BlockViewState, state: any, insertC
     }
 
     return draftComponents;
+}
+
+export function getDiagnosticMsgs(diagnostics: Diagnostic[]){
+     /* tslint:disable prefer-for-of */
+    const diagnosticMsgsArray : string[] = [];
+    if (diagnostics?.length === 0){
+        return undefined;
+    }
+    else{
+        for (let i = 0; i < diagnostics?.length; i++){
+            if (diagnostics[i]?.diagnosticInfo?.severity !== "WARNING"){
+                diagnosticMsgsArray.push((diagnostics[i]?.message));
+            }
+            return diagnosticMsgsArray.join(',\n');
+    }
+}
 }

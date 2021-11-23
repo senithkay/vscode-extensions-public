@@ -18,13 +18,9 @@
  */
 
 import { NodePosition } from "@ballerina/syntax-tree";
+import { DiagramEditorLangClientInterface, GraphData, GraphPoint, PerformanceAnalyzerGraphResponse,
+    PerformanceAnalyzerRealtimeResponse, SequenceGraphPoint, SequenceGraphPointValue } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { Range } from "monaco-editor";
-
-import { DiagramEditorLangClientInterface } from "../Definitions";
-import {
-    GraphData, GraphPoint, PerformanceAnalyzerGraphResponse,
-    PerformanceAnalyzerRealtimeResponse, SequenceGraphPoint, SequenceGraphPointValue
-} from "../Definitions/lang-client-extended";
 
 import { mergeAnalysisDetails } from "./mergePerformanceData";
 import { PFSession } from "./vscode/Diagram";
@@ -69,10 +65,7 @@ export enum MESSAGE_TYPE {
  * @param showPerf Show performance graph function
  * @param showMsg Show alerts in vscode side
  */
-export async function addPerformanceData(st: any, file: string, lc: DiagramEditorLangClientInterface,
-                                         session: PFSession, showPerf: (request: PerformanceGraphRequest) => Promise<boolean>,
-                                         showMsg: (message: string, type: MESSAGE_TYPE, isIgnorable: boolean) => Promise<boolean>) {
-
+export async function addPerformanceData(st: any, file: string, lc: DiagramEditorLangClientInterface, session: PFSession, showPerf: (request: PerformanceGraphRequest) => Promise<boolean>, showMsg: (message: string, type: MESSAGE_TYPE, isIgnorable: boolean) => Promise<boolean>) {
     if (!st || !file || !lc || !session) {
         return;
     }
@@ -142,16 +135,17 @@ async function getRealtimeData(range: Range): Promise<PerformanceAnalyzerRealtim
             choreoToken: `Bearer ${pfSession.choreoToken}`,
             choreoCookie: pfSession.choreoCookie,
         }).then(async (response: PerformanceAnalyzerRealtimeResponse) => {
-
-            if (response.type === IGNORE) {
+            if (!response) {
+                return resolve(null);
+            }
+            if (response.type && response.type === IGNORE) {
                 return;
             }
-            if (response.type !== SUCCESS) {
+            if (response.type && response.type !== SUCCESS) {
                 checkErrors(response);
                 return resolve(null);
             }
             return resolve(response);
-
         });
     });
 }

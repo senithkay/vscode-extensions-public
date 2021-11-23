@@ -1,15 +1,14 @@
 
 import { FunctionDefinition, NodePosition, STKindChecker, STNode, traversNode } from "@ballerina/syntax-tree";
+import { ConfigOverlayFormStatus, ConfigPanelStatus, DiagramSize, STSymbolInfo, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { WizardType } from "../../ConfigurationSpec/types";
-import { ConfigOverlayFormStatus, ConfigPanelStatus, DiagramSize, STSymbolInfo } from "../../Definitions";
 import { SelectedPosition } from "../../types";
-import { ConditionConfig } from "../components/Portals/ConfigForm/types";
+import { ConditionConfig } from "../components/FormComponents/Types";
+import { BlockViewState, FunctionViewState } from "../components/LowCodeDiagram/ViewState";
+import { visitor as initVisitor } from "../components/LowCodeDiagram/Visitors/init-visitor";
+import { visitor as positionVisitor } from "../components/LowCodeDiagram/Visitors/positioning-visitor";
+import { visitor as sizingVisitor } from "../components/LowCodeDiagram/Visitors/sizing-visitor";
 import { getVaribaleNamesFromVariableDefList } from "../components/Portals/utils";
-import { BlockViewState, FunctionViewState } from "../view-state";
-import { visitor as initVisitor } from "../visitors/init-visitor";
-import { visitor as positionVisitor } from "../visitors/positioning-visitor";
-import { visitor as sizingVisitor } from "../visitors/sizing-visitor";
 
 export function calculateSize(st: STNode): DiagramSize {
     return {

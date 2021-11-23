@@ -168,6 +168,7 @@ export interface FormField {
     defaultValue?: any;
     value?: any;
     optional?: boolean;
+    defaultable?: boolean;
     fields?: FormField[];
     members?: FormField[];
     references?: FormField[];
@@ -184,7 +185,6 @@ export interface FormField {
     tooltipActionLink?: string;
     tooltipActionText?: string;
     isErrorType?: boolean;
-    isDefaultableParam?: boolean;
     isRestParam?: boolean;
     customAutoComplete?: string[];
     validationRegex?: any;
@@ -225,13 +225,13 @@ export interface BallerinaConnectorsResponse {
 }
 
 export interface BallerinaConnectorRequest {
-    id?:string
-    orgName?:string
-    packageName?:string
-    moduleName?:string
-    version?:string
-    name?:string
-    targetFile?:string
+    id?: string
+    orgName?: string
+    packageName?: string
+    moduleName?: string
+    version?: string
+    name?: string
+    targetFile?: string
 }
 
 export interface BallerinaConnectorResponse extends BallerinaConnectorInfo {
@@ -258,7 +258,7 @@ export interface Package {
     icon?: string;
     pullCount?: number;
     createdDate?: number;
-    modules?: any[];   
+    modules?: any[];
 }
 
 export interface Connector {

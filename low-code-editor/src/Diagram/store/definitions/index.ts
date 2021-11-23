@@ -12,11 +12,10 @@
  */
 // tslint:disable-next-line: no-submodule-imports
 import { ModulePart, STNode } from "@ballerina/syntax-tree";
-import { Diagnostic } from "monaco-languageclient";
+import { BallerinaConnectorInfo, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { Diagnostic } from "vscode-languageserver-protocol";
 
-import { BallerinaConnectorInfo } from "../../../Definitions/lang-client-extended";
-import { STSymbolInfo } from "../../../Definitions/store";
-import { BlockViewState } from "../../view-state";
+import { BlockViewState } from "../../components/LowCodeDiagram/ViewState";
 
 export interface DiagramCoordinates {
     start: RectCoordinates;
