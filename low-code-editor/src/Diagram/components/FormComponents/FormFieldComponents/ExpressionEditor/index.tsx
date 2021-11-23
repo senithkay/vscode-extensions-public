@@ -901,7 +901,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                         {!(subEditor && cursorOnEditor) && <Diagnostic message={mainDiagnostics[0]?.message} />}
                         <FormHelperText className={formClasses.invalidCode}><FormattedMessage id="lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage" defaultMessage="Error occurred in the code-editor. Please fix it first to continue." /></FormHelperText>
                     </>
-                ) : !validating && expressionEditorState.name === model?.name && expressionEditorState.diagnostic && getDiagnosticMessage(expressionEditorState.diagnostic, varType) ?
+                ) : !disabled && !validating && expressionEditorState.name === model?.name && expressionEditorState.diagnostic && getDiagnosticMessage(expressionEditorState.diagnostic, varType) ?
                     (
                         <>
                             {!(subEditor && cursorOnEditor) && <Diagnostic message={getDiagnosticMessage(expressionEditorState.diagnostic, varType)} />}
