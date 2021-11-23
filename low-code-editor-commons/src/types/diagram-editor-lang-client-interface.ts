@@ -58,6 +58,34 @@ export interface GetSyntaxTreeResponse {
     parseSuccess: boolean;
 }
 
+export interface GetBallerinaProjectParams {
+    documentIdentifier: DocumentIdentifier;
+}
+
+export interface ExecutorPositionsResponse {
+    executorPositions?: ExecutorPosition[];
+}
+
+export interface ExecutorPosition {
+    kind: string;
+    range: LineRange;
+    name: string;
+}
+
+export interface LineRange {
+    startLine: LinePosition;
+    endLine: LinePosition;
+}
+
+export interface LinePosition {
+    line: number;
+    offset: number;
+}
+
+export interface DocumentIdentifier {
+    uri: string;
+}
+
 export interface DiagramEditorLangClientInterface extends BaseLangClientInterface {
     getConnectors: (
         params: BallerinaConnectorsRequest
@@ -95,4 +123,7 @@ export interface DiagramEditorLangClientInterface extends BaseLangClientInterfac
     resolveMissingDependencies: (
         params: GetSyntaxTreeParams
     ) => Thenable<GetSyntaxTreeResponse>;
+    getExecutorPositions: (
+        params: GetBallerinaProjectParams
+    ) => Thenable<ExecutorPositionsResponse>
 }

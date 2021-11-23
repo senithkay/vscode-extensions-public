@@ -56,9 +56,19 @@ export function Service(props: ServiceProps) {
     });
 
     const {
-        api: { webView: {
-            showSwaggerView
-        } },
+        api: {
+            webView: {
+                showSwaggerView
+            },
+            project: {
+                run
+            }
+        },
+        props: {
+            currentFile: {
+                path
+            }
+        }
     } = useDiagramContext();
 
     const onClickTryIt = async () => {
@@ -70,13 +80,27 @@ export function Service(props: ServiceProps) {
         showSwaggerView(servicePath);
     };
 
+    const onClickRun = async () => {
+        run([path]);
+    }
+
+    function renderButtons() {
+        const tryItBtn = <p className={"action-text"} onClick={onClickTryIt}>Try it</p>
+
+        if (model.isRunnable) {
+            const runBtn = <p className={"action-text"} onClick={onClickRun}>Run</p>
+            return [runBtn, tryItBtn];
+
+        } else {
+            return tryItBtn;
+        }
+    }
+
     return (
         <>
             <div className={'service'} >
                 <div className={"action-container"}>
-                    <p className={"action-text"} onClick={onClickTryIt}>
-                        {`Try it`}
-                    </p>
+                    {renderButtons()}
                 </div>
                 <ServiceHeader model={model} isExpanded={isExpanded} onExpandClick={onExpandClick} />
                 <div className={'content-container'}>
