@@ -90,7 +90,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             connectorConfig.responsePayloadMap.selectedPayloadType === undefined));
     const [isGenFieldsFilled, setIsGenFieldsFilled] = useState(false);
     const [selectedOperation, setSelectedOperation] = useState<string>(connectorConfig?.action?.name);
-    const [selectedTargetType, setSelectedTargetType] = useState(defaultTargetType);
+    const [selectedTargetType, setSelectedTargetType] = useState("");
     const httpVar = model as LocalVarDecl;
     const initialReturnNameState: ReturnNameState = {
         value: connectorConfig.action.returnVariableName,
@@ -129,9 +129,9 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     if (!isNewConnectorInitWizard) {
         const symbolRefArray = symbolInfo.variableNameReferences.get(returnNameState.value);
         responseVariableHasReferences = symbolRefArray ? symbolRefArray.length > 0 : false;
-        const defaultReturnType = httpVar.typedBindingPattern.typeDescriptor.source.trim();
-        if (selectedTargetType === "" && defaultReturnType) {
-            setSelectedTargetType(defaultReturnType);
+        const actionReturnType = httpVar.typedBindingPattern.typeDescriptor.source.trim();
+        if (selectedTargetType === "" && actionReturnType) {
+            setSelectedTargetType(actionReturnType);
         }
     } else if (isNewConnectorInitWizard && selectedTargetType === "") {
         setSelectedTargetType(defaultTargetType);
@@ -231,10 +231,6 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                         customProps={{
                             values: payloadTypes,
                             disableCreateNew: true,
-                            // TODO: tour step should update without redux store
-                            // onOpenSelect: () => {
-                            //     dispatchGoToNextTourStep("CONFIG_PAYLOAD_CLICK")
-                            // },
                         }}
                     />
                 </div>

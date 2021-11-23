@@ -655,7 +655,7 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
         connectorRequest.packageName = connector.package.name;
         connectorRequest.version = connector.package.version;
         // HACK: Http endpoint STNode will get 2.0.1 version, but Ballerina Central have only 2.0.0 version.
-        if (connector.package.name === "http") {
+        if (connector.package.name === "http" && connector.package.version === "2.0.1") {
             connectorRequest.version = "2.0.0";
         }
     }
@@ -666,8 +666,8 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
         const connectorResp = await langClient?.getConnector(connectorRequest);
         if (connectorResp) {
             connectorInfo = connectorResp as BallerinaConnectorInfo;
-            connector = connectorInfo;
             if (connectorInfo?.name){
+                connector = connectorInfo;
                 // save form fields in browser cache
                 await addConnectorToCache(connectorInfo);
             }
