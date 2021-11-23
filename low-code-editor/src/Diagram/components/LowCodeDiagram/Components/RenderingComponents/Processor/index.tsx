@@ -9,22 +9,21 @@
  * this license, please see the license as well as any agreement you’ve
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
- */
+*/
 // tslint:disable: jsx-no-multiline-js align  jsx-wrap-multiline
 import React, { useContext, useState } from "react";
 
 import {
     AssignmentStatement,
     CallStatement,
-    FunctionCall,
-    JsonTypeDesc,
-    IdentifierToken,
+    FunctionCall, IdentifierToken,
     LocalVarDecl,
     NodePosition,
     QualifiedNameReference,
     SimpleNameReference,
     STKindChecker,
-    STNode} from "@ballerina/syntax-tree";
+    STNode
+} from "@ballerina/syntax-tree";
 import { WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { Context } from "../../../../../../Contexts/Diagram";
@@ -41,13 +40,15 @@ import { EDIT_SVG_OFFSET, EDIT_SVG_WIDTH_WITH_SHADOW } from "../../../Components
 import { BlockViewState, StatementViewState } from "../../../ViewState";
 import { DraftStatementViewState } from "../../../ViewState/draft";
 import { Assignment } from "../Assignment";
+import { ShowFuntionBtn } from "../DiagramActions/ShowFunctionBtn";
 import { StatementTypes } from "../StatementTypes";
 import { VariableName, VARIABLE_NAME_WIDTH } from "../VariableName";
 
 import { ProcessSVG, PROCESS_SVG_HEIGHT, PROCESS_SVG_HEIGHT_WITH_SHADOW, PROCESS_SVG_SHADOW_OFFSET, PROCESS_SVG_WIDTH, PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW } from "./ProcessSVG";
 import "./style.scss";
-import { ShowFuntionBtn } from "../DiagramActions/ShowFunctionBtn";
-import { SHOW_FUNCTION_SVG_HEIGHT_WITH_SHADOW, SHOW_FUNCTION_SVG_WIDTH_WITH_SHADOW } from "../DiagramActions/ShowFunctionBtn/ShowFunctionSVG";
+
+
+
 
 export interface ProcessorProps {
     model: STNode;
@@ -84,7 +85,7 @@ export function DataProcessor(props: ProcessorProps) {
     let sourceSnippet = "Source";
     let haveFunction = false;
     let functionName: IdentifierToken = null;
-    const diagnostics =  model?.typeData?.diagnostics;
+    const diagnostics = model?.typeData?.diagnostics;
 
     let isIntializedVariable = false;
     let isLogStmt = false;
@@ -242,8 +243,8 @@ export function DataProcessor(props: ProcessorProps) {
         if (STKindChecker.isFunctionCall(model.expression)) {
             assignmentText = model.expression.arguments[0]?.source;
             processType === "Log" ?
-            methodCallText = getMethodCallFunctionName(model).replace("log:print", "").trim().toLocaleLowerCase()
-            : methodCallText = getMethodCallFunctionName(model);
+                methodCallText = getMethodCallFunctionName(model).replace("log:print", "").trim().toLocaleLowerCase()
+                : methodCallText = getMethodCallFunctionName(model);
         } else if (STKindChecker.isCheckExpression(model.expression)) {
             if (STKindChecker.isFunctionCall(model.expression.expression)) {
                 assignmentText = model.expression.expression.source;
@@ -257,8 +258,8 @@ export function DataProcessor(props: ProcessorProps) {
         statmentTypeText = getStatementTypesFromST(localModel);
     }
 
-    
-    
+
+
     const assignmentTextcx = cx + PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW / 2 + (DefaultConfig.dotGap * 3);
     const assignmentTextcy = cy + PROCESS_SVG_HEIGHT / 3;
     const textWidth = assignmentText ? assignmentText.length : 0;
@@ -272,7 +273,7 @@ export function DataProcessor(props: ProcessorProps) {
             <g>
                 <g className={processStyles} data-testid="data-processor-block" z-index="1000" >
                     <React.Fragment>
-                    {(processType !== "Log" && processType !== "Call") && !isDraftStatement &&
+                        {(processType !== "Log" && processType !== "Call") && !isDraftStatement &&
                             <>
                                 <StatementTypes
                                     statementType={statmentTypeText}

@@ -11,37 +11,27 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, useContext, useRef, useState } from "react";
+import React, { useContext, useRef, useState } from "react";
 
 import {
   FunctionBodyBlock,
   FunctionDefinition,
-  STKindChecker,
-  STNode,
+  STKindChecker
 } from "@ballerina/syntax-tree";
-import classNames from "classnames";
+import cn from "classnames";
 import { v4 as uuid } from "uuid";
 
 import { Context } from "../../../Contexts/Diagram";
-import { Provider as FunctionProvider } from "../../../Contexts/Function";
 import { useSelectedStatus } from "../../hooks";
 import { useStyles } from "../../styles";
-import { BlockViewState, FunctionViewState, StatementViewState } from "../../view-state";
-import { Canvas } from "../Canvas";
+import { BlockViewState, FunctionViewState } from "../../view-state";
+import ControlFlowArrow from "../ControlFlowArrow";
 import { End } from "../End";
 import { StartButton } from "../Start";
 import { WorkerBody } from "../WorkerBody";
 import { WorkerLine } from "../WorkerLine";
 
-import { FunctionHeader } from "./FunctionHeader";
-import PanAndZoom from "./PanAndZoom";
-import { ResourceHeader } from "./ResourceHeader";
 import "./style.scss";
-import { DiagramOverlay, DiagramOverlayContainer } from "../Portals/Overlay";
-import { CloseIcon } from "../../../assets/icons";
-import { ActionInvocation } from "../ActionInvocation";
-import ControlFlowArrow from "../ControlFlowArrow";
-import cn from "classnames";
 
 export const FUNCTION_PLUS_MARGIN_TOP = 7.5;
 export const FUNCTION_PLUS_MARGIN_BOTTOM = 7.5;
@@ -132,20 +122,20 @@ export function FunctionBody(props: FunctionProps) {
   const blockWidth = model.viewState.bBox.w;
   const functionBody = (
     <svg {...xyProps} className="assignment-expression">
-{/* <rect width="100%" height="100%" fill="red"/> */}
+      {/* <rect width="100%" height="100%" fill="red"/> */}
       {/* <FunctionProvider overlayId={overlayId}> */}
-       
-          {/* <Canvas h={model.viewState.bBox.h} w={model.viewState.bBox.w}> */}
-          <g className={arrowClasses}>
-            <ControlFlowArrow isDotted={false} x={model.viewState.bBox.cx + 30} y={model.viewState.bBox.cy} w={60} />
-            <ControlFlowArrow isDotted={true} x={model.viewState.bBox.cx + 30} y={model.viewState.bBox.cy + 10} w={60} />
-          </g>
-          <svg x={model.viewState.bBox.cx + 20} y={model.viewState.bBox.cy - 80}>
-            <rect y="50" x="80" width={blockWidth - 50} height={blockHeight} rx="30" strokeDasharray={'0.3em'} strokeWidth={1} fill={'rgba(240,241,251,0.5)'} stroke={'#5567D5'}/>
-            {component}
-          </svg>
-          {/* </Canvas> */}
-        {/* </PanAndZoom> */}
+
+      {/* <Canvas h={model.viewState.bBox.h} w={model.viewState.bBox.w}> */}
+      <g className={arrowClasses}>
+        <ControlFlowArrow isDotted={false} x={model.viewState.bBox.cx + 30} y={model.viewState.bBox.cy} w={60} />
+        <ControlFlowArrow isDotted={true} x={model.viewState.bBox.cx + 30} y={model.viewState.bBox.cy + 10} w={60} />
+      </g>
+      <svg x={model.viewState.bBox.cx + 20} y={model.viewState.bBox.cy - 80}>
+        <rect y="50" x="80" width={blockWidth - 50} height={blockHeight} rx="30" strokeDasharray={'0.3em'} strokeWidth={1} fill={'rgba(240,241,251,0.5)'} stroke={'#5567D5'} />
+        {component}
+      </svg>
+      {/* </Canvas> */}
+      {/* </PanAndZoom> */}
       {/* </FunctionProvider> */}
     </svg>
   );
