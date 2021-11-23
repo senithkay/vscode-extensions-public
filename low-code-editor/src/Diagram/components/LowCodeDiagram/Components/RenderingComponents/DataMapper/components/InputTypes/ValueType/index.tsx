@@ -15,8 +15,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useRef, useState } from 'react';
 
-import { NodePosition, STNode } from "@ballerina/syntax-tree";
 import { PrimitiveBalType } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from 'classnames';
 
 import Tooltip from '../../../../../../../../../components/Tooltip';

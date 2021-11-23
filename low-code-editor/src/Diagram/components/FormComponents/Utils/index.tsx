@@ -12,7 +12,7 @@
  */
 import React from "react";
 
-import * as Forms from "../../FormComponents/ConfigForms";
+import * as Forms from "../ConfigForms";
 
 export function getForm(type: string, args: any) {
     const Form = (Forms as any)[type];

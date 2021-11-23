@@ -1,6 +1,6 @@
 import React from "react";
 
-import { NodePosition, STKindChecker, STNode, traversNode } from "@ballerina/syntax-tree";
+import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import * as stComponents from '../Components/RenderingComponents';
 import { ActionProcessor } from "../Components/RenderingComponents/ActionInvocation/ActionProcess";

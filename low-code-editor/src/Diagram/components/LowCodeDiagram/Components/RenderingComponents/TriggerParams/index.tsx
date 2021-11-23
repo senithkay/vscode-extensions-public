@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
 import React from "react";
 
-import {FunctionDefinition, RequiredParam, RestParam, STKindChecker, STNode} from "@ballerina/syntax-tree";
+import {FunctionDefinition, RequiredParam, RestParam, STKindChecker, STNode} from "@wso2-enterprise/syntax-tree";
 
 import {DefaultConfig} from "../../../../../visitors/default";
 import {BlockViewState} from "../../../ViewState";

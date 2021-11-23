@@ -33,7 +33,7 @@ import {
     STNode,
     TypeDefinition,
     Visitor, WhileStatement
-} from "@ballerina/syntax-tree";
+} from "@wso2-enterprise/syntax-tree";
 
 import { isVarTypeDescriptor } from "../../../utils/diagram-util";
 import { Endpoint, getDraftComponentSizes, getPlusViewState, haveBlockStatement, isSTActionInvocation } from "../../../utils/st-util";
@@ -814,7 +814,7 @@ class SizingVisitor implements Visitor {
                 viewState.bBox.w = RESPOND_SVG_WIDTH;
             } else if (STKindChecker.isReturnStatement(node)) {
                 viewState.bBox.h = RETURN_SVG_HEIGHT;
-                viewState.bBox.w = RETURN_SVG_WIDTH;
+                viewState.bBox.w = RETURN_SVG_WIDTH + VARIABLE_NAME_WIDTH + DefaultConfig.textAlignmentOffset;
             } else {
                 viewState.dataProcess.h = PROCESS_SVG_HEIGHT;
                 viewState.dataProcess.w = PROCESS_SVG_WIDTH;

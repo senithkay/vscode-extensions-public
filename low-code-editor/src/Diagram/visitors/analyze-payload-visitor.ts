@@ -21,7 +21,7 @@ import {
     STKindChecker,
     STNode,
     Visitor
-} from "@ballerina/syntax-tree";
+} from "@wso2-enterprise/syntax-tree";
 
 import AnalyzerPayload from "./AnalyzerPayload";
 

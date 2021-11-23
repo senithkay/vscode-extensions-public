@@ -12,7 +12,7 @@
  */
 import React from "react";
 
-import { BooleanLiteral } from "@ballerina/syntax-tree";
+import { BooleanLiteral } from "@wso2-enterprise/syntax-tree";
 
 import { VariableUserInputs } from "../../../../models/definitions";
 import { InputEditor } from "../../../InputEditor";

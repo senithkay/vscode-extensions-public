@@ -14,9 +14,9 @@
 import React, { useReducer } from "react";
 import { FormattedMessage } from "react-intl";
 
-import { ListenerDeclaration, NodePosition, ServiceDeclaration, STKindChecker } from "@ballerina/syntax-tree";
 import { FormHelperText } from "@material-ui/core";
 import { SecondaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ListenerDeclaration, NodePosition, ServiceDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { PrimaryButton } from "../../../../../../../components/Buttons/PrimaryButton";

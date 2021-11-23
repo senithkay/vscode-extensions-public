@@ -1,15 +1,13 @@
 {
-  "name": "@ballerina/syntax-tree",
-  "version": "1.0.5",
+  "name": "@wso2-enterprise/syntax-tree",
+  "version": "1.1.5",
   "description": "syntax-tree",
-  "license": "Apache-2.0",
   "files": [
     "lib"
   ],
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "scripts": {
-    "prepublishOnly": "npm run build",
     "prebuild": "npm run clean && npm run lint",
     "clean": "rimraf lib && rimraf coverage && rimraf build",
     "lint": "tslint -t stylish --project .",
@@ -42,5 +40,14 @@
   "jest": {
     "testRegex": "(/tests/.*|\\.(test|spec))\\.js$",
     "testEnvironment": "node"
+  },
+  "repository": {
+      "type": "git",
+      "url": "git+https://github.com/wso2-enterprise/ballerina-low-code-editor.git"
+  },
+  "author": "wso2",
+  "license": "UNLICENSED",
+  "publishConfig": {
+      "registry": "https://npm.pkg.github.com/"
   }
 }

@@ -14,17 +14,17 @@
 import React, { ReactNode, SyntheticEvent, useContext, useState } from "react";
 import { FormattedMessage } from "react-intl";
 
-import { LocalVarDecl } from "@ballerina/syntax-tree";
 import { Box, CircularProgress, FormControl, Grid, Typography } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
 import { BallerinaModule, BallerinaModuleResponse, ButtonWithIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../Contexts/Diagram";
 import { UserState } from "../../../../../types";
 import { EVENT_TYPE_AZURE_APP_INSIGHTS, LowcodeEvent, START_CONNECTOR_ADD_INSIGHTS } from "../../../../models";
 import { APIHeightStates } from "../../../LowCodeDiagram/Components/DialogBoxes/PlusHolder/PlusElements";
 import { PlusViewState } from "../../../LowCodeDiagram/ViewState/plus";
-import { wizardStyles as useFormStyles} from "../../ConfigForms/style";
+import { wizardStyles as useFormStyles} from "../style";
 
 import FilterByMenu from "./FilterByMenu";
 import ModuleCard from "./ModuleCard";

@@ -13,9 +13,9 @@
 import React, { useState } from "react";
 import { FormattedMessage } from "react-intl";
 
-import { ListenerDeclaration, NodePosition, STKindChecker } from "@ballerina/syntax-tree";
 import { Box, FormControl, FormHelperText, Typography } from "@material-ui/core";
-import { SecondaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormHeaderSection, SecondaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ListenerDeclaration, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { ListenerFormIcon } from "../../../../../assets/icons";
 import { PrimaryButton } from "../../../../../components/Buttons/PrimaryButton";
@@ -29,7 +29,6 @@ import { VariableNameInput } from "../Components/VariableNameInput";
 import { useStyles } from "./style";
 import { isListenerConfigValid } from "./util";
 import { ListenerConfig } from "./util/types";
-
 
 interface ListenerConfigFormProps {
     model?: ListenerDeclaration;
@@ -152,15 +151,11 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
 
     return (
         <FormControl data-testid="log-form" className={formClasses.wizardFormControl}>
-            <div className={formClasses.formTitleWrapper}>
-                <div className={formClasses.mainTitleWrapper}>
-                    <ListenerFormIcon />
-                    <Typography variant="h4">
-                        <Box paddingTop={2} paddingBottom={2} paddingLeft={15}>Listener</Box>
-                    </Typography>
-                </div>
-            </div>
-
+            <FormHeaderSection
+                onCancel={onCancel}
+                formTitle={"lowcode.develop.connectorForms.HTTP.title"}
+                defaultMessage={"Listener"}
+            />
             <div className={formClasses.formWrapper}>
                 <>
                     <div className={formClasses.labelWrapper}>

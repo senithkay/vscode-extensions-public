@@ -28,7 +28,7 @@ import {
     TypeCastExpression, TypeDefinition,
     Visitor,
     WhileStatement
-} from "@ballerina/syntax-tree";
+} from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
 import { Endpoint, isSTActionInvocation } from "../../../utils/st-util";

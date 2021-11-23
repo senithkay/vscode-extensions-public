@@ -10,5 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-export * from "./hooks";
+import {StatementEditorButton} from "./components/Button/StatementEditorButton"
+export {useStatementEditor} from "./hooks";
+export {StatementEditorButton};
 

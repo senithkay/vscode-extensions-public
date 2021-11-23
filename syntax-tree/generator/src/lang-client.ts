@@ -1,4 +1,4 @@
-import { createStdioLangClient, StdioBallerinaLangServer } from "@ballerina/lang-service";
+import { createStdioLangClient, StdioBallerinaLangServer } from "@wso2-enterprise/lang-service";
 import { ChildProcess } from "child_process";
 import { readFileSync } from 'fs';
 import URI from "vscode-uri";

@@ -14,7 +14,6 @@
 import React, { useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { LocalVarDecl, STNode } from "@ballerina/syntax-tree";
 import { Box, FormControl, FormHelperText, IconButton, Typography } from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
 import {
@@ -23,6 +22,7 @@ import {
     ConnectorConfig,
     FormField,
     FunctionDefinitionInfo, PrimaryButton, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { LocalVarDecl, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { Context } from "../../../../../../Contexts/Diagram";

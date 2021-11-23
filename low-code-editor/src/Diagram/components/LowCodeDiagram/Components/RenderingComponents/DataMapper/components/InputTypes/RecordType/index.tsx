@@ -17,7 +17,7 @@
 // tslint:disable: no-console
 import React, { useContext, useEffect, useRef, useState } from 'react';
 
-import { LocalVarDecl, MappingConstructor, RecordTypeDesc, STKindChecker, STNode } from '@ballerina/syntax-tree';
+import { LocalVarDecl, MappingConstructor, RecordTypeDesc, STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
 import classNames from 'classnames';
 
 import Tooltip from '../../../../../../../../../components/Tooltip';

@@ -14,7 +14,6 @@
 import React, { useContext, useState } from "react";
 import { useIntl } from "react-intl";
 
-import { LocalVarDecl, NodePosition, STNode } from "@ballerina/syntax-tree";
 import {
   BallerinaConnectorInfo,
   Connector,
@@ -22,6 +21,7 @@ import {
   FunctionDefinitionInfo,
   WizardType,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { LocalVarDecl, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../Contexts/Diagram";
 import { DefaultConfig } from "../../../visitors/default";
