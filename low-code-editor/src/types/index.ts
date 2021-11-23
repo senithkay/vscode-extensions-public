@@ -101,6 +101,9 @@ export interface LowCodeEditorAPI {
     webView: {
         showSwaggerView: (serviceName: string) => void;
     }
+    project: {
+        run: (args: any[]) => void;
+    }
 }
 
 // FIXME Some of these props should be moved to low code state

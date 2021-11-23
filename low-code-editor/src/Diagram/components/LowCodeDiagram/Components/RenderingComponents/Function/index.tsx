@@ -140,8 +140,8 @@ export function Function(props: FunctionProps) {
     const marginTop = (model as any).performance ? 5 : 0;
     const onClickPerformance = async () => {
         let fullPath = "";
-        for (const path of model.relativeResourcePath) {
-            fullPath += (path as any).value;
+        for (const resourcePath of model.relativeResourcePath) {
+            fullPath += (resourcePath as any).value;
         }
 
         await addAdvancedLabels(`${model.functionName.value.toUpperCase()} /${fullPath}`,
@@ -154,6 +154,29 @@ export function Function(props: FunctionProps) {
         const responseTimeValue = Number((model as any).performance.latency);
         value = responseTimeValue > 1000 ? responseTimeValue / 1000 : responseTimeValue;
         unit = responseTimeValue > 1000 ? " s" : " ms";
+    }
+
+    const {
+        api: {
+            project: {
+                run
+            }
+        },
+        props: {
+            currentFile: {
+                path
+            }
+        }
+    } = useDiagramContext();
+
+    const onClickRun = async () => {
+        run([path]);
+    }
+
+    function renderButtons() {
+        if (model.isRunnable) {
+            return <div className={"action-container"}><p className={"action-text"} onClick={onClickRun}>Run</p></div>
+        }
     }
 
     return (
@@ -190,11 +213,14 @@ export function Function(props: FunctionProps) {
                         onExpandClick={onExpandClick}
                     />
                 ) : (
-                    <FunctionHeader
-                        isExpanded={diagramExpanded}
-                        model={model}
-                        onExpandClick={onExpandClick}
-                    />
+                    <div >
+                        {renderButtons()}
+                        <FunctionHeader
+                            isExpanded={diagramExpanded}
+                            model={model}
+                            onExpandClick={onExpandClick}
+                        />
+                    </div>
                 )}
                 {diagramExpanded && functionBody}
             </div>

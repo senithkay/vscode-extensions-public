@@ -38,7 +38,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     const defaultScale = scale ? Number(scale) : 1;
     const defaultPanX = panX ? Number(panX) : 0;
     const defaultPanY = panY ? Number(panY) : 0;
-    const runCommand = props.runCommand;
+    const runCommand: (command: PALETTE_COMMANDS, args: any[]) => Promise<boolean> = props.runCommand;
 
     const defaultZoomStatus = {
         scale: defaultScale,
@@ -111,6 +111,10 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
 
     async function showSwaggerView(serviceName: string) {
         runCommand(PALETTE_COMMANDS.SWAGGER_VIEW, [serviceName, filePath]);
+    }
+
+    async function run(args: any[]) {
+        runCommand(PALETTE_COMMANDS.RUN, args);
     }
 
     const undo = async () => {
@@ -275,6 +279,9 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                 },
                                 webView: {
                                     showSwaggerView
+                                },
+                                project: {
+                                    run
                                 }
                             }}
                         />

@@ -5,8 +5,9 @@ import { cleanLocalSymbols, cleanModuleLevelSymbols } from "../Diagram/visitors/
 import { initVisitor, positionVisitor, sizingVisitor, SymbolVisitor } from "../index";
 import { SelectedPosition } from "../types";
 
+import { addExecutorPositions } from "./executor";
 import { addPerformanceData, MESSAGE_TYPE } from "./performanceUtil";
-import { PFSession } from "./vscode/Diagram";
+import { PALETTE_COMMANDS, PFSession } from "./vscode/Diagram";
 
 export async function getSyntaxTree(filePath: string, langClient: DiagramEditorLangClientInterface) {
     const resp = await langClient.getSyntaxTree({
@@ -34,6 +35,7 @@ export async function getLowcodeST(payload: any, filePath: string, langClient: D
     cleanModuleLevelSymbols();
     traversNode(st, SymbolVisitor);
     await addPerformanceData(st, filePath, langClient, pfSession, showPerformanceGraph, showMessage);
+    await addExecutorPositions(st, langClient, filePath)
     return st;
 }
 
