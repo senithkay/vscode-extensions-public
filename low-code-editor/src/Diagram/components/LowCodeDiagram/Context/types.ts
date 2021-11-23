@@ -1,5 +1,5 @@
-import { ModulePart, NodePosition, STNode } from "@ballerina/syntax-tree";
 import { ConfigOverlayFormStatus } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ModulePart, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 export interface LowCodeDiagramProps extends LowCodeDiagramProperties {
     api?: LowCodeDiagramAPI;

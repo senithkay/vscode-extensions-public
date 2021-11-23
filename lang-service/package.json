@@ -1,5 +1,5 @@
 {
-  "name": "@ballerina/lang-service",
+  "name": "@wso2-enterprise/lang-service",
   "version": "1.0.0",
   "description": "lang-service",
   "license": "Apache-2.0",
@@ -9,7 +9,6 @@
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "scripts": {
-    "prepublishOnly": "npm run build",
     "prebuild": "npm run clean && npm run lint",
     "clean": "rimraf lib && rimraf coverage && rimraf build",
     "lint": "tslint -t stylish --project .",

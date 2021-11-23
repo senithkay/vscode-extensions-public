@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { BooleanLiteral, NumericLiteral, StringLiteral, Visitor } from '@ballerina/syntax-tree'
+import { BooleanLiteral, NumericLiteral, StringLiteral, Visitor } from '@wso2-enterprise/syntax-tree'
 
 import { FieldViewState } from '../viewstate'
 

@@ -25,7 +25,7 @@ import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor"
 import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
 import { CustomExpressionConfig, ProcessConfig } from "../../../../Types";
 import { wizardStyles } from "../../../style";
-import { STNode } from "@ballerina/syntax-tree";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 interface LogConfigProps {

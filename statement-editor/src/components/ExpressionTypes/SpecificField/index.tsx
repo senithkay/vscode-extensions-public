@@ -13,7 +13,7 @@
 // tslint:disable: jsx-wrap-multiline jsx-no-multiline-js
 import React, { ReactNode, useContext } from "react";
 
-import { SpecificField, STKindChecker } from "@ballerina/syntax-tree";
+import { SpecificField, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { VariableUserInputs } from "../../../models/definitions";
 import { SuggestionsContext } from "../../../store/suggestions-context";

@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
 import React, { useContext } from "react";
 
-import { NodePosition, STNode } from "@ballerina/syntax-tree";
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../Contexts/Diagram";
 

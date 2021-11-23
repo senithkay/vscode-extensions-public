@@ -13,7 +13,7 @@
 // tslint:disable: no-empty
 import React from 'react';
 
-import { STNode } from "@ballerina/syntax-tree";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { SuggestionItem } from "../models/definitions";
 

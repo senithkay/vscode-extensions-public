@@ -11,8 +11,8 @@
  * associated services.
  */
 // tslint:disable-next-line: no-submodule-imports
-import { ModulePart, STNode } from "@ballerina/syntax-tree";
 import { BallerinaConnectorInfo, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ModulePart, STNode } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
 import { BlockViewState } from "../../components/LowCodeDiagram/ViewState";

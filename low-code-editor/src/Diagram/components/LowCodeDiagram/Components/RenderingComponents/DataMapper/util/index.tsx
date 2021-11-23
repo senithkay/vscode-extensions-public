@@ -12,8 +12,8 @@
  */
 import React from 'react';
 
-import { CaptureBindingPattern, LocalVarDecl, RecordTypeDesc, STKindChecker, STNode, traversNode } from "@ballerina/syntax-tree";
 import { DiagramEditorLangClientInterface, PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { CaptureBindingPattern, LocalVarDecl, RecordTypeDesc, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import { DataMapperConfig, DataMapperOutputTypeInfo, TypeInfo } from "../../../../../FormComponents/Types";
 import * as DataMapperComponents from '../components/InputTypes';
