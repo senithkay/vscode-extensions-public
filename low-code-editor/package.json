@@ -9,7 +9,6 @@
   "types": "build/index.d.ts",
   "typings": "build/index",
   "scripts": {
-    "prepublishOnly": "npm run build",
     "prebuild": "npm run lint",
     "build": "npm run build:webpack",
     "build:tsc": "tsc --pretty && npm run copy:assets",
