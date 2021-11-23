@@ -18,7 +18,7 @@ import {
 } from "vscode-languageserver-protocol";
 
 import { BaseLangClientInterface } from "./base-lang-client-interface";
-import { PublishDiagnosticsParams } from "./expression-editor-lang-client-interface";
+import { LinePosition, PublishDiagnosticsParams } from "./expression-editor-lang-client-interface";
 import {
     BallerinaConnectorRequest,
     BallerinaConnectorResponse,
@@ -29,6 +29,7 @@ import {
     BallerinaRecordResponse,
     BallerinaSTModifyRequest,
     BallerinaSTModifyResponse,
+    DocumentIdentifier,
     JsonToRecordRequest,
     JsonToRecordResponse,
     PerformanceAnalyzerGraphRequest as PerformanceAnalyzerRequest,
@@ -75,15 +76,6 @@ export interface ExecutorPosition {
 export interface LineRange {
     startLine: LinePosition;
     endLine: LinePosition;
-}
-
-export interface LinePosition {
-    line: number;
-    offset: number;
-}
-
-export interface DocumentIdentifier {
-    uri: string;
 }
 
 export interface DiagramEditorLangClientInterface extends BaseLangClientInterface {
