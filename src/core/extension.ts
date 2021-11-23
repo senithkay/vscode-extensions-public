@@ -47,6 +47,7 @@ import {
 import { BALLERINA_COMMANDS, runCommand } from "../project";
 import { SessionDataProvider } from "../tree-view/session-tree-data-provider";
 import { gitStatusBarItem } from "../editor-support/git-status";
+import { OAuthTokenHandler } from "../choreo-auth/inbuilt-impl";
 
 const SWAN_LAKE_REGEX = /(s|S)wan( |-)(l|L)ake/g;
 
@@ -74,8 +75,10 @@ export interface Change {
 export interface ChoreoSession {
     loginStatus: boolean;
     choreoUser?: string;
-    choreoToken?: string;
+    choreoAccessToken?: string;
     choreoCookie?: string;
+    choreoRefreshToken?: string;
+    choreoLoginTime?: Date;
 }
 
 interface CodeServerContext {
@@ -538,6 +541,10 @@ export class BallerinaExtension {
     }
 
     public getChoreoSession(): ChoreoSession {
+        let tokenDuration = new Date().getTime() - new Date(this.choreoSession.choreoLoginTime!).getTime();
+        if (tokenDuration > 3000) {
+            new OAuthTokenHandler(this).exchangeRefreshToken(this.choreoSession.choreoRefreshToken!);
+        }
         return this.choreoSession;
     }
 

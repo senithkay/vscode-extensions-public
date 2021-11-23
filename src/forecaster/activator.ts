@@ -119,7 +119,7 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
         return;
     }
 
-    const choreoToken = extension.getChoreoSession().choreoToken!;
+    const choreoToken = extension.getChoreoSession().choreoAccessToken!;
     const choreoCookie = "";
 
     if (!uri || !langClient || !pos) {

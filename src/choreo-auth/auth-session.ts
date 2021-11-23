@@ -25,13 +25,15 @@ export async function getChoreoKeytarSession(): Promise<ChoreoSession> {
         return {
             loginStatus: true,
             choreoUser: process.env.VSCODE_CHOREO_SESSION_USERNAME,
-            choreoToken: process.env.VSCODE_CHOREO_SESSION_TOKEN
+            choreoAccessToken: process.env.VSCODE_CHOREO_SESSION_TOKEN,
+            choreoRefreshToken: process.env.VSCODE_CHOREO_REFRESH_TOKEN,
+            choreoLoginTime: new Date()
         }
     }
 
-    let choreoToken: string | null = null;
+    let choreoAccessToken: string | null = null;
     await keytar.getPassword(ChoreoSessionConfig.ServiceName, ChoreoSessionConfig.AccessToken).then((result) => {
-        choreoToken = result;
+        choreoAccessToken = result;
     });
 
     let choreoUser: string | null = null;
@@ -39,11 +41,25 @@ export async function getChoreoKeytarSession(): Promise<ChoreoSession> {
         choreoUser = result;
     });
 
-    if (choreoToken != null && choreoUser != null) {
+    let choreoRefreshToken: string | null = null;
+    await keytar.getPassword(ChoreoSessionConfig.ServiceName, ChoreoSessionConfig.RefreshToken).then((result) => {
+        choreoRefreshToken = result;
+    });
+
+    let choreoLoginTime: Date | null = null;
+    await keytar.getPassword(ChoreoSessionConfig.ServiceName, ChoreoSessionConfig.LoginTime).then((result) => {
+        if (result != null) {
+            choreoLoginTime = new Date(result);
+        }
+    });
+
+    if (choreoAccessToken != null && choreoUser != null && choreoRefreshToken != null && choreoLoginTime != null) {
         return {
             loginStatus: true,
             choreoUser: choreoUser,
-            choreoToken: choreoToken
+            choreoAccessToken: choreoAccessToken,
+            choreoRefreshToken: choreoRefreshToken,
+            choreoLoginTime: choreoLoginTime
         };
     } else {
         return {
@@ -52,12 +68,16 @@ export async function getChoreoKeytarSession(): Promise<ChoreoSession> {
     }
 }
 
-export async function setChoreoKeytarSession(accessToken, displayName) {
+export async function setChoreoKeytarSession(accessToken, displayName, refreshToken, loginTime) {
     await keytar.setPassword(ChoreoSessionConfig.ServiceName, ChoreoSessionConfig.AccessToken, accessToken);
     await keytar.setPassword(ChoreoSessionConfig.ServiceName, ChoreoSessionConfig.DisplayName, displayName);
+    await keytar.setPassword(ChoreoSessionConfig.ServiceName, ChoreoSessionConfig.RefreshToken, refreshToken);
+    await keytar.setPassword(ChoreoSessionConfig.ServiceName, ChoreoSessionConfig.LoginTime, loginTime);
 }
 
 export async function deleteChoreoKeytarSession() {
     await keytar.deletePassword(ChoreoSessionConfig.ServiceName, ChoreoSessionConfig.AccessToken);
     await keytar.deletePassword(ChoreoSessionConfig.ServiceName, ChoreoSessionConfig.DisplayName);
+    await keytar.deletePassword(ChoreoSessionConfig.ServiceName, ChoreoSessionConfig.RefreshToken);
+    await keytar.deletePassword(ChoreoSessionConfig.ServiceName, ChoreoSessionConfig.LoginTime);
 }
