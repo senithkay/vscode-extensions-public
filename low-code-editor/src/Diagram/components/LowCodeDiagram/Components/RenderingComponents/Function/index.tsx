@@ -156,6 +156,24 @@ export function Function(props: FunctionProps) {
         unit = responseTimeValue > 1000 ? " s" : " ms";
     }
 
+    const {
+        api: {
+            project: {
+                run
+            }
+        }
+    } = useDiagramContext();
+
+    const onClickRun = async () => {
+        run([]);
+    }
+
+    function renderButtons() {
+        if (model.isRunnable) {
+            return <div className={"action-container"}><p className={"action-text"} onClick={onClickRun}>Run</p></div>
+        }
+    }
+
     return (
         <div>
             <div className="performance-label-container">
@@ -190,11 +208,14 @@ export function Function(props: FunctionProps) {
                         onExpandClick={onExpandClick}
                     />
                 ) : (
-                    <FunctionHeader
-                        isExpanded={diagramExpanded}
-                        model={model}
-                        onExpandClick={onExpandClick}
-                    />
+                    <div >
+                        {renderButtons()}
+                        <FunctionHeader
+                            isExpanded={diagramExpanded}
+                            model={model}
+                            onExpandClick={onExpandClick}
+                        />
+                    </div>
                 )}
                 {diagramExpanded && functionBody}
             </div>

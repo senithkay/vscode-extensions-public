@@ -18,7 +18,7 @@ import {
 } from "vscode-languageserver-protocol";
 
 import { BaseLangClientInterface } from "./base-lang-client-interface";
-import { PublishDiagnosticsParams } from "./expression-editor-lang-client-interface";
+import { LinePosition, PublishDiagnosticsParams } from "./expression-editor-lang-client-interface";
 import {
     BallerinaConnectorRequest,
     BallerinaConnectorResponse,
@@ -29,6 +29,7 @@ import {
     BallerinaRecordResponse,
     BallerinaSTModifyRequest,
     BallerinaSTModifyResponse,
+    DocumentIdentifier,
     JsonToRecordRequest,
     JsonToRecordResponse,
     PerformanceAnalyzerGraphRequest as PerformanceAnalyzerRequest,
@@ -56,6 +57,25 @@ export interface GetSyntaxTreeParams {
 export interface GetSyntaxTreeResponse {
     syntaxTree: any;
     parseSuccess: boolean;
+}
+
+export interface GetBallerinaProjectParams {
+    documentIdentifier: DocumentIdentifier;
+}
+
+export interface ExecutorPositionsResponse {
+    executorPositions?: ExecutorPosition[];
+}
+
+export interface ExecutorPosition {
+    kind: string;
+    range: LineRange;
+    name: string;
+}
+
+export interface LineRange {
+    startLine: LinePosition;
+    endLine: LinePosition;
 }
 
 export interface DiagramEditorLangClientInterface extends BaseLangClientInterface {
@@ -95,4 +115,7 @@ export interface DiagramEditorLangClientInterface extends BaseLangClientInterfac
     resolveMissingDependencies: (
         params: GetSyntaxTreeParams
     ) => Thenable<GetSyntaxTreeResponse>;
+    getExecutorPositions: (
+        params: GetBallerinaProjectParams
+    ) => Thenable<ExecutorPositionsResponse>
 }
