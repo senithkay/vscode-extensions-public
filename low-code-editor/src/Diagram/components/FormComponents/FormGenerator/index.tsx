@@ -13,8 +13,8 @@
 import React, { useState } from "react";
 
 import { NodePosition, STNode } from "@ballerina/syntax-tree";
+import { ConfigOverlayFormStatus, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { ConfigOverlayFormStatus, STModification } from "../../../../Definitions";
 import { Panel } from "../../Panel";
 import { getForm } from "../Utils";
 
@@ -50,7 +50,7 @@ export function FormGenerator(props: FormGeneratorProps) {
   if (configOverlayFormStatus.formArgs) {
     configOverlayFormStatus.formArgs.expressionInjectables = expressionInjectables;
   }
-  const args = { onCancel, configOverlayFormStatus, ...restProps }; // FixMe: Sort out form args
+  const args = { onCancel, configOverlayFormStatus, formType, ...restProps }; // FixMe: Sort out form args
 
   return (
     <Panel onClose={onCancel}>

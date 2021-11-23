@@ -21,11 +21,12 @@ import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
 import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";
-import { useStatementEditor } from "../../../../FormFieldComponents/StatementEditor/hooks";
+import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
 import { CustomExpressionConfig, ProcessConfig } from "../../../../Types";
 import { wizardStyles } from "../../../style";
 import { STNode } from "@ballerina/syntax-tree";
+import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 interface LogConfigProps {
     config: ProcessConfig;
@@ -43,7 +44,11 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
     const {
         props: {
             isMutationProgress: isMutationInProgress,
-            isCodeEditorActive
+            currentFile
+        },
+        api: {
+            ls: { getExpressionEditorLangClient },
+            code: { modifyDiagram }
         }
     } = useContext(Context);
     const { config, formArgs, onCancel, onSave, onWizardClose } = props;
@@ -96,7 +101,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         setExpression(partialModel.source.trim());
     }
 
-    const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
+    const {handleStmtEditorToggle, stmtEditorComponent} = useStatementEditor(
         {
             label: intl.formatMessage({id: "lowcode.develop.configForms.customStatement.statementEditor.label"}),
             initialSource: expression ? expression : "EXPRESSION",
@@ -105,62 +110,61 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
             config,
             onWizardClose,
             handleStatementEditorChange,
-            onCancel
+            onCancel,
+            currentFile,
+            getLangClient: getExpressionEditorLangClient,
+            applyModifications: modifyDiagram
         }
     );
 
-    if (!stmtEditorComponent){
+    if (!stmtEditorComponent) {
         return (
-                <FormControl data-testid="custom-expression-form" className={formClasses.wizardFormControl}>
-                    <div className={formClasses.formWrapper}>
-                        <div className={formClasses.formFeilds}>
-                            <div className={formClasses.formWrapper}>
-                                <div className={formClasses.formTitleWrapper}>
-                                    <div className={formClasses.mainTitleWrapper}>
-                                        <Typography variant="h4">
-                                            <Box paddingTop={2} paddingBottom={2}>
-                                                <FormattedMessage
-                                                    id="lowcode.develop.configForms.customStatement.title"
-                                                    defaultMessage="Other"
-                                                />
-                                            </Box>
-                                        </Typography>
-                                    </div>
-                                    {stmtEditorButton}
-                                </div>
-                                <div className="exp-wrapper">
-                                    <ExpressionEditor
-                                        model={{ name: "statement", value: expression }}
-                                        customProps={{
-                                            validate: validateExpression,
-                                            tooltipTitle: customStatementTooltipMessages.title,
-                                            tooltipActionText: customStatementTooltipMessages.actionText,
-                                            tooltipActionLink: customStatementTooltipMessages.actionLink,
-                                            interactive: true,
-                                            customTemplate: {
-                                                defaultCodeSnippet: '',
-                                                targetColumn: 1,
-                                            },
-                                            editPosition: config?.targetPosition
-                                        }}
-                                        onChange={onExpressionChange}
-                                    />
-                                </div>
+            <FormControl data-testid="custom-expression-form" className={formClasses.wizardFormControl}>
+                <FormHeaderSection
+                    onCancel={onCancel}
+                    statementEditor={true}
+                    formTitle={"lowcode.develop.configForms.customStatement.title"}
+                    defaultMessage={"Other"}
+                    handleStmtEditorToggle={handleStmtEditorToggle}
+                    toggleChecked={false}
+                />
+                <div className={formClasses.formWrapper}>
+                    <div className={formClasses.formFeilds}>
+                        <div className={formClasses.formWrapper}>
+
+                            <div className="exp-wrapper">
+                                <ExpressionEditor
+                                    model={{ name: "statement", value: expression }}
+                                    customProps={{
+                                        validate: validateExpression,
+                                        tooltipTitle: customStatementTooltipMessages.title,
+                                        tooltipActionText: customStatementTooltipMessages.actionText,
+                                        tooltipActionLink: customStatementTooltipMessages.actionLink,
+                                        interactive: true,
+                                        customTemplate: {
+                                            defaultCodeSnippet: '',
+                                            targetColumn: 1,
+                                        },
+                                        editPosition: config?.targetPosition
+                                    }}
+                                    onChange={onExpressionChange}
+                                />
                             </div>
                         </div>
-                        <FormActionButtons
-                            cancelBtnText="Cancel"
-                            saveBtnText={saveCustomStatementButtonLabel}
-                            isMutationInProgress={isMutationInProgress}
-                            validForm={isFormValid}
-                            onSave={onSaveBtnClick}
-                            onCancel={onCancel}
-                        />
                     </div>
-                </FormControl>
-            );
+                    <FormActionButtons
+                        cancelBtnText="Cancel"
+                        saveBtnText={saveCustomStatementButtonLabel}
+                        isMutationInProgress={isMutationInProgress}
+                        validForm={isFormValid}
+                        onSave={onSaveBtnClick}
+                        onCancel={onCancel}
+                    />
+                </div>
+            </FormControl>
+        );
     }
-    else{
+    else {
         return stmtEditorComponent;
     }
 }

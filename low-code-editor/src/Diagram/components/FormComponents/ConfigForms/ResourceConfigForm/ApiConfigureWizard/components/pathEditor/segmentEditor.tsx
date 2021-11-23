@@ -13,9 +13,8 @@
 import React, { useState } from "react";
 
 import { Grid } from "@material-ui/core";
+import { PrimaryButton, SecondaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { PrimaryButton } from "../../../../../FormFieldComponents/Button/PrimaryButton";
-import { SecondaryButton } from "../../../../../FormFieldComponents/Button/SecondaryButton";
 import CheckBoxGroup from "../../../../../FormFieldComponents/CheckBox";
 import { SelectDropdownWithButton } from "../../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import { FormTextInput } from "../../../../../FormFieldComponents/TextField/FormTextInput";

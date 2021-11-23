@@ -14,10 +14,9 @@
 import React, { ReactNode, useContext } from "react";
 
 import { NodePosition } from "@ballerina/syntax-tree";
+import { Connector, ConnectorConfig, FormField, STModification, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { ConnectorConfig, FormField, WizardType } from "../../../../../ConfigurationSpec/types";
 import { Context as DiagramContext } from "../../../../../Contexts/Diagram";
-import { Connector, STModification } from "../../../../../Definitions/lang-client-extended";
 import {
     createCheckedRemoteServiceCall,
     createImportStatement,

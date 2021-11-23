@@ -14,10 +14,9 @@
 import React, { useContext } from "react";
 
 import { LocalVarDecl } from "@ballerina/syntax-tree";
+import { BallerinaConnectorInfo, BallerinaConnectorsRequest, BallerinaModuleResponse, DiagramEditorLangClientInterface } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { Context } from "../../../../../Contexts/Diagram";
-import { DiagramEditorLangClientInterface } from "../../../../../Definitions/diagram-editor-lang-client-interface";
-import { BallerinaConnectorInfo, BallerinaConnectorsRequest, BallerinaModuleResponse } from "../../../../../Definitions/lang-client-extended";
 import { UserState } from "../../../../../types";
 import { APIHeightStates } from "../../../LowCodeDiagram/Components/DialogBoxes/PlusHolder";
 import { PlusViewState } from "../../../LowCodeDiagram/ViewState";
@@ -29,19 +28,19 @@ export interface ConnectorListProps {
     onChange?: (type: string, subType: string, connector?: BallerinaConnectorInfo) => void;
     viewState?: PlusViewState;
     collapsed?: (value: APIHeightStates) => void;
+    onCancel?: () => void;
 }
 
 export function ConnectorList(props: FormGeneratorProps) {
     const {
-        props: { langServerURL },
         api: {
             ls: { getDiagramEditorLangClient },
         }
     } = useContext(Context);
-    const { onSelect } = props.configOverlayFormStatus.formArgs as ConnectorListProps;
+    const { onSelect, onCancel } = props.configOverlayFormStatus.formArgs as ConnectorListProps;
     const fetchConnectorsList = async (searchQuery: string, selectedCategory: string, connectorLimit: number, currentFilePath: string,
                                        filterState: FilterStateMap, userInfo: UserState, page?: number): Promise<BallerinaModuleResponse> => {
-        const langClient: DiagramEditorLangClientInterface = await getDiagramEditorLangClient(langServerURL);
+        const langClient: DiagramEditorLangClientInterface = await getDiagramEditorLangClient();
         const request: BallerinaConnectorsRequest = {
             targetFile: currentFilePath,
             query: searchQuery,

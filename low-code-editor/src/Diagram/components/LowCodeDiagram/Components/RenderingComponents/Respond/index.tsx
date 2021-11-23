@@ -14,9 +14,8 @@
 import React, { useContext, useState } from "react";
 
 import { ActionStatement, STNode } from "@ballerina/syntax-tree";
+import { ConfigOverlayFormStatus, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { WizardType } from "../../../../../../ConfigurationSpec/types";
-import { ConfigOverlayFormStatus } from "../../../../../../Definitions";
 import { getOverlayFormConfig } from "../../../../../utils/diagram-util";
 import { DefaultConfig } from "../../../../../visitors/default";
 import { DeleteBtn } from "../../../Components/DiagramActions/DeleteBtn";

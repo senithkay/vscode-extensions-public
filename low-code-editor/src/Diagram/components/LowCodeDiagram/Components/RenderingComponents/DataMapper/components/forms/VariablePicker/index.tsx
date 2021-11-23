@@ -15,13 +15,12 @@
 import React, { useContext } from 'react';
 
 import { CaptureBindingPattern, STKindChecker, STNode } from '@ballerina/syntax-tree';
+import { PrimaryButton, SecondaryButton } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
 import { Context as DiagramContext } from '../../../../../../../../../Contexts/Diagram';
 import { wizardStyles } from "../../../../../../../FormComponents/ConfigForms/style";
 import { useStyles as useFormStyles } from "../../../../../../../FormComponents/DynamicConnectorForm/style";
 import { FormAutocomplete } from '../../../../../../../FormComponents/FormFieldComponents/Autocomplete';
-import { PrimaryButton } from '../../../../../../../FormComponents/FormFieldComponents/Button/PrimaryButton';
-import { SecondaryButton } from '../../../../../../../FormComponents/FormFieldComponents/Button/SecondaryButton';
 import { DataMapperInputTypeInfo } from '../../../../../../../FormComponents/Types';
 import { Context as DataMapperViewContext } from '../../../context/DataMapperViewContext';
 

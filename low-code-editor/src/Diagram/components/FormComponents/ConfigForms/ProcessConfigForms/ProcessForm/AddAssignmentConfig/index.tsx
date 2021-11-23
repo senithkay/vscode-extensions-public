@@ -16,13 +16,14 @@ import { FormattedMessage, useIntl } from "react-intl";
 
 import { AssignmentStatement, STKindChecker } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
+import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import classnames from "classnames";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import ExpressionEditor, { ExpressionEditorProps } from "../../../../FormFieldComponents/ExpressionEditor";
 import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";
-import { useStatementEditor } from "../../../../FormFieldComponents/StatementEditor/hooks";
 import { FormElementProps, ProcessConfig } from "../../../../Types";
 
 interface AddAssignmentConfigProps {
@@ -38,7 +39,13 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
     const intl = useIntl();
     const { config, formArgs, onCancel, onSave, onWizardClose } = props;
 
-    const { props: { isMutationProgress: isMutationInProgress }} = useContext(Context);
+    const {
+        props: { isMutationProgress: isMutationInProgress, currentFile },
+        api: {
+            ls: { getExpressionEditorLangClient },
+            code: { modifyDiagram }
+        }
+    } = useContext(Context);
 
     let variableName: string = '';
     let varExpression: string = '';
@@ -46,9 +53,9 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
     const existingProperty = config && config.model;
     if (existingProperty && STKindChecker.isAssignmentStatement(config.model)) {
         varExpression = config.model.expression?.source;
-        if (STKindChecker.isSimpleNameReference(config.model?.varRef)){
+        if (STKindChecker.isSimpleNameReference(config.model?.varRef)) {
             variableName = config.model?.varRef?.name.value;
-        } else if (STKindChecker.isFieldAccess(config.model?.varRef)){
+        } else if (STKindChecker.isFieldAccess(config.model?.varRef)) {
             variableName = config.model?.varRef?.source?.trim();
         }
     }
@@ -155,59 +162,55 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
         setVariableExpression(partialModel.expression.source.trim());
     }
 
-    const {stmtEditorButton , stmtEditorComponent} = useStatementEditor(
+    const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
         {
-            label: intl.formatMessage({id: "lowcode.develop.configForms.assignment.statementEditor.label", defaultMessage: 'Assignment'}),
+            label: intl.formatMessage({ id: "lowcode.develop.configForms.assignment.statementEditor.label", defaultMessage: 'Assignment' }),
             initialSource: `${varName} = ${variableExpression};`,
-            formArgs: {formArgs},
+            formArgs: { formArgs },
             validForm,
             config,
             onWizardClose,
-            handleStatementEditorChange
+            handleStatementEditorChange,
+            currentFile,
+            getLangClient: getExpressionEditorLangClient,
+            applyModifications: modifyDiagram
         }
     );
 
     if (!stmtEditorComponent) {
         return (
-            <FormControl data-testid="property-form" className={classnames(classes.wizardFormControl, classes.fitContent)}>
-                <div>
-                    <div className={classes.formFeilds}>
-                        <div className={classes.formTitleWrapper}>
-                            <div className={classes.mainTitleWrapper}>
-                                <Typography variant="h4">
-                                    <Box paddingTop={2} paddingBottom={2}>
-                                        <FormattedMessage
-                                            id="lowcode.develop.configForms.assignment.title"
-                                            defaultMessage="Assignment"
-                                        />
-                                    </Box>
-                                </Typography>
+            <FormControl data-testid="property-form" className={classnames(classes.wizardFormControl)}>
+                <FormHeaderSection
+                    onCancel={onCancel}
+                    statementEditor={true}
+                    formTitle={"lowcode.develop.configForms.assignment.title"}
+                    defaultMessage={"Assignment"}
+                    handleStmtEditorToggle={handleStmtEditorToggle}
+                    toggleChecked={false}
+                />
+                <div className={classes.formFeilds}>
+                    <div className={classes.activeWrapper}>
+                        <div className={classnames(classes.activeWrapper, classes.blockWrapper)}>
+                            <div className={classes.nameExpEditorWrapper}>
+                                {nameExpressionEditor}
                             </div>
-                            {stmtEditorButton}
-                        </div>
-                        <div className={classes.activeWrapper}>
-                            <div className={classnames(classes.activeWrapper, classes.blockWrapper)}>
-                                <div className={classes.nameExpEditorWrapper}>
-                                    {nameExpressionEditor}
-                                </div>
-                                <div className={classes.codeText}>
-                                    <Typography variant='body2' className={classes.endCode}>=</Typography>
-                                </div>
-                                <div className={classes.nameExpEditorWrapper}>
-                                    {expressionEditor}
-                                </div>
+                            <div className={classes.codeText}>
+                                <Typography variant='body2' className={classes.endCode}>=</Typography>
+                            </div>
+                            <div className={classes.nameExpEditorWrapper}>
+                                {expressionEditor}
                             </div>
                         </div>
                     </div>
-                    <FormActionButtons
-                        cancelBtnText={cancelVariableButtonText}
-                        saveBtnText={saveVariableButtonText}
-                        isMutationInProgress={isMutationInProgress}
-                        validForm={validForm}
-                        onSave={handleSave}
-                        onCancel={onCancel}
-                    />
                 </div>
+                <FormActionButtons
+                    cancelBtnText={cancelVariableButtonText}
+                    saveBtnText={saveVariableButtonText}
+                    isMutationInProgress={isMutationInProgress}
+                    validForm={validForm}
+                    onSave={handleSave}
+                    onCancel={onCancel}
+                />
             </FormControl >
         );
     }

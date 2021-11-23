@@ -18,7 +18,7 @@ import { formCreateSvg } from "../../../../assets";
 export const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         wizardFormControl: {
-            width: 270,
+            width: 300,
             "& .MuiFormControl-marginNormal": {
                 margin: '0 !important',
             },
@@ -57,6 +57,18 @@ export const useStyles = makeStyles((theme: Theme) =>
             fontSize: "13px !important",
             textTransform: 'capitalize',
             lineHeight: '40px',
+        },
+        formHeaderTitleWrapper: {
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-around',
+            borderBottom: '1px solid #d8d8d8',
+            padding: "4px 0 8px 0"
+        },
+        titleIcon: {
+            display: 'flex',
+            padding: theme.spacing(1),
         },
         inputLabelWrapperText: {
             textTransform: 'none'
@@ -253,7 +265,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         mainTitleWrapper: {
             display: 'inline-flex',
             alignItems: 'center',
-            width: '100%',
+            width: 'auto'
         },
         iconWrapper: {
             marginRight: '1rem'
@@ -388,14 +400,16 @@ export const useStyles = makeStyles((theme: Theme) =>
         formTitleWrapper: {
             width: "100%",
             zIndex: 100,
-            position: 'absolute',
-            top: theme.spacing(-9),
             height: theme.spacing(6),
-            display: 'inline-flex'
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            paddingLeft: theme.spacing(1.25),
         },
         formWrapper: {
             width: '100%',
-            flexDirection: "row"
+            flexDirection: "row",
+            padding: theme.spacing(1),
         },
         oauthWrapper: {
             paddingTop: "5rem"
@@ -514,7 +528,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         formFeilds: {
             marginBottom: '50px',
-            width: '100%'
+            width: '100%',
         },
         codeWrapper: {
             width: '100%',
@@ -558,20 +572,19 @@ export const useStyles = makeStyles((theme: Theme) =>
             width: '5%'
         },
         blockWrapper: {
-            display: 'inline-flex',
-            width: '100%'
+            display: 'flex',
+            width: '100%',
+            flexDirection: 'column'
         },
         dropdownWrapper: {
-            minWidth: `92px !important`,
-            paddingRight: theme.spacing(1)
+            minWidth: `92px !important`
         },
         codeText: {
-            paddingTop: theme.spacing(5),
+            paddingTop: theme.spacing(1.25),
             paddingRight: theme.spacing(1)
         },
         editorWrapper: {
             minWidth: `110px !important`,
-            paddingRight: theme.spacing(1),
             '& .MuiInputBase-root': {
                 marginBottom: theme.spacing(0.625)
             }
@@ -585,7 +598,7 @@ export const useStyles = makeStyles((theme: Theme) =>
                 background: '#e6e7ec',
                 borderRadius: '2px'
             },
-            '&::-webkit-scrollbar-track':  {
+            '&::-webkit-scrollbar-track': {
                 backgroundColor: 'transparent'
             },
             '&::-webkit-scrollbar-corner': {
@@ -597,7 +610,6 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         expEditorWrapper: {
             minWidth: `164px !important`,
-            paddingRight: theme.spacing(1),
             paddingTop: theme.spacing(1.25),
             position: 'relative'
         },
@@ -617,7 +629,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginTop: theme.spacing(1.5),
         },
         variableExpEditorWrapper: {
-            minWidth: `164px !important`,
+            width: '100%',
             paddingRight: theme.spacing(1),
             position: 'relative',
             marginTop: theme.spacing(1.5)
@@ -644,6 +656,23 @@ export const useStyles = makeStyles((theme: Theme) =>
             paddingTop: theme.spacing(1.25),
             position: 'relative'
         },
+        resourceMethodPathWrapper: {
+            display: 'flex',
+            flexDirection: 'row',
+            padding: '15px 5px'
+        },
+        resourceMethodTitle: {
+            width: '100%',
+            marginRight: 5,
+        },
+        resourcePathWrapper: {
+            width: '60%',
+            marginLeft: theme.spacing(1.25)
+        },
+        advancedSwitchText: {
+            textAlign: 'right',
+            padding: '0 5px 15px'
+        },
         toggle: {
             display: 'inline-flex',
             alignItems: 'center',
@@ -653,4 +682,5 @@ export const useStyles = makeStyles((theme: Theme) =>
             display: 'inline-flex'
         }
     }),
+    { index: 1 }
 );

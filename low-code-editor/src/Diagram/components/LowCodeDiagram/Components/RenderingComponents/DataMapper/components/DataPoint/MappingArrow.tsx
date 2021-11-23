@@ -13,7 +13,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from 'react';
 
-import { PrimitiveBalType } from '../../../../../../../../ConfigurationSpec/types';
+import { PrimitiveBalType } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+
 import { updatePropertyStatement } from '../../../../../../../utils/modification-util';
 import { DeleteSVG } from '../../../../../Components/DiagramActions/DeleteBtn/DeleteSVG';
 import { Context as DataMapperContext } from '../../context/DataMapperViewContext';

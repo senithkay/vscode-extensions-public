@@ -15,10 +15,10 @@ import React, { ReactNode, useContext } from "react";
 
 import { LocalVarDecl } from "@ballerina/syntax-tree";
 import CloseIcon from '@material-ui/icons/Close';
+import { BallerinaConnectorInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { useFunctionContext } from "../../../../../../../Contexts/Function";
-import { BallerinaConnectorInfo } from "../../../../../../../Definitions/lang-client-extended";
 import { OverlayBackground } from "../../../../../OverlayBackground";
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from '../../../../../Portals/Overlay';
 import { PlusViewState } from "../../../../ViewState/plus";

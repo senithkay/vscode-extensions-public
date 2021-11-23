@@ -13,7 +13,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { FormField } from "../../../../../ConfigurationSpec/types";
+import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+
 import {isAllEmpty, isAllOptional, isAllValid} from "../../../../../utils/validator";
 import { getFormElement } from "../../../Portals/utils";
 import { useStyles } from "../../DynamicConnectorForm/style";

@@ -30,8 +30,8 @@ import {
     TypedBindingPattern,
     Visitor
 } from "@ballerina/syntax-tree";
+import { STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { STSymbolInfo } from "../../Definitions";
 import { StatementViewState } from "../components/LowCodeDiagram/ViewState";
 
 const moduleEndpoints: Map<string, STNode> = new Map();

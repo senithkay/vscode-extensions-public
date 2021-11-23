@@ -12,17 +12,12 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, {useContext} from 'react';
-import { FormattedMessage, useIntl } from 'react-intl';
+import { useIntl } from 'react-intl';
 
-import { Box, IconButton, Typography } from "@material-ui/core";
-import EditIcon from '@material-ui/icons/Edit';
+import { Connector, ConnectorConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import classNames from 'classnames';
 
-import { TooltipIcon } from '../../../../../../components/Tooltip';
-import { ConnectorConfig } from "../../../../../../ConfigurationSpec/types";
 import {Context} from "../../../../../../Contexts/Diagram";
-import {Connector, STSymbolInfo} from "../../../../../../Definitions";
-import {getModuleVariable} from "../../../../../utils/mixins";
 import { FormAutocomplete } from '../../../FormFieldComponents/Autocomplete';
 import { wizardStyles } from "../../style";
 import { ConnectorOperation } from '../ConnectorForm';

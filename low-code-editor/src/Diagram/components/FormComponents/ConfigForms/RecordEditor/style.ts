@@ -30,16 +30,19 @@ export const recordStyles = makeStyles((theme: Theme) =>
             maxHeight: "83vh",
             marginRight: 10,
             paddingRight: 10,
-            overflow: "scroll",
-            "&::-webkit-scrollbar": {
-                width: 3
+            overflow: 'scroll',
+            '&::-webkit-scrollbar': {
+                width: '3px'
             },
-            "&::-webkit-scrollbar-thumb": {
-                background: "#e6e7ec",
-                borderRadius: 2
+            '&::-webkit-scrollbar-thumb': {
+                background: '#e6e7ec',
+                borderRadius: '2px'
             },
-            "&::-webkit-scrollbar-track": {
-                backgroundColor: "transparent"
+            '&::-webkit-scrollbar-track': {
+                backgroundColor: 'transparent'
+            },
+            '&::-webkit-scrollbar-corner': {
+                backgroundColor: 'transparent'
             }
         },
         recordConfigTitleWrapper: {

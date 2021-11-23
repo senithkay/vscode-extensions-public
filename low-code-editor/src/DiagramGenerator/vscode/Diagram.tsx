@@ -1,10 +1,8 @@
 import * as React from "react";
 
-import { makeStyles, Theme, withStyles } from "@material-ui/core";
+import { DiagramEditorLangClientInterface } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { DiagramGenerator } from "..";
-import { DotBackground } from "../../assets";
-import { DiagramEditorLangClientInterface } from "../../Definitions/diagram-editor-lang-client-interface";
 import { DiagramGenErrorBoundary } from "../ErrorBoundrary";
 
 import './style.scss';

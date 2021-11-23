@@ -1,11 +1,11 @@
+import { CompletionResponse, ExpressionEditorLangClientInterface } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import * as monaco from 'monaco-editor';
-import { CompletionItemKind, InsertTextFormat } from "monaco-languageclient";
+import { CompletionItemKind, InsertTextFormat } from "vscode-languageserver-protocol";
 
-import { CompletionResponse, ExpressionEditorLangClientInterface } from "../../../../../../Definitions";
 import { GetExpCompletionsParams } from "../../../FormFieldComponents/ExpressionEditor";
 import { createSortText } from "../../../FormFieldComponents/ExpressionEditor/utils";
 
-export const getVarTypeCompletions = async ({
+export const getVarTypeCompletions = (ignoredCompletions: string[] = []) => async ({
     getExpressionEditorLangClient,
     langServerURL,
     completionParams,
@@ -15,7 +15,11 @@ export const getVarTypeCompletions = async ({
 
     const acceptedKind: CompletionItemKind[] = [11, 22];
 
-    const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => acceptedKind.includes(completionResponse.kind as CompletionItemKind));
+    const filteredCompletionItem: CompletionResponse[] = values.filter(
+        (completionResponse: CompletionResponse) =>
+          acceptedKind.includes(completionResponse.kind as CompletionItemKind) &&
+          !ignoredCompletions.includes(completionResponse.label)
+      );
     const completionItems: monaco.languages.CompletionItem[] = filteredCompletionItem.map((completionResponse: CompletionResponse, order: number) => {
         return {
             range: null,

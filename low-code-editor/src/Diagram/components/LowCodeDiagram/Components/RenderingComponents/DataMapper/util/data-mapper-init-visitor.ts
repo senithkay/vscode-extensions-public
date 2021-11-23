@@ -35,8 +35,8 @@ import {
     TypedBindingPattern,
     Visitor,
 } from '@ballerina/syntax-tree';
+import { PrimitiveBalType } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
-import { PrimitiveBalType } from '../../../../../../../ConfigurationSpec/types';
 import { DataMapperViewState, FieldViewState, SourcePointViewState, TargetPointViewState } from '../viewstate';
 
 import { CONSTANT_TYPE } from './datamapper-constant-visitor';

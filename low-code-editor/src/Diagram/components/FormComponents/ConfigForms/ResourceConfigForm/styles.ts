@@ -97,7 +97,6 @@ export const useStyles = makeStyles((theme: Theme) =>
             letterSpacing: 0,
         },
         resourceWrapper: {
-            borderBottom: "1px solid #D8D8D8",
             marginBottom: "15px",
             padding: "5px 0"
         },

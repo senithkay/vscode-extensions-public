@@ -15,9 +15,9 @@ import React, { useEffect, useState } from 'react';
 import { useIntl } from "react-intl";
 
 import { Box, FormControl, FormHelperText, Typography } from "@material-ui/core";
+import { FormHeaderSection, PrimaryButton } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
 import { useRecordEditorContext } from "../../../../../../Contexts/RecordEditor";
-import { PrimaryButton } from '../../../FormFieldComponents/Button/PrimaryButton';
 import CheckBoxGroup from '../../../FormFieldComponents/CheckBox';
 import { FormTextInput } from '../../../FormFieldComponents/TextField/FormTextInput';
 import { wizardStyles as useStyles } from "../../style";
@@ -90,45 +90,52 @@ export function EditTypeDefForm() {
 
     return (
         <FormControl data-testid="record-form" className={classes.wizardFormControl}>
-            <div className={classes.formTitleWrapper}>
+            {/* <div className={classes.formTitleWrapper}>
                 <Typography variant="h4">
                     <Box paddingTop={2} paddingBottom={2}>{title}</Box>
                 </Typography>
+            </div> */}
+            <FormHeaderSection
+                onCancel={state.onCancel}
+                formTitle={"lowcode.develop.configForms.recordEditor.editRecord.title"}
+                defaultMessage={"Edit Record"}
+            />
+            <div className={classes.formWrapper}>
+                <FormTextInput
+                    dataTestId="record-name"
+                    customProps={{
+                        isErrored: nameError !== "",
+                    }}
+                    defaultValue={state.currentRecord.name}
+                    onChange={handleNameChange}
+                    label={nameText}
+                    errorMessage={nameError}
+                    placeholder={namePlaceholder}
+                />
+                <CheckBoxGroup
+                    testId="is-closed"
+                    values={["Is Closed ?"]}
+                    defaultValues={state.currentRecord.isClosed ? ["Is Closed ?"] : []}
+                    onChange={handleIsClosedChange}
+                />
+
+                <FormHelperText className={classes.inputLabelForRequired}>
+                    {visibilityText}
+                </FormHelperText>
+                <CheckBoxGroup
+                    testId="is-public"
+                    values={["public"]}
+                    defaultValues={state.currentRecord.isPublic ? ["public"] : []}
+                    onChange={handleIsPublicChange}
+                />
+
+                <PrimaryButton
+                    dataTestId={"generate-from-sample-btn"}
+                    text={sampleButtonText}
+                    fullWidth={false}
+                    onClick={handleGenerateFromSample}
+                />
             </div>
-            <FormTextInput
-                dataTestId="record-name"
-                customProps={{
-                    isErrored: nameError !== "",
-                }}
-                defaultValue={state.currentRecord.name}
-                onChange={handleNameChange}
-                label={nameText}
-                errorMessage={nameError}
-                placeholder={namePlaceholder}
-            />
-            <CheckBoxGroup
-                testId="is-closed"
-                values={["Is Closed ?"]}
-                defaultValues={state.currentRecord.isClosed ? ["Is Closed ?"] : []}
-                onChange={handleIsClosedChange}
-            />
-
-            <FormHelperText className={classes.inputLabelForRequired}>
-                {visibilityText}
-            </FormHelperText>
-            <CheckBoxGroup
-                testId="is-public"
-                values={["public"]}
-                defaultValues={state.currentRecord.isPublic ? ["public"] : []}
-                onChange={handleIsPublicChange}
-            />
-
-            <PrimaryButton
-                dataTestId={"generate-from-sample-btn"}
-                text={sampleButtonText}
-                fullWidth={false}
-                onClick={handleGenerateFromSample}
-            />
         </FormControl>
     );
 }

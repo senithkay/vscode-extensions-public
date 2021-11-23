@@ -14,10 +14,10 @@
 import React, { useState } from "react";
 
 import { AddRounded } from "@material-ui/icons";
+import { IconBtnWithText } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { useStyles } from "../../DynamicConnectorForm/style"
 import { FormElementProps } from "../../Types";
-import { IconBtnWithText } from "../Button/IconBtnWithText";
 import ExpressionEditor, { ExpressionEditorProps } from "../ExpressionEditor";
 import { getInitialValue, transformFormFieldTypeToString } from "../ExpressionEditor/utils";
 import { ExpressionEditorLabel } from "../ExpressionEditorLabel";

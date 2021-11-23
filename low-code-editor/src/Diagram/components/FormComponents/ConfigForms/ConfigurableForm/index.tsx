@@ -15,14 +15,11 @@ import { FormattedMessage } from 'react-intl';
 
 import { CaptureBindingPattern, ModuleVarDecl, NodePosition } from '@ballerina/syntax-tree';
 import { Box, FormControl, FormHelperText, Typography } from '@material-ui/core';
+import { ConfigOverlayFormStatus, FormHeaderSection, PrimaryButton, SecondaryButton, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { v4 as uuid } from "uuid";
 
-import { ConfigurableIcon } from '../../../../../assets/icons';
 import { useDiagramContext } from '../../../../../Contexts/Diagram';
-import { ConfigOverlayFormStatus, STModification } from '../../../../../Definitions';
 import { createConfigurableDecl, updateConfigurableVarDecl } from '../../../../utils/modification-util';
-import { PrimaryButton } from '../../FormFieldComponents/Button/PrimaryButton';
-import { SecondaryButton } from '../../FormFieldComponents/Button/SecondaryButton';
 import CheckBoxGroup from '../../FormFieldComponents/CheckBox';
 import { SelectDropdownWithButton } from '../../FormFieldComponents/DropDown/SelectDropdownWithButton';
 import ExpressionEditor from '../../FormFieldComponents/ExpressionEditor';
@@ -40,12 +37,13 @@ interface ConfigurableFormProps {
     onCancel: () => void;
     onSave: () => void;
     configOverlayFormStatus?: ConfigOverlayFormStatus;
+    formType: string;
 }
 
 export function ConfigurableForm(props: ConfigurableFormProps) {
     const formClasses = useFormStyles();
     const { api: { code: { modifyDiagram } } } = useDiagramContext();
-    const { onSave, onCancel, targetPosition, model, configOverlayFormStatus } = props;
+    const { onSave, onCancel, targetPosition, model, configOverlayFormStatus, formType } = props;
     const [state, dispatch] = useReducer(moduleVarFormReducer, getFormConfigFromModel(model));
 
     const { updateInjectables, updateParentConfigurable, configurableId } = configOverlayFormStatus?.formArgs || {};
@@ -56,7 +54,7 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
             ...state,
             varValue: state.hasDefaultValue ? state.varValue : '?',
         }
-        if (isFromExpressionEditor && updateParentConfigurable){
+        if (isFromExpressionEditor && updateParentConfigurable) {
             const modification = createConfigurableDecl(modifyState, targetPosition);
             const editItemIndex = updateInjectables?.list.findIndex((item: InjectableItem) => item.id === configurableId);
             let newInjectableList = updateInjectables?.list;
@@ -65,10 +63,10 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
                 name: state.varName,
                 value: state.varValue,
                 modification,
-              }
-            if (editItemIndex >= 0){
+            }
+            if (editItemIndex >= 0) {
                 newInjectableList[editItemIndex] = newInjectable;
-            }else{
+            } else {
                 newInjectableList = [...newInjectableList, newInjectable]
             }
             updateInjectables?.setInjectables(newInjectableList);
@@ -77,7 +75,7 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
                 onCancel();
             }, 250)
 
-        }else{
+        } else {
             const modifications: STModification[] = []
             if (model) {
                 modifications.push(updateConfigurableVarDecl(modifyState, model.position));
@@ -184,79 +182,76 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
 
     return (
         <FormControl data-testid="module-variable-config-form" className={formClasses.wizardFormControl}>
-            <div className={formClasses.formTitleWrapper}>
-                <div className={formClasses.mainTitleWrapper}>
-                    <ConfigurableIcon />
-                    <Box textAlign="center" flex={1} paddingTop={2} paddingBottom={2} >
-                        <Typography variant="h4">
-                            {isFromExpressionEditor ? 'Add Configurable' : 'Configurable'}
-                        </Typography>
-                    </Box>
+            <FormHeaderSection
+                onCancel={onCancel}
+                formTitle={isFromExpressionEditor ? "lowcode.develop.configForms.ModuleVarDecl.AddConfigurableTitle" : "lowcode.develop.configForms.ModuleVarDecl.ConfigurableTitle"}
+                defaultMessage={isFromExpressionEditor ? 'Add Configurable' : 'Configurable'}
+                formType={formType}
+            />
+            <div className={formClasses.formWrapper}>
+                <div className={formClasses.labelWrapper}>
+                    <FormHelperText className={formClasses.inputLabelForRequired}>
+                        <FormattedMessage
+                            id="lowcode.develop.configForms.ModuleVarDecl.configureNewListener"
+                            defaultMessage="Access Modifier :"
+                        />
+                    </FormHelperText>
                 </div>
-            </div>
-
-            <div className={formClasses.labelWrapper}>
-                <FormHelperText className={formClasses.inputLabelForRequired}>
-                    <FormattedMessage
-                        id="lowcode.develop.configForms.ModuleVarDecl.configureNewListener"
-                        defaultMessage="Access Modifier :"
+                <CheckBoxGroup
+                    values={["public"]}
+                    defaultValues={state.isPublic ? ['public'] : []}
+                    onChange={onAccessModifierChange}
+                />
+                <SelectDropdownWithButton
+                    defaultValue={state.varType}
+                    customProps={typeSelectorCustomProps}
+                    label={isFromExpressionEditor ? "type" : "Select type"}
+                    onChange={onVarTypeChange}
+                    disabled={isFromExpressionEditor}
+                />
+                <VariableNameInput
+                    // Fixme: Prevent editing name if the configurable is being referenced somewhere
+                    displayName={'Configurable Name'}
+                    value={state.varName}
+                    onValueChange={handleOnVarNameChange}
+                    validateExpression={updateExpressionValidity}
+                    position={namePosition}
+                    isEdit={!isFromExpressionEditor && !!model}
+                />
+                <div className={formClasses.labelWrapper}>
+                    <FormHelperText className={formClasses.inputLabelForRequired}>
+                        <FormattedMessage
+                            id="lowcode.develop.configForms.ModuleVarDecl.defaultValueIncluded"
+                            defaultMessage="Default Value :"
+                        />
+                    </FormHelperText>
+                </div>
+                <CheckBoxGroup
+                    values={["Include Default Value"]}
+                    defaultValues={state.hasDefaultValue ? ['Include Default Value'] : []}
+                    onChange={onHasDefaultValChange}
+                />
+                <div hidden={!state.hasDefaultValue}>
+                    <ExpressionEditor
+                        {...expressionEditorConfigForValue}
                     />
-                </FormHelperText>
-            </div>
-            <CheckBoxGroup
-                values={["public"]}
-                defaultValues={state.isPublic ? ['public'] : []}
-                onChange={onAccessModifierChange}
-            />
-            <SelectDropdownWithButton
-                defaultValue={state.varType}
-                customProps={typeSelectorCustomProps}
-                label={isFromExpressionEditor ? "type" : "Select type"}
-                onChange={onVarTypeChange}
-                disabled={isFromExpressionEditor}
-            />
-            <VariableNameInput
-                // Fixme: Prevent editing name if the configurable is being referenced somewhere
-                displayName={'Configurable Name'}
-                value={state.varName}
-                onValueChange={handleOnVarNameChange}
-                validateExpression={updateExpressionValidity}
-                position={namePosition}
-                isEdit={!isFromExpressionEditor && !!model}
-            />
-            <div className={formClasses.labelWrapper}>
-                <FormHelperText className={formClasses.inputLabelForRequired}>
-                    <FormattedMessage
-                        id="lowcode.develop.configForms.ModuleVarDecl.defaultValueIncluded"
-                        defaultMessage="Default Value :"
-                    />
-                </FormHelperText>
-            </div>
-            <CheckBoxGroup
-                values={["Include Default Value"]}
-                defaultValues={state.hasDefaultValue ? ['Include Default Value'] : []}
-                onChange={onHasDefaultValChange}
-            />
-            <div hidden={!state.hasDefaultValue}>
+                </div>
                 <ExpressionEditor
-                    {...expressionEditorConfigForValue}
+                    {...expressionEditorConfigForLabel}
                 />
-            </div>
-            <ExpressionEditor
-                {...expressionEditorConfigForLabel}
-            />
-            <div className={formClasses.wizardBtnHolder}>
-                <SecondaryButton
-                    text="Cancel"
-                    fullWidth={false}
-                    onClick={onCancel}
-                />
-                <PrimaryButton
-                    text="Save"
-                    disabled={disableSaveBtn}
-                    fullWidth={false}
-                    onClick={handleOnSave}
-                />
+                <div className={formClasses.wizardBtnHolder}>
+                    <SecondaryButton
+                        text="Cancel"
+                        fullWidth={false}
+                        onClick={onCancel}
+                    />
+                    <PrimaryButton
+                        text="Save"
+                        disabled={disableSaveBtn}
+                        fullWidth={false}
+                        onClick={handleOnSave}
+                    />
+                </div>
             </div>
         </FormControl>
     )

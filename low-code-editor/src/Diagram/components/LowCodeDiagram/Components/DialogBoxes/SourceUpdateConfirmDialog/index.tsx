@@ -16,9 +16,9 @@ import { useIntl } from 'react-intl';
 
 import { Button } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
+import { ButtonWithIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { Context } from '../../../../../../Contexts/Diagram';
-import { ButtonWithIcon } from "../../../../FormComponents/FormFieldComponents/Button/ButtonWithIcon";
 import { OverlayBackground } from "../../../../OverlayBackground";
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from "../../../../Portals/Overlay/index";
 

@@ -14,10 +14,9 @@
 import React, { useContext, useState } from "react";
 
 import { LocalVarDecl, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { BallerinaConnectorInfo, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import cn from "classnames";
 
-import { WizardType } from "../../../../../../../ConfigurationSpec/types";
-import { BallerinaConnectorInfo } from "../../../../../../../Definitions";
 import { getDiagnosticMsgs } from "../../../../../../utils";
 import { getOverlayFormConfig, getRandomInt } from "../../../../../../utils/diagram-util";
 import { getMatchingConnector, getStatementTypesFromST } from "../../../../../../utils/st-util";
