@@ -64,17 +64,17 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
     const saveBtnEnabled = !isListenerConfigValid(config);
 
     const onListenerNameChange = (listenerName: string) => {
-        setCofig({
-            ...config,
+        setCofig(prev => ({
+            ...prev,
             listenerName
-        });
+        }));
     }
 
     const onListenerPortChange = (listenerPort: string) => {
-        setCofig({
-            ...config,
+        setCofig(prev => ({
+            ...prev,
             listenerPort
-        });
+        }));
     }
 
     const handleOnSave = () => {
@@ -173,7 +173,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                     />
                     <VariableNameInput
                         displayName={'Listener Name'}
-                        value={defaultState.listenerName}
+                        value={config.listenerName}
                         onValueChange={onListenerNameChange}
                         validateExpression={updateExpressionValidity}
                         position={namePosition}
