@@ -38,7 +38,7 @@ import { PALETTE_COMMANDS } from '../project';
 import { sep } from "path";
 import { DiagramOptions, Member, SyntaxTree } from './model';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
-import { createSwaggerView } from '../swagger';
+import { runCommand } from '../utils/runCommand';
 
 const NO_DIAGRAM_VIEWS: string = 'No Ballerina diagram views found!';
 
@@ -309,9 +309,9 @@ class DiagramPanel {
 				}
 			},
 			{
-				methodName: "createSwaggerView",
+				methodName: "runCommand",
 				handler: async (args: any[]): Promise<boolean> => {
-					await createSwaggerView(args[0], args[1]);
+					await runCommand(args[0], args[1]);
 					return Promise.resolve(true);
 				}
 			}

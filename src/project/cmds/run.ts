@@ -38,7 +38,16 @@ function activateRunCommand() {
                 await commands.executeCommand(PALETTE_COMMANDS.SAVE_ALL);
             }
 
-            const currentProject = await getCurrentBallerinaProject();
+            let currentProject;
+            if (window.activeTextEditor) {
+                currentProject = await getCurrentBallerinaProject();
+            } else {
+                const document = ballerinaExtInstance.getDocumentContext().getLatestDocument();
+                if (document) {
+                    currentProject = await getCurrentBallerinaProject(document.toString());
+                }
+            }
+
             if (currentProject.kind !== PROJECT_TYPE.SINGLE_FILE) {
                 runCommand(currentProject, ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.RUN,
                     currentProject.path!, ...args);

@@ -157,6 +157,11 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
         handler: (args: any[]) => {
             return langClient.resolveMissingDependencies(args[0]);
         }
+    }, {
+        methodName: 'getExecutorPositions',
+        handler: (args: any[]) => {
+            return langClient.getExecutorPositions(args[0]);
+        }
     }
     ];
 };

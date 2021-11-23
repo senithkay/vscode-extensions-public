@@ -287,6 +287,13 @@ function getLangClient() {
                     resolve(resp);
                 });
             })
-        }
+        },
+        getExecutorPositions: (params) => {
+            return new Promise((resolve, _reject) => {
+                webViewRPCHandler.invokeRemoteMethod('getExecutorPositions', [params], (resp) => {
+                    resolve(resp);
+                });
+            })
+        }        
     }
 }
