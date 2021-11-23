@@ -15,6 +15,7 @@ jobs:
       - name: Setup NodeJS
         uses: actions/setup-node@v2
         with:
+          always-auth: true
           node-version: '16.x'
           registry-url: 'https://npm.pkg.github.com'
       - name: Get current timestamp
@@ -22,6 +23,8 @@ jobs:
         run: echo "::set-output name=timestamp::$(date +'%Y%m%d-%H%M')"
       - run: npm version prepatch --preid=${{ steps.timestamp.outputs.timestamp }} --workspaces
       - run: npm run build
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
       - run: npm publish --tag next --workspaces
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
