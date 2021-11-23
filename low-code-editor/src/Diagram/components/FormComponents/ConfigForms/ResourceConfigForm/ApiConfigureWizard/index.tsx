@@ -13,7 +13,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { FunctionDefinition, NodePosition, ObjectMethodDefinition, ResourceAccessorDefinition } from "@ballerina/syntax-tree";
+import { FunctionDefinition, NodePosition, ObjectMethodDefinition, RequiredParam, ResourceAccessorDefinition } from "@ballerina/syntax-tree";
 import { Box, FormControl, Grid, Link, Typography } from "@material-ui/core";
 import { ConfigOverlayFormStatus, FormHeaderSection, PrimaryButton, SecondaryButton, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
@@ -113,6 +113,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     const [validateToggle, setValidateToggle] = useState(false);
     const [duplicatedPathsInEdit, setDuplicatedPathsInEdit] = useState<boolean>(false);
     const [isValidReturnExpr, setIsValidReturnExpr] = useState(true);
+    const [isValidPayload, setIsValidPayload] = useState(true);
 
     const funcSignature = (model as ResourceAccessorDefinition)?.functionSignature;
 
@@ -601,7 +602,15 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                     tooltipWithExample={{ title: payloadContenttitle, content: payloadExample }}
                     button={<SwitchToggle initSwitch={togglePayload} onChange={onPayloadToggleSelect} />}
                 >
-                    <PayloadEditor disabled={!togglePayload} payload={resource.payload} onChange={handleOnChangePayloadFromUI} onError={handleOnPayloadErrorFromUI} />
+                    <PayloadEditor
+                      model={model}
+                      targetPosition={targetPosition}
+                      disabled={!togglePayload}
+                      payload={resource.payload}
+                      onChange={handleOnChangePayloadFromUI}
+                      onError={handleOnPayloadErrorFromUI}
+                      setIsValid={setIsValidPayload}
+                    />
                 </Section>
             </div>
             <div className={classes.sectionSeparator}>
@@ -649,7 +658,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                     text={saveButtonText}
                     className={classes.saveBtn}
                     onClick={handleUserConfirm}
-                    disabled={isFileSaving || !isValidReturnExpr}
+                    disabled={isFileSaving || !isValidReturnExpr || (togglePayload && !isValidPayload)}
                 />
             </div>
         </div>
