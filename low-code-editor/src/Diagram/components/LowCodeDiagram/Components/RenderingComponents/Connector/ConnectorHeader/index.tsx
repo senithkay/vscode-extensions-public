@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
 import React from "react";
 
-import { STNode } from "@ballerina/syntax-tree";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
 import { getConnectorIcon } from "../../../../../Portals/utils";

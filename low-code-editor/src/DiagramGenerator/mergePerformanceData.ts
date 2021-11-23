@@ -17,8 +17,8 @@
  *
  */
 
-import { RemoteMethodCallAction, STNode, traversNode, Visitor } from "@ballerina/syntax-tree";
 import { SequenceGraphPointValue } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { RemoteMethodCallAction, STNode, traversNode, Visitor } from "@wso2-enterprise/syntax-tree";
 
 // TODO: find out what kind of invocations analyse here. is it only action invocations.
 export function mergeAnalysisDetails(

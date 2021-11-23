@@ -12,7 +12,7 @@
  */
 import React, { ReactNode } from "react";
 
-import { AssignmentStatement } from "@ballerina/syntax-tree";
+import { AssignmentStatement } from "@wso2-enterprise/syntax-tree";
 
 import { VariableUserInputs } from "../../../models/definitions";
 import { ExpressionComponent } from "../../Expression";

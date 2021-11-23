@@ -14,9 +14,9 @@
 import React from "react";
 import { FormattedMessage } from "react-intl";
 
-import { CaptureBindingPattern, LocalVarDecl } from "@ballerina/syntax-tree";
 import { FormControl, FormHelperText } from "@material-ui/core";
 import { Connector, ConnectorConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { CaptureBindingPattern, LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { matchEndpointToFormField } from "../../../../Portals/utils";

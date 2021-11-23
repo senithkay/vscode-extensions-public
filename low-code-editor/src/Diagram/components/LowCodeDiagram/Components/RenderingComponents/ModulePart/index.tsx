@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { ModulePart, STNode } from "@ballerina/syntax-tree";
+import { ModulePart, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { useStyles } from "../../../../../styles";
 import { getSTComponent } from "../../../../../utils";

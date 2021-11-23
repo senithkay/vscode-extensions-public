@@ -14,7 +14,7 @@
 import React, { useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { WhileStatement } from "@ballerina/syntax-tree";
+import { WhileStatement } from "@wso2-enterprise/syntax-tree";
 import classnames from "classnames";
 import {FormControl, Typography } from "@material-ui/core";
 

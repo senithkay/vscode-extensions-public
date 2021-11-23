@@ -12,7 +12,7 @@
 //  */
 // import * as React from 'react';
 
-// import { BlockStatement } from '@ballerina/syntax-tree';
+// import { BlockStatement } from '@wso2-enterprise/syntax-tree';
 
 // import { store } from '../../../../../$store';
 // import { waitOnWorkspaceSuccess } from '../../../../../$store/actions'; // TODO

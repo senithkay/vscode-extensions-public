@@ -11,7 +11,7 @@
  * associated services.
  */
 
-import { AssignmentStatement, BooleanLiteral, LocalVarDecl, NumericLiteral, RecordField, RecordFieldWithDefaultValue, RequiredParam, SpecificField, STKindChecker, StringLiteral, Visitor } from "@ballerina/syntax-tree";
+import { AssignmentStatement, BooleanLiteral, LocalVarDecl, NumericLiteral, RecordField, RecordFieldWithDefaultValue, RequiredParam, SpecificField, STKindChecker, StringLiteral, Visitor } from "@wso2-enterprise/syntax-tree";
 
 import { FieldViewState, SourcePointViewState, TargetPointViewState } from "../viewstate";
 

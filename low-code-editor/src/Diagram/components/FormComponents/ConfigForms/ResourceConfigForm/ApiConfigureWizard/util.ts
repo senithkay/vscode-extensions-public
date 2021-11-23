@@ -1,4 +1,4 @@
-import { NodePosition, ReturnTypeDescriptor, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { NodePosition, ReturnTypeDescriptor, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import {
     Path,
@@ -220,6 +220,16 @@ export function extractPayloadFromST(params: STNode[]): string {
         }
     }
     return payloadString;
+}
+
+export function extractPayloadPositionFromST(params: STNode[]): NodePosition {
+    if (params && params.length > 0) {
+
+        const payload: STNode[] = params.filter((value) => (value.source && value.source.includes("@http:Payload")));
+        if (payload.length > 0) {
+            return payload[0].position;
+        }
+    }
 }
 
 export function generateQueryParamFromQueryCollection(params: QueryParamCollection): string {

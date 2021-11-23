@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable-next-line: no-submodule-imports
-import { STNode } from "@ballerina/syntax-tree";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
 import { Connector } from "./lang-client-extended";

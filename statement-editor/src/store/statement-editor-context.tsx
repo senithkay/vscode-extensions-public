@@ -13,8 +13,8 @@
 // tslint:disable: no-empty jsx-no-multiline-js
 import React from 'react';
 
-import { NodePosition, STNode } from "@ballerina/syntax-tree";
 import { STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { LowCodeEditorProps } from '../components/ViewContainer/ViewContainer';
 
