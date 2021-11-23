@@ -15,14 +15,12 @@ import React from "react";
 import { useIntl } from "react-intl";
 
 import { NodePosition } from "@ballerina/syntax-tree";
-import { Box, Typography } from "@material-ui/core";
+import { Box, FormControl, Typography } from "@material-ui/core";
+import { FormHeaderSection, PrimaryButton, SecondaryButton } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
-import { GreyButton } from "../../../../../../components/Buttons/GreyButton";
-import { PrimaryButtonSquare } from "../../../../../../components/Buttons/PrimaryButtonSquare";
 import { useDiagramContext } from "../../../../../../Contexts/Diagram";
-import { useRecordEditorContext} from "../../../../../../Contexts/RecordEditor";
+import { useRecordEditorContext } from "../../../../../../Contexts/RecordEditor";
 import { mutateTypeDefinition } from "../../../../../utils/modification-util";
-import { useStyles} from "../../../FormFieldComponents/FormActionButtons/style";
 import { wizardStyles } from "../../style";
 import { RecordField } from "../RecordField";
 import { recordStyles } from "../style";
@@ -34,7 +32,6 @@ export function CodePanel() {
 
     const overlayClasses = wizardStyles();
     const recordClasses = recordStyles();
-    const formFieldClasses = useStyles();
     const intl = useIntl();
 
     const title = intl.formatMessage({
@@ -85,23 +82,20 @@ export function CodePanel() {
     };
 
     return (
-        <div>
-            <div className={recordClasses.recordConfigTitleWrapper}>
-                <Typography variant="h4">
-                    <Box paddingTop={2} paddingBottom={2}>{title}</Box>
-                </Typography>
-            </div>
-            <div className={recordClasses.recordFieldWrapper}>
-                <RecordField recordModel={state.recordModel}/>
-            </div>
-            <div className={recordClasses.configButtonWrapper}>
-                <div className={overlayClasses.buttonWrapper}>
-                    <div className={formFieldClasses.spaceBetween}>
-                        <GreyButton text={cancelButtonText} fullWidth={false} onClick={state.onCancel}/>
-                    </div>
-                    <div className={formFieldClasses.spaceBetween}>
-                        <PrimaryButtonSquare
-                            data-testid="record-editor-save"
+        <FormControl data-testid="record-form" className={overlayClasses.wizardFormControl}>
+            <FormHeaderSection
+                formTitle={"lowcode.develop.configForms.recordEditor.codePanel.title"}
+                defaultMessage={"Record Configuration"}
+            />
+            <div className={overlayClasses.formWrapper}>
+                <div className={recordClasses.recordFieldWrapper}>
+                    <RecordField recordModel={state.recordModel} />
+                </div>
+                <div className={recordClasses.configButtonWrapper}>
+                    <div className={overlayClasses.buttonWrapper}>
+                        <SecondaryButton text={cancelButtonText} fullWidth={false} onClick={state.onCancel} />
+                        <PrimaryButton
+                            dataTestId={"record-from-json-save-btn"}
                             text={saveButtonText}
                             disabled={state.isEditorInvalid || state.currentField?.name === "" ||
                             state.currentField?.type === ""}
@@ -111,6 +105,6 @@ export function CodePanel() {
                     </div>
                 </div>
             </div>
-        </div>
+        </FormControl>
     )
 }

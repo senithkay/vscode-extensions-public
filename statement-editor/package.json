@@ -13,6 +13,7 @@
       "prebuild": "npm run lint",
       "build": "tsc --pretty && npm run copy:assets",
       "copy:assets": "copyfiles -u 1 src/**/*.scss src/**/*.svg src/**/*.css src/**/*.png src/**/*.txt src/**/*.json build/",
+      "watch": "tsc --pretty --watch",
       "clean": "rimraf build/",
       "clean:nm": "rimraf node_modules",
       "lint": "tslint --project .",

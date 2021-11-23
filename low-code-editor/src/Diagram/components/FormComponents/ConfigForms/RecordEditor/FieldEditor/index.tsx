@@ -113,6 +113,7 @@ export function FieldEditor(props: FieldEditorProps) {
             defaultCodeSnippet: `type tempRecordName record {  ${state.currentField.type === 'record' ? '{}' : ''} varType; };`,
             targetColumn: 30
         },
+        ignoredCompletions: ['tempRecordName'],
     };
 
     return (

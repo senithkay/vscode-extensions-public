@@ -24,6 +24,7 @@ interface ModuleDeclFormProps {
     targetPosition?: NodePosition;
     onCancel: () => void;
     onSave: () => void;
+    formType: string;
 }
 
 export function ModuleDeclForm(props: ModuleDeclFormProps) {

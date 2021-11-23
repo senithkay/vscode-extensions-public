@@ -28,13 +28,13 @@ export interface VariableTypeInputProps {
     validateExpression: (fieldName: string, isInValid: boolean) => void;
     position: NodePosition;
     overrideTemplate?: ExpressionEditorCustomTemplate;
+    ignoredCompletions?: string[];
     enterKeyPressed?: (value: string) => void;
 }
 
 export function VariableTypeInput(props: VariableTypeInputProps) {
     const { onValueChange, validateExpression, position, value, displayName, overrideTemplate, hideLabel,
-            focus, enterKeyPressed } = props;
-
+            ignoredCompletions = [], focus, enterKeyPressed } = props;
     const [editorFocus, setEditorFocus] = useState<boolean>(focus);
 
     const revertFocus = () => {
@@ -57,7 +57,7 @@ export function VariableTypeInput(props: VariableTypeInputProps) {
                 targetColumn: 1
             },
             hideExpand: true,
-            getCompletions: getVarTypeCompletions,
+            getCompletions: getVarTypeCompletions(ignoredCompletions),
             showHints: false,
             hideTextLabel: hideLabel,
             focus: editorFocus,

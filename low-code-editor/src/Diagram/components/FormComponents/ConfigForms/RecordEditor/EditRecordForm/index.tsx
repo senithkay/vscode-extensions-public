@@ -15,7 +15,7 @@ import React, { useContext } from 'react';
 import { useIntl } from "react-intl";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
-import { PrimaryButton } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { FormHeaderSection, PrimaryButton } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
 import { Context } from "../../../../../../Contexts/RecordEditor";
 import CheckBoxGroup from '../../../FormFieldComponents/CheckBox';
@@ -65,11 +65,11 @@ export function EditRecordForm() {
 
     return (
         <FormControl data-testid="record-form" className={classes.wizardFormControl}>
-            <div className={classes.formTitleWrapper}>
-                <Typography variant="h4">
-                    <Box paddingTop={2} paddingBottom={2}>{title}</Box>
-                </Typography>
-            </div>
+            <FormHeaderSection
+                onCancel={state.onCancel}
+                formTitle={"lowcode.develop.configForms.recordEditor.editRecord.title"}
+                defaultMessage={"Edit Record"}
+            />
             <CheckBoxGroup
                 testId="is-optional-field"
                 values={["Is optional ?"]}

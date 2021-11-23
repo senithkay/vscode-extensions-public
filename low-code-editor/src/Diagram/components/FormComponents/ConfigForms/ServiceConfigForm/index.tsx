@@ -14,6 +14,7 @@ import React, { useState } from "react";
 
 import { NodePosition, ServiceDeclaration } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
+import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { ServiceIcon } from "../../../../../assets/icons";
 import { useDiagramContext } from "../../../../../Contexts/Diagram";
@@ -28,6 +29,7 @@ interface ServiceConfigFormProps {
     targetPosition?: NodePosition;
     onCancel: () => void;
     onSave: () => void;
+    formType: string;
 }
 
 export enum ServiceTypes {
@@ -36,7 +38,7 @@ export enum ServiceTypes {
 
 export function ServiceConfigForm(props: ServiceConfigFormProps) {
     const formClasses = useFormStyles();
-    const { model, targetPosition, onSave, onCancel } = props;
+    const { model, targetPosition, onSave, onCancel, formType } = props;
     const { props: { stSymbolInfo } } = useDiagramContext();
     const [serviceType, setServiceType] = useState<string>(getServiceTypeFromModel(model, stSymbolInfo));
 
@@ -51,15 +53,12 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
 
     return (
         <FormControl data-testid="service-config-form" className={formClasses.wizardFormControl}>
-            <div className={formClasses.formTitleWrapper}>
-                <div className={formClasses.mainTitleWrapper}>
-                    <ServiceIcon className="service-config-light-fill" />
-                    <Typography variant="h4">
-                        <Box paddingTop={2} paddingBottom={2} paddingLeft={15}>Service</Box>
-                    </Typography>
-                </div>
-            </div>
-
+            <FormHeaderSection
+                onCancel={onCancel}
+                formTitle={"lowcode.develop.configForms.ServiceConfigForm.title"}
+                defaultMessage={"Service"}
+                formType={formType}
+            />
             <div className={formClasses.formWrapper}>
                 {!serviceType && <ServiceTypeSelector onSelect={setServiceType} />}
                 {serviceType && configForm}
