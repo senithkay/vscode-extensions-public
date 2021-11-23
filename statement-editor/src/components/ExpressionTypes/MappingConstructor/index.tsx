@@ -11,11 +11,14 @@
  * associated services.
  */
 // tslint:disable: jsx-wrap-multiline jsx-no-multiline-js
-import React, { ReactNode } from "react";
+import React, { ReactNode, useContext } from "react";
 
 import { MappingConstructor, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
+import { MAPPING_CONSTRUCTOR } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
+import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { generateExpressionTemplate } from "../../../utils/utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../ViewContainer/styles";
 
@@ -29,6 +32,12 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
     const { model, userInputs, diagnosticHandler } = props;
 
     const overlayClasses = useStatementEditorStyles();
+
+    const {
+        modelCtx: {
+            updateModel,
+        }
+    } = useContext(StatementEditorContext);
 
     const fields: (ReactNode | string)[] = [];
 
@@ -77,6 +86,17 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
             </span>
     );
 
+    const onClickOnPlusIcon = () => {
+        let newField: string;
+        if (model.fields.length !== 0) {
+            newField = ", " + generateExpressionTemplate(MAPPING_CONSTRUCTOR) + " }";
+            updateModel(newField, model.closeBrace.position);
+        } else {
+            newField = generateExpressionTemplate(MAPPING_CONSTRUCTOR) + " }";
+            updateModel(newField, model.closeBrace.position);
+        }
+    };
+
     return (
         <span>
             <span
@@ -85,6 +105,12 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
                 {model.openBrace.value}
             </span>
             {fieldsComponent}
+            <button
+                className={overlayClasses.plusIconBorder}
+                onClick={onClickOnPlusIcon}
+            >
+                +
+            </button>
             <span
                 className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}
             >
