@@ -63,11 +63,6 @@ export function Service(props: ServiceProps) {
             project: {
                 run
             }
-        },
-        props: {
-            currentFile: {
-                path
-            }
         }
     } = useDiagramContext();
 
@@ -81,7 +76,7 @@ export function Service(props: ServiceProps) {
     };
 
     const onClickRun = async () => {
-        run([path]);
+        run([]);
     }
 
     function renderButtons() {

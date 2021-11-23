@@ -139,12 +139,12 @@ export function Function(props: FunctionProps) {
 
     const marginTop = (model as any).performance ? 5 : 0;
     const onClickPerformance = async () => {
-        let fullPath = "";
+        let path = "";
         for (const resourcePath of model.relativeResourcePath) {
-            fullPath += (resourcePath as any).value;
+            path += (resourcePath as any).value;
         }
 
-        await addAdvancedLabels(`${model.functionName.value.toUpperCase()} /${fullPath}`,
+        await addAdvancedLabels(`${model.functionName.value.toUpperCase()} /${path}`,
             model.position, diagramRedraw)
     };
 
@@ -161,16 +161,11 @@ export function Function(props: FunctionProps) {
             project: {
                 run
             }
-        },
-        props: {
-            currentFile: {
-                path
-            }
         }
     } = useDiagramContext();
 
     const onClickRun = async () => {
-        run([path]);
+        run([]);
     }
 
     function renderButtons() {

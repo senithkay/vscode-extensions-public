@@ -17,8 +17,8 @@
  *
  */
 
-import { FunctionDefinition, ServiceDeclaration, STNode, traversNode, Visitor } from "@ballerina/syntax-tree";
 import { DiagramEditorLangClientInterface, ExecutorPosition, LineRange } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FunctionDefinition, ServiceDeclaration, STNode, traversNode, Visitor } from "@wso2-enterprise/syntax-tree";
 
 export async function addExecutorPositions(st: any, langClient: DiagramEditorLangClientInterface, file: string) {
     let executorPositions: ExecutorPosition[] = [];
