@@ -12,7 +12,7 @@
  */
 import React, { useState } from "react";
 
-import { NodePosition } from "@ballerina/syntax-tree";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { Grid } from "@material-ui/core";
 import { PrimaryButton, SecondaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
