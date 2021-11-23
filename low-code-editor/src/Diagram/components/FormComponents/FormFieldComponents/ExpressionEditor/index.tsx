@@ -162,6 +162,7 @@ export interface ExpressionEditorProps {
     customTemplate?: ExpressionEditorCustomTemplate,
     expandDefault?: boolean;
     revertClearInput?: () => void;
+    onFocus?: (value: string) => void;
     hideTextLabel?: boolean;
     changed?: boolean;
     subEditor?: boolean;
@@ -206,7 +207,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     } = props;
     const { validate, statementType, customTemplate, focus, expandDefault, clearInput, revertClearInput, changed,
             subEditor, editPosition, expressionInjectables, hideSuggestions, hideExpand,
-            getCompletions = getStandardExpCompletions, showHints = true, enterKeyPressed } = customProps;
+            getCompletions = getStandardExpCompletions, showHints = true, enterKeyPressed, onFocus } = customProps;
     const targetPosition = editPosition ? editPosition : getTargetPosition(targetPositionDraft, syntaxTree);
     const [invalidSourceCode, setInvalidSourceCode] = useState(false);
     const [expand, setExpand] = useState(expandDefault || false);
@@ -630,6 +631,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         if ((currentContent === "" || TRIGGER_CHARACTERS.includes(lastCharacter)) && monacoRef.current.editor.hasTextFocus()) {
             monacoRef.current.editor.trigger('exp_editor', 'editor.action.triggerSuggest', {})
         }
+        onFocus(currentContent);
     }
 
     // ExpEditor onChange

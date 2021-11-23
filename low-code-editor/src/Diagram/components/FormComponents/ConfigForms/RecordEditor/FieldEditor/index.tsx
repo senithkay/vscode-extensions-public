@@ -82,6 +82,8 @@ export function FieldEditor(props: FieldEditorProps) {
             state.currentRecord = newRecordModel;
             callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
             callBacks.onUpdateCurrentRecord(state.currentRecord);
+            callBacks.updateEditorValidity(false);
+            callBacks.onUpdateCurrentField(undefined);
         } else {
             state.currentField.type = selectedType;
         }
