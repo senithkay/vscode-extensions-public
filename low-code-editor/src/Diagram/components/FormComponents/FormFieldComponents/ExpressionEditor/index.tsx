@@ -80,6 +80,7 @@ const MONACO_OPTIONS: monaco.editor.IEditorConstructionOptions = {
     lineHeight: 24,
     hideCursorInOverviewRuler: true,
     matchBrackets: "always",
+    renderLineHighlight: "none",
     minimap: {
         enabled: false,
     },
