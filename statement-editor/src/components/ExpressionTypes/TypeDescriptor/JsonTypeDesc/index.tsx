@@ -19,7 +19,7 @@ import { VariableUserInputs } from "../../../../models/definitions";
 import { SuggestionsContext } from "../../../../store/suggestions-context";
 import { getTypeDescriptors } from "../../../../utils";
 import { InputEditor } from "../../../InputEditor";
-import { useStatementEditorStyles } from "../../../ViewContainer/styles";
+import { useStatementEditorStyles } from "../../../styles";
 
 interface JsonTypeDescProps {
     model: JsonTypeDesc
@@ -31,7 +31,7 @@ interface JsonTypeDescProps {
 export function JsonTypeDescComponent(props: JsonTypeDescProps) {
     const { model, userInputs, diagnosticHandler, isTypeDescriptor } = props;
 
-    const overlayClasses = useStatementEditorStyles();
+    const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
 
     const inputEditorProps = {
@@ -50,7 +50,7 @@ export function JsonTypeDescComponent(props: JsonTypeDescProps) {
 
     return (
         <button
-            className={overlayClasses.expressionElement}
+            className={statementEditorClasses.expressionElement}
             onClick={onClickOnType}
         >
             <InputEditor {...inputEditorProps} />

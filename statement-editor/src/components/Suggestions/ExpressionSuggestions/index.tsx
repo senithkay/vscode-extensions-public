@@ -18,7 +18,7 @@ import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import { SuggestionItem } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { generateExpressionTemplate } from "../../../utils/utils";
-import { useStatementEditorStyles } from "../../ViewContainer/styles";
+import { useStatementEditorStyles } from "../../styles";
 
 export interface ExpressionSuggestionsProps {
     model: STNode
@@ -28,7 +28,7 @@ export interface ExpressionSuggestionsProps {
 }
 
 export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
-    const overlayClasses = useStatementEditorStyles();
+    const statementEditorClasses = useStatementEditorStyles();
     const { model, suggestions, suggestionHandler } = props;
 
     const {
@@ -51,13 +51,13 @@ export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
 
     return (
         <div>
-            <div className={overlayClasses.subHeader}>Expressions</div>
+            <div className={statementEditorClasses.subHeader}>Expressions</div>
             {
                 suggestions.map((suggestion: SuggestionItem, index: number) => (
                     (suggestion.kind) ?
                         (
                             <button
-                                className={overlayClasses.suggestionButton}
+                                className={statementEditorClasses.suggestionButton}
                                 key={index}
                                 onClick={() => onClickOperatorSuggestion(suggestion)}
                             >
@@ -68,7 +68,7 @@ export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
                         :
                         (
                             <button
-                                className={overlayClasses.suggestionButton}
+                                className={statementEditorClasses.suggestionButton}
                                 key={index}
                                 onClick={() => onClickExpressionSuggestion(suggestion.value)}
                             >

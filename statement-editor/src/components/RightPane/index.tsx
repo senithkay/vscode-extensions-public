@@ -15,18 +15,18 @@ import React from "react";
 import { ButtonWithIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import ComponentExpandIcon from "../../assets/icons/ComponentExpandIcon";
-import { useStatementEditorStyles } from "../ViewContainer/styles";
+import { useStatementEditorStyles } from "../styles";
 
 export function RightPane() {
-    const overlayClasses = useStatementEditorStyles();
+    const statementEditorClasses = useStatementEditorStyles();
 
     return (
-        <div className={overlayClasses.rightPane}>
-            <div className={overlayClasses.rhsShortcutPanel}>
-                <div className={overlayClasses.shortcutTab} style={{borderBottom: '1px solid #40404B', color: '#1D2028'}}>Variables</div>
-                <div className={overlayClasses.shortcutTab}>Constants</div>
-                <div className={overlayClasses.shortcutTab}>Functions</div>
-                <div className={overlayClasses.shortcutTab} style={{width: '10%'}}>
+        <div className={statementEditorClasses.rightPane}>
+            <div className={statementEditorClasses.rhsShortcutPanel}>
+                <div className={statementEditorClasses.shortcutTab} style={{borderBottom: '1px solid #40404B', color: '#1D2028'}}>Variables</div>
+                <div className={statementEditorClasses.shortcutTab}>Constants</div>
+                <div className={statementEditorClasses.shortcutTab}>Functions</div>
+                <div className={statementEditorClasses.shortcutTab} style={{width: '10%'}}>
                     <div style={{ marginLeft: "auto", marginRight: 0, transform: 'rotate(270deg)' }}>
                         <ButtonWithIcon
                             icon={<ComponentExpandIcon/>}
@@ -35,10 +35,10 @@ export function RightPane() {
                     </div>
                 </div>
             </div>
-            <div className={overlayClasses.rightPaneBlock} />
-            <div className={overlayClasses.shortcutsDivider} />
-            <div className={overlayClasses.rhsShortcutPanel}>
-                <span className={overlayClasses.subHeader}>Language Library</span>
+            <div className={statementEditorClasses.rightPaneBlock} />
+            <div className={statementEditorClasses.shortcutsDivider} />
+            <div className={statementEditorClasses.rhsShortcutPanel}>
+                <span className={statementEditorClasses.subHeader}>Language Library</span>
                 <div style={{ marginLeft: "auto", marginRight: 0 }}>
                     <ButtonWithIcon
                         icon={<ComponentExpandIcon/>}
@@ -46,9 +46,9 @@ export function RightPane() {
                     />
                 </div>
             </div>
-            <div className={overlayClasses.shortcutsDivider} />
-            <div className={overlayClasses.rhsShortcutPanel}>
-                <span className={overlayClasses.subHeader}>Standard Library</span>
+            <div className={statementEditorClasses.shortcutsDivider} />
+            <div className={statementEditorClasses.rhsShortcutPanel}>
+                <span className={statementEditorClasses.subHeader}>Standard Library</span>
                 <div style={{ marginLeft: "auto", marginRight: 0 }}>
                     <ButtonWithIcon
                         icon={<ComponentExpandIcon/>}
@@ -56,7 +56,7 @@ export function RightPane() {
                     />
                 </div>
             </div>
-            <div className={overlayClasses.shortcutsDivider} />
+            <div className={statementEditorClasses.shortcutsDivider} />
         </div>
     );
 }

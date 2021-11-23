@@ -14,13 +14,14 @@
 import React, { ReactNode, useContext } from "react";
 
 import { ConditionalExpression } from "@wso2-enterprise/syntax-tree";
+import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
-import { useStatementEditorStyles } from "../../ViewContainer/styles";
+import { useStatementEditorStyles } from "../../styles";
 
 interface ConditionalExpressionProps {
     model: ConditionalExpression
@@ -31,7 +32,7 @@ interface ConditionalExpressionProps {
 export function ConditionalExpressionComponent(props: ConditionalExpressionProps) {
     const { model, userInputs, diagnosticHandler } = props;
 
-    const overlayClasses = useStatementEditorStyles();
+    const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
 
     const lhsExpression: ReactNode = <ExpressionComponent
@@ -80,25 +81,25 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
     return (
         <span>
             <button
-                className={overlayClasses.expressionElement}
+                className={statementEditorClasses.expressionElement}
                 onClick={onClickOnLhsExpression}
             >
                 {lhsExpression}
             </button>
-            <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
+            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
                 &nbsp;{model.questionMarkToken.value}
             </span>
             <button
-                className={overlayClasses.expressionElement}
+                className={statementEditorClasses.expressionElement}
                 onClick={onClickOnMiddleExpression}
             >
                 {middleExpression}
             </button>
-            <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
+            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
                 &nbsp;{model.colonToken.value}
             </span>
             <button
-                className={overlayClasses.expressionElement}
+                className={statementEditorClasses.expressionElement}
                 onClick={onClickOnEndExpression}
             >
                 {endExpression}

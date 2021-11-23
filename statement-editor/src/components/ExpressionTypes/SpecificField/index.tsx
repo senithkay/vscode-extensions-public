@@ -14,12 +14,13 @@
 import React, { ReactNode, useContext } from "react";
 
 import { SpecificField, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import classNames from "classnames";
 
 import { VariableUserInputs } from "../../../models/definitions";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { ExpressionComponent } from "../../Expression";
 import { InputEditor } from "../../InputEditor";
-import { useStatementEditorStyles } from "../../ViewContainer/styles";
+import { useStatementEditorStyles } from "../../styles";
 
 interface SpecificFieldProps {
     model: SpecificField
@@ -31,7 +32,7 @@ interface SpecificFieldProps {
 export function SpecificFieldComponent(props: SpecificFieldProps) {
     const { model, userInputs, diagnosticHandler, isTypeDescriptor } = props;
 
-    const overlayClasses = useStatementEditorStyles();
+    const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
     let fieldName: ReactNode;
 
@@ -68,7 +69,7 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
     return (
         <span>
             {fieldName}
-            <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
+            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
                 {model.colon.value}
             </span>
             {valueExpression}
