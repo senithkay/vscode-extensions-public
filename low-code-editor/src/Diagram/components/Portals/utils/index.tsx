@@ -654,6 +654,10 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
         connectorRequest.orgName = connector.package.organization;
         connectorRequest.packageName = connector.package.name;
         connectorRequest.version = connector.package.version;
+        // HACK: Http endpoint STNode will get 2.0.1 version, but Ballerina Central have only 2.0.0 version.
+        if (connector.package.name === "http") {
+            connectorRequest.version = "2.0.0";
+        }
     }
 
     if (!connectorInfo && connectorRequest) {
@@ -663,12 +667,14 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
         if (connectorResp) {
             connectorInfo = connectorResp as BallerinaConnectorInfo;
             connector = connectorInfo;
-            // save form fields in browser cache
-            await addConnectorToCache(connectorInfo);
+            if (connectorInfo?.name){
+                // save form fields in browser cache
+                await addConnectorToCache(connectorInfo);
+            }
         }
     }
 
-    if (!connectorInfo){
+    if (!connectorInfo?.name){
         return null;
     }
 

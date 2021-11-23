@@ -234,9 +234,9 @@ export const transformFormFieldTypeToString = (model?: FormField, returnUndefine
             }
         }
     } else if (model.typeName === "union") {
-        if (model.fields) {
+        if (model.members) {
             const allTypes: string[] = [];
-            for (const field of model.fields) {
+            for (const field of model.members) {
                 let type;
                 if (field.typeName === "record" || field.typeInfo) {
                     if (field.typeInfo) {

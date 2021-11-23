@@ -71,8 +71,8 @@ export function Form(props: FormProps) {
             // validate union types
             // only union record types will get Union element
             // other union types will get expression editor
-            if (field.typeName === "union" && field.name !== "targetType"){
-                field.fields?.forEach((subField: FormField) => {
+            if (field.typeName === "union"){
+                field.members?.forEach((subField: FormField) => {
                     if (subField.typeName !== "record"){
                         type = "expression";
                     }
