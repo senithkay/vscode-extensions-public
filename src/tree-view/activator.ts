@@ -34,7 +34,9 @@ import { BALLERINA_COMMANDS, PALETTE_COMMANDS, runCommand } from "../project";
 import { getChoreoKeytarSession } from "../choreo-auth/auth-session";
 import { showChoreoPushMessage } from "../editor-support/git-status";
 import { showConfigEditor } from "../config-editor/configEditorPanel";
+import { getCurrentBallerinaProject } from "../utils/project-utils";
 
+const CONFIG_FILE = 'Config.toml';
 export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverviewDataProvider {
 
     sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_PACKAGE_OVERVIEW, CMP_PACKAGE_VIEW);
@@ -154,6 +156,31 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
         if (!ballerinaExtInstance.langClient) {
             return;
         }
+
+        if (!filePath.toString().endsWith(CONFIG_FILE)) {
+            let currentProject;
+            if (window.activeTextEditor) {
+                currentProject = await getCurrentBallerinaProject();
+
+            } else {
+                const document = ballerinaExtInstance.getDocumentContext().getLatestDocument();
+                if (document) {
+                    currentProject = await getCurrentBallerinaProject(document.toString());
+                }
+            }
+
+            if (!currentProject) {
+                return;
+            }
+
+            const configFile = `${currentProject.path}/${CONFIG_FILE}`;
+            if (!existsSync(configFile)) {
+                return;
+            }
+
+            filePath = configFile;
+        }
+
         await ballerinaExtInstance.langClient.getBallerinaProjectConfigSchema({
             documentIdentifier: {
                 uri: Uri.file(filePath).toString()
