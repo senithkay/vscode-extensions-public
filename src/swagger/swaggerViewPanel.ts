@@ -21,7 +21,7 @@ import { ViewColumn, window, WebviewPanel } from "vscode";
 import { WebViewRPCHandler, getCommonWebViewOptions } from '../utils';
 import { render } from './render';
 import { ExtendedLangClient, OASpec } from "../core";
-import { PreviewServer } from "./server";
+import { SwaggerServer } from "./server";
 
 let swaggerViewPanel: WebviewPanel | undefined;
 
@@ -30,8 +30,7 @@ export async function showSwaggerView(langClient: ExtendedLangClient,
     if (swaggerViewPanel) {
         swaggerViewPanel.dispose();
     }
-    let previewServer: PreviewServer = new PreviewServer();
-    const port = await previewServer.initiateServer();
+    const swaggerServer: SwaggerServer = new SwaggerServer();
 
     // Create and show a new SwaggerView
     swaggerViewPanel = window.createWebviewPanel(
@@ -41,8 +40,23 @@ export async function showSwaggerView(langClient: ExtendedLangClient,
         getCommonWebViewOptions()
     );
 
+    // Swagger Request
+    swaggerViewPanel.webview.onDidReceiveMessage(
+        async message => {
+            if (message.command !== 'swaggerRequest') {
+                return;
+            }
+            await swaggerServer.sendRequest(message.req).then((response) => {
+                swaggerViewPanel!.webview.postMessage({
+                    command: 'swaggerResponse',
+                    res: response
+                });
+            });
+        }
+    );
+
     WebViewRPCHandler.create(swaggerViewPanel, langClient);
-    const html = render({ specs, proxyPort: port, file, serviceName });
+    const html = render({ specs, file, serviceName });
     if (swaggerViewPanel && html) {
         swaggerViewPanel.webview.html = html;
     }
