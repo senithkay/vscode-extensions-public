@@ -17,35 +17,71 @@
  *
  */
 
-import cors_proxy from 'cors-anywhere';
-import { Server } from 'http';
-import { getPortPromise } from 'portfinder';
+import axios, { Method } from "axios";
 
-const host = '127.0.0.1';
-let port: number;
-let server: Server;
+interface Request {
+  url: string,
+  headers: string,
+  method: Method,
+  body?: string,
+}
+interface Response {
+  status: number,
+  statusText: string,
+  data?: string,
+  text?: string,
+  body?: string,
+  obj?: string,
+  headers?: Record<string, string>,
+}
 
-export class PreviewServer {
-  /**
-   * Create proxy server.
-   * 
-   * @returns Server port
-   */
-  async initiateServer(): Promise<number> {
-    if (server && server.listening && port) {
-      return port;
-    }
+const CONNECTION_REFUSED = 'ECONNREFUSED';
+const EAI_AGAIN = 'EAI_AGAIN';
+export class SwaggerServer {
 
-    server = cors_proxy.createServer({
-      originWhitelist: [], // Allow all origins
-      requireHeader: ['origin', 'x-requested-with'],
-      // removeHeaders: ['cookie', 'cookie2']
-      setHeaders: { "Access-Control-Allow-Headers": "*" }
-
+  async sendRequest(data: Request): Promise<Response | boolean> {
+    return new Promise<Response | boolean>((resolve, reject) => {
+      axios({
+        method: data.method,
+        url: data.url,
+        data: data.body
+      })
+        .then(function (response) {
+          const responseData = response.data;
+          const res: Response = {
+            status: response.status,
+            statusText: response.statusText,
+            data: responseData,
+            body: JSON.stringify(responseData),
+            text: JSON.stringify(responseData),
+            obj: responseData,
+            headers: response.headers
+          }
+          resolve(res);
+        })
+        .catch((error) => {
+          let res: Response;
+          if (error.response) {
+            const responseData = error.response.data;
+            // Request made and server responded
+            res = {
+              status: error.response.status,
+              statusText: error.response.statusText,
+              data: responseData,
+              body: JSON.stringify(responseData),
+              text: JSON.stringify(responseData),
+              obj: responseData,
+              headers: error.response.headers
+            }
+            resolve(res);
+          } else {
+            const errorCode = error.code;
+            // Something happened in setting up the request that triggered an Error
+            if (errorCode === CONNECTION_REFUSED || errorCode === EAI_AGAIN) {
+              resolve(false);
+            }
+          }
+        });
     });
-
-    port = await getPortPromise({ port: 18000, stopPort: 20000 });
-    server.listen(port, host, function () { });
-    return port;
   }
 }

@@ -493,6 +493,7 @@
     "dependencies": {
         "@types/vscode": "^1.59.0",
         "@wso2-enterprise/ballerina-low-code-editor": "next",
+        "@wso2-enterprise/ballerina-low-code-edtior-commons": "next",
         "cors-anywhere": "^0.4.4",
         "file-uri-to-path": "^2.0.0",
         "glob": "^7.1.7",
@@ -511,7 +512,7 @@
         "@types/node": "^15.12.2",
         "@types/tcp-port-used": "^1.0.0",
         "@types/vscode": "^1.59.0",
-        "axios": "0.22.0",
+        "axios": "^0.22.0",
         "chai": "^4.3.4",
         "cross-env": "^7.0.3",
         "decache": "^4.6.0",
