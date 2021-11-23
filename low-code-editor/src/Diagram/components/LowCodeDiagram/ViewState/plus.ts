@@ -1,5 +1,5 @@
-import { LocalVarDecl } from "@ballerina/syntax-tree";
 import { BallerinaConnectorInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 
 import { ViewState } from "./view-state";
 

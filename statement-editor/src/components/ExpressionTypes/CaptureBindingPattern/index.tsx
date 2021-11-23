@@ -13,7 +13,7 @@
 // tslint:disable: jsx-wrap-multiline
 import React from "react";
 
-import { CaptureBindingPattern } from "@ballerina/syntax-tree";
+import { CaptureBindingPattern } from "@wso2-enterprise/syntax-tree";
 
 import { VariableUserInputs } from "../../../models/definitions";
 import { useStatementEditorStyles } from "../../ViewContainer/styles";

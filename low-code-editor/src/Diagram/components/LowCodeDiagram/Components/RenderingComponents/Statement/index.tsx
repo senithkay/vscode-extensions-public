@@ -12,7 +12,7 @@
  */
 import React from 'react'
 
-import { LocalVarDecl, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { LocalVarDecl, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
 import { isVarTypeDescriptor } from "../../../../../utils/diagram-util";

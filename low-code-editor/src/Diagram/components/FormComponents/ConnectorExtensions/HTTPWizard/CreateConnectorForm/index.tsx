@@ -46,7 +46,7 @@ interface NameState {
 }
 
 export function CreateConnectorForm(props: CreateConnectorFormProps) {
-    const { onBackClick, onSaveNext, functionDefinitions, connectorConfig, connector, isNewConnectorInitWizard, homePageEnabled, onSave } = props;
+    const { onSaveNext, functionDefinitions, connectorConfig, connector, isNewConnectorInitWizard, onSave } = props;
     const { props: { stSymbolInfo: symbolInfo } } = useContext(Context);
 
     const connectorConfigFormFields: FormField[] = connectorConfig && connectorConfig.connectorInit && connectorConfig.connectorInit.length > 0 ? connectorConfig.connectorInit : functionDefinitions.get("init") ? functionDefinitions.get("init").parameters : functionDefinitions.get("__init").parameters;
@@ -54,7 +54,6 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const classes = useStyles();
     const wizardClasses = wizardStyles();
     const intl = useIntl();
-    const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
     const initialNameState: NameState = {
         value: connectorConfig.name || genVariableName(connector.moduleName + "Endpoint", getAllVariables(symbolInfo)),
         isValidName: true,
@@ -89,7 +88,6 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
 
     // Set init function of the connector.
     connectorConfig.connectorInit = connectorInitFormFields;
-
 
     const validateNameValue = (value: string) => {
         if (value) {
@@ -134,46 +132,6 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const connectionNamePlaceholder = intl.formatMessage({
         id: "lowcode.develop.connectorForms.HTTP.createConnection.name.placeholder",
         defaultMessage: "Enter connection name"
-    });
-
-    const backButtonText = intl.formatMessage({
-        id: "lowcode.develop.connectorForms.HTTP.createConnection.backButton.text",
-        defaultMessage: "Back"
-    });
-
-    const saveConnectionButtonText = intl.formatMessage({
-        id: "lowcode.develop.connectorForms.HTTP.createConnection.saveButton.text",
-        defaultMessage: "Save & Next"
-    });
-
-    const GETOperationLabel = intl.formatMessage({
-        id: "lowcode.develop.connectorForms.HTTP.createConnection.operations.GET.label",
-        defaultMessage: "GET"
-    });
-
-    const POSTOperationLabel = intl.formatMessage({
-        id: "lowcode.develop.connectorForms.HTTP.createConnection.operations.POST.label",
-        defaultMessage: "POST"
-    });
-
-    const PUTOperationLabel = intl.formatMessage({
-        id: "lowcode.develop.connectorForms.HTTP.createConnection.operations.PUT.label",
-        defaultMessage: "PUT"
-    });
-
-    const PATCHOperationLabel = intl.formatMessage({
-        id: "lowcode.develop.connectorForms.HTTP.createConnection.operations.PATCH.label",
-        defaultMessage: "PATCH"
-    });
-
-    const FORWARDOperationLabel = intl.formatMessage({
-        id: "lowcode.develop.connectorForms.HTTP.createConnection.operations.FORWARD.label",
-        defaultMessage: "FORWARD"
-    });
-
-    const DELETEOperationLabel = intl.formatMessage({
-        id: "lowcode.develop.connectorForms.HTTP.createConnection.operations.DELETE.label",
-        defaultMessage: "DELETE"
     });
 
     const pathInstructionsBullet1 = intl.formatMessage({
@@ -253,7 +211,6 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                                         id: "lowcode.develop.connectorForms.saveHttpConnectionBtn.text",
                                         defaultMessage: "Save Connection"
                                     })}
-                                    className="product-tour-next"
                                     disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
                                     fullWidth={false}
                                     onClick={handleOnSave}
@@ -264,7 +221,6 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                                         id: "lowcode.develop.connectorForms.saveHttpInvokeConnectionBtn.text",
                                         defaultMessage: "Continue to Invoke API"
                                     })}
-                                    className="product-tour-next"
                                     disabled={!(isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName)}
                                     fullWidth={false}
                                     onClick={handleOnSaveNext}

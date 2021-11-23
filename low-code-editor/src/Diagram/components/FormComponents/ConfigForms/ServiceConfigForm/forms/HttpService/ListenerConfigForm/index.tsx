@@ -14,8 +14,8 @@
 import React from "react";
 import { FormattedMessage } from "react-intl";
 
-import { NodePosition } from "@ballerina/syntax-tree";
 import { FormHelperText } from "@material-ui/core";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import CheckBoxGroup from "../../../../../FormFieldComponents/CheckBox";
 import { SelectDropdownWithButton } from "../../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";

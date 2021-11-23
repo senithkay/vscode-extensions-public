@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from "react"
 
-import { ConstDeclaration, STNode } from "@ballerina/syntax-tree";
+import { ConstDeclaration, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import ConstantIcon from "../../../../../../assets/icons/ConstantIcon";

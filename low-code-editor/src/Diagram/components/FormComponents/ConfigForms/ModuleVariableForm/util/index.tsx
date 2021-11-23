@@ -11,7 +11,7 @@
  * associated services.
  */
 
-import { STKindChecker } from "@ballerina/syntax-tree";
+import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { getVariableNameFromST } from "../../../../../utils/st-util";
 

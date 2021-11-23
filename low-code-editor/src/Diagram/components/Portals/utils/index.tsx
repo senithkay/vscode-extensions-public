@@ -12,16 +12,6 @@
  */
 import React, { ReactNode } from "react";
 
-import {
-    ActionStatement,
-    CaptureBindingPattern, CheckAction,
-    CheckExpression,
-    ImplicitNewExpression, ListConstructor, LocalVarDecl, MappingConstructor, NamedArg, NodePosition, NumericLiteral,
-    ParenthesizedArgList,
-    PositionalArg, RemoteMethodCallAction, RequiredParam, SimpleNameReference, SpecificField,
-    STKindChecker,
-    STNode, StringLiteral, TypeCastExpression
-} from "@ballerina/syntax-tree";
 import { Avatar, colors } from "@material-ui/core";
 import {
     ActionConfig,
@@ -33,6 +23,16 @@ import {
     FormField, FormFieldReturnType,
     FunctionDefinitionInfo, PrimitiveBalType, STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    ActionStatement,
+    CaptureBindingPattern, CheckAction,
+    CheckExpression,
+    ImplicitNewExpression, ListConstructor, LocalVarDecl, MappingConstructor, NamedArg, NodePosition, NumericLiteral,
+    ParenthesizedArgList,
+    PositionalArg, RemoteMethodCallAction, RequiredParam, SimpleNameReference, SpecificField,
+    STKindChecker,
+    STNode, StringLiteral, TypeCastExpression
+} from "@wso2-enterprise/syntax-tree";
 import { DocumentSymbol, SymbolInformation } from "vscode-languageserver-protocol";
 
 import * as ConstructIcons from "../../../../assets/icons"
@@ -113,7 +113,7 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
         const skipDefaultValue = (!formField.value && (formField.defaultable || formField.optional)) ||
             (formField.value && formField.defaultValue && formField.defaultValue === formField.value);
         let paramString: string = "";
-        if (!formField.noCodeGen && !skipDefaultValue) {
+        if (!skipDefaultValue) {
             if (formField.defaultable && formField.value) {
                 paramString += `${formField.name} = `;
             }
@@ -237,7 +237,7 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
                 if (xmlRegex.test(formField.value)) {
                     paramString = formField.value;
                 } else {
-                    paramString += "xml `" + formField.value + "`";
+                    paramString += formField.value;
                 }
             } else if (formField.typeName === "handle" && formField.value) {
                 paramString += formField.value;
@@ -654,6 +654,10 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
         connectorRequest.orgName = connector.package.organization;
         connectorRequest.packageName = connector.package.name;
         connectorRequest.version = connector.package.version;
+        // HACK: Http endpoint STNode will get 2.0.1 version, but Ballerina Central have only 2.0.0 version.
+        if (connector.package.name === "http" && connector.package.version === "2.0.1") {
+            connectorRequest.version = "2.0.0";
+        }
     }
 
     if (!connectorInfo && connectorRequest) {
@@ -662,13 +666,15 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
         const connectorResp = await langClient?.getConnector(connectorRequest);
         if (connectorResp) {
             connectorInfo = connectorResp as BallerinaConnectorInfo;
-            connector = connectorInfo;
-            // save form fields in browser cache
-            await addConnectorToCache(connectorInfo);
+            if (connectorInfo?.name){
+                connector = connectorInfo;
+                // save form fields in browser cache
+                await addConnectorToCache(connectorInfo);
+            }
         }
     }
 
-    if (!connectorInfo){
+    if (!connectorInfo?.name){
         return null;
     }
 

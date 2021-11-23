@@ -12,8 +12,8 @@
  */
 import React, { useContext, useEffect, useState } from "react";
 
-import { FunctionDefinition, NodePosition, ObjectMethodDefinition, ResourceAccessorDefinition } from "@ballerina/syntax-tree";
 import { Grid } from "@material-ui/core";
+import { FunctionDefinition, NodePosition, ObjectMethodDefinition, ResourceAccessorDefinition } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../../../Contexts/Diagram";
 import { checkVariableName } from "../../../../../../Portals/utils";

@@ -15,20 +15,20 @@ import React, { useContext, useEffect, useState } from "react";
 import { monaco } from "react-monaco-editor";
 
 import {
-    BooleanLiteral, NodePosition,
-    NumericLiteral, QualifiedNameReference,
-    SimpleNameReference,
-    STKindChecker,
-    STNode,
-    StringLiteral, StringTypeDesc
-} from "@ballerina/syntax-tree";
-import {
     CompletionParams,
     CompletionResponse,
     ExpressionEditorLangClientInterface,
     getDiagnosticMessage,
     getFilteredDiagnostics
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    BooleanLiteral, NodePosition,
+    NumericLiteral, QualifiedNameReference,
+    SimpleNameReference,
+    STKindChecker,
+    STNode,
+    StringLiteral, StringTypeDesc
+} from "@wso2-enterprise/syntax-tree";
 import debounce from "lodash.debounce";
 
 import * as c from "../../constants";

@@ -12,7 +12,7 @@
  */
 import React, { useContext } from "react";
 
-import { FunctionBodyBlock } from "@ballerina/syntax-tree";
+import { FunctionBodyBlock } from "@wso2-enterprise/syntax-tree";
 
 import { getDraftComponent, getSTComponents } from "../../../../../utils";
 import { Context } from "../../../Context/diagram";

@@ -12,7 +12,7 @@
  */
 import React, { useContext } from 'react';
 
-import { DoStatement as BallerinaDoStatement } from "@ballerina/syntax-tree";
+import { DoStatement as BallerinaDoStatement } from "@wso2-enterprise/syntax-tree";
 
 import { Context as DiagramContext } from "../../../../../../Contexts/Diagram";
 import { getDraftComponent, getSTComponents } from '../../../../../utils';

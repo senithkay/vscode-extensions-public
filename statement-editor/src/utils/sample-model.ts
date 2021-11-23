@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { BracedExpression, STNode, StringLiteral } from "@ballerina/syntax-tree";
+import { BracedExpression, STNode, StringLiteral } from "@wso2-enterprise/syntax-tree";
 
 export const DefaultModelsByKind: { [key: string]: STNode | BracedExpression | StringLiteral } = {
     DefaultArithmetic: {

@@ -14,8 +14,8 @@
 import React, { ReactNode, useContext } from "react";
 import { FormattedMessage } from "react-intl";
 
-import { STNode } from "@ballerina/syntax-tree";
 import { Box, FormControl, List, ListItem, Typography } from "@material-ui/core";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../Contexts/Diagram";
 import { useFunctionContext } from "../../../../../Contexts/Function";
