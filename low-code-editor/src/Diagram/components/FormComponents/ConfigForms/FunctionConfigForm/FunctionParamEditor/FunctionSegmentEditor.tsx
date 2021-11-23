@@ -12,9 +12,9 @@
  */
 import React, { useState } from "react";
 
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { Grid } from "@material-ui/core";
 import { PrimaryButton, SecondaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
 import { VariableTypeInput, VariableTypeInputProps } from "../../Components/VariableTypeInput";
