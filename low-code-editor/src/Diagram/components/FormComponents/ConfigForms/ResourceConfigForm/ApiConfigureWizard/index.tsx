@@ -13,9 +13,9 @@
 import React, { useContext, useEffect, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { FunctionDefinition, NodePosition, ObjectMethodDefinition, RequiredParam, ResourceAccessorDefinition } from "@ballerina/syntax-tree";
 import { Box, FormControl, Grid, Link, Typography } from "@material-ui/core";
 import { ConfigOverlayFormStatus, FormHeaderSection, PrimaryButton, SecondaryButton, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FunctionDefinition, NodePosition, ObjectMethodDefinition, RequiredParam, ResourceAccessorDefinition } from "@wso2-enterprise/syntax-tree";
 
 import { ResourceIcon } from "../../../../../../assets/icons";
 import { Section } from "../../../../../../components/ConfigPanel";

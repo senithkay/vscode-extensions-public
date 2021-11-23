@@ -28,7 +28,7 @@ import {
     VisibleEndpoint,
     Visitor,
     WhileStatement
-} from "@ballerina/syntax-tree";
+} from "@wso2-enterprise/syntax-tree";
 
 import { isVarTypeDescriptor } from "../../../utils/diagram-util";
 import { Endpoint, getPlusViewState, updateConnectorCX } from "../../../utils/st-util";

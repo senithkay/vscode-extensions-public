@@ -13,7 +13,7 @@
 
 import React, { useContext, useReducer } from "react";
 
-import { NodePosition, RecordTypeDesc, TypeDefinition } from "@ballerina/syntax-tree";
+import { NodePosition, RecordTypeDesc, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 
 import { RecordModel, SimpleField } from "../Diagram/components/FormComponents/ConfigForms/RecordEditor/types";
 

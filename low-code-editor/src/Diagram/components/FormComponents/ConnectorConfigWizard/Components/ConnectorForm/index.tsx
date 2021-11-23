@@ -15,7 +15,6 @@
 import React, { ReactNode, useContext, useEffect, useState } from "react";
 import { FormattedMessage } from "react-intl";
 
-import { CaptureBindingPattern, FunctionDefinition, LocalVarDecl, NodePosition, STKindChecker } from "@ballerina/syntax-tree";
 import { Box, Divider, FormControl, Typography } from "@material-ui/core";
 import {
     ActionConfig,
@@ -27,6 +26,7 @@ import {
     STModification,
     WizardType,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { CaptureBindingPattern, FunctionDefinition, LocalVarDecl, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../Contexts/Diagram";
 import { useFunctionContext } from "../../../../../../Contexts/Function";

@@ -13,6 +13,7 @@
 // tslint:disable: jsx-no-multiline-js align  jsx-wrap-multiline
 import React, { useContext, useState } from "react";
 
+import { WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     AssignmentStatement,
     CallStatement,
@@ -21,8 +22,7 @@ import {
     NodePosition,
     QualifiedNameReference,
     STKindChecker,
-    STNode} from "@ballerina/syntax-tree";
-import { WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+    STNode} from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../Contexts/Diagram";
 import { getDiagnosticMsgs } from "../../../../../utils";

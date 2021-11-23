@@ -13,7 +13,7 @@
 // tslint:disable: jsx-wrap-multiline
 import React, { useContext } from "react";
 
-import { JsonTypeDesc } from "@ballerina/syntax-tree";
+import { JsonTypeDesc } from "@wso2-enterprise/syntax-tree";
 
 import { VariableUserInputs } from "../../../../models/definitions";
 import { SuggestionsContext } from "../../../../store/suggestions-context";

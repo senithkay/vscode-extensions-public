@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from "react";
 
-import { NodePosition } from "@ballerina/syntax-tree";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import Tooltip from "../../../../../../../components/TooltipV2";
 import { ErrorSnippet } from "../../../../Context/types";

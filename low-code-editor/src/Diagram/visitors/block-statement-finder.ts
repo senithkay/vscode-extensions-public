@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { BlockStatement, Visitor } from "@ballerina/syntax-tree";
+import { BlockStatement, Visitor } from "@wso2-enterprise/syntax-tree";
 
 export class BlockStatementFinder implements Visitor {
     public haveBlockStatement: boolean = false;

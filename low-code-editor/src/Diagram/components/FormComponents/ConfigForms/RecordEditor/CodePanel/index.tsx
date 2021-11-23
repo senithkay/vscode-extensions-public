@@ -14,9 +14,9 @@
 import React from "react";
 import { useIntl } from "react-intl";
 
-import { NodePosition } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 import { FormHeaderSection, PrimaryButton, SecondaryButton } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { useRecordEditorContext } from "../../../../../../Contexts/RecordEditor";

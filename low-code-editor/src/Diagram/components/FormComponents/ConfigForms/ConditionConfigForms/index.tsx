@@ -14,8 +14,8 @@
 // tslint:disable: jsx-wrap-multiline
 import React, { useContext } from "react";
 
-import { NodePosition } from "@ballerina/syntax-tree";
 import { ConfigOverlayFormStatus, STModification, WizardType  } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../Contexts/Diagram";
 import { EVENT_TYPE_AZURE_APP_INSIGHTS, FINISH_STATEMENT_ADD_INSIGHTS, LowcodeEvent } from "../../../../models";

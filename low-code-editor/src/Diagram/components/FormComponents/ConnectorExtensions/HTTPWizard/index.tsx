@@ -14,10 +14,10 @@
 import React, { useContext, useState } from "react";
 import { FormattedMessage } from "react-intl";
 
-import { CaptureBindingPattern, CheckAction, LocalVarDecl, NodePosition, PositionalArg, RemoteMethodCallAction, SimpleNameReference, STNode, TypeCastExpression } from "@ballerina/syntax-tree";
 import Typography from "@material-ui/core/Typography";
 import { CloseRounded } from "@material-ui/icons";
 import { ActionConfig, ButtonWithIcon, Connector, ConnectorConfig, FormField, FunctionDefinitionInfo, STModification, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { CaptureBindingPattern, CheckAction, LocalVarDecl, NodePosition, PositionalArg, RemoteMethodCallAction, SimpleNameReference, STNode, TypeCastExpression } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../Contexts/Diagram";
 import {

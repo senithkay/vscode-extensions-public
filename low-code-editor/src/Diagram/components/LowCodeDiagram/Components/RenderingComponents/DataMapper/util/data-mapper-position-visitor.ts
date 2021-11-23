@@ -11,7 +11,7 @@
  * associated services.
  */
 
-import { AssignmentStatement, LocalVarDecl, MappingConstructor, RecordField, RecordFieldWithDefaultValue, RecordTypeDesc, RequiredParam, SpecificField, STKindChecker, Visitor } from "@ballerina/syntax-tree";
+import { AssignmentStatement, LocalVarDecl, MappingConstructor, RecordField, RecordFieldWithDefaultValue, RecordTypeDesc, RequiredParam, SpecificField, STKindChecker, Visitor } from "@wso2-enterprise/syntax-tree";
 
 import { DataMapperViewState, FieldViewState } from "../viewstate";
 

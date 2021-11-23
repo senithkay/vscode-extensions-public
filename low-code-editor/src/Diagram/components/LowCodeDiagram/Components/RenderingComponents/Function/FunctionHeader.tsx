@@ -18,7 +18,7 @@ import {
     ObjectMethodDefinition,
     RequiredParam,
     STKindChecker,
-} from "@ballerina/syntax-tree";
+} from "@wso2-enterprise/syntax-tree";
 
 import FunctionIcon from "../../../../../../assets/icons/FunctionIcon";
 import { useDiagramContext } from "../../../../../../Contexts/Diagram";

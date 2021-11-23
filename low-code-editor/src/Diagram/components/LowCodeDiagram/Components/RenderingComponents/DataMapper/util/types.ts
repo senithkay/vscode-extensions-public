@@ -11,8 +11,8 @@
  * associated services.
  */
 
-import { STNode } from "@ballerina/syntax-tree";
 import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { DataMapperConfig } from "../../../../../FormComponents/Types";
 import { FieldViewState } from "../viewstate";

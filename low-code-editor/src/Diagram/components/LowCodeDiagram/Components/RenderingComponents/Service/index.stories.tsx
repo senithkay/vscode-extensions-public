@@ -12,8 +12,8 @@
  */
 import React from 'react';
 
-import { STNode } from '@ballerina/syntax-tree';
 import { Story } from '@storybook/react';
+import { STNode } from '@wso2-enterprise/syntax-tree';
 
 import { LowCodeEditorProps, STSymbolInfo } from '../../../../../..';
 import { Provider as DiagramProvider } from '../../../../../../Contexts/Diagram';

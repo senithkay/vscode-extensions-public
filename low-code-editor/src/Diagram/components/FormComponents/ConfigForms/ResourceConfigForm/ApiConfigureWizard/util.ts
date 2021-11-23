@@ -1,4 +1,4 @@
-import { NodePosition, ReturnTypeDescriptor, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { NodePosition, ReturnTypeDescriptor, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import {
     Path,

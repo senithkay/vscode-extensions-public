@@ -13,9 +13,9 @@
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline object-literal-shorthand align
 import React, { useContext, useRef, useState } from "react";
 
-import { BlockStatement, FunctionBodyBlock, LocalVarDecl } from "@ballerina/syntax-tree";
 import { ClickAwayListener } from "@material-ui/core";
 import { BallerinaConnectorInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BlockStatement, FunctionBodyBlock, LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
 import { useDiagramContext } from "../../../../../../Contexts/Diagram";

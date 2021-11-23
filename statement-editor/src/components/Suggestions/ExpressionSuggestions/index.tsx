@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline jsx-no-lambda
 import React, { useContext } from "react";
 
-import { BinaryExpression, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { BinaryExpression, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import * as c from "../../../constants";
 import { SuggestionItem } from "../../../models/definitions";

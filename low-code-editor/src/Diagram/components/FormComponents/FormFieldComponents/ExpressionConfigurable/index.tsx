@@ -20,7 +20,7 @@ import {
     NodePosition,
     STKindChecker,
     TypedBindingPattern,
-} from "@ballerina/syntax-tree";
+} from "@wso2-enterprise/syntax-tree";
 
 import { useDiagramContext } from "../../../../../Contexts/Diagram";
 import {
