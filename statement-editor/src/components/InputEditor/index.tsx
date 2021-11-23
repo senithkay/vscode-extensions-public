@@ -22,21 +22,22 @@ import {
     getFilteredDiagnostics
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
-    BooleanLiteral, NodePosition,
-    NumericLiteral, QualifiedNameReference,
+    BooleanLiteral,
+    NodePosition,
+    NumericLiteral,
+    QualifiedNameReference,
     SimpleNameReference,
     STKindChecker,
     STNode,
-    StringLiteral, StringTypeDesc
+    StringLiteral
 } from "@wso2-enterprise/syntax-tree";
 import debounce from "lodash.debounce";
 
 import * as c from "../../constants";
 import { SuggestionItem, VariableUserInputs } from "../../models/definitions";
-import { InputEditorContext } from "../../store/input-editor-context";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { SuggestionsContext } from "../../store/suggestions-context";
-import { getDataTypeOnExpressionKind, getPartialSTForStatement } from "../../utils";
+import { getPartialSTForStatement } from "../../utils";
 import { useStatementEditorStyles } from "../ViewContainer/styles";
 
 import {
@@ -44,11 +45,11 @@ import {
 } from "./constants";
 
 export interface InputEditorProps {
-    model: STNode,
-    statementType: any,
-    diagnosticHandler: (diagnostics: string) => void,
-    userInputs: VariableUserInputs,
-    isTypeDescriptor: boolean
+    model: STNode;
+    statementType: any;
+    diagnosticHandler: (diagnostics: string) => void;
+    userInputs: VariableUserInputs;
+    isTypeDescriptor: boolean;
 }
 
 export function InputEditor(props: InputEditorProps) {
@@ -63,12 +64,9 @@ export function InputEditor(props: InputEditorProps) {
 
     const { model, statementType, diagnosticHandler, userInputs, isTypeDescriptor } = props;
 
-    const inputEditorCtx = useContext(InputEditorContext);
     const stmtCtx = useContext(StatementEditorContext);
     const { expressionHandler } = useContext(SuggestionsContext);
     const { currentFile, getLangClient } = stmtCtx;
-
-    const [currentContent, setCurrentContent] = useState(stmtCtx.modelCtx.statementModel.source);
 
     const overlayClasses = useStatementEditorStyles();
 
@@ -104,8 +102,7 @@ export function InputEditor(props: InputEditorProps) {
         || STKindChecker.isFloatTypeDesc(model)
         || STKindChecker.isIntTypeDesc(model)
         || STKindChecker.isJsonTypeDesc(model)
-        || STKindChecker.isVarTypeDesc(model)
-        || STKindChecker.isSimpleNameReference(model))) {
+        || STKindChecker.isVarTypeDesc(model))) {
         value = model.name.value;
     }
 
@@ -115,9 +112,8 @@ export function InputEditor(props: InputEditorProps) {
     const textLabel = userInputs && userInputs.formField ? userInputs.formField : "modelName"
     const varName = userInputs && userInputs.varName ? userInputs.varName : "temp_" + (textLabel).replace(/[^A-Z0-9]+/ig, "");
     const varType = userInputs ? userInputs.selectedType : 'string';
-    const defaultCodeSnippet = varType + " " + varName + " = ;";
-    const snippetTargetPosition = defaultCodeSnippet.length;
     const isCustomTemplate = false;
+    let currentContent = stmtCtx.modelCtx.statementModel.source;
 
     const placeHolders: string[] = ['EXPRESSION', 'TYPE_DESCRIPTOR'];
 
@@ -134,16 +130,14 @@ export function InputEditor(props: InputEditorProps) {
 
     useEffect(() => {
         setUserInput(value);
-        handleContentChange(currentContent).then(() => {
-            handleOnOutFocus().then();
-        });
-    }, [inputEditorCtx.userInput]);
+        handleContentChange(currentContent).then();
+    }, [value]);
 
     useEffect(() => {
         if (userInput === '') {
             setIsEditing(true);
         }
-    }, [isEditing]);
+    }, [isEditing, userInput]);
 
     async function addStatementToTargetLine(currentFileContent: string, position: NodePosition, currentStatement: string): Promise<string> {
         const modelContent: string[] = currentFileContent.split(/\n/g) || [];
@@ -239,7 +233,7 @@ export function InputEditor(props: InputEditorProps) {
             ...inputEditorState,
             diagnostic: diagResp[0]?.diagnostics ? getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) : []
         })
-        setCurrentContent(currentStatement);
+        currentContent = currentStatement;
 
         if (isEditing) {
             getContextBasedCompletions(currentCodeSnippet != null ? currentCodeSnippet : userInput);
@@ -300,8 +294,6 @@ export function InputEditor(props: InputEditorProps) {
                 line: targetPosition.startLine
             }
         }
-
-        const acceptedDataType: string[] = getDataTypeOnExpressionKind(model.kind);
 
         // CodeSnippet is split to get the suggestions for field-access-expr (expression.field-name)
         const splitCodeSnippet = codeSnippet.split('.');
