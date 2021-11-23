@@ -14,10 +14,10 @@
 import React from "react";
 import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 
-import { useStyles } from "../../../styles";
-import FitToScreenSVG from "../../PanAndZoom/images/fit-to-screen";
-import ZoomInSVG from "../../PanAndZoom/images/zoom-in";
-import ZoomOutSVG from "../../PanAndZoom/images/zoom-out";
+import { useStyles } from "../../../../../../styles";
+import FitToScreenSVG from "../../../../PanAndZoom/images/fit-to-screen";
+import ZoomInSVG from "../../../../PanAndZoom/images/zoom-in";
+import ZoomOutSVG from "../../../../PanAndZoom/images/zoom-out";
 
 export default function PanAndZoom(props: any) {
 

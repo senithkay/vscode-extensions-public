@@ -14,11 +14,11 @@
 import React, { useContext, useState } from "react";
 
 import { FunctionDefinition, IdentifierToken, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
-import { Context } from "../../../../Contexts/Diagram";
-import { STModification } from "../../../../Definitions/lang-client-extended";
-import { StatementViewState } from "../../../view-state";
-import { FunctionBody } from "../../FunctionBody";
+import { Context } from "../../../../../../Contexts/Diagram";
+import { StatementViewState } from "../../../ViewState";
+import { FunctionBody } from "../../RenderingComponents/FunctionBody";
 
 import { ShowFunctionSVG } from "./ShowFunctionSVG";
 import "./style.scss";

@@ -21,10 +21,10 @@ import {
 import cn from "classnames";
 import { v4 as uuid } from "uuid";
 
-import { Context } from "../../../Contexts/Diagram";
-import { useSelectedStatus } from "../../hooks";
-import { useStyles } from "../../styles";
-import { BlockViewState, FunctionViewState } from "../../view-state";
+import { Context } from "../../../../../../Contexts/Diagram";
+import { useSelectedStatus } from "../../../../../hooks";
+import { useStyles } from "../../../../../styles";
+import { BlockViewState, FunctionViewState } from "../../../ViewState";
 import ControlFlowArrow from "../ControlFlowArrow";
 import { End } from "../End";
 import { StartButton } from "../Start";
