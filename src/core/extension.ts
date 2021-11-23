@@ -541,9 +541,11 @@ export class BallerinaExtension {
     }
 
     public getChoreoSession(): ChoreoSession {
-        let tokenDuration = new Date().getTime() - new Date(this.choreoSession.choreoLoginTime!).getTime();
-        if (tokenDuration > 3000) {
-            new OAuthTokenHandler(this).exchangeRefreshToken(this.choreoSession.choreoRefreshToken!);
+        if (this.choreoSession.loginStatus && this.choreoSession.choreoLoginTime) {
+            let tokenDuration = new Date().getTime() - new Date(this.choreoSession.choreoLoginTime).getTime();
+            if (tokenDuration > 3000000) {
+                new OAuthTokenHandler(this).exchangeRefreshToken(this.choreoSession.choreoRefreshToken!);
+            }
         }
         return this.choreoSession;
     }
