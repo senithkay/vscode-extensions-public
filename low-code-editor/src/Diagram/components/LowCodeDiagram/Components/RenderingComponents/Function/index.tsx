@@ -139,12 +139,12 @@ export function Function(props: FunctionProps) {
 
     const marginTop = (model as any).performance ? 5 : 0;
     const onClickPerformance = async () => {
-        let path = "";
-        for (const resourcePath of model.relativeResourcePath) {
-            path += (resourcePath as any).value;
+        let fullPath = "";
+        for (const path of model.relativeResourcePath) {
+            fullPath += (path as any).value;
         }
 
-        await addAdvancedLabels(`${model.functionName.value.toUpperCase()} /${path}`,
+        await addAdvancedLabels(`${model.functionName.value.toUpperCase()} /${fullPath}`,
             model.position, diagramRedraw)
     };
 
