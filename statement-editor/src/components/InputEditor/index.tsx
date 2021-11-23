@@ -15,6 +15,13 @@ import React, { useContext, useEffect, useState } from "react";
 import { monaco } from "react-monaco-editor";
 
 import {
+    CompletionParams,
+    CompletionResponse,
+    ExpressionEditorLangClientInterface,
+    getDiagnosticMessage,
+    getFilteredDiagnostics
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
     BooleanLiteral,
     NodePosition,
     NumericLiteral,
@@ -23,14 +30,7 @@ import {
     STKindChecker,
     STNode,
     StringLiteral
-} from "@ballerina/syntax-tree";
-import {
-    CompletionParams,
-    CompletionResponse,
-    ExpressionEditorLangClientInterface,
-    getDiagnosticMessage,
-    getFilteredDiagnostics
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+} from "@wso2-enterprise/syntax-tree";
 import debounce from "lodash.debounce";
 
 import * as c from "../../constants";
