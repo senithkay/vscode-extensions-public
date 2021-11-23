@@ -163,6 +163,7 @@ export interface ExpressionEditorProps {
     customTemplate?: ExpressionEditorCustomTemplate,
     expandDefault?: boolean;
     revertClearInput?: () => void;
+    onFocus?: (value: string) => void;
     hideTextLabel?: boolean;
     changed?: boolean;
     subEditor?: boolean;
@@ -173,6 +174,7 @@ export interface ExpressionEditorProps {
     getCompletions?: (completionProps: GetExpCompletionsParams) => Promise<monaco.languages.CompletionList>;
     showHints?: boolean;
     disabled?: boolean;
+    enterKeyPressed?: (value: string) => void;
 }
 
 export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>) {
@@ -206,7 +208,8 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         customProps,
     } = props;
     const { validate, statementType, customTemplate, focus, expandDefault, clearInput, revertClearInput, changed,
-            subEditor, editPosition, expressionInjectables, hideSuggestions, hideExpand, getCompletions = getStandardExpCompletions, showHints = true, disabled } = customProps;
+            subEditor, editPosition, expressionInjectables, hideSuggestions, hideExpand,
+            getCompletions = getStandardExpCompletions, showHints = true, disabled, enterKeyPressed, onFocus } = customProps;
     const targetPosition = editPosition ? editPosition : getTargetPosition(targetPositionDraft, syntaxTree);
     const [invalidSourceCode, setInvalidSourceCode] = useState(false);
     const [expand, setExpand] = useState(expandDefault || false);
@@ -637,6 +640,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         if ((currentContent === "" || TRIGGER_CHARACTERS.includes(lastCharacter)) && monacoRef.current.editor.hasTextFocus()) {
             monacoRef.current.editor.trigger('exp_editor', 'editor.action.triggerSuggest', {})
         }
+        onFocus(currentContent);
     }
 
     // ExpEditor onChange
@@ -854,6 +858,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             // When suggest widget is open => suggestWidgetStatus = 3
             if (keyCode === monaco.KeyCode.Tab && suggestWidgetStatus !== 3) {
                 event.stopPropagation();
+            }
+            if (enterKeyPressed && keyCode === monaco.KeyCode.Enter) {
+                enterKeyPressed((event.target as any).value);
             }
         });
     }

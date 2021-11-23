@@ -49,29 +49,34 @@ export function RecordField(props: CodePanelProps) {
     const { state, callBacks } = useContext(Context);
 
     const [isRecordExpanded, setIsRecordExpanded] = useState(true);
+    const [fieldNameError, setFieldNameError] = useState<string>("");
+    const [recordNameError, setRecordNameError] = useState<string>("");
     const [isRecordEditInProgress, setIsRecordEditInProgress] = useState((recordModel.name === "") ||
         (recordModel.name === undefined));
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 
     const handleFieldEdit = (field: SimpleField) => {
-        const index = recordModel.fields.indexOf(field);
-        if (index !== -1) {
-            // Changes the active state to selected record model
-            state.currentRecord.isActive = false;
-            recordModel.isActive = true;
+        if (!(state.isEditorInvalid || (state.currentField && state.currentField.name === "" ||
+            state.currentField?.type === ""))) {
+            const index = recordModel.fields.indexOf(field);
+            if (index !== -1) {
+                // Changes the active state to selected record model
+                state.currentRecord.isActive = false;
+                recordModel.isActive = true;
 
-            // Changes the active state to selected field
-            if (state.currentField) {
-                state.currentField.isActive = false;
-                state.currentField.isEditInProgress = false;
+                // Changes the active state to selected field
+                if (state.currentField) {
+                    state.currentField.isActive = false;
+                    state.currentField.isEditInProgress = false;
+                }
+                field.isActive = true;
+                field.isEditInProgress = true;
+
+                callBacks.onUpdateCurrentField(field);
+                callBacks.onUpdateCurrentRecord(recordModel);
+                callBacks.onUpdateModel(state.recordModel);
+                callBacks.onChangeFormState(FormState.UPDATE_FIELD);
             }
-            field.isActive = true;
-            field.isEditInProgress = true;
-
-            callBacks.onUpdateCurrentField(field);
-            callBacks.onUpdateCurrentRecord(recordModel);
-            callBacks.onUpdateModel(state.recordModel);
-            callBacks.onChangeFormState(FormState.UPDATE_FIELD);
         }
     }
 
@@ -85,7 +90,9 @@ export function RecordField(props: CodePanelProps) {
             recordModel.isActive = true;
 
             callBacks.onUpdateModel(state.recordModel);
+            callBacks.onUpdateCurrentField(undefined);
             callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
+            callBacks.updateEditorValidity(false);
         }
     };
 
@@ -104,15 +111,19 @@ export function RecordField(props: CodePanelProps) {
     };
 
     const getNewField = () : SimpleField => {
-        const newField: SimpleField = {type: "int", name: "", isFieldOptional: false, isActive: true,
-                                       isEditInProgress: true};
+        const newField: SimpleField = {type: "", name: "", isFieldOptional: false, isActive: true,
+                                       isNameInvalid: false, isEditInProgress: true};
         recordModel.fields.push(newField);
+        callBacks.updateEditorValidity(true);
         return newField;
     };
 
     const handleAddField = () => {
         // Changes the active state to selected record model
         state.currentRecord.isActive = false;
+        if (state.currentField && state.currentField.name === "") {
+            state.currentField.name = genRecordName("f", getFieldNames(state.currentRecord.fields));
+        }
         recordModel.isActive = true;
 
         const newField = getNewField();
@@ -141,12 +152,25 @@ export function RecordField(props: CodePanelProps) {
         if (event.key === 'Enter') {
             if (!event.target.value) {
                 recordModel.name = genRecordName("Record", []);
+                state.currentField = getNewField();
+                callBacks.onUpdateCurrentField(state.currentField);
+                setIsRecordEditInProgress(false);
+                setRecordNameError("");
+                callBacks.onUpdateRecordSelection(false);
+                callBacks.onChangeFormState(FormState.UPDATE_FIELD);
+                callBacks.updateEditorValidity(false);
+            } else if (nameRegex.test(event.target.value)) {
+                state.currentField = getNewField();
+                callBacks.onUpdateCurrentField(state.currentField);
+                setIsRecordEditInProgress(false);
+                setRecordNameError("");
+                callBacks.onUpdateRecordSelection(false);
+                callBacks.onChangeFormState(FormState.UPDATE_FIELD);
+                callBacks.updateEditorValidity(false);
+            } else {
+                callBacks.updateEditorValidity(true);
+                setRecordNameError("Invalid name");
             }
-            state.currentField = getNewField();
-            callBacks.onUpdateCurrentField(state.currentField);
-            setIsRecordEditInProgress(false);
-            callBacks.onUpdateRecordSelection(false);
-            callBacks.onChangeFormState(FormState.UPDATE_FIELD);
         } else {
             state.currentRecord.name = event.target.value;
             callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
@@ -178,18 +202,22 @@ export function RecordField(props: CodePanelProps) {
         const isNameAlreadyExists = state.currentRecord.fields.find(field => (field.name === event.target.value)) &&
             !(state.currentField?.name === event.target.value);
         if (isNameAlreadyExists) {
+            setFieldNameError("Name already exists");
             state.currentField.isNameInvalid = true;
             callBacks.updateEditorValidity(state.currentField.isNameInvalid ||
                 state.currentField.isValueInvalid);
         } else if (keywords.includes(event.target.value)) {
+            setFieldNameError("Keyword are not allowed");
             state.currentField.isNameInvalid = true;
             callBacks.updateEditorValidity(state.currentField.isNameInvalid ||
                 state.currentField.isValueInvalid);
         } else if ((event.target.value !== "") && !nameRegex.test(event.target.value)) {
+            setFieldNameError("Invalid name");
             state.currentField.isNameInvalid = true;
             callBacks.updateEditorValidity(state.currentField.isNameInvalid ||
                 state.currentField.isValueInvalid);
         } else {
+            setFieldNameError("");
             state.currentField.isNameInvalid = false;
             callBacks.updateEditorValidity(state.currentField.isNameInvalid ||
                 state.currentField.isValueInvalid);
@@ -207,7 +235,7 @@ export function RecordField(props: CodePanelProps) {
     };
 
     const handleRecordClick = () => {
-        if (!state.isEditorInvalid) {
+        if (!(state.isEditorInvalid || state.currentField?.name === "" || state.currentField?.type === "")) {
             state.currentRecord.isActive = false;
             recordModel.isActive = true;
             setIsRecordEditInProgress(true);
@@ -233,6 +261,7 @@ export function RecordField(props: CodePanelProps) {
             fieldItems.push(
                 <FieldEditor
                     field={state.currentField}
+                    nameError={fieldNameError}
                     onChange={handleFieldEditorChange}
                     onDeleteClick={handleFieldDelete}
                     onFocusLost={handleSubItemFocusLost}
@@ -366,13 +395,13 @@ export function RecordField(props: CodePanelProps) {
                             <FormTextInput
                                 dataTestId="record-name"
                                 customProps={{
-                                    isErrored: false,
+                                    isErrored: (recordNameError !== ""),
                                     focused: true
                                 }}
                                 defaultValue={typeDescName}
                                 onKeyUp={handleKeyUp}
                                 onBlur={handleOnBlur}
-                                errorMessage={""}
+                                errorMessage={recordNameError}
                                 placeholder={"Record name"}
                                 size="small"
                             />

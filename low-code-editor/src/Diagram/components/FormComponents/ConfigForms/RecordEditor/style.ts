@@ -27,16 +27,21 @@ export const recordStyles = makeStyles((theme: Theme) =>
             borderLeft: "1px solid #d8d8d8",
         },
         recordFieldWrapper: {
-            maxHeight: "83vh",
+            height: "83vh",
             marginRight: 10,
             paddingRight: 10,
-            overflow: 'scroll',
+            overflowY: "scroll",
             '&::-webkit-scrollbar': {
-                width: '3px'
+                width: '3px',
+                height: '3px'
             },
             '&::-webkit-scrollbar-thumb': {
                 background: '#e6e7ec',
-                borderRadius: '2px'
+                borderRadius: 2
+            },
+            '&::-webkit-scrollbar-thumb:horizontal': {
+                background: '#e6e7ec',
+                borderRadius: 2
             },
             '&::-webkit-scrollbar-track': {
                 backgroundColor: 'transparent'
@@ -74,6 +79,7 @@ export const recordStyles = makeStyles((theme: Theme) =>
             display: 'flex',
             width: '100%',
             backgroundColor: "#f1f1f5",
+            borderRadius: 5
         },
         activeItemContentWrapper: {
             marginLeft: 10,
@@ -87,7 +93,7 @@ export const recordStyles = makeStyles((theme: Theme) =>
         itemWrapper: {
             display: 'flex',
             flexDirection: `row`,
-            minWidth: 250,
+            marginRight: 0,
             "&:hover": {
                 "& $itemLabelWrapper": {
                     background: "#ededf1",
@@ -99,21 +105,30 @@ export const recordStyles = makeStyles((theme: Theme) =>
             }
         },
         itemLabelWrapper: {
-            width: "80%",
-            marginLeft: 5,
-            marginRight: 5,
-            display: "flex",
-            flexDirection: "row"
+            width: "100%",
+            display: 'flex'
         },
         editTypeWrapper: {
-            minWidth: `92px !important`,
+            width: 130,
+            "& .MuiFormControl-marginNormal": {
+                margin: '0',
+            }
         },
         editNameWrapper: {
-            minWidth: 100,
+            width: "42%",
             marginLeft: 5,
             "& .MuiFormControl-marginNormal": {
                 margin: '0',
             }
+        },
+        editSingleTokenWrapper: {
+            width: 10,
+            marginTop: "3px !important",
+            marginLeft: 3
+        },
+        editFieldDelBtn: {
+            marginTop: 7,
+            width: 16
         },
         typeWrapper: {
             maxWidth: 80,
@@ -192,10 +207,10 @@ export const recordStyles = makeStyles((theme: Theme) =>
             }
         },
         recordEditorWrapper: {
-            minWidth: 250
+            minWidth: 270
         },
         activeRecordEditorWrapper: {
-            minWidth: 250,
+            minWidth: 270,
             boxSizing: "border-box",
             borderRadius: 4
         },
@@ -246,7 +261,7 @@ export const recordStyles = makeStyles((theme: Theme) =>
             }
         },
         typeTextFieldWrapper: {
-            width: 100,
+            width: 120,
             marginLeft: 5,
             "& .MuiFormControl-marginNormal": {
                 margin: '0',
@@ -300,11 +315,6 @@ export const recordStyles = makeStyles((theme: Theme) =>
             color: "#000"
         },
         editRecordEndSemicolonWrapper: {
-            width: 10,
-            marginTop: "3px !important",
-            marginLeft: 5
-        },
-        editSingleTokenWrapper: {
             width: 10,
             marginTop: "3px !important",
             marginLeft: 5
@@ -363,10 +373,6 @@ export const recordStyles = makeStyles((theme: Theme) =>
             marginLeft: 20,
             flexDirection: `column`,
             borderLeft: `1px solid #cdcdcd`
-        },
-        editFieldDelBtn: {
-            marginTop: 7,
-            marginLeft: 10
         },
     }),
 );
