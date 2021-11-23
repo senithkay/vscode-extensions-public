@@ -17,9 +17,9 @@
  *
  */
 
-import { NodePosition } from "@ballerina/syntax-tree";
 import { DiagramEditorLangClientInterface, GraphData, GraphPoint, PerformanceAnalyzerGraphResponse,
     PerformanceAnalyzerRealtimeResponse, SequenceGraphPoint, SequenceGraphPointValue } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { Range } from "monaco-editor";
 
 import { mergeAnalysisDetails } from "./mergePerformanceData";

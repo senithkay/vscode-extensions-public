@@ -15,7 +15,7 @@
 // tslint:disable: no-unused-expression
 import React, { useState } from "react"
 
-import { EnumDeclaration, EnumMember, STKindChecker } from "@ballerina/syntax-tree";
+import { EnumDeclaration, EnumMember, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import EnumIcon from "../../../../../../assets/icons/EnumIcon";
 import { useDiagramContext } from "../../../../../../Contexts/Diagram";

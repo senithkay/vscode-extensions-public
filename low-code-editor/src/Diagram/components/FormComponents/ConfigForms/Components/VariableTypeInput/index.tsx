@@ -13,7 +13,7 @@
 
 import React, { useState } from "react";
 
-import { NodePosition } from "@ballerina/syntax-tree";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import ExpressionEditor, { ExpressionEditorCustomTemplate, ExpressionEditorProps } from "../../../FormFieldComponents/ExpressionEditor";
 import { FormElementProps } from "../../../Types";
@@ -28,19 +28,21 @@ export interface VariableTypeInputProps {
     validateExpression: (fieldName: string, isInValid: boolean) => void;
     position: NodePosition;
     overrideTemplate?: ExpressionEditorCustomTemplate;
+    hideTextLabel?: boolean;
+    disabled?: boolean;
     ignoredCompletions?: string[];
     enterKeyPressed?: (value: string) => void;
 }
 
 export function VariableTypeInput(props: VariableTypeInputProps) {
-    const { onValueChange, validateExpression, position, value, displayName, overrideTemplate, hideLabel,
+    const { onValueChange, validateExpression, position, value, displayName, overrideTemplate, hideLabel, disabled,
             ignoredCompletions = [], focus, enterKeyPressed } = props;
+
     const [editorFocus, setEditorFocus] = useState<boolean>(focus);
 
     const revertFocus = () => {
         setEditorFocus(false);
     };
-
     const expressionEditorNameConfig: FormElementProps<ExpressionEditorProps> = {
         model: {
             name: "variableType",
@@ -60,6 +62,7 @@ export function VariableTypeInput(props: VariableTypeInputProps) {
             getCompletions: getVarTypeCompletions(ignoredCompletions),
             showHints: false,
             hideTextLabel: hideLabel,
+            disabled,
             focus: editorFocus,
             revertFocus,
             enterKeyPressed

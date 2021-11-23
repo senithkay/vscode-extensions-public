@@ -13,9 +13,9 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext } from "react";
 
-import { LocalVarDecl } from "@ballerina/syntax-tree";
 import CloseIcon from '@material-ui/icons/Close';
 import { BallerinaConnectorInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { useFunctionContext } from "../../../../../../../Contexts/Function";

@@ -13,8 +13,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext } from "react";
 
-import { NodePosition } from "@ballerina/syntax-tree";
 import { Connector, ConnectorConfig, FormField, STModification, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { Context as DiagramContext } from "../../../../../Contexts/Diagram";
 import {

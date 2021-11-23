@@ -13,7 +13,7 @@
 // tslint:disable: jsx-wrap-multiline
 import React, { ReactNode, useContext } from "react";
 
-import { PositionalArg } from "@ballerina/syntax-tree";
+import { PositionalArg } from "@wso2-enterprise/syntax-tree";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";

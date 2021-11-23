@@ -13,9 +13,9 @@
 import React, { useState } from "react";
 import { FormattedMessage } from "react-intl";
 
-import { ListenerDeclaration, NodePosition, STKindChecker } from "@ballerina/syntax-tree";
 import { Box, FormControl, FormHelperText, Typography } from "@material-ui/core";
 import { FormHeaderSection, SecondaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ListenerDeclaration, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { ListenerFormIcon } from "../../../../../assets/icons";
 import { PrimaryButton } from "../../../../../components/Buttons/PrimaryButton";
@@ -64,17 +64,17 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
     const saveBtnEnabled = !isListenerConfigValid(config);
 
     const onListenerNameChange = (listenerName: string) => {
-        setCofig({
-            ...config,
+        setCofig(prev => ({
+            ...prev,
             listenerName
-        });
+        }));
     }
 
     const onListenerPortChange = (listenerPort: string) => {
-        setCofig({
-            ...config,
+        setCofig(prev => ({
+            ...prev,
             listenerPort
-        });
+        }));
     }
 
     const handleOnSave = () => {
@@ -173,7 +173,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                     />
                     <VariableNameInput
                         displayName={'Listener Name'}
-                        value={defaultState.listenerName}
+                        value={config.listenerName}
                         onValueChange={onListenerNameChange}
                         validateExpression={updateExpressionValidity}
                         position={namePosition}

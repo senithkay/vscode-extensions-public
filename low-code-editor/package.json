@@ -9,7 +9,6 @@
   "types": "build/index.d.ts",
   "typings": "build/index",
   "scripts": {
-    "prepublishOnly": "npm run build",
     "prebuild": "npm run lint",
     "build": "npm run build:webpack",
     "build:tsc": "tsc --pretty && npm run copy:assets",
@@ -28,7 +27,7 @@
     "build-storybook": "build-storybook"
   },
   "dependencies": {
-    "@ballerina/syntax-tree": "*",
+    "@wso2-enterprise/syntax-tree": "*",
     "@wso2-enterprise/ballerina-low-code-edtior-commons": "*",
     "@wso2-enterprise/ballerina-statement-editor": "*",
     "@date-io/date-fns": "^1.3.13",

@@ -17,7 +17,7 @@ import {
     LocalVarDecl, LockStatement, MatchStatement,
     PanicStatement, ReturnStatement, RollbackStatement, TransactionStatement,
     WhileStatement
-} from "@ballerina/syntax-tree";
+} from "@wso2-enterprise/syntax-tree";
 
 export const VARIABLE = "Variable"
 export const ARITHMETIC = "Arithmetic"

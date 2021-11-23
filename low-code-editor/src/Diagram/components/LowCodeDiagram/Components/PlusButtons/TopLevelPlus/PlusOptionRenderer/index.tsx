@@ -12,8 +12,8 @@
  */
 import React from "react";
 
-import { NodePosition } from "@ballerina/syntax-tree";
 import { ClickAwayListener } from "@material-ui/core";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { getConstructIcon } from "../../../../../Portals/utils";
 import { PlusMenuEntry } from "../PlusOptionsSelector";

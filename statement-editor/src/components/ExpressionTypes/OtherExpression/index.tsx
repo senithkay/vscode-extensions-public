@@ -12,8 +12,8 @@
  */
 import React from "react";
 
-import { STNode } from "@ballerina/syntax-tree";
 import { TextField } from "@material-ui/core";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { useStatementEditorStyles } from "../../ViewContainer/styles";
 

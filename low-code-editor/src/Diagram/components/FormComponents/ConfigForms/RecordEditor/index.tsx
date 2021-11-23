@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from 'react';
 
-import { NodePosition, RecordTypeDesc, STKindChecker, TypeDefinition } from "@ballerina/syntax-tree";
+import { NodePosition, RecordTypeDesc, STKindChecker, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../Contexts/Diagram";
 import { FormState, Provider as RecordEditorProvider} from "../../../../../Contexts/RecordEditor"

@@ -12,7 +12,7 @@
  */
 import React, { useContext, useReducer } from "react";
 
-import { NodePosition, STNode } from "@ballerina/syntax-tree";
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { DataMapperConfig } from "../Diagram/components/FormComponents/Types";
 import { recalculateSizingAndPositioning, sizingAndPositioning } from "../Diagram/utils/diagram-util";

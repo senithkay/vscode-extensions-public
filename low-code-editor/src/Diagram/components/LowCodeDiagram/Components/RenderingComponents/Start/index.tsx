@@ -20,7 +20,7 @@ import {
     ObjectMethodDefinition,
     ResourceAccessorDefinition,
     STKindChecker,
-} from "@ballerina/syntax-tree";
+} from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../Contexts/Diagram";
 import { PlusButton } from "../../PlusButtons/Plus";

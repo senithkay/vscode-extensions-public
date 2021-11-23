@@ -11,7 +11,7 @@
  * associated services.
  */
 
-import { ListenerDeclaration, ServiceDeclaration, STKindChecker } from "@ballerina/syntax-tree";
+import { ListenerDeclaration, ServiceDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { STSymbolInfo } from "../../../../../..";
 

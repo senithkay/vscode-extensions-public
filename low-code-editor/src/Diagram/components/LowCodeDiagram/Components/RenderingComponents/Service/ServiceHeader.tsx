@@ -18,7 +18,7 @@ import {
     ListenerDeclaration,
     ServiceDeclaration,
     STKindChecker,
-} from "@ballerina/syntax-tree";
+} from "@wso2-enterprise/syntax-tree";
 
 import { ServiceIconLight } from "../../../../../../assets/icons/ServiceIcon";
 import { Context as DiagramContext } from "../../../../../../Contexts/Diagram";

@@ -13,8 +13,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
-import { LocalVarDecl } from "@ballerina/syntax-tree";
 import { BallerinaModuleResponse, Package, Trigger } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 
 import { UserState } from "../../../../../types";
 // import { Context } from "../../../LowCodeDiagram/Context/diagram";
