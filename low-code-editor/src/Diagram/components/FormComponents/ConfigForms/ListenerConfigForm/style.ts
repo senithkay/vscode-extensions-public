@@ -26,10 +26,11 @@ export const useStyles = makeStyles((theme: Theme) =>
         inputLabelForRequired: {
             padding: 0,
             color: '#1D2028',
-            fontSize: 14,
+            fontSize: 13,
             textTransform: 'capitalize',
             display: 'inline-block',
-            lineHeight: 4
+            lineHeight: 4,
+            fontWeight: 300,
         },
         wizardBtnHolder: {
             display: "flex",

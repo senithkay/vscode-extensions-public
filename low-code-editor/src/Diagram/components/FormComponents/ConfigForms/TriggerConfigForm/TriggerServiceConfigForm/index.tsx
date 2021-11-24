@@ -15,7 +15,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
-import { ButtonWithIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ButtonWithIcon, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { AddIcon } from "../../../../../../assets/icons";
 import { useDiagramContext } from "../../../../../../Contexts/Diagram";
@@ -110,44 +110,37 @@ export function TriggerForm(props: FormGeneratorProps) {
     }
 
     return (
-        <>
-            <FormControl data-testid="log-form" className={formClasses.wizardFormControl}>
-                <div className={formClasses.formWrapper}>
-                    <div className={formClasses.formFeilds}>
-                        <div className={formClasses.formWrapper}>
-                            <div className={formClasses.formTitleWrapper}>
-                                <div className={formClasses.mainTitleWrapper}>
-                                    <Typography variant="h4">
-                                        <Box paddingTop={2} paddingBottom={2}>
-                                            <FormattedMessage id="lowcode.develop.triggerConfigForm.trigger.title" defaultMessage="Slack Trigger" />
-                                        </Box>
-                                    </Typography>
-                                </div>
-                            </div>
-                            {/* {(isLoading || isConnectorLoading) && (preLoader)} */}
-                            <div>
-                                <Typography>
-                                    Service Config
-                                </Typography>
-                            </div>
-                            <div>
-                                {selectedChannels.map((channel, index) => (<SelectedTriggerItem key={index} channelName={channel} />))}
-                                {addNewChannel || selectedChannels.length === 0 ? dropDownWithButton : (notSelectedChannels.length !== 0 ? addNewChannelButton : (null))}
-                            </div>
-                            <div>
-                                <FormActionButtons
-                                    cancelBtnText="Cancel"
-                                    saveBtnText={"Create"}
-                                    isMutationInProgress={false}
-                                    validForm={true}
-                                    onSave={createTriggerCode}
-                                    onCancel={onCancel}
-                                />
-                            </div>
-                        </div>
+        <FormControl data-testid="log-form" className={formClasses.wizardFormControl}>
+            <FormHeaderSection
+                onCancel={onCancel}
+                statementEditor={false}
+                formTitle={"lowcode.develop.triggerConfigForm.trigger.title"}
+                defaultMessage={"Slack Trigger"}
+            />
+            <div className={formClasses.formWrapper}>
+                <div className={formClasses.formFeilds}>
+                    {/* {(isLoading || isConnectorLoading) && (preLoader)} */}
+                    <div>
+                        <Typography>
+                            Service Config
+                        </Typography>
+                    </div>
+                    <div>
+                        {selectedChannels.map((channel, index) => (<SelectedTriggerItem key={index} channelName={channel} />))}
+                        {addNewChannel || selectedChannels.length === 0 ? dropDownWithButton : (notSelectedChannels.length !== 0 ? addNewChannelButton : (null))}
+                    </div>
+                    <div>
+                        <FormActionButtons
+                            cancelBtnText="Cancel"
+                            saveBtnText={"Create"}
+                            isMutationInProgress={false}
+                            validForm={true}
+                            onSave={createTriggerCode}
+                            onCancel={onCancel}
+                        />
                     </div>
                 </div>
-            </FormControl>
-        </>
+            </div>
+        </FormControl>
     );
 }
