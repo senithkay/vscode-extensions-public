@@ -69,11 +69,9 @@ export const PerformanceForcast = ({ name, data }: PerformanceForcastProps) => {
                             label={{ value: 'Throughput (req/s)', angle: -90, position: 'insideBottomLeft' }}
                         />
                         <YAxis />
-                        <Tooltip />
-                        <Legend />
+                        <Tooltip cursor={{ strokeWidth: 2 }} />
                         <CartesianGrid strokeDasharray="0" />
-                        <Line type="monotone" dataKey="tps" stroke="#5567D5" />
-                        <Area type="monotone" dataKey="tps" activeDot={{ onClick: handleClick }}
+                        <Area type="monotone" dataKey="tps" activeDot={{ onClick: handleClick }} baseLine={8}
                             stroke="#5567D5" strokeWidth="2" fillOpacity={1} fill="url(#colorThroughput)" />
                     </AreaChart>
                 </ResponsiveContainer>
@@ -105,10 +103,9 @@ export const PerformanceForcast = ({ name, data }: PerformanceForcastProps) => {
                             label={{ value: 'Latency (ms)', angle: -90, position: 'insideBottomLeft' }}
 
                         />
-                        <Tooltip />
-                        <Legend />
+                        <YAxis />
+                        <Tooltip cursor={{ strokeWidth: 2 }} />
                         <CartesianGrid strokeDasharray="0" />
-                        <Line type="monotone" dataKey="latency" stroke="#EA4C4D" />
                         <Area type="monotone" dataKey="latency" activeDot={{ onClick: handleClick }}
                             stroke="#EA4C4D" strokeWidth="2" fillOpacity={1} fill="url(#colorLatency)" />
                     </AreaChart>
