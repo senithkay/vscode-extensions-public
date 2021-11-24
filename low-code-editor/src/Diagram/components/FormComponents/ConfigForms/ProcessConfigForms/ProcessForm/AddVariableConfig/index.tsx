@@ -28,7 +28,7 @@ import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
 import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";
-import {SwitchToggle} from "../../../../FormFieldComponents/SwitchToggle";
+import { SwitchToggle } from "../../../../FormFieldComponents/SwitchToggle";
 import { FormTextInput } from "../../../../FormFieldComponents/TextField/FormTextInput";
 import { ProcessConfig } from "../../../../Types";
 import { VariableNameInput, VariableNameInputProps } from "../../../Components/VariableNameInput";
@@ -229,7 +229,11 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                 list: formArgs?.expressionInjectables?.list,
                 setInjectables: formArgs?.expressionInjectables?.setInjectables
             },
-            editPosition: config.model?.position || formArgs.targetPosition,
+            editPosition: config.model ? {
+                ...config.model?.position,
+                startColumn: config.model.position.endColumn,
+                endColumn: config.model.position.endColumn,
+            } : formArgs.targetPosition,
         },
         onChange: onPropertyChange,
         defaultValue: variableExpression,
@@ -251,7 +255,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         setValidExpresssionValue(false);
     }
 
-    const {handleStmtEditorToggle , stmtEditorComponent} = useStatementEditor(
+    const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
         {
             label: intl.formatMessage({ id: "lowcode.develop.configForms.variable.statementEditor.label" }),
             initialSource,
@@ -301,7 +305,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                     defaultMessage="Initialize Variable"
                 />
             </Typography>
-            <SwitchToggle onChange={handleVarInitialize} initSwitch={initialized}/>
+            <SwitchToggle onChange={handleVarInitialize} initSwitch={initialized} />
         </div>
     );
 
