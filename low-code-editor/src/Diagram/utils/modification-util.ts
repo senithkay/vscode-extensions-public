@@ -17,7 +17,7 @@ import { ConfigurableFormState } from "../components/FormComponents/ConfigForms/
 import { ConstantConfigFormState } from "../components/FormComponents/ConfigForms/ConstantConfigForm/util";
 import { ListenerConfig } from "../components/FormComponents/ConfigForms/ListenerConfigForm/util/types";
 import { ModuleVariableFormState } from "../components/FormComponents/ConfigForms/ModuleVariableForm/util";
-import { HTTPServiceConfigState } from "../components/FormComponents/ConfigForms/ServiceConfigForm/forms/HttpService/util/reducer";
+import { HTTPServiceConfigState, TriggerServiceConfigState } from "../components/FormComponents/ConfigForms/ServiceConfigForm/forms/HttpService/util/reducer";
 import { HeaderObjectConfig } from "../components/FormComponents/ConnectorExtensions/HTTPWizard/HTTPHeaders";
 import { getFormattedModuleName, getParams } from "../components/Portals/utils";
 
@@ -767,6 +767,23 @@ export function updateServiceDeclartion(config: HTTPServiceConfigState, targetPo
                 'LISTENER_NAME': listenerName,
                 'BASE_PATH': serviceBasePath,
             }
+        }
+    }
+}
+
+export function updateTriggerServiceDeclartion(listenerName: string, triggerChannel: string, targetPosition: NodePosition): STModification {
+
+    const modification: STModification = {
+        ...targetPosition,
+        type: ''
+    };
+
+    return {
+        ...modification,
+        type: 'TRIGGER_UPDATE',
+        config: {
+            'LISTENER_NAME': listenerName,
+            'TRIGGER_CHANNEL': triggerChannel
         }
     }
 }

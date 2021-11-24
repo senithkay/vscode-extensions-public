@@ -24,7 +24,7 @@ import { UserState } from "../../../../../types";
 import { EVENT_TYPE_AZURE_APP_INSIGHTS, LowcodeEvent, START_CONNECTOR_ADD_INSIGHTS } from "../../../../models";
 import { APIHeightStates } from "../../../LowCodeDiagram/Components/DialogBoxes/PlusHolder/PlusElements";
 import { PlusViewState } from "../../../LowCodeDiagram/ViewState/plus";
-import { wizardStyles as useFormStyles} from "../style";
+import { wizardStyles as useFormStyles } from "../style";
 
 import FilterByMenu from "./FilterByMenu";
 import ModuleCard from "./ModuleCard";
@@ -99,7 +99,7 @@ export function Marketplace(props: MarketplaceProps) {
     const getModuleComponents = (balModules: BallerinaModule[]): ReactNode[] => {
         const componentList: ReactNode[] = [];
         balModules?.forEach((module: BallerinaModule) => {
-            const component = <ModuleCard module={module} onSelectModule={onSelectModule}/>;
+            const component = <ModuleCard module={module} onSelectModule={onSelectModule} />;
             componentList.push(component);
         });
         return componentList;
@@ -157,20 +157,7 @@ export function Marketplace(props: MarketplaceProps) {
                 {modules}
             </>
         );
-    }
-    ;
-
-    // const title = (
-    //     <div className={formClasses.formTitleWrapper}>
-    //         <div className={formClasses.mainTitleWrapper}>
-    //             <Typography variant="h4">
-    //                 <Box paddingTop={2} paddingBottom={2}>
-    //                     <FormattedMessage id="lowcode.develop.configForms.connectorList.title" defaultMessage={props.title} />
-    //                 </Box>
-    //             </Typography>
-    //         </div>
-    //     </div>
-    // );
+    };
 
     const loadingScreen = (
         <Grid sm={12} item={true} container={true} className={classes.msgContainer}>

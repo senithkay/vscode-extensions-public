@@ -16,6 +16,12 @@ export interface HTTPServiceConfigState {
     hasInvalidConfig: boolean
 }
 
+export interface TriggerServiceConfigState {
+    triggerChannel: string;
+    listenerConfig: ListenerConfigFormState,
+    hasInvalidConfig: boolean
+}
+
 export interface ListenerConfigFormState {
     createNewListener: boolean;
     fromVar: boolean,
