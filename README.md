@@ -46,6 +46,14 @@ If you want keep changing while doing the changes
 - Run ```npm run watch --workspace=statement-editor```
 - Run ```npm run watch --workspace=low-code-editor```
 
+#### IMPORTANT! Installing dependencies to workspaces
+
+Always run the ```npm i``` command from repo root with relavant workspace args added at the end to indicate to which these should be installed.
+
+eg: ```  npm i -D source-map-loader --workspace low-code-editor ```
+
+If you do a npm i from workspace directory, it will create a new package-lock there and can create inconsistencies. 
+
 ## Links
 
 - [npm workspaces](https://docs.npmjs.com/cli/v7/using-npm/workspaces)
