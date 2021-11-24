@@ -33,6 +33,7 @@ import useStyles from "./style";
 
 export interface MarketplaceProps {
     onSelect: (balModule: BallerinaModule, selectedBalModule: LocalVarDecl) => void;
+    onCancel?: () => void;
     onChange?: (type: string, subType: string, balModule?: BallerinaModule) => void;
     viewState?: PlusViewState;
     collapsed?: (value: APIHeightStates) => void;
@@ -41,7 +42,6 @@ export interface MarketplaceProps {
                        filterState: FilterStateMap, userInfo: UserState, page?: number) => Promise<BallerinaModuleResponse>;
     title: string;
     shortName?: string;
-    onClose?: () => void;
 }
 
 export interface FilterStateMap {
@@ -56,6 +56,7 @@ export enum BallerinaModuleType {
 export function Marketplace(props: MarketplaceProps) {
     const classes = useStyles();
     const formClasses = useFormStyles();
+    const {onSelect, onCancel, title} = props;
     const {
         props: { currentFile, userInfo },
         api: {
@@ -72,11 +73,10 @@ export function Marketplace(props: MarketplaceProps) {
     const [filterState, setFilterState] = useState<FilterStateMap>({});
     const [currentPage, setCurrentPage] = useState(1);
     const [isNextPageFetching, setIsNextPageFetching] = useState(false);
-    const { onClose, shortName, title, onSelect } = props;
 
     const connectorLimit = 14;
 
-    const shortNametitle = shortName ? shortName : title;
+    const shortName = props.shortName || title;
 
     React.useEffect(() => {
         fetchModulesList();
@@ -157,17 +157,7 @@ export function Marketplace(props: MarketplaceProps) {
                 {modules}
             </>
         );
-    }
-        ;
-
-    const formTitle = (
-        <FormHeaderSection
-            onCancel={onClose}
-            statementEditor={false}
-            formTitle={"lowcode.develop.configForms.connectorList.title"}
-            defaultMessage={title}
-        />
-    );
+    };
 
     const loadingScreen = (
         <Grid sm={12} item={true} container={true} className={classes.msgContainer}>
@@ -251,7 +241,13 @@ export function Marketplace(props: MarketplaceProps) {
 
     return (
         <FormControl data-testid="log-form" className={classes.container}>
-            {formTitle}
+            <FormHeaderSection
+                onCancel={onCancel}
+                statementEditor={false}
+                formTitle={`lowcode.develop.configForms.${shortName.replaceAll(" ", "")}.title`}
+                defaultMessage={title}
+                toggleChecked={false}
+            />
             <div className={formClasses.formWrapper}>
                 <div className={formClasses.formFeilds}>
                     <div onWheel={preventDiagramScrolling} className={classes.container}>
@@ -259,19 +255,13 @@ export function Marketplace(props: MarketplaceProps) {
                         <Grid item={true} sm={12} container={true}>
                             {leftSidePanel}
                             <Grid sm={7} container={true} item={true} className={classes.resultsContainer}>
-                                {isSearchResultsFetching && (
-                                    loadingScreen
-                                )}
-
-                                {!isSearchResultsFetching && selectedCategory !== "" && (
-                                    selectedCategoriesChips
-                                )}
-
+                                {isSearchResultsFetching && loadingScreen}
+                                {!isSearchResultsFetching && selectedCategory !== "" && selectedCategoriesChips}
                                 {modulesList}
-
-                                {!isSearchResultsFetching && centralModuleComponents.length === 0 && localModules.length === 0 && (
-                                    notFoundComponent
-                                )}
+                                {!isSearchResultsFetching &&
+                                    centralModuleComponents.length === 0 &&
+                                    localModules.length === 0 &&
+                                    notFoundComponent}
                             </Grid>
                         </Grid>
                     </div>
