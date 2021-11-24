@@ -332,20 +332,15 @@ export function InputEditor(props: InputEditorProps) {
         revertContent().then();
     }
 
-    const inputBlurHandler = () => {
-        setIsEditing(false);
-        if (userInput !== "") {
-            stmtCtx.modelCtx.updateModel(userInput, model.position);
-            expressionHandler(model, false, false, { expressionSuggestions: [] });
-
-            const ignore = handleOnOutFocus();
-        }
-    };
-
     const inputEnterHandler = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === "Enter" || event.key === "Tab" || event.key === "Escape") {
-            stmtCtx.modelCtx.updateModel(userInput, model.position);
-            inputBlurHandler()
+            setIsEditing(false);
+            if (userInput !== "") {
+                stmtCtx.modelCtx.updateModel(userInput, model.position);
+                expressionHandler(model, false, false, { expressionSuggestions: [] });
+
+                const ignore = handleOnOutFocus();
+            }
             getContextBasedCompletions(userInput);
         }
     };
@@ -382,7 +377,6 @@ export function InputEditor(props: InputEditorProps) {
                 value={placeHolders.indexOf(userInput) > -1 ? "" : userInput}
                 className={statementEditorClasses.inputEditorTemplate}
                 onKeyDown={inputEnterHandler}
-                onBlur={inputBlurHandler}
                 onInput={inputChangeHandler}
                 autoFocus={true}
                 style={{ maxWidth: userInput === '' ? '10px' : 'fit-content' }}

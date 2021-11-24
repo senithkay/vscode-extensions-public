@@ -108,5 +108,7 @@ service /{{{ BASE_PATH }}} on {{{ LISTENER_NAME }}}`,
     {{/each}}
 
     service /ignore on httpListener {}`,
+    TRIGGER_UPDATE: `
+    service {{{ TRIGGER_CHANNEL }}} on {{{ LISTENER_NAME }}}`
 
 }

@@ -16,7 +16,7 @@ import { FormattedMessage } from "react-intl";
 
 import { Box, CircularProgress, FormControl, Grid, Typography } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
-import { BallerinaModule, BallerinaModuleResponse, ButtonWithIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BallerinaModule, BallerinaModuleResponse, ButtonWithIcon, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../Contexts/Diagram";
@@ -24,7 +24,7 @@ import { UserState } from "../../../../../types";
 import { EVENT_TYPE_AZURE_APP_INSIGHTS, LowcodeEvent, START_CONNECTOR_ADD_INSIGHTS } from "../../../../models";
 import { APIHeightStates } from "../../../LowCodeDiagram/Components/DialogBoxes/PlusHolder/PlusElements";
 import { PlusViewState } from "../../../LowCodeDiagram/ViewState/plus";
-import { wizardStyles as useFormStyles} from "../style";
+import { wizardStyles as useFormStyles } from "../style";
 
 import FilterByMenu from "./FilterByMenu";
 import ModuleCard from "./ModuleCard";
@@ -41,6 +41,7 @@ export interface MarketplaceProps {
                        filterState: FilterStateMap, userInfo: UserState, page?: number) => Promise<BallerinaModuleResponse>;
     title: string;
     shortName?: string;
+    onClose?: () => void;
 }
 
 export interface FilterStateMap {
@@ -71,10 +72,11 @@ export function Marketplace(props: MarketplaceProps) {
     const [filterState, setFilterState] = useState<FilterStateMap>({});
     const [currentPage, setCurrentPage] = useState(1);
     const [isNextPageFetching, setIsNextPageFetching] = useState(false);
+    const { onClose, shortName, title, onSelect } = props;
 
     const connectorLimit = 14;
 
-    const shortName = props.shortName ? props.shortName : props.title;
+    const shortNametitle = shortName ? shortName : title;
 
     React.useEffect(() => {
         fetchModulesList();
@@ -90,14 +92,14 @@ export function Marketplace(props: MarketplaceProps) {
             property: balModule.displayName || balModule.package.name,
         };
         onEvent(event);
-        props.onSelect(balModule, undefined);
+        onSelect(balModule, undefined);
         openConnectorHelp(balModule);
     };
 
     const getModuleComponents = (balModules: BallerinaModule[]): ReactNode[] => {
         const componentList: ReactNode[] = [];
         balModules?.forEach((module: BallerinaModule) => {
-            const component = <ModuleCard module={module} onSelectModule={onSelectModule}/>;
+            const component = <ModuleCard module={module} onSelectModule={onSelectModule} />;
             componentList.push(component);
         });
         return componentList;
@@ -156,18 +158,15 @@ export function Marketplace(props: MarketplaceProps) {
             </>
         );
     }
-    ;
+        ;
 
-    const title = (
-        <div className={formClasses.formTitleWrapper}>
-            <div className={formClasses.mainTitleWrapper}>
-                <Typography variant="h4">
-                    <Box paddingTop={2} paddingBottom={2}>
-                        <FormattedMessage id="lowcode.develop.configForms.connectorList.title" defaultMessage={props.title} />
-                    </Box>
-                </Typography>
-            </div>
-        </div>
+    const formTitle = (
+        <FormHeaderSection
+            onCancel={onClose}
+            statementEditor={false}
+            formTitle={"lowcode.develop.configForms.connectorList.title"}
+            defaultMessage={title}
+        />
     );
 
     const loadingScreen = (
@@ -252,31 +251,29 @@ export function Marketplace(props: MarketplaceProps) {
 
     return (
         <FormControl data-testid="log-form" className={classes.container}>
+            {formTitle}
             <div className={formClasses.formWrapper}>
                 <div className={formClasses.formFeilds}>
-                    <div className={formClasses.formWrapper}>
-                        {title}
-                        <div onWheel={preventDiagramScrolling} className={classes.container}>
-                            {searchBar}
-                            <Grid item={true} sm={12} container={true}>
-                                {leftSidePanel}
-                                <Grid sm={7} container={true} item={true} className={classes.resultsContainer}>
-                                    {isSearchResultsFetching && (
-                                        loadingScreen
-                                    )}
+                    <div onWheel={preventDiagramScrolling} className={classes.container}>
+                        {searchBar}
+                        <Grid item={true} sm={12} container={true}>
+                            {leftSidePanel}
+                            <Grid sm={7} container={true} item={true} className={classes.resultsContainer}>
+                                {isSearchResultsFetching && (
+                                    loadingScreen
+                                )}
 
-                                    {!isSearchResultsFetching && selectedCategory !== "" && (
-                                        selectedCategoriesChips
-                                    )}
+                                {!isSearchResultsFetching && selectedCategory !== "" && (
+                                    selectedCategoriesChips
+                                )}
 
-                                    {modulesList}
+                                {modulesList}
 
-                                    {!isSearchResultsFetching && centralModuleComponents.length === 0 && localModules.length === 0 && (
-                                        notFoundComponent
-                                    )}
-                                </Grid>
+                                {!isSearchResultsFetching && centralModuleComponents.length === 0 && localModules.length === 0 && (
+                                    notFoundComponent
+                                )}
                             </Grid>
-                        </div>
+                        </Grid>
                     </div>
                 </div>
             </div>

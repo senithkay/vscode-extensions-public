@@ -17,6 +17,7 @@ import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import ExpressionEditor, { ExpressionEditorCustomTemplate, ExpressionEditorProps } from "../../../FormFieldComponents/ExpressionEditor";
 import { FormElementProps } from "../../../Types";
+import { wizardStyles as useFormStyles } from "../../style";
 
 export interface VariableNameInputProps {
     displayName: string;
@@ -30,6 +31,7 @@ export interface VariableNameInputProps {
 
 export function VariableNameInput(props: VariableNameInputProps) {
     const { onValueChange, validateExpression, position, value, displayName, overrideTemplate, isEdit } = props;
+    const formClasses = useFormStyles();
 
     let customTemplate;
 
@@ -71,6 +73,8 @@ export function VariableNameInput(props: VariableNameInputProps) {
     };
 
     return (
-        <ExpressionEditor {...expressionEditorNameConfig} />
+        <div className={formClasses.expStatementWrapper}>
+            <ExpressionEditor {...expressionEditorNameConfig} />
+        </div>
     )
 }
