@@ -18,6 +18,7 @@ import { CloseRounded } from "@material-ui/icons";
 import { ButtonWithIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { AddIcon } from "../../../../../../assets/icons";
+import DeleteButton from "../../../../../../assets/icons/DeleteButton";
 import { useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { createImportStatement, createTrigger } from "../../../../../utils/modification-util";
 import { SelectDropdownWithButton } from "../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
@@ -100,9 +101,8 @@ export function TriggerForm(props: FormGeneratorProps) {
             <div className={formClasses.headerWrapper}>
                 <div className={formClasses.headerLabel}>
                     {prop.channelName}
-                    <ButtonWithIcon
+                    <DeleteButton
                         onClick={onDeleteChannel.bind(this, prop.channelName)}
-                        icon={<CloseRounded fontSize="small" />}
                     />
                 </div>
             </div>
