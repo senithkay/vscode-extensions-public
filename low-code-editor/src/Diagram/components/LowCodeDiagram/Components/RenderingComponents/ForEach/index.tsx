@@ -175,7 +175,7 @@ export function ForEach(props: ForeachProps) {
             endColumn: modelForeach.actionOrExpressionNode.position.endColumn,
         }
         setConfigWizardOpen(true);
-        const conditionConfigFormState = getConditionConfig("ForEach", position, WizardType.EXISTING, undefined, {
+        const conditionConfigFormState = getConditionConfig("ForEach", model.position, WizardType.EXISTING, undefined, {
             type: "ForEach",
             conditionExpression,
             conditionPosition: conditionUpdatePosition,
