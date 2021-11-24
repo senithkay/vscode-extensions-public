@@ -61,6 +61,7 @@ function isUserDefinedModule(propertyObj: any): boolean {
 
 export const ConfigForm = (props: any) => {
     const [configs, setConfigs] = useState(new Array<ConfigProperties>());
+    const [submitType, setSubmitType] = useState('');
     let configJsonSchema = props.configSchema;
 
     let schemaProperties: any;
@@ -141,7 +142,8 @@ export const ConfigForm = (props: any) => {
         event.preventDefault();
         vscode.postMessage({
             command: 'handleConfigInputs',
-            text: JSON.stringify(configs)
+            text: JSON.stringify(configs),
+            submitType: submitType
         });
     }
 
@@ -185,7 +187,10 @@ export const ConfigForm = (props: any) => {
                                     })}
                                     <CardActions style={{ justifyContent: 'center' }}>
                                         <Box m={2} pt={3} mb={6}>
-                                            <Button variant="contained" color="primary" type="submit">Save Configurations</Button>
+                                            <Button variant="contained" color="primary" type="submit" onClick={() => setSubmitType('Save')}>Save</Button>
+                                        </Box>
+                                        <Box m={2} pt={3} mb={6}>
+                                            <Button variant="contained" color="primary" type="submit" onClick={() => setSubmitType('SaveRun')}>Save and Run</Button>
                                         </Box>
                                     </CardActions>
                                 </form>

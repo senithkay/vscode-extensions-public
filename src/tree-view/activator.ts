@@ -28,7 +28,7 @@ import {
 import { PackageOverviewDataProvider } from "./outline-tree-data-provider";
 import { SessionDataProvider } from "./session-tree-data-provider";
 import { ExplorerDataProvider } from "./explorer-tree-data-provider";
-import { existsSync, mkdirSync, open, rm, rmdir } from 'fs';
+import { existsSync, mkdirSync, open, openSync, rm, rmdir } from 'fs';
 import { join } from 'path';
 import { BALLERINA_COMMANDS, PALETTE_COMMANDS, runCommand } from "../project";
 import { getChoreoKeytarSession } from "../choreo-auth/auth-session";
@@ -175,7 +175,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
 
             const configFile = `${currentProject.path}/${CONFIG_FILE}`;
             if (!existsSync(configFile)) {
-                return;
+                openSync(configFile, 'w')
             }
 
             filePath = configFile;
