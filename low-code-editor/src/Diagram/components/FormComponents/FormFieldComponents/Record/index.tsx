@@ -45,12 +45,11 @@ export function Record(props: FormElementProps<RecordProps>) {
                 isAllOptional(model.fields), (model.optional ?? false), false), isAllEmpty(emptyFieldChecker.current));
     };
 
-    const fieldTypesList = ["string" , "int" , "boolean" , "float" , "decimal" , "array" , "map" , "union" ,
-    "handle" , "object {public string[] & readonly strings;public Value[] insertions;}"]
+    const fieldTypesList = ["string" , "int" , "boolean" , "float" , "decimal" , "array" , "map" , "union" , "handle"]
     if (model) {
         if (model.fields && model.fields.length > 0) {
             model.fields.map((field: FormField, index: any) => {
-                if (!field.hide && (fieldTypesList.includes(field.typeName) || (field.typeName === 'record' && !field.isReference))) {
+                if (!field.hide && (fieldTypesList.includes(field.typeName) || field.typeName.includes("object {public string[]") || (field.typeName === 'record' && !field.isReference))) {
                     const elementProps: FormElementProps = {
                         model: field,
                         index,
@@ -73,7 +72,7 @@ export function Record(props: FormElementProps<RecordProps>) {
                     }
                     if (field.typeName === "handle"){
                         type = "expression";
-                    } else if (field.typeName === "object {public string[] & readonly strings;public Value[] insertions;}"){
+                    } else if (field.typeName.includes("object {public string[]")){
                         type = "expression";
                     }
                     const element = getFormElement(elementProps, type);

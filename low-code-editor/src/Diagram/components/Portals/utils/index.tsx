@@ -119,7 +119,7 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
             }
             if (formField.typeName === "string" && (formField.value || formField.defaultValue)) {
                 paramString += formField.value || formField.defaultValue;
-            } else if (formField.typeName === "object {public string[] & readonly strings;public Value[] insertions;}" && (formField.value || formField.defaultValue)) {
+            } else if (formField.typeName.includes("object {public string[]") && (formField.value || formField.defaultValue)) {
                 paramString += formField.value || formField.defaultValue;
             }
             else if (formField.typeName === "array" && !formField.hide && (formField.value || formField.defaultValue)) {
@@ -438,7 +438,12 @@ export function matchActionToFormField(remoteCall: RemoteMethodCallAction, formF
             } else if (formField.typeName === 'handle') {
                 formField.value = positionalArg.expression?.source;
                 nextValueIndex++;
-            } else if (formField.typeName === 'collection') {
+            }
+            else if (formField.typeName.includes("object {public string[]")) {
+                formField.value = positionalArg.expression?.source;
+                nextValueIndex++;
+            }
+            else if (formField.typeName === 'collection') {
                 formField.value = positionalArg.expression?.source;
                 nextValueIndex++;
             } else if (formField.typeName === "record" && formField.fields && formField.fields.length > 0) {
@@ -829,16 +834,26 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                 break;
 
             case "stream":
-                if (formField?.memberType) {
-                    const returnTypeResponse = getFormFieldReturnType(formField.memberType, depth + 1);
-                    response.returnType = returnTypeResponse.returnType;
-                    response.hasError = returnTypeResponse.hasError || response.hasError;
-                    response.hasReturn = returnTypeResponse.hasReturn || response.hasReturn;
-                    response.importTypeInfo = [...response.importTypeInfo, ...returnTypeResponse.importTypeInfo];
+                let returnTypeResponseLeft = null;
+                let returnTypeResponseRight = null
+                if (formField?.leftTypeParam) {
+                    returnTypeResponseLeft = getFormFieldReturnType(formField.leftTypeParam, depth + 1);
+                    response.hasError = returnTypeResponseLeft.hasError || response.hasError;
+                    response.importTypeInfo = [...response.importTypeInfo, ...returnTypeResponseLeft.importTypeInfo];
                 }
-
-                if (response.returnType && formField.typeName === "stream") {
-                    response.returnType = "stream<record {}, sql:Error?>"
+                if (formField?.rightTypeParam) {
+                    returnTypeResponseRight = getFormFieldReturnType(formField.rightTypeParam, depth + 1);
+                    response.hasError = returnTypeResponseRight.hasError || response.hasError;
+                    response.importTypeInfo = [...response.importTypeInfo, ...returnTypeResponseRight.importTypeInfo];
+                }
+                if (returnTypeResponseLeft.returnType && returnTypeResponseRight.returnType) {
+                    response.returnType = `stream<${returnTypeResponseLeft.returnType},${returnTypeResponseRight.returnType}>`
+                }
+                if (returnTypeResponseLeft.returnType && !returnTypeResponseRight.returnType) {
+                    response.returnType = `stream<${returnTypeResponseLeft.returnType}>`
+                }
+                if (response.returnType) {
+                    response.hasReturn = true;
                 }
                 break;
 
@@ -865,6 +880,10 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                 if (formField.typeName.trim() === "error" || formField.isErrorType) {
                     formField.isErrorType = true;
                     response.hasError = true;
+                    // special case for db connectors: show error in this format -> sql:Error?
+                    if (formField.typeInfo.moduleName === "sql") {
+                        type = `${formField.typeInfo.moduleName}:${formField.typeInfo.name}`
+                    }
                 }
                 if (type === "" && formField.typeInfo && !formField.isErrorType) {
                     // set class/record types
@@ -907,7 +926,9 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                 //     // set stream tags
                 //     type = `stream<${type}>`; // do for stream obj
                 // }
-
+                if (formField.typeName.includes("stream<rowType")) {
+                    type = "record{}"
+                }
                 if (type) {
                     response.returnType = type;
                 }
