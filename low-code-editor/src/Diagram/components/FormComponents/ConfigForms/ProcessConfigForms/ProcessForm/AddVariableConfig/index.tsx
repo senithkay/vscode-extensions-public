@@ -307,7 +307,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
 
     if (!stmtEditorComponent) {
         return (
-            <FormControl data-testid="property-form" className={classes.wizardFormControl}>
+            <FormControl data-testid="property-form" className={classes.wizardFormControlExtended}>
                 <FormHeaderSection
                     onCancel={onCancel}
                     statementEditor={true}
@@ -319,7 +319,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                 <div className={classes.formWrapper}>
                     <div className={classes.formFeilds}>
                         <div className={classes.activeWrapper}>
-                            <div className={classnames(classes.activeWrapper, classes.blockWrapper)}>
+                            <div className={classnames(classes.activeWrapper, classes.inlineBlockWrapper)}>
                                 <div className={classes.nameExpEditorWrapper}>
                                     {variableTypeInput}
                                 </div>
@@ -329,7 +329,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                                 {
                                     initialized && (
                                         <div className={classes.inlineWrapper}>
-                                            <div className={classes.codeText}>
+                                            <div className={classes.equalWrapper}>
                                                 <Typography variant='body2' className={classes.endCode}>=</Typography>
                                             </div>
                                             <div className={classes.variableExpEditorWrapper}>
