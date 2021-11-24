@@ -121,7 +121,7 @@ export function FunctionBody(props: FunctionProps) {
   const blockHeight = model.viewState.bBox.h;
   const blockWidth = model.viewState.bBox.w;
   const functionBody = (
-    <svg {...xyProps} className="assignment-expression">
+    <svg {...xyProps} className="expand-expression">
       {/* <rect width="100%" height="100%" fill="red"/> */}
       {/* <FunctionProvider overlayId={overlayId}> */}
 

@@ -264,8 +264,8 @@ export function DataProcessor(props: ProcessorProps) {
 
 
     const assignmentTextcx = cx + PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW / 2 + (DefaultConfig.dotGap * 3);
-    const assignmentTextcy = cy + PROCESS_SVG_HEIGHT / 3;
-    const textWidth = assignmentText ? assignmentText.length : 0;
+    const assignmentTextcy = methodCallText ? cy + PROCESS_SVG_HEIGHT / 3 : cy + PROCESS_SVG_HEIGHT / 3 + 2;
+    const textWidth = assignmentText ? assignmentText.length : (methodCallText ? methodCallText.length : 0);
     const textWidthFixed = textWidth >= 15 ? assignmentText?.slice(0, 16).length * 9 : textWidth * 9;
     const processWrapper = isDraftStatement ? "main-process-wrapper active-data-processor" : "main-process-wrapper data-processor";
     const processStyles = diagnosticMsgs && !isDraftStatement ? "main-process-wrapper data-processor-error " : processWrapper;
@@ -322,7 +322,7 @@ export function DataProcessor(props: ProcessorProps) {
                                     model={model}
                                     functionName={functionName}
                                     x={assignmentTextcx + textWidthFixed}
-                                    y={assignmentTextcy + 2}
+                                    y={assignmentTextcy}
                                     onDraftDelete={onDraftDelete}
                                 />
                             </g>

@@ -22,6 +22,7 @@ import { FunctionBody } from "../../RenderingComponents/FunctionBody";
 
 import { ShowFunctionSVG } from "./ShowFunctionSVG";
 import "./style.scss";
+import { HideFunctionSVG } from "./HideFunctionSVG";
 
 export interface ShowFunctionBtnProps {
     x: number;
@@ -117,7 +118,7 @@ export function ShowFuntionBtn(props: ShowFunctionBtnProps) {
 
     // const viewState: BlockViewState = {}
     return (
-        <svg className="assignment-expression">
+        <svg className="expand-expression">
             <g>
                 {!isReadOnly &&
                     <g>
@@ -126,7 +127,7 @@ export function ShowFuntionBtn(props: ShowFunctionBtnProps) {
                             data-testid="func-expand-btn"
                             onClick={onBtnClick}
                         >
-                            <ShowFunctionSVG {...xyProps} />
+                            {!isConfirmDialogActive ? <ShowFunctionSVG {...xyProps} /> : <HideFunctionSVG {...xyProps} />}
                         </g>
 
                         {isConfirmDialogActive &&
