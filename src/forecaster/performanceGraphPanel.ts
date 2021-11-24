@@ -27,9 +27,11 @@ import { ExecutorCodeLensProvider } from "./codelens-provider";
 import { refreshDiagramForPerformanceConcurrencyChanges } from "../diagram";
 
 let performanceGraphPanel: WebviewPanel | undefined;
+let clearCodeLenses = true;
 
 export function showPerformanceGraph(langClient: ExtendedLangClient, data: GraphData, currentFileUri: Uri): void {
     if (performanceGraphPanel) {
+        clearCodeLenses = false;
         performanceGraphPanel.dispose();
     }
 
@@ -64,9 +66,14 @@ export function showPerformanceGraph(langClient: ExtendedLangClient, data: Graph
     if (performanceGraphPanel && html) {
         performanceGraphPanel.webview.html = html;
     }
+
+    clearCodeLenses = true;
     performanceGraphPanel.onDidDispose(() => {
         performanceGraphPanel = undefined;
-        refreshDiagramForPerformanceConcurrencyChanges(-1);
-        ExecutorCodeLensProvider.addCodeLenses(currentFileUri);
+
+        if (clearCodeLenses) {
+            refreshDiagramForPerformanceConcurrencyChanges(-1);
+            ExecutorCodeLensProvider.addCodeLenses(currentFileUri);
+        }
     });
 }
