@@ -340,8 +340,8 @@
                 "command": "ballerina.executeConfigEditor",
                 "title": "Run with configuration",
                 "icon": {
-                    "dark": "./resources/images/icons/start-inverse.svg",
-                    "light": "./resources/images/icons/start.svg"
+                    "dark": "./resources/images/icons/run-conf-inverse.svg",
+                    "light": "./resources/images/icons/run-conf.svg"
                 },
                 "category": "Ballerina"
             },
