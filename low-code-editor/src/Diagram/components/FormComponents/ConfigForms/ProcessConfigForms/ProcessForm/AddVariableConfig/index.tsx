@@ -330,19 +330,21 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                                 <div className={classes.nameExpEditorWrapper}>
                                     {variableNameInput}
                                 </div>
-                                {
-                                    initialized && (
-                                        <div className={classes.inlineWrapper}>
-                                            <div className={classes.equalWrapper}>
-                                                <Typography variant='body2' className={classes.endCode}>=</Typography>
-                                            </div>
-                                            <div className={classes.variableExpEditorWrapper}>
-                                                {expressionEditor}
-                                            </div>
-                                        </div>
-                                    )
-                                }
                             </div>
+                            <div className={classes.stmtEditorWrapper}>
+                                    {
+                                        initialized && (
+                                            <div className={classes.inlineWrapper}>
+                                                <div className={classes.equalWrapper}>
+                                                    <Typography variant='body2' className={classes.endCode}>=</Typography>
+                                                </div>
+                                                <div className={classes.variableExpEditorWrapper}>
+                                                    {expressionEditor}
+                                                </div>
+                                            </div>
+                                        )
+                                    }
+                                </div>
                             {initializedToggle}
                         </div>
                     </div>
