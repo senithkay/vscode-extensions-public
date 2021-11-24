@@ -158,6 +158,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
                 formType: "ConnectorList",
                 formArgs: {
                     onSelect: onConnectorSelect,
+                    onCancel: onWizardClose,
                 },
                 isLoading: true,
             } }

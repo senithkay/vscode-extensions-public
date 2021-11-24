@@ -208,6 +208,7 @@ export function ActionProcessor(props: ProcessorProps) {
                 formType: "EndpointList",
                 formArgs: {
                     onSelect: onEndpointSelect,
+                    onCancel: onWizardClose,
                 },
                 isLoading: true,
             } }
