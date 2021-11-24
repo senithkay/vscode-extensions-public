@@ -86,7 +86,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
         return this.getCodeLensList();
     }
 
-    private async getCodeLensList(): Promise<CodeLens[]> {
+    private getCodeLensList(): CodeLens[] {
         let codeLenses: CodeLens[] = [];
 
         // add codelenses to actions invocations
