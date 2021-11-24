@@ -30,6 +30,8 @@ const AUTH_FAIL = "Choreo Login Failed: ";
 const AuthCodeError = "Error while retreiving the authentication code details!";
 const AccessTokenError = "Error while retreiving the access token details!";
 const ApimTokenError = "Error while retreiving the apim token details!";
+const RefreshTokenError = "Error while retreiving the refresh token details!";
+const VSCodeTokenError = "Error while retreiving the VSCode token details!";
 
 export async function initiateInbuiltAuth(extension: BallerinaExtension) {
     vscode.commands.executeCommand("vscode.open", vscode.Uri.parse(getAuthURL()));
@@ -90,8 +92,8 @@ export class OAuthTokenHandler {
         return this.status;
     }
 
-    public async exchangeApimToken(accessToken: string) {
-        if (!accessToken) {
+    public async exchangeApimToken(token: string) {
+        if (!token) {
             vscode.window.showErrorMessage(AUTH_FAIL + AccessTokenError);
             return;
         }
@@ -102,7 +104,7 @@ export class OAuthTokenHandler {
             subject_token_type: 'urn:ietf:params:oauth:token-type:jwt',
             requested_token_type: 'urn:ietf:params:oauth:token-type:jwt',
             scope: 'apim:api_manage apim:subscription_manage apim:tier_manage apim:admin',
-            subject_token: accessToken
+            subject_token: token
         });
 
         await axios.post(
@@ -112,20 +114,107 @@ export class OAuthTokenHandler {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded; charset=utf8',
                     'Accept': 'application/json',
-                    'Authorization': "Bearer " + accessToken
+                    'Authorization': "Bearer " + token
                 }
             }
         ).then(async (response) => {
             if (response) {
-                let token = response.data.access_token;
-                await setChoreoKeytarSession(String(token), String(this.displayName));
+                let apimToken = response.data.access_token;
+                await this.exchangeVSCodeToken(apimToken);
+            } else {
+                vscode.window.showErrorMessage(AUTH_FAIL + ApimTokenError);
+            }
+        }).catch((err) => {
+            vscode.window.showErrorMessage(AUTH_FAIL + err);
+        });
+    }
+
+    public async exchangeVSCodeToken(apimToken: string) {
+        if (!apimToken) {
+            vscode.window.showErrorMessage(AUTH_FAIL + ApimTokenError);
+            return;
+        }
+
+        const params = new url.URLSearchParams({
+            client_id: ChoreoAuthConfig.VSCodeClientId,
+            grant_type: 'urn:ietf:params:oauth:grant-type:token-exchange',
+            subject_token_type: 'urn:ietf:params:oauth:token-type:jwt',
+            requested_token_type: 'urn:ietf:params:oauth:token-type:jwt',
+            scope: 'apim:api_manage apim:subscription_manage apim:tier_manage apim:admin',
+            subject_token: apimToken
+        });
+
+        await axios.post(
+            ChoreoAuthConfig.ApimTokenUrl,
+            params.toString(),
+            {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=utf8'
+                }
+            }
+        ).then(async (response) => {
+            if (response) {
+                let vscodeToken = response.data.access_token;
+                let refreshToken = response.data.refresh_token;
+                let loginTime = new Date();
+                await setChoreoKeytarSession(String(vscodeToken), String(this.displayName),
+                    String(refreshToken), String(loginTime));
 
                 await getChoreoKeytarSession().then((result) => {
                     this.extension.setChoreoSession(result);
                     if (result.loginStatus) {
                         this.status = true;
                         console.debug("Choreo User: " + result.choreoUser);
-                        console.debug("Choreo APIM Token: " + result.choreoToken);
+                        console.debug("Choreo VSCode Token: " + result.choreoAccessToken);
+                        // Show the success message in vscode.
+                        vscode.window.showInformationMessage(`Successfully Logged into Choreo!`);
+                        this.extension.getChoreoSessionTreeProvider()?.refresh();
+                    } else {
+                        vscode.window.showErrorMessage(AUTH_FAIL + VSCodeTokenError);
+                    }
+                });
+            } else {
+                vscode.window.showErrorMessage(AUTH_FAIL + VSCodeTokenError);
+            }
+        }).catch((err) => {
+            vscode.window.showErrorMessage(AUTH_FAIL + err);
+        });
+    }
+
+    public async exchangeRefreshToken(refreshToken: string) {
+        if (!refreshToken) {
+            vscode.window.showErrorMessage(AUTH_FAIL + RefreshTokenError);
+            return;
+        }
+
+        const params = new url.URLSearchParams({
+            client_id: ChoreoAuthConfig.VSCodeClientId,
+            grant_type: 'refresh_token',
+            refresh_token: refreshToken
+        });
+
+        await axios.post(
+            ChoreoAuthConfig.ApimTokenUrl,
+            params.toString(),
+            {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            }
+        ).then(async (response) => {
+            if (response) {
+                let accessToken = response.data.access_token;
+                let newRefreshToken = response.data.refresh_token;
+                let loginTime = new Date();
+                await setChoreoKeytarSession(String(accessToken), String(this.displayName),
+                    String(newRefreshToken), String(loginTime));
+
+                await getChoreoKeytarSession().then((result) => {
+                    this.extension.setChoreoSession(result);
+                    if (result.loginStatus) {
+                        this.status = true;
+                        console.debug("Choreo User: " + result.choreoUser);
+                        console.debug("Choreo Refreshed Token: " + result.choreoAccessToken);
                         // Show the success message in vscode.
                         vscode.window.showInformationMessage(`Successfully Logged into Choreo!`);
                         this.extension.getChoreoSessionTreeProvider()?.refresh();

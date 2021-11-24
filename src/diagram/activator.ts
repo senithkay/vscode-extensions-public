@@ -271,7 +271,7 @@ class DiagramPanel {
 			{
 				methodName: "getPFSession",
 				handler: async (): Promise<PFSession> => {
-					const choreoToken = ballerinaExtension.getChoreoSession().choreoToken;
+					const choreoToken = ballerinaExtension.getChoreoSession().choreoAccessToken;
 					return { choreoAPI: CHOREO_API_PF, choreoToken: choreoToken, choreoCookie: "" };
 				}
 			},

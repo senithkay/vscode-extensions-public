@@ -19,7 +19,9 @@
 export enum ChoreoSessionConfig {
     ServiceName = "wso2.ballerina.choreo",
     AccessToken = "access.token",
-    DisplayName = "display.name"
+    DisplayName = "display.name",
+    RefreshToken = "refresh.token",
+    LoginTime = "login.time"
 }
 
 // // Choreo V1 environment
@@ -42,6 +44,7 @@ export enum ChoreoAuthConfig {
     RedirectUrl = "http://localhost:3000/login",
     ClientId = "GEjPOPRsoMMlNrDuO8fqCBL4mS8a",
     ApimClientId = "Wxqy0liCfLBsdpXOhkcxZz6uLPka",
+    VSCodeClientId = "XR0UxDfbpjXEyp0Z2C4GuKy7Bdga",
     ServerOrigin = "https://app.dv.choreo.dev/",
     TokenUrl = "https://id.dv.choreo.dev/oauth2/token",
     ApimTokenUrl = "https://apim.preview-dv.choreo.dev/oauth2/token",
