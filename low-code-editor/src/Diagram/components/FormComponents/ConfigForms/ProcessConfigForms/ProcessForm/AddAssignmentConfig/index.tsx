@@ -179,7 +179,7 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
 
     if (!stmtEditorComponent) {
         return (
-            <FormControl data-testid="property-form" className={classnames(classes.wizardFormControl)}>
+            <FormControl data-testid="property-form" className={classes.wizardFormControl}>
                 <FormHeaderSection
                     onCancel={onCancel}
                     statementEditor={true}
@@ -188,29 +188,35 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={false}
                 />
-                <div className={classes.formFeilds}>
-                    <div className={classes.activeWrapper}>
-                        <div className={classnames(classes.activeWrapper, classes.blockWrapper)}>
-                            <div className={classes.nameExpEditorWrapper}>
-                                {nameExpressionEditor}
+                <div className={classes.formWrapper}>
+                    <div className={classes.formFeilds}>
+                        <div className={classes.activeWrapper}>
+                            <div className={classnames(classes.activeWrapper, classes.inlineBlockWrapper)}>
+                                <div className={classes.stmtEditorWrapper}>
+                                    {nameExpressionEditor}
+                                </div>
                             </div>
-                            <div className={classes.codeText}>
-                                <Typography variant='body2' className={classes.endCode}>=</Typography>
-                            </div>
-                            <div className={classes.nameExpEditorWrapper}>
-                                {expressionEditor}
+                            <div className={classes.stmtEditorWrapper}>
+                                <div className={classes.inlineWrapper}>
+                                    <div className={classes.equalWrapper}>
+                                        <Typography variant='body2' className={classes.endCode}>=</Typography>
+                                    </div>
+                                    <div className={classes.variableExpEditorWrapper}>
+                                        {expressionEditor}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
+                    <FormActionButtons
+                        cancelBtnText={cancelVariableButtonText}
+                        saveBtnText={saveVariableButtonText}
+                        isMutationInProgress={isMutationInProgress}
+                        validForm={validForm}
+                        onSave={handleSave}
+                        onCancel={onCancel}
+                    />
                 </div>
-                <FormActionButtons
-                    cancelBtnText={cancelVariableButtonText}
-                    saveBtnText={saveVariableButtonText}
-                    isMutationInProgress={isMutationInProgress}
-                    validForm={validForm}
-                    onSave={handleSave}
-                    onCancel={onCancel}
-                />
             </FormControl >
         );
     }

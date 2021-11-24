@@ -586,7 +586,6 @@ export const useStyles = makeStyles((theme: Theme) =>
             width: '100%',
             flexDirection: 'row',
             justifyContent: 'space-evenly',
-            marginBottom: theme.spacing(1.75),
         },
         dropdownWrapper: {
             minWidth: `92px !important`
@@ -595,9 +594,17 @@ export const useStyles = makeStyles((theme: Theme) =>
             paddingTop: theme.spacing(1.25),
             paddingRight: theme.spacing(1)
         },
+        codeTitleText: {
+            paddingRight: theme.spacing(1)
+        },
         equalWrapper: {
             paddingTop: theme.spacing(5),
             width: theme.spacing(1.5),
+        },
+        inWrapper: {
+            paddingTop: theme.spacing(6.25),
+            width: theme.spacing(4),
+            textAlign: 'center'
         },
         editorWrapper: {
             minWidth: `110px !important`,
@@ -638,11 +645,25 @@ export const useStyles = makeStyles((theme: Theme) =>
         fitContent: {
             width: 'fit-content'
         },
+        foreachWrapper: {
+            width: '100%',
+            marginRight: theme.spacing(0.625),
+            position: 'relative',
+            marginTop: theme.spacing(-2),
+        },
+        stmtEditorWrapper: {
+            width: '100%',
+            marginRight: theme.spacing(0.625),
+            position: 'relative',
+        },
         nameExpEditorWrapper: {
-            width: '45%',
+            width: '50%',
             marginRight: theme.spacing(0.625),
             position: 'relative',
             marginTop: theme.spacing(1.5),
+            '&:last-child': {
+                marginRight: 0
+            }
         },
         variableExpEditorWrapper: {
             width: '100%',
@@ -696,8 +717,8 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         inlineWrapper: {
             display: 'inline-flex',
-            width: '31%',
-            marginTop: theme.spacing(1.25)
+            width: '100%',
+            marginTop: theme.spacing(1)
         }
     }),
     { index: 1 }

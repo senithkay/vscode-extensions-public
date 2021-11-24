@@ -167,7 +167,7 @@ export function AddLogConfig(props: LogConfigProps) {
                             placeholder=""
                             label="Type"
                         />
-                        <div className="exp-wrapper">
+                        <div className={formClasses.stmtEditorWrapper}>
                             <ExpressionEditor
                                 model={{ name: "expression", value: expression, typeName: 'string' }}
                                 customProps={{
