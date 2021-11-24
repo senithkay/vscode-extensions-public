@@ -138,7 +138,7 @@ export function TriggerForm(props: FormGeneratorProps) {
                                 <FormActionButtons
                                     cancelBtnText="Cancel"
                                     saveBtnText={"Create"}
-                                    isMutationInProgress={false}
+                                    isMutationInProgress={selectedChannels.length === 0}
                                     validForm={true}
                                     onSave={createTriggerCode}
                                     onCancel={onCancel}
