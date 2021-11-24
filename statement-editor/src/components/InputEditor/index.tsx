@@ -12,7 +12,6 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
-import { monaco } from "react-monaco-editor";
 
 import {
     CompletionParams,
@@ -67,6 +66,7 @@ export function InputEditor(props: InputEditorProps) {
     const stmtCtx = useContext(StatementEditorContext);
     const { expressionHandler } = useContext(SuggestionsContext);
     const { currentFile, getLangClient } = stmtCtx;
+    const fileURI = `expr://${currentFile.path}`;
 
     const [currentContent, setCurrentContent] = useState(stmtCtx.modelCtx.statementModel.source);
 
@@ -175,8 +175,7 @@ export function InputEditor(props: InputEditorProps) {
 
         inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
         inputEditorState.content = initContent;
-        inputEditorState.uri = monaco.Uri.file(currentFile.path).toString();
-
+        inputEditorState.uri = fileURI;
         const langClient = await getLangClient();
         langClient.didChange({
             contentChanges: [
@@ -216,8 +215,7 @@ export function InputEditor(props: InputEditorProps) {
 
         inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
         inputEditorState.content = initContent;
-        inputEditorState.uri = monaco.Uri.file(currentFile.path).toString();
-
+        inputEditorState.uri = fileURI;
         const langClient = await getLangClient();
         langClient.didChange({
             contentChanges: [
@@ -249,18 +247,12 @@ export function InputEditor(props: InputEditorProps) {
     const handleOnOutFocus = async () => {
         inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
         inputEditorState.content = currentFile.content;
-        inputEditorState.uri = monaco.Uri.file(currentFile.path).toString();
+        inputEditorState.uri = fileURI;
 
         const langClient = await getLangClient();
-        langClient.didChange({
-            contentChanges: [
-                {
-                    text: inputEditorState.content
-                }
-            ],
+        langClient.didClose({
             textDocument: {
-                uri: inputEditorState.uri,
-                version: 1
+                uri: inputEditorState.uri
             }
         });
     }
