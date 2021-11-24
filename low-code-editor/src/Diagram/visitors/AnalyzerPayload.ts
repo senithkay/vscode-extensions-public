@@ -11,7 +11,7 @@
  * associated services.
  */
 
-import { BinaryExpression, CaptureBindingPattern, CheckExpression, ForeachStatement, ImplicitNewExpression, LocalVarDecl, NodePosition, NumericLiteral, PositionalArg, RemoteMethodCallAction, STKindChecker, STNode, StringLiteral, StringLiteralToken } from "@ballerina/syntax-tree";
+import { BinaryExpression, CaptureBindingPattern, CheckExpression, ForeachStatement, ImplicitNewExpression, LocalVarDecl, NodePosition, NumericLiteral, PositionalArg, RemoteMethodCallAction, STKindChecker, STNode, StringLiteral, StringLiteralToken } from "@wso2-enterprise/syntax-tree";
 
 export interface AnalyzerEndPoint {
     pkgID: string;

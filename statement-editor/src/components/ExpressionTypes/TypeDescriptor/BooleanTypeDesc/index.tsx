@@ -13,13 +13,13 @@
 // tslint:disable: jsx-wrap-multiline
 import React, { useContext } from "react";
 
-import { BooleanTypeDesc } from "@ballerina/syntax-tree";
+import { BooleanTypeDesc } from "@wso2-enterprise/syntax-tree";
 
 import { VariableUserInputs } from "../../../../models/definitions";
 import { SuggestionsContext } from "../../../../store/suggestions-context";
 import { getTypeDescriptors } from "../../../../utils";
 import { InputEditor } from "../../../InputEditor";
-import { useStatementEditorStyles } from "../../../ViewContainer/styles";
+import { useStatementEditorStyles } from "../../../styles";
 
 interface BooleanTypeDescProps {
     model: BooleanTypeDesc
@@ -31,7 +31,7 @@ interface BooleanTypeDescProps {
 export function BooleanTypeDescComponent(props: BooleanTypeDescProps) {
     const { model, userInputs, diagnosticHandler, isTypeDescriptor } = props;
 
-    const overlayClasses = useStatementEditorStyles();
+    const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
 
     const onClickOnType = (event: any) => {
@@ -50,7 +50,7 @@ export function BooleanTypeDescComponent(props: BooleanTypeDescProps) {
 
     return (
         <button
-            className={overlayClasses.expressionElement}
+            className={statementEditorClasses.expressionElement}
             onClick={onClickOnType}
         >
             <InputEditor {...inputEditorProps} />

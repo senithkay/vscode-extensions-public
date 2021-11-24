@@ -11,13 +11,17 @@
  * associated services.
  */
 // tslint:disable: jsx-wrap-multiline jsx-no-multiline-js
-import React, { ReactNode } from "react";
+import React, { ReactNode, useContext } from "react";
 
-import { MappingConstructor, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { MappingConstructor, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import classNames from "classnames";
 
+import { MAPPING_CONSTRUCTOR } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
+import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { generateExpressionTemplate } from "../../../utils/utils";
 import { ExpressionComponent } from "../../Expression";
-import { useStatementEditorStyles } from "../../ViewContainer/styles";
+import { useStatementEditorStyles } from "../../styles";
 
 interface MappingConstructorProps {
     model: MappingConstructor
@@ -28,7 +32,13 @@ interface MappingConstructorProps {
 export function MappingConstructorComponent(props: MappingConstructorProps) {
     const { model, userInputs, diagnosticHandler } = props;
 
-    const overlayClasses = useStatementEditorStyles();
+    const statementEditorClasses = useStatementEditorStyles();
+
+    const {
+        modelCtx: {
+            updateModel,
+        }
+    } = useContext(StatementEditorContext);
 
     const fields: (ReactNode | string)[] = [];
 
@@ -58,7 +68,7 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
                                 <span
                                     key={index}
                                     className={
-                                        `${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`
+                                        classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)
                                     }
                                 >
                                     {expr}
@@ -67,7 +77,7 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
                             (
                                 <button
                                     key={index}
-                                    className={overlayClasses.expressionElement}
+                                    className={statementEditorClasses.expressionElement}
                                 >
                                     {expr}
                                 </button>
@@ -77,16 +87,33 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
             </span>
     );
 
+    const onClickOnPlusIcon = () => {
+        let newField: string;
+        if (model.fields.length !== 0) {
+            newField = ", " + generateExpressionTemplate(MAPPING_CONSTRUCTOR) + " }";
+            updateModel(newField, model.closeBrace.position);
+        } else {
+            newField = generateExpressionTemplate(MAPPING_CONSTRUCTOR) + " }";
+            updateModel(newField, model.closeBrace.position);
+        }
+    };
+
     return (
         <span>
             <span
-                className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}
+                className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}
             >
                 {model.openBrace.value}
             </span>
             {fieldsComponent}
+            <button
+                className={statementEditorClasses.plusIconBorder}
+                onClick={onClickOnPlusIcon}
+            >
+                +
+            </button>
             <span
-                className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}
+                className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}
             >
                 {model.closeBrace.value}
             </span>

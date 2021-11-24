@@ -10,13 +10,13 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { DiagramEditorLangClientInterface, JsonToRecordResponse, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     RecordField,
     RecordFieldWithDefaultValue,
     RecordTypeDesc,
     STKindChecker
-} from "@ballerina/syntax-tree";
-import { DiagramEditorLangClientInterface, JsonToRecordResponse, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+} from "@wso2-enterprise/syntax-tree";
 
 import { Field, RecordModel, SimpleField } from "../types";
 

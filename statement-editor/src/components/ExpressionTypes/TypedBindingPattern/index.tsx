@@ -13,11 +13,11 @@
 // tslint:disable: jsx-wrap-multiline
 import React, { ReactNode } from "react";
 
-import { TypedBindingPattern } from "@ballerina/syntax-tree";
+import { TypedBindingPattern } from "@wso2-enterprise/syntax-tree";
 
 import { VariableUserInputs } from "../../../models/definitions";
 import { ExpressionComponent } from "../../Expression";
-import { useStatementEditorStyles } from "../../ViewContainer/styles";
+import { useStatementEditorStyles } from "../../styles";
 
 interface TypedBindingPatternProps {
     model: TypedBindingPattern
@@ -28,7 +28,7 @@ interface TypedBindingPatternProps {
 export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
     const { model, userInputs, diagnosticHandler } = props;
 
-    const overlayClasses = useStatementEditorStyles();
+    const statementEditorClasses = useStatementEditorStyles();
 
     const typeDescriptorComponent: ReactNode = <ExpressionComponent
         model={model.typeDescriptor}

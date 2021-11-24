@@ -13,9 +13,9 @@
 import React, { useContext, useEffect, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { FunctionDefinition, NodePosition, ObjectMethodDefinition, RequiredParam, ResourceAccessorDefinition } from "@ballerina/syntax-tree";
 import { Box, FormControl, Grid, Link, Typography } from "@material-ui/core";
 import { ConfigOverlayFormStatus, FormHeaderSection, PrimaryButton, SecondaryButton, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FunctionDefinition, NodePosition, ObjectMethodDefinition, RequiredParam, ResourceAccessorDefinition } from "@wso2-enterprise/syntax-tree";
 
 import { ResourceIcon } from "../../../../../../assets/icons";
 import { Section } from "../../../../../../components/ConfigPanel";
@@ -53,6 +53,7 @@ import {
     getBallerinaPayloadType,
     getReturnType,
     getReturnTypePosition,
+    getReturnTypeTemplate,
     isCallerParamAvailable,
     isRequestParamAvailable,
 } from "./util";
@@ -102,11 +103,10 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
         id: 0,
         method: "GET",
         path: "",
-        returnType: 'json'
+        returnType: 'error?'
     };
 
     const [resource, setResource] = useState<Resource>(defaultConfig);
-    const [returnType, setReturnType] = useState<string>(undefined);
     const [toggleMainAdvancedMenu, setToggleMainAdvancedMenu] = useState(false);
     const [togglePayload, setTogglePayload] = useState(false);
     const [isValidPath, setIsValidPath] = useState(false);
@@ -114,6 +114,10 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     const [duplicatedPathsInEdit, setDuplicatedPathsInEdit] = useState<boolean>(false);
     const [isValidReturnExpr, setIsValidReturnExpr] = useState(true);
     const [isValidPayload, setIsValidPayload] = useState(true);
+
+    // To only load return type expr editor after initial load,
+    // in order to prevent expr editor on change event getting fired before model change useEffect is fired
+    const [initialLoaded, setInitialLoaded] = useState(false);
 
     const funcSignature = (model as ResourceAccessorDefinition)?.functionSignature;
 
@@ -131,12 +135,6 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
             let resourceMember: Resource;
 
             if (stMethod && stPath) {
-                let returnTypeWithoutError = returnTypeDesc;
-                if (returnTypeDesc.includes('|error?')) {
-                    returnTypeWithoutError = returnTypeDesc.replace('|error?', '');
-                } else if (returnTypeDesc.includes('error?')) {
-                    returnTypeWithoutError = returnTypeDesc.replace('error?', '');
-                }
                 resourceMember = {
                     id: 0,
                     method: stMethod.toUpperCase(),
@@ -145,19 +143,17 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                     payload,
                     isCaller: callerParam,
                     isRequest: requestParam,
-                    returnType: returnTypeWithoutError
+                    returnType: returnTypeDesc
                 };
                 setResource(resourceMember);
-                setReturnType(returnTypeWithoutError);
                 if (payload && payload !== "") {
                     setTogglePayload(true);
                 }
             } else {
-                resourceMember = defaultConfig;
-                setResource(resourceMember);
-                setReturnType(resourceMember.returnType);
+                setResource(defaultConfig);
             }
         }
+        setInitialLoaded(true);
     }, [model]);
 
     const onPathUIToggleSelect = () => {
@@ -182,9 +178,10 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
 
     function handleOnSelect(methodType: string) {
         // Update selected method
-        const updatedResources = resource;
-        updatedResources.method = methodType.toLowerCase();
-        setResource(updatedResources);
+        setResource({
+            ...resource,
+            method: methodType.toLowerCase()
+        });
     }
 
     function handleOnChangePath(text: string) {
@@ -202,7 +199,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     }
 
     function handleOnChangeReturnType(text: string) {
-        setReturnType(text);
+        resource.returnType = text;
     }
 
     function handleOnChangePathFromUI(text: string) {
@@ -258,10 +255,11 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
 
     function handleOnChangeAdvancedUI(advanced: Advanced) {
         // Update path
-        const updatedResource = resource;
-        updatedResource.isCaller = advanced.isCaller;
-        updatedResource.isRequest = advanced.isRequest;
-        setResource(updatedResource);
+        setResource({
+            ...resource,
+            isCaller: advanced.isCaller,
+            isRequest: advanced.isRequest
+        });
     }
 
     const validateResources = () => {
@@ -323,12 +321,10 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
             const generatedBallerinaPayload: string = resource.payload ? getBallerinaPayloadType(payload, (resource.isCaller || resource.isRequest)) : "";
             const path: string = (resource.path === "" ? "." : resource.path.charAt(0) === "/" ? resource.path.substr(1, resource.path.length) : resource.path);
 
-            let returnTypeModified: string = resource.returnType ? resource.returnType : "error?";
-            returnTypeModified = (returnTypeModified.includes("error?")) ? returnTypeModified : (returnTypeModified + "|error?");
 
             const resourceModification: STModification = createResource(resource.method.toLowerCase(), path, generatedBallerinaQueryParam,
                 generatedBallerinaPayload, resource.isCaller, resource.isRequest,
-                returnTypeModified, targetPosition);
+                resource.returnType, targetPosition);
 
             mutations.push(resourceModification)
             // const event: LowcodeEvent = {
@@ -357,14 +353,12 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                 selectedResource.payload = getBallerinaPayloadType(payload, (selectedResource.isCaller || selectedResource.isRequest));
             }
 
-            let returnTypeModified: string = returnType ? returnType : "error?";
-            returnTypeModified = (returnTypeModified.includes("error?")) ? returnTypeModified : (returnTypeModified + "|error?");
 
             mutations.push(updateResourceSignature(selectedResource.method.toLocaleLowerCase(),
                 (selectedResource.path === "" ? "." : selectedResource.path.charAt(0) === "/" ?
                     selectedResource.path.substr(1, selectedResource.path.length) : selectedResource.path),
                 selectedResource.queryParams, (togglePayload ? selectedResource.payload : ""), selectedResource.isCaller,
-                selectedResource.isRequest, returnTypeModified, updatePosition));
+                selectedResource.isRequest, resource.returnType, updatePosition));
         }
 
         if (mutations.length > 0) {
@@ -618,7 +612,11 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                     title={advancedTitle}
                     tooltipWithExample={{ title: advancedTooltip, content: advancedExample }}
                 >
-                    <AdvancedEditor isCaller={resource.isCaller} isRequest={resource.isRequest} onChange={handleOnChangeAdvancedUI} />
+                    <AdvancedEditor
+                        isCaller={resource.isCaller}
+                        isRequest={resource.isRequest}
+                        onChange={handleOnChangeAdvancedUI}
+                    />
                 </Section>
             </div>
 
@@ -628,22 +626,17 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     const returnUIWithExpressionEditor = (
         <div className={classes.returnTextBoxWrapper}>
             <VariableTypeInput
-              hideLabel={true}
-              displayName={'Variable Type'}
-              value={returnType === "" ? `error?` : returnType + ` | error?`}
-              onValueChange={handleOnChangeReturnType}
-              validateExpression={validateReturnTypeExpression}
-              position={getReturnTypePosition(funcSignature?.returnTypeDesc)}
-              overrideTemplate={{ defaultCodeSnippet: "", targetColumn: 1 }}
+                hideLabel={true}
+                displayName={"Variable Type"}
+                value={resource.returnType}
+                onValueChange={handleOnChangeReturnType}
+                validateExpression={validateReturnTypeExpression}
+                // FIXME: expression needs to be updated during edit flow to handle isCaller or not
+                position={getReturnTypePosition(funcSignature?.returnTypeDesc, targetPosition)}
+                overrideTemplate={getReturnTypeTemplate(funcSignature?.returnTypeDesc, resource)}
             />
         </div>
     );
-
-    const returnUIwithoutExpressionEditor = (
-        <ReturnTypeEditor returnTypeString={resource.returnType} defaultValue={resource.returnType} isCaller={resource.isCaller} onChange={handleOnChangeReturnTypeFormUI} />
-    );
-
-    const returnUI = ((funcSignature?.returnTypeDesc) && returnType !== undefined) ? returnUIWithExpressionEditor : returnUIwithoutExpressionEditor;
 
     const buttonLayer = (
         <div className={classes.serviceFooterWrapper}>
@@ -701,7 +694,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                         title={returnTypeTitle}
                         tooltipWithExample={{ title: returnTitle, content: returnTypeExample }}
                     >
-                        {returnUI}
+                        {initialLoaded && returnUIWithExpressionEditor}
                     </Section>
                 </div>
                 <div>

@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { OnFailClause } from "@ballerina/syntax-tree";
+import { OnFailClause } from "@wso2-enterprise/syntax-tree";
 
 import { DefaultConfig } from "../../../visitors/default";
 import { STOP_SVG_HEIGHT } from "../Components/RenderingComponents/End/StopSVG";

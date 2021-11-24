@@ -1,4 +1,4 @@
-# @ballerina/syntax-tree
+# @wso2-enterprise/syntax-tree
 
 ## Getting Started 
 
@@ -24,7 +24,7 @@ npm run watch
 
 ```
 cd <project-directory>
-npm link @ballerina/syntax-tree
+npm link @wso2-enterprise/syntax-tree
 ```
 
 > You can use `npm unlink` command inside the same directory to force switch back to remote referance of the package. You might want to run `npm install` on parent repository also.

@@ -16,7 +16,7 @@ import { TextField } from "@material-ui/core";
 
 import { OtherStatementNodeTypes } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
-import { useStatementEditorStyles } from "../../ViewContainer/styles";
+import { useStatementEditorStyles } from "../../styles";
 
 interface OtherStatementProps {
     model: OtherStatementNodeTypes
@@ -27,11 +27,11 @@ interface OtherStatementProps {
 export function OtherStatementTypes(props: OtherStatementProps) {
     const { model } = props;
 
-    const overlayClasses = useStatementEditorStyles();
+    const statementEditorClasses = useStatementEditorStyles();
 
     return (
         <TextField
-            className={overlayClasses.expressionElement}
+            className={statementEditorClasses.expressionElement}
             autoFocus={true}
             defaultValue={model.source.trim()}
         />

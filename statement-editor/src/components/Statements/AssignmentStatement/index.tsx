@@ -12,11 +12,12 @@
  */
 import React, { ReactNode } from "react";
 
-import { AssignmentStatement } from "@ballerina/syntax-tree";
+import { AssignmentStatement } from "@wso2-enterprise/syntax-tree";
+import classNames from "classnames";
 
 import { VariableUserInputs } from "../../../models/definitions";
 import { ExpressionComponent } from "../../Expression";
-import { useStatementEditorStyles } from "../../ViewContainer/styles";
+import { useStatementEditorStyles } from "../../styles";
 
 interface AssignmentStatementProps {
     model: AssignmentStatement
@@ -27,7 +28,7 @@ interface AssignmentStatementProps {
 export function AssignmentStatementComponent(props: AssignmentStatementProps) {
     const { model, userInputs, diagnosticHandler } = props;
 
-    const overlayClasses = useStatementEditorStyles();
+    const statementEditorClasses = useStatementEditorStyles();
 
     const expression: ReactNode = (
         <ExpressionComponent
@@ -52,11 +53,11 @@ export function AssignmentStatementComponent(props: AssignmentStatementProps) {
     return (
         <span>
             {varRef}
-            <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
+            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
                 {model.equalsToken.value}
             </span>
             {expression}
-            <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
+            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
                 {model.semicolonToken.value}
             </span>
         </span>

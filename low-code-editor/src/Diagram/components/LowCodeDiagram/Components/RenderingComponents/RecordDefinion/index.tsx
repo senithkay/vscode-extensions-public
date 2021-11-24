@@ -14,7 +14,7 @@
 // tslint:disable: jsx-wrap-multiline
 import React, { useContext, useState } from "react"
 
-import { RecordFieldWithDefaultValue, RecordTypeDesc, STKindChecker, TypeDefinition } from "@ballerina/syntax-tree";
+import { RecordFieldWithDefaultValue, RecordTypeDesc, STKindChecker, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 
 import RecordIcon from "../../../../../../assets/icons/RecordIcon";
 import { Context } from "../../../../../../Contexts/Diagram";

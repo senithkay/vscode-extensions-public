@@ -14,7 +14,7 @@
 import React, { useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { NodePosition } from "@ballerina/syntax-tree";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import classnames from "classnames";
 import { Box, FormControl, IconButton, Typography } from "@material-ui/core";
 import { ControlPoint, RemoveCircleOutlineRounded } from "@material-ui/icons";

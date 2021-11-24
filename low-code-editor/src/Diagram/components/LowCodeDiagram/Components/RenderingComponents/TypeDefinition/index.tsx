@@ -14,7 +14,7 @@
 // tslint:disable: jsx-wrap-multiline
 import React, { ReactElement, useContext, useState } from "react"
 
-import { MethodDeclaration, ObjectField, ObjectTypeDesc, STKindChecker, TypeDefinition } from "@ballerina/syntax-tree";
+import { MethodDeclaration, ObjectField, ObjectTypeDesc, STKindChecker, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 
 import DeleteButton from "../../../../../../assets/icons/DeleteButton";
 import EditButton from "../../../../../../assets/icons/EditButton";

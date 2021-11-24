@@ -15,6 +15,8 @@ jobs:
           node-version: '16.x'
           registry-url: 'https://npm.pkg.github.com'
       - run: npm run build
-      - run: npm publish --tag latest --workspace low-code-editor
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+      - run: npm publish --tag latest --workspaces
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}

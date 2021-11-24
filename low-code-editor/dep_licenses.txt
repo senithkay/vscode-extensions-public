@@ -235,10 +235,10 @@
 │  ├─ url: https://babel.dev/team
 │  ├─ path: /low-code-editor/node_modules/@babel/types
 │  └─ licenseFile: /low-code-editor/node_modules/@babel/types/LICENSE
-├─ @ballerina/syntax-tree@1.0.5
+├─ @wso2-enterprise/syntax-tree@1.0.5
 │  ├─ licenses: Apache-2.0
-│  ├─ path: /low-code-editor/node_modules/@ballerina/syntax-tree
-│  └─ licenseFile: /low-code-editor/node_modules/@ballerina/syntax-tree/README.md
+│  ├─ path: /low-code-editor/node_modules/@wso2-enterprise/syntax-tree
+│  └─ licenseFile: /low-code-editor/node_modules/@wso2-enterprise/syntax-tree/README.md
 ├─ @bcoe/v8-coverage@0.2.3
 │  ├─ licenses: MIT
 │  ├─ repository: https://github.com/demurgos/v8-coverage

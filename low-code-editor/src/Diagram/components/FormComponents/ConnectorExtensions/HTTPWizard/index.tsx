@@ -14,10 +14,10 @@
 import React, { useContext, useState } from "react";
 import { FormattedMessage } from "react-intl";
 
-import { CaptureBindingPattern, CheckAction, LocalVarDecl, NodePosition, PositionalArg, RemoteMethodCallAction, SimpleNameReference, STNode, TypeCastExpression } from "@ballerina/syntax-tree";
 import Typography from "@material-ui/core/Typography";
 import { CloseRounded } from "@material-ui/icons";
-import { ActionConfig, ButtonWithIcon, Connector, ConnectorConfig, FormField, FunctionDefinitionInfo, STModification, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ActionConfig, ButtonWithIcon, Connector, ConnectorConfig, FormField, FunctionDefinitionInfo, ResponsePayloadMap, STModification, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { CaptureBindingPattern, CheckAction, LocalVarDecl, NodePosition, PositionalArg, RemoteMethodCallAction, SimpleNameReference, STNode, TypeCastExpression } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../Contexts/Diagram";
 import {
@@ -87,8 +87,7 @@ export function HTTPWizard(props: WizardProps) {
         }
     } = useContext(Context);
 
-    const symbolInfo: STSymbolInfo = stSymbolInfo;
-    const connectorInitFormFields: FormField[] = functionDefinitions.get("init") ? functionDefinitions.get("init").parameters : functionDefinitions.get("__init").parameters;
+    const connectorInitFormFields: FormField[] = functionDefinitions.get("init")?.parameters;
     const enableConnectorInitalizePage = !isAction;
 
     const initFormState = enableConnectorInitalizePage ? InitFormState.Create : InitFormState.SelectInputOutput;
@@ -96,22 +95,22 @@ export function HTTPWizard(props: WizardProps) {
     connectorConfig.connectorInit = connectorConfig.connectorInit.length > 0 ? connectorConfig.connectorInit
         : connectorInitFormFields;
     const [state, setState] = useState<InitFormState>(initFormState);
-    const [isNewConnection, setIsNewConnection] = useState<boolean>(true);
-    const [selectedOperation, setSelectedOperation] = useState<string>(connectorConfig?.action?.name);
-
-    const [headerObject] = useState<HeaderObjectConfig[]>([]);
-    const httpVar = model as LocalVarDecl;
-    const [previousAction, setPreviousAction] = useState(isNewConnectorInitWizard ? undefined
-        : connectorConfig?.action?.name);
 
     const operations: string[] = [];
     if (functionDefinitions) {
         functionDefinitions.forEach((value, key) => {
-            if (key !== "init" && key !== "__init") {
+            if (key !== "init") {
                 operations.push(key);
             }
         });
     }
+
+    const payloadTypes: Map<string, string> = new Map();
+    const responsePayloadMap: ResponsePayloadMap = {
+        isPayloadSelected: false,
+        payloadTypes,
+    };
+    connectorConfig.responsePayloadMap = responsePayloadMap;
 
     if (!connectorConfig.action) {
         connectorConfig.action = new ActionConfig();
@@ -133,6 +132,8 @@ export function HTTPWizard(props: WizardProps) {
                 connectorConfig.responsePayloadMap.selectedPayloadType = "XML";
             } else if (targetTypeValue === "string") {
                 connectorConfig.responsePayloadMap.selectedPayloadType = "String";
+            } else {
+                connectorConfig.responsePayloadMap.selectedPayloadType = "http:Response";
             }
         }
     }, [isNewConnectorInitWizard, selectedConnector])
@@ -148,17 +149,7 @@ export function HTTPWizard(props: WizardProps) {
     };
 
     const handleConnectionChange = () => {
-        if (isNewConnection) {
-            setState(InitFormState.Create);
-        } else {
-            setState(InitFormState.Home);
-        }
-    };
-
-    const onOperationSelect = (operation: string) => {
-        setSelectedOperation(operation);
-        setState(InitFormState.SelectInputOutput);
-        connectorConfig.action.returnVariableName = undefined;
+        setState(InitFormState.Create);
     };
 
     const handleFormClose = () => {
@@ -206,430 +197,48 @@ export function HTTPWizard(props: WizardProps) {
     };
 
     const handleActionOnSave = () => {
+        const modifications: STModification[] = [];
+        const selectedPayloadType = connectorConfig.action.fields.find(
+            (field) => field.name === "targetType"
+        ).selectedDataType;
+
+        if (isNewConnectorInitWizard && !isAction) {
+            const addImport: STModification = createImportStatement(
+                connector.package.organization,
+                connector.moduleName,
+                targetPosition
+            );
+            modifications.push(addImport);
+            const endpointStatement = `${connector.moduleName}:${connector.name} ${
+                connectorConfig.name
+            } = check new (${getParams(connectorConfig.connectorInit).join()});`;
+            const addConnectorInit = createPropertyStatement(endpointStatement, targetPosition);
+            modifications.push(addConnectorInit);
+        }
+
+        const actionStatement = `${selectedPayloadType} ${connectorConfig.action.returnVariableName} = check ${
+            connectorConfig.name
+        }->${connectorConfig.action.name}(${getParams(connectorConfig.action.fields).join()});`;
+
+        if (!isNewConnectorInitWizard && isAction) {
+            const updateActionInvocation = updatePropertyStatement(actionStatement, model.position);
+            modifications.push(updateActionInvocation);
+        } else {
+            const addActionInvocation = createPropertyStatement(actionStatement, targetPosition);
+            modifications.push(addActionInvocation);
+            onActionAddEvent();
+        }
+
+        onSave(modifications);
+    };
+
+    const onActionAddEvent = () => {
         const event: LowcodeEvent = {
             type: EVENT_TYPE_AZURE_APP_INSIGHTS,
             name: FINISH_CONNECTOR_ACTION_ADD_INSIGHTS,
-            property: connector.displayName
+            property: "http",
         };
         onEvent(event);
-
-        const modifications: STModification[] = [];
-        if (!isNewConnectorInitWizard) {
-            let actionInitializer: CheckAction;
-            switch (httpVar.initializer.kind) {
-                case 'CheckAction':
-                    // has response variable
-                    actionInitializer = (httpVar.initializer as TypeCastExpression).expression as CheckAction;
-                    break;
-                default:
-                    actionInitializer = httpVar.initializer as CheckAction;
-            }
-
-            if (actionInitializer) {
-                const params: string[] = getParams(connectorConfig.action.fields);
-
-                if (connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.isPayloadSelected) {
-                    // payload update
-                    const payloadType = connectorConfig.responsePayloadMap.payloadTypes.get(
-                        connectorConfig.responsePayloadMap.selectedPayloadType);
-                    const paramString = `${params.join(",")}, targetType = ${payloadType}`;
-                    const addActionInvocation: STModification = updateCheckedRemoteServiceCall(
-                        payloadType,
-                        connectorConfig.action.returnVariableName,
-                        connectorConfig.name,
-                        connectorConfig.action.name,
-                        [paramString],
-                        model.position
-                    );
-                    modifications.push(addActionInvocation);
-                } else {
-                    const addActionInvocation: STModification = updateCheckedRemoteServiceCall(
-                        "http:Response",
-                        connectorConfig.action.returnVariableName,
-                        connectorConfig.name,
-                        connectorConfig.action.name,
-                        params,
-                        model.position
-                    );
-                    modifications.push(addActionInvocation);
-                }
-            }
-        } else {
-            if (targetPosition) {
-                if (targetPosition) {
-                    // Add an import.
-                    const addImport: STModification = createImportStatement(
-                        connector.package.organization,
-                        connector.moduleName,
-                        targetPosition
-                    );
-                    modifications.push(addImport);
-
-                    // Add an connector client initialization.
-                    if (!connectorConfig.isExistingConnection) {
-                        const addConnectorInit = createPropertyStatement(
-                            `${connector.moduleName}:${connector.name} ${connectorConfig.name} = check new (${getParams(connectorConfig.connectorInit).join()});`,
-                            targetPosition
-                        );
-                        modifications.push(addConnectorInit);
-                    }
-
-                    // Add an action invocation on the initialized client.
-                    const params: string[] = getParams(connectorConfig.action.fields);
-                    if (connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.isPayloadSelected) {
-                        const payloadType = connectorConfig.responsePayloadMap.payloadTypes.get(
-                            connectorConfig.responsePayloadMap.selectedPayloadType);
-                        // append targetType arg to params
-                        const paramString = `${params.join(",")}, targetType = ${payloadType}`;
-                        const addActionInvocation: STModification = createCheckedRemoteServiceCall(
-                            payloadType,
-                            connectorConfig.action.returnVariableName,
-                            connectorConfig.name,
-                            connectorConfig.action.name,
-                            [paramString],
-                            targetPosition
-                        );
-
-                        modifications.push(addActionInvocation);
-                    } else {
-                        const addActionInvocation: STModification = createCheckedRemoteServiceCall(
-                            "http:Response",
-                            connectorConfig.action.returnVariableName,
-                            connectorConfig.name,
-                            connectorConfig.action.name,
-                            params,
-                            targetPosition
-                        );
-                        modifications.push(addActionInvocation);
-                    }
-                }
-            }
-        }
-        onSave(modifications);
-    }
-
-    const getPayloadReturnType = () => {
-        switch (connectorConfig.responsePayloadMap.selectedPayloadType) {
-            case "Text":
-                return "string";
-            default:
-                return connectorConfig.responsePayloadMap.selectedPayloadType.toLowerCase();
-        }
-    }
-
-    const handleOnSave = () => {
-        // insert initialized connector logic
-        let modifications: STModification[] = [];
-        if (!isNewConnectorInitWizard && isAction) {
-            let actionInitializer: CheckAction;
-
-            const updatedConnectorInit = updatePropertyStatement(
-                `${connector.moduleName}:${connector.name} ${connectorConfig.name} = check new (${getParams(connectorConfig.connectorInit).join()});`,
-                connectorConfig.initPosition
-            );
-            modifications.push(updatedConnectorInit);
-
-            switch (httpVar.initializer.kind) {
-                case 'TypeCastExpression':
-                    // has response variable
-                    actionInitializer = (httpVar.initializer as TypeCastExpression).expression as CheckAction;
-                    break;
-                default:
-                    actionInitializer = httpVar.initializer as CheckAction;
-            }
-
-            if (actionInitializer) {
-                const actionExpression = actionInitializer.expression as RemoteMethodCallAction;
-                const message = actionExpression.arguments.length > 1 ? (actionExpression.arguments[2] as PositionalArg).expression : undefined;
-                const params: string[] = getParams(connectorConfig.action.fields);
-                // only generates the request object name if there is no request object created for the connector
-                const requestNameGen: string = !headerObject[0]?.requestName ? genVariableName("request", getAllVariables(symbolInfo)) : headerObject[0]?.requestName;
-                let serviceCallParams: string;
-                if (message) {
-                    if (message.kind === 'SimpleNameReference') {
-                        let refName = (message as SimpleNameReference).name.value;
-                        const refCallStatements: STNode[] = symbolInfo.callStatement.get(refName);
-                        if (headerObject.length > 0) {
-                            serviceCallParams = ", " + (connectorConfig.action.name === "forward" ?
-                                connectorConfig.action.fields[3]?.value
-                                : refName);
-                            serviceCallParams = params[0] + serviceCallParams;
-                        } else {
-                            serviceCallParams = params.toString();
-                        }
-
-                        let firstCall = true;
-                        let startLine: number = 0;
-                        let startColumn: number = 0;
-                        let endLine: number = 0;
-                        let endColumn: number = 0;
-
-                        if (refCallStatements) {
-                            refCallStatements
-                                .forEach(callStatement => {
-                                    if (firstCall) {
-                                        startLine = callStatement.position.startLine;
-                                        startColumn = callStatement.position.startColumn;
-                                        firstCall = false;
-                                    }
-                                    endLine = callStatement.position.endLine;
-                                    endColumn = callStatement.position.endColumn;
-                                });
-                        } else {
-                            if (headerObject.length > 0) {
-                                startLine = model.position.startLine;
-                                endLine = model.position.startLine;
-                            }
-                        }
-
-                        if (previousAction === 'forward' && headerObject.length > 0) {
-                            // only creates the request object if there is no request object created for the connector
-                            if (!headerObject[0]?.requestName) {
-                                modifications.push(createPropertyStatement(
-                                    `http:Request ${requestNameGen} = new;\n`,
-                                    { startLine, startColumn: 0 }
-                                ));
-                            }
-
-                            refName = requestNameGen;
-                            params[1] = requestNameGen;
-                            serviceCallParams = params.toString();
-                            setPreviousAction(connectorConfig.action.name);
-
-                        } else if (previousAction !== 'forward' && connectorConfig.action.name === 'forward' && headerObject.length > 0) {
-                            refName = connectorConfig.action.fields[3]?.value
-                        }
-
-                        if (headerObject.length > 0) {
-                            const updatePosition: NodePosition = {
-                                startLine,
-                                startColumn,
-                                endColumn,
-                                endLine
-                            }
-
-                            if (connectorConfig.action.name !== "forward") {
-                                modifications.push(
-                                    updateHeaderObjectDeclaration(
-                                        headerObject,
-                                        refName,
-                                        connectorConfig.action.name,
-                                        connectorConfig.action.fields[1],
-                                        updatePosition
-                                    )
-                                )
-                            } else {
-                                modifications.push(
-                                    updateHeaderObjectDeclaration(
-                                        headerObject,
-                                        refName,
-                                        connectorConfig.action.name,
-                                        connectorConfig.action.fields[3],
-                                        updatePosition
-                                    )
-                                );
-                            }
-                        }
-                    } else {
-                        if (headerObject.length > 0) {
-                            serviceCallParams = ", " + (connectorConfig.action.name === "forward" ?
-                                connectorConfig.action.fields[3]?.value
-                                : requestNameGen);
-                            serviceCallParams = params[0] + serviceCallParams;
-                            if (connectorConfig.action.name === "forward") {
-                                createHeaderObjectDeclaration(
-                                    headerObject,
-                                    connectorConfig.action.fields[3]?.value,
-                                    connectorConfig.action.name,
-                                    connectorConfig.action.fields[3],
-                                    { startLine: model.position.startLine, startColumn: 0 },
-                                    modifications
-                                );
-                            } else {
-                                createHeaderObjectDeclaration(
-                                    headerObject,
-                                    requestNameGen,
-                                    connectorConfig.action.name,
-                                    connectorConfig.action.fields[1],
-                                    { startLine: model.position.startLine, startColumn: 0 },
-                                    modifications
-                                );
-                            }
-                        } else {
-                            serviceCallParams = params.toString();
-                        }
-                    }
-                } else {
-                    // when editing a request without payload
-                    if (headerObject.length > 0) {
-                        if (connectorConfig.action.name === "forward") {
-                            createHeaderObjectDeclaration(
-                                headerObject,
-                                connectorConfig.action.fields[3]?.value,
-                                connectorConfig.action.name,
-                                connectorConfig.action.fields[3],
-                                { startLine: model.position.startLine - 1, startColumn: 0 },
-                                modifications
-                            );
-                        } else {
-                            createHeaderObjectDeclaration(
-                                headerObject,
-                                requestNameGen,
-                                connectorConfig.action.name,
-                                connectorConfig.action.fields[1],
-                                { startLine: model.position.startLine - 1, startColumn: 0 },
-                                modifications
-                            );
-                        }
-                    }
-
-                    if (headerObject.length > 0) {
-                        serviceCallParams = ", " + (connectorConfig.action.name === "forward" ?
-                            connectorConfig.action.fields[3]?.value
-                            : requestNameGen);
-                        serviceCallParams = params[0] + serviceCallParams;
-                    } else {
-                        serviceCallParams = params.toString();
-                    }
-                }
-
-                if (connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.isPayloadSelected) {
-                    const addActionInvocation: STModification = updateServiceCallForPayload(
-                        "var",
-                        connectorConfig.action.returnVariableName,
-                        connectorConfig.name,
-                        connectorConfig.action.name,
-                        [serviceCallParams],
-                        model.position
-                    );
-                    modifications.push(addActionInvocation);
-                    let responseModel: STNode;
-                    symbolInfo.variables.forEach((value, key) => {
-                        if (key === 'var' || key === 'string' || key === 'xml' || key === 'json') {
-                            value.forEach(val => {
-                                const varName = (((val as LocalVarDecl).typedBindingPattern?.bindingPattern) as CaptureBindingPattern)?.variableName.value
-                                if (varName === connectorConfig.responsePayloadMap.payloadVariableName) {
-                                    responseModel = val;
-                                }
-                            })
-                        }
-                    })
-
-                    if (responseModel) {
-                        const addPayload: STModification = updateCheckedPayloadFunctionInvocation(
-                            connectorConfig.responsePayloadMap.payloadVariableName,
-                            getPayloadReturnType(),
-                            connectorConfig.action.returnVariableName,
-                            connectorConfig.responsePayloadMap.payloadTypes.get(connectorConfig.responsePayloadMap.selectedPayloadType),
-                            responseModel.position
-                        );
-                        modifications.push(addPayload);
-                    } else {
-                        const addPayload: STModification = createCheckedPayloadFunctionInvocation(
-                            connectorConfig.responsePayloadMap.payloadVariableName,
-                            getPayloadReturnType(),
-                            connectorConfig.action.returnVariableName,
-                            connectorConfig.responsePayloadMap.payloadTypes.get(connectorConfig.responsePayloadMap.selectedPayloadType),
-                            { startLine: model.position.startLine + 1, startColumn: 0 }
-                        );
-                        modifications.push(addPayload);
-                    }
-                } else {
-                    const addActionInvocation: STModification = updateCheckedRemoteServiceCall(
-                        "var",
-                        connectorConfig.action.returnVariableName,
-                        connectorConfig.name,
-                        connectorConfig.action.name,
-                        [serviceCallParams],
-                        model.position
-                    );
-                    modifications.push(addActionInvocation);
-                }
-            }
-        } else {
-            if (targetPosition) {
-                modifications = [];
-                // Add an import.
-                const addImport: STModification = createImportStatement(
-                    connector.package.organization,
-                    connector.moduleName,
-                    targetPosition
-                );
-                modifications.push(addImport);
-
-                // Add an connector client initialization.
-                if (!connectorConfig.isExistingConnection) {
-                    const addConnectorInit = createPropertyStatement(
-                        `${connector.moduleName}:${connector.name} ${connectorConfig.name} = check new (${getParams(connectorConfig.connectorInit).join()});`,
-                        targetPosition
-                    );
-                    modifications.push(addConnectorInit);
-                }
-                // Add an http header.
-                const requestNameGen: string = genVariableName("request", getAllVariables(symbolInfo));
-                if (headerObject.length > 0) {
-                    if (connectorConfig.action.name === "forward") {
-                        createHeaderObjectDeclaration(
-                            headerObject,
-                            connectorConfig.action.fields[3]?.value,
-                            connectorConfig.action.name,
-                            connectorConfig.action.fields[3],
-                            targetPosition,
-                            modifications
-                        );
-                    } else {
-                        createHeaderObjectDeclaration(
-                            headerObject,
-                            requestNameGen,
-                            connectorConfig.action.name,
-                            connectorConfig.action.fields[1],
-                            targetPosition,
-                            modifications
-                        );
-                    }
-                }
-                // Add an action invocation on the initialized client.
-                const params: string[] = getParams(connectorConfig.action.fields);
-                let serviceCallParams: string;
-                if (headerObject.length > 0) {
-                    serviceCallParams = ", " + (connectorConfig.action.name === "forward" ? connectorConfig.action.fields[3]?.value
-                        : requestNameGen);
-                    serviceCallParams = params[0] + serviceCallParams;
-                } else {
-                    serviceCallParams = params.toString();
-                }
-                if (connectorConfig.responsePayloadMap && connectorConfig.responsePayloadMap.isPayloadSelected) {
-                    const addActionInvocation: STModification = createServiceCallForPayload(
-                        "var",
-                        connectorConfig.action.returnVariableName,
-                        connectorConfig.name,
-                        connectorConfig.action.name,
-                        [serviceCallParams],
-                        targetPosition
-                    );
-                    modifications.push(addActionInvocation);
-                    const addPayload: STModification = createCheckedPayloadFunctionInvocation(
-                        connectorConfig.responsePayloadMap.payloadVariableName,
-                        getPayloadReturnType(),
-                        connectorConfig.action.returnVariableName,
-                        connectorConfig.responsePayloadMap.payloadTypes.get(connectorConfig.responsePayloadMap.selectedPayloadType),
-                        targetPosition
-                    );
-                    modifications.push(addPayload);
-                } else {
-                    const addActionInvocation: STModification = createCheckedRemoteServiceCall(
-                        "var",
-                        connectorConfig.action.returnVariableName,
-                        connectorConfig.name,
-                        connectorConfig.action.name,
-                        [serviceCallParams],
-                        targetPosition
-                    );
-                    modifications.push(addActionInvocation);
-                }
-            }
-        }
-        onSave(modifications);
     };
 
     return (

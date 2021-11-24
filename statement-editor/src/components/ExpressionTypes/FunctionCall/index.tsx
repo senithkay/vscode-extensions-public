@@ -13,12 +13,12 @@
 // tslint:disable: jsx-wrap-multiline jsx-no-multiline-js
 import React, { ReactNode } from "react";
 
-import { FunctionCall, STKindChecker, STNode } from "@ballerina/syntax-tree";
-
+import { FunctionCall, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import classNames from "classnames";
 
 import { VariableUserInputs } from "../../../models/definitions";
 import { ExpressionComponent } from "../../Expression";
-import { useStatementEditorStyles } from "../../ViewContainer/styles";
+import { useStatementEditorStyles } from "../../styles";
 
 interface FunctionCallProps {
     model: FunctionCall
@@ -29,7 +29,7 @@ interface FunctionCallProps {
 export function FunctionCallComponent(props: FunctionCallProps) {
     const { model, userInputs, diagnosticHandler } = props;
 
-    const overlayClasses = useStatementEditorStyles();
+    const statementEditorClasses = useStatementEditorStyles();
 
     const functionName: ReactNode = <ExpressionComponent
         model={model.functionName}
@@ -58,44 +58,45 @@ export function FunctionCallComponent(props: FunctionCallProps) {
 
     const expressionComponent = (
         <span>
-                {
-                    exprArguments.map((expr: ReactNode | string, index: number) => (
-                        (typeof expr === 'string') ?
-                            (
-                                <span
-                                    key={index}
-                                    className={
-                                        `${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`
-                                    }
-                                >
-                                    {expr}
-                                </span>
-                            ) :
-                            (
-                                <button
-                                    key={index}
-                                    className={overlayClasses.expressionElement}
-                                >
-                                    {expr}
-                                </button>
-                            )
-                    ))
-                }
-            </span>
+            {
+                exprArguments.map((expr: ReactNode | string, index: number) => (
+                    (typeof expr === 'string') ?
+                        (
+                            <span
+                                key={index}
+                                className={
+                                    classNames(statementEditorClasses.expressionBlock,
+                                        statementEditorClasses.expressionBlockDisabled)
+                                }
+                            >
+                                {expr}
+                            </span>
+                        ) :
+                        (
+                            <button
+                                key={index}
+                                className={statementEditorClasses.expressionElement}
+                            >
+                                {expr}
+                            </button>
+                        )
+                ))
+            }
+        </span>
     );
 
     return (
         <span>
             <button
-                className={overlayClasses.expressionElement}
+                className={statementEditorClasses.expressionElement}
             >
                 {functionName}
             </button>
-            <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
+            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
                 {model.openParenToken.value}
             </span>
-                {expressionComponent}
-            <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
+            {expressionComponent}
+            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
                 {model.closeParenToken.value}
             </span>
         </span>

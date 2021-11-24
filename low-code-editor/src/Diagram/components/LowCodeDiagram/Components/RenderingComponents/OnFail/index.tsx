@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
-import { OnFailClause as BallerinaOnFailClause } from "@ballerina/syntax-tree";
+import { OnFailClause as BallerinaOnFailClause } from "@wso2-enterprise/syntax-tree";
 
 import { Context as DiagramContext } from "../../../../../../Contexts/Diagram";
 import { getDraftComponent, getSTComponents } from "../../../../../utils";

@@ -14,10 +14,10 @@
 // TODO Refactor this file.
 // Should move these to ../Definitions/*
 
-import { ModulePart, NodePosition, STNode } from "@ballerina/syntax-tree";
 import { BallerinaConnectorInfo, ConfigOverlayFormStatus, ConfigPanelStatus, Connector,
     DiagramEditorLangClientInterface, ExpressionEditorLangClientInterface, STModification,
     STSymbolInfo, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ModulePart, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
 import { BlockViewState } from "..";
@@ -100,6 +100,9 @@ export interface LowCodeEditorAPI {
     }
     webView: {
         showSwaggerView: (serviceName: string) => void;
+    }
+    project: {
+        run: (args: any[]) => void;
     }
 }
 

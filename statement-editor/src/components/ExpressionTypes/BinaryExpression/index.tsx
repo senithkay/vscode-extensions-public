@@ -13,14 +13,14 @@
 // tslint:disable: jsx-wrap-multiline
 import React, { ReactNode, useContext } from "react";
 
-import { BinaryExpression } from "@ballerina/syntax-tree";
+import { BinaryExpression } from "@wso2-enterprise/syntax-tree";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getKindBasedOnOperator, getOperatorSuggestions, getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
-import { useStatementEditorStyles } from "../../ViewContainer/styles";
+import { useStatementEditorStyles } from "../../styles";
 
 interface BinaryProps {
     model: BinaryExpression
@@ -31,7 +31,7 @@ interface BinaryProps {
 export function BinaryExpressionComponent(props: BinaryProps) {
     const { model, userInputs, diagnosticHandler } = props;
 
-    const overlayClasses = useStatementEditorStyles();
+    const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
 
     const lhs: ReactNode = <ExpressionComponent
@@ -72,19 +72,19 @@ export function BinaryExpressionComponent(props: BinaryProps) {
     return (
         <span>
             <button
-                className={overlayClasses.expressionElement}
+                className={statementEditorClasses.expressionElement}
                 onClick={onClickOnLhsExpression}
             >
                 {lhs}
             </button>
             <button
-                className={overlayClasses.expressionElement}
+                className={statementEditorClasses.expressionElement}
                 onClick={onClickOperator}
             >
                 {model.operator.value ? model.operator.value : "operator"}
             </button>
             <button
-                className={overlayClasses.expressionElement}
+                className={statementEditorClasses.expressionElement}
                 onClick={onClickOnRhsExpression}
             >
                 {rhs}

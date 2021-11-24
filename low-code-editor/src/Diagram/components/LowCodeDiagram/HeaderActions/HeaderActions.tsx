@@ -14,7 +14,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useRef, useState } from "react";
 
-import { STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import DeleteButton from "../../../../assets/icons/DeleteButton";

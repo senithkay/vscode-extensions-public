@@ -29,7 +29,12 @@ export interface EditorAPI {
     showPerformanceGraph: () => Promise<boolean>;
     showMessage: () => Promise<boolean>;
     resolveMissingDependency: (filePath: string, fileContent: string) => Promise<boolean>;
-    createSwaggerView: (documentFilePath: string, serviceName: string) => Promise<boolean>;
+    runCommand: (command: PALETTE_COMMANDS, args: any[]) => Promise<boolean>;
+}
+
+export enum PALETTE_COMMANDS {
+    RUN = 'ballerina.project.run',
+    SWAGGER_VIEW = 'ballerina.swaggerView.open'
 }
 
 export type EditorProps = EditorState & EditorAPI;
@@ -37,7 +42,7 @@ export type EditorProps = EditorState & EditorAPI;
 export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
 
     const { getFileContent, updateFileContent, gotoSource, getPFSession,
-            showPerformanceGraph, showMessage, resolveMissingDependency, createSwaggerView, ...restProps } = props;
+            showPerformanceGraph, showMessage, resolveMissingDependency, runCommand, ...restProps } = props;
     const [state, setState] = React.useState<EditorState>(restProps);
 
     React.useEffect(() => {
@@ -56,7 +61,7 @@ export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
                     showPerformanceGraph={showPerformanceGraph}
                     showMessage={showMessage}
                     resolveMissingDependency={resolveMissingDependency}
-                    createSwaggerView={createSwaggerView}
+                    runCommand={runCommand}
                     panX="-30"
                     panY="0"
                     scale="0.9"

@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { RemoteMethodCallAction, STNode, Visitor } from "@ballerina/syntax-tree";
+import { RemoteMethodCallAction, STNode, Visitor } from "@wso2-enterprise/syntax-tree";
 
 export class ActionInvocationFinder implements Visitor {
     public action: RemoteMethodCallAction = undefined;

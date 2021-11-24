@@ -13,10 +13,10 @@
 // tslint:disable: jsx-wrap-multiline
 import React from "react";
 
-import { StringTypeDesc } from "@ballerina/syntax-tree";
+import { StringTypeDesc } from "@wso2-enterprise/syntax-tree";
 
 import { VariableUserInputs } from "../../../models/definitions";
-import { useStatementEditorStyles } from "../../ViewContainer/styles";
+import { useStatementEditorStyles } from "../../styles";
 
 interface StringTypeDescProps {
     model: StringTypeDesc
@@ -27,11 +27,11 @@ interface StringTypeDescProps {
 export function StringTypeDescC(props: StringTypeDescProps) {
     const { model } = props;
 
-    const overlayClasses = useStatementEditorStyles();
+    const statementEditorClasses = useStatementEditorStyles();
 
     return (
         <button
-            className={overlayClasses.expressionElement}
+            className={statementEditorClasses.expressionElement}
         >
             {model.name.value}
         </button>

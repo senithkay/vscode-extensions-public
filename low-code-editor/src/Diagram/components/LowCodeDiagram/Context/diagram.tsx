@@ -1,6 +1,6 @@
 import React, { useReducer } from "react";
 
-import { NodePosition, STNode } from "@ballerina/syntax-tree";
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { recalculateSizingAndPositioning, sizingAndPositioning } from "../Utils";
 

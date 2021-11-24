@@ -11,14 +11,13 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React  from "react";
+import React, { useState } from "react";
 import { useIntl } from "react-intl";
 
 import { Typography } from "@material-ui/core";
 import classnames from "classnames";
 
 import DeleteButton from "../../../../../../assets/icons/DeleteButton";
-import { useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { FormState, useRecordEditorContext } from "../../../../../../Contexts/RecordEditor";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
 import { VariableTypeInput, VariableTypeInputProps } from "../../Components/VariableTypeInput";
@@ -27,6 +26,7 @@ import { RecordModel, SimpleField } from "../types";
 
 export interface FieldEditorProps {
     field: SimpleField;
+    nameError?: string;
     onDeleteClick: (field: SimpleField) => void;
     onChange: (event: any) => void;
     onFocusLost: (field: SimpleField) => void;
@@ -34,7 +34,7 @@ export interface FieldEditorProps {
 }
 
 export function FieldEditor(props: FieldEditorProps) {
-    const { field, onDeleteClick, onChange, onEnterPress, onFocusLost } = props;
+    const { field, nameError, onDeleteClick, onChange, onEnterPress, onFocusLost } = props;
 
     const recordClasses = recordStyles();
     const intl = useIntl();
@@ -43,8 +43,10 @@ export function FieldEditor(props: FieldEditorProps) {
         defaultMessage: "Type"
     });
 
-    const { props: { stSymbolInfo } } = useDiagramContext();
     const { state, callBacks } = useRecordEditorContext();
+
+    const [typeEditorFocussed, setTypeEditorFocussed] = useState<boolean>(false);
+    const [typeEditorVisible, setTypeEditorVisible] = useState<boolean>(false);
 
     const typeProperty = `${field.isArray ? "[]" : ""}${field.isFieldTypeOptional ? "?" : ""}`;
 
@@ -52,6 +54,7 @@ export function FieldEditor(props: FieldEditorProps) {
         onDeleteClick(field);
     };
     const handleKeyUp = (event: any) => {
+        setTypeEditorFocussed(false);
         onChange(event);
     };
     const handleTypeSelect = (selectedType: string) => {
@@ -79,6 +82,8 @@ export function FieldEditor(props: FieldEditorProps) {
             state.currentRecord = newRecordModel;
             callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
             callBacks.onUpdateCurrentRecord(state.currentRecord);
+            callBacks.updateEditorValidity(false);
+            callBacks.onUpdateCurrentField(undefined);
         } else {
             state.currentField.type = selectedType;
         }
@@ -88,17 +93,21 @@ export function FieldEditor(props: FieldEditorProps) {
         onFocusLost(event);
     };
     const validateTypeName = (fName: string, isInvalidFromField: boolean) => {
-        // FIXME: Handle record type validations. Currently disabled due to an issue in handling nested records
-        // state.currentField.isTypeInvalid = isInvalidFromField;
-        // callBacks.onUpdateCurrentField(state.currentField);
-        // callBacks.updateEditorValidity(isInvalidFromField || state.currentField.isNameInvalid ||
-        //     state.currentField.isValueInvalid);
+        state.currentField.isTypeInvalid = isInvalidFromField;
+        callBacks.onUpdateCurrentField(state.currentField);
+        callBacks.updateEditorValidity(isInvalidFromField || state.currentField.isNameInvalid ||
+            state.currentField.isValueInvalid);
+    };
+    const handleTypeClick = () => {
+        setTypeEditorVisible(true);
+        setTypeEditorFocussed(true);
     };
 
     const varTypeProps: VariableTypeInputProps = {
         displayName: typeLabel,
         value: `${state.currentField.type}`,
         hideLabel: true,
+        focus: typeEditorFocussed,
         onValueChange: handleTypeSelect,
         validateExpression: validateTypeName,
         position: state.sourceModel?.position || state.targetPosition,
@@ -114,15 +123,29 @@ export function FieldEditor(props: FieldEditorProps) {
             <div className={recordClasses.editItemContentWrapper}>
                 <div className={recordClasses.itemLabelWrapper}>
                     <div className={recordClasses.editTypeWrapper}>
-                        <VariableTypeInput {...varTypeProps} key={`${state.currentField.name}-typeSelector`} />
+                        {typeEditorVisible ? (
+                            <VariableTypeInput {...varTypeProps} key={`${state.currentField.name}-typeSelector`}/>
+                        ) : (
+                            <FormTextInput
+                                dataTestId="field-type"
+                                customProps={{
+                                    isErrored: false,
+                                    focused: false
+                                }}
+                                defaultValue={field.type}
+                                onClick={handleTypeClick}
+                                placeholder={"Type"}
+                            />
+                        )}
                     </div>
                     <div className={recordClasses.editNameWrapper}>
                         <FormTextInput
                             dataTestId="field-name"
                             customProps={{
-                                isErrored: false,
-                                focused: true
+                                isErrored: (nameError !== ""),
+                                focused: false
                             }}
+                            errorMessage={nameError}
                             defaultValue={field.name}
                             onKeyUp={handleKeyUp}
                             onBlur={handleFocusLost}
