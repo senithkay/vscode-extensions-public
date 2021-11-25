@@ -26,6 +26,7 @@ import { createPerformanceGraphAndCodeLenses, SHOW_GRAPH_COMMAND } from './activ
 import { DataLabel, Member, SyntaxTree } from './model';
 import path from 'path';
 import { ANALYZETYPE } from '.';
+import { performanceGraphPanel } from './performanceGraphPanel';
 
 enum CODELENSE_TYPE {
     RESOURCE,
@@ -63,6 +64,12 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
             if (activatedTextEditor && activatedTextEditor.document.languageId === LANGUAGE.BALLERINA) {
                 const activeEditor = window.activeTextEditor;
                 const uri = activeEditor?.document.uri;
+
+                if (performanceGraphPanel) {
+                    // Close graph while editing.
+                    performanceGraphPanel.dispose();
+                }
+
                 await ExecutorCodeLensProvider.addCodeLenses(uri);
             }
         });
