@@ -589,6 +589,14 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         expressionEditorState.uri = `expr://${currentFile.path}`;
 
         await getExpressionEditorLangClient().then(async (langClient: ExpressionEditorLangClientInterface) => {
+            langClient.didOpen({
+                textDocument: {
+                    uri: expressionEditorState.uri,
+                    languageId: "ballerina",
+                    text: currentFile.content,
+                    version: 1
+                }
+            });
             langClient.didChange({
                 contentChanges: [
                     {
@@ -600,14 +608,6 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                     version: 1
                 }
             });
-            // langClient.didOpen({
-            //     textDocument: {
-            //         uri: expressionEditorState.uri,
-            //         languageId: "ballerina",
-            //         text: expressionEditorState.content,
-            //         version: 1
-            //     }
-            // });
         });
 
         await getExpressionEditorLangClient().then(async (langClient: ExpressionEditorLangClientInterface) => {

@@ -171,6 +171,14 @@ export function InputEditor(props: InputEditorProps) {
         inputEditorState.content = initContent;
         inputEditorState.uri = fileURI;
         const langClient = await getLangClient();
+        langClient.didOpen({
+            textDocument: {
+                uri: inputEditorState.uri,
+                languageId: "ballerina",
+                text: currentFile.content,
+                version: 1
+            }
+        });
         langClient.didChange({
             contentChanges: [
                 {
