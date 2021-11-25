@@ -11,7 +11,7 @@
  * associated services.
  */
 
-import React from "react";
+import React, { useState } from "react";
 
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
@@ -23,6 +23,7 @@ export interface VariableTypeInputProps {
     displayName: string;
     value: string;
     hideLabel?: boolean;
+    focus?: boolean;
     onValueChange: (value: string) => void;
     validateExpression: (fieldName: string, isInValid: boolean) => void;
     position: NodePosition;
@@ -30,10 +31,18 @@ export interface VariableTypeInputProps {
     hideTextLabel?: boolean;
     disabled?: boolean;
     ignoredCompletions?: string[];
+    enterKeyPressed?: (value: string) => void;
 }
 
 export function VariableTypeInput(props: VariableTypeInputProps) {
-    const { onValueChange, validateExpression, position, value, displayName, overrideTemplate, hideLabel, disabled, ignoredCompletions = [] } = props;
+    const { onValueChange, validateExpression, position, value, displayName, overrideTemplate, hideLabel, disabled,
+            ignoredCompletions = [], focus, enterKeyPressed } = props;
+
+    const [editorFocus, setEditorFocus] = useState<boolean>(focus);
+
+    const revertFocus = () => {
+        setEditorFocus(false);
+    };
     const expressionEditorNameConfig: FormElementProps<ExpressionEditorProps> = {
         model: {
             name: "variableType",
@@ -54,9 +63,12 @@ export function VariableTypeInput(props: VariableTypeInputProps) {
             showHints: false,
             hideTextLabel: hideLabel,
             disabled,
+            focus: editorFocus,
+            revertFocus,
+            enterKeyPressed
         },
         onChange: onValueChange,
-        defaultValue: value,
+        defaultValue: value
     };
 
     return (

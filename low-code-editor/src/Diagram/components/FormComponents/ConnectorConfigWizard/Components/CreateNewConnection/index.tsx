@@ -303,7 +303,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                                     defaultMessage: "Save Connection"
                                 })}
                                 fullWidth={false}
-                                disabled={!(isSaveDisabled)}
+                                disabled={!(isSaveDisabled) || !isGenFieldsFilled}
                                 onClick={handleOnSave}
                             />
                         )}

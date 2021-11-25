@@ -14,13 +14,14 @@
 import React, { ReactNode, useContext } from "react";
 
 import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
+import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
-import { useStatementEditorStyles } from "../../ViewContainer/styles";
+import { useStatementEditorStyles } from "../../styles";
 
 interface LocalVarDeclProps {
     model: LocalVarDecl
@@ -31,7 +32,7 @@ interface LocalVarDeclProps {
 export function LocalVarDeclC(props: LocalVarDeclProps) {
     const { model, userInputs, diagnosticHandler } = props;
 
-    const overlayClasses = useStatementEditorStyles();
+    const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
 
     const typedBindingComponent: ReactNode = (
@@ -62,20 +63,21 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
 
     return (
         <span>
-            <button className={overlayClasses.expressionElement}>
+            <button className={statementEditorClasses.expressionElement}>
                 {typedBindingComponent}
             </button>
-            <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
+            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
                 &nbsp;{model.equalsToken.value}
             </span>
-             <button className={overlayClasses.expressionElement} onClick={onClickOnExpression}>
+            <button className={statementEditorClasses.expressionElement} onClick={onClickOnExpression}>
                 {expressionComponent}
             </button>
-            <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
-                {/* TODO: use model.semicolonToken.isMissing when the ST interface is supporting */}
+            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
+            {/* TODO: use model.semicolonToken.isMissing when the ST interface is supporting */}
                 {model.semicolonToken.position.startColumn !== model.semicolonToken.position.endColumn &&
                     model.semicolonToken.value}
             </span>
         </span>
     );
 }
+

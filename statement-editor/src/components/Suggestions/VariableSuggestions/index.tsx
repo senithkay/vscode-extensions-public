@@ -17,7 +17,7 @@ import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { SuggestionItem } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { useStatementEditorStyles } from "../../ViewContainer/styles";
+import { useStatementEditorStyles } from "../../styles";
 
 export interface VariableSuggestionsProps {
     model: STNode
@@ -26,7 +26,7 @@ export interface VariableSuggestionsProps {
 }
 
 export function VariableSuggestions(props: VariableSuggestionsProps) {
-    const overlayClasses = useStatementEditorStyles();
+    const statementEditorClasses = useStatementEditorStyles();
     const { model, variableSuggestions, suggestionHandler } = props;
 
     const {
@@ -42,16 +42,16 @@ export function VariableSuggestions(props: VariableSuggestionsProps) {
 
     return (
         <div>
-            <div className={overlayClasses.subHeader}>Variables</div>
+            <div className={statementEditorClasses.subHeader}>Variables</div>
             {
                 variableSuggestions.map((suggestion: SuggestionItem, index: number) => (
                     <button
-                        className={overlayClasses.suggestionButton}
+                        className={statementEditorClasses.suggestionButton}
                         key={index}
                         onClick={() => onClickVariableSuggestion(suggestion)}
                     >
                         {suggestion.value}
-                        <span className={overlayClasses.dataTypeTemplate}>{suggestion.kind}</span>
+                        <span className={statementEditorClasses.dataTypeTemplate}>{suggestion.kind}</span>
                     </button>
                 ))
             }

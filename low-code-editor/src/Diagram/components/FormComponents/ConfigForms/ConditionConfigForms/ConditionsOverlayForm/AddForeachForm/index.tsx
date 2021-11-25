@@ -230,7 +230,7 @@ export function AddForeachForm(props: ForeachProps) {
         setSelectedType(partialModel.typedBindingPattern.typeDescriptor.source.trim());
     }
 
-    const {handleStmtEditorToggle , stmtEditorComponent} = useStatementEditor(
+    const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
         {
             label: intl.formatMessage({ id: "lowcode.develop.configForms.forEach.statementEditor.label" }),
             initialSource,
@@ -248,7 +248,7 @@ export function AddForeachForm(props: ForeachProps) {
 
     if (!stmtEditorComponent) {
         return (
-            <FormControl data-testid="foreach-form" className={classnames(classes.wizardFormControl)}>
+            <FormControl data-testid="foreach-form" className={classes.wizardFormControl}>
                 <FormHeaderSection
                     onCancel={onCancel}
                     statementEditor={true}
@@ -260,46 +260,53 @@ export function AddForeachForm(props: ForeachProps) {
                 <div className={classes.formWrapper}>
                     <div className={classes.formFeilds}>
                         <div className={classes.blockWrapper}>
-                            <div className={classes.codeText}>
+                            <div className={classes.codeTitleText}>
                                 <Typography variant='body2' className={classnames(classes.startCode)}>Foreach</Typography>
                             </div>
-                            <div className={classes.dropdownWrapper}>
-                                <SelectDropdownWithButton
-                                    defaultValue={selectedType}
-                                    customProps={{
-                                        disableCreateNew: true,
-                                        values: variableTypes,
-                                        onOpenSelect: handleOnOpen,
-                                        onCloseSelect: handleOnClose,
-                                    }}
-                                    label={"Type"}
-                                    onChange={handleTypeChange}
-                                />
+                            <div className={classes.inlineBlockWrapper}>
+                                <div className={classes.variableExpEditorWrapper}>
+                                    <SelectDropdownWithButton
+                                        defaultValue={selectedType}
+                                        customProps={{
+                                            disableCreateNew: true,
+                                            values: variableTypes,
+                                            onOpenSelect: handleOnOpen,
+                                            onCloseSelect: handleOnClose,
+                                        }}
+                                        label={"Type"}
+                                        onChange={handleTypeChange}
+                                    />
+                                </div>
                             </div>
-                            <div className={classes.editorWrapper}>
-                                <FormTextInput
-                                    customProps={{
-                                        validate: validateNameValue,
-                                    }}
-                                    onChange={onVariableNameChange}
-                                    defaultValue={conditionExpression.variable}
-                                    label="Current Value"
-                                    placeholder={""}
-                                    errorMessage={invalidConnectionErrorMessage}
-                                />
+                            <div className={classes.foreachWrapper}>
+                                <div className={classes.inlineBlockWrapper}>
+                                    <div className={classes.nameExpEditorWrapper}>
+                                        <FormTextInput
+                                            customProps={{
+                                                validate: validateNameValue,
+                                            }}
+                                            onChange={onVariableNameChange}
+                                            defaultValue={conditionExpression.variable}
+                                            label="Current Value"
+                                            placeholder={""}
+                                            errorMessage={invalidConnectionErrorMessage}
+                                        />
+                                    </div>
+                                    <div className={classes.inWrapper}>
+                                        <Typography variant='body2' className={classnames(classes.endCode)}>in</Typography>
+                                    </div>
+                                    <div className={classes.nameExpEditorWrapper}>
+                                        {!isDropDownOpen &&
+                                            (
+                                                <div className={classes.variableExpEditorWrapper}>
+                                                    <ExpressionEditor {...expElementProps} hideLabelTooltips={true} />
+                                                </div>
+                                            )
+                                        }
+                                    </div>
+                                </div>
                             </div>
-                            <div className={classes.codeText}>
-                                <Typography variant='body2' className={classnames(classes.endCode)}>in</Typography>
-                            </div>
-                            <div className={classes.expEditorWrapper}>
-                                {!isDropDownOpen &&
-                                    (
-                                        <div className="exp-wrapper">
-                                            <ExpressionEditor {...expElementProps} hideLabelTooltips={true} />
-                                        </div>
-                                    )
-                                }
-                            </div>
+
                             <div className={classes.codeText}>
                                 <Typography variant='body2' className={classnames(classes.endCode)}>{`{`}</Typography>
                             </div>

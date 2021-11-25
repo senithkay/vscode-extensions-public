@@ -50,7 +50,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             fontSize: 12,
             fontWeight: 300,
             color: theme.palette.primary.main,
-            margin: '1px 0 0 12px',
+            margin: '1px 0 0 4px',
         }
     }),
 );

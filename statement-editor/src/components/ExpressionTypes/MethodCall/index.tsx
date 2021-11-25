@@ -14,13 +14,14 @@
 import React, { ReactNode, useContext } from "react";
 
 import { MethodCall, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
-import { useStatementEditorStyles } from "../../ViewContainer/styles";
+import { useStatementEditorStyles } from "../../styles";
 
 interface MethodCallProps {
     model: MethodCall
@@ -31,7 +32,7 @@ interface MethodCallProps {
 export function MethodCallComponent(props: MethodCallProps) {
     const { model, userInputs, diagnosticHandler } = props;
 
-    const overlayClasses = useStatementEditorStyles();
+    const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
 
     const expression: ReactNode = <ExpressionComponent
@@ -76,7 +77,7 @@ export function MethodCallComponent(props: MethodCallProps) {
                                 <span
                                     key={index}
                                     className={
-                                        `${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`
+                                        classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)
                                     }
                                 >
                                     {expr}
@@ -85,7 +86,7 @@ export function MethodCallComponent(props: MethodCallProps) {
                             (
                                 <button
                                     key={index}
-                                    className={overlayClasses.expressionElement}
+                                    className={statementEditorClasses.expressionElement}
                                 >
                                     {expr}
                                 </button>
@@ -104,24 +105,24 @@ export function MethodCallComponent(props: MethodCallProps) {
     return (
         <span>
             <button
-                className={overlayClasses.expressionElement}
+                className={statementEditorClasses.expressionElement}
                 onClick={onClickOnExpression}
             >
                 {expression}
             </button>
-            <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
+            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
                 {model.dotToken.value}
             </span>
             <button
-                className={overlayClasses.expressionElement}
+                className={statementEditorClasses.expressionElement}
             >
                 {methodName}
             </button>
-            <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
+            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
                 {model.openParenToken.value}
             </span>
             {expressionArgComponent}
-            <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
+            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
                 {model.closeParenToken.value}
             </span>
         </span>

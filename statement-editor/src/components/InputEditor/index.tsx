@@ -38,7 +38,7 @@ import { SuggestionItem, VariableUserInputs } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { SuggestionsContext } from "../../store/suggestions-context";
 import { getPartialSTForStatement } from "../../utils";
-import { useStatementEditorStyles } from "../ViewContainer/styles";
+import { useStatementEditorStyles } from "../styles";
 
 import {
     acceptedCompletionKindForExpressions, acceptedCompletionKindForTypes
@@ -68,7 +68,7 @@ export function InputEditor(props: InputEditorProps) {
     const { expressionHandler } = useContext(SuggestionsContext);
     const { currentFile, getLangClient } = stmtCtx;
 
-    const overlayClasses = useStatementEditorStyles();
+    const statementEditorClasses = useStatementEditorStyles();
 
     let literalModel: StringLiteral | NumericLiteral | SimpleNameReference | QualifiedNameReference;
     let value: any;
@@ -332,20 +332,15 @@ export function InputEditor(props: InputEditorProps) {
         revertContent().then();
     }
 
-    const inputBlurHandler = () => {
-        setIsEditing(false);
-        if (userInput !== "") {
-            stmtCtx.modelCtx.updateModel(userInput, model.position);
-            expressionHandler(model, false, false, { expressionSuggestions: [] });
-
-            const ignore = handleOnOutFocus();
-        }
-    };
-
     const inputEnterHandler = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === "Enter" || event.key === "Tab" || event.key === "Escape") {
-            stmtCtx.modelCtx.updateModel(userInput, model.position);
-            inputBlurHandler()
+            setIsEditing(false);
+            if (userInput !== "") {
+                stmtCtx.modelCtx.updateModel(userInput, model.position);
+                expressionHandler(model, false, false, { expressionSuggestions: [] });
+
+                const ignore = handleOnOutFocus();
+            }
             getContextBasedCompletions(userInput);
         }
     };
@@ -380,16 +375,15 @@ export function InputEditor(props: InputEditorProps) {
         (
             <input
                 value={placeHolders.indexOf(userInput) > -1 ? "" : userInput}
-                className={overlayClasses.inputEditorTemplate}
+                className={statementEditorClasses.inputEditorTemplate}
                 onKeyDown={inputEnterHandler}
-                onBlur={inputBlurHandler}
                 onInput={inputChangeHandler}
                 autoFocus={true}
                 style={{ maxWidth: userInput === '' ? '10px' : 'fit-content' }}
             />
         ) : (
             <div
-                className={overlayClasses.inputEditorTemplate}
+                className={statementEditorClasses.inputEditorTemplate}
                 onDoubleClick={handleDoubleClick}
                 onBlur={handleEditEnd}
             >

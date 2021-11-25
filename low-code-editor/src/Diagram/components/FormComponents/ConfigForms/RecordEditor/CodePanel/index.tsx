@@ -14,7 +14,7 @@
 import React from "react";
 import { useIntl } from "react-intl";
 
-import { Box, FormControl, Typography } from "@material-ui/core";
+import { FormControl } from "@material-ui/core";
 import { FormHeaderSection, PrimaryButton, SecondaryButton } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
@@ -34,10 +34,6 @@ export function CodePanel() {
     const recordClasses = recordStyles();
     const intl = useIntl();
 
-    const title = intl.formatMessage({
-        id: "lowcode.develop.configForms.recordEditor.codePanel.title",
-        defaultMessage: "Record Configuration"
-    });
     const saveButtonText = intl.formatMessage({
         id: "lowcode.develop.configForms.recordEditor.saveButton.text",
         defaultMessage: "Save"
@@ -82,7 +78,7 @@ export function CodePanel() {
     };
 
     return (
-        <FormControl data-testid="record-form" className={overlayClasses.wizardFormControl}>
+        <FormControl data-testid="record-form" className={overlayClasses.wizardFormControlExtended}>
             <FormHeaderSection
                 formTitle={"lowcode.develop.configForms.recordEditor.codePanel.title"}
                 defaultMessage={"Record Configuration"}
@@ -97,7 +93,8 @@ export function CodePanel() {
                         <PrimaryButton
                             dataTestId={"record-from-json-save-btn"}
                             text={saveButtonText}
-                            disabled={state.isEditorInvalid}
+                            disabled={state.isEditorInvalid || (state.currentField && state.currentField.name === "" ||
+                                state.currentField?.type === "")}
                             fullWidth={false}
                             onClick={handleRecordSave}
                         />

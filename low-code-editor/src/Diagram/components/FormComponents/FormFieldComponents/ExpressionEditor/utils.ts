@@ -566,12 +566,15 @@ export const getHints = (diagnostics: Diagnostic[], varType: string, varName: st
         } else if (varType === "sql:ParameterizedQuery") {
             if (monacoRef.current) {
                 const editorContent = monacoRef.current.editor.getModel().getValue();
-                if (editorContent === "") {
-                    // Add empty back ticks if the input field is empty for string type
-                    hints.push({ type: HintType.ADD_BACK_TICKS_EMPTY, onClickHere: () => hintHandlers.addBackTicks(monacoRef) })
-                } else{
-                    // Add back ticks around the input, if its parameterized query input type
-                    hints.push({ type: HintType.ADD_BACK_TICKS, onClickHere: () => hintHandlers.addBackTicks(monacoRef), editorContent })
+                // Check if the editor content already has backticks at the start and end positions
+                if ((editorContent.charAt(0) !== "`") || (editorContent.charAt(editorContent.length - 1) !== "`")) {
+                    if (editorContent === "") {
+                        // Add empty back ticks if the input field is empty for string type
+                        hints.push({ type: HintType.ADD_BACK_TICKS_EMPTY, onClickHere: () => hintHandlers.addBackTicks(monacoRef) })
+                    } else{
+                        // Add back ticks around the input, if its parameterized query input type
+                        hints.push({ type: HintType.ADD_BACK_TICKS, onClickHere: () => hintHandlers.addBackTicks(monacoRef), editorContent })
+                    }
                 }
             }
         }

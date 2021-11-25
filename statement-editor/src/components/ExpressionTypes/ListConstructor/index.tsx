@@ -14,10 +14,11 @@
 import React, { ReactNode } from "react";
 
 import { ListConstructor, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import classNames from "classnames";
 
 import { VariableUserInputs } from "../../../models/definitions";
 import { ExpressionComponent } from "../../Expression";
-import { useStatementEditorStyles } from "../../ViewContainer/styles";
+import { useStatementEditorStyles } from "../../styles";
 
 interface ListConstructorProps {
     model: ListConstructor
@@ -28,7 +29,7 @@ interface ListConstructorProps {
 export function ListConstructorComponent(props: ListConstructorProps) {
     const { model, userInputs, diagnosticHandler } = props;
 
-    const overlayClasses = useStatementEditorStyles();
+    const statementEditorClasses = useStatementEditorStyles();
 
     const expressions: (ReactNode | string)[] = [];
 
@@ -56,7 +57,7 @@ export function ListConstructorComponent(props: ListConstructorProps) {
                                 <span
                                     key={index}
                                     className={
-                                        `${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`
+                                        classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)
                                     }
                                 >
                                     {expr}
@@ -65,7 +66,7 @@ export function ListConstructorComponent(props: ListConstructorProps) {
                             (
                                 <button
                                     key={index}
-                                    className={overlayClasses.expressionElement}
+                                    className={statementEditorClasses.expressionElement}
                                 >
                                     {expr}
                                 </button>
@@ -78,13 +79,13 @@ export function ListConstructorComponent(props: ListConstructorProps) {
     return (
         <span>
             <span
-                className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}
+                className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}
             >
                 &nbsp;{model.openBracket.value}
             </span>
             {expressionComponent}
             <span
-                className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}
+                className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}
             >
                 {model.closeBracket.value}
             </span>

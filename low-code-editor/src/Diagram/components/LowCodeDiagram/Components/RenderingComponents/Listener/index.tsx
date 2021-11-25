@@ -53,7 +53,7 @@ export function ListenerC(props: ListenerProps) {
     const listenerType = listenerModel.typeDescriptor.modulePrefix.value;
     let listenerPort = "";
     listenerModel.initializer.parenthesizedArgList.arguments.forEach((argument) => {
-        listenerPort += argument.source.trim();
+        listenerPort += argument.source?.trim();
     });
     const typeMaxWidth = listenerType.length >= 10;
     const nameMaxWidth = listenerName.length >= 20;

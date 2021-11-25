@@ -1,5 +1,7 @@
 import { NodePosition, ReturnTypeDescriptor, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
+import { ExpressionEditorCustomTemplate } from "../../../FormFieldComponents/ExpressionEditor";
+
 import {
     Path,
     PathSegment,
@@ -265,16 +267,33 @@ export function getReturnType(returnTypeDesc: ReturnTypeDescriptor): string {
     }
 }
 
-export function getReturnTypePosition(returnTypeDesc: ReturnTypeDescriptor): NodePosition {
+export function getReturnTypePosition(returnTypeDesc: ReturnTypeDescriptor, targetPosition?: NodePosition): NodePosition {
     if (returnTypeDesc) {
         return returnTypeDesc.type?.position;
-    } else {
+    } else if (targetPosition) {
+        return { ...targetPosition, endLine: 0, endColumn: 0 };
+    }else {
         return {
             endColumn: 0,
             endLine: 0,
             startColumn: 0,
             startLine: 0,
         };
+    }
+}
+
+export function getReturnTypeTemplate(returnTypeDesc: ReturnTypeDescriptor, resource: Resource): ExpressionEditorCustomTemplate {
+    const isCallerTemplate = 'http:Caller caller';
+    if (returnTypeDesc && resource.returnType){
+        return {
+            defaultCodeSnippet: "",
+            targetColumn: 1,
+        }
+    } else {
+        return {
+            defaultCodeSnippet: `resource function post tempResource(${resource.isCaller ? isCallerTemplate : ""}) returns  {}`,
+            targetColumn: 47 + (resource.isCaller ? isCallerTemplate.length : 0),
+        }
     }
 }
 

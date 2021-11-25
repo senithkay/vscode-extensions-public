@@ -22,7 +22,7 @@ export function traversNode(node: STNode, visitor: Visitor, parent?: STNode) {
     const childNode = (node as any)[key] as any;
     if (Array.isArray(childNode)) {
       childNode.forEach((elementNode) => {
-        if (!elementNode.kind) {
+        if (!elementNode?.kind) {
           return;
         }
 

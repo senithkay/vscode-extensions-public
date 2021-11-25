@@ -206,8 +206,13 @@ export function ConnectorForm(props: FormGeneratorProps) {
             config.connectorInit
         ).join()});`;
 
+        const dbConnectors = ["mysql" , "mssql"]
         if (isNewConnectorInitWizard && targetPosition) {
             const addImport: STModification = createImportStatement(connector.package.organization, connectorModule, targetPosition);
+            if (dbConnectors.includes(connectorModule)) {
+                const addDriverImport: STModification = createImportStatement('ballerinax', `${connectorModule}.driver as _`, targetPosition);
+                modifications.push(addDriverImport);
+            }
             modifications.push(addImport);
             const addConnectorInit = createPropertyStatement(endpointStatement, targetPosition);
             modifications.push(addConnectorInit);
@@ -473,27 +478,23 @@ export function ConnectorForm(props: FormGeneratorProps) {
     }
 
     return (
-        <>
-            <FormControl data-testid="connector-form" className={formClasses.wizardFormControl}>
-                <FormHeaderSection
-                    onCancel={onClose}
-                    statementEditor={false}
-                    formTitle={"lowcode.develop.configForms.connector.title"}
-                    defaultMessage={"API Connection"}
-                />
-                <div className={formClasses.formWrapper}>
-                    <div className={formClasses.formFeilds}>
-                        <div className={formClasses.formWrapper}>
-                            {(isLoading || isConnectorLoading) && (
-                                <div className={wizardClasses.loaderWrapper}>
-                                    <TextPreloaderVertical position="relative" />
-                                </div>
-                            )}
-                            {!(isLoading || isConnectorLoading) && <div className={wizardClasses.mainApiWrapper}>{connectorComponent}</div>}
+        <FormControl data-testid="connector-form" className={formClasses.wizardFormControl}>
+            <FormHeaderSection
+                onCancel={onClose}
+                statementEditor={false}
+                formTitle={"lowcode.develop.configForms.connector.title"}
+                defaultMessage={"API Connection"}
+            />
+            <div className={formClasses.formWrapper}>
+                <div className={formClasses.formFeilds}>
+                    {(isLoading || isConnectorLoading) && (
+                        <div className={wizardClasses.loaderWrapper}>
+                            <TextPreloaderVertical position="relative" />
                         </div>
-                    </div>
+                    )}
+                    {!(isLoading || isConnectorLoading) && <div className={wizardClasses.mainApiWrapper}>{connectorComponent}</div>}
                 </div>
-            </FormControl>
-        </>
+            </div>
+        </FormControl>
     );
 }

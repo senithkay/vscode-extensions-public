@@ -27,6 +27,11 @@ module.exports = (env, argv) => ({
     module: {
         rules: [
             {
+                test: /\.(js|mjs|jsx|ts|tsx)$/,
+                enforce: "pre",
+                use: ["source-map-loader"],
+            },
+            {
                 test: /\.ts(x?)$/,
                 use: {
                     loader: 'ts-loader'
@@ -70,6 +75,7 @@ module.exports = (env, argv) => ({
             },
         ],
     },
+    ignoreWarnings: [/Failed to parse source map/],
     output: {
         filename: 'BLCEditor.js',
         path: path.resolve(__dirname, 'build'),

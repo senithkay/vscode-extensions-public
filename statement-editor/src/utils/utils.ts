@@ -73,7 +73,8 @@ export const ExpressionKindByOperator: { [key: string]: string } = {
     PipeToken: c.ARITHMETIC,
     PlusToken: c.ARITHMETIC,
     SlashToken: c.ARITHMETIC,
-    TrippleEqualToken: c.EQUALITY
+    TrippleEqualToken: c.EQUALITY,
+    MinusToken: c.ARITHMETIC
 }
 
 export const OperatorsForExpressionKind: { [key: string]: SuggestionItem[] } = {
