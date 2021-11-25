@@ -130,7 +130,9 @@ export function InputEditor(props: InputEditorProps) {
 
     useEffect(() => {
         setUserInput(value);
-        handleContentChange(currentContent).then();
+        if (isEditing) {
+            handleContentChange(currentContent).then();
+        }
     }, [value]);
 
     useEffect(() => {
@@ -303,15 +305,15 @@ export function InputEditor(props: InputEditorProps) {
                 const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (
                     (!completionResponse.kind ||
                         (isTypeDescriptor ?
-                                acceptedCompletionKindForTypes.includes(completionResponse.kind) :
-                                acceptedCompletionKindForExpressions.includes(completionResponse.kind)
+                            acceptedCompletionKindForTypes.includes(completionResponse.kind) :
+                            acceptedCompletionKindForExpressions.includes(completionResponse.kind)
                         )
                     ) &&
                     completionResponse.label !== varName.trim() &&
                     !(completionResponse.label.includes("main")) &&
                     (splitCodeSnippet.some((element) => (
-                            ((completionResponse.label.toLowerCase()).includes(element.toLowerCase()))
-                        )
+                        ((completionResponse.label.toLowerCase()).includes(element.toLowerCase()))
+                    )
                     ))
                 ));
 
