@@ -1,7 +1,3 @@
-import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { fi } from "date-fns/locale";
-
-import { FormFieldChecks } from "../Diagram/components/FormComponents/Types";
 import { Resource } from "../Diagram/components/LowCodeDiagram/Components/DialogBoxes/DropDown/ApiConfigureWizard/types";
 import {
     convertReturnTypeStringToSegments,
@@ -146,58 +142,6 @@ export function isPathDuplicated(resources: Resource[]): boolean {
 export function isServicePathValid(servicePath: string): boolean {
     const servicePathRegex = /^\/?[\S\w-\/]+$/g;
     return servicePath === "" || servicePathRegex.test(servicePath);
-}
-
-export function isAllEmpty(allFieldChecks: Map<string, FormFieldChecks>): boolean {
-    let result = true
-    allFieldChecks.forEach((fieldChecks, key) => {
-        if (!fieldChecks.isEmpty) {
-            result = false;
-        }
-    });
-    return result;
-}
-
-export function isAllValid(allFieldChecks: Map<string, FormFieldChecks>, model: FormField | FormField[], isRoot: boolean): boolean {
-    let result = true;
-    let canModelIgnore = false;
-    let allFieldsOptional = false;
-
-    if (!isRoot) {
-        const formField = model as FormField;
-        canModelIgnore = formField.optional || formField.defaultable;
-        allFieldsOptional = isAllOptional(formField.fields);
-    }else{
-        const formFields = model as FormField[];
-        allFieldsOptional = isAllOptional(formFields);
-    }
-
-    allFieldChecks.forEach(fieldChecks => {
-        if (!canModelIgnore && !fieldChecks.canIgnore && (!fieldChecks.isValid || fieldChecks.isEmpty)) {
-            result = false;
-        }
-        if (fieldChecks.canIgnore && !fieldChecks.isEmpty && !fieldChecks.isValid) {
-            result = false;
-        }
-    });
-
-    // Handle mandatory record but all fields are optional
-    if (!canModelIgnore && allFieldsOptional && !isAllEmpty(allFieldChecks)) {
-        result = false;
-    }
-    return result;
-}
-
-export function isAllOptional(fields: FormField[]): boolean {
-    let result = true;
-    if (fields && fields.length > 0) {
-        fields.map((field: any, index: any) => {
-            if (!(field?.optional ?? false)) {
-                result = false;
-            }
-        });
-    }
-    return result;
 }
 
 export function isKeywords(word: string): boolean {

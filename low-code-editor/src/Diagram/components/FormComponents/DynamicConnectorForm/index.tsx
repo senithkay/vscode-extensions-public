@@ -14,11 +14,11 @@ import React, { ReactNode } from "react";
 
 import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import {isAllValid} from "../../../../utils/validator";
 import { getFormElement } from "../../Portals/utils";
 import FormAccordion from "../FormAccordion";
 import { ExpressionInjectablesProps } from "../FormGenerator";
 import { FormElementProps, FormFieldChecks } from "../Types";
+import { isAllFieldsValid } from "../Utils";
 
 import { useStyles } from "./styles";
 
@@ -53,7 +53,7 @@ export function Form(props: FormProps) {
             isEmpty,
             canIgnore,
         });
-        onValidate(isAllValid(allFieldChecks.current, fields, true));
+        onValidate(isAllFieldsValid(allFieldChecks.current, fields, true));
     };
 
     const fieldTypesList = ["string" , "int" , "boolean" , "float" , "decimal" , "array" , "map" , "union", "xml",

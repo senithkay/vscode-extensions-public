@@ -15,12 +15,12 @@ import React from "react";
 
 import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import {isAllEmpty, isAllOptional, isAllValid} from "../../../../../utils/validator";
 import { getFormElement } from "../../../Portals/utils";
 import { useStyles } from "../../DynamicConnectorForm/style";
 import FormAccordion from "../../FormAccordion";
 import { ExpressionInjectablesProps } from "../../FormGenerator";
 import { FormElementProps, FormFieldChecks } from "../../Types";
+import { isAllEmpty, isAllFieldsValid } from "../../Utils";
 
 interface RecordProps {
     validate?: (field: string, isInvalid: boolean, isEmpty: boolean, canIgnore?: boolean) => void;
@@ -45,7 +45,7 @@ export function Record(props: FormElementProps<RecordProps>) {
         });
         validate(
             model.name,
-            !isAllValid(allFieldChecks.current, model, false),
+            !isAllFieldsValid(allFieldChecks.current, model, false),
             isAllEmpty(allFieldChecks.current),
             (model.optional || model.defaultable)
         );
