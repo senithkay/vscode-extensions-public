@@ -118,7 +118,7 @@ export function AddWhileForm(props: WhileProps) {
         defaultMessage: "Cancel"
     });
 
-    const initialSource = getInitialSource(createWhileStatement(
+    const initialSource = formArgs.model ? formArgs.model.source : getInitialSource(createWhileStatement(
         conditionState.conditionExpression ? conditionState.conditionExpression as string : 'EXPRESSION'
     ));
 

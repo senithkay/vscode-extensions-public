@@ -165,7 +165,7 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
     const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
         {
             label: intl.formatMessage({ id: "lowcode.develop.configForms.assignment.statementEditor.label", defaultMessage: 'Assignment' }),
-            initialSource: `${varName} = ${variableExpression};`,
+            initialSource: formArgs.model ? formArgs.model.source : (`${varName} = ${variableExpression};`),
             formArgs: { formArgs },
             validForm,
             config,
