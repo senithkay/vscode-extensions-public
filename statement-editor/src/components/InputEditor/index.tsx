@@ -133,7 +133,9 @@ export function InputEditor(props: InputEditorProps) {
     useEffect(() => {
         setUserInput(value);
         if (isEditing) {
-            handleContentChange(currentContent).then();
+            handleContentChange(currentContent).then(() => {
+                handleOnOutFocus().then();
+            });
         }
     }, [value]);
 
