@@ -715,7 +715,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 monacoRef.current.editor.trigger('exp_editor', 'editor.action.triggerSuggest', {})
             }
 
-            if ((currentContent.length >= EDITOR_MAXIMUM_CHARACTERS) && monacoRef.current.editor.hasTextFocus()) {
+            if ((currentContent.length >= EDITOR_MAXIMUM_CHARACTERS) && monacoRef.current.editor.hasTextFocus() && !hideExpand) {
                 setExpand(true);
                 if (currentContent.length >= EXPAND_EDITOR_MAXIMUM_CHARACTERS) {
                     setSuperExpand(true);

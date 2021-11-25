@@ -20,7 +20,6 @@ import { FunctionDefinition, NodePosition, ObjectMethodDefinition, RequiredParam
 import { ResourceIcon } from "../../../../../../assets/icons";
 import { Section } from "../../../../../../components/ConfigPanel";
 import { Context } from "../../../../../../Contexts/Diagram";
-import { validatePath } from "../../../../../../utils/validator";
 import { ServiceMethodType, SERVICE_METHODS, TriggerType } from "../../../../../models";
 import { createResource, updateResourceSignature } from "../../../../../utils/modification-util";
 import { DiagramOverlayPosition } from "../../../../Portals/Overlay";
@@ -28,6 +27,7 @@ import { useStyles as useFormStyles } from "../../../DynamicConnectorForm/style"
 import { SelectDropdownWithButton } from "../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import { SwitchToggle } from "../../../FormFieldComponents/SwitchToggle";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
+import { VariableNameInput, VariableNameInputProps } from "../../Components/VariableNameInput";
 import { VariableTypeInput } from "../../Components/VariableTypeInput";
 import { useStyles } from "../styles";
 
@@ -102,7 +102,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     const defaultConfig: Resource = {
         id: 0,
         method: "GET",
-        path: "",
+        path: ".",
         returnType: 'error?'
     };
 
@@ -111,7 +111,6 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     const [togglePayload, setTogglePayload] = useState(false);
     const [isValidPath, setIsValidPath] = useState(false);
     const [validateToggle, setValidateToggle] = useState(false);
-    const [duplicatedPathsInEdit, setDuplicatedPathsInEdit] = useState<boolean>(false);
     const [isValidReturnExpr, setIsValidReturnExpr] = useState(true);
     const [isValidPayload, setIsValidPayload] = useState(true);
 
@@ -278,8 +277,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
         }
 
         // Validate paths
-        if (!validatePath(resource.path)) {
-            isValidated = false;
+        if (!isValidPath) {
             return;
         }
 
@@ -292,19 +290,6 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
         return isValidated;
     }
 
-    const validatePaths = () => {
-        if (!resource) return false;
-
-        let isValidated = true;
-
-        // Validate paths
-        if (!validatePath(resource.path)) {
-            isValidated = false;
-            return;
-        }
-
-        return isValidated;
-    }
 
 
     const handleUserConfirm = () => {
@@ -366,13 +351,10 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
         }
     };
 
-    const validateResourcePath = (text: string): boolean => {
-        const validPath = validatePath(text);
-        setIsValidPath(validPath);
-        return validPath;
-    }
 
     const validateReturnTypeExpression = (_name: string, isInvalid: boolean) => setIsValidReturnExpr(!isInvalid);
+
+    const updateResourcePathValidation = (_name: string, isInValid: boolean) => setIsValidPath(!isInValid);
 
     const resourceConfigTitle = intl.formatMessage({
         id: "lowcode.develop.apiConfigWizard.resourceConfig.title",
@@ -394,10 +376,6 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
         defaultMessage: "Path Segments"
     });
 
-    const pathErrorMessage = intl.formatMessage({
-        id: "lowcode.develop.apiConfigWizard.path.errorMessage",
-        defaultMessage: "Please enter a valid path"
-    });
 
     const pathDuplicateErrorMessage = intl.formatMessage({
         id: "lowcode.develop.apiConfigWizard.path.duplicate.errorMessage",
@@ -548,20 +526,40 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
         </div>
     );
 
+    const lastRelativePath = model?.relativeResourcePath ? model?.relativeResourcePath[model?.relativeResourcePath?.length - 1] : {};
+    const variableNameConfig: VariableNameInputProps = {
+        displayName: 'Resource path',
+        value: resource.path,
+        onValueChange: (value) => setResource({...resource, path: value}),
+        validateExpression: updateResourcePathValidation,
+        position: model ? {
+            startLine: model?.functionName?.position?.startLine,
+            startColumn: model?.functionName?.position?.startColumn,
+            endLine: lastRelativePath ? lastRelativePath.position?.endLine : 0,
+            endColumn: lastRelativePath ? lastRelativePath.position?.endColumn : 0,
+        } : {
+            ...targetPosition,
+            endColumn: 0,
+        },
+        overrideTemplate: {
+            defaultCodeSnippet: `resource function ${resource.method} (){}`,
+            targetColumn: 20 + resource.method.length,
+        },
+        overrideEditTemplate: {
+            defaultCodeSnippet: `${resource.method} `,
+            targetColumn: 2 + resource.method.length,
+        },
+        isEdit: !!model,
+        hideLabel: true,
+    }
+
     const pathUI = (
         // <div className={classes.sectionSeparator}>
         <Section
             title={pathTitle}
             tooltipWithExample={{ title, content: pathExample }}
         >
-            <FormTextInput
-                dataTestId="api-path"
-                defaultValue={(resource.path === ".") ? "" : resource.path}
-                onChange={handleOnChangePath}
-                customProps={{ validate: validateResourcePath, isErrored: resource.isPathDuplicated || duplicatedPathsInEdit, startAdornment: '/' }}
-                errorMessage={resource.isPathDuplicated || duplicatedPathsInEdit ? pathDuplicateErrorMessage : isValidPath ? "" : pathErrorMessage}
-                placeholder={pathPlaceholder}
-            />
+            {initialLoaded && <VariableNameInput {...variableNameConfig} key={resource.method}/>}
         </Section>
         // </div>
     );
@@ -685,7 +683,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                         </div>
                     </div>
                     <div className={formClasses.advancedSwitchText}>
-                        {validatePaths() && advanceSwitch}
+                        {isValidPath && advanceSwitch}
                     </div>
                     <div>
                         {toggleMainAdvancedMenu && advanceUI}
@@ -698,7 +696,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                     </Section>
                 </div>
                 <div>
-                    {validateResources() && !duplicatedPathsInEdit && buttonLayer}
+                    {validateResources() && buttonLayer}
                 </div>
             </div>
         </div>
