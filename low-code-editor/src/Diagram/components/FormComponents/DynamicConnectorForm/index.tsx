@@ -18,7 +18,7 @@ import {isAllValid} from "../../../../utils/validator";
 import { getFormElement } from "../../Portals/utils";
 import FormAccordion from "../FormAccordion";
 import { ExpressionInjectablesProps } from "../FormGenerator";
-import { FormElementProps } from "../Types";
+import { FormElementProps, FormFieldChecks } from "../Types";
 
 import { useStyles } from "./styles";
 
@@ -37,8 +37,7 @@ export function Form(props: FormProps) {
     const classes = useStyles();
     const elements: ReactNode[] = [];
     const optionalElements: ReactNode[] = [];
-    const validFieldChecker = React.useRef(new Map<string, boolean>());
-    const emptyFieldChecker = React.useRef(new Map<string, boolean>());
+    const allFieldChecks = React.useRef(new Map<string, FormFieldChecks>());
 
     React.useEffect(() => {
         // Set form as valid if there aren't any mandatory fields
@@ -47,10 +46,14 @@ export function Form(props: FormProps) {
         }
     }, []);
 
-    const validateField = (field: string, isInvalid: boolean, isEmpty: boolean): void => {
-        validFieldChecker.current.set(field, !isInvalid);
-        emptyFieldChecker.current.set(field, isEmpty);
-        onValidate(isAllValid(validFieldChecker.current, emptyFieldChecker.current, false, true, true));
+    const validateField = (field: string, isInvalid: boolean, isEmpty: boolean, canIgnore?: boolean) => {
+        allFieldChecks.current.set(field, {
+            name: field,
+            isValid: !isInvalid,
+            isEmpty,
+            canIgnore,
+        });
+        onValidate(isAllValid(allFieldChecks.current, fields, true));
     };
 
     const fieldTypesList = ["string" , "int" , "boolean" , "float" , "decimal" , "array" , "map" , "union", "xml",

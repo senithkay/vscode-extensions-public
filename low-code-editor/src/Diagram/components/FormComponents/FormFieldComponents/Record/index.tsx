@@ -20,10 +20,10 @@ import { getFormElement } from "../../../Portals/utils";
 import { useStyles } from "../../DynamicConnectorForm/style";
 import FormAccordion from "../../FormAccordion";
 import { ExpressionInjectablesProps } from "../../FormGenerator";
-import { FormElementProps } from "../../Types";
+import { FormElementProps, FormFieldChecks } from "../../Types";
 
 interface RecordProps {
-    validate?: (field: string, isInvalid: boolean, isEmpty: boolean) => void;
+    validate?: (field: string, isInvalid: boolean, isEmpty: boolean, canIgnore?: boolean) => void;
     expressionInjectables?: ExpressionInjectablesProps;
 }
 
@@ -31,18 +31,24 @@ export function Record(props: FormElementProps<RecordProps>) {
     const { model, customProps } = props;
     const { validate, expressionInjectables } = customProps;
     const classes = useStyles();
-    const validFieldChecker = React.useRef(new Map<string, boolean>());
-    const emptyFieldChecker = React.useRef(new Map<string, boolean>());
+    const allFieldChecks = React.useRef(new Map<string, FormFieldChecks>());
 
     const recordFields: React.ReactNode[] = [];
     const optionalRecordFields: React.ReactNode[] = [];
 
-
-    const validateField = (field: string, isInvalid: boolean, isEmpty: boolean): void => {
-        validFieldChecker.current.set(field, !isInvalid);
-        emptyFieldChecker.current.set(field, isEmpty);
-        validate(model.name, !isAllValid(validFieldChecker.current, emptyFieldChecker.current,
-                isAllOptional(model.fields), (model.optional ?? false), false), isAllEmpty(emptyFieldChecker.current));
+    const validateField = (field: string, isInvalid: boolean, isEmpty: boolean, canIgnore?: boolean) => {
+        allFieldChecks.current.set(field, {
+            name: field,
+            isValid: !isInvalid,
+            isEmpty,
+            canIgnore,
+        });
+        validate(
+            model.name,
+            !isAllValid(allFieldChecks.current, model, false),
+            isAllEmpty(allFieldChecks.current),
+            (model.optional || model.defaultable)
+        );
     };
 
     const fieldTypesList = ["string" , "int" , "boolean" , "float" , "decimal" , "array" , "map" , "union" ,
