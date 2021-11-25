@@ -29,7 +29,7 @@ export interface ExpressionSuggestionsProps {
 
 export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
     const statementEditorClasses = useStatementEditorStyles();
-    const { model, suggestions, suggestionHandler } = props;
+    const { model, suggestions, suggestionHandler, operator } = props;
 
     const {
         modelCtx: {
@@ -42,16 +42,20 @@ export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
         suggestionHandler();
     }
 
-    const onClickOperatorSuggestion = (operator: SuggestionItem) => {
+    const onClickOperatorSuggestion = (operatorSuggestion: SuggestionItem) => {
         if (STKindChecker.isBinaryExpression(model)) {
-            updateModel(operator.value, model.operator.position);
+            updateModel(operatorSuggestion.value, model.operator.position);
             suggestionHandler();
         }
     }
 
     return (
         <div>
-            <div className={statementEditorClasses.subHeader}>Expressions</div>
+            {
+                (operator) ?
+                    (<div className={statementEditorClasses.subHeader}>Operators</div>) :
+                    (<div className={statementEditorClasses.subHeader}>Expressions</div>)
+            }
             {
                 suggestions.map((suggestion: SuggestionItem, index: number) => (
                     (suggestion.kind) ?
