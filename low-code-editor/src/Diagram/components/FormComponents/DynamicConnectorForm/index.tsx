@@ -53,10 +53,9 @@ export function Form(props: FormProps) {
         onValidate(isAllValid(validFieldChecker.current, emptyFieldChecker.current, false, true, true));
     };
 
-    const fieldTypesList = ["string" , "int" , "boolean" , "float" , "decimal" , "array" , "map" , "union", "xml",
-    "json" , "httpRequest" , "handle" , "object {public string[] & readonly strings;public Value[] insertions;}"]
+    const fieldTypesList = ["string" , "int" , "boolean" , "float" , "decimal" , "array" , "map" , "union" , "json" , "httpRequest" , "handle"]
     fields?.map((field, index) => {
-        if (!field.hide && (fieldTypesList.includes(field.typeName) || (field.typeName === 'record' && !field.isReference))) {
+        if (!field.hide && (fieldTypesList.includes(field.typeName) || field.typeName.includes("object {public string[]") || (field.typeName === 'record' && !field.isReference))) {
             const elementProps: FormElementProps = {
                 model: field,
                 index,
@@ -81,7 +80,7 @@ export function Form(props: FormProps) {
                 type = "restParam"
             } else if (field.typeName === "handle"){
                 type = "expression";
-            } else if (field.typeName === "object {public string[] & readonly strings;public Value[] insertions;}"){
+            } else if (field.typeName.includes("object {public string[]")){
                 type = "expression";
             }
             const element = getFormElement(elementProps, type);
