@@ -49,13 +49,11 @@ export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
         }
     }
 
+    const label = operator ? "Operators" : "Expressions";
+
     return (
         <div>
-            {
-                (operator) ?
-                    (<div className={statementEditorClasses.subHeader}>Operators</div>) :
-                    (<div className={statementEditorClasses.subHeader}>Expressions</div>)
-            }
+            <div className={statementEditorClasses.subHeader}>{label}</div>
             {
                 suggestions.map((suggestion: SuggestionItem, index: number) => (
                     (suggestion.kind) ?
