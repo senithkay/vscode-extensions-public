@@ -38,11 +38,11 @@ export function VariableSuggestions(props: VariableSuggestionsProps) {
     } = useContext(StatementEditorContext);
 
     const onClickVariableSuggestion = (suggestion: SuggestionItem) => {
+        let variable = suggestion.value;
         if (inputEditorCtx.userInput.endsWith('.')) {
-            updateModel(inputEditorCtx.userInput + suggestion.value, model.position);
-        } else {
-            updateModel(suggestion.value, model.position);
+            variable = inputEditorCtx.userInput + suggestion.value;
         }
+        updateModel(variable, model.position);
         suggestionHandler();
     }
 
