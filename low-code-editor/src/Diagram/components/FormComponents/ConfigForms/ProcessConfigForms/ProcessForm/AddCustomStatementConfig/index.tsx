@@ -101,11 +101,11 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         setExpression(partialModel.source.trim());
     }
 
-    const {handleStmtEditorToggle, stmtEditorComponent} = useStatementEditor(
+    const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
         {
-            label: intl.formatMessage({id: "lowcode.develop.configForms.customStatement.statementEditor.label"}),
+            label: intl.formatMessage({ id: "lowcode.develop.configForms.customStatement.statementEditor.label" }),
             initialSource: expression ? expression : "EXPRESSION",
-            formArgs: {formArgs},
+            formArgs: { formArgs },
             validForm: isFormValid,
             config,
             onWizardClose,
@@ -130,26 +130,23 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                 />
                 <div className={formClasses.formWrapper}>
                     <div className={formClasses.formFeilds}>
-                        <div className={formClasses.formWrapper}>
-
-                            <div className="exp-wrapper">
-                                <ExpressionEditor
-                                    model={{ name: "statement", value: expression }}
-                                    customProps={{
-                                        validate: validateExpression,
-                                        tooltipTitle: customStatementTooltipMessages.title,
-                                        tooltipActionText: customStatementTooltipMessages.actionText,
-                                        tooltipActionLink: customStatementTooltipMessages.actionLink,
-                                        interactive: true,
-                                        customTemplate: {
-                                            defaultCodeSnippet: '',
-                                            targetColumn: 1,
-                                        },
-                                        editPosition: config?.targetPosition
-                                    }}
-                                    onChange={onExpressionChange}
-                                />
-                            </div>
+                        <div className={formClasses.stmtEditorWrapper}>
+                            <ExpressionEditor
+                                model={{ name: "statement", value: expression }}
+                                customProps={{
+                                    validate: validateExpression,
+                                    tooltipTitle: customStatementTooltipMessages.title,
+                                    tooltipActionText: customStatementTooltipMessages.actionText,
+                                    tooltipActionLink: customStatementTooltipMessages.actionLink,
+                                    interactive: true,
+                                    customTemplate: {
+                                        defaultCodeSnippet: '',
+                                        targetColumn: 1,
+                                    },
+                                    editPosition: config?.targetPosition
+                                }}
+                                onChange={onExpressionChange}
+                            />
                         </div>
                     </div>
                     <FormActionButtons

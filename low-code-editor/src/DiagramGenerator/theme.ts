@@ -52,7 +52,7 @@ export const theme = createMuiTheme({
             letterSpacing: "normal"
         },
         h4: {
-            fontSize: 15,
+            fontSize: 14,
             fontWeight: 500,
             fontStretch: "normal",
             fontStyle: "normal",

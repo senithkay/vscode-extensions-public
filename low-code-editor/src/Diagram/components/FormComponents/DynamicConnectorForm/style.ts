@@ -23,6 +23,12 @@ export const useStyles = makeStyles((theme: Theme) =>
                 margin: '0 !important',
             },
         },
+        wizardFormControlExtended: {
+            width: 400,
+            "& .MuiFormControl-marginNormal": {
+                margin: '0 !important',
+            },
+        },
         ".MuiFormControl-root": {
             "& .MuiFormControl-marginNormal": {
                 margin: '0 !important',
@@ -58,14 +64,6 @@ export const useStyles = makeStyles((theme: Theme) =>
             textTransform: 'capitalize',
             lineHeight: '40px',
         },
-        formHeaderTitleWrapper: {
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-around',
-            borderBottom: '1px solid #d8d8d8',
-            padding: "4px 0 8px 0"
-        },
         titleIcon: {
             display: 'flex',
             padding: theme.spacing(1),
@@ -79,10 +77,11 @@ export const useStyles = makeStyles((theme: Theme) =>
         inputLabelForRequired: {
             padding: 0,
             color: '#1D2028',
-            fontSize: 14,
+            fontSize: 13,
             textTransform: 'capitalize',
             display: 'inline-block',
-            lineHeight: '35px'
+            lineHeight: '35px',
+            fontWeight: 300,
         },
         starLabelForRequired: {
             padding: 0,
@@ -409,7 +408,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         formWrapper: {
             width: '100%',
             flexDirection: "row",
-            padding: theme.spacing(1),
+            padding: '15px 20px',
         },
         oauthWrapper: {
             paddingTop: "5rem"
@@ -527,7 +526,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             padding: "5px 0"
         },
         formFeilds: {
-            marginBottom: '50px',
+            marginBottom: theme.spacing(2.5),
             width: '100%',
         },
         codeWrapper: {
@@ -571,10 +570,22 @@ export const useStyles = makeStyles((theme: Theme) =>
             paddingTop: theme.spacing(3.625),
             width: '5%'
         },
+        expFieldWrapper: {
+            display: 'flex',
+            width: '100%',
+            flexDirection: 'column',
+            position: 'relative'
+        },
         blockWrapper: {
             display: 'flex',
             width: '100%',
             flexDirection: 'column'
+        },
+        inlineBlockWrapper: {
+            display: 'flex',
+            width: '100%',
+            flexDirection: 'row',
+            justifyContent: 'space-evenly',
         },
         dropdownWrapper: {
             minWidth: `92px !important`
@@ -582,6 +593,18 @@ export const useStyles = makeStyles((theme: Theme) =>
         codeText: {
             paddingTop: theme.spacing(1.25),
             paddingRight: theme.spacing(1)
+        },
+        codeTitleText: {
+            paddingRight: theme.spacing(1)
+        },
+        equalWrapper: {
+            paddingTop: theme.spacing(5),
+            width: theme.spacing(1.5),
+        },
+        inWrapper: {
+            paddingTop: theme.spacing(6.25),
+            width: theme.spacing(4),
+            textAlign: 'center'
         },
         editorWrapper: {
             minWidth: `110px !important`,
@@ -622,11 +645,25 @@ export const useStyles = makeStyles((theme: Theme) =>
         fitContent: {
             width: 'fit-content'
         },
+        foreachWrapper: {
+            width: '100%',
+            marginRight: theme.spacing(0.625),
+            position: 'relative',
+            marginTop: theme.spacing(-2),
+        },
+        stmtEditorWrapper: {
+            width: '100%',
+            marginRight: theme.spacing(0.625),
+            position: 'relative',
+        },
         nameExpEditorWrapper: {
-            minWidth: `164px !important`,
-            paddingRight: theme.spacing(1),
+            width: '50%',
+            marginRight: theme.spacing(0.625),
             position: 'relative',
             marginTop: theme.spacing(1.5),
+            '&:last-child': {
+                marginRight: 0
+            }
         },
         variableExpEditorWrapper: {
             width: '100%',
@@ -679,7 +716,9 @@ export const useStyles = makeStyles((theme: Theme) =>
             gap: theme.spacing(1)
         },
         inlineWrapper: {
-            display: 'inline-flex'
+            display: 'inline-flex',
+            width: '100%',
+            marginTop: theme.spacing(1)
         }
     }),
     { index: 1 }

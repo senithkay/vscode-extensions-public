@@ -226,19 +226,21 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
                         />
                     </FormHelperText>
                 </div>
-                <CheckBoxGroup
-                    values={["Include Default Value"]}
-                    defaultValues={state.hasDefaultValue ? ['Include Default Value'] : []}
-                    onChange={onHasDefaultValChange}
-                />
-                <div hidden={!state.hasDefaultValue}>
-                    <ExpressionEditor
-                        {...expressionEditorConfigForValue}
+                <div className={formClasses.expStatementWrapper}>
+                    <CheckBoxGroup
+                        values={["Include Default Value"]}
+                        defaultValues={state.hasDefaultValue ? ['Include Default Value'] : []}
+                        onChange={onHasDefaultValChange}
                     />
+                    <div hidden={!state.hasDefaultValue}>
+                        <ExpressionEditor
+                            {...expressionEditorConfigForValue}
+                        />
+                    </div>
                 </div>
-                <ExpressionEditor
-                    {...expressionEditorConfigForLabel}
-                />
+                <div className={formClasses.expStatementWrapper}>
+                    <ExpressionEditor  {...expressionEditorConfigForLabel} />
+                </div>
                 <div className={formClasses.wizardBtnHolder}>
                     <SecondaryButton
                         text="Cancel"

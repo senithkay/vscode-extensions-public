@@ -11,6 +11,7 @@
  * associated services.
  */
 import { createStyles, makeStyles } from "@material-ui/core/styles";
+import { theme } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 export const useStyles = makeStyles(() =>
     createStyles({
@@ -21,6 +22,7 @@ export const useStyles = makeStyles(() =>
             background: "linear-gradient(180deg, #ffffff 0%, #f7f7f9 100%)",
             boxShadow: "inset 0 0 0 1px #dee0e7, 0 1px 1px 0 rgba(0, 0, 0, 0.06)",
             cursor: "pointer",
+            marginBottom: theme.spacing(2.5),
             border: 1,
             "&:active": {
                 background: "linear-gradient(180deg, #ffffff 0%, #f7f7f9 100%)",
@@ -48,12 +50,13 @@ export const useStyles = makeStyles(() =>
             }
         },
         selectDropDownSm: {
-            height: "35px",
+            height: 35,
             width: "100%",
-            borderRadius: "5px",
+            borderRadius: 5,
             background: "linear-gradient(180deg, #ffffff 0%, #f7f7f9 100%)",
             boxShadow: "inset 0 0 0 1px #dee0e7, 0 1px 1px 0 rgba(0, 0, 0, 0.06)",
             cursor: "pointer",
+            marginBottom: theme.spacing(2.5),
             border: 1,
             "&:active": {
                 background: "linear-gradient(180deg, #ffffff 0%, #f7f7f9 100%)",

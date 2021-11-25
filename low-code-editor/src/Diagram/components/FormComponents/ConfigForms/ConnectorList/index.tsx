@@ -64,6 +64,7 @@ export function ConnectorList(props: FormGeneratorProps) {
         <Marketplace
             balModuleType={BallerinaModuleType.Connector}
             onSelect={onSelect}
+            onCancel={onCancel}
             fetchModulesList={fetchConnectorsList}
             title="API Calls"
             shortName="APIs"
