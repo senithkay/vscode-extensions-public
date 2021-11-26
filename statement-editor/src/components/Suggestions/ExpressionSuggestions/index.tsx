@@ -43,10 +43,8 @@ export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
     }
 
     const onClickOperatorSuggestion = (operatorSuggestion: SuggestionItem) => {
-        if (STKindChecker.isBinaryExpression(model)) {
-            updateModel(operatorSuggestion.value, model.operator.position);
-            suggestionHandler();
-        }
+        updateModel(operatorSuggestion.value, model.position);
+        suggestionHandler();
     }
 
     const label = operator ? "Operators" : "Expressions";
