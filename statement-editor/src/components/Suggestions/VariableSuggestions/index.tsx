@@ -16,6 +16,7 @@ import React, { useContext } from "react";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { SuggestionItem } from "../../../models/definitions";
+import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { useStatementEditorStyles } from "../../styles";
 
@@ -28,6 +29,7 @@ export interface VariableSuggestionsProps {
 export function VariableSuggestions(props: VariableSuggestionsProps) {
     const statementEditorClasses = useStatementEditorStyles();
     const { model, variableSuggestions, suggestionHandler } = props;
+    const inputEditorCtx = useContext(InputEditorContext);
 
     const {
         modelCtx: {
@@ -36,7 +38,11 @@ export function VariableSuggestions(props: VariableSuggestionsProps) {
     } = useContext(StatementEditorContext);
 
     const onClickVariableSuggestion = (suggestion: SuggestionItem) => {
-        updateModel(suggestion.value, model.position);
+        let variable = suggestion.value;
+        if (inputEditorCtx.userInput.endsWith('.')) {
+            variable = inputEditorCtx.userInput + suggestion.value;
+        }
+        updateModel(variable, model.position);
         suggestionHandler();
     }
 

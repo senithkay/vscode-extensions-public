@@ -18,6 +18,8 @@ import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { LowCodeEditorProps } from '../components/ViewContainer/ViewContainer';
 
+import { InputEditorContextProvider } from "./input-editor-context";
+
 export const StatementEditorContext = React.createContext({
     modelCtx: {
         statementModel: null,
@@ -67,7 +69,9 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
             ...restProps
         }}
         >
-            {children}
+            <InputEditorContextProvider>
+                {children}
+            </InputEditorContextProvider>
         </StatementEditorContext.Provider>
     );
 }
