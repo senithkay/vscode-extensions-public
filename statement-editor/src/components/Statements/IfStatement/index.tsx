@@ -10,6 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext } from "react";
 
 import { IfElseStatement } from "@wso2-enterprise/syntax-tree"
@@ -17,6 +18,7 @@ import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
+import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
@@ -30,6 +32,10 @@ interface IfStatementProps {
 
 export function IfStatementC(props: IfStatementProps) {
     const { model, userInputs, diagnosticHandler } = props;
+    const stmtCtx = useContext(StatementEditorContext);
+    const { modelCtx } = stmtCtx;
+    const { currentModel } = modelCtx;
+    let hasConditionSelected = false;
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
@@ -44,19 +50,30 @@ export function IfStatementC(props: IfStatementProps) {
         />
     );
 
-
     const onClickOnConditionExpression = (event: any) => {
         event.stopPropagation()
         expressionHandler(model.condition, false, false,
             { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
     };
 
+    if (currentModel.model) {
+        if (currentModel.model.position === model.condition.position) {
+            hasConditionSelected = true;
+        }
+    }
+
     return (
         <span>
             <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
                 {model.ifKeyword.value}
             </span>
-             <button className={statementEditorClasses.expressionElement} onClick={onClickOnConditionExpression}>
+            <button
+                className={classNames(
+                    statementEditorClasses.expressionElement,
+                    hasConditionSelected && statementEditorClasses.expressionElementSelected
+                )}
+                onClick={onClickOnConditionExpression}
+            >
                 {conditionComponent}
             </button>
             <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
