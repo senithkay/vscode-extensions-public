@@ -10,6 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext } from "react";
 
 import { ForeachStatement } from "@wso2-enterprise/syntax-tree";
@@ -17,6 +18,7 @@ import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
+import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
@@ -33,6 +35,11 @@ export function ForeachStatementC(props: ForeachStatementProps) {
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
+    const stmtCtx = useContext(StatementEditorContext);
+    const { modelCtx } = stmtCtx;
+    const { currentModel } = modelCtx;
+    let hasTypedBindingPatternSelected = false;
+    let hasExprComponentSelected = false;
 
     const typedBindingComponent: ReactNode = (
         <ExpressionComponent
@@ -54,6 +61,11 @@ export function ForeachStatementC(props: ForeachStatementProps) {
         />
     );
 
+    const onClickOnBindingPattern = (event: any) => {
+        event.stopPropagation();
+        expressionHandler(model.typedBindingPattern, false, false,
+            {expressionSuggestions: [], typeSuggestions: [], variableSuggestions: []});
+    };
 
     const onClickOnActionOrExpr = (event: any) => {
         event.stopPropagation()
@@ -61,18 +73,38 @@ export function ForeachStatementC(props: ForeachStatementProps) {
             { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
     };
 
+    if (currentModel.model) {
+        if (currentModel.model.position === model.typedBindingPattern.position) {
+            hasTypedBindingPatternSelected = true;
+        } else if (currentModel.model.position === model.actionOrExpressionNode.position) {
+            hasExprComponentSelected = true;
+        }
+    }
+
     return (
         <span>
             <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
                 {model.forEachKeyword.value}
             </span>
-            <button className={statementEditorClasses.expressionElement}>
+            <button
+                className={classNames(
+                    statementEditorClasses.expressionElement,
+                    hasTypedBindingPatternSelected && statementEditorClasses.expressionElementSelected
+                )}
+                onClick={onClickOnBindingPattern}
+            >
                 {typedBindingComponent}
             </button>
             <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
                 &nbsp;{model.inKeyword.value}
             </span>
-            <button className={statementEditorClasses.expressionElement} onClick={onClickOnActionOrExpr}>
+            <button
+                className={classNames(
+                    statementEditorClasses.expressionElement,
+                    hasExprComponentSelected && statementEditorClasses.expressionElementSelected
+                )}
+                onClick={onClickOnActionOrExpr}
+            >
                 {actionOrExprComponent}
             </button>
             <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>

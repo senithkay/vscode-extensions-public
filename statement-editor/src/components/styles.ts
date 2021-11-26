@@ -230,7 +230,7 @@ export const useStatementEditorStyles = makeStyles(() =>
         expressionElementSelected: {
             backgroundColor: '#5567D5',
             color: '#fff',
-            border: 'solid #5567D5',
+            border: '1px solid #5567D5',
         },
         inputEditorTemplate: {
             minWidth: '20px',
