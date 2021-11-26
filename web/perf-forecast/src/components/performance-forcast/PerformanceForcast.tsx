@@ -18,7 +18,7 @@
  */
 
 import React from 'react';
-import { AreaChart, Area, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart } from 'recharts';
 import "./graph-styles.css";
 
 export interface DataPoint {
@@ -38,7 +38,8 @@ interface vscode {
 }
 
 declare const vscode: vscode;
-
+let currentConcurrency = 1;
+let hoverConcurrency = 1;
 export const PerformanceForcast = ({ name, data }: PerformanceForcastProps) => {
     return (
         <div className="performance-forcast">
@@ -48,11 +49,13 @@ export const PerformanceForcast = ({ name, data }: PerformanceForcastProps) => {
 
                 </div>
                 <ResponsiveContainer height={250}>
-                    <AreaChart
+                    <LineChart
                         width={500}
                         height={300}
                         data={data}
                         syncId="performance"
+                        onMouseMove={handleHover}
+                        onClick={handleClick}
                         margin={{
                             top: 5,
                             right: 30,
@@ -69,13 +72,11 @@ export const PerformanceForcast = ({ name, data }: PerformanceForcastProps) => {
                             label={{ value: 'Throughput (req/s)', angle: -90, position: 'insideBottomLeft' }}
                         />
                         <YAxis />
-                        <Tooltip />
-                        <Legend />
+                        <Tooltip cursor={{ strokeWidth: 2 }} />
                         <CartesianGrid strokeDasharray="0" />
-                        <Line type="monotone" dataKey="tps" stroke="#5567D5" />
-                        <Area type="monotone" dataKey="tps" activeDot={{ onClick: handleClick }}
+                        <Line type="monotone" dataKey="tps" activeDot={{ onClick: handleClick }} baseLine={8}
                             stroke="#5567D5" strokeWidth="2" fillOpacity={1} fill="url(#colorThroughput)" />
-                    </AreaChart>
+                    </LineChart>
                 </ResponsiveContainer>
                 <div className="x-label">
                     User Count
@@ -84,11 +85,13 @@ export const PerformanceForcast = ({ name, data }: PerformanceForcastProps) => {
 
             <div className="diagram latency">
                 <ResponsiveContainer width="100%" height={250}>
-                    <AreaChart
+                    <LineChart
                         width={500}
                         height={300}
                         data={data}
                         syncId="performance"
+                        onMouseMove={handleHover}
+                        onClick={handleClick}
                         margin={{
                             top: 5,
                             right: 30,
@@ -105,13 +108,12 @@ export const PerformanceForcast = ({ name, data }: PerformanceForcastProps) => {
                             label={{ value: 'Latency (ms)', angle: -90, position: 'insideBottomLeft' }}
 
                         />
-                        <Tooltip />
-                        <Legend />
+                        <YAxis />
+                        <Tooltip cursor={{ strokeWidth: 2 }} />
                         <CartesianGrid strokeDasharray="0" />
-                        <Line type="monotone" dataKey="latency" stroke="#EA4C4D" />
-                        <Area type="monotone" dataKey="latency" activeDot={{ onClick: handleClick }}
+                        <Line type="monotone" dataKey="latency" activeDot={{ onClick: handleClick }}
                             stroke="#EA4C4D" strokeWidth="2" fillOpacity={1} fill="url(#colorLatency)" />
-                    </AreaChart>
+                    </LineChart>
                 </ResponsiveContainer>
                 <div className="x-label">
                     User Count
@@ -125,16 +127,62 @@ export const PerformanceForcast = ({ name, data }: PerformanceForcastProps) => {
 };
 
 /**
- * Send clicked data point to update codelenses,
- * @param index Point index
- * @param data Point data
+ * Handle mouse click event.
+ * 
+ * @param index clicked index
+ * @param data event data
  */
 const handleClick = (index: any, data: any) => {
-    const payload: DataPoint = data.payload;
+    if (index.chartX && index.activeCoordinate) {
+
+        // if click on line
+        const activeCoordinateX = index.activeCoordinate.x;
+        if (index.chartX > activeCoordinateX - 1 && index.chartX < activeCoordinateX + 1) {
+
+            const concurrenct = index.activeLabel;
+            currentConcurrency = concurrenct;
+            updateConcurrency(concurrenct);
+        }
+
+    } else {
+
+        // if click on dot
+        const payload: DataPoint = data.payload;
+        currentConcurrency = payload.concurrency;
+        updateConcurrency(payload.concurrency);
+    }
+
+}
+
+/**
+ * Handle mouse hover event.
+ * 
+ * @param data event data
+ */
+const handleHover = (data: any) => {
+    if (!data.activeLabel) {
+
+        updateConcurrency(currentConcurrency);
+    }
+
+    if (data.activeLabel && data.activeLabel != hoverConcurrency) {
+
+        hoverConcurrency = data.activeLabel;
+        updateConcurrency(data.activeLabel);
+
+    }
+}
+
+/**
+ * Send concurrency to update codelenses.
+ * 
+ * @param concurrency Concurrency
+ */
+function updateConcurrency(concurrency: number) {
     vscode.postMessage({
         command: 'updateCodeLenses',
-        text: payload.concurrency
-    })
+        text: concurrency
+    });
 }
 
 const getXAxis = () =>
