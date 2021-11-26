@@ -202,7 +202,6 @@ export const useStatementEditorStyles = makeStyles(() =>
         expressionBlockDisabled: {
             height: '24px',
             width: '15px',
-            color: '#0095FF',
             fontFamily: "Droid Sans Mono",
             fontSize: '12px',
             letterSpacing: 0,
