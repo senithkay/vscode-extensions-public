@@ -115,7 +115,7 @@ export function AddLogConfig(props: LogConfigProps) {
         }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
     }
 
-    const initialSource = getInitialSource(createLogStatement(
+    const initialSource = formArgs.model ? formArgs.model.source : getInitialSource(createLogStatement(
         logType,
         expression ? expression : 'EXPRESSION'
     ));
