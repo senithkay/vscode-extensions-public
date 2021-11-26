@@ -175,7 +175,7 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
                         if (name) {
                             const selectedField: FormField = field.members?.find((subField: FormField) => {
                                 const fieldName = getUnionFormFieldName(subField);
-                                return (fieldName !== undefined) && (fieldName === field.selectedDataType);
+                                return fieldName !== undefined && fieldName === field.selectedDataType;
                             });
                             if (selectedField) {
                                 const params = getParams([selectedField], depth + 1);
@@ -196,15 +196,23 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
                                 recordFieldsString += name + ": " + field.value;
                             }
                         }
+                    } else if (field.typeName === "enum" && !field.hide && field.value) {
+                        const name = getFieldName(field.name ? field.name : field.typeInfo.name);
+                        if (firstRecordField) {
+                            recordFieldsString += ", ";
+                        } else {
+                            firstRecordField = true;
+                        }
+                        recordFieldsString += `${name} : "${field.value}"`;
                     } else if (field.typeName === "record" && !field.hide && !field.isReference) {
                         const name = getFieldName(field.name ? field.name : field.typeInfo.name);
                         if (name) {
                             const fieldArray: FormField[] = [
                                 {
                                     typeName: PrimitiveBalType.Record,
-                                    fields: field.fields
-                                }
-                            ]
+                                    fields: field.fields,
+                                },
+                            ];
                             const params = getParams(fieldArray, depth + 1);
                             if (params && params.length > 0) {
                                 if (firstRecordField) {
@@ -456,6 +464,9 @@ export function matchActionToFormField(remoteCall: RemoteMethodCallAction, formF
                 formField.value = positionalArg.expression.name.value;
                 nextValueIndex++;
             } else if (formField.typeName === "union") {
+                formField.value = positionalArg.expression?.source;
+                nextValueIndex++;
+            } else if (formField.typeName === "enum") {
                 formField.value = positionalArg.expression?.source;
                 nextValueIndex++;
             } else if (formField.typeName === "json") {
@@ -881,7 +892,7 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                     formField.isErrorType = true;
                     response.hasError = true;
                     // special case for db connectors: show error in this format -> sql:Error?
-                    if (formField.typeInfo.moduleName === "sql") {
+                    if (formField.typeInfo?.moduleName === "sql") {
                         formField.isErrorType = false;
                         response.hasError = false;
                         type = `${formField.typeInfo.moduleName}:${formField.typeInfo.name}`

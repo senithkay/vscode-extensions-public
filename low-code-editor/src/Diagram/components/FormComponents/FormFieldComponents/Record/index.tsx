@@ -51,7 +51,7 @@ export function Record(props: FormElementProps<RecordProps>) {
         );
     };
 
-    const fieldTypesList = ["string" , "int" , "boolean" , "float" , "decimal" , "array" , "map" , "union" , "handle"]
+    const fieldTypesList = ["string" , "int" , "boolean" , "float" , "decimal" , "array" , "map" , "union" , "enum", "handle"];
     if (model) {
         if (model.fields && model.fields.length > 0) {
             model.fields.map((field: FormField, index: any) => {
@@ -70,7 +70,7 @@ export function Record(props: FormElementProps<RecordProps>) {
                     // only union record types will get Union element
                     // other union types will get expression editor
                     if (field.typeName === "union"){
-                        field.fields?.forEach((subField: FormField) => {
+                        field.members?.forEach((subField: FormField) => {
                             if (subField.typeName !== "record"){
                                 type = "expression";
                             }
