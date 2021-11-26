@@ -227,9 +227,12 @@ export const useStatementEditorStyles = makeStyles(() =>
                 color: '#fff'
             }
         },
+        expressionElementSelected: {
+            backgroundColor: '#5567D5',
+            color: '#fff',
+            border: 'solid #5567D5',
+        },
         inputEditorTemplate: {
-            // color: '#05A26B',
-            color: '#5567D5',
             minWidth: '20px',
             fontSize: '13px',
             letterSpacing: 0,

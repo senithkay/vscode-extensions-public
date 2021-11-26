@@ -160,6 +160,7 @@ export function ViewContainer(props: ViewProps) {
                 <div className={overlayClasses.statementExpressionWrapper}>
                     <StatementEditorContextProvider
                         model={model}
+                        currentModel={currentModel}
                         onCancelClicked={onCancelClicked}
                         updateModel={updateModel}
                         formArgs={formArgs}
