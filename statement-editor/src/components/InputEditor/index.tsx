@@ -35,6 +35,7 @@ import debounce from "lodash.debounce";
 
 import * as c from "../../constants";
 import { SuggestionItem, VariableUserInputs } from "../../models/definitions";
+import { InputEditorContext } from "../../store/input-editor-context";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { SuggestionsContext } from "../../store/suggestions-context";
 import { getPartialSTForStatement } from "../../utils";
@@ -65,6 +66,7 @@ export function InputEditor(props: InputEditorProps) {
     const { model, statementType, diagnosticHandler, userInputs, isTypeDescriptor } = props;
 
     const stmtCtx = useContext(StatementEditorContext);
+    const inputEditorCtx = useContext(InputEditorContext);
     const { expressionHandler } = useContext(SuggestionsContext);
     const { currentFile, getLangClient } = stmtCtx;
 
@@ -130,7 +132,11 @@ export function InputEditor(props: InputEditorProps) {
 
     useEffect(() => {
         setUserInput(value);
-        handleContentChange(currentContent).then();
+        if (isEditing) {
+            handleContentChange(currentContent).then(() => {
+                handleOnOutFocus().then();
+            });
+        }
     }, [value]);
 
     useEffect(() => {
@@ -303,15 +309,15 @@ export function InputEditor(props: InputEditorProps) {
                 const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (
                     (!completionResponse.kind ||
                         (isTypeDescriptor ?
-                                acceptedCompletionKindForTypes.includes(completionResponse.kind) :
-                                acceptedCompletionKindForExpressions.includes(completionResponse.kind)
+                            acceptedCompletionKindForTypes.includes(completionResponse.kind) :
+                            acceptedCompletionKindForExpressions.includes(completionResponse.kind)
                         )
                     ) &&
                     completionResponse.label !== varName.trim() &&
                     !(completionResponse.label.includes("main")) &&
                     (splitCodeSnippet.some((element) => (
-                            ((completionResponse.label.toLowerCase()).includes(element.toLowerCase()))
-                        )
+                        ((completionResponse.label.toLowerCase()).includes(element.toLowerCase()))
+                    )
                     ))
                 ));
 
@@ -352,6 +358,7 @@ export function InputEditor(props: InputEditorProps) {
     const inputChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
         const currentStatement = stmtCtx.modelCtx.statementModel.source;
         setUserInput(event.target.value);
+        inputEditorCtx.onInputChange(event.target.value);
         const updatedStatement = addExpressionToTargetPosition(
             currentStatement,
             model.position.startColumn,

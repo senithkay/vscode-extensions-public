@@ -239,7 +239,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         defaultValue: variableExpression,
     };
 
-    const initialSource = getInitialSource(createModuleVarDecl(
+    const initialSource = formArgs.model ? formArgs.model.source : getInitialSource(createModuleVarDecl(
         {
             varName: varName ? varName : "default",
             varOptions: [],
