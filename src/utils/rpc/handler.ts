@@ -143,6 +143,11 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
             return langClient.getSTForExpression(args[0]);
         }
     }, {
+        methodName: 'getSTForModuleMembers',
+        handler: (args: any[]) => {
+            return langClient.getSTForModuleMembers(args[0]);
+        }
+    }, {
         methodName: 'getRealtimePerformanceData',
         handler: (args: any[]) => {
             return langClient.getRealtimePerformanceData(args[0]);
