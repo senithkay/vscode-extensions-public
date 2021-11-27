@@ -18,6 +18,7 @@ import { CodePanel} from "../CodePanel";
 import { EditFieldForm } from "../EditFieldForm";
 import { EditRecordForm } from "../EditRecordForm";
 import { EditTypeDefForm } from "../EditTypeDefForm";
+import { RecordFromJson } from '../RecordFromJson';
 import { recordStyles } from "../style";
 
 export function Record() {
@@ -38,6 +39,9 @@ export function Record() {
                 )}
                 {(state.currentForm === FormState.ADD_FIELD || state.currentForm === FormState.UPDATE_FIELD) && (
                     <EditFieldForm />
+                )}
+                {(state.currentForm === FormState.ADD_RECORD_JSON) && (
+                    <RecordFromJson />
                 )}
             </div>
         </div>

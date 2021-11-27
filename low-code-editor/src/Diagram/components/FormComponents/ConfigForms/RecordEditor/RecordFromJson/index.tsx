@@ -14,18 +14,18 @@
 import React, { useContext, useEffect, useReducer } from 'react';
 
 import { Box, FormControl, FormHelperText, Typography } from "@material-ui/core";
-import { PrimaryButton, SecondaryButton, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition } from '@wso2-enterprise/syntax-tree';
+import { PrimaryButton, SecondaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition, STNode } from '@wso2-enterprise/syntax-tree';
 
 import { Context } from "../../../../../../Contexts/Diagram";
+import { FormState, useRecordEditorContext } from "../../../../../../Contexts/RecordEditor";
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
-import { createPropertyStatement } from "../../../../../utils/modification-util";
 import { keywords } from "../../../../Portals/utils/constants";
 import { useStyles } from "../../../DynamicConnectorForm/style";
 import { FormTextArea } from "../../../FormFieldComponents/TextField/FormTextArea";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
 import { wizardStyles } from "../../style";
-import { convertToRecord, getRecordPrefix } from "../utils";
+import { convertToRecord, getRecordPrefix, getRecordST } from "../utils";
 
 interface RecordState {
     isLoading?: boolean;
@@ -33,12 +33,6 @@ interface RecordState {
     isValidRecord?: boolean;
     recordName?: string;
     nameError?: string;
-}
-
-export interface RecordFromJsonProps {
-    targetPosition: NodePosition;
-    onCancel: () => void;
-    onSave: () => void;
 }
 
 const reducer = (state: RecordState, action: {type: string, payload: any }) => {
@@ -64,14 +58,15 @@ const reducer = (state: RecordState, action: {type: string, payload: any }) => {
     }
 }
 
-export function RecordFromJson(formProps: RecordFromJsonProps) {
-    const { targetPosition, onCancel, onSave } = formProps;
+export function RecordFromJson() {
     const overlayClasses = wizardStyles();
     const classes = useStyles();
 
     const { props, api } = useContext(Context);
+    const { state, callBacks } = useRecordEditorContext();
+
     const { isMutationProgress, stSymbolInfo, langServerURL } = props;
-    const { code, ls } = api;
+    const { ls } = api;
 
     const prefix = getRecordPrefix(stSymbolInfo);
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
@@ -115,13 +110,16 @@ export function RecordFromJson(formProps: RecordFromJsonProps) {
     useEffect(() => {
         if (formState.isLoading) {
             (async () => {
-                const recordString = await convertToRecord(formState.jsonValue, langServerURL, ls);
-                const modifications: STModification[] = [createPropertyStatement(
-                    recordString.replace("NewRecord", formState.recordName), targetPosition
-                )];
-                code.modifyDiagram(modifications);
-                dispatchFromState({type: 'jsonConversionSuccess', payload: recordString});
-                onSave();
+                const recordResponse = await convertToRecord(formState.jsonValue, state.currentRecord.name,
+                    false, langServerURL, ls);
+                const partialST: STNode = await getRecordST({ codeSnippet: recordResponse.trim()
+                        .replace(/\n/g, "") }, langServerURL, ls);
+                // const recordModel: Record;
+                // state.currentRecord.fields.push(recordModel);
+                // callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
+                // callBacks.onUpdateModel(state.recordModel);
+                // callBacks.onUpdateCurrentRecord(state.currentRecord);
+                // dispatchFromState({type: 'jsonConversionSuccess', payload: recordModel});
             })();
         }
     }, [formState.isLoading]);
@@ -169,7 +167,7 @@ export function RecordFromJson(formProps: RecordFromJsonProps) {
                 <TextPreloaderVertical position="absolute" />
             )}
             <div className={overlayClasses.buttonWrapper}>
-                <SecondaryButton text="Cancel" fullWidth={false} onClick={onCancel} />
+                <SecondaryButton text="Cancel" fullWidth={false} onClick={null} />
                 <PrimaryButton
                     dataTestId={"record-from-json-save-btn"}
                     text={"Save"}
