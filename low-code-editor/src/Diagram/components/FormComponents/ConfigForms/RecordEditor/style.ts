@@ -229,13 +229,13 @@ export const recordStyles = makeStyles((theme: Theme) =>
                     marginTop: 13,
                     marginLeft: 0
                 },
-                "& $typeDefEditBtnWrapper": {
-                    display: "flex",
-                    flexDirection: "row",
-                    width: "10%",
-                    marginTop: 8,
-                    justifyContent: "flex-end"
-                }
+                // "& $typeDefEditBtnWrapper": {
+                //     display: "flex",
+                //     flexDirection: "row",
+                //     width: "10%",
+                //     marginTop: 8,
+                //     justifyContent: "flex-end"
+                // }
             }
         },
         recordHeading: {
@@ -325,18 +325,29 @@ export const recordStyles = makeStyles((theme: Theme) =>
             color: "#000"
         },
         recordHeaderBtnWrapper: {
-            display: "none",
+            // display: "none",
+            // flexDirection: "row",
+            // width: "15%",
+            // alignItems: "center"
+            display: "flex",
             flexDirection: "row",
-            width: "15%",
-            alignItems: "center"
+            width: "25%",
+            marginTop: 8,
+            alignItems: "center",
+            cursor: "pointer"
         },
         recordExpandBtnWrapper: {
             width: 20,
             marginTop: 13
         },
         typeDefEditBtnWrapper: {
-            display: "none",
+            // display: "none",
             cursor: "pointer",
+            display: "flex",
+            flexDirection: "row",
+            width: "15%",
+            marginTop: 8,
+            justifyContent: "flex-end"
         },
         buttonWrapper: {
             height: 'auto',

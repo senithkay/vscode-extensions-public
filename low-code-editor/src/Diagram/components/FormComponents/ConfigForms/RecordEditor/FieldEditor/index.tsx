@@ -15,14 +15,18 @@ import React, { useState } from "react";
 import { useIntl } from "react-intl";
 
 import { Typography } from "@material-ui/core";
+import { FormField } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import classnames from "classnames";
 
 import DeleteButton from "../../../../../../assets/icons/DeleteButton";
 import { FormState, useRecordEditorContext } from "../../../../../../Contexts/RecordEditor";
+import ExpressionEditor from "../../../FormFieldComponents/ExpressionEditor";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
+import { FormElementProps } from "../../../Types";
 import { VariableTypeInput, VariableTypeInputProps } from "../../Components/VariableTypeInput";
 import { recordStyles } from "../style";
 import { RecordModel, SimpleField } from "../types";
+import { genRecordName, getFieldNames } from "../utils";
 
 export interface FieldEditorProps {
     field: SimpleField;
@@ -49,6 +53,38 @@ export function FieldEditor(props: FieldEditorProps) {
     const [typeEditorVisible, setTypeEditorVisible] = useState<boolean>(false);
 
     const typeProperty = `${field.isArray ? "[]" : ""}${field.isFieldTypeOptional ? "?" : ""}`;
+
+    const formField: FormField = {
+        name: "defaultValue",
+        optional: true,
+        typeName: field?.isArray ? `${field?.type}[]` : field?.type,
+        value: field?.value
+    };
+    const handleDefaultValueFocus = (value: string) => {
+        if (!state.currentField.name) {
+            state.currentField.name = genRecordName("f", getFieldNames(state.currentRecord.fields));
+            callBacks.onUpdateCurrentField(state.currentField);
+        }
+    };
+    const validateDefaultValue = (fName: string, isInvalidFromField: boolean) => {
+    //    TODO Validate default value
+    };
+    const handleDefaultValueChange = (inputText: string) => {
+        field.value = inputText;
+        callBacks.onUpdateCurrentField(field);
+    };
+    const defaultValueProps: FormElementProps = {
+        model: formField,
+        customProps: {
+            validate: validateDefaultValue,
+            statementType: formField.typeName,
+            hideTextLabel: true,
+            hideTypeLabel: true
+            // onFocus: handleDefaultValueFocus,
+        },
+        onChange: handleDefaultValueChange,
+        defaultValue: field?.value
+    };
 
     const handleDelete = () => {
         onDeleteClick(field);
@@ -161,22 +197,17 @@ export function FieldEditor(props: FieldEditorProps) {
                             ?
                         </Typography>
                     )}
-                    {/*{field.value && (*/}
-                    {/*    <div className={recordClasses.recordEditorContainer}>*/}
-                    {/*        <Typography*/}
-                    {/*            variant='body2'*/}
-                    {/*            className={classnames(recordClasses.equalTokenWrapper)}*/}
-                    {/*        >*/}
-                    {/*            =*/}
-                    {/*        </Typography>*/}
-                    {/*        <Typography*/}
-                    {/*            variant='body2'*/}
-                    {/*            className={classnames(recordClasses.defaultValWrapper)}*/}
-                    {/*        >*/}
-                    {/*            {field.value}*/}
-                    {/*        </Typography>*/}
-                    {/*    </div>*/}
-                    {/*)}*/}
+                    <div className={recordClasses.recordEditorContainer}>
+                        <Typography
+                            variant='body2'
+                            className={classnames(recordClasses.equalTokenWrapper)}
+                        >
+                            =
+                        </Typography>
+                        <div className={recordClasses.editTypeWrapper}>
+                            <ExpressionEditor {...defaultValueProps} />
+                        </div>
+                    </div>
                     <Typography
                         variant='body2'
                         className={classnames(recordClasses.editSingleTokenWrapper)}

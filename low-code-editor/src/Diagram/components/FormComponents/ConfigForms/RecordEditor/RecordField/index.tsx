@@ -25,6 +25,7 @@ import { keywords } from "../../../../Portals/utils/constants";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
 import { FieldEditor } from "../FieldEditor";
 import { FieldItem } from "../FieldItem";
+import { RecordHeader } from "../RecordHeader";
 import { recordStyles } from "../style";
 import { RecordModel, SimpleField } from "../types";
 import { genRecordName, getFieldNames } from "../utils";
@@ -96,20 +97,6 @@ export function RecordField(props: CodePanelProps) {
         }
     };
 
-    const handleRecordDelete = () => {
-        if (parentRecordModel) {
-            const index = parentRecordModel.fields.indexOf(recordModel);
-            if (index !== -1) {
-                parentRecordModel.fields.splice(index, 1);
-            }
-            state.currentRecord.isActive = false;
-            parentRecordModel.isActive = true;
-            state.currentRecord = parentRecordModel;
-            callBacks.onUpdateModel(state.recordModel);
-            callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
-        }
-    };
-
     const getNewField = () : SimpleField => {
         const newField: SimpleField = {type: "", name: "", isFieldOptional: false, isActive: true,
                                        isNameInvalid: false, isEditInProgress: true};
@@ -142,10 +129,6 @@ export function RecordField(props: CodePanelProps) {
         callBacks.onUpdateCurrentRecord(recordModel);
         callBacks.onUpdateModel(state.recordModel);
         callBacks.onUpdateCurrentField(newField);
-    };
-
-    const handleRecordExpand = () => {
-        setIsRecordExpanded(!isRecordExpanded);
     };
 
     const handleKeyUp = (event: any) => {
@@ -273,13 +256,9 @@ export function RecordField(props: CodePanelProps) {
         }
     });
 
-    const accessModifier = `${recordModel.isPublic ? "public " : ""}`;
-    const recordTypeNVisibility = `${recordModel.isTypeDefinition ? `${accessModifier} type` : ""}`;
-    const openBraceTokens = `{ ${recordModel.isClosed ? "|" : ""}`;
     const recordEn = `${recordModel.isClosed ? "|}" : "}"}${recordModel.isArray ? "[]" :
         ""}${recordModel.isOptional ? "?" : ""}`;
     const typeDescName = `${recordModel.isTypeDefinition ? "" : `${recordModel.name}`}`;
-    const typeDefName = `${recordModel.isTypeDefinition ? `${recordModel.name ? recordModel.name : ""}` : ""}`;
 
     useEffect(() => {
         // Checks whether record is clicked to edit, if so resetting field insertion
@@ -302,76 +281,7 @@ export function RecordField(props: CodePanelProps) {
                 className={recordModel.isActive ? recordClasses.activeRecordEditorWrapper :
                     recordClasses.recordEditorWrapper}
             >
-                <div className={recordClasses.recordHeader}>
-                    <div className={recordClasses.recordExpandBtnWrapper}>
-                        <ComponentExpandButton onClick={handleRecordExpand} isExpanded={isRecordExpanded} />
-                    </div>
-                    <div className={recordClasses.recordHeading}>
-                        {recordTypeNVisibility && (
-                            <Typography
-                                variant='body2'
-                                className={recordClasses.typeNVisibilityWrapper}
-                            >
-                                {recordTypeNVisibility}
-                            </Typography>
-                        )}
-                        {recordModel.isTypeDefinition && isRecordEditInProgress && (
-                            <div className={recordClasses.typeTextFieldWrapper}>
-                                <FormTextInput
-                                    dataTestId="record-name"
-                                    customProps={{
-                                        isErrored: false,
-                                        focused: true
-                                    }}
-                                    defaultValue={typeDefName}
-                                    onKeyUp={handleKeyUp}
-                                    onBlur={handleOnBlur}
-                                    errorMessage={""}
-                                    placeholder={"Record name"}
-                                    size="small"
-                                />
-                            </div>
-                        )}
-                        {typeDefName && !isRecordEditInProgress && (
-                            <Typography
-                                variant='body2'
-                                className={recordClasses.typeDefNameWrapper}
-                                onClick={handleRecordClick}
-                            >
-                                {typeDefName}
-                            </Typography>
-                        )}
-                        <Typography
-                            variant='body2'
-                            className={recordClasses.recordKeywordWrapper}
-                        >
-                            record
-                        </Typography>
-                        <Typography
-                            variant='body2'
-                            className={recordClasses.openBraceTokenWrapper}
-                        >
-                            {openBraceTokens}
-                        </Typography>
-                        {!isRecordExpanded && (
-                            <div className={recordClasses.dotExpander} onClick={handleRecordExpand}>
-                                ....
-                            </div>
-                        )}
-                    </div>
-                    {!state.isEditorInvalid && (
-                        <div className={recordModel.isTypeDefinition ? recordClasses.typeDefEditBtnWrapper : recordClasses.recordHeaderBtnWrapper}>
-                            <div className={recordClasses.actionBtnWrapper}>
-                                <EditButton onClick={handleRecordClick}/>
-                            </div>
-                            {!recordModel.isTypeDefinition && (
-                                <div className={recordClasses.actionBtnWrapper}>
-                                    <DeleteButton onClick={handleRecordDelete}/>
-                                </div>
-                            )}
-                        </div>
-                    )}
-                </div>
+                <RecordHeader recordModel={recordModel} parentRecordModel={parentRecordModel} />
                 {isRecordExpanded && (
                     <div className={recordModel?.isActive ? recordClasses.activeRecordSubFieldWrapper : recordClasses.recordSubFieldWrapper}>
                         {fieldItems}

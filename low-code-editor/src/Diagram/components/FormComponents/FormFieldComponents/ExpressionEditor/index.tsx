@@ -174,6 +174,7 @@ export interface ExpressionEditorProps {
     getCompletions?: (completionProps: GetExpCompletionsParams) => Promise<monaco.languages.CompletionList>;
     showHints?: boolean;
     disabled?: boolean;
+    hideTypeLabel?: boolean;
     enterKeyPressed?: (value: string) => void;
 }
 
@@ -209,7 +210,8 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     } = props;
     const { validate, statementType, customTemplate, focus, expandDefault, clearInput, revertClearInput, changed,
             subEditor, editPosition, expressionInjectables, hideSuggestions, hideExpand,
-            getCompletions = getStandardExpCompletions, showHints = true, disabled, enterKeyPressed, onFocus } = customProps;
+            getCompletions = getStandardExpCompletions, showHints = true, disabled, enterKeyPressed, onFocus,
+            hideTypeLabel } = customProps;
     const targetPosition = editPosition ? editPosition : getTargetPosition(targetPositionDraft, syntaxTree);
     const [invalidSourceCode, setInvalidSourceCode] = useState(false);
     const [expand, setExpand] = useState(expandDefault || false);
