@@ -37,19 +37,19 @@ export function VariableNameInput(props: VariableNameInputProps) {
 
     let customTemplate;
 
-    if (isEdit){
-        if (overrideEditTemplate){
+    if (isEdit) {
+        if (overrideEditTemplate) {
             customTemplate = overrideEditTemplate;
-        }else{
+        } else {
             customTemplate = {
                 defaultCodeSnippet: '',
                 targetColumn: 0
             }
         }
-    }else{
-        if (overrideTemplate){
+    } else {
+        if (overrideTemplate) {
             customTemplate = overrideTemplate;
-        }else{
+        } else {
             customTemplate = {
                 defaultCodeSnippet: `var  = 10;`,
                 targetColumn: 5,
