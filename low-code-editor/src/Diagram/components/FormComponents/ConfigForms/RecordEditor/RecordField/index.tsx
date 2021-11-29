@@ -244,6 +244,10 @@ export function RecordField(props: CodePanelProps) {
         }
     };
 
+    const handleRecordExpand = () => {
+        setIsRecordExpanded(!isRecordExpanded);
+    };
+
     const fieldItems: ReactNode[] = [];
     recordModel.fields.forEach((field: SimpleField | RecordModel) => {
         if ((field.type !== "record") && !(field as SimpleField).isEditInProgress) {
@@ -296,7 +300,12 @@ export function RecordField(props: CodePanelProps) {
                 className={recordModel.isActive ? recordClasses.activeRecordEditorWrapper :
                     recordClasses.recordEditorWrapper}
             >
-                <RecordHeader recordModel={recordModel} parentRecordModel={parentRecordModel} />
+                <RecordHeader
+                    recordModel={recordModel}
+                    parentRecordModel={parentRecordModel}
+                    recordExpanded={isRecordExpanded}
+                    toggleRecordExpand={handleRecordExpand}
+                />
                 {isRecordExpanded && (
                     <div className={recordModel?.isActive ? recordClasses.activeRecordSubFieldWrapper : recordClasses.recordSubFieldWrapper}>
                         {fieldItems}

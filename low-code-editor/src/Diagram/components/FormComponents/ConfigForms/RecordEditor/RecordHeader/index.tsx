@@ -27,16 +27,17 @@ import { genRecordName } from "../utils";
 export interface RecordHeaderProps {
     recordModel: RecordModel;
     parentRecordModel: RecordModel;
+    recordExpanded: boolean;
+    toggleRecordExpand: () => void;
 }
 
 export function RecordHeader(props: RecordHeaderProps) {
-    const { recordModel, parentRecordModel } = props;
+    const { recordModel, parentRecordModel, recordExpanded, toggleRecordExpand } = props;
 
     const recordClasses = recordStyles();
 
     const { state, callBacks } = useContext(Context);
 
-    const [isRecordExpanded, setIsRecordExpanded] = useState(true);
     const [recordNameError, setRecordNameError] = useState<string>("");
     const [isRecordEditInProgress, setIsRecordEditInProgress] = useState((recordModel.name === "") ||
         (recordModel.name === undefined));
@@ -98,10 +99,6 @@ export function RecordHeader(props: RecordHeaderProps) {
         recordModel.fields.push(newField);
         callBacks.updateEditorValidity(true);
         return newField;
-    };
-
-    const handleRecordExpand = () => {
-        setIsRecordExpanded(!isRecordExpanded);
     };
 
     const handleKeyUp = (event: any) => {
@@ -183,7 +180,7 @@ export function RecordHeader(props: RecordHeaderProps) {
             >
                 <div className={recordClasses.recordHeader}>
                     <div className={recordClasses.recordExpandBtnWrapper}>
-                        <ComponentExpandButton onClick={handleRecordExpand} isExpanded={isRecordExpanded} />
+                        <ComponentExpandButton onClick={toggleRecordExpand} isExpanded={recordExpanded} />
                     </div>
                     <div className={recordClasses.recordHeading}>
                         {recordTypeNVisibility && (
@@ -232,8 +229,8 @@ export function RecordHeader(props: RecordHeaderProps) {
                         >
                             {openBraceTokens}
                         </Typography>
-                        {!isRecordExpanded && (
-                            <div className={recordClasses.dotExpander} onClick={handleRecordExpand}>
+                        {!recordExpanded && (
+                            <div className={recordClasses.dotExpander} onClick={toggleRecordExpand}>
                                 ....
                             </div>
                         )}
