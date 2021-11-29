@@ -5,6 +5,7 @@
     "syntax-tree",
     "low-code-editor-commons",
     "statement-editor",
+    "configurable-editor",
     "low-code-editor"
   ],
   "scripts": {
@@ -12,6 +13,7 @@
       "build:st": "npm run build --workspace=syntax-tree",
       "build:ls": "npm run build --workspace=lang-service",
       "build:se": "npm run build --workspace=statement-editor",
+      "build:ce": "npm run build --workspace=configurable-editor",
       "build:lce": "npm run build --workspace=low-code-editor",
       "build:lcec": "npm run build --workspace=low-code-editor-commons",
       "build": "npm run build --workspaces"
