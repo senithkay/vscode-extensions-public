@@ -631,9 +631,8 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                 value={resource.returnType}
                 onValueChange={handleOnChangeReturnType}
                 validateExpression={validateReturnTypeExpression}
-                // FIXME: expression needs to be updated during edit flow to handle isCaller or not
-                position={getReturnTypePosition(funcSignature?.returnTypeDesc, targetPosition)}
-                overrideTemplate={getReturnTypeTemplate(funcSignature?.returnTypeDesc, resource)}
+                position={getReturnTypePosition(funcSignature, targetPosition)}
+                overrideTemplate={getReturnTypeTemplate(funcSignature, resource)}
             />
         </div>
     );
