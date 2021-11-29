@@ -54,7 +54,6 @@ export function VarTypeDescComponent(props: VarTypeDescProps) {
         expressionHandler(model, false, true, { typeSuggestions: getTypeDescriptors() })
     };
 
-
     if (currentModel.model) {
         if (currentModel.model.position === model.position) {
             hasTypeDescSelected = true;
@@ -69,7 +68,7 @@ export function VarTypeDescComponent(props: VarTypeDescProps) {
             )}
             onClick={onClickOnType}
         >
-            {model.name.value}
+            <InputEditor {...inputEditorProps} />
         </button>
     );
 }

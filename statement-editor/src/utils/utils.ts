@@ -243,8 +243,8 @@ export const TypeDescriptors: SuggestionItem[] = [
         { value: 'json', kind: c.JSON_TYPE_DESC },
         { value: 'decimal', kind: c.DECIMAL_TYPE_DESC },
         { value: 'float', kind: c.FLOAT_TYPE_DESC },
-        { value: 'int', kind: c.INT_TYPE_DESC }
-        // { value: 'var', kind: c.VAR_TYPE_DESC }, // TODO: Enable var-type-desc when syntax-tree-interfaces are supported
+        { value: 'int', kind: c.INT_TYPE_DESC },
+        { value: 'var', kind: c.VAR_TYPE_DESC }
 ];
 
 export const DataTypeByExpressionKind: { [key: string]: string[] } = {
