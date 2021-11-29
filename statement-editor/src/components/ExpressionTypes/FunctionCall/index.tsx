@@ -10,17 +10,15 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js jsx-no-lambda
+// tslint:disable: jsx-no-multiline-js
 import React, {ReactNode, useContext} from "react";
 
 import { FunctionCall, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
@@ -35,14 +33,15 @@ export function FunctionCallComponent(props: FunctionCallProps) {
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
+    let hasFunctionNameSelected = false;
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
 
-    const onClickOnExpression = (clickedExpression: STNode, event: any) => {
+    const onClickOnFunctionName = (event: any) => {
         event.stopPropagation();
-        expressionHandler(clickedExpression, false, false,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
+        expressionHandler(model.functionName, false, false,
+            { expressionSuggestions: [], typeSuggestions: [], variableSuggestions: [] })
     };
 
     const functionName: ReactNode = (
@@ -54,6 +53,12 @@ export function FunctionCallComponent(props: FunctionCallProps) {
             isTypeDescriptor={false}
         />
     );
+
+    if (currentModel.model) {
+        if (currentModel.model.position === model.functionName.position) {
+            hasFunctionNameSelected = true;
+        }
+    }
 
     const expressionComponent = (
         <span>
@@ -70,23 +75,13 @@ export function FunctionCallComponent(props: FunctionCallProps) {
                             {expression.value}
                         </span>
                     ) : (
-                        <button
-                            key={index}
-                            className={classNames(
-                                statementEditorClasses.expressionElement,
-                                (currentModel.model && currentModel.model.position === expression.position) &&
-                                statementEditorClasses.expressionElementSelected
-                            )}
-                            onClick={(event) => onClickOnExpression(expression, event)}
-                        >
-                            <ExpressionComponent
-                                model={expression}
-                                isRoot={false}
-                                userInputs={userInputs}
-                                diagnosticHandler={diagnosticHandler}
-                                isTypeDescriptor={false}
-                            />
-                        </button>
+                        <ExpressionComponent
+                            model={expression}
+                            isRoot={false}
+                            userInputs={userInputs}
+                            diagnosticHandler={diagnosticHandler}
+                            isTypeDescriptor={false}
+                        />
                     )
                 ))
             }
@@ -96,15 +91,28 @@ export function FunctionCallComponent(props: FunctionCallProps) {
     return (
         <span>
             <button
-                className={statementEditorClasses.expressionElement}
+                className={classNames(
+                    statementEditorClasses.expressionElement,
+                    hasFunctionNameSelected && statementEditorClasses.expressionElementSelected)}
+                onClick={onClickOnFunctionName}
             >
                 {functionName}
             </button>
-            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
+            <span
+                className={classNames(
+                    statementEditorClasses.expressionBlock,
+                    statementEditorClasses.expressionBlockDisabled
+                )}
+            >
                 {model.openParenToken.value}
             </span>
             {expressionComponent}
-            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
+            <span
+                className={classNames(
+                    statementEditorClasses.expressionBlock,
+                    statementEditorClasses.expressionBlockDisabled
+                )}
+            >
                 {model.closeParenToken.value}
             </span>
         </span>
