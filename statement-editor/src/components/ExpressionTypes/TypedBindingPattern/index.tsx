@@ -10,12 +10,16 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-wrap-multiline
-import React, { ReactNode } from "react";
+// tslint:disable: jsx-no-multiline-js
+import React, { ReactNode, useContext } from "react";
 
 import { TypedBindingPattern } from "@wso2-enterprise/syntax-tree";
+import classNames from "classnames";
 
 import { VariableUserInputs } from "../../../models/definitions";
+import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { SuggestionsContext } from "../../../store/suggestions-context";
+import { getTypeDescriptors } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
@@ -27,28 +31,55 @@ interface TypedBindingPatternProps {
 
 export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
     const { model, userInputs, diagnosticHandler } = props;
+    const stmtCtx = useContext(StatementEditorContext);
+    const { modelCtx } = stmtCtx;
+    const { currentModel } = modelCtx;
+    let hasTypeDescSelected = false;
 
     const statementEditorClasses = useStatementEditorStyles();
+    const { expressionHandler } = useContext(SuggestionsContext);
 
-    const typeDescriptorComponent: ReactNode = <ExpressionComponent
-        model={model.typeDescriptor}
-        isRoot={false}
-        userInputs={userInputs}
-        diagnosticHandler={diagnosticHandler}
-        isTypeDescriptor={true}
-    />;
-    const bindingPatternComponent: ReactNode = <ExpressionComponent
-        model={model.bindingPattern}
-        isRoot={false}
-        userInputs={userInputs}
-        diagnosticHandler={diagnosticHandler}
-        isTypeDescriptor={false}
-    />;
+    const typeDescriptorComponent: ReactNode = (
+        <ExpressionComponent
+            model={model.typeDescriptor}
+            isRoot={false}
+            userInputs={userInputs}
+            diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={true}
+        />
+    );
+    const bindingPatternComponent: ReactNode = (
+        <ExpressionComponent
+            model={model.bindingPattern}
+            isRoot={false}
+            userInputs={userInputs}
+            diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
+        />
+    );
 
+    const onClickOnType = (event: any) => {
+        event.stopPropagation()
+        expressionHandler(model.typeDescriptor, false, true, { typeSuggestions: getTypeDescriptors() })
+    };
+
+    if (currentModel.model) {
+        if (currentModel.model.position === model.typeDescriptor.position) {
+            hasTypeDescSelected = true;
+        }
+    }
 
     return (
         <span>
-            {typeDescriptorComponent}
+            <button
+                className={classNames(
+                    statementEditorClasses.expressionElement,
+                    hasTypeDescSelected && statementEditorClasses.expressionElementSelected
+                )}
+                onClick={onClickOnType}
+            >
+                {typeDescriptorComponent}
+            </button>
             {bindingPatternComponent}
         </span>
     );

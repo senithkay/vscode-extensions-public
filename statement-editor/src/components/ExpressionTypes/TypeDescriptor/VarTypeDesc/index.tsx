@@ -10,18 +10,13 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
 import { VarTypeDesc } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
 
 import { VariableUserInputs } from "../../../../models/definitions";
-import { StatementEditorContext } from "../../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../../store/suggestions-context";
-import { getTypeDescriptors } from "../../../../utils";
 import { InputEditor } from "../../../InputEditor";
-import { useStatementEditorStyles } from "../../../styles";
 
 interface VarTypeDescProps {
     model: VarTypeDesc
@@ -32,12 +27,7 @@ interface VarTypeDescProps {
 
 export function VarTypeDescComponent(props: VarTypeDescProps) {
     const { model, userInputs, diagnosticHandler, isTypeDescriptor } = props;
-    const stmtCtx = useContext(StatementEditorContext);
-    const { modelCtx } = stmtCtx;
-    const { currentModel } = modelCtx;
-    let hasTypeDescSelected = false;
 
-    const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
 
     const inputEditorProps = {
@@ -49,26 +39,7 @@ export function VarTypeDescComponent(props: VarTypeDescProps) {
         isTypeDescriptor
     };
 
-    const onClickOnType = (event: any) => {
-        event.stopPropagation()
-        expressionHandler(model, false, true, { typeSuggestions: getTypeDescriptors() })
-    };
-
-    if (currentModel.model) {
-        if (currentModel.model.position === model.position) {
-            hasTypeDescSelected = true;
-        }
-    }
-
     return (
-        <button
-            className={classNames(
-                statementEditorClasses.expressionElement,
-                hasTypeDescSelected && statementEditorClasses.expressionElementSelected
-            )}
-            onClick={onClickOnType}
-        >
-            <InputEditor {...inputEditorProps} />
-        </button>
+        <InputEditor {...inputEditorProps} />
     );
 }
