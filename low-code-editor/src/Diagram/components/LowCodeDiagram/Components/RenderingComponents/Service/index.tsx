@@ -44,6 +44,7 @@ export function Service(props: ServiceProps) {
         setIsExpanded(isSelected);
     }, [isSelected])
 
+    const serviceType = model.typeDescriptor?.modulePrefix?.value;
     const children: JSX.Element[] = []
 
     model.members.forEach(member => {
@@ -84,8 +85,10 @@ export function Service(props: ServiceProps) {
 
         if (model.isRunnable) {
             const runBtn = <p className={"action-text"} onClick={onClickRun}>Run</p>
-            return [runBtn, tryItBtn];
-
+            if (serviceType === undefined) {
+                return [runBtn, tryItBtn];
+            }
+            return [runBtn];
         } else {
             return tryItBtn;
         }
