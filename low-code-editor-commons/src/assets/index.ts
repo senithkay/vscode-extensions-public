@@ -10,6 +10,4 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-export * from "./buttons";
-export * from "./FormHeader";
-export * from "./utils";
+export * from "./icons";

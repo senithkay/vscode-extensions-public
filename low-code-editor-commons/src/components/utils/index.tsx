@@ -10,6 +10,11 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-export * from "./buttons";
-export * from "./FormHeader";
-export * from "./utils";
+import React from 'react'
+
+import * as ConstructIcons from "../../assets/icons"
+
+export function getConstructIcon(iconId: string) {
+    const Icon = (ConstructIcons as any)[iconId];
+    return <Icon/>
+}
