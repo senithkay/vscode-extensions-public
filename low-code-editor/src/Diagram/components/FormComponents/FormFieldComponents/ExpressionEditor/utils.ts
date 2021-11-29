@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: ordered-imports
-import { FunctionDefinition, NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { FunctionDefinition, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import {  CompletionItemKind, Diagnostic, InsertTextFormat, Range  } from "vscode-languageserver-protocol";
 import { ExpEditorExpandSvg, ExpEditorCollapseSvg, ConfigurableIconSvg } from "../../../../../assets";
 
@@ -234,9 +234,9 @@ export const transformFormFieldTypeToString = (model?: FormField, returnUndefine
             }
         }
     } else if (model.typeName === "union") {
-        if (model.fields) {
+        if (model.members) {
             const allTypes: string[] = [];
-            for (const field of model.fields) {
+            for (const field of model.members) {
                 let type;
                 if (field.typeName === "record" || field.typeInfo) {
                     if (field.typeInfo) {
@@ -346,7 +346,7 @@ export const addImportModuleToCode = (codeSnipet: string, model: FormField): str
     } else if (model.typeName === "union") {
         if (model.fields) {
             for (const field of model.fields) {
-                if (field.typeName === "record" || model.typeInfo) {
+                if (field.typeName === "record" || field.typeInfo) {
                     if (field.typeInfo) {
                         const nonPrimitiveTypeItem = field.typeInfo as NonPrimitiveBal
                         const importSnippet = `import ${nonPrimitiveTypeItem.orgName}/${nonPrimitiveTypeItem.moduleName};`;
@@ -566,12 +566,15 @@ export const getHints = (diagnostics: Diagnostic[], varType: string, varName: st
         } else if (varType === "sql:ParameterizedQuery") {
             if (monacoRef.current) {
                 const editorContent = monacoRef.current.editor.getModel().getValue();
-                if (editorContent === "") {
-                    // Add empty back ticks if the input field is empty for string type
-                    hints.push({ type: HintType.ADD_BACK_TICKS_EMPTY, onClickHere: () => hintHandlers.addBackTicks(monacoRef) })
-                } else{
-                    // Add back ticks around the input, if its parameterized query input type
-                    hints.push({ type: HintType.ADD_BACK_TICKS, onClickHere: () => hintHandlers.addBackTicks(monacoRef), editorContent })
+                // Check if the editor content already has backticks at the start and end positions
+                if ((editorContent.charAt(0) !== "`") || (editorContent.charAt(editorContent.length - 1) !== "`")) {
+                    if (editorContent === "") {
+                        // Add empty back ticks if the input field is empty for string type
+                        hints.push({ type: HintType.ADD_BACK_TICKS_EMPTY, onClickHere: () => hintHandlers.addBackTicks(monacoRef) })
+                    } else{
+                        // Add back ticks around the input, if its parameterized query input type
+                        hints.push({ type: HintType.ADD_BACK_TICKS, onClickHere: () => hintHandlers.addBackTicks(monacoRef), editorContent })
+                    }
                 }
             }
         }

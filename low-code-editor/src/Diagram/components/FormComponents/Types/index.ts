@@ -10,8 +10,8 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { NodePosition, STNode } from "@ballerina/syntax-tree";
 import { ExpressionEditorState, FormField, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
 import { GenerationType } from "../ConfigForms/ProcessConfigForms/ProcessForm/AddDataMappingConfig/OutputTypeSelector";
@@ -50,6 +50,13 @@ export interface FormElementEvents {
     dispatchExprEditorStart?: (editor: ExpressionEditorState) => void;
     dispatchExprEditorContentChange?: (editor: ExpressionEditorState) => void;
     dispatchExprEditorClose?: (editor: ExpressionEditorState) => void;
+}
+
+export interface FormFieldChecks {
+    name: string;
+    isValid: boolean;
+    isEmpty?: boolean;
+    canIgnore?: boolean; // Ff field is optional or defaultable
 }
 
 export interface ConditionConfig {

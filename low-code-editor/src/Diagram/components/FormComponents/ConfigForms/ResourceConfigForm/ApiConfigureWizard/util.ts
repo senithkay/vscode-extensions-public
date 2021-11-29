@@ -1,4 +1,6 @@
-import { NodePosition, ReturnTypeDescriptor, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { FunctionSignature, NodePosition, ReturnTypeDescriptor, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+
+import { ExpressionEditorCustomTemplate } from "../../../FormFieldComponents/ExpressionEditor";
 
 import {
     Path,
@@ -222,6 +224,16 @@ export function extractPayloadFromST(params: STNode[]): string {
     return payloadString;
 }
 
+export function extractPayloadPositionFromST(params: STNode[]): NodePosition {
+    if (params && params.length > 0) {
+
+        const payload: STNode[] = params.filter((value) => (value.source && value.source.includes("@http:Payload")));
+        if (payload.length > 0) {
+            return payload[0].position;
+        }
+    }
+}
+
 export function generateQueryParamFromQueryCollection(params: QueryParamCollection): string {
     let queryParamString: string = "";
     if (params && params.queryParams && params.queryParams.length > 0) {
@@ -255,16 +267,68 @@ export function getReturnType(returnTypeDesc: ReturnTypeDescriptor): string {
     }
 }
 
-export function getReturnTypePosition(returnTypeDesc: ReturnTypeDescriptor): NodePosition {
-    if (returnTypeDesc) {
-        return returnTypeDesc.type?.position;
-    } else {
+export function getReturnTypePosition(functionSignature: FunctionSignature, targetPosition?: NodePosition): NodePosition {
+    if (functionSignature?.returnTypeDesc) {
+        // during edit flow replace template from resource open param to return type end
+        return {
+            startLine: functionSignature?.openParenToken?.position?.startLine,
+            startColumn: functionSignature?.openParenToken?.position?.startColumn,
+            endLine: functionSignature?.returnTypeDesc?.position?.endLine,
+            endColumn: functionSignature?.returnTypeDesc?.position?.endColumn,
+        };
+    } else if (targetPosition) {
+        return { ...targetPosition, endLine: 0, endColumn: 0 };
+    }else {
         return {
             endColumn: 0,
             endLine: 0,
             startColumn: 0,
             startLine: 0,
         };
+    }
+}
+
+/** Generate resource params as template needed for return type validation during edit flow of resource */
+export const generateResourceParamsTemplate = (
+    params: STNode[],
+    includeIsCaller: boolean
+): { template: string; position: number } => {
+    const containsCallerParam = isCallerParamAvailable(params);
+    let requiredParams: string[] = params
+        .filter((node) => STKindChecker.isRequiredParam(node))
+        .map((node) => node.source);
+    if (includeIsCaller && !containsCallerParam) {
+        // Need to include 'http:Caller caller' if isCaller is checked but not originally included
+        requiredParams = [...requiredParams, "http:Caller caller"];
+    } else if (containsCallerParam && !includeIsCaller) {
+        // Need to remove 'http:Caller caller' if isCaller is unchecked but was originally included
+        requiredParams = requiredParams.filter(
+            (paramSource) => !paramSource.includes("http:Caller")
+        );
+    }
+    const template = `(${requiredParams.join(", ")}) returns `;
+    return { template, position: template.length + 1 };
+};
+
+export function getReturnTypeTemplate(
+    functionSignature: FunctionSignature,
+    resource: Resource
+): ExpressionEditorCustomTemplate {
+    const isCallerTemplate = "http:Caller caller";
+    if (functionSignature?.returnTypeDesc && resource.returnType) {
+        const editTemplate = generateResourceParamsTemplate(
+            functionSignature?.parameters,
+            resource.isCaller
+        );
+        return {
+            defaultCodeSnippet: editTemplate.template,
+            targetColumn: editTemplate.position,
+        };
+    } else {
+        return {
+            defaultCodeSnippet: `resource function post tempResource(${resource.isCaller ? isCallerTemplate : ""}) returns  {}`,
+            targetColumn: 47 + (resource.isCaller ? isCallerTemplate.length : 0),
+        }
     }
 }
 

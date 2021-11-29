@@ -12,15 +12,16 @@
  */
 import React, { useState } from "react";
 
-import { NodePosition, ServiceDeclaration } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
 
 import { ServiceIcon } from "../../../../../assets/icons";
 import { useDiagramContext } from "../../../../../Contexts/Diagram";
 import { wizardStyles as useFormStyles } from "../style";
 
 import { HttpServiceForm } from "./forms/HttpService";
+import { TriggerServiceForm } from "./forms/TriggerService";
 import { ServiceTypeSelector } from "./ServiceTypeSelector";
 import { getServiceTypeFromModel } from "./util";
 
@@ -48,7 +49,8 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
         case ServiceTypes.HTTP:
             configForm = <HttpServiceForm onSave={onSave} onCancel={onCancel} model={model} targetPosition={targetPosition} />
             break;
-
+        default:
+            configForm = <TriggerServiceForm onSave={onSave} onCancel={onCancel} model={model} targetPosition={targetPosition} />
     }
 
     return (

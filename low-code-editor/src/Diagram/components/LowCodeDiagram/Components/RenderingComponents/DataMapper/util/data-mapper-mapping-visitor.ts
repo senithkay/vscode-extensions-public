@@ -21,7 +21,7 @@ import {
     SpecificField,
     STKindChecker,
     Visitor
-} from "@ballerina/syntax-tree";
+} from "@wso2-enterprise/syntax-tree";
 
 import { ConnectionViewState, FieldViewState, SourcePointViewState, TargetPointViewState } from "../viewstate";
 

@@ -14,21 +14,20 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useIntl } from "react-intl";
 
-import { NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import {
     ExpressionEditorLangClientInterface,
     PrimaryButton,
     SecondaryButton,
     STModification
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { VariableUserInputs } from '../../models/definitions';
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
 import { getModifications, getPartialSTForStatement } from "../../utils";
 import { LeftPane } from '../LeftPane';
 import { RightPane } from '../RightPane';
-
-import { useStatementEditorStyles } from "./styles";
+import { useStatementEditorStyles } from "../styles";
 
 export interface LowCodeEditorProps {
     getLangClient: () => Promise<ExpressionEditorLangClientInterface>,
@@ -73,6 +72,7 @@ export function ViewContainer(props: ViewProps) {
         currentFile
     } = props;
     const intl = useIntl();
+    const overlayClasses = useStatementEditorStyles();
 
     const [model, setModel] = useState<STNode>(null);
     const [isStatementValid, setIsStatementValid] = useState(false);
@@ -137,8 +137,6 @@ export function ViewContainer(props: ViewProps) {
             onCancel();
         }
     }, [onCancelClicked])
-
-    const overlayClasses = useStatementEditorStyles();
 
     const saveVariableButtonText = intl.formatMessage({
         id: "lowcode.develop.configForms.variable.saveButton.text",

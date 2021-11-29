@@ -13,9 +13,9 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from "react";
 
-import { ModulePart, NodePosition, STNode } from "@ballerina/syntax-tree";
 import Container from "@material-ui/core/Container";
 import { ConfigOverlayFormStatus } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ModulePart, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import classnames from 'classnames';
 
 import { Context as DiagramContext } from "../Contexts/Diagram";

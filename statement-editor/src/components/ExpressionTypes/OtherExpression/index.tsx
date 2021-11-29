@@ -12,10 +12,10 @@
  */
 import React from "react";
 
-import { STNode } from "@ballerina/syntax-tree";
 import { TextField } from "@material-ui/core";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 
-import { useStatementEditorStyles } from "../../ViewContainer/styles";
+import { useStatementEditorStyles } from "../../styles";
 
 interface OtherExpressionProps {
     model: STNode
@@ -25,11 +25,11 @@ interface OtherExpressionProps {
 export function OtherExpressionComponent(props: OtherExpressionProps) {
     const { model } = props;
 
-    const overlayClasses = useStatementEditorStyles();
+    const statementEditorClasses = useStatementEditorStyles();
 
     return (
         <TextField
-            className={overlayClasses.expressionElement}
+            className={statementEditorClasses.expressionElement}
             autoFocus={true}
             defaultValue={model.source.trim()}
         />

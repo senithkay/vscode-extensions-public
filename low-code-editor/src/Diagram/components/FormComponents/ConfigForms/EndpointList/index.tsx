@@ -14,8 +14,9 @@
 import React, { ReactNode, useContext } from "react";
 import { FormattedMessage } from "react-intl";
 
-import { STNode } from "@ballerina/syntax-tree";
 import { Box, FormControl, List, ListItem, Typography } from "@material-ui/core";
+import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../Contexts/Diagram";
 import { useFunctionContext } from "../../../../../Contexts/Function";
@@ -26,6 +27,7 @@ import useStyles from "./style";
 
 export interface EndpointListProps {
     onSelect: (actionInvo: STNode) => void;
+    onCancel: () => void;
 }
 
 export function EndpointList(props: FormGeneratorProps) {
@@ -37,7 +39,7 @@ export function EndpointList(props: FormGeneratorProps) {
         },
     } = useContext(Context);
     const { functionNode } = useFunctionContext();
-    const { onSelect } = props.configOverlayFormStatus.formArgs as EndpointListProps;
+    const { onSelect, onCancel } = props.configOverlayFormStatus.formArgs as EndpointListProps;
     let isEndpointExists = false;
     const endpointList: ReactNode[] = [];
 
@@ -68,46 +70,38 @@ export function EndpointList(props: FormGeneratorProps) {
     });
 
     return (
-        <FormControl data-testid="endpoint-list-form" className={classes.container}>
+        <FormControl data-testid="endpoint-list-form" className={formClasses.wizardFormControl}>
+            <FormHeaderSection
+                onCancel={onCancel}
+                statementEditor={false}
+                formTitle={"lowcode.develop.configForms.endpoint.title"}
+                defaultMessage={"API Invocation"}
+                toggleChecked={false}
+            />
             <div className={formClasses.formWrapper}>
                 <div className={formClasses.formFeilds}>
-                    <div className={formClasses.formWrapper}>
-                        <div className={formClasses.formTitleWrapper}>
-                            <div className={formClasses.mainTitleWrapper}>
-                                <Typography variant="h4">
-                                    <Box paddingTop={2} paddingBottom={2}>
-                                        <FormattedMessage
-                                            id="lowcode.develop.configForms.endpoint.title"
-                                            defaultMessage="API Invocation"
-                                        />
-                                    </Box>
+                    <div className={classes.container}>
+                        {!isEndpointExists && (
+                            <Box>
+                                <Typography className={classes.emptyTitle}>
+                                    <FormattedMessage
+                                        id="lowcode.develop.configForms.endpoint.empty"
+                                        defaultMessage="No API connections found"
+                                    />
                                 </Typography>
-                            </div>
-                        </div>
-
-                        <div className={classes.container}>
-                            {!isEndpointExists && (
-                                <Box>
-                                    <Typography className={classes.emptyTitle}>
-                                        <FormattedMessage
-                                            id="lowcode.develop.configForms.endpoint.empty"
-                                            defaultMessage="No API connections found"
-                                        />
-                                    </Typography>
-                                </Box>
-                            )}
-                            {isEndpointExists && (
-                                <>
-                                    <Typography>
-                                        <FormattedMessage
-                                            id="lowcode.develop.configForms.endpoint.subtitle"
-                                            defaultMessage="Select an API connection"
-                                        />
-                                    </Typography>
-                                    <List>{endpointList}</List>
-                                </>
-                            )}
-                        </div>
+                            </Box>
+                        )}
+                        {isEndpointExists && (
+                            <>
+                                <Typography>
+                                    <FormattedMessage
+                                        id="lowcode.develop.configForms.endpoint.subtitle"
+                                        defaultMessage="Select an API connection"
+                                    />
+                                </Typography>
+                                <List>{endpointList}</List>
+                            </>
+                        )}
                     </div>
                 </div>
             </div>

@@ -12,7 +12,7 @@
 //  */
 // import * as React from 'react';
 
-// import { STNode } from '@ballerina/syntax-tree';
+// import { STNode } from '@wso2-enterprise/syntax-tree';
 
 // import { render, RenderResult } from "../../../../../tests/utils/test-utils"
 // import { StatementViewState } from '../../view-state';

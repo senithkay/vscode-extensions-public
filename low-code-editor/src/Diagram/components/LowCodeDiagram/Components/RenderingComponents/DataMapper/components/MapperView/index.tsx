@@ -13,9 +13,9 @@
 /* tslint:disable:jsx-no-multiline-js */
 import React, { useContext, useRef, useState } from 'react';
 
-import { CaptureBindingPattern, STKindChecker, STNode } from '@ballerina/syntax-tree';
 import Typography from '@material-ui/core/Typography';
 import { PrimaryButton, PrimitiveBalType, SecondaryButton, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { CaptureBindingPattern, STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
 
 import { updatePropertyStatement } from '../../../../../../../utils/modification-util';
 import { wizardStyles } from '../../../../../../FormComponents/ConfigForms/style';

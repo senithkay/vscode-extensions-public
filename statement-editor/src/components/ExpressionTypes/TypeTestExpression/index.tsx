@@ -13,14 +13,15 @@
 // tslint:disable: jsx-wrap-multiline
 import React, { ReactNode, useContext } from "react";
 
-import { TypeTestExpression } from "@ballerina/syntax-tree";
+import { TypeTestExpression } from "@wso2-enterprise/syntax-tree";
+import classNames from "classnames";
 
 import { TYPE_DESCRIPTOR } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
-import { useStatementEditorStyles } from "../../ViewContainer/styles";
+import { useStatementEditorStyles } from "../../styles";
 
 interface TypeTestExpressionProps {
     model: TypeTestExpression
@@ -31,7 +32,7 @@ interface TypeTestExpressionProps {
 export function TypeTestExpressionComponent(props: TypeTestExpressionProps) {
     const { model, userInputs, diagnosticHandler } = props;
 
-    const overlayClasses = useStatementEditorStyles();
+    const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
 
     const expr: ReactNode = <ExpressionComponent
@@ -59,15 +60,15 @@ export function TypeTestExpressionComponent(props: TypeTestExpressionProps) {
     return (
         <span>
             <button
-                className={overlayClasses.expressionElement}
+                className={statementEditorClasses.expressionElement}
             >
                 {expr}
             </button>
-            <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`} style={{marginLeft: '2px'}}>
+            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
                  &nbsp;{model.isKeyword.value}
             </span>
             <button
-                className={overlayClasses.expressionElement}
+                className={statementEditorClasses.expressionElement}
                 onClick={onClickOnTypeDescriptor}
             >
                 {typeDescriptor}

@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import { useIntl } from "react-intl";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
@@ -19,7 +19,6 @@ import { FormHeaderSection, PrimaryButton } from '@wso2-enterprise/ballerina-low
 
 import { Context } from "../../../../../../Contexts/RecordEditor";
 import CheckBoxGroup from '../../../FormFieldComponents/CheckBox';
-import { FormTextInput } from '../../../FormFieldComponents/TextField/FormTextInput';
 import { wizardStyles as useStyles } from "../../style";
 
 export function EditRecordForm() {
@@ -28,44 +27,16 @@ export function EditRecordForm() {
 
     const classes = useStyles();
 
-    const [nameError, setNameError] = useState("");
-
-    const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
-
     const intl = useIntl();
 
     const title = intl.formatMessage({
         id: "lowcode.develop.configForms.recordEditor.editRecord.title",
         defaultMessage: "Edit Record"
     });
-    const nameText = intl.formatMessage({
-        id: "lowcode.develop.configForms.recordEditor.editRecord.nameText",
-        defaultMessage: "Record name"
-    });
-    const namePlaceholder = intl.formatMessage({
-        id: "lowcode.develop.configForms.recordEditor.editRecord.namePlaceholder",
-        defaultMessage: "Enter record name"
-    });
     const sampleButtonText = intl.formatMessage({
         id: "lowcode.develop.configForms.recordEditor.editRecord.sampleBtnText",
         defaultMessage: "Update from Sample"
     });
-
-    const handleNameChange = (inputText: string) => {
-        // TODO: Check with parent record fields
-        if ((inputText !== "") && !nameRegex.test(inputText)) {
-            callBacks.updateEditorValidity(true);
-            setNameError("Enter a valid name");
-        } else if (inputText === "") {
-            callBacks.updateEditorValidity(true);
-            setNameError("Name is required");
-        } else {
-            callBacks.updateEditorValidity(false);
-            setNameError("");
-        }
-        state.currentRecord.name = inputText;
-        callBacks.onUpdateModel(state.recordModel);
-    };
 
     const handleOptionalRecordChange = (text: string[]) => {
         if (text) {
@@ -99,44 +70,31 @@ export function EditRecordForm() {
                 formTitle={"lowcode.develop.configForms.recordEditor.editRecord.title"}
                 defaultMessage={"Edit Record"}
             />
-            <div className={classes.formWrapper}>
-                <FormTextInput
-                    dataTestId="record-name"
-                    customProps={{
-                        isErrored: nameError !== "",
-                    }}
-                    defaultValue={state.currentRecord.name}
-                    onChange={handleNameChange}
-                    label={nameText}
-                    placeholder={namePlaceholder}
-                    errorMessage={nameError}
-                />
-                <CheckBoxGroup
-                    testId="is-optional-field"
-                    values={["Is optional ?"]}
-                    defaultValues={state.currentRecord.isOptional ? ["Is optional ?"] : []}
-                    onChange={handleOptionalRecordChange}
-                />
-                <CheckBoxGroup
-                    testId="is-array"
-                    values={["Is Array ?"]}
-                    defaultValues={state.currentRecord.isArray ? ["Is Array ?"] : []}
-                    onChange={handleArrayChange}
-                />
-                <CheckBoxGroup
-                    testId="is-closed"
-                    values={["Is Closed ?"]}
-                    defaultValues={state.currentRecord.isClosed ? ["Is Closed ?"] : []}
-                    onChange={handleIsClosedChange}
-                />
+            <CheckBoxGroup
+                testId="is-optional-field"
+                values={["Is optional ?"]}
+                defaultValues={state.currentRecord.isOptional ? ["Is optional ?"] : []}
+                onChange={handleOptionalRecordChange}
+            />
+            <CheckBoxGroup
+                testId="is-array"
+                values={["Is Array ?"]}
+                defaultValues={state.currentRecord.isArray ? ["Is Array ?"] : []}
+                onChange={handleArrayChange}
+            />
+            <CheckBoxGroup
+                testId="is-closed"
+                values={["Is Closed ?"]}
+                defaultValues={state.currentRecord.isClosed ? ["Is Closed ?"] : []}
+                onChange={handleIsClosedChange}
+            />
 
-                <PrimaryButton
-                    dataTestId={"update-from-sample-btn"}
-                    text={sampleButtonText}
-                    fullWidth={false}
-                    onClick={handleGenerateFromSample}
-                />
-            </div>
+            <PrimaryButton
+                dataTestId={"update-from-sample-btn"}
+                text={sampleButtonText}
+                fullWidth={false}
+                onClick={handleGenerateFromSample}
+            />
         </FormControl>
 
     );

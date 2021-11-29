@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useState } from "react";
 
-import { STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../Contexts/Diagram";
 import { SelectedPosition } from "../../types";

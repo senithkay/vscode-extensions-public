@@ -10,13 +10,13 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { BallerinaConnectorInfo, BallerinaRecord, Connector, FunctionDefinitionInfo, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     ActionStatement, CallStatement, CaptureBindingPattern, CheckAction, ElseBlock, FunctionDefinition, IdentifierToken, IfElseStatement, LocalVarDecl,
     ModulePart, ModuleVarDecl, QualifiedNameReference, RemoteMethodCallAction, ResourceKeyword, ServiceDeclaration,
     STKindChecker,
     STNode, traversNode, TypeCastExpression, VisibleEndpoint
-} from '@ballerina/syntax-tree';
-import { BallerinaConnectorInfo, BallerinaRecord, Connector, FunctionDefinitionInfo, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+} from '@wso2-enterprise/syntax-tree';
 import { subMinutes } from "date-fns";
 import { Diagnostic } from 'vscode-languageserver-protocol';
 

@@ -10,16 +10,15 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js jsx-wrap-multiline jsx-no-lambda
+// tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext } from "react";
 
-import { BinaryExpression, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
-import * as c from "../../../constants";
 import { SuggestionItem } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { generateExpressionTemplate } from "../../../utils/utils";
-import { useStatementEditorStyles } from "../../ViewContainer/styles";
+import { useStatementEditorStyles } from "../../styles";
 
 export interface ExpressionSuggestionsProps {
     model: STNode
@@ -29,8 +28,8 @@ export interface ExpressionSuggestionsProps {
 }
 
 export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
-    const overlayClasses = useStatementEditorStyles();
-    const { model, suggestions, suggestionHandler } = props;
+    const statementEditorClasses = useStatementEditorStyles();
+    const { model, suggestions, suggestionHandler, operator } = props;
 
     const {
         modelCtx: {
@@ -43,22 +42,24 @@ export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
         suggestionHandler();
     }
 
-    const onClickOperatorSuggestion = (operator: SuggestionItem) => {
+    const onClickOperatorSuggestion = (operatorSuggestion: SuggestionItem) => {
         if (STKindChecker.isBinaryExpression(model)) {
-            updateModel(operator.value, model.operator.position);
+            updateModel(operatorSuggestion.value, model.operator.position);
             suggestionHandler();
         }
     }
 
+    const label = operator ? "Operators" : "Expressions";
+
     return (
         <div>
-            <div className={overlayClasses.subHeader}>Expressions</div>
+            <div className={statementEditorClasses.subHeader}>{label}</div>
             {
                 suggestions.map((suggestion: SuggestionItem, index: number) => (
                     (suggestion.kind) ?
                         (
                             <button
-                                className={overlayClasses.suggestionButton}
+                                className={statementEditorClasses.suggestionButton}
                                 key={index}
                                 onClick={() => onClickOperatorSuggestion(suggestion)}
                             >
@@ -69,7 +70,7 @@ export function ExpressionSuggestions(props: ExpressionSuggestionsProps) {
                         :
                         (
                             <button
-                                className={overlayClasses.suggestionButton}
+                                className={statementEditorClasses.suggestionButton}
                                 key={index}
                                 onClick={() => onClickExpressionSuggestion(suggestion.value)}
                             >

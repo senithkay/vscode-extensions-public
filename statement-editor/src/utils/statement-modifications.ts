@@ -10,8 +10,8 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { NodePosition } from "@ballerina/syntax-tree";
 import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 export function createStatement(property: string, targetPosition: NodePosition): STModification {
     const modification: STModification = {
@@ -22,7 +22,6 @@ export function createStatement(property: string, targetPosition: NodePosition):
         type: "INSERT",
         isImport: false,
         config: {
-            "TYPE": "INSERT",
             "STATEMENT": property
         }
     };
@@ -39,7 +38,6 @@ export function updateStatement(property: string, targetPosition: NodePosition):
         type: "INSERT",
         isImport: false,
         config: {
-            "TYPE": "INSERT",
             "STATEMENT": property
         }
     };

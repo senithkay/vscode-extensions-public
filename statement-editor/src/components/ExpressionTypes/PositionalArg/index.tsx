@@ -13,14 +13,14 @@
 // tslint:disable: jsx-wrap-multiline
 import React, { ReactNode, useContext } from "react";
 
-import { PositionalArg } from "@ballerina/syntax-tree";
+import { PositionalArg } from "@wso2-enterprise/syntax-tree";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
-import { useStatementEditorStyles } from "../../ViewContainer/styles";
+import { useStatementEditorStyles } from "../../styles";
 
 interface PositionalArgProps {
     model: PositionalArg
@@ -31,7 +31,7 @@ interface PositionalArgProps {
 export function PositionalArgComponent(props: PositionalArgProps) {
     const { model, userInputs, diagnosticHandler } = props;
 
-    const overlayClasses = useStatementEditorStyles();
+    const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
 
     const expression: ReactNode = <ExpressionComponent
@@ -50,7 +50,7 @@ export function PositionalArgComponent(props: PositionalArgProps) {
 
     return (
         <button
-            className={overlayClasses.expressionElement}
+            className={statementEditorClasses.expressionElement}
             onClick={onClickOnExpression}
         >
             {expression}

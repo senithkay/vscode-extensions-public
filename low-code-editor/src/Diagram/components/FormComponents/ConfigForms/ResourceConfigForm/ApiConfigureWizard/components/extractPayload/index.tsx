@@ -13,13 +13,19 @@
 import React, { useContext, useEffect, useState } from "react";
 
 import { Grid } from "@material-ui/core";
+import { FunctionDefinition, NodePosition, ObjectMethodDefinition, ResourceAccessorDefinition } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../../../Contexts/Diagram";
 import { checkVariableName } from "../../../../../../Portals/utils";
 import { SelectDropdownWithButton } from "../../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
+import { ExpressionEditorCustomTemplate } from "../../../../../FormFieldComponents/ExpressionEditor";
 import { FormTextInput } from "../../../../../FormFieldComponents/TextField/FormTextInput";
+import {
+    VariableTypeInput,
+    VariableTypeInputProps
+} from "../../../../Components/VariableTypeInput";
 import { Payload } from "../../types";
-import { convertPayloadStringToPayload, payloadTypes } from "../../util";
+import { convertPayloadStringToPayload, extractPayloadPositionFromST, payloadTypes } from "../../util";
 
 import { useStyles } from './style';
 
@@ -28,17 +34,22 @@ interface PayloadEditorProps {
     disabled?: boolean,
     onChange?: (segment: Payload) => void;
     onError: (isError?: boolean) => void;
+    targetPosition: NodePosition;
+    model?: ResourceAccessorDefinition | FunctionDefinition | ObjectMethodDefinition;
+    setIsValid?: (isValid: boolean) => void;
 }
 
 export function PayloadEditor(props: PayloadEditorProps) {
-    const { payload, disabled, onChange, onError } = props;
+    const { payload, disabled, onChange, onError, targetPosition, model, setIsValid } = props;
     const { props: { stSymbolInfo } } = useContext(Context);
     const segment: Payload = convertPayloadStringToPayload(payload ? payload : "");
+    const [validType, setValidType] = useState(false);
+    const funcSignature = (model as ResourceAccessorDefinition)?.functionSignature;
 
     const classes = useStyles();
     const initValue: Payload = segment.type !== "" && segment.type !== "" ? { ...segment } : {
         name: "payload",
-        type: "json"
+        type: ""
     };
 
     const payloadTypeArray: string[] = payloadTypes;
@@ -48,6 +59,46 @@ export function PayloadEditor(props: PayloadEditorProps) {
 
     const [segmentState, setSegmentState] = useState<Payload>(initValue);
     const [payloadVarNameError, setPayloadVarNameError] = useState<string>("");
+
+    // When creating new resource
+    let updateNodePosition: NodePosition = {
+        ...targetPosition,
+        endLine: 0,
+        endColumn: 0,
+    };
+    let overrideTemplate: ExpressionEditorCustomTemplate = {
+        defaultCodeSnippet: `resource function post tempResource(@http:Payload  ${segmentState?.name || 'tempPayload'}) {}`,
+        targetColumn: 51
+    };
+
+    if (extractPayloadPositionFromST(funcSignature?.parameters)){
+        // If @http:Payload already exists
+        updateNodePosition = extractPayloadPositionFromST(funcSignature?.parameters);
+        overrideTemplate = {
+            defaultCodeSnippet: `@http:Payload  ${segmentState?.name || 'tempPayload'}`,
+            targetColumn: 15
+        }
+    }else if (funcSignature?.parameters.length > 0){
+        // if some other payload already exists
+        updateNodePosition = {
+            ...funcSignature.openParenToken.position,
+            startColumn: funcSignature.openParenToken.position.startColumn + 1,
+        };
+        overrideTemplate = {
+            defaultCodeSnippet: `@http:Payload  ${segmentState?.name || 'tempPayload'},`,
+            targetColumn: 15
+        }
+    }else if (funcSignature?.parameters.length === 0){
+        // If no payload exists
+        updateNodePosition = {
+            ...funcSignature.openParenToken.position,
+            startColumn: funcSignature.openParenToken.position.startColumn + 1,
+        };
+        overrideTemplate = {
+            defaultCodeSnippet: `@http:Payload  ${segmentState?.name || 'tempPayload'}`,
+            targetColumn: 15
+        }
+    }
 
     useEffect(() => {
         if (disabled) {
@@ -93,6 +144,21 @@ export function PayloadEditor(props: PayloadEditorProps) {
         return true;
     };
 
+    const validateExpression = (fieldName: string, isInvalid: boolean) => {
+        setIsValid(!isInvalid);
+    };
+
+    const variableTypeConfig: VariableTypeInputProps = {
+        displayName: '',
+        value: segmentState?.type,
+        onValueChange: onChangeSegmentType,
+        validateExpression,
+        position: updateNodePosition,
+        overrideTemplate,
+        hideLabel: true,
+        disabled,
+    }
+
     return (
         <div className={classes.segmentEditorWrap}>
             <div>
@@ -111,12 +177,7 @@ export function PayloadEditor(props: PayloadEditorProps) {
                     </Grid>
                     <Grid container={true} item={true} spacing={2}>
                         <Grid item={true} xs={5}>
-                            <SelectDropdownWithButton
-                                disabled={disabled}
-                                defaultValue={segmentState?.type ? segmentState?.type : "json"}
-                                customProps={{ values: payloadTypeArray, disableCreateNew: true }}
-                                onChange={onChangeSegmentType}
-                            />
+                            <VariableTypeInput {...variableTypeConfig} />
                         </Grid>
                         <Grid item={true} xs={7}>
                             <FormTextInput

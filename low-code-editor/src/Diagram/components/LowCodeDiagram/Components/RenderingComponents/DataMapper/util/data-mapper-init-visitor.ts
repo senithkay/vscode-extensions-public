@@ -11,6 +11,7 @@
  * associated services.
  */
 
+import { PrimitiveBalType } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import {
     AssignmentStatement,
     BinaryExpression,
@@ -34,8 +35,7 @@ import {
     TypeCastExpression,
     TypedBindingPattern,
     Visitor,
-} from '@ballerina/syntax-tree';
-import { PrimitiveBalType } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+} from '@wso2-enterprise/syntax-tree';
 
 import { DataMapperViewState, FieldViewState, SourcePointViewState, TargetPointViewState } from '../viewstate';
 

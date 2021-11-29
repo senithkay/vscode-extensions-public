@@ -13,14 +13,15 @@
 // tslint:disable: jsx-wrap-multiline jsx-no-multiline-js
 import React, { ReactNode, useContext } from "react";
 
-import { IndexedExpression, STNode } from "@ballerina/syntax-tree";
+import { IndexedExpression, STNode } from "@wso2-enterprise/syntax-tree";
+import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
-import { useStatementEditorStyles } from "../../ViewContainer/styles";
+import { useStatementEditorStyles } from "../../styles";
 
 interface IndexedExpressionProps {
     model: IndexedExpression
@@ -31,7 +32,7 @@ interface IndexedExpressionProps {
 export function IndexedExpressionComponent(props: IndexedExpressionProps) {
     const { model, userInputs, diagnosticHandler } = props;
 
-    const overlayClasses = useStatementEditorStyles();
+    const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
 
     const containerExpr: ReactNode = <ExpressionComponent
@@ -63,7 +64,7 @@ export function IndexedExpressionComponent(props: IndexedExpressionProps) {
                         (
                             <button
                                 key={index}
-                                className={overlayClasses.expressionElement}
+                                className={statementEditorClasses.expressionElement}
                             >
                                 {expr}
                             </button>
@@ -82,16 +83,16 @@ export function IndexedExpressionComponent(props: IndexedExpressionProps) {
     return (
         <span>
             <button
-                className={overlayClasses.expressionElement}
+                className={statementEditorClasses.expressionElement}
                 onClick={onClickOnExpression}
             >
                 {containerExpr}
             </button>
-            <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
+            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
                 {model.openBracket.value}
             </span>
             {keyExprComponent}
-            <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
+            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
                 {model.closeBracket.value}
             </span>
         </span>

@@ -12,14 +12,15 @@
  */
 import React, { ReactNode, useContext } from "react";
 
-import { ReturnStatement } from "@ballerina/syntax-tree";
+import { ReturnStatement } from "@wso2-enterprise/syntax-tree";
+import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
-import { useStatementEditorStyles } from "../../ViewContainer/styles";
+import { useStatementEditorStyles } from "../../styles";
 
 
 interface ReturnStatementProps {
@@ -31,7 +32,7 @@ interface ReturnStatementProps {
 export function ReturnStatementC(props: ReturnStatementProps) {
     const { model, userInputs, diagnosticHandler } = props;
 
-    const overlayClasses = useStatementEditorStyles();
+    const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
 
     const expressionComponent: ReactNode = (
@@ -53,13 +54,13 @@ export function ReturnStatementC(props: ReturnStatementProps) {
 
     return (
         <span>
-            <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
+            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
                 {model.returnKeyword.value}
             </span>
-                <button className={overlayClasses.expressionElement} onClick={onClickOnExpression}>
+                <button className={statementEditorClasses.expressionElement} onClick={onClickOnExpression}>
                     {expressionComponent}
                 </button>
-            <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
+            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
                 {model.semicolonToken.value}
             </span>
 

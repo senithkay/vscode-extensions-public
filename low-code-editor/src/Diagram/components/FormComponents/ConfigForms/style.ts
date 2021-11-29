@@ -123,12 +123,21 @@ export const wizardStyles = makeStyles((theme: Theme) =>
         expWrapper: {
             width: '100%',
         },
+        expStatementWrapper: {
+           marginBottom: theme.spacing(2.5),
+        },
         imageRight: {
             float: "right",
             marginTop: "0.75rem"
         },
         wizardFormControl: {
             width: 300,
+            "& .MuiFormControl-marginNormal": {
+                margin: '0 !important',
+            },
+        },
+        wizardFormControlExtended: {
+            width: 400,
             "& .MuiFormControl-marginNormal": {
                 margin: '0 !important',
             },
@@ -174,10 +183,11 @@ export const wizardStyles = makeStyles((theme: Theme) =>
         inputLabelForRequired: {
             padding: 0,
             color: '#1D2028',
-            fontSize: 14,
+            fontSize: 13,
             textTransform: 'capitalize',
             display: 'inline-block',
-            lineHeight: '35px'
+            lineHeight: '35px',
+            fontWeight: 300,
         },
         starLabelForRequired: {
             padding: 0,
@@ -486,7 +496,7 @@ export const wizardStyles = makeStyles((theme: Theme) =>
         formWrapper: {
             width: '100%',
             flexDirection: "row",
-            padding: theme.spacing(1.25),
+            padding: '15px 20px',
         },
         oauthWrapper: {
             paddingTop: "5rem"

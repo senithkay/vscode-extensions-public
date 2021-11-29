@@ -12,7 +12,7 @@
  */
 import React, { useState } from 'react';
 
-import { ClassDefinition } from '@ballerina/syntax-tree';
+import { ClassDefinition } from '@wso2-enterprise/syntax-tree';
 import classNames from 'classnames';
 
 import ClassIcon from '../../../../../../../assets/icons/ClassIcon';

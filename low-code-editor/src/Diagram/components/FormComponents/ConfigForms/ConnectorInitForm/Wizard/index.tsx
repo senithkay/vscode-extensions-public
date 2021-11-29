@@ -12,13 +12,13 @@
  */
 import React, { useState } from "react";
 
-import { NodePosition } from "@ballerina/syntax-tree";
 import Step from "@material-ui/core/Step";
 import StepConnector from "@material-ui/core/StepConnector";
 import StepLabel from "@material-ui/core/StepLabel";
 import Stepper from "@material-ui/core/Stepper";
 import { withStyles } from "@material-ui/core/styles";
 import { Connector, ConnectorConfig, FormField, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 import clsx from "clsx";
 

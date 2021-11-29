@@ -13,7 +13,7 @@
 
 // tslint:disable: no-empty-interface
 
-import { STNode } from "@ballerina/syntax-tree";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { FunctionDefinitionInfo } from "./config-spec";
 import { LinePosition } from "./expression-editor-lang-client-interface";

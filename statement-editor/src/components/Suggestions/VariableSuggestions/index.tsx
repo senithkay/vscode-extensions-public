@@ -10,15 +10,15 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js jsx-wrap-multiline jsx-no-lambda
+// tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext } from "react";
 
-import { STNode } from "@ballerina/syntax-tree";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { SuggestionItem } from "../../../models/definitions";
 import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { useStatementEditorStyles } from "../../ViewContainer/styles";
+import { useStatementEditorStyles } from "../../styles";
 
 export interface VariableSuggestionsProps {
     model: STNode
@@ -27,9 +27,8 @@ export interface VariableSuggestionsProps {
 }
 
 export function VariableSuggestions(props: VariableSuggestionsProps) {
-    const overlayClasses = useStatementEditorStyles();
+    const statementEditorClasses = useStatementEditorStyles();
     const { model, variableSuggestions, suggestionHandler } = props;
-
     const inputEditorCtx = useContext(InputEditorContext);
 
     const {
@@ -39,23 +38,26 @@ export function VariableSuggestions(props: VariableSuggestionsProps) {
     } = useContext(StatementEditorContext);
 
     const onClickVariableSuggestion = (suggestion: SuggestionItem) => {
-        updateModel(suggestion.value, model.position);
-        inputEditorCtx.onSelection(suggestion.value);
+        let variable = suggestion.value;
+        if (inputEditorCtx.userInput.endsWith('.')) {
+            variable = inputEditorCtx.userInput + suggestion.value;
+        }
+        updateModel(variable, model.position);
         suggestionHandler();
     }
 
     return (
         <div>
-            <div className={overlayClasses.subHeader}>Variables</div>
+            <div className={statementEditorClasses.subHeader}>Variables</div>
             {
                 variableSuggestions.map((suggestion: SuggestionItem, index: number) => (
                     <button
-                        className={overlayClasses.suggestionButton}
+                        className={statementEditorClasses.suggestionButton}
                         key={index}
                         onClick={() => onClickVariableSuggestion(suggestion)}
                     >
                         {suggestion.value}
-                        <span className={overlayClasses.dataTypeTemplate}>{suggestion.kind}</span>
+                        <span className={statementEditorClasses.dataTypeTemplate}>{suggestion.kind}</span>
                     </button>
                 ))
             }

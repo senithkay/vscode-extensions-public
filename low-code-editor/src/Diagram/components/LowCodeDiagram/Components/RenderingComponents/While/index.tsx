@@ -13,13 +13,13 @@
 // tslint:disable: jsx-no-multiline-js  jsx-wrap-multiline
 import React, { ReactNode, useContext, useState } from "react"
 
+import { WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     BracedExpression,
     STKindChecker,
     STNode,
     WhileStatement
-} from "@ballerina/syntax-tree";
-import { WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+} from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../Contexts/Diagram";
 import { getDiagnosticMsgs, getDraftComponent, getSTComponents } from "../../../../../utils";
@@ -162,12 +162,8 @@ export function While(props: WhileProps) {
 
     const onWhileHeadClick = () => {
         const conditionExpression = conditionExpr.expression.source;
-        const position = {
-            startColumn: model.position.startColumn,
-            startLine: model.position.startLine
-        };
         setConfigWizardOpen(true);
-        const conditionConfigState = getConditionConfig("While", position, WizardType.EXISTING, undefined, {
+        const conditionConfigState = getConditionConfig("While", model.position, WizardType.EXISTING, undefined, {
             type: "While",
             conditionExpression,
             conditionPosition: conditionExpr.position,

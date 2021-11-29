@@ -13,12 +13,11 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext } from "react";
 
-import { STNode } from "@ballerina/syntax-tree";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { SuggestionItem } from "../../../models/definitions";
-import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { useStatementEditorStyles } from "../../ViewContainer/styles";
+import { useStatementEditorStyles } from "../../styles";
 
 export interface TypeSuggestionsProps {
     model: STNode
@@ -27,10 +26,8 @@ export interface TypeSuggestionsProps {
 }
 
 export function TypeSuggestions(props: TypeSuggestionsProps) {
-    const overlayClasses = useStatementEditorStyles();
+    const statementEditorClasses = useStatementEditorStyles();
     const { model, typeSuggestions, suggestionHandler } = props;
-
-    const inputEditorCtx = useContext(InputEditorContext);
 
     const {
         modelCtx: {
@@ -40,17 +37,16 @@ export function TypeSuggestions(props: TypeSuggestionsProps) {
 
     const onClickTypeSuggestion = (suggestion: SuggestionItem) => {
         updateModel(suggestion.value, model.position);
-        inputEditorCtx.onSelection(suggestion.value);
         suggestionHandler();
     }
 
     return (
         <div>
-            <div className={overlayClasses.subHeader}>Types</div>
+            <div className={statementEditorClasses.subHeader}>Types</div>
             {
                 typeSuggestions.map((suggestion: SuggestionItem, index: number) => (
                     <button
-                        className={overlayClasses.suggestionButton}
+                        className={statementEditorClasses.suggestionButton}
                         key={index}
                         onClick={() => onClickTypeSuggestion(suggestion)}
                     >

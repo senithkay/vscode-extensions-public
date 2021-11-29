@@ -15,7 +15,7 @@
 import React, { useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { CallStatement, FunctionCall, QualifiedNameReference } from "@ballerina/syntax-tree";
+import { CallStatement, FunctionCall, QualifiedNameReference } from "@wso2-enterprise/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
@@ -115,7 +115,7 @@ export function AddLogConfig(props: LogConfigProps) {
         }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
     }
 
-    const initialSource = getInitialSource(createLogStatement(
+    const initialSource = formArgs.model ? formArgs.model.source : getInitialSource(createLogStatement(
         logType,
         expression ? expression : 'EXPRESSION'
     ));
@@ -167,7 +167,7 @@ export function AddLogConfig(props: LogConfigProps) {
                             placeholder=""
                             label="Type"
                         />
-                        <div className="exp-wrapper">
+                        <div className={formClasses.stmtEditorWrapper}>
                             <ExpressionEditor
                                 model={{ name: "expression", value: expression, typeName: 'string' }}
                                 customProps={{

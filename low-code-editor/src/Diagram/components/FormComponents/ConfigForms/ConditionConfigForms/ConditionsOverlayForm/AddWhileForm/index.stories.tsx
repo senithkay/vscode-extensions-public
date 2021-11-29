@@ -66,6 +66,9 @@ const api = {
     },
     webView: {
         showSwaggerView: dummyFunction,
+    },
+    project: {
+        run: dummyFunction
     }
 }
 

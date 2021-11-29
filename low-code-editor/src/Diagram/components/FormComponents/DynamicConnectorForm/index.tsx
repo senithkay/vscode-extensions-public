@@ -14,11 +14,11 @@ import React, { ReactNode } from "react";
 
 import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import {isAllValid} from "../../../../utils/validator";
 import { getFormElement } from "../../Portals/utils";
 import FormAccordion from "../FormAccordion";
 import { ExpressionInjectablesProps } from "../FormGenerator";
-import { FormElementProps } from "../Types";
+import { FormElementProps, FormFieldChecks } from "../Types";
+import { isAllFieldsValid } from "../Utils";
 
 import { useStyles } from "./styles";
 
@@ -37,26 +37,28 @@ export function Form(props: FormProps) {
     const classes = useStyles();
     const elements: ReactNode[] = [];
     const optionalElements: ReactNode[] = [];
-    const validFieldChecker = React.useRef(new Map<string, boolean>());
-    const emptyFieldChecker = React.useRef(new Map<string, boolean>());
+    const allFieldChecks = React.useRef(new Map<string, FormFieldChecks>());
 
     React.useEffect(() => {
         // Set form as valid if there aren't any mandatory fields
-        if (isAllOptionalFields(fields)){
+        if (fields && isAllOptionalFields(fields)){
             onValidate(true);
         }
     }, []);
 
-    const validateField = (field: string, isInvalid: boolean, isEmpty: boolean): void => {
-        validFieldChecker.current.set(field, !isInvalid);
-        emptyFieldChecker.current.set(field, isEmpty);
-        onValidate(isAllValid(validFieldChecker.current, emptyFieldChecker.current, false, true, true));
+    const validateField = (field: string, isInvalid: boolean, isEmpty: boolean, canIgnore?: boolean) => {
+        allFieldChecks.current.set(field, {
+            name: field,
+            isValid: !isInvalid,
+            isEmpty,
+            canIgnore,
+        });
+        onValidate(isAllFieldsValid(allFieldChecks.current, fields, true));
     };
 
-    const fieldTypesList = ["string" , "int" , "boolean" , "float" , "decimal" , "array" , "map" , "union" ,
-    "json" , "httpRequest" , "handle" , "object {public string[] & readonly strings;public Value[] insertions;}"]
+    const fieldTypesList = ["string" , "int" , "boolean" , "float" , "decimal" , "array" , "map" , "union" , "enum", "json" , "httpRequest" , "handle"]
     fields?.map((field, index) => {
-        if (!field.hide && (fieldTypesList.includes(field.typeName) || (field.typeName === 'record' && !field.isReference))) {
+        if (!field.hide && (fieldTypesList.includes(field.typeName) || field.typeName.includes("object {public string[]") || (field.typeName === 'record' && !field.isReference))) {
             const elementProps: FormElementProps = {
                 model: field,
                 index,
@@ -81,7 +83,7 @@ export function Form(props: FormProps) {
                 type = "restParam"
             } else if (field.typeName === "handle"){
                 type = "expression";
-            } else if (field.typeName === "object {public string[] & readonly strings;public Value[] insertions;}"){
+            } else if (field.typeName.includes("object {public string[]")){
                 type = "expression";
             }
             const element = getFormElement(elementProps, type);

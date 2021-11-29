@@ -12,14 +12,15 @@
  */
 import React, { ReactNode, useContext } from "react";
 
-import { WhileStatement } from "@ballerina/syntax-tree";
+import { WhileStatement } from "@wso2-enterprise/syntax-tree";
+import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
-import { useStatementEditorStyles } from "../../ViewContainer/styles";
+import { useStatementEditorStyles } from "../../styles";
 
 
 interface WhileStatementProps {
@@ -31,7 +32,7 @@ interface WhileStatementProps {
 export function WhileStatementC(props: WhileStatementProps) {
     const { model, userInputs, diagnosticHandler } = props;
 
-    const overlayClasses = useStatementEditorStyles();
+    const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
 
     const conditionComponent: ReactNode = (
@@ -53,13 +54,13 @@ export function WhileStatementC(props: WhileStatementProps) {
 
     return (
         <span>
-            <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
+            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
                 {model.whileKeyword.value}
             </span>
-            <button className={overlayClasses.expressionElement} onClick={onClickOnConditionExpression}>
+            <button className={statementEditorClasses.expressionElement} onClick={onClickOnConditionExpression}>
                 {conditionComponent}
             </button>
-            <span className={`${overlayClasses.expressionBlock} ${overlayClasses.expressionBlockDisabled}`}>
+            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
                 &nbsp;{model.whileBody.openBraceToken.value}
                 <br/>
                 &nbsp;&nbsp;&nbsp;{"..."}

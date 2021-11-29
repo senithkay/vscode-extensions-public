@@ -13,9 +13,9 @@
 import React, { useReducer } from 'react';
 import { FormattedMessage } from 'react-intl';
 
-import { CaptureBindingPattern, ModuleVarDecl, NodePosition } from '@ballerina/syntax-tree';
 import { Box, FormControl, FormHelperText, Typography } from '@material-ui/core';
 import { ConfigOverlayFormStatus, FormHeaderSection, PrimaryButton, SecondaryButton, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { CaptureBindingPattern, ModuleVarDecl, NodePosition } from '@wso2-enterprise/syntax-tree';
 import { v4 as uuid } from "uuid";
 
 import { useDiagramContext } from '../../../../../Contexts/Diagram';
@@ -226,19 +226,21 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
                         />
                     </FormHelperText>
                 </div>
-                <CheckBoxGroup
-                    values={["Include Default Value"]}
-                    defaultValues={state.hasDefaultValue ? ['Include Default Value'] : []}
-                    onChange={onHasDefaultValChange}
-                />
-                <div hidden={!state.hasDefaultValue}>
-                    <ExpressionEditor
-                        {...expressionEditorConfigForValue}
+                <div className={formClasses.expStatementWrapper}>
+                    <CheckBoxGroup
+                        values={["Include Default Value"]}
+                        defaultValues={state.hasDefaultValue ? ['Include Default Value'] : []}
+                        onChange={onHasDefaultValChange}
                     />
+                    <div hidden={!state.hasDefaultValue}>
+                        <ExpressionEditor
+                            {...expressionEditorConfigForValue}
+                        />
+                    </div>
                 </div>
-                <ExpressionEditor
-                    {...expressionEditorConfigForLabel}
-                />
+                <div className={formClasses.expStatementWrapper}>
+                    <ExpressionEditor  {...expressionEditorConfigForLabel} />
+                </div>
                 <div className={formClasses.wizardBtnHolder}>
                     <SecondaryButton
                         text="Cancel"

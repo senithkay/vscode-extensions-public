@@ -14,10 +14,10 @@
 import React, { useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { LocalVarDecl, STKindChecker } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
+import { LocalVarDecl, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import classnames from "classnames";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
@@ -28,7 +28,7 @@ import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
 import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";
-import {SwitchToggle} from "../../../../FormFieldComponents/SwitchToggle";
+import { SwitchToggle } from "../../../../FormFieldComponents/SwitchToggle";
 import { FormTextInput } from "../../../../FormFieldComponents/TextField/FormTextInput";
 import { ProcessConfig } from "../../../../Types";
 import { VariableNameInput, VariableNameInputProps } from "../../../Components/VariableNameInput";
@@ -229,13 +229,17 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                 list: formArgs?.expressionInjectables?.list,
                 setInjectables: formArgs?.expressionInjectables?.setInjectables
             },
-            editPosition: config.model?.position || formArgs.targetPosition,
+            editPosition: config.model ? {
+                ...config.model?.position,
+                startColumn: config.model.position.endColumn,
+                endColumn: config.model.position.endColumn,
+            } : formArgs.targetPosition,
         },
         onChange: onPropertyChange,
         defaultValue: variableExpression,
     };
 
-    const initialSource = getInitialSource(createModuleVarDecl(
+    const initialSource = formArgs.model ? formArgs.model.source : getInitialSource(createModuleVarDecl(
         {
             varName: varName ? varName : "default",
             varOptions: [],
@@ -251,7 +255,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         setValidExpresssionValue(false);
     }
 
-    const {handleStmtEditorToggle , stmtEditorComponent} = useStatementEditor(
+    const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
         {
             label: intl.formatMessage({ id: "lowcode.develop.configForms.variable.statementEditor.label" }),
             initialSource,
@@ -301,13 +305,13 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                     defaultMessage="Initialize Variable"
                 />
             </Typography>
-            <SwitchToggle onChange={handleVarInitialize} initSwitch={initialized}/>
+            <SwitchToggle onChange={handleVarInitialize} initSwitch={initialized} />
         </div>
     );
 
     if (!stmtEditorComponent) {
         return (
-            <FormControl data-testid="property-form" className={classes.wizardFormControl}>
+            <FormControl data-testid="property-form" className={classes.wizardFormControlExtended}>
                 <FormHeaderSection
                     onCancel={onCancel}
                     statementEditor={true}
@@ -319,26 +323,28 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                 <div className={classes.formWrapper}>
                     <div className={classes.formFeilds}>
                         <div className={classes.activeWrapper}>
-                            <div className={classnames(classes.activeWrapper, classes.blockWrapper)}>
+                            <div className={classnames(classes.activeWrapper, classes.inlineBlockWrapper)}>
                                 <div className={classes.nameExpEditorWrapper}>
                                     {variableTypeInput}
                                 </div>
                                 <div className={classes.nameExpEditorWrapper}>
                                     {variableNameInput}
                                 </div>
-                                {
-                                    initialized && (
-                                        <div className={classes.inlineWrapper}>
-                                            <div className={classes.codeText}>
-                                                <Typography variant='body2' className={classes.endCode}>=</Typography>
-                                            </div>
-                                            <div className={classes.variableExpEditorWrapper}>
-                                                {expressionEditor}
-                                            </div>
-                                        </div>
-                                    )
-                                }
                             </div>
+                            <div className={classes.stmtEditorWrapper}>
+                                    {
+                                        initialized && (
+                                            <div className={classes.inlineWrapper}>
+                                                <div className={classes.equalWrapper}>
+                                                    <Typography variant='body2' className={classes.endCode}>=</Typography>
+                                                </div>
+                                                <div className={classes.variableExpEditorWrapper}>
+                                                    {expressionEditor}
+                                                </div>
+                                            </div>
+                                        )
+                                    }
+                                </div>
                             {initializedToggle}
                         </div>
                     </div>

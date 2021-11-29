@@ -11,7 +11,7 @@
  * associated services.
  */
 
-import { NodePosition } from "@ballerina/syntax-tree";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 export enum PrimitiveBalType {
     String = "string",
@@ -93,6 +93,8 @@ export interface FormField {
     isRestParam?: boolean;
     customAutoComplete?: string[];
     validationRegex?: any;
+    leftTypeParam?: any;
+    rightTypeParam?: any;
 }
 export interface FormFieldReturnType {
     hasError: boolean;

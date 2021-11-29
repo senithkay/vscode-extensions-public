@@ -1,4 +1,4 @@
-import { RemoteMethodCallAction, STNode, Visitor } from "@ballerina/syntax-tree";
+import { RemoteMethodCallAction, STNode, Visitor } from "@wso2-enterprise/syntax-tree";
 export class InvocationPerformanceVisitor implements Visitor {
     public invocations: STNode[] = [];
 

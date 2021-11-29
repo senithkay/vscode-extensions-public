@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from 'react'
 
-import { ListenerDeclaration, STNode } from "@ballerina/syntax-tree";
+import { ListenerDeclaration, STNode } from "@wso2-enterprise/syntax-tree";
 
 import DeleteButton from "../../../../../../assets/icons/DeleteButton";
 import EditButton from "../../../../../../assets/icons/EditButton";
@@ -53,7 +53,7 @@ export function ListenerC(props: ListenerProps) {
     const listenerType = listenerModel.typeDescriptor.modulePrefix.value;
     let listenerPort = "";
     listenerModel.initializer.parenthesizedArgList.arguments.forEach((argument) => {
-        listenerPort += argument.source.trim();
+        listenerPort += argument.source?.trim();
     });
     const typeMaxWidth = listenerType.length >= 10;
     const nameMaxWidth = listenerName.length >= 20;

@@ -13,13 +13,13 @@
 // tslint:disable: jsx-wrap-multiline
 import React, { useContext } from "react";
 
-import { DecimalTypeDesc } from "@ballerina/syntax-tree";
+import { DecimalTypeDesc } from "@wso2-enterprise/syntax-tree";
 
 import { VariableUserInputs } from "../../../../models/definitions";
 import { SuggestionsContext } from "../../../../store/suggestions-context";
 import { getTypeDescriptors } from "../../../../utils";
 import { InputEditor } from "../../../InputEditor";
-import { useStatementEditorStyles } from "../../../ViewContainer/styles";
+import { useStatementEditorStyles } from "../../../styles";
 
 interface DecimalTypeDescProps {
     model: DecimalTypeDesc
@@ -31,7 +31,7 @@ interface DecimalTypeDescProps {
 export function DecimalTypeDescComponent(props: DecimalTypeDescProps) {
     const { model, userInputs, diagnosticHandler, isTypeDescriptor} = props;
 
-    const overlayClasses = useStatementEditorStyles();
+    const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
 
     const inputEditorProps = {
@@ -50,7 +50,7 @@ export function DecimalTypeDescComponent(props: DecimalTypeDescProps) {
 
     return (
         <button
-            className={overlayClasses.expressionElement}
+            className={statementEditorClasses.expressionElement}
             onClick={onClickOnType}
         >
             <InputEditor {...inputEditorProps} />

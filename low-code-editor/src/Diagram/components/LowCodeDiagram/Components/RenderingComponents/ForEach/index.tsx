@@ -13,8 +13,8 @@
 // tslint:disable: jsx-no-multiline-js  jsx-wrap-multiline
 import React, { ReactNode, useContext, useState } from "react"
 
-import { ForeachStatement, NodePosition, STKindChecker, STNode, TypedBindingPattern } from "@ballerina/syntax-tree";
 import { WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ForeachStatement, NodePosition, STKindChecker, STNode, TypedBindingPattern } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../Contexts/Diagram";
 import { getDiagnosticMsgs, getDraftComponent, getSTComponents } from "../../../../../utils";
@@ -158,11 +158,6 @@ export function ForEach(props: ForeachProps) {
             model: modelForeach
         }
 
-        const position: NodePosition = {
-            startColumn: model.position.startColumn,
-            startLine: model.position.startLine
-        };
-
         const conditionUpdatePosition: NodePosition = {
             /*
             * As we are replacing the whole condition including the variable and the iteration condition different
@@ -175,7 +170,7 @@ export function ForEach(props: ForeachProps) {
             endColumn: modelForeach.actionOrExpressionNode.position.endColumn,
         }
         setConfigWizardOpen(true);
-        const conditionConfigFormState = getConditionConfig("ForEach", position, WizardType.EXISTING, undefined, {
+        const conditionConfigFormState = getConditionConfig("ForEach", model.position, WizardType.EXISTING, undefined, {
             type: "ForEach",
             conditionExpression,
             conditionPosition: conditionUpdatePosition,

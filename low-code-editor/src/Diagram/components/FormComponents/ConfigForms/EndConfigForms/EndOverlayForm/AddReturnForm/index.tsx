@@ -14,10 +14,10 @@
 import React, { useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { ReturnStatement } from "@ballerina/syntax-tree";
 import { Box, FormControl, Typography } from "@material-ui/core";
 import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
+import { ReturnStatement } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
@@ -86,7 +86,7 @@ export function AddReturnForm(props: ReturnFormProps) {
         }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
     };
 
-    const initialSource = getInitialSource(createReturnStatement(
+    const initialSource = formArgs.model ? formArgs.model.source : getInitialSource(createReturnStatement(
         returnExpression ? returnExpression as string : 'EXPRESSION'
     ));
 

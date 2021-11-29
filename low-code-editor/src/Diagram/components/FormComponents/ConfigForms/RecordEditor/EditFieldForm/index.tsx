@@ -24,6 +24,7 @@ import ExpressionEditor from '../../../FormFieldComponents/ExpressionEditor';
 import { FormElementProps } from "../../../Types";
 import { wizardStyles as useStyles } from "../../style";
 import { recordStyles } from "../style";
+import { genRecordName, getFieldNames } from "../utils";
 
 export function EditFieldForm() {
 
@@ -75,7 +76,11 @@ export function EditFieldForm() {
     const validateDefaultValue = (fName: string, isInvalidFromField: boolean) => {
         state.currentField.isValueInvalid = isInvalidFromField;
         callBacks.onUpdateCurrentField(state.currentField);
-        callBacks.updateEditorValidity(isInvalidFromField || state.currentField.isNameInvalid);
+        if (state.currentField.name === "" || state.currentField.type === "") {
+            callBacks.updateEditorValidity(true);
+        } else {
+            callBacks.updateEditorValidity(isInvalidFromField || state.currentField.isNameInvalid);
+        }
     };
 
     const handleOptionalFieldChange = (text: string[]) => {
@@ -96,14 +101,21 @@ export function EditFieldForm() {
         displayName: defaultValText,
         typeName: state.currentField?.isArray ? `${state.currentField?.type}[]` : state.currentField?.type,
         value: defaultValue
-    }
+    };
+    const handleDefaultValueFocus = (value: string) => {
+        if (!state.currentField.name) {
+            state.currentField.name = genRecordName("f", getFieldNames(state.currentRecord.fields));
+            callBacks.onUpdateCurrentField(state.currentField);
+        }
+    };
     const defaultValueProps: FormElementProps = {
         model: formField,
         customProps: {
             validate: validateDefaultValue,
             statementType: formField.typeName,
             clearInput: clearExpEditor,
-            revertClearInput
+            revertClearInput,
+            onFocus: handleDefaultValueFocus,
         },
         onChange: handleDefaultValueChange,
         defaultValue

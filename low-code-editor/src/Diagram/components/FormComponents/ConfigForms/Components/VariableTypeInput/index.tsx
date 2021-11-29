@@ -11,9 +11,9 @@
  * associated services.
  */
 
-import React from "react";
+import React, { useState } from "react";
 
-import { NodePosition } from "@ballerina/syntax-tree";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import ExpressionEditor, { ExpressionEditorCustomTemplate, ExpressionEditorProps } from "../../../FormFieldComponents/ExpressionEditor";
 import { FormElementProps } from "../../../Types";
@@ -23,15 +23,26 @@ export interface VariableTypeInputProps {
     displayName: string;
     value: string;
     hideLabel?: boolean;
+    focus?: boolean;
     onValueChange: (value: string) => void;
     validateExpression: (fieldName: string, isInValid: boolean) => void;
     position: NodePosition;
     overrideTemplate?: ExpressionEditorCustomTemplate;
+    hideTextLabel?: boolean;
+    disabled?: boolean;
     ignoredCompletions?: string[];
+    enterKeyPressed?: (value: string) => void;
 }
 
 export function VariableTypeInput(props: VariableTypeInputProps) {
-    const { onValueChange, validateExpression, position, value, displayName, overrideTemplate, hideLabel, ignoredCompletions = [] } = props;
+    const { onValueChange, validateExpression, position, value, displayName, overrideTemplate, hideLabel, disabled,
+            ignoredCompletions = [], focus, enterKeyPressed } = props;
+
+    const [editorFocus, setEditorFocus] = useState<boolean>(focus);
+
+    const revertFocus = () => {
+        setEditorFocus(false);
+    };
     const expressionEditorNameConfig: FormElementProps<ExpressionEditorProps> = {
         model: {
             name: "variableType",
@@ -50,10 +61,14 @@ export function VariableTypeInput(props: VariableTypeInputProps) {
             hideExpand: true,
             getCompletions: getVarTypeCompletions(ignoredCompletions),
             showHints: false,
-            hideTextLabel: hideLabel
+            hideTextLabel: hideLabel,
+            disabled,
+            focus: editorFocus,
+            revertFocus,
+            enterKeyPressed
         },
         onChange: onValueChange,
-        defaultValue: value,
+        defaultValue: value
     };
 
     return (

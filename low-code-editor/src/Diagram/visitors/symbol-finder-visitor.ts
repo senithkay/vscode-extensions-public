@@ -10,6 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     ActionStatement,
     AssignmentStatement,
@@ -29,8 +30,7 @@ import {
     STNode,
     TypedBindingPattern,
     Visitor
-} from "@ballerina/syntax-tree";
-import { STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+} from "@wso2-enterprise/syntax-tree";
 
 import { StatementViewState } from "../components/LowCodeDiagram/ViewState";
 
@@ -196,7 +196,7 @@ function getType(typeNode: any): any {
         STKindChecker.isStringTypeDesc(typeNode) || STKindChecker.isJsonTypeDesc(typeNode)) {
         return typeNode.name.value;
     } else if (STKindChecker.isXmlTypeDesc(typeNode)) {
-        return typeNode.xmlKeywordToken.value;
+        return typeNode.xmlKeywordToken?.value || typeNode.keywordToken?.value;
     } else if (STKindChecker.isQualifiedNameReference(typeNode)) {
         const nameRef: QualifiedNameReference = typeNode as QualifiedNameReference;
         const packageName = (nameRef.modulePrefix.value === "") ? "" : nameRef.modulePrefix.value + ":";

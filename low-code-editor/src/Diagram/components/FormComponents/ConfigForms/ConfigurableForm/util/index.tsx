@@ -11,7 +11,7 @@
  * associated services.
  */
 
-import { CaptureBindingPattern, MappingConstructor, ModuleVarDecl, SimpleNameReference, SpecificField, STKindChecker, TypedBindingPattern } from "@ballerina/syntax-tree";
+import { CaptureBindingPattern, MappingConstructor, ModuleVarDecl, SimpleNameReference, SpecificField, STKindChecker, TypedBindingPattern } from "@wso2-enterprise/syntax-tree";
 
 export const ModuleVarNameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 

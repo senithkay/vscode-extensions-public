@@ -12,16 +12,6 @@
  */
 import React, { ReactNode } from "react";
 
-import {
-    ActionStatement,
-    CaptureBindingPattern, CheckAction,
-    CheckExpression,
-    ImplicitNewExpression, ListConstructor, LocalVarDecl, MappingConstructor, NamedArg, NodePosition, NumericLiteral,
-    ParenthesizedArgList,
-    PositionalArg, RemoteMethodCallAction, RequiredParam, SimpleNameReference, SpecificField,
-    STKindChecker,
-    STNode, StringLiteral, TypeCastExpression
-} from "@ballerina/syntax-tree";
 import { Avatar, colors } from "@material-ui/core";
 import {
     ActionConfig,
@@ -33,6 +23,16 @@ import {
     FormField, FormFieldReturnType,
     FunctionDefinitionInfo, PrimitiveBalType, STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    ActionStatement,
+    CaptureBindingPattern, CheckAction,
+    CheckExpression,
+    ImplicitNewExpression, ListConstructor, LocalVarDecl, MappingConstructor, NamedArg, NodePosition, NumericLiteral,
+    ParenthesizedArgList,
+    PositionalArg, RemoteMethodCallAction, RequiredParam, SimpleNameReference, SpecificField,
+    STKindChecker,
+    STNode, StringLiteral, TypeCastExpression
+} from "@wso2-enterprise/syntax-tree";
 import { DocumentSymbol, SymbolInformation } from "vscode-languageserver-protocol";
 
 import * as ConstructIcons from "../../../../assets/icons"
@@ -113,13 +113,13 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
         const skipDefaultValue = (!formField.value && (formField.defaultable || formField.optional)) ||
             (formField.value && formField.defaultValue && formField.defaultValue === formField.value);
         let paramString: string = "";
-        if (!formField.noCodeGen && !skipDefaultValue) {
+        if (!skipDefaultValue) {
             if (formField.defaultable && formField.value) {
                 paramString += `${formField.name} = `;
             }
             if (formField.typeName === "string" && (formField.value || formField.defaultValue)) {
                 paramString += formField.value || formField.defaultValue;
-            } else if (formField.typeName === "object {public string[] & readonly strings;public Value[] insertions;}" && (formField.value || formField.defaultValue)) {
+            } else if (formField.typeName.includes("object {public string[]") && (formField.value || formField.defaultValue)) {
                 paramString += formField.value || formField.defaultValue;
             }
             else if (formField.typeName === "array" && !formField.hide && (formField.value || formField.defaultValue)) {
@@ -175,7 +175,7 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
                         if (name) {
                             const selectedField: FormField = field.members?.find((subField: FormField) => {
                                 const fieldName = getUnionFormFieldName(subField);
-                                return (fieldName !== undefined) && (fieldName === field.selectedDataType);
+                                return fieldName !== undefined && fieldName === field.selectedDataType;
                             });
                             if (selectedField) {
                                 const params = getParams([selectedField], depth + 1);
@@ -196,15 +196,23 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
                                 recordFieldsString += name + ": " + field.value;
                             }
                         }
+                    } else if (field.typeName === "enum" && !field.hide && field.value) {
+                        const name = getFieldName(field.name ? field.name : field.typeInfo.name);
+                        if (firstRecordField) {
+                            recordFieldsString += ", ";
+                        } else {
+                            firstRecordField = true;
+                        }
+                        recordFieldsString += `${name} : "${field.value}"`;
                     } else if (field.typeName === "record" && !field.hide && !field.isReference) {
                         const name = getFieldName(field.name ? field.name : field.typeInfo.name);
                         if (name) {
                             const fieldArray: FormField[] = [
                                 {
                                     typeName: PrimitiveBalType.Record,
-                                    fields: field.fields
-                                }
-                            ]
+                                    fields: field.fields,
+                                },
+                            ];
                             const params = getParams(fieldArray, depth + 1);
                             if (params && params.length > 0) {
                                 if (firstRecordField) {
@@ -237,7 +245,7 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
                 if (xmlRegex.test(formField.value)) {
                     paramString = formField.value;
                 } else {
-                    paramString += "xml `" + formField.value + "`";
+                    paramString += formField.value;
                 }
             } else if (formField.typeName === "handle" && formField.value) {
                 paramString += formField.value;
@@ -438,7 +446,12 @@ export function matchActionToFormField(remoteCall: RemoteMethodCallAction, formF
             } else if (formField.typeName === 'handle') {
                 formField.value = positionalArg.expression?.source;
                 nextValueIndex++;
-            } else if (formField.typeName === 'collection') {
+            }
+            else if (formField.typeName.includes("object {public string[]")) {
+                formField.value = positionalArg.expression?.source;
+                nextValueIndex++;
+            }
+            else if (formField.typeName === 'collection') {
                 formField.value = positionalArg.expression?.source;
                 nextValueIndex++;
             } else if (formField.typeName === "record" && formField.fields && formField.fields.length > 0) {
@@ -451,6 +464,9 @@ export function matchActionToFormField(remoteCall: RemoteMethodCallAction, formF
                 formField.value = positionalArg.expression.name.value;
                 nextValueIndex++;
             } else if (formField.typeName === "union") {
+                formField.value = positionalArg.expression?.source;
+                nextValueIndex++;
+            } else if (formField.typeName === "enum") {
                 formField.value = positionalArg.expression?.source;
                 nextValueIndex++;
             } else if (formField.typeName === "json") {
@@ -654,6 +670,10 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
         connectorRequest.orgName = connector.package.organization;
         connectorRequest.packageName = connector.package.name;
         connectorRequest.version = connector.package.version;
+        // HACK: Http endpoint STNode will get 2.0.1 version, but Ballerina Central have only 2.0.0 version.
+        if (connector.package.name === "http" && connector.package.version === "2.0.1") {
+            connectorRequest.version = "2.0.0";
+        }
     }
 
     if (!connectorInfo && connectorRequest) {
@@ -662,13 +682,15 @@ export async function fetchConnectorInfo(connector: Connector, model?: STNode, s
         const connectorResp = await langClient?.getConnector(connectorRequest);
         if (connectorResp) {
             connectorInfo = connectorResp as BallerinaConnectorInfo;
-            connector = connectorInfo;
-            // save form fields in browser cache
-            await addConnectorToCache(connectorInfo);
+            if (connectorInfo?.name){
+                connector = connectorInfo;
+                // save form fields in browser cache
+                await addConnectorToCache(connectorInfo);
+            }
         }
     }
 
-    if (!connectorInfo){
+    if (!connectorInfo?.name){
         return null;
     }
 
@@ -823,16 +845,26 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                 break;
 
             case "stream":
-                if (formField?.memberType) {
-                    const returnTypeResponse = getFormFieldReturnType(formField.memberType, depth + 1);
-                    response.returnType = returnTypeResponse.returnType;
-                    response.hasError = returnTypeResponse.hasError || response.hasError;
-                    response.hasReturn = returnTypeResponse.hasReturn || response.hasReturn;
-                    response.importTypeInfo = [...response.importTypeInfo, ...returnTypeResponse.importTypeInfo];
+                let returnTypeResponseLeft = null;
+                let returnTypeResponseRight = null
+                if (formField?.leftTypeParam) {
+                    returnTypeResponseLeft = getFormFieldReturnType(formField.leftTypeParam, depth + 1);
+                    response.hasError = returnTypeResponseLeft.hasError || response.hasError;
+                    response.importTypeInfo = [...response.importTypeInfo, ...returnTypeResponseLeft.importTypeInfo];
                 }
-
-                if (response.returnType && formField.typeName === "stream") {
-                    response.returnType = "stream<record {}, sql:Error?>"
+                if (formField?.rightTypeParam) {
+                    returnTypeResponseRight = getFormFieldReturnType(formField.rightTypeParam, depth + 1);
+                    response.hasError = returnTypeResponseRight.hasError || response.hasError;
+                    response.importTypeInfo = [...response.importTypeInfo, ...returnTypeResponseRight.importTypeInfo];
+                }
+                if (returnTypeResponseLeft.returnType && returnTypeResponseRight.returnType) {
+                    response.returnType = `stream<${returnTypeResponseLeft.returnType},${returnTypeResponseRight.returnType}>`
+                }
+                if (returnTypeResponseLeft.returnType && !returnTypeResponseRight.returnType) {
+                    response.returnType = `stream<${returnTypeResponseLeft.returnType}>`
+                }
+                if (response.returnType) {
+                    response.hasReturn = true;
                 }
                 break;
 
@@ -859,6 +891,12 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                 if (formField.typeName.trim() === "error" || formField.isErrorType) {
                     formField.isErrorType = true;
                     response.hasError = true;
+                    // special case for db connectors: show error in this format -> sql:Error?
+                    if (formField.typeInfo.moduleName === "sql" && depth >= 2) {
+                        formField.isErrorType = false;
+                        response.hasError = false;
+                        type = `${formField.typeInfo.moduleName}:${formField.typeInfo.name}`
+                    }
                 }
                 if (type === "" && formField.typeInfo && !formField.isErrorType) {
                     // set class/record types
@@ -901,7 +939,9 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                 //     // set stream tags
                 //     type = `stream<${type}>`; // do for stream obj
                 // }
-
+                if (formField.typeName.includes("stream<rowType")) {
+                    type = "record{}"
+                }
                 if (type) {
                     response.returnType = type;
                 }

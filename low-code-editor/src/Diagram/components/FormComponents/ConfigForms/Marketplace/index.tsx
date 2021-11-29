@@ -14,17 +14,17 @@
 import React, { ReactNode, SyntheticEvent, useContext, useState } from "react";
 import { FormattedMessage } from "react-intl";
 
-import { LocalVarDecl } from "@ballerina/syntax-tree";
 import { Box, CircularProgress, FormControl, Grid, Typography } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
-import { BallerinaModule, BallerinaModuleResponse, ButtonWithIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BallerinaModule, BallerinaModuleResponse, ButtonWithIcon, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../Contexts/Diagram";
 import { UserState } from "../../../../../types";
 import { EVENT_TYPE_AZURE_APP_INSIGHTS, LowcodeEvent, START_CONNECTOR_ADD_INSIGHTS } from "../../../../models";
 import { APIHeightStates } from "../../../LowCodeDiagram/Components/DialogBoxes/PlusHolder/PlusElements";
 import { PlusViewState } from "../../../LowCodeDiagram/ViewState/plus";
-import { wizardStyles as useFormStyles} from "../style";
+import { wizardStyles as useFormStyles } from "../style";
 
 import FilterByMenu from "./FilterByMenu";
 import ModuleCard from "./ModuleCard";
@@ -33,6 +33,7 @@ import useStyles from "./style";
 
 export interface MarketplaceProps {
     onSelect: (balModule: BallerinaModule, selectedBalModule: LocalVarDecl) => void;
+    onCancel?: () => void;
     onChange?: (type: string, subType: string, balModule?: BallerinaModule) => void;
     viewState?: PlusViewState;
     collapsed?: (value: APIHeightStates) => void;
@@ -55,6 +56,7 @@ export enum BallerinaModuleType {
 export function Marketplace(props: MarketplaceProps) {
     const classes = useStyles();
     const formClasses = useFormStyles();
+    const {onSelect, onCancel, title} = props;
     const {
         props: { currentFile, userInfo },
         api: {
@@ -74,7 +76,7 @@ export function Marketplace(props: MarketplaceProps) {
 
     const connectorLimit = 14;
 
-    const shortName = props.shortName ? props.shortName : props.title;
+    const shortName = props.shortName || title;
 
     React.useEffect(() => {
         fetchModulesList();
@@ -90,14 +92,14 @@ export function Marketplace(props: MarketplaceProps) {
             property: balModule.displayName || balModule.package.name,
         };
         onEvent(event);
-        props.onSelect(balModule, undefined);
+        onSelect(balModule, undefined);
         openConnectorHelp(balModule);
     };
 
     const getModuleComponents = (balModules: BallerinaModule[]): ReactNode[] => {
         const componentList: ReactNode[] = [];
         balModules?.forEach((module: BallerinaModule) => {
-            const component = <ModuleCard module={module} onSelectModule={onSelectModule}/>;
+            const component = <ModuleCard module={module} onSelectModule={onSelectModule} />;
             componentList.push(component);
         });
         return componentList;
@@ -155,20 +157,7 @@ export function Marketplace(props: MarketplaceProps) {
                 {modules}
             </>
         );
-    }
-    ;
-
-    const title = (
-        <div className={formClasses.formTitleWrapper}>
-            <div className={formClasses.mainTitleWrapper}>
-                <Typography variant="h4">
-                    <Box paddingTop={2} paddingBottom={2}>
-                        <FormattedMessage id="lowcode.develop.configForms.connectorList.title" defaultMessage={props.title} />
-                    </Box>
-                </Typography>
-            </div>
-        </div>
-    );
+    };
 
     const loadingScreen = (
         <Grid sm={12} item={true} container={true} className={classes.msgContainer}>
@@ -252,31 +241,29 @@ export function Marketplace(props: MarketplaceProps) {
 
     return (
         <FormControl data-testid="log-form" className={classes.container}>
+            <FormHeaderSection
+                onCancel={onCancel}
+                statementEditor={false}
+                formTitle={`lowcode.develop.configForms.${shortName.replaceAll(" ", "")}.title`}
+                defaultMessage={title}
+                toggleChecked={false}
+            />
             <div className={formClasses.formWrapper}>
                 <div className={formClasses.formFeilds}>
-                    <div className={formClasses.formWrapper}>
-                        {title}
-                        <div onWheel={preventDiagramScrolling} className={classes.container}>
-                            {searchBar}
-                            <Grid item={true} sm={12} container={true}>
-                                {leftSidePanel}
-                                <Grid sm={7} container={true} item={true} className={classes.resultsContainer}>
-                                    {isSearchResultsFetching && (
-                                        loadingScreen
-                                    )}
-
-                                    {!isSearchResultsFetching && selectedCategory !== "" && (
-                                        selectedCategoriesChips
-                                    )}
-
-                                    {modulesList}
-
-                                    {!isSearchResultsFetching && centralModuleComponents.length === 0 && localModules.length === 0 && (
-                                        notFoundComponent
-                                    )}
-                                </Grid>
+                    <div onWheel={preventDiagramScrolling} className={classes.container}>
+                        {searchBar}
+                        <Grid item={true} sm={12} container={true}>
+                            {leftSidePanel}
+                            <Grid sm={7} container={true} item={true} className={classes.resultsContainer}>
+                                {isSearchResultsFetching && loadingScreen}
+                                {!isSearchResultsFetching && selectedCategory !== "" && selectedCategoriesChips}
+                                {modulesList}
+                                {!isSearchResultsFetching &&
+                                    centralModuleComponents.length === 0 &&
+                                    localModules.length === 0 &&
+                                    notFoundComponent}
                             </Grid>
-                        </div>
+                        </Grid>
                     </div>
                 </div>
             </div>

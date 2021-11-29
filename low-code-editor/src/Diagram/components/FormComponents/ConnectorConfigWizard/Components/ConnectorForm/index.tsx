@@ -15,7 +15,6 @@
 import React, { ReactNode, useContext, useEffect, useState } from "react";
 import { FormattedMessage } from "react-intl";
 
-import { CaptureBindingPattern, FunctionDefinition, LocalVarDecl, NodePosition, STKindChecker } from "@ballerina/syntax-tree";
 import { Box, Divider, FormControl, Typography } from "@material-ui/core";
 import {
     ActionConfig,
@@ -27,6 +26,7 @@ import {
     STModification,
     WizardType,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { CaptureBindingPattern, FunctionDefinition, LocalVarDecl, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../Contexts/Diagram";
 import { useFunctionContext } from "../../../../../../Contexts/Function";
@@ -188,16 +188,6 @@ export function ConnectorForm(props: FormGeneratorProps) {
         setFormState(FormStates.OperationForm);
     };
 
-    const handleCreateConnectorSaveNext = () => {
-        setFormState(FormStates.OperationForm);
-        const event: LowcodeEvent = {
-            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
-            name: CONTINUE_TO_INVOKE_API,
-            property: connectorName,
-        };
-        onEvent(event);
-    };
-
     const handleEndpointSave = () => {
         const modifications: STModification[] = [];
         expressionInjectables?.list?.forEach((item: InjectableItem) => {
@@ -216,8 +206,13 @@ export function ConnectorForm(props: FormGeneratorProps) {
             config.connectorInit
         ).join()});`;
 
+        const dbConnectors = ["mysql" , "mssql"]
         if (isNewConnectorInitWizard && targetPosition) {
             const addImport: STModification = createImportStatement(connector.package.organization, connectorModule, targetPosition);
+            if (dbConnectors.includes(connectorModule)) {
+                const addDriverImport: STModification = createImportStatement('ballerinax', `${connectorModule}.driver as _`, targetPosition);
+                modifications.push(addDriverImport);
+            }
             modifications.push(addImport);
             const addConnectorInit = createPropertyStatement(endpointStatement, targetPosition);
             modifications.push(addConnectorInit);
@@ -283,6 +278,13 @@ export function ConnectorForm(props: FormGeneratorProps) {
         }
     };
 
+    const handleExtensionSave = (modifications: STModification[]) => {
+        if (modifications.length > 0) {
+            modifyDiagram(modifications);
+            onSave();
+        }
+    };
+
     const updateFunctionSignatureWithError = () => {
         if (!(functionNode && STKindChecker.isFunctionDefinition(functionNode))) {
             return undefined;
@@ -308,7 +310,6 @@ export function ConnectorForm(props: FormGeneratorProps) {
             startColumn: activeFunction.functionName.position.startColumn,
         });
     };
-
 
     const onConnectionNameChange = () => {
         if (isNewConnection) {
@@ -338,6 +339,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
         }
     };
 
+    // TODO: Created common function to send Azure analytics.
     const onActionAddEvent = () => {
         const event: LowcodeEvent = {
             type: EVENT_TYPE_AZURE_APP_INSIGHTS,
@@ -351,6 +353,16 @@ export function ConnectorForm(props: FormGeneratorProps) {
         const event: LowcodeEvent = {
             type: EVENT_TYPE_AZURE_APP_INSIGHTS,
             name: FINISH_CONNECTOR_INIT_ADD_INSIGHTS,
+            property: connectorName,
+        };
+        onEvent(event);
+    };
+
+    const handleCreateConnectorSaveNext = () => {
+        setFormState(FormStates.OperationForm);
+        const event: LowcodeEvent = {
+            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
+            name: CONTINUE_TO_INVOKE_API,
             property: connectorName,
         };
         onEvent(event);
@@ -384,7 +396,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
             connectorComponent = getConnectorComponent(connectorModule + connector.name, {
                 functionDefinitions: functionDefInfo,
                 connectorConfig: config,
-                handleActionSave,
+                onSave: handleExtensionSave,
                 onClose,
                 connector,
                 isNewConnectorInitWizard,
@@ -466,27 +478,23 @@ export function ConnectorForm(props: FormGeneratorProps) {
     }
 
     return (
-        <>
-            <FormControl data-testid="connector-form" className={formClasses.wizardFormControl}>
-                <FormHeaderSection
-                    onCancel={onClose}
-                    statementEditor={false}
-                    formTitle={"lowcode.develop.configForms.connector.title"}
-                    defaultMessage={"API Connection"}
-                />
-                <div className={formClasses.formWrapper}>
-                    <div className={formClasses.formFeilds}>
-                        <div className={formClasses.formWrapper}>
-                            {(isLoading || isConnectorLoading) && (
-                                <div className={wizardClasses.loaderWrapper}>
-                                    <TextPreloaderVertical position="relative" />
-                                </div>
-                            )}
-                            {!(isLoading || isConnectorLoading) && <div className={wizardClasses.mainApiWrapper}>{connectorComponent}</div>}
+        <FormControl data-testid="connector-form" className={formClasses.wizardFormControl}>
+            <FormHeaderSection
+                onCancel={onClose}
+                statementEditor={false}
+                formTitle={"lowcode.develop.configForms.connector.title"}
+                defaultMessage={"API Connection"}
+            />
+            <div className={formClasses.formWrapper}>
+                <div className={formClasses.formFeilds}>
+                    {(isLoading || isConnectorLoading) && (
+                        <div className={wizardClasses.loaderWrapper}>
+                            <TextPreloaderVertical position="relative" />
                         </div>
-                    </div>
+                    )}
+                    {!(isLoading || isConnectorLoading) && <div className={wizardClasses.mainApiWrapper}>{connectorComponent}</div>}
                 </div>
-            </FormControl>
-        </>
+            </div>
+        </FormControl>
     );
 }

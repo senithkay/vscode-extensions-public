@@ -26,6 +26,8 @@ export function generateExpressionTemplate (kind: string, value?: any) {
         return "(EXPRESSION ? EXPRESSION : EXPRESSION)";
     } else if (kind === c.RANGE) {
         return "(EXPRESSION ... EXPRESSION)";
+    } else if (kind === c.MAPPING_CONSTRUCTOR) {
+        return "EXPRESSION : EXPRESSION";
     } else if (kind === c.TYPE_TEST) {
         return "(EXPRESSION is TYPE_DESCRIPTOR)";
     } else if (kind === c.STRING_LITERAL) {
@@ -71,7 +73,8 @@ export const ExpressionKindByOperator: { [key: string]: string } = {
     PipeToken: c.ARITHMETIC,
     PlusToken: c.ARITHMETIC,
     SlashToken: c.ARITHMETIC,
-    TrippleEqualToken: c.EQUALITY
+    TrippleEqualToken: c.EQUALITY,
+    MinusToken: c.ARITHMETIC
 }
 
 export const OperatorsForExpressionKind: { [key: string]: SuggestionItem[] } = {

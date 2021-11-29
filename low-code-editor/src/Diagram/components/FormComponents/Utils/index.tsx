@@ -12,11 +12,64 @@
  */
 import React from "react";
 
+import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+
 import * as Forms from "../ConfigForms";
+import { FormFieldChecks } from "../Types";
 
 export function getForm(type: string, args: any) {
     const Form = (Forms as any)[type];
     return Form ? (
         <Form {...args} />
-    ) : null;
+    ) : <Forms.Custom {...args}/>;
+}
+
+export function isAllEmpty(allFieldChecks: Map<string, FormFieldChecks>): boolean {
+    let result = true
+    allFieldChecks.forEach((fieldChecks, key) => {
+        if (!fieldChecks.isEmpty) {
+            result = false;
+        }
+    });
+    return result;
+}
+
+export function isAllIgnorable(fields: FormField[]): boolean {
+    let result = true;
+    fields.forEach((field, key) => {
+        if (!(field.optional || field.defaultable)) {
+            result = false;
+        }
+    });
+    return result;
+}
+
+export function isAllFieldsValid(allFieldChecks: Map<string, FormFieldChecks>, model: FormField | FormField[], isRoot: boolean): boolean {
+    let result = true;
+    let canModelIgnore = false;
+    let allFieldsIgnorable = false;
+
+    if (!isRoot) {
+        const formField = model as FormField;
+        canModelIgnore = formField.optional || formField.defaultable;
+        allFieldsIgnorable = isAllIgnorable(formField.fields);
+    }else{
+        const formFields = model as FormField[];
+        allFieldsIgnorable = isAllIgnorable(formFields);
+    }
+
+    allFieldChecks.forEach(fieldChecks => {
+        if (!canModelIgnore && !fieldChecks.canIgnore && (!fieldChecks.isValid || fieldChecks.isEmpty)) {
+            result = false;
+        }
+        if (fieldChecks.canIgnore && !fieldChecks.isEmpty && !fieldChecks.isValid) {
+            result = false;
+        }
+    });
+
+    // Handle mandatory record but all fields are optional
+    if (!canModelIgnore && allFieldsIgnorable && !isAllEmpty(allFieldChecks)) {
+        result = false;
+    }
+    return result;
 }
