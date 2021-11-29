@@ -35,7 +35,7 @@ function ConfigElement(props: any) {
 
     const handleChange = (e: any) => {
         configProperty.value = e.target.value;
-        props.setConfigValue(configProperty);
+        props.setConfigValue.bind(configProperty);
     }
 
     let type: string = props.type;
