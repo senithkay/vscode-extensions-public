@@ -16,6 +16,7 @@
 import { STNode } from "@ballerina/syntax-tree";
 
 import { FunctionDefinitionInfo } from "./config-spec";
+import { LinePosition } from "./expression-editor-lang-client-interface";
 
 export type STModificationConfig = {};
 
@@ -253,4 +254,16 @@ export interface GraphData {
 export interface PerformanceGraphRequest {
     file: string;
     data: GraphData;
+}
+
+export interface BallerinaSyntaxTreeByRangeRequest {
+    documentIdentifier: TextDocumentIdentifier;
+    linerange: LineRange;
+}
+export interface TextDocumentIdentifier {
+    uri: string;
+}
+export interface LineRange {
+    startLine: LinePosition;
+    endLine: LinePosition;
 }

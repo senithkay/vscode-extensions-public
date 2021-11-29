@@ -20,9 +20,9 @@ import { Context } from "../../../../../../Contexts/Diagram";
 import { StatementViewState } from "../../../ViewState";
 import { FunctionBody } from "../../RenderingComponents/FunctionBody";
 
+import { HideFunctionSVG } from "./HideFunctionSVG";
 import { ShowFunctionSVG } from "./ShowFunctionSVG";
 import "./style.scss";
-import { HideFunctionSVG } from "./HideFunctionSVG";
 
 export interface ShowFunctionBtnProps {
     x: number;
@@ -38,7 +38,7 @@ export interface ShowFunctionBtnProps {
 export function ShowFuntionBtn(props: ShowFunctionBtnProps) {
     const {
         props: { isReadOnly, stSymbolInfo, syntaxTree },
-        api: { code: { modifyDiagram } },
+        api: { code: { getFunctionDef } },
         actions: { diagramRedraw }
     } = useContext(Context);
 
@@ -79,7 +79,8 @@ export function ShowFuntionBtn(props: ShowFunctionBtnProps) {
             // const funcViewState: FunctionViewState = functionDiagram.viewState;
             // console.log("functionDiagram viewState", funcViewState.bBox);
             // console.log("nodeViewState viewState", nodeViewState.bBox);
-
+            const def = getFunctionDef(functionName);
+            console.log(def);
 
 
 

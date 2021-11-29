@@ -1,4 +1,4 @@
-import { FunctionDefinition, ModulePart, ResourceAccessorDefinition, ServiceDeclaration, STKindChecker, STNode, traversNode } from "@ballerina/syntax-tree";
+import { FunctionDefinition, IdentifierToken, ModulePart, ResourceAccessorDefinition, ServiceDeclaration, STKindChecker, STNode, traversNode } from "@ballerina/syntax-tree";
 import { DiagramEditorLangClientInterface } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { cleanLocalSymbols, cleanModuleLevelSymbols } from "../Diagram/visitors/symbol-finder-visitor";
@@ -12,6 +12,25 @@ export async function getSyntaxTree(filePath: string, langClient: DiagramEditorL
     const resp = await langClient.getSyntaxTree({
         documentIdentifier: {
             uri: `file://${filePath}`
+        }
+    });
+    return resp.syntaxTree;
+}
+
+export async function getFunctionSyntaxTreeNode(token: IdentifierToken, filePath: string, langClient: DiagramEditorLangClientInterface) {
+    const resp = await langClient.getFunctionSyntaxTreeNode({
+        documentIdentifier: {
+            uri: `file://${filePath}`
+        },
+        linerange: {
+            startLine: {
+                line: 123,
+                offset: 89
+            },
+            endLine: {
+                line: 123,
+                offset: 89
+            }
         }
     });
     return resp.syntaxTree;

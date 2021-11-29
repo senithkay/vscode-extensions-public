@@ -2,7 +2,7 @@ import * as React from "react";
 import { IntlProvider } from "react-intl";
 import { monaco } from "react-monaco-editor";
 
-import { FunctionDefinition, ModulePart, NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
+import { FunctionDefinition, IdentifierToken, ModulePart, NodePosition, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import { MuiThemeProvider } from "@material-ui/core/styles";
 import { Connector, STModification, STSymbolInfo, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import cloneDeep from "lodash.clonedeep";
@@ -17,7 +17,7 @@ import messages from '../lang/en.json';
 import { CirclePreloader } from "../PreLoader/CirclePreloader";
 
 import { DiagramGenErrorBoundary } from "./ErrorBoundrary";
-import { Diagnostic, getDefaultSelectedPosition, getLowcodeST, getSyntaxTree, isUnresolvedModulesAvailable, resolveMissingDependencies } from "./generatorUtil";
+import { Diagnostic, getDefaultSelectedPosition, getFunctionSyntaxTreeNode, getLowcodeST, getSyntaxTree, isUnresolvedModulesAvailable, resolveMissingDependencies } from "./generatorUtil";
 import { useGeneratorStyles } from "./styles";
 import { theme } from "./theme";
 import { EditorProps } from "./vscode/Diagram";
@@ -73,6 +73,12 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
             }
         })();
     }, [lastUpdatedAt]);
+
+    async function getFunctionDef(token: IdentifierToken)
+    {
+        const genSyntaxTree: FunctionDefinition = await getFunctionSyntaxTreeNode(token, filePath, langClient);
+        return genSyntaxTree;
+    }
 
     React.useEffect(() => {
         Mousetrap.bind(['command+z', 'ctrl+z'], () => {
@@ -256,7 +262,8 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                     setCodeLocationToHighlight: (position: NodePosition) => undefined,
                                     gotoSource: (position: { startLine: number, startColumn: number }) => {
                                         props.gotoSource(filePath, position);
-                                    }
+                                    },
+                                    getFunctionDef
                                 },
                                 // FIXME Doesn't make sense to take these methods below from outside
                                 // Move these inside and get an external API for pref persistance
