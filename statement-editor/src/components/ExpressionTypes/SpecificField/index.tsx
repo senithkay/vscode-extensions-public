@@ -10,13 +10,14 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-wrap-multiline jsx-no-multiline-js
+// tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext } from "react";
 
 import { SpecificField, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { VariableUserInputs } from "../../../models/definitions";
+import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { ExpressionComponent } from "../../Expression";
 import { InputEditor } from "../../InputEditor";
@@ -31,11 +32,14 @@ interface SpecificFieldProps {
 
 export function SpecificFieldComponent(props: SpecificFieldProps) {
     const { model, userInputs, diagnosticHandler, isTypeDescriptor } = props;
+    const stmtCtx = useContext(StatementEditorContext);
+    const { modelCtx } = stmtCtx;
+    const { currentModel } = modelCtx;
+    let hasFieldNameSelected = false;
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
     let fieldName: ReactNode;
-
 
     if (STKindChecker.isIdentifierToken(model.fieldName)) {
         const inputEditorProps = {
@@ -49,27 +53,56 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
 
         fieldName =  <InputEditor {...inputEditorProps} />
     } else {
-        fieldName = <ExpressionComponent
-            model={model.fieldName}
+        fieldName = (
+            <ExpressionComponent
+                model={model.fieldName}
+                isRoot={false}
+                userInputs={userInputs}
+                diagnosticHandler={diagnosticHandler}
+                isTypeDescriptor={false}
+            />
+        );
+    }
+
+    const valueExpression: ReactNode = (
+        <ExpressionComponent
+            model={model.valueExpr}
             isRoot={false}
             userInputs={userInputs}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
-        />;
-    }
+        />
+    );
 
-    const valueExpression: ReactNode = <ExpressionComponent
-        model={model.valueExpr}
-        isRoot={false}
-        userInputs={userInputs}
-        diagnosticHandler={diagnosticHandler}
-        isTypeDescriptor={false}
-    />;
+    const onClickOnFieldName = (event: any) => {
+        event.stopPropagation()
+        expressionHandler(model.fieldName, false, false,
+            { expressionSuggestions: [], typeSuggestions: [], variableSuggestions: [] })
+    };
+
+    if (currentModel.model) {
+        if (currentModel.model.position === model.fieldName.position) {
+            hasFieldNameSelected = true;
+        }
+    }
 
     return (
         <span>
-            {fieldName}
-            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
+            <button
+                className={classNames(
+                    statementEditorClasses.expressionElement,
+                    hasFieldNameSelected && statementEditorClasses.expressionElementSelected
+                )}
+                onClick={onClickOnFieldName}
+            >
+                {fieldName}
+            </button>
+            <span
+                className={classNames(
+                    statementEditorClasses.expressionBlock,
+                    statementEditorClasses.expressionBlockDisabled
+                )}
+            >
                 {model.colon.value}
             </span>
             {valueExpression}
