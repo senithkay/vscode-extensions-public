@@ -168,11 +168,15 @@ export const ConfigForm = (props: any) => {
                         key={index}
                         elements={configProperty.properties}
                         moduleName={configProperty.moduleName}
-                        setConfigs={(value: ConfigProperties) => handleSetConfigs(value)}
+                        setConfigs={handleSetConfigs.bind}
                     />
                 </Box>
             </div>
         );
+    }
+
+    const handleSetSubmitType = (value: string) => {
+        setSubmitType(value)
     }
 
     return (
@@ -191,10 +195,10 @@ export const ConfigForm = (props: any) => {
                                     {configProperties.map(getConfigForm)}
                                     <CardActions style={{ justifyContent: 'center' }}>
                                         <Box m={2} pt={3} mb={6}>
-                                            <Button variant="contained" color="primary" type="submit" onClick={() => setSubmitType('Save')}>Save</Button>
+                                            <Button variant="contained" color="primary" type="submit" onClick={handleSetSubmitType.bind(this, 'Save')}>Save</Button>
                                         </Box>
                                         <Box m={2} pt={3} mb={6}>
-                                            <Button variant="contained" color="primary" type="submit" onClick={() => setSubmitType('SaveRun')}>Save and Run</Button>
+                                            <Button variant="contained" color="primary" type="submit" onClick={handleSetSubmitType.bind(this, 'SaveRun')}>Save and Run</Button>
                                         </Box>
                                     </CardActions>
                                 </form>

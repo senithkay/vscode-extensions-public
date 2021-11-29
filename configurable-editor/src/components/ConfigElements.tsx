@@ -52,7 +52,7 @@ function ConfigElements(props: any) {
                             required={element.required}
                             moduleName={props.moduleName}
                             value={element.value}
-                            setConfigValue={(value: ConfigProperty) => handleSetConfig(value)}
+                            setConfigValue={handleSetConfig.bind}
                         />
                     );
                 }
