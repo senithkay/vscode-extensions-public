@@ -22,7 +22,6 @@ import * as ReactDOM from "react-dom";
 
 import { ConfigForm } from "./ConfigForm";
 
-
 export function renderConfigEditor(data: any) {
     ReactDOM.render(
         <ConfigForm configSchema={data} />,
