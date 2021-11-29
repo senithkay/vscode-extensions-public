@@ -185,6 +185,9 @@ export interface BallerinaProjectParams {
 
 export interface JsonToRecordRequest {
     jsonString: string;
+    recordName: string;
+    isRecordTypeDesc: boolean;
+    isClosed: boolean;
 }
 
 export interface JsonToRecordResponse {
