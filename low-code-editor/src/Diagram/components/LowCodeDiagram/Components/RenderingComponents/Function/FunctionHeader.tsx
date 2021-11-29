@@ -25,6 +25,7 @@ import { useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { removeStatement } from "../../../../../utils/modification-util";
 import { HeaderActions } from "../../../HeaderActions";
 import { HeaderWrapper } from "../../../HeaderWrapper";
+import { ComponentExpandButton } from "../../ComponentExpandButton";
 
 import "./style.scss";
 
@@ -72,6 +73,7 @@ export function FunctionHeader(props: FunctionHeaderProps) {
                     </p>
                 </div>
             </div>
+            {model.qualifierList[0]?.value !== "remote" ? (
             <HeaderActions
                 model={model}
                 deleteText="Are you sure you want to delete this function?"
@@ -79,6 +81,12 @@ export function FunctionHeader(props: FunctionHeaderProps) {
                 onExpandClick={onExpandClick}
                 onConfirmDelete={onDeleteClick}
             />
+            ) : (
+                <ComponentExpandButton
+                    isExpanded={isExpanded}
+                    onClick={onExpandClick}
+                />
+            )}
         </HeaderWrapper>
     );
 }
