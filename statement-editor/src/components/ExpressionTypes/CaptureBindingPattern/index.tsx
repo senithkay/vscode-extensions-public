@@ -10,12 +10,15 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-wrap-multiline
-import React from "react";
+// tslint:disable: jsx-no-multiline-js
+import React, {useContext} from "react";
 
 import { CaptureBindingPattern } from "@wso2-enterprise/syntax-tree";
+import classNames from "classnames";
 
 import { VariableUserInputs } from "../../../models/definitions";
+import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { SuggestionsContext } from "../../../store/suggestions-context";
 import { useStatementEditorStyles } from "../../styles";
 
 interface CaptureBindingPatternProps {
@@ -26,12 +29,32 @@ interface CaptureBindingPatternProps {
 
 export function CaptureBindingPatternComponent(props: CaptureBindingPatternProps) {
     const { model } = props;
+    const stmtCtx = useContext(StatementEditorContext);
+    const { modelCtx } = stmtCtx;
+    const { currentModel } = modelCtx;
+    let hasVarNameSelected = false;
 
     const statementEditorClasses = useStatementEditorStyles();
+    const { expressionHandler } = useContext(SuggestionsContext);
+
+    const onClickOnVarName = (event: any) => {
+        event.stopPropagation()
+        expressionHandler(model.variableName, false, false,
+            { expressionSuggestions: [], typeSuggestions: [], variableSuggestions: [] })
+    };
+
+    if (currentModel.model) {
+        if (currentModel.model.position === model.variableName.position) {
+            hasVarNameSelected = true;
+        }
+    }
 
     return (
         <button
-            className={statementEditorClasses.expressionElement}
+            className={classNames(
+                statementEditorClasses.expressionElement,
+                hasVarNameSelected && statementEditorClasses.expressionElementSelected)}
+            onClick={onClickOnVarName}
         >
             {model.variableName.value}
         </button>
