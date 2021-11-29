@@ -10,12 +10,14 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-wrap-multiline
+// tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
 import { BooleanTypeDesc } from "@wso2-enterprise/syntax-tree";
+import classNames from "classnames";
 
 import { VariableUserInputs } from "../../../../models/definitions";
+import { StatementEditorContext } from "../../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../../store/suggestions-context";
 import { getTypeDescriptors } from "../../../../utils";
 import { InputEditor } from "../../../InputEditor";
@@ -30,14 +32,13 @@ interface BooleanTypeDescProps {
 
 export function BooleanTypeDescComponent(props: BooleanTypeDescProps) {
     const { model, userInputs, diagnosticHandler, isTypeDescriptor } = props;
+    const stmtCtx = useContext(StatementEditorContext);
+    const { modelCtx } = stmtCtx;
+    const { currentModel } = modelCtx;
+    let hasTypeDescSelected = false;
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
-
-    const onClickOnType = (event: any) => {
-        event.stopPropagation()
-        expressionHandler(model, false, true, { typeSuggestions: getTypeDescriptors() })
-    };
 
     const inputEditorProps = {
         statementType: model.kind,
@@ -48,9 +49,23 @@ export function BooleanTypeDescComponent(props: BooleanTypeDescProps) {
         isTypeDescriptor
     };
 
+    const onClickOnType = (event: any) => {
+        event.stopPropagation()
+        expressionHandler(model, false, true, { typeSuggestions: getTypeDescriptors() })
+    };
+
+    if (currentModel.model) {
+        if (currentModel.model.position === model.position) {
+            hasTypeDescSelected = true;
+        }
+    }
+
     return (
         <button
-            className={statementEditorClasses.expressionElement}
+            className={classNames(
+                statementEditorClasses.expressionElement,
+                hasTypeDescSelected && statementEditorClasses.expressionElementSelected
+            )}
             onClick={onClickOnType}
         >
             <InputEditor {...inputEditorProps} />
