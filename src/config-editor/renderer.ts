@@ -25,10 +25,10 @@ export function render(data: any): string {
     const bodyCss = 'configEditor';
     const styles = ``;
     const scripts = `
-             function loadedScript() {
+            function loadedScript() {
                 window.configEditor.renderConfigEditor(${JSON.stringify(data)});
-             }
-         `;
+            }
+        `;
 
     const webViewOptions: WebViewOptions = {
         ...getComposerWebViewOptions("ConfigEditor"),
