@@ -130,9 +130,9 @@ export interface SyntaxTreeNodeResponse {
 
 export interface JsonToRecordRequest {
     jsonString: string;
-    recordName: string;
-    isRecordTypeDesc: boolean;
-    isClosed: boolean;
+    recordName?: string;
+    isRecordTypeDesc?: boolean;
+    isClosed?: boolean;
 }
 
 export interface JsonToRecordResponse {
