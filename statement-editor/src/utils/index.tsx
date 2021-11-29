@@ -79,23 +79,10 @@ export function getModifications(
     if (STKindChecker.isWhileStatement(model) ||
             STKindChecker.isIfElseStatement(model) ||
             STKindChecker.isForeachStatement(model)) {
-        let completeStatementModel: string = model.source;
         if (!formArgs.formArgs?.config) {
-            modifications.push(createStatement(completeStatementModel, formArgs.formArgs?.targetPosition));
+            modifications.push(createStatement(model.source, formArgs.formArgs?.targetPosition));
         } else {
-            if (STKindChecker.isWhileStatement(model)) {
-                completeStatementModel = model.whileKeyword.value + " " +
-                    model.condition.source + " " +
-                    formArgs.formArgs?.model.whileBody.source;
-            } else if (STKindChecker.isForeachStatement(model)) {
-                completeStatementModel =
-                    model.forEachKeyword.value + " " +
-                    model.typedBindingPattern.source + " " +
-                    model.inKeyword.value + " " +
-                    model.actionOrExpressionNode.source + " " +
-                    formArgs.formArgs?.model.blockStatement.source;
-            }
-            modifications.push(updateStatement(completeStatementModel, config.model.position));
+            modifications.push(updateStatement(model.source, config.model.position));
         }
     }
 

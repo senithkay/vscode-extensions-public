@@ -162,7 +162,7 @@ export function AddIfForm(props: IfProps) {
         defaultMessage: "Cancel"
     });
 
-    const initialSource = getInitialSource(createIfStatement(
+    const initialSource = formArgs.model ? formArgs.model.source : getInitialSource(createIfStatement(
         condition.conditionExpression ? condition.conditionExpression as string : 'EXPRESSION'
     ));
 

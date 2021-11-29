@@ -22,7 +22,6 @@ export function createStatement(property: string, targetPosition: NodePosition):
         type: "INSERT",
         isImport: false,
         config: {
-            "TYPE": "INSERT",
             "STATEMENT": property
         }
     };
@@ -39,7 +38,6 @@ export function updateStatement(property: string, targetPosition: NodePosition):
         type: "INSERT",
         isImport: false,
         config: {
-            "TYPE": "INSERT",
             "STATEMENT": property
         }
     };

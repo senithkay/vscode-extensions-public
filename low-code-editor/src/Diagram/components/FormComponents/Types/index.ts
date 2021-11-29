@@ -52,6 +52,13 @@ export interface FormElementEvents {
     dispatchExprEditorClose?: (editor: ExpressionEditorState) => void;
 }
 
+export interface FormFieldChecks {
+    name: string;
+    isValid: boolean;
+    isEmpty?: boolean;
+    canIgnore?: boolean; // Ff field is optional or defaultable
+}
+
 export interface ConditionConfig {
     type: string;
     conditionExpression?: string | ForeachConfig | ElseIfConfig;
