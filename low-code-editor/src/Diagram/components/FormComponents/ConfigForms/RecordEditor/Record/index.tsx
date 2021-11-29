@@ -40,9 +40,9 @@ export function Record() {
                 {(state.currentForm === FormState.ADD_FIELD || state.currentForm === FormState.UPDATE_FIELD) && (
                     <EditFieldForm />
                 )}
-                {(state.currentForm === FormState.ADD_RECORD_JSON) && (
-                    <RecordFromJson />
-                )}
+                {/*{(state.currentForm === FormState.ADD_RECORD_JSON) && (*/}
+                {/*    <RecordFromJson />*/}
+                {/*)}*/}
             </div>
         </div>
     );

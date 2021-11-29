@@ -17,10 +17,7 @@ import { useIntl } from "react-intl";
 import { Typography } from "@material-ui/core";
 
 import { AddIcon } from "../../../../../../assets/icons";
-import DeleteButton from "../../../../../../assets/icons/DeleteButton";
-import EditButton from "../../../../../../assets/icons/EditButton";
 import { Context, FormState } from "../../../../../../Contexts/RecordEditor";
-import { ComponentExpandButton } from "../../../../LowCodeDiagram/Components/ComponentExpandButton";
 import { keywords } from "../../../../Portals/utils/constants";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
 import { FieldEditor } from "../FieldEditor";
@@ -29,6 +26,7 @@ import { RecordHeader } from "../RecordHeader";
 import { recordStyles } from "../style";
 import { RecordModel, SimpleField } from "../types";
 import { genRecordName, getFieldNames } from "../utils";
+import { FormGenerator } from "../../../FormGenerator";
 
 export interface CodePanelProps {
     recordModel: RecordModel;
@@ -49,7 +47,9 @@ export function RecordField(props: CodePanelProps) {
 
     const { state, callBacks } = useContext(Context);
 
+    // TODO: Fix record expand and collapse
     const [isRecordExpanded, setIsRecordExpanded] = useState(true);
+    const [isImportFormVisible, setIsImportFormVisible] = useState(false);
     const [fieldNameError, setFieldNameError] = useState<string>("");
     const [recordNameError, setRecordNameError] = useState<string>("");
     const [isRecordEditInProgress, setIsRecordEditInProgress] = useState((recordModel.name === "") ||
@@ -130,6 +130,21 @@ export function RecordField(props: CodePanelProps) {
         callBacks.onUpdateModel(state.recordModel);
         callBacks.onUpdateCurrentField(newField);
     };
+
+    const handleImportClicked = () => {
+        state.currentRecord.isActive = false;
+        recordModel.isActive = true;
+        callBacks.onUpdateCurrentRecord(recordModel);
+        setIsImportFormVisible(true);
+    }
+
+    const handleImportFormClose = () => {
+        setIsImportFormVisible(false);
+    }
+
+    const handleImportFormSave = () => {
+        setIsImportFormVisible(false);
+    }
 
     const handleKeyUp = (event: any) => {
         if (event.key === 'Enter') {
@@ -286,13 +301,30 @@ export function RecordField(props: CodePanelProps) {
                     <div className={recordModel?.isActive ? recordClasses.activeRecordSubFieldWrapper : recordClasses.recordSubFieldWrapper}>
                         {fieldItems}
                         {!state.isEditorInvalid && (
-                            <div className={recordClasses.addFieldBtnWrap} onClick={handleAddField}>
-                                <AddIcon/>
-                                <p>{addFieldText}</p>
-                            </div>
+                            <>
+                                <div className={recordClasses.addFieldBtnWrap} onClick={handleAddField}>
+                                    <AddIcon/>
+                                    <p>{addFieldText}</p>
+                                </div>
+                                <div className={recordClasses.addFieldBtnWrap} onClick={handleImportClicked}>
+                                    <AddIcon/>
+                                    <p>Import JSON</p>
+                                </div>
+                            </>
                         )}
                     </div>
                 )}
+                {isImportFormVisible && (
+                    <FormGenerator
+                        configOverlayFormStatus={{
+                            formType: "RecordJson",
+                            isLoading: false
+                        }}
+                        onCancel={handleImportFormClose}
+                        onSave={handleImportFormSave}
+                    />
+                )}
+                <div id="test"/>
                 <div className={recordClasses.endRecordCodeWrapper}>
                     <Typography
                         variant='body2'
