@@ -22,12 +22,6 @@ import { Box, Button, Card, CardActionArea, CardActions, CardContent, Container,
 
 import ConfigElements from "./ConfigElements";
 
-interface VSCode {
-    postMessage(message: any): void;
-}
-
-declare const vscode: VSCode;
-
 enum ConfigType {
     NUMBER = 'number',
     STRING = 'string',
@@ -142,11 +136,7 @@ export const ConfigForm = (props: any) => {
 
     const handleSubmit = (event: any) => {
         event.preventDefault();
-        vscode.postMessage({
-            command: 'handleConfigInputs',
-            text: JSON.stringify(configs),
-            submitType
-        });
+        console.log(JSON.stringify(configs));
     }
 
     const handleSetConfigs = (e: ConfigProperties) => {
@@ -183,14 +173,13 @@ export const ConfigForm = (props: any) => {
         <Box sx={{mt: 5}}>
             <Container maxWidth="sm">
                 <Card variant="outlined">
-                    <CardActionArea disableRipple={true}>
                         <CardContent>
                             <Box m={2} pt={3} style={{textAlign: "center"}}>
                                 <Typography gutterBottom={true} variant="h5" component="div">
                                     Configurable Editor
                                 </Typography>
                             </Box>
-                            <Typography variant="body2">
+                            <Typography variant="body2" component="div">
                                 <form className="ConfigForm" onSubmit={handleSubmit}>
                                     {configProperties.map(getConfigForm)}
                                     <CardActions style={{ justifyContent: 'center' }}>
@@ -204,7 +193,6 @@ export const ConfigForm = (props: any) => {
                                 </form>
                             </Typography>
                         </CardContent>
-                    </CardActionArea>
                 </Card>
             </Container>
         </Box>
