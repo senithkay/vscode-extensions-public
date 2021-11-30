@@ -107,7 +107,7 @@ export function Service(props: ServiceProps) {
                     {isExpanded && (
                         <>
                             {children}
-                            <TopLevelPlus kind={model.kind} targetPosition={model.closeBraceToken.position} />
+                            <TopLevelPlus kind={model.kind} targetPosition={model.closeBraceToken.position} serviceType={serviceType} />
                         </>
                     )}
                 </div>

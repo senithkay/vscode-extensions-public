@@ -24,6 +24,7 @@ export interface PlusOptionsProps {
     margin?: Margin;
     onClose: () => void;
     targetPosition?: NodePosition;
+    serviceType?: string;
 }
 
 export interface PlusMenuEntry {
@@ -57,8 +58,13 @@ const classMemberEntries: PlusMenuEntry[] = [
     { name: 'Function', type: 'ObjectMethodDefinition' }
 ]
 
+const triggerEntries: PlusMenuEntry[] = [
+    { name: 'Variable', type: 'ObjectField' },
+    { name: 'Function', type: 'ObjectMethodDefinition' }
+]
+
 export const PlusOptionsSelector = (props: PlusOptionsProps) => {
-    const { onClose, targetPosition, kind } = props;
+    const { onClose, targetPosition, kind, serviceType } = props;
     const [selectedOption, setSelectedOption] = useState<PlusMenuEntry>(undefined);
     const {
         api: {
@@ -89,7 +95,7 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
             menuEntries = moduleLevelEntries;
             break;
         case 'ServiceDeclaration':
-            menuEntries = classMemberEntries;
+            (serviceType === "http") ? menuEntries = classMemberEntries : menuEntries = triggerEntries
             break;
         default:
     }
