@@ -22,6 +22,12 @@ import { Box, Button, Card, CardActions, CardContent, Container, Typography } fr
 
 import ConfigElements from "./ConfigElements";
 
+interface VSCode {
+    postMessage(message: any): void;
+}
+
+declare const vscode: VSCode;
+
 enum ConfigType {
     NUMBER = "number",
     STRING = "string",
@@ -139,6 +145,11 @@ export const ConfigForm = (props: any) => {
         event.preventDefault();
         // TODO: Handle the submit for Choreo Console and Low Code based on a prop
         // console.log(JSON.stringify(configs));
+        vscode.postMessage({
+            command: "handleConfigInputs",
+            submitType,
+            text: JSON.stringify(configs),
+        });
     };
 
     const handleSetConfigs = (e: ConfigProperties) => {

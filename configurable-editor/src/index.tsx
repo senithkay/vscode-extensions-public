@@ -17,5 +17,15 @@
  *
  */
 
-import {ConfigForm} from "./ConfigForm";
+import React from "react";
+import ReactDOM from "react-dom";
+
+import {ConfigForm} from "./components/ConfigForm";
 export {ConfigForm};
+
+export function renderConfigEditor(data: any) {
+    ReactDOM.render(
+        <ConfigForm configSchema={data} />,
+        document.getElementById("configEditor"),
+    );
+}
