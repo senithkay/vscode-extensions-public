@@ -79,6 +79,9 @@ export function AssignmentStatementComponent(props: AssignmentStatementProps) {
         } else if (isPositionsEquals(currentModel.model.position, model.expression.position)) {
             hasExpressionSelected = true;
         }
+    } else {
+        expressionHandler(model.expression, false, false,
+            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) });
     }
 
     return (

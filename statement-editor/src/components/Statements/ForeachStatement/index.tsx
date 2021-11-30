@@ -70,7 +70,7 @@ export function ForeachStatementC(props: ForeachStatementProps) {
     const onClickOnActionOrExpr = (event: any) => {
         event.stopPropagation()
         expressionHandler(model.actionOrExpressionNode, false, false,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
+            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) });
     };
 
     if (currentModel.model) {
@@ -79,6 +79,9 @@ export function ForeachStatementC(props: ForeachStatementProps) {
         } else if (isPositionsEquals(currentModel.model.position, model.actionOrExpressionNode.position)) {
             hasExprComponentSelected = true;
         }
+    } else {
+        expressionHandler(model.actionOrExpressionNode, false, false,
+            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) });
     }
 
     return (

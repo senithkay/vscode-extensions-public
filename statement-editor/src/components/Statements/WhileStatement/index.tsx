@@ -53,13 +53,16 @@ export function WhileStatementC(props: WhileStatementProps) {
     const onClickOnConditionExpression = (event: any) => {
         event.stopPropagation()
         expressionHandler(model.condition, false, false,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
+            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) });
     };
 
     if (currentModel.model) {
         if (isPositionsEquals(currentModel.model.position, model.condition.position)) {
             hasConditionSelected = true;
         }
+    } else {
+        expressionHandler(model.condition, false, false,
+            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) });
     }
 
     return (

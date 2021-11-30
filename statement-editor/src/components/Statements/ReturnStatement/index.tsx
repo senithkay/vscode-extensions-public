@@ -54,13 +54,16 @@ export function ReturnStatementC(props: ReturnStatementProps) {
     const onClickOnExpression = (event: any) => {
         event.stopPropagation()
         expressionHandler(model.expression, false, false,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
+            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) });
     };
 
     if (currentModel.model) {
         if (isPositionsEquals(currentModel.model.position, model.expression.position)) {
             hasExpressionSelected = true;
         }
+    } else {
+        expressionHandler(model.expression, false, false,
+            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) });
     }
 
     return (

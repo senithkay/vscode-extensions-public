@@ -79,6 +79,9 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
         } else if (isPositionsEquals(currentModel.model.position, model.initializer.position)) {
             hasInitializerSelected = true;
         }
+    } else {
+        expressionHandler(model.initializer, false, false,
+            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) });
     }
 
     return (
