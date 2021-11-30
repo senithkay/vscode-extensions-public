@@ -44,7 +44,7 @@ export function TriggerServiceForm(props: TriggerServiceFormProps) {
     const [listenerName, setListenerName] = useState<string>('');
     const [saveBtnDisabled, setSaveBtnDisabled] = useState<boolean>(true);
 
-    if (model as ServiceDeclaration) {
+    if (module) {
         TRIGGER_MODULE_QUALIFIER = model.typeDescriptor.modulePrefix.value;
         TRIGGER_CHANNEL = model.typeDescriptor.modulePrefix.value + ":" + model.typeDescriptor.identifier.value;
     }
