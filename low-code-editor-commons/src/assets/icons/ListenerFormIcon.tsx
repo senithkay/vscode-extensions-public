@@ -14,8 +14,7 @@ import React from 'react';
 
 export default function ListenerFormIcon(props: any) {
     return (
-        <svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
-            <title>313CF0CE-840A-40E8-8B7C-117BE5D5C033</title>
+        <svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1">
             <g id="listener-icon" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
                 <g id="listener-body" transform="translate(-114.000000, -152.000000)" fill="#CBCEDB" fillRule="nonzero">
                     <g id="listener" transform="translate(114.000000, 152.000000)">

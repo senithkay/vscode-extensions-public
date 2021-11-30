@@ -15,7 +15,6 @@ import React from 'react';
 export default function TopLevelPlusIcon(props: any) {
     return (
         <svg {...props} width="16px" height="16px" viewBox="0 0 16 16" version="1.1">
-            <title>C17F1246-4826-4D15-A0BF-46E5CC538706</title>
             <g id="Top_plus" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
                 <g id="top_plus_svg" transform="translate(-98.000000, -80.000000)">
                     <g id="Group_top_plus_svg" transform="translate(98.000000, 80.000000)">
