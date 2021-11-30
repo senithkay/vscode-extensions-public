@@ -1829,6 +1829,7 @@ export interface ResourceAccessorDefinition extends STNode {
   functionSignature: FunctionSignature;
   qualifierList: (ResourceKeyword | TransactionalKeyword)[];
   relativeResourcePath: (IdentifierToken | SlashToken)[];
+  performance?: any;
 }
 
 export interface ResourceKeyword extends STNode {

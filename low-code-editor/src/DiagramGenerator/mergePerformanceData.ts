@@ -17,17 +17,21 @@
  *
  */
 
-import { SequenceGraphPointValue } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { RemoteMethodCallAction, STNode, traversNode, Visitor } from "@wso2-enterprise/syntax-tree";
+import { GraphPoint, SequenceGraphPointValue } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition, RemoteMethodCallAction, ResourceAccessorDefinition, STNode, traversNode, Visitor } from "@wso2-enterprise/syntax-tree";
+
+import { ANALYZETYPE } from "./performanceUtil";
 
 // TODO: find out what kind of invocations analyse here. is it only action invocations.
 export function mergeAnalysisDetails(
     stNode: STNode,
+    serviceData: GraphPoint,
     analysisData: SequenceGraphPointValue[],
     cUnit: string,
+    currentResourcePos: NodePosition,
     isClear = false
 ) {
-    const analysisMerger = new AnalysisDetailMerger(analysisData, cUnit);
+    const analysisMerger = new AnalysisDetailMerger(serviceData, analysisData, cUnit, currentResourcePos);
     if (!stNode) {
         return;
     }
@@ -42,14 +46,26 @@ export function mergeAnalysisDetails(
 export class AnalysisDetailMerger implements Visitor {
     public anaylisisDetailMap: { [key: string]: RemoteMethodCallAction } = {};
     constructor(
+        public serviceData: GraphPoint,
         public analysisData: SequenceGraphPointValue[],
-        public cUnit: string) {
+        public cUnit: string,
+        public currentResourcePos: NodePosition) {
     }
     public beginVisitRemoteMethodCallAction(node: RemoteMethodCallAction) {
         const { position: { startLine, startColumn, endLine, endColumn } } = node;
         const key = `${this.cUnit}/${startLine}:${startColumn},${endLine}:${endColumn}`;
         (node as any).performance = {};
         this.anaylisisDetailMap[key] = node;
+    }
+
+    public beginVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
+        if (this.currentResourcePos && node.position.startLine === this.currentResourcePos.startLine &&
+            node.position.startColumn === this.currentResourcePos.startColumn) {
+            node.performance = this.serviceData;
+            node.performance.analyzeType = ANALYZETYPE.ADVANCED;
+        } else {
+            delete node.performance;
+        }
     }
 
     public merge() {

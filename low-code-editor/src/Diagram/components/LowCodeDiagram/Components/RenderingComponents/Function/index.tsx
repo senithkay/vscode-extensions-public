@@ -13,6 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useRef, useState } from "react";
 
+import { Tooltip } from "@material-ui/core";
 import {
     FunctionBodyBlock,
     FunctionDefinition,
@@ -23,7 +24,7 @@ import { v4 as uuid } from "uuid";
 
 import { Context, useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { Provider as FunctionProvider } from "../../../../../../Contexts/Function";
-import { addAdvancedLabels } from "../../../../../../DiagramGenerator/performanceUtil";
+import { addAdvancedLabels, ANALYZETYPE } from "../../../../../../DiagramGenerator/performanceUtil";
 import { useOverlayRef, useSelectedStatus } from "../../../../../hooks";
 import { useStyles } from "../../../../../styles";
 import { Canvas } from "../../../Canvas";
@@ -120,8 +121,88 @@ export function Function(props: FunctionProps) {
         );
     }
 
+    const {
+        actions: { diagramCleanDraw },
+        api: {
+            project: {
+                run
+            }
+        }
+    } = useDiagramContext();
+
+    let concurrency: string;
+    let latency: string;
+    let tps: string;
+    let isPerfDataAvailable = false;
+    let isAdvancedPerfDataAvailable = false;
+
+    if ((model as any).performance) {
+        const perfData = (model as any).performance;
+        const analyzeType: ANALYZETYPE = perfData.analyzeType;
+        const concurrencies = perfData.concurrency;
+        const latencies = perfData.latency;
+        const tpss = perfData.tps;
+
+        if (analyzeType === ANALYZETYPE.REALTIME) {
+            isPerfDataAvailable = true;
+            const minLatency = latencies.min ? `${latencies.min > 1000 ? latencies.min / 1000 :
+                latencies.min} ${latencies.min > 1000 ? " s" : " ms"}` : '0';
+            const maxLatency = latencies.max ? `${latencies.max > 1000 ? latencies.max / 1000 :
+                latencies.max} ${latencies.max > 1000 ? " s" : " ms"}` : '0';
+
+            isAdvancedPerfDataAvailable = concurrencies.max !== 1;
+
+            concurrency = isAdvancedPerfDataAvailable ? `${concurrencies.min} - ${concurrencies.max}` : concurrencies;
+            latency = isAdvancedPerfDataAvailable ? `${minLatency} - ${maxLatency}` : maxLatency;
+            tps = isAdvancedPerfDataAvailable ? `${tpss.min} - ${tpss.max} req/s` : `${tpss.max} req/s`;
+
+        } else if (analyzeType === ANALYZETYPE.ADVANCED) {
+            isPerfDataAvailable = true;
+            isAdvancedPerfDataAvailable = true;
+            concurrency = concurrencies;
+            latency = `${latencies > 1000 ? latencies / 1000 : latencies} ${latencies > 1000 ? " s" : " ms"}`;
+            tps = `${tpss} req/s`;
+        }
+
+    }
+
+    const onClickPerformance = async () => {
+        if (!isAdvancedPerfDataAvailable) {
+            return;
+        }
+
+        let fullPath = "";
+        for (const path of model.relativeResourcePath) {
+            fullPath += (path as any).value;
+        }
+
+        await addAdvancedLabels(`${model.functionName.value.toUpperCase()} /${fullPath}`,
+            model.position, diagramCleanDraw)
+    };
+
+    function performanceBar() {
+        if (isPerfDataAvailable) {
+            return (
+                <div className={"performance-bar"}>
+                    <div className={"rectangle"}>&nbsp;</div>
+                    <p>
+                        {
+                            isAdvancedPerfDataAvailable ?
+                                `Forecasted performance for concurrency ${concurrency} | Latency: ${latency} | Tps: ${tps}` :
+                                `Forecasted performance for a single user: Latency: ${latency} | Tps: ${tps}`
+                        }
+                    </p>
+                    <Tooltip title={isAdvancedPerfDataAvailable ? "Click here to open the performance graph" : "Insufficient data to provide detailed estimations"}>
+                        <p className={"more"} onClick={onClickPerformance}>{"Show More →"}</p>
+                    </Tooltip>
+                </div>
+            )
+        }
+    }
+
     const functionBody = (
         <div className={"lowcode-diagram"}>
+            {performanceBar()}
             <FunctionProvider overlayId={overlayId} overlayNode={overlayNode} functionNode={model}>
                 <PanAndZoom>
                     <div ref={overlayRef} id={overlayId} className={classes.OverlayContainer} />
@@ -132,37 +213,6 @@ export function Function(props: FunctionProps) {
             </FunctionProvider>
         </div>
     );
-
-    const {
-        actions: { diagramRedraw },
-    } = useDiagramContext();
-
-    const marginTop = (model as any).performance ? 5 : 0;
-    const onClickPerformance = async () => {
-        let fullPath = "";
-        for (const path of model.relativeResourcePath) {
-            fullPath += (path as any).value;
-        }
-
-        await addAdvancedLabels(`${model.functionName.value.toUpperCase()} /${fullPath}`,
-            model.position, diagramRedraw)
-    };
-
-    let value;
-    let unit;
-    if ((model as any).performance) {
-        const responseTimeValue = Number((model as any).performance.latency);
-        value = responseTimeValue > 1000 ? responseTimeValue / 1000 : responseTimeValue;
-        unit = responseTimeValue > 1000 ? " s" : " ms";
-    }
-
-    const {
-        api: {
-            project: {
-                run
-            }
-        }
-    } = useDiagramContext();
 
     const onClickRun = async () => {
         run([]);
@@ -175,50 +225,38 @@ export function Function(props: FunctionProps) {
     }
 
     return (
-        <div>
-            <div className="performance-label-container">
+        <div
+            ref={containerRef}
+            className={classNames(
                 {
-                    (model as any).performance ?
-                        (
-                            <p className={"text"} style={{ cursor: 'pointer' }} onClick={onClickPerformance}>
-                                {`Forecasted latency: ${value} ${unit}`}
-                            </p>
-                        ) : null
-                }
-            </div>
-            <div
-                ref={containerRef}
-                className={classNames(
-                    {
-                        "function-box":
-                            STKindChecker.isResourceAccessorDefinition(model) ||
-                            STKindChecker.isObjectMethodDefinition(model),
-                        "module-level-function": STKindChecker.isFunctionDefinition(model),
-                        expanded: diagramExpanded,
-                    },
-                    STKindChecker.isResourceAccessorDefinition(model)
-                        ? model.functionName.value
-                        : ""
-                )}
-            >
-                {STKindChecker.isResourceAccessorDefinition(model) ? (
-                    <ResourceHeader
+                    "function-box":
+                        STKindChecker.isResourceAccessorDefinition(model) ||
+                        STKindChecker.isObjectMethodDefinition(model),
+                    "module-level-function": STKindChecker.isFunctionDefinition(model),
+                    expanded: diagramExpanded,
+                },
+                STKindChecker.isResourceAccessorDefinition(model)
+                    ? model.functionName.value
+                    : ""
+            )}
+        >
+            {STKindChecker.isResourceAccessorDefinition(model) ? (
+                <ResourceHeader
+                    isExpanded={diagramExpanded}
+                    model={model}
+                    onExpandClick={onExpandClick}
+                />
+            ) : (
+                <div >
+                    {renderButtons()}
+                    <FunctionHeader
                         isExpanded={diagramExpanded}
                         model={model}
                         onExpandClick={onExpandClick}
                     />
-                ) : (
-                    <div >
-                        {renderButtons()}
-                        <FunctionHeader
-                            isExpanded={diagramExpanded}
-                            model={model}
-                            onExpandClick={onExpandClick}
-                        />
-                    </div>
-                )}
-                {diagramExpanded && functionBody}
-            </div>
+                </div>
+            )}
+            {diagramExpanded && functionBody}
         </div>
     );
 }
