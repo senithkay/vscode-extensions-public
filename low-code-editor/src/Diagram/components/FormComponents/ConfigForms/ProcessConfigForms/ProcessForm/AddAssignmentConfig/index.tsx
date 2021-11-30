@@ -12,18 +12,16 @@
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
 import React, { useContext, useState } from "react";
-import { FormattedMessage, useIntl } from "react-intl";
+import { useIntl } from "react-intl";
 
-import { Box, FormControl, Typography } from "@material-ui/core";
-import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormControl, Typography } from "@material-ui/core";
+import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { AssignmentStatement, STKindChecker } from "@wso2-enterprise/syntax-tree";
-import classnames from "classnames";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import ExpressionEditor, { ExpressionEditorProps } from "../../../../FormFieldComponents/ExpressionEditor";
-import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";
 import { FormElementProps, ProcessConfig } from "../../../../Types";
 
 interface AddAssignmentConfigProps {
@@ -188,35 +186,35 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={false}
                 />
-                <div className={classes.formWrapper}>
-                    <div className={classes.formFeilds}>
-                        <div className={classes.activeWrapper}>
-                            <div className={classnames(classes.activeWrapper, classes.inlineBlockWrapper)}>
-                                <div className={classes.stmtEditorWrapper}>
-                                    {nameExpressionEditor}
-                                </div>
-                            </div>
-                            <div className={classes.stmtEditorWrapper}>
-                                <div className={classes.inlineWrapper}>
-                                    <div className={classes.equalWrapper}>
-                                        <Typography variant='body2' className={classes.endCode}>=</Typography>
-                                    </div>
-                                    <div className={classes.variableExpEditorWrapper}>
-                                        {expressionEditor}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+
+                <div className={classes.formContentWrapper}>
+                    <div className={classes.formNameWrapper}>
+                        {nameExpressionEditor}
                     </div>
-                    <FormActionButtons
-                        cancelBtnText={cancelVariableButtonText}
-                        saveBtnText={saveVariableButtonText}
-                        isMutationInProgress={isMutationInProgress}
-                        validForm={validForm}
-                        onSave={handleSave}
-                        onCancel={onCancel}
-                    />
+                    <div className={classes.formEqualWrapper}>
+                        {
+                            <div className={classes.formEqualContainer}>
+                                <div className={classes.equalContainer}>
+                                    <Typography variant='body2' className={classes.equalCode}>=</Typography>
+                                </div>
+                                <div className={classes.valueContainer}>
+                                    {expressionEditor}
+                                </div>
+                            </div>
+
+                        }
+                    </div>
                 </div>
+
+                <FormActionButtons
+                    cancelBtnText={cancelVariableButtonText}
+                    cancelBtn={true}
+                    saveBtnText={saveVariableButtonText}
+                    isMutationInProgress={isMutationInProgress}
+                    validForm={validForm}
+                    onSave={handleSave}
+                    onCancel={onCancel}
+                />
             </FormControl >
         );
     }

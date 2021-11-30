@@ -23,11 +23,10 @@ import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/con
 import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
 import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
-import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { LogConfig, ProcessConfig } from "../../../../Types";
 import { createLogStatement, getInitialSource } from "../../../../../../utils/modification-util";
-import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 interface LogConfigProps {
     config: ProcessConfig;
@@ -155,8 +154,8 @@ export function AddLogConfig(props: LogConfigProps) {
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={false}
                 />
-                <div className={formClasses.formWrapper}>
-                    <div className={formClasses.formFeilds}>
+                <div className={formClasses.formContentWrapper}>
+                    <div className={formClasses.formNameWrapper}>
                         <SelectDropdownWithButton
                             defaultValue={logType}
                             onChange={onTypeChange}
@@ -167,35 +166,36 @@ export function AddLogConfig(props: LogConfigProps) {
                             placeholder=""
                             label="Type"
                         />
-                        <div className={formClasses.stmtEditorWrapper}>
-                            <ExpressionEditor
-                                model={{ name: "expression", value: expression, typeName: 'string' }}
-                                customProps={{
-                                    validate: validateExpression,
-                                    tooltipTitle: logTooltipMessages.title,
-                                    tooltipActionText: logTooltipMessages.actionText,
-                                    tooltipActionLink: logTooltipMessages.actionLink,
-                                    interactive: true,
-                                    statementType: 'string',
-                                    expressionInjectables: {
-                                        list: formArgs?.expressionInjectables?.list,
-                                        setInjectables: formArgs?.expressionInjectables?.setInjectables
-                                    }
-                                }}
-                                onChange={onExpressionChange}
-                                defaultValue={expression}
-                            />
-                        </div>
                     </div>
-                    <FormActionButtons
-                        cancelBtnText="Cancel"
-                        saveBtnText={saveLogButtonLabel}
-                        isMutationInProgress={isMutationInProgress}
-                        validForm={!!isFormValid}
-                        onSave={onSaveBtnClick}
-                        onCancel={onCancel}
-                    />
+                    <div className={formClasses.formEqualWrapper}>
+                        <ExpressionEditor
+                            model={{ name: "expression", value: expression, typeName: 'string' }}
+                            customProps={{
+                                validate: validateExpression,
+                                tooltipTitle: logTooltipMessages.title,
+                                tooltipActionText: logTooltipMessages.actionText,
+                                tooltipActionLink: logTooltipMessages.actionLink,
+                                interactive: true,
+                                statementType: 'string',
+                                expressionInjectables: {
+                                    list: formArgs?.expressionInjectables?.list,
+                                    setInjectables: formArgs?.expressionInjectables?.setInjectables
+                                }
+                            }}
+                            onChange={onExpressionChange}
+                            defaultValue={expression}
+                        />
+                    </div>
                 </div>
+                <FormActionButtons
+                    cancelBtnText="Cancel"
+                    cancelBtn={true}
+                    saveBtnText={saveLogButtonLabel}
+                    isMutationInProgress={isMutationInProgress}
+                    validForm={!isFormValid}
+                    onSave={onSaveBtnClick}
+                    onCancel={onCancel}
+                />
             </FormControl>
         );
     }
