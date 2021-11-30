@@ -137,6 +137,7 @@ export const ConfigForm = (props: any) => {
 
     const handleSubmit = (event: any) => {
         event.preventDefault();
+        // TODO: Handle the submit for Choreo Console and Low Code based on a prop
     }
 
     const handleSetConfigs = (e: ConfigProperties) => {
