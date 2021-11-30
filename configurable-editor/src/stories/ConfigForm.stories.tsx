@@ -1,4 +1,5 @@
 import React from "react";
+
 import ConfigForm from "../components/ConfigForm";
 
 export default {

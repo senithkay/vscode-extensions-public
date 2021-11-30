@@ -18,7 +18,7 @@
  */
 import React, { useState } from "react";
 
-import { Box, Button, Card, CardActionArea, CardActions, CardContent, Container, Typography } from "@material-ui/core";
+import { Box, Button, Card, CardActions, CardContent, Container, Typography } from "@material-ui/core";
 
 import ConfigElements from "./ConfigElements";
 
@@ -58,6 +58,7 @@ function isUserDefinedModule(propertyObj: any): boolean {
 export const ConfigForm = (props: any) => {
     const [configs, setConfigs] = useState(new Array<ConfigProperties>());
     const [submitType, setSubmitType] = useState('');
+
     const configJsonSchema = props.configSchema;
 
     let schemaProperties: any;
@@ -108,7 +109,7 @@ export const ConfigForm = (props: any) => {
 
     function addConfig(propertyObj: any, moduleName: string, configName: string) {
         let isRequired = false;
-        if (requiredProperties!) {
+        if (requiredProperties) {
             requiredProperties.forEach((element: any) => {
                 if (configName === element) {
                     isRequired = true;
@@ -136,7 +137,6 @@ export const ConfigForm = (props: any) => {
 
     const handleSubmit = (event: any) => {
         event.preventDefault();
-        console.log(JSON.stringify(configs));
     }
 
     const handleSetConfigs = (e: ConfigProperties) => {
