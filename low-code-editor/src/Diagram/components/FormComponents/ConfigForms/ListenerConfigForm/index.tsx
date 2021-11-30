@@ -14,19 +14,20 @@ import React, { useState } from "react";
 import { FormattedMessage } from "react-intl";
 
 import { Box, FormControl, FormHelperText, Typography } from "@material-ui/core";
-import { FormHeaderSection, SecondaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ListenerDeclaration, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { ListenerFormIcon } from "../../../../../assets/icons";
 import { PrimaryButton } from "../../../../../components/Buttons/PrimaryButton";
 import { useDiagramContext } from "../../../../../Contexts/Diagram";
 import { createImportStatement, createListenerDeclartion } from "../../../../utils/modification-util";
+import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
 import { SelectDropdownWithButton } from "../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import ExpressionEditor from "../../FormFieldComponents/ExpressionEditor";
+import { TextLabel } from "../../FormFieldComponents/TextField/TextLabel";
 import { FormElementProps } from "../../Types";
 import { VariableNameInput } from "../Components/VariableNameInput";
 
-import { useStyles } from "./style";
 import { isListenerConfigValid } from "./util";
 import { ListenerConfig } from "./util/types";
 
@@ -35,12 +36,13 @@ interface ListenerConfigFormProps {
     targetPosition?: NodePosition;
     onCancel: () => void;
     onSave: () => void;
+    formType?: string;
 }
 
 // FixMe: show validation messages to listenerName and listenerPort
 export function ListenerConfigForm(props: ListenerConfigFormProps) {
-    const formClasses = useStyles();
-    const { model, targetPosition, onCancel, onSave } = props;
+    const formClasses = useFormStyles();
+    const { model, targetPosition, onCancel, onSave, formType } = props;
     const { api: { code: { modifyDiagram } } } = useDiagramContext();
     let defaultState: ListenerConfig;
 
@@ -61,7 +63,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
     }
 
     const [config, setCofig] = useState<ListenerConfig>(defaultState);
-    const saveBtnEnabled = !isListenerConfigValid(config);
+    const saveBtnEnabled = isListenerConfigValid(config);
 
     const onListenerNameChange = (listenerName: string) => {
         setCofig(prev => ({
@@ -155,17 +157,16 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                 onCancel={onCancel}
                 formTitle={"lowcode.develop.connectorForms.HTTP.title"}
                 defaultMessage={"Listener"}
+                formType={formType}
             />
-            <div className={formClasses.formWrapper}>
-                <>
-                    <div className={formClasses.labelWrapper}>
-                        <FormHelperText className={formClasses.inputLabelForRequired}>
-                            <FormattedMessage
-                                id="lowcode.develop.connectorForms.HTTP.listenerType"
-                                defaultMessage="Listener Type :"
-                            />
-                        </FormHelperText>
-                    </div>
+
+            <div className={formClasses.formContentWrapper}>
+                <div className={formClasses.formNameWrapper}>
+                    <TextLabel
+                        required={true}
+                        textLabelId="lowcode.develop.connectorForms.HTTP.listenerType"
+                        defaultMessage="Listener Type :"
+                    />
                     <SelectDropdownWithButton
                         customProps={{ values: ['HTTP'], disableCreateNew: true }}
                         defaultValue={config.listenerType}
@@ -180,21 +181,17 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                         isEdit={!!model}
                     />
                     {listenerPortInputComponent}
-                </>
+                </div>
             </div>
-            <div className={formClasses.wizardBtnHolder}>
-                <SecondaryButton
-                    text="Cancel"
-                    fullWidth={false}
-                    onClick={onCancel}
-                />
-                <PrimaryButton
-                    text="Save"
-                    disabled={saveBtnEnabled}
-                    fullWidth={false}
-                    onClick={handleOnSave}
-                />
-            </div>
+
+            <FormActionButtons
+                cancelBtnText="Cancel"
+                cancelBtn={true}
+                saveBtnText="Save"
+                onSave={handleOnSave}
+                onCancel={onCancel}
+                validForm={saveBtnEnabled}
+            />
         </FormControl>
     )
 }
