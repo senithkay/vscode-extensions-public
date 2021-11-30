@@ -88,7 +88,7 @@ export function Service(props: ServiceProps) {
 
         if (model.isRunnable) {
             const runBtn = <p className={"action-text"} onClick={onClickRun}>Run</p>
-            if (serviceType === "http") {
+            if (!isTriggerType) {
                 return [runBtn, tryItBtn];
             }
             return [runBtn];
