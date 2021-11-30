@@ -56,7 +56,7 @@ export function Form(props: FormProps) {
         onValidate(isAllFieldsValid(allFieldChecks.current, fields, true));
     };
 
-    const fieldTypesList = ["string" , "int" , "boolean" , "float" , "decimal" , "array" , "map" , "union" , "json" , "httpRequest" , "handle"]
+    const fieldTypesList = ["string" , "int" , "boolean" , "float" , "decimal" , "array" , "map" , "union" , "enum", "json" , "httpRequest" , "handle"]
     fields?.map((field, index) => {
         if (!field.hide && (fieldTypesList.includes(field.typeName) || field.typeName.includes("object {public string[]") || (field.typeName === 'record' && !field.isReference))) {
             const elementProps: FormElementProps = {

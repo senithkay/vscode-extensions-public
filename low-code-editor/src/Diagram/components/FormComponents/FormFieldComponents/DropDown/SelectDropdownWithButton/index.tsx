@@ -47,14 +47,8 @@ export function SelectDropdownWithButton(props: FormElementProps<SelectDropdownP
             clearSelection, onOpenSelect, onCloseSelect } = customProps;
 
     const handleChange = (event: any) => {
-        if (onChange && event.target.value) {
+        if (onChange && (optional || event.target.value)) {
             onChange(event.target.value);
-        }
-    };
-
-    const handleCreateNewClick = () => {
-        if (onClick) {
-            onClick();
         }
     };
 
@@ -70,12 +64,7 @@ export function SelectDropdownWithButton(props: FormElementProps<SelectDropdownP
         });
     }
 
-    React.useEffect(() => {
-        // setConnector(defaultValue);
-    }, [defaultValue]);
-
     if (clearSelection) {
-        // setConnector("");
         customProps.clearSelection = false;
     }
 
@@ -157,7 +146,7 @@ export function SelectDropdownWithButton(props: FormElementProps<SelectDropdownP
             >
                 {
                     values?.length > 0 ? (
-                        <MenuItem value="" disabled={true}>
+                        <MenuItem value="" disabled={!optional}>
                             <span className="TextSpan">{placeholder ? placeholder : "Select"}</span>
                         </MenuItem>
                     ) : (

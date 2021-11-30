@@ -10,11 +10,11 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useState } from 'react';
+import React from 'react';
 
+import { getConstructIcon } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import classNames from "classnames";
 
-import { getConstructIcon } from '../../../../../../Portals/utils';
 import { PlusMenuEntry } from "../../PlusOptionsSelector";
 
 interface PlusOptionProps {

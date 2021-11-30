@@ -703,7 +703,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginRight: 5,
         },
         resourcePathWrapper: {
-            width: '60%',
+            width: '55%',
             marginLeft: theme.spacing(1.25)
         },
         advancedSwitchText: {

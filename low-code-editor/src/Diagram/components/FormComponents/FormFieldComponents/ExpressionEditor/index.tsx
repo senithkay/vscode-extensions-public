@@ -455,7 +455,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             // - If model type os one of valid configurable types
             // - originalValue is empty (will be empty in create flow, or if user removes the expression during edit flow)
             const configurableWidget: monaco.editor.IContentWidget = createContentWidget(CONFIGURABLE_WIDGET_ID);
-            if (configurableTypes.includes(varType) && expressionInjectables && !originalValue){
+            if (configurableTypes.includes(varType) && expressionInjectables && !originalValue) {
                 monacoRef.current.editor.addContentWidget(configurableWidget);
             } else {
                 monacoRef.current.editor.removeContentWidget(configurableWidget);
@@ -525,8 +525,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
 
         expressionEditorState.name = model.name;
         expressionEditorState.content = initContent;
-        expressionEditorState.uri = monaco.Uri.file(currentFile.path).toString();
-
+        expressionEditorState.uri = `expr://${currentFile.path}`;
         await getExpressionEditorLangClient().then(async (langClient: ExpressionEditorLangClientInterface) => {
             langClient.didChange({
                 contentChanges: [
@@ -591,9 +590,17 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
 
         expressionEditorState.name = model.name;
         expressionEditorState.content = initContent;
-        expressionEditorState.uri = monaco.Uri.file(currentFile.path).toString();
+        expressionEditorState.uri = `expr://${currentFile.path}`;
 
         await getExpressionEditorLangClient().then(async (langClient: ExpressionEditorLangClientInterface) => {
+            langClient.didOpen({
+                textDocument: {
+                    uri: expressionEditorState.uri,
+                    languageId: "ballerina",
+                    text: currentFile.content,
+                    version: 1
+                }
+            });
             langClient.didChange({
                 contentChanges: [
                     {
@@ -716,14 +723,14 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 monacoRef.current.editor.trigger('exp_editor', 'editor.action.triggerSuggest', {})
             }
 
-            if ((currentContent.length >= EDITOR_MAXIMUM_CHARACTERS) && monacoRef.current.editor.hasTextFocus()) {
+            if ((currentContent.length >= EDITOR_MAXIMUM_CHARACTERS) && monacoRef.current.editor.hasTextFocus() && !hideExpand) {
                 setExpand(true);
                 if (currentContent.length >= EXPAND_EDITOR_MAXIMUM_CHARACTERS) {
                     setSuperExpand(true);
                 }
             }
 
-            if (!!originalValue && !currentContent){
+            if (!!originalValue && !currentContent) {
                 // Enable configurable insertion icon when user deletes the whole expression
                 setOriginalValue("");
             }
@@ -755,15 +762,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             expressionEditorState.uri = expressionEditorState?.uri;
 
             await getExpressionEditorLangClient().then(async (langClient: ExpressionEditorLangClientInterface) => {
-                langClient.didChange({
-                    contentChanges: [
-                        {
-                            text: expressionEditorState.content
-                        }
-                    ],
+                langClient.didClose({
                     textDocument: {
-                        uri: expressionEditorState.uri,
-                        version: 1
+                        uri: expressionEditorState.uri
                     }
                 });
             });
