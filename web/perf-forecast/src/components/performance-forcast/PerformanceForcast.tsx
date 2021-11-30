@@ -137,7 +137,7 @@ const handleClick = (index: any, data: any) => {
 
         // if click on line
         const activeCoordinateX = index.activeCoordinate.x;
-        if (index.chartX > activeCoordinateX - 1 && index.chartX < activeCoordinateX + 1) {
+        if (index.chartX > activeCoordinateX - 2 && index.chartX < activeCoordinateX + 2) {
 
             const concurrenct = index.activeLabel;
             currentConcurrency = concurrenct;

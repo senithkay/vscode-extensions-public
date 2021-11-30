@@ -28,9 +28,9 @@ import path from 'path';
 import { ANALYZETYPE } from '.';
 import { performanceGraphPanel } from './performanceGraphPanel';
 
-enum CODELENSE_TYPE {
-    RESOURCE,
-    INVOCATION
+export enum CODELENSE_TYPE {
+    REALTIME,
+    ADVANCED
 }
 
 let langClient: ExtendedLangClient;
@@ -106,30 +106,37 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
             if (window.activeTextEditor &&
                 (label.getFile == window.activeTextEditor.document.fileName ||
                     label.getFile == window.activeTextEditor.document.fileName.split(path.sep).pop())) {
-                const startLine = label.getRange.start;
-                const endLine = label.getRange.end;
 
-                codeLenses.push(this.createCodeLens(CODELENSE_TYPE.INVOCATION,
-                    startLine.line, startLine.character,
-                    endLine.line, endLine.character,
-                    [label.getResourcePos, label.getResourceName], Number(label.getLabel)));
+                codeLenses.push(this.createCodeLens(label));
             }
         }
 
         return codeLenses;
     }
 
-    private createCodeLens(type: CODELENSE_TYPE, startLine, startColumn, endLine, endColumn,
-        data: any[], latency = -1): CodeLens {
-        const value = latency > 1000 ? latency / 1000 : latency;
-        const unit = latency > 1000 ? " s" : " ms";
-        const codeLens = new CodeLens(new Range(startLine, startColumn, endLine, endColumn));
+    private createCodeLens(label: DataLabel): CodeLens {
+        const startLine = label.getRange.start;
+        const endLine = label.getRange.end;
+
+        const concurrencies = label.getConcurrency;
+        const latencies = label.getLatency;
+        const tpss = label.getTps;
+
+        let minLatency = latencies.min ? `${latencies.min > 1000 ? latencies.min / 1000 : latencies.min} ${latencies.min > 1000 ? " s" : " ms"}` : 0;
+        let maxLatency = `${latencies.max > 1000 ? latencies.max / 1000 : latencies.max} ${latencies.max > 1000 ? " s" : " ms"}`;
+
+        const codeLens = new CodeLens(new Range(startLine.line, startLine.character, endLine.line, endLine.character));
+
         codeLens.command = {
-            title: latency == -1 ? "View Performance" : `Forecasted latency: ${value} ${unit}`,
-            tooltip: type == CODELENSE_TYPE.RESOURCE ? "Forecast performance using AI" :
-                `Click here to view the performance graph.`,
+            title: label.getType == CODELENSE_TYPE.REALTIME ?
+                (concurrencies.max !== 1 ?
+                    `Forecasted latency between ${minLatency} - ${maxLatency} (for concurrency ${concurrencies.min} - ${concurrencies.max})` :
+                    `Forecasted minimum latency ${minLatency} (with ${tpss.min} tps for single user)`) :
+                `Forecasted latency ${maxLatency} (for concurrency ${concurrencies.max})`,
+
+            tooltip: label.getType == CODELENSE_TYPE.REALTIME ? `Click here to view the performance graph.` : ``,
             command: SHOW_GRAPH_COMMAND,
-            arguments: data
+            arguments: concurrencies.max !== 1 ? [label.getResourcePos, label.getResourceName] : []
         };
         return codeLens;
     }

@@ -20,13 +20,13 @@
 import { DataLabel } from "./model";
 import { commands, ExtensionContext, languages, Range, TextDocument, Uri, ViewColumn, window } from "vscode";
 import { BallerinaExtension, ExtendedLangClient, GraphPoint, LANGUAGE, PerformanceAnalyzerGraphResponse, PerformanceAnalyzerRealtimeResponse } from "../core";
-import { ExecutorCodeLensProvider } from "./codelens-provider";
+import { CODELENSE_TYPE, ExecutorCodeLensProvider } from "./codelens-provider";
 import { log } from "../utils";
 import { showPerformanceGraph } from "./performanceGraphPanel";
 import { MESSAGE_TYPE, showMessage } from "../utils/showMessage";
 import { PALETTE_COMMANDS } from "../project";
 
-export const CHOREO_API_PF = "http://choreocontrolplane.preview-dv.choreo.dev/performance-analyzer/1.0.0/get_estimations/2.0";
+export const CHOREO_API_PF = "http://choreocontrolplane.preview-dv.choreo.dev/performance-analyzer/2.0.0/get_estimations/3.0";
 const CHOREO_AUTH_ERR = "Authentication error for accessing AI service (ID6)";
 const NETWORK_ERR = "Network error. Please check you internet connection";
 const MODEL_NOT_FOUND = "AI service does not have enough data to forecast";
@@ -83,6 +83,7 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
         ExecutorCodeLensProvider.dataLabels = [];
 
         if (args.length < 2) {
+            showMessage("Insufficient data to provide detailed estimations", MESSAGE_TYPE.INFO, false);
             return;
         }
         await createPerformanceGraphAndCodeLenses(uri, args[0], ANALYZETYPE.ADVANCED, args[1]);
@@ -156,7 +157,7 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
             }
             currentResourceName = name;
             currentResourcePos = pos;
-            addRealTimePerformanceLabels(response);
+            addEndpointPerformanceLabels(response);
         }).catch(error => {
             log(error);
         });
@@ -241,7 +242,7 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
     }
 }
 
-function addPerformanceLabels(concurrency: number) {
+function addPerformanceLabels(concurrencyValue: number) {
     if (!advancedData || !currentResourcePos || !currentResourceName) {
         return;
     }
@@ -256,7 +257,8 @@ function addPerformanceLabels(concurrency: number) {
         return;
     }
 
-    switch (concurrency) {
+    let concurrency;
+    switch (concurrencyValue) {
         case 1: {
             concurrency = 0;
             break;
@@ -280,33 +282,51 @@ function addPerformanceLabels(concurrency: number) {
     }
     let data = sequenceDiagramData[concurrency];
     const values = data.values;
-    addRealTimePerformanceLabels(graphData[concurrency]);
+    addEndpointPerformanceLabels(graphData[concurrency]);
 
     let file;
     for (let i = 0; i < values.length; i++) {
         const name = values[i].name.replace("(", "").replace(")", "").split("/");
-        const latency = values[i].latency;
+        const latency = Number(values[i].latency);
+        const tps = Number(values[i].tps);
         file = name[0];
         const pos = name[1].split(",");
         const start = pos[0].split(":");
         const end = pos[1].split(":");
         const range = new Range(parseInt(start[0]), parseInt(start[1]),
             parseInt(end[0]), parseInt(end[1]));
-        const dataLabel = new DataLabel(file, range, latency, currentResourceName, currentResourcePos, null);
+        const dataLabel = new DataLabel(CODELENSE_TYPE.ADVANCED, file, range,
+            { max: concurrencyValue }, { max: latency }, { max: tps },
+            currentResourceName, currentResourcePos, null);
         ExecutorCodeLensProvider.addDataLabel(dataLabel);
 
     }
     uiData = { name: currentResourceName, graphData: advancedData.graphData };
 }
 
-function addRealTimePerformanceLabels(data: GraphPoint) {
+function addEndpointPerformanceLabels(data: PerformanceAnalyzerRealtimeResponse | GraphPoint) {
     if (!data || !currentResourcePos || !currentFileUri) {
         return;
     }
 
     // add resource latency
-    const dataLabel = new DataLabel(currentFileUri, currentResourcePos, data.latency,
-        currentResourceName, currentResourcePos, null);
+    let dataLabel;
+    if ((data.concurrency as any).max) {
+        // If realtime response
+        const realtimeData = data as PerformanceAnalyzerRealtimeResponse;
+        dataLabel = new DataLabel(CODELENSE_TYPE.REALTIME, currentFileUri, currentResourcePos,
+            { min: realtimeData.concurrency.min, max: realtimeData.concurrency.max },
+            { min: realtimeData.latency.min, max: realtimeData.latency.max },
+            { min: realtimeData.tps.min, max: realtimeData.tps.max },
+            currentResourceName, currentResourcePos, null);
+    } else {
+        // if graph point
+        dataLabel = new DataLabel(CODELENSE_TYPE.ADVANCED, currentFileUri, currentResourcePos,
+            { max: Number(data.concurrency) },
+            { max: Number(data.latency) },
+            { max: Number(data.tps) },
+            currentResourceName, currentResourcePos, null);
+    }
     ExecutorCodeLensProvider.addDataLabel(dataLabel);
 
 }
