@@ -22,11 +22,11 @@ import {
     CancellationToken, CodeLens, CodeLensProvider, Event, EventEmitter,
     ProviderResult, Range, TextDocument, Uri, window, workspace
 } from 'vscode';
-import { BAL_TOML } from '../project';
 import { createPerformanceGraphAndCodeLenses, SHOW_GRAPH_COMMAND } from './activator';
 import { DataLabel, Member, SyntaxTree } from './model';
 import path from 'path';
 import { ANALYZETYPE } from '.';
+import { performanceGraphPanel } from './performanceGraphPanel';
 
 enum CODELENSE_TYPE {
     RESOURCE,
@@ -51,7 +51,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
         ExecutorCodeLensProvider.onDidChangeCodeLenses = this._onDidChangeCodeLenses;
         langClient = <ExtendedLangClient>extensionInstance.langClient;
         workspace.onDidOpenTextDocument(async (document) => {
-            if (document.languageId === LANGUAGE.BALLERINA || document.fileName.endsWith(BAL_TOML)) {
+            if (document.languageId === LANGUAGE.BALLERINA) {
                 const uri = document.uri;
                 await ExecutorCodeLensProvider.addCodeLenses(uri);
 
@@ -59,13 +59,24 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
         });
 
         workspace.onDidChangeTextDocument(async (activatedTextEditor) => {
-            if (activatedTextEditor && activatedTextEditor.document.languageId === LANGUAGE.BALLERINA ||
-                activatedTextEditor.document.fileName.endsWith(BAL_TOML)) {
+            if (activatedTextEditor && activatedTextEditor.document.languageId === LANGUAGE.BALLERINA) {
                 const activeEditor = window.activeTextEditor;
                 const uri = activeEditor?.document.uri;
+
+                if (performanceGraphPanel) {
+                    // Close graph while editing.
+                    performanceGraphPanel.dispose();
+                }
+
                 await ExecutorCodeLensProvider.addCodeLenses(uri);
             }
         });
+
+        if (window.activeTextEditor && window.activeTextEditor.document.languageId === LANGUAGE.BALLERINA) {
+            const uri = window.activeTextEditor.document.uri;
+            ExecutorCodeLensProvider.addCodeLenses(uri);
+
+        }
     }
 
     public static async addCodeLenses(uri: Uri | undefined) {
