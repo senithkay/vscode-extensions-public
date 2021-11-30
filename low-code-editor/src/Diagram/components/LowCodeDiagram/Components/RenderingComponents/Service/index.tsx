@@ -18,6 +18,7 @@ import { ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
 import { useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { useSelectedStatus } from "../../../../../hooks";
 import { getSTComponent } from "../../../../../utils";
+import { getServiceTypeFromModel } from "../../../../FormComponents/ConfigForms/ServiceConfigForm/util";
 import { TopLevelPlus } from "../../PlusButtons/TopLevelPlus";
 
 import { ServiceHeader } from "./ServiceHeader";
@@ -32,6 +33,7 @@ export interface ServiceProps {
 
 export function Service(props: ServiceProps) {
     const { model } = props;
+    const { props: { stSymbolInfo } } = useDiagramContext();
 
     const isSelected = useSelectedStatus(model);
     const [isExpanded, setIsExpanded] = useState(isSelected);
@@ -44,12 +46,14 @@ export function Service(props: ServiceProps) {
         setIsExpanded(isSelected);
     }, [isSelected])
 
+    const serviceType = getServiceTypeFromModel(model, stSymbolInfo);
+    const isTriggerType = serviceType !== "http";
     const children: JSX.Element[] = []
 
     model.members.forEach(member => {
         children.push(
             <div className={'service-member'}>
-                <TopLevelPlus kind={model.kind} targetPosition={member.position} />
+                <TopLevelPlus kind={model.kind} targetPosition={member.position} isTriggerType={isTriggerType} />
                 {getSTComponent(member)}
             </div>
         );
@@ -84,8 +88,10 @@ export function Service(props: ServiceProps) {
 
         if (model.isRunnable) {
             const runBtn = <p className={"action-text"} onClick={onClickRun}>Run</p>
-            return [runBtn, tryItBtn];
-
+            if (!isTriggerType) {
+                return [runBtn, tryItBtn];
+            }
+            return [runBtn];
         } else {
             return tryItBtn;
         }
@@ -102,7 +108,7 @@ export function Service(props: ServiceProps) {
                     {isExpanded && (
                         <>
                             {children}
-                            <TopLevelPlus kind={model.kind} targetPosition={model.closeBraceToken.position} />
+                            <TopLevelPlus kind={model.kind} targetPosition={model.closeBraceToken.position} isTriggerType={isTriggerType} />
                         </>
                     )}
                 </div>
