@@ -18,6 +18,7 @@ import { ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
 import { useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { useSelectedStatus } from "../../../../../hooks";
 import { getSTComponent } from "../../../../../utils";
+import { getServiceTypeFromModel } from "../../../../FormComponents/ConfigForms/ServiceConfigForm/util";
 import { TopLevelPlus } from "../../PlusButtons/TopLevelPlus";
 
 import { ServiceHeader } from "./ServiceHeader";
@@ -32,6 +33,7 @@ export interface ServiceProps {
 
 export function Service(props: ServiceProps) {
     const { model } = props;
+    const { props: { stSymbolInfo } } = useDiagramContext();
 
     const isSelected = useSelectedStatus(model);
     const [isExpanded, setIsExpanded] = useState(isSelected);
@@ -44,7 +46,7 @@ export function Service(props: ServiceProps) {
         setIsExpanded(isSelected);
     }, [isSelected])
 
-    const serviceType = model.typeDescriptor?.modulePrefix?.value;
+    const [serviceType, setServiceType] = useState<string>(getServiceTypeFromModel(model, stSymbolInfo));
     const children: JSX.Element[] = []
 
     model.members.forEach(member => {
@@ -85,7 +87,7 @@ export function Service(props: ServiceProps) {
 
         if (model.isRunnable) {
             const runBtn = <p className={"action-text"} onClick={onClickRun}>Run</p>
-            if (serviceType === undefined) {
+            if (serviceType === "http") {
                 return [runBtn, tryItBtn];
             }
             return [runBtn];
