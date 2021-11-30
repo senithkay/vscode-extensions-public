@@ -46,11 +46,9 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
     static onDidChangeCodeLenses: any;
     static dataLabels: DataLabel[] = [];
     private static isProccessing = false;
-    private ballerinaExtension: BallerinaExtension;
 
     constructor(extensionInstance: BallerinaExtension) {
         ExecutorCodeLensProvider.onDidChangeCodeLenses = this._onDidChangeCodeLenses;
-        this.ballerinaExtension = extensionInstance;
         langClient = <ExtendedLangClient>extensionInstance.langClient;
         workspace.onDidOpenTextDocument(async (document) => {
             if (document.languageId === LANGUAGE.BALLERINA) {
@@ -96,10 +94,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
     }
 
     provideCodeLenses(_document: TextDocument, _token: CancellationToken): ProviderResult<any[]> {
-        if (this.ballerinaExtension.langClient && window.activeTextEditor) {
-            return this.getCodeLensList();
-        }
-        return [];
+        return this.getCodeLensList();
     }
 
     private getCodeLensList(): CodeLens[] {
