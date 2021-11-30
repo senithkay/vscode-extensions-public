@@ -866,6 +866,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             }
         });
     }
+    const expEditorStyle = monacoRef?.current?.editor?.hasTextFocus() ?  "exp-editor-active" : "exp-editor";
 
     setDefaultTooltips();
 
@@ -878,7 +879,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             >
                 <div className="exp-absolute-wrapper">
                     <div
-                        className="exp-editor"
+                        className={expEditorStyle}
                         style={{
                             height: expand ? (superExpand ? '200px' : '100px') : '34px',
                             opacity: disabled ? 0.5 : 1
