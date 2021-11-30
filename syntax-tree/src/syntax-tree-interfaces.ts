@@ -1633,6 +1633,13 @@ export interface PercentToken extends STNode {
   value: string;
 }
 
+export interface PerfData {
+  concurrency: string;
+  latency: string;
+  tps: string;
+  analyzeType: string;
+}
+
 export interface PipeToken extends STNode {
   isToken: boolean;
   value: string;
@@ -1829,7 +1836,7 @@ export interface ResourceAccessorDefinition extends STNode {
   functionSignature: FunctionSignature;
   qualifierList: (ResourceKeyword | TransactionalKeyword)[];
   relativeResourcePath: (IdentifierToken | SlashToken)[];
-  performance?: any;
+  performance?: PerfData;
 }
 
 export interface ResourceKeyword extends STNode {

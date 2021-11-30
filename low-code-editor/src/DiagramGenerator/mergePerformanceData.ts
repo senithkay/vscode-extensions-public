@@ -61,8 +61,10 @@ export class AnalysisDetailMerger implements Visitor {
     public beginVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
         if (this.currentResourcePos && node.position.startLine === this.currentResourcePos.startLine &&
             node.position.startColumn === this.currentResourcePos.startColumn) {
-            node.performance = this.serviceData;
-            node.performance.analyzeType = ANALYZE_TYPE.ADVANCED;
+            node.performance = {
+                concurrency: this.serviceData.concurrency, latency: this.serviceData.latency,
+                tps: this.serviceData.tps, analyzeType: ANALYZE_TYPE.ADVANCED
+            };
         } else {
             delete node.performance;
         }
