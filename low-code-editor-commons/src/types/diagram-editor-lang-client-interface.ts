@@ -17,6 +17,7 @@ import {
     SymbolInformation,
 } from "vscode-languageserver-protocol";
 
+import { BallerinaTriggerRequest, BallerinaTriggerResponse, BallerinaTriggersRequest, BallerinaTriggersResponse } from ".";
 import { BaseLangClientInterface } from "./base-lang-client-interface";
 import { LinePosition, PublishDiagnosticsParams } from "./expression-editor-lang-client-interface";
 import {
@@ -82,6 +83,12 @@ export interface DiagramEditorLangClientInterface extends BaseLangClientInterfac
     getConnectors: (
         params: BallerinaConnectorsRequest
     ) => Thenable<BallerinaConnectorsResponse>;
+    getTriggers: (
+        params: BallerinaTriggersRequest
+    ) => Thenable<BallerinaTriggersResponse>;
+    getTrigger: (
+        params: BallerinaTriggerRequest
+    ) => Thenable<BallerinaTriggerResponse>;
     getConnector: (
         params: BallerinaConnectorRequest
     ) => Thenable<BallerinaConnectorResponse>;

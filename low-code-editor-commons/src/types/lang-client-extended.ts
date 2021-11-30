@@ -78,7 +78,66 @@ export interface BallerinaConnectorInfo extends Connector {
     documentation?: string;
 }
 
-export interface BallerinaConnectorsRequest {
+export interface BallerinaTriggerInfo extends Trigger {
+    serviceTypes:  ServiceType[],
+    listenerParams: Parameter[],
+    documentation?: string,
+}
+
+export interface ServiceType {
+    name:        string;
+    description?: string;
+    functions?:   RemoteFunction[];
+}
+
+export interface RemoteFunction {
+    isRemote?:      boolean;
+    documentation?: string;
+    name:          string;
+    parameters?:    Parameter[];
+    returnType?:    ReturnType;
+}
+
+export interface Parameter {
+    name:              string;
+    typeName:          string;
+    optional?:          boolean;
+    typeInfo?:          TypeInfo;
+    displayAnnotation?: DisplayAnnotation;
+    fields?:            Field[];
+    hasRestType?:       boolean;
+    restType?:          ReturnType;
+    defaultable?:       boolean;
+}
+
+export interface DisplayAnnotation {}
+
+export interface Field {
+    name?:        string;
+    typeName?:    string;
+    optional?:    boolean;
+    defaultable?: boolean;
+    fields?:      ReturnType[];
+    hasRestType?: boolean;
+    restType?:    ReturnType;
+}
+
+export interface ReturnType {
+    name?:              string;
+    typeName?:          string;
+    optional?:          boolean;
+    defaultable?:       boolean;
+    displayAnnotation?: DisplayAnnotation;
+}
+
+export interface TypeInfo {
+    name?:       string;
+    orgName?:    string;
+    moduleName?: string;
+    version?:    string;
+}
+
+export interface BallerinaModulesRequest {
     query: string;
     packageName?: string;
     organization?: string;
@@ -95,6 +154,10 @@ export interface BallerinaConnectorsRequest {
     targetFile?: string;
 }
 
+export interface BallerinaConnectorsRequest extends BallerinaModulesRequest {}
+
+export interface BallerinaTriggersRequest extends BallerinaModulesRequest {}
+
 export interface BallerinaModuleResponse {
     central: BallerinaModule[];
     local?: BallerinaModule[];
@@ -104,6 +167,19 @@ export interface BallerinaModuleResponse {
 export interface BallerinaConnectorsResponse extends BallerinaModuleResponse {
     central: Connector[];
     local?: Connector[];
+    error?: string;
+}
+
+export interface BallerinaTriggersResponse extends BallerinaModuleResponse {
+    central: Trigger[];
+    error?: string;
+}
+
+export interface BallerinaTriggerRequest {
+    id: string
+}
+
+export interface BallerinaTriggerResponse extends BallerinaTriggerInfo {
     error?: string;
 }
 
