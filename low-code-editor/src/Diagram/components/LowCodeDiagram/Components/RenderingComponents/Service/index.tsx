@@ -46,13 +46,14 @@ export function Service(props: ServiceProps) {
         setIsExpanded(isSelected);
     }, [isSelected])
 
-    const [serviceType, setServiceType] = useState<string>(getServiceTypeFromModel(model, stSymbolInfo));
+    const serviceType = getServiceTypeFromModel(model, stSymbolInfo);
+    const isTriggerType = serviceType !== "http";
     const children: JSX.Element[] = []
 
     model.members.forEach(member => {
         children.push(
             <div className={'service-member'}>
-                <TopLevelPlus kind={model.kind} targetPosition={member.position} />
+                <TopLevelPlus kind={model.kind} targetPosition={member.position} isTriggerType={isTriggerType} />
                 {getSTComponent(member)}
             </div>
         );
@@ -107,7 +108,7 @@ export function Service(props: ServiceProps) {
                     {isExpanded && (
                         <>
                             {children}
-                            <TopLevelPlus kind={model.kind} targetPosition={model.closeBraceToken.position} serviceType={serviceType} />
+                            <TopLevelPlus kind={model.kind} targetPosition={model.closeBraceToken.position} isTriggerType={isTriggerType} />
                         </>
                     )}
                 </div>

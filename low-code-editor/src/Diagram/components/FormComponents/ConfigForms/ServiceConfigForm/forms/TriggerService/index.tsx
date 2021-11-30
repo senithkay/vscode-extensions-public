@@ -44,10 +44,16 @@ export function TriggerServiceForm(props: TriggerServiceFormProps) {
     const [listenerName, setListenerName] = useState<string>('');
     const [saveBtnDisabled, setSaveBtnDisabled] = useState<boolean>(true);
 
-    if (module) {
+    if (model) {
         TRIGGER_MODULE_QUALIFIER = model.typeDescriptor.modulePrefix.value;
         TRIGGER_CHANNEL = model.typeDescriptor.modulePrefix.value + ":" + model.typeDescriptor.identifier.value;
     }
+
+    React.useEffect(() => {
+        if (model) {
+            setListenerName(model.expressions[0].source.trim());
+        }
+    }, []);
 
     const listenerList = Array.from(stSymbolInfo.listeners)
         .filter(([key, value]) =>
@@ -107,7 +113,7 @@ export function TriggerServiceForm(props: TriggerServiceFormProps) {
                 <SelectDropdownWithButton
                     customProps={listenerSelectionCustomProps}
                     onChange={onListenerSelect}
-                    placeholder={model.expressions[0].source}
+                    placeholder="Select Property"
                     defaultValue={listenerName}
                 />
             </div>
