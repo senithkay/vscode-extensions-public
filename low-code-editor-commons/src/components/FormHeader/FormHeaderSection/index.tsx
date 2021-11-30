@@ -13,10 +13,10 @@
 // tslint:disable:jsx-no-multiline-js
 import React from "react";
 
+import { getConstructIcon } from "../../utils";
+
 import { CloseButton } from "./CloseButton";
 import { FormTitle } from "./FormTitle";
-// TODO need to move the assests folder to commens module
-// import { getConstructIcon } from "../../../Portals/utils";
 import { useStyles } from "./style";
 
 interface FormHeaderSectionProps {
@@ -33,12 +33,11 @@ export function FormHeaderSection(props: FormHeaderSectionProps) {
     const { onCancel, statementEditor, formTitle, defaultMessage, formType, handleStmtEditorToggle, toggleChecked } = props;
     const formClasses = useStyles();
     // TODO need to move the assests folder to commens module
-    // const icon = (formType && formType.length > 0) ? getConstructIcon(formType) : null;
+    const icon = (formType && formType.length > 0) ? getConstructIcon(formType) : null;
 
     return (
         <div className={formClasses.formHeaderTitleWrapper}>
-            {/* TODO need to move the assests folder to commens module
-             {formType ? <div className={formClasses.titleIcon}>{icon}</div> : null}  */}
+             {formType ? <div className={formClasses.titleIcon}>{icon}</div> : null}
             <FormTitle
                 statementEditor={statementEditor}
                 formTitle={formTitle}
