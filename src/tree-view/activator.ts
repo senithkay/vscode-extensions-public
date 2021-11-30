@@ -21,11 +21,10 @@ import { renderFirstDiagramElement, showDiagramEditor } from '../diagram';
 import { sendTelemetryEvent, CMP_PACKAGE_VIEW, TM_EVENT_OPEN_PACKAGE_OVERVIEW } from "../telemetry";
 import { commands, Uri, window, workspace } from 'vscode';
 import {
-    CMP_KIND, TREE_ELEMENT_EXECUTE_COMMAND, OUTLINE_TREE_REFRESH_COMMAND, EXPLORER_TREE_REFRESH_COMMAND,
-    EXPLORER_ITEM_KIND, EXPLORER_TREE_NEW_FILE_COMMAND, EXPLORER_TREE_NEW_FOLDER_COMMAND, ExplorerTreeItem,
+    CMP_KIND, TREE_ELEMENT_EXECUTE_COMMAND, EXPLORER_TREE_REFRESH_COMMAND, EXPLORER_ITEM_KIND,
+    EXPLORER_TREE_NEW_FILE_COMMAND, EXPLORER_TREE_NEW_FOLDER_COMMAND, ExplorerTreeItem,
     EXPLORER_TREE_NEW_MODULE_COMMAND, EXPLRER_TREE_DELETE_FILE_COMMAND, CONFIG_EDITOR_EXECUTE_COMMAND
 } from "./model";
-import { PackageOverviewDataProvider } from "./outline-tree-data-provider";
 import { SessionDataProvider } from "./session-tree-data-provider";
 import { ExplorerDataProvider } from "./explorer-tree-data-provider";
 import { existsSync, mkdirSync, open, openSync, rm, rmdir } from 'fs';
@@ -37,18 +36,9 @@ import { showConfigEditor } from "../config-editor/configEditorPanel";
 import { getCurrentBallerinaProject } from "../utils/project-utils";
 
 const CONFIG_FILE = 'Config.toml';
-export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverviewDataProvider {
+export function activate(ballerinaExtInstance: BallerinaExtension) {
 
     sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_PACKAGE_OVERVIEW, CMP_PACKAGE_VIEW);
-
-    const packageTreeDataProvider = new PackageOverviewDataProvider(ballerinaExtInstance);
-    window.createTreeView('ballerinaPackageTreeView', {
-        treeDataProvider: packageTreeDataProvider, showCollapseAll: true
-    });
-
-    commands.registerCommand(OUTLINE_TREE_REFRESH_COMMAND, () =>
-        packageTreeDataProvider.refresh()
-    );
 
     const explorerDataProvider = new ExplorerDataProvider(ballerinaExtInstance);
     ballerinaExtInstance.context!.subscriptions.push(window.createTreeView('ballerinaExplorerTreeView', {
@@ -204,7 +194,6 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
             construct.kind == CMP_KIND.SERVICE || construct.kind == EXPLORER_ITEM_KIND.BAL_FILE) {
             showDiagramEditor(construct.startLine, construct.startColumn, construct.filePath);
             ballerinaExtInstance.getDocumentContext().setLatestDocument(Uri.file(construct.filePath));
-            packageTreeDataProvider.refresh();
             explorerDataProvider.refresh();
         }
     });
@@ -213,7 +202,4 @@ export function activate(ballerinaExtInstance: BallerinaExtension): PackageOverv
         commands.executeCommand(PALETTE_COMMANDS.FOCUS_EXPLORER);
         renderFirstDiagramElement(ballerinaExtInstance.langClient!);
     }
-
-    return packageTreeDataProvider;
 }
-

@@ -25,7 +25,7 @@ import { activate as activateTelemetryListener } from './telemetry';
 import { activateDebugConfigProvider } from './debugger';
 import { activate as activateProjectFeatures } from './project';
 import { activate as activateEditorSupport } from './editor-support';
-import { activate as activatePackageOverview, PackageOverviewDataProvider } from './tree-view';
+import { activate as activatePackageOverview } from './tree-view';
 import { activate as activateTesting } from './testing/activator';
 import { activate as activateChoreoAuth } from './choreo-auth/activator';
 import { StaticFeature, DocumentSelector, ServerCapabilities, InitializeParams } from 'vscode-languageclient';
@@ -73,9 +73,9 @@ export function activate(context: ExtensionContext): Promise<any> {
     return ballerinaExtInstance.init(onBeforeInit).then(() => {
         // start the features.
         // Enable package overview
-        const packageOverviewDataProvider: PackageOverviewDataProvider = activatePackageOverview(ballerinaExtInstance);
+        activatePackageOverview(ballerinaExtInstance);
         // Enable Ballerina diagram
-        activateDiagram(ballerinaExtInstance, packageOverviewDataProvider);
+        activateDiagram(ballerinaExtInstance);
         // Enable Ballerina by examples
         activateBBE(ballerinaExtInstance);
         // Enable Ballerina Debug Config Provider

@@ -18,4 +18,3 @@
 
 export * from "./activator";
 export * from "./model";
-export { PackageOverviewDataProvider } from "./outline-tree-data-provider";
