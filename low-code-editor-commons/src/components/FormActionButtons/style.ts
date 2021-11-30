@@ -10,7 +10,22 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-export * from "./buttons";
-export * from "./FormHeader";
-export * from "./FormActionButtons"
-export * from "./utils";
+import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
+
+export const useStyles = makeStyles((theme: Theme) =>
+    createStyles({
+        buttonWrapper: {
+            height: 'auto',
+            display: 'flex',
+            justifyContent: 'flex-end',
+            width: '100%',
+            paddingRight: theme.spacing(2.5),
+        },
+        spaceBetween: {
+            padding: theme.spacing(1),
+            '&:last-child': {
+                paddingRight: 0
+            }
+        }
+    })
+);

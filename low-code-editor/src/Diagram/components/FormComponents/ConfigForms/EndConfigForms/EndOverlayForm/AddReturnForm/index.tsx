@@ -15,7 +15,7 @@ import React, { useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
-import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { ReturnStatement } from "@wso2-enterprise/syntax-tree";
 
@@ -24,7 +24,6 @@ import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/con
 import { createReturnStatement, getInitialSource } from "../../../../../../utils/modification-util";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
-import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";
 import { EndConfig } from "../../../../Types";
 
 
@@ -94,7 +93,7 @@ export function AddReturnForm(props: ReturnFormProps) {
         setReturnExpression(partialModel.expression?.source.trim())
     }
 
-    const {handleStmtEditorToggle , stmtEditorComponent} = useStatementEditor(
+    const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
         {
             label: intl.formatMessage({ id: "lowcode.develop.configForms.return.statementEditor.label" }),
             initialSource,
@@ -121,40 +120,35 @@ export function AddReturnForm(props: ReturnFormProps) {
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={false}
                 />
-                <div className={classes.formWrapper}>
-                    <div className={classes.formFeilds}>
-                        <div className={classes.blockWrapper}>
-                            <div className={classes.returnWrapper}>
-                                <div className="exp-wrapper">
-                                    <ExpressionEditor
-                                        model={{ name: "return expression", value: config.expression }}
-                                        customProps={{
-                                            validate: validateExpression,
-                                            tooltipTitle: returnStatementTooltipMessages.title,
-                                            tooltipActionText: returnStatementTooltipMessages.actionText,
-                                            tooltipActionLink: returnStatementTooltipMessages.actionLink,
-                                            interactive: true,
-                                            customTemplate: {
-                                                defaultCodeSnippet: 'return ;',
-                                                targetColumn: 8
-                                            },
-                                            editPosition: formArgs.targetPosition,
-                                        }}
-                                        onChange={onReturnValueChange}
-                                    />
-                                </div>
-                            </div>
-                        </div>
+                <div className={classes.formContentWrapper}>
+                    <div className={classes.formNameWrapper}>
+                        <ExpressionEditor
+                            model={{ name: "return expression", value: config.expression }}
+                            customProps={{
+                                validate: validateExpression,
+                                tooltipTitle: returnStatementTooltipMessages.title,
+                                tooltipActionText: returnStatementTooltipMessages.actionText,
+                                tooltipActionLink: returnStatementTooltipMessages.actionLink,
+                                interactive: true,
+                                customTemplate: {
+                                    defaultCodeSnippet: 'return ;',
+                                    targetColumn: 8
+                                },
+                                editPosition: formArgs.targetPosition,
+                            }}
+                            onChange={onReturnValueChange}
+                        />
                     </div>
-                    <FormActionButtons
-                        cancelBtnText="Cancel"
-                        saveBtnText={saveReturnButtonLabel}
-                        isMutationInProgress={isMutationInProgress}
-                        validForm={isValidValue}
-                        onSave={onReturnExpressionSave}
-                        onCancel={onCancel}
-                    />
                 </div>
+                <FormActionButtons
+                    cancelBtnText="Cancel"
+                    cancelBtn={true}
+                    saveBtnText={saveReturnButtonLabel}
+                    isMutationInProgress={isMutationInProgress}
+                    validForm={isValidValue}
+                    onSave={onReturnExpressionSave}
+                    onCancel={onCancel}
+                />
             </FormControl>
         );
     }

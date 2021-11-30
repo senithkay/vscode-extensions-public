@@ -14,8 +14,8 @@
 import React, { ReactNode, useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { Box, FormControl, Typography } from "@material-ui/core";
-import { FormHeaderSection, httpResponse, PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormControl } from "@material-ui/core";
+import { FormActionButtons, FormHeaderSection, httpResponse, PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { ActionStatement, RemoteMethodCallAction } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
@@ -25,7 +25,6 @@ import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/con
 import { createRespond, getInitialSource } from "../../../../../../utils/modification-util";
 import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
-import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";
 import { EndConfig, RespondConfig } from "../../../../Types";
 
 interface RespondFormProps {
@@ -132,7 +131,7 @@ export function AddRespondForm(props: RespondFormProps) {
     };
 
     const statusCodeComp: ReactNode = (
-        <>
+        <div>
             <ExpressionEditor
                 model={{
                     optional: true,
@@ -144,7 +143,7 @@ export function AddRespondForm(props: RespondFormProps) {
                 onChange={onStatusCodeChange}
             />
             {!validStatusCode ? <p className={formClasses.invalidCode}> <FormattedMessage id="lowcode.develop.configForms.Respond.invalidCodeError" defaultMessage="Invalid status code" /></p> : null}
-        </>
+        </div>
     );
     const disableSave = (isMutationInProgress || !validForm || !validStatusCode);
 
@@ -159,7 +158,7 @@ export function AddRespondForm(props: RespondFormProps) {
         {
             label: intl.formatMessage({ id: "lowcode.develop.configForms.respond.statementEditor.label" }),
             initialSource,
-            formArgs: {formArgs},
+            formArgs: { formArgs },
             validForm,
             config,
             onWizardClose,
@@ -170,6 +169,17 @@ export function AddRespondForm(props: RespondFormProps) {
             applyModifications: modifyDiagram
         }
     );
+    const fieilTypes = [
+        { type: PrimitiveBalType.String },
+        { type: PrimitiveBalType.Xml },
+        { type: PrimitiveBalType.Json },
+        {
+            type: PrimitiveBalType.Record,
+            typeInfo: httpResponse
+        }
+    ];
+
+    const statementType = [PrimitiveBalType.String, PrimitiveBalType.Xml, PrimitiveBalType.Json, httpResponse];
 
     if (!stmtEditorComponent) {
         return (
@@ -182,53 +192,39 @@ export function AddRespondForm(props: RespondFormProps) {
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={false}
                 />
-                <div className={formClasses.formWrapper}>
-                    <div className={formClasses.formFeilds}>
-                        <div className="exp-wrapper product-tour-payload-jsonpayload">
-                            <ExpressionEditor
-                                model={{
-                                    name: "respond expression",
-                                    value: respondFormConfig.respondExpression,
-                                    type: PrimitiveBalType.Union,
-                                    fields: [
-                                        {
-                                            type: PrimitiveBalType.String
-                                        },
-                                        {
-                                            type: PrimitiveBalType.Xml
-                                        },
-                                        {
-                                            type: PrimitiveBalType.Json
-                                        },
-                                        {
-                                            type: PrimitiveBalType.Record,
-                                            typeInfo: httpResponse
-                                        }
-                                    ]
-                                }}
-                                customProps={{
-                                    validate: validateExpression,
-                                    tooltipTitle: respondStatementTooltipMessages.title,
-                                    tooltipActionText: respondStatementTooltipMessages.actionText,
-                                    tooltipActionLink: respondStatementTooltipMessages.actionLink,
-                                    interactive: true,
-                                    statementType: [PrimitiveBalType.String, PrimitiveBalType.Xml, PrimitiveBalType.Json, httpResponse]
-                                }}
-                                onChange={onExpressionChange}
-                            />
-                        </div>
-                        {(!config.model) ? statusCodeComp : null}
-
+                <div className={formClasses.formContentWrapper}>
+                    <div className={formClasses.formNameWrapper}>
+                        <ExpressionEditor
+                            model={{
+                                name: "respond expression",
+                                value: respondFormConfig.respondExpression,
+                                type: PrimitiveBalType.Union,
+                                fields: fieilTypes
+                            }}
+                            customProps={{
+                                validate: validateExpression,
+                                tooltipTitle: respondStatementTooltipMessages.title,
+                                tooltipActionText: respondStatementTooltipMessages.actionText,
+                                tooltipActionLink: respondStatementTooltipMessages.actionLink,
+                                interactive: true,
+                                statementType
+                            }}
+                            onChange={onExpressionChange}
+                        />
                     </div>
-                    <FormActionButtons
-                        cancelBtnText="Cancel"
-                        saveBtnText={saveRespondButtonLabel}
-                        isMutationInProgress={isMutationInProgress}
-                        validForm={validForm}
-                        onSave={onSaveWithTour}
-                        onCancel={onCancel}
-                    />
+                    <div className={formClasses.formEqualWrapper}>
+                        {(!config.model) ? statusCodeComp : null}
+                    </div>
                 </div>
+                <FormActionButtons
+                    cancelBtnText="Cancel"
+                    cancelBtn={true}
+                    saveBtnText={saveRespondButtonLabel}
+                    isMutationInProgress={isMutationInProgress}
+                    validForm={validForm}
+                    onSave={onSaveWithTour}
+                    onCancel={onCancel}
+                />
             </FormControl>
         );
     }
