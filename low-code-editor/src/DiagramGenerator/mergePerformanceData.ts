@@ -20,7 +20,7 @@
 import { GraphPoint, SequenceGraphPointValue } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, RemoteMethodCallAction, ResourceAccessorDefinition, STNode, traversNode, Visitor } from "@wso2-enterprise/syntax-tree";
 
-import { ANALYZETYPE } from "./performanceUtil";
+import { ANALYZE_TYPE } from "./performanceUtil";
 
 // TODO: find out what kind of invocations analyse here. is it only action invocations.
 export function mergeAnalysisDetails(
@@ -62,7 +62,7 @@ export class AnalysisDetailMerger implements Visitor {
         if (this.currentResourcePos && node.position.startLine === this.currentResourcePos.startLine &&
             node.position.startColumn === this.currentResourcePos.startColumn) {
             node.performance = this.serviceData;
-            node.performance.analyzeType = ANALYZETYPE.ADVANCED;
+            node.performance.analyzeType = ANALYZE_TYPE.ADVANCED;
         } else {
             delete node.performance;
         }

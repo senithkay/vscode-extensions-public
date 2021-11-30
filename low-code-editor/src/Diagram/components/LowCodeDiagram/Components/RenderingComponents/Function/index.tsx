@@ -24,7 +24,7 @@ import { v4 as uuid } from "uuid";
 
 import { Context, useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { Provider as FunctionProvider } from "../../../../../../Contexts/Function";
-import { addAdvancedLabels, ANALYZETYPE } from "../../../../../../DiagramGenerator/performanceUtil";
+import { addAdvancedLabels, ANALYZE_TYPE } from "../../../../../../DiagramGenerator/performanceUtil";
 import { useOverlayRef, useSelectedStatus } from "../../../../../hooks";
 import { useStyles } from "../../../../../styles";
 import { Canvas } from "../../../Canvas";
@@ -138,12 +138,12 @@ export function Function(props: FunctionProps) {
 
     if ((model as any).performance) {
         const perfData = (model as any).performance;
-        const analyzeType: ANALYZETYPE = perfData.analyzeType;
+        const analyzeType: ANALYZE_TYPE = perfData.analyzeType;
         const concurrencies = perfData.concurrency;
         const latencies = perfData.latency;
         const tpss = perfData.tps;
 
-        if (analyzeType === ANALYZETYPE.REALTIME) {
+        if (analyzeType === ANALYZE_TYPE.REALTIME) {
             isPerfDataAvailable = true;
             const minLatency = latencies.min ? `${latencies.min > 1000 ? latencies.min / 1000 :
                 latencies.min} ${latencies.min > 1000 ? " s" : " ms"}` : '0';
@@ -156,7 +156,7 @@ export function Function(props: FunctionProps) {
             latency = isAdvancedPerfDataAvailable ? `${minLatency} - ${maxLatency}` : maxLatency;
             tps = isAdvancedPerfDataAvailable ? `${tpss.min} - ${tpss.max} req/s` : `${tpss.max} req/s`;
 
-        } else if (analyzeType === ANALYZETYPE.ADVANCED) {
+        } else if (analyzeType === ANALYZE_TYPE.ADVANCED) {
             isPerfDataAvailable = true;
             isAdvancedPerfDataAvailable = true;
             concurrency = concurrencies;

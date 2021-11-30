@@ -57,7 +57,7 @@ export enum MESSAGE_TYPE {
     INFO
 }
 
-export enum ANALYZETYPE {
+export enum ANALYZE_TYPE {
     ADVANCED = "advanced",
     REALTIME = "realtime",
 }
@@ -103,7 +103,7 @@ export async function addPerformanceData(st: any, file: string, lc: DiagramEdito
 
                     if (realtimeData) {
                         syntaxTree.members[currentService].members[currentResource].performance = realtimeData;
-                        syntaxTree.members[currentService].members[currentResource].performance.analyzeType = ANALYZETYPE.REALTIME;
+                        syntaxTree.members[currentService].members[currentResource].performance.analyzeType = ANALYZE_TYPE.REALTIME;
                     }
                 }
             }
