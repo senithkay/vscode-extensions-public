@@ -57,7 +57,33 @@ export function RecordField(props: CodePanelProps) {
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 
     const handleFieldEdit = (field: SimpleField) => {
-        if (!(state.isEditorInvalid || (state.currentField && state.currentField.name === "" ||
+        if (state.currentField && state.currentField.name  === "" && (state.currentField.value === "" ||
+            state.currentField.value === undefined) && state.currentField.type === "" &&
+            state.currentField.isEditInProgress) {
+            // Removing draft field
+            const index = state.currentRecord.fields.indexOf(state.currentField);
+            state.currentRecord.fields.splice(index, 1);
+
+            const selectedFieldIndex = recordModel.fields.indexOf(field);
+            if (selectedFieldIndex !== -1) {
+                // Changes the active state to selected record model
+                state.currentRecord.isActive = false;
+                recordModel.isActive = true;
+
+                // Changes the active state to selected field
+                if (state.currentField) {
+                    state.currentField.isActive = false;
+                    state.currentField.isEditInProgress = false;
+                }
+                field.isActive = true;
+                field.isEditInProgress = true;
+
+                callBacks.onUpdateCurrentField(field);
+                callBacks.onUpdateCurrentRecord(recordModel);
+                callBacks.onUpdateModel(state.recordModel);
+                callBacks.onChangeFormState(FormState.UPDATE_FIELD);
+            }
+        } else if (!(state.isEditorInvalid || (state.currentField && state.currentField.name === "" ||
             state.currentField?.type === ""))) {
             const index = recordModel.fields.indexOf(field);
             if (index !== -1) {
@@ -99,13 +125,21 @@ export function RecordField(props: CodePanelProps) {
 
     const getNewField = () : SimpleField => {
         const newField: SimpleField = {type: "", name: "", isFieldOptional: false, isActive: true,
-                                       isNameInvalid: false, isEditInProgress: true};
+            isValueInvalid: false, isNameInvalid: true, isTypeInvalid: true, isEditInProgress: true};
         recordModel.fields.push(newField);
-        callBacks.updateEditorValidity(true);
+        // callBacks.updateEditorValidity(true);
         return newField;
     };
 
     const handleAddField = () => {
+        if (state.currentField && state.currentField.name  === "" && (state.currentField.value === "" ||
+            state.currentField.value === undefined) && state.currentField.type === "" &&
+            state.currentField.isEditInProgress) {
+            // Removing draft field
+            const index = state.currentRecord.fields.indexOf(state.currentField);
+            state.currentRecord.fields.splice(index, 1);
+        }
+
         // Changes the active state to selected record model
         state.currentRecord.isActive = false;
         if (state.currentField && state.currentField.name === "") {
@@ -132,6 +166,14 @@ export function RecordField(props: CodePanelProps) {
     };
 
     const handleImportClicked = () => {
+        if (state.currentField && state.currentField.name  === "" && (state.currentField.value === "" ||
+            state.currentField.value === undefined) && state.currentField.type === "" &&
+            state.currentField.isEditInProgress) {
+            // Removing draft field
+            const index = state.currentRecord.fields.indexOf(state.currentField);
+            state.currentRecord.fields.splice(index, 1);
+        }
+
         state.currentRecord.isActive = false;
         recordModel.isActive = true;
         callBacks.onUpdateCurrentRecord(recordModel);
@@ -186,6 +228,8 @@ export function RecordField(props: CodePanelProps) {
     };
 
     const handleFieldEditorChange = (event: any) => {
+        const isNameAlreadyExists = state.currentRecord.fields.find(field => (field.name === event.target.value)) &&
+            !(state.currentField?.name === event.target.value);
         if (event.key === 'Enter') {
             if (!event.target.value) {
                 state.currentField.name = genRecordName("f", getFieldNames(state.currentRecord.fields));
@@ -193,12 +237,11 @@ export function RecordField(props: CodePanelProps) {
             if (!state.currentField.isNameInvalid) {
                 state.currentField.isEditInProgress = false;
                 state.currentField.isActive = true;
+                state.currentField = getNewField();
             }
         } else {
             state.currentField.name = event.target.value;
         }
-        const isNameAlreadyExists = state.currentRecord.fields.find(field => (field.name === event.target.value)) &&
-            !(state.currentField?.name === event.target.value);
         if (isNameAlreadyExists) {
             setFieldNameError("Name already exists");
             state.currentField.isNameInvalid = true;

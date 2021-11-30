@@ -26,7 +26,6 @@ import { FormElementProps } from "../../../Types";
 import { VariableTypeInput, VariableTypeInputProps } from "../../Components/VariableTypeInput";
 import { recordStyles } from "../style";
 import { RecordModel, SimpleField } from "../types";
-import { genRecordName, getFieldNames } from "../utils";
 
 export interface FieldEditorProps {
     field: SimpleField;
@@ -50,7 +49,9 @@ export function FieldEditor(props: FieldEditorProps) {
     const { state, callBacks } = useRecordEditorContext();
 
     const [typeEditorFocussed, setTypeEditorFocussed] = useState<boolean>(false);
+    const [valueEditorFocussed, setValueEditorFocussed] = useState<boolean>(false);
     const [typeEditorVisible, setTypeEditorVisible] = useState<boolean>(false);
+    const [valueEditorVisible, setValueEditorVisible] = useState<boolean>(false);
 
     const typeProperty = `${field.isArray ? "[]" : ""}${field.isFieldTypeOptional ? "?" : ""}`;
 
@@ -60,17 +61,22 @@ export function FieldEditor(props: FieldEditorProps) {
         typeName: field?.isArray ? `${field?.type}[]` : field?.type,
         value: field?.value
     };
-    const handleDefaultValueFocus = (value: string) => {
-        if (!state.currentField.name) {
-            state.currentField.name = genRecordName("f", getFieldNames(state.currentRecord.fields));
-            callBacks.onUpdateCurrentField(state.currentField);
-        }
-    };
     const validateDefaultValue = (fName: string, isInvalidFromField: boolean) => {
-    //    TODO Validate default value
+        field.isValueInvalid = isInvalidFromField;
+        callBacks.onUpdateCurrentField(field);
+        callBacks.updateEditorValidity(isInvalidFromField || state.currentField.isNameInvalid ||
+            state.currentField.isTypeInvalid);
     };
     const handleDefaultValueChange = (inputText: string) => {
         field.value = inputText;
+        callBacks.onUpdateCurrentField(field);
+    };
+    const revertValueEditorFocus = () => {
+        setValueEditorFocussed(false);
+    };
+    const handleEnterPressed = () => {
+        state.currentField.isEditInProgress = false;
+        state.currentField.isActive = true;
         callBacks.onUpdateCurrentField(field);
     };
     const defaultValueProps: FormElementProps = {
@@ -79,8 +85,10 @@ export function FieldEditor(props: FieldEditorProps) {
             validate: validateDefaultValue,
             statementType: formField.typeName,
             hideTextLabel: true,
-            hideTypeLabel: true
-            // onFocus: handleDefaultValueFocus,
+            hideTypeLabel: true,
+            focus: valueEditorFocussed,
+            revertFocus: revertValueEditorFocus,
+            enterKeyPressed: handleEnterPressed
         },
         onChange: handleDefaultValueChange,
         defaultValue: field?.value
@@ -128,6 +136,9 @@ export function FieldEditor(props: FieldEditorProps) {
     const handleFocusLost = (event: any) => {
         onFocusLost(event);
     };
+    const handleTextFieldFocus = (event: any) => {
+        handleValueClick();
+    };
     const validateTypeName = (fName: string, isInvalidFromField: boolean) => {
         state.currentField.isTypeInvalid = isInvalidFromField;
         callBacks.onUpdateCurrentField(state.currentField);
@@ -137,6 +148,12 @@ export function FieldEditor(props: FieldEditorProps) {
     const handleTypeClick = () => {
         setTypeEditorVisible(true);
         setTypeEditorFocussed(true);
+        setValueEditorFocussed(false);
+    };
+    const handleValueClick = () => {
+        setValueEditorVisible(true);
+        setTypeEditorFocussed(false);
+        setValueEditorFocussed(true);
     };
 
     const varTypeProps: VariableTypeInputProps = {
@@ -152,6 +169,12 @@ export function FieldEditor(props: FieldEditorProps) {
             targetColumn: 30
         },
         ignoredCompletions: ['tempRecordName'],
+    };
+    const handleFieldOptionality = () => {
+        state.currentField.isActive = false;
+        field.isActive = true;
+        field.isFieldOptional = !field.isFieldOptional;
+        callBacks.onUpdateCurrentField(field);
     };
 
     return (
@@ -189,24 +212,35 @@ export function FieldEditor(props: FieldEditorProps) {
                             size="small"
                         />
                     </div>
-                    {field.isFieldOptional && (
-                        <Typography
-                            variant='body2'
-                            className={classnames(recordClasses.editSingleTokenWrapper)}
-                        >
-                            ?
-                        </Typography>
-                    )}
+                    {/*<div style={{background: "blue", width: 25, height: 20}} onClick={handleFieldOptionality} />*/}
                     <div className={recordClasses.recordEditorContainer}>
-                        <Typography
-                            variant='body2'
-                            className={classnames(recordClasses.equalTokenWrapper)}
-                        >
-                            =
-                        </Typography>
-                        <div className={recordClasses.editTypeWrapper}>
-                            <ExpressionEditor {...defaultValueProps} />
-                        </div>
+                        {!field.isFieldOptional && (
+                            <>
+                                <Typography
+                                    variant='body2'
+                                    className={classnames(recordClasses.equalTokenWrapper)}
+                                >
+                                    =
+                                </Typography>
+                                {valueEditorVisible ? (
+                                    <div className={recordClasses.editTypeWrapper}>
+                                        <ExpressionEditor {...defaultValueProps} />
+                                    </div>
+                                ) : (
+                                    <FormTextInput
+                                        dataTestId="field-value"
+                                        customProps={{
+                                            isErrored: false,
+                                            focused: false
+                                        }}
+                                        defaultValue={field.value}
+                                        onClick={handleValueClick}
+                                        onFocus={handleTextFieldFocus}
+                                        placeholder={"Value(Optional)"}
+                                    />
+                                )}
+                            </>
+                        )}
                     </div>
                     <Typography
                         variant='body2'

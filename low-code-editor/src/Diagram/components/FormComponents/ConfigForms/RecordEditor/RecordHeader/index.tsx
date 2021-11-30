@@ -97,7 +97,7 @@ export function RecordHeader(props: RecordHeaderProps) {
         const newField: SimpleField = {type: "", name: "", isFieldOptional: false, isActive: true,
                                        isNameInvalid: false, isEditInProgress: true};
         recordModel.fields.push(newField);
-        callBacks.updateEditorValidity(true);
+        // callBacks.updateEditorValidity(true);
         return newField;
     };
 
