@@ -20,7 +20,6 @@ export default function ResourceIcon(props: ResourceIconProps) {
 
     return (
         <svg width="14px" height="14px" viewBox="0 0 14 14" version="1.1" className={props?.className ? props.className : "dark-fill"} fill-rule="nonzero">
-            <title>Icon/Resource</title>
             <g id="Deploy" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                 <g id="deploy-indication" transform="translate(-340.000000, -457.000000)" >
                     <g id="Combined-Shape" className="svg-plus-option-icon" transform="translate(340.000000, 456.999725)">
