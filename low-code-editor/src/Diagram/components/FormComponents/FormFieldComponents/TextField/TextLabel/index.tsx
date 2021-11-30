@@ -30,25 +30,18 @@ export function TextLabel(props: TextLabelProps) {
 
     const { textLabelId: labelID, defaultMessage, label, required } = props;
 
-    const labelType = required
-        ?
+    const labelType = required ?
         (<FormHelperText className={formClasses.starLabelForRequired}>*</FormHelperText>)
-        :
-        (<FormHelperText className={formClasses.optionalLabel}>Optional</FormHelperText>)
-        ;
+        : (<FormHelperText className={formClasses.optionalLabel}>Optional</FormHelperText>);
 
     return (
         <div className={formClasses.labelWrapper}>
             <FormHelperText className={formClasses.inputLabelForRequired}>
-                {label ?
-                    label
-                    :
-                    <FormattedMessage
-                        id={labelID}
-                        defaultMessage={defaultMessage}
-                    />
+                {
+                    label ?
+                        label
+                        : <FormattedMessage id={labelID} defaultMessage={defaultMessage} />
                 }
-
             </FormHelperText>
             {labelType}
         </div>
