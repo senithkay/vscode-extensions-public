@@ -24,8 +24,7 @@ import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterpri
 
 import { VariableUserInputs } from '../../models/definitions';
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
-import { getModifications, getPartialSTForStatement } from "../../utils";
-import { visitor as ModelFindingVisitor }  from "../../visitors/model-finding-visitor";
+import { getCurrentModel, getModifications, getPartialSTForStatement } from "../../utils";
 import { LeftPane } from '../LeftPane';
 import { RightPane } from '../RightPane';
 import { useStatementEditorStyles } from "../styles";
@@ -77,6 +76,8 @@ export function ViewContainer(props: ViewProps) {
 
     const [model, setModel] = useState<STNode>(null);
     const [isStatementValid, setIsStatementValid] = useState(false);
+    const [currentModel, setCurrentModel] = useState({ model });
+    const [onCancelClicked, setOnCancel] = useState(false);
 
     if (!userInputs?.varName && !!handleNameOnChange) {
         handleNameOnChange("default")
@@ -96,6 +97,7 @@ export function ViewContainer(props: ViewProps) {
             handleTypeChange(model.typedBindingPattern.typeDescriptor.source)
         }
     }, [model]);
+
     const updateModel = async (codeSnippet: string, position: NodePosition) => {
         const stModification = {
             startLine: position.startLine,
@@ -106,15 +108,14 @@ export function ViewContainer(props: ViewProps) {
         }
         const partialST: STNode = await getPartialSTForStatement(
             { codeSnippet: model.source, stModification }, getLangClient);
-        ModelFindingVisitor.setPosition({...position, endColumn: position.startColumn + codeSnippet.length});
-        traversNode(partialST, ModelFindingVisitor);
         setModel(partialST);
-        setCurrentModel({model: ModelFindingVisitor.getModel()});
+
+        const newCurrentModel = getCurrentModel({
+            ...position,
+            endColumn: position.startColumn + codeSnippet.length
+        }, partialST);
+        setCurrentModel({model: newCurrentModel});
     }
-
-    const [currentModel, setCurrentModel] = useState({ model });
-
-    const [onCancelClicked, setOnCancel] = useState(false);
 
     const currentModelHandler = (cModel: STNode) => {
         setCurrentModel({

@@ -20,13 +20,14 @@ import {
 import {
     NodePosition,
     STKindChecker,
-    STNode
+    STNode, traversNode
 } from "@wso2-enterprise/syntax-tree";
 
 import * as expressionTypeComponents from '../components/ExpressionTypes';
 import * as statementTypeComponents from '../components/Statements';
 import * as c from "../constants";
 import { SuggestionItem, VariableUserInputs } from '../models/definitions';
+import { visitor as ModelFindingVisitor } from "../visitors/model-finding-visitor";
 
 import { createStatement, updateStatement } from "./statement-modifications";
 import {
@@ -153,6 +154,13 @@ export function getStatementTypeComponent(
             diagnosticHandler={diagnosticHandler}
         />
     );
+}
+
+export function getCurrentModel(position: NodePosition, model: STNode): STNode {
+    ModelFindingVisitor.setPosition(position);
+    traversNode(model, ModelFindingVisitor);
+
+    return ModelFindingVisitor.getModel();
 }
 
 export function isPositionsEquals(position1: NodePosition, position2: NodePosition): boolean {
