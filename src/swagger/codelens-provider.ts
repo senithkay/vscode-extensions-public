@@ -104,7 +104,7 @@ export class TryOutCodeLensProvider {
                 for (const member of members) {
                     if (member.kind === 'ServiceDeclaration') {
                         services.push({
-                            position: member.position,
+                            position: (member as any).serviceKeyword.position,
                             name: this.getResourcePath((member as any).absoluteResourcePath)
                         })
                     }
