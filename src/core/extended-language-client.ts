@@ -30,7 +30,7 @@ import {
     ExpressionTypeRequest,
     ExpressionTypeResponse,
 } from "@wso2-enterprise/ballerina-low-code-editor";
-import { BallerinaConnectorsRequest } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BallerinaConnectorsRequest, BallerinaTriggerRequest, BallerinaTriggerResponse, BallerinaTriggersRequest, BallerinaTriggersResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { BallerinaExtension } from "./index";
 import { showChoreoPushMessage } from "../editor-support/git-status";
 import { MESSAGE_TYPE } from "../utils/showMessage";
@@ -48,6 +48,8 @@ enum EXTENDED_APIS {
     DOCUMENT_TRIGGER_MODIFY = 'ballerinaDocument/triggerModify',
     SYMBOL_TYPE = 'ballerinaSymbol/type',
     CONNECTOR_CONNECTORS = 'ballerinaConnector/connectors',
+    TRIGGER_TRIGGERS = 'ballerinaTrigger/triggers',
+    TRIGGER_TRIGGER = 'ballerinaTrigger/trigger',
     CONNECTOR_CONNECTOR = 'ballerinaConnector/connector',
     CONNECTOR_RECORD = 'ballerinaConnector/record',
     PACKAGE_COMPONENTS = 'ballerinaPackage/components',
@@ -70,6 +72,7 @@ enum EXTENDED_APIS_ORG {
     JSON_TO_RECORD = 'jsonToRecord',
     SYMBOL = 'ballerinaSymbol',
     CONNECTOR = 'ballerinaConnector',
+    TRIGGER = 'ballerinaTrigger',
     PERF_ANALYZER = 'performanceAnalyzer',
     PARTIAL_PARSER = 'partialParser',
     BALLERINA_TO_OPENAPI = 'openAPILSExtension'
@@ -354,11 +357,23 @@ export class ExtendedLangClient extends LanguageClient {
         }
         return this.sendRequest<BallerinaConnectorsResponse>(EXTENDED_APIS.CONNECTOR_CONNECTORS, params);
     }
+    getTriggers(params: BallerinaTriggersRequest): Thenable<BallerinaTriggersResponse> {
+        if (!this.isExtendedServiceSupported(EXTENDED_APIS.TRIGGER_TRIGGERS)) {
+            Promise.resolve(NOT_SUPPORTED);
+        }
+        return this.sendRequest<BallerinaTriggersResponse>(EXTENDED_APIS.TRIGGER_TRIGGERS, params);
+    }
     getConnector(params: BallerinaConnectorRequest): Thenable<BallerinaConnectorResponse> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.CONNECTOR_CONNECTOR)) {
             Promise.resolve(NOT_SUPPORTED);
         }
         return this.sendRequest<BallerinaConnectorResponse>(EXTENDED_APIS.CONNECTOR_CONNECTOR, params);
+    }
+    getTrigger(params: BallerinaTriggerRequest): Thenable<BallerinaTriggerResponse> {
+        if (!this.isExtendedServiceSupported(EXTENDED_APIS.TRIGGER_TRIGGER)) {
+            Promise.resolve(NOT_SUPPORTED);
+        }
+        return this.sendRequest<BallerinaTriggerResponse>(EXTENDED_APIS.TRIGGER_TRIGGER, params);
     }
     getRecord(params: BallerinaRecordRequest): Thenable<BallerinaRecordResponse> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.CONNECTOR_RECORD)) {
@@ -517,6 +532,9 @@ export class ExtendedLangClient extends LanguageClient {
                 { name: EXTENDED_APIS_ORG.SYMBOL, type: true },
                 {
                     name: EXTENDED_APIS_ORG.CONNECTOR, connectors: true, connector: true, record: true
+                },
+                {
+                    name: EXTENDED_APIS_ORG.TRIGGER, triggers: true, trigger: true
                 },
                 { name: EXTENDED_APIS_ORG.EXAMPLE, list: true },
                 { name: EXTENDED_APIS_ORG.JSON_TO_RECORD, convert: true },
