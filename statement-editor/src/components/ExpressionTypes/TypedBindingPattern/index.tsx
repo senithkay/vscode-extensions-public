@@ -19,7 +19,7 @@ import classNames from "classnames";
 import { VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getTypeDescriptors } from "../../../utils";
+import { getTypeDescriptors, isPositionsEquals } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
@@ -64,7 +64,7 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
     };
 
     if (currentModel.model) {
-        if (currentModel.model.position === model.typeDescriptor.position) {
+        if (isPositionsEquals(currentModel.model.position, model.typeDescriptor.position)) {
             hasTypeDescSelected = true;
         }
     }

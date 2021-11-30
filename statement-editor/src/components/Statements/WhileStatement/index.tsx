@@ -20,7 +20,7 @@ import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
+import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
@@ -57,7 +57,7 @@ export function WhileStatementC(props: WhileStatementProps) {
     };
 
     if (currentModel.model) {
-        if (currentModel.model.position === model.condition.position) {
+        if (isPositionsEquals(currentModel.model.position, model.condition.position)) {
             hasConditionSelected = true;
         }
     }

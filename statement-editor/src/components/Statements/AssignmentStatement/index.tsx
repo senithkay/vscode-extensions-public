@@ -20,7 +20,7 @@ import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind, getTypeDescriptors } from "../../../utils";
+import { getSuggestionsBasedOnExpressionKind, getTypeDescriptors, isPositionsEquals } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
@@ -74,9 +74,9 @@ export function AssignmentStatementComponent(props: AssignmentStatementProps) {
     };
 
     if (currentModel.model) {
-        if (currentModel.model.position === model.varRef.position) {
+        if (isPositionsEquals(currentModel.model.position, model.varRef.position)) {
             hasVarRefSelected = true;
-        } else if (currentModel.model.position === model.expression.position) {
+        } else if (isPositionsEquals(currentModel.model.position, model.expression.position)) {
             hasExpressionSelected = true;
         }
     }

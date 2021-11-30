@@ -19,6 +19,7 @@ import classNames from "classnames";
 import { VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
+import { isPositionsEquals } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
@@ -59,7 +60,7 @@ export function MethodCallComponent(props: MethodCallProps) {
     );
 
     if (currentModel.model) {
-        if (currentModel.model.position === model.methodName.position) {
+        if (isPositionsEquals(currentModel.model.position, model.methodName.position)) {
             hasMethodNameSelected = true;
         }
     }

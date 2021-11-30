@@ -20,7 +20,7 @@ import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
+import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
@@ -91,11 +91,11 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
     };
 
     if (currentModel.model) {
-        if (currentModel.model.position === model.lhsExpression.position) {
+        if (isPositionsEquals(currentModel.model.position, model.lhsExpression.position)) {
             hasLHSSelected = true;
-        } else if (currentModel.model.position === model.middleExpression.position) {
+        } else if (isPositionsEquals(currentModel.model.position, model.middleExpression.position)) {
             hasMiddleExprSelected = true;
-        } else if (currentModel.model.position === model.endExpression.position) {
+        } else if (isPositionsEquals(currentModel.model.position, model.endExpression.position)) {
             hasEndExprSelected = true;
         }
     }

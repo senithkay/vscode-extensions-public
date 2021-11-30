@@ -19,6 +19,7 @@ import classNames from "classnames";
 import { VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
+import { isPositionsEquals } from "../../../utils";
 import { useStatementEditorStyles } from "../../styles";
 
 interface CaptureBindingPatternProps {
@@ -44,7 +45,7 @@ export function CaptureBindingPatternComponent(props: CaptureBindingPatternProps
     };
 
     if (currentModel.model) {
-        if (currentModel.model.position === model.variableName.position) {
+        if (isPositionsEquals(currentModel.model.position, model.variableName.position)) {
             hasVarNameSelected = true;
         }
     }

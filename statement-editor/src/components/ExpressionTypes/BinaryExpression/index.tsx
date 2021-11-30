@@ -20,7 +20,12 @@ import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getKindBasedOnOperator, getOperatorSuggestions, getSuggestionsBasedOnExpressionKind } from "../../../utils";
+import {
+    getKindBasedOnOperator,
+    getOperatorSuggestions,
+    getSuggestionsBasedOnExpressionKind,
+    isPositionsEquals
+} from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
@@ -82,11 +87,11 @@ export function BinaryExpressionComponent(props: BinaryProps) {
     };
 
     if (currentModel.model) {
-        if (currentModel.model.position === model.lhsExpr.position) {
+        if (isPositionsEquals(currentModel.model.position, model.lhsExpr.position)) {
             hasLHSSelected = true;
-        } else if (currentModel.model.position === model.operator.position) {
+        } else if (isPositionsEquals(currentModel.model.position, model.operator.position)) {
             hasOperatorSelected = true;
-        } else if (currentModel.model.position === model.rhsExpr.position) {
+        } else if (isPositionsEquals(currentModel.model.position, model.rhsExpr.position)) {
             hasRHSSelected = true;
         }
     }

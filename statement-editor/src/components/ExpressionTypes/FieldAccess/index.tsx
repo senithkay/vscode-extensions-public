@@ -20,7 +20,7 @@ import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
+import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
@@ -82,11 +82,11 @@ export function FieldAccessComponent(props: FieldAccessProps) {
     }
 
     if (currentModel.model) {
-        if (currentModel.model.position === model.position) {
+        if (isPositionsEquals(currentModel.model.position, model.position)) {
             hasFieldAccessExprSelected = true;
-        } else if (currentModel.model.position === model.expression.position) {
+        } else if (isPositionsEquals(currentModel.model.position, model.expression.position)) {
             hasExprSelected = true;
-        } else if (currentModel.model.position === model.fieldName.position) {
+        } else if (isPositionsEquals(currentModel.model.position, model.fieldName.position)) {
             hasFieldNameSelected = true;
         }
     }

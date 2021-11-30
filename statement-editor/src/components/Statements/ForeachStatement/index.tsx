@@ -20,7 +20,7 @@ import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
+import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
@@ -74,9 +74,9 @@ export function ForeachStatementC(props: ForeachStatementProps) {
     };
 
     if (currentModel.model) {
-        if (currentModel.model.position === model.typedBindingPattern.position) {
+        if (isPositionsEquals(currentModel.model.position, model.typedBindingPattern.position)) {
             hasTypedBindingPatternSelected = true;
-        } else if (currentModel.model.position === model.actionOrExpressionNode.position) {
+        } else if (isPositionsEquals(currentModel.model.position, model.actionOrExpressionNode.position)) {
             hasExprComponentSelected = true;
         }
     }
