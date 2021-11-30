@@ -305,7 +305,6 @@ export function AddForeachForm(props: ForeachProps) {
                         <Typography variant='body2' className={classes.endCode}>{`}`}</Typography>
                     </div>
                 </div>
-
                 <FormActionButtons
                     cancelBtnText={cancelForEachButtonLabel}
                     cancelBtn={true}

@@ -159,7 +159,6 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                 defaultMessage={"Listener"}
                 formType={formType}
             />
-
             <div className={formClasses.formContentWrapper}>
                 <div className={formClasses.formNameWrapper}>
                     <TextLabel
@@ -183,7 +182,6 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                     {listenerPortInputComponent}
                 </div>
             </div>
-
             <FormActionButtons
                 cancelBtnText="Cancel"
                 cancelBtn={true}

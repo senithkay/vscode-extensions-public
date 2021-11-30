@@ -147,7 +147,6 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
                 defaultMessage={"Variables"}
                 formType={formType}
             />
-
             <div className={formClasses.formContentWrapper}>
                 <div className={formClasses.formNameWrapper}>
                     <TextLabel
@@ -179,7 +178,6 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
                     />
                 </div>
             </div>
-
             <FormActionButtons
                 cancelBtnText="Cancel"
                 cancelBtn={true}

@@ -120,7 +120,6 @@ export function AddReturnForm(props: ReturnFormProps) {
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={false}
                 />
-
                 <div className={classes.formContentWrapper}>
                     <div className={classes.formNameWrapper}>
                         <ExpressionEditor
@@ -141,7 +140,6 @@ export function AddReturnForm(props: ReturnFormProps) {
                         />
                     </div>
                 </div>
-
                 <FormActionButtons
                     cancelBtnText="Cancel"
                     cancelBtn={true}

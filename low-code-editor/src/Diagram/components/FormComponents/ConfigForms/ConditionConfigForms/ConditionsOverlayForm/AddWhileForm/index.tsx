@@ -146,7 +146,6 @@ export function AddWhileForm(props: WhileProps) {
                     defaultMessage={"While"}
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={false}
-
                 />
                 <div className={classes.formContentWrapper}>
                     <div className={classes.formCodeBlockWrapper}>
@@ -165,7 +164,6 @@ export function AddWhileForm(props: WhileProps) {
                         <Typography variant='body2' className={classes.endCode}>{`}`}</Typography>
                     </div>
                 </div>
-
                 <FormActionButtons
                     cancelBtnText={cancelWhileButtonLabel}
                     saveBtnText={saveWhileButtonLabel}

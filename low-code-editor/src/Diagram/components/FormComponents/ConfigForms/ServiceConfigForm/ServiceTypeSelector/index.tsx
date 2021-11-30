@@ -58,5 +58,4 @@ export function ServiceTypeSelector(props: ServiceTypeSelectorProps) {
             </List>
         </div>
     )
-
 }

@@ -127,7 +127,6 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={false}
                 />
-
                 <div className={formClasses.formContentWrapper}>
                     <div className={formClasses.formNameWrapper}>
                         <ExpressionEditor
@@ -148,7 +147,6 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                         />
                     </div>
                 </div>
-
                 <FormActionButtons
                     cancelBtnText="Cancel"
                     cancelBtn={true}

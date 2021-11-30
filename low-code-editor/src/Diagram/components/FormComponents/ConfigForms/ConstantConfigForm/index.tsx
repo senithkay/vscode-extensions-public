@@ -182,7 +182,6 @@ export function ConstantConfigForm(props: ConstantConfigFormProps) {
                     />
                 </div>
             </div>
-
             <FormActionButtons
                 cancelBtnText="Cancel"
                 cancelBtn={true}

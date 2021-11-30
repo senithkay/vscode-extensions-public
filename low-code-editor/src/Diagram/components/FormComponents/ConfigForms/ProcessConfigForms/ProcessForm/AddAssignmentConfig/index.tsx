@@ -114,7 +114,6 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
         defaultValue: varName,
     };
 
-
     const expressionEditorConfig: FormElementProps<ExpressionEditorProps> = {
         model: {
             name: "Expression",
@@ -186,7 +185,6 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={false}
                 />
-
                 <div className={classes.formContentWrapper}>
                     <div className={classes.formNameWrapper}>
                         {nameExpressionEditor}
@@ -201,11 +199,9 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
                                     {expressionEditor}
                                 </div>
                             </div>
-
                         }
                     </div>
                 </div>
-
                 <FormActionButtons
                     cancelBtnText={cancelVariableButtonText}
                     cancelBtn={true}

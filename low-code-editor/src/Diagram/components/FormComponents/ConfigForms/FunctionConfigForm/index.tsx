@@ -216,7 +216,6 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
                 defaultMessage={"Function"}
                 formType={formType}
             />
-
             <div className={formClasses.formContentWrapper}>
                 <div className={formClasses.formNameWrapper}>
                     <VariableNameInput {...functionNameConfig} />
@@ -255,7 +254,6 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
                     </Section>
                 </div>
             </div>
-
             <FormActionButtons
                 cancelBtnText="Cancel"
                 cancelBtn={true}

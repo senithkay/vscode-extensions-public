@@ -219,7 +219,6 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
                         textLabelId="lowcode.develop.configForms.ModuleVarDecl.defaultValueIncluded"
                         defaultMessage="Default Value :"
                     />
-
                     <CheckBoxGroup
                         values={["Include Default Value"]}
                         defaultValues={state.hasDefaultValue ? ['Include Default Value'] : []}
@@ -230,10 +229,8 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
                             {...expressionEditorConfigForValue}
                         />
                     </div>
-
                 </div>
             </div>
-
             <FormActionButtons
                 cancelBtnText="Cancel"
                 cancelBtn={true}

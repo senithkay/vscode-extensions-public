@@ -192,7 +192,6 @@ export function AddRespondForm(props: RespondFormProps) {
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={false}
                 />
-
                 <div className={formClasses.formContentWrapper}>
                     <div className={formClasses.formNameWrapper}>
                         <ExpressionEditor
@@ -217,7 +216,6 @@ export function AddRespondForm(props: RespondFormProps) {
                         {(!config.model) ? statusCodeComp : null}
                     </div>
                 </div>
-
                 <FormActionButtons
                     cancelBtnText="Cancel"
                     cancelBtn={true}

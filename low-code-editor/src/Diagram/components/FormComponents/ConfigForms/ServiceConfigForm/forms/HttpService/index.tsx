@@ -101,13 +101,11 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
                         defaultValue={state.serviceBasePath}
                         label="Service Base Path :"
                     />
-
                     <TextLabel
                         required={true}
                         textLabelId="lowcode.develop.connectorForms.HTTP.configureNewListener"
                         defaultMessage="Configure Listener :"
                     />
-
                 </div>
                 <div className={classNames(formClasses.groupedForm, formClasses.marginTB)}>
                     <ListenerConfigForm
