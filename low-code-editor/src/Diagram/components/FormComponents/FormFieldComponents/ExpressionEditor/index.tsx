@@ -208,8 +208,8 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         customProps,
     } = props;
     const { validate, statementType, customTemplate, focus, expandDefault, clearInput, revertClearInput, changed,
-            subEditor, editPosition, expressionInjectables, hideSuggestions, hideExpand,
-            getCompletions = getStandardExpCompletions, showHints = true, disabled, enterKeyPressed, onFocus } = customProps;
+        subEditor, editPosition, expressionInjectables, hideSuggestions, hideExpand,
+        getCompletions = getStandardExpCompletions, showHints = true, disabled, enterKeyPressed, onFocus } = customProps;
     const targetPosition = editPosition ? editPosition : getTargetPosition(targetPositionDraft, syntaxTree);
     const [invalidSourceCode, setInvalidSourceCode] = useState(false);
     const [expand, setExpand] = useState(expandDefault || false);
@@ -455,7 +455,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             // - If model type os one of valid configurable types
             // - originalValue is empty (will be empty in create flow, or if user removes the expression during edit flow)
             const configurableWidget: monaco.editor.IContentWidget = createContentWidget(CONFIGURABLE_WIDGET_ID);
-            if (configurableTypes.includes(varType) && expressionInjectables && !originalValue){
+            if (configurableTypes.includes(varType) && expressionInjectables && !originalValue) {
                 monacoRef.current.editor.addContentWidget(configurableWidget);
             } else {
                 monacoRef.current.editor.removeContentWidget(configurableWidget);
@@ -641,7 +641,10 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         if ((currentContent === "" || TRIGGER_CHARACTERS.includes(lastCharacter)) && monacoRef.current.editor.hasTextFocus()) {
             monacoRef.current.editor.trigger('exp_editor', 'editor.action.triggerSuggest', {})
         }
-        onFocus(currentContent);
+        
+        if (onFocus) {
+            onFocus(currentContent);
+        }
     }
 
     // ExpEditor onChange
@@ -723,7 +726,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 }
             }
 
-            if (!!originalValue && !currentContent){
+            if (!!originalValue && !currentContent) {
                 // Enable configurable insertion icon when user deletes the whole expression
                 setOriginalValue("");
             }
@@ -865,7 +868,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             }
         });
     }
-    const expEditorStyle = monacoRef?.current?.editor?.hasTextFocus() ?  "exp-editor-active" : "exp-editor";
+    const expEditorStyle = monacoRef?.current?.editor?.hasTextFocus() ? "exp-editor-active" : "exp-editor";
 
     setDefaultTooltips();
 
