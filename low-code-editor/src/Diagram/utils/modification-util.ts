@@ -144,11 +144,11 @@ export function updateWhileStatementCondition(conditionExpression: string, targe
     return updatedIfStatement;
 }
 
-export function createPropertyStatement(property: string, targetPosition: NodePosition): STModification {
+export function createPropertyStatement(property: string, targetPosition?: NodePosition): STModification {
     const propertyStatement: STModification = {
-        startLine: targetPosition.startLine,
+        startLine: targetPosition ? targetPosition.startLine : 0,
         startColumn: 0,
-        endLine: targetPosition.startLine,
+        endLine: targetPosition ? targetPosition.startLine : 0,
         endColumn: 0,
         type: "PROPERTY_STATEMENT",
         config: {

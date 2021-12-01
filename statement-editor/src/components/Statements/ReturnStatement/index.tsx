@@ -10,6 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext } from "react";
 
 import { ReturnStatement } from "@wso2-enterprise/syntax-tree";
@@ -17,8 +18,9 @@ import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
+import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
+import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
@@ -31,6 +33,11 @@ interface ReturnStatementProps {
 
 export function ReturnStatementC(props: ReturnStatementProps) {
     const { model, userInputs, diagnosticHandler } = props;
+    const stmtCtx = useContext(StatementEditorContext);
+    const { modelCtx } = stmtCtx;
+    const { currentModel } = modelCtx;
+    const hasExpressionSelected = currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.expression.position);
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
@@ -45,19 +52,29 @@ export function ReturnStatementC(props: ReturnStatementProps) {
         />
     );
 
-
     const onClickOnExpression = (event: any) => {
         event.stopPropagation()
         expressionHandler(model.expression, false, false,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
+            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) });
     };
+
+    if (!currentModel.model) {
+        expressionHandler(model.expression, false, false,
+            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) });
+    }
 
     return (
         <span>
             <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
                 {model.returnKeyword.value}
             </span>
-                <button className={statementEditorClasses.expressionElement} onClick={onClickOnExpression}>
+                <button
+                    className={classNames(
+                        statementEditorClasses.expressionElement,
+                        hasExpressionSelected && statementEditorClasses.expressionElementSelected
+                    )}
+                    onClick={onClickOnExpression}
+                >
                     {expressionComponent}
                 </button>
             <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>

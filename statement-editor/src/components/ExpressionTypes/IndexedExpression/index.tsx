@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-wrap-multiline jsx-no-multiline-js
+// tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { ReactNode, useContext } from "react";
 
 import { IndexedExpression, STNode } from "@wso2-enterprise/syntax-tree";
@@ -18,8 +18,9 @@ import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
+import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
+import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
@@ -31,68 +32,89 @@ interface IndexedExpressionProps {
 
 export function IndexedExpressionComponent(props: IndexedExpressionProps) {
     const { model, userInputs, diagnosticHandler } = props;
+    const stmtCtx = useContext(StatementEditorContext);
+    const { modelCtx } = stmtCtx;
+    const { currentModel } = modelCtx;
+    const hasContainerExprSelected = currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.containerExpression.position);
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
 
-    const containerExpr: ReactNode = <ExpressionComponent
-        model={model.containerExpression}
-        isRoot={false}
-        userInputs={userInputs}
-        diagnosticHandler={diagnosticHandler}
-        isTypeDescriptor={false}
-    />;
-
-    const keyExpressions: ReactNode[] = [];
-
-    model.keyExpression.forEach((expr: STNode) => {
-        const expression: ReactNode = <ExpressionComponent
-            model={expr}
+    const containerExpr: ReactNode = (
+        <ExpressionComponent
+            model={model.containerExpression}
             isRoot={false}
             userInputs={userInputs}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
-        />;
-        keyExpressions.push(expression)
-
-    });
+        />
+    );
 
     const keyExprComponent = (
         <span>
-                {
-                    keyExpressions.map((expr: ReactNode, index: number) => (
-                        (
-                            <button
-                                key={index}
-                                className={statementEditorClasses.expressionElement}
-                            >
-                                {expr}
-                            </button>
-                        )
-                    ))
-                }
-            </span>
+            {
+                model.keyExpression.map((expression: STNode, index: number) => (
+                    <button
+                        key={index}
+                        className={classNames(
+                            statementEditorClasses.expressionElement,
+                            (currentModel.model && currentModel.model.position === expression.position) &&
+                            statementEditorClasses.expressionElementSelected
+                        )}
+                        onClick={(event) => onClickOnKeyExpr(expression, event)}
+                    >
+                        <ExpressionComponent
+                            model={expression}
+                            isRoot={false}
+                            userInputs={userInputs}
+                            diagnosticHandler={diagnosticHandler}
+                            isTypeDescriptor={false}
+                        />
+                    </button>
+                ))
+            }
+        </span>
     );
 
-    const onClickOnExpression = (event: any) => {
+    const onClickOnContainerExpr = (event: any) => {
         event.stopPropagation()
         expressionHandler(model.containerExpression, false, false,
+            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
+    };
+
+    const onClickOnKeyExpr = (clickedExpression: STNode, event: any) => {
+        event.stopPropagation()
+        expressionHandler(clickedExpression, false, false,
             { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
     };
 
     return (
         <span>
             <button
-                className={statementEditorClasses.expressionElement}
-                onClick={onClickOnExpression}
+                className={classNames(
+                    statementEditorClasses.expressionElement,
+                    hasContainerExprSelected && statementEditorClasses.expressionElementSelected
+                )}
+                onClick={onClickOnContainerExpr}
             >
                 {containerExpr}
             </button>
-            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
+            <span
+                className={classNames(
+                    statementEditorClasses.expressionBlock,
+                    statementEditorClasses.expressionBlockDisabled
+                )}
+            >
                 {model.openBracket.value}
             </span>
             {keyExprComponent}
-            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
+            <span
+                className={classNames(
+                    statementEditorClasses.expressionBlock,
+                    statementEditorClasses.expressionBlockDisabled
+                )}
+            >
                 {model.closeBracket.value}
             </span>
         </span>

@@ -10,16 +10,13 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-wrap-multiline
 import React, { useContext } from "react";
 
 import { StringTypeDesc } from "@wso2-enterprise/syntax-tree";
 
 import { VariableUserInputs } from "../../../../models/definitions";
 import { SuggestionsContext } from "../../../../store/suggestions-context";
-import { getTypeDescriptors } from "../../../../utils";
 import { InputEditor } from "../../../InputEditor";
-import { useStatementEditorStyles } from "../../../styles";
 
 interface StringTypeDescProps {
     model: StringTypeDesc
@@ -31,7 +28,6 @@ interface StringTypeDescProps {
 export function StringTypeDescComponent(props: StringTypeDescProps) {
     const { model, userInputs, diagnosticHandler, isTypeDescriptor } = props;
 
-    const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
 
     const inputEditorProps = {
@@ -43,17 +39,7 @@ export function StringTypeDescComponent(props: StringTypeDescProps) {
         isTypeDescriptor
     };
 
-    const onClickOnType = (event: any) => {
-        event.stopPropagation()
-        expressionHandler(model, false, true, { typeSuggestions: getTypeDescriptors() })
-    };
-
     return (
-        <button
-            className={statementEditorClasses.expressionElement}
-            onClick={onClickOnType}
-        >
-            <InputEditor {...inputEditorProps} />
-        </button>
+        <InputEditor {...inputEditorProps} />
     );
 }

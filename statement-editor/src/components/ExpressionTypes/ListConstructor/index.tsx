@@ -10,13 +10,17 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-wrap-multiline jsx-no-multiline-js
-import React, { ReactNode } from "react";
+// tslint:disable: jsx-no-multiline-js jsx-no-lambda
+import React, { useContext } from "react";
 
 import { ListConstructor, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
+import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
+import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { SuggestionsContext } from "../../../store/suggestions-context";
+import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
@@ -28,64 +32,73 @@ interface ListConstructorProps {
 
 export function ListConstructorComponent(props: ListConstructorProps) {
     const { model, userInputs, diagnosticHandler } = props;
+    const stmtCtx = useContext(StatementEditorContext);
+    const { modelCtx } = stmtCtx;
+    const { currentModel } = modelCtx;
 
     const statementEditorClasses = useStatementEditorStyles();
+    const { expressionHandler } = useContext(SuggestionsContext);
 
-    const expressions: (ReactNode | string)[] = [];
-
-    model.expressions.forEach((expression: STNode) => {
-        if (STKindChecker.isCommaToken(expression)) {
-            expressions.push(expression.value);
-        } else {
-            const expr: ReactNode = <ExpressionComponent
-                model={expression}
-                isRoot={false}
-                userInputs={userInputs}
-                diagnosticHandler={diagnosticHandler}
-                isTypeDescriptor={false}
-            />;
-            expressions.push(expr)
-        }
-    });
+    const onClickOnExpression = (clickedExpression: STNode, event: any) => {
+        event.stopPropagation();
+        expressionHandler(clickedExpression, false, false,
+            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
+    };
 
     const expressionComponent = (
-            <span>
-                {
-                    expressions.map((expr: ReactNode | string, index: number) => (
-                        (typeof expr === 'string') ?
-                            (
-                                <span
-                                    key={index}
-                                    className={
-                                        classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)
-                                    }
-                                >
-                                    {expr}
-                                </span>
-                            ) :
-                            (
-                                <button
-                                    key={index}
-                                    className={statementEditorClasses.expressionElement}
-                                >
-                                    {expr}
-                                </button>
-                            )
-                    ))
-                }
-            </span>
-        );
+        <span>
+            {
+                model.expressions.map((expression: STNode, index: number) => (
+                    (STKindChecker.isCommaToken(expression)) ? (
+                        <span
+                            key={index}
+                            className={classNames(
+                                statementEditorClasses.expressionBlock,
+                                statementEditorClasses.expressionBlockDisabled
+                            )}
+                        >
+                            {expression.value}
+                        </span>
+                    ) : (
+                        <button
+                            key={index}
+                            className={classNames(
+                                statementEditorClasses.expressionElement,
+                                (currentModel.model && currentModel.model.position === expression.position) &&
+                                    statementEditorClasses.expressionElementSelected
+                            )}
+                            onClick={(event) => onClickOnExpression(expression, event)}
+                        >
+                            <ExpressionComponent
+                                model={expression}
+                                isRoot={false}
+                                userInputs={userInputs}
+                                diagnosticHandler={diagnosticHandler}
+                                isTypeDescriptor={false}
+                            />
+                        </button>
+                    )
+                ))
+            }
+        </span>
+    );
 
     return (
         <span>
             <span
-                className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}
+                className={classNames(
+                    statementEditorClasses.expressionBlock,
+                    statementEditorClasses.expressionBlockDisabled
+                )}
             >
                 &nbsp;{model.openBracket.value}
             </span>
             {expressionComponent}
             <span
-                className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}
+                className={classNames(
+                    statementEditorClasses.expressionBlock,
+                    statementEditorClasses.expressionBlockDisabled
+                )}
             >
                 {model.closeBracket.value}
             </span>

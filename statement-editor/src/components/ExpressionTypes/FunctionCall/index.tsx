@@ -10,13 +10,16 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-wrap-multiline jsx-no-multiline-js
-import React, { ReactNode } from "react";
+// tslint:disable: jsx-no-multiline-js
+import React, {ReactNode, useContext} from "react";
 
 import { FunctionCall, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { VariableUserInputs } from "../../../models/definitions";
+import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { SuggestionsContext } from "../../../store/suggestions-context";
+import { isPositionsEquals } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
@@ -28,58 +31,54 @@ interface FunctionCallProps {
 
 export function FunctionCallComponent(props: FunctionCallProps) {
     const { model, userInputs, diagnosticHandler } = props;
+    const stmtCtx = useContext(StatementEditorContext);
+    const { modelCtx } = stmtCtx;
+    const { currentModel } = modelCtx;
+    const hasFunctionNameSelected = currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.functionName.position);
 
     const statementEditorClasses = useStatementEditorStyles();
+    const { expressionHandler } = useContext(SuggestionsContext);
 
-    const functionName: ReactNode = <ExpressionComponent
-        model={model.functionName}
-        isRoot={false}
-        userInputs={userInputs}
-        diagnosticHandler={diagnosticHandler}
-        isTypeDescriptor={false}
-    />;
+    const onClickOnFunctionName = (event: any) => {
+        event.stopPropagation();
+        expressionHandler(model.functionName, false, false,
+            { expressionSuggestions: [], typeSuggestions: [], variableSuggestions: [] })
+    };
 
-    const exprArguments: (ReactNode | string)[] = [];
-
-    model.arguments.forEach((expr: STNode) => {
-        if (STKindChecker.isCommaToken(expr)) {
-            exprArguments.push(expr.value);
-        } else {
-            const expression: ReactNode = <ExpressionComponent
-                model={expr}
-                isRoot={false}
-                userInputs={userInputs}
-                diagnosticHandler={diagnosticHandler}
-                isTypeDescriptor={false}
-            />;
-            exprArguments.push(expression)
-        }
-    });
+    const functionName: ReactNode = (
+        <ExpressionComponent
+            model={model.functionName}
+            isRoot={false}
+            userInputs={userInputs}
+            diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
+        />
+    );
 
     const expressionComponent = (
         <span>
             {
-                exprArguments.map((expr: ReactNode | string, index: number) => (
-                    (typeof expr === 'string') ?
-                        (
-                            <span
-                                key={index}
-                                className={
-                                    classNames(statementEditorClasses.expressionBlock,
-                                        statementEditorClasses.expressionBlockDisabled)
-                                }
-                            >
-                                {expr}
-                            </span>
-                        ) :
-                        (
-                            <button
-                                key={index}
-                                className={statementEditorClasses.expressionElement}
-                            >
-                                {expr}
-                            </button>
-                        )
+                model.arguments.map((expression: STNode, index: number) => (
+                    (STKindChecker.isCommaToken(expression)) ? (
+                        <span
+                            key={index}
+                            className={classNames(
+                                statementEditorClasses.expressionBlock,
+                                statementEditorClasses.expressionBlockDisabled
+                            )}
+                        >
+                            {expression.value}
+                        </span>
+                    ) : (
+                        <ExpressionComponent
+                            model={expression}
+                            isRoot={false}
+                            userInputs={userInputs}
+                            diagnosticHandler={diagnosticHandler}
+                            isTypeDescriptor={false}
+                        />
+                    )
                 ))
             }
         </span>
@@ -88,15 +87,28 @@ export function FunctionCallComponent(props: FunctionCallProps) {
     return (
         <span>
             <button
-                className={statementEditorClasses.expressionElement}
+                className={classNames(
+                    statementEditorClasses.expressionElement,
+                    hasFunctionNameSelected && statementEditorClasses.expressionElementSelected)}
+                onClick={onClickOnFunctionName}
             >
                 {functionName}
             </button>
-            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
+            <span
+                className={classNames(
+                    statementEditorClasses.expressionBlock,
+                    statementEditorClasses.expressionBlockDisabled
+                )}
+            >
                 {model.openParenToken.value}
             </span>
             {expressionComponent}
-            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
+            <span
+                className={classNames(
+                    statementEditorClasses.expressionBlock,
+                    statementEditorClasses.expressionBlockDisabled
+                )}
+            >
                 {model.closeParenToken.value}
             </span>
         </span>

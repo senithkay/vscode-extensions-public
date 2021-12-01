@@ -10,12 +10,17 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { ReactNode } from "react";
+// tslint:disable: jsx-no-multiline-js
+import React, {ReactNode, useContext} from "react";
 
 import { AssignmentStatement } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
+import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
+import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { SuggestionsContext } from "../../../store/suggestions-context";
+import { getSuggestionsBasedOnExpressionKind, getTypeDescriptors, isPositionsEquals } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
@@ -27,8 +32,16 @@ interface AssignmentStatementProps {
 
 export function AssignmentStatementComponent(props: AssignmentStatementProps) {
     const { model, userInputs, diagnosticHandler } = props;
+    const stmtCtx = useContext(StatementEditorContext);
+    const { modelCtx } = stmtCtx;
+    const { currentModel } = modelCtx;
+    const hasVarRefSelected = currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.varRef.position);
+    const hasExpressionSelected = currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.expression.position);
 
     const statementEditorClasses = useStatementEditorStyles();
+    const { expressionHandler } = useContext(SuggestionsContext);
 
     const expression: ReactNode = (
         <ExpressionComponent
@@ -50,13 +63,46 @@ export function AssignmentStatementComponent(props: AssignmentStatementProps) {
         />
     );
 
+    const onClickOnVarRef = (event: any) => {
+        event.stopPropagation();
+        expressionHandler(model.varRef, false, false,
+            {expressionSuggestions: [], typeSuggestions: getTypeDescriptors(), variableSuggestions: []});
+    };
+
+    const onClickOnExpression = (event: any) => {
+        event.stopPropagation();
+        expressionHandler(model.expression, false, false,
+            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) });
+    };
+
+    if (!currentModel.model) {
+        expressionHandler(model.expression, false, false,
+            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) });
+    }
+
     return (
         <span>
-            {varRef}
+            <button
+                className={classNames(
+                    statementEditorClasses.expressionElement,
+                    hasVarRefSelected && statementEditorClasses.expressionElementSelected
+                )}
+                onClick={onClickOnVarRef}
+            >
+                {varRef}
+            </button>
             <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
                 {model.equalsToken.value}
             </span>
-            {expression}
+            <button
+                className={classNames(
+                    statementEditorClasses.expressionElement,
+                    hasExpressionSelected && statementEditorClasses.expressionElementSelected
+                )}
+                onClick={onClickOnExpression}
+            >
+                {expression}
+            </button>
             <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
                 {model.semicolonToken.value}
             </span>
