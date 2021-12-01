@@ -45,7 +45,7 @@ task copyDeps(type: Copy) {
 
 task copyConfigEditorDeps(type: Copy) {
     dependsOn installDeps
-    from "$rootDir/node_modules/@wso2-enterprise/ballerina-configurable-editor/build/"
+    from "$rootDir/node_modules/@wso2-enterprise/ballerina-configurable-editor/build/umd"
     into "$rootDir/resources/jslibs"
     include "ConfigEditor.js"
 }
