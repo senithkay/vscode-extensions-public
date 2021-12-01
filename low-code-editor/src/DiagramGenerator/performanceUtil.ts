@@ -17,8 +17,10 @@
  *
  */
 
-import { DiagramEditorLangClientInterface, GraphData, GraphPoint, PerformanceAnalyzerGraphResponse,
-    PerformanceAnalyzerRealtimeResponse, SequenceGraphPoint, SequenceGraphPointValue } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    DiagramEditorLangClientInterface, GraphData, GraphPoint, PerformanceAnalyzerGraphResponse,
+    PerformanceAnalyzerRealtimeResponse, SequenceGraphPoint, SequenceGraphPointValue
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { Range } from "monaco-editor";
 
@@ -40,8 +42,7 @@ let pfSession: PFSession;
 let graphData: GraphPoint[];
 let sequenceDiagramData: SequenceGraphPoint[];
 let diagramRedraw: any;
-let currentServiceIndex: number;
-let currentResourceIndex: number;
+let currentResourcePos: NodePosition;
 let showPerformanceGraph: (request: PerformanceGraphRequest) => Promise<boolean>;
 let showMessage: (message: string, type: MESSAGE_TYPE, isIgnorable: boolean) => Promise<boolean>;
 
@@ -54,6 +55,11 @@ export enum MESSAGE_TYPE {
     ERROR,
     WARNING,
     INFO
+}
+
+export enum ANALYZE_TYPE {
+    ADVANCED = "advanced",
+    REALTIME = "realtime",
 }
 
 /**
@@ -84,8 +90,6 @@ export async function addPerformanceData(st: any, file: string, lc: DiagramEdito
             for (let currentResource = 0; currentResource < members[currentService].members.length; currentResource++) {
                 const serviceMember: any = serviceMembers[currentResource];
                 if (serviceMember.kind === 'ResourceAccessorDefinition') {
-                    currentServiceIndex = currentService;
-                    currentResourceIndex = currentResource;
                     const pos = serviceMember.position;
 
                     const range: Range = new Range(pos.startLine, pos.startColumn,
@@ -99,6 +103,7 @@ export async function addPerformanceData(st: any, file: string, lc: DiagramEdito
 
                     if (realtimeData) {
                         syntaxTree.members[currentService].members[currentResource].performance = realtimeData;
+                        syntaxTree.members[currentService].members[currentResource].performance.analyzeType = ANALYZE_TYPE.REALTIME;
                     }
                 }
             }
@@ -154,6 +159,7 @@ export async function addAdvancedLabels(name: string, range: NodePosition, diagr
     if (!filePath || !langClient || !pfSession || !diagramRedrawFunc) {
         return;
     }
+    currentResourcePos = range;
 
     diagramRedraw = diagramRedrawFunc;
     await langClient.getPerformanceGraphData({
@@ -189,7 +195,7 @@ export async function addAdvancedLabels(name: string, range: NodePosition, diagr
 
 function updateAdvancedLabels(concurrency: number) {
 
-    if (!syntaxTree || !sequenceDiagramData || !diagramRedraw) {
+    if (!syntaxTree || !sequenceDiagramData || !diagramRedraw || !graphData) {
         return;
     }
 
@@ -211,7 +217,7 @@ function updateAdvancedLabels(concurrency: number) {
         analysisData.push({ name, latency, tps });
     }
 
-    mergeAnalysisDetails(syntaxTree, analysisData, file);
+    mergeAnalysisDetails(syntaxTree, graphData[concurrency], analysisData, file, currentResourcePos);
     diagramRedraw(syntaxTree);
 }
 
@@ -257,11 +263,12 @@ async function showPerformanceChart(data: GraphData) {
     });
 }
 
-export function updatePerformanceLabels(concurrency: number) {
+export async function updatePerformanceLabels(concurrency: number) {
 
     switch (concurrency) {
         case -1: {
-            mergeAnalysisDetails(syntaxTree, null, null, true);
+            mergeAnalysisDetails(syntaxTree, null, null, null, null, true);
+            await addPerformanceData(syntaxTree, filePath, langClient, pfSession, showPerformanceGraph, showMessage);
             diagramRedraw(syntaxTree);
             return true;
         }
@@ -289,7 +296,6 @@ export function updatePerformanceLabels(concurrency: number) {
             return false;
         }
     }
-    syntaxTree.members[currentServiceIndex].members[currentResourceIndex].performance = graphData[concurrency]
     updateAdvancedLabels(concurrency);
     return true;
 }
