@@ -16,6 +16,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 
 import { FormControl } from "@material-ui/core";
 import { Connector, ConnectorConfig, FormField, LinePrimaryButton, PrimaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { Section } from "../../../../../../components/ConfigPanel";
@@ -39,6 +40,7 @@ interface CreateConnectorFormProps {
     isOauthConnector: boolean;
     responseStatus: number;
     expressionInjectables?: ExpressionInjectablesProps;
+    targetPosition?: NodePosition;
 }
 
 interface NameState {
@@ -55,8 +57,8 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         }
     } = useContext(Context);
 
-    const { onSave, onSaveNext, onBackClick, initFields, connectorConfig, isOauthConnector,
-            onConfigNameChange, isNewConnectorInitWizard, connector, responseStatus, expressionInjectables } = props;
+    const { onSave, onSaveNext, initFields, connectorConfig, onConfigNameChange, isNewConnectorInitWizard,
+            connector, expressionInjectables, targetPosition } = props;
     const classes = useStyles();
     const wizardClasses = wizardStyles();
     const intl = useIntl();
@@ -187,15 +189,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         defaultMessage: "Enter endpoint name"
     });
 
-    const backButtonLabel = intl.formatMessage({
-        id: "lowcode.develop.connectorForms.createConnection.backButton.text",
-        defaultMessage: "Back"
-    });
 
-    const saveConnectionButtonLabel = intl.formatMessage({
-        id: "lowcode.develop.connectorForms.createConnection.saveButton.label",
-        defaultMessage: "Save & Next"
-    });
 
     const title = (
         <div>
@@ -286,7 +280,12 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                             </Section>
                         </div>
                         <div className={wizardClasses.formWrapper}>
-                            <Form fields={configForm} onValidate={onValidate} expressionInjectables={expressionInjectables}/>
+                            <Form
+                                fields={configForm}
+                                onValidate={onValidate}
+                                expressionInjectables={expressionInjectables}
+                                editPosition={targetPosition}
+                            />
                         </div>
                     </div>
                 </div>
