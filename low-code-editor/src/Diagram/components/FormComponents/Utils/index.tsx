@@ -67,13 +67,5 @@ export function isAllFieldsValid(allFieldChecks: Map<string, FormFieldChecks>, m
         }
     });
 
-    // Handle mandatory record but all fields are optional
-    if (!canModelIgnore && allFieldsIgnorable && !isAllEmpty(allFieldChecks)) {
-        allFieldChecks.forEach((fieldChecks, key) => {
-            if (!fieldChecks.isValid) {
-                result = false;
-            }
-        });
-    }
     return result;
 }
