@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext } from "react";
 
-import { IfElseStatement, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree"
+import { ElseBlock, IfElseStatement, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree"
 import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
@@ -22,6 +22,7 @@ import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
+import { ElseIfStatementC } from "../ElseIfStatement";
 
 interface IfStatementProps {
     model: IfElseStatement
@@ -45,17 +46,15 @@ export function IfStatementC(props: IfStatementProps) {
         />
     );
 
-    const elseIfComponentArray: (STNode)[] = [];
+    const elseIfComponentArray: (IfElseStatement)[] = [];
 
     // Since the current syntax-tree-interfaces doesnt support ElseIfStatements,
     // we will be iterating through the else-body to capture the data related to elseIf statement
-    const captureElseIfStmtModel = (elseIfModel: STNode) => {
-        Object.keys(elseIfModel).forEach(key => {
-            if (key === "elseBody" && elseIfModel[key].kind === "IfElseStatement") {
-                elseIfComponentArray.push(elseIfModel[key])
-                captureElseIfStmtModel(elseIfModel[key].elseBody)
-            }
-        })
+    const captureElseIfStmtModel = (elseIfModel: ElseBlock) => {
+        if (STKindChecker.isIfElseStatement(elseIfModel.elseBody)) {
+            elseIfComponentArray.push(elseIfModel.elseBody);
+            captureElseIfStmtModel(elseIfModel.elseBody.elseBody);
+        }
     }
 
     captureElseIfStmtModel(model.elseBody);
@@ -66,47 +65,12 @@ export function IfStatementC(props: IfStatementProps) {
             { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
     };
 
-    const onClickOnElseIfConditionExpression = (elseIfModel: IfElseStatement) => (event: any) => {
-        event.stopPropagation()
-        expressionHandler(elseIfModel.condition, false, false,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
+    const elseIfStatementProps = {
+        elseIfComponentArray,
+        userInputs,
+        diagnosticHandler
     };
 
-    const elseIfComponent = (
-        <span>
-            {elseIfComponentArray.map((elseIfModel: STNode, index: number) => {
-                    if (STKindChecker.isIfElseStatement(elseIfModel)) {
-                        const elseIfCondition: ReactNode = (
-                            <ExpressionComponent
-                                model={elseIfModel.condition}
-                                isRoot={false}
-                                userInputs={userInputs}
-                                diagnosticHandler={diagnosticHandler}
-                                isTypeDescriptor={false}
-                            />
-                        );
-                        return (
-                            <span>
-                                <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
-                                    {"else"}&nbsp;{elseIfModel.ifKeyword.value}
-                                </span>
-                                <button key={index} className={statementEditorClasses.expressionElement} onClick={onClickOnElseIfConditionExpression(elseIfModel)}>
-                                    {elseIfCondition}
-                                </button>
-                                <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
-                                    &nbsp;{elseIfModel.ifBody.openBraceToken.value}
-                                    <br/>
-                                    &nbsp;&nbsp;&nbsp;{"..."}
-                                    <br/>
-                                    &nbsp;{elseIfModel.ifBody.closeBraceToken.value}
-                                </span>
-                            </span>
-                        )
-                    }
-                })
-            }
-        </span>
-    );
 
     return (
         <span>
@@ -123,7 +87,7 @@ export function IfStatementC(props: IfStatementProps) {
                 <br/>
                 &nbsp;{model.ifBody.closeBraceToken.value}
             </span>
-            {elseIfComponent}
+            <ElseIfStatementC {...elseIfStatementProps}/>
             <button className={statementEditorClasses.addNewExpressionButton}> + </button>
             <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
                 &nbsp;{model.elseBody.elseKeyword.value}
