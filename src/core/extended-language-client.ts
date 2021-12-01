@@ -34,6 +34,7 @@ import { BallerinaConnectorsRequest } from "@wso2-enterprise/ballerina-low-code-
 import { BallerinaExtension } from "./index";
 import { showChoreoPushMessage } from "../editor-support/git-status";
 import { MESSAGE_TYPE } from "../utils/showMessage";
+import { Values } from "../forecaster/model";
 
 export const BALLERINA_LANG_ID = "ballerina";
 const NOT_SUPPORTED = {};
@@ -247,9 +248,9 @@ export interface PerformanceAnalyzerGraphResponse {
 export interface PerformanceAnalyzerRealtimeResponse {
     message: string;
     type: any;
-    concurrency: String;
-    latency: String;
-    tps: String;
+    concurrency: Values;
+    latency: Values;
+    tps: Values;
 }
 
 export interface GraphPoint {
@@ -326,7 +327,7 @@ export class ExtendedLangClient extends LanguageClient {
     getRealtimePerformanceData(params: PerformanceAnalyzerGraphRequest): Promise<PerformanceAnalyzerRealtimeResponse> {
         if (!this.ballerinaExtInstance?.enabledPerformanceForecasting() ||
             !this.ballerinaExtInstance?.getChoreoSession().loginStatus) {
-            return Promise.resolve({ type: MESSAGE_TYPE.IGNORE, message: '', concurrency: '', tps: '', latency: '' });
+            return Promise.resolve({ type: MESSAGE_TYPE.IGNORE, message: '', concurrency: { min: 0, max: 0 }, tps: { min: 0, max: 0 }, latency: { min: 0, max: 0 } });
         }
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.PERF_ANALYZER_REALTIME_DATA)) {
             Promise.resolve(NOT_SUPPORTED);
@@ -521,7 +522,7 @@ export class ExtendedLangClient extends LanguageClient {
                     syntaxTreeModify: true, diagnostics: true, syntaxTree: true, astModify: true, triggerModify: true,
                     resolveMissingDependencies: true
                 },
-                { name: EXTENDED_APIS_ORG.PACKAGE, components: true, metadata: true, configSchema: true},
+                { name: EXTENDED_APIS_ORG.PACKAGE, components: true, metadata: true, configSchema: true },
                 { name: EXTENDED_APIS_ORG.SYMBOL, type: true },
                 {
                     name: EXTENDED_APIS_ORG.CONNECTOR, connectors: true, connector: true, record: true
@@ -530,7 +531,7 @@ export class ExtendedLangClient extends LanguageClient {
                 { name: EXTENDED_APIS_ORG.JSON_TO_RECORD, convert: true },
                 { name: EXTENDED_APIS_ORG.PERF_ANALYZER, getGraphData: true, getRealtimeData: true },
                 { name: EXTENDED_APIS_ORG.PARTIAL_PARSER, getSTForSingleStatement: true, getSTForExpression: true },
-                { name: EXTENDED_APIS_ORG.BALLERINA_TO_OPENAPI, generateOpenAPI: true}
+                { name: EXTENDED_APIS_ORG.BALLERINA_TO_OPENAPI, generateOpenAPI: true }
             ]
         }).then(response => {
             this.ballerinaExtendedServices = new Set();
