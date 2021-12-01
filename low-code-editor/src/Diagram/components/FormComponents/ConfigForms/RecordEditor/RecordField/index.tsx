@@ -132,9 +132,10 @@ export function RecordField(props: CodePanelProps) {
     };
 
     const handleAddField = () => {
-        if (state.currentField && state.currentField.name  === "" && (state.currentField.value === "" ||
+        if ((state.currentField && state.currentField.name  === "" && (state.currentField.value === "" ||
             state.currentField.value === undefined) && state.currentField.type === "" &&
-            state.currentField.isEditInProgress) {
+            state.currentField.isEditInProgress) || (state.currentField && state.currentField.name &&
+            state.currentField.type === "")) {
             // Removing draft field
             const index = state.currentRecord.fields.indexOf(state.currentField);
             state.currentRecord.fields.splice(index, 1);
@@ -267,16 +268,30 @@ export function RecordField(props: CodePanelProps) {
     };
 
     const handleSubItemFocusLost = (event: any) => {
-        if (!event.target.value) {
+        if (!event.target.value && state.currentField.type && !state.currentField.isTypeInvalid) {
             state.currentField.name = state.currentField.type === "record" ?
                 genRecordName("Record", getFieldNames(state.currentRecord.fields)) :
-                genRecordName("f", getFieldNames(state.currentRecord.fields));
+                genRecordName("fieldName", getFieldNames(state.currentRecord.fields));
+            state.currentField.isNameInvalid = false;
         }
         callBacks.onUpdateCurrentField(state.currentField);
     };
 
     const handleRecordClick = () => {
-        if (!(state.isEditorInvalid || state.currentField?.name === "" || state.currentField?.type === "")) {
+        if (state.currentField && state.currentField.name  === "" && (state.currentField.value === "" ||
+            state.currentField.value === undefined) && state.currentField.type === "" &&
+            state.currentField.isEditInProgress) {
+            // Removing draft field
+            const index = state.currentRecord.fields.indexOf(state.currentField);
+            state.currentRecord.fields.splice(index, 1);
+
+            recordModel.isActive = true;
+            setIsRecordEditInProgress(true);
+            callBacks.onUpdateCurrentRecord(recordModel);
+            callBacks.onUpdateModel(state.recordModel);
+            callBacks.onUpdateRecordSelection(true);
+            callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
+        } else if (!(state.isEditorInvalid || state.currentField?.name === "" || state.currentField?.type === "")) {
             state.currentRecord.isActive = false;
             recordModel.isActive = true;
             setIsRecordEditInProgress(true);

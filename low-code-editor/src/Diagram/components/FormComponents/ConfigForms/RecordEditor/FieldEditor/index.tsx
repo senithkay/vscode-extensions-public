@@ -62,10 +62,15 @@ export function FieldEditor(props: FieldEditorProps) {
         value: field?.value
     };
     const validateDefaultValue = (fName: string, isInvalidFromField: boolean) => {
-        field.isValueInvalid = isInvalidFromField;
-        callBacks.onUpdateCurrentField(field);
-        callBacks.updateEditorValidity(isInvalidFromField || state.currentField.isNameInvalid ||
-            state.currentField.isTypeInvalid);
+        if (state.currentField.value === "" && state.currentField.type === "" && state.currentField.name === "") {
+            // When we have empty values editor is valid
+            callBacks.updateEditorValidity(false);
+        } else {
+            field.isValueInvalid = isInvalidFromField;
+            callBacks.onUpdateCurrentField(field);
+            callBacks.updateEditorValidity(isInvalidFromField || state.currentField.isNameInvalid ||
+                state.currentField.isTypeInvalid);
+        }
     };
     const handleDefaultValueChange = (inputText: string) => {
         field.value = inputText;
@@ -75,9 +80,12 @@ export function FieldEditor(props: FieldEditorProps) {
         setValueEditorFocussed(false);
     };
     const handleEnterPressed = () => {
-        state.currentField.isEditInProgress = false;
-        state.currentField.isActive = true;
-        callBacks.onUpdateCurrentField(field);
+        if (!state.currentField.isNameInvalid && !state.currentField.isTypeInvalid &&
+            !state.currentField.isValueInvalid && state.currentField.type && state.currentField.name) {
+            state.currentField.isEditInProgress = false;
+            state.currentField.isActive = true;
+            callBacks.onUpdateCurrentField(field);
+        }
     };
     const defaultValueProps: FormElementProps = {
         model: formField,
@@ -133,17 +141,27 @@ export function FieldEditor(props: FieldEditorProps) {
         }
         callBacks.onUpdateCurrentField(state.currentField);
     };
+    const handleNameFocus = () => {
+        if (!state.currentField.isTypeInvalid && !state.currentField.isValueInvalid) {
+            callBacks.updateEditorValidity(true);
+        }
+    };
     const handleFocusLost = (event: any) => {
         onFocusLost(event);
     };
-    const handleTextFieldFocus = (event: any) => {
+    const handleDefaultValueFocus = () => {
         handleValueClick();
     };
     const validateTypeName = (fName: string, isInvalidFromField: boolean) => {
-        state.currentField.isTypeInvalid = isInvalidFromField;
-        callBacks.onUpdateCurrentField(state.currentField);
-        callBacks.updateEditorValidity(isInvalidFromField || state.currentField.isNameInvalid ||
-            state.currentField.isValueInvalid);
+        if (state.currentField.value === "" && state.currentField.type === "" && state.currentField.name === "") {
+            // When we have empty values editor is valid
+            callBacks.updateEditorValidity(false);
+        } else {
+            state.currentField.isTypeInvalid = isInvalidFromField;
+            callBacks.onUpdateCurrentField(state.currentField);
+            callBacks.updateEditorValidity(isInvalidFromField || state.currentField.isNameInvalid ||
+                state.currentField.isValueInvalid);
+        }
     };
     const handleTypeClick = () => {
         setTypeEditorVisible(true);
@@ -193,6 +211,7 @@ export function FieldEditor(props: FieldEditorProps) {
                                 }}
                                 defaultValue={field.type}
                                 onClick={handleTypeClick}
+                                onFocus={handleNameFocus}
                                 placeholder={"Type"}
                             />
                         )}
@@ -235,7 +254,7 @@ export function FieldEditor(props: FieldEditorProps) {
                                         }}
                                         defaultValue={field.value}
                                         onClick={handleValueClick}
-                                        onFocus={handleTextFieldFocus}
+                                        onFocus={handleDefaultValueFocus}
                                         placeholder={"Value(Optional)"}
                                     />
                                 )}
