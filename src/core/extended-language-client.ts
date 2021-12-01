@@ -18,7 +18,7 @@
  */
 
 import { ClientCapabilities, LanguageClient, LanguageClientOptions, ServerOptions } from "vscode-languageclient/node";
-import { DocumentSymbol, DocumentSymbolParams, SymbolInformation } from "monaco-languageclient";
+import { CodeAction, CodeActionParams, DocumentSymbol, DocumentSymbolParams, ExecuteCommandParams, SymbolInformation } from "monaco-languageclient";
 import {
     DidOpenParams, DidCloseParams, DidChangeParams, GetSyntaxTreeParams, GetSyntaxTreeResponse,
     BallerinaConnectorsResponse, BallerinaConnectorRequest, BallerinaConnectorResponse, BallerinaRecordRequest,
@@ -499,6 +499,14 @@ export class ExtendedLangClient extends LanguageClient {
             Promise.resolve(NOT_SUPPORTED);
         }
         return this.sendRequest(EXTENDED_APIS.BALLERINA_TO_OPENAPI, params);
+    }
+
+    codeAction(params: CodeActionParams): Promise<CodeAction[]> {
+        return this.sendRequest("textDocument/codeAction", params);
+    }
+
+    executeCommand(params: ExecuteCommandParams): Promise<any> {
+        return this.sendRequest("workspace/executeCommand", params);
     }
 
     async registerExtendedAPICapabilities() {
