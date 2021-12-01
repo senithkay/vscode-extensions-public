@@ -351,8 +351,13 @@ export function InputEditor(props: InputEditorProps) {
         }
     };
 
-    function addExpressionToTargetPosition(oldLine: string, targetColumn: number, codeSnippet: string, endColumn?: number): string {
-        return oldLine.slice(0, targetColumn) + codeSnippet + oldLine.slice(endColumn || targetColumn);
+    function addExpressionToTargetPosition(currentStmt: string, targetLine: number, targetColumn: number, codeSnippet: string, endColumn?: number): string {
+        if (STKindChecker.isIfElseStatement(stmtCtx.modelCtx.statementModel)) {
+            const splitStatement: string[] = currentStmt.split(/\n/g) || [];
+            splitStatement.splice(targetLine, 1, splitStatement[targetLine].slice(0, targetColumn) + codeSnippet + splitStatement[targetLine].slice(endColumn || targetColumn));
+            return splitStatement.join('\n');
+        }
+        return currentStmt.slice(0, targetColumn) + codeSnippet + currentStmt.slice(endColumn || targetColumn);
     }
 
     const inputChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -361,6 +366,7 @@ export function InputEditor(props: InputEditorProps) {
         inputEditorCtx.onInputChange(event.target.value);
         const updatedStatement = addExpressionToTargetPosition(
             currentStatement,
+            model.position.startLine,
             model.position.startColumn,
             event.target.value ? event.target.value : "",
             model.position.endColumn
