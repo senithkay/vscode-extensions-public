@@ -19,7 +19,7 @@ import classnames from "classnames";
 import { Box, FormControl, IconButton, Typography } from "@material-ui/core";
 import { ControlPoint, RemoveCircleOutlineRounded } from "@material-ui/icons";
 
-import { FormField, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormActionButtons, FormField, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import {
@@ -30,7 +30,6 @@ import {
 } from "../../../../../../utils/modification-util";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
-import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { ConditionConfig, ElseIfConfig, FormElementProps } from "../../../../Types";
 
@@ -219,40 +218,30 @@ export function AddIfForm(props: IfProps) {
 
     const ElseIfElement = (order: number) => {
         return (
-            <>
-                <div className={classes.blockWrapper}>
-                    <div className={classes.codeText}>
-                        <Typography variant='body2' className={classes.endCode}>{`}`}</Typography>
-                    </div>
-                    {
-                        formArgs?.wizardType === 0 && (
-                            <div className={classes.codeText}>
-                                <IconButton
-                                    color="primary"
-                                    onClick={handleMinusButton(order)}
-                                    className={classes.button}
-                                >
-                                    <RemoveCircleOutlineRounded />
-                                </IconButton>
-                            </div>
-                        )
-                    }
-                    <div className={classes.codeText}>
-                        <Typography variant='body2' className={classes.startCode}>else if</Typography>
-                    </div>
-                    <div className={classes.ifEditorWrapper}>
-                        <div className="exp-wrapper">
-                            <ExpressionEditor {...setElementProps(order)} hideLabelTooltips={true} />
+            <div className={classes.elseBlockWrapper}>
+                <div className={classes.formCodeExpressionWrapper}>
+                    <Typography variant='body2' className={classes.endCode}>{`}`}</Typography>
+                    {formArgs?.wizardType === 0 && (
+                        <div className={classes.formCodeMinusWrapper}>
+                            <IconButton
+                                color="primary"
+                                onClick={handleMinusButton(order)}
+                                className={classes.button}
+                            >
+                                <RemoveCircleOutlineRounded />
+                            </IconButton>
                         </div>
+                    )}
+                    <Typography variant='body2' className={classes.startCode}>else if</Typography>
+                    <div className={classes.formCodeExpressionSmallField}>
+                        <ExpressionEditor {...setElementProps(order)} hideLabelTooltips={true} />
                     </div>
-                    <div className={classes.codeText}>
-                        <Typography variant='body2' className={classes.endCode}>{`{`}</Typography>
-                    </div>
+                    <Typography variant='body2' className={classes.endCode}>{`{`}</Typography>
                 </div>
-                <div className={classes.codeWrapper}>
-                    <Typography variant='body2' className={classes.middleCode}>{`...`}</Typography>
+                <div className={classes.middleDottedwrapper}>
+                    <Typography variant='body2' className={classes.middleCode}>...</Typography>
                 </div>
-            </>
+            </div>
         )
     }
 
@@ -267,67 +256,54 @@ export function AddIfForm(props: IfProps) {
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={false}
                 />
-                <div className={classes.formWrapper}>
-                    <div className={classes.formFeilds}>
-                        <div className={classes.blockWrapper}>
-                            <div className={classes.codeText}>
-                                <Typography variant='body2' className={classnames(classes.startCode)}>if</Typography>
+                <div className={classes.formContentWrapper}>
+                    <div className={classes.formCodeBlockWrapper}>
+                        <div className={classes.formCodeExpressionEndWrapper}>
+                            <Typography variant='body2' className={classes.startCode}>if</Typography>
+                            <div className={classes.formCodeExpressionField}>
+                                <ExpressionEditor {...setElementProps(0)} hideLabelTooltips={true} />
                             </div>
-                            <div className={classes.ifEditorWrapper}>
-                                <div className="exp-wrapper">
-                                    <ExpressionEditor {...setElementProps(0)} hideLabelTooltips={true} />
-                                </div>
-                            </div>
-                            <div className={classes.codeText}>
-                                <Typography variant='body2' className={classnames(classes.endCode)}>{`{`}</Typography>
-                            </div>
-                        </div>
-                        <div className={classes.codeWrapper}>
-                            <Typography variant='body2' className={classes.middleCode}>...</Typography>
-                        </div>
-                        {compList.slice(1, compList.length).map((comp) => {
-                            return <React.Fragment key={comp.id}>{ElseIfElement(comp.id)}</React.Fragment>
-                        })}
-                        <div className={classes.blockWrapper}>
-                            <div className={classes.codeText}>
-                                <Typography variant='body2' className={classes.endCode}>{`}`}</Typography>
-                            </div>
-                            {
-                                formArgs?.wizardType === 0 && (
-                                    <div className={classes.codeText}>
-                                        <IconButton
-                                            color="primary"
-                                            onClick={handlePlusButton(-1)}
-                                            className={classes.button}
-                                        >
-                                            <ControlPoint />
-                                        </IconButton>
-                                    </div>
-                                )
-                            }
-                            <div className={classes.codeText}>
-                                <Typography variant='body2' className={classes.startCode}>else</Typography>
-                            </div>
-                            <div className={classes.codeText}>
-                                <Typography variant='body2' className={classes.endCode}>{`{`}</Typography>
-                            </div>
-                        </div>
-                        <div className={classes.codeWrapper}>
-                            <Typography variant='body2' className={classes.middleCode}>{`...`}</Typography>
-                        </div>
-                        <div className={classes.codeWrapper}>
-                            <Typography variant='body2' className={classes.endCode}>{`}`}</Typography>
+                            <Typography variant='body2' className={classes.endCode}>{`{`}</Typography>
                         </div>
                     </div>
-                    <FormActionButtons
-                        cancelBtnText={cancelIfButtonLabel}
-                        saveBtnText={saveIfConditionButtonLabel}
-                        isMutationInProgress={isMutationInProgress}
-                        validForm={!isInvalid}
-                        onSave={handleOnSaveClick}
-                        onCancel={onCancel}
-                    />
+                    <div className={classes.middleDottedwrapper}>
+                        <Typography variant='body2' className={classes.middleCode}>...</Typography>
+                    </div>
+                    {compList.slice(1, compList.length).map((comp) => {
+                        return <React.Fragment key={comp.id}>{ElseIfElement(comp.id)}</React.Fragment>
+                    })}
+                    <div className={classes.formCodeExpressionCenterWrapper}>
+                        <Typography variant='body2' className={classes.endCode}>{`}`}</Typography>
+                        <div className={classes.formCodePlusWrapper}>
+                            {formArgs?.wizardType === 0 && (
+                                <IconButton
+                                    color="primary"
+                                    onClick={handlePlusButton(-1)}
+                                    className={classes.button}
+                                >
+                                    <ControlPoint />
+                                </IconButton>
+                            )}
+                        </div>
+                        <Typography variant='body2' className={classes.startCode}>else</Typography>
+                        <Typography variant='body2' className={classes.endCode}>{`{`}</Typography>
+                    </div>
+                    <div className={classes.formCodeBlockWrapper}>
+                        <div className={classes.middleDottedwrapper}>
+                            <Typography variant='body2' className={classes.middleCode}>{`...`}</Typography>
+                        </div>
+                        <Typography variant='body2' className={classes.endCode}>{`}`}</Typography>
+                    </div>
                 </div>
+                <FormActionButtons
+                    cancelBtnText={cancelIfButtonLabel}
+                    cancelBtn={true}
+                    saveBtnText={saveIfConditionButtonLabel}
+                    isMutationInProgress={isMutationInProgress}
+                    validForm={!isInvalid}
+                    onSave={handleOnSaveClick}
+                    onCancel={onCancel}
+                />
             </FormControl>
         );
     }

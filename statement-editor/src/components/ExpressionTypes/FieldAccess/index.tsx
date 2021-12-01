@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-wrap-multiline
+// tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext } from "react";
 
 import { FieldAccess } from "@wso2-enterprise/syntax-tree";
@@ -18,8 +18,9 @@ import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
+import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
+import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
@@ -31,52 +32,92 @@ interface FieldAccessProps {
 
 export function FieldAccessComponent(props: FieldAccessProps) {
     const { model, userInputs, diagnosticHandler } = props;
+    const stmtCtx = useContext(StatementEditorContext);
+    const { modelCtx } = stmtCtx;
+    const { currentModel } = modelCtx;
+    const hasFieldAccessExprSelected = currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.position);
+    const hasExprSelected =  currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.expression.position);
+    const hasFieldNameSelected =  currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.fieldName.position);
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
 
 
-    const expression: ReactNode = <ExpressionComponent
-        model={model.expression}
-        isRoot={false}
-        userInputs={userInputs}
-        diagnosticHandler={diagnosticHandler}
-        isTypeDescriptor={false}
-    />;
+    const expression: ReactNode = (
+        <ExpressionComponent
+            model={model.expression}
+            isRoot={false}
+            userInputs={userInputs}
+            diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
+        />
+    );
 
-    const fieldName: ReactNode = <ExpressionComponent
-        model={model.fieldName}
-        isRoot={false}
-        userInputs={userInputs}
-        diagnosticHandler={diagnosticHandler}
-        isTypeDescriptor={false}
-    />;
+    const fieldName: ReactNode = (
+        <ExpressionComponent
+            model={model.fieldName}
+            isRoot={false}
+            userInputs={userInputs}
+            diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
+        />
+    );
 
-    const onClickOnExpression = (event: any) => {
+    const onClickOnFieldAccessExpr = (event: any) => {
         event.stopPropagation()
         expressionHandler(model, true, false,
             { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
     }
 
+    const onClickOnExpr = (event: any) => {
+        event.stopPropagation()
+        expressionHandler(model.expression, true, false,
+            { expressionSuggestions: [], typeSuggestions: [], variableSuggestions: [] })
+    }
+
+    const onClickOnFieldName = (event: any) => {
+        event.stopPropagation()
+        expressionHandler(model.fieldName, true, false,
+            { expressionSuggestions: [], typeSuggestions: [], variableSuggestions: [] })
+    }
+
     return (
         <span>
             <button
-                className={statementEditorClasses.expressionElement}
-                onClick={onClickOnExpression}
+                className={classNames(
+                    statementEditorClasses.expressionElement,
+                    hasFieldAccessExprSelected && statementEditorClasses.expressionElementSelected
+                )}
+                onClick={onClickOnFieldAccessExpr}
             >
-            <button
-                className={statementEditorClasses.expressionElement}
-            >
-                {expression}
-            </button>
-            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
-                {model.dotToken.value}
-            </span>
-            <button
-                className={statementEditorClasses.expressionElement}
-            >
-                {fieldName}
-            </button>
+                <button
+                    className={classNames(statementEditorClasses.expressionElement,
+                        hasExprSelected && statementEditorClasses.expressionElementSelected
+                    )}
+                    onClick={onClickOnExpr}
+                >
+                    {expression}
+                </button>
+                <span
+                    className={classNames(
+                        statementEditorClasses.expressionBlock,
+                        statementEditorClasses.expressionBlockDisabled
+                    )}
+                >
+                    {model.dotToken.value}
+                </span>
+                <button
+                    className={classNames(
+                        statementEditorClasses.expressionElement,
+                        hasFieldNameSelected && statementEditorClasses.expressionElementSelected
+                    )}
+                    onClick={onClickOnFieldName}
+                >
+                    {fieldName}
+                </button>
             </button>
         </span>
     );

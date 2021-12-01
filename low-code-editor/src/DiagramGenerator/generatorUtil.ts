@@ -1,5 +1,5 @@
 import { DiagramEditorLangClientInterface } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { FunctionDefinition, ModulePart, ResourceAccessorDefinition, ServiceDeclaration, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { FunctionDefinition, ModulePart, NodePosition, ResourceAccessorDefinition, ServiceDeclaration, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import { cleanLocalSymbols, cleanModuleLevelSymbols } from "../Diagram/visitors/symbol-finder-visitor";
 import { initVisitor, positionVisitor, sizingVisitor, SymbolVisitor } from "../index";
@@ -83,16 +83,19 @@ export interface DiagnosticInfo {
 
 export interface Diagnostic {
     message: string,
-    diagnosticInfo: DiagnosticInfo
+    diagnosticInfo: DiagnosticInfo,
+    range: NodePosition
 }
 
-export function isUnresolvedModulesAvailable(diagnostics: Diagnostic[]): boolean {
-    let unresolvedModuleAvailable = false;
+export function isUnresolvedModulesAvailable(diagnostics: Diagnostic[]): {isAvailable: boolean, diagnostic: Diagnostic} {
+    let unresolvedModuleAvailable: boolean = false;
+    let selectedDiagnostic: Diagnostic;
     for (const diagnostic of diagnostics) {
         if (diagnostic.diagnosticInfo.code === "BCE2003") {
             unresolvedModuleAvailable = true;
+            selectedDiagnostic = diagnostic;
             break;
         }
     }
-    return unresolvedModuleAvailable;
+    return {isAvailable: unresolvedModuleAvailable, diagnostic: selectedDiagnostic};
 }

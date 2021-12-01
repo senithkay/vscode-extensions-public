@@ -104,7 +104,7 @@ export function EditFieldForm() {
     };
     const handleDefaultValueFocus = (value: string) => {
         if (!state.currentField.name) {
-            state.currentField.name = genRecordName("f", getFieldNames(state.currentRecord.fields));
+            state.currentField.name = genRecordName("fieldName", getFieldNames(state.currentRecord.fields));
             callBacks.onUpdateCurrentField(state.currentField);
         }
     };

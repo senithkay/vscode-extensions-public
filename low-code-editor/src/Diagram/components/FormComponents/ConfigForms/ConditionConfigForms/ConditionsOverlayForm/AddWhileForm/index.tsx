@@ -15,16 +15,14 @@ import React, { useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { WhileStatement } from "@wso2-enterprise/syntax-tree";
-import classnames from "classnames";
-import {FormControl, Typography } from "@material-ui/core";
+import { FormControl, Typography } from "@material-ui/core";
 
-import { FormField, FormHeaderSection, } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormField, FormActionButtons, FormHeaderSection, } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { createWhileStatement, getInitialSource } from "../../../../../../utils/modification-util";
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
-import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { ConditionConfig, FormElementProps } from "../../../../Types";
 
@@ -126,7 +124,7 @@ export function AddWhileForm(props: WhileProps) {
         {
             label: intl.formatMessage({ id: "lowcode.develop.configForms.while.statementEditor.label" }),
             initialSource,
-            formArgs: {formArgs},
+            formArgs: { formArgs },
             validForm: !isInvalid,
             config: condition,
             onWizardClose,
@@ -148,41 +146,32 @@ export function AddWhileForm(props: WhileProps) {
                     defaultMessage={"While"}
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={false}
-
                 />
-                <div className={classes.formWrapper}>
-                    <div className={classes.formFeilds}>
-                        <div className={classes.codeWrapper}>
-                            <div className={classes.start}>
-                                <Typography variant='body2' className={classnames(classes.startCode, classes.code)}>while</Typography>
-                            </div>
-                            <div className={classes.middle}>
+                <div className={classes.formContentWrapper}>
+                    <div className={classes.formCodeBlockWrapper}>
+                        <div className={classes.formCodeExpressionEndWrapper}>
+                            <Typography variant='body2' className={classes.startCode}>while</Typography>
+                            <div className={classes.formCodeExpressionField}>
                                 <ExpressionEditor {...expElementProps} hideLabelTooltips={true} />
                             </div>
-                            <div className={classes.end}>
-                                <Typography variant='body2' className={classnames(classes.endCode, classes.code)}>{`{`}</Typography>
-                            </div>
-                        </div>
-                        <div className={classes.codeWrapper}>
-                            <div>
-                                <Typography variant='body2' className={classnames(classes.middleCode, classes.code)}>...</Typography>
-                            </div>
-                        </div>
-                        <div className={classes.codeWrapper}>
-                            <div>
-                                <Typography variant='body2' className={classnames(classes.endCode, classes.code)}>{`}`}</Typography>
-                            </div>
+                            <Typography variant='body2' className={classes.endCode}>{`{`}</Typography>
                         </div>
                     </div>
-                    <FormActionButtons
-                        cancelBtnText={cancelWhileButtonLabel}
-                        saveBtnText={saveWhileButtonLabel}
-                        isMutationInProgress={isMutationInProgress}
-                        validForm={!isInvalid}
-                        onSave={handleOnSaveClick}
-                        onCancel={onCancel}
-                    />
+                    <div className={classes.formCodeExpressionValueRegularField}>
+                        <div className={classes.middleDottedwrapper}>
+                            <Typography variant='body2' className={classes.middleCode}>{`...`}</Typography>
+                        </div>
+                        <Typography variant='body2' className={classes.endCode}>{`}`}</Typography>
+                    </div>
                 </div>
+                <FormActionButtons
+                    cancelBtnText={cancelWhileButtonLabel}
+                    saveBtnText={saveWhileButtonLabel}
+                    isMutationInProgress={isMutationInProgress}
+                    validForm={!isInvalid}
+                    onSave={handleOnSaveClick}
+                    onCancel={onCancel}
+                />
             </FormControl>
         );
     }

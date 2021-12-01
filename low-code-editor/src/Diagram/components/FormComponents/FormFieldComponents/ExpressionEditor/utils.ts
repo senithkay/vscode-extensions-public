@@ -118,8 +118,16 @@ export function getTargetPosition(targetPosition: any, syntaxTree: any): NodePos
 }
 
 export function getInitialValue(defaultValue: string, model: FormField): string {
-    const initVal = defaultValue ? defaultValue : (model.value ? model.value : (model.defaultValue ? model.defaultValue : ""));
-    return initVal;
+    if (defaultValue) {
+        return defaultValue;
+    }
+    if (model?.value) {
+        return model.value;
+    }
+    if (model?.defaultValue && model.defaultValue !== "()") {
+        return model.defaultValue;
+    }
+    return "";
 }
 
 export function diagnosticCheckerExp(diagnostics: Diagnostic[]): boolean {

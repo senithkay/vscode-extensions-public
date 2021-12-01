@@ -18,8 +18,9 @@ import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
+import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
+import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 import { ElseIfStatementC } from "../ElseIfStatement";
@@ -32,6 +33,11 @@ interface IfStatementProps {
 
 export function IfStatementC(props: IfStatementProps) {
     const { model, userInputs, diagnosticHandler } = props;
+    const stmtCtx = useContext(StatementEditorContext);
+    const { modelCtx } = stmtCtx;
+    const { currentModel } = modelCtx;
+    const hasConditionSelected = currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.condition.position);
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
@@ -77,7 +83,13 @@ export function IfStatementC(props: IfStatementProps) {
             <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
                 {model.ifKeyword.value}
             </span>
-             <button className={statementEditorClasses.expressionElement} onClick={onClickOnConditionExpression}>
+            <button
+                className={classNames(
+                    statementEditorClasses.expressionElement,
+                    hasConditionSelected && statementEditorClasses.expressionElementSelected
+                )}
+                onClick={onClickOnConditionExpression}
+            >
                 {conditionComponent}
             </button>
             <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>

@@ -12,19 +12,17 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useReducer } from "react";
-import { FormattedMessage } from "react-intl";
 
-import { FormHelperText } from "@material-ui/core";
-import { SecondaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormActionButtons } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ListenerDeclaration, NodePosition, ServiceDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { PrimaryButton } from "../../../../../../../components/Buttons/PrimaryButton";
 import { useDiagramContext } from "../../../../../../../Contexts/Diagram";
 import { isServicePathValid } from "../../../../../../../utils/validator";
 import { createImportStatement, createServiceDeclartion, updateServiceDeclartion } from "../../../../../../utils/modification-util";
+import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
 import { FormTextInput } from "../../../../FormFieldComponents/TextField/FormTextInput";
-import { wizardStyles as useFormStyles } from "../../../style";
+import { TextLabel } from "../../../../FormFieldComponents/TextField/TextLabel";
 
 import { ListenerConfigForm } from "./ListenerConfigForm";
 import { getFormStateFromST, isServiceConfigValid } from "./util";
@@ -88,57 +86,44 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         onSave();
     }
 
-    const saveBtnDisabled = !isServiceConfigValid(state) || state.hasInvalidConfig;
+    const saveBtnEnabled = isServiceConfigValid(state);
 
     return (
         <>
-            <div className={formClasses.labelWrapper}>
-                <FormHelperText className={formClasses.inputLabelForRequired}>
-                    <FormattedMessage
-                        id="lowcode.develop.connectorForms.HTTP.typeServiceBasePath"
-                        defaultMessage="Service Base Path :"
+            <div className={formClasses.formContentWrapper}>
+                <div className={formClasses.formNameWrapper}>
+                    <FormTextInput
+                        customProps={{
+                            validate: isServicePathValid,
+                            startAdornment: '/'
+                        }}
+                        onChange={onBasePathChange}
+                        defaultValue={state.serviceBasePath}
+                        label="Service Base Path :"
                     />
-                </FormHelperText>
-            </div>
-            <FormTextInput
-                dataTestId="service-base-path"
-                defaultValue={state.serviceBasePath}
-                onChange={onBasePathChange}
-                customProps={{
-                    validate: isServicePathValid,
-                    startAdornment: '/'
-                }}
-            />
-            <div className={formClasses.labelWrapper}>
-                <FormHelperText className={formClasses.inputLabelForRequired}>
-                    <FormattedMessage
-                        id="lowcode.develop.connectorForms.HTTP.configureNewListener"
+                    <TextLabel
+                        required={true}
+                        textLabelId="lowcode.develop.connectorForms.HTTP.configureNewListener"
                         defaultMessage="Configure Listener :"
                     />
-                </FormHelperText>
-                <FormHelperText className={formClasses.starLabelForRequired}>*</FormHelperText>
+                </div>
+                <div className={classNames(formClasses.groupedForm, formClasses.marginTB)}>
+                    <ListenerConfigForm
+                        configState={state.listenerConfig}
+                        actionDispatch={dispatch}
+                        listenerList={listenerList}
+                        targetPosition={model ? model.position : targetPosition}
+                    />
+                </div>
             </div>
-            <div className={classNames(formClasses.groupedForm, formClasses.marginTB)}>
-                <ListenerConfigForm
-                    configState={state.listenerConfig}
-                    actionDispatch={dispatch}
-                    listenerList={listenerList}
-                    targetPosition={model ? model.position : targetPosition}
-                />
-            </div>
-            <div className={formClasses.wizardBtnHolder}>
-                <SecondaryButton
-                    text="Cancel"
-                    fullWidth={false}
-                    onClick={onCancel}
-                />
-                <PrimaryButton
-                    text="Save"
-                    disabled={saveBtnDisabled}
-                    fullWidth={false}
-                    onClick={handleOnSave}
-                />
-            </div>
+            <FormActionButtons
+                cancelBtnText="Cancel"
+                cancelBtn={true}
+                saveBtnText={"Save"}
+                onSave={handleOnSave}
+                onCancel={onCancel}
+                validForm={saveBtnEnabled}
+            />
         </>
     )
 }

@@ -318,7 +318,14 @@ export function matchEndpointToFormField(endPoint: LocalVarDecl, formFields: For
         }
 
         const positionalArg: PositionalArg = arg as PositionalArg;
-        const formField = formFields[nextValueIndex];
+        let formField = formFields[ nextValueIndex ];
+        if (STKindChecker.isNamedArg(positionalArg)) {
+            const argName = positionalArg.argumentName.name.value;
+            const matchedField = formFields.find(field => field.name === argName);
+            if (matchedField) {
+                formField = matchedField;
+            }
+        }
         if (positionalArg.kind === "PositionalArg" || positionalArg.kind === "NamedArg") {
             if (formField.typeName === "string" || formField.typeName === "int" || formField.typeName === "boolean" ||
                 formField.typeName === "float" || formField.typeName === "decimal" || formField.typeName === "json" || formField.typeName === "xml") {
@@ -892,7 +899,7 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                     formField.isErrorType = true;
                     response.hasError = true;
                     // special case for db connectors: show error in this format -> sql:Error?
-                    if (formField.typeInfo.moduleName === "sql" && depth >= 2) {
+                    if (formField.typeInfo && formField.typeInfo.moduleName === "sql" && depth >= 2) {
                         formField.isErrorType = false;
                         response.hasError = false;
                         type = `${formField.typeInfo.moduleName}:${formField.typeInfo.name}`

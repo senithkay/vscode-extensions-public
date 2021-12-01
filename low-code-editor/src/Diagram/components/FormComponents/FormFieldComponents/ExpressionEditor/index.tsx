@@ -525,7 +525,8 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
 
         expressionEditorState.name = model.name;
         expressionEditorState.content = initContent;
-        expressionEditorState.uri = `expr://${currentFile.path}`;
+        expressionEditorState.uri = monaco.Uri.file(currentFile.path).toString();
+
         await getExpressionEditorLangClient().then(async (langClient: ExpressionEditorLangClientInterface) => {
             langClient.didChange({
                 contentChanges: [
@@ -590,17 +591,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
 
         expressionEditorState.name = model.name;
         expressionEditorState.content = initContent;
-        expressionEditorState.uri = `expr://${currentFile.path}`;
+        expressionEditorState.uri = monaco.Uri.file(currentFile.path).toString();
 
         await getExpressionEditorLangClient().then(async (langClient: ExpressionEditorLangClientInterface) => {
-            langClient.didOpen({
-                textDocument: {
-                    uri: expressionEditorState.uri,
-                    languageId: "ballerina",
-                    text: currentFile.content,
-                    version: 1
-                }
-            });
             langClient.didChange({
                 contentChanges: [
                     {
@@ -648,7 +641,10 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         if ((currentContent === "" || TRIGGER_CHARACTERS.includes(lastCharacter)) && monacoRef.current.editor.hasTextFocus()) {
             monacoRef.current.editor.trigger('exp_editor', 'editor.action.triggerSuggest', {})
         }
-        onFocus(currentContent);
+
+        if (onFocus) {
+            onFocus(currentContent);
+        }
     }
 
     // ExpEditor onChange
@@ -762,9 +758,15 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             expressionEditorState.uri = expressionEditorState?.uri;
 
             await getExpressionEditorLangClient().then(async (langClient: ExpressionEditorLangClientInterface) => {
-                langClient.didClose({
+                langClient.didChange({
+                    contentChanges: [
+                        {
+                            text: expressionEditorState.content
+                        }
+                    ],
                     textDocument: {
-                        uri: expressionEditorState.uri
+                        uri: expressionEditorState.uri,
+                        version: 1
                     }
                 });
             });
@@ -866,6 +868,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             }
         });
     }
+    const expEditorStyle = monacoRef?.current?.editor?.hasTextFocus() ? "exp-editor-active" : "exp-editor";
 
     setDefaultTooltips();
 
@@ -878,7 +881,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             >
                 <div className="exp-absolute-wrapper">
                     <div
-                        className="exp-editor"
+                        className={expEditorStyle}
                         style={{
                             height: expand ? (superExpand ? '200px' : '100px') : '34px',
                             opacity: disabled ? 0.5 : 1

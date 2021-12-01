@@ -18,7 +18,7 @@ import { NodePosition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
 
 import { ServiceIcon } from "../../../../../assets/icons";
 import { useDiagramContext } from "../../../../../Contexts/Diagram";
-import { wizardStyles as useFormStyles } from "../style";
+import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
 
 import { HttpServiceForm } from "./forms/HttpService";
 import { TriggerServiceForm } from "./forms/TriggerService";
@@ -61,10 +61,8 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
                 defaultMessage={"Service"}
                 formType={formType}
             />
-            <div className={formClasses.formWrapper}>
-                {!serviceType && <ServiceTypeSelector onSelect={setServiceType} />}
-                {serviceType && configForm}
-            </div>
+            {!serviceType && <ServiceTypeSelector onSelect={setServiceType} />}
+            {serviceType && configForm}
         </FormControl>
     )
 }

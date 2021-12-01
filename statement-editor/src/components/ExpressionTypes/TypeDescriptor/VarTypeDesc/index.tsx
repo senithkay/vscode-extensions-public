@@ -10,7 +10,6 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-wrap-multiline
 import React, { useContext } from "react";
 
 import { VarTypeDesc } from "@wso2-enterprise/syntax-tree";
@@ -18,7 +17,6 @@ import { VarTypeDesc } from "@wso2-enterprise/syntax-tree";
 import { VariableUserInputs } from "../../../../models/definitions";
 import { SuggestionsContext } from "../../../../store/suggestions-context";
 import { InputEditor } from "../../../InputEditor";
-import { useStatementEditorStyles } from "../../../styles";
 
 interface VarTypeDescProps {
     model: VarTypeDesc
@@ -30,7 +28,6 @@ interface VarTypeDescProps {
 export function VarTypeDescComponent(props: VarTypeDescProps) {
     const { model, userInputs, diagnosticHandler, isTypeDescriptor } = props;
 
-    const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
 
     const inputEditorProps = {
@@ -43,8 +40,6 @@ export function VarTypeDescComponent(props: VarTypeDescProps) {
     };
 
     return (
-        <button className={statementEditorClasses.expressionElement}>
-            <InputEditor {...inputEditorProps} />
-        </button>
+        <InputEditor {...inputEditorProps} />
     );
 }

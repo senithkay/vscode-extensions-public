@@ -10,15 +10,17 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-wrap-multiline jsx-no-multiline-js
-import React, { ReactNode, useContext } from "react";
+// tslint:disable: jsx-no-multiline-js jsx-no-lambda
+import React, { useContext } from "react";
 
 import { MappingConstructor, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { MAPPING_CONSTRUCTOR } from "../../../constants";
+import { DEFAULT_EXPRESSIONS, MAPPING_CONSTRUCTOR } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { SuggestionsContext } from "../../../store/suggestions-context";
+import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
 import { generateExpressionTemplate } from "../../../utils/utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
@@ -31,6 +33,9 @@ interface MappingConstructorProps {
 
 export function MappingConstructorComponent(props: MappingConstructorProps) {
     const { model, userInputs, diagnosticHandler } = props;
+    const stmtCtx = useContext(StatementEditorContext);
+    const { modelCtx } = stmtCtx;
+    const { currentModel } = modelCtx;
 
     const statementEditorClasses = useStatementEditorStyles();
 
@@ -39,69 +44,65 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
             updateModel,
         }
     } = useContext(StatementEditorContext);
+    const { expressionHandler } = useContext(SuggestionsContext);
 
-    const fields: (ReactNode | string)[] = [];
+    const onClickOnPlusIcon = () => {
+        const expressionTemplate = generateExpressionTemplate(MAPPING_CONSTRUCTOR);
+        const newField = model.fields.length !== 0 ? `, ${expressionTemplate} }` : `${expressionTemplate} }`;
+        updateModel(newField, model.closeBrace.position);
+    };
 
-
-    model.fields.forEach((expression: STNode) => {
-        if (STKindChecker.isCommaToken(expression)) {
-            fields.push(expression.value);
-        } else {
-            const expr: ReactNode = <ExpressionComponent
-                model={expression}
-                isRoot={false}
-                userInputs={userInputs}
-                diagnosticHandler={diagnosticHandler}
-                isTypeDescriptor={false}
-            />;
-            fields.push(expr)
-        }
-    });
-
+    const onClickOnExpression = (clickedExpression: STNode, event: any) => {
+        event.stopPropagation();
+        expressionHandler(clickedExpression, false, false,
+            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
+    };
 
     const fieldsComponent = (
         <span>
-                {
-                    fields.map((expr: ReactNode | string, index: number) => (
-                        (typeof expr === 'string') ?
-                            (
-                                <span
-                                    key={index}
-                                    className={
-                                        classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)
-                                    }
-                                >
-                                    {expr}
-                                </span>
-                            ) :
-                            (
-                                <button
-                                    key={index}
-                                    className={statementEditorClasses.expressionElement}
-                                >
-                                    {expr}
-                                </button>
-                            )
-                    ))
-                }
-            </span>
+            {
+                model.fields.map((expression: STNode, index: number) => (
+                    (STKindChecker.isCommaToken(expression)) ? (
+                        <span
+                            key={index}
+                            className={classNames(
+                                statementEditorClasses.expressionBlock,
+                                statementEditorClasses.expressionBlockDisabled
+                            )}
+                        >
+                            {expression.value}
+                        </span>
+                    ) : (
+                        <button
+                            key={index}
+                            className={classNames(
+                                statementEditorClasses.expressionElement,
+                                (currentModel.model && currentModel.model.position === expression.position) &&
+                                statementEditorClasses.expressionElementSelected
+                            )}
+                            onClick={(event) => onClickOnExpression(expression, event)}
+                        >
+                            <ExpressionComponent
+                                model={expression}
+                                isRoot={false}
+                                userInputs={userInputs}
+                                diagnosticHandler={diagnosticHandler}
+                                isTypeDescriptor={false}
+                            />
+                        </button>
+                    )
+                ))
+            }
+        </span>
     );
-
-    const onClickOnPlusIcon = () => {
-        let newField: string;
-        if (model.fields.length !== 0) {
-            newField = ", " + generateExpressionTemplate(MAPPING_CONSTRUCTOR) + " }";
-            updateModel(newField, model.closeBrace.position);
-        } else {
-            newField = generateExpressionTemplate(MAPPING_CONSTRUCTOR) + " }";
-            updateModel(newField, model.closeBrace.position);
-        }
-    };
 
     return (
         <span>
             <span
-                className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}
+                className={classNames(
+                    statementEditorClasses.expressionBlock,
+                    statementEditorClasses.expressionBlockDisabled
+                )}
             >
                 {model.openBrace.value}
             </span>
@@ -113,7 +114,10 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
                 +
             </button>
             <span
-                className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}
+                className={classNames(
+                    statementEditorClasses.expressionBlock,
+                    statementEditorClasses.expressionBlockDisabled
+                )}
             >
                 {model.closeBrace.value}
             </span>

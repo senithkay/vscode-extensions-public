@@ -50,14 +50,14 @@ export function LeftPane(props: ModelProps) {
     const [isTypeDescSuggestion, setIsTypeDescSuggestion] = useState(false);
 
     const expressionHandler = (
-        cModel: STNode,
-        operator: boolean,
-        isTypeDesc: boolean,
-        suggestionsList: {
-            variableSuggestions?: SuggestionItem[],
-            expressionSuggestions?: SuggestionItem[],
-            typeSuggestions?: SuggestionItem[]
-        }) => {
+            cModel: STNode,
+            operator: boolean,
+            isTypeDesc: boolean,
+            suggestionsList: {
+                variableSuggestions?: SuggestionItem[],
+                expressionSuggestions?: SuggestionItem[],
+                typeSuggestions?: SuggestionItem[]
+            }) => {
         currentModelHandler(cModel);
         if (suggestionsList.expressionSuggestions) {
             setSuggestionsList(suggestionsList.expressionSuggestions);

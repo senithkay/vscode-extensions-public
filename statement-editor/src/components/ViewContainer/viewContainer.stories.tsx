@@ -40,6 +40,7 @@ const dummyFunctionWithoutArgs = () => {
 
 const statementEditorContextProps = {
     model: varDeclBinaryExprModel,
+    currentModel: {model: varDeclBinaryExprModel},
     onCancelClicked: false,
     onSave: dummyFunctionWithoutArgs,
     onChange: dummyFunction,
