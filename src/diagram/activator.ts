@@ -35,6 +35,7 @@ import { sep } from "path";
 import { DiagramOptions, Member, SyntaxTree } from './model';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { runCommand } from '../utils/runCommand';
+import { Diagnostic } from '.';
 
 const NO_DIAGRAM_VIEWS: string = 'No Ballerina diagram views found!';
 
@@ -96,6 +97,49 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 		}
 		commands.executeCommand('workbench.action.splitEditor');
 		commands.executeCommand('vscode.open', path);
+	});
+}
+
+function resolveMissingDependencyByCodeAction(filePath: string, fileContent: string, diagnostic: Diagnostic, langClient: ExtendedLangClient) {
+	langClient.codeAction({
+		context: {
+			diagnostics: [{
+				code: diagnostic.diagnosticInfo.code,
+				message: diagnostic.message,
+				range: {
+					end: {
+						line: diagnostic.range.endLine,
+						character: diagnostic.range.endColumn
+					},
+					start: {
+						line: diagnostic.range.startLine,
+						character: diagnostic.range.startColumn
+					}
+				},
+				severity: 1
+			}],
+			only: ["quickfix"]
+		},
+		range: {
+			end: {
+				line: diagnostic.range.endLine,
+				character: diagnostic.range.endColumn
+			},
+			start: {
+				line: diagnostic.range.startLine,
+				character: diagnostic.range.startColumn
+			}
+		},
+		textDocument: {
+			uri: `file://${filePath}`
+		}
+	}).then(codeaction => {
+		if (codeaction.length > 0 && codeaction[0].command) {
+			langClient.executeCommand(codeaction[0].command).then(result => {
+				// Update the diagram.
+				callUpdateDiagramMethod();
+			});
+		}
 	});
 }
 
@@ -261,6 +305,13 @@ class DiagramPanel {
 				methodName: "resolveMissingDependency",
 				handler: async (args: any[]): Promise<boolean> => {
 					resolveMissingDependency(args[0], args[1], langClient);
+					return true;
+				}
+			},
+			{
+				methodName: "resolveMissingDependencyByCodeAction",
+				handler: async (args: any[]): Promise<boolean> => {
+					resolveMissingDependencyByCodeAction(args[0],args[1], args[2], langClient);
 					return true;
 				}
 			},
