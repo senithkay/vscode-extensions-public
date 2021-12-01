@@ -103,9 +103,14 @@ export class TryOutCodeLensProvider {
                 const members: Member[] = syntaxTree.members;
                 for (const member of members) {
                     if (member.kind === 'ServiceDeclaration') {
+                        const service = member as any;
+                        if (service.typeDescriptor && service.typeDescriptor.modulePrefix && service.typeDescriptor.modulePrefix.value) {
+                            // remove the try it for triggers
+                            continue;
+                        }
                         services.push({
-                            position: member.position,
-                            name: this.getResourcePath((member as any).absoluteResourcePath)
+                            position: service.serviceKeyword.position,
+                            name: this.getResourcePath(service.absoluteResourcePath)
                         })
                     }
                 }
