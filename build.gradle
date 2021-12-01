@@ -43,11 +43,19 @@ task copyDeps(type: Copy) {
     include "BLCEditor.js"
 }
 
+task copyConfigEditorDeps(type: Copy) {
+    dependsOn installDeps
+    from "$rootDir/node_modules/@wso2-enterprise/ballerina-configurable-editor/build/"
+    into "$rootDir/resources/jslibs"
+    include "ConfigEditor.js"
+}
+
 npmBuild() {
     dependsOn ':bbe-viewer:buildBBEViewer'
     dependsOn ':perf-viewer:buildPerfViewer'
     dependsOn ':swagger-viewer:buildSwaggerViewer'
     dependsOn copyDeps
+    dependsOn copyConfigEditorDeps
     PatternSet patternSet = new PatternSet();
     patternSet.exclude("**/node_modules/**");
     patternSet.exclude("**/dist/**");
