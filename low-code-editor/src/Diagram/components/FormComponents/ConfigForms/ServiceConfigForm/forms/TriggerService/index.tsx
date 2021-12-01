@@ -49,6 +49,12 @@ export function TriggerServiceForm(props: TriggerServiceFormProps) {
         TRIGGER_CHANNEL = model.typeDescriptor.modulePrefix.value + ":" + model.typeDescriptor.identifier.value;
     }
 
+    React.useEffect(() => {
+        if (model) {
+            setListenerName(model.expressions[0].source.trim());
+        }
+    }, []);
+
     const listenerList = Array.from(stSymbolInfo.listeners)
         .filter(([key, value]) =>
             STKindChecker.isQualifiedNameReference((value as ListenerDeclaration).typeDescriptor)

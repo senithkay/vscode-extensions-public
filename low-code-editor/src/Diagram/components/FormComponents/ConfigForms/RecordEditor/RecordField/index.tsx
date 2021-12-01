@@ -144,7 +144,7 @@ export function RecordField(props: CodePanelProps) {
         // Changes the active state to selected record model
         state.currentRecord.isActive = false;
         if (state.currentField && state.currentField.name === "") {
-            state.currentField.name = genRecordName("f", getFieldNames(state.currentRecord.fields));
+            state.currentField.name = genRecordName("fieldName", getFieldNames(state.currentRecord.fields));
         }
         recordModel.isActive = true;
 
@@ -233,7 +233,7 @@ export function RecordField(props: CodePanelProps) {
             !(state.currentField?.name === event.target.value);
         if (event.key === 'Enter') {
             if (!event.target.value) {
-                state.currentField.name = genRecordName("f", getFieldNames(state.currentRecord.fields));
+                state.currentField.name = genRecordName("fieldName", getFieldNames(state.currentRecord.fields));
             }
             if (!state.currentField.isNameInvalid) {
                 state.currentField.isEditInProgress = false;
@@ -272,7 +272,6 @@ export function RecordField(props: CodePanelProps) {
             state.currentField.name = state.currentField.type === "record" ?
                 genRecordName("Record", getFieldNames(state.currentRecord.fields)) :
                 genRecordName("fieldName", getFieldNames(state.currentRecord.fields));
-            state.currentField.isNameInvalid = false;
         }
         callBacks.onUpdateCurrentField(state.currentField);
     };

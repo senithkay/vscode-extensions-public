@@ -67,7 +67,7 @@ export function PayloadEditor(props: PayloadEditorProps) {
         endColumn: 0,
     };
     let overrideTemplate: ExpressionEditorCustomTemplate = {
-        defaultCodeSnippet: 'resource function post tempResource(@http:Payload  query) {}',
+        defaultCodeSnippet: `resource function post tempResource(@http:Payload  ${segmentState?.name || 'tempPayload'}) {}`,
         targetColumn: 51
     };
 
@@ -75,7 +75,7 @@ export function PayloadEditor(props: PayloadEditorProps) {
         // If @http:Payload already exists
         updateNodePosition = extractPayloadPositionFromST(funcSignature?.parameters);
         overrideTemplate = {
-            defaultCodeSnippet: '@http:Payload  tempPayload',
+            defaultCodeSnippet: `@http:Payload  ${segmentState?.name || 'tempPayload'}`,
             targetColumn: 15
         }
     }else if (funcSignature?.parameters.length > 0){
@@ -85,7 +85,7 @@ export function PayloadEditor(props: PayloadEditorProps) {
             startColumn: funcSignature.openParenToken.position.startColumn + 1,
         };
         overrideTemplate = {
-            defaultCodeSnippet: '@http:Payload  tempPayload,',
+            defaultCodeSnippet: `@http:Payload  ${segmentState?.name || 'tempPayload'},`,
             targetColumn: 15
         }
     }else if (funcSignature?.parameters.length === 0){
@@ -95,7 +95,7 @@ export function PayloadEditor(props: PayloadEditorProps) {
             startColumn: funcSignature.openParenToken.position.startColumn + 1,
         };
         overrideTemplate = {
-            defaultCodeSnippet: '@http:Payload  tempPayload',
+            defaultCodeSnippet: `@http:Payload  ${segmentState?.name || 'tempPayload'}`,
             targetColumn: 15
         }
     }

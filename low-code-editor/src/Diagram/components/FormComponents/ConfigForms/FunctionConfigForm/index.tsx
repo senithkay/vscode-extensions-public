@@ -13,20 +13,20 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useRef, useState } from "react";
 
-import { Box, FormControl, Typography } from "@material-ui/core";
-import { FormHeaderSection, PrimaryButton, SecondaryButton, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { Divider, FormControl } from "@material-ui/core";
+import { FormActionButtons, FormHeaderSection, PrimaryButton, SecondaryButton, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
-import { AddIcon, FunctionIcon } from "../../../../../assets/icons";
+import { AddIcon } from "../../../../../assets/icons";
 import { Section } from "../../../../../components/ConfigPanel";
 import { useDiagramContext } from "../../../../../Contexts/Diagram";
 import {
     createFunctionSignature,
     updateFunctionSignature,
 } from "../../../../utils/modification-util";
+import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
 import { VariableNameInput, VariableNameInputProps } from "../Components/VariableNameInput";
 import { VariableTypeInput, VariableTypeInputProps } from "../Components/VariableTypeInput";
-import { wizardStyles as useFormStyles } from "../style";
 
 import { FunctionParamItem } from "./FunctionParamEditor/FunctionParamItem";
 import { FunctionParamSegmentEditor } from "./FunctionParamEditor/FunctionSegmentEditor";
@@ -37,11 +37,12 @@ interface FunctionConfigFormProps {
     targetPosition?: NodePosition;
     onCancel: () => void;
     onSave: () => void;
+    formType: string;
 }
 
 export function FunctionConfigForm(props: FunctionConfigFormProps) {
     const formClasses = useFormStyles();
-    const { targetPosition, model, onSave, onCancel } = props;
+    const { targetPosition, model, onSave, onCancel, formType } = props;
     const [functionName, setFunctionName] = useState("");
     const [parameters, setParameters] = useState<FunctionParam[]>([]);
     const [returnType, setReturnType] = useState(model ? model?.functionSignature?.returnTypeDesc?.type?.source : "error?");
@@ -56,7 +57,7 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
         },
     } = useDiagramContext();
     const existingFunctionNames = useRef([]);
-    const disableSaveBtn = !(functionName.length > 0) || !isFunctionNameValid || addingNewParam || !validReturnType;
+    const enableSaveBtn = (functionName.length > 0) || !isFunctionNameValid || addingNewParam || !validReturnType;
 
     const handleOnSave = () => {
         const parametersStr = parameters
@@ -143,9 +144,9 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
     if (model) {
         namePosition = model.functionName.position;
 
-        if (model?.functionSignature?.returnTypeDesc){
+        if (model?.functionSignature?.returnTypeDesc) {
             returnPosition = model?.functionSignature?.returnTypeDesc?.position;
-        }else{
+        } else {
             returnPosition = {
                 ...model?.functionSignature?.closeParenToken?.position,
                 startColumn: model?.functionSignature?.closeParenToken?.position?.startColumn + 1,
@@ -208,17 +209,17 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
     }
 
     return (
-        <FormControl data-testid="log-form" className={formClasses.wizardFormControl}  >
+        <FormControl data-testid="function-form" className={formClasses.wizardFormControl}  >
             <FormHeaderSection
                 onCancel={onCancel}
                 formTitle={"lowcode.develop.configForms.functionForms.title"}
                 defaultMessage={"Function"}
+                formType={formType}
             />
-            <div className={formClasses.formWrapper}>
-                <div className={formClasses.sectionSeparator}>
+            <div className={formClasses.formContentWrapper}>
+                <div className={formClasses.formNameWrapper}>
                     <VariableNameInput {...functionNameConfig} />
-                </div>
-                <div className={formClasses.sectionSeparator}>
+                    <Divider className={formClasses.sectionSeperatorHR}/>
                     <Section title={"Parameters"}>
                         {parameters.map((param) => (
                             <FunctionParamItem
@@ -247,28 +248,20 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
                             </span>
                         )}
                     </Section>
-                </div>
-
-                <div className={formClasses.sectionSeparator}>
+                    <Divider className={formClasses.sectionSeperatorHR}/>
                     <Section title={"Return Type"}>
                         <VariableTypeInput {...returnTypeConfig} />
                     </Section>
                 </div>
-
-                <div className={formClasses.wizardBtnHolder}>
-                    <SecondaryButton
-                        text="Cancel"
-                        fullWidth={false}
-                        onClick={onCancel}
-                    />
-                    <PrimaryButton
-                        text={"Save"}
-                        disabled={disableSaveBtn}
-                        fullWidth={false}
-                        onClick={handleOnSave}
-                    />
-                </div>
             </div>
+            <FormActionButtons
+                cancelBtnText="Cancel"
+                cancelBtn={true}
+                saveBtnText="Save"
+                onSave={handleOnSave}
+                onCancel={onCancel}
+                validForm={enableSaveBtn}
+            />
         </FormControl>
     );
 }

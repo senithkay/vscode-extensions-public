@@ -16,6 +16,7 @@ import React from "react";
 import { List, ListItem, Typography } from "@material-ui/core";
 
 import { ServiceTypes } from "..";
+import { useStyles as useFormStyles } from "../../../DynamicConnectorForm/style";
 
 interface ServiceTypeSelectorProps {
     onSelect: (type: string) => void;
@@ -23,6 +24,7 @@ interface ServiceTypeSelectorProps {
 
 export function ServiceTypeSelector(props: ServiceTypeSelectorProps) {
     const { onSelect } = props;
+    const formClasses = useFormStyles();
 
     const types = Object.keys(ServiceTypes).map((type, i) => {
         const values = Object.values(ServiceTypes);
@@ -47,15 +49,13 @@ export function ServiceTypeSelector(props: ServiceTypeSelectorProps) {
     })
 
     return (
-        <>
-            <Typography
-            >
+        <div className={formClasses.formContentWrapper}>
+            <Typography >
                 Select Service Type
             </Typography>
             <List >
                 {types}
             </List>
-        </>
+        </div>
     )
-
 }

@@ -718,7 +718,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 monacoRef.current.editor.trigger('exp_editor', 'editor.action.triggerSuggest', {})
             }
 
-            if ((currentContent.length >= EDITOR_MAXIMUM_CHARACTERS) && monacoRef.current.editor.hasTextFocus()) {
+            if ((currentContent.length >= EDITOR_MAXIMUM_CHARACTERS) && monacoRef.current.editor.hasTextFocus() && !hideExpand) {
                 setExpand(true);
                 if (currentContent.length >= EXPAND_EDITOR_MAXIMUM_CHARACTERS) {
                     setSuperExpand(true);
@@ -867,6 +867,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             }
         });
     }
+    const expEditorStyle = monacoRef?.current?.editor?.hasTextFocus() ?  "exp-editor-active" : "exp-editor";
 
     setDefaultTooltips();
 
@@ -879,7 +880,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             >
                 <div className="exp-absolute-wrapper">
                     <div
-                        className="exp-editor"
+                        className={expEditorStyle}
                         style={{
                             height: expand ? (superExpand ? '200px' : '100px') : '34px',
                             opacity: disabled ? 0.5 : 1

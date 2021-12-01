@@ -20,13 +20,12 @@ import { Box, FormControl, Typography } from "@material-ui/core";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
-import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
 import { CustomExpressionConfig, ProcessConfig } from "../../../../Types";
 import { wizardStyles } from "../../../style";
 import { STNode } from "@wso2-enterprise/syntax-tree";
-import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 interface LogConfigProps {
     config: ProcessConfig;
@@ -128,36 +127,35 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={false}
                 />
-                <div className={formClasses.formWrapper}>
-                    <div className={formClasses.formFeilds}>
-                        <div className={formClasses.stmtEditorWrapper}>
-                            <ExpressionEditor
-                                model={{ name: "statement", value: expression }}
-                                customProps={{
-                                    validate: validateExpression,
-                                    tooltipTitle: customStatementTooltipMessages.title,
-                                    tooltipActionText: customStatementTooltipMessages.actionText,
-                                    tooltipActionLink: customStatementTooltipMessages.actionLink,
-                                    interactive: true,
-                                    customTemplate: {
-                                        defaultCodeSnippet: '',
-                                        targetColumn: 1,
-                                    },
-                                    editPosition: config?.targetPosition
-                                }}
-                                onChange={onExpressionChange}
-                            />
-                        </div>
+                <div className={formClasses.formContentWrapper}>
+                    <div className={formClasses.formNameWrapper}>
+                        <ExpressionEditor
+                            model={{ name: "statement", value: expression }}
+                            customProps={{
+                                validate: validateExpression,
+                                tooltipTitle: customStatementTooltipMessages.title,
+                                tooltipActionText: customStatementTooltipMessages.actionText,
+                                tooltipActionLink: customStatementTooltipMessages.actionLink,
+                                interactive: true,
+                                customTemplate: {
+                                    defaultCodeSnippet: '',
+                                    targetColumn: 1,
+                                },
+                                editPosition: config?.targetPosition
+                            }}
+                            onChange={onExpressionChange}
+                        />
                     </div>
-                    <FormActionButtons
-                        cancelBtnText="Cancel"
-                        saveBtnText={saveCustomStatementButtonLabel}
-                        isMutationInProgress={isMutationInProgress}
-                        validForm={isFormValid}
-                        onSave={onSaveBtnClick}
-                        onCancel={onCancel}
-                    />
                 </div>
+                <FormActionButtons
+                    cancelBtnText="Cancel"
+                    cancelBtn={true}
+                    saveBtnText={saveCustomStatementButtonLabel}
+                    isMutationInProgress={isMutationInProgress}
+                    validForm={isFormValid}
+                    onSave={onSaveBtnClick}
+                    onCancel={onCancel}
+                />
             </FormControl>
         );
     }

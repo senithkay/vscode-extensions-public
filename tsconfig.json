@@ -5,6 +5,9 @@
         "path": "./statement-editor/tsconfig.ref.json"
       },
       {
+        "path": "./configurable-editor/tsconfig.ref.json"
+      },
+      {
         "path": "./lang-service/tsconfig.ref.json"
       },
       {

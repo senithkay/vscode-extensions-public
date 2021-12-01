@@ -8,7 +8,7 @@ This is a mono repo containing several npm modules used for Ballerina Low Code E
 - **syntax-tree**  : Contains utils and typescript interfaces related to Ballerina Syntax Tree which can be used to process a syntax tree JSON in a javascript/typescript project.
 - **low-code-editor-commons** : Contains type definitions and shared components between all modules related to Ballerina Low Code Editor
 - **statement-editor** : Contains components related to Ballerina Statement Editor which is a part of Low Code Editor
-
+- **configurable-editor** : Contains components related to Ballerina Configurable Editor which is a part of Low Code Editor in VSCode/Choreo Console
 - **low-code-editor** : Contains components related to Ballerina Low Code Editor and bundles all the modules needed to run Low Code Editor in VSCode/Choreo Console
 
 ## Developer Guide
