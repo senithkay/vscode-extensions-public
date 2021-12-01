@@ -17,9 +17,9 @@ import { FormattedMessage, useIntl } from "react-intl";
 
 import { BinaryExpression, ForeachStatement } from "@wso2-enterprise/syntax-tree";
 import classnames from "classnames";
-import { Box, FormControl, Typography } from "@material-ui/core";
+import { FormControl, Typography } from "@material-ui/core";
 
-import { FormField, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormField, FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { getAllVariables } from "../../../../../../utils/mixins";
@@ -28,7 +28,6 @@ import { genVariableName } from "../../../../../Portals/utils";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
-import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";
 import { FormTextInput } from "../../../../FormFieldComponents/TextField/FormTextInput";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { ConditionConfig, ForeachConfig, FormElementProps } from "../../../../Types";
@@ -248,7 +247,7 @@ export function AddForeachForm(props: ForeachProps) {
 
     if (!stmtEditorComponent) {
         return (
-            <FormControl data-testid="foreach-form" className={classes.wizardFormControl}>
+            <FormControl data-testid="foreach-form" className={classes.wizardFormControlExtended}>
                 <FormHeaderSection
                     onCancel={onCancel}
                     statementEditor={true}
@@ -257,76 +256,64 @@ export function AddForeachForm(props: ForeachProps) {
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={false}
                 />
-                <div className={classes.formWrapper}>
-                    <div className={classes.formFeilds}>
-                        <div className={classes.blockWrapper}>
-                            <div className={classes.codeTitleText}>
-                                <Typography variant='body2' className={classnames(classes.startCode)}>Foreach</Typography>
+                <div className={classes.formContentWrapper}>
+                    <div className={classes.formCodeBlockWrapper}>
+                        <div className={classes.formCodeExpressionWrapper}>
+                            <Typography variant='body2' className={classes.startTitleCode}>Foreach</Typography>
+                            <div className={classes.variableExpEditorWrapper}>
+                                <SelectDropdownWithButton
+                                    defaultValue={selectedType}
+                                    customProps={{
+                                        disableCreateNew: true,
+                                        values: variableTypes,
+                                        onOpenSelect: handleOnOpen,
+                                        onCloseSelect: handleOnClose,
+                                    }}
+                                    label={"Type"}
+                                    onChange={handleTypeChange}
+                                />
                             </div>
-                            <div className={classes.inlineBlockWrapper}>
-                                <div className={classes.variableExpEditorWrapper}>
-                                    <SelectDropdownWithButton
-                                        defaultValue={selectedType}
-                                        customProps={{
-                                            disableCreateNew: true,
-                                            values: variableTypes,
-                                            onOpenSelect: handleOnOpen,
-                                            onCloseSelect: handleOnClose,
-                                        }}
-                                        label={"Type"}
-                                        onChange={handleTypeChange}
-                                    />
-                                </div>
-                            </div>
-                            <div className={classes.foreachWrapper}>
-                                <div className={classes.inlineBlockWrapper}>
-                                    <div className={classes.nameExpEditorWrapper}>
-                                        <FormTextInput
-                                            customProps={{
-                                                validate: validateNameValue,
-                                            }}
-                                            onChange={onVariableNameChange}
-                                            defaultValue={conditionExpression.variable}
-                                            label="Current Value"
-                                            placeholder={""}
-                                            errorMessage={invalidConnectionErrorMessage}
-                                        />
-                                    </div>
-                                    <div className={classes.inWrapper}>
-                                        <Typography variant='body2' className={classnames(classes.endCode)}>in</Typography>
-                                    </div>
-                                    <div className={classes.nameExpEditorWrapper}>
-                                        {!isDropDownOpen &&
-                                            (
-                                                <div className={classes.variableExpEditorWrapper}>
-                                                    <ExpressionEditor {...expElementProps} hideLabelTooltips={true} />
-                                                </div>
-                                            )
-                                        }
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className={classes.codeText}>
-                                <Typography variant='body2' className={classnames(classes.endCode)}>{`{`}</Typography>
+                            <div className={classes.variableExpEditorWrapper}>
+                                <FormTextInput
+                                    customProps={{
+                                        validate: validateNameValue,
+                                    }}
+                                    onChange={onVariableNameChange}
+                                    defaultValue={conditionExpression.variable}
+                                    label="Current Value"
+                                    placeholder={""}
+                                    errorMessage={invalidConnectionErrorMessage}
+                                />
                             </div>
                         </div>
-                        <div className={classes.codeWrapper}>
-                            <Typography variant='body2' className={classnames(classes.middleCode, classes.code)}>...</Typography>
-                        </div>
-                        <div className={classes.codeWrapper}>
-                            <Typography variant='body2' className={classnames(classes.endCode, classes.code)}>{`}`}</Typography>
+                        <div className={classes.formCodeExpressionEndWrapper}>
+                            <Typography variant='body2' className={classnames(classes.endCode)}>in</Typography>
+                            <div className={classes.formCodeExpressionLargeField}>
+                                {!isDropDownOpen && (
+                                    <div className={classes.stmtEditorWrapper}>
+                                        <ExpressionEditor {...expElementProps} hideLabelTooltips={true} />
+                                    </div>
+                                )}
+                            </div>
+                            <Typography variant='body2' className={classes.endCode}>{`{`}</Typography>
                         </div>
                     </div>
-                    <FormActionButtons
-                        cancelBtnText={cancelForEachButtonLabel}
-                        saveBtnText={saveForEachButtonLabel}
-                        isMutationInProgress={isMutationInProgress}
-                        validForm={!isInvalid}
-                        onSave={handleSave}
-                        onCancel={onCancel}
-                    />
+                    <div className={classes.formCodeBlockWrapper}>
+                        <div className={classes.middleDottedwrapper}>
+                            <Typography variant='body2' className={classes.middleCode}>{`...`}</Typography>
+                        </div>
+                        <Typography variant='body2' className={classes.endCode}>{`}`}</Typography>
+                    </div>
                 </div>
+                <FormActionButtons
+                    cancelBtnText={cancelForEachButtonLabel}
+                    cancelBtn={true}
+                    saveBtnText={saveForEachButtonLabel}
+                    isMutationInProgress={isMutationInProgress}
+                    validForm={!isInvalid}
+                    onSave={handleSave}
+                    onCancel={onCancel}
+                />
             </FormControl>
         );
     }

@@ -14,18 +14,18 @@ import React, { useReducer } from "react"
 import { FormattedMessage } from "react-intl";
 
 import { Box, FormControl, FormHelperText, Typography } from "@material-ui/core";
-import { FormHeaderSection, PrimaryButton, SecondaryButton, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormActionButtons, FormHeaderSection, PrimaryButton, SecondaryButton, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ConstDeclaration, NodePosition } from "@wso2-enterprise/syntax-tree"
 import { v4 as uuid } from 'uuid';
 
-import { ConstantIcon } from "../../../../../assets/icons";
 import { useDiagramContext } from "../../../../../Contexts/Diagram";
 import { createConstDeclaration, updateConstDeclaration } from "../../../../utils/modification-util";
+import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
 import CheckBoxGroup from "../../FormFieldComponents/CheckBox";
 import { SelectDropdownWithButton } from "../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import ExpressionEditor from "../../FormFieldComponents/ExpressionEditor";
+import { TextLabel } from "../../FormFieldComponents/TextField/TextLabel";
 import { VariableNameInput } from "../Components/VariableNameInput";
-import { wizardStyles as useFormStyles } from "../style";
 
 import { ConstantVarNameRegex, generateConfigFromModel, isFormConfigValid } from "./util";
 import { ConstantConfigFormActionTypes, constantConfigFormReducer } from "./util/reducer";
@@ -132,8 +132,7 @@ export function ConstantConfigForm(props: ConstantConfigFormProps) {
         modifyDiagram(modifications);
         onSave();
     }
-
-    const disableSaveBtn: boolean = !isFormConfigValid(config);
+    const enableSaveBtn: boolean = isFormConfigValid(config);
 
     let namePosition: NodePosition = { startLine: 0, startColumn: 0, endLine: 0, endColumn: 0 }
 
@@ -152,52 +151,45 @@ export function ConstantConfigForm(props: ConstantConfigFormProps) {
                 defaultMessage={"Constant"}
                 formType={formType}
             />
-            <div className={formClasses.formWrapper}>
-                <div className={formClasses.labelWrapper}>
-                    <FormHelperText className={formClasses.inputLabelForRequired}>
-                        <FormattedMessage
-                            id="lowcode.develop.configForms.ConstDecl.accessModifier"
-                            defaultMessage="Access Modifier :"
-                        />
-                    </FormHelperText>
-                </div>
-                <CheckBoxGroup
-                    values={["public"]}
-                    defaultValues={config.isPublic ? ["public"] : []}
-                    onChange={handleAccessModifierChange}
-                />
-                <VariableNameInput
-                    displayName={"Constant Name"}
-                    value={config.constantName}
-                    onValueChange={handleNameChange}
-                    validateExpression={updateExpressionValidity}
-                    position={namePosition}
-                    isEdit={!!model}
-                />
-                <CheckBoxGroup
-                    values={["Include type in declaration"]}
-                    defaultValues={config.isTypeDefined ? ["Include type in declaration"] : []}
-                    onChange={handleTypeEnableToggle}
-                />
-                {config.isTypeDefined && typeSelector}
-                <ExpressionEditor
-                    {...expressionEditorConfig}
-                />
-                <div className={formClasses.wizardBtnHolder}>
-                    <SecondaryButton
-                        text="Cancel"
-                        fullWidth={false}
-                        onClick={onCancel}
+            <div className={formClasses.formContentWrapper}>
+                <div className={formClasses.formNameWrapper}>
+                    <TextLabel
+                        textLabelId="lowcode.develop.configForms.ConstDecl.accessModifier"
+                        defaultMessage="Access Modifier :"
+                        required={true}
                     />
-                    <PrimaryButton
-                        disabled={disableSaveBtn}
-                        text="Save"
-                        fullWidth={false}
-                        onClick={handleOnSave}
+                    <CheckBoxGroup
+                        values={["public"]}
+                        defaultValues={config.isPublic ? ["public"] : []}
+                        onChange={handleAccessModifierChange}
+                    />
+                    <VariableNameInput
+                        displayName={"Constant Name"}
+                        value={config.constantName}
+                        onValueChange={handleNameChange}
+                        validateExpression={updateExpressionValidity}
+                        position={namePosition}
+                        isEdit={!!model}
+                    />
+                    <CheckBoxGroup
+                        values={["Include type in declaration"]}
+                        defaultValues={config.isTypeDefined ? ["Include type in declaration"] : []}
+                        onChange={handleTypeEnableToggle}
+                    />
+                    {config.isTypeDefined && typeSelector}
+                    <ExpressionEditor
+                        {...expressionEditorConfig}
                     />
                 </div>
             </div>
-
+            <FormActionButtons
+                cancelBtnText="Cancel"
+                cancelBtn={true}
+                saveBtnText="Save"
+                onSave={handleOnSave}
+                onCancel={onCancel}
+                validForm={enableSaveBtn}
+            />
         </FormControl>
     )
 }

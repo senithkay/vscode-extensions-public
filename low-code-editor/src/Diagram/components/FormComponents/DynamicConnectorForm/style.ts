@@ -34,6 +34,123 @@ export const useStyles = makeStyles((theme: Theme) =>
                 margin: '0 !important',
             }
         },
+        formContentWrapper: {
+            width: '100%',
+            flexDirection: "row",
+            padding: '15px 20px',
+        },
+        formDeclarationWrapper: {
+            display: 'flex',
+            width: '100%',
+            flexDirection: 'row',
+            justifyContent: 'space-evenly',
+            "& .MuiFormControl-marginNormal": {
+                margin: '0 !important',
+            }
+        },
+        formNameWrapper: {
+            width: '100%',
+            marginRight: theme.spacing(0.625),
+            position: 'relative',
+            marginTop: theme.spacing(1.5),
+            '&:last-child': {
+                marginRight: 0
+            }
+        },
+        formNameNValueWrapper: {
+            width: '50%',
+            marginRight: theme.spacing(0.625),
+            position: 'relative',
+            marginTop: theme.spacing(1.5),
+            '&:last-child': {
+                marginRight: 0
+            }
+        },
+        formEqualWrapper: {
+            width: '100%',
+            marginRight: theme.spacing(0.625),
+            position: 'relative',
+        },
+        formCodeExpressionLargeField: {
+            width: '87%',
+            marginRight: theme.spacing(0.625),
+            position: 'relative',
+        },
+        formCodeExpressionField: {
+            width: '80%',
+            marginRight: theme.spacing(0.625),
+            position: 'relative',
+        },
+        formCodeExpressionValueField: {
+            width: '55%',
+            marginRight: theme.spacing(0.625),
+            position: 'relative',
+            '&:last-child': {
+                marginRight: 0
+            }
+        },
+        formCodeExpressionValueRegularField: {
+            width: '75%',
+            marginRight: theme.spacing(0.625),
+            position: 'relative',
+            '&:last-child': {
+                marginRight: 0
+            }
+        },
+        formCodeExpressionSmallField: {
+            width: '43%',
+            marginRight: theme.spacing(0.625),
+            position: 'relative',
+        },
+        formCodeExpressionExtraSmallField: {
+            width: '35%',
+            position: 'relative',
+        },
+        formEqualContainer: {
+            display: 'inline-flex',
+            width: '100%',
+            marginTop: theme.spacing(1)
+        },
+        equalCode: {
+            paddingTop: theme.spacing(1.5),
+        },
+        equalContainer: {
+            paddingTop: theme.spacing(5),
+            width: theme.spacing(1.5),
+        },
+        valueContainer: {
+            width: '100%',
+            paddingRight: theme.spacing(1),
+            position: 'relative',
+            marginTop: theme.spacing(1.5)
+        },
+        formCodeBlockWrapper: {
+            width: '100%',
+            display: 'flex',
+            flexDirection: 'column'
+        },
+        formCodeWrapper: {
+            width: '100%',
+            display: 'inline-flex'
+        },
+        formCodeExpressionWrapper: {
+            display: 'inline-flex',
+        },
+        formCodeExpressionEndWrapper: {
+            display: 'inline-flex',
+            alignItems: 'flex-end',
+            paddingTop: theme.spacing(1),
+        },
+        formCodeExpressionCenterWrapper: {
+            display: 'inline-flex',
+            alignContent: 'center',
+        },
+        formCodePlusWrapper: {
+            paddingRight: theme.spacing(1)
+        },
+        formCodeMinusWrapper: {
+            paddingBottom: theme.spacing(1.25)
+        },
         fullWidth: {
             width: "100%",
             "& .MuiFormControl-marginNormal": {
@@ -405,11 +522,6 @@ export const useStyles = makeStyles((theme: Theme) =>
             alignItems: 'center',
             paddingLeft: theme.spacing(1.25),
         },
-        formWrapper: {
-            width: '100%',
-            flexDirection: "row",
-            padding: '15px 20px',
-        },
         oauthWrapper: {
             paddingTop: "5rem"
         },
@@ -507,11 +619,9 @@ export const useStyles = makeStyles((theme: Theme) =>
             color: "#5567D5",
             fontSize: 12,
             letterSpacing: 0,
-            lineHeight: "16px",
             cursor: "pointer",
             background: "#fff",
-            border: "1px solid #5567d55c",
-            padding: "4px 8px",
+            padding: "4px 8px 4px 0",
             borderRadius: 8,
             display: "flex",
             alignItems: "center",
@@ -520,10 +630,18 @@ export const useStyles = makeStyles((theme: Theme) =>
             },
             marginTop: 6,
         },
+        sectionSeperatorHR: {
+            margin: "1.5rem 0"
+        },
         sectionSeparator: {
             borderBottom: "1px solid #D8D8D8",
             marginBottom: "15px",
             padding: "5px 0"
+        },
+        formWrapper: {
+            width: '100%',
+            flexDirection: "row",
+            padding: '15px 20px',
         },
         formFeilds: {
             marginBottom: theme.spacing(2.5),
@@ -540,15 +658,36 @@ export const useStyles = makeStyles((theme: Theme) =>
             paddingBottom: theme.spacing(0.375),
             paddingLeft: theme.spacing(1)
         },
+        startTitleCode: {
+            color: '#0095FF',
+            width: 'max-content',
+            paddingTop: theme.spacing(5),
+            paddingRight: theme.spacing(1),
+        },
         startCode: {
             color: '#0095FF',
-            width: 'max-content'
+            width: 'max-content',
+            paddingBottom: theme.spacing(0.5),
+            paddingLeft: theme.spacing(1),
+            paddingRight: theme.spacing(1),
+        },
+        middleDottedwrapper: {
+            display: 'flex',
+            paddingBottom: theme.spacing(1.25)
         },
         middleCode: {
-            color: '#8D91A3'
+            color: '#8D91A3',
+            marginLeft: theme.spacing(3)
         },
         endCode: {
-            color: '#1D2028'
+            color: '#1D2028',
+            paddingBottom: theme.spacing(1),
+            paddingLeft: theme.spacing(1),
+            paddingRight: theme.spacing(1),
+        },
+        elseBlockWrapper: {
+            width: '100%',
+            display: 'inline-block'
         },
         statementEditor: {
             alignItems: 'center',
@@ -669,7 +808,9 @@ export const useStyles = makeStyles((theme: Theme) =>
             width: '100%',
             paddingRight: theme.spacing(1),
             position: 'relative',
-            marginTop: theme.spacing(1.5)
+            '&:last-child': {
+                paddingRight: 0,
+            },
         },
         ifEditorWrapper: {
             minWidth: `220px !important`,
@@ -703,7 +844,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginRight: 5,
         },
         resourcePathWrapper: {
-            width: '60%',
+            width: '55%',
             marginLeft: theme.spacing(1.25)
         },
         advancedSwitchText: {

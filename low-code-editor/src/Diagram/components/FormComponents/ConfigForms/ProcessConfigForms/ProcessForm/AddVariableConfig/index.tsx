@@ -15,28 +15,23 @@ import React, { useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
-import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { LocalVarDecl, STKindChecker } from "@wso2-enterprise/syntax-tree";
-import classnames from "classnames";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { createModuleVarDecl, getInitialSource } from "../../../../../../utils/modification-util";
 import { getVariableNameFromST } from "../../../../../../utils/st-util";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
-import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
-import { FormActionButtons } from "../../../../FormFieldComponents/FormActionButtons";
 import { SwitchToggle } from "../../../../FormFieldComponents/SwitchToggle";
-import { FormTextInput } from "../../../../FormFieldComponents/TextField/FormTextInput";
 import { ProcessConfig } from "../../../../Types";
 import { VariableNameInput, VariableNameInputProps } from "../../../Components/VariableNameInput";
 import {
     VariableTypeInput,
     VariableTypeInputProps
 } from "../../../Components/VariableTypeInput";
-import { wizardStyles } from "../../../style";
 
 interface AddVariableConfigProps {
     config: ProcessConfig;
@@ -320,43 +315,40 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                     handleStmtEditorToggle={handleStmtEditorToggle}
                     toggleChecked={false}
                 />
-                <div className={classes.formWrapper}>
-                    <div className={classes.formFeilds}>
-                        <div className={classes.activeWrapper}>
-                            <div className={classnames(classes.activeWrapper, classes.inlineBlockWrapper)}>
-                                <div className={classes.nameExpEditorWrapper}>
-                                    {variableTypeInput}
-                                </div>
-                                <div className={classes.nameExpEditorWrapper}>
-                                    {variableNameInput}
-                                </div>
-                            </div>
-                            <div className={classes.stmtEditorWrapper}>
-                                    {
-                                        initialized && (
-                                            <div className={classes.inlineWrapper}>
-                                                <div className={classes.equalWrapper}>
-                                                    <Typography variant='body2' className={classes.endCode}>=</Typography>
-                                                </div>
-                                                <div className={classes.variableExpEditorWrapper}>
-                                                    {expressionEditor}
-                                                </div>
-                                            </div>
-                                        )
-                                    }
-                                </div>
-                            {initializedToggle}
+                <div className={classes.formContentWrapper}>
+                    <div className={classes.formDeclarationWrapper}>
+                        <div className={classes.formNameNValueWrapper}>
+                            {variableTypeInput}
+                        </div>
+                        <div className={classes.formNameNValueWrapper}>
+                            {variableNameInput}
                         </div>
                     </div>
-                    <FormActionButtons
-                        cancelBtnText={cancelVariableButtonText}
-                        saveBtnText={saveVariableButtonText}
-                        isMutationInProgress={isMutationInProgress}
-                        validForm={validForm}
-                        onSave={handleSave}
-                        onCancel={onCancel}
-                    />
+                    <div className={classes.formEqualWrapper}>
+                        {
+                            initialized && (
+                                <div className={classes.formEqualContainer}>
+                                    <div className={classes.equalContainer}>
+                                        <Typography variant='body2'>=</Typography>
+                                    </div>
+                                    <div className={classes.valueContainer}>
+                                        {expressionEditor}
+                                    </div>
+                                </div>
+                            )
+                        }
+                    </div>
+                    {initializedToggle}
                 </div>
+                <FormActionButtons
+                    cancelBtnText={cancelVariableButtonText}
+                    cancelBtn={true}
+                    saveBtnText={saveVariableButtonText}
+                    isMutationInProgress={isMutationInProgress}
+                    validForm={validForm}
+                    onSave={handleSave}
+                    onCancel={onCancel}
+                />
             </FormControl >
         );
     }
