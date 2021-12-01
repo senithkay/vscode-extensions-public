@@ -29,6 +29,7 @@ export interface EditorAPI {
     showPerformanceGraph: () => Promise<boolean>;
     showMessage: () => Promise<boolean>;
     resolveMissingDependency: (filePath: string, fileContent: string) => Promise<boolean>;
+    resolveMissingDependencyByCodeAction: (filePath: string, fileContent: string, diagnostic: any) => Promise<boolean>;
     runCommand: (command: PALETTE_COMMANDS, args: any[]) => Promise<boolean>;
 }
 
@@ -42,7 +43,7 @@ export type EditorProps = EditorState & EditorAPI;
 export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
 
     const { getFileContent, updateFileContent, gotoSource, getPFSession,
-            showPerformanceGraph, showMessage, resolveMissingDependency, runCommand, ...restProps } = props;
+            showPerformanceGraph, showMessage, resolveMissingDependency, resolveMissingDependencyByCodeAction, runCommand, ...restProps } = props;
     const [state, setState] = React.useState<EditorState>(restProps);
 
     React.useEffect(() => {
@@ -61,6 +62,7 @@ export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
                     showPerformanceGraph={showPerformanceGraph}
                     showMessage={showMessage}
                     resolveMissingDependency={resolveMissingDependency}
+                    resolveMissingDependencyByCodeAction={resolveMissingDependencyByCodeAction}
                     runCommand={runCommand}
                     panX="-30"
                     panY="0"
