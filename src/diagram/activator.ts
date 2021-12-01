@@ -19,7 +19,7 @@
 
 import {
 	commands, window, Uri, ViewColumn, WebviewPanel, Disposable, workspace, WorkspaceEdit, Range, Position,
-	TextDocumentShowOptions, ProgressLocation
+	TextDocumentShowOptions, ProgressLocation, ExtensionContext
 } from 'vscode';
 import * as _ from 'lodash';
 import { render } from './renderer';
@@ -27,7 +27,7 @@ import { DocumentIdentifier, ExtendedLangClient } from '../core/extended-languag
 import { BallerinaExtension, Change } from '../core';
 import { getCommonWebViewOptions, isWindows, WebViewMethod, WebViewRPCHandler } from '../utils';
 import { join } from "path";
-import { TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, sendTelemetryEvent } from '../telemetry';
+import { TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, sendTelemetryEvent, TM_EVENT_OPEN_DIAGRAM, sendTelemetryException } from '../telemetry';
 import { CHOREO_API_PF, openPerformanceDiagram, PFSession } from '../forecaster';
 import { showMessage } from '../utils/showMessage';
 import { Module } from '../tree-view';
@@ -97,6 +97,20 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 		commands.executeCommand('workbench.action.splitEditor');
 		commands.executeCommand('vscode.open', path);
 	});
+
+	const diagramRenderDisposable = commands.registerCommand('ballerina.show.diagram', () => {
+		sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_DIAGRAM, CMP_DIAGRAM_VIEW);
+		return ballerinaExtInstance.onReady()
+			.then(() => {
+				showDiagramEditor(0, 0, '', true);
+			})
+			.catch((e) => {
+				ballerinaExtInstance.showPluginActivationError();
+				sendTelemetryException(ballerinaExtInstance, e, CMP_DIAGRAM_VIEW);
+			});
+	});
+	const context = <ExtensionContext>ballerinaExtInstance.context
+	context.subscriptions.push(diagramRenderDisposable);
 }
 
 function resolveMissingDependency(filePath: string, fileContent: string, langClient: ExtendedLangClient) {

@@ -95,6 +95,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 
     const commitAndPush = commands.registerCommand(PALETTE_COMMANDS.CHOREO_SYNC_CHANGES, () => {
         commands.executeCommand(PALETTE_COMMANDS.FOCUS_SOURCE_CONTROL);
+        ballerinaExtInstance.getCodeServerContext().statusBarItem?.updateGitStatus();
         if (!ballerinaExtInstance.getCodeServerContext().infoMessageStatus.sourceControlMessage) {
             return;
         }
