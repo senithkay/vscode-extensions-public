@@ -53,7 +53,7 @@ task copyConfigEditorDeps(type: Copy) {
 npmBuild() {
     dependsOn ':bbe-viewer:buildBBEViewer'
     dependsOn ':perf-viewer:buildPerfViewer'
-    dependsOn ':swagger-viewer:buildSwaggerViewer'
+    // dependsOn ':swagger-viewer:buildSwaggerViewer'
     dependsOn copyDeps
     dependsOn copyConfigEditorDeps
     PatternSet patternSet = new PatternSet();
@@ -75,8 +75,10 @@ npmBuild() {
     exec {
         if (Os.isFamily(Os.FAMILY_WINDOWS)) {
                 commandLine 'cmd', '/c', 'npm', 'update', '@wso2-enterprise/ballerina-low-code-editor'
+                commandLine 'cmd', '/c', 'npm', 'update', '@wso2-enterprise/ballerina-configurable-editor'
             } else {
                 commandLine 'npm', 'update', '@wso2-enterprise/ballerina-low-code-editor'
+                commandLine 'npm', 'update', '@wso2-enterprise/ballerina-configurable-editor'
             }
     }
 
