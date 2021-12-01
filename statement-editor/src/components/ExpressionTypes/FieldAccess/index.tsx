@@ -35,9 +35,12 @@ export function FieldAccessComponent(props: FieldAccessProps) {
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
-    let hasFieldAccessExprSelected = false;
-    let hasExprSelected = false;
-    let hasFieldNameSelected = false;
+    const hasFieldAccessExprSelected = currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.position);
+    const hasExprSelected =  currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.expression.position);
+    const hasFieldNameSelected =  currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.fieldName.position);
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
@@ -79,16 +82,6 @@ export function FieldAccessComponent(props: FieldAccessProps) {
         event.stopPropagation()
         expressionHandler(model.fieldName, true, false,
             { expressionSuggestions: [], typeSuggestions: [], variableSuggestions: [] })
-    }
-
-    if (currentModel.model) {
-        if (isPositionsEquals(currentModel.model.position, model.position)) {
-            hasFieldAccessExprSelected = true;
-        } else if (isPositionsEquals(currentModel.model.position, model.expression.position)) {
-            hasExprSelected = true;
-        } else if (isPositionsEquals(currentModel.model.position, model.fieldName.position)) {
-            hasFieldNameSelected = true;
-        }
     }
 
     return (

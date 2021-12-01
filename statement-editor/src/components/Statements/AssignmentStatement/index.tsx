@@ -35,8 +35,10 @@ export function AssignmentStatementComponent(props: AssignmentStatementProps) {
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
-    let hasVarRefSelected = false;
-    let hasExpressionSelected = false;
+    const hasVarRefSelected = currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.varRef.position);
+    const hasExpressionSelected = currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.expression.position);
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
@@ -73,13 +75,7 @@ export function AssignmentStatementComponent(props: AssignmentStatementProps) {
             { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) });
     };
 
-    if (currentModel.model) {
-        if (isPositionsEquals(currentModel.model.position, model.varRef.position)) {
-            hasVarRefSelected = true;
-        } else if (isPositionsEquals(currentModel.model.position, model.expression.position)) {
-            hasExpressionSelected = true;
-        }
-    } else {
+    if (!currentModel.model) {
         expressionHandler(model.expression, false, false,
             { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) });
     }

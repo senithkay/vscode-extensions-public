@@ -35,8 +35,10 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
-    let hasTypedBindingPatternSelected = false;
-    let hasInitializerSelected = false;
+    const hasTypedBindingPatternSelected = currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.typedBindingPattern.position);
+    const hasInitializerSelected = currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.initializer.position);
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
@@ -73,13 +75,7 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
             { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) });
     };
 
-    if (currentModel.model) {
-        if (isPositionsEquals(currentModel.model.position, model.typedBindingPattern.position)) {
-            hasTypedBindingPatternSelected = true;
-        } else if (isPositionsEquals(currentModel.model.position, model.initializer.position)) {
-            hasInitializerSelected = true;
-        }
-    } else {
+    if (!currentModel.model) {
         expressionHandler(model.initializer, false, false,
             { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) });
     }

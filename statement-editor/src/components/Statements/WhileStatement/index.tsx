@@ -35,7 +35,8 @@ export function WhileStatementC(props: WhileStatementProps) {
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
-    let hasConditionSelected = false;
+    const hasConditionSelected = currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.condition.position);
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
@@ -56,11 +57,7 @@ export function WhileStatementC(props: WhileStatementProps) {
             { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) });
     };
 
-    if (currentModel.model) {
-        if (isPositionsEquals(currentModel.model.position, model.condition.position)) {
-            hasConditionSelected = true;
-        }
-    } else {
+    if (!currentModel.model) {
         expressionHandler(model.condition, false, false,
             { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) });
     }

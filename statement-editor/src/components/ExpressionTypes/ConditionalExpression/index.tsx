@@ -35,9 +35,12 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
-    let hasLHSSelected = false;
-    let hasMiddleExprSelected = false;
-    let hasEndExprSelected = false;
+    const hasLHSSelected = currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.lhsExpression.position);
+    const hasMiddleExprSelected = currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.middleExpression.position);
+    const hasEndExprSelected = currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.endExpression.position);
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
@@ -89,16 +92,6 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
         expressionHandler(model.endExpression, false, false,
             { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
     };
-
-    if (currentModel.model) {
-        if (isPositionsEquals(currentModel.model.position, model.lhsExpression.position)) {
-            hasLHSSelected = true;
-        } else if (isPositionsEquals(currentModel.model.position, model.middleExpression.position)) {
-            hasMiddleExprSelected = true;
-        } else if (isPositionsEquals(currentModel.model.position, model.endExpression.position)) {
-            hasEndExprSelected = true;
-        }
-    }
 
     return (
         <span>

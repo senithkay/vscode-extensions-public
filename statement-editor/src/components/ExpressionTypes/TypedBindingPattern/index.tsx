@@ -34,7 +34,8 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
-    let hasTypeDescSelected = false;
+    const hasTypeDescSelected = currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.typeDescriptor.position);
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
@@ -62,12 +63,6 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
         event.stopPropagation()
         expressionHandler(model.typeDescriptor, false, true, { typeSuggestions: getTypeDescriptors() })
     };
-
-    if (currentModel.model) {
-        if (isPositionsEquals(currentModel.model.position, model.typeDescriptor.position)) {
-            hasTypeDescSelected = true;
-        }
-    }
 
     return (
         <span>

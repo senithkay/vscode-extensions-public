@@ -35,7 +35,8 @@ export function IfStatementC(props: IfStatementProps) {
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
-    let hasConditionSelected = false;
+    const hasConditionSelected = currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.condition.position);
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
@@ -55,12 +56,6 @@ export function IfStatementC(props: IfStatementProps) {
         expressionHandler(model.condition, false, false,
             { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
     };
-
-    if (currentModel.model) {
-        if (isPositionsEquals(currentModel.model.position, model.condition.position)) {
-            hasConditionSelected = true;
-        }
-    }
 
     return (
         <span>

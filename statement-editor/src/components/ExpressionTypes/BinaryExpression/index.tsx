@@ -40,9 +40,12 @@ export function BinaryExpressionComponent(props: BinaryProps) {
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
-    let hasLHSSelected = false;
-    let hasOperatorSelected = false;
-    let hasRHSSelected = false;
+    const hasLHSSelected = currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.lhsExpr.position);
+    const hasOperatorSelected = currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.operator.position);
+    const hasRHSSelected = currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.rhsExpr.position);
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
@@ -85,16 +88,6 @@ export function BinaryExpressionComponent(props: BinaryProps) {
         expressionHandler(model.rhsExpr, false, false,
             { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
     };
-
-    if (currentModel.model) {
-        if (isPositionsEquals(currentModel.model.position, model.lhsExpr.position)) {
-            hasLHSSelected = true;
-        } else if (isPositionsEquals(currentModel.model.position, model.operator.position)) {
-            hasOperatorSelected = true;
-        } else if (isPositionsEquals(currentModel.model.position, model.rhsExpr.position)) {
-            hasRHSSelected = true;
-        }
-    }
 
     return (
         <span>

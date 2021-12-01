@@ -35,7 +35,8 @@ export function PositionalArgComponent(props: PositionalArgProps) {
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
-    let hasExprSelected = false;
+    const hasExprSelected = currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.expression.position);
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
@@ -55,12 +56,6 @@ export function PositionalArgComponent(props: PositionalArgProps) {
         expressionHandler(model.expression, false, false,
             { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
     };
-
-    if (currentModel.model) {
-        if (isPositionsEquals(currentModel.model.position, model.expression.position)) {
-            hasExprSelected = true;
-        }
-    }
 
     return (
         <button

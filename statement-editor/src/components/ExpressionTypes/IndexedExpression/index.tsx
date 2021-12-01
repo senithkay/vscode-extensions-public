@@ -35,7 +35,8 @@ export function IndexedExpressionComponent(props: IndexedExpressionProps) {
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
-    let hasContainerExprSelected = false;
+    const hasContainerExprSelected = currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.containerExpression.position);
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
@@ -87,12 +88,6 @@ export function IndexedExpressionComponent(props: IndexedExpressionProps) {
         expressionHandler(clickedExpression, false, false,
             { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
     };
-
-    if (currentModel.model) {
-        if (isPositionsEquals(currentModel.model.position, model.containerExpression.position)) {
-            hasContainerExprSelected = true;
-        }
-    }
 
     return (
         <span>

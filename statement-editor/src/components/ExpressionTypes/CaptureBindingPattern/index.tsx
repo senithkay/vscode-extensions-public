@@ -33,7 +33,8 @@ export function CaptureBindingPatternComponent(props: CaptureBindingPatternProps
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
-    let hasVarNameSelected = false;
+    const hasVarNameSelected = currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.variableName.position);
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
@@ -43,12 +44,6 @@ export function CaptureBindingPatternComponent(props: CaptureBindingPatternProps
         expressionHandler(model.variableName, false, false,
             { expressionSuggestions: [], typeSuggestions: [], variableSuggestions: [] })
     };
-
-    if (currentModel.model) {
-        if (isPositionsEquals(currentModel.model.position, model.variableName.position)) {
-            hasVarNameSelected = true;
-        }
-    }
 
     return (
         <button

@@ -34,7 +34,8 @@ export function MethodCallComponent(props: MethodCallProps) {
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
-    let hasMethodNameSelected = false;
+    const hasMethodNameSelected = currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.methodName.position);
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
@@ -58,12 +59,6 @@ export function MethodCallComponent(props: MethodCallProps) {
             isTypeDescriptor={false}
         />
     );
-
-    if (currentModel.model) {
-        if (isPositionsEquals(currentModel.model.position, model.methodName.position)) {
-            hasMethodNameSelected = true;
-        }
-    }
 
     const expressionArgComponent = (
         <span>

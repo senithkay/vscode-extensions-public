@@ -36,7 +36,8 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
-    let hasFieldNameSelected = false;
+    const hasFieldNameSelected = currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.fieldName.position);
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
@@ -80,12 +81,6 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
         expressionHandler(model.fieldName, false, false,
             { expressionSuggestions: [], typeSuggestions: [], variableSuggestions: [] })
     };
-
-    if (currentModel.model) {
-        if (isPositionsEquals(currentModel.model.position, model.fieldName.position)) {
-            hasFieldNameSelected = true;
-        }
-    }
 
     return (
         <span>

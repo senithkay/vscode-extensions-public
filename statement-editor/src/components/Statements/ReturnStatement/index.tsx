@@ -36,7 +36,8 @@ export function ReturnStatementC(props: ReturnStatementProps) {
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
-    let hasExpressionSelected = false;
+    const hasExpressionSelected = currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.expression.position);
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
@@ -57,11 +58,7 @@ export function ReturnStatementC(props: ReturnStatementProps) {
             { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) });
     };
 
-    if (currentModel.model) {
-        if (isPositionsEquals(currentModel.model.position, model.expression.position)) {
-            hasExpressionSelected = true;
-        }
-    } else {
+    if (!currentModel.model) {
         expressionHandler(model.expression, false, false,
             { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) });
     }

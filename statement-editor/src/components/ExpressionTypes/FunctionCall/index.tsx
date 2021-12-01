@@ -34,7 +34,8 @@ export function FunctionCallComponent(props: FunctionCallProps) {
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
-    let hasFunctionNameSelected = false;
+    const hasFunctionNameSelected = currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.functionName.position);
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
@@ -54,12 +55,6 @@ export function FunctionCallComponent(props: FunctionCallProps) {
             isTypeDescriptor={false}
         />
     );
-
-    if (currentModel.model) {
-        if (isPositionsEquals(currentModel.model.position, model.functionName.position)) {
-            hasFunctionNameSelected = true;
-        }
-    }
 
     const expressionComponent = (
         <span>

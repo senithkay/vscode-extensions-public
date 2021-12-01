@@ -38,8 +38,10 @@ export function ForeachStatementC(props: ForeachStatementProps) {
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
-    let hasTypedBindingPatternSelected = false;
-    let hasExprComponentSelected = false;
+    const hasTypedBindingPatternSelected = currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.typedBindingPattern.position);
+    const hasExprComponentSelected = currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.actionOrExpressionNode.position);
 
     const typedBindingComponent: ReactNode = (
         <ExpressionComponent
@@ -73,13 +75,7 @@ export function ForeachStatementC(props: ForeachStatementProps) {
             { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) });
     };
 
-    if (currentModel.model) {
-        if (isPositionsEquals(currentModel.model.position, model.typedBindingPattern.position)) {
-            hasTypedBindingPatternSelected = true;
-        } else if (isPositionsEquals(currentModel.model.position, model.actionOrExpressionNode.position)) {
-            hasExprComponentSelected = true;
-        }
-    } else {
+    if (!currentModel.model) {
         expressionHandler(model.actionOrExpressionNode, false, false,
             { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) });
     }
