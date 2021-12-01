@@ -1,10 +1,5 @@
 const path = require('path');
 const webpack = require('webpack');
-const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
-const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
-
-const APP_DIR = path.resolve(__dirname, './src');
-const MONACO_DIR = path.resolve(__dirname, '../node_modules/monaco-editor');
 
 module.exports = (env, argv) => ({
     mode: 'none',
@@ -42,21 +37,6 @@ module.exports = (env, argv) => ({
                 ],
             },
             {
-                test: /\.css$/,
-                include: APP_DIR,
-                use: ['style-loader', 'css-loader'],
-            },
-            {
-                test: /\.css$/,
-                include: [MONACO_DIR],
-                use: ['style-loader', 'css-loader'],
-            },
-            {
-                test: /\.(woff|woff2|ttf|otf|eot)$/,
-                include: [APP_DIR, MONACO_DIR],
-                type: 'asset/inline'
-            },
-            {
                 test: /\.svg/,
                 use: {
                     loader: 'svg-url-loader',
@@ -70,7 +50,7 @@ module.exports = (env, argv) => ({
     ignoreWarnings: [/Failed to parse source map/],
     output: {
         filename: 'ConfigEditor.js',
-        path: path.resolve(__dirname, 'build'),
+        path: path.resolve(__dirname, 'build', 'umd'),
         library: {
             name: "configEditor",
             type: "umd"

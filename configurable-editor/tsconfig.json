@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-      "outDir": "./lib",
+      "outDir": "./build/esm",
       "rootDir": "./src",
       "skipLibCheck": true,
       "module": "esnext",
@@ -14,7 +14,7 @@
       "allowJs": false,
       "jsx": "react",
       "declaration": true,
-      "declarationDir": "lib",
+      "declarationDir": "build/esm",
       "experimentalDecorators": true,
       "moduleResolution": "node",
       "forceConsistentCasingInFileNames": true,
@@ -35,6 +35,6 @@
   ],
   "exclude": [
       "node_modules",
-      "lib"
+      "build"
   ]
 }
