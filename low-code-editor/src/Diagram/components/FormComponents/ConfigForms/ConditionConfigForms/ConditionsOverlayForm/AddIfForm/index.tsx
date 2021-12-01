@@ -14,7 +14,7 @@
 import React, { useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { IfElseStatement, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { ElseBlock, IfElseStatement, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classnames from "classnames";
 import { Box, FormControl, IconButton, Typography } from "@material-ui/core";
 import { ControlPoint, RemoveCircleOutlineRounded } from "@material-ui/icons";
@@ -108,19 +108,17 @@ export function AddIfForm(props: IfProps) {
         setIsInvalid(isInvalidFromField || isInvalidForm)
     }
 
-    const updateElseIfExpressions = (obj: STNode, element: ExpressionsArray): IfElseStatement => {
-        for (const [key, value] of Object.entries(obj)){
-            if (key === "elseBody" && value.elseBody.kind === "IfElseStatement") {
-                element.expression = value.elseBody.condition.source.trim();
-                return value.elseBody;
-            }
+    const updateElseIfExpressions = (obj: ElseBlock, element: ExpressionsArray): ElseBlock => {
+        if (STKindChecker.isIfElseStatement(obj.elseBody)) {
+            element.expression = obj.elseBody.condition.source.trim();
+            return obj.elseBody.elseBody;
         }
         return null;
     }
 
     const handleStatementEditorChange = (partialModel: IfElseStatement) => {
         compList[0].expression = partialModel.condition.source.trim();
-        let elseIfModel = partialModel;
+        let elseIfModel = partialModel.elseBody ? partialModel.elseBody : null;
         compList.map((element, index) => {
             if (index !== 0 && elseIfModel !== null){
                 elseIfModel = updateElseIfExpressions(elseIfModel, element)
