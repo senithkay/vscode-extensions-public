@@ -11,11 +11,12 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 
-import { BallerinaModuleResponse, Package, Trigger } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BallerinaModuleResponse, BallerinaTriggersRequest, DiagramEditorLangClientInterface, Trigger } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 
+import { Context } from "../../../../../Contexts/Diagram";
 import { UserState } from "../../../../../types";
 // import { Context } from "../../../LowCodeDiagram/Context/diagram";
 import { FormGenerator, FormGeneratorProps } from "../../FormGenerator";
@@ -29,28 +30,23 @@ export function TriggerList(props: FormGeneratorProps) {
     const showTriggerForm = (trigger: Trigger, varNode: LocalVarDecl) => {
         setMarketPlaceOpen(false);
     };
+
+    const {
+        api: {
+            ls: { getDiagramEditorLangClient },
+        }
+    } = useContext(Context);
+
     const fetchTriggersList = async (searchQuery: string, selectedCategory: string, connectorLimit: number, currentFilePath: string,
                                      filterState: FilterStateMap, userInfo: UserState, page?: number): Promise<BallerinaModuleResponse> => {
-        // Hardcode the slack trigger for now
-        // TODO: remove this and call the lang server to fetch the triggers
-        const slackPackage: Package = {
-            organization: 'ballerinax',
-            name: 'trigger.slack',
-            version: '0.2.0'
-        };
-        const slackTrigger: Trigger = {
-            name: "slack",
-            package: slackPackage,
-            displayName: "Slack Trigger",
-            moduleName: "slack.trigger"
-        }
-        let triggersList: Trigger[];
-        triggersList = [slackTrigger];
-        const response: BallerinaModuleResponse = {
-            central: triggersList
-        };
-        return response;
 
+        const langClient: DiagramEditorLangClientInterface = await getDiagramEditorLangClient();
+
+        const request: BallerinaTriggersRequest = {
+            query: searchQuery,
+        };
+
+        return langClient.getTriggers(request);
     };
 
     return (

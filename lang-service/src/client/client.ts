@@ -2,6 +2,7 @@
 import { IConnection } from "monaco-languageclient/lib/connection";
 import { InitializeParams, InitializeResult,
     Location, TextDocumentPositionParams } from "vscode-languageserver-protocol";
+import { BallerinaTriggerRequest, BallerinaTriggerResponse, BallerinaTriggersRequest, BallerinaTriggersResponse } from ".";
 
 import { BallerinaASTNode, BallerinaEndpoint, BallerinaSourceFragment } from "./ast-models";
 import { ASTDidChangeParams, ASTDidChangeResponse, BallerinaConnectorRequest, BallerinaConnectorResponse, BallerinaConnectorsRequest, BallerinaConnectorsResponse, BallerinaExampleListParams,
@@ -85,8 +86,16 @@ export class BallerinaLangClient implements IBallerinaLangClient {
         return this.lsConnection.sendRequest<BallerinaConnectorsResponse>("ballerinaConnector/connectors");
     }
 
+    public getTriggers(params: BallerinaTriggersRequest): Thenable<BallerinaTriggersResponse> {
+        return this.lsConnection.sendRequest<BallerinaTriggersResponse>("ballerinaTrigger/triggers");
+    }
+
     public getConnector(params: BallerinaConnectorRequest): Thenable<BallerinaConnectorResponse> {
         return this.lsConnection.sendRequest<BallerinaConnectorResponse>("ballerinaConnector/connector", params);
+    }
+
+    public getTrigger(params: BallerinaTriggerRequest): Thenable<BallerinaTriggerResponse> {
+        return this.lsConnection.sendRequest<BallerinaTriggerResponse>("ballerinaTrigger/trigger", params);
     }
 
     public close(): void {
