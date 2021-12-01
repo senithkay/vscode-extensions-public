@@ -681,11 +681,11 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                             {!toggleMainAdvancedMenu && pathUI}
                         </div>
                     </div>
-                    <div className={formClasses.advancedSwitchText}>
-                        {isValidPath && advanceSwitch}
-                    </div>
                     <div>
                         {toggleMainAdvancedMenu && advanceUI}
+                    </div>
+                    <div className={formClasses.advancedSwitchText}>
+                        {advanceSwitch}
                     </div>
                     <Section
                         title={returnTypeTitle}
@@ -695,7 +695,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                     </Section>
                 </div>
                 <div>
-                    {validateResources() && buttonLayer}
+                    {buttonLayer}
                 </div>
             </div>
         </div>
