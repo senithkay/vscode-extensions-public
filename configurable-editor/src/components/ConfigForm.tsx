@@ -22,12 +22,6 @@ import { Box, Button, Card, CardActions, CardContent, Container, Typography } fr
 
 import ConfigElements from "./ConfigElements";
 
-interface VSCode {
-    postMessage(message: any): void;
-}
-
-declare const vscode: VSCode;
-
 enum ConfigType {
     NUMBER = "number",
     STRING = "string",
@@ -48,6 +42,14 @@ export interface ConfigProperties {
     properties: ConfigProperty[];
 }
 
+export interface ConfigFormProps {
+    configSchema: object;
+    defaultButtonText: string;
+    primaryButtonText: string;
+    onClickDefaultButton: () => void;
+    onClickPrimaryButton: (configProperties: ConfigProperties[]) => void;
+}
+
 const type: string = "type";
 const description: string = "description";
 
@@ -61,11 +63,17 @@ function isUserDefinedModule(propertyObj: any): boolean {
     return isModule;
 }
 
-export const ConfigForm = (props: any) => {
+export const ConfigForm = ({
+    configSchema,
+    defaultButtonText,
+    primaryButtonText,
+    onClickDefaultButton,
+    onClickPrimaryButton,
+  }: ConfigFormProps) => {
     const [configs, setConfigs] = useState(new Array<ConfigProperties>());
     const [submitType, setSubmitType] = useState("");
 
-    const configJsonSchema = props.configSchema;
+    const configJsonSchema = configSchema;
 
     let schemaProperties: any;
     let projectProperties: any;
@@ -145,11 +153,11 @@ export const ConfigForm = (props: any) => {
         event.preventDefault();
         // TODO: Handle the submit for Choreo Console and Low Code based on a prop
         // console.log(JSON.stringify(configs));
-        vscode.postMessage({
-            command: "handleConfigInputs",
-            submitType,
-            text: JSON.stringify(configs),
-        });
+        if (submitType === defaultButtonText) {
+            onClickDefaultButton();
+        } else if (submitType === primaryButtonText) {
+            onClickPrimaryButton(configs);
+        }
     };
 
     const handleSetConfigs = (e: ConfigProperties) => {
@@ -206,9 +214,9 @@ export const ConfigForm = (props: any) => {
                                             variant="contained"
                                             color="primary"
                                             type="submit"
-                                            onClick={handleSetSubmitType.bind(this, "Save")}
+                                            onClick={handleSetSubmitType.bind(this, defaultButtonText)}
                                         >
-                                            Save
+                                            {defaultButtonText}
                                         </Button>
                                     </Box>
                                     <Box m={2} pt={3} mb={6}>
@@ -216,9 +224,9 @@ export const ConfigForm = (props: any) => {
                                             variant="contained"
                                             color="primary"
                                             type="submit"
-                                            onClick={handleSetSubmitType.bind(this, "SaveRun")}
+                                            onClick={handleSetSubmitType.bind(this, primaryButtonText)}
                                         >
-                                            Save and Run
+                                            {primaryButtonText}
                                         </Button>
                                     </Box>
                                 </CardActions>
