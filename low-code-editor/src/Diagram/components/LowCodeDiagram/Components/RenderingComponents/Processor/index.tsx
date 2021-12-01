@@ -86,7 +86,7 @@ export function DataProcessor(props: ProcessorProps) {
     let processName = "Variable";
     let sourceSnippet = "Source";
     let haveFunction = false;
-    let functionName: IdentifierToken = null;
+    let functionName: SimpleNameReference = null;
     const diagnostics = model?.typeData?.diagnostics;
 
     let isIntializedVariable = false;
@@ -111,7 +111,7 @@ export function DataProcessor(props: ProcessorProps) {
                 processName = processType;
                 haveFunction = true;
                 const simpleName: SimpleNameReference = stmtFunctionCall.functionName as SimpleNameReference;
-                functionName = simpleName.name;
+                functionName = simpleName;
             }
         } else if (STKindChecker.isLocalVarDecl(model)) {
 
@@ -133,7 +133,7 @@ export function DataProcessor(props: ProcessorProps) {
                 const callStatement: FunctionCall = model?.initializer as FunctionCall;
                 const nameRef: SimpleNameReference = callStatement.functionName as SimpleNameReference;
                 haveFunction = true;
-                functionName = nameRef.name;
+                functionName = nameRef;
             }
         } else if (STKindChecker.isAssignmentStatement(model)) {
             processType = "AssignmentStatement";

@@ -13,8 +13,8 @@
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
 import React, { useContext, useState } from "react";
 
-import { FunctionDefinition, IdentifierToken, STKindChecker, STNode } from "@ballerina/syntax-tree";
 import { STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { FunctionDefinition, IdentifierToken, SimpleNameReference, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../Contexts/Diagram";
 import { StatementViewState } from "../../../ViewState";
@@ -28,7 +28,7 @@ export interface ShowFunctionBtnProps {
     x: number;
     y: number;
     model: STNode;
-    functionName: IdentifierToken;
+    functionName: SimpleNameReference;
     toolTipTitle?: string;
     isButtonDisabled?: boolean;
     onDraftDelete?: () => void;
@@ -65,7 +65,7 @@ export function ShowFuntionBtn(props: ShowFunctionBtnProps) {
     //     // setConfirmDialogActive(false);
     // };
 
-    const onBtnClick = () => {
+    const onBtnClick = async () => {
         if (isConfirmDialogActive) {
             nodeViewState.functionNodeExpanded = false;
             diagramRedraw(syntaxTree);
@@ -80,7 +80,7 @@ export function ShowFuntionBtn(props: ShowFunctionBtnProps) {
             // console.log("functionDiagram viewState", funcViewState.bBox);
             // console.log("nodeViewState viewState", nodeViewState.bBox);
             const def = getFunctionDef(functionName);
-            console.log(def);
+            console.log("Boom", def);
 
 
 

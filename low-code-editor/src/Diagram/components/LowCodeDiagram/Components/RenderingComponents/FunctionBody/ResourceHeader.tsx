@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { ResourceAccessorDefinition } from "@ballerina/syntax-tree";
+import { ResourceAccessorDefinition } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { useDiagramContext } from "../../../../../../Contexts/Diagram";

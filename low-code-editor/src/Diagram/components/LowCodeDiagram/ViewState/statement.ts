@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { FunctionDefinition } from "@ballerina/syntax-tree";
+import { FunctionDefinition } from "@wso2-enterprise/syntax-tree";
 
 import { ActionViewState } from "./action";
 import { EndpointViewState } from "./endpoint";

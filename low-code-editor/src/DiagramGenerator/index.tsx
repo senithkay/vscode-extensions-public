@@ -4,7 +4,7 @@ import { monaco } from "react-monaco-editor";
 
 import { MuiThemeProvider } from "@material-ui/core/styles";
 import { Connector, STModification, STSymbolInfo, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { FunctionDefinition, IdentifierToken, ModulePart, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { FunctionDefinition, ModulePart, NodePosition, SimpleNameReference, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import cloneDeep from "lodash.clonedeep";
 import Mousetrap from 'mousetrap';
 
@@ -74,7 +74,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         })();
     }, [lastUpdatedAt]);
 
-    async function getFunctionDef(token: IdentifierToken)
+    async function getFunctionDef(token: SimpleNameReference)
     {
         const genSyntaxTree: FunctionDefinition = await getFunctionSyntaxTreeNode(token, filePath, langClient);
         return genSyntaxTree;
