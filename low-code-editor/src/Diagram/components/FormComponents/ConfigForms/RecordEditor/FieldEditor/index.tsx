@@ -153,7 +153,8 @@ export function FieldEditor(props: FieldEditorProps) {
         handleValueClick();
     };
     const validateTypeName = (fName: string, isInvalidFromField: boolean) => {
-        if (state.currentField.value === "" && state.currentField.type === "" && state.currentField.name === "") {
+        if ((state.currentField.value === "" || state.currentField.value === undefined) &&
+            state.currentField.type === "" && state.currentField.name === "") {
             // When we have empty values editor is valid
             callBacks.updateEditorValidity(false);
         } else {

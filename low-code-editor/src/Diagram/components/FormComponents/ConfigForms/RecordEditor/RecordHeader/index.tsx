@@ -97,7 +97,6 @@ export function RecordHeader(props: RecordHeaderProps) {
         const newField: SimpleField = {type: "", name: "", isFieldOptional: false, isActive: true,
                                        isNameInvalid: false, isEditInProgress: true};
         recordModel.fields.push(newField);
-        // callBacks.updateEditorValidity(true);
         return newField;
     };
 
@@ -141,7 +140,21 @@ export function RecordHeader(props: RecordHeaderProps) {
     };
 
     const handleRecordClick = () => {
-        if (!(state.isEditorInvalid || state.currentField?.name === "" || state.currentField?.type === "")) {
+        if (state.currentField && state.currentField.name  === "" && (state.currentField.value === "" ||
+            state.currentField.value === undefined) && state.currentField.type === "" &&
+            state.currentField.isEditInProgress) {
+            // Removing draft field
+            const index = state.currentRecord.fields.indexOf(state.currentField);
+            state.currentRecord.fields.splice(index, 1);
+
+            state.currentRecord.isActive = false;
+            recordModel.isActive = true;
+            setIsRecordEditInProgress(true);
+            callBacks.onUpdateCurrentRecord(recordModel);
+            callBacks.onUpdateModel(state.recordModel);
+            callBacks.onUpdateRecordSelection(true);
+            callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
+        } else if (!(state.isEditorInvalid || state.currentField?.name === "" || state.currentField?.type === "")) {
             state.currentRecord.isActive = false;
             recordModel.isActive = true;
             setIsRecordEditInProgress(true);

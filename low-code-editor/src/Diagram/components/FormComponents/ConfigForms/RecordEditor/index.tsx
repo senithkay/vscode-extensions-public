@@ -11,16 +11,16 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext } from 'react';
+import React from 'react';
 
 import { NodePosition, RecordTypeDesc, STKindChecker, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 
-import { Context } from "../../../../../Contexts/Diagram";
 import { FormState, Provider as RecordEditorProvider} from "../../../../../Contexts/RecordEditor"
 
-import { Record } from "./Record";
 import { RecordModel } from "./types";
 import { getRecordModel } from "./utils";
+import { CodePanel } from "./CodePanel";
+import { recordStyles } from "./style";
 
 export interface RecordEditorProps {
     name: string;
@@ -34,6 +34,9 @@ export interface RecordEditorProps {
 
 export function RecordEditor(props: RecordEditorProps) {
     const { existingModel, name, onCancel, onSave, model, targetPosition, isTypeDefinition = true } = props;
+
+    const recordClasses = recordStyles();
+
     let recordModel: RecordModel;
     if (model && STKindChecker.isRecordTypeDesc(model)) {
         recordModel = getRecordModel(model, name, true, "record");
@@ -75,7 +78,9 @@ export function RecordEditor(props: RecordEditorProps) {
             }}
         >
             {recordModel && (
-                <Record/>
+                <div className={recordClasses.recordEditorContainer}>
+                    <CodePanel />
+                </div>
             )}
         </RecordEditorProvider>
     );

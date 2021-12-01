@@ -29,21 +29,21 @@ export function Record() {
     return (
         <div className={recordClasses.recordEditorContainer}>
             <CodePanel />
-            <div className={recordClasses.recordConfigSeparator} />
-            <div>
-                {(state.currentForm === FormState.EDIT_RECORD_FORM && state.currentRecord.isTypeDefinition) && (
-                    <EditTypeDefForm />
-                )}
-                {(state.currentForm === FormState.EDIT_RECORD_FORM && !state.currentRecord?.isTypeDefinition) && (
-                    <EditRecordForm />
-                )}
-                {(state.currentForm === FormState.ADD_FIELD || state.currentForm === FormState.UPDATE_FIELD) && (
-                    <EditFieldForm />
-                )}
-                {/*{(state.currentForm === FormState.ADD_RECORD_JSON) && (*/}
-                {/*    <RecordFromJson />*/}
-                {/*)}*/}
-            </div>
+            {/*<div className={recordClasses.recordConfigSeparator} />*/}
+            {/*<div>*/}
+            {/*    {(state.currentForm === FormState.EDIT_RECORD_FORM && state.currentRecord.isTypeDefinition) && (*/}
+            {/*        <EditTypeDefForm />*/}
+            {/*    )}*/}
+            {/*    {(state.currentForm === FormState.EDIT_RECORD_FORM && !state.currentRecord?.isTypeDefinition) && (*/}
+            {/*        <EditRecordForm />*/}
+            {/*    )}*/}
+            {/*    {(state.currentForm === FormState.ADD_FIELD || state.currentForm === FormState.UPDATE_FIELD) && (*/}
+            {/*        <EditFieldForm />*/}
+            {/*    )}*/}
+            {/*    /!*{(state.currentForm === FormState.ADD_RECORD_JSON) && (*!/*/}
+            {/*    /!*    <RecordFromJson />*!/*/}
+            {/*    /!*)}*!/*/}
+            {/*</div>*/}
         </div>
     );
 }

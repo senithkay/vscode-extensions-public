@@ -14,18 +14,17 @@
 import React, { useContext, useEffect, useReducer } from 'react';
 
 import { FormControl, FormHelperText } from "@material-ui/core";
-import { PrimaryButton, SecondaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { STNode, STKindChecker, TypeDefinition, RecordTypeDesc } from '@wso2-enterprise/syntax-tree';
+import { FormHeaderSection, PrimaryButton, SecondaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { RecordTypeDesc, STKindChecker, STNode, TypeDefinition } from '@wso2-enterprise/syntax-tree';
 
 import { Context } from "../../../../../../Contexts/Diagram";
 import { useRecordEditorContext } from "../../../../../../Contexts/RecordEditor";
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
+import { ConfigOverlayFormStatus } from "../../../../../store/definitions";
 import { useStyles } from "../../../DynamicConnectorForm/style";
 import { FormTextArea } from "../../../FormFieldComponents/TextField/FormTextArea";
-import { FormHeaderSection } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { wizardStyles } from "../../style";
 import { convertToRecord, getRecordModel, getRecordST } from "../utils";
-import { ConfigOverlayFormStatus } from "../../../../../store/definitions";
 
 interface RecordState {
     isLoading?: boolean;
@@ -118,7 +117,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
             <FormHeaderSection
                 onCancel={recordFromJsonProps.onCancel}
                 formTitle="Import Sample JSON"
-                formType={configOverlayFormStatus.formType}
+                formType={""}
                 defaultMessage=""
             />
             <div className={classes.formWrapper}>

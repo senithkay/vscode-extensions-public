@@ -20,13 +20,13 @@ import { AddIcon } from "../../../../../../assets/icons";
 import { Context, FormState } from "../../../../../../Contexts/RecordEditor";
 import { keywords } from "../../../../Portals/utils/constants";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
+import { FormGenerator } from "../../../FormGenerator";
 import { FieldEditor } from "../FieldEditor";
 import { FieldItem } from "../FieldItem";
 import { RecordHeader } from "../RecordHeader";
 import { recordStyles } from "../style";
 import { RecordModel, SimpleField } from "../types";
 import { genRecordName, getFieldNames } from "../utils";
-import { FormGenerator } from "../../../FormGenerator";
 
 export interface CodePanelProps {
     recordModel: RecordModel;
@@ -125,9 +125,9 @@ export function RecordField(props: CodePanelProps) {
 
     const getNewField = () : SimpleField => {
         const newField: SimpleField = {type: "", name: "", isFieldOptional: false, isActive: true,
-            isValueInvalid: false, isNameInvalid: true, isTypeInvalid: true, isEditInProgress: true};
+                                       isValueInvalid: false, isNameInvalid: true, isTypeInvalid: true,
+                                        isEditInProgress: true};
         recordModel.fields.push(newField);
-        // callBacks.updateEditorValidity(true);
         return newField;
     };
 
@@ -178,15 +178,18 @@ export function RecordField(props: CodePanelProps) {
         state.currentRecord.isActive = false;
         recordModel.isActive = true;
         callBacks.onUpdateCurrentRecord(recordModel);
+        callBacks.updateEditorValidity(false);
         setIsImportFormVisible(true);
     }
 
     const handleImportFormClose = () => {
         setIsImportFormVisible(false);
+        callBacks.updateEditorValidity(false);
     }
 
     const handleImportFormSave = () => {
         setIsImportFormVisible(false);
+        callBacks.updateEditorValidity(false);
     }
 
     const handleKeyUp = (event: any) => {
@@ -305,6 +308,7 @@ export function RecordField(props: CodePanelProps) {
         setIsRecordExpanded(!isRecordExpanded);
     };
 
+    let isDraftRecordAdded = false;
     const fieldItems: ReactNode[] = [];
     recordModel.fields.forEach((field: SimpleField | RecordModel) => {
         if ((field.type !== "record") && !(field as SimpleField).isEditInProgress) {
@@ -327,6 +331,7 @@ export function RecordField(props: CodePanelProps) {
                     onEnterPress={null}
                 />
             );
+            isDraftRecordAdded = true;
         } else if (field.type === "record") {
             fieldItems.push(<RecordField recordModel={field as RecordModel} parentRecordModel={recordModel} />);
         }
@@ -366,7 +371,7 @@ export function RecordField(props: CodePanelProps) {
                 {isRecordExpanded && (
                     <div className={recordModel?.isActive ? recordClasses.activeRecordSubFieldWrapper : recordClasses.recordSubFieldWrapper}>
                         {fieldItems}
-                        {!state.isEditorInvalid && (
+                        {!state.isEditorInvalid && !isDraftRecordAdded && (
                             <>
                                 <div className={recordClasses.addFieldBtnWrap} onClick={handleAddField}>
                                     <AddIcon/>

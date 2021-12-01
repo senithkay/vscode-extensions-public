@@ -26,12 +26,12 @@ import { ListenerConfigForm } from "./ListenerConfigForm";
 import { ModuleDeclForm } from './ModuleVariableForm';
 import { ProcessConfigForm } from "./ProcessConfigForms";
 import { RecordEditor } from "./RecordEditor";
+import { RecordFromJson } from "./RecordEditor/RecordFromJson";
 import { ApiConfigureWizard } from "./ResourceConfigForm/ApiConfigureWizard";
 import { ServiceConfigForm } from './ServiceConfigForm';
 import {TriggerForm} from "./TriggerConfigForm/TriggerServiceConfigForm";
 import { TriggerList } from "./TriggerList";
 import { TypeDefinitionConfigForm } from "./TypeDefinitionConfigForm";
-import { RecordFromJson } from "./RecordEditor/RecordFromJson";
 
 export { APIConfigForm as apiConfig };
 export { ConnectorInitForm as connectorInit };
