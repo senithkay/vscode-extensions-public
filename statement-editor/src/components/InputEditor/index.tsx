@@ -354,7 +354,8 @@ export function InputEditor(props: InputEditorProps) {
     function addExpressionToTargetPosition(currentStmt: string, targetLine: number, targetColumn: number, codeSnippet: string, endColumn?: number): string {
         if (STKindChecker.isIfElseStatement(stmtCtx.modelCtx.statementModel)) {
             const splitStatement: string[] = currentStmt.split(/\n/g) || [];
-            splitStatement.splice(targetLine, 1, splitStatement[targetLine].slice(0, targetColumn) + codeSnippet + splitStatement[targetLine].slice(endColumn || targetColumn));
+            splitStatement.splice(targetLine, 1,
+                splitStatement[targetLine].slice(0, targetColumn) + codeSnippet + splitStatement[targetLine].slice(endColumn || targetColumn));
             return splitStatement.join('\n');
         }
         return currentStmt.slice(0, targetColumn) + codeSnippet + currentStmt.slice(endColumn || targetColumn);
