@@ -315,7 +315,7 @@ export function IfElse(props: IfElseProps) {
                 getExpressions() : conditionExpr.source;
             const position = getExpressions()?.values[0]?.position;
             setConfigWizardOpen(true);
-            const conditionConfigState = getConditionConfig("If", position, WizardType.EXISTING, undefined, {
+            const conditionConfigState = getConditionConfig("If", model.position, WizardType.EXISTING, undefined, {
                 type: "If",
                 conditionExpression,
                 conditionPosition: getExpressions()?.values[0]?.position,

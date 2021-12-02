@@ -13,6 +13,7 @@
 import React, { ReactNode } from "react";
 
 import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { getFormElement } from "../../Portals/utils";
 import FormAccordion from "../FormAccordion";
@@ -27,12 +28,13 @@ export interface FormProps {
     onValidate?: (isRequiredFieldsFilled: boolean) => void;
     size?: "small" | "medium",
     expressionInjectables?: ExpressionInjectablesProps;
+    editPosition?: NodePosition;
 }
 
 const isAllOptionalFields = (recordFields: FormField[]): boolean => recordFields?.every(field => field.optional || field.defaultValue || (field.fields && isAllOptionalFields(field.fields)));
 
 export function Form(props: FormProps) {
-    const { fields, onValidate, expressionInjectables } = props;
+    const { fields, onValidate, expressionInjectables, editPosition } = props;
 
     const classes = useStyles();
     const elements: ReactNode[] = [];
@@ -66,6 +68,7 @@ export function Form(props: FormProps) {
                     validate: validateField,
                     tooltipTitle: field.tooltip,
                     expressionInjectables,
+                    editPosition,
                 },
             };
 
