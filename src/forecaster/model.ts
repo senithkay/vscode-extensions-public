@@ -18,6 +18,7 @@
  */
 
 import { Range } from "vscode";
+import { CODELENSE_TYPE } from "./codelens-provider";
 
 export interface SyntaxTree {
     members: Member[];
@@ -63,21 +64,36 @@ export class CurrentResource {
     }
 }
 
+export interface Values {
+    min?: number;
+    max: number;
+}
 export class DataLabel {
+    private type: CODELENSE_TYPE;
     private file: String;
     private range: Range;
-    private label: String;
+    private concurrency: Values;
+    private latency: Values;
+    private tps: Values;
     private resourceName: String;
     private resourcePos: Range;
     private data: any;
 
-    constructor(file: String, range: Range, label: String, resourceName: String, resourcePos: Range, data: any) {
+    constructor(type: CODELENSE_TYPE, file: String, range: Range, concurrency: Values, latency: Values, tps: Values,
+        resourceName: String, resourcePos: Range, data: any) {
+        this.type = type;
         this.file = file;
         this.range = range;
-        this.label = label;
+        this.concurrency = concurrency;
+        this.latency = latency;
+        this.tps = tps;
         this.resourceName = resourceName;
         this.resourcePos = resourcePos;
         this.data = data;
+    }
+
+    public get getType(): CODELENSE_TYPE {
+        return this.type;
     }
 
     public get getFile(): String {
@@ -88,8 +104,16 @@ export class DataLabel {
         return this.range;
     }
 
-    public get getLabel(): String {
-        return this.label;
+    public get getConcurrency(): Values {
+        return this.concurrency;
+    }
+
+    public get getLatency(): Values {
+        return this.latency;
+    }
+
+    public get getTps(): Values {
+        return this.tps;
     }
 
     public get getResourceName(): String {

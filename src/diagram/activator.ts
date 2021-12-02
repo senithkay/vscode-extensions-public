@@ -18,8 +18,8 @@
  */
 
 import {
-	commands, window, Uri, ViewColumn, ExtensionContext, WebviewPanel, Disposable, workspace, WorkspaceEdit, Range,
-	Position, TextDocumentShowOptions, ProgressLocation
+	commands, window, Uri, ViewColumn, WebviewPanel, Disposable, workspace, WorkspaceEdit, Range, Position,
+	TextDocumentShowOptions, ProgressLocation, ExtensionContext
 } from 'vscode';
 import * as _ from 'lodash';
 import { render } from './renderer';
@@ -27,23 +27,19 @@ import { DocumentIdentifier, ExtendedLangClient } from '../core/extended-languag
 import { BallerinaExtension, Change } from '../core';
 import { getCommonWebViewOptions, isWindows, WebViewMethod, WebViewRPCHandler } from '../utils';
 import { join } from "path";
-import {
-	TM_EVENT_OPEN_DIAGRAM, TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, sendTelemetryEvent,
-	sendTelemetryException
-} from '../telemetry';
+import { TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, sendTelemetryEvent, TM_EVENT_OPEN_DIAGRAM, sendTelemetryException } from '../telemetry';
 import { CHOREO_API_PF, openPerformanceDiagram, PFSession } from '../forecaster';
 import { showMessage } from '../utils/showMessage';
-import { Module, PackageOverviewDataProvider } from '../tree-view';
-import { PALETTE_COMMANDS } from '../project';
+import { Module } from '../tree-view';
 import { sep } from "path";
 import { DiagramOptions, Member, SyntaxTree } from './model';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { runCommand } from '../utils/runCommand';
+import { Diagnostic } from '.';
 
 const NO_DIAGRAM_VIEWS: string = 'No Ballerina diagram views found!';
 
 let langClient: ExtendedLangClient;
-let overviewDataProvider: PackageOverviewDataProvider;
 let diagramElement: DiagramOptions | undefined = undefined;
 let ballerinaExtension: BallerinaExtension;
 let webviewRPCHandler: WebViewRPCHandler;
@@ -62,9 +58,7 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 		}
 	}
 
-	if (isCommand && overviewDataProvider) {
-		overviewDataProvider.refresh();
-
+	if (isCommand) {
 		if (!editor) {
 			window.showErrorMessage(NO_DIAGRAM_VIEWS);
 			return;
@@ -88,19 +82,24 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 	DiagramPanel.create(isCommand ? ViewColumn.Two : ViewColumn.One);
 }
 
-export function activate(ballerinaExtInstance: BallerinaExtension, diagramOverviewDataProvider:
-	PackageOverviewDataProvider) {
-	const context = <ExtensionContext>ballerinaExtInstance.context;
+export function activate(ballerinaExtInstance: BallerinaExtension) {
 	langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
-	overviewDataProvider = diagramOverviewDataProvider;
 	ballerinaExtension = ballerinaExtInstance;
 
 	ballerinaExtInstance.getDocumentContext().onEditorChanged(change => {
 		refreshDiagramForEditorChange(change);
 	});
 
+	commands.registerCommand('ballerina.show.source', () => {
+		const path = ballerinaExtension.getDocumentContext().getLatestDocument();
+		if (!path) {
+			return;
+		}
+		commands.executeCommand('workbench.action.splitEditor');
+		commands.executeCommand('vscode.open', path);
+	});
+
 	const diagramRenderDisposable = commands.registerCommand('ballerina.show.diagram', () => {
-		commands.executeCommand(PALETTE_COMMANDS.FOCUS_OVERVIEW);
 		sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_DIAGRAM, CMP_DIAGRAM_VIEW);
 		return ballerinaExtInstance.onReady()
 			.then(() => {
@@ -111,15 +110,50 @@ export function activate(ballerinaExtInstance: BallerinaExtension, diagramOvervi
 				sendTelemetryException(ballerinaExtInstance, e, CMP_DIAGRAM_VIEW);
 			});
 	});
+	const context = <ExtensionContext>ballerinaExtInstance.context
 	context.subscriptions.push(diagramRenderDisposable);
+}
 
-	commands.registerCommand('ballerina.show.source', () => {
-		const path = ballerinaExtension.getDocumentContext().getLatestDocument();
-		if (!path) {
-			return;
+function resolveMissingDependencyByCodeAction(filePath: string, fileContent: string, diagnostic: Diagnostic, langClient: ExtendedLangClient) {
+	langClient.codeAction({
+		context: {
+			diagnostics: [{
+				code: diagnostic.diagnosticInfo.code,
+				message: diagnostic.message,
+				range: {
+					end: {
+						line: diagnostic.range.endLine,
+						character: diagnostic.range.endColumn
+					},
+					start: {
+						line: diagnostic.range.startLine,
+						character: diagnostic.range.startColumn
+					}
+				},
+				severity: 1
+			}],
+			only: ["quickfix"]
+		},
+		range: {
+			end: {
+				line: diagnostic.range.endLine,
+				character: diagnostic.range.endColumn
+			},
+			start: {
+				line: diagnostic.range.startLine,
+				character: diagnostic.range.startColumn
+			}
+		},
+		textDocument: {
+			uri: `file://${filePath}`
 		}
-		commands.executeCommand('workbench.action.splitEditor');
-		commands.executeCommand('vscode.open', path);
+	}).then(codeaction => {
+		if (codeaction.length > 0 && codeaction[0].command) {
+			langClient.executeCommand(codeaction[0].command).then(result => {
+				// Update the diagram.
+				callUpdateDiagramMethod();
+			});
+		}
 	});
 }
 
@@ -285,6 +319,13 @@ class DiagramPanel {
 				methodName: "resolveMissingDependency",
 				handler: async (args: any[]): Promise<boolean> => {
 					resolveMissingDependency(args[0], args[1], langClient);
+					return true;
+				}
+			},
+			{
+				methodName: "resolveMissingDependencyByCodeAction",
+				handler: async (args: any[]): Promise<boolean> => {
+					resolveMissingDependencyByCodeAction(args[0],args[1], args[2], langClient);
 					return true;
 				}
 			},

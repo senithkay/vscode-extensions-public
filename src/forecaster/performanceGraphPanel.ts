@@ -26,7 +26,7 @@ import { ExtendedLangClient } from "../core";
 import { ExecutorCodeLensProvider } from "./codelens-provider";
 import { refreshDiagramForPerformanceConcurrencyChanges } from "../diagram";
 
-let performanceGraphPanel: WebviewPanel | undefined;
+export let performanceGraphPanel: WebviewPanel | undefined;
 let clearCodeLenses = true;
 
 export function showPerformanceGraph(langClient: ExtendedLangClient, data: GraphData, currentFileUri: Uri): void {

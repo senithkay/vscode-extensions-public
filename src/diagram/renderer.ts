@@ -163,6 +163,17 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
                     );
                 });
             }
+            function resolveMissingDependencyByCodeAction(filePath, fileContent, diagnostic) {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'resolveMissingDependencyByCodeAction',
+                        [filePath, fileContent, diagnostic],
+                        (response) => {
+                            resolve(response);
+                        }
+                    );
+                });
+            }
             function showMessage(message, type, isIgnorable, filePath, fileContent) {
                 return new Promise((resolve, _reject) => {
                     webViewRPCHandler.invokeRemoteMethod(
@@ -207,6 +218,7 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
                             showMessage,
                             lastUpdatedAt,
                             resolveMissingDependency,
+                            resolveMissingDependencyByCodeAction,
                             runCommand
                         }
                     };

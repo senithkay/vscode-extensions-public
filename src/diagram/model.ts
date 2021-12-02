@@ -51,3 +51,14 @@ interface Position {
 interface ResourcePath {
     value: string;
 }
+
+export interface DiagnosticInfo {
+    code: string,
+    severity: string
+}
+
+export interface Diagnostic {
+    message: string,
+    diagnosticInfo: DiagnosticInfo,
+    range: Position
+}

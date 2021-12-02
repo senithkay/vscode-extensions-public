@@ -43,12 +43,19 @@ task copyDeps(type: Copy) {
     include "BLCEditor.js"
 }
 
+task copyConfigEditorDeps(type: Copy) {
+    dependsOn installDeps
+    from "$rootDir/node_modules/@wso2-enterprise/ballerina-configurable-editor/build/umd"
+    into "$rootDir/resources/jslibs"
+    include "ConfigEditor.js"
+}
+
 npmBuild() {
     dependsOn ':bbe-viewer:buildBBEViewer'
     dependsOn ':perf-viewer:buildPerfViewer'
     dependsOn ':swagger-viewer:buildSwaggerViewer'
-    dependsOn ':config-editor:buildConfigEditor'
     dependsOn copyDeps
+    dependsOn copyConfigEditorDeps
     PatternSet patternSet = new PatternSet();
     patternSet.exclude("**/node_modules/**");
     patternSet.exclude("**/dist/**");
@@ -67,9 +74,9 @@ npmBuild() {
     exec { commandLine 'git', 'submodule', 'foreach', 'git', 'pull', 'origin', 'master' }
     exec {
         if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                commandLine 'cmd', '/c', 'npm', 'update', '@wso2-enterprise/ballerina-low-code-editor'
+                commandLine 'cmd', '/c', 'npm', 'update', '@wso2-enterprise/ballerina-low-code-editor', '@wso2-enterprise/ballerina-configurable-editor'
             } else {
-                commandLine 'npm', 'update', '@wso2-enterprise/ballerina-low-code-editor'
+                commandLine 'npm', 'update', '@wso2-enterprise/ballerina-low-code-editor', '@wso2-enterprise/ballerina-configurable-editor'
             }
     }
 
