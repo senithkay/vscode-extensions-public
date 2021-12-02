@@ -14,6 +14,7 @@
 import React from "react";
 
 import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { getFormElement } from "../../../Portals/utils";
 import { useStyles } from "../../DynamicConnectorForm/style";
@@ -25,11 +26,12 @@ import { isAllEmpty, isAllFieldsValid } from "../../Utils";
 interface RecordProps {
     validate?: (field: string, isInvalid: boolean, isEmpty: boolean, canIgnore?: boolean) => void;
     expressionInjectables?: ExpressionInjectablesProps;
+    editPosition?: NodePosition;
 }
 
 export function Record(props: FormElementProps<RecordProps>) {
     const { model, customProps } = props;
-    const { validate, expressionInjectables } = customProps;
+    const { validate, expressionInjectables, editPosition } = customProps;
     const classes = useStyles();
     const allFieldChecks = React.useRef(new Map<string, FormFieldChecks>());
 
@@ -62,6 +64,7 @@ export function Record(props: FormElementProps<RecordProps>) {
                         customProps: {
                             validate: validateField,
                             expressionInjectables,
+                            editPosition,
                         }
                     };
 

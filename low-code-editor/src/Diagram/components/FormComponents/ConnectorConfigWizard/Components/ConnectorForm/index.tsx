@@ -437,6 +437,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
                             isNewConnectorInitWizard={isNewConnectorInitWizard}
                             operations={operations}
                             expressionInjectables={expressionInjectables}
+                            targetPosition={targetPosition}
                         />
                     )}
 
@@ -461,6 +462,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
                             isOauthConnector={isOauthConnector}
                             responseStatus={responseStatus}
                             expressionInjectables={expressionInjectables}
+                            targetPosition={targetPosition}
                         />
                     )}
 
@@ -477,6 +479,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
                             isOauthConnector={isOauthConnector}
                             responseStatus={responseStatus}
                             expressionInjectables={expressionInjectables}
+                            targetPosition={targetPosition}
                         />
                     )}
                 </div>

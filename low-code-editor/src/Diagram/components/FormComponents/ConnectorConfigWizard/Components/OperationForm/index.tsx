@@ -17,6 +17,7 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { Box, IconButton, Typography } from "@material-ui/core";
 import EditIcon from '@material-ui/icons/Edit';
 import { ConnectorConfig, FormField, FunctionDefinitionInfo, PrimaryButton, STModification, STSymbolInfo  } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition } from '@wso2-enterprise/syntax-tree';
 import classNames from 'classnames';
 
 import { Context } from '../../../../../../Contexts/Diagram';
@@ -41,13 +42,14 @@ export interface OperationFormProps {
     isNewConnectorInitWizard?: boolean;
     functionDefInfo: Map<string, FunctionDefinitionInfo>;
     expressionInjectables: ExpressionInjectablesProps;
+    targetPosition?: NodePosition;
 }
 
 export function OperationForm(props: OperationFormProps) {
     const { props: { stSymbolInfo } } = useContext(Context);
     const symbolInfo: STSymbolInfo = stSymbolInfo;
     const { operations, selectedOperation, showConnectionName, onSave, connectionDetails, onConnectionChange,
-            mutationInProgress, isNewConnectorInitWizard, functionDefInfo, expressionInjectables } = props;
+            mutationInProgress, isNewConnectorInitWizard, functionDefInfo, expressionInjectables, targetPosition } = props;
     const wizardClasses = wizardStyles();
     const classes = useStyles();
     const intl = useIntl();
@@ -208,10 +210,14 @@ export function OperationForm(props: OperationFormProps) {
                                 </Box>
                             </>
                             <div className={wizardClasses.formWrapper}>
-                                {formFields && formFields.length > 0 ? (
-                                    <Form fields={formFields} onValidate={validateForm} expressionInjectables={expressionInjectables}/>
-                                ) : null
-                                }
+                                {formFields && formFields.length > 0 && (
+                                    <Form
+                                        fields={formFields}
+                                        onValidate={validateForm}
+                                        expressionInjectables={expressionInjectables}
+                                        editPosition={targetPosition}
+                                    />
+                                )}
                             </div>
 
                             { operationReturnType?.hasReturn && (
