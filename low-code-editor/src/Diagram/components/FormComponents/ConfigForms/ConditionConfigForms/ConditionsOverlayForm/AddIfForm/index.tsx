@@ -119,7 +119,7 @@ export function AddIfForm(props: IfProps) {
         compList[0].expression = partialModel.condition.source.trim();
         let elseIfModel = partialModel.elseBody ? partialModel.elseBody : null;
         compList.map((element, index) => {
-            if (index !== 0 && elseIfModel !== null){
+            if (index !== 0 && elseIfModel) {
                 elseIfModel = updateElseIfExpressions(elseIfModel, element)
             }
         })
