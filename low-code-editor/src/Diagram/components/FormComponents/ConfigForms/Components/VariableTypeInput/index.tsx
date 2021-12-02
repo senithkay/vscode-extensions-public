@@ -15,10 +15,12 @@ import React, { useState } from "react";
 
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
+import { Diagnostic as DiagramDiagnostic } from "../../../../../../DiagramGenerator/generatorUtil";
 import ExpressionEditor, { ExpressionEditorCustomTemplate, ExpressionEditorProps } from "../../../FormFieldComponents/ExpressionEditor";
 import { FormElementProps } from "../../../Types";
 
 import { getVarTypeCompletions } from './utils';
+
 export interface VariableTypeInputProps {
     displayName: string;
     value: string;
@@ -31,12 +33,18 @@ export interface VariableTypeInputProps {
     hideTextLabel?: boolean;
     disabled?: boolean;
     ignoredCompletions?: string[];
+    additionalCompletions?: string[];
     enterKeyPressed?: (value: string) => void;
+    initialDiagnostics?: DiagramDiagnostic[];
+    diagnosticsFilterExtraColumns?: {
+        start?: number,
+        end?: number,
+    }
 }
 
 export function VariableTypeInput(props: VariableTypeInputProps) {
     const { onValueChange, validateExpression, position, value, displayName, overrideTemplate, hideLabel, disabled,
-            ignoredCompletions = [], focus, enterKeyPressed } = props;
+            ignoredCompletions = [], additionalCompletions = [], focus, enterKeyPressed, initialDiagnostics, diagnosticsFilterExtraColumns } = props;
 
     const [editorFocus, setEditorFocus] = useState<boolean>(focus);
 
@@ -59,13 +67,15 @@ export function VariableTypeInput(props: VariableTypeInputProps) {
                 targetColumn: 1
             },
             hideExpand: true,
-            getCompletions: getVarTypeCompletions(ignoredCompletions),
+            getCompletions: getVarTypeCompletions(ignoredCompletions, additionalCompletions),
             showHints: false,
             hideTextLabel: hideLabel,
             disabled,
             focus: editorFocus,
             revertFocus,
-            enterKeyPressed
+            enterKeyPressed,
+            initialDiagnostics,
+            diagnosticsFilterExtraColumns,
         },
         onChange: onValueChange,
         defaultValue: value

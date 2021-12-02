@@ -180,7 +180,9 @@ export function AddLogConfig(props: LogConfigProps) {
                                 expressionInjectables: {
                                     list: formArgs?.expressionInjectables?.list,
                                     setInjectables: formArgs?.expressionInjectables?.setInjectables
-                                }
+                                },
+                                editPosition: config?.model?.position || formArgs?.targetPosition,
+                                initialDiagnostics: config?.model?.typeData?.diagnostics,
                             }}
                             onChange={onExpressionChange}
                             defaultValue={expression}

@@ -1,3 +1,5 @@
+import { Diagnostic } from "../../../../../../DiagramGenerator/generatorUtil";
+
 export interface PathSegment {
     id: number;
     isParam: boolean;
@@ -50,6 +52,7 @@ export interface Resource {
     returnType?: string;
     isPathDuplicated?: boolean;
     returnTypeDefaultValue?: string;
+    initialPathDiagnostics?: Diagnostic[];
 }
 
 export interface Payload {

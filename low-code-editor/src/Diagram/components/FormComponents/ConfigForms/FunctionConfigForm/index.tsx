@@ -57,7 +57,7 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
         },
     } = useDiagramContext();
     const existingFunctionNames = useRef([]);
-    const enableSaveBtn = (functionName.length > 0) || !isFunctionNameValid || addingNewParam || !validReturnType;
+    const enableSaveBtn = (functionName.length > 0) && isFunctionNameValid && !addingNewParam && validReturnType;
 
     const handleOnSave = () => {
         const parametersStr = parameters
@@ -164,7 +164,11 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
         returnPosition.startLine = targetPosition.startLine;
         returnPosition.endLine = targetPosition.startLine;
 
-        paramPosition = targetPosition;
+        paramPosition = {
+            ...targetPosition,
+            endLine: targetPosition.startLine,
+            endColumn: targetPosition.startColumn,
+        };
     }
 
     const functionNameConfig: VariableNameInputProps = {
@@ -205,7 +209,8 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
         } : {
             defaultCodeSnippet: 'function temp_function() returns  {}',
             targetColumn: 34
-        }
+        },
+        initialDiagnostics: model?.functionSignature?.returnTypeDesc?.typeData?.diagnostics,
     }
 
     return (

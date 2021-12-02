@@ -51,6 +51,7 @@ import {
     generateQueryParamFromST,
     genrateBallerinaQueryParams,
     getBallerinaPayloadType,
+    getPathDiagnostics,
     getReturnType,
     getReturnTypePosition,
     getReturnTypeTemplate,
@@ -130,6 +131,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
             const returnTypeDesc: string = getReturnType(functionSignature?.returnTypeDesc);
             const stMethod: string = functionName?.value;
             const stPath: string = getPathOfResources(relativeResourcePath) || "";
+            const pathDiagnostics = getPathDiagnostics(relativeResourcePath);
 
             let resourceMember: Resource;
 
@@ -137,12 +139,13 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                 resourceMember = {
                     id: 0,
                     method: stMethod.toUpperCase(),
-                    path: (stPath === "." ? "" : stPath),
+                    path: (stPath),
                     queryParams: queryParam,
                     payload,
                     isCaller: callerParam,
                     isRequest: requestParam,
-                    returnType: returnTypeDesc
+                    returnType: returnTypeDesc,
+                    initialPathDiagnostics: pathDiagnostics,
                 };
                 setResource(resourceMember);
                 if (payload && payload !== "") {
@@ -535,22 +538,27 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
         position: model ? {
             startLine: model?.functionName?.position?.startLine,
             startColumn: model?.functionName?.position?.startColumn,
-            endLine: lastRelativePath ? lastRelativePath.position?.endLine : 0,
-            endColumn: lastRelativePath ? lastRelativePath.position?.endColumn : 0,
+            endLine: lastRelativePath ? lastRelativePath.position?.endLine : model?.functionName?.position?.startLine,
+            endColumn: lastRelativePath ? lastRelativePath.position?.endColumn : model?.functionName?.position?.startColumn,
         } : {
             ...targetPosition,
-            endColumn: 0,
+            endColumn: targetPosition.startColumn,
+            endLine: targetPosition.startLine,
         },
         overrideTemplate: {
-            defaultCodeSnippet: `resource function ${resource.method} (){}`,
+            defaultCodeSnippet: `resource function ${resource.method.toLowerCase()} (){}`,
             targetColumn: 20 + resource.method.length,
         },
         overrideEditTemplate: {
-            defaultCodeSnippet: `${resource.method} `,
+            defaultCodeSnippet: `${resource.method.toLowerCase()} `,
             targetColumn: 2 + resource.method.length,
         },
         isEdit: !!model,
         hideLabel: true,
+        initialDiagnostics: resource.initialPathDiagnostics,
+        diagnosticsFilterExtraColumns: {
+            start: 1 + resource.method.length,
+        }
     }
 
     const pathUI = (
@@ -625,12 +633,13 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
         <div className={classes.returnTextBoxWrapper}>
             <VariableTypeInput
                 hideLabel={true}
-                displayName={"Variable Type"}
+                displayName={"Return Type"}
                 value={resource.returnType}
                 onValueChange={handleOnChangeReturnType}
                 validateExpression={validateReturnTypeExpression}
                 position={getReturnTypePosition(funcSignature, targetPosition)}
                 overrideTemplate={getReturnTypeTemplate(funcSignature, resource)}
+                initialDiagnostics={funcSignature?.returnTypeDesc?.typeData?.diagnostics}
             />
         </div>
     );

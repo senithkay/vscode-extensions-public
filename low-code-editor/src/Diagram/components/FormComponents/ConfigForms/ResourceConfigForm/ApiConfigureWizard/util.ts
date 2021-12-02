@@ -1,5 +1,6 @@
 import { FunctionSignature, NodePosition, ReturnTypeDescriptor, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
+import { Diagnostic } from "../../../../../../DiagramGenerator/generatorUtil";
 import { ExpressionEditorCustomTemplate } from "../../../FormFieldComponents/ExpressionEditor";
 
 import {
@@ -227,9 +228,19 @@ export function extractPayloadFromST(params: STNode[]): string {
 export function extractPayloadPositionFromST(params: STNode[]): NodePosition {
     if (params && params.length > 0) {
 
+        const payloadNode = extractPayloadFromSTNode(params);
+        if (payloadNode) {
+            return payloadNode.position;
+        }
+    }
+}
+
+export function extractPayloadFromSTNode(params: STNode[]): STNode {
+    if (params && params.length > 0) {
+
         const payload: STNode[] = params.filter((value) => (value.source && value.source.includes("@http:Payload")));
         if (payload.length > 0) {
-            return payload[0].position;
+            return payload[0];
         }
     }
 }
@@ -277,7 +288,7 @@ export function getReturnTypePosition(functionSignature: FunctionSignature, targ
             endColumn: functionSignature?.returnTypeDesc?.position?.endColumn,
         };
     } else if (targetPosition) {
-        return { ...targetPosition, endLine: 0, endColumn: 0 };
+        return { ...targetPosition, endLine: targetPosition.startLine, endColumn: targetPosition.startColumn };
     }else {
         return {
             endColumn: 0,
@@ -405,3 +416,11 @@ export function extractPathData(text: string): Resource {
     resource.path = genrateBallerinaResourcePath(path);
     return resource;
 }
+
+export const getPathDiagnostics = (resources: any[] = []): Diagnostic[] => resources?.reduce((items, resource) => {
+    if (resource?.typeData?.diagnostics){
+        return [...items, ...resource?.typeData?.diagnostics]
+    }
+    return items;
+}, []);
+

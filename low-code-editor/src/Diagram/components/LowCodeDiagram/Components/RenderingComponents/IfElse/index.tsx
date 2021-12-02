@@ -22,6 +22,7 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../Contexts/Diagram";
+import { Diagnostic } from "../../../../../../DiagramGenerator/generatorUtil";
 import { getDiagnosticMsgs, getDraftComponent, getSTComponents } from "../../../../../utils";
 import { getConditionConfig, getRandomInt } from "../../../../../utils/diagram-util";
 import { findActualEndPositionOfIfElseStatement } from "../../../../../utils/st-util";
@@ -283,8 +284,13 @@ export function IfElse(props: IfElseProps) {
         }
 
         const getExpressions = () : ElseIfConfig => {
-            const conditions: {id: number, expression: string, position: NodePosition}[] = [];
-            conditions.push({id: 0, expression: conditionExpr?.source.trim().match(/\(([^)]+)\)/)[1], position: conditionExpr?.position});
+            const conditions: {id: number, expression: string, position: NodePosition, diagnostics?: Diagnostic[]}[] = [];
+            conditions.push({
+                id: 0,
+                expression: conditionExpr?.source.trim().match(/\(([^)]+)\)/)[1],
+                position: conditionExpr?.position,
+                diagnostics: conditionExpr?.typeData?.diagnostics
+            });
             if (model) {
                 if (isElseIfExist) {
                     let block = ifStatement.elseBody?.elseBody as IfElseStatement;
@@ -293,7 +299,8 @@ export function IfElse(props: IfElseProps) {
                     while (isElseIfBlockExist) {
                         const expression = block?.condition?.source.trim().match(/\(([^)]+)\)/)[1];
                         const position = block?.condition?.position;
-                        conditions.push({id, expression, position});
+                        const nodeDiagnostics = block?.condition?.typeData?.diagnostics;
+                        conditions.push({id, expression, position, diagnostics: nodeDiagnostics});
                         isElseIfBlockExist = (block?.elseBody?.elseBody as IfElseStatement)?.kind === "IfElseStatement";
                         block = block.elseBody?.elseBody as IfElseStatement;
                         id = id + 1;
