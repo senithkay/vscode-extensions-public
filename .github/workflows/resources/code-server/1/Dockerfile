@@ -23,6 +23,7 @@ RUN sudo apt-get update && \
     code-server --user-data-dir /config/data --extensions-dir /config/extensions --install-extension ballerina.vsix && \
     wget "https://github.com/wso2/ballerina-plugin-vscode/releases/download/v0.0.1-preview/be5invis.toml-0.5.1.vsix" && \
     code-server --user-data-dir /config/data --extensions-dir /config/extensions --install-extension be5invis.toml-0.5.1.vsix && \
-    rm ballerina.deb ballerina.vsix be5invis.toml-0.5.1.vsix
+    rm ballerina.deb ballerina.vsix be5invis.toml-0.5.1.vsix && \
+    sed -i '/<\/head>/i <!-- Hotjar Tracking Code for Choreo-prod -->\n<script>\n(function(h,o,t,j,a,r){h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};h._hjSettings={hjid:2626534,hjsv:6};a=o.getElementsByTagName(\"head\")[0];r=o.createElement(\"script\");r.async=1;r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;a.appendChild(r);})(window,document,\"https://static.hotjar.com/c/hotjar-\",\".js?sv=\");\n</script>' /usr/local/share/.config/yarn/global/node_modules/code-server/src/browser/pages/vscode.html
 
 RUN echo "{\n\"workbench.startupEditor\": \"none\"\n}" > /config/data/User/settings.json
