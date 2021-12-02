@@ -13,6 +13,7 @@
 import React, { ReactNode } from 'react';
 
 import {
+    CompletionParams, CompletionResponse,
     ExpressionEditorLangClientInterface,
     PartialSTRequest,
     STModification
@@ -24,6 +25,10 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import * as expressionTypeComponents from '../components/ExpressionTypes';
+import {
+    acceptedCompletionKindForExpressions,
+    acceptedCompletionKindForTypes
+} from "../components/InputEditor/constants";
 import * as statementTypeComponents from '../components/Statements';
 import * as c from "../constants";
 import { SuggestionItem, VariableUserInputs } from '../models/definitions';
@@ -34,8 +39,7 @@ import {
     DataTypeByExpressionKind,
     ExpressionKindByOperator,
     ExpressionSuggestionsByKind,
-    OperatorsForExpressionKind,
-    TypeDescriptors
+    OperatorsForExpressionKind
 } from "./utils";
 
 export async function getPartialSTForStatement(
@@ -55,6 +59,47 @@ export async function getPartialSTForExpression(
     const langClient: ExpressionEditorLangClientInterface = await ls.getExpressionEditorLangClient(lsUrl);
     const resp = await langClient.getSTForExpression(partialSTRequest);
     return resp.syntaxTree;
+}
+
+export async function getContextBasedCompletions (
+            docUri: string,
+            targetPosition: NodePosition,
+            modelPosition: NodePosition,
+            isTypeDescriptor: boolean,
+            selection: string,
+            getLangClient: () => Promise<ExpressionEditorLangClientInterface>
+        ): Promise<SuggestionItem[]> {
+    const completionParams: CompletionParams = {
+        textDocument: {
+            uri: docUri
+        },
+        context: {
+            triggerKind: 1
+        },
+        position: {
+            character: targetPosition.startColumn + modelPosition.startColumn,
+            line: targetPosition.startLine
+        }
+    }
+
+    const langClient = await getLangClient();
+    const completions: CompletionResponse[] = await langClient.getCompletion(completionParams);
+
+    const filteredCompletionItems = completions.filter((completionResponse: CompletionResponse) => (
+        (
+            !completionResponse.kind || (
+                isTypeDescriptor ?
+                    acceptedCompletionKindForTypes.includes(completionResponse.kind) :
+                    acceptedCompletionKindForExpressions.includes(completionResponse.kind)
+            )
+        ) && completionResponse.label !== selection.trim() && !(completionResponse.label.includes("main"))
+    ));
+
+    const variableSuggestions: SuggestionItem[] = filteredCompletionItems.map((completion) => {
+        return { value: completion.label, kind: completion.detail }
+    });
+
+    return variableSuggestions;
 }
 
 export function getModifications(
@@ -93,10 +138,6 @@ export function getModifications(
 
 export function getSuggestionsBasedOnExpressionKind(kind: string): SuggestionItem[] {
     return ExpressionSuggestionsByKind[kind];
-}
-
-export function getTypeDescriptors(): SuggestionItem[] {
-    return TypeDescriptors;
 }
 
 export function getKindBasedOnOperator(operator: string): string {

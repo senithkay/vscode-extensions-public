@@ -12,14 +12,15 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext } from "react";
+import { monaco } from "react-monaco-editor";
 
 import { TypedBindingPattern } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { VariableUserInputs } from "../../../models/definitions";
+import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getTypeDescriptors, isPositionsEquals } from "../../../utils";
+import { getContextBasedCompletions, isPositionsEquals } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
@@ -39,6 +40,8 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
+    const { currentFile, getLangClient } = stmtCtx;
+    const targetPosition = stmtCtx.formCtx.formModelPosition;
 
     const typeDescriptorComponent: ReactNode = (
         <ExpressionComponent
@@ -59,9 +62,18 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
         />
     );
 
-    const onClickOnType = (event: any) => {
-        event.stopPropagation()
-        expressionHandler(model.typeDescriptor, false, true, { typeSuggestions: getTypeDescriptors() })
+    const onClickOnType = async (event: any) => {
+        event.stopPropagation();
+        const completions: SuggestionItem[] = await getContextBasedCompletions(
+            monaco.Uri.file(currentFile.path).toString(),
+            targetPosition,
+            model.typeDescriptor.position,
+            true,
+            model.typeDescriptor.source,
+            getLangClient
+        )
+        expressionHandler(model.typeDescriptor, false, true, {
+            expressionSuggestions: [], typeSuggestions: completions, variableSuggestions: []});
     };
 
     return (

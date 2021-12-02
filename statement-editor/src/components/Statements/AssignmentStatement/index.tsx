@@ -20,7 +20,7 @@ import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind, getTypeDescriptors, isPositionsEquals } from "../../../utils";
+import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
@@ -66,7 +66,7 @@ export function AssignmentStatementComponent(props: AssignmentStatementProps) {
     const onClickOnVarRef = (event: any) => {
         event.stopPropagation();
         expressionHandler(model.varRef, false, false,
-            {expressionSuggestions: [], typeSuggestions: getTypeDescriptors(), variableSuggestions: []});
+            {expressionSuggestions: [], typeSuggestions: [], variableSuggestions: []});
     };
 
     const onClickOnExpression = (event: any) => {

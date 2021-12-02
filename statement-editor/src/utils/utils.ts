@@ -236,17 +236,6 @@ export const ExpressionSuggestionsByKind: { [key: string]: SuggestionItem[] } = 
     ]
 }
 
-// TODO: Remove the below array when fetching type descriptors from the LS is implemented
-export const TypeDescriptors: SuggestionItem[] = [
-        { value: 'string', kind: c.STRING_TYPE_DESC },
-        { value: 'boolean', kind: c.BOOLEAN_TYPE_DESC },
-        { value: 'json', kind: c.JSON_TYPE_DESC },
-        { value: 'decimal', kind: c.DECIMAL_TYPE_DESC },
-        { value: 'float', kind: c.FLOAT_TYPE_DESC },
-        { value: 'int', kind: c.INT_TYPE_DESC },
-        { value: 'var', kind: c.VAR_TYPE_DESC }
-];
-
 export const DataTypeByExpressionKind: { [key: string]: string[] } = {
     StringLiteral: ["string"],
     NumericLiteral: ["int", "float", "decimal"],
