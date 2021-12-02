@@ -228,10 +228,17 @@ export function ConnectorForm(props: FormGeneratorProps) {
         }
     };
 
-    const handleActionSave = () => {
+    const handleActionSave = (rtype?:string) => {
         const modifications: STModification[] = [];
         const isInitReturnError = getInitReturnType(functionDefInfo);
         const currentActionReturnType = getActionReturnType(config.action.name, functionDefInfo);
+        const dbConnectors = ["mysql" , "mssql"]
+        if(dbConnectors.includes(connectorModule)){
+            const leftReturnType = rtype ? rtype : "record{}";
+            currentActionReturnType.returnType = `stream<${leftReturnType}, sql:Error?>`;
+        }
+        
+        // handle special case to get user typed in return type
         const moduleName = getFormattedModuleName(connectorModule);
 
         expressionInjectables?.list?.forEach((item: InjectableItem) => {

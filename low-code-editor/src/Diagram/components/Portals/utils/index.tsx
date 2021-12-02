@@ -458,6 +458,10 @@ export function matchActionToFormField(remoteCall: RemoteMethodCallAction, formF
                 formField.value = positionalArg.expression?.source;
                 nextValueIndex++;
             }
+            else if (formField.typeName.includes("array")) {
+                formField.value = positionalArg.expression?.source;
+                nextValueIndex++;
+            }
             else if (formField.typeName === 'collection') {
                 formField.value = positionalArg.expression?.source;
                 nextValueIndex++;
@@ -904,6 +908,9 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                         response.hasError = false;
                         type = `${formField.typeInfo.moduleName}:${formField.typeInfo.name}`
                     }
+                    if(formField.typeInfo) {
+                        response.importTypeInfo.push(formField.typeInfo);
+                    }
                 }
                 if (type === "" && formField.typeInfo && !formField.isErrorType) {
                     // set class/record types
@@ -946,8 +953,8 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                 //     // set stream tags
                 //     type = `stream<${type}>`; // do for stream obj
                 // }
-                if (formField.typeName.includes("stream<rowType")) {
-                    type = "record{}"
+                if (formField.typeName.includes("stream<rowType")) { // get user typed return type here 
+                    type = "record{}" 
                 }
                 if (type) {
                     response.returnType = type;
