@@ -49,7 +49,7 @@ export function FunctionHeader(props: FunctionHeaderProps) {
         modifyDiagram([modification]);
     };
 
-    const istrigger = model.functionSignature.typeData.typeSymbol.signature.includes("trigger");
+    const isTrigger = model.functionSignature.typeData.typeSymbol.signature.includes("trigger");
 
     return (
         <HeaderWrapper
@@ -76,7 +76,7 @@ export function FunctionHeader(props: FunctionHeaderProps) {
                 </div>
             </div>
             {(model.qualifierList.filter(qualifier => STKindChecker.isRemoteKeyword(qualifier)).length === 0)
-            || !istrigger ? (
+            || !isTrigger ? (
             <HeaderActions
                 model={model}
                 deleteText="Are you sure you want to delete this function?"
