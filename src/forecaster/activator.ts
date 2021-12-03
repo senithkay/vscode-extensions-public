@@ -33,7 +33,10 @@ const MODEL_NOT_FOUND = "AI service does not have enough data to forecast";
 const ESTIMATOR_ERROR = "AI service is currently unavailable (ID2)";
 const UNKNOWN_ANALYSIS_TYPE = "Invalid request sent to AI service (ID7)";
 const INVALID_DATA = "Request with invalid data sent to AI service (ID8)";
+const UNABLE_TO_GET = "Unable to get performance data.";
+const PERF_DISABLED = "Performance analyzer disabled for this session";
 const SUCCESS = "Success";
+const maxRetries = 3;
 let langClient: ExtendedLangClient;
 let uiData: GraphData;
 let extension: BallerinaExtension;
@@ -42,6 +45,7 @@ let currentResourceName: String;
 let currentResourcePos: Range;
 let currentFile: TextDocument | undefined;
 let currentFileUri: String | undefined;
+let retryAttempts = 0;
 
 export const SHOW_GRAPH_COMMAND = "ballerina.forecast.performance.showGraph";
 
@@ -111,7 +115,7 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
 export async function createPerformanceGraphAndCodeLenses(uri: string | undefined, pos: Range,
     type: ANALYZETYPE, name: String | undefined) {
 
-    if (!extension.enabledPerformanceForecasting()) {
+    if (!extension.enabledPerformanceForecasting() || retryAttempts >= maxRetries) {
         return;
     }
 
@@ -236,8 +240,12 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
             showMessage(INVALID_DATA, MESSAGE_TYPE.INFO, true);
 
         } else {
-            showMessage(response.message, MESSAGE_TYPE.ERROR, true);
+            retryAttempts++;
+            showMessage(`${UNABLE_TO_GET} ${response.message}`, MESSAGE_TYPE.ERROR, true);
 
+            if (retryAttempts >= maxRetries) {
+                showMessage(PERF_DISABLED, MESSAGE_TYPE.INFO, true);
+            }
         }
     }
 }
