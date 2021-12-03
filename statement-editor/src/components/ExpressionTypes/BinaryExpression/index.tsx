@@ -12,15 +12,17 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext } from "react";
+import { monaco } from "react-monaco-editor";
 
 import { BinaryExpression } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
-import { VariableUserInputs } from "../../../models/definitions";
+import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import {
+    getContextBasedCompletions,
     getKindBasedOnOperator,
     getOperatorSuggestions,
     getSuggestionsBasedOnExpressionKind,
@@ -49,6 +51,8 @@ export function BinaryExpressionComponent(props: BinaryProps) {
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
+    const { currentFile, getLangClient } = stmtCtx;
+    const targetPosition = stmtCtx.formCtx.formModelPosition;
 
     const lhs: ReactNode = (
         <ExpressionComponent
@@ -77,16 +81,38 @@ export function BinaryExpressionComponent(props: BinaryProps) {
             { expressionSuggestions: getOperatorSuggestions(kind) })
     }
 
-    const onClickOnLhsExpression = (event: any) => {
-        event.stopPropagation()
-        expressionHandler(model.lhsExpr, false, false,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
+    const onClickOnLhsExpression = async (event: any) => {
+        event.stopPropagation();
+        const completions: SuggestionItem[] = await getContextBasedCompletions(
+            monaco.Uri.file(currentFile.path).toString(),
+            targetPosition,
+            model.lhsExpr.position,
+            false,
+            model.lhsExpr.source,
+            getLangClient
+        )
+        expressionHandler(model.lhsExpr, false, false, {
+            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
+            typeSuggestions: [],
+            variableSuggestions: completions
+        });
     };
 
-    const onClickOnRhsExpression = (event: any) => {
-        event.stopPropagation()
-        expressionHandler(model.rhsExpr, false, false,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
+    const onClickOnRhsExpression = async (event: any) => {
+        event.stopPropagation();
+        const completions: SuggestionItem[] = await getContextBasedCompletions(
+            monaco.Uri.file(currentFile.path).toString(),
+            targetPosition,
+            model.rhsExpr.position,
+            false,
+            model.rhsExpr.source,
+            getLangClient
+        )
+        expressionHandler(model.rhsExpr, false, false, {
+            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
+            typeSuggestions: [],
+            variableSuggestions: completions
+        });
     };
 
     return (
