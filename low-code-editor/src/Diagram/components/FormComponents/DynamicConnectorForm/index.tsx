@@ -37,7 +37,7 @@ export function Form(props: FormProps) {
     const { fields, onValidate, expressionInjectables, editPosition } = props;
 
     const classes = useStyles();
-    const elements: ReactNode[] = [];
+    const requiredElements: ReactNode[] = [];
     const optionalElements: ReactNode[] = [];
     const allFieldChecks = React.useRef(new Map<string, FormFieldChecks>());
 
@@ -92,7 +92,7 @@ export function Form(props: FormProps) {
             const element = getFormElement(elementProps, type);
 
             if (element) {
-                elements.push(element);
+                field.typeName === "record" && field.defaultable ? optionalElements.push(element) : requiredElements.push(element);
             }
         }
     });
@@ -101,7 +101,7 @@ export function Form(props: FormProps) {
         <form className={classes.fullWidth} noValidate={true} autoComplete="off">
             <FormAccordion
                 depth={1}
-                mandatoryFields={elements}
+                mandatoryFields={requiredElements}
                 optionalFields={optionalElements}
                 isMandatory={false}
             />
