@@ -39,12 +39,13 @@ export interface VariableTypeInputProps {
     diagnosticsFilterExtraColumns?: {
         start?: number,
         end?: number,
-    }
+    },
+    changed?: boolean | string;
 }
 
 export function VariableTypeInput(props: VariableTypeInputProps) {
     const { onValueChange, validateExpression, position, value, displayName, overrideTemplate, hideLabel, disabled,
-            ignoredCompletions = [], additionalCompletions = [], focus, enterKeyPressed, initialDiagnostics, diagnosticsFilterExtraColumns } = props;
+            ignoredCompletions = [], additionalCompletions = [], focus, enterKeyPressed, initialDiagnostics, diagnosticsFilterExtraColumns, changed } = props;
 
     const [editorFocus, setEditorFocus] = useState<boolean>(focus);
 
@@ -76,6 +77,7 @@ export function VariableTypeInput(props: VariableTypeInputProps) {
             enterKeyPressed,
             initialDiagnostics,
             diagnosticsFilterExtraColumns,
+            changed,
         },
         onChange: onValueChange,
         defaultValue: value

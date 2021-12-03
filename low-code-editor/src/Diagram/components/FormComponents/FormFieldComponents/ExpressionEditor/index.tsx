@@ -589,7 +589,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
 
         expressionEditorState.name = model.name;
         expressionEditorState.content = initContent;
-        expressionEditorState.uri = `expr://${currentFile.path}`;
+        expressionEditorState.uri = monaco.Uri.file(currentFile.path).toString();	
 
         const langClient: ExpressionEditorLangClientInterface = await getExpressionEditorLangClient();
         langClient.didChange({

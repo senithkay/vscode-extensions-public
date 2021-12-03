@@ -201,7 +201,10 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     }
 
     function handleOnChangeReturnType(text: string) {
-        resource.returnType = text;
+        setResource({
+            ...resource,
+            returnType: text
+        })
     }
 
     function handleOnChangePathFromUI(text: string) {
@@ -640,6 +643,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                 position={getReturnTypePosition(funcSignature, targetPosition)}
                 overrideTemplate={getReturnTypeTemplate(funcSignature, resource)}
                 initialDiagnostics={funcSignature?.returnTypeDesc?.typeData?.diagnostics}
+                changed={resource.isCaller}
             />
         </div>
     );
@@ -657,7 +661,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                     text={saveButtonText}
                     className={classes.saveBtn}
                     onClick={handleUserConfirm}
-                    disabled={isFileSaving || !isValidReturnExpr || (togglePayload && !isValidPayload)}
+                    disabled={isFileSaving || !isValidReturnExpr || (!isValidPath && !toggleMainAdvancedMenu) || (togglePayload && !isValidPayload)}
                 />
             </div>
         </div>
