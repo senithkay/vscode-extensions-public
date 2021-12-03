@@ -183,9 +183,9 @@ export interface ExpressionEditorProps {
     enterKeyPressed?: (value: string) => void;
     initialDiagnostics?: DiagramDiagnostic[];
     diagnosticsFilterExtraColumns?: {
-        start?: number,
-        end?: number,
-    }
+        start?: number;
+        end?: number;
+    };
 }
 
 export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>) {
@@ -257,7 +257,8 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const canIgnore = (model.optional || model.defaultable) ?? false;
 
     const validExpEditor = () => {
-        const monacoValue = monacoRef.current?.editor?.getModel()?.getValue();
+        const monacoModel = monacoRef.current?.editor?.getModel();
+        const monacoValue = monacoModel?.getValue();
         if (monacoValue) {
             model.value = monacoValue;
             if (onChange) {
@@ -269,7 +270,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 validate(model.name, false, isEmpty, canIgnore);
                 setExpressionDiagnosticMsg("");
                 setValidating(false);
-                monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), "expression editor", []);
+                monaco.editor.setModelMarkers(monacoModel, "expression editor", []);
             } else {
                 notValidExpEditor(`Invalid ${textLabel}`);
             }
@@ -277,7 +278,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             validate(model.name, false, isEmpty, canIgnore);
             setValidating(false);
             if (monacoRef.current) {
-                monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), "expression editor", []);
+                monaco.editor.setModelMarkers(monacoModel, "expression editor", []);
                 setExpressionDiagnosticMsg("");
             }
         }
@@ -291,7 +292,18 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             validate(model.name, true, isEmpty, canIgnore);
             setExpressionDiagnosticMsg(message);
             setValidating(false);
-            setHints(getHints(expressionEditorState.diagnostic, varType, varName, monacoRef, targetPosition, snippetTargetPosition, diagnosticsFilterExtraColumns?.start, diagnosticsFilterExtraColumns?.end));
+            setHints(
+                getHints(
+                    expressionEditorState.diagnostic,
+                    varType,
+                    varName,
+                    monacoRef,
+                    targetPosition,
+                    snippetTargetPosition,
+                    diagnosticsFilterExtraColumns?.start,
+                    diagnosticsFilterExtraColumns?.end
+                )
+            );
             if (monacoRef.current) {
                 if (updateState) {
                     monaco.editor.setModelMarkers(monacoRef.current.editor.getModel(), "expression editor", [
@@ -318,8 +330,15 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                         ],
                     });
                 } else {
-                    const inputLength = typeof model?.value === 'string' ? model?.value?.length : monacoRef.current.editor.getPosition().column - 1;
-                    const diagnostics = getSelectedDiagnostics(expressionEditorState.diagnostic, targetPosition, snippetTargetPosition, inputLength, diagnosticsFilterExtraColumns?.start, diagnosticsFilterExtraColumns?.end);
+                    const inputLength = typeof model?.value === "string" ? model?.value?.length : monacoRef.current.editor.getPosition().column - 1;
+                    const diagnostics = getSelectedDiagnostics(
+                        expressionEditorState.diagnostic,
+                        targetPosition,
+                        snippetTargetPosition,
+                        inputLength,
+                        diagnosticsFilterExtraColumns?.start,
+                        diagnosticsFilterExtraColumns?.end
+                    );
 
                     monaco.editor.setModelMarkers(
                         monacoRef.current.editor.getModel(),
@@ -355,8 +374,15 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             if (!expressionEditorState.diagnostic) {
                 return;
             } else if (monacoRef.current) {
-                const inputLength = typeof model?.value === 'string' ? model?.value?.length : monacoRef.current.editor.getPosition().column - 1;
-                const diagnosticMsg = getDiagnosticMessage(expressionEditorState.diagnostic, targetPosition, snippetTargetPosition, inputLength, diagnosticsFilterExtraColumns?.start, diagnosticsFilterExtraColumns?.end);
+                const inputLength = typeof model?.value === "string" ? model?.value?.length : monacoRef.current.editor.getPosition().column - 1;
+                const diagnosticMsg = getDiagnosticMessage(
+                    expressionEditorState.diagnostic,
+                    targetPosition,
+                    snippetTargetPosition,
+                    inputLength,
+                    diagnosticsFilterExtraColumns?.start,
+                    diagnosticsFilterExtraColumns?.end
+                );
                 if (diagnosticMsg) {
                     notValidExpEditor(diagnosticMsg, false);
                 } else if (customErrorMessage(expressionEditorState.diagnostic)) {
@@ -387,11 +413,12 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         disposeAllTriggers();
 
         if (monacoRef.current) {
+            const monacoModel = monacoRef.current.editor.getModel();
             // event emitted when the text inside this editor gained focus (i.e. cursor starts blinking)
             disposableTriggers.push(
                 monacoRef.current.editor.onDidFocusEditorText(async () => {
                     setCursorOnEditor(true);
-                    handleOnFocus(monacoRef.current.editor.getModel().getValue(), monacoRef.current.editor.getModel().getEOL());
+                    handleOnFocus(monacoModel.getValue(), monacoModel.getEOL());
                 })
             );
 
@@ -401,14 +428,14 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                     const lastPressedKey = event.changes && event.changes.length > 0 && event.changes[0].text;
                     setValidating(true);
 
-                    if (monacoRef.current.editor.getModel().getValue().includes(monacoRef.current.editor.getModel().getEOL())) {
+                    if (monacoModel.getValue().includes(monacoModel.getEOL())) {
                         // Trim EOL chars onPasteEvent
-                        const trimmedContent = monacoRef.current.editor.getModel().getValue().replace(monacoRef.current.editor.getModel().getEOL(), "");
-                        monacoRef.current.editor.getModel().setValue(trimmedContent);
+                        const trimmedContent = monacoModel.getValue().replace(monacoModel.getEOL(), "");
+                        monacoModel.setValue(trimmedContent);
                         return;
                     }
 
-                    debouncedContentChange(monacoRef.current.editor.getModel().getValue(), monacoRef.current.editor.getModel().getEOL(), lastPressedKey);
+                    debouncedContentChange(monacoModel.getValue(), monacoModel.getEOL(), lastPressedKey);
                 })
             );
 
@@ -460,7 +487,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     }, [statementType, expressionInjectables?.list?.length, customTemplate?.defaultCodeSnippet]);
 
     useEffect(() => {
-        // Programatically focus exp-editor
+        // Programmatically focus exp-editor
         if (focus && customProps?.revertFocus) {
             monacoRef.current.editor.focus();
             customProps.revertFocus();
@@ -473,15 +500,11 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             const collapseWidget: monaco.editor.IContentWidget = createContentWidget(COLLAPSE_WIDGET_ID);
 
             if (expand) {
-                monacoRef.current.editor.updateOptions({
-                    wordWrap: "bounded",
-                });
+                monacoRef.current.editor.updateOptions({ wordWrap: "bounded" });
                 monacoRef.current.editor.removeContentWidget(expandWidget);
                 monacoRef.current.editor.addContentWidget(collapseWidget);
             } else {
-                monacoRef.current.editor.updateOptions({
-                    wordWrap: "off",
-                });
+                monacoRef.current.editor.updateOptions({ wordWrap: "off" });
                 monacoRef.current.editor.removeContentWidget(collapseWidget);
                 monacoRef.current.editor.addContentWidget(expandWidget);
             }
@@ -538,12 +561,12 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             const editorModel = monacoRef.current.editor.getModel();
             if (editorModel && model.value) {
                 editorModel.setValue(model.value);
-                debouncedValidateAndRevert(model.value, monacoRef.current.editor.getModel().getEOL());
+                debouncedValidateAndRevert(model.value, editorModel.getEOL());
             }
         } else if (!initialLoaded) {
             setInitialLoaded(true);
         }
-    }, [changed, ]);
+    }, [changed]);
 
     useEffect(() => {
         if (expandDefault !== undefined) {
@@ -644,7 +667,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         if (onFocus) {
             onFocus(currentContent);
         }
-    }
+    };
 
     // ExpEditor onChange
     const handleContentChange = async (currentContent: string, EOL: string, lastPressedKey: string) => {
@@ -701,7 +724,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 monacoRef.current.editor.trigger("exp_editor", "editor.action.triggerSuggest", {});
             }
 
-            if ((currentContent.length >= EDITOR_MAXIMUM_CHARACTERS) && monacoRef.current.editor.hasTextFocus() && !hideExpand) {
+            if (currentContent.length >= EDITOR_MAXIMUM_CHARACTERS && monacoRef.current.editor.hasTextFocus() && !hideExpand) {
                 setExpand(true);
                 if (currentContent.length >= EXPAND_EDITOR_MAXIMUM_CHARACTERS) {
                     setSuperExpand(true);
@@ -742,7 +765,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             const langClient: ExpressionEditorLangClientInterface = await getExpressionEditorLangClient();
             langClient.didChange({
                 contentChanges: [{ text: expressionEditorState.content }],
-                textDocument: { uri: expressionEditorState.uri, version: 1 }
+                textDocument: { uri: expressionEditorState.uri, version: 1 },
             });
 
             if (monacoRef.current) {
@@ -830,7 +853,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 enterKeyPressed((event.target as any).value);
             }
         });
-    }
+    };
     const expEditorStyle = monacoRef?.current?.editor?.hasTextFocus() ? "exp-editor-active" : "exp-editor";
 
     setDefaultTooltips();
