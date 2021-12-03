@@ -32,4 +32,4 @@ RUN curl -s https://api.github.com/repos/wso2/ballerina-plugin-vscode/releases |
     code-server --user-data-dir /config/data --extensions-dir /config/extensions --install-extension be5invis.toml-0.5.1.vsix && \
     rm ballerina.vsix be5invis.toml-0.5.1.vsix
 
-RUN echo "{\n\"workbench.startupEditor\": \"none\"\n}" > /config/data/User/settings.json
+RUN echo "{\n\"workbench.startupEditor\": \"none\"\n\"window.dialogStyle\": \"custom\"}" > /config/data/User/settings.json

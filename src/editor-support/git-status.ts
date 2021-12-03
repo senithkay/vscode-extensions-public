@@ -94,35 +94,31 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     });
 
     const commitAndPush = commands.registerCommand(PALETTE_COMMANDS.CHOREO_SYNC_CHANGES, () => {
-        commands.executeCommand(PALETTE_COMMANDS.FOCUS_SOURCE_CONTROL);
         ballerinaExtInstance.getCodeServerContext().statusBarItem?.updateGitStatus();
-        if (!ballerinaExtInstance.getCodeServerContext().infoMessageStatus.sourceControlMessage) {
-            return;
-        }
-        const stopPopup = "Don't show again!";
-        window.showInformationMessage('Make sure you commit and push project changes using the VS Code ' +
-            'Source Control activity. Refer to [documentation](https://wso2.com/choreo/docs/) ' +
-            'for more information.', stopPopup).then((selection) => {
-                if (stopPopup === selection) {
-                    ballerinaExtInstance.getCodeServerContext().infoMessageStatus.sourceControlMessage = false;
-            }
-        });
+        showChoreoPushMessage(ballerinaExtInstance, true);
     });
 
     ballerinaExtInstance.context!.subscriptions.push(commitAndPush);
 }
 
-export function showChoreoPushMessage(ballerinaExtInstance: BallerinaExtension) {
+export function showChoreoPushMessage(ballerinaExtInstance: BallerinaExtension, isCommand: boolean = false) {
     if (!ballerinaExtInstance.getCodeServerContext().codeServerEnv ||
-        !ballerinaExtInstance.getCodeServerContext().infoMessageStatus.syncChoreoMessage) {
+        !ballerinaExtInstance.getCodeServerContext().infoMessageStatus.sourceControlMessage ||
+        (!isCommand && !ballerinaExtInstance.getCodeServerContext().infoMessageStatus.messageFirstEdit)) {
         return;
     }
-    ballerinaExtInstance.getCodeServerContext().infoMessageStatus.syncChoreoMessage = false;
-    const sync = "Sync Changes with Choreo";
-    window.showInformationMessage('Sync your project changes with Choreo and try out on its development ' +
-        'environment. Do you want to sync your changes? ', sync).then((selection) => {
+    ballerinaExtInstance.getCodeServerContext().infoMessageStatus.messageFirstEdit = false;
+    const stop = "Don't show again!";
+    const sync = "Sync my changes with Choreo";
+    window.showInformationMessage('Make sure you commit and push project changes using the VS Code Source Control ' + 
+        'activity to try out on the Choreo environment. \n\nFirst, go to the Source Control on the VS Code Activity bar. ' + 
+        '\nEnter a commit message and `Commit` all changes. \nThen, `Push` all changes using the `More Actions...` ' + 
+        'button on the source control activity.',{ modal: true } ,sync, stop ).then((selection) => {
             if (sync === selection) {
                 commands.executeCommand(PALETTE_COMMANDS.FOCUS_SOURCE_CONTROL);
+            }
+            if (stop === selection) {
+                ballerinaExtInstance.getCodeServerContext().infoMessageStatus.sourceControlMessage = false;
             }
         });
 }
