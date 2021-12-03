@@ -33,7 +33,7 @@ export function ExpressionEditorLabel(props: FormElementProps<ExpressionEditorPr
     const textFieldClasses = useTextInputStyles();
 
     const textLabel = model.label || model.displayName || model.name;
-    const typeString = transformFormFieldTypeToString(model, true);
+    const typeString = transformFormFieldTypeToString(model, true) + (model.optional ? "?" : "");
 
     const codeRef = (ref: HTMLPreElement) => {
         if (ref) {
