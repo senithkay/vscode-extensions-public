@@ -15,7 +15,7 @@ import React, { ReactNode, useContext } from "react";
 import { FormattedMessage } from "react-intl";
 
 import { Box, FormControl, List, ListItem, Typography } from "@material-ui/core";
-import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormHeaderSection, PrimaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../Contexts/Diagram";
@@ -28,6 +28,7 @@ import useStyles from "./style";
 export interface EndpointListProps {
     onSelect: (actionInvo: STNode) => void;
     onCancel: () => void;
+    onAddConnector: () => void;
 }
 
 export function EndpointList(props: FormGeneratorProps) {
@@ -39,7 +40,7 @@ export function EndpointList(props: FormGeneratorProps) {
         },
     } = useContext(Context);
     const { functionNode } = useFunctionContext();
-    const { onSelect, onCancel } = props.configOverlayFormStatus.formArgs as EndpointListProps;
+    const { onSelect, onCancel, onAddConnector } = props.configOverlayFormStatus.formArgs as EndpointListProps;
     let isEndpointExists = false;
     const endpointList: ReactNode[] = [];
 
@@ -74,8 +75,8 @@ export function EndpointList(props: FormGeneratorProps) {
             <FormHeaderSection
                 onCancel={onCancel}
                 statementEditor={false}
-                formTitle={"lowcode.develop.configForms.endpoint.title"}
-                defaultMessage={"API Invocation"}
+                formTitle={"lowcode.develop.configForms.endpointList.title"}
+                defaultMessage={"Action"}
                 toggleChecked={false}
             />
             <div className={formClasses.formWrapper}>
@@ -86,9 +87,16 @@ export function EndpointList(props: FormGeneratorProps) {
                                 <Typography className={classes.emptyTitle}>
                                     <FormattedMessage
                                         id="lowcode.develop.configForms.endpoint.empty"
-                                        defaultMessage="No API connections found"
+                                        defaultMessage="No connector endpoints found"
                                     />
                                 </Typography>
+                                <Box marginY={2}>
+                                    <PrimaryButton
+                                        text="Add Connector Endpoint"
+                                        fullWidth={false}
+                                        onClick={onAddConnector}
+                                    />
+                                </Box>
                             </Box>
                         )}
                         {isEndpointExists && (
@@ -96,7 +104,7 @@ export function EndpointList(props: FormGeneratorProps) {
                                 <Typography>
                                     <FormattedMessage
                                         id="lowcode.develop.configForms.endpoint.subtitle"
-                                        defaultMessage="Select an API connection"
+                                        defaultMessage="Select a connector endpoint"
                                     />
                                 </Typography>
                                 <List>{endpointList}</List>
