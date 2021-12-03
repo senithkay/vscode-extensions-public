@@ -16,6 +16,7 @@ import { TextField } from "@material-ui/core";
 
 import { OtherStatementNodeTypes } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
+import { InputEditor } from "../../InputEditor";
 import { useStatementEditorStyles } from "../../styles";
 
 interface OtherStatementProps {
@@ -25,15 +26,21 @@ interface OtherStatementProps {
 }
 
 export function OtherStatementTypes(props: OtherStatementProps) {
-    const { model } = props;
+    const { model, userInputs, diagnosticHandler } = props;
 
     const statementEditorClasses = useStatementEditorStyles();
 
+    const inputEditorProps = {
+        statementType: model.kind,
+        model,
+        userInputs,
+        diagnosticHandler,
+        isTypeDescriptor: false
+    };
+
     return (
-        <TextField
-            className={statementEditorClasses.expressionElement}
-            autoFocus={true}
-            defaultValue={model.source.trim()}
-        />
+        <button className={statementEditorClasses.expressionElement}>
+            <InputEditor {...inputEditorProps} />
+        </button>
     );
 }
