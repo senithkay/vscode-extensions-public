@@ -22,11 +22,181 @@ import { Box, Button, Card, CardActions, CardContent, Container, Typography } fr
 
 import ConfigElements from "./ConfigElements";
 
+import existingConfigs from "../stories/data/existing-configs.json";
+
+let metaData: MetaData = null;
+
+const ITEMS: string = "items";
+const TYPE: string = "type";
+const DESCRIPTION: string = "description";
+const PROPERTIES: string = "properties";
+const REQUIRED: string = "required";
+
 enum ConfigType {
+    ARRAY = "array",
+    BOOLEAN = "boolean",
+    NUMBER = "number",
+    OBJECT = "object",
+    STRING = "string",
+    UNSUPPORTED = "unsupported",
+}
+
+enum ArrayType {
+    BOOLEAN = "boolean",
     NUMBER = "number",
     STRING = "string",
-    BOOLEAN = "boolean",
 }
+
+interface MetaData {
+    orgName: string;
+    packageName: string;
+}
+
+interface Element {
+    id: string;
+    isArray: boolean;
+    name: string;
+    required: boolean;
+    type: ConfigType;
+    value?: number | string | boolean | number[] | string[] | boolean[];
+}
+
+interface Property {
+    id: string;
+    name: string;
+    properties?: Array<Element | Property>;
+}
+
+function getPackageConfig(configSchema: object): object {
+    const orgConfig: object = configSchema[PROPERTIES];
+    const orgName = Object.keys(orgConfig)[0];
+
+    const packageConfig: object = orgConfig[orgName][PROPERTIES];
+    const packageName = Object.keys(packageConfig)[0];
+
+    // Set the metadata values
+    setMetaData(orgName, packageName);
+
+    return packageConfig[packageName];
+}
+
+function setMetaData(orgName: string, packageName: string) {
+    metaData = {
+        orgName,
+        packageName,
+    };
+}
+
+function setProperties(configObj: object, id: string = "1", name: string = "root") {
+    const propertiesObj: object = configObj[PROPERTIES];
+    const requiredProperties: string[] = configObj[REQUIRED];
+    const property: Property = { id: String(id), name, properties: [] };
+
+    Object.keys(propertiesObj).forEach((key, index) => {
+        let isArrayProperty: boolean = false;
+        const configPropertyValues = propertiesObj[key];
+        let configPropertyType: string = configPropertyValues[TYPE];
+
+        if (configPropertyType === ConfigType.OBJECT) {
+            // Iterate through nested objects.
+            const childProperty: Property = setProperties(configPropertyValues, id + "-" + (index + 1), key);
+            property.properties.push(childProperty);
+        } else {
+            // Handle array values.
+            if (configPropertyType === ConfigType.ARRAY) {
+                isArrayProperty = true;
+                configPropertyType = configPropertyValues[ITEMS][TYPE];
+            }
+
+            const required = isRequired(key, requiredProperties);
+            const idValue = property.id + "-" + (index + 1);
+
+            const element: Element = setElement(idValue, isArrayProperty, configPropertyType, key, required);
+            if (element) {
+                property.properties.push(element);
+            }
+        }
+    });
+    return property;
+}
+
+function setExistingValues(properties: Property, configs: object) {
+    const orgName = Object.keys(configs)[0];
+    const packageConfig: object = configs[orgName];
+    const packageName = Object.keys(packageConfig)[0];
+
+    // Validate the existing values with the config schema
+    if (orgName !== metaData.orgName || packageName !== metaData.packageName) {
+        // tslint:disable-next-line: no-console
+        console.debug("Mismatching metadata found in the config schema and existing data");
+        return;
+    }
+
+    // Existing config values without metadata
+    const configValues = packageConfig[packageName];
+    // Existing property values without metadata
+    const configProperties = properties[PROPERTIES];
+
+    setConfigValue(configProperties, configValues);
+
+    properties[PROPERTIES] = configProperties;
+    return properties;
+}
+
+function setConfigValue(configProperties: object, configValues: object) {
+    Object.keys(configProperties).forEach((key) => {
+        if (instanceOfElement(configProperties[key])) {
+            const value = getValue(configProperties[key].name, configValues);
+            configProperties[key].value = value;
+        } else {
+            const value = getValue(configProperties[key].name, configValues);
+            setConfigValue(configProperties[key][PROPERTIES], value);
+        }
+    });
+}
+
+function instanceOfElement(data: any): boolean {
+    return data.type !== undefined;
+}
+
+function getValue(key: string, obj: object): any {
+    const keys = Object.keys(obj).filter((x) => x === key);
+    if (keys.length > 0) {
+        return obj[keys[0]];
+    }
+}
+
+function setElement(id: string, isArray: boolean, type: string, name: string, required: boolean): Element {
+    return {
+        id,
+        isArray,
+        name,
+        required,
+        type: getType(type),
+    };
+}
+
+// Check if a property is required.
+function isRequired(propertyName: string, requiredList: string[]): boolean {
+    let required: boolean = false;
+    if (requiredList && requiredList.length > 0) {
+        required = requiredList.indexOf(propertyName) > -1;
+    }
+    return required;
+}
+
+// Get the enum from a string value.
+function getType(type: string): ConfigType {
+    // Handle a possible inconsistency in the language feature.
+    if (type === "integer") {
+        type = "number";
+    }
+
+    const keys = Object.keys(ConfigType).filter((x) => ConfigType[x] === type);
+    return keys.length > 0 ? ConfigType[keys[0]] : ConfigType.UNSUPPORTED;
+}
+
+// -----------------------------------
 
 export interface ConfigProperty {
     id: string;
@@ -50,9 +220,6 @@ export interface ConfigFormProps {
     onClickPrimaryButton: (configProperties: ConfigProperties[]) => void;
 }
 
-const type: string = "type";
-const description: string = "description";
-
 function isUserDefinedModule(propertyObj: any): boolean {
     let isModule = false;
     Object.keys(propertyObj).forEach((key) => {
@@ -72,6 +239,12 @@ export const ConfigForm = ({
   }: ConfigFormProps) => {
     const [configs, setConfigs] = useState(new Array<ConfigProperties>());
     const [submitType, setSubmitType] = useState("");
+
+    // ---------
+    const packageConfig: object = getPackageConfig(configSchema);
+    let properties = setProperties(packageConfig);
+    setExistingValues(properties, existingConfigs);
+    console.log(properties);
 
     const configJsonSchema = configSchema;
 
@@ -133,11 +306,11 @@ export const ConfigForm = ({
 
         const moduleEntry = configProperties.findIndex((e) => e.moduleName === moduleName);
         const config: ConfigProperty = {
-            description: propertyObj[description],
+            description: propertyObj[DESCRIPTION],
             id: moduleName + "-" + configName,
             name: configName,
             required: isRequired,
-            type: propertyObj[type],
+            type: propertyObj[TYPE],
         };
 
         if (configProperties[moduleEntry] !== undefined) {
