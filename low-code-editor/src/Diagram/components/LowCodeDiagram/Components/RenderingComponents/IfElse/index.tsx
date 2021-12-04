@@ -291,7 +291,7 @@ export function IfElse(props: IfElseProps) {
                     let isElseIfBlockExist: boolean = block?.kind === "IfElseStatement";
                     let id = 1;
                     while (isElseIfBlockExist) {
-                        const expression = block?.condition?.source.trim() ;
+                        const expression = block?.condition?.source.trim();
                         const position = block?.condition?.position;
                         conditions.push({id, expression, position});
                         isElseIfBlockExist = (block?.elseBody?.elseBody as IfElseStatement)?.kind === "IfElseStatement";
