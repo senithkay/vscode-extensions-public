@@ -238,7 +238,7 @@ export function FieldEditor(props: FieldEditorProps) {
                             <>
                                 <Typography
                                     variant='body2'
-                                    className={classnames(recordClasses.equalTokenWrapper)}
+                                    className={classnames(recordClasses.fieldEditorEqualsTokenWrapper)}
                                 >
                                     =
                                 </Typography>

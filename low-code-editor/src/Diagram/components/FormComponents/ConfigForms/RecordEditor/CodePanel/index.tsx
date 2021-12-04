@@ -44,6 +44,13 @@ export function CodePanel() {
     });
 
     const handleRecordSave = () => {
+        if (state.currentField && state.currentField.name  === "" && (state.currentField.value === "" ||
+            state.currentField.value === undefined) && state.currentField.type === "" &&
+            state.currentField.isEditInProgress) {
+            // Removing draft field is there are any
+            const index = state.currentRecord.fields.indexOf(state.currentField);
+            state.currentRecord.fields.splice(index, 1);
+        }
         if (state.recordModel.isTypeDefinition) {
             const isNewTypeDesc = (state.targetPosition !== undefined);
             const accessModifier = state.recordModel.isPublic ? "public" : null;
@@ -82,6 +89,7 @@ export function CodePanel() {
             <FormHeaderSection
                 formTitle={"lowcode.develop.configForms.recordEditor.codePanel.title"}
                 defaultMessage={"Record Configuration"}
+                onCancel={state.onCancel}
             />
             <div className={overlayClasses.formWrapper}>
                 <div className={recordClasses.recordFieldWrapper}>
@@ -93,8 +101,7 @@ export function CodePanel() {
                         <PrimaryButton
                             dataTestId={"record-from-json-save-btn"}
                             text={saveButtonText}
-                            disabled={state.isEditorInvalid || (state.currentField && state.currentField.name === "" ||
-                                state.currentField?.type === "")}
+                            disabled={state.isEditorInvalid}
                             fullWidth={false}
                             onClick={handleRecordSave}
                         />

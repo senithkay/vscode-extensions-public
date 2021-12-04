@@ -175,9 +175,8 @@ export function getGeneratedCode(model: Field, isTypeDef: boolean): string {
         codeGenerated = recordBegin + fieldCode + recordEnd + "\n";
     } else {
         const fieldModel = model as SimpleField;
-        codeGenerated = `${fieldModel.type}${fieldModel.isArray ? "[]" : ""}${fieldModel.isFieldTypeOptional ? "?" :
-            ""} ${fieldModel.name}${fieldModel.isFieldOptional ? "?" : ""} ${
-            fieldModel.value ? ` = ${fieldModel.value}` : ""};\n`;
+        codeGenerated = `${fieldModel.type}${fieldModel.isArray ? "[]" : ""} ${fieldModel.name}${fieldModel.
+            isFieldOptional ? "?" : ""} ${fieldModel.value ? ` = ${fieldModel.value}` : ""};\n`;
     }
     return codeGenerated;
 }

@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 
 import { Typography } from "@material-ui/core";
 
@@ -23,24 +23,34 @@ import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextIn
 import { recordStyles } from "../style";
 import { RecordModel, SimpleField } from "../types";
 import { genRecordName } from "../utils";
+import ActiveOptional from "../../../../../../assets/icons/ActiveOptional";
+import InactiveOptional from "../../../../../../assets/icons/InactiveOptional";
+import ActivePublic from "../../../../../../assets/icons/ActivePublic";
+import InactivePublic from "../../../../../../assets/icons/InactivePublic";
+import ActiveClosed from "../../../../../../assets/icons/ActiveClosed";
+import InactiveClosed from "../../../../../../assets/icons/InactiveClosed";
+import ActiveArray from "../../../../../../assets/icons/ActiveArray";
+import InactiveArray from "../../../../../../assets/icons/InactiveArray";
 
 export interface RecordHeaderProps {
     recordModel: RecordModel;
     parentRecordModel: RecordModel;
     recordExpanded: boolean;
+    recordEditInProgress: boolean;
     toggleRecordExpand: () => void;
+    onEditRecord: () => void;
 }
 
 export function RecordHeader(props: RecordHeaderProps) {
-    const { recordModel, parentRecordModel, recordExpanded, toggleRecordExpand } = props;
+    const { recordModel, parentRecordModel, recordExpanded, recordEditInProgress, toggleRecordExpand,
+        onEditRecord } = props;
 
     const recordClasses = recordStyles();
 
     const { state, callBacks } = useContext(Context);
 
     const [recordNameError, setRecordNameError] = useState<string>("");
-    const [isRecordEditInProgress, setIsRecordEditInProgress] = useState((recordModel.name === "") ||
-        (recordModel.name === undefined));
+    const [isRecordEditInProgress, setIsRecordEditInProgress] = useState(recordEditInProgress);
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 
     const handleIsClosedChange = () => {
@@ -139,30 +149,8 @@ export function RecordHeader(props: RecordHeaderProps) {
         callBacks.onUpdateRecordSelection(false);
     };
 
-    const handleRecordClick = () => {
-        if (state.currentField && state.currentField.name  === "" && (state.currentField.value === "" ||
-            state.currentField.value === undefined) && state.currentField.type === "" &&
-            state.currentField.isEditInProgress) {
-            // Removing draft field
-            const index = state.currentRecord.fields.indexOf(state.currentField);
-            state.currentRecord.fields.splice(index, 1);
-
-            state.currentRecord.isActive = false;
-            recordModel.isActive = true;
-            setIsRecordEditInProgress(true);
-            callBacks.onUpdateCurrentRecord(recordModel);
-            callBacks.onUpdateModel(state.recordModel);
-            callBacks.onUpdateRecordSelection(true);
-            callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
-        } else if (!(state.isEditorInvalid || state.currentField?.name === "" || state.currentField?.type === "")) {
-            state.currentRecord.isActive = false;
-            recordModel.isActive = true;
-            setIsRecordEditInProgress(true);
-            callBacks.onUpdateCurrentRecord(recordModel);
-            callBacks.onUpdateModel(state.recordModel);
-            callBacks.onUpdateRecordSelection(true);
-            callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
-        }
+    const handleRecordEdit = () => {
+        onEditRecord();
     };
 
     const accessModifier = `${recordModel.isPublic ? "public " : ""}`;
@@ -171,19 +159,8 @@ export function RecordHeader(props: RecordHeaderProps) {
     const typeDefName = `${recordModel.isTypeDefinition ? `${recordModel.name ? recordModel.name : ""}` : ""}`;
 
     useEffect(() => {
-        // Checks whether record is clicked to edit, if so resetting field insertion
-        if (state.isRecordSelected) {
-            if (state.currentRecord !== recordModel) {
-                // Setting all other objects record editing false except the record being edited;
-                setIsRecordEditInProgress(false);
-            }
-            if (state.currentField) {
-                state.currentField.isEditInProgress = false;
-                state.currentField.isActive = false;
-            }
-            callBacks.onUpdateCurrentField(state.currentField);
-        }
-    }, [state.isRecordSelected]);
+        setIsRecordEditInProgress(recordEditInProgress);
+    }, [recordEditInProgress]);
 
     return (
         <div>
@@ -225,7 +202,7 @@ export function RecordHeader(props: RecordHeaderProps) {
                             <Typography
                                 variant='body2'
                                 className={recordClasses.typeDefNameWrapper}
-                                onClick={handleRecordClick}
+                                onClick={handleRecordEdit}
                             >
                                 {typeDefName}
                             </Typography>
@@ -251,17 +228,90 @@ export function RecordHeader(props: RecordHeaderProps) {
                     {!state.isEditorInvalid && (
                         <div className={recordModel.isTypeDefinition ? recordClasses.typeDefEditBtnWrapper : recordClasses.recordHeaderBtnWrapper}>
                             {recordModel.isTypeDefinition && (
-                                <div style={{background: "green", width: 25}} onClick={handleIsPublicChange} />
+                                <div className={recordClasses.actionBtnWrapper}>
+                                    {recordModel.isPublic ? (
+                                        <div className={recordClasses.activeBtnWrapper}>
+                                            <ActivePublic
+                                                onClick={handleIsPublicChange}
+                                                toolTipTitle="Public"
+                                                toolTipContent="Make record visibility Public"
+                                            />
+                                        </div>
+                                    ): (
+                                        <div className={recordClasses.inactiveBtnWrapper}>
+                                            <InactivePublic
+                                                onClick={handleIsPublicChange}
+                                                toolTipTitle="Public"
+                                                toolTipContent="Make record visibility Public"
+                                            />
+                                        </div>
+                                    )}
+                                </div>
                             )}
-                            <div style={{background: "red", width: 25, height: 20}} onClick={handleIsClosedChange} />
+
+                            <div className={recordClasses.actionBtnWrapper}>
+                                {recordModel.isClosed ? (
+                                    <div className={recordClasses.activeBtnWrapper}>
+                                        <ActiveClosed
+                                            onClick={handleIsClosedChange}
+                                            toolTipTitle="Closed"
+                                            toolTipContent="Make record Closed"
+                                        />
+                                    </div>
+                                ) : (
+                                    <div className={recordClasses.inactiveBtnWrapper}>
+                                        <InactiveClosed
+                                            onClick={handleIsClosedChange}
+                                            toolTipTitle="Closed"
+                                            toolTipContent="Make record Closed"
+                                        />
+                                    </div>
+                                )}
+                            </div>
                             {!recordModel.isTypeDefinition && (
                                 <>
-                                    <div style={{background: "blue", width: 25, height: 20}} onClick={handleIsArrayChange} />
-                                    <div style={{background: "yellow", width: 25, height: 20}} onClick={handleOptionalChange} />
+                                    <div className={recordClasses.actionBtnWrapper}>
+                                        {recordModel.isArray ? (
+                                            <div className={recordClasses.activeBtnWrapper}>
+                                                <ActiveArray
+                                                    onClick={handleIsArrayChange}
+                                                    toolTipTitle="Array"
+                                                    toolTipContent="Make array type record"
+                                                />
+                                            </div>
+                                        ) : (
+                                            <div className={recordClasses.inactiveBtnWrapper}>
+                                                <InactiveArray
+                                                    onClick={handleIsArrayChange}
+                                                    toolTipTitle="Array"
+                                                    toolTipContent="Make array type Record"
+                                                />
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className={recordClasses.actionBtnWrapper}>
+                                        {recordModel.isOptional ? (
+                                            <div className={recordClasses.activeBtnWrapper}>
+                                                <ActiveOptional
+                                                    onClick={handleOptionalChange}
+                                                    toolTipTitle="Optional"
+                                                    toolTipContent="Make optional record"
+                                                />
+                                            </div>
+                                        ) : (
+                                            <div className={recordClasses.inactiveBtnWrapper}>
+                                                <InactiveOptional
+                                                    onClick={handleOptionalChange}
+                                                    toolTipTitle="Optional"
+                                                    toolTipContent="Make optional record"
+                                                />
+                                            </div>
+                                        )}
+                                    </div>
                                 </>
                             )}
                             <div className={recordClasses.actionBtnWrapper}>
-                                <EditButton onClick={handleRecordClick}/>
+                                <EditButton onClick={handleRecordEdit}/>
                             </div>
                             {!recordModel.isTypeDefinition && (
                                 <div className={recordClasses.actionBtnWrapper}>

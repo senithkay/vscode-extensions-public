@@ -171,6 +171,21 @@ export const recordStyles = makeStyles((theme: Theme) =>
             cursor: "pointer",
             width: 25
         },
+        activeBtnWrapper: {
+            paddingLeft: 2,
+            marginLeft: 2,
+            marginRight: 2,
+            cursor: "pointer",
+            width: 20,
+            backgroundColor: "#C5EAFE"
+        },
+        inactiveBtnWrapper: {
+            paddingLeft: 2,
+            marginLeft: 2,
+            marginRight: 2,
+            cursor: "pointer",
+            width: 20
+        },
         iconBtn: {
             padding: 0
         },
@@ -309,6 +324,11 @@ export const recordStyles = makeStyles((theme: Theme) =>
             width: 10,
             color: "#000"
         },
+        singleTokenWrapperWithMargin : {
+            width: 10,
+            color: "#000",
+            marginTop: "3px !important",
+        },
         recordEndSemicolonWrapper: {
             width: 10,
             marginTop: "3px !important",
@@ -321,6 +341,13 @@ export const recordStyles = makeStyles((theme: Theme) =>
         },
         equalTokenWrapper: {
             margin: "0 5px",
+            width: 10,
+            color: "#000"
+        },
+        fieldEditorEqualsTokenWrapper: {
+            marginTop: "5px !important",
+            marginLeft: "5px !important",
+            marginRight: "5px !important",
             width: 10,
             color: "#000"
         },

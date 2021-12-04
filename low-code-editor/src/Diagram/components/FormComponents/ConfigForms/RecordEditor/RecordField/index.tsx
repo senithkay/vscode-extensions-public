@@ -279,7 +279,7 @@ export function RecordField(props: CodePanelProps) {
         callBacks.onUpdateCurrentField(state.currentField);
     };
 
-    const handleRecordClick = () => {
+    const handleRecordEdit = () => {
         if (state.currentField && state.currentField.name  === "" && (state.currentField.value === "" ||
             state.currentField.value === undefined) && state.currentField.type === "" &&
             state.currentField.isEditInProgress) {
@@ -293,7 +293,8 @@ export function RecordField(props: CodePanelProps) {
             callBacks.onUpdateModel(state.recordModel);
             callBacks.onUpdateRecordSelection(true);
             callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
-        } else if (!(state.isEditorInvalid || state.currentField?.name === "" || state.currentField?.type === "")) {
+        } else if ((!(state.isEditorInvalid || state.currentField?.name === "" || state.currentField?.type === "")) ||
+            (!state.currentField)) {
             state.currentRecord.isActive = false;
             recordModel.isActive = true;
             setIsRecordEditInProgress(true);
@@ -337,8 +338,7 @@ export function RecordField(props: CodePanelProps) {
         }
     });
 
-    const recordEn = `${recordModel.isClosed ? "|}" : "}"}${recordModel.isArray ? "[]" :
-        ""}${recordModel.isOptional ? "?" : ""}`;
+    const recordEn = `${recordModel.isClosed ? "| }" : "}"}${recordModel.isArray ? "[]" : ""}`;
     const typeDescName = `${recordModel.isTypeDefinition ? "" : `${recordModel.name}`}`;
 
     useEffect(() => {
@@ -366,7 +366,9 @@ export function RecordField(props: CodePanelProps) {
                     recordModel={recordModel}
                     parentRecordModel={parentRecordModel}
                     recordExpanded={isRecordExpanded}
+                    recordEditInProgress={isRecordEditInProgress}
                     toggleRecordExpand={handleRecordExpand}
+                    onEditRecord={handleRecordEdit}
                 />
                 {isRecordExpanded && (
                     <div className={recordModel?.isActive ? recordClasses.activeRecordSubFieldWrapper : recordClasses.recordSubFieldWrapper}>
@@ -424,9 +426,18 @@ export function RecordField(props: CodePanelProps) {
                         <Typography
                             variant='body2'
                             className={recordClasses.endRecordCode}
-                            onClick={handleRecordClick}
+                            onClick={handleRecordEdit}
                         >
                             {typeDescName}
+                        </Typography>
+                    )}
+                    {recordModel.isOptional && (
+                        <Typography
+                            variant='body2'
+                            className={recordClasses.singleTokenWrapperWithMargin}
+                            onClick={handleRecordEdit}
+                        >
+                            ?
                         </Typography>
                     )}
                     <Typography
