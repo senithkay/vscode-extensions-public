@@ -22,14 +22,23 @@ import React from "react";
 import { Checkbox, FormControlLabel } from "@material-ui/core";
 
 export interface CheckBoxInputProps {
+    key: string;
     label: string;
     existingValue: boolean;
+    setCheckBoxValue: (key: string, value: any) => void;
 }
 
 export function CheckBoxInput(props: CheckBoxInputProps) {
-    const { label, existingValue } = props;
+    const { key, label, existingValue, setCheckBoxValue } = props;
+
+    const handleChange = (e: any) => {
+        setCheckBoxValue(key, e.target.value);
+    };
 
     return (
-        <FormControlLabel control={<Checkbox defaultChecked={existingValue} />} label={label} />
+        <FormControlLabel
+            control={<Checkbox defaultChecked={existingValue} color="primary" onChange={handleChange} />}
+            label={label}
+        />
     );
 }

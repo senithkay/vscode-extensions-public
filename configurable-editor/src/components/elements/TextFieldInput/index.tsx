@@ -22,26 +22,35 @@ import React from "react";
 import { TextField } from "@material-ui/core";
 
 export interface TextFieldInputProps {
+    key: string;
     isRequired: boolean;
     existingValue: any;
     type: string;
+    setTextFieldValue: (key: string, value: any) => void;
 }
 
 export function TextFieldInput(props: TextFieldInputProps) {
-    const { isRequired, existingValue, type } = props;
+    const { key, isRequired, existingValue, type, setTextFieldValue } = props;
 
     let label: string = "";
     if (isRequired) {
         label = "Required";
     }
 
+    const handleChange = (e: any) => {
+        setTextFieldValue(key, e.target.value);
+    };
+
     return (
         <TextField
             required={isRequired}
             variant="outlined"
             label={label}
+            fullWidth={true}
             defaultValue={existingValue}
             type={type}
+            margin="normal"
+            onChange={handleChange}
         />
     );
 }

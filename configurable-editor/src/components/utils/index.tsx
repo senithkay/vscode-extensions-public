@@ -155,7 +155,6 @@ function setConfigValue(configProperties: object, configValues: object) {
     });
 }
 
-
 /**
  * Gets the config value from the config value object when provided with a key.
  * @param key The key of which the value is required.

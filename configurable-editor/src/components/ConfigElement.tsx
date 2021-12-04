@@ -24,7 +24,7 @@ import { Box, Typography } from "@material-ui/core";
 import { AddInputButton } from "./elements/AddInputButton";
 import { CheckBoxInput } from "./elements/CheckBoxInput";
 import { TextFieldInput } from "./elements/TextFieldInput";
-import { ConfigType } from "./model";
+import { ConfigType, ConfigValue } from "./model";
 import { getType } from "./utils";
 
 /**
@@ -37,6 +37,7 @@ export interface ConfigElementProps {
     name: string;
     type: ConfigType;
     value?: number | string | boolean | number[] | string[] | boolean[];
+    setConfigElement?: (configValue: ConfigValue) => void;
 }
 
 /**
@@ -65,8 +66,8 @@ export const getConfigElement = (configElementProps: ConfigElementProps) => {
     }
 
     return (
-        <Box>
-            <Typography variant="h6" component="div">
+        <Box mt={3}>
+            <Typography variant="h6" component="div" color="primary">
                 {configElementProps.name}
             </Typography>
             <Typography variant="overline" component="div">
@@ -118,13 +119,19 @@ const ConfigElement = (configElement: ConfigElementProps): any => {
 };
 
 const getInnerElement = (configElementProps: ConfigElementProps) => {
+    const handleSetElementValue = (key: string, value: any) => {
+        let configValue: ConfigValue = { key, value };
+    };
+
     switch (configElementProps.type) {
         case ConfigType.BOOLEAN:
             return (
                 <div key={configElementProps.id + "-CHECK"}>
                     <CheckBoxInput
+                        key={configElementProps.id}
                         label={configElementProps.name}
                         existingValue={configElementProps.value as boolean}
+                        setCheckBoxValue={handleSetElementValue}
                     />
                 </div>
             );
@@ -133,9 +140,11 @@ const getInnerElement = (configElementProps: ConfigElementProps) => {
             return (
                 <div key={configElementProps.id + "-FIELD"}>
                     <TextFieldInput
+                        key={configElementProps.id}
                         isRequired={configElementProps.isRequired}
                         existingValue={configElementProps.value}
                         type={configElementProps.type}
+                        setTextFieldValue={handleSetElementValue}
                     />
                 </div>
             );

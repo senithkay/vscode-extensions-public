@@ -16,24 +16,16 @@
  * under the License.
  *
  */
-import React from "react";
+import React, { useState } from "react";
 
 import { Box, Button, Card, CardActions, CardContent, Container, Typography } from "@material-ui/core";
 
 import { ConfigElementProps, getConfigElement } from "./ConfigElement";
 import { ConfigObjectProps, getConfigObject } from "./ConfigObject";
-import { MetaData, SchemaConstants, setMetaData } from "./model";
+import { ConfigValue, MetaData, SchemaConstants, setMetaData } from "./model";
 import { getConfigProperties, instanceOfConfigElement, setExistingValues } from "./utils";
 
 let metaData: MetaData = null;
-
-/**
- * A high level config value which can contain nested objects.
- */
-interface ConfigValue {
-    name: string;
-    value: number | string | boolean | number[] | string[] | boolean[] | ConfigValue;
-}
 
 /**
  * Returns the config schema values for a package, removes the 2 top most root
@@ -82,12 +74,21 @@ const handleSubmit = (event: any) => {
     // console.log(JSON.stringify(event.target));
 };
 
-export const ConfigForm = ({configSchema, existingConfigs, defaultButtonText, primaryButtonText }: ConfigFormProps) => {
+export const ConfigForm = ({ configSchema, existingConfigs, defaultButtonText,
+                             primaryButtonText }: ConfigFormProps) => {
+    const [configValue, setConfigValue] = useState(new Array<ConfigValue>());
+
     // The config property object retrieved from the config schema.
     const configObjectProps: ConfigObjectProps = getConfigProperties(getPackageConfig(configSchema));
 
     // Set the existing config values to the config property obtained.
     setExistingValues(configObjectProps, existingConfigs, metaData);
+
+    const handleSetConfigValue = (config: ConfigValue) => {
+        const existingValues: ConfigValue[] = configValue;
+        existingValues.push(config);
+        setConfigValue(existingValues);
+    };
 
     return (
         <Box sx={{ mt: 5 }}>
@@ -99,31 +100,33 @@ export const ConfigForm = ({configSchema, existingConfigs, defaultButtonText, pr
                                 Configurable Editor
                             </Typography>
                         </Box>
-                        <Typography variant="body2" component="div">
-                            <form className="ConfigForm" onSubmit={handleSubmit}>
-                                {configObjectProps.properties.map(getConfigForm)}
-                                <CardActions style={{ justifyContent: "center" }}>
-                                    <Box m={2} pt={3} mb={6}>
-                                        <Button
-                                            variant="contained"
-                                            color="primary"
-                                            type="submit"
-                                        >
-                                            {defaultButtonText}
-                                        </Button>
-                                    </Box>
-                                    <Box m={2} pt={3} mb={6}>
-                                        <Button
-                                            variant="contained"
-                                            color="primary"
-                                            type="submit"
-                                        >
-                                            {primaryButtonText}
-                                        </Button>
-                                    </Box>
-                                </CardActions>
-                            </form>
-                        </Typography>
+                        <Box m={3} p={1}>
+                            <Typography variant="body2" component="div">
+                                <form className="ConfigForm" onSubmit={handleSubmit}>
+                                    {configObjectProps.properties.map(getConfigForm)}
+                                    <CardActions style={{ justifyContent: "center" }}>
+                                        <Box m={2} pt={3} mb={6}>
+                                            <Button
+                                                variant="contained"
+                                                color="primary"
+                                                type="submit"
+                                            >
+                                                {defaultButtonText}
+                                            </Button>
+                                        </Box>
+                                        <Box m={2} pt={3} mb={6}>
+                                            <Button
+                                                variant="contained"
+                                                color="primary"
+                                                type="submit"
+                                            >
+                                                {primaryButtonText}
+                                            </Button>
+                                        </Box>
+                                    </CardActions>
+                                </form>
+                            </Typography>
+                        </Box>
                     </CardContent>
                 </Card>
             </Container>

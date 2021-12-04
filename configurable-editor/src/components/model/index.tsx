@@ -48,6 +48,11 @@ export interface MetaData {
     packageName: string;
 }
 
+export interface ConfigValue {
+    key: string;
+    value: any;
+}
+
 /**
  * Set the metadata values.
  * @param orgName     The organization of the Ballerina project.

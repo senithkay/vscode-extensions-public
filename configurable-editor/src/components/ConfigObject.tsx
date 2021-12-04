@@ -19,9 +19,10 @@
 
 import React from "react";
 
-import { Card, CardContent, Typography } from "@material-ui/core";
+import { Box, Card, CardContent, Typography } from "@material-ui/core";
 
 import { ConfigElementProps, getConfigElement } from "./ConfigElement";
+import { ConfigValue } from "./model";
 import { instanceOfConfigElement } from "./utils";
 
 /**
@@ -31,6 +32,7 @@ export interface ConfigObjectProps {
     id: string;
     name: string;
     properties?: Array<ConfigElementProps | ConfigObjectProps>;
+    setConfigElement?: (configValue: ConfigValue) => void;
 }
 
 export const getConfigObject = (configObjectProps: ConfigObjectProps) => {
@@ -39,16 +41,18 @@ export const getConfigObject = (configObjectProps: ConfigObjectProps) => {
     }
 
     return (
-        <Card variant="outlined">
-            <CardContent>
-                <Typography variant="h6" component="div">
-                    {configObjectProps.name}
-                </Typography>
-                <Typography variant="body2" component="div">
-                    {<ConfigObject {...configObjectProps.properties}/>}
-                </Typography>
-            </CardContent>
-        </Card>
+        <Box m={2} pt={1}>
+            <Card variant="outlined">
+                <CardContent>
+                    <Typography variant="h6" component="div">
+                        {configObjectProps.name}
+                    </Typography>
+                    <Typography variant="body2" component="div">
+                        {<ConfigObject {...configObjectProps.properties}/>}
+                    </Typography>
+                </CardContent>
+            </Card>
+        </Box>
     );
 };
 

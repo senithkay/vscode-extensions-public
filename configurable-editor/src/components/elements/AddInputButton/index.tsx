@@ -19,14 +19,16 @@
 
 import React from "react";
 
-import { Button } from "@material-ui/core";
+import { Box, Button } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 
 export function AddInputButton() {
 
     return (
-        <Button variant="text" startIcon={<AddIcon />}>
-            Add
-        </Button>
+        <Box mb={2} mt={2}>
+            <Button variant="text" startIcon={<AddIcon />}>
+                Add
+            </Button>
+        </Box>
     );
 }
