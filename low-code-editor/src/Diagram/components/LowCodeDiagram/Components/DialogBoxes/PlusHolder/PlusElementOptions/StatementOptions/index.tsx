@@ -133,7 +133,7 @@ export function StatementOptions(props: StatementOptionsProps) {
         actionStatement: {
             title: intl.formatMessage({
                 id: "lowcode.develop.plusHolder.plusElements.statements.action.tooltip.title",
-                defaultMessage: "An action can be used to invoke operations of an existing connector endpoint."
+                defaultMessage: "An action can be used to invoke operations of an existing connector."
             })
         }
     }

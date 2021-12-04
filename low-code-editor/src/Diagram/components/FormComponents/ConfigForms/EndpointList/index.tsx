@@ -87,7 +87,7 @@ export function EndpointList(props: FormGeneratorProps) {
                                 <Typography className={classes.emptyTitle}>
                                     <FormattedMessage
                                         id="lowcode.develop.configForms.endpoint.empty"
-                                        defaultMessage="No connector endpoints found"
+                                        defaultMessage="No existing connectors found"
                                     />
                                 </Typography>
                                 <Box marginY={2}>
@@ -104,7 +104,7 @@ export function EndpointList(props: FormGeneratorProps) {
                                 <Typography>
                                     <FormattedMessage
                                         id="lowcode.develop.configForms.endpoint.subtitle"
-                                        defaultMessage="Select a connector endpoint"
+                                        defaultMessage="Select a connector"
                                     />
                                 </Typography>
                                 <List>{endpointList}</List>

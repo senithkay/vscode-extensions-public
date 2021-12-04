@@ -443,7 +443,7 @@
     "lowcode.develop.manualwebhookConfigWizard.saveWehHookButton.text": "Save Webhook",
     "lowcode.develop.plusHolder.plusElements.connections.title": "API Calls",
     "lowcode.develop.plusHolder.plusElements.statements.action.title": "Action",
-    "lowcode.develop.plusHolder.plusElements.statements.action.tooltip.title": "An action can be used to invoke operations of an existing connector endpoint.",
+    "lowcode.develop.plusHolder.plusElements.statements.action.tooltip.title": "An action can be used to invoke operations of an existing connector.",
     "lowcode.develop.plusHolder.plusElements.statements.chooseFromList.label": "Select from list",
     "lowcode.develop.plusHolder.plusElements.statements.connector.title": "Connector",
     "lowcode.develop.plusHolder.plusElements.statements.connector.tooltip.title": "A connector can be used to link with external applications.",
