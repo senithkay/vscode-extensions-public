@@ -24,7 +24,8 @@ import { Box, Typography } from "@material-ui/core";
 import { AddInputButton } from "./elements/AddInputButton";
 import { CheckBoxInput } from "./elements/CheckBoxInput";
 import { TextFieldInput } from "./elements/TextFieldInput";
-import { ConfigType } from "./model/config-schema";
+import { ConfigType } from "./model";
+import { getType } from "./utils";
 
 /**
  * A leaf level config property model.
@@ -36,6 +37,26 @@ export interface ConfigElementProps {
     name: string;
     type: ConfigType;
     value?: number | string | boolean | number[] | string[] | boolean[];
+}
+
+/**
+ * Returns a config `ConfigElementProps` when the list of parameters are provided.
+ * @param id         An id for the config element.
+ * @param isArray    The boolean property specifying whether the element is an array.
+ * @param type       The type of the config element, arrays should have the component type.
+ * @param name       The name of the config element.
+ * @param isRequired The boolean property specifying whether the element is a required one.
+ * @returns          Returns the config `ConfigElementProps` object.
+ */
+export function setConfigElementProps(id: string, isArray: boolean, type: string, name: string,
+                                      isRequired: boolean): ConfigElementProps {
+    return {
+        id,
+        isArray,
+        isRequired,
+        name,
+        type: getType(type),
+    };
 }
 
 export const getConfigElement = (configElementProps: ConfigElementProps) => {

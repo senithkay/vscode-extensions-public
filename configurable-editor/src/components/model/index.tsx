@@ -17,4 +17,45 @@
  *
  */
 
+/**
+ * Common properties in the config schema.
+ */
+export enum SchemaConstants {
+    ITEMS = "items",
+    TYPE = "type",
+    DESCRIPTION = "description",
+    PROPERTIES = "properties",
+    REQUIRED = "required",
+}
 
+/**
+ * Types of config values mapped into the model from the config schema.
+ */
+export enum ConfigType {
+    ARRAY = "array",
+    BOOLEAN = "boolean",
+    NUMBER = "number", // Represent both number and integer.
+    OBJECT = "object",
+    STRING = "string",
+    UNSUPPORTED = "unsupported", // Types other than the above ones.
+}
+
+/**
+ * These values are used to validate the config schema with that of existing configs, optional feature.
+ */
+export interface MetaData {
+    orgName: string;
+    packageName: string;
+}
+
+/**
+ * Set the metadata values.
+ * @param orgName     The organization of the Ballerina project.
+ * @param packageName The package name of the Ballerina project.
+ */
+export function setMetaData(orgName: string, packageName: string): MetaData {
+    return {
+        orgName,
+        packageName,
+    };
+}

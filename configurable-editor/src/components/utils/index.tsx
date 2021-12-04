@@ -17,6 +17,10 @@
  *
  */
 
+import { ConfigElementProps, setConfigElementProps } from "../ConfigElement";
+import { ConfigObjectProps } from "../ConfigObject";
+import { ConfigType, MetaData, SchemaConstants } from "../model";
+
 /**
  * Checks if the provided object is a leaf property or not.
  * @param data The object that needs to be evaluated.
@@ -24,4 +28,145 @@
  */
 export function instanceOfConfigElement(data: any): boolean {
     return data.type !== undefined;
+}
+
+/**
+ * Gets the `ConfigType` enum type from a string value.
+ * @param type The config type as a string value.
+ * @returns    The corresponding `ConfigType` enum.
+ */
+export function getType(type: string): ConfigType {
+    // Handle a possible inconsistency in the language feature.
+    if (type === "integer") {
+        type = "number";
+    }
+
+    const keys = Object.keys(ConfigType).filter((x) => ConfigType[x] === type);
+    return keys.length > 0 ? ConfigType[keys[0]] : ConfigType.UNSUPPORTED;
+}
+
+/**
+ * Recursively set the config properties from the config schema object.
+ * @param configObj Config property object. The first element of the recursion is the
+ *                  config schema object without the 2 top most root properties.
+ * @param id        An identifier for the config property object.
+ * @param name      Name of the config property object, the first one is set to 'root'.
+ * @returns         A populated config `ConfigObjectProps` object.
+ */
+export function getConfigProperties(configObj: object, id: string = "1", name: string = "root"): ConfigObjectProps {
+    const propertiesObj: object = configObj[SchemaConstants.PROPERTIES];
+    const requiredProperties: string[] = configObj[SchemaConstants.REQUIRED];
+    const configProperty: ConfigObjectProps = { id: String(id), name, properties: [] };
+
+    Object.keys(propertiesObj).forEach((key, index) => {
+        let isArrayProperty: boolean = false;
+        const configPropertyValues = propertiesObj[key];
+        let configPropertyType: string = configPropertyValues[SchemaConstants.TYPE];
+
+        if (configPropertyType === ConfigType.OBJECT) {
+            // Iterate through nested objects.
+            const childProperty: ConfigObjectProps = getConfigProperties(configPropertyValues,
+                id + "-" + (index + 1), key);
+            configProperty.properties.push(childProperty);
+        } else {
+            // Handle array values.
+            if (configPropertyType === ConfigType.ARRAY) {
+                isArrayProperty = true;
+                configPropertyType = configPropertyValues[SchemaConstants.ITEMS][SchemaConstants.TYPE];
+            }
+
+            const required = isRequired(key, requiredProperties);
+            const idValue = configProperty.id + "-" + (index + 1);
+
+            const element: ConfigElementProps = setConfigElementProps(idValue, isArrayProperty,
+                configPropertyType, key, required);
+            if (element) {
+                configProperty.properties.push(element);
+            }
+        }
+    });
+    return configProperty;
+}
+
+/**
+ * Check if a property is marked as a required property.
+ * @param propertyName Name of the property.
+ * @param requiredList Array of required properties.
+ * @returns            Returns true if the property is required and vice versa.
+ */
+function isRequired(propertyName: string, requiredList: string[]): boolean {
+    let required: boolean = false;
+    if (requiredList && requiredList.length > 0) {
+        required = requiredList.indexOf(propertyName) > -1;
+    }
+    return required;
+}
+
+/**
+ * Update the config `ConfigObjectProps` object with existing values provided through a JSON object.
+ * @param properties The populated config `ConfigObjectProps` object.
+ * @param configs    Existing config values provided as an object complying with the config schema.
+ * @returns          The config `ConfigObjectProps` object updated with the value property.
+ */
+export function setExistingValues(properties: ConfigObjectProps,
+                                  configs: object, metaData: MetaData): ConfigObjectProps {
+    const orgName = Object.keys(configs)[0];
+    if (orgName === undefined) {
+        return;
+    }
+
+    const packageConfig: object = configs[orgName];
+    const packageName = Object.keys(packageConfig)[0];
+    if (packageName === undefined) {
+        return;
+    }
+
+    // Validate the existing values with the config schema.
+    if (orgName !== metaData.orgName || packageName !== metaData.packageName) {
+        // tslint:disable-next-line: no-console
+        console.debug("Mismatching metadata found in the config schema and existing data");
+    }
+
+    // Existing config values without metadata.
+    const configValues = packageConfig[packageName];
+    // Existing property values without metadata
+    const configProperties = properties[SchemaConstants.PROPERTIES];
+
+    setConfigValue(configProperties, configValues);
+
+    properties[SchemaConstants.PROPERTIES] = configProperties;
+    return properties;
+}
+
+/**
+ * Recursively set config values to config properties, including the nested objects.
+ * @param configProperties The config properties object, could be a `ConfigProperty` or `ConfigElement`.
+ * @param configValues     The config values object, could be a nested value.
+ */
+function setConfigValue(configProperties: object, configValues: object) {
+    Object.keys(configProperties).forEach((key) => {
+        if (instanceOfConfigElement(configProperties[key])) {
+            const value = getValue(configProperties[key].name, configValues);
+            configProperties[key].value = value;
+        } else {
+            const value = getValue(configProperties[key].name, configValues);
+            setConfigValue(configProperties[key][SchemaConstants.PROPERTIES], value);
+        }
+    });
+}
+
+
+/**
+ * Gets the config value from the config value object when provided with a key.
+ * @param key The key of which the value is required.
+ * @param obj The config value object containing the entries that needs to be iterated.
+ * @returns   The config value, it could be a nested object value as well.
+ */
+function getValue(key: string, obj: object): any {
+    if (key && obj) {
+        const keys = Object.keys(obj).filter((x) => x === key);
+        if (keys.length > 0) {
+            return obj[keys[0]];
+        }
+    }
 }
