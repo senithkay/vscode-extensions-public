@@ -42,6 +42,7 @@ grammar/ballerina-grammar/build-tm.js
 grammar/ballerina-grammar/build-monarch.js
 grammar/ballerina-grammar/test-scripts/
 grammar/ballerina-grammar/test/
+grammar/ballerina-grammar/node_modules
 scripts/
 resources/jslibs/index.d.ts
 web/

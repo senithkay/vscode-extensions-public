@@ -325,7 +325,7 @@ class DiagramPanel {
 			{
 				methodName: "resolveMissingDependencyByCodeAction",
 				handler: async (args: any[]): Promise<boolean> => {
-					resolveMissingDependencyByCodeAction(args[0],args[1], args[2], langClient);
+					resolveMissingDependencyByCodeAction(args[0], args[1], args[2], langClient);
 					return true;
 				}
 			},
