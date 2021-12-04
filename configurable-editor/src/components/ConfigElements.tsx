@@ -27,11 +27,11 @@ function ConfigElements(props: any) {
 
     const configProperties: ConfigProperties = {
         moduleName: props.moduleName,
-        properties: new Array<ConfigProperty>()
+        properties: new Array<ConfigProperty>(),
     };
 
     const handleSetConfig = (e: ConfigProperty) => {
-        const existingConfig = configProperty.findIndex(property => property.name === e.name);
+        const existingConfig = configProperty.findIndex((property) => property.name === e.name);
         if (existingConfig > -1) {
             configProperty[existingConfig].value = e.value;
         } else {
@@ -40,22 +40,22 @@ function ConfigElements(props: any) {
         setConfigProperty(configProperty);
         configProperties.properties = configProperty;
         props.setConfigs(configProperties);
-    }
+    };
 
     const getConfigElements = (element: ConfigProperty, index: number) => {
-                    return (
-                        <ConfigElement
-                            key={props.moduleName + index}
-                            name={element.name}
-                            type={element.type}
-                            description={element.description}
-                            required={element.required}
-                            moduleName={props.moduleName}
-                            value={element.value}
-                            setConfigValue={handleSetConfig.bind}
-                        />
-                    );
-                }
+        return (
+            <ConfigElement
+                key={props.moduleName + index}
+                name={element.name}
+                type={element.type}
+                description={element.description}
+                required={element.required}
+                moduleName={props.moduleName}
+                value={element.value}
+                setConfigValue={handleSetConfig}
+            />
+        );
+    };
 
     return (
         <div className="ConfigElements">

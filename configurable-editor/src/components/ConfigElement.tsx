@@ -26,21 +26,21 @@ import { ConfigProperty } from "./ConfigForm";
 function ConfigElement(props: any) {
 
     const configProperty: ConfigProperty = {
+        description: props.description,
         id: props.moduleName + "-" + props.name,
         name: props.name,
+        required: props.required,
         type: props.type,
-        description: props.description,
-        required: props.required
     };
 
     const handleChange = (e: any) => {
         configProperty.value = e.target.value;
-        props.setConfigValue.bind(configProperty);
-    }
+        props.setConfigValue(configProperty);
+    };
 
     let type: string = props.type;
-    if (props.type === 'integer') {
-        type = 'number';
+    if (props.type === "integer") {
+        type = "number";
     }
 
     return (

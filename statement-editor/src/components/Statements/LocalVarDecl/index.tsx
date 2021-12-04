@@ -18,8 +18,9 @@ import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
+import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
+import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
@@ -31,6 +32,13 @@ interface LocalVarDeclProps {
 
 export function LocalVarDeclC(props: LocalVarDeclProps) {
     const { model, userInputs, diagnosticHandler } = props;
+    const stmtCtx = useContext(StatementEditorContext);
+    const { modelCtx } = stmtCtx;
+    const { currentModel } = modelCtx;
+    const hasTypedBindingPatternSelected = currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.typedBindingPattern.position);
+    const hasInitializerSelected = currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.initializer.position);
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
@@ -55,21 +63,44 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
         />
     );
 
-    const onClickOnExpression = (event: any) => {
-        event.stopPropagation()
-        expressionHandler(model.initializer, false, false,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) })
+    const onClickOnBindingPattern = (event: any) => {
+        event.stopPropagation();
+        expressionHandler(model.typedBindingPattern, false, false,
+            {expressionSuggestions: [], typeSuggestions: [], variableSuggestions: []});
     };
+
+    const onClickOnInitializer = (event: any) => {
+        event.stopPropagation();
+        expressionHandler(model.initializer, false, false,
+            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) });
+    };
+
+    if (!currentModel.model) {
+        expressionHandler(model.initializer, false, false,
+            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) });
+    }
 
     return (
         <span>
-            <button className={statementEditorClasses.expressionElement}>
+            <button
+                className={classNames(
+                    statementEditorClasses.expressionElement,
+                    hasTypedBindingPatternSelected && statementEditorClasses.expressionElementSelected
+                )}
+                onClick={onClickOnBindingPattern}
+            >
                 {typedBindingComponent}
             </button>
             <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
                 &nbsp;{model.equalsToken.value}
             </span>
-            <button className={statementEditorClasses.expressionElement} onClick={onClickOnExpression}>
+            <button
+                className={classNames(
+                    statementEditorClasses.expressionElement,
+                    hasInitializerSelected && statementEditorClasses.expressionElementSelected
+                )}
+                onClick={onClickOnInitializer}
+            >
                 {expressionComponent}
             </button>
             <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>

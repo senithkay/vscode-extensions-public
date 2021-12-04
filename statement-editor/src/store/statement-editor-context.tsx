@@ -23,6 +23,7 @@ import { InputEditorContextProvider } from "./input-editor-context";
 export const StatementEditorContext = React.createContext({
     modelCtx: {
         statementModel: null,
+        currentModel: null,
         updateModel: (codeSnippet: string, position: NodePosition) => {}
     },
     formCtx: {
@@ -44,30 +45,42 @@ export const StatementEditorContext = React.createContext({
 interface CtxProviderProps extends LowCodeEditorProps {
     children?: React.ReactNode,
     model: STNode,
+    currentModel: { model: STNode },
     onCancelClicked: boolean,
-    updateModel? : (codeSnippet: string, position: NodePosition) => void,
+    updateModel?: (codeSnippet: string, position: NodePosition) => void,
     formArgs?: any,
     validateStatement: (isValid: boolean) => void
 }
+
 export const StatementEditorContextProvider = (props: CtxProviderProps) => {
-    const { children, model, onCancelClicked, updateModel, formArgs, validateStatement, ...restProps } = props;
+    const {
+        children,
+        model,
+        currentModel,
+        onCancelClicked,
+        updateModel,
+        formArgs,
+        validateStatement,
+        ...restProps
+    } = props;
 
     return (
         <StatementEditorContext.Provider
             value={{
-            modelCtx: {
-                statementModel: model,
-                updateModel
-            },
-            formCtx: {
-                onCancel: onCancelClicked,
-                formModelPosition: formArgs.formArgs.targetPosition
-            },
-            statementCtx: {
-                validateStatement
-            },
-            ...restProps
-        }}
+                modelCtx: {
+                    statementModel: model,
+                    currentModel,
+                    updateModel
+                },
+                formCtx: {
+                    onCancel: onCancelClicked,
+                    formModelPosition: formArgs.formArgs.targetPosition
+                },
+                statementCtx: {
+                    validateStatement
+                },
+                ...restProps
+            }}
         >
             <InputEditorContextProvider>
                 {children}

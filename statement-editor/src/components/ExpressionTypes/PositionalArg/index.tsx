@@ -10,15 +10,17 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-wrap-multiline
+// tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext } from "react";
 
 import { PositionalArg } from "@wso2-enterprise/syntax-tree";
+import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
 import { VariableUserInputs } from "../../../models/definitions";
+import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
+import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
@@ -30,17 +32,24 @@ interface PositionalArgProps {
 
 export function PositionalArgComponent(props: PositionalArgProps) {
     const { model, userInputs, diagnosticHandler } = props;
+    const stmtCtx = useContext(StatementEditorContext);
+    const { modelCtx } = stmtCtx;
+    const { currentModel } = modelCtx;
+    const hasExprSelected = currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.expression.position);
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
 
-    const expression: ReactNode = <ExpressionComponent
-        model={model.expression}
-        isRoot={false}
-        userInputs={userInputs}
-        diagnosticHandler={diagnosticHandler}
-        isTypeDescriptor={false}
-    />;
+    const expression: ReactNode = (
+        <ExpressionComponent
+            model={model.expression}
+            isRoot={false}
+            userInputs={userInputs}
+            diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
+        />
+    );
 
     const onClickOnExpression = (event: any) => {
         event.stopPropagation()
@@ -50,7 +59,10 @@ export function PositionalArgComponent(props: PositionalArgProps) {
 
     return (
         <button
-            className={statementEditorClasses.expressionElement}
+            className={classNames(
+                statementEditorClasses.expressionElement,
+                hasExprSelected && statementEditorClasses.expressionElementSelected
+            )}
             onClick={onClickOnExpression}
         >
             {expression}

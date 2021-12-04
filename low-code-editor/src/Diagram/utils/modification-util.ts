@@ -42,9 +42,9 @@ export function createIfStatement(condition: string, targetPosition?: NodePositi
 
 export function createElseIfStatement(condition: string, targetPosition?: NodePosition): STModification {
     const elseIfStatement: STModification = {
-        startLine: targetPosition.startLine,
+        startLine: targetPosition ? targetPosition.startLine : 0,
         startColumn: 0,
-        endLine: targetPosition.startLine,
+        endLine: targetPosition ? targetPosition.startLine : 0,
         endColumn: 0,
         type: "ELSE_IF_CONDITION",
         config: {
@@ -56,9 +56,9 @@ export function createElseIfStatement(condition: string, targetPosition?: NodePo
 
 export function createElseStatement(targetPosition?: NodePosition): STModification {
     const elseStatement: STModification = {
-        startLine: targetPosition.startLine,
+        startLine: targetPosition ? targetPosition.startLine : 0,
         startColumn: 0,
-        endLine: targetPosition.startLine,
+        endLine: targetPosition ? targetPosition.startLine : 0,
         endColumn: 0,
         type: "ELSE_STATEMENT"
     };
@@ -144,11 +144,11 @@ export function updateWhileStatementCondition(conditionExpression: string, targe
     return updatedIfStatement;
 }
 
-export function createPropertyStatement(property: string, targetPosition: NodePosition): STModification {
+export function createPropertyStatement(property: string, targetPosition?: NodePosition): STModification {
     const propertyStatement: STModification = {
-        startLine: targetPosition.startLine,
+        startLine: targetPosition ? targetPosition.startLine : 0,
         startColumn: 0,
-        endLine: targetPosition.startLine,
+        endLine: targetPosition ? targetPosition.startLine : 0,
         endColumn: 0,
         type: "PROPERTY_STATEMENT",
         config: {

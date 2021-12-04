@@ -101,6 +101,7 @@ const props = {
 
 const statementEditorContextProps = {
     model: varDeclBinaryExpr,
+    currentModel: {model: varDeclBinaryExpr},
     onCancelClicked: false,
     onSave: dummyFunctionWithoutArgs,
     onChange: dummyFunction,

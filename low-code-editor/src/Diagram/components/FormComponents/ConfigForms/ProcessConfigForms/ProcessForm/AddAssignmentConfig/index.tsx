@@ -20,6 +20,7 @@ import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor"
 import { AssignmentStatement, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
+import { createPropertyStatement, getInitialSource } from "../../../../../../utils/modification-util";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import ExpressionEditor, { ExpressionEditorProps } from "../../../../FormFieldComponents/ExpressionEditor";
 import { FormElementProps, ProcessConfig } from "../../../../Types";
@@ -138,6 +139,10 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
         defaultValue: variableExpression,
     };
 
+    const initialSource = formArgs.model ? formArgs.model.source : getInitialSource(createPropertyStatement(
+            `${varName ? varName : "default"} = ${variableExpression ? variableExpression : "EXPRESSION"}`
+    ));
+
     const nameExpressionEditor = (
         <div className="exp-wrapper">
             <ExpressionEditor
@@ -162,7 +167,7 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
     const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
         {
             label: intl.formatMessage({ id: "lowcode.develop.configForms.assignment.statementEditor.label", defaultMessage: 'Assignment' }),
-            initialSource: formArgs.model ? formArgs.model.source : (`${varName} = ${variableExpression};`),
+            initialSource,
             formArgs: { formArgs },
             validForm,
             config,

@@ -202,7 +202,6 @@ export const useStatementEditorStyles = makeStyles(() =>
         expressionBlockDisabled: {
             height: '24px',
             width: '15px',
-            color: '#0095FF',
             fontFamily: "Droid Sans Mono",
             fontSize: '12px',
             letterSpacing: 0,
@@ -227,9 +226,12 @@ export const useStatementEditorStyles = makeStyles(() =>
                 color: '#fff'
             }
         },
+        expressionElementSelected: {
+            backgroundColor: '#5567D5',
+            color: '#fff',
+            border: '1px solid #5567D5',
+        },
         inputEditorTemplate: {
-            // color: '#05A26B',
-            color: '#5567D5',
             minWidth: '20px',
             fontSize: '13px',
             letterSpacing: 0,
