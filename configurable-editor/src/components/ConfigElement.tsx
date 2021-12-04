@@ -60,6 +60,11 @@ export function setConfigElementProps(id: string, isArray: boolean, type: string
     };
 }
 
+/**
+ * Provides the `ConfigElement` along with the property name and type.
+ * @param configElementProps The props required for the `ConfigElement` component.
+ * @returns                  The `ConfigElement` component.
+ */
 export const getConfigElement = (configElementProps: ConfigElementProps) => {
     if (configElementProps === undefined) {
         return null;

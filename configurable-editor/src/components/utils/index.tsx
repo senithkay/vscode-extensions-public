@@ -138,6 +138,13 @@ export function setExistingValues(properties: ConfigObjectProps,
     return properties;
 }
 
+/**
+ * Updates the existing config values of a `ConfigObjectProps` with the values
+ * provided in the `ConfigValue[]` array.
+ * @param configObjects The `ConfigObjectProps` that needs to be updated.
+ * @param configValues  The `ConfigValue[]` array containing the new key value pairs.
+ * @returns             The updated `ConfigObjectProps` object.
+ */
 export function updateConfigObjectProps(configObjects: ConfigObjectProps,
                                         configValues: ConfigValue[]): ConfigObjectProps {
     if (configObjects && configValues && configObjects.properties) {

@@ -48,6 +48,9 @@ export interface MetaData {
     packageName: string;
 }
 
+/**
+ * A key value pair storing a leaf level config value and its name.
+ */
 export interface ConfigValue {
     key: string;
     value: any;
