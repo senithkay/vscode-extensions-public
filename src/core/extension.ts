@@ -86,7 +86,7 @@ interface CodeServerContext {
     manageChoreoRedirectUri?: string;
     statusBarItem?: gitStatusBarItem;
     infoMessageStatus: {
-        syncChoreoMessage: boolean;
+        messageFirstEdit: boolean;
         sourceControlMessage: boolean;
     }
 }
@@ -137,7 +137,7 @@ export class BallerinaExtension {
             manageChoreoRedirectUri: process.env.VSCODE_CHOREO_DEPLOY_URI,
             infoMessageStatus: {
                 sourceControlMessage: true,
-                syncChoreoMessage: true
+                messageFirstEdit: true
             }
         }
     }
