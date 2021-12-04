@@ -16,66 +16,23 @@
  * under the License.
  *
  */
-import React, { useState } from "react";
+import React from "react";
 
 import { Box, Button, Card, CardActions, CardContent, Container, Typography } from "@material-ui/core";
 
-import ConfigElements from "./ConfigElements";
-
-import existingConfigs from "../stories/data/existing-configs.json";
+import { ConfigElementProps, getConfigElement } from "./ConfigElement";
+import { ConfigObjectProps, getConfigObject } from "./ConfigObject";
+import { ConfigType, MetaData, SchemaConstants } from "./model/config-schema";
+import { instanceOfConfigElement } from "./utils";
 
 let metaData: MetaData = null;
 
 /**
- * Common properties in the config schema.
+ * A high level config value which can contain nested objects.
  */
-enum SchemaConstants {
-    ITEMS = "items",
-    TYPE = "type",
-    DESCRIPTION = "description",
-    PROPERTIES = "properties",
-    REQUIRED = "required",
-}
-
-/**
- * Types of config values mapped into the model from the config schema.
- */
-enum ConfigType {
-    ARRAY = "array",
-    BOOLEAN = "boolean",
-    NUMBER = "number", // Represent both number and integer.
-    OBJECT = "object",
-    STRING = "string",
-    UNSUPPORTED = "unsupported", // Types other than the above ones.
-}
-
-/**
- * These values are used to validate the config schema with that of existing configs, optional feature.
- */
-interface MetaData {
-    orgName: string;
-    packageName: string;
-}
-
-/**
- * A leaf level config property model.
- */
-interface Element {
-    id: string;
-    isArray: boolean;
-    isRequired: boolean;
+interface ConfigValue {
     name: string;
-    type: ConfigType;
-    value?: number | string | boolean | number[] | string[] | boolean[];
-}
-
-/**
- * A high level config property which can contain nested objects.
- */
-interface Property {
-    id: string;
-    name: string;
-    properties?: Array<Element | Property>;
+    value: number | string | boolean | number[] | string[] | boolean[] | ConfigValue;
 }
 
 /**
@@ -95,7 +52,7 @@ function getPackageConfig(configSchema: object): object {
 
     return packageConfig[packageName];
 }
- 
+
 /**
  * Set the metadata values.
  * @param orgName     The organization of the Ballerina project.
@@ -114,12 +71,12 @@ function setMetaData(orgName: string, packageName: string) {
  *                  config schema object without the 2 top most root properties.
  * @param id        An identifier for the config property object.
  * @param name      Name of the config property object, the first one is set to 'root'.
- * @returns         A populated config `Property` object.
+ * @returns         A populated config `ConfigObjectProps` object.
  */
-function setConfigProperties(configObj: object, id: string = "1", name: string = "root"): Property {
+function getConfigProperties(configObj: object, id: string = "1", name: string = "root"): ConfigObjectProps {
     const propertiesObj: object = configObj[SchemaConstants.PROPERTIES];
     const requiredProperties: string[] = configObj[SchemaConstants.REQUIRED];
-    const configProperty: Property = { id: String(id), name, properties: [] };
+    const configProperty: ConfigObjectProps = { id: String(id), name, properties: [] };
 
     Object.keys(propertiesObj).forEach((key, index) => {
         let isArrayProperty: boolean = false;
@@ -128,7 +85,8 @@ function setConfigProperties(configObj: object, id: string = "1", name: string =
 
         if (configPropertyType === ConfigType.OBJECT) {
             // Iterate through nested objects.
-            const childProperty: Property = setConfigProperties(configPropertyValues, id + "-" + (index + 1), key);
+            const childProperty: ConfigObjectProps = getConfigProperties(configPropertyValues,
+                id + "-" + (index + 1), key);
             configProperty.properties.push(childProperty);
         } else {
             // Handle array values.
@@ -140,7 +98,8 @@ function setConfigProperties(configObj: object, id: string = "1", name: string =
             const required = isRequired(key, requiredProperties);
             const idValue = configProperty.id + "-" + (index + 1);
 
-            const element: Element = setElement(idValue, isArrayProperty, configPropertyType, key, required);
+            const element: ConfigElementProps = setConfigElementProps(idValue, isArrayProperty,
+                configPropertyType, key, required);
             if (element) {
                 configProperty.properties.push(element);
             }
@@ -149,62 +108,17 @@ function setConfigProperties(configObj: object, id: string = "1", name: string =
     return configProperty;
 }
 
-function setExistingValues(properties: Property, configs: object) {
-    const orgName = Object.keys(configs)[0];
-    const packageConfig: object = configs[orgName];
-    const packageName = Object.keys(packageConfig)[0];
-
-    // Validate the existing values with the config schema
-    if (orgName !== metaData.orgName || packageName !== metaData.packageName) {
-        // tslint:disable-next-line: no-console
-        console.debug("Mismatching metadata found in the config schema and existing data");
-        return;
-    }
-
-    // Existing config values without metadata
-    const configValues = packageConfig[packageName];
-    // Existing property values without metadata
-    const configProperties = properties[SchemaConstants.PROPERTIES];
-
-    setConfigValue(configProperties, configValues);
-
-    properties[SchemaConstants.PROPERTIES] = configProperties;
-    return properties;
-}
-
-function setConfigValue(configProperties: object, configValues: object) {
-    Object.keys(configProperties).forEach((key) => {
-        if (instanceOfElement(configProperties[key])) {
-            const value = getValue(configProperties[key].name, configValues);
-            configProperties[key].value = value;
-        } else {
-            const value = getValue(configProperties[key].name, configValues);
-            setConfigValue(configProperties[key][SchemaConstants.PROPERTIES], value);
-        }
-    });
-}
-
-function instanceOfElement(data: any): boolean {
-    return data.type !== undefined;
-}
-
-function getValue(key: string, obj: object): any {
-    const keys = Object.keys(obj).filter((x) => x === key);
-    if (keys.length > 0) {
-        return obj[keys[0]];
-    }
-}
-
 /**
- * Returns a config `Element` when the list of parameters are provided.
+ * Returns a config `ConfigElementProps` when the list of parameters are provided.
  * @param id         An id for the config element.
  * @param isArray    The boolean property specifying whether the element is an array.
  * @param type       The type of the config element, arrays should have the component type.
  * @param name       The name of the config element.
  * @param isRequired The boolean property specifying whether the element is a required one.
- * @returns 
+ * @returns          Returns the config `ConfigElementProps` object.
  */
-function setElement(id: string, isArray: boolean, type: string, name: string, isRequired: boolean): Element {
+function setConfigElementProps(id: string, isArray: boolean, type: string, name: string,
+                          isRequired: boolean): ConfigElementProps {
     return {
         id,
         isArray,
@@ -243,177 +157,109 @@ function getType(type: string): ConfigType {
     return keys.length > 0 ? ConfigType[keys[0]] : ConfigType.UNSUPPORTED;
 }
 
-// -----------------------------------
+/**
+ * Update the config `ConfigObjectProps` object with existing values provided through a JSON object.
+ * @param properties The populated config `ConfigObjectProps` object.
+ * @param configs    Existing config values provided as an object complying with the config schema.
+ * @returns          The config `ConfigObjectProps` object updated with the value property.
+ */
+function setExistingValues(properties: ConfigObjectProps, configs: object): ConfigObjectProps {
+    const orgName = Object.keys(configs)[0];
+    if (orgName === undefined) {
+        return;
+    }
 
-export interface ConfigProperty {
-    id: string;
-    name: string;
-    type: ConfigType;
-    description: string;
-    required: boolean;
-    value?: string;
+    const packageConfig: object = configs[orgName];
+    const packageName = Object.keys(packageConfig)[0];
+    if (packageName === undefined) {
+        return;
+    }
+
+    // Validate the existing values with the config schema.
+    if (orgName !== metaData.orgName || packageName !== metaData.packageName) {
+        // tslint:disable-next-line: no-console
+        console.debug("Mismatching metadata found in the config schema and existing data");
+    }
+
+    // Existing config values without metadata.
+    const configValues = packageConfig[packageName];
+    // Existing property values without metadata
+    const configProperties = properties[SchemaConstants.PROPERTIES];
+
+    setConfigValue(configProperties, configValues);
+
+    properties[SchemaConstants.PROPERTIES] = configProperties;
+    return properties;
 }
 
-export interface ConfigProperties {
-    moduleName: string;
-    properties: ConfigProperty[];
+/**
+ * Recursively set config values to config properties, including the nested objects.
+ * @param configProperties The config properties object, could be a `ConfigProperty` or `ConfigElement`.
+ * @param configValues     The config values object, could be a nested value.
+ */
+function setConfigValue(configProperties: object, configValues: object) {
+    Object.keys(configProperties).forEach((key) => {
+        if (instanceOfConfigElement(configProperties[key])) {
+            const value = getValue(configProperties[key].name, configValues);
+            configProperties[key].value = value;
+        } else {
+            const value = getValue(configProperties[key].name, configValues);
+            setConfigValue(configProperties[key][SchemaConstants.PROPERTIES], value);
+        }
+    });
+}
+
+/**
+ * Gets the config value from the config value object when provided with a key.
+ * @param key The key of which the value is required.
+ * @param obj The config value object containing the entries that needs to be iterated.
+ * @returns   The config value, it could be a nested object value as well.
+ */
+function getValue(key: string, obj: object): any {
+    if (key && obj) {
+        const keys = Object.keys(obj).filter((x) => x === key);
+        if (keys.length > 0) {
+            return obj[keys[0]];
+        }
+    }
 }
 
 export interface ConfigFormProps {
     configSchema: object;
+    existingConfigs: object;
     defaultButtonText: string;
     primaryButtonText: string;
-    onClickDefaultButton: () => void;
-    onClickPrimaryButton: (configProperties: ConfigProperties[]) => void;
 }
 
-function isUserDefinedModule(propertyObj: any): boolean {
-    let isModule = false;
-    Object.keys(propertyObj).forEach((key) => {
-        if (key === "properties") {
-            isModule = true;
-        }
-    });
-    return isModule;
-}
-
-export const ConfigForm = ({
-    configSchema,
-    defaultButtonText,
-    primaryButtonText,
-    onClickDefaultButton,
-    onClickPrimaryButton,
-  }: ConfigFormProps) => {
-    const [configs, setConfigs] = useState(new Array<ConfigProperties>());
-    const [submitType, setSubmitType] = useState("");
-
-    // ---------
-    const packageConfig: object = getPackageConfig(configSchema);
-    let properties = setConfigProperties(packageConfig);
-    setExistingValues(properties, existingConfigs);
-    console.log(properties);
-
-    const configJsonSchema = configSchema;
-
-    let schemaProperties: any;
-    let projectProperties: any;
-    let packageProperties: any;
-    let requiredProperties: any;
-    let moduleProperties: any;
-    let allProperties: any;
-    const configProperties: ConfigProperties[] = [];
-
-    Object.keys(configJsonSchema).forEach((key) => {
-        if (key === "properties") {
-            schemaProperties = configJsonSchema[key];
-        }
-    });
-
-    Object.keys(schemaProperties).forEach((key) => {
-        if (key !== "" || key !== undefined) {
-            projectProperties = schemaProperties[key].properties;
-        }
-    });
-
-    Object.keys(projectProperties).forEach((key) => {
-        if (key !== "" || key !== undefined) {
-            packageProperties = projectProperties[key];
-        }
-    });
-
-    Object.keys(packageProperties).forEach((key) => {
-        if (key === "required") {
-            requiredProperties = packageProperties[key];
-        }
-        if (key === "properties") {
-            allProperties = packageProperties[key];
-        }
-    });
-
-    Object.keys(allProperties).forEach((key) => {
-        if (isUserDefinedModule(allProperties[key])) {
-            moduleProperties = allProperties[key].properties;
-            Object.keys(moduleProperties).forEach((moduleKey) => {
-                addConfig(moduleProperties[moduleKey], key, moduleKey);
-            });
-        } else {
-            addConfig(allProperties[key], "default", key);
-        }
-    });
-
-    function addConfig(propertyObj: any, moduleName: string, configName: string) {
-        let isRequired = false;
-        if (requiredProperties) {
-            requiredProperties.forEach((element: any) => {
-                if (configName === element) {
-                    isRequired = true;
-                }
-            });
-        }
-
-        const moduleEntry = configProperties.findIndex((e) => e.moduleName === moduleName);
-        const config: ConfigProperty = {
-            description: propertyObj[SchemaConstants.DESCRIPTION],
-            id: moduleName + "-" + configName,
-            name: configName,
-            required: isRequired,
-            type: propertyObj[SchemaConstants.TYPE],
-        };
-
-        if (configProperties[moduleEntry] !== undefined) {
-            configProperties[moduleEntry].properties.push(config);
-        } else {
-            configProperties.push({ moduleName, properties: [config] });
-        }
-    }
-
-    // TODO: Updating the form with existing config values
-
-    const handleSubmit = (event: any) => {
-        event.preventDefault();
-        // TODO: Handle the submit for Choreo Console and Low Code based on a prop
-        // console.log(JSON.stringify(configs));
-        if (submitType === defaultButtonText) {
-            onClickDefaultButton();
-        } else if (submitType === primaryButtonText) {
-            onClickPrimaryButton(configs);
-        }
-    };
-
-    const handleSetConfigs = (e: ConfigProperties) => {
-        const existingConfig = configs.findIndex((property) => property.moduleName === e.moduleName);
-        if (existingConfig > -1) {
-            configs[existingConfig].properties = e.properties;
-        } else {
-            configs.push(e);
-        }
-        setConfigs(configs);
-    };
-
-    const getConfigForm = (configProperty: ConfigProperties, index: number) => {
+const getConfigForm = (configProperty: ConfigObjectProps | ConfigElementProps) => {
+    if (instanceOfConfigElement(configProperty)) {
         return (
-            <div key={index}>
-                <Box m={2} pt={3}>
-                    <h3>
-                        Module:{" "}
-                        <span style={{ fontFamily: "Verdana", color: "#3f51b5" }}>
-                            {configProperty.moduleName}
-                        </span>
-                    </h3>
-                    <ConfigElements
-                        key={index}
-                        elements={configProperty.properties}
-                        moduleName={configProperty.moduleName}
-                        setConfigs={handleSetConfigs}
-                    />
-                </Box>
+            <div key={configProperty.id}>
+                {getConfigElement(configProperty as ConfigElementProps)}
             </div>
         );
-    };
+    } else {
+        return (
+            <div key={configProperty.id}>
+                {getConfigObject(configProperty as ConfigObjectProps)}
+            </div>
+        );
+    }
+};
 
-    const handleSetSubmitType = (value: string) => {
-        setSubmitType(value);
-    };
+const handleSubmit = (event: any) => {
+    event.preventDefault();
+    // TODO: Handle the submit for Choreo Console and Low Code based on a prop
+    // console.log(JSON.stringify(event.target));
+};
+
+export const ConfigForm = ({configSchema, existingConfigs, defaultButtonText, primaryButtonText }: ConfigFormProps) => {
+    // The config property object retrieved from the config schema.
+    const configObjectProps: ConfigObjectProps = getConfigProperties(getPackageConfig(configSchema));
+
+    // Set the existing config values to the config property obtained.
+    setExistingValues(configObjectProps, existingConfigs);
+    console.log(configObjectProps);
 
     return (
         <Box sx={{ mt: 5 }}>
@@ -427,14 +273,13 @@ export const ConfigForm = ({
                         </Box>
                         <Typography variant="body2" component="div">
                             <form className="ConfigForm" onSubmit={handleSubmit}>
-                                {configProperties.map(getConfigForm)}
+                                {configObjectProps.properties.map(getConfigForm)}
                                 <CardActions style={{ justifyContent: "center" }}>
                                     <Box m={2} pt={3} mb={6}>
                                         <Button
                                             variant="contained"
                                             color="primary"
                                             type="submit"
-                                            onClick={handleSetSubmitType.bind(this, defaultButtonText)}
                                         >
                                             {defaultButtonText}
                                         </Button>
@@ -444,7 +289,6 @@ export const ConfigForm = ({
                                             variant="contained"
                                             color="primary"
                                             type="submit"
-                                            onClick={handleSetSubmitType.bind(this, primaryButtonText)}
                                         >
                                             {primaryButtonText}
                                         </Button>

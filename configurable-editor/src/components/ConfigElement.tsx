@@ -19,45 +19,107 @@
 
 import React from "react";
 
-import { TextField } from "@material-ui/core";
+import { Box, Typography } from "@material-ui/core";
 
-import { ConfigProperty } from "./ConfigForm";
+import { AddInputButton } from "./elements/AddInputButton";
+import { CheckBoxInput } from "./elements/CheckBoxInput";
+import { TextFieldInput } from "./elements/TextFieldInput";
+import { ConfigType } from "./model/config-schema";
 
-function ConfigElement(props: any) {
+/**
+ * A leaf level config property model.
+ */
+export interface ConfigElementProps {
+    id: string;
+    isArray: boolean;
+    isRequired: boolean;
+    name: string;
+    type: ConfigType;
+    value?: number | string | boolean | number[] | string[] | boolean[];
+}
 
-    const configProperty: ConfigProperty = {
-        description: props.description,
-        id: props.moduleName + "-" + props.name,
-        name: props.name,
-        required: props.required,
-        type: props.type,
-    };
-
-    const handleChange = (e: any) => {
-        configProperty.value = e.target.value;
-        props.setConfigValue(configProperty);
-    };
-
-    let type: string = props.type;
-    if (props.type === "integer") {
-        type = "number";
+export const getConfigElement = (configElementProps: ConfigElementProps) => {
+    if (configElementProps === undefined) {
+        return null;
     }
 
     return (
-        <div className="ConfigElement">
-            <TextField
-                id={props.id}
-                required={props.required}
-                label={props.name}
-                type={type}
-                margin="normal"
-                fullWidth={true}
-                value={props.value}
-                onChange={handleChange}
-                variant="outlined"
-            />
-        </div>
+        <Box>
+            <Typography variant="h6" component="div">
+                {configElementProps.name}
+            </Typography>
+            <Typography variant="overline" component="div">
+                {configElementProps.type}
+            </Typography>
+            <Typography variant="body2" component="div">
+                {<ConfigElement {...configElementProps}/>}
+            </Typography>
+        </Box>
     );
-}
+};
+
+const ConfigElement = (configElement: ConfigElementProps): any => {
+    const returnElement: any[] = [];
+
+    if (configElement.isArray) {
+        if (configElement.value) {
+            const values = configElement.value as Array<string | number | boolean>;
+            values.forEach((value, index) => {
+                const newElement = { ...configElement };
+                newElement.id = newElement.id + "." + index;
+                newElement.value = value;
+                returnElement.push(
+                    (
+                        <div key={newElement.id + "-ELEMENT"}>
+                            {getInnerElement(newElement)}
+                        </div>
+                    ),
+                );
+            });
+            returnElement.push(
+                (
+                    <div key={configElement.id + "-ADD"}>
+                        <AddInputButton />
+                    </div>
+                ),
+            );
+        }
+    } else {
+        returnElement.push(
+            (
+                <div key={configElement.id + "-ELEMENT"}>
+                    {getInnerElement(configElement)}
+                </div>
+            ),
+        );
+    }
+    return returnElement;
+};
+
+const getInnerElement = (configElementProps: ConfigElementProps) => {
+    switch (configElementProps.type) {
+        case ConfigType.BOOLEAN:
+            return (
+                <div key={configElementProps.id + "-CHECK"}>
+                    <CheckBoxInput
+                        label={configElementProps.name}
+                        existingValue={configElementProps.value as boolean}
+                    />
+                </div>
+            );
+        case ConfigType.STRING:
+        case ConfigType.NUMBER:
+            return (
+                <div key={configElementProps.id + "-FIELD"}>
+                    <TextFieldInput
+                        isRequired={configElementProps.isRequired}
+                        existingValue={configElementProps.value}
+                        type={configElementProps.type}
+                    />
+                </div>
+            );
+    }
+    return null;
+};
 
 export default ConfigElement;
