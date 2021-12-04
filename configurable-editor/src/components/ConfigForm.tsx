@@ -23,7 +23,7 @@ import { Box, Button, Card, CardActions, CardContent, Container, Typography } fr
 import { ConfigElementProps, getConfigElement } from "./ConfigElement";
 import { ConfigObjectProps, getConfigObject } from "./ConfigObject";
 import { ConfigValue, MetaData, SchemaConstants, setMetaData } from "./model";
-import { getConfigProperties, instanceOfConfigElement, setExistingValues } from "./utils";
+import { getConfigProperties, instanceOfConfigElement, setExistingValues, updateConfigObjectProps } from "./utils";
 
 let metaData: MetaData = null;
 
@@ -50,6 +50,8 @@ export interface ConfigFormProps {
     existingConfigs: object;
     defaultButtonText: string;
     primaryButtonText: string;
+    onClickDefaultButton: () => void;
+    onClickPrimaryButton: (configProperties: ConfigObjectProps) => void;
 }
 
 const getConfigForm = (configProperty: ConfigObjectProps | ConfigElementProps) => {
@@ -68,27 +70,45 @@ const getConfigForm = (configProperty: ConfigObjectProps | ConfigElementProps) =
     }
 };
 
-const handleSubmit = (event: any) => {
-    event.preventDefault();
-    // TODO: Handle the submit for Choreo Console and Low Code based on a prop
-    // console.log(JSON.stringify(event.target));
-};
-
 export const ConfigForm = ({ configSchema, existingConfigs, defaultButtonText,
-                             primaryButtonText }: ConfigFormProps) => {
+                             primaryButtonText, onClickDefaultButton, onClickPrimaryButton }: ConfigFormProps) => {
     const [configValue, setConfigValue] = useState(new Array<ConfigValue>());
+    const [submitType, setSubmitType] = useState("");
 
     // The config property object retrieved from the config schema.
-    const configObjectProps: ConfigObjectProps = getConfigProperties(getPackageConfig(configSchema));
+    let configObjectProps: ConfigObjectProps = getConfigProperties(getPackageConfig(configSchema));
 
     // Set the existing config values to the config property obtained.
     setExistingValues(configObjectProps, existingConfigs, metaData);
 
     const handleSetConfigValue = (config: ConfigValue) => {
-        const existingValues: ConfigValue[] = configValue;
-        existingValues.push(config);
-        setConfigValue(existingValues);
+        const existingConfig = configValue.findIndex((property) => property.key === config.key);
+        if (existingConfig > -1) {
+            configValue[existingConfig].value = config.value;
+        } else {
+            configValue.push(config);
+        }
+        setConfigValue(configValue);
     };
+
+    const handleSubmit = (event: any) => {
+        event.preventDefault();
+        configObjectProps = updateConfigObjectProps(configObjectProps, configValue);
+
+        if (submitType === defaultButtonText) {
+            onClickDefaultButton();
+        } else if (submitType === primaryButtonText) {
+            onClickPrimaryButton(configObjectProps);
+        }
+    };
+
+    const handleSetSubmitType = (value: string) => {
+        setSubmitType(value);
+    };
+
+    configObjectProps.properties.map((entry) => {
+        entry.setConfigElement = handleSetConfigValue;
+    });
 
     return (
         <Box sx={{ mt: 5 }}>
@@ -110,6 +130,7 @@ export const ConfigForm = ({ configSchema, existingConfigs, defaultButtonText,
                                                 variant="contained"
                                                 color="primary"
                                                 type="submit"
+                                                onClick={handleSetSubmitType.bind(this, defaultButtonText)}
                                             >
                                                 {defaultButtonText}
                                             </Button>
@@ -119,6 +140,7 @@ export const ConfigForm = ({ configSchema, existingConfigs, defaultButtonText,
                                                 variant="contained"
                                                 color="primary"
                                                 type="submit"
+                                                onClick={handleSetSubmitType.bind(this, primaryButtonText)}
                                             >
                                                 {primaryButtonText}
                                             </Button>

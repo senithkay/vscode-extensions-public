@@ -119,8 +119,10 @@ const ConfigElement = (configElement: ConfigElementProps): any => {
 };
 
 const getInnerElement = (configElementProps: ConfigElementProps) => {
+
     const handleSetElementValue = (key: string, value: any) => {
-        let configValue: ConfigValue = { key, value };
+        const configValue: ConfigValue = { key, value };
+        configElementProps.setConfigElement(configValue);
     };
 
     switch (configElementProps.type) {
@@ -128,7 +130,7 @@ const getInnerElement = (configElementProps: ConfigElementProps) => {
             return (
                 <div key={configElementProps.id + "-CHECK"}>
                     <CheckBoxInput
-                        key={configElementProps.id}
+                        id={configElementProps.id}
                         label={configElementProps.name}
                         existingValue={configElementProps.value as boolean}
                         setCheckBoxValue={handleSetElementValue}
@@ -140,7 +142,7 @@ const getInnerElement = (configElementProps: ConfigElementProps) => {
             return (
                 <div key={configElementProps.id + "-FIELD"}>
                     <TextFieldInput
-                        key={configElementProps.id}
+                        id={configElementProps.id}
                         isRequired={configElementProps.isRequired}
                         existingValue={configElementProps.value}
                         type={configElementProps.type}

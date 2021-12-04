@@ -19,7 +19,7 @@
 
 import { ConfigElementProps, setConfigElementProps } from "../ConfigElement";
 import { ConfigObjectProps } from "../ConfigObject";
-import { ConfigType, MetaData, SchemaConstants } from "../model";
+import { ConfigType, ConfigValue, MetaData, SchemaConstants } from "../model";
 
 /**
  * Checks if the provided object is a leaf property or not.
@@ -136,6 +136,25 @@ export function setExistingValues(properties: ConfigObjectProps,
 
     properties[SchemaConstants.PROPERTIES] = configProperties;
     return properties;
+}
+
+export function updateConfigObjectProps(configObjects: ConfigObjectProps,
+                                        configValues: ConfigValue[]): ConfigObjectProps {
+    if (configObjects && configValues && configObjects.properties) {
+        Object.keys(configObjects.properties).forEach((key) => {
+            if (instanceOfConfigElement(configObjects.properties[key])) {
+                const property: ConfigElementProps = configObjects.properties[key];
+                const existingConfig = configValues.findIndex((item) => item.key === property.id);
+                if (existingConfig > -1) {
+                    configObjects.properties[key].value = configValues[existingConfig];
+                }
+            } else {
+                updateConfigObjectProps(configObjects.properties[key], configValues);
+            }
+        });
+    }
+
+    return configObjects;
 }
 
 /**

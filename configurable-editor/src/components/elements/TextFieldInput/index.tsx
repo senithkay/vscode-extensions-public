@@ -22,7 +22,7 @@ import React from "react";
 import { TextField } from "@material-ui/core";
 
 export interface TextFieldInputProps {
-    key: string;
+    id: string;
     isRequired: boolean;
     existingValue: any;
     type: string;
@@ -30,7 +30,7 @@ export interface TextFieldInputProps {
 }
 
 export function TextFieldInput(props: TextFieldInputProps) {
-    const { key, isRequired, existingValue, type, setTextFieldValue } = props;
+    const { id, isRequired, existingValue, type, setTextFieldValue } = props;
 
     let label: string = "";
     if (isRequired) {
@@ -38,7 +38,7 @@ export function TextFieldInput(props: TextFieldInputProps) {
     }
 
     const handleChange = (e: any) => {
-        setTextFieldValue(key, e.target.value);
+        setTextFieldValue(id, e.target.value);
     };
 
     return (

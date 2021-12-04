@@ -40,6 +40,10 @@ export const getConfigObject = (configObjectProps: ConfigObjectProps) => {
         return;
     }
 
+    configObjectProps.properties.map((entry) => {
+        entry.setConfigElement = configObjectProps.setConfigElement;
+    });
+
     return (
         <Box m={2} pt={1}>
             <Card variant="outlined">
