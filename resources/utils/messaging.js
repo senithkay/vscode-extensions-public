@@ -183,9 +183,23 @@ function getLangClient() {
                 });
             })
         },
+        getTriggers: (params) => {
+            return new Promise((resolve, _reject) => {
+                webViewRPCHandler.invokeRemoteMethod('getTriggers', [params], (resp) => {
+                    resolve(resp);
+                });
+            })
+        },
         getConnector: (params) => {
             return new Promise((resolve, _reject) => {
                 webViewRPCHandler.invokeRemoteMethod('getConnector', [params], (resp) => {
+                    resolve(resp);
+                });
+            })
+        },
+        getTrigger: (params) => {
+            return new Promise((resolve, _reject) => {
+                webViewRPCHandler.invokeRemoteMethod('getTrigger', [params], (resp) => {
                     resolve(resp);
                 });
             })
