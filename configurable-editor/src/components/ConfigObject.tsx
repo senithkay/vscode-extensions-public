@@ -17,7 +17,7 @@
  *
  */
 
-import React from "react";
+import React, { ReactElement } from "react";
 
 import { Box, Card, CardContent, Typography } from "@material-ui/core";
 
@@ -60,8 +60,8 @@ export const getConfigObject = (configObjectProps: ConfigObjectProps) => {
     );
 };
 
-const ConfigObject = (configProperties: Array<ConfigElementProps | ConfigObjectProps>): any => {
-    const returnElement: any[] = [];
+const ConfigObject = (configProperties: Array<ConfigElementProps | ConfigObjectProps>): ReactElement => {
+    const returnElement: ReactElement[] = [];
 
     Object.keys(configProperties).forEach((key) => {
         if (instanceOfConfigElement(configProperties[key])) {
@@ -82,7 +82,7 @@ const ConfigObject = (configProperties: Array<ConfigElementProps | ConfigObjectP
             );
         }
     });
-    return returnElement;
+    return (<>{returnElement}</>);
 };
 
 export default ConfigObject;

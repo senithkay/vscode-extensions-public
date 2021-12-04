@@ -2,6 +2,7 @@ import React from "react";
 
 import ConfigForm from "../components/ConfigForm";
 import { ConfigObjectProps } from "../components/ConfigObject";
+import { ConfigSchema } from "../components/model";
 
 import configSchema from "./data/config-schema.json";
 import existingConfigs from "./data/existing-configs.json";
@@ -23,7 +24,7 @@ const onClickPrimaryButton = (configProperties: ConfigObjectProps) => {
 
 export const BasicForm = () => (
     <ConfigForm
-        configSchema={configSchema}
+        configSchema={configSchema as ConfigSchema}
         existingConfigs={existingConfigs}
         defaultButtonText={"Cancel"}
         primaryButtonText={"Run"}

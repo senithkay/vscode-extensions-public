@@ -17,7 +17,7 @@
  *
  */
 
-import React from "react";
+import React, { ReactElement } from "react";
 
 import { Box, Typography } from "@material-ui/core";
 
@@ -85,8 +85,8 @@ export const getConfigElement = (configElementProps: ConfigElementProps) => {
     );
 };
 
-const ConfigElement = (configElement: ConfigElementProps): any => {
-    const returnElement: any[] = [];
+const ConfigElement = (configElement: ConfigElementProps): ReactElement => {
+    const returnElement: ReactElement[] = [];
 
     if (configElement.isArray) {
         if (configElement.value) {
@@ -120,7 +120,7 @@ const ConfigElement = (configElement: ConfigElementProps): any => {
             ),
         );
     }
-    return returnElement;
+    return (<>{returnElement}</>);
 };
 
 const getInnerElement = (configElementProps: ConfigElementProps) => {

@@ -22,7 +22,7 @@ import { Box, Button, Card, CardActions, CardContent, Container, Typography } fr
 
 import { ConfigElementProps, getConfigElement } from "./ConfigElement";
 import { ConfigObjectProps, getConfigObject } from "./ConfigObject";
-import { ConfigValue, MetaData, SchemaConstants, setMetaData } from "./model";
+import { ConfigSchema, ConfigValue, MetaData, SchemaConstants, setMetaData } from "./model";
 import { getConfigProperties, instanceOfConfigElement, setExistingValues, updateConfigObjectProps } from "./utils";
 
 let metaData: MetaData = null;
@@ -33,8 +33,8 @@ let metaData: MetaData = null;
  * @param configSchema The original config schema object.
  * @returns            The config schema object without the 2 top most root properties.
  */
-function getPackageConfig(configSchema: object): object {
-    const orgConfig: object = configSchema[SchemaConstants.PROPERTIES];
+function getPackageConfig(configSchema: ConfigSchema): object {
+    const orgConfig: object = configSchema.properties;
     const orgName = Object.keys(orgConfig)[0];
 
     const packageConfig: object = orgConfig[orgName][SchemaConstants.PROPERTIES];
@@ -46,7 +46,7 @@ function getPackageConfig(configSchema: object): object {
 }
 
 export interface ConfigFormProps {
-    configSchema: object;
+    configSchema: ConfigSchema;
     existingConfigs: object;
     defaultButtonText: string;
     primaryButtonText: string;

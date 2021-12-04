@@ -22,10 +22,11 @@ import ReactDOM from "react-dom";
 
 import { ConfigForm } from "./components/ConfigForm";
 import { ConfigObjectProps } from "./components/ConfigObject";
+import { ConfigSchema } from "./components/model";
 export { ConfigForm };
 
 export function renderConfigEditor(
-    data: object,
+    data: ConfigSchema,
     existingConfigs: object,
     defaultButtonText: string,
     primaryButtonText: string,

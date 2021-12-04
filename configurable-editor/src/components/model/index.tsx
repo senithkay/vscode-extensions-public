@@ -57,6 +57,15 @@ export interface ConfigValue {
 }
 
 /**
+ * An interface representing the config schema json object.
+ */
+export interface ConfigSchema {
+    $schema: string;
+    type: string;
+    properties: object;
+}
+
+/**
  * Set the metadata values.
  * @param orgName     The organization of the Ballerina project.
  * @param packageName The package name of the Ballerina project.
