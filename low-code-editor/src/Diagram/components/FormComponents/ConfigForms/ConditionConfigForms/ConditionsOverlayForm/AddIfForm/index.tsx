@@ -14,7 +14,7 @@
 import React, { useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { ElseBlock, IfElseStatement, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classnames from "classnames";
 import { Box, FormControl, IconButton, Typography } from "@material-ui/core";
 import { ControlPoint, RemoveCircleOutlineRounded } from "@material-ui/icons";
@@ -22,7 +22,12 @@ import { ControlPoint, RemoveCircleOutlineRounded } from "@material-ui/icons";
 import { FormActionButtons, FormField, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
-import { createIfStatement, getInitialSource } from "../../../../../../utils/modification-util";
+import {
+    createElseIfStatement,
+    createElseStatement,
+    createIfStatement,
+    getInitialSource
+} from "../../../../../../utils/modification-util";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
@@ -102,6 +107,24 @@ export function AddIfForm(props: IfProps) {
         setIsInvalid(isInvalidFromField || isInvalidForm)
     }
 
+    const updateElseIfExpressions = (obj: ElseBlock, element: ExpressionsArray): ElseBlock => {
+        if (STKindChecker.isIfElseStatement(obj.elseBody)) {
+            element.expression = obj.elseBody.condition.source.trim();
+            return obj.elseBody.elseBody;
+        }
+        return null;
+    }
+
+    const handleStatementEditorChange = (partialModel: IfElseStatement) => {
+        compList[0].expression = partialModel.condition.source.trim();
+        let elseIfModel = partialModel.elseBody ? partialModel.elseBody : null;
+        compList.map((element, index) => {
+            if (index !== 0 && elseIfModel) {
+                elseIfModel = updateElseIfExpressions(elseIfModel, element)
+            }
+        })
+    }
+
     const setFormField = (order: number): FormField => {
         return {
             name: "condition",
@@ -161,9 +184,22 @@ export function AddIfForm(props: IfProps) {
         defaultMessage: "Cancel"
     });
 
-    const initialSource = formArgs.model ? formArgs.model.source : getInitialSource(createIfStatement(
-        condition.conditionExpression ? condition.conditionExpression as string : 'EXPRESSION'
-    ));
+    const getCompleteSource = () => {
+        let source = getInitialSource(createIfStatement(
+            compList[0].expression ? compList[0].expression : 'EXPRESSION'
+        ));
+        if (compList.length > 1) {
+            compList.map((element, index) => {
+                if (index !== 0){
+                    source = source + getInitialSource(createElseIfStatement(element.expression ? element.expression : 'EXPRESSION'))
+                }
+            })
+        }
+        source = source + getInitialSource(createElseStatement());
+        return source;
+    }
+
+    const initialSource = formArgs.model ? formArgs.model.source : getCompleteSource();
 
     const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
         {
@@ -173,6 +209,7 @@ export function AddIfForm(props: IfProps) {
             validForm: !isInvalid,
             config: condition,
             onWizardClose,
+            handleStatementEditorChange,
             currentFile,
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram
@@ -213,7 +250,7 @@ export function AddIfForm(props: IfProps) {
             <FormControl data-testid="if-form" className={classes.wizardFormControl}>
                 <FormHeaderSection
                     onCancel={onCancel}
-                    statementEditor={false}
+                    statementEditor={true}
                     formTitle={"lowcode.develop.configForms.if.title"}
                     defaultMessage={"If"}
                     handleStmtEditorToggle={handleStmtEditorToggle}
