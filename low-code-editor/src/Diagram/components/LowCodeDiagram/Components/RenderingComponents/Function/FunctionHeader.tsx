@@ -73,7 +73,7 @@ export function FunctionHeader(props: FunctionHeaderProps) {
                     </p>
                 </div>
             </div>
-            {(model.qualifierList.filter(qualifier => STKindChecker.isRemoteKeyword(qualifier)).length === 0) ? (
+            {model.qualifierList.filter(qualifier => STKindChecker.isRemoteKeyword(qualifier)).length === 0 ? (
             <HeaderActions
                 model={model}
                 deleteText="Are you sure you want to delete this function?"
