@@ -126,7 +126,7 @@ export function RecordField(props: CodePanelProps) {
     const getNewField = () : SimpleField => {
         const newField: SimpleField = {type: "", name: "", isFieldOptional: false, isActive: true,
                                        isValueInvalid: false, isNameInvalid: true, isTypeInvalid: true,
-                                        isEditInProgress: true};
+                                       isEditInProgress: true};
         recordModel.fields.push(newField);
         return newField;
     };

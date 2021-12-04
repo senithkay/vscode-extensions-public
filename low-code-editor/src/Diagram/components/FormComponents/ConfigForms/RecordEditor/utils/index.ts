@@ -144,6 +144,9 @@ export function getArrayField(field: RecordField | RecordFieldWithDefaultValue) 
             // when there is a inline record
             recField = getRecordModel(field.typeName.memberTypeDesc, field.fieldName.value, true,
                 "record");
+            if (STKindChecker.isRecordField(field) && (field as RecordField)?.questionMarkToken) {
+                recField.isOptional = true;
+            }
             recField.isArray = true;
         } else {
             recField = {

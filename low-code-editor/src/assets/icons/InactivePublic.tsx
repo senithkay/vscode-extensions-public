@@ -11,6 +11,7 @@
  * associated services.
  */
 import React from 'react';
+
 import Tooltip from "../../components/TooltipV2";
 
 export default function InactivePublic(props: any) {

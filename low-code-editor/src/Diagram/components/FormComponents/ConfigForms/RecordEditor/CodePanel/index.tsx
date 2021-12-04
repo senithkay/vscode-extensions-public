@@ -15,12 +15,13 @@ import React from "react";
 import { useIntl } from "react-intl";
 
 import { FormControl } from "@material-ui/core";
-import { FormHeaderSection, PrimaryButton, SecondaryButton } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { FormHeaderSection } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { useRecordEditorContext } from "../../../../../../Contexts/RecordEditor";
 import { mutateTypeDefinition } from "../../../../../utils/modification-util";
+import { FormActionButtons } from "../../../FormFieldComponents/FormActionButtons";
 import { wizardStyles } from "../../style";
 import { RecordField } from "../RecordField";
 import { recordStyles } from "../style";
@@ -95,18 +96,14 @@ export function CodePanel() {
                 <div className={recordClasses.recordFieldWrapper}>
                     <RecordField recordModel={state.recordModel} />
                 </div>
-                <div className={recordClasses.configButtonWrapper}>
-                    <div className={overlayClasses.buttonWrapper}>
-                        <SecondaryButton text={cancelButtonText} fullWidth={false} onClick={state.onCancel} />
-                        <PrimaryButton
-                            dataTestId={"record-from-json-save-btn"}
-                            text={saveButtonText}
-                            disabled={state.isEditorInvalid}
-                            fullWidth={false}
-                            onClick={handleRecordSave}
-                        />
-                    </div>
-                </div>
+                <FormActionButtons
+                    cancelBtnText={cancelButtonText}
+                    saveBtnText={saveButtonText}
+                    isMutationInProgress={false}
+                    validForm={!state.isEditorInvalid}
+                    onSave={handleRecordSave}
+                    onCancel={state.onCancel}
+                />
             </div>
         </FormControl>
     )

@@ -14,7 +14,7 @@
 import React, { useContext, useEffect, useReducer } from 'react';
 
 import { FormControl, FormHelperText } from "@material-ui/core";
-import { FormHeaderSection, PrimaryButton, SecondaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { RecordTypeDesc, STKindChecker, STNode, TypeDefinition } from '@wso2-enterprise/syntax-tree';
 
 import { Context } from "../../../../../../Contexts/Diagram";
@@ -22,6 +22,7 @@ import { useRecordEditorContext } from "../../../../../../Contexts/RecordEditor"
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
 import { ConfigOverlayFormStatus } from "../../../../../store/definitions";
 import { useStyles } from "../../../DynamicConnectorForm/style";
+import { FormActionButtons } from "../../../FormFieldComponents/FormActionButtons";
 import { FormTextArea } from "../../../FormFieldComponents/TextField/FormTextArea";
 import { wizardStyles } from "../../style";
 import { convertToRecord, getRecordModel, getRecordST } from "../utils";
@@ -139,16 +140,14 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                 {formState.isLoading && (
                     <TextPreloaderVertical position="absolute" />
                 )}
-                <div className={overlayClasses.buttonWrapper}>
-                    <SecondaryButton text="Cancel" fullWidth={false} onClick={recordFromJsonProps.onCancel} />
-                    <PrimaryButton
-                        dataTestId={"record-from-json-save-btn"}
-                        text={"Save"}
-                        disabled={!isSaveButtonEnabled}
-                        fullWidth={false}
-                        onClick={convertToJSon}
-                    />
-                </div>
+                <FormActionButtons
+                    cancelBtnText="Cancel"
+                    saveBtnText="Save"
+                    isMutationInProgress={false}
+                    validForm={isSaveButtonEnabled}
+                    onSave={convertToJSon}
+                    onCancel={recordFromJsonProps.onCancel}
+                />
             </div>
         </FormControl>
     );

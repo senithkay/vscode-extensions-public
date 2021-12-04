@@ -17,10 +17,10 @@ import { NodePosition, RecordTypeDesc, STKindChecker, TypeDefinition } from "@ws
 
 import { FormState, Provider as RecordEditorProvider} from "../../../../../Contexts/RecordEditor"
 
-import { RecordModel } from "./types";
-import { getRecordModel } from "./utils";
 import { CodePanel } from "./CodePanel";
 import { recordStyles } from "./style";
+import { RecordModel } from "./types";
+import { getRecordModel } from "./utils";
 
 export interface RecordEditorProps {
     name: string;

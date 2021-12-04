@@ -11,26 +11,26 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import { Typography } from "@material-ui/core";
 
+import ActiveArray from "../../../../../../assets/icons/ActiveArray";
+import ActiveClosed from "../../../../../../assets/icons/ActiveClosed";
+import ActiveOptional from "../../../../../../assets/icons/ActiveOptional";
+import ActivePublic from "../../../../../../assets/icons/ActivePublic";
 import DeleteButton from "../../../../../../assets/icons/DeleteButton";
 import EditButton from "../../../../../../assets/icons/EditButton";
+import InactiveArray from "../../../../../../assets/icons/InactiveArray";
+import InactiveClosed from "../../../../../../assets/icons/InactiveClosed";
+import InactiveOptional from "../../../../../../assets/icons/InactiveOptional";
+import InactivePublic from "../../../../../../assets/icons/InactivePublic";
 import { Context, FormState } from "../../../../../../Contexts/RecordEditor";
 import { ComponentExpandButton } from "../../../../LowCodeDiagram/Components/ComponentExpandButton";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
 import { recordStyles } from "../style";
 import { RecordModel, SimpleField } from "../types";
 import { genRecordName } from "../utils";
-import ActiveOptional from "../../../../../../assets/icons/ActiveOptional";
-import InactiveOptional from "../../../../../../assets/icons/InactiveOptional";
-import ActivePublic from "../../../../../../assets/icons/ActivePublic";
-import InactivePublic from "../../../../../../assets/icons/InactivePublic";
-import ActiveClosed from "../../../../../../assets/icons/ActiveClosed";
-import InactiveClosed from "../../../../../../assets/icons/InactiveClosed";
-import ActiveArray from "../../../../../../assets/icons/ActiveArray";
-import InactiveArray from "../../../../../../assets/icons/InactiveArray";
 
 export interface RecordHeaderProps {
     recordModel: RecordModel;
@@ -43,7 +43,7 @@ export interface RecordHeaderProps {
 
 export function RecordHeader(props: RecordHeaderProps) {
     const { recordModel, parentRecordModel, recordExpanded, recordEditInProgress, toggleRecordExpand,
-        onEditRecord } = props;
+            onEditRecord } = props;
 
     const recordClasses = recordStyles();
 
@@ -237,7 +237,7 @@ export function RecordHeader(props: RecordHeaderProps) {
                                                 toolTipContent="Make record visibility Public"
                                             />
                                         </div>
-                                    ): (
+                                    ) : (
                                         <div className={recordClasses.inactiveBtnWrapper}>
                                             <InactivePublic
                                                 onClick={handleIsPublicChange}
