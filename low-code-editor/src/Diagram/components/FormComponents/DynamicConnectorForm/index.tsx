@@ -31,7 +31,8 @@ export interface FormProps {
     editPosition?: NodePosition;
 }
 
-const isAllOptionalFields = (recordFields: FormField[]): boolean => recordFields?.every(field => field.optional || field.defaultValue || (field.fields && isAllOptionalFields(field.fields)));
+const isAllDefaultableFields = (recordFields: FormField[]): boolean =>
+    recordFields?.every((field) => field.defaultValue || (field.fields && isAllDefaultableFields(field.fields)));
 
 export function Form(props: FormProps) {
     const { fields, onValidate, expressionInjectables, editPosition } = props;
@@ -43,7 +44,7 @@ export function Form(props: FormProps) {
 
     React.useEffect(() => {
         // Set form as valid if there aren't any mandatory fields
-        if (fields && isAllOptionalFields(fields)){
+        if (fields && isAllDefaultableFields(fields)){
             onValidate(true);
         }
     }, []);
@@ -92,7 +93,7 @@ export function Form(props: FormProps) {
             const element = getFormElement(elementProps, type);
 
             if (element) {
-                field.typeName === "record" && field.defaultable ? optionalElements.push(element) : requiredElements.push(element);
+                field.defaultable || field.optional ? optionalElements.push(element) : requiredElements.push(element);
             }
         }
     });

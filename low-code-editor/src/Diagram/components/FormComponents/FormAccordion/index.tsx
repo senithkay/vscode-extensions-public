@@ -40,13 +40,14 @@ export default function FormAccordion(props: FormAccordionProps) {
     const handleChange = (panel: string) => (event: React.ChangeEvent<{}>, isExpanded: boolean) => {
         setExpanded(isExpanded ? panel : false);
     };
+
     return (
         <div className={classes.accordionWrapper}>
             {isMandatoryFieldsExist && (
                 <ExpansionPanel
                     TransitionProps={{ mountOnEnter: true }}
-                    className={depth > 1 ? classes.activeAccordionRoot : classes.activeAccordionRootFirst}
-                    expanded={true}
+                    className={depth > 1 ? classes.accordionRoot : classes.accordionRootFirst}
+                    defaultExpanded={true}
                 >
                     {title && (
                         <ExpansionPanelSummary
@@ -79,10 +80,10 @@ export default function FormAccordion(props: FormAccordionProps) {
                         aria-controls="panel1bh-content"
                         id="panel1bh-header"
                     >
-                        {isMandatoryFieldsExist && (
-                            <Typography className={classes.accordionSecondaryHeading}>&nbsp; Advance</Typography>
+                        {(isMandatoryFieldsExist || !title) && (
+                            <Typography className={classes.accordionSecondaryHeading}>Defaultable Parameters</Typography>
                         )}
-                        {!isMandatoryFieldsExist && (
+                        {!isMandatoryFieldsExist && title && (
                             <Typography className={classes.accordionHeading}>{title}</Typography>
                         )}
                     </ExpansionPanelSummary>
