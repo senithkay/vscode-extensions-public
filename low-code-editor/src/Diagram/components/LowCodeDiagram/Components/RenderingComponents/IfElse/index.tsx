@@ -284,14 +284,14 @@ export function IfElse(props: IfElseProps) {
 
         const getExpressions = () : ElseIfConfig => {
             const conditions: {id: number, expression: string, position: NodePosition}[] = [];
-            conditions.push({id: 0, expression: conditionExpr?.source.trim().match(/\(([^)]+)\)/)[1], position: conditionExpr?.position});
+            conditions.push({id: 0, expression: conditionExpr?.source.trim(), position: conditionExpr?.position});
             if (model) {
                 if (isElseIfExist) {
                     let block = ifStatement.elseBody?.elseBody as IfElseStatement;
                     let isElseIfBlockExist: boolean = block?.kind === "IfElseStatement";
                     let id = 1;
                     while (isElseIfBlockExist) {
-                        const expression = block?.condition?.source.trim().match(/\(([^)]+)\)/)[1];
+                        const expression = block?.condition?.source.trim() ;
                         const position = block?.condition?.position;
                         conditions.push({id, expression, position});
                         isElseIfBlockExist = (block?.elseBody?.elseBody as IfElseStatement)?.kind === "IfElseStatement";
