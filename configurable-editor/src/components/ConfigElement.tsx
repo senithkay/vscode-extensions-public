@@ -138,6 +138,7 @@ const getInnerElement = (configElementProps: ConfigElementProps) => {
                         id={configElementProps.id}
                         label={configElementProps.name}
                         existingValue={configElementProps.value as boolean}
+                        isRequired={configElementProps.isRequired}
                         setCheckBoxValue={handleSetElementValue}
                     />
                 </div>

@@ -25,19 +25,31 @@ export interface CheckBoxInputProps {
     id: string;
     label: string;
     existingValue: boolean;
+    isRequired: boolean;
     setCheckBoxValue: (key: string, value: any) => void;
 }
 
 export function CheckBoxInput(props: CheckBoxInputProps) {
-    const { id, label, existingValue, setCheckBoxValue } = props;
+    const { id, label, existingValue, isRequired, setCheckBoxValue } = props;
 
     const handleChange = (e: any) => {
         setCheckBoxValue(id, e.target.checked);
     };
 
+    const getCheckBox = () => {
+        return (
+            <Checkbox
+                defaultChecked={existingValue}
+                color="primary"
+                required={isRequired}
+                onChange={handleChange}
+            />
+        );
+    };
+
     return (
         <FormControlLabel
-            control={<Checkbox defaultChecked={existingValue} color="primary" onChange={handleChange} />}
+            control={getCheckBox()}
             label={label}
         />
     );
