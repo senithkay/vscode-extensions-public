@@ -140,6 +140,10 @@ export class BallerinaExtension {
                 messageFirstEdit: true
             }
         }
+        if (this.getCodeServerContext().codeServerEnv) {
+            window.showInformationMessage('The Ballerina graphical editor is loading...', { modal: true });
+            commands.executeCommand('workbench.action.closeAllEditors');
+        }
     }
 
     setContext(context: ExtensionContext) {
