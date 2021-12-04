@@ -92,7 +92,7 @@ export function EndpointList(props: FormGeneratorProps) {
                                 </Typography>
                                 <Box marginY={2}>
                                     <PrimaryButton
-                                        text="Add Connector Endpoint"
+                                        text="Add Connector"
                                         fullWidth={false}
                                         onClick={onAddConnector}
                                     />
