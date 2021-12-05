@@ -23,7 +23,8 @@
  */
 import { getCurrentBallerinaProject } from '../utils/project-utils';
 import {
-  CancellationToken, debug, DebugConfiguration, Position, Range, RelativePattern,
+  CancellationToken, debug, DebugConfiguration, Position, Range,
+  RelativePattern,
   TestController, TestItem, TestItemCollection, TestMessage, TestRunProfileKind, TestRunRequest,
   tests, TextDocument, Uri, window, workspace, WorkspaceFolder
 } from 'vscode';
@@ -50,10 +51,14 @@ enum TEST_STATUS {
 
 const fs = require('fs');
 const TEST_RESULTS_PATH = path.join("target", "report", "test_results.json").toString();
+let langClient: ExtendedLangClient | undefined;
+let currentProjectRoot;
 
 export async function activate(ballerinaExtInstance: BallerinaExtension) {
   const ctrl = tests.createTestController('ballerina-tests', 'Ballerina Tests');
   ballerinaExtInstance.context?.subscriptions.push(ctrl);
+
+  langClient = ballerinaExtInstance.langClient;
 
   // run tests.
   const runHandler = (request: TestRunRequest, cancellation: CancellationToken) => {
@@ -111,32 +116,34 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
           }
 
           const moduleStatus = testsJson["moduleStatus"];
-          const testResults = moduleStatus[0]["tests"];
           const timeElapsed = (EndTime - startTime) / queue.length;
 
-          for (const { test, } of queue) {
-            let found = false;
-            for (const testResult of testResults) {
-              if (test.label !== testResult.name) {
+          for (const status of moduleStatus) {
+            const testResults = status["tests"];
+            for (const { test, } of queue) {
+              let found = false;
+              for (const testResult of testResults) {
+                if (test.label !== testResult.name) {
+                  continue;
+                }
+
+                if (testResult.status === TEST_STATUS.PASSED) {
+                  run.passed(test, timeElapsed);
+                  found = true;
+                } else if (testResult.status === TEST_STATUS.FAILED) {
+                  // test failed
+                  const testMessage: TestMessage = new TestMessage(testResult.failureMessage);
+                  run.failed(test, testMessage, timeElapsed);
+                  found = true;
+                }
+              }
+              if (found) {
                 continue;
               }
-
-              if (testResult.status === TEST_STATUS.PASSED) {
-                run.passed(test, timeElapsed);
-                found = true;
-              } else if (testResult.status === TEST_STATUS.FAILED) {
-                // test failed
-                const testMessage: TestMessage = new TestMessage(testResult.failureMessage);
-                run.failed(test, testMessage, timeElapsed);
-                found = true;
-              }
+              // test failed
+              const testMessage: TestMessage = new TestMessage("");
+              run.failed(test, testMessage, timeElapsed);
             }
-            if (found) {
-              continue;
-            }
-            // test failed
-            const testMessage: TestMessage = new TestMessage("");
-            run.failed(test, testMessage, timeElapsed);
           }
         }
       } else if (request.profile?.kind == TestRunProfileKind.Debug) {
@@ -162,19 +169,12 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
   ctrl.createRunProfile('Run Tests', TestRunProfileKind.Run, runHandler, true);
   ctrl.createRunProfile('Debug Tests', TestRunProfileKind.Debug, runHandler, true);
 
-  ctrl.resolveHandler = async item => {
-    if (!item) {
-      ballerinaExtInstance.context?.subscriptions.push(...startWatchingWorkspace(ctrl, ballerinaExtInstance));
-      return;
-    }
-  };
-
   async function updateNodeForDocument(document: TextDocument) {
     if (document.uri.scheme !== 'file' || !document.uri.path.endsWith('.bal')) {
       return;
     }
 
-    await createTests(ctrl, document.uri, ballerinaExtInstance);
+    await createTests(ctrl, document.uri);
   }
 
   for (const document of workspace.textDocuments) {
@@ -186,6 +186,18 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
     workspace.onDidChangeTextDocument(e => updateNodeForDocument(e.document)),
     workspace.onDidSaveTextDocument(doc => updateNodeForDocument(doc)),
   );
+
+  if (!langClient) {
+    return;
+  }
+
+  langClient.onReady().then(() => {
+    startWatchingWorkspace(ctrl);
+    if (!window.activeTextEditor) {
+      return;
+    }
+    updateNodeForDocument(window.activeTextEditor.document);
+  });
 }
 
 /** 
@@ -252,17 +264,39 @@ async function startDebugging(uri: Uri, testDebug: boolean, ballerinaCmd: string
  * @param uri File uri to find tests.
  * @param ballerinaExtInstance Balleina extension instace.
  */
-async function createTests(controller: TestController, uri: Uri, ballerinaExtInstance: BallerinaExtension) {
-  const langClient: ExtendedLangClient | undefined = await ballerinaExtInstance.langClient;
+async function createTests(controller: TestController, uri: Uri) {
   if (!langClient) {
     return;
   }
+
+  // create tests for current project
+  let root = (await langClient.getBallerinaProject({
+    documentIdentifier: {
+      uri: uri.toString()
+    }
+  })).path;
+
+  if (!root) {
+    return;
+  }
+
+  if (!uri.fsPath.startsWith(root)) {
+    return;
+  }
+
+  if (currentProjectRoot && currentProjectRoot !== root) {
+    controller.items.forEach(item => {
+      controller.items.delete(item.id);
+    });
+  }
+  currentProjectRoot = root
+
   // Get tests from LS.
   langClient.getExecutorPositions({
     documentIdentifier: {
       uri: uri.toString()
     }
-  }).then(response => {
+  }).then(async response => {
     if (!response.executorPositions) {
       return;
     }
@@ -273,73 +307,75 @@ async function createTests(controller: TestController, uri: Uri, ballerinaExtIns
         positions.push(position);
       }
     });
-    if (positions.length > 0) {
-      const ancestors: TestItem[] = [];
 
-      let root;
-      workspace.workspaceFolders?.map(folder => { root = folder.uri.path });
-      let relativePath = path.relative(root, uri.fsPath).toString().split(path.sep);
-
-      let level = relativePath[0];
-      let fullPath = path.join(root, level).toString();
-      let depth = 0;
-
-      // if already added to the test explorer.
-      let rootNode = controller.items.get(fullPath);
-      if (rootNode) {
-        let parentNode: TestItem = rootNode;
-        let pathToFind = uri.fsPath;
-        while (pathToFind != '') {
-          parentNode = getTestItemNode(rootNode, pathToFind);
-          if (parentNode.id == pathToFind) {
-            relativePath = path.relative(pathToFind, uri.fsPath).split(path.sep);
-            break;
-          }
-          const lastIndex = pathToFind.lastIndexOf(path.sep);
-          pathToFind = pathToFind.slice(0, lastIndex);
-        }
-
-        if (parentNode && parentNode.id === uri.fsPath) {
-          let testCaseItems: TestItem[] = [];
-          response.executorPositions!.forEach(position => {
-
-            const tcase = createTestCase(controller, fullPath, position);
-            testCaseItems.push(tcase);
-          });
-          parentNode.children.replace(testCaseItems);
-          return;
-        } else {
-          rootNode = parentNode;
-          ancestors.push(rootNode);
-          depth = 0;
-        }
-      } else {
-        rootNode = createTestItem(controller, fullPath, fullPath, level);
-        controller.items.add(rootNode);
-        ancestors.push(rootNode);
-        depth = 1;
-      }
-
-      for (depth; depth < relativePath.length; depth++) {
-        const parent = ancestors.pop()!;
-        const level = relativePath[depth];
-        fullPath = path.join(fullPath, level).toString();
-        const middleNode = createTestItem(controller, fullPath, fullPath, level);
-        middleNode.canResolveChildren = true;
-        parent.children.add(middleNode);
-        ancestors.push(middleNode);
-      }
-
-      const parent = ancestors.pop()!;
-      let testCaseItems: TestItem[] = [];
-      positions.forEach(position => {
-        const tcase = createTestCase(controller, fullPath, position);
-        testCaseItems.push(tcase);
-      });
-      parent.children.replace(testCaseItems);
-
-      rootNode.canResolveChildren = true;
+    if (positions.length === 0) {
+      return;
     }
+
+    const ancestors: TestItem[] = [];
+
+    let relativePath = path.relative(root!, uri.fsPath).toString().split(path.sep);
+
+    let level = relativePath[0];
+    let fullPath = path.join(root!, level).toString();
+    let depth = 0;
+
+    // if already added to the test explorer.
+    let rootNode = controller.items.get(fullPath);
+    if (rootNode) {
+      let parentNode: TestItem = rootNode;
+      let pathToFind = uri.fsPath;
+      while (pathToFind != '') {
+        parentNode = getTestItemNode(rootNode, pathToFind);
+        if (parentNode.id == pathToFind) {
+          relativePath = path.relative(pathToFind, uri.fsPath).split(path.sep);
+          break;
+        }
+        const lastIndex = pathToFind.lastIndexOf(path.sep);
+        pathToFind = pathToFind.slice(0, lastIndex);
+      }
+
+      if (parentNode && parentNode.id === uri.fsPath) {
+        let testCaseItems: TestItem[] = [];
+
+        positions.forEach(position => {
+          const tcase = createTestCase(controller, fullPath, position);
+          testCaseItems.push(tcase);
+        });
+        parentNode.children.replace(testCaseItems);
+
+        return;
+      } else {
+        rootNode = parentNode;
+        ancestors.push(rootNode);
+        depth = 0;
+      }
+    } else {
+      rootNode = createTestItem(controller, fullPath, fullPath, level);
+      controller.items.add(rootNode);
+      ancestors.push(rootNode);
+      depth = 1;
+    }
+
+    for (depth; depth < relativePath.length; depth++) {
+      const parent = ancestors.pop()!;
+      const level = relativePath[depth];
+      fullPath = path.join(fullPath, level).toString();
+      const middleNode = createTestItem(controller, fullPath, fullPath, level);
+      middleNode.canResolveChildren = true;
+      parent.children.add(middleNode);
+      ancestors.push(middleNode);
+    }
+
+    const parent = ancestors.pop()!;
+    let testCaseItems: TestItem[] = [];
+    positions.forEach(position => {
+      const tcase = createTestCase(controller, fullPath, position);
+      testCaseItems.push(tcase);
+    });
+    parent.children.replace(testCaseItems);
+
+    rootNode.canResolveChildren = true;
   }, _error => {
   });
 }
@@ -390,7 +426,7 @@ function gatherTestItems(collection: TestItemCollection) {
   return items;
 }
 
-function startWatchingWorkspace(controller: TestController, ballerinaExtInstance: BallerinaExtension) {
+function startWatchingWorkspace(controller: TestController) {
   if (!workspace.workspaceFolders) {
     return [];
   }
@@ -399,15 +435,15 @@ function startWatchingWorkspace(controller: TestController, ballerinaExtInstance
     const pattern = new RelativePattern(workspaceFolder, '**/*.bal');
     const watcher = workspace.createFileSystemWatcher(pattern);
 
-    watcher.onDidCreate(uri => createTests(controller, uri, ballerinaExtInstance));
+    watcher.onDidCreate(uri => createTests(controller, uri));
     watcher.onDidChange(async uri => {
-      await createTests(controller, uri, ballerinaExtInstance);
+      await createTests(controller, uri);
     });
     watcher.onDidDelete(uri => controller.items.delete(uri.toString()));
 
     workspace.findFiles(pattern).then(async files => {
       for (const fileX of files) {
-        await createTests(controller, fileX, ballerinaExtInstance);
+        await createTests(controller, fileX);
       }
     });
 
