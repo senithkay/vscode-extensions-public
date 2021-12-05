@@ -486,7 +486,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
                 onCancel={onClose}
                 statementEditor={false}
                 formTitle={"lowcode.develop.configForms.connector.title"}
-                defaultMessage={"API Connection"}
+                defaultMessage={"Connector"}
             />
             <div className={formClasses.formWrapper}>
                 <div className={formClasses.formFeilds}>
