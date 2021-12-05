@@ -8,6 +8,13 @@
                 "simpleconfigs": {
                     "type": "object",
                     "properties": {
+                        "prices": {
+                            "type": "array",
+                            "items": {
+                              "type": "integer"
+                            },
+                            "description": ""
+                        },
                         "itemCode": {
                             "type": "string",
                             "description": "description"
@@ -28,6 +35,29 @@
                                     "description": "description"
                                 }
                             }
+                        },
+                        "person": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string"
+                              },
+                              "age": {
+                                "type": "integer"
+                              },
+                              "category": {
+                                "type": "object",
+                                "properties": {
+                                  "fullTime": {
+                                    "type": "boolean"
+                                  }
+                                },
+                                "additionalProperties": false,
+                                "description": ""
+                              }
+                            },
+                            "additionalProperties": false,
+                            "description": ""
                         }
                     },
                     "required": [
