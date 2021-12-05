@@ -1,8 +1,11 @@
 import React from "react";
 
-import ConfigForm, { ConfigProperties } from "../components/ConfigForm";
+import ConfigForm from "../components/ConfigForm";
+import { ConfigObjectProps } from "../components/ConfigObject";
+import { ConfigSchema } from "../components/model";
 
 import configSchema from "./data/config-schema.json";
+import existingConfigs from "./data/existing-configs.json";
 
 export default {
   component: ConfigForm,
@@ -14,9 +17,18 @@ const onClickDefaultButton = () => {
   console.log("Default Button clicked");
 };
 
-const onClickPrimaryButton = (configProperties: ConfigProperties[]) => {
+const onClickPrimaryButton = (configProperties: ConfigObjectProps) => {
   // tslint:disable-next-line: no-console
   console.log(configProperties);
 };
 
-export const BasicForm = () => <ConfigForm configSchema={configSchema} defaultButtonText="Cancel" primaryButtonText="Deploy" onClickDefaultButton={onClickDefaultButton} onClickPrimaryButton={onClickPrimaryButton} />;
+export const BasicForm = () => (
+    <ConfigForm
+        configSchema={configSchema as ConfigSchema}
+        existingConfigs={existingConfigs}
+        defaultButtonText={"Cancel"}
+        primaryButtonText={"Run"}
+        onClickDefaultButton={onClickDefaultButton}
+        onClickPrimaryButton={onClickPrimaryButton}
+    />
+);

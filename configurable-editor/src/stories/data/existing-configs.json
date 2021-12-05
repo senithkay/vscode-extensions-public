@@ -1,0 +1,23 @@
+{
+    "dilhashanazeer": {
+        "simpleconfigs": {
+            "prices": [
+                12,
+                2
+            ],
+            "itemCode": "A1234",
+            "discount": 500,
+            "testMode": true,
+            "mod1": {
+                "nameVal": "irushi"
+            },
+            "person": {
+                "name": "irushi",
+                "age": 20,
+                "category": {
+                    "fullTime": true
+                }
+            }
+        }
+    }
+}
