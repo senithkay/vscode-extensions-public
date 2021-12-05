@@ -35,6 +35,7 @@ export interface PlusMenuEntry {
 
 const moduleLevelEntries: PlusMenuEntry[] = [
     { name: 'Service', type: 'ServiceDeclaration' },
+    { name: 'Main', type: 'FunctionDefinition' },
     {
         name: 'Variable',
         type: 'VariableIcon',
@@ -86,7 +87,7 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
     }
 
     const onOptionSelect = (option: PlusMenuEntry) => {
-        renderAddForm(targetPosition, { formType: option.type, isLoading: false }, handleOnClose, handleOnSave);
+        renderAddForm(targetPosition, { formType: option.type, formName: option.name, isLoading: false }, handleOnClose, handleOnSave);
         setSelectedOption(option);
     }
 
