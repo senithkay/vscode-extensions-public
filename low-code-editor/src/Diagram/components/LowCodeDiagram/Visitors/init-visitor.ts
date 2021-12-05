@@ -483,7 +483,6 @@ class InitVisitor implements Visitor {
                     stmtViewState.action.endpointName = checkExprViewState.action.endpointName;
                     stmtViewState.action.actionName = checkExprViewState.action.actionName;
                     stmtViewState.isCallerAction = checkExprViewState.isCallerAction;
-                    stmtViewState.isAction = checkExprViewState.isAction;
                     if (!allEndpoints.has(stmtViewState.action.endpointName)) {
                         stmtViewState.isAction = false;
                         return;
@@ -501,7 +500,6 @@ class InitVisitor implements Visitor {
                     stmtViewState.action.endpointName = typeCastViewState.action.endpointName;
                     stmtViewState.action.actionName = typeCastViewState.action.actionName;
                     stmtViewState.isCallerAction = typeCastViewState.isCallerAction;
-                    stmtViewState.isAction = typeCastViewState.isAction;
                 }
                 if (!stmtViewState.isCallerAction) {
                     // Set icon id for an action.

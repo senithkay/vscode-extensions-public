@@ -287,7 +287,7 @@ export function IfElse(props: IfElseProps) {
             const conditions: {id: number, expression: string, position: NodePosition, diagnostics?: Diagnostic[]}[] = [];
             conditions.push({
                 id: 0,
-                expression: conditionExpr?.source.trim().match(/\(([^)]+)\)/)[1],
+                expression: conditionExpr?.source.trim(),
                 position: conditionExpr?.position,
                 diagnostics: conditionExpr?.typeData?.diagnostics
             });
@@ -297,7 +297,7 @@ export function IfElse(props: IfElseProps) {
                     let isElseIfBlockExist: boolean = block?.kind === "IfElseStatement";
                     let id = 1;
                     while (isElseIfBlockExist) {
-                        const expression = block?.condition?.source.trim().match(/\(([^)]+)\)/)[1];
+                        const expression = block?.condition?.source.trim();
                         const position = block?.condition?.position;
                         const nodeDiagnostics = block?.condition?.typeData?.diagnostics;
                         conditions.push({id, expression, position, diagnostics: nodeDiagnostics});
