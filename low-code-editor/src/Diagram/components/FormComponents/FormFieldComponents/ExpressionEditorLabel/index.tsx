@@ -12,7 +12,6 @@
  */
 // tslint:disable: jsx-no-multiline-js no-empty jsx-curly-spacing
 import React from "react";
-import { FormattedMessage } from "react-intl";
 
 import { FormHelperText } from "@material-ui/core";
 import * as MonacoEditor from 'monaco-editor';
@@ -33,7 +32,8 @@ export function ExpressionEditorLabel(props: FormElementProps<ExpressionEditorPr
     const textFieldClasses = useTextInputStyles();
 
     const textLabel = model.label || model.displayName || model.name;
-    const typeString = transformFormFieldTypeToString(model, true) + (model.optional ? "?" : "");
+    const formFieldTypeString: string = transformFormFieldTypeToString(model, true);
+    const typeString: string = formFieldTypeString ? (formFieldTypeString + (model.optional ? "?" : "")) : formFieldTypeString;
 
     const codeRef = (ref: HTMLPreElement) => {
         if (ref) {
