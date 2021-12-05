@@ -330,7 +330,10 @@ export class ExtendedLangClient extends LanguageClient {
     getRealtimePerformanceData(params: PerformanceAnalyzerGraphRequest): Promise<PerformanceAnalyzerRealtimeResponse> {
         if (!this.ballerinaExtInstance?.enabledPerformanceForecasting() ||
             !this.ballerinaExtInstance?.getChoreoSession().loginStatus) {
-            return Promise.resolve({ type: MESSAGE_TYPE.IGNORE, message: '', concurrency: { min: 0, max: 0 }, tps: { min: 0, max: 0 }, latency: { min: 0, max: 0 } });
+            return Promise.resolve({
+                type: MESSAGE_TYPE.IGNORE, message: '', concurrency: { min: 0, max: 0 },
+                tps: { min: 0, max: 0 }, latency: { min: 0, max: 0 }
+            });
         }
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.PERF_ANALYZER_REALTIME_DATA)) {
             Promise.resolve(NOT_SUPPORTED);
