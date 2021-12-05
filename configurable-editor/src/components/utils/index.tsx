@@ -37,8 +37,8 @@ export function instanceOfConfigElement(data: any): boolean {
  */
 export function getType(type: string): ConfigType {
     // Handle a possible inconsistency in the language feature.
-    if (type === "integer") {
-        type = "number";
+    if (type === "number") {
+        type = "integer";
     }
 
     const keys = Object.keys(ConfigType).filter((x) => ConfigType[x] === type);

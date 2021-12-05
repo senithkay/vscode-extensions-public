@@ -41,6 +41,11 @@ export function TextFieldInput(props: TextFieldInputProps) {
         setTextFieldValue(id, e.target.value);
     };
 
+    let fieldType: string = type;
+    if (type === "integer") {
+        fieldType = "number";
+    }
+
     return (
         <TextField
             required={isRequired}
@@ -48,7 +53,7 @@ export function TextFieldInput(props: TextFieldInputProps) {
             label={label}
             fullWidth={true}
             defaultValue={existingValue}
-            type={type}
+            type={fieldType}
             margin="normal"
             onChange={handleChange}
         />

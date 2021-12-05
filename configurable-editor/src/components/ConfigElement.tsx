@@ -144,7 +144,7 @@ const getInnerElement = (configElementProps: ConfigElementProps) => {
                 </div>
             );
         case ConfigType.STRING:
-        case ConfigType.NUMBER:
+        case ConfigType.INTEGER:
             return (
                 <div key={configElementProps.id + "-FIELD"}>
                     <TextFieldInput
