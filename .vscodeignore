@@ -29,6 +29,7 @@ test/
 .github/
 build.gradle
 coverconfig.json
+dist/extension.js.map
 grammar/ballerina-grammar/LICENSE
 grammar/ballerina-grammar/pull_request_template.md
 grammar/ballerina-grammar/package.json
@@ -42,7 +43,13 @@ grammar/ballerina-grammar/build-tm.js
 grammar/ballerina-grammar/build-monarch.js
 grammar/ballerina-grammar/test-scripts/
 grammar/ballerina-grammar/test/
-grammar/ballerina-grammar/node_modules
+grammar/ballerina-grammar/node_modules/
+grammar/ballerina-grammar/syntaxes/ballerina.YAML-tmLanguage
+grammar/ballerina-grammar/syntaxes/ballerina.monarch.json
+grammar/ballerina-grammar/prism/
+grammar/ballerina-grammar/tsconfig.json
 scripts/
 resources/jslibs/index.d.ts
+resources/jslibs/themes/ballerina-default.css
+resources/jslibs/themes/ballerina-default.css.map
 web/
