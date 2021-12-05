@@ -17,16 +17,17 @@
  *
  */
 
-import { BallerinaExtension, ExtendedLangClient, LANGUAGE } from '../core';
+import { BallerinaExtension, ExtendedLangClient, LANGUAGE, WEBVIEW_TYPE } from '../core';
 import {
     CancellationToken, CodeLens, CodeLensProvider, Event, EventEmitter,
     ProviderResult, Range, TextDocument, Uri, window, workspace
 } from 'vscode';
-import { createPerformanceGraphAndCodeLenses, SHOW_GRAPH_COMMAND } from './activator';
+import { createPerformanceGraphAndCodeLenses } from './activator';
 import { DataLabel, Member, SyntaxTree } from './model';
 import path from 'path';
-import { ANALYZETYPE } from '.';
-import { performanceGraphPanel } from './performanceGraphPanel';
+import { ANALYZETYPE } from './model';
+import { SHOW_GRAPH_COMMAND } from './activator';
+import { DefaultWebviewPanel } from './performanceGraphPanel';
 
 export enum CODELENSE_TYPE {
     REALTIME,
@@ -46,10 +47,12 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
     static onDidChangeCodeLenses: any;
     static dataLabels: DataLabel[] = [];
     private static isProccessing = false;
+    private extension: BallerinaExtension;
 
     constructor(extensionInstance: BallerinaExtension) {
         ExecutorCodeLensProvider.onDidChangeCodeLenses = this._onDidChangeCodeLenses;
         langClient = <ExtendedLangClient>extensionInstance.langClient;
+        this.extension = extensionInstance;
         workspace.onDidOpenTextDocument(async (document) => {
             if (document.languageId === LANGUAGE.BALLERINA) {
                 const uri = document.uri;
@@ -63,9 +66,10 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
                 const activeEditor = window.activeTextEditor;
                 const uri = activeEditor?.document.uri;
 
-                if (performanceGraphPanel) {
+                if (this.extension.getWebviewContext().isOpen &&
+                    this.extension.getWebviewContext().type === WEBVIEW_TYPE.PERFORMANCE_FORECAST) {
                     // Close graph while editing.
-                    performanceGraphPanel.dispose();
+                    DefaultWebviewPanel.currentPanel?.dispose();
                 }
 
                 await ExecutorCodeLensProvider.addCodeLenses(uri);

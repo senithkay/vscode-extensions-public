@@ -245,7 +245,6 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
                 \`;
             }
             webViewRPCHandler.addMethod("updateDiagram", (args) => {
-                console.log("on update invoked" + JSON.stringify(args));
                 drawDiagram({
                     filePath: args[0].filePath,
                     startLine: args[0].startLine,
@@ -255,7 +254,6 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
                 return Promise.resolve({});
             });
             webViewRPCHandler.addMethod("updatePerformanceLabels", (args) => {
-                console.log("Update performance labels" + JSON.stringify(args));
                 BLCEditor.updatePerformanceLabels(args);
                 return Promise.resolve({});
             });
@@ -267,13 +265,15 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
             });
 
             window.addEventListener('focus', event => {
-                webViewRPCHandler.invokeRemoteMethod(
-                    'focusDiagram',
-                    [],
-                    (response) => {
-                            resolve(response);
-                    }
-                );
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'focusDiagram',
+                        [],
+                        (response) => {
+                                resolve(response);
+                        }
+                    );
+                });
             });
         }
     `;

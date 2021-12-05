@@ -18,3 +18,4 @@
  */
 
 export * from './activator';
+export * from './model';

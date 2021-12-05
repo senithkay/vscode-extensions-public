@@ -17,63 +17,109 @@
  *
  */
 
-import { ViewColumn, window, WebviewPanel, Uri } from "vscode";
+import { ViewColumn, window, WebviewPanel, Uri, Disposable } from "vscode";
 import { WebViewRPCHandler, getCommonWebViewOptions } from '../utils';
 import { render } from './render';
-import { GraphData } from "./activator";
 import { updateCodeLenses } from ".";
-import { ExtendedLangClient } from "../core";
+import { BallerinaExtension, ExtendedLangClient, WEBVIEW_TYPE } from "../core";
 import { ExecutorCodeLensProvider } from "./codelens-provider";
 import { refreshDiagramForPerformanceConcurrencyChanges } from "../diagram";
+import { GraphData } from "./model";
+import { join } from "path";
 
-export let performanceGraphPanel: WebviewPanel | undefined;
 let clearCodeLenses = true;
 
-export function showPerformanceGraph(langClient: ExtendedLangClient, data: GraphData, currentFileUri: Uri): void {
-    if (performanceGraphPanel) {
-        clearCodeLenses = false;
-        performanceGraphPanel.dispose();
+export class DefaultWebviewPanel {
+    public static currentPanel: DefaultWebviewPanel | undefined;
+    private readonly webviewPanel: WebviewPanel;
+    private disposables: Disposable[] = [];
+    private extension: BallerinaExtension;
+
+
+    private constructor(panel: WebviewPanel, data: GraphData, type: WEBVIEW_TYPE, title: string, extension: BallerinaExtension) {
+        this.webviewPanel = panel;
+        this.update(data, type, title);
+        this.webviewPanel.onDidDispose(() => this.dispose(), null, this.disposables);
+        this.extension = extension;
     }
 
-    // Create and show a new webview
-    performanceGraphPanel = window.createWebviewPanel(
-        'ballerinaExamples',
-        `Performance Forecast of ${data.name}`,
-        { viewColumn: ViewColumn.Beside, preserveFocus: true },
-        getCommonWebViewOptions()
-    );
+    public static create(langClient: ExtendedLangClient, data: GraphData, currentFileUri: Uri, title: string, viewColumn: ViewColumn,
+        extension: BallerinaExtension, type: WEBVIEW_TYPE) {
+        extension.setWebviewContext({ isOpen: true, type });
+        if (DefaultWebviewPanel.currentPanel && DefaultWebviewPanel.currentPanel.webviewPanel.viewColumn
+            && DefaultWebviewPanel.currentPanel.webviewPanel.viewColumn == viewColumn) {
+            clearCodeLenses = false;
 
-    // Update latency
-    performanceGraphPanel.webview.onDidReceiveMessage(
-        message => {
-            switch (message.command) {
-                case 'updateCodeLenses':
-                    for (let editor of window.visibleTextEditors) {
-                        if (editor.document.uri.path === currentFileUri.path) {
-                            updateCodeLenses(message.text);
-                            break;
+            DefaultWebviewPanel.currentPanel.webviewPanel.reveal();
+            DefaultWebviewPanel.currentPanel.update(data, type, title);
+            return;
+        } else if (DefaultWebviewPanel.currentPanel) {
+            DefaultWebviewPanel.currentPanel.dispose();
+        }
+
+        const panel = window.createWebviewPanel(
+            'webviewPanel',
+            title,
+            { viewColumn, preserveFocus: true },
+            getCommonWebViewOptions()
+        );
+
+        panel.iconPath = {
+            light: Uri.file(join(extension.context!.extensionPath, 'resources/images/icons/enable.svg')),
+            dark: Uri.file(join(extension.context!.extensionPath,
+                'resources/images/icons/enable.svg'))
+        };
+
+        WebViewRPCHandler.create(panel, langClient);
+        DefaultWebviewPanel.currentPanel = new DefaultWebviewPanel(panel, data, type, title, extension);
+
+        // Update latency
+        DefaultWebviewPanel.currentPanel.webviewPanel.webview.onDidReceiveMessage(
+            message => {
+                switch (message.command) {
+                    case 'updateCodeLenses':
+                        for (let editor of window.visibleTextEditors) {
+                            if (editor.document.uri.path === currentFileUri.path) {
+                                updateCodeLenses(message.text);
+                                break;
+                            }
                         }
-                    }
 
-                    refreshDiagramForPerformanceConcurrencyChanges(message.text);
-                    return;
+                        refreshDiagramForPerformanceConcurrencyChanges(message.text);
+                        return;
+                }
             }
-        }
-    );
+        );
 
-    WebViewRPCHandler.create(performanceGraphPanel, langClient);
-    const html = render({ name: data.name, data: data.graphData });
-    if (performanceGraphPanel && html) {
-        performanceGraphPanel.webview.html = html;
+        DefaultWebviewPanel.currentPanel.webviewPanel.onDidDispose(() => {
+            if (clearCodeLenses) {
+                refreshDiagramForPerformanceConcurrencyChanges(-1);
+                ExecutorCodeLensProvider.addCodeLenses(currentFileUri);
+            }
+        });
     }
 
-    clearCodeLenses = true;
-    performanceGraphPanel.onDidDispose(() => {
-        performanceGraphPanel = undefined;
+    public dispose() {
+        this.extension.setWebviewContext({ isOpen: false });
+        DefaultWebviewPanel.currentPanel = undefined;
+        this.webviewPanel.dispose();
+        this.disposables.forEach(disposable => {
+            disposable.dispose();
+        });
+    }
 
-        if (clearCodeLenses) {
-            refreshDiagramForPerformanceConcurrencyChanges(-1);
-            ExecutorCodeLensProvider.addCodeLenses(currentFileUri);
+    private update(data: GraphData, type: WEBVIEW_TYPE, title) {
+        if (DefaultWebviewPanel.currentPanel) {
+            this.updateTitle(title);
         }
-    });
+        this.webviewPanel.webview.html = render(type, { name: data.name, data: data.graphData });
+        clearCodeLenses = true;
+    }
+
+    public updateTitle(title: string) {
+        if (this.webviewPanel.title === title) {
+            return;
+        }
+        this.webviewPanel.title = title;
+    }
 }
