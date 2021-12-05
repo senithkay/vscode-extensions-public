@@ -525,7 +525,8 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
 
         expressionEditorState.name = model.name;
         expressionEditorState.content = initContent;
-        expressionEditorState.uri = `expr://${currentFile.path}`;
+        expressionEditorState.uri = monaco.Uri.file(currentFile.path).toString();
+
         await getExpressionEditorLangClient().then(async (langClient: ExpressionEditorLangClientInterface) => {
             langClient.didChange({
                 contentChanges: [
@@ -590,17 +591,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
 
         expressionEditorState.name = model.name;
         expressionEditorState.content = initContent;
-        expressionEditorState.uri = `expr://${currentFile.path}`;
+        expressionEditorState.uri = monaco.Uri.file(currentFile.path).toString();
 
         await getExpressionEditorLangClient().then(async (langClient: ExpressionEditorLangClientInterface) => {
-            langClient.didOpen({
-                textDocument: {
-                    uri: expressionEditorState.uri,
-                    languageId: "ballerina",
-                    text: currentFile.content,
-                    version: 1
-                }
-            });
             langClient.didChange({
                 contentChanges: [
                     {
@@ -765,9 +758,15 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             expressionEditorState.uri = expressionEditorState?.uri;
 
             await getExpressionEditorLangClient().then(async (langClient: ExpressionEditorLangClientInterface) => {
-                langClient.didClose({
+                langClient.didChange({
+                    contentChanges: [
+                        {
+                            text: expressionEditorState.content
+                        }
+                    ],
                     textDocument: {
-                        uri: expressionEditorState.uri
+                        uri: expressionEditorState.uri,
+                        version: 1
                     }
                 });
             });
