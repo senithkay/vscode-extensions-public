@@ -26,7 +26,7 @@ export function AddInputButton() {
 
     return (
         <Box mb={2} mt={2}>
-            <Button variant="text" startIcon={<AddIcon />}>
+            <Button variant="text" color="primary" startIcon={<AddIcon />}>
                 Add
             </Button>
         </Box>

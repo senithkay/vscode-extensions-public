@@ -45,10 +45,10 @@ export const getConfigObject = (configObjectProps: ConfigObjectProps) => {
     });
 
     return (
-        <Box m={2} pt={1}>
+        <Box m={1} pt={1}>
             <Card variant="outlined">
                 <CardContent>
-                    <Typography variant="h6" component="div">
+                    <Typography variant="body1" component="div" style={{fontWeight: "600"}}>
                         {configObjectProps.name}
                     </Typography>
                     <Typography variant="body2" component="div">

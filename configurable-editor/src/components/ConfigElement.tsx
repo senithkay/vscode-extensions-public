@@ -72,10 +72,10 @@ export const getConfigElement = (configElementProps: ConfigElementProps) => {
 
     return (
         <Box mt={3}>
-            <Typography variant="h6" component="div" color="primary">
+            <Typography variant="body1" component="div" color="primary">
                 {configElementProps.name}
             </Typography>
-            <Typography variant="overline" component="div">
+            <Typography variant="overline" component="div" style={{color: "#04AA6D"}}>
                 {configElementProps.type}
             </Typography>
             <Typography variant="body2" component="div">
