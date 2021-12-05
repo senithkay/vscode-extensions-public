@@ -153,7 +153,7 @@ export function updateConfigObjectProps(configObjects: ConfigObjectProps,
                 const property: ConfigElementProps = configObjects.properties[key];
                 const existingConfig = configValues.findIndex((item) => item.key === property.id);
                 if (existingConfig > -1) {
-                    configObjects.properties[key].value = configValues[existingConfig];
+                    configObjects.properties[key].value = configValues[existingConfig].value;
                 }
             } else {
                 updateConfigObjectProps(configObjects.properties[key], configValues);
