@@ -40,7 +40,7 @@ export const getConfigObject = (configObjectProps: ConfigObjectProps) => {
         return;
     }
 
-    configObjectProps.properties.map((entry) => {
+    configObjectProps.properties.forEach((entry) => {
         entry.setConfigElement = configObjectProps.setConfigElement;
     });
 
