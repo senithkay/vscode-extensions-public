@@ -15,12 +15,12 @@ import React from "react";
 import { useIntl } from "react-intl";
 
 import { FormControl } from "@material-ui/core";
-import { FormActionButtons, FormHeaderSection, PrimaryButton, SecondaryButton } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { FormActionButtons, FormHeaderSection } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { useEnumEditorContext } from "../../../../../../Contexts/EnumEditor";
-import { mutateEnumDefinition, mutateTypeDefinition } from "../../../../../utils/modification-util";
+import { mutateEnumDefinition } from "../../../../../utils/modification-util";
 import { wizardStyles } from "../../style";
 import { EnumField } from "../EnumField";
 import { recordStyles } from "../style";
@@ -33,15 +33,6 @@ export function CodePanel() {
     const overlayClasses = wizardStyles();
     const recordClasses = recordStyles();
     const intl = useIntl();
-
-    const saveButtonText = intl.formatMessage({
-        id: "lowcode.develop.configForms.enumEditor.saveButton.text",
-        defaultMessage: "Save"
-    });
-    const cancelButtonText = intl.formatMessage({
-        id: "lowcode.develop.configForms.enumEditor.cancelButton.text",
-        defaultMessage: "Cancel"
-    });
 
     const handleRecordSave = () => {
         if (state.enumModel.isTypeDefinition) {

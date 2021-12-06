@@ -13,8 +13,6 @@
 import { DiagramEditorLangClientInterface, JsonToRecordResponse, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     EnumDeclaration,
-    RecordField,
-    RecordFieldWithDefaultValue,
     STKindChecker,
 } from "@wso2-enterprise/syntax-tree";
 
