@@ -18,12 +18,14 @@
  */
 
 import { ViewColumn, window, WebviewPanel, Uri, commands } from "vscode";
-import { getCommonWebViewOptions } from '../utils';
+import { getCommonWebViewOptions, WebViewMethod, WebViewRPCHandler } from '../utils';
 import { render } from './renderer';
 import { writeFile } from "fs";
 import { PALETTE_COMMANDS } from "../project";
+import { BallerinaExtension, ExtendedLangClient } from "../core";
 
 let configEditorPanel: WebviewPanel | undefined;
+let langClient: ExtendedLangClient;
 
 enum ConfigType {
     NUMBER = 'integer',
@@ -107,7 +109,9 @@ function getConfigProperty(property: any): ConfigProperty {
     return configProperty;
 }
 
-export function showConfigEditor(configSchema: any, currentFileUri: Uri): void {
+export function showConfigEditor(ballerinaExtInstance: BallerinaExtension,
+                                 configSchema: any, currentFileUri: Uri): void {
+    langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
     if (configEditorPanel) {
         configEditorPanel.dispose();
     }
@@ -120,17 +124,6 @@ export function showConfigEditor(configSchema: any, currentFileUri: Uri): void {
         getCommonWebViewOptions()
     );
 
-    // Retrieve user inputs
-    configEditorPanel.webview.onDidReceiveMessage(async message => {
-        if (message.command === 'handleConfigInputs') {
-            handleConfigInputs(message.text);
-            if (message.submitType === 'SaveRun') {
-                await commands.executeCommand(PALETTE_COMMANDS.RUN);
-            }
-        }
-        configEditorPanel?.dispose();
-    });
-
     function handleConfigInputs(configInputs: any) {
         writeFile(currentFileUri.fsPath, parseConfigToToml(configInputs), function (error) {
             if (error) {
@@ -140,26 +133,24 @@ export function showConfigEditor(configSchema: any, currentFileUri: Uri): void {
         });
     }
 
-    // const html = render({
-    //     "$schema": "http://json-schema.org/draft-07/schema#",
-    //     "type": "object",
-    //     "properties": {
-    //         "dilhashanazeer": {
-    //             "type": "object",
-    //             "properties": {
-    //                 "simpleconfigs": {
-    //                     "type": "object",
-    //                     "properties": {
-    //                         "token": {
-    //                             "type": "string",
-    //                             "description": "description"
-    //                         }
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-    // });
+    const remoteMethods: WebViewMethod[] = [
+        {
+            methodName: "onClickDefaultButton",
+            handler: () => {
+                configEditorPanel?.dispose();
+            }
+        },
+        {
+            methodName: "onClickPrimaryButton",
+            handler: (args: any[]) => {
+                handleConfigInputs(args[0]);
+                commands.executeCommand(PALETTE_COMMANDS.RUN);
+                configEditorPanel?.dispose();
+            }
+        }
+    ];
+    WebViewRPCHandler.create(configEditorPanel, langClient, remoteMethods);
+
     const html = render(configSchema);
     console.log("configSchema: " + configSchema);
 

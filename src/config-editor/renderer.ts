@@ -26,7 +26,23 @@ export function render(data: any): string {
     const styles = ``;
     const scripts = `
             function loadedScript() {
-                window.configEditor.renderConfigEditor(${JSON.stringify(data)});
+                function onClickDefaultButton() {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'onClickDefaultButton',
+                        [],
+                        () => {}
+                    );
+                }
+
+                function onClickPrimaryButton(arg) {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'onClickPrimaryButton',
+                        [arg],
+                        () => {}
+                    );
+                }
+
+                window.configEditor.renderConfigEditor(${JSON.stringify(data)}, {}, "Cancel", "Run", onClickDefaultButton, onClickPrimaryButton);
             }
         `;
 

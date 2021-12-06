@@ -181,7 +181,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
                     + 'retrieving the configurable schema.');
                 return Promise.reject();
             }
-            showConfigEditor(data.configSchema, Uri.parse(filePath));
+            showConfigEditor(ballerinaExtInstance, data.configSchema, Uri.parse(filePath));
         });
     });
 
