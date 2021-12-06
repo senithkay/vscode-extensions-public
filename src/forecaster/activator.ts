@@ -17,16 +17,18 @@
  *
  */
 
-import { DataLabel } from "./model";
+import { ANALYZETYPE, DataLabel, GraphData, PerformanceGraphRequest } from "./model";
 import { commands, ExtensionContext, languages, Range, TextDocument, Uri, ViewColumn, window } from "vscode";
-import { BallerinaExtension, ExtendedLangClient, GraphPoint, LANGUAGE, PerformanceAnalyzerGraphResponse, PerformanceAnalyzerRealtimeResponse } from "../core";
+import { BallerinaExtension, ExtendedLangClient, GraphPoint, LANGUAGE, PerformanceAnalyzerGraphResponse, PerformanceAnalyzerRealtimeResponse, WEBVIEW_TYPE } from "../core";
 import { CODELENSE_TYPE, ExecutorCodeLensProvider } from "./codelens-provider";
 import { log } from "../utils";
-import { showPerformanceGraph } from "./performanceGraphPanel";
+import { DefaultWebviewPanel } from "./performanceGraphPanel";
 import { MESSAGE_TYPE, showMessage } from "../utils/showMessage";
 import { PALETTE_COMMANDS } from "../project";
 
+export const SHOW_GRAPH_COMMAND = "ballerina.forecast.performance.showGraph";
 export const CHOREO_API_PF = "http://choreocontrolplane.preview-dv.choreo.dev/performance-analyzer/2.0.0/get_estimations/3.0";
+
 const CHOREO_AUTH_ERR = "Authentication error for accessing AI service (ID6)";
 const NETWORK_ERR = "Network error. Please check you internet connection";
 const MODEL_NOT_FOUND = "AI service does not have enough data to forecast";
@@ -37,6 +39,7 @@ const UNABLE_TO_GET = "Error while connecting to Choreo API, unable to get perfo
 const PERF_DISABLED = "Error while connecting to Choreo API, Performance analyzer will be disabled for this session";
 const SUCCESS = "Success";
 const maxRetries = 3;
+
 let langClient: ExtendedLangClient;
 let uiData: GraphData;
 let extension: BallerinaExtension;
@@ -46,29 +49,6 @@ let currentResourcePos: Range;
 let currentFile: TextDocument | undefined;
 let currentFileUri: String | undefined;
 let retryAttempts = 0;
-
-export const SHOW_GRAPH_COMMAND = "ballerina.forecast.performance.showGraph";
-
-export enum ANALYZETYPE {
-    ADVANCED = "advanced",
-    REALTIME = "realtime",
-}
-
-export interface GraphData {
-    name: String,
-    graphData: GraphPoint[];
-}
-
-export interface PFSession {
-    choreoAPI: String,
-    choreoToken: String | undefined,
-    choreoCookie?: String | undefined
-}
-
-export interface PerformanceGraphRequest {
-    file: string;
-    data: GraphData;
-}
 
 /**
  * Endpoint performance analyzer.
@@ -203,7 +183,8 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
                 return;
             }
 
-            showPerformanceGraph(langClient, uiData, currentFile.uri);
+            DefaultWebviewPanel.create(langClient, uiData, currentFile.uri, `Performance Forecast of ${uiData.name}`,
+                ViewColumn.Two, extension, WEBVIEW_TYPE.PERFORMANCE_FORECAST);
 
         }).catch(error => {
             log(error);
@@ -351,6 +332,8 @@ export function updateCodeLenses(concurrency: number) {
 }
 
 export function openPerformanceDiagram(request: PerformanceGraphRequest) {
-    showPerformanceGraph(langClient, request.data, Uri.parse(request.file));
+    DefaultWebviewPanel.create(langClient, request.data, Uri.parse(request.file),
+        `Performance Forecast of ${request.data.name}`, ViewColumn.Two, extension,
+        WEBVIEW_TYPE.PERFORMANCE_FORECAST);
     return true;
 }

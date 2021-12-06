@@ -17,13 +17,14 @@
  *
  */
 
+import { WEBVIEW_TYPE } from 'src/core';
 import { getLibraryWebViewContent, WebViewOptions, getComposerWebViewOptions } from '../utils';
 
-export function render(data: any)
+export function render(type: WEBVIEW_TYPE, data: any)
     : string {
 
-    const body = `<div id="performance" class="performance-container"><div class="loader" /></div>`;
-    const bodyCss = "performance";
+    const body = `<div id="webview-container"><div class="loader" /></div>`;
+    const bodyCss = "webview-css";
     const styles = `
         .loader {
             border: 3px solid #edf0ff;
@@ -41,9 +42,12 @@ export function render(data: any)
         }
     `;
     const scripts = `
-             function loadedScript() {
-                window.webViews.renderPerformance(${JSON.stringify(data)});
-             }
+            function loadedScript() {
+                if (${type} === 0) {
+                    window.webViews.renderPerformance(${JSON.stringify(data)});
+                    return;
+                }
+            }
          `;
 
     const webViewOptions: WebViewOptions = {

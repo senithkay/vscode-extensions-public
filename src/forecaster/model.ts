@@ -17,8 +17,30 @@
  *
  */
 
+import { GraphPoint } from "../core";
 import { Range } from "vscode";
 import { CODELENSE_TYPE } from "./codelens-provider";
+
+export enum ANALYZETYPE {
+    ADVANCED = "advanced",
+    REALTIME = "realtime",
+}
+
+export interface GraphData {
+    name: String,
+    graphData: GraphPoint[];
+}
+
+export interface PFSession {
+    choreoAPI: String,
+    choreoToken: String | undefined,
+    choreoCookie?: String | undefined
+}
+
+export interface PerformanceGraphRequest {
+    file: string;
+    data: GraphData;
+}
 
 export interface SyntaxTree {
     members: Member[];
