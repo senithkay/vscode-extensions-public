@@ -60,7 +60,6 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
         },
     } = useDiagramContext();
     const existingFunctionNames = useRef([]);
-    const enableSaveBtn = (functionName.length > 0) && isFunctionNameValid && !addingNewParam && validReturnType;
 
     const handleOnSave = () => {
         const parametersStr = parameters
