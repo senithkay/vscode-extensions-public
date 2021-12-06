@@ -80,8 +80,11 @@ export function BinaryExpressionComponent(props: BinaryProps) {
 
     const onClickOperator = (event: any) => {
         event.stopPropagation()
-        expressionHandler(model.operator, true, false,
-            { expressionSuggestions: getOperatorSuggestions(kind) })
+        expressionHandler(model.operator, true, false, {
+            expressionSuggestions: getOperatorSuggestions(kind),
+            typeSuggestions: [],
+            variableSuggestions: []
+        });
     }
 
     const onClickOnLhsExpression = async (event: any) => {
