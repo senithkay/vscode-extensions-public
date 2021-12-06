@@ -37,7 +37,7 @@ export interface OperationFormProps {
     operations: ConnectorOperation[];
     selectedOperation: string;
     showConnectionName: boolean;
-    onSave: (returnType?: string) => void;
+    onSave: () => void;
     connectionDetails: ConnectorConfig;
     mutationInProgress: boolean;
     onConnectionChange: () => void;
@@ -59,7 +59,7 @@ export function OperationForm(props: OperationFormProps) {
 
     const [selectedOperationState, setSelectedOperationState] = useState(selectedOperation);
     const [responseVarName, setResponseVarName] = useState<string>(connectionDetails?.action?.returnVariableName);
-    const [returnTypeName, setReturnTypeName] = useState<string>(connectionDetails?.action?.returnTypeName);
+    const [returnType, setReturnType] = useState<string>(connectionDetails?.action?.returnType);
     const [validOutputValue, setValidOutputValue] = useState(false);
 
     const frmFields: FormField[] = connectionDetails?.action?.fields;
@@ -69,7 +69,7 @@ export function OperationForm(props: OperationFormProps) {
 
     const handleOnSave = () => {
         const config = connectionDetails;
-        onSave(returnTypeName);
+        onSave();
     };
 
     const handleOperationChange = (operation: string) => {
@@ -85,7 +85,7 @@ export function OperationForm(props: OperationFormProps) {
                 setResponseVarName(connectionDetails.action.returnVariableName);
 
             }
-            setReturnTypeName(connectionDetails.action.returnTypeName);
+            setReturnType(connectionDetails.action.returnType);
         }
     }
 
@@ -118,8 +118,8 @@ export function OperationForm(props: OperationFormProps) {
     };
 
     const onTypeChange = (text: string) => {
-        connectionDetails.action.returnTypeName = text;
-        setReturnTypeName(text);
+        connectionDetails.action.returnType = text;
+        setReturnType(text);
     };
 
     let responseVariableHasReferences: boolean = false;
@@ -130,7 +130,7 @@ export function OperationForm(props: OperationFormProps) {
     }
 
     connectionDetails.action.returnVariableName = responseVarName;
-    connectionDetails.action.returnTypeName = returnTypeName;
+    connectionDetails.action.returnType = returnType;
 
 
     const validateForm = (isRequiredFilled: boolean) => {
@@ -175,18 +175,9 @@ export function OperationForm(props: OperationFormProps) {
 
     const operationLabel = operations.find(operation => operation.name === selectedOperationState)?.label;
 
-    const validateExpression = (fieldName: string, isInvalid: boolean) => {
+    const onValidateOutputType = (fieldName: string, isInvalid: boolean) => {
         setValidOutputValue(!isInvalid);
     };
-
-    // const varTypeProps: VariableTypeInputProps = {
-    //     displayName: "Output Type",
-    //     hideTextLabel: false,
-    //     onValueChange: onTypeChange,
-    //     position: targetPosition}
-
-    // };
-
 
     return (
         <div>
@@ -242,11 +233,11 @@ export function OperationForm(props: OperationFormProps) {
                                 <Box className="exp-wrapper">
                                     <VariableTypeInput
                                         displayName={addOutputTypeLabel}
-                                        value={returnTypeName ? returnTypeName : operationReturnType.returnType}
+                                        value={returnType ? returnType : operationReturnType.returnType}
                                         hideTextLabel={false}
                                         onValueChange={onTypeChange}
                                         position={targetPosition}
-                                        validateExpression={validateExpression}
+                                        validateExpression={onValidateOutputType}
                                     />
                                 </Box>
                             ) : null}

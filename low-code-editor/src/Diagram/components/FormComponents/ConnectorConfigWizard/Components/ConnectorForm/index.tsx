@@ -46,6 +46,7 @@ import {
     updatePropertyStatement,
 } from "../../../../../utils/modification-util";
 import {
+    checkDBConnector,
     genVariableName,
     getActionReturnType,
     getConnectorComponent,
@@ -206,10 +207,9 @@ export function ConnectorForm(props: FormGeneratorProps) {
             config.connectorInit
         ).join()});`;
 
-        const dbConnectors = ["mysql", "mssql"]
         if (isNewConnectorInitWizard && targetPosition) {
             const addImport: STModification = createImportStatement(connector.package.organization, connectorModule, targetPosition);
-            if (dbConnectors.includes(connectorModule)) {
+            if (checkDBConnector(connectorModule)) {
                 const addDriverImport: STModification = createImportStatement('ballerinax', `${connectorModule}.driver as _`, targetPosition);
                 modifications.push(addDriverImport);
             }
@@ -228,13 +228,12 @@ export function ConnectorForm(props: FormGeneratorProps) {
         }
     };
 
-    const handleActionSave = (rtype?: string) => {
+    const handleActionSave = () => {
         const modifications: STModification[] = [];
         const isInitReturnError = getInitReturnType(functionDefInfo);
         const currentActionReturnType = getActionReturnType(config.action.name, functionDefInfo);
-        const dbConnectors = ["mysql", "mssql"]
-        if (dbConnectors.includes(connectorModule) && rtype) {
-            currentActionReturnType.returnType = rtype;
+        if (checkDBConnector(connectorModule) && config.action.returnType) {
+            currentActionReturnType.returnType = config.action.returnType;
         }
 
         // handle special case to get user typed in return type
