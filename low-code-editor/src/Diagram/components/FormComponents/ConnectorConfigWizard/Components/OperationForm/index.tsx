@@ -229,7 +229,7 @@ export function OperationForm(props: OperationFormProps) {
                                     errorMessage={responseVarError}
                                 />
                             ) }
-                            {operationReturnType?.hasReturn && operationReturnType.returnType.includes("stream<record{}") ? (
+                            {operationReturnType?.hasReturn && operationReturnType.returnType.includes("stream") ? (
                                 <Box className="exp-wrapper">
                                     <VariableTypeInput
                                         displayName={addOutputTypeLabel}

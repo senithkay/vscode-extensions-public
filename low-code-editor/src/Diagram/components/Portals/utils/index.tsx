@@ -123,7 +123,7 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
             }
             if (formField.typeName === "string" && (formField.value || formField.defaultValue)) {
                 paramString += formField.value || formField.defaultValue;
-            } else if (formField.typeName.includes("object {public string[]") && (formField.value || formField.defaultValue)) {
+            } else if (formField.typeName === "object" && (formField.value || formField.defaultValue)) {
                 paramString += formField.value || formField.defaultValue;
             }
             else if (formField.typeName === "array" && !formField.hide && (formField.value || formField.defaultValue)) {
@@ -458,7 +458,7 @@ export function matchActionToFormField(remoteCall: RemoteMethodCallAction, formF
                 formField.value = positionalArg.expression?.source;
                 nextValueIndex++;
             }
-            else if (formField.typeName.includes("object {public string[]")) {
+            else if (formField.typeName === "object") {
                 formField.value = positionalArg.expression?.source;
                 nextValueIndex++;
             }
@@ -957,7 +957,7 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                 //     // set stream tags
                 //     type = `stream<${type}>`; // do for stream obj
                 // }
-                if (formField.typeName.includes("rowType")) {
+                if (formField.typeName === "parameterized") {
                     type = "record{}";
                 }
                 if (type) {
@@ -1133,8 +1133,8 @@ export function getManualConnectionTypeFromFormFields(formFields: FormField[]): 
 export function checkDBConnector(connectorModule: string): boolean {
     let isDBConnectorStatus = false;
     const dbConnectors = ["mysql", "mssql", "postgresql"]
-    if(dbConnectors.includes(connectorModule)){
-        isDBConnectorStatus=true;
+    if (dbConnectors.includes(connectorModule)) {
+        isDBConnectorStatus = true;
     }
     return isDBConnectorStatus;
 }
