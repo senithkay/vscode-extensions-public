@@ -107,14 +107,18 @@ export function getFieldName(fieldName: string): string {
     return keywords.includes(fieldName) ? "'" + fieldName : fieldName;
 }
 
+const isAllFieldsEmpty = (recordFields: FormField[]): boolean => recordFields?.every(field => ((field.value ?? "") === "") || (field.fields && isAllFieldsEmpty(field.fields)));
+
 export function getParams(formFields: FormField[], depth = 1): string[] {
     const paramStrings: string[] = [];
     formFields.forEach(formField => {
-        const skipDefaultValue = (!formField.value && (formField.defaultable || formField.optional)) ||
+        const skipDefaultValue = (!formField.value && formField.typeName !== "record" && formField.defaultable) ||
             (formField.value && formField.defaultValue && formField.defaultValue === formField.value);
         let paramString: string = "";
         if (!skipDefaultValue) {
-            if (formField.defaultable && formField.value) {
+            if (formField.defaultable &&
+                ((formField.typeName !== "record" && formField.value) ||
+                    (formField.typeName === "record" && !isAllFieldsEmpty(formField.fields)))) {
                 paramString += `${formField.name} = `;
             }
             if (formField.typeName === "string" && (formField.value || formField.defaultValue)) {

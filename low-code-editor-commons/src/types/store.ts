@@ -57,6 +57,7 @@ export interface ConfigOverlayFormStatus {
     isOpen?: boolean;
     formArgs?: any;
     formType?: string;
+    formName?: string;
     blockViewState?: any; // FIXME - For mono repo migration
     error?: any;
 }

@@ -147,7 +147,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
     const operations: ConnectorOperation[] = [];
     if (functionDefInfo) {
         functionDefInfo.forEach((value, key) => {
-            if (key !== "init") {
+            if (key !== "init" && value.isRemote) {
                 operations.push({ name: key, label: value.name });
             }
         });

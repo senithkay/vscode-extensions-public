@@ -124,9 +124,6 @@ export function getInitialValue(defaultValue: string, model: FormField): string 
     if (model?.value) {
         return model.value;
     }
-    if (model?.defaultValue && model.defaultValue !== "()") {
-        return model.defaultValue;
-    }
     return "";
 }
 

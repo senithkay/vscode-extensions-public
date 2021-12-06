@@ -29,10 +29,11 @@ export interface VariableNameInputProps {
     overrideTemplate?: ExpressionEditorCustomTemplate;
     overrideEditTemplate?: ExpressionEditorCustomTemplate;
     hideLabel?: boolean;
+    disabled?: boolean;
 }
 
 export function VariableNameInput(props: VariableNameInputProps) {
-    const { onValueChange, validateExpression, position, value, displayName, overrideTemplate, overrideEditTemplate, isEdit, hideLabel } = props;
+    const { onValueChange, validateExpression, position, value, displayName, overrideTemplate, overrideEditTemplate, isEdit, hideLabel, disabled } = props;
     const formClasses = useFormStyles();
 
     let customTemplate;
@@ -76,6 +77,7 @@ export function VariableNameInput(props: VariableNameInputProps) {
             hideSuggestions: true,
             hideExpand: true,
             hideTextLabel: hideLabel,
+            disabled
         },
         onChange: onValueChange,
         defaultValue: value,
