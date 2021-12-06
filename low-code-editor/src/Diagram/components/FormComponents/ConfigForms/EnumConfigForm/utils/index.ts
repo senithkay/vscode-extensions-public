@@ -12,13 +12,13 @@
  */
 import { DiagramEditorLangClientInterface, JsonToRecordResponse, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
+    EnumDeclaration,
     RecordField,
     RecordFieldWithDefaultValue,
-    EnumDeclaration,
     STKindChecker,
 } from "@wso2-enterprise/syntax-tree";
 
-import { Field, EnumModel, SimpleField } from "../types";
+import { EnumModel, Field, SimpleField } from "../types";
 
 export async function convertToRecord(json: string, lsUrl: string, ls?: any): Promise<string> {
     const langClient: DiagramEditorLangClientInterface = await ls.getDiagramEditorLangClient(lsUrl);
@@ -42,7 +42,7 @@ export function getRecordPrefix(symbolInfo: STSymbolInfo): string {
 }
 
 export function getEnumModel(typeDesc: EnumDeclaration, name: string, isInline: boolean, type?: string,
-                               isOptional?: boolean): EnumModel {
+                             isOptional?: boolean): EnumModel {
     const recordModel: EnumModel = {
         name, fields: [], isInline, type,
     };

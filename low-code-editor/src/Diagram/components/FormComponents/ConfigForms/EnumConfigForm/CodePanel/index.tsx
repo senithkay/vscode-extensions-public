@@ -18,11 +18,11 @@ import { FormControl } from "@material-ui/core";
 import { FormHeaderSection, PrimaryButton, SecondaryButton } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
-import { EnumField } from "../EnumField";
 import { useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { useEnumEditorContext } from "../../../../../../Contexts/EnumEditor";
 import { mutateEnumDefinition, mutateTypeDefinition } from "../../../../../utils/modification-util";
 import { wizardStyles } from "../../style";
+import { EnumField } from "../EnumField";
 import { recordStyles } from "../style";
 import { getGeneratedCode } from "../utils";
 

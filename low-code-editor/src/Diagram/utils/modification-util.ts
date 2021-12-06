@@ -1015,7 +1015,7 @@ export function createTrigger(config: any, targetPosition?: NodePosition): STMod
 }
 
 export function mutateEnumDefinition(typeDesc: string, targetPosition: NodePosition, isNew: boolean,
-    accessModifier?: string): STModification {
+                                     accessModifier?: string): STModification {
     let modification: STModification;
     if (isNew) {
         modification = {
