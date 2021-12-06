@@ -70,7 +70,9 @@ export function OperationForm(props: OperationFormProps) {
     const handleOperationChange = (operation: string) => {
         setSelectedOperationState(operation);
         if (operation) {
-            const derivedFormFields = functionDefInfo.get(operation).parameters;
+            const selectedFunction = functionDefInfo.get(operation);
+            const derivedFormFields = selectedFunction.parameters;
+            connectionDetails.action.isRemote = selectedFunction.isRemote;
             connectionDetails.action.name = operation;
             connectionDetails.action.fields = derivedFormFields;
             setFormFields(derivedFormFields);
