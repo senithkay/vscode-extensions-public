@@ -206,7 +206,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
             config.connectorInit
         ).join()});`;
 
-        const dbConnectors = ["mysql" , "mssql"]
+        const dbConnectors = ["mysql", "mssql"]
         if (isNewConnectorInitWizard && targetPosition) {
             const addImport: STModification = createImportStatement(connector.package.organization, connectorModule, targetPosition);
             if (dbConnectors.includes(connectorModule)) {
@@ -228,16 +228,15 @@ export function ConnectorForm(props: FormGeneratorProps) {
         }
     };
 
-    const handleActionSave = (rtype?:string) => {
+    const handleActionSave = (rtype?: string) => {
         const modifications: STModification[] = [];
         const isInitReturnError = getInitReturnType(functionDefInfo);
         const currentActionReturnType = getActionReturnType(config.action.name, functionDefInfo);
-        const dbConnectors = ["mysql" , "mssql"]
-        if(dbConnectors.includes(connectorModule)){
-            const leftReturnType = rtype ? rtype : "record{}";
-            currentActionReturnType.returnType = `stream<${leftReturnType}, sql:Error?>`;
+        const dbConnectors = ["mysql", "mssql"]
+        if (dbConnectors.includes(connectorModule) && rtype) {
+            currentActionReturnType.returnType = rtype;
         }
-        
+
         // handle special case to get user typed in return type
         const moduleName = getFormattedModuleName(connectorModule);
 

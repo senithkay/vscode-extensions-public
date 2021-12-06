@@ -23,6 +23,7 @@ import classNames from 'classnames';
 import { Context } from '../../../../../../Contexts/Diagram';
 import { getAllVariables } from "../../../../../utils/mixins";
 import { checkVariableName, genVariableName, getActionReturnType } from "../../../../Portals/utils";
+import { VariableTypeInput } from '../../../ConfigForms/Components/VariableTypeInput';
 import { Form } from "../../../DynamicConnectorForm";
 import { useStyles } from "../../../DynamicConnectorForm/style";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
@@ -30,6 +31,7 @@ import { ExpressionInjectablesProps } from '../../../FormGenerator';
 import { wizardStyles } from "../../style";
 import { ConnectorOperation } from '../ConnectorForm';
 import { OperationDropdown } from '../OperationDropdown';
+
 
 export interface OperationFormProps {
     operations: ConnectorOperation[];
@@ -58,6 +60,7 @@ export function OperationForm(props: OperationFormProps) {
     const [selectedOperationState, setSelectedOperationState] = useState(selectedOperation);
     const [responseVarName, setResponseVarName] = useState<string>(connectionDetails?.action?.returnVariableName);
     const [returnTypeName, setReturnTypeName] = useState<string>(connectionDetails?.action?.returnTypeName);
+    const [validOutputValue, setValidOutputValue] = useState(false);
 
     const frmFields: FormField[] = connectionDetails?.action?.fields;
     const [formFields, setFormFields] = useState(frmFields);
@@ -80,7 +83,7 @@ export function OperationForm(props: OperationFormProps) {
                 connectionDetails.action.returnVariableName = genVariableName(operation + "Response",
                     getAllVariables(symbolInfo));
                 setResponseVarName(connectionDetails.action.returnVariableName);
-                
+
             }
             setReturnTypeName(connectionDetails.action.returnTypeName);
         }
@@ -115,7 +118,6 @@ export function OperationForm(props: OperationFormProps) {
     };
 
     const onTypeChange = (text: string) => {
-        // setValidName((text !== '') && nameRegex.test(text));
         connectionDetails.action.returnTypeName = text;
         setReturnTypeName(text);
     };
@@ -147,19 +149,14 @@ export function OperationForm(props: OperationFormProps) {
         defaultMessage: "Enter response variable name"
     });
 
-    const addReturnTypePlaceholder = intl.formatMessage({
-        id: "lowcode.develop.configForms.addResponseVariable.placeholder",
-        defaultMessage: "Enter return type"
-    });
-
     const addResponseVariableLabel = intl.formatMessage({
         id: "lowcode.develop.configForms.addResponseVariable.label",
         defaultMessage: "Response Variable Name"
     });
 
-    const addReturnTypeLabel = intl.formatMessage({
-        id: "lowcode.develop.configForms.addReturnTypeLabel.label",
-        defaultMessage: "Return Type"
+    const addOutputTypeLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.addOutputType.label",
+        defaultMessage: "Output Type Name"
     });
 
     const saveConnectionButtonText = intl.formatMessage({
@@ -174,15 +171,22 @@ export function OperationForm(props: OperationFormProps) {
                 defaultMessage: "Add a valid name for the response variable. Avoid using special characters, having spaces in the middle, starting with a numerical character, and including keywords such as Return, Foreach, Resource, and Object."
             }),
     },
-    returnTypeName: {
-        title: intl.formatMessage({
-            id: "lowcode.develop.configForms.connectorOperations.tooltip.title",
-            defaultMessage: "Add a valid record type defined for the return type."
-        }),
-}
     };
 
     const operationLabel = operations.find(operation => operation.name === selectedOperationState)?.label;
+
+    const validateExpression = (fieldName: string, isInvalid: boolean) => {
+        setValidOutputValue(!isInvalid);
+    };
+
+    // const varTypeProps: VariableTypeInputProps = {
+    //     displayName: "Output Type",
+    //     hideTextLabel: false,
+    //     onValueChange: onTypeChange,
+    //     position: targetPosition}
+
+    // };
+
 
     return (
         <div>
@@ -222,34 +226,30 @@ export function OperationForm(props: OperationFormProps) {
 
                             { operationReturnType?.hasReturn && (
                                 <FormTextInput
-                                    customProps={ {
+                                    customProps={{
                                         validate: validateNameValue,
                                         tooltipTitle: connectorOperationsTooltipMessages.responseVariableName.title,
                                         disabled: responseVariableHasReferences
-                                    } }
+                                    }}
                                     defaultValue={responseVarName}
                                     placeholder={addResponseVariablePlaceholder}
                                     onChange={onNameChange}
                                     label={addResponseVariableLabel}
                                     errorMessage={responseVarError}
                                 />
-                                // add new exp editor to get user defined return type
                             ) }
-                            { operationReturnType?.hasReturn && operationReturnType.returnType.includes("stream<record{}") ? (
-                                <FormTextInput
-                                    // customProps={ {
-                                    //     validate: validateNameValue,
-                                    //     tooltipTitle: connectorOperationsTooltipMessages.returnTypeName.title,
-                                    //     disabled: responseVariableHasReferences
-                                    // } }
-                                    defaultValue="record{}" //{returnTypeName} 
-                                    placeholder={addReturnTypePlaceholder}
-                                    onChange={onTypeChange}
-                                    label={addReturnTypeLabel}
-                                    errorMessage={responseVarError}
-                                />
-                                // add new exp editor to get user defined return type
-                            ) : null }
+                            {operationReturnType?.hasReturn && operationReturnType.returnType.includes("stream<record{}") ? (
+                                <Box className="exp-wrapper">
+                                    <VariableTypeInput
+                                        displayName={addOutputTypeLabel}
+                                        value={returnTypeName ? returnTypeName : operationReturnType.returnType}
+                                        hideTextLabel={false}
+                                        onValueChange={onTypeChange}
+                                        position={targetPosition}
+                                        validateExpression={validateExpression}
+                                    />
+                                </Box>
+                            ) : null}
                         </div>
                     </div>
                     <div className={classes.saveConnectorBtnHolder}>

@@ -912,7 +912,7 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                         response.hasError = false;
                         type = `${formField.typeInfo.moduleName}:${formField.typeInfo.name}`
                     }
-                    if(formField.typeInfo) {
+                    if (formField.typeInfo) {
                         response.importTypeInfo.push(formField.typeInfo);
                     }
                 }
@@ -957,8 +957,8 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                 //     // set stream tags
                 //     type = `stream<${type}>`; // do for stream obj
                 // }
-                if (formField.typeName.includes("stream<rowType")) { // get user typed return type here 
-                    type = "record{}" 
+                if (formField.typeName.includes("rowType")) {
+                    type = "record{}";
                 }
                 if (type) {
                     response.returnType = type;
