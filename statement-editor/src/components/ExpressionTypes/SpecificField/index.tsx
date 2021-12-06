@@ -12,14 +12,17 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext } from "react";
+import { monaco } from "react-monaco-editor";
 
 import { SpecificField, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { VariableUserInputs } from "../../../models/definitions";
+import { DEFAULT_EXPRESSIONS } from "../../../constants";
+import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
-import { isPositionsEquals } from "../../../utils";
+import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
+import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
 import { InputEditor } from "../../InputEditor";
 import { useStatementEditorStyles } from "../../styles";
@@ -38,9 +41,13 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
     const { currentModel } = modelCtx;
     const hasFieldNameSelected = currentModel.model &&
         isPositionsEquals(currentModel.model.position, model.fieldName.position);
+    const hasValueExprSelected = currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.valueExpr.position);
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
+    const { currentFile, getLangClient } = stmtCtx;
+    const targetPosition = stmtCtx.formCtx.formModelPosition;
     let fieldName: ReactNode;
 
     if (STKindChecker.isIdentifierToken(model.fieldName)) {
@@ -82,6 +89,23 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
             { expressionSuggestions: [], typeSuggestions: [], variableSuggestions: [] })
     };
 
+    const onClickOnValueExpr = async (event: any) => {
+        event.stopPropagation();
+
+        const content: string = await addStatementToTargetLine(
+            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
+
+        const completions: SuggestionItem[] = await getContextBasedCompletions(
+            monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.valueExpr.position,
+            false, model.valueExpr.source, getLangClient);
+
+        expressionHandler(model.valueExpr, false, false, {
+            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
+            typeSuggestions: [],
+            variableSuggestions: completions
+        });
+    };
+
     return (
         <span>
             <button
@@ -101,7 +125,15 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
             >
                 {model.colon.value}
             </span>
-            {valueExpression}
+            <button
+                className={classNames(
+                    statementEditorClasses.expressionElement,
+                    hasValueExprSelected && statementEditorClasses.expressionElementSelected
+                )}
+                onClick={onClickOnValueExpr}
+            >
+                {valueExpression}
+            </button>
         </span>
     );
 }
