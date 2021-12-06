@@ -37,8 +37,8 @@ export function TriggerList(props: FormGeneratorProps) {
         }
     } = useContext(Context);
 
-    const fetchTriggersList = async (searchQuery: string, selectedCategory: string, connectorLimit: number, currentFilePath: string,
-                                     filterState: FilterStateMap, userInfo: UserState, page?: number): Promise<BallerinaModuleResponse> => {
+    const fetchTriggersList = async (searchQuery: string, connectorLimit: number,
+                                     currentFilePath: string): Promise<BallerinaModuleResponse> => {
 
         const langClient: DiagramEditorLangClientInterface = await getDiagramEditorLangClient();
 
