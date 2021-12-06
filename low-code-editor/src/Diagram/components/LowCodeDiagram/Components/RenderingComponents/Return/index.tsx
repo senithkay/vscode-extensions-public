@@ -32,7 +32,7 @@ import { ReturnSVG, RETURN_SVG_HEIGHT, RETURN_SVG_WIDTH, } from "./ReturnSVG";
 import "./style.scss";
 
 export interface ReturnProps {
-    model?: STNode;
+    model?: ReturnStatement;
     blockViewState?: BlockViewState;
 }
 
@@ -141,14 +141,18 @@ export function Return(props: ReturnProps) {
         setConfigWizardOpen(false);
     }
 
+    const expressionSource = model?.expression?.source;
+
     return (
         <g className="return-contect-wrapper">
-            <VariableName
-                variableName={(model as ReturnStatement).expression.source}
-                x={cx - (RETURN_SVG_WIDTH * 2 + DefaultConfig.textAlignmentOffset + DefaultConfig.textAlignmentOffset / 4)}
-                y={cy}
-                key_id={getRandomInt(1000)}
-            />
+            {expressionSource && (
+                <VariableName
+                    variableName={expressionSource}
+                    x={cx - (RETURN_SVG_WIDTH * 2 + DefaultConfig.textAlignmentOffset + DefaultConfig.textAlignmentOffset / 4)}
+                    y={cy}
+                    key_id={getRandomInt(1000)}
+                />
+            )}
             {component}
             <>
                 {(!isReadOnly && !isMutationProgress && !isWaitingOnWorkspace) && (
