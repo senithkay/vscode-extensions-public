@@ -68,11 +68,14 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
 
     const onClickOnType = async (event: any) => {
         event.stopPropagation();
+
         const content: string = await addStatementToTargetLine(
             currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
+
         const completions: SuggestionItem[] = await getContextBasedCompletions(
             monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.typeDescriptor.position,
             true, model.typeDescriptor.source, getLangClient);
+
         expressionHandler(model.typeDescriptor, false, true, {
             expressionSuggestions: [],
             typeSuggestions: completions,

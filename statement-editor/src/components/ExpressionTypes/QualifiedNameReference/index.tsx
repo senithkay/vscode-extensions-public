@@ -10,7 +10,6 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-wrap-multiline
 import React, { useContext } from "react";
 
 import { QualifiedNameReference } from "@wso2-enterprise/syntax-tree";
