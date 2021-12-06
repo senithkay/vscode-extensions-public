@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
-import React, { useContext, useState } from "react";
+import React, { useContext, useRef, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
@@ -24,9 +24,11 @@ import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/con
 import { createModuleVarDecl, getInitialSource } from "../../../../../../utils/modification-util";
 import { getVariableNameFromST } from "../../../../../../utils/st-util";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
-import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
+import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
+import ExpressionEditor, { ExpressionEditorProps } from "../../../../FormFieldComponents/ExpressionEditor";
 import { SwitchToggle } from "../../../../FormFieldComponents/SwitchToggle";
-import { ProcessConfig } from "../../../../Types";
+import { FormTextInput } from "../../../../FormFieldComponents/TextField/FormTextInput";
+import { FormElementProps, ProcessConfig } from "../../../../Types";
 import { VariableNameInput, VariableNameInputProps } from "../../../Components/VariableNameInput";
 import {
     VariableTypeInput,
@@ -72,16 +74,13 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     if (existingProperty && STKindChecker.isLocalVarDecl(config.model)) {
         const localVarDec: LocalVarDecl = config.model as LocalVarDecl;
         const typeDescriptor = localVarDec.typedBindingPattern.typeDescriptor;
+        // tslint:disable-next-line:prefer-conditional-expression
         if (STKindChecker.isIntTypeDesc(typeDescriptor) || STKindChecker.isFloatTypeDesc(typeDescriptor) ||
             STKindChecker.isDecimalTypeDesc(typeDescriptor) || STKindChecker.isBooleanTypeDesc(typeDescriptor) ||
             STKindChecker.isStringTypeDesc(typeDescriptor) || STKindChecker.isJsonTypeDesc(typeDescriptor) ||
             STKindChecker.isVarTypeDesc(typeDescriptor) || STKindChecker.isAnyTypeDesc(typeDescriptor) ||
             STKindChecker.isAnydataTypeDesc(typeDescriptor)) {
             initialModelType = typeDescriptor.name.value;
-        } else if (STKindChecker.isErrorTypeDesc(typeDescriptor)) {
-            initialModelType = typeDescriptor.errorKeywordToken.value;
-        } else if (STKindChecker.isXmlTypeDesc(typeDescriptor)) {
-            initialModelType = typeDescriptor.source.trim();
         } else {
             initialModelType = typeDescriptor.source.trim();
         }
@@ -94,7 +93,9 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         initializedState = true;
     }
 
+    const [validSelectedType, setValidSelectedType] = useState(false);
     const [selectedType, setSelectedType] = useState(initialModelType);
+    const [validVarName, setValidVarName] = useState(false);
     const [varName, setVarName] = useState(variableName);
     const [validExpresssionValue, setValidExpresssionValue] = useState(config.config !== "");
     const [variableExpression, setVariableExpression] = useState<string>(varExpression);
@@ -104,15 +105,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         setVariableExpression(property);
     };
 
-    const handleNameOnChange = (name: string) => {
-        setVarName(name);
-    };
-
-
-    const handleTypeChange = (type: string) => {
-        setSelectedType(type);
-        setValidExpresssionValue(false);
-    };
 
     let variableHasReferences = false;
 
@@ -123,6 +115,14 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
 
     const validateExpression = (fieldName: string, isInvalid: boolean) => {
         setValidExpresssionValue(!isInvalid);
+    };
+
+    const validateVarName = (fieldName: string, isInvalid: boolean) => {
+        setValidVarName(!isInvalid);
+    };
+
+    const validateVarType = (fieldName: string, isInvalid: boolean) => {
+        setValidSelectedType(!isInvalid);
     };
 
     const handleSave = () => {
@@ -172,8 +172,8 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
 
 
     const validForm: boolean = initialized
-        ? varName.length > 0 && variableExpression.length > 0 && validExpresssionValue
-        : varName.length > 0;
+        ? varName.length > 0 && variableExpression.length > 0 && validExpresssionValue && validVarName && validSelectedType
+        : varName.length > 0 && validVarName && validSelectedType;
 
     const userInputs = {
         selectedType,
@@ -186,27 +186,28 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         displayName: 'Variable Type',
         value: selectedType,
         onValueChange: setSelectedType,
-        validateExpression,
+        validateExpression: validateVarType,
         position: config.model ? {
             ...(config.model as LocalVarDecl).typedBindingPattern.position,
-            endLine: 0,
-            endColumn: 0,
+            endLine: (config.model as LocalVarDecl).typedBindingPattern.position.startLine,
+            endColumn: (config.model as LocalVarDecl).typedBindingPattern.position.startColumn,
         } : formArgs.targetPosition,
+        initialDiagnostics: (config.model as LocalVarDecl)?.typedBindingPattern?.typeDescriptor?.typeData?.diagnostics
     }
 
     const variableNameConfig: VariableNameInputProps = {
         displayName: 'Variable Name',
         value: varName,
         onValueChange: setVarName,
-        validateExpression,
+        validateExpression: validateVarName,
         position: config.model ?
             getVariableNameFromST(config.model as LocalVarDecl).position
             : formArgs.targetPosition,
         isEdit: !!config.model,
+        initialDiagnostics: (config.model as LocalVarDecl)?.typedBindingPattern?.bindingPattern?.typeData?.diagnostics
     }
 
-    const expressionEditorConfig = {
-        key: selectedType,
+    const expressionEditorConfig: FormElementProps<ExpressionEditorProps> = {
         model: {
             name: "Expression",
             displayName: "Value Expression",
@@ -215,8 +216,8 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         },
         customProps: {
             validate: validateExpression,
-            interactive: true,
             statementType: selectedType,
+            interactive: true,
             tooltipTitle: variableTooltipMessages.expressionEditor.title,
             tooltipActionText: variableTooltipMessages.expressionEditor.actionText,
             tooltipActionLink: variableTooltipMessages.expressionEditor.actionLink,
@@ -226,9 +227,11 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             },
             editPosition: config.model ? {
                 ...config.model?.position,
-                startColumn: config.model.position.endColumn,
-                endColumn: config.model.position.endColumn,
+                endLine: config.model.position.startLine,
+                endColumn: config.model.position.startColumn,
             } : formArgs.targetPosition,
+            initialDiagnostics: (config.model as LocalVarDecl)?.initializer?.typeData?.diagnostics,
+            changed: selectedType
         },
         onChange: onPropertyChange,
         defaultValue: variableExpression,

@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js  jsx-wrap-multiline
 import React, { useContext, useState } from "react";
 
-import { WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { DiagramDiagnostic, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     BlockStatement,
     IfElseStatement, NodePosition,
@@ -283,8 +283,13 @@ export function IfElse(props: IfElseProps) {
         }
 
         const getExpressions = () : ElseIfConfig => {
-            const conditions: {id: number, expression: string, position: NodePosition}[] = [];
-            conditions.push({id: 0, expression: conditionExpr?.source.trim(), position: conditionExpr?.position});
+            const conditions: {id: number, expression: string, position: NodePosition, diagnostics?: DiagramDiagnostic[]}[] = [];
+            conditions.push({
+                id: 0,
+                expression: conditionExpr?.source.trim(),
+                position: conditionExpr?.position,
+                diagnostics: conditionExpr?.typeData?.diagnostics
+            });
             if (model) {
                 if (isElseIfExist) {
                     let block = ifStatement.elseBody?.elseBody as IfElseStatement;
@@ -293,7 +298,8 @@ export function IfElse(props: IfElseProps) {
                     while (isElseIfBlockExist) {
                         const expression = block?.condition?.source.trim();
                         const position = block?.condition?.position;
-                        conditions.push({id, expression, position});
+                        const nodeDiagnostics = block?.condition?.typeData?.diagnostics;
+                        conditions.push({id, expression, position, diagnostics: nodeDiagnostics});
                         isElseIfBlockExist = (block?.elseBody?.elseBody as IfElseStatement)?.kind === "IfElseStatement";
                         block = block.elseBody?.elseBody as IfElseStatement;
                         id = id + 1;

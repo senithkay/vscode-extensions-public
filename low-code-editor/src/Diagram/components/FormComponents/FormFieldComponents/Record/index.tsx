@@ -65,6 +65,7 @@ export function Record(props: FormElementProps<RecordProps>) {
                             validate: validateField,
                             expressionInjectables,
                             editPosition,
+                            initialDiagnostics: field.initialDiagnostics,
                         }
                     };
 

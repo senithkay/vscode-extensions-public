@@ -25,7 +25,7 @@ import {
     VariableTypeInputProps
 } from "../../../../Components/VariableTypeInput";
 import { Payload } from "../../types";
-import { convertPayloadStringToPayload, extractPayloadPositionFromST, payloadTypes } from "../../util";
+import { convertPayloadStringToPayload, extractPayloadFromSTNode, extractPayloadPositionFromST, payloadTypes } from "../../util";
 
 import { useStyles } from './style';
 
@@ -70,6 +70,8 @@ export function PayloadEditor(props: PayloadEditorProps) {
         defaultCodeSnippet: `resource function post tempResource(@http:Payload  ${segmentState?.name || 'tempPayload'}) {}`,
         targetColumn: 51
     };
+
+    const payloadNode = extractPayloadFromSTNode(funcSignature?.parameters);
 
     if (extractPayloadPositionFromST(funcSignature?.parameters)){
         // If @http:Payload already exists
@@ -157,6 +159,10 @@ export function PayloadEditor(props: PayloadEditorProps) {
         overrideTemplate,
         hideLabel: true,
         disabled,
+        initialDiagnostics: payloadNode?.typeData?.diagnostics,
+        diagnosticsFilterExtraColumns: {
+            end: 1 + segmentState?.name?.length,
+        }
     }
 
     return (
