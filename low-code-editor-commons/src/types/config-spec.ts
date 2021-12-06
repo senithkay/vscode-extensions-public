@@ -116,7 +116,7 @@ export class ResponsePayloadMap {
 export class ActionConfig {
     public name: string = "";
     public returnVariableName?: string = "";
-    public returnTypeName?: string = "";
+    public returnType?: string = "";
     public fields: FormField[] = [];
 }
 
