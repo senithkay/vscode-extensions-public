@@ -14,7 +14,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { Box, FormControl, Grid, Link, Typography } from "@material-ui/core";
-import { ConfigOverlayFormStatus, FormHeaderSection, PrimaryButton, SecondaryButton, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ConfigOverlayFormStatus, FormActionButtons, FormHeaderSection, PrimaryButton, SecondaryButton, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, NodePosition, ObjectMethodDefinition, RequiredParam, ResourceAccessorDefinition } from "@wso2-enterprise/syntax-tree";
 
 import { ResourceIcon } from "../../../../../../assets/icons";
@@ -565,14 +565,12 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     }
 
     const pathUI = (
-        // <div className={classes.sectionSeparator}>
         <Section
             title={pathTitle}
             tooltipWithExample={{ title, content: pathExample }}
         >
             {initialLoaded && <VariableNameInput {...variableNameConfig} key={resource.method}/>}
         </Section>
-        // </div>
     );
 
     const advanceSwitch = (
@@ -606,13 +604,13 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                     button={<SwitchToggle initSwitch={togglePayload} onChange={onPayloadToggleSelect} />}
                 >
                     <PayloadEditor
-                      model={model}
-                      targetPosition={targetPosition}
-                      disabled={!togglePayload}
-                      payload={resource.payload}
-                      onChange={handleOnChangePayloadFromUI}
-                      onError={handleOnPayloadErrorFromUI}
-                      setIsValid={setIsValidPayload}
+                        model={model}
+                        targetPosition={targetPosition}
+                        disabled={!togglePayload}
+                        payload={resource.payload}
+                        onChange={handleOnChangePayloadFromUI}
+                        onError={handleOnPayloadErrorFromUI}
+                        setIsValid={setIsValidPayload}
                     />
                 </Section>
             </div>
@@ -628,7 +626,6 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                     />
                 </Section>
             </div>
-
         </div>
     );
 
@@ -680,8 +677,8 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
             />
             <div className={formClasses.formWrapper}>
                 <div className={formClasses.formFeilds}>
-                    <div className={formClasses.resourceMethodPathWrapper} >
-                        <div>
+                    <div className={formClasses.resourceMethodPathWrapper}>
+                        <div className={formClasses.methodTypeContainer}>
                             <div className={formClasses.resourceMethodTitle}>{httpMethodTitle}</div>
                             <SelectDropdownWithButton
                                 dataTestId="api-return-type"
@@ -694,11 +691,11 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                             {!toggleMainAdvancedMenu && pathUI}
                         </div>
                     </div>
-                    <div>
-                        {toggleMainAdvancedMenu && advanceUI}
-                    </div>
                     <div className={formClasses.advancedSwitchText}>
                         {advanceSwitch}
+                    </div>
+                    <div>
+                        {toggleMainAdvancedMenu && advanceUI}
                     </div>
                     <Section
                         title={returnTypeTitle}
@@ -715,7 +712,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     );
 
     return (
-        <FormControl data-testid="resource-form" className={formClasses.wizardFormControl}>
+        <FormControl data-testid="resource-form" className={formClasses.wizardFormControlExtended}>
             {resource && resourceUI}
         </FormControl>
     );
