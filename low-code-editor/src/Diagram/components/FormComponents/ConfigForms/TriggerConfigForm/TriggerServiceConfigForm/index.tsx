@@ -80,7 +80,9 @@ export function TriggerForm(props: FormGeneratorProps) {
         setNewChannel(false);
     }
     const createTriggerCode = () => {
-        const newTriggerInfo = { ...triggerInfo, serviceTypes: selectedServiceTypes }
+        const triggerType = triggerInfo.moduleName.split(".");
+        const triggerName = triggerType[triggerType.length - 1];
+        const newTriggerInfo = { ...triggerInfo, serviceTypes: selectedServiceTypes, triggerType: triggerType[triggerType.length - 1] }
         modifyDiagram([
             createImportStatement(
                 "ballerina",
