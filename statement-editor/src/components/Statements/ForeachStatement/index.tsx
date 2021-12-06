@@ -12,15 +12,17 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext } from "react";
+import { monaco } from "react-monaco-editor";
 
 import { ForeachStatement } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
-import { VariableUserInputs } from "../../../models/definitions";
+import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
+import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
@@ -33,8 +35,6 @@ interface ForeachStatementProps {
 export function ForeachStatementC(props: ForeachStatementProps) {
     const { model, userInputs, diagnosticHandler } = props;
 
-    const statementEditorClasses = useStatementEditorStyles();
-    const { expressionHandler } = useContext(SuggestionsContext);
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
@@ -42,6 +42,11 @@ export function ForeachStatementC(props: ForeachStatementProps) {
         isPositionsEquals(currentModel.model.position, model.typedBindingPattern.position);
     const hasExprComponentSelected = currentModel.model &&
         isPositionsEquals(currentModel.model.position, model.actionOrExpressionNode.position);
+
+    const statementEditorClasses = useStatementEditorStyles();
+    const { expressionHandler } = useContext(SuggestionsContext);
+    const { currentFile, getLangClient } = stmtCtx;
+    const targetPosition = stmtCtx.formCtx.formModelPosition;
 
     const typedBindingComponent: ReactNode = (
         <ExpressionComponent
@@ -69,15 +74,38 @@ export function ForeachStatementC(props: ForeachStatementProps) {
             {expressionSuggestions: [], typeSuggestions: [], variableSuggestions: []});
     };
 
-    const onClickOnActionOrExpr = (event: any) => {
-        event.stopPropagation()
+    const onClickOnActionOrExpr = async (event: any) => {
+        event.stopPropagation();
+
+        const content: string = await addStatementToTargetLine(
+            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
+
+        const completions: SuggestionItem[] = await getContextBasedCompletions(
+            monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.actionOrExpressionNode.position,
+            false, model.actionOrExpressionNode.source, getLangClient);
+
+        expressionHandler(model.actionOrExpressionNode, false, false, {
+            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
+            typeSuggestions: [],
+            variableSuggestions: completions
+        });
         expressionHandler(model.actionOrExpressionNode, false, false,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) });
+            {expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS)});
     };
 
     if (!currentModel.model) {
-        expressionHandler(model.actionOrExpressionNode, false, false,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) });
+        addStatementToTargetLine(currentFile.content, targetPosition,
+            stmtCtx.modelCtx.statementModel.source, getLangClient).then((content: string) => {
+            getContextBasedCompletions(monaco.Uri.file(currentFile.path).toString(), content, targetPosition,
+                model.actionOrExpressionNode.position, false, model.actionOrExpressionNode.source,
+                getLangClient).then((completions) => {
+                expressionHandler(model.actionOrExpressionNode, false, false, {
+                    expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
+                    typeSuggestions: [],
+                    variableSuggestions: completions
+                });
+            });
+        });
     }
 
     return (
