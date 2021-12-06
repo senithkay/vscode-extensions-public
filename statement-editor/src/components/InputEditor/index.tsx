@@ -106,6 +106,8 @@ export function InputEditor(props: InputEditorProps) {
         || STKindChecker.isJsonTypeDesc(model)
         || STKindChecker.isVarTypeDesc(model))) {
         value = model.name.value;
+    } else {
+        value = model.source;
     }
 
     const [userInput, setUserInput] = useState(value);
