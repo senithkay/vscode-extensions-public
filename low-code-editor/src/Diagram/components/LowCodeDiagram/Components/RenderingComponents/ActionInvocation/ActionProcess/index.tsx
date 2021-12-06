@@ -24,7 +24,7 @@ import { DefaultConfig } from "../../../../../../visitors/default";
 import { ConnectorConfigWizard } from "../../../../../FormComponents/ConnectorConfigWizard";
 import { FormGenerator } from "../../../../../FormComponents/FormGenerator";
 import { Context } from "../../../../Context/diagram";
-import { BlockViewState, StatementViewState } from "../../../../ViewState";
+import { BlockViewState, PlusViewState, StatementViewState } from "../../../../ViewState";
 import { DraftStatementViewState } from "../../../../ViewState/draft";
 import { DeleteBtn } from "../../../DiagramActions/DeleteBtn";
 import { DELETE_SVG_HEIGHT_WITH_SHADOW, DELETE_SVG_WIDTH_WITH_SHADOW } from "../../../DiagramActions/DeleteBtn/DeleteSVG";
@@ -43,7 +43,7 @@ export interface ProcessorProps {
 
 export function ActionProcessor(props: ProcessorProps) {
     const {
-        actions: { diagramCleanDraw },
+        actions: { diagramCleanDraw, diagramRedraw},
         // api: {
         //     splitPanel: {
         //         handleRightPanelContent,
@@ -159,9 +159,11 @@ export function ActionProcessor(props: ProcessorProps) {
         setConnector(undefined);
     };
 
-    const onSave = () => {
-        setConfigWizardOpen(false);
-        // dispatchCloseConfigOverlayForm();
+    const onAddConnector = () => {
+        const draftVS = blockViewState.draft[1];
+        draftVS.type = "APIS";
+        draftVS.subType = "New";
+        diagramRedraw(syntaxTree);
     }
 
     const connectorsCollection: BallerinaConnectorInfo[] = [];
@@ -209,6 +211,7 @@ export function ActionProcessor(props: ProcessorProps) {
                 formArgs: {
                     onSelect: onEndpointSelect,
                     onCancel: onWizardClose,
+                    onAddConnector,
                 },
                 isLoading: true,
             } }

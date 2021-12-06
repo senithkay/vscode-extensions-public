@@ -162,7 +162,14 @@ export function AddIfForm(props: IfProps) {
                 expressionInjectables: {
                     list: formArgs?.expressionInjectables?.list,
                     setInjectables: formArgs?.expressionInjectables?.setInjectables
+                },
+                editPosition: {
+                    startLine: formArgs?.model ? formArgs?.model.position.startLine : formArgs.targetPosition.startLine,
+                    endLine: formArgs?.model ? formArgs?.model.position.startLine : formArgs.targetPosition.startLine,
+                    startColumn: 0,
+                    endColumn: 0
                 }
+
             },
             onChange: handleExpEditorChange(order),
             defaultValue: compList[order]?.expression

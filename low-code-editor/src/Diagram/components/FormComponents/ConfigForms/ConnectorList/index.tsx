@@ -66,8 +66,8 @@ export function ConnectorList(props: FormGeneratorProps) {
             onSelect={onSelect}
             onCancel={onCancel}
             fetchModulesList={fetchConnectorsList}
-            title="API Calls"
-            shortName="APIs"
+            title="Connectors"
+            shortName="Connectors"
         />
     );
 }

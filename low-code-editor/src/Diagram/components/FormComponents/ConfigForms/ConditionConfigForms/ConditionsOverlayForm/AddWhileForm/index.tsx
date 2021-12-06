@@ -95,6 +95,12 @@ export function AddWhileForm(props: WhileProps) {
             expressionInjectables: {
                 list: formArgs?.expressionInjectables?.list,
                 setInjectables: formArgs?.expressionInjectables?.setInjectables
+            },
+            editPosition: {
+                startLine: formArgs?.model ? formArgs?.model.position.startLine : formArgs.targetPosition.startLine,
+                endLine: formArgs?.model ? formArgs?.model.position.startLine : formArgs.targetPosition.startLine,
+                startColumn: 0,
+                endColumn: 0
             }
         },
         onChange: handleExpEditorChange,
@@ -165,6 +171,7 @@ export function AddWhileForm(props: WhileProps) {
                     </div>
                 </div>
                 <FormActionButtons
+                    cancelBtn={true}
                     cancelBtnText={cancelWhileButtonLabel}
                     saveBtnText={saveWhileButtonLabel}
                     isMutationInProgress={isMutationInProgress}

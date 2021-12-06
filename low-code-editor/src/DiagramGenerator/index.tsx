@@ -33,7 +33,7 @@ const MIN_ZOOM = 0.6;
 const undoRedo = new UndoRedoManager();
 
 export function DiagramGenerator(props: DiagramGeneratorProps) {
-    const { langClient, filePath, startLine, startColumn, lastUpdatedAt, scale, panX, panY, resolveMissingDependencyByCodeAction } = props;
+    const { langClient, filePath, startLine, startColumn, lastUpdatedAt, scale, panX, panY, resolveMissingDependency } = props;
     const classes = useGeneratorStyles();
     const defaultScale = scale ? Number(scale) : 1;
     const defaultPanX = panX ? Number(panX) : 0;
@@ -243,9 +243,9 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                             undoRedo.addModification(source);
                                             const pfSession = await props.getPFSession();
                                             if (newST?.typeData?.diagnostics && newST?.typeData?.diagnostics?.length > 0) {
-                                                const { isAvailable, diagnostic } = isUnresolvedModulesAvailable(newST?.typeData?.diagnostics as Diagnostic[]);
+                                                const { isAvailable } = isUnresolvedModulesAvailable(newST?.typeData?.diagnostics as Diagnostic[]);
                                                 if (isAvailable) {
-                                                    resolveMissingDependencyByCodeAction(filePath, source, diagnostic);
+                                                    resolveMissingDependency(filePath, source);
                                                 }
                                             }
                                             setFileContent(source);

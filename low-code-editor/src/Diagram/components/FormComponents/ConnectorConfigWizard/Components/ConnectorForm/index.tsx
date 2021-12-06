@@ -147,7 +147,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
     const operations: ConnectorOperation[] = [];
     if (functionDefInfo) {
         functionDefInfo.forEach((value, key) => {
-            if (key !== "init") {
+            if (key !== "init" && value.isRemote) {
                 operations.push({ name: key, label: value.name });
             }
         });
@@ -486,7 +486,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
                 onCancel={onClose}
                 statementEditor={false}
                 formTitle={"lowcode.develop.configForms.connector.title"}
-                defaultMessage={"API Connection"}
+                defaultMessage={"Connector"}
             />
             <div className={formClasses.formWrapper}>
                 <div className={formClasses.formFeilds}>
