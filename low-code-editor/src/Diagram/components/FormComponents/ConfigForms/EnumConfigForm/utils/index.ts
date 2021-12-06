@@ -51,7 +51,7 @@ export function getEnumModel(typeDesc: EnumDeclaration, name: string, isInline: 
             // FIXME: Handle enum field with default value
             if (STKindChecker.isEnumMember(field)) {
                 const recField: SimpleField = {
-                    name: field.identifier.value,
+                    name: field.source.trim(),
                     type: 'member',
                     isFieldOptional: STKindChecker.isRecordField(field) ? (field.questionMarkToken !== undefined) :
                         false,

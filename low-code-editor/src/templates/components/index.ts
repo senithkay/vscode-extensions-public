@@ -114,7 +114,7 @@ service /{{{ BASE_PATH }}} on {{{ LISTENER_NAME }}}`,
     ENUM_DEFINITION: `
     {{{ ACCESS_MODIFIER }}} enum {{{ NAME }}} {
         {{#each MEMBERS}}
-            {{ this }}
+            {{{ this }}}
         {{/each}}
     }`
 }
