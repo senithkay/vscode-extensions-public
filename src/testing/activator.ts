@@ -21,7 +21,6 @@
 /**
  * Test explorer implemntation.
  */
-import { getCurrentBallerinaProject } from '../utils/project-utils';
 import {
   CancellationToken, debug, DebugConfiguration, Position, Range,
   RelativePattern,
