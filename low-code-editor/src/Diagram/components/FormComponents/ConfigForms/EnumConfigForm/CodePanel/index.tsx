@@ -15,7 +15,7 @@ import React from "react";
 import { useIntl } from "react-intl";
 
 import { FormControl } from "@material-ui/core";
-import { FormHeaderSection, PrimaryButton, SecondaryButton } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { FormActionButtons, FormHeaderSection, PrimaryButton, SecondaryButton } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { useDiagramContext } from "../../../../../../Contexts/Diagram";
@@ -90,18 +90,14 @@ export function CodePanel() {
                 <div className={recordClasses.recordFieldWrapper}>
                     <EnumField enumModel={state.enumModel} />
                 </div>
-                <div className={recordClasses.configButtonWrapper}>
-                    <div className={overlayClasses.buttonWrapper}>
-                        <SecondaryButton text={cancelButtonText} fullWidth={false} onClick={state.onCancel} />
-                        <PrimaryButton
-                            dataTestId={"enum-from-json-save-btn"}
-                            text={saveButtonText}
-                            disabled={state.isEditorInvalid || (state.currentField && state.currentField.name === "")}
-                            fullWidth={false}
-                            onClick={handleRecordSave}
-                        />
-                    </div>
-                </div>
+                <FormActionButtons
+                    cancelBtnText="Cancel"
+                    cancelBtn={true}
+                    saveBtnText="Save"
+                    onSave={handleRecordSave}
+                    onCancel={state.onCancel}
+                    validForm={!(state.isEditorInvalid || (state.currentField && state.currentField.name === ""))}
+                />
             </div>
         </FormControl>
     )
