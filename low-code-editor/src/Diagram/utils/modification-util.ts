@@ -1012,3 +1012,27 @@ export function createTrigger(config: any, targetPosition?: NodePosition): STMod
 
     return triggerStatement;
 }
+
+export function mutateEnumDefinition(typeDesc: string, targetPosition: NodePosition, isNew: boolean,
+    accessModifier?: string): STModification {
+    let modification: STModification;
+    if (isNew) {
+        modification = {
+            startLine: targetPosition.startLine,
+            endLine: targetPosition.startLine,
+            startColumn: 0,
+            endColumn: 0,
+            type: 'ENUM'
+        };
+    } else {
+        modification = {
+            ...targetPosition,
+            type: 'ENUM'
+        };
+    }
+
+    return {
+        ...modification,
+        type: 'ENUM',
+    }
+}

@@ -21,6 +21,7 @@ import { ConnectorList } from "./ConnectorList";
 import { ConstantConfigForm } from "./ConstantConfigForm";
 import { EndConfigForm } from "./EndConfigForms";
 import { EndpointList } from "./EndpointList";
+import { EnumConfigForm } from "./EnumConfigForm";
 import { FunctionConfigForm } from './FunctionConfigForm';
 import { ListenerConfigForm } from "./ListenerConfigForm";
 import { ModuleDeclForm } from './ModuleVariableForm';
@@ -58,4 +59,5 @@ export { ListenerConfigForm as ListenerDeclaration };
 export { ConstantConfigForm as ConstDeclaration }
 export { TypeDefinitionConfigForm as TypeDefinition };
 export { TriggerList as TriggerList };
-export {TriggerForm as TriggerForm};
+export { TriggerForm as TriggerForm };
+export { EnumConfigForm as EnumDeclaration };

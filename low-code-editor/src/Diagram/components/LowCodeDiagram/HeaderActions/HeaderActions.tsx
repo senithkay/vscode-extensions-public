@@ -99,10 +99,11 @@ export function HeaderActions(props: HeaderActionsProps) {
                     isFunctionMember={false}
                 />
             )}
-            {isEditViewVisible && (STKindChecker.isEnumDeclaration(model)) && (
+            {/* {isEditViewVisible && (STKindChecker.isEnumDeclaration(model)) && (
                 <UnsupportedConfirmButtons onConfirm={handleEnumEditBtnConfirm} onCancel={handleEditBtnCancel} />
-            )}
-            {isEditViewVisible && (!STKindChecker.isEnumDeclaration(model)) && (
+            )} */}
+            {/* {isEditViewVisible && (!STKindChecker.isEnumDeclaration(model)) && ( */}
+            {isEditViewVisible && (
                 <FormGenerator
                     model={model}
                     configOverlayFormStatus={{ formType: (formType ? formType : model.kind), isLoading: false }}
