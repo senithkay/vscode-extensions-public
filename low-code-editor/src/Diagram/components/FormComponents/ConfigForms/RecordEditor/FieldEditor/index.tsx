@@ -110,12 +110,17 @@ export function FieldEditor(props: FieldEditorProps) {
         focus: typeEditorFocussed,
         onValueChange: handleTypeSelect,
         validateExpression: validateTypeName,
-        position: state.sourceModel?.position || state.targetPosition,
+        position: state.sourceModel ? {
+            ...state.sourceModel.position,
+            endLine: state.sourceModel.position?.startLine,
+            endColumn: state.sourceModel.position?.startColumn,
+        } : state.targetPosition,
         overrideTemplate: {
-            defaultCodeSnippet: `type tempRecordName record {  ${state.currentField.type === 'record' ? '{}' : ''} varType; };`,
+            defaultCodeSnippet: `type tempRecordName record {  varType; };`,
             targetColumn: 30
         },
         ignoredCompletions: ['tempRecordName'],
+        additionalCompletions: ['record'],
     };
 
     return (
