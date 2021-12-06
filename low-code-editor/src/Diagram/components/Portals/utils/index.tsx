@@ -345,6 +345,7 @@ export function matchEndpointToFormField(endPoint: LocalVarDecl, formFields: For
                 } else {
                     formField.value = positionalArg.expression.source;
                 }
+                formField.initialDiagnostics = positionalArg?.typeData?.diagnostics;
                 nextValueIndex++;
             } else if (formField.typeName === "record" && formField.fields && formField.fields.length > 0) {
                 const mappingConstructor: MappingConstructor = positionalArg.expression as MappingConstructor;
@@ -354,6 +355,7 @@ export function matchEndpointToFormField(endPoint: LocalVarDecl, formFields: For
                 }
             } else if (formField.typeName === "union") {
                 formField.value = positionalArg.expression?.source;
+                formField.initialDiagnostics = positionalArg?.typeData?.diagnostics;
             }
         }
     }
@@ -405,6 +407,7 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                         formField.value = listExpr.source;
                         formField.fields = formField?.fields ? formField.fields : [];
                     }
+                    formField.initialDiagnostics = specificField?.typeData?.diagnostics;
                 }
             })
         }
