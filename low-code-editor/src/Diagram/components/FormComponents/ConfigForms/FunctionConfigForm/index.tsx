@@ -14,7 +14,7 @@
 import React, { useEffect, useRef, useState } from "react";
 
 import { Divider, FormControl } from "@material-ui/core";
-import { FormActionButtons, FormHeaderSection, PrimaryButton, SecondaryButton, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ConfigOverlayFormStatus, FormActionButtons, FormHeaderSection, PrimaryButton, SecondaryButton, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { AddIcon } from "../../../../../assets/icons";
@@ -34,6 +34,7 @@ import { FunctionParam } from "./types";
 
 interface FunctionConfigFormProps {
     model?: FunctionDefinition;
+    configOverlayFormStatus?: ConfigOverlayFormStatus;
     targetPosition?: NodePosition;
     onCancel: () => void;
     onSave: () => void;
@@ -41,9 +42,11 @@ interface FunctionConfigFormProps {
 }
 
 export function FunctionConfigForm(props: FunctionConfigFormProps) {
+    const MAIN_TEXT: string = "Main";
     const formClasses = useFormStyles();
-    const { targetPosition, model, onSave, onCancel, formType } = props;
-    const [functionName, setFunctionName] = useState("");
+    const { targetPosition, model, onSave, onCancel, formType, configOverlayFormStatus } = props;
+    const isMainFunction: boolean = (configOverlayFormStatus.formName && configOverlayFormStatus.formName === MAIN_TEXT) || (model && model.functionName.value ===  MAIN_TEXT.toLowerCase());
+    const [functionName, setFunctionName] = useState(isMainFunction ? MAIN_TEXT.toLowerCase() : "");
     const [parameters, setParameters] = useState<FunctionParam[]>([]);
     const [returnType, setReturnType] = useState(model ? model?.functionSignature?.returnTypeDesc?.type?.source : "error?");
     const [validReturnType, setValidReturnType] = useState(false)
@@ -57,7 +60,6 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
         },
     } = useDiagramContext();
     const existingFunctionNames = useRef([]);
-    const enableSaveBtn = (functionName.length > 0) || !isFunctionNameValid || addingNewParam || !validReturnType;
 
     const handleOnSave = () => {
         const parametersStr = parameters
@@ -84,6 +86,7 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
             // Create new function if model does not exist
             modifications.push(
                 createFunctionSignature(
+                    isMainFunction ? "public" : "",
                     functionName,
                     parametersStr,
                     returnTypeStr,
@@ -169,11 +172,12 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
 
     const functionNameConfig: VariableNameInputProps = {
         displayName: 'Function Name',
-        value: model ? model.functionName.value : '',
+        value: model ? model.functionName.value : functionName,
         onValueChange: onFunctionNameChange,
         validateExpression: updateFunctionNameValidation,
         position: namePosition,
         isEdit: !!model,
+        disabled: isMainFunction,
         overrideTemplate: {
             defaultCodeSnippet: 'function () {}',
             targetColumn: 10
@@ -219,7 +223,7 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
             <div className={formClasses.formContentWrapper}>
                 <div className={formClasses.formNameWrapper}>
                     <VariableNameInput {...functionNameConfig} />
-                    <Divider className={formClasses.sectionSeperatorHR}/>
+                    <Divider className={formClasses.sectionSeperatorHR} />
                     <Section title={"Parameters"}>
                         {parameters.map((param) => (
                             <FunctionParamItem
@@ -248,7 +252,7 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
                             </span>
                         )}
                     </Section>
-                    <Divider className={formClasses.sectionSeperatorHR}/>
+                    <Divider className={formClasses.sectionSeperatorHR} />
                     <Section title={"Return Type"}>
                         <VariableTypeInput {...returnTypeConfig} />
                     </Section>
@@ -260,7 +264,7 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
                 saveBtnText="Save"
                 onSave={handleOnSave}
                 onCancel={onCancel}
-                validForm={enableSaveBtn}
+                validForm={(functionName.length > 0) && isFunctionNameValid && !addingNewParam && validReturnType}
             />
         </FormControl>
     );
