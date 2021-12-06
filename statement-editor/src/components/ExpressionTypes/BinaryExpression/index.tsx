@@ -22,7 +22,7 @@ import { SuggestionItem, VariableUserInputs } from "../../../models/definitions"
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import {
-    didChange,
+    addStatementToTargetLine,
     getContextBasedCompletions,
     getKindBasedOnOperator,
     getOperatorSuggestions,
@@ -84,15 +84,11 @@ export function BinaryExpressionComponent(props: BinaryProps) {
 
     const onClickOnLhsExpression = async (event: any) => {
         event.stopPropagation();
-        await didChange(monaco.Uri.file(currentFile.path).toString(), stmtCtx.modelCtx.statementModel.source, getLangClient);
+        const content: string = await addStatementToTargetLine(
+            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
         const completions: SuggestionItem[] = await getContextBasedCompletions(
-            monaco.Uri.file(currentFile.path).toString(),
-            targetPosition,
-            model.lhsExpr.position,
-            false,
-            model.lhsExpr.source,
-            getLangClient
-        )
+            monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.lhsExpr.position,
+            false, model.lhsExpr.source, getLangClient);
         expressionHandler(model.lhsExpr, false, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
             typeSuggestions: [],
@@ -102,15 +98,11 @@ export function BinaryExpressionComponent(props: BinaryProps) {
 
     const onClickOnRhsExpression = async (event: any) => {
         event.stopPropagation();
-        await didChange(monaco.Uri.file(currentFile.path).toString(), stmtCtx.modelCtx.statementModel.source, getLangClient);
+        const content: string = await addStatementToTargetLine(
+            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
         const completions: SuggestionItem[] = await getContextBasedCompletions(
-            monaco.Uri.file(currentFile.path).toString(),
-            targetPosition,
-            model.rhsExpr.position,
-            false,
-            model.rhsExpr.source,
-            getLangClient
-        )
+            monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.rhsExpr.position,
+            false, model.rhsExpr.source, getLangClient);
         expressionHandler(model.rhsExpr, false, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
             typeSuggestions: [],
