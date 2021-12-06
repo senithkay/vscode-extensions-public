@@ -68,7 +68,7 @@ export function CodePanel() {
                     mutateEnumDefinition(
                         state.enumModel.name,
                         getMemberArray(state.enumModel),
-                        state.targetPosition, 
+                        state.targetPosition,
                         isNewTypeDesc
                     )
                 ]);
