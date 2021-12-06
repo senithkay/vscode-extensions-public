@@ -1,6 +1,6 @@
+import { DiagramDiagnostic } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionSignature, NodePosition, ReturnTypeDescriptor, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { Diagnostic } from "../../../../../../DiagramGenerator/generatorUtil";
 import { ExpressionEditorCustomTemplate } from "../../../FormFieldComponents/ExpressionEditor";
 
 import {
@@ -417,7 +417,7 @@ export function extractPathData(text: string): Resource {
     return resource;
 }
 
-export const getPathDiagnostics = (resources: any[] = []): Diagnostic[] => resources?.reduce((items, resource) => {
+export const getPathDiagnostics = (resources: any[] = []): DiagramDiagnostic[] => resources?.reduce((items, resource) => {
     if (resource?.typeData?.diagnostics){
         return [...items, ...resource?.typeData?.diagnostics]
     }

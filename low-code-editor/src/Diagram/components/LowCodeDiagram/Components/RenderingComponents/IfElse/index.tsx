@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js  jsx-wrap-multiline
 import React, { useContext, useState } from "react";
 
-import { WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { DiagramDiagnostic, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     BlockStatement,
     IfElseStatement, NodePosition,
@@ -22,7 +22,6 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../Contexts/Diagram";
-import { Diagnostic } from "../../../../../../DiagramGenerator/generatorUtil";
 import { getDiagnosticMsgs, getDraftComponent, getSTComponents } from "../../../../../utils";
 import { getConditionConfig, getRandomInt } from "../../../../../utils/diagram-util";
 import { findActualEndPositionOfIfElseStatement } from "../../../../../utils/st-util";
@@ -284,7 +283,7 @@ export function IfElse(props: IfElseProps) {
         }
 
         const getExpressions = () : ElseIfConfig => {
-            const conditions: {id: number, expression: string, position: NodePosition, diagnostics?: Diagnostic[]}[] = [];
+            const conditions: {id: number, expression: string, position: NodePosition, diagnostics?: DiagramDiagnostic[]}[] = [];
             conditions.push({
                 id: 0,
                 expression: conditionExpr?.source.trim(),

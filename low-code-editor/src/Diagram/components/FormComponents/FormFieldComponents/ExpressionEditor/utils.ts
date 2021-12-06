@@ -36,11 +36,10 @@ import "./style.scss";
 import { ExpressionEditorHintProps, HintType } from "../ExpressionEditorHint";
 import MonacoEditor from "react-monaco-editor";
 import { CompletionResponse, ExpressionEditorLangClientInterface, TextEdit,
-    FormField, NonPrimitiveBal, PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+    FormField, NonPrimitiveBal, PrimitiveBalType, DiagramDiagnostic } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { InjectableItem } from "../../FormGenerator";
 import { InsertorDelete } from "../../../../utils/modification-util";
 import { GetExpCompletionsParams } from "./index";
-import { Diagnostic as DiagramDiagnostic } from "../../../../../DiagramGenerator/generatorUtil";
 
 
 // return true if there is any diagnostic of severity === 1

@@ -19,7 +19,7 @@ import classnames from "classnames";
 import { Box, FormControl, IconButton, Typography } from "@material-ui/core";
 import { ControlPoint, RemoveCircleOutlineRounded } from "@material-ui/icons";
 
-import { FormActionButtons, FormField, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormActionButtons, FormField, FormHeaderSection, DiagramDiagnostic } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import {
@@ -32,7 +32,6 @@ import { useStyles } from "../../../../DynamicConnectorForm/style";
 import ExpressionEditor, { ExpressionEditorProps } from "../../../../FormFieldComponents/ExpressionEditor";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { ConditionConfig, ElseIfConfig, FormElementProps } from "../../../../Types";
-import { Diagnostic } from "../../../../../../../DiagramGenerator/generatorUtil";
 
 interface IfProps {
     condition: ConditionConfig;
@@ -49,7 +48,7 @@ interface ExpressionsArray {
     id: number;
     expression: string;
     position: NodePosition;
-    diagnostics?: Diagnostic[];
+    diagnostics?: DiagramDiagnostic[];
     isValid?: boolean;
 }
 
@@ -135,7 +134,7 @@ export function AddIfForm(props: IfProps) {
         };
     };
 
-    const getInitialDiagnostics = (order: number): Diagnostic[] => compList[order]?.diagnostics;
+    const getInitialDiagnostics = (order: number): DiagramDiagnostic[] => compList[order]?.diagnostics;
 
     const IFStatementTooltipMessages = {
         title: intl.formatMessage({

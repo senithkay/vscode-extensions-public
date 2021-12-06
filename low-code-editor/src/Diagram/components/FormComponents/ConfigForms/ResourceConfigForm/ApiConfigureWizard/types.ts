@@ -1,4 +1,4 @@
-import { Diagnostic } from "../../../../../../DiagramGenerator/generatorUtil";
+import { DiagramDiagnostic } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 export interface PathSegment {
     id: number;
@@ -52,7 +52,7 @@ export interface Resource {
     returnType?: string;
     isPathDuplicated?: boolean;
     returnTypeDefaultValue?: string;
-    initialPathDiagnostics?: Diagnostic[];
+    initialPathDiagnostics?: DiagramDiagnostic[];
 }
 
 export interface Payload {

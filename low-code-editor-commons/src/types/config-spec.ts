@@ -95,6 +95,7 @@ export interface FormField {
     validationRegex?: any;
     leftTypeParam?: any;
     rightTypeParam?: any;
+    initialDiagnostics?: DiagramDiagnostic[];
 }
 export interface FormFieldReturnType {
     hasError: boolean;
@@ -194,4 +195,13 @@ export function getType(type: string): PrimitiveBalType {
 export interface ManualConfigType {
     name: string,
     value: string
+}
+
+export interface DiagramDiagnostic {
+    message: string,
+    diagnosticInfo: {
+        code: string,
+        severity: string
+    },
+    range: NodePosition
 }

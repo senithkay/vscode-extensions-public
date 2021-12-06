@@ -18,6 +18,7 @@ import MonacoEditor, { EditorDidMount } from "react-monaco-editor";
 import { FormHelperText, LinearProgress } from "@material-ui/core";
 import {
     CompletionParams,
+    DiagramDiagnostic,
     ExpressionEditorLangClientInterface,
     ExpressionEditorState,
     PrimitiveBalType,
@@ -29,7 +30,6 @@ import * as monaco from "monaco-editor";
 import grammar from "../../../../../ballerina.monarch.json";
 import { TooltipCodeSnippet } from "../../../../../components/Tooltip";
 import { Context } from "../../../../../Contexts/Diagram";
-import { Diagnostic as DiagramDiagnostic } from "../../../../../DiagramGenerator/generatorUtil";
 import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
 import { ExpressionInjectablesProps } from "../../FormGenerator";
 import { FormElementProps } from "../../Types";

@@ -13,9 +13,9 @@
 
 import React, { useState } from "react";
 
+import { DiagramDiagnostic } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
-import { Diagnostic as DiagramDiagnostic } from "../../../../../../DiagramGenerator/generatorUtil";
 import ExpressionEditor, { ExpressionEditorCustomTemplate, ExpressionEditorProps } from "../../../FormFieldComponents/ExpressionEditor";
 import { FormElementProps } from "../../../Types";
 
