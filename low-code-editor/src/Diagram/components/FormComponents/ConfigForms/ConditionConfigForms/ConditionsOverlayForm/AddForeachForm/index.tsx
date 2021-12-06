@@ -27,7 +27,7 @@ import { createForeachStatement, getInitialSource } from "../../../../../../util
 import { genVariableName } from "../../../../../Portals/utils";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
-import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
+import ExpressionEditor, { ExpressionEditorProps } from "../../../../FormFieldComponents/ExpressionEditor";
 import { FormTextInput } from "../../../../FormFieldComponents/TextField/FormTextInput";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { ConditionConfig, ForeachConfig, FormElementProps } from "../../../../Types";
@@ -113,9 +113,10 @@ export function AddForeachForm(props: ForeachProps) {
         conditionExpression.variable = genVariableName("item", getAllVariables(stSymbolInfo));
     };
 
-    const [isInvalid, setIsInvalid] = useState(!!conditionExpression.collection);
+    const [expressionValue, setExpressionValue] = useState(conditionExpression.collection)
+    const [isValidExpression, setIsValidExpression] = useState(!!conditionExpression.collection);
 
-    // todo: Support other data types
+    // FIXME: Replace with type selection expression editor!
     const variableTypes: string[] = ["var", "int", "float", "decimal", "boolean", "string", "json", "xml"];
 
     const [selectedType, setSelectedType] = useState(conditionExpression.type ? conditionExpression.type : "var");
@@ -136,6 +137,7 @@ export function AddForeachForm(props: ForeachProps) {
 
     const handleExpEditorChange = (value: string) => {
         conditionExpression.collection = value;
+        setExpressionValue(value);
     }
 
     const handleSave = () => {
@@ -145,15 +147,14 @@ export function AddForeachForm(props: ForeachProps) {
     }
 
     const validateField = (fieldName: string, isInvalidFromField: boolean) => {
-        const isValidExpression = !isInvalidFromField ? (conditionExpression.collection !== undefined && conditionExpression.collection !== "") : false;
-        setIsInvalid(!isValidExpression)
+        setIsValidExpression(!isInvalidFromField)
     }
 
     const formField: FormField = {
         name: "iterable expression",
         displayName: "Iterable Expression",
         typeName: selectedType + "[]",
-        selectedDataType: selectedType
+        value: expressionValue,
     };
 
     const forEachTooltipMessages = {
@@ -198,7 +199,7 @@ export function AddForeachForm(props: ForeachProps) {
         defaultMessage: "Cancel"
     });
 
-    const expElementProps: FormElementProps = {
+    const expElementProps: FormElementProps<ExpressionEditorProps> = {
         model: formField,
         customProps: {
             validate: validateField,
@@ -206,11 +207,19 @@ export function AddForeachForm(props: ForeachProps) {
             tooltipActionText: forEachTooltipMessages.expressionEditor.actionText,
             tooltipActionLink: forEachTooltipMessages.expressionEditor.actionLink,
             interactive: true,
-            statementType: formField.typeName,
+            statementType: selectedType,
+            changed: selectedType,
             customTemplate: {
                 defaultCodeSnippet: `foreach ${selectedType} temp_var in  {}`,
-                targetColumn: 25,
+                targetColumn: 22 + selectedType.length,
             },
+            initialDiagnostics: formArgs?.model?.actionOrExpressionNode?.typeData?.diagnostics,
+            editPosition: {
+                startLine: formArgs?.model ? formArgs?.model.position.startLine : formArgs.targetPosition.startLine,
+                endLine: formArgs?.model ? formArgs?.model.position.startLine : formArgs.targetPosition.startLine,
+                startColumn: 0,
+                endColumn: 0
+            }
         },
         onChange: handleExpEditorChange,
         defaultValue: conditionExpression.collection,
@@ -234,7 +243,7 @@ export function AddForeachForm(props: ForeachProps) {
             label: intl.formatMessage({ id: "lowcode.develop.configForms.forEach.statementEditor.label" }),
             initialSource,
             formArgs: { formArgs },
-            validForm: !isInvalid,
+            validForm: isValidExpression,
             config: condition,
             onWizardClose,
             handleStatementEditorChange,
@@ -310,7 +319,7 @@ export function AddForeachForm(props: ForeachProps) {
                     cancelBtn={true}
                     saveBtnText={saveForEachButtonLabel}
                     isMutationInProgress={isMutationInProgress}
-                    validForm={!isInvalid}
+                    validForm={isValidExpression && expressionValue.length > 0}
                     onSave={handleSave}
                     onCancel={onCancel}
                 />

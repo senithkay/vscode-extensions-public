@@ -19,7 +19,7 @@ import classnames from "classnames";
 import { Box, FormControl, IconButton, Typography } from "@material-ui/core";
 import { ControlPoint, RemoveCircleOutlineRounded } from "@material-ui/icons";
 
-import { FormActionButtons, FormField, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormActionButtons, FormField, FormHeaderSection, DiagramDiagnostic } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import {
@@ -29,7 +29,7 @@ import {
     getInitialSource
 } from "../../../../../../utils/modification-util";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
-import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
+import ExpressionEditor, { ExpressionEditorProps } from "../../../../FormFieldComponents/ExpressionEditor";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { ConditionConfig, ElseIfConfig, FormElementProps } from "../../../../Types";
 
@@ -45,67 +45,67 @@ export const DEFINE_CONDITION: string = "Define Condition Expression";
 export const EXISTING_PROPERTY: string = "Select Boolean Property";
 
 interface ExpressionsArray {
-    id: number, expression: string, position: NodePosition
+    id: number;
+    expression: string;
+    position: NodePosition;
+    diagnostics?: DiagramDiagnostic[];
+    isValid?: boolean;
 }
 
 export function AddIfForm(props: IfProps) {
     const {
-        props: {
-            isCodeEditorActive,
-            isMutationProgress: isMutationInProgress,
-            currentFile
-        },
+        props: { isMutationProgress: isMutationInProgress, currentFile },
         api: {
             ls: { getExpressionEditorLangClient },
-            code: { modifyDiagram }
-        }
+            code: { modifyDiagram },
+        },
     } = useContext(Context);
     const { condition, formArgs, onCancel, onSave, onWizardClose } = props;
     const classes = useStyles();
     const intl = useIntl();
 
-    const [isInvalid, setIsInvalid] = useState(true);
-
     let statementConditions: ExpressionsArray[];
-    statementConditions = ((condition.conditionExpression as ElseIfConfig)?.values)
+    statementConditions = (condition.conditionExpression as ElseIfConfig)?.values
         ? (condition.conditionExpression as ElseIfConfig).values
-        : [{ id: 0, expression: "", position: {} }];
-    const [compList, setCompList] = useState(statementConditions);
+        : [{ id: 0, expression: "", position: {}, isValid: false }];
+    const [compList, setCompList] = useState(
+        statementConditions.map((item) => ({
+            ...item,
+            isValid: item.diagnostics?.length === 0,
+        }))
+    );
 
     const handlePlusButton = (order: number) => () => {
         if (order === -1) {
             setCompList((prev) => {
-                return [...prev, { id: prev.length, expression: "", position: {} }]
+                return [...prev, { id: prev.length, expression: "", position: {}, isValid: false }];
             });
         } else {
             setCompList((prev) => {
-                return [...prev.slice(0, order), { id: order, expression: "", position: {} }, ...prev.slice(order, prev.length)];
+                return [...prev.slice(0, order), { id: order, expression: "", position: {}, isValid: false }, ...prev.slice(order, prev.length)];
             });
         }
-    }
+    };
 
     const handleMinusButton = (order: number) => () => {
-        setCompList(compList.filter((comp) => {
-            return comp.id !== order
-        }));
-    }
+        setCompList(
+            compList.filter((comp) => {
+                return comp.id !== order;
+            })
+        );
+    };
 
     const handleExpEditorChange = (order: number) => (value: string) => {
         setCompList((prevState) => {
             return [...prevState.slice(0, order), { ...prevState[order], expression: value }, ...prevState.slice(order + 1, prevState.length)];
         });
-    }
+    };
 
-    const validateField = (fieldName: string, isInvalidFromField: boolean) => {
-        let isInvalidForm = false;
-        for (const elem of compList) {
-            if (elem.expression === "") {
-                isInvalidForm = true;
-                break;
-            }
-        }
-        setIsInvalid(isInvalidFromField || isInvalidForm)
-    }
+    const validateExpEditor = (isInvalid: boolean, order: number) => {
+        setCompList((prevState) => {
+            return [...prevState.slice(0, order), { ...prevState[order], isValid: !isInvalid }, ...prevState.slice(order + 1, prevState.length)];
+        });
+    };
 
     const updateElseIfExpressions = (obj: ElseBlock, element: ExpressionsArray): ElseBlock => {
         if (STKindChecker.isIfElseStatement(obj.elseBody)) {
@@ -130,30 +130,35 @@ export function AddIfForm(props: IfProps) {
             name: "condition",
             displayName: "Condition",
             typeName: "boolean",
-            value: compList[order]?.expression
-        }
-    }
+            value: compList[order]?.expression,
+        };
+    };
+
+    const getInitialDiagnostics = (order: number): DiagramDiagnostic[] => compList[order]?.diagnostics;
 
     const IFStatementTooltipMessages = {
         title: intl.formatMessage({
             id: "lowcode.develop.configForms.IFStatementTooltipMessages.expressionEditor.tooltip.title",
-            defaultMessage: "Enter a Ballerina expression."
+            defaultMessage: "Enter a Ballerina expression.",
         }),
         actionText: intl.formatMessage({
             id: "lowcode.develop.configForms.IFStatementTooltipMessages.expressionEditor.tooltip.actionText",
-            defaultMessage: "Learn Ballerina expressions"
+            defaultMessage: "Learn Ballerina expressions",
         }),
-        actionLink: intl.formatMessage({
-            id: "lowcode.develop.configForms.IFStatementTooltipMessages.expressionEditor.tooltip.actionTitle",
-            defaultMessage: "{learnBallerina}"
-        }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
+        actionLink: intl.formatMessage(
+            {
+                id: "lowcode.develop.configForms.IFStatementTooltipMessages.expressionEditor.tooltip.actionTitle",
+                defaultMessage: "{learnBallerina}",
+            },
+            { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH }
+        ),
     };
 
-    const setElementProps = (order: number): FormElementProps => {
+    const setElementProps = (order: number): FormElementProps<ExpressionEditorProps> => {
         return {
             model: setFormField(order),
             customProps: {
-                validate: validateField,
+                validate: (_name: string, isInvalid: boolean) => validateExpEditor(isInvalid, order),
                 tooltipTitle: IFStatementTooltipMessages.title,
                 tooltipActionText: IFStatementTooltipMessages.actionText,
                 tooltipActionLink: IFStatementTooltipMessages.actionLink,
@@ -161,28 +166,38 @@ export function AddIfForm(props: IfProps) {
                 statementType: setFormField(order).typeName,
                 expressionInjectables: {
                     list: formArgs?.expressionInjectables?.list,
-                    setInjectables: formArgs?.expressionInjectables?.setInjectables
+                    setInjectables: formArgs?.expressionInjectables?.setInjectables,
+                },
+                initialDiagnostics: getInitialDiagnostics(order),
+                editPosition: {
+                    startLine: formArgs?.model ? formArgs?.model.position.startLine : formArgs.targetPosition.startLine,
+                    endLine: formArgs?.model ? formArgs?.model.position.startLine : formArgs.targetPosition.startLine,
+                    startColumn: 0,
+                    endColumn: 0
                 }
+
             },
             onChange: handleExpEditorChange(order),
-            defaultValue: compList[order]?.expression
-        }
-    }
+            defaultValue: compList[order]?.expression,
+        };
+    };
 
     const handleOnSaveClick = () => {
-        condition.conditionExpression = { values: compList }
+        condition.conditionExpression = { values: compList };
         onSave();
-    }
+    };
 
     const saveIfConditionButtonLabel = intl.formatMessage({
         id: "lowcode.develop.configForms.if.saveButton.label",
-        defaultMessage: "Save"
+        defaultMessage: "Save",
     });
 
     const cancelIfButtonLabel = intl.formatMessage({
         id: "lowcode.develop.configForms.if.cancelButton.label",
-        defaultMessage: "Cancel"
+        defaultMessage: "Cancel",
     });
+
+    const validForm = compList.every((item) => item.isValid);
 
     const getCompleteSource = () => {
         let source = getInitialSource(createIfStatement(
@@ -206,7 +221,7 @@ export function AddIfForm(props: IfProps) {
             label: intl.formatMessage({ id: "lowcode.develop.configForms.if.statementEditor.label" }),
             initialSource,
             formArgs: { formArgs },
-            validForm: !isInvalid,
+            validForm,
             config: condition,
             onWizardClose,
             handleStatementEditorChange,
@@ -300,14 +315,13 @@ export function AddIfForm(props: IfProps) {
                     cancelBtn={true}
                     saveBtnText={saveIfConditionButtonLabel}
                     isMutationInProgress={isMutationInProgress}
-                    validForm={!isInvalid}
+                    validForm={validForm}
                     onSave={handleOnSaveClick}
                     onCancel={onCancel}
                 />
             </FormControl>
         );
-    }
-    else {
+    } else {
         return stmtEditorComponent;
     }
 }

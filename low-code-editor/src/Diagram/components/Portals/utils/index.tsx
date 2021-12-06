@@ -107,14 +107,18 @@ export function getFieldName(fieldName: string): string {
     return keywords.includes(fieldName) ? "'" + fieldName : fieldName;
 }
 
+const isAllFieldsEmpty = (recordFields: FormField[]): boolean => recordFields?.every(field => ((field.value ?? "") === "") || (field.fields && isAllFieldsEmpty(field.fields)));
+
 export function getParams(formFields: FormField[], depth = 1): string[] {
     const paramStrings: string[] = [];
     formFields.forEach(formField => {
-        const skipDefaultValue = (!formField.value && (formField.defaultable || formField.optional)) ||
+        const skipDefaultValue = (!formField.value && formField.typeName !== "record" && formField.defaultable) ||
             (formField.value && formField.defaultValue && formField.defaultValue === formField.value);
         let paramString: string = "";
         if (!skipDefaultValue) {
-            if (formField.defaultable && formField.value) {
+            if (formField.defaultable &&
+                ((formField.typeName !== "record" && formField.value) ||
+                    (formField.typeName === "record" && !isAllFieldsEmpty(formField.fields)))) {
                 paramString += `${formField.name} = `;
             }
             if (formField.typeName === "string" && (formField.value || formField.defaultValue)) {
@@ -341,6 +345,7 @@ export function matchEndpointToFormField(endPoint: LocalVarDecl, formFields: For
                 } else {
                     formField.value = positionalArg.expression.source;
                 }
+                formField.initialDiagnostics = positionalArg?.typeData?.diagnostics;
                 nextValueIndex++;
             } else if (formField.typeName === "record" && formField.fields && formField.fields.length > 0) {
                 const mappingConstructor: MappingConstructor = positionalArg.expression as MappingConstructor;
@@ -350,6 +355,7 @@ export function matchEndpointToFormField(endPoint: LocalVarDecl, formFields: For
                 }
             } else if (formField.typeName === "union") {
                 formField.value = positionalArg.expression?.source;
+                formField.initialDiagnostics = positionalArg?.typeData?.diagnostics;
             }
         }
     }
@@ -401,6 +407,7 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                         formField.value = listExpr.source;
                         formField.fields = formField?.fields ? formField.fields : [];
                     }
+                    formField.initialDiagnostics = specificField?.typeData?.diagnostics;
                 }
             })
         }

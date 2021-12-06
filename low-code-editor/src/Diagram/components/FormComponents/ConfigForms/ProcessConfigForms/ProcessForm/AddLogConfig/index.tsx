@@ -74,7 +74,7 @@ export function AddLogConfig(props: LogConfigProps) {
     }
     const [logType, setLogType] = useState(defaultType);
     const [expression, setExpression] = useState(defaultExpression);
-    const [isFormValid, setIsFormValid] = useState(logType && expression);
+    const [isFormValid, setIsFormValid] = useState(logType && logType.length > 0 && expression && expression.length > 0);
 
     const onExpressionChange = (value: any) => {
         setExpression(value);
@@ -91,7 +91,7 @@ export function AddLogConfig(props: LogConfigProps) {
     };
 
     const validateExpression = (field: string, isInvalid: boolean) => {
-        setIsFormValid(!isInvalid && logType);
+        setIsFormValid(!isInvalid && logType && logType.length >  0);
     };
 
     const saveLogButtonLabel = intl.formatMessage({
@@ -180,7 +180,14 @@ export function AddLogConfig(props: LogConfigProps) {
                                 expressionInjectables: {
                                     list: formArgs?.expressionInjectables?.list,
                                     setInjectables: formArgs?.expressionInjectables?.setInjectables
-                                }
+                                },
+                                editPosition: {
+                                    startLine: logModel ? logModel.position.startLine : formArgs.targetPosition.startLine,
+                                    endLine: logModel ? logModel.position.startLine : formArgs.targetPosition.startLine,
+                                    startColumn: 0,
+                                    endColumn: 0
+                                },
+                                initialDiagnostics: config?.model?.typeData?.diagnostics,
                             }}
                             onChange={onExpressionChange}
                             defaultValue={expression}
@@ -192,7 +199,7 @@ export function AddLogConfig(props: LogConfigProps) {
                     cancelBtn={true}
                     saveBtnText={saveLogButtonLabel}
                     isMutationInProgress={isMutationInProgress}
-                    validForm={!isFormValid}
+                    validForm={isFormValid}
                     onSave={onSaveBtnClick}
                     onCancel={onCancel}
                 />

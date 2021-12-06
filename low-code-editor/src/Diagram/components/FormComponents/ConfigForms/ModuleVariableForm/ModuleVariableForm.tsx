@@ -24,8 +24,9 @@ import { getVariableNameFromST } from '../../../../utils/st-util';
 import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
 import CheckBoxGroup from '../../FormFieldComponents/CheckBox';
 import { SelectDropdownWithButton } from '../../FormFieldComponents/DropDown/SelectDropdownWithButton';
-import ExpressionEditor from '../../FormFieldComponents/ExpressionEditor';
+import ExpressionEditor, { ExpressionEditorProps } from '../../FormFieldComponents/ExpressionEditor';
 import { TextLabel } from '../../FormFieldComponents/TextField/TextLabel';
+import { FormElementProps } from '../../Types';
 import { VariableNameInput } from '../Components/VariableNameInput';
 
 import { getFormConfigFromModel, isFormConfigValid, ModuleVarNameRegex, VariableOptions } from './util';
@@ -93,11 +94,12 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
         return true;
     };
 
-    const expressionEditorConfig = {
+    const expressionEditorConfig: FormElementProps<ExpressionEditorProps> = {
         model: {
             name: "valueExpression",
             displayName: "Value Expression",
-            typeName: state.varType
+            typeName: state.varType,
+            value: state.varValue,
         },
         customProps: {
             validate: updateExpressionValidity,
@@ -108,7 +110,8 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
                 endLine: model ? model.position.startLine : targetPosition.startLine,
                 startColumn: 0,
                 endColumn: 0
-            }
+            },
+            initialDiagnostics: model?.initializer?.typeData?.diagnostics,
         },
         onChange: onValueChange,
         defaultValue: state.varValue,
@@ -172,6 +175,7 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
                         validateExpression={updateExpressionValidity}
                         position={namePosition}
                         isEdit={!!model}
+                        initialDiagnostics={model?.typedBindingPattern?.typeData?.diagnostics}
                     />
                     <ExpressionEditor
                         {...expressionEditorConfig}

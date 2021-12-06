@@ -16,6 +16,7 @@ import { FormattedMessage } from "react-intl";
 
 import { FormHelperText } from "@material-ui/core";
 import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { Form } from "../../DynamicConnectorForm";
 import { useStyles } from "../../DynamicConnectorForm/style";
@@ -24,10 +25,12 @@ import { SelectDropdownWithButton } from "../DropDown/SelectDropdownWithButton";
 
 interface UnionProps {
     validate: (field: string, isInvalid: boolean) => void;
+    editPosition?: NodePosition;
 }
 
 export function Union(props: FormElementProps<UnionProps>) {
     const { model, customProps } = props;
+    const {validate, editPosition} = customProps;
     const classes = useStyles();
     const textLabel = model && model.displayName ? model.displayName : model.name;
 
@@ -70,13 +73,23 @@ export function Union(props: FormElementProps<UnionProps>) {
         if (selectedField && selectedField.typeName && selectedField.fields) {
             element = (
                 <div className={classes.removeInnerMargin}>
-                    <Form fields={selectedField.fields} onValidate={validateForm} key={selectedType} />
+                    <Form
+                        fields={selectedField.fields}
+                        onValidate={validateForm}
+                        key={selectedType}
+                        editPosition={editPosition}
+                    />
                 </div>
             );
         } else if (selectedField && selectedField.typeName) {
             element = (
                 <div className={classes.removeInnerMargin}>
-                    <Form fields={[selectedField]} onValidate={validateForm} key={selectedType} />
+                    <Form
+                        fields={[selectedField]}
+                        onValidate={validateForm}
+                        key={selectedType}
+                        editPosition={editPosition}
+                    />
                 </div>
             );
         }
@@ -85,14 +98,14 @@ export function Union(props: FormElementProps<UnionProps>) {
     };
 
     const validateForm = (isValid: boolean) => {
-        customProps?.validate(model.name, !isValid);
+        validate(model.name, !isValid);
     };
 
     const handleTypeChange = (value: string) => {
         model.selectedDataType = value;
         setSelectedType(value);
         if (value === "nil") {
-            customProps?.validate(model.name, false);
+            validate(model.name, false);
         }
     };
 

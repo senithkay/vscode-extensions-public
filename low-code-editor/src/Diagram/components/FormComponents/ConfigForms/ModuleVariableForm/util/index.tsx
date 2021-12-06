@@ -51,7 +51,9 @@ export function getFormConfigFromModel(model: any): ModuleVariableFormStateWithV
 
         const typeData = model?.initializer?.typeData;
 
-        if (typeData) {
+        if (model?.typedBindingPattern?.typeDescriptor) {
+            defaultFormState.varType = model?.typedBindingPattern?.typeDescriptor?.name?.value;
+        } else if (typeData) {
             const typeSymbol = typeData.typeSymbol;
             if (typeSymbol) {
                 defaultFormState.varType = typeSymbol.typeKind;

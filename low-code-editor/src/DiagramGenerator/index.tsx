@@ -3,7 +3,7 @@ import { IntlProvider } from "react-intl";
 import { monaco } from "react-monaco-editor";
 
 import { MuiThemeProvider } from "@material-ui/core/styles";
-import { Connector, STModification, STSymbolInfo, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { Connector, DiagramDiagnostic, STModification, STSymbolInfo, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, ModulePart, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import cloneDeep from "lodash.clonedeep";
 import Mousetrap from 'mousetrap';
@@ -17,7 +17,7 @@ import messages from '../lang/en.json';
 import { CirclePreloader } from "../PreLoader/CirclePreloader";
 
 import { DiagramGenErrorBoundary } from "./ErrorBoundrary";
-import { Diagnostic, getDefaultSelectedPosition, getLowcodeST, getSyntaxTree, isUnresolvedModulesAvailable, resolveMissingDependencies } from "./generatorUtil";
+import { getDefaultSelectedPosition, getLowcodeST, getSyntaxTree, isUnresolvedModulesAvailable, resolveMissingDependencies } from "./generatorUtil";
 import { useGeneratorStyles } from "./styles";
 import { theme } from "./theme";
 import { EditorProps, PALETTE_COMMANDS } from "./vscode/Diagram";
@@ -33,7 +33,7 @@ const MIN_ZOOM = 0.6;
 const undoRedo = new UndoRedoManager();
 
 export function DiagramGenerator(props: DiagramGeneratorProps) {
-    const { langClient, filePath, startLine, startColumn, lastUpdatedAt, scale, panX, panY, resolveMissingDependencyByCodeAction } = props;
+    const { langClient, filePath, startLine, startColumn, lastUpdatedAt, scale, panX, panY, resolveMissingDependency } = props;
     const classes = useGeneratorStyles();
     const defaultScale = scale ? Number(scale) : 1;
     const defaultPanX = panX ? Number(panX) : 0;
@@ -243,9 +243,9 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                             undoRedo.addModification(source);
                                             const pfSession = await props.getPFSession();
                                             if (newST?.typeData?.diagnostics && newST?.typeData?.diagnostics?.length > 0) {
-                                                const { isAvailable, diagnostic } = isUnresolvedModulesAvailable(newST?.typeData?.diagnostics as Diagnostic[]);
+                                                const { isAvailable } = isUnresolvedModulesAvailable(newST?.typeData?.diagnostics as DiagramDiagnostic[]);
                                                 if (isAvailable) {
-                                                    resolveMissingDependencyByCodeAction(filePath, source, diagnostic);
+                                                    resolveMissingDependency(filePath, source);
                                                 }
                                             }
                                             setFileContent(source);

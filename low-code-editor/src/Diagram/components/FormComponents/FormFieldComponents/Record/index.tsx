@@ -65,6 +65,7 @@ export function Record(props: FormElementProps<RecordProps>) {
                             validate: validateField,
                             expressionInjectables,
                             editPosition,
+                            initialDiagnostics: field.initialDiagnostics,
                         }
                     };
 
@@ -87,7 +88,7 @@ export function Record(props: FormElementProps<RecordProps>) {
                     const element = getFormElement(elementProps, type);
 
                     if (element) {
-                        (field?.optional || field?.defaultable) ? optionalRecordFields.push(element) : recordFields.push(element);
+                        (field.defaultable || field.optional) ? optionalRecordFields.push(element) : recordFields.push(element);
                     }
                 }
             });
@@ -97,11 +98,11 @@ export function Record(props: FormElementProps<RecordProps>) {
     return (
         <div className={classes.marginTB}>
             <FormAccordion
-                title={model.label || model.name}
+                title={model.displayAnnotation?.label || model.name}
                 depth={2}
                 mandatoryFields={recordFields}
                 optionalFields={optionalRecordFields}
-                isMandatory={!(model.optional ?? false)}
+                isMandatory={!(model.defaultable || model.optional)}
             />
         </div>
     );

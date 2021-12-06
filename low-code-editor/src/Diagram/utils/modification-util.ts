@@ -932,7 +932,7 @@ export async function InsertorDelete(modifications: STModification[]): Promise<S
     return stModifications;
 }
 
-export function createFunctionSignature(name: string, parameters: string, returnTypes: string, targetPosition: NodePosition): STModification {
+export function createFunctionSignature(accessModifier: string, name: string, parameters: string, returnTypes: string, targetPosition: NodePosition): STModification {
     const functionStatement: STModification = {
         startLine: targetPosition.startLine,
         startColumn: 0,
@@ -940,6 +940,7 @@ export function createFunctionSignature(name: string, parameters: string, return
         endColumn: 0,
         type: "FUNCTION_DEFINITION",
         config: {
+            "ACCESS_MODIFIER": accessModifier,
             "NAME": name,
             "PARAMETERS": parameters,
             "RETURN_TYPE": returnTypes
