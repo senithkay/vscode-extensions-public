@@ -22,6 +22,7 @@ import { SuggestionItem, VariableUserInputs } from "../../../models/definitions"
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import {
+    didChange,
     getContextBasedCompletions,
     getKindBasedOnOperator,
     getOperatorSuggestions,
@@ -83,6 +84,7 @@ export function BinaryExpressionComponent(props: BinaryProps) {
 
     const onClickOnLhsExpression = async (event: any) => {
         event.stopPropagation();
+        await didChange(monaco.Uri.file(currentFile.path).toString(), stmtCtx.modelCtx.statementModel.source, getLangClient);
         const completions: SuggestionItem[] = await getContextBasedCompletions(
             monaco.Uri.file(currentFile.path).toString(),
             targetPosition,
@@ -100,6 +102,7 @@ export function BinaryExpressionComponent(props: BinaryProps) {
 
     const onClickOnRhsExpression = async (event: any) => {
         event.stopPropagation();
+        await didChange(monaco.Uri.file(currentFile.path).toString(), stmtCtx.modelCtx.statementModel.source, getLangClient);
         const completions: SuggestionItem[] = await getContextBasedCompletions(
             monaco.Uri.file(currentFile.path).toString(),
             targetPosition,

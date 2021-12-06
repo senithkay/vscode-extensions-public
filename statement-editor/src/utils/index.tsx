@@ -102,6 +102,25 @@ export async function getContextBasedCompletions (
     return variableSuggestions;
 }
 
+export async function didChange(
+            docUri: string,
+            content: string,
+            getLangClient: () => Promise<ExpressionEditorLangClientInterface>
+        ) {
+    const langClient = await getLangClient();
+    langClient.didChange({
+        contentChanges: [
+            {
+                text: content
+            }
+        ],
+        textDocument: {
+            uri: docUri,
+            version: 1
+        }
+    });
+}
+
 export function getModifications(
         model: STNode,
         config: {
