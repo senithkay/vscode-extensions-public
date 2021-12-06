@@ -53,9 +53,11 @@ const fs = require('fs');
 const TEST_RESULTS_PATH = path.join("target", "report", "test_results.json").toString();
 let langClient: ExtendedLangClient | undefined;
 let currentProjectRoot;
+let ctrl;
+let root;
 
 export async function activate(ballerinaExtInstance: BallerinaExtension) {
-  const ctrl = tests.createTestController('ballerina-tests', 'Ballerina Tests');
+  ctrl = tests.createTestController('ballerina-tests', 'Ballerina Tests');
   ballerinaExtInstance.context?.subscriptions.push(ctrl);
 
   langClient = ballerinaExtInstance.langClient;
@@ -80,10 +82,7 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
     };
 
     const runTestQueue = async () => {
-      let rootPath;
-      try {
-        rootPath = await (await getCurrentBallerinaProject()).path;
-      } catch {
+      if (!root) {
         run.end();
         return;
       }
@@ -102,14 +101,14 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
           // execute test
           const executor = ballerinaExtInstance.getBallerinaCmd();
           const commandText = `${executor} ${BALLERINA_COMMANDS.TEST} ${EXEC_ARG.TESTS} ${testNames} ${EXEC_ARG.COVERAGE}`;
-          await runCommand(commandText, rootPath);
+          await runCommand(commandText, root);
 
         } catch {
           // exception.
         } finally {
           const EndTime = Date.now();
 
-          testsJson = await readTestJson(path.join(rootPath!, TEST_RESULTS_PATH).toString());
+          testsJson = await readTestJson(path.join(root!, TEST_RESULTS_PATH).toString());
           if (!testsJson) {
             run.end();
             return;
@@ -118,10 +117,10 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
           const moduleStatus = testsJson["moduleStatus"];
           const timeElapsed = (EndTime - startTime) / queue.length;
 
-          for (const status of moduleStatus) {
-            const testResults = status["tests"];
-            for (const { test, } of queue) {
-              let found = false;
+          for (const { test, } of queue) {
+            let found = false;
+            for (const status of moduleStatus) {
+              const testResults = status["tests"];
               for (const testResult of testResults) {
                 if (test.label !== testResult.name) {
                   continue;
@@ -130,15 +129,17 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
                 if (testResult.status === TEST_STATUS.PASSED) {
                   run.passed(test, timeElapsed);
                   found = true;
+                  break;
                 } else if (testResult.status === TEST_STATUS.FAILED) {
                   // test failed
                   const testMessage: TestMessage = new TestMessage(testResult.failureMessage);
                   run.failed(test, testMessage, timeElapsed);
                   found = true;
+                  break;
                 }
               }
               if (found) {
-                continue;
+                break;
               }
               // test failed
               const testMessage: TestMessage = new TestMessage("");
@@ -174,7 +175,7 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
       return;
     }
 
-    await createTests(ctrl, document.uri);
+    await createTests(document.uri);
   }
 
   for (const document of workspace.textDocuments) {
@@ -264,13 +265,13 @@ async function startDebugging(uri: Uri, testDebug: boolean, ballerinaCmd: string
  * @param uri File uri to find tests.
  * @param ballerinaExtInstance Balleina extension instace.
  */
-async function createTests(controller: TestController, uri: Uri) {
-  if (!langClient) {
+export async function createTests(uri: Uri) {
+  if (!langClient || !ctrl) {
     return;
   }
 
   // create tests for current project
-  let root = (await langClient.getBallerinaProject({
+  root = (await langClient.getBallerinaProject({
     documentIdentifier: {
       uri: uri.toString()
     }
@@ -285,8 +286,8 @@ async function createTests(controller: TestController, uri: Uri) {
   }
 
   if (currentProjectRoot && currentProjectRoot !== root) {
-    controller.items.forEach(item => {
-      controller.items.delete(item.id);
+    ctrl.items.forEach(item => {
+      ctrl.items.delete(item.id);
     });
   }
   currentProjectRoot = root
@@ -321,7 +322,7 @@ async function createTests(controller: TestController, uri: Uri) {
     let depth = 0;
 
     // if already added to the test explorer.
-    let rootNode = controller.items.get(fullPath);
+    let rootNode = ctrl.items.get(fullPath);
     if (rootNode) {
       let parentNode: TestItem = rootNode;
       let pathToFind = uri.fsPath;
@@ -339,7 +340,7 @@ async function createTests(controller: TestController, uri: Uri) {
         let testCaseItems: TestItem[] = [];
 
         positions.forEach(position => {
-          const tcase = createTestCase(controller, fullPath, position);
+          const tcase = createTestCase(ctrl, fullPath, position);
           testCaseItems.push(tcase);
         });
         parentNode.children.replace(testCaseItems);
@@ -351,8 +352,8 @@ async function createTests(controller: TestController, uri: Uri) {
         depth = 0;
       }
     } else {
-      rootNode = createTestItem(controller, fullPath, fullPath, level);
-      controller.items.add(rootNode);
+      rootNode = createTestItem(ctrl, fullPath, fullPath, level);
+      ctrl.items.add(rootNode);
       ancestors.push(rootNode);
       depth = 1;
     }
@@ -361,7 +362,7 @@ async function createTests(controller: TestController, uri: Uri) {
       const parent = ancestors.pop()!;
       const level = relativePath[depth];
       fullPath = path.join(fullPath, level).toString();
-      const middleNode = createTestItem(controller, fullPath, fullPath, level);
+      const middleNode = createTestItem(ctrl, fullPath, fullPath, level);
       middleNode.canResolveChildren = true;
       parent.children.add(middleNode);
       ancestors.push(middleNode);
@@ -370,7 +371,7 @@ async function createTests(controller: TestController, uri: Uri) {
     const parent = ancestors.pop()!;
     let testCaseItems: TestItem[] = [];
     positions.forEach(position => {
-      const tcase = createTestCase(controller, fullPath, position);
+      const tcase = createTestCase(ctrl, fullPath, position);
       testCaseItems.push(tcase);
     });
     parent.children.replace(testCaseItems);
@@ -435,15 +436,15 @@ function startWatchingWorkspace(controller: TestController) {
     const pattern = new RelativePattern(workspaceFolder, '**/*.bal');
     const watcher = workspace.createFileSystemWatcher(pattern);
 
-    watcher.onDidCreate(uri => createTests(controller, uri));
+    watcher.onDidCreate(uri => createTests(uri));
     watcher.onDidChange(async uri => {
-      await createTests(controller, uri);
+      await createTests(uri);
     });
     watcher.onDidDelete(uri => controller.items.delete(uri.toString()));
 
     workspace.findFiles(pattern).then(async files => {
       for (const fileX of files) {
-        await createTests(controller, fileX);
+        await createTests(fileX);
       }
     });
 
