@@ -11,15 +11,18 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, {ReactNode, useContext} from "react";
+import React, { ReactNode, useContext } from "react";
+import { monaco } from "react-monaco-editor";
 
 import { FunctionCall, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { VariableUserInputs } from "../../../models/definitions";
+import { DEFAULT_EXPRESSIONS } from "../../../constants";
+import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
-import { isPositionsEquals } from "../../../utils";
+import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
+import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
@@ -34,17 +37,13 @@ export function FunctionCallComponent(props: FunctionCallProps) {
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
-    const hasFunctionNameSelected = currentModel.model &&
-        isPositionsEquals(currentModel.model.position, model.functionName.position);
+    const hasFunctionCallExprSelected = currentModel.model &&
+        isPositionsEquals(currentModel.model.position, model.position);
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
-
-    const onClickOnFunctionName = (event: any) => {
-        event.stopPropagation();
-        expressionHandler(model.functionName, false, false,
-            { expressionSuggestions: [], typeSuggestions: [], variableSuggestions: [] })
-    };
+    const { currentFile, getLangClient } = stmtCtx;
+    const targetPosition = stmtCtx.formCtx.formModelPosition;
 
     const functionName: ReactNode = (
         <ExpressionComponent
@@ -55,6 +54,23 @@ export function FunctionCallComponent(props: FunctionCallProps) {
             isTypeDescriptor={false}
         />
     );
+
+    const onClickOnFunctionCallExpr = async (event: any) => {
+        event.stopPropagation();
+
+        const content: string = await addStatementToTargetLine(
+            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
+
+        const completions: SuggestionItem[] = await getContextBasedCompletions(
+            monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.position,
+            false, model.source, getLangClient);
+
+        expressionHandler(model, false, false, {
+            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
+            typeSuggestions: [],
+            variableSuggestions: completions
+        });
+    }
 
     const expressionComponent = (
         <span>
@@ -89,28 +105,29 @@ export function FunctionCallComponent(props: FunctionCallProps) {
             <button
                 className={classNames(
                     statementEditorClasses.expressionElement,
-                    hasFunctionNameSelected && statementEditorClasses.expressionElementSelected)}
-                onClick={onClickOnFunctionName}
+                    hasFunctionCallExprSelected && statementEditorClasses.expressionElementSelected
+                )}
+                onClick={onClickOnFunctionCallExpr}
             >
                 {functionName}
+                <span
+                    className={classNames(
+                        statementEditorClasses.expressionBlock,
+                        statementEditorClasses.expressionBlockDisabled
+                    )}
+                >
+                    {model.openParenToken.value}
+                </span>
+                {expressionComponent}
+                <span
+                    className={classNames(
+                        statementEditorClasses.expressionBlock,
+                        statementEditorClasses.expressionBlockDisabled
+                    )}
+                >
+                    {model.closeParenToken.value}
+                </span>
             </button>
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
-                {model.openParenToken.value}
-            </span>
-            {expressionComponent}
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
-                {model.closeParenToken.value}
-            </span>
         </span>
     );
 }
