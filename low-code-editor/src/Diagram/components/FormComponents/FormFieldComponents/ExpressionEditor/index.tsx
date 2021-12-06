@@ -180,6 +180,7 @@ export interface ExpressionEditorProps {
     getCompletions?: (completionProps: GetExpCompletionsParams) => Promise<monaco.languages.CompletionList>;
     showHints?: boolean;
     disabled?: boolean;
+    hideTypeLabel?: boolean;
     enterKeyPressed?: (value: string) => void;
     initialDiagnostics?: DiagramDiagnostic[];
     diagnosticsFilterExtraColumns?: {
@@ -228,7 +229,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         enterKeyPressed,
         onFocus,
         initialDiagnostics = [],
-        diagnosticsFilterExtraColumns,
+        diagnosticsFilterExtraColumns
     } = customProps;
     const targetPosition = getTargetPosition(editPosition || targetPositionDraft, syntaxTree);
     const [invalidSourceCode, setInvalidSourceCode] = useState(false);

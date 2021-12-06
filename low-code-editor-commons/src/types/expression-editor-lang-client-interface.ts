@@ -108,4 +108,7 @@ export interface ExpressionEditorLangClientInterface extends BaseLangClientInter
     getSTForExpression	: (
         param: PartialSTRequest
     ) => Thenable<PartialSTResponse>;
+    getSTForModuleMembers: (
+        param: PartialSTRequest
+    ) => Thenable<PartialSTResponse>;
 }

@@ -26,12 +26,12 @@ import { ListenerConfigForm } from "./ListenerConfigForm";
 import { ModuleDeclForm } from './ModuleVariableForm';
 import { ProcessConfigForm } from "./ProcessConfigForms";
 import { RecordEditor } from "./RecordEditor";
+import { RecordFromJson } from "./RecordEditor/RecordFromJson";
 import { ApiConfigureWizard } from "./ResourceConfigForm/ApiConfigureWizard";
 import { ServiceConfigForm } from './ServiceConfigForm';
 import {TriggerForm} from "./TriggerConfigForm/TriggerServiceConfigForm";
 import { TriggerList } from "./TriggerList";
 import { TypeDefinitionConfigForm } from "./TypeDefinitionConfigForm";
-
 
 export { APIConfigForm as apiConfig };
 export { ConnectorInitForm as connectorInit };
@@ -54,6 +54,7 @@ export { RecordEditor as RecordEditor };
 export { ApiConfigureWizard as ResourceAccessorDefinition}
 export { ModuleDeclForm as ModuleVarDecl };
 export { ConfigurableForm as Configurable };
+export { RecordFromJson as RecordJson };
 export { ListenerConfigForm as ListenerDeclaration };
 export { ConstantConfigForm as ConstDeclaration }
 export { TypeDefinitionConfigForm as TypeDefinition };

@@ -10,24 +10,39 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { DiagramEditorLangClientInterface, JsonToRecordResponse, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { DiagramEditorLangClientInterface, ExpressionEditorLangClientInterface, JsonToRecordResponse,
+    PartialSTRequest, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     RecordField,
     RecordFieldWithDefaultValue,
     RecordTypeDesc,
-    STKindChecker
+    STKindChecker,
+    STNode
 } from "@wso2-enterprise/syntax-tree";
 
 import { Field, RecordModel, SimpleField } from "../types";
 
-export async function convertToRecord(json: string, lsUrl: string, ls?: any): Promise<string> {
+export async function convertToRecord(json: string, name: string, isClosed: boolean,
+                                      lsUrl: string, ls?: any): Promise<string> {
     const langClient: DiagramEditorLangClientInterface = await ls.getDiagramEditorLangClient(lsUrl);
     const resp: JsonToRecordResponse = await langClient.convert(
         {
-            jsonString: json
+            jsonString: json,
+            recordName: name,
+            isClosed,
+            isRecordTypeDesc: true,
         }
     )
     return resp.codeBlock;
+}
+
+export async function getRecordST(partialSTRequest: PartialSTRequest,
+                                  lsUrl: string,
+                                  ls?: any): Promise<STNode> {
+    const langClient: ExpressionEditorLangClientInterface = await ls.getExpressionEditorLangClient(lsUrl);
+
+    const resp = await langClient.getSTForModuleMembers(partialSTRequest);
+    return resp.syntaxTree;
 }
 
 export function getRecordPrefix(symbolInfo: STSymbolInfo): string {
@@ -129,6 +144,9 @@ export function getArrayField(field: RecordField | RecordFieldWithDefaultValue) 
             // when there is a inline record
             recField = getRecordModel(field.typeName.memberTypeDesc, field.fieldName.value, true,
                 "record");
+            if (STKindChecker.isRecordField(field) && (field as RecordField)?.questionMarkToken) {
+                recField.isOptional = true;
+            }
             recField.isArray = true;
         } else {
             recField = {
@@ -160,9 +178,8 @@ export function getGeneratedCode(model: Field, isTypeDef: boolean): string {
         codeGenerated = recordBegin + fieldCode + recordEnd + "\n";
     } else {
         const fieldModel = model as SimpleField;
-        codeGenerated = `${fieldModel.type}${fieldModel.isArray ? "[]" : ""}${fieldModel.isFieldTypeOptional ? "?" :
-            ""} ${fieldModel.name}${fieldModel.isFieldOptional ? "?" : ""} ${
-            fieldModel.value ? ` = ${fieldModel.value}` : ""};\n`;
+        codeGenerated = `${fieldModel.type}${fieldModel.isArray ? "[]" : ""} ${fieldModel.name}${fieldModel.
+            isFieldOptional ? "?" : ""} ${fieldModel.value ? ` = ${fieldModel.value}` : ""};\n`;
     }
     return codeGenerated;
 }

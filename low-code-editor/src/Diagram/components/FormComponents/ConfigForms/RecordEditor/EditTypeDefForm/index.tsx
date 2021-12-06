@@ -17,7 +17,7 @@ import { useIntl } from "react-intl";
 import { Box, FormControl, FormHelperText, Typography } from "@material-ui/core";
 import { FormHeaderSection, PrimaryButton } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
-import { useRecordEditorContext } from "../../../../../../Contexts/RecordEditor";
+import {FormState, useRecordEditorContext } from "../../../../../../Contexts/RecordEditor";
 import CheckBoxGroup from '../../../FormFieldComponents/CheckBox';
 import { wizardStyles as useStyles } from "../../style";
 
@@ -55,7 +55,7 @@ export function EditTypeDefForm() {
     };
 
     const handleGenerateFromSample = () => {
-        // TODO: implement this method
+        callBacks.onChangeFormState(FormState.ADD_RECORD_JSON);
     };
 
     return (
