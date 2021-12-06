@@ -106,6 +106,10 @@ export const recordStyles = makeStyles((theme: Theme) =>
         },
         itemLabelWrapper: {
             width: "100%",
+            display: 'flex',
+            justifyContent: "space-between"
+        },
+        fieldItem: {
             display: 'flex'
         },
         editTypeWrapper: {
@@ -119,7 +123,8 @@ export const recordStyles = makeStyles((theme: Theme) =>
             marginLeft: 5,
             "& .MuiFormControl-marginNormal": {
                 margin: '0',
-            }
+            },
+            display: "flex"
         },
         editSingleTokenWrapper: {
             width: 10,
@@ -240,7 +245,8 @@ export const recordStyles = makeStyles((theme: Theme) =>
         },
         recordHeading: {
             display: "flex",
-            width: "80%"
+            width: "80%",
+            marginLeft: 20
         },
         typeNVisibilityWrapper: {
             marginTop: "3px !important",

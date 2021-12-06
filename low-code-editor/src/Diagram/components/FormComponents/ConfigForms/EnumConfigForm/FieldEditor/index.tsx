@@ -34,89 +34,20 @@ export interface FieldEditorProps {
 }
 
 export function FieldEditor(props: FieldEditorProps) {
-    const { field, nameError, onDeleteClick, onChange, onEnterPress, onFocusLost } = props;
+    const { field, nameError, onDeleteClick, onChange, onFocusLost } = props;
 
     const recordClasses = recordStyles();
-    const intl = useIntl();
-    // const typeLabel = intl.formatMessage({
-    //     id: "lowcode.develop.configForms.recordEditor.type.label",
-    //     defaultMessage: "Type"
-    // });
-
-    // const { state, callBacks } = useRecordEditorContext();
-
-    // const [typeEditorFocussed, setTypeEditorFocussed] = useState<boolean>(false);
-    // const [typeEditorVisible, setTypeEditorVisible] = useState<boolean>(false);
-
-    // const typeProperty = `${field.isArray ? "[]" : ""}${field.isFieldTypeOptional ? "?" : ""}`;
 
     const handleDelete = () => {
         onDeleteClick(field);
     };
     const handleKeyUp = (event: any) => {
-        // setTypeEditorFocussed(false);
         onChange(event);
     };
-    // const handleTypeSelect = (selectedType: string) => {
-    //     if (selectedType === "enum") {
-    //         if (state.currentRecord?.isActive) {
-    //             state.currentRecord.isActive = false;
-    //         }
 
-    //         // Remove the draft field and add new enum model
-    //         const index = state.currentRecord.fields.indexOf(field);
-    //         if (index !== -1) {
-    //             state.currentRecord.fields.splice(index, 1);
-    //         }
-    //         const newRecordModel: EnumModel = {
-    //             name: state.currentField?.name,
-    //             isArray: false,
-    //             isOptional: false,
-    //             isActive: true,
-    //             type: selectedType,
-    //             isTypeDefinition: false,
-    //             isInline: true,
-    //             fields: []
-    //         };
-    //         state.currentRecord.fields.push(newRecordModel);
-    //         state.currentRecord = newRecordModel;
-    //         callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
-    //         callBacks.onUpdateCurrentRecord(state.currentRecord);
-    //         callBacks.updateEditorValidity(false);
-    //         callBacks.onUpdateCurrentField(undefined);
-    //     } else {
-    //         state.currentField.type = selectedType;
-    //     }
-    //     callBacks.onUpdateCurrentField(state.currentField);
-    // };
     const handleFocusLost = (event: any) => {
         onFocusLost(event);
     };
-    // const validateTypeName = (fName: string, isInvalidFromField: boolean) => {
-    //     state.currentField.isTypeInvalid = isInvalidFromField;
-    //     callBacks.onUpdateCurrentField(state.currentField);
-    //     callBacks.updateEditorValidity(isInvalidFromField || state.currentField?.isNameInvalid ||
-    //         state.currentField?.isValueInvalid);
-    // };
-    // const handleTypeClick = () => {
-    //     setTypeEditorVisible(true);
-    //     setTypeEditorFocussed(true);
-    // };
-
-    // const varTypeProps: VariableTypeInputProps = {
-    //     displayName: typeLabel,
-    //     value: `${state.currentField?.type}`,
-    //     hideLabel: true,
-    //     focus: typeEditorFocussed,
-    //     onValueChange: handleTypeSelect,
-    //     validateExpression: validateTypeName,
-    //     position: state.sourceModel?.position || state.targetPosition,
-    //     overrideTemplate: {
-    //         defaultCodeSnippet: `enum Enum {  ${state.currentField?.type === 'enum' ? '{}' : ''} varType; };`,
-    //         targetColumn: 30
-    //     },
-    //     ignoredCompletions: ['tempRecordName'],
-    // };
 
     return (
         <div className={recordClasses.itemWrapper}>
@@ -124,7 +55,7 @@ export function FieldEditor(props: FieldEditorProps) {
                 <div className={recordClasses.itemLabelWrapper}>
                     <div className={recordClasses.editNameWrapper}>
                         <FormTextInput
-                            dataTestId="field-name"
+                            dataTestId="member-name"
                             customProps={{
                                 isErrored: (nameError !== ""),
                                 focused: true
@@ -133,18 +64,18 @@ export function FieldEditor(props: FieldEditorProps) {
                             defaultValue={field?.name}
                             onKeyUp={handleKeyUp}
                             onBlur={handleFocusLost}
-                            placeholder={"Field name"}
+                            placeholder={"Member name"}
                             size="small"
                         />
+                        <Typography
+                            variant='body2'
+                            className={classnames(recordClasses.editSingleTokenWrapper)}
+                        >
+                            ,
+                        </Typography>
                     </div>
-                    <Typography
-                        variant='body2'
-                        className={classnames(recordClasses.editSingleTokenWrapper)}
-                    >
-                        ,
-                    </Typography>
                     <div className={recordClasses.editFieldDelBtn}>
-                        <DeleteButton onClick={handleDelete}/>
+                        <DeleteButton onClick={handleDelete} />
                     </div>
                 </div>
 

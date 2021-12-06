@@ -42,8 +42,8 @@ export function EnumField(props: CodePanelProps) {
     const intl = useIntl();
 
     const addFieldText = intl.formatMessage({
-        id: "lowcode.develop.configForms.recordEditor.recordField.addBtnText",
-        defaultMessage: "Add Field"
+        id: "lowcode.develop.configForms.enumEditor.recordField.addBtnText",
+        defaultMessage: "Add Member"
     });
 
     const { state, callBacks } = useContext(Context);
@@ -199,8 +199,9 @@ export function EnumField(props: CodePanelProps) {
         } else {
             state.currentField.name = event.target.value;
         }
-        const isNameAlreadyExists = state.currentRecord.fields.find(field => (field.name === event.target.value));
-        if (isNameAlreadyExists) {
+        const isNameAlreadyExists = state.currentRecord.fields.find(field => (field.name === event.target.value)) &&
+            !(state.currentField?.name === event.target.value);
+        if (false) {
             setFieldNameError("Name already exists");
             state.currentField.isNameInvalid = true;
             callBacks.updateEditorValidity(state.currentField.isNameInvalid ||
@@ -293,9 +294,6 @@ export function EnumField(props: CodePanelProps) {
                     recordClasses.recordEditorWrapper}
             >
                 <div className={recordClasses.recordHeader}>
-                    <div className={recordClasses.recordExpandBtnWrapper}>
-                        <ComponentExpandButton onClick={handleRecordExpand} isExpanded={isRecordExpanded} />
-                    </div>
                     <div className={recordClasses.recordHeading}>
                         {recordTypeNVisibility && (
                             <Typography

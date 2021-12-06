@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React  from "react";
+import React from "react";
 
 import { Typography } from "@material-ui/core";
 import classnames from "classnames";
@@ -47,29 +47,31 @@ export function FieldItem(props: FieldItemProps) {
         <div className={recordClasses.itemWrapper} onClick={handleEdit}>
             <div className={field.isActive ? recordClasses.activeItemContentWrapper : recordClasses.itemContentWrapper}>
                 <div className={recordClasses.itemLabelWrapper}>
-                    <Typography
-                        variant='body2'
-                        className={classnames(recordClasses.nameWrapper)}
-                    >
-                        {field.name}
-                    </Typography>
-                    <Typography
-                        variant='body2'
-                        className={classnames(recordClasses.singleTokenWrapper)}
-                    >
-                        ,
-                    </Typography>
-                </div>
-                {!state.isEditorInvalid && (
-                    <div className={recordClasses.btnWrapper}>
-                        <div className={recordClasses.actionBtnWrapper}>
-                            <EditButton onClick={handleEdit}/>
-                        </div>
-                        <div className={recordClasses.actionBtnWrapper}>
-                            <DeleteButton onClick={handleDelete}/>
-                        </div>
+                    <div className={recordClasses.fieldItem}>
+                        <Typography
+                            variant='body2'
+                            className={classnames(recordClasses.nameWrapper)}
+                        >
+                            {field.name}
+                        </Typography>
+                        <Typography
+                            variant='body2'
+                            className={classnames(recordClasses.singleTokenWrapper)}
+                        >
+                            ,
+                        </Typography>
                     </div>
-                )}
+                    {!state.isEditorInvalid && (
+                        <div className={recordClasses.btnWrapper}>
+                            <div className={recordClasses.actionBtnWrapper}>
+                                <EditButton onClick={handleEdit} />
+                            </div>
+                            <div className={recordClasses.actionBtnWrapper}>
+                                <DeleteButton onClick={handleDelete} />
+                            </div>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );
