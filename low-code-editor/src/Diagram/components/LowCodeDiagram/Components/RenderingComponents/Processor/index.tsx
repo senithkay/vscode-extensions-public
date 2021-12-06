@@ -22,7 +22,8 @@ import {
     NodePosition,
     QualifiedNameReference,
     STKindChecker,
-    STNode} from "@wso2-enterprise/syntax-tree";
+    STNode
+} from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../Contexts/Diagram";
 import { getDiagnosticMsgs } from "../../../../../utils";
@@ -77,7 +78,7 @@ export function DataProcessor(props: ProcessorProps) {
     let processType = "STATEMENT";
     let processName = "Variable";
     let sourceSnippet = "Source";
-    const diagnostics =  model?.typeData?.diagnostics;
+    const diagnostics = model?.typeData?.diagnostics;
 
     let isIntializedVariable = false;
     let isLogStmt = false;
@@ -226,8 +227,8 @@ export function DataProcessor(props: ProcessorProps) {
         if (STKindChecker.isFunctionCall(model.expression)) {
             assignmentText = model.expression.arguments[0]?.source;
             processType === "Log" ?
-            methodCallText = getMethodCallFunctionName(model).replace("log:print", "").trim().toLocaleLowerCase()
-            : methodCallText = getMethodCallFunctionName(model);
+                methodCallText = getMethodCallFunctionName(model).replace("log:print", "").trim().toLocaleLowerCase()
+                : methodCallText = getMethodCallFunctionName(model);
         } else if (STKindChecker.isCheckExpression(model.expression)) {
             if (STKindChecker.isFunctionCall(model.expression.expression)) {
                 assignmentText = model.expression.expression.source;
@@ -252,12 +253,16 @@ export function DataProcessor(props: ProcessorProps) {
                     <React.Fragment>
                         {(processType !== "Log" && processType !== "Call") && !isDraftStatement &&
                             <>
-                                <StatementTypes
-                                    statementType={statmentTypeText}
-                                    x={cx - (VARIABLE_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
-                                    y={cy + PROCESS_SVG_HEIGHT / 4}
-                                    key_id={getRandomInt(1000)}
-                                />
+                                {statmentTypeText &&
+                                    <>
+                                        <StatementTypes
+                                            statementType={statmentTypeText}
+                                            x={cx - (VARIABLE_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
+                                            y={cy + PROCESS_SVG_HEIGHT / 4}
+                                            key_id={getRandomInt(1000)}
+                                        />
+                                    </>
+                                }
                                 <VariableName
                                     processType={processType}
                                     variableName={processName}
