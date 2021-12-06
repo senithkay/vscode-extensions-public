@@ -281,6 +281,13 @@ function getLangClient() {
                 });
             })
         },
+        getSTForModuleMembers: (params) => {
+            return new Promise((resolve, _reject) => {
+                webViewRPCHandler.invokeRemoteMethod('getSTForModuleMembers', [params], (resp) => {
+                    resolve(resp);
+                });
+            })
+        },
         getRealtimePerformanceData: (params) => {
             return new Promise((resolve, _reject) => {
                 webViewRPCHandler.invokeRemoteMethod('getRealtimePerformanceData', [params], (resp) => {

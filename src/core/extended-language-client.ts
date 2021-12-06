@@ -59,6 +59,7 @@ enum EXTENDED_APIS {
     JSON_TO_RECORD_CONVERT = 'jsonToRecord/convert',
     PARTIAL_PARSE_SINGLE_STATEMENT = 'partialParser/getSTForSingleStatement',
     PARTIAL_PARSE_EXPRESSION = 'partialParser/getSTForExpression',
+    PARTIAL_PARSE_MODULE_MEMBER = 'partialParser/getSTForModuleMembers',
     EXAMPLE_LIST = 'ballerinaExample/list',
     PERF_ANALYZER_GRAPH_DATA = 'performanceAnalyzer/getGraphData',
     PERF_ANALYZER_REALTIME_DATA = 'performanceAnalyzer/getRealtimeData',
@@ -132,8 +133,11 @@ export interface SyntaxTreeNodeResponse {
     kind: string;
 }
 
-export interface JsonToRecordRequestParams {
+export interface JsonToRecordRequest {
     jsonString: string;
+    recordName?: string;
+    isRecordTypeDesc?: boolean;
+    isClosed?: boolean;
 }
 
 export interface JsonToRecordResponse {
@@ -481,7 +485,7 @@ export class ExtendedLangClient extends LanguageClient {
         return this.sendRequest(EXTENDED_APIS.DOCUMENT_EXECUTOR_POSITIONS, params);
     }
 
-    convertJsonToRecord(params: JsonToRecordRequestParams): Thenable<JsonToRecordResponse> {
+    convertJsonToRecord(params: JsonToRecordRequest): Thenable<JsonToRecordResponse> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.JSON_TO_RECORD_CONVERT)) {
             Promise.resolve(NOT_SUPPORTED);
         }
@@ -500,6 +504,13 @@ export class ExtendedLangClient extends LanguageClient {
             Promise.resolve(NOT_SUPPORTED);
         }
         return this.sendRequest(EXTENDED_APIS.PARTIAL_PARSE_EXPRESSION, params);
+    }
+
+    getSTForModuleMembers(params: PartialSTRequestParams): Thenable<PartialSTResponse> {
+        if (!this.isExtendedServiceSupported(EXTENDED_APIS.PARTIAL_PARSE_MODULE_MEMBER)) {
+            Promise.resolve(NOT_SUPPORTED);
+        }
+        return this.sendRequest(EXTENDED_APIS.PARTIAL_PARSE_MODULE_MEMBER, params);
     }
 
     resolveMissingDependencies(req: GetSyntaxTreeParams): Thenable<GetSyntaxTreeResponse> {
