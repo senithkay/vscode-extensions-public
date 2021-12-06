@@ -119,7 +119,7 @@ export const recordStyles = makeStyles((theme: Theme) =>
             }
         },
         editNameWrapper: {
-            width: "42%",
+            width: "50%",
             marginLeft: 5,
             "& .MuiFormControl-marginNormal": {
                 margin: '0',
@@ -169,7 +169,6 @@ export const recordStyles = makeStyles((theme: Theme) =>
         btnWrapper: {
             display: "none",
             flexDirection: "row",
-            width: "20%",
             alignItems: "center"
         },
         actionBtnWrapper: {
@@ -245,7 +244,6 @@ export const recordStyles = makeStyles((theme: Theme) =>
         },
         recordHeading: {
             display: "flex",
-            width: "80%",
             marginLeft: 20
         },
         typeNVisibilityWrapper: {

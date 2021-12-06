@@ -56,8 +56,7 @@ export function EnumField(props: CodePanelProps) {
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 
     const handleFieldEdit = (field: SimpleField) => {
-        if (!(state.isEditorInvalid || (state.currentField && state.currentField.name === "" ||
-            state.currentField?.type === ""))) {
+        if (!(state.isEditorInvalid || (state.currentField && state.currentField.name === ""))) {
             const index = enumModel.fields.indexOf(field);
             if (index !== -1) {
                 // Changes the active state to selected enum model
@@ -227,6 +226,7 @@ export function EnumField(props: CodePanelProps) {
             state.currentField.isEditInProgress = false
             state.currentField.isActive = false;
             callBacks.onUpdateCurrentField(state.currentField);
+            callBacks.updateEditorValidity(false);
         }
     };
 
@@ -267,9 +267,8 @@ export function EnumField(props: CodePanelProps) {
     });
 
     const recordTypeNVisibility = `${enumModel.isTypeDefinition ? `enum` : ""}`;
-    const openBraceTokens = `{ ${enumModel.isClosed ? "|" : ""}`;
+    const openBraceTokens = `{`;
     const recordEn = `}`;
-    const typeDescName = `${enumModel.isTypeDefinition ? "" : `${enumModel.name}`}`;
     const typeDefName = enumModel.name ? enumModel.name : "";
 
     useEffect(() => {
