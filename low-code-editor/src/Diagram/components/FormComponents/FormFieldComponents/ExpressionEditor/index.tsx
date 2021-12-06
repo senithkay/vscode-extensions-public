@@ -229,8 +229,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         enterKeyPressed,
         onFocus,
         initialDiagnostics = [],
-        diagnosticsFilterExtraColumns,
-        hideTypeLabel
+        diagnosticsFilterExtraColumns
     } = customProps;
     const targetPosition = getTargetPosition(editPosition || targetPositionDraft, syntaxTree);
     const [invalidSourceCode, setInvalidSourceCode] = useState(false);

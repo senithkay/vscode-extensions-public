@@ -48,7 +48,7 @@ export function CodePanel() {
         if (state.currentField && state.currentField.name  === "" && (state.currentField.value === "" ||
             state.currentField.value === undefined) && state.currentField.type === "" &&
             state.currentField.isEditInProgress) {
-            // Removing draft field is there are any
+            // Removing draft field
             const index = state.currentRecord.fields.indexOf(state.currentField);
             state.currentRecord.fields.splice(index, 1);
         }
