@@ -763,9 +763,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             expressionEditorState.uri = expressionEditorState?.uri;
 
             const langClient: ExpressionEditorLangClientInterface = await getExpressionEditorLangClient();
-            langClient.didChange({ 
+            langClient.didChange({
                 contentChanges: [{text: expressionEditorState.content}],
-                textDocument: {uri: expressionEditorState.uri,version: 1}
+                textDocument: {uri: expressionEditorState.uri, version: 1}
             });
 
             if (monacoRef.current) {
