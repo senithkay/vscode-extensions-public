@@ -36,7 +36,11 @@ import { SuggestionItem, VariableUserInputs } from "../../models/definitions";
 import { InputEditorContext } from "../../store/input-editor-context";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { SuggestionsContext } from "../../store/suggestions-context";
-import { addStatementToTargetLine } from "../../utils/ls-utils";
+import {
+    addStatementToTargetLine,
+    getDiagnostics,
+    sendDidChange
+} from "../../utils/ls-utils";
 import { useStatementEditorStyles } from "../styles";
 
 import {
@@ -160,22 +164,8 @@ export function InputEditor(props: InputEditorProps) {
                 version: 1
             }
         });
-        langClient.didChange({
-            contentChanges: [
-                {
-                    text: inputEditorState.content
-                }
-            ],
-            textDocument: {
-                uri: inputEditorState.uri,
-                version: 1
-            }
-        });
-        const diagResp = await langClient.getDiagnostics({
-            documentIdentifier: {
-                uri: inputEditorState.uri,
-            }
-        })
+        sendDidChange(inputEditorState.uri, inputEditorState.content, getLangClient).then();
+        const diagResp = await getDiagnostics(inputEditorState.uri, getLangClient);
         setInputEditorState({
             ...inputEditorState,
             diagnostic: diagResp[0]?.diagnostics ? getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) : []
@@ -200,23 +190,8 @@ export function InputEditor(props: InputEditorProps) {
         inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
         inputEditorState.content = initContent;
         inputEditorState.uri = fileURI;
-        const langClient = await getLangClient();
-        langClient.didChange({
-            contentChanges: [
-                {
-                    text: inputEditorState.content
-                }
-            ],
-            textDocument: {
-                uri: inputEditorState.uri,
-                version: 1
-            }
-        });
-        const diagResp = await langClient.getDiagnostics({
-            documentIdentifier: {
-                uri: inputEditorState.uri,
-            }
-        })
+        sendDidChange(inputEditorState.uri, inputEditorState.content, getLangClient).then();
+        const diagResp = await getDiagnostics(inputEditorState.uri, getLangClient);
         setInputEditorState({
             ...inputEditorState,
             diagnostic: diagResp[0]?.diagnostics ? getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) : []
@@ -247,22 +222,11 @@ export function InputEditor(props: InputEditorProps) {
             inputEditorState.content = (currentFile.content);
             inputEditorState.uri = inputEditorState?.uri;
 
-            await getLangClient().then(async (langClient: ExpressionEditorLangClientInterface) => {
-                await langClient.didChange({
-                    contentChanges: [
-                        {
-                            text: inputEditorState.content
-                        }
-                    ],
-                    textDocument: {
-                        uri: inputEditorState.uri,
-                        version: 1
-                    }
-                });
-            });
+            sendDidChange(inputEditorState.uri, inputEditorState.content, getLangClient).then();
         }
     }
 
+    // TODO: To be removed with expression editor integration
     const getContextBasedCompletions = async (codeSnippet: string) => {
         const completionParams: CompletionParams = {
             textDocument: {

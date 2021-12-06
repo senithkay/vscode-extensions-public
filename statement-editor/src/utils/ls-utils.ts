@@ -14,7 +14,8 @@ import {
     CompletionParams,
     CompletionResponse,
     ExpressionEditorLangClientInterface,
-    PartialSTRequest
+    PartialSTRequest,
+    PublishDiagnosticsParams
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     NodePosition,
@@ -78,14 +79,14 @@ export async function getContextBasedCompletions (
         ) && completionResponse.label !== selection.trim() && !(completionResponse.label.includes("main"))
     ));
 
-    const variableSuggestions: SuggestionItem[] = filteredCompletionItems.map((completion) => {
+    const suggestions: SuggestionItem[] = filteredCompletionItems.map((completion) => {
         return { value: completion.label, kind: completion.detail }
     });
 
-    return variableSuggestions;
+    return suggestions;
 }
 
-async function sendDidChange(
+export async function sendDidChange(
             docUri: string,
             content: string,
             getLangClient: () => Promise<ExpressionEditorLangClientInterface>) {
@@ -101,6 +102,19 @@ async function sendDidChange(
             version: 1
         }
     });
+}
+
+export async function getDiagnostics(
+        docUri: string,
+        getLangClient: () => Promise<ExpressionEditorLangClientInterface>): Promise<PublishDiagnosticsParams[]> {
+    const langClient = await getLangClient();
+    const diagnostics = await langClient.getDiagnostics({
+        documentIdentifier: {
+            uri: docUri,
+        }
+    });
+
+    return diagnostics;
 }
 
 export async function addStatementToTargetLine(
