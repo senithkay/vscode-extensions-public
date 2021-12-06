@@ -12,15 +12,17 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext } from "react";
+import { monaco } from "react-monaco-editor";
 
 import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { DEFAULT_EXPRESSIONS } from "../../../constants";
-import { VariableUserInputs } from "../../../models/definitions";
+import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind, isPositionsEquals } from "../../../utils";
+import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
@@ -42,6 +44,8 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
+    const { currentFile, getLangClient } = stmtCtx;
+    const targetPosition = stmtCtx.formCtx.formModelPosition;
 
     const typedBindingComponent: ReactNode = (
         <ExpressionComponent
@@ -69,15 +73,36 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
             {expressionSuggestions: [], typeSuggestions: [], variableSuggestions: []});
     };
 
-    const onClickOnInitializer = (event: any) => {
+    const onClickOnInitializer = async (event: any) => {
         event.stopPropagation();
-        expressionHandler(model.initializer, false, false,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) });
+
+        const content: string = await addStatementToTargetLine(
+            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
+
+        const completions: SuggestionItem[] = await getContextBasedCompletions(
+            monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.initializer.position,
+            false, model.initializer.source, getLangClient);
+
+        expressionHandler(model.initializer, false, false, {
+            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
+            typeSuggestions: [],
+            variableSuggestions: completions
+        });
     };
 
     if (!currentModel.model) {
-        expressionHandler(model.initializer, false, false,
-            { expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS) });
+        addStatementToTargetLine(currentFile.content, targetPosition,
+            stmtCtx.modelCtx.statementModel.source, getLangClient).then((content: string) => {
+                getContextBasedCompletions(monaco.Uri.file(currentFile.path).toString(), content, targetPosition,
+                    model.initializer.position, false, model.initializer.source,
+                    getLangClient).then((completions) => {
+                        expressionHandler(model.initializer, false, false, {
+                            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
+                            typeSuggestions: [],
+                            variableSuggestions: completions
+                        });
+                    });
+            });
     }
 
     return (
