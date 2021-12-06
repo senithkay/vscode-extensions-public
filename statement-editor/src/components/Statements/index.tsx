@@ -12,6 +12,7 @@
  */
 import { AssignmentStatementComponent } from "./AssignmentStatement";
 import { CallStatementC } from "./CallStatement";
+import { ElseBlockC } from "./ElseIfStatement";
 import { ForeachStatementC } from "./ForeachStatement";
 import { IfStatementC } from "./IfStatement";
 import { LocalVarDeclC } from './LocalVarDecl';
@@ -22,6 +23,7 @@ import { WhileStatementC } from "./WhileStatement";
 
 export { LocalVarDeclC as LocalVarDecl };
 export { WhileStatementC as WhileStatement };
+export { ElseBlockC as ElseBlock };
 export { ForeachStatementC as ForeachStatement };
 export { IfStatementC as IfElseStatement };
 export { OtherStatementTypes as OtherStatement };
