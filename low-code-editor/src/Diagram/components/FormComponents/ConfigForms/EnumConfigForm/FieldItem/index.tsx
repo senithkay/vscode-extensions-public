@@ -49,45 +49,15 @@ export function FieldItem(props: FieldItemProps) {
                 <div className={recordClasses.itemLabelWrapper}>
                     <Typography
                         variant='body2'
-                        className={classnames(recordClasses.typeWrapper)}
-                    >
-                        {field.type}
-                    </Typography>
-                    <Typography
-                        variant='body2'
                         className={classnames(recordClasses.nameWrapper)}
                     >
                         {field.name}
                     </Typography>
-                    {field.isFieldOptional && (
-                        <Typography
-                            variant='body2'
-                            className={classnames(recordClasses.singleTokenWrapper)}
-                        >
-                            ?
-                        </Typography>
-                    )}
-                    {field.value && (
-                        <div className={recordClasses.recordEditorContainer}>
-                            <Typography
-                                variant='body2'
-                                className={classnames(recordClasses.equalTokenWrapper)}
-                            >
-                                =
-                            </Typography>
-                            <Typography
-                                variant='body2'
-                                className={classnames(recordClasses.defaultValWrapper)}
-                            >
-                                {field.value}
-                            </Typography>
-                        </div>
-                    )}
                     <Typography
                         variant='body2'
                         className={classnames(recordClasses.singleTokenWrapper)}
                     >
-                        ;
+                        ,
                     </Typography>
                 </div>
                 {!state.isEditorInvalid && (

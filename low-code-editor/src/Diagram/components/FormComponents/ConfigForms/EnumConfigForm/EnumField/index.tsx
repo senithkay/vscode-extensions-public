@@ -248,16 +248,15 @@ export function EnumField(props: CodePanelProps) {
 
     const fieldItems: ReactNode[] = [];
     enumModel.fields.forEach((field: SimpleField) => {
-        // if ((field.type !== "enum") && !(field as SimpleField).isEditInProgress) {
-        //     // Rendering configured fields
-        //     fieldItems.push(
-        //         <FieldItem
-        //             field={field as SimpleField}
-        //             onDeleteClick={handleFieldDelete}
-        //             onEditCLick={handleFieldEdit}
-        //         />
-        //     )
-        // } else if ((field.type !== "enum") && (field as SimpleField).isEditInProgress) {
+        if (!(field as SimpleField).isEditInProgress) {
+            fieldItems.push(
+                <FieldItem
+                    field={field as SimpleField}
+                    onDeleteClick={handleFieldDelete}
+                    onEditCLick={handleFieldEdit}
+                />
+            )
+        } else {
             fieldItems.push(
                 <FieldEditor
                     field={field}
@@ -268,15 +267,12 @@ export function EnumField(props: CodePanelProps) {
                     onEnterPress={null}
                 />
             );
-        // } else if (field.type === "enum") {
-            // fieldItems.push(<EnumField enumModel={field as EnumModel} parentRecordModel={enumModel} />);
-        // }
+        }
     });
 
     const recordTypeNVisibility = `${enumModel.isTypeDefinition ? `enum` : ""}`;
     const openBraceTokens = `{ ${enumModel.isClosed ? "|" : ""}`;
-    const recordEn = `${enumModel.isClosed ? "|}" : "}"}${enumModel.isArray ? "[]" :
-        ""}${enumModel.isOptional ? "?" : ""}`;
+    const recordEn = `}`;
     const typeDescName = `${enumModel.isTypeDefinition ? "" : `${enumModel.name}`}`;
     const typeDefName = enumModel.name ? enumModel.name : "";
 
@@ -382,39 +378,6 @@ export function EnumField(props: CodePanelProps) {
                         className={recordClasses.closeBraceTokenWrapper}
                     >
                         {recordEn}
-                    </Typography>
-                    {!enumModel.isTypeDefinition && isRecordEditInProgress && (
-                        <div className={recordClasses.typeTextFieldWrapper}>
-                            <FormTextInput
-                                dataTestId="enum-name"
-                                customProps={{
-                                    isErrored: (recordNameError !== ""),
-                                    focused: true
-                                }}
-                                defaultValue={typeDescName}
-                                onKeyUp={handleKeyUp}
-                                onBlur={handleOnBlur}
-                                errorMessage={recordNameError}
-                                placeholder={"Enum name"}
-                                size="small"
-                            />
-                        </div>
-                    )}
-                    {!isRecordEditInProgress && typeDescName && (
-                        <Typography
-                            variant='body2'
-                            className={recordClasses.endRecordCode}
-                            onClick={handleRecordClick}
-                        >
-                            {typeDescName}
-                        </Typography>
-                    )}
-                    <Typography
-                        variant='body2'
-                        className={(!enumModel.isTypeDefinition && isRecordEditInProgress) ?
-                            recordClasses.editRecordEndSemicolonWrapper : recordClasses.recordEndSemicolonWrapper}
-                    >
-                        ;
                     </Typography>
                 </div>
             </div>
