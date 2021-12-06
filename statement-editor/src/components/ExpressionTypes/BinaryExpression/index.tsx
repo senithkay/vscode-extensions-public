@@ -22,13 +22,15 @@ import { SuggestionItem, VariableUserInputs } from "../../../models/definitions"
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import {
-    addStatementToTargetLine,
-    getContextBasedCompletions,
     getKindBasedOnOperator,
     getOperatorSuggestions,
     getSuggestionsBasedOnExpressionKind,
     isPositionsEquals
 } from "../../../utils";
+import {
+    addStatementToTargetLine,
+    getContextBasedCompletions
+} from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 

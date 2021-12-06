@@ -22,7 +22,6 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     BooleanLiteral,
-    NodePosition,
     NumericLiteral,
     QualifiedNameReference,
     SimpleNameReference,
@@ -37,7 +36,7 @@ import { SuggestionItem, VariableUserInputs } from "../../models/definitions";
 import { InputEditorContext } from "../../store/input-editor-context";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { SuggestionsContext } from "../../store/suggestions-context";
-import { getPartialSTForStatement } from "../../utils";
+import { addStatementToTargetLine } from "../../utils/ls-utils";
 import { useStatementEditorStyles } from "../styles";
 
 import {
@@ -110,7 +109,7 @@ export function InputEditor(props: InputEditorProps) {
         value = model.source;
     }
 
-    const [userInput, setUserInput] = useState(value);
+    const [userInput, setUserInput] = useState<string>(value);
 
     const targetPosition = stmtCtx.formCtx.formModelPosition;
     const textLabel = userInputs && userInputs.formField ? userInputs.formField : "modelName"
@@ -145,33 +144,9 @@ export function InputEditor(props: InputEditorProps) {
         }
     }, [isEditing, userInput]);
 
-    async function addStatementToTargetLine(currentFileContent: string, position: NodePosition, currentStatement: string): Promise<string> {
-        const modelContent: string[] = currentFileContent.split(/\n/g) || [];
-        if (position?.startColumn && position?.endColumn && position?.endLine) {
-            return getModifiedStatement(currentStatement, position);
-        } else {
-            modelContent.splice(position?.startLine, 0, currentStatement);
-            return modelContent.join('\n');
-        }
-    }
-
-    async function getModifiedStatement(codeSnippet: string, position: NodePosition): Promise<string> {
-        const stModification = {
-            startLine: position.startLine,
-            startColumn: position.startColumn,
-            endLine: position.endLine,
-            endColumn: position.endColumn,
-            newCodeSnippet: codeSnippet
-        }
-        const partialST: STNode = await getPartialSTForStatement({
-            codeSnippet: currentFile.content,
-            stModification
-        }, getLangClient);
-        return partialST.source;
-    }
-
     const handleOnFocus = async (currentStatement: string, EOL: string) => {
-        const initContent: string = await addStatementToTargetLine(currentFile.content, targetPosition, currentStatement);
+        const initContent: string = await addStatementToTargetLine(
+            currentFile.content, targetPosition, currentStatement, getLangClient);
 
         inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
         inputEditorState.content = initContent;
@@ -219,7 +194,8 @@ export function InputEditor(props: InputEditorProps) {
     }
 
     const handleContentChange = async (currentStatement: string, currentCodeSnippet?: string) => {
-        const initContent: string = await addStatementToTargetLine(currentFile.content, targetPosition, currentStatement);
+        const initContent: string = await addStatementToTargetLine(
+            currentFile.content, targetPosition, currentStatement, getLangClient);
 
         inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
         inputEditorState.content = initContent;

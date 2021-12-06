@@ -12,12 +12,7 @@
  */
 import React, { ReactNode } from 'react';
 
-import {
-    CompletionParams, CompletionResponse,
-    ExpressionEditorLangClientInterface,
-    PartialSTRequest,
-    STModification
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     NodePosition,
     STKindChecker,
@@ -25,10 +20,6 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import * as expressionTypeComponents from '../components/ExpressionTypes';
-import {
-    acceptedCompletionKindForExpressions,
-    acceptedCompletionKindForTypes
-} from "../components/InputEditor/constants";
 import * as statementTypeComponents from '../components/Statements';
 import * as c from "../constants";
 import { SuggestionItem, VariableUserInputs } from '../models/definitions';
@@ -41,122 +32,6 @@ import {
     ExpressionSuggestionsByKind,
     OperatorsForExpressionKind
 } from "./utils";
-
-export async function getPartialSTForStatement(
-            partialSTRequest: PartialSTRequest,
-            getLangClient: () => Promise<ExpressionEditorLangClientInterface>
-        ): Promise<STNode> {
-    const langClient: ExpressionEditorLangClientInterface = await getLangClient();
-    const resp = await langClient.getSTForSingleStatement(partialSTRequest);
-    return resp.syntaxTree;
-}
-
-export async function getPartialSTForExpression(
-            partialSTRequest: PartialSTRequest,
-            lsUrl: string,
-            ls?: any
-        ): Promise<STNode> {
-    const langClient: ExpressionEditorLangClientInterface = await ls.getExpressionEditorLangClient(lsUrl);
-    const resp = await langClient.getSTForExpression(partialSTRequest);
-    return resp.syntaxTree;
-}
-
-export async function getContextBasedCompletions (
-            docUri: string,
-            content: string,
-            targetPosition: NodePosition,
-            modelPosition: NodePosition,
-            isTypeDescriptor: boolean,
-            selection: string,
-            getLangClient: () => Promise<ExpressionEditorLangClientInterface>
-        ): Promise<SuggestionItem[]> {
-    await sendDidChange(docUri, content, getLangClient);
-    const completionParams: CompletionParams = {
-        textDocument: {
-            uri: docUri
-        },
-        context: {
-            triggerKind: 1
-        },
-        position: {
-            character: targetPosition.startColumn + modelPosition.startColumn,
-            line: targetPosition.startLine
-        }
-    }
-
-    const langClient = await getLangClient();
-    const completions: CompletionResponse[] = await langClient.getCompletion(completionParams);
-
-    const filteredCompletionItems = completions.filter((completionResponse: CompletionResponse) => (
-        (
-            !completionResponse.kind || (
-                isTypeDescriptor ?
-                    acceptedCompletionKindForTypes.includes(completionResponse.kind) :
-                    acceptedCompletionKindForExpressions.includes(completionResponse.kind)
-            )
-        ) && completionResponse.label !== selection.trim() && !(completionResponse.label.includes("main"))
-    ));
-
-    const variableSuggestions: SuggestionItem[] = filteredCompletionItems.map((completion) => {
-        return { value: completion.label, kind: completion.detail }
-    });
-
-    return variableSuggestions;
-}
-
-async function sendDidChange(
-            docUri: string,
-            content: string,
-            getLangClient: () => Promise<ExpressionEditorLangClientInterface>
-        ) {
-    const langClient = await getLangClient();
-    langClient.didChange({
-        contentChanges: [
-            {
-                text: content
-            }
-        ],
-        textDocument: {
-            uri: docUri,
-            version: 1
-        }
-    });
-}
-
-export async function addStatementToTargetLine(
-            currentFileContent: string,
-            position: NodePosition,
-            currentStatement: string,
-            getLangClient: () => Promise<ExpressionEditorLangClientInterface>
-        ): Promise<string> {
-    const modelContent: string[] = currentFileContent.split(/\n/g) || [];
-    if (position?.startColumn && position?.endColumn && position?.endLine) {
-        return getModifiedStatement(currentFileContent, currentStatement, position, getLangClient);
-    } else {
-        modelContent.splice(position?.startLine, 0, currentStatement);
-        return modelContent.join('\n');
-    }
-}
-
-async function getModifiedStatement(
-            currentFileContent: string,
-            codeSnippet: string,
-            position: NodePosition,
-            getLangClient: () => Promise<ExpressionEditorLangClientInterface>
-        ): Promise<string> {
-    const stModification = {
-        startLine: position.startLine,
-        startColumn: position.startColumn,
-        endLine: position.endLine,
-        endColumn: position.endColumn,
-        newCodeSnippet: codeSnippet
-    }
-    const partialST: STNode = await getPartialSTForStatement({
-        codeSnippet: currentFileContent,
-        stModification
-    }, getLangClient);
-    return partialST.source;
-}
 
 export function getModifications(
         model: STNode,

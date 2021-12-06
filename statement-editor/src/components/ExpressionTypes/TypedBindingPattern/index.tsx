@@ -20,7 +20,11 @@ import classNames from "classnames";
 import { SuggestionItem, VariableUserInputs } from "../../../models/definitions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
-import { getContextBasedCompletions, isPositionsEquals } from "../../../utils";
+import { isPositionsEquals } from "../../../utils";
+import {
+    addStatementToTargetLine,
+    getContextBasedCompletions
+} from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
@@ -64,16 +68,16 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
 
     const onClickOnType = async (event: any) => {
         event.stopPropagation();
+        const content: string = await addStatementToTargetLine(
+            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
         const completions: SuggestionItem[] = await getContextBasedCompletions(
-            monaco.Uri.file(currentFile.path).toString(),
-            targetPosition,
-            model.typeDescriptor.position,
-            true,
-            model.typeDescriptor.source,
-            getLangClient
-        )
+            monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.typeDescriptor.position,
+            true, model.typeDescriptor.source, getLangClient);
         expressionHandler(model.typeDescriptor, false, true, {
-            expressionSuggestions: [], typeSuggestions: completions, variableSuggestions: []});
+            expressionSuggestions: [],
+            typeSuggestions: completions,
+            variableSuggestions: []
+        });
     };
 
     return (
