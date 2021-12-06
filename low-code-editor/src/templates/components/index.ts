@@ -109,6 +109,12 @@ service /{{{ BASE_PATH }}} on {{{ LISTENER_NAME }}}`,
 
     service /ignore on httpListener {}`,
     TRIGGER_UPDATE: `
-    service {{{ TRIGGER_CHANNEL }}} on {{{ LISTENER_NAME }}}`
+    service {{{ TRIGGER_CHANNEL }}} on {{{ LISTENER_NAME }}}`,
 
+    ENUM_DEFINITION: `
+    {{{ ACCESS_MODIFIER }}} enum {{{ NAME }}} {
+        {{#each MEMBERS}}
+            {{ this }}
+        {{/each}}
+    }`
 }

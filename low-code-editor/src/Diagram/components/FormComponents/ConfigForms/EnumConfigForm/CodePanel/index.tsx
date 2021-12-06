@@ -24,7 +24,7 @@ import { mutateEnumDefinition, mutateTypeDefinition } from "../../../../../utils
 import { wizardStyles } from "../../style";
 import { EnumField } from "../EnumField";
 import { recordStyles } from "../style";
-import { getGeneratedCode } from "../utils";
+import { getGeneratedCode, getMemberArray } from "../utils";
 
 export function CodePanel() {
     const { state } = useEnumEditorContext();
@@ -57,15 +57,20 @@ export function CodePanel() {
 
                 modifyDiagram([
                     mutateEnumDefinition(
-                        getGeneratedCode(state.enumModel, true),
+                        state.enumModel.name,
+                        getMemberArray(state.enumModel),
                         updatePosition,
                         isNewTypeDesc
                     )
                 ]);
             } else {
                 modifyDiagram([
-                    mutateEnumDefinition(getGeneratedCode(state.enumModel, true),
-                        state.targetPosition, isNewTypeDesc)
+                    mutateEnumDefinition(
+                        state.enumModel.name,
+                        getMemberArray(state.enumModel),
+                        state.targetPosition, 
+                        isNewTypeDesc
+                    )
                 ]);
             }
             state.onCancel();

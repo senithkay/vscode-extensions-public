@@ -1014,7 +1014,7 @@ export function createTrigger(config: any, targetPosition?: NodePosition): STMod
     return triggerStatement;
 }
 
-export function mutateEnumDefinition(typeDesc: string, targetPosition: NodePosition, isNew: boolean,
+export function mutateEnumDefinition(name: string, members: string[], targetPosition: NodePosition, isNew: boolean,
                                      accessModifier?: string): STModification {
     let modification: STModification;
     if (isNew) {
@@ -1023,17 +1023,22 @@ export function mutateEnumDefinition(typeDesc: string, targetPosition: NodePosit
             endLine: targetPosition.startLine,
             startColumn: 0,
             endColumn: 0,
-            type: 'ENUM'
+            type: 'ENUM_DEFINITION'
         };
     } else {
         modification = {
             ...targetPosition,
-            type: 'ENUM'
+            type: 'ENUM_DEFINITION'
         };
     }
 
     return {
         ...modification,
-        type: 'ENUM',
+        type: 'ENUM_DEFINITION',
+        config: {
+            'ACCESS_MODIFIER': accessModifier,
+            'NAME': name,
+            'MEMBERS': members
+        }
     }
 }

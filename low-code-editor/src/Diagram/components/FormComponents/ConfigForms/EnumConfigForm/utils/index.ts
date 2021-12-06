@@ -83,6 +83,21 @@ export function getGeneratedCode(model: Field, isLast?: boolean): string {
     return codeGenerated;
 }
 
+export function getMemberArray(model: Field): string[] {
+    let members: string[] = [];
+    const recordModel = model as EnumModel;
+    if (recordModel?.fields.length > 0) {
+        recordModel.fields.forEach((field, index) => {
+            if(index === (recordModel?.fields.length - 1)) {
+                members.push(field.name);
+            } else {
+                members.push(field.name + ',');
+            }
+        });
+    }
+    return members;
+}
+
 export function genRecordName(defaultName: string, variables: string[]): string {
     let index = 0;
     let varName = defaultName;
