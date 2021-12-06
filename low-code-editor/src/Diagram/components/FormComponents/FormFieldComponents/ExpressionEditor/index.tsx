@@ -265,22 +265,11 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                 onChange(monacoValue);
             }
         }
-        if (model.validationRegex && model.typeName === PrimitiveBalType.String) {
-            if ((!model.value.trim().startsWith('"') && !model.value.trim().endsWith('"')) || (monacoRef.current && model.validationRegex.test(monacoValue))) {
-                validate(model.name, false, isEmpty, canIgnore);
-                setExpressionDiagnosticMsg("");
-                setValidating(false);
-                monaco.editor.setModelMarkers(monacoModel, "expression editor", []);
-            } else {
-                notValidExpEditor(`Invalid ${textLabel}`);
-            }
-        } else {
-            validate(model.name, false, isEmpty, canIgnore);
-            setValidating(false);
-            if (monacoRef.current) {
-                monaco.editor.setModelMarkers(monacoModel, "expression editor", []);
-                setExpressionDiagnosticMsg("");
-            }
+        validate(model.name, canIgnore ? false : monacoValue?.length === 0, isEmpty, canIgnore);
+        setValidating(false);
+        if (monacoRef.current) {
+            monaco.editor.setModelMarkers(monacoModel, "expression editor", []);
+            setExpressionDiagnosticMsg("");
         }
     };
 
