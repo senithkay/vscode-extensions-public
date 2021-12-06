@@ -199,8 +199,7 @@ export function EnumField(props: CodePanelProps) {
         } else {
             state.currentField.name = event.target.value;
         }
-        const isNameAlreadyExists = state.currentRecord.fields.find(field => (field.name === event.target.value)) &&
-            !(state.currentField?.name === event.target.value);
+        const isNameAlreadyExists = state.currentRecord.fields.find(field => (field.name === event.target.value));
         if (isNameAlreadyExists) {
             setFieldNameError("Name already exists");
             state.currentField.isNameInvalid = true;
@@ -208,11 +207,6 @@ export function EnumField(props: CodePanelProps) {
                 state.currentField.isValueInvalid);
         } else if (keywords.includes(event.target.value)) {
             setFieldNameError("Keyword are not allowed");
-            state.currentField.isNameInvalid = true;
-            callBacks.updateEditorValidity(state.currentField.isNameInvalid ||
-                state.currentField.isValueInvalid);
-        } else if ((event.target.value !== "") && !nameRegex.test(event.target.value)) {
-            setFieldNameError("Invalid name");
             state.currentField.isNameInvalid = true;
             callBacks.updateEditorValidity(state.currentField.isNameInvalid ||
                 state.currentField.isValueInvalid);
@@ -227,11 +221,12 @@ export function EnumField(props: CodePanelProps) {
 
     const handleSubItemFocusLost = (event: any) => {
         if (!event.target.value) {
-            state.currentField.name = state.currentField.type === "enum" ?
-                genRecordName("Enum", getFieldNames(state.currentRecord.fields)) :
-                genRecordName("fieldName", getFieldNames(state.currentRecord.fields));
+            handleFieldDelete(state.currentField);
+        } else {
+            state.currentField.isEditInProgress = false
+            state.currentField.isActive = false;
+            callBacks.onUpdateCurrentField(state.currentField);
         }
-        callBacks.onUpdateCurrentField(state.currentField);
     };
 
     const handleRecordClick = () => {

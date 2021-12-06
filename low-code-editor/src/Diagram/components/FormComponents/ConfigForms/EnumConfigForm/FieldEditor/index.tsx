@@ -127,7 +127,7 @@ export function FieldEditor(props: FieldEditorProps) {
                             dataTestId="field-name"
                             customProps={{
                                 isErrored: (nameError !== ""),
-                                focused: false
+                                focused: true
                             }}
                             errorMessage={nameError}
                             defaultValue={field?.name}

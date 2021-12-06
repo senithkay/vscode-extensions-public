@@ -96,8 +96,7 @@ export function CodePanel() {
                         <PrimaryButton
                             dataTestId={"enum-from-json-save-btn"}
                             text={saveButtonText}
-                            disabled={state.isEditorInvalid || (state.currentField && state.currentField.name === "" ||
-                                state.currentField?.type === "")}
+                            disabled={state.isEditorInvalid || (state.currentField && state.currentField.name === "")}
                             fullWidth={false}
                             onClick={handleRecordSave}
                         />
