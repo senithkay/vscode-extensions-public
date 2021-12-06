@@ -170,13 +170,13 @@ export function AddIfForm(props: IfProps) {
                     setInjectables: formArgs?.expressionInjectables?.setInjectables,
                 },
                 initialDiagnostics: getInitialDiagnostics(order),
-                editPosition: formArgs?.model
-                    ? {
-                          ...formArgs?.model.position,
-                          endLine: formArgs?.model.position.startLine,
-                          endColumn: formArgs?.model.position.startColumn,
-                      }
-                    : formArgs?.targetPosition,
+                editPosition: {
+                    startLine: formArgs?.model ? formArgs?.model.position.startLine : formArgs.targetPosition.startLine,
+                    endLine: formArgs?.model ? formArgs?.model.position.startLine : formArgs.targetPosition.startLine,
+                    startColumn: 0,
+                    endColumn: 0
+                }
+
             },
             onChange: handleExpEditorChange(order),
             defaultValue: compList[order]?.expression,

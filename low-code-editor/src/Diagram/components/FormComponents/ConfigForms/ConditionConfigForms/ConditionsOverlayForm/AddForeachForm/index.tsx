@@ -213,12 +213,13 @@ export function AddForeachForm(props: ForeachProps) {
                 defaultCodeSnippet: `foreach ${selectedType} temp_var in  {}`,
                 targetColumn: 22 + selectedType.length,
             },
-            editPosition: formArgs?.model ? {
-                ...formArgs.model?.position,
-                endColumn: formArgs.model?.position?.startColumn,
-                endLine: formArgs.model?.position?.startLine,
-            } : formArgs?.targetPosition,
             initialDiagnostics: formArgs?.model?.actionOrExpressionNode?.typeData?.diagnostics,
+            editPosition: {
+                startLine: formArgs?.model ? formArgs?.model.position.startLine : formArgs.targetPosition.startLine,
+                endLine: formArgs?.model ? formArgs?.model.position.startLine : formArgs.targetPosition.startLine,
+                startColumn: 0,
+                endColumn: 0
+            }
         },
         onChange: handleExpEditorChange,
         defaultValue: conditionExpression.collection,

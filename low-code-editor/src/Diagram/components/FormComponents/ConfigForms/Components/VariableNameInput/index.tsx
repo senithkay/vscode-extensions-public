@@ -34,11 +34,12 @@ export interface VariableNameInputProps {
     diagnosticsFilterExtraColumns?: {
         start?: number,
         end?: number,
-    }
+    };
+    disabled?: boolean;
 }
 
 export function VariableNameInput(props: VariableNameInputProps) {
-    const { onValueChange, validateExpression, position, value, displayName, overrideTemplate, overrideEditTemplate, isEdit, hideLabel, initialDiagnostics, diagnosticsFilterExtraColumns } = props;
+    const { onValueChange, validateExpression, position, value, displayName, overrideTemplate, overrideEditTemplate, isEdit, hideLabel, initialDiagnostics, diagnosticsFilterExtraColumns, disabled } = props;
     const formClasses = useFormStyles();
 
     let customTemplate;
@@ -84,6 +85,7 @@ export function VariableNameInput(props: VariableNameInputProps) {
             hideTextLabel: hideLabel,
             initialDiagnostics,
             diagnosticsFilterExtraColumns,
+            disabled
         },
         onChange: onValueChange,
         defaultValue: value,
