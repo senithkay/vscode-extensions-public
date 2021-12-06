@@ -69,7 +69,7 @@ export function ExpressionEditorArray(props: FormElementProps<ExpressionEditorPr
         model: {
             name: "sub_editor_" + model.name,
             displayName: "Item",
-            type: subEditorType,
+            typeName: subEditorType,
             value: subEditorValue,
             tooltip: "Add elements to Array",
             optional: true,

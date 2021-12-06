@@ -70,6 +70,7 @@ export function Form(props: FormProps) {
                     tooltipTitle: field.tooltip,
                     expressionInjectables,
                     editPosition,
+                    initialDiagnostics: field.initialDiagnostics,
                 },
             };
 

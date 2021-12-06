@@ -110,6 +110,7 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
                 defaultCodeSnippet: `any|error tempAssignment = ;`,
                 targetColumn: 28,
             },
+            initialDiagnostics: (config.model as AssignmentStatement)?.varRef?.typeData?.diagnostics
         },
         onChange: setVarName,
         defaultValue: varName,
@@ -134,6 +135,8 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
                 defaultCodeSnippet: `${varName || 'any|error assignment'} = ;`,
                 targetColumn: varName ? (varName.length + 3) : 24
             },
+            changed: varName,
+            initialDiagnostics: (config.model as AssignmentStatement)?.expression?.typeData?.diagnostics
         },
         onChange: onPropertyChange,
         defaultValue: variableExpression,

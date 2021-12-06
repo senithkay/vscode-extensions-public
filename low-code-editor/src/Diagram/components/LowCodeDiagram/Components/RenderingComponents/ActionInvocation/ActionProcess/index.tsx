@@ -43,7 +43,7 @@ export interface ProcessorProps {
 
 export function ActionProcessor(props: ProcessorProps) {
     const {
-        actions: { diagramCleanDraw, diagramRedraw},
+        actions: { diagramCleanDraw, diagramRedraw },
         // api: {
         //     splitPanel: {
         //         handleRightPanelContent,
@@ -206,7 +206,7 @@ export function ActionProcessor(props: ProcessorProps) {
     const endpointList = (
         <FormGenerator
             onCancel={onWizardClose}
-            configOverlayFormStatus={ {
+            configOverlayFormStatus={{
                 formType: "EndpointList",
                 formArgs: {
                     onSelect: onEndpointSelect,
@@ -214,7 +214,7 @@ export function ActionProcessor(props: ProcessorProps) {
                     onAddConnector,
                 },
                 isLoading: true,
-            } }
+            }}
         />
     );
 
@@ -254,12 +254,16 @@ export function ActionProcessor(props: ProcessorProps) {
                 <React.Fragment>
                     {!isDraftStatement && statmentTypeText && processName && (
                         <>
-                            <StatementTypes
-                                statementType={statmentTypeText}
-                                x={cx - (VARIABLE_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
-                                y={cy + PROCESS_SVG_HEIGHT / 4}
-                                key_id={getRandomInt(1000)}
-                            />
+                            {statmentTypeText &&
+                                <>
+                                    <StatementTypes
+                                        statementType={statmentTypeText}
+                                        x={cx - (VARIABLE_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
+                                        y={cy + PROCESS_SVG_HEIGHT / 4}
+                                        key_id={getRandomInt(1000)}
+                                    />
+                                </>
+                            }
                             <VariableName
                                 processType={processType}
                                 variableName={processName}

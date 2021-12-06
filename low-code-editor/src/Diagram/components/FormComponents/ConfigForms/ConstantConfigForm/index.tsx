@@ -23,8 +23,9 @@ import { createConstDeclaration, updateConstDeclaration } from "../../../../util
 import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
 import CheckBoxGroup from "../../FormFieldComponents/CheckBox";
 import { SelectDropdownWithButton } from "../../FormFieldComponents/DropDown/SelectDropdownWithButton";
-import ExpressionEditor from "../../FormFieldComponents/ExpressionEditor";
+import ExpressionEditor, { ExpressionEditorProps } from "../../FormFieldComponents/ExpressionEditor";
 import { TextLabel } from "../../FormFieldComponents/TextField/TextLabel";
+import { FormElementProps } from "../../Types";
 import { VariableNameInput } from "../Components/VariableNameInput";
 
 import { ConstantVarNameRegex, generateConfigFromModel, isFormConfigValid } from "./util";
@@ -81,11 +82,12 @@ export function ConstantConfigForm(props: ConstantConfigFormProps) {
         dispatch({ type: ConstantConfigFormActionTypes.SET_CONSTANT_VALUE, payload: value })
     }
 
-    const expressionEditorConfig = {
+    const expressionEditorConfig: FormElementProps<ExpressionEditorProps> = {
         model: {
             name: "valueExpression",
             displayName: "Value Expression",
-            typeName: config.isTypeDefined ? config.constantType : undefined
+            typeName: config.isTypeDefined ? config.constantType : undefined,
+            value: config.constantValue
         },
         customProps: {
             validate: updateExpressionValidity,
@@ -101,6 +103,7 @@ export function ConstantConfigForm(props: ConstantConfigFormProps) {
                 defaultCodeSnippet: `const temp_var_${uuid().replaceAll('-', '_')} = ;`,
                 targetColumn: 54,
             },
+            initialDiagnostics: model?.initializer?.typeData?.diagnostics,
         },
         onChange: handleValueChange,
         defaultValue: config.constantValue,
@@ -170,6 +173,7 @@ export function ConstantConfigForm(props: ConstantConfigFormProps) {
                         validateExpression={updateExpressionValidity}
                         position={namePosition}
                         isEdit={!!model}
+                        initialDiagnostics={model?.variableName?.typeData?.diagnostics}
                     />
                     <CheckBoxGroup
                         values={["Include type in declaration"]}

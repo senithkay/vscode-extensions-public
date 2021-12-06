@@ -72,7 +72,7 @@ export function ExpressionEditorLabel(props: FormElementProps<ExpressionEditorPr
                     )}
                 </div>
             )}
-            {typeString && (
+            {typeString && !customProps.hideTypeLabel && (
                 <TooltipCodeSnippet
                     disabled={typeString?.length <= variableNameMaxLength}
                     content={typeString}

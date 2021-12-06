@@ -21,7 +21,7 @@ import { FormField, FormActionButtons, FormHeaderSection, } from "@wso2-enterpri
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { createWhileStatement, getInitialSource } from "../../../../../../utils/modification-util";
-import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
+import ExpressionEditor, { ExpressionEditorProps } from "../../../../FormFieldComponents/ExpressionEditor";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { ConditionConfig, FormElementProps } from "../../../../Types";
@@ -83,7 +83,7 @@ export function AddWhileForm(props: WhileProps) {
             defaultMessage: "{learnBallerina}"
         }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
     };
-    const expElementProps: FormElementProps = {
+    const expElementProps: FormElementProps<ExpressionEditorProps> = {
         model: formField,
         customProps: {
             validate: validateField,
@@ -96,6 +96,7 @@ export function AddWhileForm(props: WhileProps) {
                 list: formArgs?.expressionInjectables?.list,
                 setInjectables: formArgs?.expressionInjectables?.setInjectables
             },
+            initialDiagnostics: formArgs?.model?.condition?.typeData?.diagnostics,
             editPosition: {
                 startLine: formArgs?.model ? formArgs?.model.position.startLine : formArgs.targetPosition.startLine,
                 endLine: formArgs?.model ? formArgs?.model.position.startLine : formArgs.targetPosition.startLine,
@@ -175,7 +176,7 @@ export function AddWhileForm(props: WhileProps) {
                     cancelBtnText={cancelWhileButtonLabel}
                     saveBtnText={saveWhileButtonLabel}
                     isMutationInProgress={isMutationInProgress}
-                    validForm={!isInvalid}
+                    validForm={!isInvalid && (conditionState?.conditionExpression as string)?.length > 0}
                     onSave={handleOnSaveClick}
                     onCancel={onCancel}
                 />
