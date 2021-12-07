@@ -159,6 +159,18 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     }, [model]);
 
     const onPathUIToggleSelect = () => {
+        if (!toggleMainAdvancedMenu && resource.path === '.') {
+            setResource({
+                ...resource,
+                path: '',
+            })
+        } else if (toggleMainAdvancedMenu && resource.path === '') {
+            setResource({
+                ...resource,
+                path: '.',
+            })
+        }
+
         setToggleMainAdvancedMenu(!toggleMainAdvancedMenu);
     }
 
@@ -536,7 +548,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     const variableNameConfig: VariableNameInputProps = {
         displayName: 'Resource path',
         value: resource.path,
-        onValueChange: (value) => setResource({...resource, path: value}),
+        onValueChange: (value) => setResource({ ...resource, path: value }),
         validateExpression: updateResourcePathValidation,
         position: model ? {
             startLine: model?.functionName?.position?.startLine,
@@ -569,7 +581,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
             title={pathTitle}
             tooltipWithExample={{ title, content: pathExample }}
         >
-            {initialLoaded && <VariableNameInput {...variableNameConfig} key={resource.method}/>}
+            {initialLoaded && <VariableNameInput {...variableNameConfig} key={resource.method} />}
         </Section>
     );
 
