@@ -28,7 +28,9 @@ export interface DeleteBtnProps {
     cy: number;
     model: STNode;
     toolTipTitle?: string;
+    isReferencedInCode?: boolean;
     isButtonDisabled?: boolean;
+    showOnRight?: boolean;
     onDraftDelete?: () => void;
     createModifications?: (model: STNode) => STModification[];
 }
@@ -39,7 +41,7 @@ export function DeleteBtn(props: DeleteBtnProps) {
         api: { code: { modifyDiagram } }
     } = useContext(Context);
 
-    const { cx, cy, model, onDraftDelete, createModifications, toolTipTitle, isButtonDisabled } = props;
+    const { cx, cy, model, onDraftDelete, createModifications, toolTipTitle, isButtonDisabled, isReferencedInCode, showOnRight } = props;
 
     const [isConfirmDialogActive, setConfirmDialogActive] = useState(false);
     const [, setBtnActive] = useState(false);
@@ -58,7 +60,11 @@ export function DeleteBtn(props: DeleteBtnProps) {
 
     const onBtnClick = () => {
         if (!isButtonDisabled) {
-            setConfirmDialogActive(true);
+            if (isReferencedInCode) {
+                setConfirmDialogActive(true);
+            } else {
+                onDeleteConfirm();
+            }
         }
     };
 
@@ -78,7 +84,7 @@ export function DeleteBtn(props: DeleteBtnProps) {
             // delete unused configurables
             usedConfigurables.forEach(configurable => {
                 // check used configurables usages
-                if (variableReferences.has(configurable) && variableReferences.get(configurable).length === 1){
+                if (variableReferences.has(configurable) && variableReferences.get(configurable).length === 1) {
                     const deleteConfig: STModification = removeStatement(
                         configurables.get(configurable).position
                     );
@@ -117,8 +123,8 @@ export function DeleteBtn(props: DeleteBtnProps) {
                         <g>
                             <DeleteConfirmDialog
                                 position={{
-                                    x: cx + DefaultConfig.deleteConfirmOffset.x,
-                                    y: cy + DefaultConfig.deleteConfirmOffset.y,
+                                    x: cx + (showOnRight ? (-(DefaultConfig.deleteConfirmOffset.x)) / 2 : DefaultConfig.deleteConfirmOffset.x),
+                                    y: cy + (showOnRight ? 0 : DefaultConfig.deleteConfirmOffset.y),
                                 }}
                                 onConfirm={onDeleteConfirm}
                                 onCancel={closeConfirmDialog}
