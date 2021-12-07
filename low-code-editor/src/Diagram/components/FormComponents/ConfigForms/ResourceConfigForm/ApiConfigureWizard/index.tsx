@@ -324,20 +324,11 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
             const generatedBallerinaPayload: string = resource.payload ? getBallerinaPayloadType(payload, (resource.isCaller || resource.isRequest)) : "";
             const path: string = (resource.path === "" ? "." : resource.path.charAt(0) === "/" ? resource.path.substr(1, resource.path.length) : resource.path);
 
-
             const resourceModification: STModification = createResource(resource.method.toLowerCase(), path, generatedBallerinaQueryParam,
                 generatedBallerinaPayload, resource.isCaller, resource.isRequest,
                 resource.returnType, targetPosition);
 
             mutations.push(resourceModification)
-            // const event: LowcodeEvent = {
-            //   type: EVENT_TYPE_AZURE_APP_INSIGHTS,
-            //   name: TRIGGER_SELECTED_INSIGHTS,
-            //   property: "API"
-            // };
-            // onEvent(event);
-            // todo: handle dispatch
-            // dispatchGoToNextTourStep("CONFIG_SAVE");
         } else {
             const updatePosition: NodePosition = {
                 startLine: model.functionName.position.startLine,
@@ -547,7 +538,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     const lastRelativePath = model?.relativeResourcePath ? model?.relativeResourcePath[model?.relativeResourcePath?.length - 1] : {};
     const variableNameConfig: VariableNameInputProps = {
         displayName: 'Resource path',
-        value: resource.path,
+        value: resource.path === '.' ? '' : resource.path,
         onValueChange: (value) => setResource({ ...resource, path: value }),
         validateExpression: updateResourcePathValidation,
         position: model ? {
