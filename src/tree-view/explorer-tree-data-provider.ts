@@ -19,9 +19,7 @@ import { BallerinaExtension, LANGUAGE } from "../core";
 import {
     Event, EventEmitter, FileStat, FileType, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri, workspace
 } from "vscode";
-import {
-    CONFIG_EDITOR_EXECUTE_COMMAND, ExplorerTreeItem, EXPLORER_ITEM_KIND, FILE_EXTENSION, FILE_NAME, TREE_ELEMENT_EXECUTE_COMMAND
-} from "./model";
+import { ExplorerTreeItem, EXPLORER_ITEM_KIND, FILE_EXTENSION, FILE_NAME, TREE_ELEMENT_EXECUTE_COMMAND } from "./model";
 import * as fs from 'fs';
 import * as path from 'path';
 import { BAL_TOML } from "../project";
