@@ -35,8 +35,8 @@ export function useSelectedStatus(node: STNode, containerRef?: React.MutableRefO
 }
 
 export function isNodeSelected(selectedPosition: SelectedPosition, node: STNode): boolean {
-    return selectedPosition.startLine >= node.position?.startLine
-        && selectedPosition.startLine <= node.position?.endLine;
+    return selectedPosition?.startLine >= node.position?.startLine
+        && selectedPosition?.startLine <= node.position?.endLine;
 }
 
 export function useOverlayRef(): [

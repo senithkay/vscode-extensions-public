@@ -22,6 +22,7 @@ import { getDefaultSelectedPosition, getLowcodeST, getSyntaxTree, isDeleteModifi
 import { useGeneratorStyles } from "./styles";
 import { theme } from "./theme";
 import { EditorProps, PALETTE_COMMANDS } from "./vscode/Diagram";
+import { getModifyPosition } from "./utils";
 export interface DiagramGeneratorProps extends EditorProps {
     scale: string;
     panX: string;
@@ -42,6 +43,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     const runCommand: (command: PALETTE_COMMANDS, args: any[]) => Promise<boolean> = props.runCommand;
     const showMessage: (message: string, type: MESSAGE_TYPE, isIgnorable: boolean) => Promise<boolean> = props.showMessage;
 
+
     const defaultZoomStatus = {
         scale: defaultScale,
         panX: defaultPanX,
@@ -51,6 +53,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     const [syntaxTree, setSyntaxTree] = React.useState(undefined);
     const [zoomStatus, setZoomStatus] = React.useState(defaultZoomStatus);
     const [fileContent, setFileContent] = React.useState("");
+    const [selectedPosition, setSelectedPosition] = React.useState({ startLine: 0, startColumn: 0 });
 
     React.useEffect(() => {
         (async () => {
@@ -87,6 +90,9 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         });
     }, []);
 
+    React.useEffect(() => {
+        setSelectedPosition({startLine, startColumn});
+    }, [startLine, startColumn]);
 
     function zoomIn() {
         const newZoomStatus = cloneDeep(zoomStatus);
@@ -192,12 +198,12 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     // on top of typed context
     const missingProps: any = {};
 
-    const selectedPosition = startColumn === 0 && startLine === 0 // TODO: change to use undefined for unselection
-        ? getDefaultSelectedPosition(syntaxTree)
-        : {
-            startLine,
-            startColumn
-        }
+    // const selectedPosition = startColumn === 0 && startLine === 0 // TODO: change to use undefined for unselection
+    //     ? getDefaultSelectedPosition(syntaxTree)
+    //     : {
+    //         startLine,
+    //         startColumn
+    //     }
     return (
         <MuiThemeProvider theme={theme}>
             <div className={classes.lowCodeContainer}>
@@ -239,6 +245,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                 },
                                 code: {
                                     modifyDiagram: async (mutations: STModification[], options?: any) => {
+                                        const modifyPosition = getModifyPosition(mutations);
                                         const { parseSuccess, source, syntaxTree: newST } = await langClient.stModify({
                                             astModifications: await InsertorDelete(mutations),
                                             documentIdentifier: {
@@ -263,6 +270,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                             if (isDeleteModificationAvailable(mutations)) {
                                                 showMessage("Undo to revert the change you did by pressing Ctrl + Z", MESSAGE_TYPE.INFO, true);
                                             }
+                                            setSelectedPosition(modifyPosition);
                                         } else {
                                             // TODO show error
                                         }
