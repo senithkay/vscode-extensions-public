@@ -35,6 +35,7 @@ import {
   setExistingValues,
   updateConfigObjectProps,
 } from "./utils";
+import ButtonContainer from "./ButtonContainer";
 
 let metaData: MetaData = null;
 
@@ -63,7 +64,7 @@ export interface ConfigFormProps {
   primaryButtonText: string;
   onClickDefaultButton: () => void;
   onClickPrimaryButton: (configProperties: ConfigObjectProps) => void;
-  isConsole?: boolean;
+  isLowCode?: boolean;
 }
 
 const getConfigForm = (
@@ -91,7 +92,7 @@ export const ConfigForm = ({
   primaryButtonText,
   onClickDefaultButton,
   onClickPrimaryButton,
-  isConsole,
+  isLowCode,
 }: ConfigFormProps) => {
   const [configValue, setConfigValue] = useState(new Array<ConfigValue>());
   const [submitType, setSubmitType] = useState("");
@@ -140,36 +141,25 @@ export const ConfigForm = ({
       <form className="ConfigForm" onSubmit={handleSubmit}>
         {configObjectProps.properties.map(getConfigForm)}
         <CardActions>
-          <Box
-            width="100%"
-            pt={3}
-            mb={3}
-            display="flex"
-            justifyContent={isConsole ? "flex-end" : "center"}
-            alignItems="center"
-          >
-            <Box mx={1}>
-              <Button
-                variant="contained"
-                color="default"
-                size="small"
-                onClick={handleSetSubmitType.bind(this, defaultButtonText)}
-              >
-                {defaultButtonText}
-              </Button>
-            </Box>
-            <Box mx={1}>
-              <Button
-                variant="contained"
-                color="primary"
-                size="small"
-                type="submit"
-                onClick={handleSetSubmitType.bind(this, primaryButtonText)}
-              >
-                {primaryButtonText}
-              </Button>
-            </Box>
-          </Box>
+          <ButtonContainer justifyContent="flex-end">
+            <Button
+              variant="contained"
+              color="default"
+              size="small"
+              onClick={handleSetSubmitType.bind(this, defaultButtonText)}
+            >
+              {defaultButtonText}
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              size="small"
+              type="submit"
+              onClick={handleSetSubmitType.bind(this, primaryButtonText)}
+            >
+              {primaryButtonText}
+            </Button>
+          </ButtonContainer>
         </CardActions>
       </form>
     </Box>
@@ -179,5 +169,5 @@ export const ConfigForm = ({
 export default ConfigForm;
 
 ConfigForm.defaultProps = {
-  isConsole: false,
+  isLowCode: false,
 };

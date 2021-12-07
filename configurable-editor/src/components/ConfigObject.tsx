@@ -24,65 +24,66 @@ import { Box, Card, CardContent, Typography } from "@material-ui/core";
 import { ConfigElementProps, getConfigElement } from "./ConfigElement";
 import { ConfigValue } from "./model";
 import { instanceOfConfigElement } from "./utils";
+import { useStyles } from "./style";
 
 /**
  * A high level config property which can contain nested objects.
  */
 export interface ConfigObjectProps {
-    id: string;
-    name: string;
-    properties?: Array<ConfigElementProps | ConfigObjectProps>;
-    setConfigElement?: (configValue: ConfigValue) => void;
+  id: string;
+  name: string;
+  properties?: Array<ConfigElementProps | ConfigObjectProps>;
+  setConfigElement?: (configValue: ConfigValue) => void;
 }
 
 export const getConfigObject = (configObjectProps: ConfigObjectProps) => {
-    if (configObjectProps === undefined) {
-        return;
-    }
+  const classes = useStyles();
+  if (configObjectProps === undefined) {
+    return;
+  }
 
-    configObjectProps.properties.forEach((entry) => {
-        entry.setConfigElement = configObjectProps.setConfigElement;
-    });
+  configObjectProps.properties.forEach((entry) => {
+    entry.setConfigElement = configObjectProps.setConfigElement;
+  });
 
-    return (
-        <Box pt={2}>
-            <Card variant="outlined">
-                <CardContent>
-                    <Typography variant="body1" component="div" style={{fontWeight: "600"}}>
-                        {configObjectProps.name}
-                    </Typography>
-                    <Typography variant="body2" component="div">
-                        {<ConfigObject {...configObjectProps.properties}/>}
-                    </Typography>
-                </CardContent>
-            </Card>
-        </Box>
-    );
+  return (
+    <Box className={classes.innerBoxCard}>
+      <Card variant="outlined">
+        <CardContent>
+          <Box className={classes.innerBoxHead}>
+            <Typography className={classes.innerBoxTitle}>
+              Module: {configObjectProps.name}
+            </Typography>
+          </Box>
+
+          {<ConfigObject {...configObjectProps.properties} />}
+        </CardContent>
+      </Card>
+    </Box>
+  );
 };
 
-const ConfigObject = (configProperties: Array<ConfigElementProps | ConfigObjectProps>): ReactElement => {
-    const returnElement: ReactElement[] = [];
+const ConfigObject = (
+  configProperties: Array<ConfigElementProps | ConfigObjectProps>
+): ReactElement => {
+  const returnElement: ReactElement[] = [];
 
-    Object.keys(configProperties).forEach((key) => {
-        if (instanceOfConfigElement(configProperties[key])) {
-            returnElement.push(
-                (
-                    <div key={configProperties[key].id}>
-                        {getConfigElement(configProperties[key] as ConfigElementProps)}
-                    </div>
-                ),
-            );
-        } else {
-            returnElement.push(
-                (
-                    <div key={configProperties[key].id}>
-                        {getConfigObject(configProperties[key] as ConfigObjectProps)}
-                    </div>
-                ),
-            );
-        }
-    });
-    return (<>{returnElement}</>);
+  Object.keys(configProperties).forEach((key) => {
+    if (instanceOfConfigElement(configProperties[key])) {
+      returnElement.push(
+        <div key={configProperties[key].id}>
+          {getConfigElement(configProperties[key] as ConfigElementProps)}
+        </div>
+      );
+    } else {
+      returnElement.push(
+        <div key={configProperties[key].id}>
+          {getConfigObject(configProperties[key] as ConfigObjectProps)}
+        </div>
+      );
+    }
+  });
+  return <>{returnElement}</>;
 };
 
 export default ConfigObject;

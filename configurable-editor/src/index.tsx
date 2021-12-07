@@ -43,6 +43,7 @@ export function renderConfigEditor(
         primaryButtonText={primaryButtonText}
         onClickDefaultButton={onClickDefaultButton}
         onClickPrimaryButton={onClickPrimaryButton}
+        isLowCode
       />
     </ConfigEditor>,
     document.getElementById("configEditor")

@@ -26,18 +26,19 @@ import { CheckBoxInput } from "./elements/CheckBoxInput";
 import { TextFieldInput } from "./elements/TextFieldInput";
 import { ConfigType, ConfigValue } from "./model";
 import { getType } from "./utils";
-
+import { useStyles } from "./style";
+import OutlinedLabel from "./OutlinedLabel";
 /**
  * A leaf level config property model.
  */
 export interface ConfigElementProps {
-    id: string;
-    isArray: boolean;
-    isRequired: boolean;
-    name: string;
-    type: ConfigType;
-    value?: number | string | boolean | number[] | string[] | boolean[];
-    setConfigElement?: (configValue: ConfigValue) => void;
+  id: string;
+  isArray: boolean;
+  isRequired: boolean;
+  name: string;
+  type: ConfigType;
+  value?: number | string | boolean | number[] | string[] | boolean[];
+  setConfigElement?: (configValue: ConfigValue) => void;
 }
 
 /**
@@ -49,15 +50,20 @@ export interface ConfigElementProps {
  * @param isRequired The boolean property specifying whether the element is a required one.
  * @returns          Returns the config `ConfigElementProps` object.
  */
-export function setConfigElementProps(id: string, isArray: boolean, type: string, name: string,
-                                      isRequired: boolean): ConfigElementProps {
-    return {
-        id,
-        isArray,
-        isRequired,
-        name,
-        type: getType(type),
-    };
+export function setConfigElementProps(
+  id: string,
+  isArray: boolean,
+  type: string,
+  name: string,
+  isRequired: boolean
+): ConfigElementProps {
+  return {
+    id,
+    isArray,
+    isRequired,
+    name,
+    type: getType(type),
+  };
 }
 
 /**
@@ -66,98 +72,101 @@ export function setConfigElementProps(id: string, isArray: boolean, type: string
  * @returns                  The `ConfigElement` component.
  */
 export const getConfigElement = (configElementProps: ConfigElementProps) => {
-    if (configElementProps === undefined) {
-        return null;
-    }
+  const classes = useStyles();
+  if (configElementProps === undefined) {
+    return null;
+  }
 
-    return (
-        <Box mt={3}>
-            <Typography variant="body1" component="div" color="primary">
-                {configElementProps.name}
-            </Typography>
-            <Typography variant="overline" component="div" style={{color: "#04AA6D"}}>
-                {configElementProps.type}
-            </Typography>
-            <Typography variant="body2" component="div">
-                {<ConfigElement {...configElementProps}/>}
-            </Typography>
+  return (
+    <Box className={classes.formGroup}>
+      <Box className={classes.labelCont}>
+        <Box className={classes.mainLabel}>
+          <Typography component="div" className={classes.mainLabelText}>
+            {configElementProps.name}
+          </Typography>
         </Box>
-    );
+        <Box className={classes.labelTag}>
+          <OutlinedLabel
+            type="success"
+            label={configElementProps.type}
+            shape="square"
+          />
+        </Box>
+      </Box>
+
+      <Box className={classes.formInputBox}>
+        {<ConfigElement {...configElementProps} />}
+      </Box>
+    </Box>
+  );
 };
 
 const ConfigElement = (configElement: ConfigElementProps): ReactElement => {
-    const returnElement: ReactElement[] = [];
+  const returnElement: ReactElement[] = [];
 
-    if (configElement.isArray) {
-        if (configElement.value) {
-            const values = configElement.value as Array<string | number | boolean>;
-            values.forEach((value, index) => {
-                const newElement = { ...configElement };
-                newElement.id = newElement.id + "." + index;
-                newElement.value = value;
-                returnElement.push(
-                    (
-                        <div key={newElement.id + "-ELEMENT"}>
-                            {getInnerElement(newElement)}
-                        </div>
-                    ),
-                );
-            });
-            returnElement.push(
-                (
-                    <div key={configElement.id + "-ADD"}>
-                        <AddInputButton />
-                    </div>
-                ),
-            );
-        }
-    } else {
+  if (configElement.isArray) {
+    if (configElement.value) {
+      const values = configElement.value as Array<string | number | boolean>;
+      values.forEach((value, index) => {
+        const newElement = { ...configElement };
+        newElement.id = newElement.id + "." + index;
+        newElement.value = value;
         returnElement.push(
-            (
-                <div key={configElement.id + "-ELEMENT"}>
-                    {getInnerElement(configElement)}
-                </div>
-            ),
+          <div key={newElement.id + "-ELEMENT"}>
+            {getInnerElement(newElement)}
+          </div>
         );
+      });
+      returnElement.push(
+        <div key={configElement.id + "-ADD"}>
+          <AddInputButton />
+        </div>
+      );
     }
-    return (<>{returnElement}</>);
+  } else {
+    returnElement.push(
+      <div key={configElement.id + "-ELEMENT"}>
+        {getInnerElement(configElement)}
+      </div>
+    );
+  }
+  return <>{returnElement}</>;
 };
 
 const getInnerElement = (configElementProps: ConfigElementProps) => {
+  const handleSetElementValue = (key: string, value: any) => {
+    const configValue: ConfigValue = { key, value };
+    configElementProps.setConfigElement(configValue);
+  };
 
-    const handleSetElementValue = (key: string, value: any) => {
-        const configValue: ConfigValue = { key, value };
-        configElementProps.setConfigElement(configValue);
-    };
-
-    switch (configElementProps.type) {
-        case ConfigType.BOOLEAN:
-            return (
-                <div key={configElementProps.id + "-CHECK"}>
-                    <CheckBoxInput
-                        id={configElementProps.id}
-                        label={configElementProps.name}
-                        existingValue={configElementProps.value as boolean}
-                        isRequired={configElementProps.isRequired}
-                        setCheckBoxValue={handleSetElementValue}
-                    />
-                </div>
-            );
-        case ConfigType.STRING:
-        case ConfigType.INTEGER:
-            return (
-                <div key={configElementProps.id + "-FIELD"}>
-                    <TextFieldInput
-                        id={configElementProps.id}
-                        isRequired={configElementProps.isRequired}
-                        existingValue={configElementProps.value}
-                        type={configElementProps.type}
-                        setTextFieldValue={handleSetElementValue}
-                    />
-                </div>
-            );
-    }
-    return null;
+  switch (configElementProps.type) {
+    case ConfigType.BOOLEAN:
+      return (
+        <div key={configElementProps.id + "-CHECK"}>
+          <CheckBoxInput
+            id={configElementProps.id}
+            label={configElementProps.name}
+            existingValue={configElementProps.value as boolean}
+            isRequired={configElementProps.isRequired}
+            setCheckBoxValue={handleSetElementValue}
+          />
+        </div>
+      );
+    case ConfigType.STRING:
+    case ConfigType.INTEGER:
+      return (
+        <div key={configElementProps.id + "-FIELD"}>
+          <TextFieldInput
+            id={configElementProps.id}
+            isRequired={configElementProps.isRequired}
+            existingValue={configElementProps.value}
+            type={configElementProps.type}
+            setTextFieldValue={handleSetElementValue}
+          />
+        </div>
+      );
+  }
+  return null;
 };
 
 export default ConfigElement;
