@@ -10,34 +10,12 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { DiagramEditorLangClientInterface, JsonToRecordResponse, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     EnumDeclaration,
     STKindChecker,
 } from "@wso2-enterprise/syntax-tree";
 
 import { EnumModel, Field, SimpleField } from "../types";
-
-export async function convertToRecord(json: string, lsUrl: string, ls?: any): Promise<string> {
-    const langClient: DiagramEditorLangClientInterface = await ls.getDiagramEditorLangClient(lsUrl);
-    const resp: JsonToRecordResponse = await langClient.convert(
-        {
-            jsonString: json
-        }
-    )
-    return resp.codeBlock;
-}
-
-export function getRecordPrefix(symbolInfo: STSymbolInfo): string {
-    if (symbolInfo?.recordTypeDescriptions?.size > 0) {
-        const typeDesc: EnumDeclaration = symbolInfo?.recordTypeDescriptions?.entries().next()?.value[1];
-        const typeSymbol = typeDesc.typeData?.typeSymbol;
-        if (typeSymbol) {
-            return `${typeSymbol.moduleID.orgName}/${typeSymbol.moduleID.moduleName}:${typeSymbol.moduleID.version}:`;
-        }
-    }
-    return null;
-}
 
 export function getEnumModel(typeDesc: EnumDeclaration, name: string, isInline: boolean, type?: string,
                              isOptional?: boolean): EnumModel {
