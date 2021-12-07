@@ -85,7 +85,7 @@ export function AddWhileForm(props: WhileProps) {
         }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH }),
         codeBlockTooltip: intl.formatMessage({
             id: "lowcode.develop.configForms.IFStatementTooltipMessages.expressionEditor.tooltip.codeBlock",
-            defaultMessage: "Placeholder to add your logic after saving this form",
+            defaultMessage: "To add code inside the while block, save while statement form and use the diagram add buttons",
         }),
     };
     const expElementProps: FormElementProps<ExpressionEditorProps> = {

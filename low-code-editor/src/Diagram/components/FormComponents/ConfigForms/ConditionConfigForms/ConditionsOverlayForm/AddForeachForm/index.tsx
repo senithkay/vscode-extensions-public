@@ -181,7 +181,7 @@ export function AddForeachForm(props: ForeachProps) {
         },
         codeBlockTooltip: intl.formatMessage({
             id: "lowcode.develop.configForms.IFStatementTooltipMessages.expressionEditor.tooltip.codeBlock",
-            defaultMessage: "Placeholder to add your logic after saving this form",
+            defaultMessage: "To add code inside the foreach block, save foreach statement form and use the diagram add buttons",
         }),
     };
     const saveForEachButtonLabel = intl.formatMessage({
