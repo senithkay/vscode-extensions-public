@@ -85,8 +85,12 @@ export function ViewContainer(props: ViewProps) {
 
     useEffect(() => {
         (async () => {
-            const partialST: STNode = await getPartialSTForStatement(
+            let partialST: STNode = await getPartialSTForStatement(
                 { codeSnippet: initialSource.trim() }, getLangClient);
+            if (STKindChecker.isLocalVarDecl(partialST) && !partialST.equalsToken) {
+                partialST = await getPartialSTForStatement(
+                    { codeSnippet: initialSource.trim() + " = EXPRESSION" }, getLangClient);
+            }
             setModel(partialST);
         })();
     }, []);
