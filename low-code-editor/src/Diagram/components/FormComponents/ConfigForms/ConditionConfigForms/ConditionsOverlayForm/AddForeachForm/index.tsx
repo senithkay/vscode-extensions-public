@@ -32,6 +32,7 @@ import { FormTextInput } from "../../../../FormFieldComponents/TextField/FormTex
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { ConditionConfig, ForeachConfig, FormElementProps } from "../../../../Types";
 import { wizardStyles } from "../../../style";
+import { VariableTypeInput, VariableTypeInputProps } from "../../../Components/VariableTypeInput";
 
 interface Iterations {
     start?: string;
@@ -120,15 +121,6 @@ export function AddForeachForm(props: ForeachProps) {
     const variableTypes: string[] = ["var", "int", "float", "decimal", "boolean", "string", "json", "xml"];
 
     const [selectedType, setSelectedType] = useState(conditionExpression.type ? conditionExpression.type : "var");
-    const [isDropDownOpen, setDropDownOpen] = useState(false);
-
-    const handleOnOpen = () => {
-        setDropDownOpen(true);
-    };
-
-    const handleOnClose = () => {
-        setDropDownOpen(false);
-    };
 
     const handleTypeChange = (type: string) => {
         setSelectedType(type);
@@ -254,6 +246,28 @@ export function AddForeachForm(props: ForeachProps) {
         }
     );
 
+    const validateExpression = (fieldName: string, isInvalidType: boolean) => {
+        setIsValidExpression(!isInvalidType)
+    };
+
+    const variableTypeConfig: VariableTypeInputProps = {
+        displayName: 'Variable Type',
+        value: selectedType,
+        onValueChange: handleTypeChange,
+        validateExpression,
+        position: formArgs?.model ? {
+            ...(formArgs?.model).position,
+            endLine: 0,
+            endColumn: 0,
+        } : formArgs.targetPosition,
+    }
+
+    const variableTypeInput = (
+        <div className="exp-wrapper">
+            <VariableTypeInput {...variableTypeConfig} />
+        </div>
+    );
+
     if (!stmtEditorComponent) {
         return (
             <FormControl data-testid="foreach-form" className={classes.wizardFormControlExtended}>
@@ -270,17 +284,7 @@ export function AddForeachForm(props: ForeachProps) {
                         <div className={classes.formCodeExpressionWrapper}>
                             <Typography variant='body2' className={classes.startTitleCode}>Foreach</Typography>
                             <div className={classes.variableExpEditorWrapper}>
-                                <SelectDropdownWithButton
-                                    defaultValue={selectedType}
-                                    customProps={{
-                                        disableCreateNew: true,
-                                        values: variableTypes,
-                                        onOpenSelect: handleOnOpen,
-                                        onCloseSelect: handleOnClose,
-                                    }}
-                                    label={"Type"}
-                                    onChange={handleTypeChange}
-                                />
+                                {variableTypeInput}
                             </div>
                             <div className={classes.variableExpEditorWrapper}>
                                 <FormTextInput
@@ -298,11 +302,9 @@ export function AddForeachForm(props: ForeachProps) {
                         <div className={classes.formCodeExpressionEndWrapper}>
                             <Typography variant='body2' className={classnames(classes.endCode)}>in</Typography>
                             <div className={classes.formCodeExpressionLargeField}>
-                                {!isDropDownOpen && (
-                                    <div className={classes.stmtEditorWrapper}>
-                                        <ExpressionEditor {...expElementProps} hideLabelTooltips={true} />
-                                    </div>
-                                )}
+                                <div className={classes.stmtEditorWrapper}>
+                                    <ExpressionEditor {...expElementProps} hideLabelTooltips={true} />
+                                </div>
                             </div>
                             <Typography variant='body2' className={classes.endCode}>{`{`}</Typography>
                         </div>
