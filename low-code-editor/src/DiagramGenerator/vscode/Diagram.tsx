@@ -52,7 +52,7 @@ export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
 
     return (
         <div className="lowcode-main-wrapper">
-            <DiagramGenErrorBoundary>
+            <DiagramGenErrorBoundary lastUpdatedAt={restProps.lastUpdatedAt}>
                 <DiagramGenerator
                     {...state}
                     getFileContent={getFileContent}
