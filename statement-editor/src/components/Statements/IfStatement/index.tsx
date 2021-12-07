@@ -63,7 +63,9 @@ export function IfStatementC(props: IfStatementProps) {
         }
     }
 
-    captureElseIfStmtModel(model.elseBody);
+    if (!!model.elseBody) {
+        captureElseIfStmtModel(model.elseBody);
+    }
 
     const onClickOnConditionExpression = (event: any) => {
         event.stopPropagation()
@@ -99,16 +101,22 @@ export function IfStatementC(props: IfStatementProps) {
                 <br/>
                 &nbsp;{model.ifBody.closeBraceToken.value}
             </span>
-            <ElseIfStatementC {...elseIfStatementProps}/>
-            <button className={statementEditorClasses.addNewExpressionButton}> + </button>
-            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
-                &nbsp;{model.elseBody.elseKeyword.value}
-                &nbsp;{model.ifBody.openBraceToken.value}
-                <br/>
-                &nbsp;&nbsp;&nbsp;{"..."}
-                <br/>
-                &nbsp;{model.ifBody.closeBraceToken.value}
-            </span>
+            { !!model.elseBody &&
+            (
+                <>
+                    <ElseIfStatementC {...elseIfStatementProps}/>
+                    <button className={statementEditorClasses.addNewExpressionButton}> + </button>
+                    <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
+                        &nbsp;{model.elseBody.elseKeyword.value}
+                        &nbsp;{model.ifBody.openBraceToken.value}
+                        <br/>
+                        &nbsp;&nbsp;&nbsp;{"..."}
+                        <br/>
+                        &nbsp;{model.ifBody.closeBraceToken.value}
+                    </span>
+                </>
+            )
+            }
         </span>
     );
 }
