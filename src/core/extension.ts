@@ -58,6 +58,13 @@ export enum LANGUAGE {
     TOML = 'toml'
 }
 
+export enum WEBVIEW_TYPE {
+    PERFORMANCE_FORECAST,
+    SWAGGER,
+    BBE,
+    CONFIGURABLE
+}
+
 export interface ConstructIdentifier {
     filePath: string;
     kind: string;
@@ -86,9 +93,14 @@ interface CodeServerContext {
     manageChoreoRedirectUri?: string;
     statusBarItem?: gitStatusBarItem;
     infoMessageStatus: {
-        syncChoreoMessage: boolean;
+        messageFirstEdit: boolean;
         sourceControlMessage: boolean;
     }
+}
+
+export interface WebviewContext {
+    isOpen: boolean;
+    type?: WEBVIEW_TYPE
 }
 
 export class BallerinaExtension {
@@ -105,6 +117,7 @@ export class BallerinaExtension {
     private choreoSession: ChoreoSession;
     private choreoSessionTreeProvider: SessionDataProvider | undefined;
     private codeServerContext: CodeServerContext;
+    private webviewContext: WebviewContext;
 
     constructor() {
         this.ballerinaHome = '';
@@ -137,9 +150,14 @@ export class BallerinaExtension {
             manageChoreoRedirectUri: process.env.VSCODE_CHOREO_DEPLOY_URI,
             infoMessageStatus: {
                 sourceControlMessage: true,
-                syncChoreoMessage: true
+                messageFirstEdit: true
             }
         }
+        if (this.getCodeServerContext().codeServerEnv) {
+            window.showInformationMessage('The Ballerina graphical editor is loading...', { modal: true });
+            commands.executeCommand('workbench.action.closeAllEditors');
+        }
+        this.webviewContext = { isOpen: false };
     }
 
     setContext(context: ExtensionContext) {
@@ -442,6 +460,14 @@ export class BallerinaExtension {
      */
     getConfiguredBallerinaHome(): string {
         return <string>workspace.getConfiguration().get(BALLERINA_HOME);
+    }
+
+    getWebviewContext(): WebviewContext {
+        return this.webviewContext;
+    }
+
+    setWebviewContext(context: WebviewContext) {
+        this.webviewContext = context;
     }
 
     autoDetectBallerinaHome(): { home: string, isOldBallerinaDist: boolean, isBallerinaNotFound: boolean } {

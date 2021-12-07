@@ -30,7 +30,7 @@ import {
     ExpressionTypeRequest,
     ExpressionTypeResponse,
 } from "@wso2-enterprise/ballerina-low-code-editor";
-import { BallerinaConnectorsRequest } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BallerinaConnectorsRequest, BallerinaTriggerRequest, BallerinaTriggerResponse, BallerinaTriggersRequest, BallerinaTriggersResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { BallerinaExtension } from "./index";
 import { showChoreoPushMessage } from "../editor-support/git-status";
 import { MESSAGE_TYPE } from "../utils/showMessage";
@@ -49,6 +49,8 @@ enum EXTENDED_APIS {
     DOCUMENT_TRIGGER_MODIFY = 'ballerinaDocument/triggerModify',
     SYMBOL_TYPE = 'ballerinaSymbol/type',
     CONNECTOR_CONNECTORS = 'ballerinaConnector/connectors',
+    TRIGGER_TRIGGERS = 'ballerinaTrigger/triggers',
+    TRIGGER_TRIGGER = 'ballerinaTrigger/trigger',
     CONNECTOR_CONNECTOR = 'ballerinaConnector/connector',
     CONNECTOR_RECORD = 'ballerinaConnector/record',
     PACKAGE_COMPONENTS = 'ballerinaPackage/components',
@@ -57,6 +59,7 @@ enum EXTENDED_APIS {
     JSON_TO_RECORD_CONVERT = 'jsonToRecord/convert',
     PARTIAL_PARSE_SINGLE_STATEMENT = 'partialParser/getSTForSingleStatement',
     PARTIAL_PARSE_EXPRESSION = 'partialParser/getSTForExpression',
+    PARTIAL_PARSE_MODULE_MEMBER = 'partialParser/getSTForModuleMembers',
     EXAMPLE_LIST = 'ballerinaExample/list',
     PERF_ANALYZER_GRAPH_DATA = 'performanceAnalyzer/getGraphData',
     PERF_ANALYZER_REALTIME_DATA = 'performanceAnalyzer/getRealtimeData',
@@ -71,6 +74,7 @@ enum EXTENDED_APIS_ORG {
     JSON_TO_RECORD = 'jsonToRecord',
     SYMBOL = 'ballerinaSymbol',
     CONNECTOR = 'ballerinaConnector',
+    TRIGGER = 'ballerinaTrigger',
     PERF_ANALYZER = 'performanceAnalyzer',
     PARTIAL_PARSER = 'partialParser',
     BALLERINA_TO_OPENAPI = 'openAPILSExtension'
@@ -129,8 +133,11 @@ export interface SyntaxTreeNodeResponse {
     kind: string;
 }
 
-export interface JsonToRecordRequestParams {
+export interface JsonToRecordRequest {
     jsonString: string;
+    recordName?: string;
+    isRecordTypeDesc?: boolean;
+    isClosed?: boolean;
 }
 
 export interface JsonToRecordResponse {
@@ -327,7 +334,10 @@ export class ExtendedLangClient extends LanguageClient {
     getRealtimePerformanceData(params: PerformanceAnalyzerGraphRequest): Promise<PerformanceAnalyzerRealtimeResponse> {
         if (!this.ballerinaExtInstance?.enabledPerformanceForecasting() ||
             !this.ballerinaExtInstance?.getChoreoSession().loginStatus) {
-            return Promise.resolve({ type: MESSAGE_TYPE.IGNORE, message: '', concurrency: { min: 0, max: 0 }, tps: { min: 0, max: 0 }, latency: { min: 0, max: 0 } });
+            return Promise.resolve({
+                type: MESSAGE_TYPE.IGNORE, message: '', concurrency: { min: 0, max: 0 },
+                tps: { min: 0, max: 0 }, latency: { min: 0, max: 0 }
+            });
         }
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.PERF_ANALYZER_REALTIME_DATA)) {
             Promise.resolve(NOT_SUPPORTED);
@@ -355,11 +365,23 @@ export class ExtendedLangClient extends LanguageClient {
         }
         return this.sendRequest<BallerinaConnectorsResponse>(EXTENDED_APIS.CONNECTOR_CONNECTORS, params);
     }
+    getTriggers(params: BallerinaTriggersRequest): Thenable<BallerinaTriggersResponse> {
+        if (!this.isExtendedServiceSupported(EXTENDED_APIS.TRIGGER_TRIGGERS)) {
+            Promise.resolve(NOT_SUPPORTED);
+        }
+        return this.sendRequest<BallerinaTriggersResponse>(EXTENDED_APIS.TRIGGER_TRIGGERS, params);
+    }
     getConnector(params: BallerinaConnectorRequest): Thenable<BallerinaConnectorResponse> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.CONNECTOR_CONNECTOR)) {
             Promise.resolve(NOT_SUPPORTED);
         }
         return this.sendRequest<BallerinaConnectorResponse>(EXTENDED_APIS.CONNECTOR_CONNECTOR, params);
+    }
+    getTrigger(params: BallerinaTriggerRequest): Thenable<BallerinaTriggerResponse> {
+        if (!this.isExtendedServiceSupported(EXTENDED_APIS.TRIGGER_TRIGGER)) {
+            Promise.resolve(NOT_SUPPORTED);
+        }
+        return this.sendRequest<BallerinaTriggerResponse>(EXTENDED_APIS.TRIGGER_TRIGGER, params);
     }
     getRecord(params: BallerinaRecordRequest): Thenable<BallerinaRecordResponse> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.CONNECTOR_RECORD)) {
@@ -463,7 +485,7 @@ export class ExtendedLangClient extends LanguageClient {
         return this.sendRequest(EXTENDED_APIS.DOCUMENT_EXECUTOR_POSITIONS, params);
     }
 
-    convertJsonToRecord(params: JsonToRecordRequestParams): Thenable<JsonToRecordResponse> {
+    convertJsonToRecord(params: JsonToRecordRequest): Thenable<JsonToRecordResponse> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.JSON_TO_RECORD_CONVERT)) {
             Promise.resolve(NOT_SUPPORTED);
         }
@@ -482,6 +504,13 @@ export class ExtendedLangClient extends LanguageClient {
             Promise.resolve(NOT_SUPPORTED);
         }
         return this.sendRequest(EXTENDED_APIS.PARTIAL_PARSE_EXPRESSION, params);
+    }
+
+    getSTForModuleMembers(params: PartialSTRequestParams): Thenable<PartialSTResponse> {
+        if (!this.isExtendedServiceSupported(EXTENDED_APIS.PARTIAL_PARSE_MODULE_MEMBER)) {
+            Promise.resolve(NOT_SUPPORTED);
+        }
+        return this.sendRequest(EXTENDED_APIS.PARTIAL_PARSE_MODULE_MEMBER, params);
     }
 
     resolveMissingDependencies(req: GetSyntaxTreeParams): Thenable<GetSyntaxTreeResponse> {
@@ -526,6 +555,9 @@ export class ExtendedLangClient extends LanguageClient {
                 { name: EXTENDED_APIS_ORG.SYMBOL, type: true },
                 {
                     name: EXTENDED_APIS_ORG.CONNECTOR, connectors: true, connector: true, record: true
+                },
+                {
+                    name: EXTENDED_APIS_ORG.TRIGGER, triggers: true, trigger: true
                 },
                 { name: EXTENDED_APIS_ORG.EXAMPLE, list: true },
                 { name: EXTENDED_APIS_ORG.JSON_TO_RECORD, convert: true },

@@ -17,5 +17,12 @@
  *
  */
 
-export * from './activator';
-export * from './model';
+ export interface ConfigProperty {
+    headerNames: string[];
+    configs: ConfigValue[];
+}
+
+export interface ConfigValue {
+    configName: string;
+    configValue?: any[];
+}

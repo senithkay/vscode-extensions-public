@@ -36,6 +36,7 @@ import { DiagramOptions, Member, SyntaxTree } from './model';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { runCommand } from '../utils/runCommand';
 import { Diagnostic } from '.';
+import { createTests } from '../testing/activator';
 
 const NO_DIAGRAM_VIEWS: string = 'No Ballerina diagram views found!';
 
@@ -80,6 +81,9 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 	}
 
 	DiagramPanel.create(isCommand ? ViewColumn.Two : ViewColumn.One);
+
+	// Update test view
+	createTests(Uri.parse(filePath));
 }
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
@@ -325,7 +329,7 @@ class DiagramPanel {
 			{
 				methodName: "resolveMissingDependencyByCodeAction",
 				handler: async (args: any[]): Promise<boolean> => {
-					resolveMissingDependencyByCodeAction(args[0],args[1], args[2], langClient);
+					resolveMissingDependencyByCodeAction(args[0], args[1], args[2], langClient);
 					return true;
 				}
 			},

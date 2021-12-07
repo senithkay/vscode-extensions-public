@@ -21,9 +21,9 @@ import { renderFirstDiagramElement, showDiagramEditor } from '../diagram';
 import { sendTelemetryEvent, CMP_PACKAGE_VIEW, TM_EVENT_OPEN_PACKAGE_OVERVIEW } from "../telemetry";
 import { commands, Uri, window, workspace } from 'vscode';
 import {
-    CMP_KIND, TREE_ELEMENT_EXECUTE_COMMAND, EXPLORER_TREE_REFRESH_COMMAND, EXPLORER_ITEM_KIND,
-    EXPLORER_TREE_NEW_FILE_COMMAND, EXPLORER_TREE_NEW_FOLDER_COMMAND, ExplorerTreeItem,
-    EXPLORER_TREE_NEW_MODULE_COMMAND, EXPLRER_TREE_DELETE_FILE_COMMAND, CONFIG_EDITOR_EXECUTE_COMMAND
+    TREE_ELEMENT_EXECUTE_COMMAND, EXPLORER_TREE_REFRESH_COMMAND, EXPLORER_TREE_NEW_FILE_COMMAND,
+    EXPLORER_TREE_NEW_FOLDER_COMMAND, ExplorerTreeItem, EXPLORER_TREE_NEW_MODULE_COMMAND,
+    EXPLRER_TREE_DELETE_FILE_COMMAND, CONFIG_EDITOR_EXECUTE_COMMAND, EXPLORER_ITEM_KIND
 } from "./model";
 import { SessionDataProvider } from "./session-tree-data-provider";
 import { ExplorerDataProvider } from "./explorer-tree-data-provider";
@@ -181,17 +181,12 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
                     + 'retrieving the configurable schema.');
                 return Promise.reject();
             }
-            showConfigEditor(data.configSchema, Uri.parse(filePath));
+            showConfigEditor(ballerinaExtInstance, data.configSchema, Uri.parse(filePath));
         });
     });
 
     ballerinaExtInstance.getDocumentContext().onDiagramTreeElementClicked((construct: ConstructIdentifier) => {
-        if (construct.kind === CMP_KIND.FUNCTION || construct.kind === CMP_KIND.RESOURCE ||
-            construct.kind == CMP_KIND.RECORD || construct.kind == CMP_KIND.OBJECT || construct.kind == CMP_KIND.TYPE
-            || construct.kind == CMP_KIND.CLASS || construct.kind == CMP_KIND.ENUM ||
-            construct.kind == CMP_KIND.CONSTANT || construct.kind == CMP_KIND.METHOD ||
-            construct.kind == CMP_KIND.LISTENER || construct.kind == CMP_KIND.MODULE_LEVEL_VAR ||
-            construct.kind == CMP_KIND.SERVICE || construct.kind == EXPLORER_ITEM_KIND.BAL_FILE) {
+        if (construct.kind == EXPLORER_ITEM_KIND.BAL_FILE) {
             showDiagramEditor(construct.startLine, construct.startColumn, construct.filePath);
             ballerinaExtInstance.getDocumentContext().setLatestDocument(Uri.file(construct.filePath));
             explorerDataProvider.refresh();

@@ -88,9 +88,19 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
             return langClient.getConnectors(args[0]);
         }
     }, {
+        methodName: 'getTriggers',
+        handler: (args: any[]) => {
+            return langClient.getTriggers(args[0]);
+        }
+    }, {
         methodName: 'getConnector',
         handler: (args: any[]) => {
             return langClient.getConnector(args[0]);
+        }
+    }, {
+        methodName: 'getTrigger',
+        handler: (args: any[]) => {
+            return langClient.getTrigger(args[0]);
         }
     }, {
         methodName: 'getRecord',
@@ -141,6 +151,11 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
         methodName: 'getSTForExpression',
         handler: (args: any[]) => {
             return langClient.getSTForExpression(args[0]);
+        }
+    }, {
+        methodName: 'getSTForModuleMembers',
+        handler: (args: any[]) => {
+            return langClient.getSTForModuleMembers(args[0]);
         }
     }, {
         methodName: 'getRealtimePerformanceData',

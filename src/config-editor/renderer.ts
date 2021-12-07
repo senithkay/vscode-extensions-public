@@ -19,14 +19,45 @@
 
 import { getLibraryWebViewContent, WebViewOptions, getComposerWebViewOptions } from '../utils';
 
-export function render(data: any): string {
+export function render(data: any, existingData: any): string {
 
-    const body = `<div id="configEditor" class="config-editor-container" />`;
+    const body = `<div id="configEditor" class="config-editor-container"><div class="loader" /></div>`;
     const bodyCss = 'configEditor';
-    const styles = ``;
+    const styles = `
+        .loader {
+            border: 3px solid #edf0ff;
+            border-top: 3px solid #5463dc;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            animation: spin 1s linear infinite;
+            margin: auto;
+            margin-top: 38%;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    `;
     const scripts = `
             function loadedScript() {
-                window.configEditor.renderConfigEditor(${JSON.stringify(data)});
+                function onClickDefaultButton() {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'onClickDefaultButton',
+                        [],
+                        () => {}
+                    );
+                }
+
+                function onClickPrimaryButton(arg) {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'onClickPrimaryButton',
+                        [arg],
+                        () => {}
+                    );
+                }
+
+                window.configEditor.renderConfigEditor(${JSON.stringify(data)}, ${JSON.stringify(existingData)}, "Cancel", "Run", onClickDefaultButton, onClickPrimaryButton);
             }
         `;
 
