@@ -35,13 +35,14 @@ import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
 interface BinaryProps {
-    model: BinaryExpression
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
+    model: BinaryExpression;
+    userInputs: VariableUserInputs;
+    isElseIfMember: boolean;
+    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function BinaryExpressionComponent(props: BinaryProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
@@ -60,8 +61,8 @@ export function BinaryExpressionComponent(props: BinaryProps) {
     const lhs: ReactNode = (
         <ExpressionComponent
             model={model.lhsExpr}
-            isRoot={false}
             userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
         />
@@ -69,8 +70,8 @@ export function BinaryExpressionComponent(props: BinaryProps) {
     const rhs: ReactNode = (
         <ExpressionComponent
             model={model.rhsExpr}
-            isRoot={false}
             userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
         />
@@ -95,7 +96,7 @@ export function BinaryExpressionComponent(props: BinaryProps) {
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
             monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.lhsExpr.position,
-            false, false, model.lhsExpr.source, getLangClient);
+            false, isElseIfMember, model.lhsExpr.source, getLangClient);
 
         expressionHandler(model.lhsExpr, false, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
@@ -112,7 +113,7 @@ export function BinaryExpressionComponent(props: BinaryProps) {
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
             monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.rhsExpr.position,
-            false, false, model.rhsExpr.source, getLangClient);
+            false, isElseIfMember, model.rhsExpr.source, getLangClient);
 
         expressionHandler(model.rhsExpr, false, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),

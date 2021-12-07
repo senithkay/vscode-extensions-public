@@ -27,13 +27,14 @@ import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
 interface WhileStatementProps {
-    model: WhileStatement
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
+    model: WhileStatement;
+    userInputs: VariableUserInputs;
+    isElseIfMember: boolean;
+    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function WhileStatementC(props: WhileStatementProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
@@ -48,8 +49,8 @@ export function WhileStatementC(props: WhileStatementProps) {
     const conditionComponent: ReactNode = (
         <ExpressionComponent
             model={model.condition}
-            isRoot={false}
             userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
         />
@@ -63,7 +64,7 @@ export function WhileStatementC(props: WhileStatementProps) {
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
             monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.condition.position,
-            false, false, model.condition.source, getLangClient);
+            false, isElseIfMember, model.condition.source, getLangClient);
 
         expressionHandler(model.condition, false, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
@@ -76,7 +77,7 @@ export function WhileStatementC(props: WhileStatementProps) {
         addStatementToTargetLine(currentFile.content, targetPosition,
             stmtCtx.modelCtx.statementModel.source, getLangClient).then((content: string) => {
             getContextBasedCompletions(monaco.Uri.file(currentFile.path).toString(), content, targetPosition,
-                model.condition.position, false, false, model.condition.source,
+                model.condition.position, false, isElseIfMember, model.condition.source,
                 getLangClient).then((completions) => {
                 expressionHandler(model.condition, false, false, {
                     expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),

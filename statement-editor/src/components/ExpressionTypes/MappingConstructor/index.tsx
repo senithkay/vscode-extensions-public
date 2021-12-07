@@ -26,13 +26,14 @@ import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
 interface MappingConstructorProps {
-    model: MappingConstructor
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
+    model: MappingConstructor;
+    userInputs: VariableUserInputs;
+    isElseIfMember: boolean;
+    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function MappingConstructorComponent(props: MappingConstructorProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
@@ -84,8 +85,8 @@ export function MappingConstructorComponent(props: MappingConstructorProps) {
                         >
                             <ExpressionComponent
                                 model={expression}
-                                isRoot={false}
                                 userInputs={userInputs}
+                                isElseIfMember={isElseIfMember}
                                 diagnosticHandler={diagnosticHandler}
                                 isTypeDescriptor={false}
                             />

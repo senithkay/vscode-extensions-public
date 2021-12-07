@@ -27,13 +27,14 @@ import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
 interface ConditionalExpressionProps {
-    model: ConditionalExpression
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
+    model: ConditionalExpression;
+    userInputs: VariableUserInputs;
+    isElseIfMember: boolean;
+    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function ConditionalExpressionComponent(props: ConditionalExpressionProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
@@ -52,8 +53,8 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
     const lhsExpression: ReactNode = (
         <ExpressionComponent
             model={model.lhsExpression}
-            isRoot={false}
             userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
         />
@@ -62,8 +63,8 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
     const middleExpression: ReactNode = (
         <ExpressionComponent
             model={model.middleExpression}
-            isRoot={false}
             userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
         />
@@ -72,8 +73,8 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
     const endExpression: ReactNode = (
         <ExpressionComponent
             model={model.endExpression}
-            isRoot={false}
             userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
         />
@@ -87,7 +88,7 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
             monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.lhsExpression.position,
-            false, false, model.lhsExpression.source, getLangClient);
+            false, isElseIfMember, model.lhsExpression.source, getLangClient);
 
         expressionHandler(model.lhsExpression, false, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
@@ -104,7 +105,7 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
             monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.middleExpression.position,
-            false, false, model.middleExpression.source, getLangClient);
+            false, isElseIfMember, model.middleExpression.source, getLangClient);
 
         expressionHandler(model.middleExpression, false, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
@@ -121,7 +122,7 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
             monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.endExpression.position,
-            false, false, model.endExpression.source, getLangClient);
+            false, isElseIfMember, model.endExpression.source, getLangClient);
 
         expressionHandler(model.endExpression, false, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),

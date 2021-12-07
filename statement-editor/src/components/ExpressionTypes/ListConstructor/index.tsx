@@ -27,13 +27,14 @@ import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
 interface ListConstructorProps {
-    model: ListConstructor
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
+    model: ListConstructor;
+    userInputs: VariableUserInputs;
+    isElseIfMember: boolean;
+    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function ListConstructorComponent(props: ListConstructorProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
@@ -51,7 +52,7 @@ export function ListConstructorComponent(props: ListConstructorProps) {
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
             monaco.Uri.file(currentFile.path).toString(), content, targetPosition, clickedExpression.position,
-            false, false, clickedExpression.source, getLangClient);
+            false, isElseIfMember, clickedExpression.source, getLangClient);
 
         expressionHandler(clickedExpression, false, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
@@ -86,8 +87,8 @@ export function ListConstructorComponent(props: ListConstructorProps) {
                         >
                             <ExpressionComponent
                                 model={expression}
-                                isRoot={false}
                                 userInputs={userInputs}
+                                isElseIfMember={isElseIfMember}
                                 diagnosticHandler={diagnosticHandler}
                                 isTypeDescriptor={false}
                             />

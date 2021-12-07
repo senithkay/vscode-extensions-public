@@ -27,13 +27,14 @@ import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
 interface FieldAccessProps {
-    model: FieldAccess
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
+    model: FieldAccess;
+    userInputs: VariableUserInputs;
+    isElseIfMember: boolean;
+    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function FieldAccessComponent(props: FieldAccessProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
@@ -52,8 +53,8 @@ export function FieldAccessComponent(props: FieldAccessProps) {
     const expression: ReactNode = (
         <ExpressionComponent
             model={model.expression}
-            isRoot={false}
             userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
         />
@@ -62,8 +63,8 @@ export function FieldAccessComponent(props: FieldAccessProps) {
     const fieldName: ReactNode = (
         <ExpressionComponent
             model={model.fieldName}
-            isRoot={false}
             userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
         />
@@ -77,7 +78,7 @@ export function FieldAccessComponent(props: FieldAccessProps) {
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
             monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.position,
-            false, false, model.source, getLangClient);
+            false, isElseIfMember, model.source, getLangClient);
 
         expressionHandler(model, false, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),

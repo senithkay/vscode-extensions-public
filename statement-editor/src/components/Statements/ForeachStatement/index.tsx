@@ -27,13 +27,14 @@ import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
 interface ForeachStatementProps {
-    model: ForeachStatement
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
+    model: ForeachStatement;
+    userInputs: VariableUserInputs;
+    isElseIfMember: boolean;
+    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function ForeachStatementC(props: ForeachStatementProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
 
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
@@ -51,8 +52,8 @@ export function ForeachStatementC(props: ForeachStatementProps) {
     const typedBindingComponent: ReactNode = (
         <ExpressionComponent
             model={model.typedBindingPattern}
-            isRoot={false}
             userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
         />
@@ -61,8 +62,8 @@ export function ForeachStatementC(props: ForeachStatementProps) {
     const actionOrExprComponent: ReactNode = (
         <ExpressionComponent
             model={model.actionOrExpressionNode}
-            isRoot={false}
             userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
         />
@@ -82,7 +83,7 @@ export function ForeachStatementC(props: ForeachStatementProps) {
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
             monaco.Uri.file(currentFile.path).toString(), content, targetPosition,
-            model.actionOrExpressionNode.position, false, false, model.actionOrExpressionNode.source, getLangClient);
+            model.actionOrExpressionNode.position, false, isElseIfMember, model.actionOrExpressionNode.source, getLangClient);
 
         expressionHandler(model.actionOrExpressionNode, false, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
@@ -97,7 +98,7 @@ export function ForeachStatementC(props: ForeachStatementProps) {
         addStatementToTargetLine(currentFile.content, targetPosition,
             stmtCtx.modelCtx.statementModel.source, getLangClient).then((content: string) => {
             getContextBasedCompletions(monaco.Uri.file(currentFile.path).toString(), content, targetPosition,
-                model.actionOrExpressionNode.position, false, false, model.actionOrExpressionNode.source,
+                model.actionOrExpressionNode.position, false, isElseIfMember, model.actionOrExpressionNode.source,
                 getLangClient).then((completions) => {
                 expressionHandler(model.actionOrExpressionNode, false, false, {
                     expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),

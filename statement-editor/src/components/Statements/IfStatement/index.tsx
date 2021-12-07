@@ -50,8 +50,8 @@ export function IfStatementC(props: IfStatementProps) {
     const conditionComponent: ReactNode = (
         <ExpressionComponent
             model={model.condition}
-            isRoot={false}
             userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
         />

@@ -27,13 +27,14 @@ import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
 interface FunctionCallProps {
-    model: FunctionCall
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
+    model: FunctionCall;
+    userInputs: VariableUserInputs;
+    isElseIfMember: boolean;
+    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function FunctionCallComponent(props: FunctionCallProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
@@ -48,8 +49,8 @@ export function FunctionCallComponent(props: FunctionCallProps) {
     const functionName: ReactNode = (
         <ExpressionComponent
             model={model.functionName}
-            isRoot={false}
             userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
         />
@@ -63,7 +64,7 @@ export function FunctionCallComponent(props: FunctionCallProps) {
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
             monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.position,
-            false, false, model.source, getLangClient);
+            false, isElseIfMember, model.source, getLangClient);
 
         expressionHandler(model, false, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
@@ -89,8 +90,8 @@ export function FunctionCallComponent(props: FunctionCallProps) {
                     ) : (
                         <ExpressionComponent
                             model={expression}
-                            isRoot={false}
                             userInputs={userInputs}
+                            isElseIfMember={isElseIfMember}
                             diagnosticHandler={diagnosticHandler}
                             isTypeDescriptor={false}
                         />

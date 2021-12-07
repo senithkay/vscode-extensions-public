@@ -27,13 +27,14 @@ import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
 interface MethodCallProps {
-    model: MethodCall
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
+    model: MethodCall;
+    userInputs: VariableUserInputs;
+    isElseIfMember: boolean;
+    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function MethodCallComponent(props: MethodCallProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
@@ -50,8 +51,8 @@ export function MethodCallComponent(props: MethodCallProps) {
     const expression: ReactNode = (
         <ExpressionComponent
             model={model.expression}
-            isRoot={false}
             userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
         />
@@ -60,8 +61,8 @@ export function MethodCallComponent(props: MethodCallProps) {
     const methodName: ReactNode = (
         <ExpressionComponent
             model={model.methodName}
-            isRoot={false}
             userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
         />
@@ -84,8 +85,8 @@ export function MethodCallComponent(props: MethodCallProps) {
                     ) : (
                         <ExpressionComponent
                             model={argument}
-                            isRoot={false}
                             userInputs={userInputs}
+                            isElseIfMember={isElseIfMember}
                             diagnosticHandler={diagnosticHandler}
                             isTypeDescriptor={false}
                         />
@@ -103,7 +104,7 @@ export function MethodCallComponent(props: MethodCallProps) {
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
             monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.expression.position,
-            false, false, model.expression.source, getLangClient);
+            false, isElseIfMember, model.expression.source, getLangClient);
 
         expressionHandler(model.expression, false, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
@@ -120,7 +121,7 @@ export function MethodCallComponent(props: MethodCallProps) {
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
             monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.methodName.position,
-            false, false, model.methodName.source, getLangClient);
+            false, isElseIfMember, model.methodName.source, getLangClient);
 
         expressionHandler(model.methodName, false, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),

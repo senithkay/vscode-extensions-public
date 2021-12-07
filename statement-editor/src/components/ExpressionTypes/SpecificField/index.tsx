@@ -28,14 +28,15 @@ import { InputEditor } from "../../InputEditor";
 import { useStatementEditorStyles } from "../../styles";
 
 interface SpecificFieldProps {
-    model: SpecificField
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
-    isTypeDescriptor: boolean
+    model: SpecificField;
+    userInputs: VariableUserInputs;
+    isElseIfMember: boolean;
+    diagnosticHandler: (diagnostics: string) => void;
+    isTypeDescriptor: boolean;
 }
 
 export function SpecificFieldComponent(props: SpecificFieldProps) {
-    const { model, userInputs, diagnosticHandler, isTypeDescriptor } = props;
+    const { model, userInputs, isElseIfMember, diagnosticHandler, isTypeDescriptor } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
@@ -65,8 +66,8 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
         fieldName = (
             <ExpressionComponent
                 model={model.fieldName}
-                isRoot={false}
                 userInputs={userInputs}
+                isElseIfMember={isElseIfMember}
                 diagnosticHandler={diagnosticHandler}
                 isTypeDescriptor={false}
             />
@@ -76,8 +77,8 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
     const valueExpression: ReactNode = (
         <ExpressionComponent
             model={model.valueExpr}
-            isRoot={false}
             userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
         />
@@ -97,7 +98,7 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
             monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.valueExpr.position,
-            false, false, model.valueExpr.source, getLangClient);
+            false, isElseIfMember, model.valueExpr.source, getLangClient);
 
         expressionHandler(model.valueExpr, false, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),

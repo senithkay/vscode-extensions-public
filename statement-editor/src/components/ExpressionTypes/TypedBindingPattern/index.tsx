@@ -29,13 +29,14 @@ import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
 interface TypedBindingPatternProps {
-    model: TypedBindingPattern
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
+    model: TypedBindingPattern;
+    userInputs: VariableUserInputs;
+    isElseIfMember: boolean;
+    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
@@ -50,8 +51,8 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
     const typeDescriptorComponent: ReactNode = (
         <ExpressionComponent
             model={model.typeDescriptor}
-            isRoot={false}
             userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={true}
         />
@@ -59,8 +60,8 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
     const bindingPatternComponent: ReactNode = (
         <ExpressionComponent
             model={model.bindingPattern}
-            isRoot={false}
             userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
         />
@@ -74,7 +75,7 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
             monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.typeDescriptor.position,
-            true, false, model.typeDescriptor.source, getLangClient);
+            true, isElseIfMember, model.typeDescriptor.source, getLangClient);
 
         expressionHandler(model.typeDescriptor, false, true, {
             expressionSuggestions: [],

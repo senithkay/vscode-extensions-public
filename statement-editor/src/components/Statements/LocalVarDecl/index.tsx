@@ -27,13 +27,14 @@ import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
 interface LocalVarDeclProps {
-    model: LocalVarDecl
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
+    model: LocalVarDecl;
+    userInputs: VariableUserInputs;
+    isElseIfMember: boolean;
+    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function LocalVarDeclC(props: LocalVarDeclProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
@@ -50,8 +51,8 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
     const typedBindingComponent: ReactNode = (
         <ExpressionComponent
             model={model.typedBindingPattern}
-            isRoot={false}
             userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
         />
@@ -60,8 +61,8 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
     const expressionComponent: ReactNode = (
         <ExpressionComponent
             model={model.initializer}
-            isRoot={false}
             userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
         />
@@ -81,7 +82,7 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
             monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.initializer.position,
-            false, false, model.initializer.source, getLangClient);
+            false, isElseIfMember, model.initializer.source, getLangClient);
 
         expressionHandler(model.initializer, false, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
@@ -94,7 +95,7 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
         addStatementToTargetLine(currentFile.content, targetPosition,
             stmtCtx.modelCtx.statementModel.source, getLangClient).then((content: string) => {
                 getContextBasedCompletions(monaco.Uri.file(currentFile.path).toString(), content, targetPosition,
-                    model.initializer.position, false, false, model.initializer.source,
+                    model.initializer.position, false, isElseIfMember, model.initializer.source,
                     getLangClient).then((completions) => {
                         expressionHandler(model.initializer, false, false, {
                             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),

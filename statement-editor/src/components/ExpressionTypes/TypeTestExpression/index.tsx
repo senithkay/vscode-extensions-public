@@ -27,13 +27,14 @@ import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
 interface TypeTestExpressionProps {
-    model: TypeTestExpression
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
+    model: TypeTestExpression;
+    userInputs: VariableUserInputs;
+    isElseIfMember: boolean;
+    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function TypeTestExpressionComponent(props: TypeTestExpressionProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
 
     const stmtCtx = useContext(StatementEditorContext);
     const statementEditorClasses = useStatementEditorStyles();
@@ -50,8 +51,8 @@ export function TypeTestExpressionComponent(props: TypeTestExpressionProps) {
     const expr: ReactNode = (
         <ExpressionComponent
             model={model.expression}
-            isRoot={false}
             userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
         />
@@ -60,8 +61,8 @@ export function TypeTestExpressionComponent(props: TypeTestExpressionProps) {
     const typeDescriptor: ReactNode = (
         <ExpressionComponent
             model={model.typeDescriptor}
-            isRoot={false}
             userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={true}
         />
@@ -75,7 +76,7 @@ export function TypeTestExpressionComponent(props: TypeTestExpressionProps) {
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
             monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.expression.position,
-            false, false, model.expression.source, getLangClient);
+            false, isElseIfMember, model.expression.source, getLangClient);
 
         expressionHandler(model.expression, false, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
@@ -92,7 +93,7 @@ export function TypeTestExpressionComponent(props: TypeTestExpressionProps) {
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
             monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.typeDescriptor.position,
-            true, false, model.typeDescriptor.source, getLangClient);
+            true, isElseIfMember, model.typeDescriptor.source, getLangClient);
 
         expressionHandler(model.typeDescriptor, false, true, {
             expressionSuggestions: [],

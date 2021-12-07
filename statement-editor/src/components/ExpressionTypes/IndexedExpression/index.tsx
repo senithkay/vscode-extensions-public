@@ -27,13 +27,14 @@ import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
 interface IndexedExpressionProps {
-    model: IndexedExpression
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
+    model: IndexedExpression;
+    userInputs: VariableUserInputs;
+    isElseIfMember: boolean;
+    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function IndexedExpressionComponent(props: IndexedExpressionProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
@@ -48,8 +49,8 @@ export function IndexedExpressionComponent(props: IndexedExpressionProps) {
     const containerExpr: ReactNode = (
         <ExpressionComponent
             model={model.containerExpression}
-            isRoot={false}
             userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
         />
@@ -70,8 +71,8 @@ export function IndexedExpressionComponent(props: IndexedExpressionProps) {
                     >
                         <ExpressionComponent
                             model={expression}
-                            isRoot={false}
                             userInputs={userInputs}
+                            isElseIfMember={isElseIfMember}
                             diagnosticHandler={diagnosticHandler}
                             isTypeDescriptor={false}
                         />
@@ -98,7 +99,7 @@ export function IndexedExpressionComponent(props: IndexedExpressionProps) {
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
             monaco.Uri.file(currentFile.path).toString(), content, targetPosition, clickedExpression.position,
-            false, false, clickedExpression.source, getLangClient);
+            false, isElseIfMember, clickedExpression.source, getLangClient);
 
         expressionHandler(clickedExpression, false, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
