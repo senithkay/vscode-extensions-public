@@ -21,6 +21,7 @@ import { DiagramOverlay, DiagramOverlayContainer } from "../../../../Portals/Ove
 
 import { PlusOptionsSelector } from "./PlusOptionsSelector";
 import "./style.scss";
+import classNames from "classnames";
 
 export const PLUS_WIDTH = 16;
 export const PLUS_AND_OPTIONS_GAP = 6;
@@ -38,10 +39,11 @@ export interface PlusProps {
     margin?: Margin;
     targetPosition?: NodePosition;
     isTriggerType?: boolean;
+    isDocumentEmpty?: boolean;
 }
 
 export const TopLevelPlus = (props: PlusProps) => {
-    const { targetPosition, kind, isTriggerType } = props;
+    const { targetPosition, kind, isTriggerType, isDocumentEmpty } = props;
     const containerElement = useRef(null);
 
     const [isPlusOptionsVisible, setIsPlusOptionsVisible] = useState(false);
@@ -56,11 +58,25 @@ export const TopLevelPlus = (props: PlusProps) => {
 
     return (
         <div className="plus-container" ref={containerElement}>
-            <TopLevelPlusIcon onClick={handlePlusClick} />
+            <div className={'plus-btn-wrapper'} onClick={handlePlusClick}>
+                <TopLevelPlusIcon />
+                <div className={classNames('plus-text', { 'show': isDocumentEmpty })} >
+                    Add Construct
+                </div>
+            </div>
+            {/* <div className={'document-empty-message'} >
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Nesciunt fuga dolorum nam ipsam ab reprehenderit exercitationem cum mollitia repellendus error veritatis corrupti doloremque eaque aliquam cupiditate quod recusandae, possimus voluptatum.
+            </div> */}
             {
                 isPlusOptionsVisible && (
                     <DiagramOverlayContainer>
-                        <DiagramOverlay position={containerElement.current ? { x: containerElement.current.offsetLeft, y: containerElement.current.offsetTop } : { x: 0, y: 0 }}>
+                        <DiagramOverlay
+                            position={
+                                containerElement.current ?
+                                    { x: containerElement.current.offsetLeft, y: containerElement.current.offsetTop }
+                                    : { x: 0, y: 0 }
+                            }
+                        >
                             <PlusOptionsSelector
                                 kind={kind}
                                 onClose={handlePlusOptionsClose}

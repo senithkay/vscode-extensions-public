@@ -52,7 +52,11 @@ export function ModulePartComponent(props: ModulePartProps) {
             <div id={'canvas-overlay'} className={classes.OverlayContainer} />
             {moduleMembers}
             <div className={'member-container'} >
-                <TopLevelPlus kind={model.kind} targetPosition={model.eofToken.position} />
+                <TopLevelPlus
+                    kind={model.kind}
+                    targetPosition={model.eofToken.position}
+                    isDocumentEmpty={model.members.length === 0}
+                />
             </div>
         </>
     );

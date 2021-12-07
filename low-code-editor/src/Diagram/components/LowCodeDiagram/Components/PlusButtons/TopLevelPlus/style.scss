@@ -12,6 +12,34 @@
  */
 .plus-container {
     margin-bottom: 10px;
+    cursor: pointer;
+
+    .plus-btn-wrapper {
+        display: flex;
+        flex-direction: row;
+
+        .plus-text {
+            visibility: hidden;
+            color: #5567D5;
+            padding-left: 5px;
+            font-size: 13px;
+        }
+
+        .show {
+            visibility: visible;
+        }
+
+        &:hover {
+            .plus-text {
+                visibility: visible;
+            }
+        }
+    }
+
+    .document-empty-message {
+
+    }
+
 }
 
 .plus-icon {
