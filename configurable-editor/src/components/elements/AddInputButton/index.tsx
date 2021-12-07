@@ -23,7 +23,6 @@ import { Box, Button } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 
 export function AddInputButton() {
-
     return (
         <Box mb={2} mt={2}>
             <Button variant="text" color="primary" startIcon={<AddIcon />}>

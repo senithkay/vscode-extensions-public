@@ -23,49 +23,49 @@ import { TextField } from "@material-ui/core";
 import { useStyles } from "../../style";
 
 export interface TextFieldInputProps {
-  id: string;
-  isRequired: boolean;
-  existingValue: any;
-  type: string;
-  setTextFieldValue: (key: string, value: any) => void;
-  size?: "small" | "medium";
+    id: string;
+    isRequired: boolean;
+    existingValue: any;
+    type: string;
+    setTextFieldValue: (key: string, value: any) => void;
+    size?: "small" | "medium";
 }
 
 export function TextFieldInput(props: TextFieldInputProps) {
-  const classes = useStyles();
-  const { id, isRequired, existingValue, type, setTextFieldValue, size } =
-    props;
+    const classes = useStyles();
+    const { id, isRequired, existingValue, type, setTextFieldValue, size } =
+        props;
 
-  let label: string = "";
-  if (isRequired) {
-    label = "Required";
-  }
+    let label: string = "";
+    if (isRequired) {
+        label = "Required";
+    }
 
-  const handleChange = (e: any) => {
-    setTextFieldValue(id, e.target.value);
-  };
+    const handleChange = (e: any) => {
+        setTextFieldValue(id, e.target.value);
+    };
 
-  let fieldType: string = type;
-  if (type === "integer") {
-    fieldType = "number";
-  }
+    let fieldType: string = type;
+    if (type === "integer") {
+        fieldType = "number";
+    }
 
-  return (
-    <TextField
-      required={isRequired}
-      variant="outlined"
-      label={label}
-      fullWidth={true}
-      defaultValue={existingValue}
-      type={fieldType}
-      margin="none"
-      onChange={handleChange}
-      size={size}
-      classes={{ root: classes.textInputRoot }}
-    />
-  );
+    return (
+        <TextField
+            required={isRequired}
+            variant="outlined"
+            label={label}
+            fullWidth={true}
+            defaultValue={existingValue}
+            type={fieldType}
+            margin="none"
+            onChange={handleChange}
+            size={size}
+            classes={{ root: classes.textInputRoot }}
+        />
+    );
 }
 
 TextFieldInput.defaultProps = {
-  size: "medium",
+    size: "medium",
 };

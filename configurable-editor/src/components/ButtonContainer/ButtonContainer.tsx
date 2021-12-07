@@ -16,52 +16,54 @@
  * under the License.
  *
  */
-import { Box } from "@material-ui/core";
 import React from "react";
+import { Box } from "@material-ui/core";
 import { useStyles } from "./style";
 
 interface ButtonContainerProps {
-  marginTop?: number;
-  justifyContent?: string;
-  children: JSX.Element | Array<JSX.Element | false> | false;
-  size?: "small" | "large";
+    marginTop?: number;
+    justifyContent?: string;
+    children: JSX.Element | Array<JSX.Element | false> | false;
+    size?: "small" | "large";
 }
 const ButtonContainer = ({
-  justifyContent,
-  marginTop,
-  children,
-  size,
+    justifyContent,
+    marginTop,
+    children,
+    size,
 }: ButtonContainerProps) => {
-  const classes = useStyles();
-  const btnGrid = React.Children.map(children, (element) => (
-    <Box
-      className={
-        size === "small"
-          ? classes.buttonContainerSmall
-          : classes.buttonContainerLarge
-      }
-    >
-      {element}
-    </Box>
-  ));
-  return (
-    <Box width="100%" mt={marginTop}>
-      <Box
-        display="flex"
-        flexWrap="wrap"
-        justifyContent={justifyContent}
-        className={
-          size === "small" ? classes.buttonGridSmall : classes.buttonGridLarge
-        }
-      >
-        {btnGrid}
-      </Box>
-    </Box>
-  );
+    const classes = useStyles();
+    const btnGrid = React.Children.map(children, (element) => (
+        <Box
+            className={
+                size === "small"
+                    ? classes.buttonContainerSmall
+                    : classes.buttonContainerLarge
+            }
+        >
+            {element}
+        </Box>
+    ));
+    return (
+        <Box width="100%" mt={marginTop}>
+            <Box
+                display="flex"
+                flexWrap="wrap"
+                justifyContent={justifyContent}
+                className={
+                    size === "small"
+                        ? classes.buttonGridSmall
+                        : classes.buttonGridLarge
+                }
+            >
+                {btnGrid}
+            </Box>
+        </Box>
+    );
 };
 export default ButtonContainer;
 ButtonContainer.defaultProps = {
-  marginTop: 5,
-  justifyContent: "flex-start",
-  size: "large",
+    marginTop: 5,
+    justifyContent: "flex-start",
+    size: "large",
 };

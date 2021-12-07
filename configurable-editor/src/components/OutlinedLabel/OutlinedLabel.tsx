@@ -20,57 +20,57 @@ import React from "react";
 import { Chip } from "@material-ui/core";
 
 interface OutlinedLabelProps {
-  type: "success" | "warning" | "info" | "primary" | "default";
-  label: string;
-  isLink?: boolean;
-  shape?: "square" | "round";
+    type: "success" | "warning" | "info" | "primary" | "default";
+    label: string;
+    isLink?: boolean;
+    shape?: "square" | "round";
 }
 
 const OutlinedLabel = ({ type, label, isLink, shape }: OutlinedLabelProps) => {
-  let primaryColor = "#5567D5";
-  const cursorStyle = isLink ? "pointer" : "default";
-  switch (type) {
-    case "primary":
-      primaryColor = "#5567D5";
-      break;
-    case "success":
-      primaryColor = "#36B475";
-      break;
-    case "warning":
-      primaryColor = "#ff9d52";
-      break;
-    case "info":
-      primaryColor = "#0095FF";
-      break;
-    case "default":
-      primaryColor = "#636363";
-      break;
-    default:
-      primaryColor = "#5567D5";
-  }
+    let primaryColor = "#5567D5";
+    const cursorStyle = isLink ? "pointer" : "default";
+    switch (type) {
+        case "primary":
+            primaryColor = "#5567D5";
+            break;
+        case "success":
+            primaryColor = "#36B475";
+            break;
+        case "warning":
+            primaryColor = "#ff9d52";
+            break;
+        case "info":
+            primaryColor = "#0095FF";
+            break;
+        case "default":
+            primaryColor = "#636363";
+            break;
+        default:
+            primaryColor = "#5567D5";
+    }
 
-  return (
-    <Chip
-      size="small"
-      label={label}
-      variant="outlined"
-      style={{
-        color: primaryColor,
-        borderColor: primaryColor,
-        padding: 6,
-        paddingTop: 2,
-        paddingBottom: 2,
-        height: "auto",
-        cursor: cursorStyle,
-        fontSize: 11,
-        borderRadius: shape === "square" ? 3 : 10,
-      }}
-    />
-  );
+    return (
+        <Chip
+            size="small"
+            label={label}
+            variant="outlined"
+            style={{
+                color: primaryColor,
+                borderColor: primaryColor,
+                padding: 6,
+                paddingTop: 2,
+                paddingBottom: 2,
+                height: "auto",
+                cursor: cursorStyle,
+                fontSize: 11,
+                borderRadius: shape === "square" ? 3 : 10,
+            }}
+        />
+    );
 };
 export default OutlinedLabel;
 
 OutlinedLabel.defaultProps = {
-  isLink: false,
-  shape: "round",
+    isLink: false,
+    shape: "round",
 };

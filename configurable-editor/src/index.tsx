@@ -27,25 +27,25 @@ import { ConfigSchema } from "./components/model";
 export { ConfigForm, ConfigObjectProps, ConfigSchema };
 
 export function renderConfigEditor(
-  data: ConfigSchema,
-  existingConfigs: object,
-  defaultButtonText: string,
-  primaryButtonText: string,
-  onClickDefaultButton: () => void,
-  onClickPrimaryButton: (configProperties: ConfigObjectProps) => void
+    data: ConfigSchema,
+    existingConfigs: object,
+    defaultButtonText: string,
+    primaryButtonText: string,
+    onClickDefaultButton: () => void,
+    onClickPrimaryButton: (configProperties: ConfigObjectProps) => void
 ) {
-  ReactDOM.render(
-    <ConfigEditor>
-      <ConfigForm
-        configSchema={data}
-        existingConfigs={existingConfigs}
-        defaultButtonText={defaultButtonText}
-        primaryButtonText={primaryButtonText}
-        onClickDefaultButton={onClickDefaultButton}
-        onClickPrimaryButton={onClickPrimaryButton}
-        isLowCode
-      />
-    </ConfigEditor>,
-    document.getElementById("configEditor")
-  );
+    ReactDOM.render(
+        <ConfigEditor>
+            <ConfigForm
+                configSchema={data}
+                existingConfigs={existingConfigs}
+                defaultButtonText={defaultButtonText}
+                primaryButtonText={primaryButtonText}
+                onClickDefaultButton={onClickDefaultButton}
+                onClickPrimaryButton={onClickPrimaryButton}
+                isLowCode
+            />
+        </ConfigEditor>,
+        document.getElementById("configEditor")
+    );
 }
