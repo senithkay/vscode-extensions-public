@@ -94,14 +94,6 @@ export class ExplorerDataProvider implements TreeDataProvider<ExplorerTreeItem> 
                         element.label
                     ]
                 };
-            } else if (element.getKind() === EXPLORER_ITEM_KIND.CONFIG_TOML_FILE) {
-                treeItem.command = {
-                    command: CONFIG_EDITOR_EXECUTE_COMMAND,
-                    title: "Execute Config Editor Command",
-                    arguments: [
-                        element.getUri().fsPath
-                    ]
-                };
             } else {
                 treeItem.command = {
                     command: 'vscode.open',

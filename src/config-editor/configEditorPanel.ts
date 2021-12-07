@@ -18,99 +18,25 @@
  */
 
 import { ViewColumn, window, WebviewPanel, Uri, commands } from "vscode";
-import { getCommonWebViewOptions } from '../utils';
+import { getCommonWebViewOptions, WebViewMethod, WebViewRPCHandler } from '../utils';
 import { render } from './renderer';
-import { writeFile } from "fs";
+import { readFileSync, writeFile } from "fs";
 import { PALETTE_COMMANDS } from "../project";
+import { BallerinaExtension, ExtendedLangClient } from "../core";
+import { generateExistingValues, parseConfigToToml, parseTomlToConfig } from "./utils";
 
 let configEditorPanel: WebviewPanel | undefined;
+let langClient: ExtendedLangClient;
 
-enum ConfigType {
-    NUMBER = 'integer',
-    STRING = 'string',
-    BOOLEAN = 'boolean',
-    UNSUPPORTED = 'unsupported'
-}
-
-export type ConfigProperty = {
-    name: string,
-    type: ConfigType,
-    value?: string
-}
-
-function parseConfigToToml(configInputs: any): string {
-    let configJson = JSON.parse(configInputs);
-    let configToml: string = "";
-    // Iterate the values per module
-    configJson.forEach(object => {
-        let moduleName: string = '';
-
-        // Iterate per category (moduleName and properties)
-        Object.entries(object).forEach(([key, value]) => {
-            if (key === 'moduleName') {
-                if (value !== 'default') {
-                    moduleName = value as string;
-                }
-            } else if (key === 'properties') {
-                // Iterate per configuration property
-                (value as any).forEach(property => {
-                    let configProperty: ConfigProperty = getConfigProperty(property);
-                    if (configProperty.type === ConfigType.STRING) {
-                        configProperty.value = "\"" + configProperty.value + "\"";
-                    }
-                    let propertyTemplate = `${configProperty.name} = ${configProperty.value}` + "\n";
-                    if (moduleName) {
-                        configToml = configToml + `[${moduleName}]`+ "\n" + `${propertyTemplate}`;
-                    } else {
-                        configToml = configToml + propertyTemplate;
-                    }
-                });
-            }
-        });
-      });
-    return configToml;
-}
-
-function getConfigProperty(property: any): ConfigProperty {
-    let name: string = '';
-    let type: ConfigType = ConfigType.UNSUPPORTED;
-    let inputValue: string = '';
-
-    Object.entries(property).forEach(([peropertyName, peropertyValue]) => {
-        switch (peropertyName) {
-            case 'name': {
-                name = peropertyValue as any;
-                break;
-            }
-            case 'type': {
-                if (peropertyValue === 'string') {
-                    type = ConfigType.STRING;
-                } else if (peropertyValue === 'number') {
-                    type = ConfigType.NUMBER;
-                } else if (peropertyValue === 'boolean') {
-                    type = ConfigType.BOOLEAN;
-                }
-                break;
-            }
-            case 'value': {
-                inputValue = peropertyValue as any;
-                break;
-            }
-        }
-    });
-    let configProperty: ConfigProperty = {
-        name: name,
-        type: type,
-        value: inputValue
-    };
-
-    return configProperty;
-}
-
-export function showConfigEditor(configSchema: any, currentFileUri: Uri): void {
+export function showConfigEditor(ballerinaExtInstance: BallerinaExtension,
+                                 configSchema: any, currentFileUri: Uri): void {
     if (configEditorPanel) {
         configEditorPanel.dispose();
     }
+
+    langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
+    let projectOrg: string = "orgName"; // TODO: set the correct project organization name
+    let packageName: string = "packageName"; // TODO: set the correct package name
 
     // Create and show a new webview
     configEditorPanel = window.createWebviewPanel(
@@ -119,17 +45,6 @@ export function showConfigEditor(configSchema: any, currentFileUri: Uri): void {
         { viewColumn: ViewColumn.Beside, preserveFocus: true },
         getCommonWebViewOptions()
     );
-
-    // Retrieve user inputs
-    configEditorPanel.webview.onDidReceiveMessage(async message => {
-        if (message.command === 'handleConfigInputs') {
-            handleConfigInputs(message.text);
-            if (message.submitType === 'SaveRun') {
-                await commands.executeCommand(PALETTE_COMMANDS.RUN);
-            }
-        }
-        configEditorPanel?.dispose();
-    });
 
     function handleConfigInputs(configInputs: any) {
         writeFile(currentFileUri.fsPath, parseConfigToToml(configInputs), function (error) {
@@ -140,28 +55,28 @@ export function showConfigEditor(configSchema: any, currentFileUri: Uri): void {
         });
     }
 
-    // const html = render({
-    //     "$schema": "http://json-schema.org/draft-07/schema#",
-    //     "type": "object",
-    //     "properties": {
-    //         "dilhashanazeer": {
-    //             "type": "object",
-    //             "properties": {
-    //                 "simpleconfigs": {
-    //                     "type": "object",
-    //                     "properties": {
-    //                         "token": {
-    //                             "type": "string",
-    //                             "description": "description"
-    //                         }
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-    // });
-    const html = render(configSchema);
-    console.log("configSchema: " + configSchema);
+    const remoteMethods: WebViewMethod[] = [
+        {
+            methodName: "onClickDefaultButton",
+            handler: () => {
+                configEditorPanel?.dispose();
+            }
+        },
+        {
+            methodName: "onClickPrimaryButton",
+            handler: (args: any[]) => {
+                handleConfigInputs(args[0]);
+                commands.executeCommand(PALETTE_COMMANDS.RUN);
+                configEditorPanel?.dispose();
+            }
+        }
+    ];
+
+    WebViewRPCHandler.create(configEditorPanel, langClient, remoteMethods);
+
+    const tomlContent: string = readFileSync(currentFileUri.fsPath, 'utf8');
+    const existingConfigs: object = generateExistingValues(parseTomlToConfig(tomlContent), projectOrg, packageName);
+    const html = render(configSchema, existingConfigs);
 
     if (configEditorPanel && html) {
         configEditorPanel.webview.html = html;
