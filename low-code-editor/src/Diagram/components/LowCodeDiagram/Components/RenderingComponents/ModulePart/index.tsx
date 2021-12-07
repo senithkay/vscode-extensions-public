@@ -56,6 +56,7 @@ export function ModulePartComponent(props: ModulePartProps) {
                     kind={model.kind}
                     targetPosition={model.eofToken.position}
                     isDocumentEmpty={model.members.length === 0}
+                    isModuleLevel={true}
                 />
             </div>
         </>

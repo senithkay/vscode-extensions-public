@@ -40,10 +40,11 @@ export interface PlusProps {
     targetPosition?: NodePosition;
     isTriggerType?: boolean;
     isDocumentEmpty?: boolean;
+    isModuleLevel?: boolean;
 }
 
 export const TopLevelPlus = (props: PlusProps) => {
-    const { targetPosition, kind, isTriggerType, isDocumentEmpty } = props;
+    const { targetPosition, kind, isTriggerType, isDocumentEmpty, isModuleLevel } = props;
     const containerElement = useRef(null);
 
     const [isPlusOptionsVisible, setIsPlusOptionsVisible] = useState(false);
@@ -64,9 +65,13 @@ export const TopLevelPlus = (props: PlusProps) => {
                     Add Construct
                 </div>
             </div>
-            {/* <div className={'document-empty-message'} >
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Nesciunt fuga dolorum nam ipsam ab reprehenderit exercitationem cum mollitia repellendus error veritatis corrupti doloremque eaque aliquam cupiditate quod recusandae, possimus voluptatum.
-            </div> */}
+            {
+                isModuleLevel && (
+                    <div className={classNames('document-empty-message', { 'show': isDocumentEmpty })} >
+                        Get started by selecting the plus on the top <b>"Add Options"</b> or click here to&nbsp;<a onClick={handlePlusClick}>get started</a>
+                    </div>
+                )
+            }
             {
                 isPlusOptionsVisible && (
                     <DiagramOverlayContainer>
