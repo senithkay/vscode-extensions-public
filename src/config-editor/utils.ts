@@ -23,11 +23,22 @@ import { ConfigProperty, ConfigValue } from "./model";
 const configProperties: ConfigProperty[] = [];
 
 /**
- * Convert the TOML content into a JSON accepted by the configurable editor for existing values.
+ * Convert the TOML content into JSON object.
+ * @param tomlContent The TOML content as a string value.
+ */
+export function parseTomlToConfig(tomlContent: string): object {
+    return toml.parse(tomlContent);
+}
+
+/**
+ * Use the TOML content to create a JSON accepted by the configurable editor for existing values.
  * @param tomlContent The TOML content as a JSON value.
  */
-export function parseTomlToConfig(tomlContent: string): string {
-    return JSON.stringify(toml.parse(tomlContent));
+export function generateExistingValues(tomlContent: object, orgName: string, packageName: string): object {
+    let returnObj: object = { orgName };
+    returnObj[orgName] = { packageName };
+    returnObj[orgName][packageName] = tomlContent;
+    return returnObj;
 }
 
 /**

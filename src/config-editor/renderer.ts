@@ -19,7 +19,7 @@
 
 import { getLibraryWebViewContent, WebViewOptions, getComposerWebViewOptions } from '../utils';
 
-export function render(data: any): string {
+export function render(data: any, existingData: any): string {
 
     const body = `<div id="configEditor" class="config-editor-container" />`;
     const bodyCss = 'configEditor';
@@ -42,7 +42,7 @@ export function render(data: any): string {
                     );
                 }
 
-                window.configEditor.renderConfigEditor(${JSON.stringify(data)}, {}, "Cancel", "Run", onClickDefaultButton, onClickPrimaryButton);
+                window.configEditor.renderConfigEditor(${JSON.stringify(data)}, ${JSON.stringify(existingData)}, "Cancel", "Run", onClickDefaultButton, onClickPrimaryButton);
             }
         `;
 

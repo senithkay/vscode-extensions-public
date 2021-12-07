@@ -20,20 +20,23 @@
 import { ViewColumn, window, WebviewPanel, Uri, commands } from "vscode";
 import { getCommonWebViewOptions, WebViewMethod, WebViewRPCHandler } from '../utils';
 import { render } from './renderer';
-import { writeFile } from "fs";
+import { readFileSync, writeFile } from "fs";
 import { PALETTE_COMMANDS } from "../project";
 import { BallerinaExtension, ExtendedLangClient } from "../core";
-import { parseConfigToToml } from "./utils";
+import { generateExistingValues, parseConfigToToml, parseTomlToConfig } from "./utils";
 
 let configEditorPanel: WebviewPanel | undefined;
 let langClient: ExtendedLangClient;
 
 export function showConfigEditor(ballerinaExtInstance: BallerinaExtension,
                                  configSchema: any, currentFileUri: Uri): void {
-    langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
     if (configEditorPanel) {
         configEditorPanel.dispose();
     }
+
+    langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
+    let projectOrg: string = "orgName"; // TODO: set the correct project organization name
+    let packageName: string = "packageName"; // TODO: set the correct package name
 
     // Create and show a new webview
     configEditorPanel = window.createWebviewPanel(
@@ -71,7 +74,9 @@ export function showConfigEditor(ballerinaExtInstance: BallerinaExtension,
 
     WebViewRPCHandler.create(configEditorPanel, langClient, remoteMethods);
 
-    const html = render(configSchema);
+    const tomlContent: string = readFileSync(currentFileUri.fsPath, 'utf8');
+    const existingConfigs: object = generateExistingValues(parseTomlToConfig(tomlContent), projectOrg, packageName);
+    const html = render(configSchema, existingConfigs);
 
     if (configEditorPanel && html) {
         configEditorPanel.webview.html = html;
