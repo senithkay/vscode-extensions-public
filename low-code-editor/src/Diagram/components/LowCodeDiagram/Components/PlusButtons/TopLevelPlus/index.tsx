@@ -14,16 +14,16 @@
 import React, { useEffect, useRef, useState } from "react";
 
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import classNames from "classnames";
 
 import TopLevelPlusIcon from "../../../../../../assets/icons/TopLevelPlusIcon";
+import Tooltip from "../../../../../../components/TooltipV2";
 import { OverlayBackground } from "../../../../OverlayBackground";
 import { DiagramOverlay, DiagramOverlayContainer } from "../../../../Portals/Overlay";
 
+import { InitialPlusTooltipBubble } from "./InitialPlusTooltipBubble";
 import { PlusOptionsSelector } from "./PlusOptionsSelector";
 import "./style.scss";
-import classNames from "classnames";
-import Tooltip from "../../../../../../components/TooltipV2";
-import { InitialPlusTooltipBubble } from "./InitialPlusTooltipBubble";
 
 export const PLUS_WIDTH = 16;
 export const PLUS_AND_OPTIONS_GAP = 6;
@@ -48,7 +48,7 @@ export interface PlusProps {
 export const TopLevelPlus = (props: PlusProps) => {
     const { targetPosition, kind, isTriggerType, isDocumentEmpty, isModuleLevel } = props;
     const containerElement = useRef(null);
-    
+
 
     const [isPlusOptionsVisible, setIsPlusOptionsVisible] = useState(false);
     const [isPlusClicked, setPlusClicked] = useState(false);
@@ -78,7 +78,7 @@ export const TopLevelPlus = (props: PlusProps) => {
             </div>
             {
                 isModuleLevel && isDocumentEmpty && !isPlusClicked && (
-                   <InitialPlusTooltipBubble /> 
+                   <InitialPlusTooltipBubble />
                 )
             }
             {
