@@ -179,6 +179,16 @@ export function OperationForm(props: OperationFormProps) {
         setValidOutputValue(!isInvalid);
     };
 
+    const hasTypeDesc = () => {
+        let typeDescStatus = false;
+        formFields.forEach((field) => {
+            if (field.typeName.includes("typedesc")) {
+                typeDescStatus = true;
+            }
+        })
+        return typeDescStatus;
+    }
+
     return (
         <div>
             {(!selectedOperationState || selectedOperationState === "") && <OperationDropdown operations={operations} onOperationSelect={handleOperationChange} connectionDetails={connectionDetails} showConnectionName={showConnectionName} />}
@@ -229,7 +239,7 @@ export function OperationForm(props: OperationFormProps) {
                                     errorMessage={responseVarError}
                                 />
                             ) }
-                            {operationReturnType?.hasReturn && operationReturnType.returnType.includes("stream") ? (
+                            {operationReturnType?.hasReturn && hasTypeDesc() && (
                                 <Box className="exp-wrapper">
                                     <VariableTypeInput
                                         displayName={addOutputTypeLabel}
@@ -240,7 +250,7 @@ export function OperationForm(props: OperationFormProps) {
                                         validateExpression={onValidateOutputType}
                                     />
                                 </Box>
-                            ) : null}
+                            )}
                         </div>
                     </div>
                     <div className={classes.saveConnectorBtnHolder}>
