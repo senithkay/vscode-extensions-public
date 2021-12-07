@@ -16,6 +16,16 @@
     display: flex;
     flex-direction: row;
 
+    .tooltip-bubble {
+        .bubble-text {
+            tspan {
+                fill:#222228;
+                font-size:17px;
+                font-family: inherit;
+            }
+        }
+    }
+
     .plus-btn-wrapper {
         display: flex;
         flex-direction: row;

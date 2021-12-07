@@ -22,6 +22,8 @@ import { DiagramOverlay, DiagramOverlayContainer } from "../../../../Portals/Ove
 import { PlusOptionsSelector } from "./PlusOptionsSelector";
 import "./style.scss";
 import classNames from "classnames";
+import Tooltip from "../../../../../../components/TooltipV2";
+import { InitialPlusTooltipBubble } from "./InitialPlusTooltipBubble";
 
 export const PLUS_WIDTH = 16;
 export const PLUS_AND_OPTIONS_GAP = 6;
@@ -46,30 +48,37 @@ export interface PlusProps {
 export const TopLevelPlus = (props: PlusProps) => {
     const { targetPosition, kind, isTriggerType, isDocumentEmpty, isModuleLevel } = props;
     const containerElement = useRef(null);
+    
 
     const [isPlusOptionsVisible, setIsPlusOptionsVisible] = useState(false);
+    const [isPlusClicked, setPlusClicked] = useState(false);
 
     const handlePlusClick = () => {
+        setPlusClicked(true);
         setIsPlusOptionsVisible(true);
     };
 
     const handlePlusOptionsClose = () => {
+        setPlusClicked(false);
         setIsPlusOptionsVisible(false);
     };
 
     return (
         <div className="plus-container" ref={containerElement}>
             <div className={'plus-btn-wrapper'} onClick={handlePlusClick}>
-                <TopLevelPlusIcon />
-                <div className={classNames('plus-text', { 'show': isDocumentEmpty })} >
-                    Add Construct
-                </div>
+                {
+                    !isDocumentEmpty ?
+                        <Tooltip type={"heading-content"} placement="right" arrow={true} text={{ content: 'Add Construct' }}>
+                            <div>
+                                <TopLevelPlusIcon />
+                            </div>
+                        </Tooltip>
+                        : <TopLevelPlusIcon />
+                }
             </div>
             {
-                isModuleLevel && (
-                    <div className={classNames('document-empty-message', { 'show': isDocumentEmpty })} >
-                        Get started by selecting the plus on the top <b>"Add Options"</b> or click here to&nbsp;<a onClick={handlePlusClick}>get started</a>
-                    </div>
+                isModuleLevel && isDocumentEmpty && !isPlusClicked && (
+                   <InitialPlusTooltipBubble /> 
                 )
             }
             {
