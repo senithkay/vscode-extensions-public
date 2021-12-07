@@ -1,4 +1,5 @@
 import React from "react";
+import ConfigEditor from "../components/ConfigEditor";
 
 import ConfigForm from "../components/ConfigForm";
 import { ConfigObjectProps } from "../components/ConfigObject";
@@ -23,12 +24,14 @@ const onClickPrimaryButton = (configProperties: ConfigObjectProps) => {
 };
 
 export const BasicForm = () => (
+  <ConfigEditor>
     <ConfigForm
-        configSchema={configSchema as ConfigSchema}
-        existingConfigs={existingConfigs}
-        defaultButtonText={"Cancel"}
-        primaryButtonText={"Run"}
-        onClickDefaultButton={onClickDefaultButton}
-        onClickPrimaryButton={onClickPrimaryButton}
+      configSchema={configSchema as ConfigSchema}
+      existingConfigs={existingConfigs}
+      defaultButtonText={"Cancel"}
+      primaryButtonText={"Run"}
+      onClickDefaultButton={onClickDefaultButton}
+      onClickPrimaryButton={onClickPrimaryButton}
     />
+  </ConfigEditor>
 );

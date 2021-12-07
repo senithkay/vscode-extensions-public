@@ -22,40 +22,47 @@ import React from "react";
 import { TextField } from "@material-ui/core";
 
 export interface TextFieldInputProps {
-    id: string;
-    isRequired: boolean;
-    existingValue: any;
-    type: string;
-    setTextFieldValue: (key: string, value: any) => void;
+  id: string;
+  isRequired: boolean;
+  existingValue: any;
+  type: string;
+  setTextFieldValue: (key: string, value: any) => void;
+  size?: "small" | "medium";
 }
 
 export function TextFieldInput(props: TextFieldInputProps) {
-    const { id, isRequired, existingValue, type, setTextFieldValue } = props;
+  const { id, isRequired, existingValue, type, setTextFieldValue, size } =
+    props;
 
-    let label: string = "";
-    if (isRequired) {
-        label = "Required";
-    }
+  let label: string = "";
+  if (isRequired) {
+    label = "Required";
+  }
 
-    const handleChange = (e: any) => {
-        setTextFieldValue(id, e.target.value);
-    };
+  const handleChange = (e: any) => {
+    setTextFieldValue(id, e.target.value);
+  };
 
-    let fieldType: string = type;
-    if (type === "integer") {
-        fieldType = "number";
-    }
+  let fieldType: string = type;
+  if (type === "integer") {
+    fieldType = "number";
+  }
 
-    return (
-        <TextField
-            required={isRequired}
-            variant="outlined"
-            label={label}
-            fullWidth={true}
-            defaultValue={existingValue}
-            type={fieldType}
-            margin="normal"
-            onChange={handleChange}
-        />
-    );
+  return (
+    <TextField
+      required={isRequired}
+      variant="outlined"
+      label={label}
+      fullWidth={true}
+      defaultValue={existingValue}
+      type={fieldType}
+      margin="normal"
+      onChange={handleChange}
+      size={size}
+    />
+  );
 }
+
+TextFieldInput.defaultProps = {
+  size: "medium",
+};
