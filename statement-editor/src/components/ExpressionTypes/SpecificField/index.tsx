@@ -12,7 +12,6 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext } from "react";
-import { monaco } from "react-monaco-editor";
 
 import { SpecificField, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
@@ -49,6 +48,7 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
     const { expressionHandler } = useContext(SuggestionsContext);
     const { currentFile, getLangClient } = stmtCtx;
     const targetPosition = stmtCtx.formCtx.formModelPosition;
+    const fileURI = `expr://${currentFile.path}`;
     let fieldName: ReactNode;
 
     if (STKindChecker.isIdentifierToken(model.fieldName)) {
@@ -97,7 +97,7 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
             currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
-            monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.valueExpr.position,
+            fileURI, content, targetPosition, model.valueExpr.position,
             false, isElseIfMember, model.valueExpr.source, getLangClient);
 
         expressionHandler(model.valueExpr, false, false, {

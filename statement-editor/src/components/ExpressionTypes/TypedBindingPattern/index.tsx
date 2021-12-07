@@ -12,7 +12,6 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext } from "react";
-import { monaco } from "react-monaco-editor";
 
 import { TypedBindingPattern } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
@@ -47,6 +46,7 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
     const { expressionHandler } = useContext(SuggestionsContext);
     const { currentFile, getLangClient } = stmtCtx;
     const targetPosition = stmtCtx.formCtx.formModelPosition;
+    const fileURI = `expr://${currentFile.path}`;
 
     const typeDescriptorComponent: ReactNode = (
         <ExpressionComponent
@@ -74,7 +74,7 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
             currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
-            monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.typeDescriptor.position,
+            fileURI, content, targetPosition, model.typeDescriptor.position,
             true, isElseIfMember, model.typeDescriptor.source, getLangClient);
 
         expressionHandler(model.typeDescriptor, false, true, {

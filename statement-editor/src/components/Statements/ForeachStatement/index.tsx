@@ -12,7 +12,6 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext } from "react";
-import { monaco } from "react-monaco-editor";
 
 import { ForeachStatement } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
@@ -48,6 +47,7 @@ export function ForeachStatementC(props: ForeachStatementProps) {
     const { expressionHandler } = useContext(SuggestionsContext);
     const { currentFile, getLangClient } = stmtCtx;
     const targetPosition = stmtCtx.formCtx.formModelPosition;
+    const fileURI = `expr://${currentFile.path}`;
 
     const typedBindingComponent: ReactNode = (
         <ExpressionComponent
@@ -81,9 +81,9 @@ export function ForeachStatementC(props: ForeachStatementProps) {
         const content: string = await addStatementToTargetLine(
             currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
 
-        const completions: SuggestionItem[] = await getContextBasedCompletions(
-            monaco.Uri.file(currentFile.path).toString(), content, targetPosition,
-            model.actionOrExpressionNode.position, false, isElseIfMember, model.actionOrExpressionNode.source, getLangClient);
+        const completions: SuggestionItem[] = await getContextBasedCompletions(fileURI, content, targetPosition,
+            model.actionOrExpressionNode.position, false, isElseIfMember,
+            model.actionOrExpressionNode.source, getLangClient);
 
         expressionHandler(model.actionOrExpressionNode, false, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
@@ -97,8 +97,8 @@ export function ForeachStatementC(props: ForeachStatementProps) {
     if (!currentModel.model) {
         addStatementToTargetLine(currentFile.content, targetPosition,
             stmtCtx.modelCtx.statementModel.source, getLangClient).then((content: string) => {
-            getContextBasedCompletions(monaco.Uri.file(currentFile.path).toString(), content, targetPosition,
-                model.actionOrExpressionNode.position, false, isElseIfMember, model.actionOrExpressionNode.source,
+            getContextBasedCompletions(fileURI, content, targetPosition, model.actionOrExpressionNode.position,
+                false, isElseIfMember, model.actionOrExpressionNode.source,
                 getLangClient).then((completions) => {
                 expressionHandler(model.actionOrExpressionNode, false, false, {
                     expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),

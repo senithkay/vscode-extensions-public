@@ -12,7 +12,6 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext } from "react";
-import { monaco } from "react-monaco-editor";
 
 import { MethodCall, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
@@ -47,6 +46,7 @@ export function MethodCallComponent(props: MethodCallProps) {
     const { expressionHandler } = useContext(SuggestionsContext);
     const { currentFile, getLangClient } = stmtCtx;
     const targetPosition = stmtCtx.formCtx.formModelPosition;
+    const fileURI = `expr://${currentFile.path}`;
 
     const expression: ReactNode = (
         <ExpressionComponent
@@ -103,7 +103,7 @@ export function MethodCallComponent(props: MethodCallProps) {
             currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
-            monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.expression.position,
+            fileURI, content, targetPosition, model.expression.position,
             false, isElseIfMember, model.expression.source, getLangClient);
 
         expressionHandler(model.expression, false, false, {
@@ -120,7 +120,7 @@ export function MethodCallComponent(props: MethodCallProps) {
             currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
-            monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.methodName.position,
+            fileURI, content, targetPosition, model.methodName.position,
             false, isElseIfMember, model.methodName.source, getLangClient);
 
         expressionHandler(model.methodName, false, false, {

@@ -12,7 +12,6 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext } from "react";
-import { monaco } from "react-monaco-editor";
 
 import { TypeTestExpression } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
@@ -43,6 +42,7 @@ export function TypeTestExpressionComponent(props: TypeTestExpressionProps) {
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
     const targetPosition = stmtCtx.formCtx.formModelPosition;
+    const fileURI = `expr://${currentFile.path}`;
     const hasExpressionSelected = currentModel.model &&
         isPositionsEquals(currentModel.model.position, model.expression.position);
     const hasTypeDescSelected = currentModel.model &&
@@ -75,7 +75,7 @@ export function TypeTestExpressionComponent(props: TypeTestExpressionProps) {
             currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
-            monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.expression.position,
+            fileURI, content, targetPosition, model.expression.position,
             false, isElseIfMember, model.expression.source, getLangClient);
 
         expressionHandler(model.expression, false, false, {
@@ -92,7 +92,7 @@ export function TypeTestExpressionComponent(props: TypeTestExpressionProps) {
             currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
-            monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.typeDescriptor.position,
+            fileURI, content, targetPosition, model.typeDescriptor.position,
             true, isElseIfMember, model.typeDescriptor.source, getLangClient);
 
         expressionHandler(model.typeDescriptor, false, true, {

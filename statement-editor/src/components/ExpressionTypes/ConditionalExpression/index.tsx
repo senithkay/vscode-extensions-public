@@ -12,7 +12,6 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext } from "react";
-import { monaco } from "react-monaco-editor";
 
 import { ConditionalExpression } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
@@ -49,6 +48,7 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
     const { expressionHandler } = useContext(SuggestionsContext);
     const { currentFile, getLangClient } = stmtCtx;
     const targetPosition = stmtCtx.formCtx.formModelPosition;
+    const fileURI = `expr://${currentFile.path}`;
 
     const lhsExpression: ReactNode = (
         <ExpressionComponent
@@ -87,7 +87,7 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
             currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
-            monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.lhsExpression.position,
+            fileURI, content, targetPosition, model.lhsExpression.position,
             false, isElseIfMember, model.lhsExpression.source, getLangClient);
 
         expressionHandler(model.lhsExpression, false, false, {
@@ -104,7 +104,7 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
             currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
-            monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.middleExpression.position,
+            fileURI, content, targetPosition, model.middleExpression.position,
             false, isElseIfMember, model.middleExpression.source, getLangClient);
 
         expressionHandler(model.middleExpression, false, false, {
@@ -121,7 +121,7 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
             currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
-            monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.endExpression.position,
+            fileURI, content, targetPosition, model.endExpression.position,
             false, isElseIfMember, model.endExpression.source, getLangClient);
 
         expressionHandler(model.endExpression, false, false, {

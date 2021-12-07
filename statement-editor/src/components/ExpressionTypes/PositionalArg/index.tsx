@@ -12,7 +12,6 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext } from "react";
-import { monaco } from "react-monaco-editor";
 
 import { PositionalArg } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
@@ -45,6 +44,7 @@ export function PositionalArgComponent(props: PositionalArgProps) {
     const { expressionHandler } = useContext(SuggestionsContext);
     const { currentFile, getLangClient } = stmtCtx;
     const targetPosition = stmtCtx.formCtx.formModelPosition;
+    const fileURI = `expr://${currentFile.path}`;
 
     const expression: ReactNode = (
         <ExpressionComponent
@@ -63,7 +63,7 @@ export function PositionalArgComponent(props: PositionalArgProps) {
             currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
-            monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.expression.position,
+            fileURI, content, targetPosition, model.expression.position,
             false, isElseIfMember, model.expression.source, getLangClient);
 
         expressionHandler(model.expression, false, false, {

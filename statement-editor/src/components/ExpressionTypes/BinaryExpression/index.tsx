@@ -12,7 +12,6 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext } from "react";
-import { monaco } from "react-monaco-editor";
 
 import { BinaryExpression } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
@@ -57,6 +56,7 @@ export function BinaryExpressionComponent(props: BinaryProps) {
     const { expressionHandler } = useContext(SuggestionsContext);
     const { currentFile, getLangClient } = stmtCtx;
     const targetPosition = stmtCtx.formCtx.formModelPosition;
+    const fileURI = `expr://${currentFile.path}`;
 
     const lhs: ReactNode = (
         <ExpressionComponent
@@ -95,7 +95,7 @@ export function BinaryExpressionComponent(props: BinaryProps) {
             currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
-            monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.lhsExpr.position,
+            fileURI, content, targetPosition, model.lhsExpr.position,
             false, isElseIfMember, model.lhsExpr.source, getLangClient);
 
         expressionHandler(model.lhsExpr, false, false, {
@@ -112,7 +112,7 @@ export function BinaryExpressionComponent(props: BinaryProps) {
             currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
-            monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.rhsExpr.position,
+            fileURI, content, targetPosition, model.rhsExpr.position,
             false, isElseIfMember, model.rhsExpr.source, getLangClient);
 
         expressionHandler(model.rhsExpr, false, false, {

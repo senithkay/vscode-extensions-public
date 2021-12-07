@@ -12,7 +12,6 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext } from "react";
-import { monaco } from "react-monaco-editor";
 
 import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
@@ -47,6 +46,7 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
     const { expressionHandler } = useContext(SuggestionsContext);
     const { currentFile, getLangClient } = stmtCtx;
     const targetPosition = stmtCtx.formCtx.formModelPosition;
+    const fileURI = `expr://${currentFile.path}`;
 
     const typedBindingComponent: ReactNode = (
         <ExpressionComponent
@@ -80,9 +80,8 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
         const content: string = await addStatementToTargetLine(
             currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
 
-        const completions: SuggestionItem[] = await getContextBasedCompletions(
-            monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.initializer.position,
-            false, isElseIfMember, model.initializer.source, getLangClient);
+        const completions: SuggestionItem[] = await getContextBasedCompletions(fileURI, content, targetPosition,
+            model.initializer.position, false, isElseIfMember, model.initializer.source, getLangClient);
 
         expressionHandler(model.initializer, false, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
@@ -94,9 +93,8 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
     if (!currentModel.model) {
         addStatementToTargetLine(currentFile.content, targetPosition,
             stmtCtx.modelCtx.statementModel.source, getLangClient).then((content: string) => {
-                getContextBasedCompletions(monaco.Uri.file(currentFile.path).toString(), content, targetPosition,
-                    model.initializer.position, false, isElseIfMember, model.initializer.source,
-                    getLangClient).then((completions) => {
+                getContextBasedCompletions(fileURI, content, targetPosition, model.initializer.position, false,
+                    isElseIfMember, model.initializer.source, getLangClient).then((completions) => {
                         expressionHandler(model.initializer, false, false, {
                             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
                             typeSuggestions: [],

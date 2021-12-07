@@ -12,7 +12,6 @@
  */
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { ReactNode, useContext } from "react";
-import { monaco } from "react-monaco-editor";
 
 import { IndexedExpression, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
@@ -45,6 +44,7 @@ export function IndexedExpressionComponent(props: IndexedExpressionProps) {
     const { expressionHandler } = useContext(SuggestionsContext);
     const { currentFile, getLangClient } = stmtCtx;
     const targetPosition = stmtCtx.formCtx.formModelPosition;
+    const fileURI = `expr://${currentFile.path}`;
 
     const containerExpr: ReactNode = (
         <ExpressionComponent
@@ -98,7 +98,7 @@ export function IndexedExpressionComponent(props: IndexedExpressionProps) {
             currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
-            monaco.Uri.file(currentFile.path).toString(), content, targetPosition, clickedExpression.position,
+            fileURI, content, targetPosition, clickedExpression.position,
             false, isElseIfMember, clickedExpression.source, getLangClient);
 
         expressionHandler(clickedExpression, false, false, {

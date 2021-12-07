@@ -12,7 +12,6 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext } from "react";
-import { monaco } from "react-monaco-editor";
 
 import { FieldAccess } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
@@ -49,6 +48,7 @@ export function FieldAccessComponent(props: FieldAccessProps) {
     const { expressionHandler } = useContext(SuggestionsContext);
     const { currentFile, getLangClient } = stmtCtx;
     const targetPosition = stmtCtx.formCtx.formModelPosition;
+    const fileURI = `expr://${currentFile.path}`;
 
     const expression: ReactNode = (
         <ExpressionComponent
@@ -77,7 +77,7 @@ export function FieldAccessComponent(props: FieldAccessProps) {
             currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
-            monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.position,
+            fileURI, content, targetPosition, model.position,
             false, isElseIfMember, model.source, getLangClient);
 
         expressionHandler(model, false, false, {

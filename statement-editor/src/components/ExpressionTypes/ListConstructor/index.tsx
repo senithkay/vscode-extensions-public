@@ -12,7 +12,6 @@
  */
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext } from "react";
-import { monaco } from "react-monaco-editor";
 
 import { ListConstructor, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
@@ -43,6 +42,7 @@ export function ListConstructorComponent(props: ListConstructorProps) {
     const { expressionHandler } = useContext(SuggestionsContext);
     const { currentFile, getLangClient } = stmtCtx;
     const targetPosition = stmtCtx.formCtx.formModelPosition;
+    const fileURI = `expr://${currentFile.path}`;
 
     const onClickOnExpression = async (clickedExpression: STNode, event: any) => {
         event.stopPropagation();
@@ -51,7 +51,7 @@ export function ListConstructorComponent(props: ListConstructorProps) {
             currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
-            monaco.Uri.file(currentFile.path).toString(), content, targetPosition, clickedExpression.position,
+            fileURI, content, targetPosition, clickedExpression.position,
             false, isElseIfMember, clickedExpression.source, getLangClient);
 
         expressionHandler(clickedExpression, false, false, {
