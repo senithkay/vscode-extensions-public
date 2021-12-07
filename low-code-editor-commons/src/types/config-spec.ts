@@ -96,6 +96,7 @@ export interface FormField {
     leftTypeParam?: any;
     rightTypeParam?: any;
     initialDiagnostics?: DiagramDiagnostic[];
+    documentation?: string;
 }
 export interface FormFieldReturnType {
     hasError: boolean;

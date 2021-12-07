@@ -100,6 +100,7 @@ export interface LowCodeEditorAPI {
     }
     webView: {
         showSwaggerView: (serviceName: string) => void;
+        showDocumentationView?: (url: string) => void;
     }
     project: {
         run: (args: any[]) => void;
