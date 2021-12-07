@@ -23,91 +23,10 @@ import { render } from './renderer';
 import { writeFile } from "fs";
 import { PALETTE_COMMANDS } from "../project";
 import { BallerinaExtension, ExtendedLangClient } from "../core";
+import { parseConfigToToml } from "./utils";
 
 let configEditorPanel: WebviewPanel | undefined;
 let langClient: ExtendedLangClient;
-
-enum ConfigType {
-    NUMBER = 'integer',
-    STRING = 'string',
-    BOOLEAN = 'boolean',
-    UNSUPPORTED = 'unsupported'
-}
-
-export type ConfigProperty = {
-    name: string,
-    type: ConfigType,
-    value?: string
-}
-
-function parseConfigToToml(configInputs: any): string {
-    let configJson = JSON.parse(configInputs);
-    let configToml: string = "";
-    // Iterate the values per module
-    configJson.forEach(object => {
-        let moduleName: string = '';
-
-        // Iterate per category (moduleName and properties)
-        Object.entries(object).forEach(([key, value]) => {
-            if (key === 'moduleName') {
-                if (value !== 'default') {
-                    moduleName = value as string;
-                }
-            } else if (key === 'properties') {
-                // Iterate per configuration property
-                (value as any).forEach(property => {
-                    let configProperty: ConfigProperty = getConfigProperty(property);
-                    if (configProperty.type === ConfigType.STRING) {
-                        configProperty.value = "\"" + configProperty.value + "\"";
-                    }
-                    let propertyTemplate = `${configProperty.name} = ${configProperty.value}` + "\n";
-                    if (moduleName) {
-                        configToml = configToml + `[${moduleName}]`+ "\n" + `${propertyTemplate}`;
-                    } else {
-                        configToml = configToml + propertyTemplate;
-                    }
-                });
-            }
-        });
-      });
-    return configToml;
-}
-
-function getConfigProperty(property: any): ConfigProperty {
-    let name: string = '';
-    let type: ConfigType = ConfigType.UNSUPPORTED;
-    let inputValue: string = '';
-
-    Object.entries(property).forEach(([peropertyName, peropertyValue]) => {
-        switch (peropertyName) {
-            case 'name': {
-                name = peropertyValue as any;
-                break;
-            }
-            case 'type': {
-                if (peropertyValue === 'string') {
-                    type = ConfigType.STRING;
-                } else if (peropertyValue === 'number') {
-                    type = ConfigType.NUMBER;
-                } else if (peropertyValue === 'boolean') {
-                    type = ConfigType.BOOLEAN;
-                }
-                break;
-            }
-            case 'value': {
-                inputValue = peropertyValue as any;
-                break;
-            }
-        }
-    });
-    let configProperty: ConfigProperty = {
-        name: name,
-        type: type,
-        value: inputValue
-    };
-
-    return configProperty;
-}
 
 export function showConfigEditor(ballerinaExtInstance: BallerinaExtension,
                                  configSchema: any, currentFileUri: Uri): void {
@@ -149,10 +68,10 @@ export function showConfigEditor(ballerinaExtInstance: BallerinaExtension,
             }
         }
     ];
+
     WebViewRPCHandler.create(configEditorPanel, langClient, remoteMethods);
 
     const html = render(configSchema);
-    console.log("configSchema: " + configSchema);
 
     if (configEditorPanel && html) {
         configEditorPanel.webview.html = html;
