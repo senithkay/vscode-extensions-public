@@ -14,11 +14,14 @@
 import React, { useEffect, useRef, useState } from "react";
 
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import classNames from "classnames";
 
 import TopLevelPlusIcon from "../../../../../../assets/icons/TopLevelPlusIcon";
+import Tooltip from "../../../../../../components/TooltipV2";
 import { OverlayBackground } from "../../../../OverlayBackground";
 import { DiagramOverlay, DiagramOverlayContainer } from "../../../../Portals/Overlay";
 
+import { InitialPlusTooltipBubble } from "./InitialPlusTooltipBubble";
 import { PlusOptionsSelector } from "./PlusOptionsSelector";
 import "./style.scss";
 
@@ -38,29 +41,56 @@ export interface PlusProps {
     margin?: Margin;
     targetPosition?: NodePosition;
     isTriggerType?: boolean;
+    isDocumentEmpty?: boolean;
+    isModuleLevel?: boolean;
 }
 
 export const TopLevelPlus = (props: PlusProps) => {
-    const { targetPosition, kind, isTriggerType } = props;
+    const { targetPosition, kind, isTriggerType, isDocumentEmpty, isModuleLevel } = props;
     const containerElement = useRef(null);
 
+
     const [isPlusOptionsVisible, setIsPlusOptionsVisible] = useState(false);
+    const [isPlusClicked, setPlusClicked] = useState(false);
 
     const handlePlusClick = () => {
+        setPlusClicked(true);
         setIsPlusOptionsVisible(true);
     };
 
     const handlePlusOptionsClose = () => {
+        setPlusClicked(false);
         setIsPlusOptionsVisible(false);
     };
 
     return (
         <div className="plus-container" ref={containerElement}>
-            <TopLevelPlusIcon onClick={handlePlusClick} />
+            <div className={'plus-btn-wrapper'} onClick={handlePlusClick}>
+                {
+                    !isDocumentEmpty ?
+                        <Tooltip type={"heading-content"} placement="right" arrow={true} text={{ content: 'Add Construct' }}>
+                            <div>
+                                <TopLevelPlusIcon />
+                            </div>
+                        </Tooltip>
+                        : <TopLevelPlusIcon />
+                }
+            </div>
+            {
+                isModuleLevel && isDocumentEmpty && !isPlusClicked && (
+                   <InitialPlusTooltipBubble />
+                )
+            }
             {
                 isPlusOptionsVisible && (
                     <DiagramOverlayContainer>
-                        <DiagramOverlay position={containerElement.current ? { x: containerElement.current.offsetLeft, y: containerElement.current.offsetTop } : { x: 0, y: 0 }}>
+                        <DiagramOverlay
+                            position={
+                                containerElement.current ?
+                                    { x: containerElement.current.offsetLeft, y: containerElement.current.offsetTop }
+                                    : { x: 0, y: 0 }
+                            }
+                        >
                             <PlusOptionsSelector
                                 kind={kind}
                                 onClose={handlePlusOptionsClose}
