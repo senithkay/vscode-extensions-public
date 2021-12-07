@@ -12,8 +12,8 @@ listener {{triggerType}}:Listener webhookListener = new(userInput, httpListener)
 service {{../triggerType}}:{{ this.name }} on webhookListener {
     
   {{#each this.functions}}
-    remote function {{ this.name }}({{#each this.parameters}}{{#if @index}}, {{/if}}{{../../../triggerType}}:{{this.typeInfo.name}} {{this.name}}{{/each}}) returns error? {
-        return error ("Not Implemented");
+    remote function {{ this.name }}({{#each this.parameters}}{{#if @index}}, {{/if}}{{../../../triggerType}}:{{this.typeInfo.name}} payload {{/each}}) returns error? {
+    <!-- Not Implemented -->
     }
   {{/each}}
 }

@@ -47,6 +47,11 @@ export const wizardStyles = makeStyles((theme: Theme) =>
                 borderRadius: 5,
             }
         },
+        loaderWrapper: {
+            height: "30%",
+            width: 301,
+            display: 'flex',
+        },
         panelBackgroundNone: {
             display: 'none'
         },
@@ -503,17 +508,20 @@ export const wizardStyles = makeStyles((theme: Theme) =>
         },
         headerWrapper: {
             display: 'flex',
-        },
-        headerLabel: {
             background: 'white',
             padding: 10,
             borderRadius: 5,
             border: '1px solid #dee0e7',
             margin: '1rem 0 0.25rem',
             justifyContent: 'space-between',
-            display: 'flex',
-            width: '100%',
+        },
+        headerLabel: {
             alignItems: 'center',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            fontSize: 13
+
         },
         invalidCode: {
             fontSize: '11px !important',
@@ -591,8 +599,9 @@ export const wizardStyles = makeStyles((theme: Theme) =>
             lineHeight: "16px",
             cursor: "pointer",
             background: "#fff",
-            border: "1px solid #5567d55c",
             padding: "4px 8px",
+            marginTop: theme.spacing(1.25),
+            marginBottom: theme.spacing(1.25),
             borderRadius: 8,
             display: "flex",
             alignItems: "center",
