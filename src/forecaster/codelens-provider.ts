@@ -140,7 +140,8 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
 
             tooltip: label.getType == CODELENSE_TYPE.REALTIME ? `Click here to view the performance graph.` : ``,
             command: SHOW_GRAPH_COMMAND,
-            arguments: concurrencies.max !== 1 ? [label.getResourcePos, label.getResourceName] : []
+            arguments: (label.getType == CODELENSE_TYPE.ADVANCED || concurrencies.max !== 1) ?
+                [label.getResourcePos, label.getResourceName] : []
         };
         return codeLens;
     }
