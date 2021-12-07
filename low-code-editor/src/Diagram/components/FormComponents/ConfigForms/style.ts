@@ -520,6 +520,7 @@ export const wizardStyles = makeStyles((theme: Theme) =>
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
+            fontSize: 13
 
         },
         invalidCode: {

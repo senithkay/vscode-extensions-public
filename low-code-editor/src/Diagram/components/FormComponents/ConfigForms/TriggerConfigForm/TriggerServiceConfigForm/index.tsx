@@ -11,7 +11,7 @@
  * associated services.
  */
 import React, { useEffect, useState } from "react";
-import { FormattedMessage, useIntl } from "react-intl";
+import { FormattedMessage } from "react-intl";
 
 import { FormControl, Typography } from "@material-ui/core";
 import { BallerinaTriggerRequest, BallerinaTriggerResponse, DiagramEditorLangClientInterface, FormHeaderSection, ServiceType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -32,7 +32,6 @@ export function TriggerForm(props: FormGeneratorProps) {
     const { formArgs, isLoading } = configOverlayFormStatus;
     const { id, moduleName, displayAnnotation: { label } } = formArgs;
     const formClasses = useFormStyles();
-    const intl = useIntl();
     const [selectedChannels, setSelectedChannels] = useState<string[]>([]);
     const [addNewChannel, setNewChannel] = useState(false);
     const [channelList, setChannelList] = useState<string[]>([]);
@@ -81,7 +80,6 @@ export function TriggerForm(props: FormGeneratorProps) {
     }
     const createTriggerCode = () => {
         const triggerType = triggerInfo.moduleName.split(".");
-        const triggerName = triggerType[triggerType.length - 1];
         const newTriggerInfo = { ...triggerInfo, serviceTypes: selectedServiceTypes, triggerType: triggerType[triggerType.length - 1] }
         modifyDiagram([
             createImportStatement(
