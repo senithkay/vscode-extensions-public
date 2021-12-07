@@ -17,7 +17,7 @@ const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         searchBarRoot: {
             height: theme.spacing(7),
-            borderRadius: theme.spacing(4),
+            borderRadius: '6px',
             backgroundColor: theme.palette.common.white,
             padding: theme.spacing(1),
             flexDirection: 'row',
