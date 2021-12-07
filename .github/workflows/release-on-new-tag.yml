@@ -1,5 +1,6 @@
-# Create a plugin release upon a new tag creation without running tests
-name: Release Without Tests
+# Create a plugin release upon a new tag creation without running tests.
+# This release honors the package-lock files without updating the npm dependencies.
+name: Release for a new tag
 
 on:
   push:
@@ -35,10 +36,10 @@ jobs:
       - name: Create a release in wso2/ballerina-plugin-vscode repo
         run: |
           createResponse=`curl -X POST  -H "Accept: application/vnd.github.v3+json" \
-          -H "Authorization:token ${{ secrets.PUBLISH_PAT }}" -d '{"tag_name":"v2x-${{ env.RELEASE_VERSION }}", \
-          "draft":false, "name": "Release 2x-${{ env.RELEASE_VERSION }}", "prerelease":true}' \
-          https://api.github.com/repos/prabushi/ballerina-plugin-vscode/releases` \
+          -H "Authorization:token ${{ secrets.PUBLISH_PAT }}" -d '{"tag_name":"${{ env.RELEASE_VERSION }}", \
+          "draft":false, "name": "Release ${{ env.RELEASE_VERSION }}", "prerelease":true}' \
+          https://api.github.com/repos/wso2/ballerina-plugin-vscode/releases` \
            && id=`echo "$createResponse" | sed -n -e 's/"id":\ \([0-9]\+\),/\1/p' | head -n 1 | sed 's/[[:blank:]]//g'` && \
            uploadResponse=`curl -X POST -H "Authorization:token ${{ secrets.PUBLISH_PAT }}" -H "Content-Type:application/octet-stream" \
             --data-binary @ballerina.vsix \
-            https://uploads.github.com/repos/prabushi/ballerina-plugin-vscode/releases/$id/assets?name=ballerina.vsix`
+            https://uploads.github.com/repos/wso2/ballerina-plugin-vscode/releases/$id/assets?name=ballerina.vsix`

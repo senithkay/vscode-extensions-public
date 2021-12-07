@@ -1,4 +1,5 @@
-# Create a plugin release without running tests
+# Create a plugin release without running tests.
+# This release updates the npm dependencies (doesn't honor the package-lock file ).
 name: Release Without Tests
 
 on:
@@ -19,7 +20,9 @@ jobs:
       - name: Install java 11
         uses: actions/setup-java@v1
         with:
-          java-version: '11'
+          java-version: "11"
+      - name: Update npm dependencies
+        run: npm update @wso2-enterprise/ballerina-low-code-editor @wso2-enterprise/ballerina-configurable-editor @wso2-enterprise/ballerina-low-code-edtior-commons
       - name: Build repository without tests
         run: sudo apt-get install xvfb && xvfb-run --auto-servernum ./gradlew clean build -x test
         env:
