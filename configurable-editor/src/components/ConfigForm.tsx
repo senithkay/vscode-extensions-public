@@ -106,7 +106,7 @@ export const ConfigForm = ({ configSchema, existingConfigs, defaultButtonText,
         setSubmitType(value);
     };
 
-    configObjectProps.properties.map((entry) => {
+    configObjectProps.properties.forEach((entry) => {
         entry.setConfigElement = handleSetConfigValue;
     });
 
