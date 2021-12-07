@@ -21,8 +21,8 @@ import { DiagramGenErrorBoundary } from "./ErrorBoundrary";
 import { getDefaultSelectedPosition, getLowcodeST, getSyntaxTree, isDeleteModificationAvailable, isUnresolvedModulesAvailable, resolveMissingDependencies } from "./generatorUtil";
 import { useGeneratorStyles } from "./styles";
 import { theme } from "./theme";
-import { EditorProps, PALETTE_COMMANDS } from "./vscode/Diagram";
 import { getModifyPosition } from "./utils";
+import { EditorProps, PALETTE_COMMANDS } from "./vscode/Diagram";
 export interface DiagramGeneratorProps extends EditorProps {
     scale: string;
     panX: string;

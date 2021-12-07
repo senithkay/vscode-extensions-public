@@ -18,6 +18,7 @@
  */
 
 import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+
 import { SelectedPosition } from "../types";
 
 export function getModifyPosition(modificationList: STModification[]): SelectedPosition {
