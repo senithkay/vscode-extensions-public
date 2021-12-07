@@ -143,7 +143,7 @@ export const recordStyles = makeStyles((theme: Theme) =>
             textOverflow: "ellipsis"
         },
         nameWrapper: {
-            maxWidth: 80,
+            maxWidth: 150,
             color: "#000",
             marginLeft: 5,
             whiteSpace: "nowrap",
