@@ -198,12 +198,6 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     // on top of typed context
     const missingProps: any = {};
 
-    // const selectedPosition = startColumn === 0 && startLine === 0 // TODO: change to use undefined for unselection
-    //     ? getDefaultSelectedPosition(syntaxTree)
-    //     : {
-    //         startLine,
-    //         startColumn
-    //     }
     return (
         <MuiThemeProvider theme={theme}>
             <div className={classes.lowCodeContainer}>
