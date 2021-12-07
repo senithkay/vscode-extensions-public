@@ -74,7 +74,7 @@ export function TypedBindingPatternComponent(props: TypedBindingPatternProps) {
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
             monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.typeDescriptor.position,
-            true, model.typeDescriptor.source, getLangClient);
+            true, false, model.typeDescriptor.source, getLangClient);
 
         expressionHandler(model.typeDescriptor, false, true, {
             expressionSuggestions: [],

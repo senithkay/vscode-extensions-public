@@ -30,11 +30,12 @@ import { useStatementEditorStyles } from "../../styles";
 interface IfStatementProps {
     model: IfElseStatement
     userInputs: VariableUserInputs
+    isElseIfMember: boolean
     diagnosticHandler: (diagnostics: string) => void
 }
 
 export function IfStatementC(props: IfStatementProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
@@ -60,6 +61,7 @@ export function IfStatementC(props: IfStatementProps) {
         <StatementRenderer
             model={model.elseBody}
             userInputs={userInputs}
+            isElseIfMember={true}
             diagnosticHandler={diagnosticHandler}
         />
     );
@@ -72,7 +74,7 @@ export function IfStatementC(props: IfStatementProps) {
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
             monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.condition.position,
-            false, model.condition.source, getLangClient);
+            false, isElseIfMember, model.condition.source, getLangClient);
 
         expressionHandler(model.condition, false, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
@@ -81,11 +83,11 @@ export function IfStatementC(props: IfStatementProps) {
         });
     };
 
-    if (!currentModel.model) {
+    if (!currentModel.model && !isElseIfMember) {
         addStatementToTargetLine(currentFile.content, targetPosition,
             stmtCtx.modelCtx.statementModel.source, getLangClient).then((content: string) => {
             getContextBasedCompletions(monaco.Uri.file(currentFile.path).toString(), content, targetPosition,
-                model.condition.position, false, model.condition.source,
+                model.condition.position, false, isElseIfMember, model.condition.source,
                 getLangClient).then((completions) => {
                 expressionHandler(model.condition, false, false, {
                     expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),

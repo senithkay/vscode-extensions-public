@@ -103,7 +103,7 @@ export function MethodCallComponent(props: MethodCallProps) {
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
             monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.expression.position,
-            false, model.expression.source, getLangClient);
+            false, false, model.expression.source, getLangClient);
 
         expressionHandler(model.expression, false, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
@@ -120,7 +120,7 @@ export function MethodCallComponent(props: MethodCallProps) {
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
             monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.methodName.position,
-            false, model.methodName.source, getLangClient);
+            false, false, model.methodName.source, getLangClient);
 
         expressionHandler(model.methodName, false, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),

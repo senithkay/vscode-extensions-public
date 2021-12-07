@@ -95,7 +95,7 @@ export function BinaryExpressionComponent(props: BinaryProps) {
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
             monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.lhsExpr.position,
-            false, model.lhsExpr.source, getLangClient);
+            false, false, model.lhsExpr.source, getLangClient);
 
         expressionHandler(model.lhsExpr, false, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
@@ -112,7 +112,7 @@ export function BinaryExpressionComponent(props: BinaryProps) {
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
             monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.rhsExpr.position,
-            false, model.rhsExpr.source, getLangClient);
+            false, false, model.rhsExpr.source, getLangClient);
 
         expressionHandler(model.rhsExpr, false, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),

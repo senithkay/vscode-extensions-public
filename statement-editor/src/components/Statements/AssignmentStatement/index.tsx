@@ -81,7 +81,7 @@ export function AssignmentStatementComponent(props: AssignmentStatementProps) {
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
             monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.expression.position,
-            false, model.expression.source, getLangClient);
+            false, false, model.expression.source, getLangClient);
 
         expressionHandler(model.expression, false, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
@@ -94,7 +94,7 @@ export function AssignmentStatementComponent(props: AssignmentStatementProps) {
         addStatementToTargetLine(currentFile.content, targetPosition,
             stmtCtx.modelCtx.statementModel.source, getLangClient).then((content: string) => {
             getContextBasedCompletions(monaco.Uri.file(currentFile.path).toString(), content, targetPosition,
-                model.expression.position, false, model.expression.source,
+                model.expression.position, false, false, model.expression.source,
                 getLangClient).then((completions) => {
                 expressionHandler(model.expression, false, false, {
                     expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
@@ -116,7 +116,12 @@ export function AssignmentStatementComponent(props: AssignmentStatementProps) {
             >
                 {varRef}
             </button>
-            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
+            <span
+                className={classNames(
+                    statementEditorClasses.expressionBlock,
+                    statementEditorClasses.expressionBlockDisabled
+                )}
+            >
                 {model.equalsToken.value}
             </span>
             <button
@@ -128,7 +133,12 @@ export function AssignmentStatementComponent(props: AssignmentStatementProps) {
             >
                 {expression}
             </button>
-            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
+            <span
+                className={classNames(
+                    statementEditorClasses.expressionBlock,
+                    statementEditorClasses.expressionBlockDisabled
+                )}
+            >
                 {model.semicolonToken.value}
             </span>
         </span>

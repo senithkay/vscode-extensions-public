@@ -64,7 +64,7 @@ export function ReturnStatementC(props: ReturnStatementProps) {
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
             monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.expression.position,
-            false, model.expression.source, getLangClient);
+            false, false, model.expression.source, getLangClient);
 
         expressionHandler(model.expression, false, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
@@ -77,7 +77,7 @@ export function ReturnStatementC(props: ReturnStatementProps) {
         addStatementToTargetLine(currentFile.content, targetPosition,
             stmtCtx.modelCtx.statementModel.source, getLangClient).then((content: string) => {
             getContextBasedCompletions(monaco.Uri.file(currentFile.path).toString(), content, targetPosition,
-                model.expression.position, false, model.expression.source,
+                model.expression.position, false, false, model.expression.source,
                 getLangClient).then((completions) => {
                 expressionHandler(model.expression, false, false, {
                     expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
@@ -90,7 +90,12 @@ export function ReturnStatementC(props: ReturnStatementProps) {
 
     return (
         <span>
-            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
+            <span
+                className={classNames(
+                    statementEditorClasses.expressionBlock,
+                    statementEditorClasses.expressionBlockDisabled
+                )}
+            >
                 {model.returnKeyword.value}
             </span>
                 <button
@@ -102,7 +107,12 @@ export function ReturnStatementC(props: ReturnStatementProps) {
                 >
                     {expressionComponent}
                 </button>
-            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
+            <span
+                className={classNames(
+                    statementEditorClasses.expressionBlock,
+                    statementEditorClasses.expressionBlockDisabled
+                )}
+            >
                 {model.semicolonToken.value}
             </span>
 

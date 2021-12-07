@@ -63,7 +63,7 @@ export function PositionalArgComponent(props: PositionalArgProps) {
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
             monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.expression.position,
-            false, model.expression.source, getLangClient);
+            false, false, model.expression.source, getLangClient);
 
         expressionHandler(model.expression, false, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),

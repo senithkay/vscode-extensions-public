@@ -51,7 +51,7 @@ export function ListConstructorComponent(props: ListConstructorProps) {
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
             monaco.Uri.file(currentFile.path).toString(), content, targetPosition, clickedExpression.position,
-            false, clickedExpression.source, getLangClient);
+            false, false, clickedExpression.source, getLangClient);
 
         expressionHandler(clickedExpression, false, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),

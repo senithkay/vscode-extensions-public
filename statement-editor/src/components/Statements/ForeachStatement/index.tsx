@@ -81,8 +81,8 @@ export function ForeachStatementC(props: ForeachStatementProps) {
             currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
-            monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.actionOrExpressionNode.position,
-            false, model.actionOrExpressionNode.source, getLangClient);
+            monaco.Uri.file(currentFile.path).toString(), content, targetPosition,
+            model.actionOrExpressionNode.position, false, false, model.actionOrExpressionNode.source, getLangClient);
 
         expressionHandler(model.actionOrExpressionNode, false, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
@@ -97,7 +97,7 @@ export function ForeachStatementC(props: ForeachStatementProps) {
         addStatementToTargetLine(currentFile.content, targetPosition,
             stmtCtx.modelCtx.statementModel.source, getLangClient).then((content: string) => {
             getContextBasedCompletions(monaco.Uri.file(currentFile.path).toString(), content, targetPosition,
-                model.actionOrExpressionNode.position, false, model.actionOrExpressionNode.source,
+                model.actionOrExpressionNode.position, false, false, model.actionOrExpressionNode.source,
                 getLangClient).then((completions) => {
                 expressionHandler(model.actionOrExpressionNode, false, false, {
                     expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
@@ -110,7 +110,12 @@ export function ForeachStatementC(props: ForeachStatementProps) {
 
     return (
         <span>
-            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
+            <span
+                className={classNames(
+                    statementEditorClasses.expressionBlock,
+                    statementEditorClasses.expressionBlockDisabled
+                )}
+            >
                 {model.forEachKeyword.value}
             </span>
             <button
@@ -122,7 +127,12 @@ export function ForeachStatementC(props: ForeachStatementProps) {
             >
                 {typedBindingComponent}
             </button>
-            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
+            <span
+                className={classNames(
+                    statementEditorClasses.expressionBlock,
+                    statementEditorClasses.expressionBlockDisabled
+                )}
+            >
                 &nbsp;{model.inKeyword.value}
             </span>
             <button
@@ -134,7 +144,12 @@ export function ForeachStatementC(props: ForeachStatementProps) {
             >
                 {actionOrExprComponent}
             </button>
-            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
+            <span
+                className={classNames(
+                    statementEditorClasses.expressionBlock,
+                    statementEditorClasses.expressionBlockDisabled
+                )}
+            >
                 &nbsp;{model.blockStatement.openBraceToken.value}
                 <br/>
                 &nbsp;&nbsp;&nbsp;{"..."}

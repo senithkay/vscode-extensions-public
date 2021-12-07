@@ -63,7 +63,7 @@ export function WhileStatementC(props: WhileStatementProps) {
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
             monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.condition.position,
-            false, model.condition.source, getLangClient);
+            false, false, model.condition.source, getLangClient);
 
         expressionHandler(model.condition, false, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
@@ -76,7 +76,7 @@ export function WhileStatementC(props: WhileStatementProps) {
         addStatementToTargetLine(currentFile.content, targetPosition,
             stmtCtx.modelCtx.statementModel.source, getLangClient).then((content: string) => {
             getContextBasedCompletions(monaco.Uri.file(currentFile.path).toString(), content, targetPosition,
-                model.condition.position, false, model.condition.source,
+                model.condition.position, false, false, model.condition.source,
                 getLangClient).then((completions) => {
                 expressionHandler(model.condition, false, false, {
                     expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
@@ -89,7 +89,12 @@ export function WhileStatementC(props: WhileStatementProps) {
 
     return (
         <span>
-            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
+            <span
+                className={classNames(
+                    statementEditorClasses.expressionBlock,
+                    statementEditorClasses.expressionBlockDisabled
+                )}
+            >
                 {model.whileKeyword.value}
             </span>
             <button
@@ -101,7 +106,12 @@ export function WhileStatementC(props: WhileStatementProps) {
             >
                 {conditionComponent}
             </button>
-            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
+            <span
+                className={classNames(
+                    statementEditorClasses.expressionBlock,
+                    statementEditorClasses.expressionBlockDisabled
+                )}
+            >
                 &nbsp;{model.whileBody.openBraceToken.value}
                 <br/>
                 &nbsp;&nbsp;&nbsp;{"..."}

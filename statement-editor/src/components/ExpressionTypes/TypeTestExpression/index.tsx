@@ -75,7 +75,7 @@ export function TypeTestExpressionComponent(props: TypeTestExpressionProps) {
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
             monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.expression.position,
-            false, model.expression.source, getLangClient);
+            false, false, model.expression.source, getLangClient);
 
         expressionHandler(model.expression, false, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
@@ -92,7 +92,7 @@ export function TypeTestExpressionComponent(props: TypeTestExpressionProps) {
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
             monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.typeDescriptor.position,
-            true, model.typeDescriptor.source, getLangClient);
+            true, false, model.typeDescriptor.source, getLangClient);
 
         expressionHandler(model.typeDescriptor, false, true, {
             expressionSuggestions: [],
@@ -112,7 +112,12 @@ export function TypeTestExpressionComponent(props: TypeTestExpressionProps) {
             >
                 {expr}
             </button>
-            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
+            <span
+                className={classNames(
+                    statementEditorClasses.expressionBlock,
+                    statementEditorClasses.expressionBlockDisabled
+                )}
+            >
                  &nbsp;{model.isKeyword.value}
             </span>
             <button

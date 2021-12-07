@@ -77,7 +77,7 @@ export function FieldAccessComponent(props: FieldAccessProps) {
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
             monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.position,
-            false, model.source, getLangClient);
+            false, false, model.source, getLangClient);
 
         expressionHandler(model, false, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),

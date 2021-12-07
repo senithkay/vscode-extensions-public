@@ -81,7 +81,7 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
             monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.initializer.position,
-            false, model.initializer.source, getLangClient);
+            false, false, model.initializer.source, getLangClient);
 
         expressionHandler(model.initializer, false, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
@@ -94,7 +94,7 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
         addStatementToTargetLine(currentFile.content, targetPosition,
             stmtCtx.modelCtx.statementModel.source, getLangClient).then((content: string) => {
                 getContextBasedCompletions(monaco.Uri.file(currentFile.path).toString(), content, targetPosition,
-                    model.initializer.position, false, model.initializer.source,
+                    model.initializer.position, false, false, model.initializer.source,
                     getLangClient).then((completions) => {
                         expressionHandler(model.initializer, false, false, {
                             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
@@ -116,7 +116,12 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
             >
                 {typedBindingComponent}
             </button>
-            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
+            <span
+                className={classNames(
+                    statementEditorClasses.expressionBlock,
+                    statementEditorClasses.expressionBlockDisabled
+                )}
+            >
                 &nbsp;{model.equalsToken.value}
             </span>
             <button
@@ -128,7 +133,12 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
             >
                 {expressionComponent}
             </button>
-            <span className={classNames(statementEditorClasses.expressionBlock, statementEditorClasses.expressionBlockDisabled)}>
+            <span
+                className={classNames(
+                    statementEditorClasses.expressionBlock,
+                    statementEditorClasses.expressionBlockDisabled
+                )}
+            >
             {/* TODO: use model.semicolonToken.isMissing when the ST interface is supporting */}
                 {model.semicolonToken.position.startColumn !== model.semicolonToken.position.endColumn &&
                     model.semicolonToken.value}

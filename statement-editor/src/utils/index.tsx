@@ -111,6 +111,7 @@ export function getExpressionTypeComponent(
 export function getStatementTypeComponent(
     model: c.StatementNodes,
     userInputs: VariableUserInputs,
+    isElseIfMember: boolean,
     diagnosticHandler: (diagnostics: string) => void
 ): ReactNode {
     let StatementTypeComponent = (statementTypeComponents as any)[model.kind];
@@ -123,6 +124,7 @@ export function getStatementTypeComponent(
         <StatementTypeComponent
             model={model}
             userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
         />
     );

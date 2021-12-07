@@ -87,7 +87,7 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
             monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.lhsExpression.position,
-            false, model.lhsExpression.source, getLangClient);
+            false, false, model.lhsExpression.source, getLangClient);
 
         expressionHandler(model.lhsExpression, false, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
@@ -104,7 +104,7 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
             monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.middleExpression.position,
-            false, model.middleExpression.source, getLangClient);
+            false, false, model.middleExpression.source, getLangClient);
 
         expressionHandler(model.middleExpression, false, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
@@ -121,7 +121,7 @@ export function ConditionalExpressionComponent(props: ConditionalExpressionProps
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
             monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.endExpression.position,
-            false, model.endExpression.source, getLangClient);
+            false, false, model.endExpression.source, getLangClient);
 
         expressionHandler(model.endExpression, false, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),

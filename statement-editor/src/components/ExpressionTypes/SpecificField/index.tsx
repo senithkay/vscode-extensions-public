@@ -97,7 +97,7 @@ export function SpecificFieldComponent(props: SpecificFieldProps) {
 
         const completions: SuggestionItem[] = await getContextBasedCompletions(
             monaco.Uri.file(currentFile.path).toString(), content, targetPosition, model.valueExpr.position,
-            false, model.valueExpr.source, getLangClient);
+            false, false, model.valueExpr.source, getLangClient);
 
         expressionHandler(model.valueExpr, false, false, {
             expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),

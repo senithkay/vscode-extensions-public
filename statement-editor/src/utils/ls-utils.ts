@@ -50,6 +50,7 @@ export async function getContextBasedCompletions (
             targetPosition: NodePosition,
             modelPosition: NodePosition,
             isTypeDescriptor: boolean,
+            isElseIfMember: boolean,
             selection: string,
             getLangClient: () => Promise<ExpressionEditorLangClientInterface>): Promise<SuggestionItem[]> {
     await sendDidChange(docUri, content, getLangClient);
@@ -61,8 +62,10 @@ export async function getContextBasedCompletions (
             triggerKind: 1
         },
         position: {
-            character: targetPosition.startColumn + modelPosition.startColumn,
-            line: targetPosition.startLine
+            character: isElseIfMember ?
+                modelPosition.startColumn :
+                targetPosition.startColumn + modelPosition.startColumn,
+            line: targetPosition.startLine + modelPosition.startLine
         }
     }
 

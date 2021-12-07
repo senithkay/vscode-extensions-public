@@ -59,6 +59,7 @@ export function ElseBlockC(props: ElseBlockProps) {
                 <StatementRenderer
                     model={model?.elseBody}
                     userInputs={userInputs}
+                    isElseIfMember={true}
                     diagnosticHandler={diagnosticHandler}
                 />
             </span>
