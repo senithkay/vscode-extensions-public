@@ -54,15 +54,7 @@ class ExecutorDetailMerger implements Visitor {
     }
 
     public beginVisitFunctionDefinition(node: FunctionDefinition) {
-        this.isExecutable(node)
-    }
-
-    public beginVisitServiceDeclaration(node: ServiceDeclaration) {
-        this.isExecutable(node)
-    }
-
-    isExecutable(node: FunctionDefinition | ServiceDeclaration) {
-        const nodePosition = node.position;
+        const nodePosition = node.functionName.position;
         if (!nodePosition) {
             return;
         }
@@ -75,9 +67,29 @@ class ExecutorDetailMerger implements Visitor {
         })
     }
 
+    public beginVisitServiceDeclaration(node: ServiceDeclaration) {
+        this.executorPositions.forEach((position: ExecutorPosition) => {
+            if (node.qualifiers.length > 0) {
+                if (this.isInRange(position.range, node.qualifiers[0].position)) {
+                    node.isRunnable = true;
+                    node.runArgs = [position.name];
+                }
+                return;
+            }
+
+            if (!node.serviceKeyword.position) {
+                return;
+            }
+
+            if (this.isInRange(position.range, node.serviceKeyword.position)) {
+                node.isRunnable = true;
+                node.runArgs = [position.name];
+            }
+        })
+    }
+
     isInRange(executorRange: LineRange, nodeRange: any) {
         return executorRange.startLine.line === nodeRange.startLine &&
-            executorRange.startLine.offset >= nodeRange.startColumn &&
-            executorRange.endLine.line <= nodeRange.endLine
+            executorRange.startLine.offset === nodeRange.startColumn
     }
 }
