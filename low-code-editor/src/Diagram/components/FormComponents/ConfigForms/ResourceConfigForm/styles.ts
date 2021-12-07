@@ -102,7 +102,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         sectionSeparator: {
             borderBottom: "1px solid #D8D8D8",
-            marginBottom: "15px",
+            marginBottom: 25,
             padding: "5px 0"
         },
         sectionSeparatorTop: {

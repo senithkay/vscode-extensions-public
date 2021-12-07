@@ -1,3 +1,5 @@
+import { DiagramDiagnostic } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+
 export interface PathSegment {
     id: number;
     isParam: boolean;
@@ -50,6 +52,7 @@ export interface Resource {
     returnType?: string;
     isPathDuplicated?: boolean;
     returnTypeDefaultValue?: string;
+    initialPathDiagnostics?: DiagramDiagnostic[];
 }
 
 export interface Payload {

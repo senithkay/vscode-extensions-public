@@ -135,6 +135,7 @@ export function AddReturnForm(props: ReturnFormProps) {
                                     targetColumn: 8
                                 },
                                 editPosition: formArgs.targetPosition,
+                                initialDiagnostics: formArgs?.model?.expression?.typeData?.diagnostics
                             }}
                             onChange={onReturnValueChange}
                         />

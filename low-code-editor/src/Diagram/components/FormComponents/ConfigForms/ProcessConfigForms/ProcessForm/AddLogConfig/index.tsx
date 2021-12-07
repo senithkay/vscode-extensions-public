@@ -186,7 +186,8 @@ export function AddLogConfig(props: LogConfigProps) {
                                     endLine: logModel ? logModel.position.startLine : formArgs.targetPosition.startLine,
                                     startColumn: 0,
                                     endColumn: 0
-                                }
+                                },
+                                initialDiagnostics: config?.model?.typeData?.diagnostics,
                             }}
                             onChange={onExpressionChange}
                             defaultValue={expression}

@@ -22,9 +22,10 @@ import { createConfigurableDecl, updateConfigurableVarDecl } from '../../../../u
 import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
 import CheckBoxGroup from '../../FormFieldComponents/CheckBox';
 import { SelectDropdownWithButton } from '../../FormFieldComponents/DropDown/SelectDropdownWithButton';
-import ExpressionEditor from '../../FormFieldComponents/ExpressionEditor';
+import ExpressionEditor, { ExpressionEditorProps } from '../../FormFieldComponents/ExpressionEditor';
 import { TextLabel } from '../../FormFieldComponents/TextField/TextLabel';
 import { InjectableItem } from '../../FormGenerator';
+import { FormElementProps } from '../../Types';
 import { VariableNameInput } from '../Components/VariableNameInput';
 
 import { ConfigurableFormState, getFormConfigFromModel, isFormConfigValid } from './util';
@@ -116,11 +117,12 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
     }
 
 
-    const expressionEditorConfigForValue = {
+    const expressionEditorConfigForValue: FormElementProps<ExpressionEditorProps> = {
         model: {
             name: "valueExpression",
             displayName: "Value Expression",
-            typeName: state.varType
+            typeName: state.varType,
+            value: state.varValue,
         },
         customProps: {
             validate: updateExpressionValidity,
@@ -136,7 +138,8 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
                 defaultCodeSnippet: `configurable ${state.varType} temp_var_${uuid().replaceAll('-', '_')} = ;`,
                 targetColumn: 62 + state.varType.length,
             },
-            hideTextLabel: true
+            hideTextLabel: true,
+            initialDiagnostics: model?.initializer?.typeData?.diagnostics,
         },
         onChange: onValueChange,
         defaultValue: state.varValue,
@@ -213,6 +216,7 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
                         validateExpression={updateExpressionValidity}
                         position={namePosition}
                         isEdit={!isFromExpressionEditor && !!model}
+                        initialDiagnostics={model?.typedBindingPattern?.typeData?.diagnostics}
                     />
                     <TextLabel
                         required={true}

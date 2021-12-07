@@ -55,7 +55,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
     const expressionFormConfig: CustomExpressionConfig = config.config as CustomExpressionConfig;
 
     let defaultExpression = "";
-    if (config.model) {
+    if (config?.model) {
         defaultExpression = config?.model?.source.trim();
     }
 
@@ -103,7 +103,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
     const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
         {
             label: intl.formatMessage({ id: "lowcode.develop.configForms.customStatement.statementEditor.label" }),
-            initialSource: formArgs.model ? formArgs.model.source : (expression ? expression : "EXPRESSION"),
+            initialSource: formArgs?.model ? formArgs.model?.source : (expression ? expression : "EXPRESSION"),
             formArgs: { formArgs },
             validForm: isFormValid,
             config,
@@ -141,7 +141,8 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                                     defaultCodeSnippet: '',
                                     targetColumn: 1,
                                 },
-                                editPosition: config?.targetPosition
+                                editPosition: config?.model?.position || config?.targetPosition,
+                                initialDiagnostics: config?.model?.typeData?.diagnostics,
                             }}
                             onChange={onExpressionChange}
                         />

@@ -31,7 +31,7 @@ const useStyles = makeStyles((theme: Theme) =>
             }
         },
         container: {
-            width: 600,
+            width: 540,
             height: '85vh',
             '& .MuiFormControl-marginNormal': {
                 margin: '0 !important',
@@ -43,7 +43,7 @@ const useStyles = makeStyles((theme: Theme) =>
             alignItems: 'center',
         },
         resultsContainer: {
-            marginTop: theme.spacing(6),
+            marginTop: theme.spacing(2),
         },
         filterTagWrap: {
             maxHeight: '48px',

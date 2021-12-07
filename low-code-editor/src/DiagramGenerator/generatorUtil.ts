@@ -1,4 +1,4 @@
-import { DiagramEditorLangClientInterface } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { DiagramDiagnostic, DiagramEditorLangClientInterface } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, ModulePart, NodePosition, ResourceAccessorDefinition, ServiceDeclaration, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import { cleanLocalSymbols, cleanModuleLevelSymbols } from "../Diagram/visitors/symbol-finder-visitor";
@@ -76,20 +76,10 @@ export function sizingAndPositioningST(st: STNode): STNode {
     return clone;
 }
 
-export interface DiagnosticInfo {
-    code: string,
-    severity: string
-}
 
-export interface Diagnostic {
-    message: string,
-    diagnosticInfo: DiagnosticInfo,
-    range: NodePosition
-}
-
-export function isUnresolvedModulesAvailable(diagnostics: Diagnostic[]): {isAvailable: boolean, diagnostic: Diagnostic} {
+export function isUnresolvedModulesAvailable(diagnostics: DiagramDiagnostic[]): {isAvailable: boolean, diagnostic: DiagramDiagnostic} {
     let unresolvedModuleAvailable: boolean = false;
-    let selectedDiagnostic: Diagnostic;
+    let selectedDiagnostic: DiagramDiagnostic;
     for (const diagnostic of diagnostics) {
         if (diagnostic.diagnosticInfo.code === "BCE2003") {
             unresolvedModuleAvailable = true;

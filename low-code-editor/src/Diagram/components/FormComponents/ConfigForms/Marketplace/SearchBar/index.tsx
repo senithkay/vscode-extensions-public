@@ -11,56 +11,70 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-// tslint:disable: jsx-no-lambda
-import React, { useState } from 'react';
-import { FormattedMessage } from 'react-intl';
+import React, { useEffect, useState } from "react";
 
 import { Grid, InputBase } from "@material-ui/core";
-
-import SearchIcon from '../../../../../../assets/icons/SearchIcon';
-import PrimaryRounded from '../../../../Buttons/PrimaryRounded';
+import { PrimaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import useStyles from "./style";
 
 export interface SearchBarProps {
     searchQuery: string;
-    onSearchButtonClick: (searchString: string) => void;
-    type: string,
+    onSearch: (query: string) => void;
+    type: string;
 }
 
 function SearchBar(props: SearchBarProps) {
     const classes = useStyles();
-    const { onSearchButtonClick, searchQuery } = props;
+    const { onSearch, searchQuery } = props;
 
+    const [query, setQuery] = useState("");
     const [searchString, setSearchString] = useState(searchQuery);
 
-    const onSearchFieldChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-        setSearchString(event.target.value);
+    useEffect(() => {
+        const timeOutId = setTimeout(() => setSearchString(query), 500);
+        return () => clearTimeout(timeOutId);
+    }, [query]);
+
+    useEffect(() => {
+        onSearch(searchString);
+    }, [searchString]);
+
+    const onQueryChanged = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+        setQuery(event.target.value);
     };
 
     const onKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement | HTMLInputElement>) => {
         if (event.key === "Enter") {
-            onSearchButtonClick(searchString);
+            clearTimeout(this.timer);
+            this.triggerChange();
         }
+    };
+
+    const onSearchPress = () => {
+        clearTimeout(this.timer);
+        setSearchString(query);
     };
 
     return (
         <Grid container={true} classes={{ root: classes.searchBarRoot }}>
-            <SearchIcon className={classes.searchIcon} />
             <Grid item={true} container={true} xs={true}>
                 <InputBase
                     classes={{ root: classes.searchText }}
                     placeholder={"Search for " + props.type}
-                    value={searchString}
-                    onChange={onSearchFieldChange}
+                    value={query}
+                    onChange={onQueryChanged}
                     onKeyDown={onKeyDown}
                     aria-label="search-for-connectors"
                 />
             </Grid>
             <Grid item={true} container={true} xs={2} justifyContent="flex-end" data-testid="search-button">
-                <PrimaryRounded variant="contained" color="primary" className={classes.searchBtn} onClick={() => onSearchButtonClick(searchString)}>
-                    <FormattedMessage id="lowcode.develop.configForms.connectorList.SearchBar.Search" defaultMessage="Search" />
-                </PrimaryRounded>
+                <PrimaryButton
+                    variant="contained"
+                    className={classes.searchBtn}
+                    onClick={onSearchPress}
+                    text="Search"
+                />
             </Grid>
         </Grid>
     );

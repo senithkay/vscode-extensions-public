@@ -24,7 +24,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             },
         },
         wizardFormControlExtended: {
-            width: 400,
+            width: 500,
             "& .MuiFormControl-marginNormal": {
                 margin: '0 !important',
             },
@@ -844,8 +844,12 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginRight: 5,
         },
         resourcePathWrapper: {
-            width: '55%',
+            width: '63%',
             marginLeft: theme.spacing(1.25)
+        },
+        methodTypeContainer: {
+            display: 'block',
+            width: '35%',
         },
         advancedSwitchText: {
             textAlign: 'right',

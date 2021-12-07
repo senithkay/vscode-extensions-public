@@ -3,7 +3,7 @@ import { IntlProvider } from "react-intl";
 import { monaco } from "react-monaco-editor";
 
 import { MuiThemeProvider } from "@material-ui/core/styles";
-import { Connector, STModification, STSymbolInfo, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { Connector, DiagramDiagnostic, STModification, STSymbolInfo, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, ModulePart, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import cloneDeep from "lodash.clonedeep";
 import Mousetrap from 'mousetrap';
@@ -17,7 +17,7 @@ import messages from '../lang/en.json';
 import { CirclePreloader } from "../PreLoader/CirclePreloader";
 
 import { DiagramGenErrorBoundary } from "./ErrorBoundrary";
-import { Diagnostic, getDefaultSelectedPosition, getLowcodeST, getSyntaxTree, isUnresolvedModulesAvailable, resolveMissingDependencies } from "./generatorUtil";
+import { getDefaultSelectedPosition, getLowcodeST, getSyntaxTree, isUnresolvedModulesAvailable, resolveMissingDependencies } from "./generatorUtil";
 import { useGeneratorStyles } from "./styles";
 import { theme } from "./theme";
 import { EditorProps, PALETTE_COMMANDS } from "./vscode/Diagram";
@@ -196,7 +196,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         <MuiThemeProvider theme={theme}>
             <div className={classes.lowCodeContainer}>
                 <IntlProvider locale='en' defaultLocale='en' messages={messages}>
-                    <DiagramGenErrorBoundary>
+                    <DiagramGenErrorBoundary lastUpdatedAt={lastUpdatedAt}>
                         <LowCodeEditor
                             {...missingProps}
                             selectedPosition={selectedPosition}
@@ -243,7 +243,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                             undoRedo.addModification(source);
                                             const pfSession = await props.getPFSession();
                                             if (newST?.typeData?.diagnostics && newST?.typeData?.diagnostics?.length > 0) {
-                                                const { isAvailable } = isUnresolvedModulesAvailable(newST?.typeData?.diagnostics as Diagnostic[]);
+                                                const { isAvailable } = isUnresolvedModulesAvailable(newST?.typeData?.diagnostics as DiagramDiagnostic[]);
                                                 if (isAvailable) {
                                                     resolveMissingDependency(filePath, source);
                                                 }

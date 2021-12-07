@@ -17,14 +17,13 @@ import { useIntl } from "react-intl";
 import { Typography } from "@material-ui/core";
 
 import { AddIcon } from "../../../../../../assets/icons";
-import DeleteButton from "../../../../../../assets/icons/DeleteButton";
-import EditButton from "../../../../../../assets/icons/EditButton";
 import { Context, FormState } from "../../../../../../Contexts/RecordEditor";
-import { ComponentExpandButton } from "../../../../LowCodeDiagram/Components/ComponentExpandButton";
 import { keywords } from "../../../../Portals/utils/constants";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
+import { FormGenerator } from "../../../FormGenerator";
 import { FieldEditor } from "../FieldEditor";
 import { FieldItem } from "../FieldItem";
+import { RecordHeader } from "../RecordHeader";
 import { recordStyles } from "../style";
 import { RecordModel, SimpleField } from "../types";
 import { genRecordName, getFieldNames } from "../utils";
@@ -48,7 +47,9 @@ export function RecordField(props: CodePanelProps) {
 
     const { state, callBacks } = useContext(Context);
 
+    // TODO: Fix record expand and collapse
     const [isRecordExpanded, setIsRecordExpanded] = useState(true);
+    const [isImportFormVisible, setIsImportFormVisible] = useState(false);
     const [fieldNameError, setFieldNameError] = useState<string>("");
     const [recordNameError, setRecordNameError] = useState<string>("");
     const [isRecordEditInProgress, setIsRecordEditInProgress] = useState((recordModel.name === "") ||
@@ -56,7 +57,33 @@ export function RecordField(props: CodePanelProps) {
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 
     const handleFieldEdit = (field: SimpleField) => {
-        if (!(state.isEditorInvalid || (state.currentField && state.currentField.name === "" ||
+        if (state.currentField && state.currentField.name  === "" && (state.currentField.value === "" ||
+            state.currentField.value === undefined) && state.currentField.type === "" &&
+            state.currentField.isEditInProgress) {
+            // Removing draft field
+            const index = state.currentRecord.fields.indexOf(state.currentField);
+            state.currentRecord.fields.splice(index, 1);
+
+            const selectedFieldIndex = recordModel.fields.indexOf(field);
+            if (selectedFieldIndex !== -1) {
+                // Changes the active state to selected record model
+                state.currentRecord.isActive = false;
+                recordModel.isActive = true;
+
+                // Changes the active state to selected field
+                if (state.currentField) {
+                    state.currentField.isActive = false;
+                    state.currentField.isEditInProgress = false;
+                }
+                field.isActive = true;
+                field.isEditInProgress = true;
+
+                callBacks.onUpdateCurrentField(field);
+                callBacks.onUpdateCurrentRecord(recordModel);
+                callBacks.onUpdateModel(state.recordModel);
+                callBacks.onChangeFormState(FormState.UPDATE_FIELD);
+            }
+        } else if (!(state.isEditorInvalid || (state.currentField && state.currentField.name === "" ||
             state.currentField?.type === ""))) {
             const index = recordModel.fields.indexOf(field);
             if (index !== -1) {
@@ -96,29 +123,24 @@ export function RecordField(props: CodePanelProps) {
         }
     };
 
-    const handleRecordDelete = () => {
-        if (parentRecordModel) {
-            const index = parentRecordModel.fields.indexOf(recordModel);
-            if (index !== -1) {
-                parentRecordModel.fields.splice(index, 1);
-            }
-            state.currentRecord.isActive = false;
-            parentRecordModel.isActive = true;
-            state.currentRecord = parentRecordModel;
-            callBacks.onUpdateModel(state.recordModel);
-            callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
-        }
-    };
-
     const getNewField = () : SimpleField => {
         const newField: SimpleField = {type: "", name: "", isFieldOptional: false, isActive: true,
-                                       isNameInvalid: false, isEditInProgress: true};
+                                       isValueInvalid: false, isNameInvalid: true, isTypeInvalid: true,
+                                       isEditInProgress: true};
         recordModel.fields.push(newField);
-        callBacks.updateEditorValidity(true);
         return newField;
     };
 
     const handleAddField = () => {
+        if ((state.currentField && state.currentField.name  === "" && (state.currentField.value === "" ||
+            state.currentField.value === undefined) && state.currentField.type === "" &&
+            state.currentField.isEditInProgress) || (state.currentField && state.currentField.name &&
+            state.currentField.type === "")) {
+            // Removing draft field
+            const index = state.currentRecord.fields.indexOf(state.currentField);
+            state.currentRecord.fields.splice(index, 1);
+        }
+
         // Changes the active state to selected record model
         state.currentRecord.isActive = false;
         if (state.currentField && state.currentField.name === "") {
@@ -144,9 +166,31 @@ export function RecordField(props: CodePanelProps) {
         callBacks.onUpdateCurrentField(newField);
     };
 
-    const handleRecordExpand = () => {
-        setIsRecordExpanded(!isRecordExpanded);
-    };
+    const handleImportClicked = () => {
+        if (state.currentField && state.currentField.name  === "" && (state.currentField.value === "" ||
+            state.currentField.value === undefined) && state.currentField.type === "" &&
+            state.currentField.isEditInProgress) {
+            // Removing draft field
+            const index = state.currentRecord.fields.indexOf(state.currentField);
+            state.currentRecord.fields.splice(index, 1);
+        }
+
+        state.currentRecord.isActive = false;
+        recordModel.isActive = true;
+        callBacks.onUpdateCurrentRecord(recordModel);
+        callBacks.updateEditorValidity(false);
+        setIsImportFormVisible(true);
+    }
+
+    const handleImportFormClose = () => {
+        setIsImportFormVisible(false);
+        callBacks.updateEditorValidity(false);
+    }
+
+    const handleImportFormSave = () => {
+        setIsImportFormVisible(false);
+        callBacks.updateEditorValidity(false);
+    }
 
     const handleKeyUp = (event: any) => {
         if (event.key === 'Enter') {
@@ -188,6 +232,8 @@ export function RecordField(props: CodePanelProps) {
     };
 
     const handleFieldEditorChange = (event: any) => {
+        const isNameAlreadyExists = state.currentRecord.fields.find(field => (field.name === event.target.value)) &&
+            !(state.currentField?.name === event.target.value);
         if (event.key === 'Enter') {
             if (!event.target.value) {
                 state.currentField.name = genRecordName("fieldName", getFieldNames(state.currentRecord.fields));
@@ -195,12 +241,11 @@ export function RecordField(props: CodePanelProps) {
             if (!state.currentField.isNameInvalid) {
                 state.currentField.isEditInProgress = false;
                 state.currentField.isActive = true;
+                state.currentField = getNewField();
             }
         } else {
             state.currentField.name = event.target.value;
         }
-        const isNameAlreadyExists = state.currentRecord.fields.find(field => (field.name === event.target.value)) &&
-            !(state.currentField?.name === event.target.value);
         if (isNameAlreadyExists) {
             setFieldNameError("Name already exists");
             state.currentField.isNameInvalid = true;
@@ -226,7 +271,7 @@ export function RecordField(props: CodePanelProps) {
     };
 
     const handleSubItemFocusLost = (event: any) => {
-        if (!event.target.value) {
+        if (!event.target.value && state.currentField.type && !state.currentField.isTypeInvalid) {
             state.currentField.name = state.currentField.type === "record" ?
                 genRecordName("Record", getFieldNames(state.currentRecord.fields)) :
                 genRecordName("fieldName", getFieldNames(state.currentRecord.fields));
@@ -234,8 +279,22 @@ export function RecordField(props: CodePanelProps) {
         callBacks.onUpdateCurrentField(state.currentField);
     };
 
-    const handleRecordClick = () => {
-        if (!(state.isEditorInvalid || state.currentField?.name === "" || state.currentField?.type === "")) {
+    const handleRecordEdit = () => {
+        if (state.currentField && state.currentField.name  === "" && (state.currentField.value === "" ||
+            state.currentField.value === undefined) && state.currentField.type === "" &&
+            state.currentField.isEditInProgress) {
+            // Removing draft field
+            const index = state.currentRecord.fields.indexOf(state.currentField);
+            state.currentRecord.fields.splice(index, 1);
+
+            recordModel.isActive = true;
+            setIsRecordEditInProgress(true);
+            callBacks.onUpdateCurrentRecord(recordModel);
+            callBacks.onUpdateModel(state.recordModel);
+            callBacks.onUpdateRecordSelection(true);
+            callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
+        } else if ((!(state.isEditorInvalid || state.currentField?.name === "" || state.currentField?.type === "")) ||
+            (!state.currentField)) {
             state.currentRecord.isActive = false;
             recordModel.isActive = true;
             setIsRecordEditInProgress(true);
@@ -246,6 +305,11 @@ export function RecordField(props: CodePanelProps) {
         }
     };
 
+    const handleRecordExpand = () => {
+        setIsRecordExpanded(!isRecordExpanded);
+    };
+
+    let isDraftRecordAdded = false;
     const fieldItems: ReactNode[] = [];
     recordModel.fields.forEach((field: SimpleField | RecordModel) => {
         if ((field.type !== "record") && !(field as SimpleField).isEditInProgress) {
@@ -268,18 +332,14 @@ export function RecordField(props: CodePanelProps) {
                     onEnterPress={null}
                 />
             );
+            isDraftRecordAdded = true;
         } else if (field.type === "record") {
             fieldItems.push(<RecordField recordModel={field as RecordModel} parentRecordModel={recordModel} />);
         }
     });
 
-    const accessModifier = `${recordModel.isPublic ? "public " : ""}`;
-    const recordTypeNVisibility = `${recordModel.isTypeDefinition ? `${accessModifier} type` : ""}`;
-    const openBraceTokens = `{ ${recordModel.isClosed ? "|" : ""}`;
-    const recordEn = `${recordModel.isClosed ? "|}" : "}"}${recordModel.isArray ? "[]" :
-        ""}${recordModel.isOptional ? "?" : ""}`;
+    const recordEn = `${recordModel.isClosed ? "| }" : "}"}${recordModel.isArray ? "[]" : ""}`;
     const typeDescName = `${recordModel.isTypeDefinition ? "" : `${recordModel.name}`}`;
-    const typeDefName = `${recordModel.isTypeDefinition ? `${recordModel.name ? recordModel.name : ""}` : ""}`;
 
     useEffect(() => {
         // Checks whether record is clicked to edit, if so resetting field insertion
@@ -302,87 +362,42 @@ export function RecordField(props: CodePanelProps) {
                 className={recordModel.isActive ? recordClasses.activeRecordEditorWrapper :
                     recordClasses.recordEditorWrapper}
             >
-                <div className={recordClasses.recordHeader}>
-                    <div className={recordClasses.recordExpandBtnWrapper}>
-                        <ComponentExpandButton onClick={handleRecordExpand} isExpanded={isRecordExpanded} />
-                    </div>
-                    <div className={recordClasses.recordHeading}>
-                        {recordTypeNVisibility && (
-                            <Typography
-                                variant='body2'
-                                className={recordClasses.typeNVisibilityWrapper}
-                            >
-                                {recordTypeNVisibility}
-                            </Typography>
-                        )}
-                        {recordModel.isTypeDefinition && isRecordEditInProgress && (
-                            <div className={recordClasses.typeTextFieldWrapper}>
-                                <FormTextInput
-                                    dataTestId="record-name"
-                                    customProps={{
-                                        isErrored: false,
-                                        focused: true
-                                    }}
-                                    defaultValue={typeDefName}
-                                    onKeyUp={handleKeyUp}
-                                    onBlur={handleOnBlur}
-                                    errorMessage={""}
-                                    placeholder={"Record name"}
-                                    size="small"
-                                />
-                            </div>
-                        )}
-                        {typeDefName && !isRecordEditInProgress && (
-                            <Typography
-                                variant='body2'
-                                className={recordClasses.typeDefNameWrapper}
-                                onClick={handleRecordClick}
-                            >
-                                {typeDefName}
-                            </Typography>
-                        )}
-                        <Typography
-                            variant='body2'
-                            className={recordClasses.recordKeywordWrapper}
-                        >
-                            record
-                        </Typography>
-                        <Typography
-                            variant='body2'
-                            className={recordClasses.openBraceTokenWrapper}
-                        >
-                            {openBraceTokens}
-                        </Typography>
-                        {!isRecordExpanded && (
-                            <div className={recordClasses.dotExpander} onClick={handleRecordExpand}>
-                                ....
-                            </div>
-                        )}
-                    </div>
-                    {!state.isEditorInvalid && (
-                        <div className={recordModel.isTypeDefinition ? recordClasses.typeDefEditBtnWrapper : recordClasses.recordHeaderBtnWrapper}>
-                            <div className={recordClasses.actionBtnWrapper}>
-                                <EditButton onClick={handleRecordClick}/>
-                            </div>
-                            {!recordModel.isTypeDefinition && (
-                                <div className={recordClasses.actionBtnWrapper}>
-                                    <DeleteButton onClick={handleRecordDelete}/>
-                                </div>
-                            )}
-                        </div>
-                    )}
-                </div>
+                <RecordHeader
+                    recordModel={recordModel}
+                    parentRecordModel={parentRecordModel}
+                    recordExpanded={isRecordExpanded}
+                    recordEditInProgress={isRecordEditInProgress}
+                    toggleRecordExpand={handleRecordExpand}
+                    onEditRecord={handleRecordEdit}
+                />
                 {isRecordExpanded && (
                     <div className={recordModel?.isActive ? recordClasses.activeRecordSubFieldWrapper : recordClasses.recordSubFieldWrapper}>
                         {fieldItems}
-                        {!state.isEditorInvalid && (
-                            <div className={recordClasses.addFieldBtnWrap} onClick={handleAddField}>
-                                <AddIcon/>
-                                <p>{addFieldText}</p>
-                            </div>
+                        {!state.isEditorInvalid && !isDraftRecordAdded && (
+                            <>
+                                <div className={recordClasses.addFieldBtnWrap} onClick={handleAddField}>
+                                    <AddIcon/>
+                                    <p>{addFieldText}</p>
+                                </div>
+                                <div className={recordClasses.addFieldBtnWrap} onClick={handleImportClicked}>
+                                    <AddIcon/>
+                                    <p>Import JSON</p>
+                                </div>
+                            </>
                         )}
                     </div>
                 )}
+                {isImportFormVisible && (
+                    <FormGenerator
+                        configOverlayFormStatus={{
+                            formType: "RecordJson",
+                            isLoading: false
+                        }}
+                        onCancel={handleImportFormClose}
+                        onSave={handleImportFormSave}
+                    />
+                )}
+                <div id="test"/>
                 <div className={recordClasses.endRecordCodeWrapper}>
                     <Typography
                         variant='body2'
@@ -411,9 +426,18 @@ export function RecordField(props: CodePanelProps) {
                         <Typography
                             variant='body2'
                             className={recordClasses.endRecordCode}
-                            onClick={handleRecordClick}
+                            onClick={handleRecordEdit}
                         >
                             {typeDescName}
+                        </Typography>
+                    )}
+                    {recordModel.isOptional && (
+                        <Typography
+                            variant='body2'
+                            className={recordClasses.singleTokenWrapperWithMargin}
+                            onClick={handleRecordEdit}
+                        >
+                            ?
                         </Typography>
                     )}
                     <Typography
