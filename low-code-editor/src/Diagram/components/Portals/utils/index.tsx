@@ -946,7 +946,10 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                     type = formField.typeName;
                     response.hasReturn = true;
                 }
-
+                if (formField.typeName === "parameterized") {
+                    type = "record{}";
+                    response.hasReturn = true;
+                }
                 // filters
                 if (formField.typeName === PrimitiveBalType.Array) {
                     // set array type
@@ -956,19 +959,15 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                     // set optional tag
                     type = type.includes('|') ? `(${type})?` : `${type}?`;
                 }
-                // if (type !== "" && formField?.isStream) {
-                //     // set stream tags
-                //     type = `stream<${type}>`; // do for stream obj
-                // }
-                if (formField.typeName === "parameterized") {
-                    type = "record{}";
-                }
                 if (type) {
                     response.returnType = type;
                 }
         }
     }
-
+    if (formField === null) {
+        response.returnType = "record{}";
+        response.hasReturn = true;
+    }
     return response;
 }
 
