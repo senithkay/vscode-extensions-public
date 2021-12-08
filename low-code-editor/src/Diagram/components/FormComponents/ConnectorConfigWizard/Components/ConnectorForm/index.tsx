@@ -46,6 +46,7 @@ import {
     updatePropertyStatement,
 } from "../../../../../utils/modification-util";
 import {
+    checkDBConnector,
     genVariableName,
     getActionReturnType,
     getConnectorComponent,
@@ -147,7 +148,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
     const operations: ConnectorOperation[] = [];
     if (functionDefInfo) {
         functionDefInfo.forEach((value, key) => {
-            if (key !== "init" && value.isRemote) {
+            if (key !== "init") {
                 operations.push({ name: key, label: value.name });
             }
         });
@@ -166,7 +167,10 @@ export function ConnectorForm(props: FormGeneratorProps) {
         config.action.returnVariableName = ((model as LocalVarDecl).typedBindingPattern
             .bindingPattern as CaptureBindingPattern).variableName.value;
     }
-
+    if (model && !isNewConnectorInitWizard) {
+        config.action.returnType = ((model as LocalVarDecl).typedBindingPattern
+            .typeDescriptor.source.trim());
+    }
     const onCreateNew = () => {
         setConfigName(genVariableName(connectorModule + "Endpoint", getAllVariables(stSymbolInfo)));
         setConfigName(genVariableName(connectorModule + "Endpoint", getAllVariables(stSymbolInfo)));
@@ -206,10 +210,9 @@ export function ConnectorForm(props: FormGeneratorProps) {
             config.connectorInit
         ).join()});`;
 
-        const dbConnectors = ["mysql" , "mssql"]
         if (isNewConnectorInitWizard && targetPosition) {
             const addImport: STModification = createImportStatement(connector.package.organization, connectorModule, targetPosition);
-            if (dbConnectors.includes(connectorModule)) {
+            if (checkDBConnector(connectorModule)) {
                 const addDriverImport: STModification = createImportStatement('ballerinax', `${connectorModule}.driver as _`, targetPosition);
                 modifications.push(addDriverImport);
             }
@@ -232,6 +235,11 @@ export function ConnectorForm(props: FormGeneratorProps) {
         const modifications: STModification[] = [];
         const isInitReturnError = getInitReturnType(functionDefInfo);
         const currentActionReturnType = getActionReturnType(config.action.name, functionDefInfo);
+        if (checkDBConnector(connectorModule) && config.action.returnType) {
+            currentActionReturnType.returnType = config.action.returnType;
+        }
+
+        // handle special case to get user typed in return type
         const moduleName = getFormattedModuleName(connectorModule);
 
         expressionInjectables?.list?.forEach((item: InjectableItem) => {
@@ -252,9 +260,9 @@ export function ConnectorForm(props: FormGeneratorProps) {
             addReturnImportsModifications(modifications, currentActionReturnType);
             actionStatement += `${currentActionReturnType.returnType} ${config.action.returnVariableName} = `;
         }
-        actionStatement += `${currentActionReturnType.hasError ? "check" : ""} ${config.name}->${config.action.name}(${getParams(
-            config.action.fields
-        ).join()});`;
+        actionStatement += `${currentActionReturnType.hasError ? "check" : ""} ${config.name}${
+            config.action.isRemote ? "->" : "."
+        }${config.action.name}(${getParams(config.action.fields).join()});`;
 
         if (!isNewConnectorInitWizard && isAction) {
             const updateActionInvocation = updatePropertyStatement(actionStatement, model.position);

@@ -161,9 +161,9 @@ function ActionTooltip(props: Partial<TooltipPropsExtended>) {
         <div>
             {text.heading && (<div className={classes.heading}>{text.heading}</div>)}
             {text.content && (<div className={classes.subHeading}>{text.content}</div>)}
-            {(text.heading || text.content) && <Divider className={classes.divider} light={true} />}
+            {((text.heading || text.content) && (text.example || action?.text)) && <Divider className={classes.divider} light={true} />}
             {text.example && <div className={classes.exampleContent}><span className={classes.exampleTag}>Eg: </span>{text.example}</div>}
-            {action.text && (<div className={classes.buttonLink}> <a href={action.link} className={classes.buttonLink} target="_blank">{action.text}</a></div>)}
+            {action?.text && (<div className={classes.buttonLink}> <a href={action.link} className={classes.buttonLink} target="_blank">{action.text}</a></div>)}
         </div>
     )
 }

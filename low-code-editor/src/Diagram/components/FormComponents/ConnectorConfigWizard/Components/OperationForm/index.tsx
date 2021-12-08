@@ -23,6 +23,7 @@ import classNames from 'classnames';
 import { Context } from '../../../../../../Contexts/Diagram';
 import { getAllVariables } from "../../../../../utils/mixins";
 import { checkVariableName, genVariableName, getActionReturnType } from "../../../../Portals/utils";
+import { VariableTypeInput } from '../../../ConfigForms/Components/VariableTypeInput';
 import { Form } from "../../../DynamicConnectorForm";
 import { useStyles } from "../../../DynamicConnectorForm/style";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
@@ -31,11 +32,12 @@ import { wizardStyles } from "../../style";
 import { ConnectorOperation } from '../ConnectorForm';
 import { OperationDropdown } from '../OperationDropdown';
 
+
 export interface OperationFormProps {
     operations: ConnectorOperation[];
     selectedOperation: string;
     showConnectionName: boolean;
-    onSave: (sourceModifications?: STModification[]) => void;
+    onSave: () => void;
     connectionDetails: ConnectorConfig;
     mutationInProgress: boolean;
     onConnectionChange: () => void;
@@ -57,6 +59,9 @@ export function OperationForm(props: OperationFormProps) {
 
     const [selectedOperationState, setSelectedOperationState] = useState(selectedOperation);
     const [responseVarName, setResponseVarName] = useState<string>(connectionDetails?.action?.returnVariableName);
+    const [returnType, setReturnType] = useState<string>(connectionDetails?.action?.returnType);
+    const [validOutputValue, setValidOutputValue] = useState(false);
+
     const frmFields: FormField[] = connectionDetails?.action?.fields;
     const [formFields, setFormFields] = useState(frmFields);
 
@@ -70,7 +75,9 @@ export function OperationForm(props: OperationFormProps) {
     const handleOperationChange = (operation: string) => {
         setSelectedOperationState(operation);
         if (operation) {
-            const derivedFormFields = functionDefInfo.get(operation).parameters;
+            const selectedFunction = functionDefInfo.get(operation);
+            const derivedFormFields = selectedFunction.parameters;
+            connectionDetails.action.isRemote = selectedFunction.isRemote;
             connectionDetails.action.name = operation;
             connectionDetails.action.fields = derivedFormFields;
             setFormFields(derivedFormFields);
@@ -78,7 +85,9 @@ export function OperationForm(props: OperationFormProps) {
                 connectionDetails.action.returnVariableName = genVariableName(operation + "Response",
                     getAllVariables(symbolInfo));
                 setResponseVarName(connectionDetails.action.returnVariableName);
+
             }
+            setReturnType(connectionDetails.action.returnType);
         }
     }
 
@@ -110,6 +119,11 @@ export function OperationForm(props: OperationFormProps) {
         return true;
     };
 
+    const onTypeChange = (text: string) => {
+        connectionDetails.action.returnType = text;
+        setReturnType(text);
+    };
+
     let responseVariableHasReferences: boolean = false;
 
     if (!isNewConnectorInitWizard) {
@@ -118,6 +132,8 @@ export function OperationForm(props: OperationFormProps) {
     }
 
     connectionDetails.action.returnVariableName = responseVarName;
+    connectionDetails.action.returnType = returnType;
+
 
     const validateForm = (isRequiredFilled: boolean) => {
         setValidForm(isRequiredFilled);
@@ -140,6 +156,11 @@ export function OperationForm(props: OperationFormProps) {
         defaultMessage: "Response Variable Name"
     });
 
+    const addOutputTypeLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.addOutputType.label",
+        defaultMessage: "Output Type Name"
+    });
+
     const saveConnectionButtonText = intl.formatMessage({
         id: "lowcode.develop.configForms.saveConnectionButton.text",
         defaultMessage: "Save"
@@ -151,10 +172,24 @@ export function OperationForm(props: OperationFormProps) {
                 id: "lowcode.develop.configForms.connectorOperations.tooltip.title",
                 defaultMessage: "Add a valid name for the response variable. Avoid using special characters, having spaces in the middle, starting with a numerical character, and including keywords such as Return, Foreach, Resource, and Object."
             }),
-    }
+    },
     };
 
     const operationLabel = operations.find(operation => operation.name === selectedOperationState)?.label;
+
+    const onValidateOutputType = (fieldName: string, isInvalid: boolean) => {
+        setValidOutputValue(!isInvalid);
+    };
+
+    const hasTypeDesc = () => {
+        let typeDescStatus = false;
+        formFields.forEach((field) => {
+            if (field.typeName.includes("typedesc")) {
+                typeDescStatus = true;
+            }
+        })
+        return typeDescStatus;
+    }
 
     return (
         <div>
@@ -194,11 +229,11 @@ export function OperationForm(props: OperationFormProps) {
 
                             { operationReturnType?.hasReturn && (
                                 <FormTextInput
-                                    customProps={ {
+                                    customProps={{
                                         validate: validateNameValue,
                                         tooltipTitle: connectorOperationsTooltipMessages.responseVariableName.title,
                                         disabled: responseVariableHasReferences
-                                    } }
+                                    }}
                                     defaultValue={responseVarName}
                                     placeholder={addResponseVariablePlaceholder}
                                     onChange={onNameChange}
@@ -206,6 +241,18 @@ export function OperationForm(props: OperationFormProps) {
                                     errorMessage={responseVarError}
                                 />
                             ) }
+                            {operationReturnType?.hasReturn && hasTypeDesc() && (
+                                <Box className="exp-wrapper">
+                                    <VariableTypeInput
+                                        displayName={addOutputTypeLabel}
+                                        value={returnType ? returnType : operationReturnType.returnType}
+                                        hideTextLabel={false}
+                                        onValueChange={onTypeChange}
+                                        position={targetPosition}
+                                        validateExpression={onValidateOutputType}
+                                    />
+                                </Box>
+                            )}
                         </div>
                     </div>
                     <div className={classes.saveConnectorBtnHolder}>
