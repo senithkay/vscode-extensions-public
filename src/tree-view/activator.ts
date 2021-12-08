@@ -187,12 +187,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     });
 
     commands.registerCommand(DOCUMENTATION_VIEW, async (url: string) => {
-        if (!ballerinaExtInstance.langClient) {
-            return;
-        }
-
         await showDocumentationView(url);
-
     });
 
     ballerinaExtInstance.getDocumentContext().onDiagramTreeElementClicked((construct: ConstructIdentifier) => {
