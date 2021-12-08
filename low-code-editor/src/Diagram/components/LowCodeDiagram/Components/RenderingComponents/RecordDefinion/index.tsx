@@ -130,6 +130,7 @@ export function RecordDefinitionComponent(props: RecordDefComponentProps) {
                         model={model}
                         deleteText="Delete this Type Definition?"
                         isExpanded={isExpanded}
+                        showOnRight={true}
                         onExpandClick={onExpandClick}
                         onConfirmDelete={handleDeleteConfirm}
                     />

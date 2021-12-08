@@ -27,6 +27,7 @@ import { TextLabel } from '../../FormFieldComponents/TextField/TextLabel';
 import { InjectableItem } from '../../FormGenerator';
 import { FormElementProps } from '../../Types';
 import { VariableNameInput } from '../Components/VariableNameInput';
+import { VariableTypeInput, VariableTypeInputProps } from '../Components/VariableTypeInput';
 
 import { ConfigurableFormState, getFormConfigFromModel, isFormConfigValid } from './util';
 import { ConfigurableFormActionTypes, moduleVarFormReducer } from './util/reducer';
@@ -181,6 +182,32 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
         namePosition.endLine = targetPosition.startLine;
     }
 
+    const validateExpression = (fieldName: string, isInvalidType: boolean) => {
+        updateExpressionValidity(fieldName, isInvalidType);
+    };
+
+    const variableTypeConfig: VariableTypeInputProps = {
+        displayName: 'Variable Type',
+        value: state.varType,
+        onValueChange: onVarTypeChange,
+        validateExpression,
+        position: model ? {
+            ...model.position,
+            endLine: 0,
+            endColumn: 0,
+        } : targetPosition,
+        overrideTemplate: {
+            defaultCodeSnippet: `|()  tempVarType = ();`,
+            targetColumn: 1
+        }
+    }
+
+    const variableTypeInput = (
+        <div className="exp-wrapper">
+            <VariableTypeInput {...variableTypeConfig} />
+        </div>
+    );
+
     return (
         <FormControl data-testid="module-variable-config-form" className={formClasses.wizardFormControl}>
             <FormHeaderSection
@@ -201,13 +228,7 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
                         defaultValues={state.isPublic ? ['public'] : []}
                         onChange={onAccessModifierChange}
                     />
-                    <SelectDropdownWithButton
-                        defaultValue={state.varType}
-                        customProps={typeSelectorCustomProps}
-                        label={isFromExpressionEditor ? "type" : "Select type"}
-                        onChange={onVarTypeChange}
-                        disabled={isFromExpressionEditor}
-                    />
+                    {variableTypeInput}
                     <VariableNameInput
                         // Fixme: Prevent editing name if the configurable is being referenced somewhere
                         displayName={'Configurable Name'}
