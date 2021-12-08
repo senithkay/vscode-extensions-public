@@ -364,7 +364,7 @@ export class ExtendedLangClient extends LanguageClient {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.CONNECTOR_CONNECTORS)) {
             Promise.resolve(NOT_SUPPORTED);
         }
-        if (!reset && params.query === "" && !params.offset) {
+        if (!reset && params.query === "" && !params.keyword && !params.organization && !params.offset) {
             let connectorList = this.ballerinaExtInstance?.context?.globalState.get(CONNECTOR_LIST_CACHE) as BallerinaConnectorsResponse;
             if (connectorList && connectorList.central?.length > 0) {
                 return Promise.resolve().then(() => connectorList);
