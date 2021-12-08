@@ -20,6 +20,7 @@ import simpleGit, { SimpleGit, SimpleGitOptions } from 'simple-git';
 import { BallerinaExtension } from '../core';
 import { commands, StatusBarAlignment, StatusBarItem, ThemeColor, window, workspace } from 'vscode';
 import { PALETTE_COMMANDS } from '../project';
+import { debug } from './../utils';
 const schedule = require('node-schedule');
 
 export class gitStatusBarItem {
@@ -90,6 +91,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     const rule = new schedule.RecurrenceRule();
     rule.second = 2;
     schedule.scheduleJob(rule, function () {
+        debug(`Updated the git status at ${new Date()}`)
         statusBarItem.updateGitStatus();
     });
 
@@ -110,10 +112,10 @@ export function showChoreoPushMessage(ballerinaExtInstance: BallerinaExtension, 
     ballerinaExtInstance.getCodeServerContext().infoMessageStatus.messageFirstEdit = false;
     const stop = "Don't show again!";
     const sync = "Sync my changes with Choreo";
-    window.showInformationMessage('Make sure you commit and push project changes using the VS Code Source Control ' + 
-        'activity to try out on the Choreo environment. \n\nFirst, go to the Source Control on the VS Code Activity bar. ' + 
-        '\nEnter a commit message and `Commit` all changes. \nThen, `Push` all changes using the `More Actions...` ' + 
-        'button on the source control activity.',{ modal: true } ,sync, stop ).then((selection) => {
+    window.showInformationMessage('Make sure you commit and push project changes using the VS Code Source Control ' +
+        'activity to try out on the Choreo environment. \n\nFirst, go to the Source Control on the VS Code Activity bar. ' +
+        '\nEnter a commit message and `Commit` all changes. \nThen, `Push` all changes using the `More Actions...` ' +
+        'button on the source control activity.', { modal: true }, sync, stop).then((selection) => {
             if (sync === selection) {
                 commands.executeCommand(PALETTE_COMMANDS.FOCUS_SOURCE_CONTROL);
             }

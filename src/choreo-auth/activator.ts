@@ -45,6 +45,7 @@ async function activate(extension: BallerinaExtension) {
             });
             extension.getChoreoSessionTreeProvider()?.refresh();
             window.showInformationMessage('Successfully signed out from Choreo!');
+            extension.getPerformanceForecastContext().infoMessageStatus.signinChoreo = true;
         } catch (error) {
             if (error instanceof Error) {
                 sendTelemetryException(ballerinaExtInstance, error, CMP_PROJECT_ADD);

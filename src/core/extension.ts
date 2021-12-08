@@ -101,7 +101,8 @@ interface CodeServerContext {
 interface PerformanceForecastContext {
     infoMessageStatus: {
         signinChoreo: boolean;
-    }
+    };
+    temporaryDisabled?: boolean;
 }
 
 export interface WebviewContext {
