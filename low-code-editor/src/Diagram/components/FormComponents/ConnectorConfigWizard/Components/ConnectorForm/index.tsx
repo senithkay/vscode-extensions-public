@@ -148,7 +148,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
     const operations: ConnectorOperation[] = [];
     if (functionDefInfo) {
         functionDefInfo.forEach((value, key) => {
-            if (key !== "init" && value.isRemote) {
+            if (key !== "init") {
                 operations.push({ name: key, label: value.name });
             }
         });
@@ -260,9 +260,9 @@ export function ConnectorForm(props: FormGeneratorProps) {
             addReturnImportsModifications(modifications, currentActionReturnType);
             actionStatement += `${currentActionReturnType.returnType} ${config.action.returnVariableName} = `;
         }
-        actionStatement += `${currentActionReturnType.hasError ? "check" : ""} ${config.name}->${config.action.name}(${getParams(
-            config.action.fields
-        ).join()});`;
+        actionStatement += `${currentActionReturnType.hasError ? "check" : ""} ${config.name}${
+            config.action.isRemote ? "->" : "."
+        }${config.action.name}(${getParams(config.action.fields).join()});`;
 
         if (!isNewConnectorInitWizard && isAction) {
             const updateActionInvocation = updatePropertyStatement(actionStatement, model.position);

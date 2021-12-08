@@ -677,7 +677,8 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         middleCode: {
             color: '#8D91A3',
-            marginLeft: theme.spacing(3)
+            marginLeft: theme.spacing(3),
+            cursor: 'default'
         },
         endCode: {
             color: '#1D2028',
