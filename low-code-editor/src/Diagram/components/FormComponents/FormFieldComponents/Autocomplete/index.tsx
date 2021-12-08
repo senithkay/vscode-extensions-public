@@ -28,10 +28,11 @@ export interface AutocompleteProps {
     renderItem?: (item: any) => ReactNode;
     onChange: (event: object, value: any, reason: string) => void;
     dataTestId?: string;
+    handleDropDownOpen?: (event: React.SyntheticEvent) => void;
 }
 
 export function FormAutocomplete(props: AutocompleteProps) {
-    const { label, placeholder, itemList, value, getItemLabel, renderItem, onChange, dataTestId } = props;
+    const { label, placeholder, itemList, value, getItemLabel, renderItem, onChange, handleDropDownOpen, dataTestId } = props;
     const classes = useStyles();
 
     function renderInnerTextField(params: (JSX.IntrinsicAttributes & StandardTextFieldProps) | (JSX.IntrinsicAttributes & FilledTextFieldProps) | (JSX.IntrinsicAttributes & OutlinedTextFieldProps)) {
@@ -82,6 +83,8 @@ export function FormAutocomplete(props: AutocompleteProps) {
                 openOnFocus={true}
                 autoComplete={true}
                 autoHighlight={true}
+                onOpen={handleDropDownOpen}
+                onClose={handleDropDownOpen}
             />
         </div>
     );

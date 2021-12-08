@@ -90,7 +90,9 @@ service /{{{ BASE_PATH }}} on {{{ LISTENER_NAME }}}`,
 {{#if ACCESS_MODIFIER }}{{{ ACCESS_MODIFIER }}} {{/if}}type {{{ TYPE_NAME }}} {{{ TYPE_DESCRIPTOR }}}`,
     TRIGGER: `
     configurable {{triggerType}}:ListenerConfig userInput = {
-        verificationToken: "xxxxx"
+        {{#each this.listenerParams.0.fields}}
+        {{ this.name }}: ""{{#unless @last}},{{/unless}}
+        {{/each}}
     };
 
     listener http:Listener httpListener = new(8090);

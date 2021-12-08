@@ -2,7 +2,9 @@ import ballerinax/{{moduleName}};
 import ballerina/http;
 
 configurable {{triggerType}}:ListenerConfig userInput = {
-    verificationToken: "xxxxx"
+  {{#each this.listenerParams.0.fields}}
+  {{ this.name }}: ""{{#unless @last}},{{/unless}}
+  {{/each}}
 }; 
 
 listener http:Listener httpListener = new(8090);
@@ -13,7 +15,7 @@ service {{../triggerType}}:{{ this.name }} on webhookListener {
     
   {{#each this.functions}}
     remote function {{ this.name }}({{#each this.parameters}}{{#if @index}}, {{/if}}{{../../../triggerType}}:{{this.typeInfo.name}} payload {{/each}}) returns error? {
-    <!-- Not Implemented -->
+      //Not Implemented
     }
   {{/each}}
 }
