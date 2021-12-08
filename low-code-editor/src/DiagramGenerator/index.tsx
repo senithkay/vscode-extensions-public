@@ -71,6 +71,10 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                 setSyntaxTree(vistedSyntaxTree);
                 undoRedo.updateContent(filePath, content);
                 setFileContent(content);
+
+                if (startLine === 0 && startColumn === 0 && genSyntaxTree) {
+                    setSelectedPosition(getDefaultSelectedPosition(genSyntaxTree));
+                }
             } catch (err) {
                 throw err;
             }
@@ -89,7 +93,11 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     }, []);
 
     React.useEffect(() => {
-        setSelectedPosition({startLine, startColumn});
+        if (startLine === 0 && startColumn === 0 && syntaxTree) {
+            setSelectedPosition(getDefaultSelectedPosition(syntaxTree));
+        } else {
+            setSelectedPosition({ startLine, startColumn });
+        }
     }, [startLine, startColumn]);
 
     function zoomIn() {
