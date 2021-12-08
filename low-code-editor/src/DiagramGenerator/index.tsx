@@ -18,10 +18,9 @@ import { CirclePreloader } from "../PreLoader/CirclePreloader";
 import { MESSAGE_TYPE } from "../types";
 
 import { DiagramGenErrorBoundary } from "./ErrorBoundrary";
-import { getDefaultSelectedPosition, getLowcodeST, getSyntaxTree, isDeleteModificationAvailable, isUnresolvedModulesAvailable, resolveMissingDependencies } from "./generatorUtil";
+import { getDefaultSelectedPosition, getLowcodeST, getModifyPosition, getSyntaxTree, isDeleteModificationAvailable, isUnresolvedModulesAvailable, resolveMissingDependencies } from "./generatorUtil";
 import { useGeneratorStyles } from "./styles";
 import { theme } from "./theme";
-import { getModifyPosition } from "./utils";
 import { EditorProps, PALETTE_COMMANDS } from "./vscode/Diagram";
 export interface DiagramGeneratorProps extends EditorProps {
     scale: string;
@@ -42,7 +41,6 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     const defaultPanY = panY ? Number(panY) : 0;
     const runCommand: (command: PALETTE_COMMANDS, args: any[]) => Promise<boolean> = props.runCommand;
     const showMessage: (message: string, type: MESSAGE_TYPE, isIgnorable: boolean) => Promise<boolean> = props.showMessage;
-
 
     const defaultZoomStatus = {
         scale: defaultScale,
