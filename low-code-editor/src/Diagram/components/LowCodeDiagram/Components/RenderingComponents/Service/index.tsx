@@ -53,7 +53,11 @@ export function Service(props: ServiceProps) {
     model.members.forEach(member => {
         children.push(
             <div className={'service-member'}>
-                <TopLevelPlus kind={model.kind} targetPosition={member.position} isTriggerType={isTriggerType} />
+                <TopLevelPlus
+                    kind={model.kind}
+                    targetPosition={member.position}
+                    isTriggerType={isTriggerType}
+                />
                 {getSTComponent(member)}
             </div>
         );
@@ -108,7 +112,12 @@ export function Service(props: ServiceProps) {
                     {isExpanded && (
                         <>
                             {children}
-                            <TopLevelPlus kind={model.kind} targetPosition={model.closeBraceToken.position} isTriggerType={isTriggerType} />
+                            <TopLevelPlus
+                                kind={model.kind}
+                                targetPosition={model.closeBraceToken.position}
+                                isTriggerType={isTriggerType}
+                                isDocumentEmpty={model.members.length === 0}
+                            />
                         </>
                     )}
                 </div>

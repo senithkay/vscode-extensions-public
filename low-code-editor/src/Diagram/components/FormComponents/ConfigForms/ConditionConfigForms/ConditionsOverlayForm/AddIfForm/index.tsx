@@ -32,6 +32,7 @@ import { useStyles } from "../../../../DynamicConnectorForm/style";
 import ExpressionEditor, { ExpressionEditorProps } from "../../../../FormFieldComponents/ExpressionEditor";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { ConditionConfig, ElseIfConfig, FormElementProps } from "../../../../Types";
+import Tooltip from '../../../../../../../components/TooltipV2'
 
 interface IfProps {
     condition: ConditionConfig;
@@ -152,6 +153,10 @@ export function AddIfForm(props: IfProps) {
             },
             { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH }
         ),
+        codeBlockTooltip: intl.formatMessage({
+            id: "lowcode.develop.configForms.IFStatementTooltipMessages.expressionEditor.tooltip.codeBlock",
+            defaultMessage: "To add code inside the if block, save if condition and use the diagram add buttons",
+        }),
     };
 
     const setElementProps = (order: number): FormElementProps<ExpressionEditorProps> => {
@@ -254,7 +259,9 @@ export function AddIfForm(props: IfProps) {
                     <Typography variant='body2' className={classes.endCode}>{`{`}</Typography>
                 </div>
                 <div className={classes.middleDottedwrapper}>
-                    <Typography variant='body2' className={classes.middleCode}>...</Typography>
+                    <Tooltip type='info' text={{ content: IFStatementTooltipMessages.codeBlockTooltip }}>
+                        <Typography variant='body2' className={classes.middleCode}>...</Typography>
+                    </Tooltip>
                 </div>
             </div>
         )
@@ -282,7 +289,9 @@ export function AddIfForm(props: IfProps) {
                         </div>
                     </div>
                     <div className={classes.middleDottedwrapper}>
-                        <Typography variant='body2' className={classes.middleCode}>...</Typography>
+                        <Tooltip type='info' text={{ content: IFStatementTooltipMessages.codeBlockTooltip }}>
+                            <Typography variant='body2' className={classes.middleCode}>...</Typography>
+                        </Tooltip>
                     </div>
                     {compList.slice(1, compList.length).map((comp) => {
                         return <React.Fragment key={comp.id}>{ElseIfElement(comp.id)}</React.Fragment>
@@ -305,7 +314,9 @@ export function AddIfForm(props: IfProps) {
                     </div>
                     <div className={classes.formCodeBlockWrapper}>
                         <div className={classes.middleDottedwrapper}>
-                            <Typography variant='body2' className={classes.middleCode}>{`...`}</Typography>
+                            <Tooltip type='info' text={{ content: IFStatementTooltipMessages.codeBlockTooltip }}>
+                                <Typography variant='body2' className={classes.middleCode}>{`...`}</Typography>
+                            </Tooltip>
                         </div>
                         <Typography variant='body2' className={classes.endCode}>{`}`}</Typography>
                     </div>

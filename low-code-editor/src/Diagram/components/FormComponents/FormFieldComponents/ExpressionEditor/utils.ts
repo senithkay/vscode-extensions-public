@@ -611,7 +611,7 @@ export const getHints = (
                     onClickHere: () => hintHandlers.addTypeCast(foundType, varType, monacoRef),
                     expressionType: varType,
                 });
-            } else if (varType === "sql:ParameterizedQuery") {
+            } else if (varType === "sql:ParameterizedQuery" || varType === "sql:ParameterizedCallQuery") {
                 if (monacoRef.current) {
                     const editorContent = monacoRef.current.editor.getModel().getValue();
                     // Check if the editor content already has backticks at the start and end positions

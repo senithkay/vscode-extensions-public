@@ -200,7 +200,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         <MuiThemeProvider theme={theme}>
             <div className={classes.lowCodeContainer}>
                 <IntlProvider locale='en' defaultLocale='en' messages={messages}>
-                    <DiagramGenErrorBoundary>
+                    <DiagramGenErrorBoundary lastUpdatedAt={lastUpdatedAt}>
                         <LowCodeEditor
                             {...missingProps}
                             selectedPosition={selectedPosition}

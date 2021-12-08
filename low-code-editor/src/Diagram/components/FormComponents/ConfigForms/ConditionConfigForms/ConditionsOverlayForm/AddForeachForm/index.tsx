@@ -32,6 +32,7 @@ import { FormTextInput } from "../../../../FormFieldComponents/TextField/FormTex
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { ConditionConfig, ForeachConfig, FormElementProps } from "../../../../Types";
 import { wizardStyles } from "../../../style";
+import Tooltip from '../../../../../../../components/TooltipV2'
 
 interface Iterations {
     start?: string;
@@ -177,7 +178,11 @@ export function AddForeachForm(props: ForeachProps) {
                 id: "lowcode.develop.configForms.forEach.currentValueVariable.tooltip.title",
                 defaultMessage: "Current Value Variable"
             }),
-        }
+        },
+        codeBlockTooltip: intl.formatMessage({
+            id: "lowcode.develop.configForms.IFStatementTooltipMessages.expressionEditor.tooltip.codeBlock",
+            defaultMessage: "To add code inside the foreach block, save foreach statement form and use the diagram add buttons",
+        }),
     };
     const saveForEachButtonLabel = intl.formatMessage({
         id: "lowcode.develop.configForms.forEach.saveButton.label",
@@ -309,7 +314,9 @@ export function AddForeachForm(props: ForeachProps) {
                     </div>
                     <div className={classes.formCodeBlockWrapper}>
                         <div className={classes.middleDottedwrapper}>
-                            <Typography variant='body2' className={classes.middleCode}>{`...`}</Typography>
+                            <Tooltip type='info' text={{ content: forEachTooltipMessages.codeBlockTooltip }}>
+                                <Typography variant='body2' className={classes.middleCode}>{`...`}</Typography>
+                            </Tooltip>
                         </div>
                         <Typography variant='body2' className={classes.endCode}>{`}`}</Typography>
                     </div>

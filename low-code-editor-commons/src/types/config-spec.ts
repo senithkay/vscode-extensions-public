@@ -116,8 +116,10 @@ export class ResponsePayloadMap {
 
 // tslint:disable-next-line: max-classes-per-file
 export class ActionConfig {
+    public isRemote: boolean = true;
     public name: string = "";
     public returnVariableName?: string = "";
+    public returnType?: string = "";
     public fields: FormField[] = [];
 }
 

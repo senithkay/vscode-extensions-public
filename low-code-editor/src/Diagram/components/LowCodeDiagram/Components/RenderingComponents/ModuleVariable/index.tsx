@@ -42,7 +42,7 @@ export function ModuleVariable(props: ModuleVariableProps) {
     const { api: { code: { modifyDiagram } } } = useDiagramContext();
 
     const [editFormVisible, setEditFormVisible] = useState(false);
-    const [deleteFormVisible, setDeleteFormVisible] = useState(false);
+    // const [deleteFormVisible, setDeleteFormVisible] = useState(false);
 
     const deleteBtnRef = useRef(null);
 
@@ -68,12 +68,13 @@ export function ModuleVariable(props: ModuleVariableProps) {
     const typeMaxWidth = varType?.length >= 10;
     const nameMaxWidth = varName?.length >= 20;
 
-    const handleOnDeleteCancel = () => {
-        setDeleteFormVisible(false);
-    }
+    // const handleOnDeleteCancel = () => {
+    //     setDeleteFormVisible(false);
+    // }
 
     const handleOnDeleteClick = () => {
-        setDeleteFormVisible(true);
+        // setDeleteFormVisible(true);
+        hadnleOnDeleteConfirm();
     }
 
     const hadnleOnDeleteConfirm = () => {
@@ -126,7 +127,7 @@ export function ModuleVariable(props: ModuleVariableProps) {
                     </div>
                 </div>
             </div>
-            {
+            {/* {
                 deleteFormVisible && (
                     <DeleteConfirmDialog
                         onCancel={handleOnDeleteCancel}
@@ -143,7 +144,7 @@ export function ModuleVariable(props: ModuleVariableProps) {
                         isFunctionMember={false}
                     />
                 )
-            }
+            } */}
             {
                 editFormVisible && (
                     <FormGenerator
