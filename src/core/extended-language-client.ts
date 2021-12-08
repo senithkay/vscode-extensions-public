@@ -359,9 +359,25 @@ export class ExtendedLangClient extends LanguageClient {
         }
         return this.sendRequest(EXTENDED_APIS.SYMBOL_TYPE, params);
     }
-    getConnectors(params: BallerinaConnectorsRequest): Thenable<BallerinaConnectorsResponse> {
+    getConnectors(params: BallerinaConnectorsRequest, reset?: boolean): Thenable<BallerinaConnectorsResponse> {
+        const CONNECTOR_LIST_CACHE = "CONNECTOR_LIST_CACHE";
+        let connectorList: BallerinaConnectorsResponse;
+
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.CONNECTOR_CONNECTORS)) {
             Promise.resolve(NOT_SUPPORTED);
+        }
+        if (!reset && params.query === "" && !params.offset) {
+            connectorList = this.ballerinaExtInstance?.context?.globalState.get(CONNECTOR_LIST_CACHE) as BallerinaConnectorsResponse;
+            if (connectorList && connectorList.central?.length > 0) {
+                return Promise.resolve().then(() => connectorList);
+            }
+        }
+        if (reset && params.query === "") {
+            params.offset = 0;
+            this.sendRequest<BallerinaConnectorsResponse>(EXTENDED_APIS.CONNECTOR_CONNECTORS, params).then((res) => {
+                this.ballerinaExtInstance?.context?.globalState.update(CONNECTOR_LIST_CACHE, res);
+            });
+            return Promise.resolve().then(() => connectorList);
         }
         return this.sendRequest<BallerinaConnectorsResponse>(EXTENDED_APIS.CONNECTOR_CONNECTORS, params);
     }

@@ -82,6 +82,9 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 
 	DiagramPanel.create(isCommand ? ViewColumn.Two : ViewColumn.One);
 
+	// Reset cached connector list
+	langClient.getConnectors({ query: "", limit: 18 }, true);
+
 	// Update test view
 	createTests(Uri.parse(filePath));
 }
