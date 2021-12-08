@@ -4,8 +4,6 @@ name: Daily Code Server Image 1
 on:
   workflow_dispatch:
     branches: [main]
-  schedule:
-    - cron: '0 1 * * *'
 
 jobs:
   build_docker:
