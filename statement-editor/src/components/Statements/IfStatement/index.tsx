@@ -127,7 +127,7 @@ export function IfStatementC(props: IfStatementProps) {
                 <br/>
                 {model.ifBody.closeBraceToken.value}
             </span>
-            !!model.elseBody && {elseBlockComponent}
+            {!!model.elseBody && elseBlockComponent}
         </span>
     );
 }
