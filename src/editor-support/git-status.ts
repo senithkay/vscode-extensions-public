@@ -113,14 +113,16 @@ export function showChoreoPushMessage(ballerinaExtInstance: BallerinaExtension, 
     const stop = "Don't show again!";
     const sync = "Sync my changes with Choreo";
     window.showInformationMessage('Make sure you commit and push project changes using the VS Code Source Control ' +
-        'activity to try out on the Choreo environment. \n\nFirst, go to the Source Control on the VS Code Activity bar. ' +
-        '\nEnter a commit message and `Commit` all changes. \nThen, `Push` all changes using the `More Actions...` ' +
-        'button on the source control activity.', { modal: true }, sync, stop).then((selection) => {
-            if (sync === selection) {
-                commands.executeCommand(PALETTE_COMMANDS.FOCUS_SOURCE_CONTROL);
-            }
-            if (stop === selection) {
-                ballerinaExtInstance.getCodeServerContext().infoMessageStatus.sourceControlMessage = false;
-            }
-        });
+        'activity to try out on the Choreo environment.', {
+        modal: true, detail: '\nFirst, go to the Source Control on the VS Code Activity bar. \nEnter a commit ' +
+            'message and `Commit` all changes. \nThen, `Push` all changes using the `More Actions...` button on ' +
+            'the source control activity.'
+    }, sync, stop).then((selection) => {
+        if (sync === selection) {
+            commands.executeCommand(PALETTE_COMMANDS.FOCUS_SOURCE_CONTROL);
+        }
+        if (stop === selection) {
+            ballerinaExtInstance.getCodeServerContext().infoMessageStatus.sourceControlMessage = false;
+        }
+    });
 }
