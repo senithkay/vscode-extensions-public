@@ -26,9 +26,9 @@ import {
     STModification,
     WizardType,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { CaptureBindingPattern, FunctionDefinition, LocalVarDecl, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { CaptureBindingPattern, FunctionDefinition, LocalVarDecl, ModulePart, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
-import { Context } from "../../../../../../Contexts/Diagram";
+import { Context, useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { useFunctionContext } from "../../../../../../Contexts/Function";
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
 import {
@@ -109,6 +109,9 @@ export function ConnectorForm(props: FormGeneratorProps) {
         isAction,
         expressionInjectables,
     } = props.configOverlayFormStatus.formArgs as ConnectorConfigWizardProps;
+    const {
+        props: { syntaxTree },
+    } = useDiagramContext();
     const { connector, functionDefInfo, connectorConfig, wizardType, model, isLoading: isConnectorLoading } = configWizardArgs;
     const isOauthConnector = false;
     const connectorName = connector?.displayAnnotation?.label || `${connector?.package.name} / ${connector?.name}`;
@@ -192,6 +195,23 @@ export function ConnectorForm(props: FormGeneratorProps) {
         setFormState(FormStates.OperationForm);
     };
 
+    const addExtraImport = (modifications: STModification[], orgName: string, moduleName: string) => {
+        let importCounts: number = 0;
+        if (STKindChecker.isModulePart(syntaxTree)) {
+            (syntaxTree as ModulePart).imports?.forEach((imp) => {
+                if (imp.typeData.symbol.id.orgName === orgName && imp.typeData.symbol.id.moduleName === `${moduleName}.driver`) {
+                    importCounts = importCounts + 1;
+                }
+            })
+            if (importCounts === 0) {
+                if (checkDBConnector(connectorModule)) {
+                    const addDriverImport: STModification = createImportStatement(orgName, `${moduleName}.driver as _`, targetPosition);
+                    modifications.push(addDriverImport);
+                }
+            }
+        }
+    }
+
     const handleEndpointSave = () => {
         const modifications: STModification[] = [];
         expressionInjectables?.list?.forEach((item: InjectableItem) => {
@@ -212,10 +232,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
 
         if (isNewConnectorInitWizard && targetPosition) {
             const addImport: STModification = createImportStatement(connector.package.organization, connectorModule, targetPosition);
-            if (checkDBConnector(connectorModule)) {
-                const addDriverImport: STModification = createImportStatement('ballerinax', `${connectorModule}.driver as _`, targetPosition);
-                modifications.push(addDriverImport);
-            }
+            addExtraImport(modifications, connector.package.organization, connectorModule);
             modifications.push(addImport);
             const addConnectorInit = createPropertyStatement(endpointStatement, targetPosition);
             modifications.push(addConnectorInit);
@@ -238,9 +255,8 @@ export function ConnectorForm(props: FormGeneratorProps) {
         if (checkDBConnector(connectorModule) && config.action.returnType) {
             currentActionReturnType.returnType = config.action.returnType;
         }
-
-        // handle special case to get user typed in return type
         const moduleName = getFormattedModuleName(connectorModule);
+        addExtraImport(modifications, connector.package.organization, moduleName);
 
         expressionInjectables?.list?.forEach((item: InjectableItem) => {
             modifications.push(item.modification);

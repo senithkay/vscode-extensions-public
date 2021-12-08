@@ -1135,7 +1135,7 @@ export function getManualConnectionTypeFromFormFields(formFields: FormField[]): 
 
 export function checkDBConnector(connectorModule: string): boolean {
     let isDBConnectorStatus = false;
-    const dbConnectors = ["mysql", "mssql", "postgresql"]
+    const dbConnectors = ["mysql", "mssql", "postgresql", "oracledb"]
     if (dbConnectors.includes(connectorModule)) {
         isDBConnectorStatus = true;
     }
