@@ -25,6 +25,7 @@ import ExpressionEditor, { ExpressionEditorProps } from "../../../../FormFieldCo
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { ConditionConfig, FormElementProps } from "../../../../Types";
+import Tooltip from '../../../../../../../components/TooltipV2'
 
 export interface WhileProps {
     condition: ConditionConfig;
@@ -81,7 +82,11 @@ export function AddWhileForm(props: WhileProps) {
         actionLink: intl.formatMessage({
             id: "lowcode.develop.configForms.whileStatementTooltipMessages.expressionEditor.tooltip.actionTitle",
             defaultMessage: "{learnBallerina}"
-        }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
+        }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH }),
+        codeBlockTooltip: intl.formatMessage({
+            id: "lowcode.develop.configForms.IFStatementTooltipMessages.expressionEditor.tooltip.codeBlock",
+            defaultMessage: "To add code inside the while block, save while statement form and use the diagram add buttons",
+        }),
     };
     const expElementProps: FormElementProps<ExpressionEditorProps> = {
         model: formField,
@@ -166,7 +171,9 @@ export function AddWhileForm(props: WhileProps) {
                     </div>
                     <div className={classes.formCodeExpressionValueRegularField}>
                         <div className={classes.middleDottedwrapper}>
-                            <Typography variant='body2' className={classes.middleCode}>{`...`}</Typography>
+                            <Tooltip type='info' text={{ content: whileStatementTooltipMessages.codeBlockTooltip }}>
+                                <Typography variant='body2' className={classes.middleCode}>{`...`}</Typography>
+                            </Tooltip>
                         </div>
                         <Typography variant='body2' className={classes.endCode}>{`}`}</Typography>
                     </div>

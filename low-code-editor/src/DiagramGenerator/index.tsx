@@ -15,9 +15,10 @@ import { UndoRedoManager } from "../Diagram/components/FormComponents/UndoRedoMa
 import { LowcodeEvent } from "../Diagram/models";
 import messages from '../lang/en.json';
 import { CirclePreloader } from "../PreLoader/CirclePreloader";
+import { MESSAGE_TYPE } from "../types";
 
 import { DiagramGenErrorBoundary } from "./ErrorBoundrary";
-import { getDefaultSelectedPosition, getLowcodeST, getSyntaxTree, isUnresolvedModulesAvailable, resolveMissingDependencies } from "./generatorUtil";
+import { getDefaultSelectedPosition, getLowcodeST, getSyntaxTree, isDeleteModificationAvailable, isUnresolvedModulesAvailable, resolveMissingDependencies } from "./generatorUtil";
 import { useGeneratorStyles } from "./styles";
 import { theme } from "./theme";
 import { EditorProps, PALETTE_COMMANDS } from "./vscode/Diagram";
@@ -39,6 +40,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     const defaultPanX = panX ? Number(panX) : 0;
     const defaultPanY = panY ? Number(panY) : 0;
     const runCommand: (command: PALETTE_COMMANDS, args: any[]) => Promise<boolean> = props.runCommand;
+    const showMessage: (message: string, type: MESSAGE_TYPE, isIgnorable: boolean) => Promise<boolean> = props.showMessage;
 
     const defaultZoomStatus = {
         scale: defaultScale,
@@ -254,10 +256,12 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                                 langClient, pfSession,
                                                 props.showPerformanceGraph, props.showMessage);
                                             setSyntaxTree(vistedSyntaxTree);
+                                            if (isDeleteModificationAvailable(mutations)) {
+                                                showMessage("Undo to revert the change you did by pressing Ctrl + Z", MESSAGE_TYPE.INFO, true);
+                                            }
                                         } else {
                                             // TODO show error
                                         }
-
                                     },
                                     onMutate: (type: string, options: any) => undefined,
                                     setCodeLocationToHighlight: (position: NodePosition) => undefined,

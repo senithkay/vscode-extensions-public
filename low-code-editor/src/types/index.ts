@@ -159,3 +159,9 @@ export interface LowCodeEditorContext {
 export interface LowCodeEditorProps extends LowCodeEditorProperties {
     api: LowCodeEditorAPI;
 }
+
+export enum MESSAGE_TYPE {
+    ERROR,
+    WARNING,
+    INFO
+}

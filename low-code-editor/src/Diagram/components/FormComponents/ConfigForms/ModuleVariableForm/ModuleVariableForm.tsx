@@ -28,6 +28,7 @@ import ExpressionEditor, { ExpressionEditorProps } from '../../FormFieldComponen
 import { TextLabel } from '../../FormFieldComponents/TextField/TextLabel';
 import { FormElementProps } from '../../Types';
 import { VariableNameInput } from '../Components/VariableNameInput';
+import { VariableTypeInput, VariableTypeInputProps } from '../Components/VariableTypeInput';
 
 import { getFormConfigFromModel, isFormConfigValid, ModuleVarNameRegex, VariableOptions } from './util';
 import { ModuleVarFormActionTypes, moduleVarFormReducer } from './util/reducer';
@@ -142,6 +143,33 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
         namePosition.endLine = targetPosition.startLine;
     }
 
+    const validateExpression = (fieldName: string, isInvalidType: boolean) => {
+        updateExpressionValidity(fieldName, isInvalidType);
+    };
+
+    const variableTypeConfig: VariableTypeInputProps = {
+        displayName: 'Select type',
+        value: state.varType,
+        onValueChange: onVarTypeChange,
+        validateExpression,
+        position: model ? {
+            ...model.position,
+            endLine: 0,
+            endColumn: 0,
+        } : targetPosition,
+        overrideTemplate: {
+            defaultCodeSnippet: `|()  tempVarType = ();`,
+            targetColumn: 1
+        }
+    }
+
+    const variableTypeInput = (
+        <div className="exp-wrapper">
+            <VariableTypeInput {...variableTypeConfig} />
+        </div>
+    );
+
+
     return (
         <FormControl data-testid="module-variable-config-form" className={formClasses.wizardFormControl}>
             <FormHeaderSection
@@ -162,12 +190,7 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
                         defaultValues={state.varOptions}
                         onChange={onAccessModifierChange}
                     />
-                    <SelectDropdownWithButton
-                        defaultValue={state.varType}
-                        customProps={typeSelectorCustomProps}
-                        label={"Select type"}
-                        onChange={onVarTypeChange}
-                    />
+                    {variableTypeInput}
                     <VariableNameInput
                         displayName={'Variable Name'}
                         value={state.varName}

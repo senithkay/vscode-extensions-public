@@ -1,12 +1,12 @@
-import { DiagramDiagnostic, DiagramEditorLangClientInterface } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { DiagramDiagnostic, DiagramEditorLangClientInterface, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, ModulePart, NodePosition, ResourceAccessorDefinition, ServiceDeclaration, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import { cleanLocalSymbols, cleanModuleLevelSymbols } from "../Diagram/visitors/symbol-finder-visitor";
 import { initVisitor, positionVisitor, sizingVisitor, SymbolVisitor } from "../index";
-import { SelectedPosition } from "../types";
+import { MESSAGE_TYPE, SelectedPosition } from "../types";
 
 import { addExecutorPositions } from "./executor";
-import { addPerformanceData, MESSAGE_TYPE } from "./performanceUtil";
+import { addPerformanceData } from "./performanceUtil";
 import { PALETTE_COMMANDS, PFSession } from "./vscode/Diagram";
 
 export async function getSyntaxTree(filePath: string, langClient: DiagramEditorLangClientInterface) {
@@ -77,7 +77,7 @@ export function sizingAndPositioningST(st: STNode): STNode {
 }
 
 
-export function isUnresolvedModulesAvailable(diagnostics: DiagramDiagnostic[]): {isAvailable: boolean, diagnostic: DiagramDiagnostic} {
+export function isUnresolvedModulesAvailable(diagnostics: DiagramDiagnostic[]): { isAvailable: boolean, diagnostic: DiagramDiagnostic } {
     let unresolvedModuleAvailable: boolean = false;
     let selectedDiagnostic: DiagramDiagnostic;
     for (const diagnostic of diagnostics) {
@@ -87,5 +87,16 @@ export function isUnresolvedModulesAvailable(diagnostics: DiagramDiagnostic[]): 
             break;
         }
     }
-    return {isAvailable: unresolvedModuleAvailable, diagnostic: selectedDiagnostic};
+    return { isAvailable: unresolvedModuleAvailable, diagnostic: selectedDiagnostic };
+}
+
+export function isDeleteModificationAvailable(modifications: STModification[]): boolean {
+    let isAvailable = false;
+    for (const modification of modifications) {
+        if (modification.type.toLowerCase() === "delete") {
+            isAvailable = true;
+            break;
+        }
+    }
+    return isAvailable;
 }
