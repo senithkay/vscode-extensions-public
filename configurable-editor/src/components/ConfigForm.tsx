@@ -20,6 +20,7 @@ import React, { useState } from "react";
 
 import { Box, Button, CardActions } from "@material-ui/core";
 
+import ButtonContainer from "./ButtonContainer";
 import { ConfigElementProps, getConfigElement } from "./ConfigElement";
 import { ConfigObjectProps, getConfigObject } from "./ConfigObject";
 import {
@@ -29,13 +30,13 @@ import {
     SchemaConstants,
     setMetaData,
 } from "./model";
+import { useStyles } from "./style";
 import {
     getConfigProperties,
     instanceOfConfigElement,
     setExistingValues,
     updateConfigObjectProps,
 } from "./utils";
-import ButtonContainer from "./ButtonContainer";
 
 let metaData: MetaData = null;
 
@@ -49,8 +50,7 @@ function getPackageConfig(configSchema: ConfigSchema): object {
     const orgConfig: object = configSchema.properties;
     const orgName = Object.keys(orgConfig)[0];
 
-    const packageConfig: object =
-        orgConfig[orgName][SchemaConstants.PROPERTIES];
+    const packageConfig: object = orgConfig[orgName][SchemaConstants.PROPERTIES];
     const packageName = Object.keys(packageConfig)[0];
 
     metaData = setMetaData(orgName, packageName);
@@ -68,24 +68,6 @@ export interface ConfigFormProps {
     isLowCode?: boolean;
 }
 
-const getConfigForm = (
-    configProperty: ConfigObjectProps | ConfigElementProps
-) => {
-    if (instanceOfConfigElement(configProperty)) {
-        return (
-            <div key={configProperty.id}>
-                {getConfigElement(configProperty as ConfigElementProps)}
-            </div>
-        );
-    } else {
-        return (
-            <div key={configProperty.id}>
-                {getConfigObject(configProperty as ConfigObjectProps)}
-            </div>
-        );
-    }
-};
-
 export const ConfigForm = ({
     configSchema,
     existingConfigs,
@@ -95,12 +77,13 @@ export const ConfigForm = ({
     onClickPrimaryButton,
     isLowCode,
 }: ConfigFormProps) => {
+    const classes  = useStyles();
     const [configValue, setConfigValue] = useState(new Array<ConfigValue>());
     const [submitType, setSubmitType] = useState("");
 
     // The config property object retrieved from the config schema.
     let configObjectProps: ConfigObjectProps = getConfigProperties(
-        getPackageConfig(configSchema)
+        getPackageConfig(configSchema),
     );
 
     // Set the existing config values to the config property obtained.
@@ -108,7 +91,7 @@ export const ConfigForm = ({
 
     const handleSetConfigValue = (config: ConfigValue) => {
         const existingConfig = configValue.findIndex(
-            (property) => property.key === config.key
+            (property) => property.key === config.key,
         );
         if (existingConfig > -1) {
             configValue[existingConfig].value = config.value;
@@ -122,7 +105,7 @@ export const ConfigForm = ({
         event.preventDefault();
         configObjectProps = updateConfigObjectProps(
             configObjectProps,
-            configValue
+            configValue,
         );
 
         if (submitType === defaultButtonText) {
@@ -140,6 +123,25 @@ export const ConfigForm = ({
         entry.setConfigElement = handleSetConfigValue;
     });
 
+    const getConfigForm = (
+        configProperty: ConfigObjectProps | ConfigElementProps,
+    ) => {
+
+        if (instanceOfConfigElement(configProperty)) {
+            return (
+                <div key={configProperty.id}>
+                    {getConfigElement(configProperty as ConfigElementProps, classes)}
+                </div>
+            );
+        } else {
+            return (
+                <div key={configProperty.id}>
+                    {getConfigObject(configProperty as ConfigObjectProps, classes)}
+                </div>
+            );
+        }
+    };
+
     return (
         <Box width="100%">
             <form className="ConfigForm" onSubmit={handleSubmit}>
@@ -150,10 +152,7 @@ export const ConfigForm = ({
                             variant="contained"
                             color="default"
                             size="small"
-                            onClick={handleSetSubmitType.bind(
-                                this,
-                                defaultButtonText
-                            )}
+                            onClick={handleSetSubmitType.bind(this, defaultButtonText)}
                         >
                             {defaultButtonText}
                         </Button>
@@ -162,10 +161,7 @@ export const ConfigForm = ({
                             color="primary"
                             size="small"
                             type="submit"
-                            onClick={handleSetSubmitType.bind(
-                                this,
-                                primaryButtonText
-                            )}
+                            onClick={handleSetSubmitType.bind(this, primaryButtonText)}
                         >
                             {primaryButtonText}
                         </Button>

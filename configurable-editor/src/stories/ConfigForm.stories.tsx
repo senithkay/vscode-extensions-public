@@ -1,6 +1,6 @@
 import React from "react";
-import ConfigEditor from "../components/ConfigEditor";
 
+import ConfigEditor from "../components/ConfigEditor";
 import ConfigForm from "../components/ConfigForm";
 import { ConfigObjectProps } from "../components/ConfigObject";
 import { ConfigSchema } from "../components/model";

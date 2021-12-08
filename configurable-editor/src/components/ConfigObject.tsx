@@ -23,8 +23,8 @@ import { Box, Card, CardContent, Typography } from "@material-ui/core";
 
 import { ConfigElementProps, getConfigElement } from "./ConfigElement";
 import { ConfigValue } from "./model";
-import { instanceOfConfigElement } from "./utils";
 import { useStyles } from "./style";
+import { instanceOfConfigElement } from "./utils";
 
 /**
  * A high level config property which can contain nested objects.
@@ -34,10 +34,11 @@ export interface ConfigObjectProps {
     name: string;
     properties?: Array<ConfigElementProps | ConfigObjectProps>;
     setConfigElement?: (configValue: ConfigValue) => void;
+
 }
 
-export const getConfigObject = (configObjectProps: ConfigObjectProps) => {
-    const classes = useStyles();
+export const getConfigObject = (configObjectProps: ConfigObjectProps, classes: any) => {
+
     if (configObjectProps === undefined) {
         return;
     }
@@ -52,7 +53,7 @@ export const getConfigObject = (configObjectProps: ConfigObjectProps) => {
                 <CardContent>
                     <Box className={classes.innerBoxHead}>
                         <Typography className={classes.innerBoxTitle}>
-                            Module: {configObjectProps.name}
+                            {configObjectProps.name}
                         </Typography>
                     </Box>
 
@@ -64,26 +65,27 @@ export const getConfigObject = (configObjectProps: ConfigObjectProps) => {
 };
 
 const ConfigObject = (
-    configProperties: Array<ConfigElementProps | ConfigObjectProps>
+    configProperties: Array<ConfigElementProps | ConfigObjectProps>,
 ): ReactElement => {
+    const classes = useStyles();
     const returnElement: ReactElement[] = [];
 
     Object.keys(configProperties).forEach((key) => {
         if (instanceOfConfigElement(configProperties[key])) {
             returnElement.push(
-                <div key={configProperties[key].id}>
-                    {getConfigElement(
-                        configProperties[key] as ConfigElementProps
-                    )}
-                </div>
+                (
+                    <div key={configProperties[key].id}>
+                        {getConfigElement(configProperties[key] as ConfigElementProps, classes)}
+                    </div>
+                ),
             );
         } else {
             returnElement.push(
-                <div key={configProperties[key].id}>
-                    {getConfigObject(
-                        configProperties[key] as ConfigObjectProps
-                    )}
-                </div>
+                (
+                    <div key={configProperties[key].id}>
+                        {getConfigObject(configProperties[key] as ConfigObjectProps, classes)}
+                    </div>
+                ),
             );
         }
     });

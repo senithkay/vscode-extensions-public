@@ -17,7 +17,10 @@
  *
  */
 import React from "react";
+
 import { Chip } from "@material-ui/core";
+
+import { useStyles } from "./style";
 
 interface OutlinedLabelProps {
     type: "success" | "warning" | "info" | "primary" | "default";
@@ -27,26 +30,27 @@ interface OutlinedLabelProps {
 }
 
 const OutlinedLabel = ({ type, label, isLink, shape }: OutlinedLabelProps) => {
-    let primaryColor = "#5567D5";
-    const cursorStyle = isLink ? "pointer" : "default";
+    const classes = useStyles();
+    let chipColor = "#5567D5";
+    const cursor = isLink ? "pointer" : "default";
     switch (type) {
         case "primary":
-            primaryColor = "#5567D5";
+            chipColor = "#5567D5";
             break;
         case "success":
-            primaryColor = "#36B475";
+            chipColor = "#36B475";
             break;
         case "warning":
-            primaryColor = "#ff9d52";
+            chipColor = "#ff9d52";
             break;
         case "info":
-            primaryColor = "#0095FF";
+            chipColor = "#0095FF";
             break;
         case "default":
-            primaryColor = "#636363";
+            chipColor = "#636363";
             break;
         default:
-            primaryColor = "#5567D5";
+            chipColor = "#5567D5";
     }
 
     return (
@@ -54,17 +58,8 @@ const OutlinedLabel = ({ type, label, isLink, shape }: OutlinedLabelProps) => {
             size="small"
             label={label}
             variant="outlined"
-            style={{
-                color: primaryColor,
-                borderColor: primaryColor,
-                padding: 6,
-                paddingTop: 2,
-                paddingBottom: 2,
-                height: "auto",
-                cursor: cursorStyle,
-                fontSize: 11,
-                borderRadius: shape === "square" ? 3 : 10,
-            }}
+            className={classes.chipRoot}
+            style={{borderColor: chipColor, borderRadius: shape === "square" ? 3 : 10, color: chipColor, cursor}}
         />
     );
 };

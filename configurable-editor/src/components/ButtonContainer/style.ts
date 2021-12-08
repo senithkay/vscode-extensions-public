@@ -41,5 +41,5 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginRight: `-${theme.spacing(0.5)}px`,
             marginTop: `-${theme.spacing(0.5)}px`,
         },
-    })
+    }),
 );

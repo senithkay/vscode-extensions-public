@@ -17,7 +17,9 @@
  *
  */
 import React from "react";
+
 import { Box } from "@material-ui/core";
+
 import { useStyles } from "./style";
 
 interface ButtonContainerProps {
@@ -34,13 +36,7 @@ const ButtonContainer = ({
 }: ButtonContainerProps) => {
     const classes = useStyles();
     const btnGrid = React.Children.map(children, (element) => (
-        <Box
-            className={
-                size === "small"
-                    ? classes.buttonContainerSmall
-                    : classes.buttonContainerLarge
-            }
-        >
+        <Box className={size === "small" ? classes.buttonContainerSmall : classes.buttonContainerLarge}>
             {element}
         </Box>
     ));
@@ -48,13 +44,9 @@ const ButtonContainer = ({
         <Box width="100%" mt={marginTop}>
             <Box
                 display="flex"
-                flexWrap="wrap"
                 justifyContent={justifyContent}
-                className={
-                    size === "small"
-                        ? classes.buttonGridSmall
-                        : classes.buttonGridLarge
-                }
+                flexWrap="wrap"
+                className={size === "small" ? classes.buttonGridSmall : classes.buttonGridLarge}
             >
                 {btnGrid}
             </Box>
@@ -63,7 +55,7 @@ const ButtonContainer = ({
 };
 export default ButtonContainer;
 ButtonContainer.defaultProps = {
-    marginTop: 5,
     justifyContent: "flex-start",
+    marginTop: 5,
     size: "large",
 };

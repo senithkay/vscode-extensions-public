@@ -21,28 +21,8 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 
 export const useStyles = makeStyles((theme: Theme) =>
     createStyles({
-        textInputRoot: {
-            marginBottom: theme.spacing(2),
-            "& .MuiInputBase-root": {
-                backgroundColor: "#ffffff",
-            },
-        },
         formGroup: {
             marginBottom: theme.spacing(3),
-        },
-        labelCont: {
-            marginBottom: theme.spacing(1),
-        },
-        mainLabel: {
-            display: "flex",
-            marginBottom: theme.spacing(0.5),
-        },
-        mainLabelText: {
-            fontSize: theme.spacing(1.8),
-            color: "#1D2028",
-        },
-        labelTag: {
-            display: "flex",
         },
         formInputBox: {
             width: "100%",
@@ -56,5 +36,25 @@ export const useStyles = makeStyles((theme: Theme) =>
         innerBoxTitle: {
             fontSize: theme.spacing(2),
         },
-    })
+        labelCont: {
+            marginBottom: theme.spacing(1),
+        },
+        labelTag: {
+            display: "flex",
+        },
+        mainLabel: {
+            display: "flex",
+            marginBottom: theme.spacing(0.5),
+        },
+        mainLabelText: {
+            color: "#1D2028",
+            fontSize: theme.spacing(1.8),
+        },
+        textInputRoot: {
+            "& .MuiInputBase-root": {
+                backgroundColor: "#ffffff",
+            },
+            "marginBottom": theme.spacing(2),
+        },
+    }),
 );

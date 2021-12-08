@@ -25,9 +25,10 @@ import { AddInputButton } from "./elements/AddInputButton";
 import { CheckBoxInput } from "./elements/CheckBoxInput";
 import { TextFieldInput } from "./elements/TextFieldInput";
 import { ConfigType, ConfigValue } from "./model";
-import { getType } from "./utils";
-import { useStyles } from "./style";
 import OutlinedLabel from "./OutlinedLabel";
+
+import { getType } from "./utils";
+
 /**
  * A leaf level config property model.
  */
@@ -55,7 +56,7 @@ export function setConfigElementProps(
     isArray: boolean,
     type: string,
     name: string,
-    isRequired: boolean
+    isRequired: boolean,
 ): ConfigElementProps {
     return {
         id,
@@ -71,8 +72,8 @@ export function setConfigElementProps(
  * @param configElementProps The props required for the `ConfigElement` component.
  * @returns                  The `ConfigElement` component.
  */
-export const getConfigElement = (configElementProps: ConfigElementProps) => {
-    const classes = useStyles();
+export const getConfigElement = (configElementProps: ConfigElementProps, classes: any) => {
+
     if (configElementProps === undefined) {
         return null;
     }
@@ -117,22 +118,28 @@ const ConfigElement = (configElement: ConfigElementProps): ReactElement => {
                 newElement.id = newElement.id + "." + index;
                 newElement.value = value;
                 returnElement.push(
-                    <div key={newElement.id + "-ELEMENT"}>
-                        {getInnerElement(newElement)}
-                    </div>
+                    (
+                        <div key={newElement.id + "-ELEMENT"}>
+                            {getInnerElement(newElement)}
+                        </div>
+                    ),
                 );
             });
             returnElement.push(
-                <div key={configElement.id + "-ADD"}>
-                    <AddInputButton />
-                </div>
+                (
+                    <div key={configElement.id + "-ADD"}>
+                        <AddInputButton />
+                    </div>
+                ),
             );
         }
     } else {
         returnElement.push(
-            <div key={configElement.id + "-ELEMENT"}>
-                {getInnerElement(configElement)}
-            </div>
+            (
+                <div key={configElement.id + "-ELEMENT"}>
+                    {getInnerElement(configElement)}
+                </div>
+            ),
         );
     }
     return <>{returnElement}</>;
