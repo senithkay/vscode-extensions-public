@@ -10,12 +10,15 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
 import { ConfigOverlayFormStatus, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
+import { useDiagramContext } from "../../../../Contexts/Diagram";
 import { Panel } from "../../Panel";
+import { UnsupportedConfirmButtons } from "../DialogBoxes/UnsupportedConfirmButtons";
 import { getForm } from "../Utils";
 
 export interface FormGeneratorProps {
@@ -40,6 +43,11 @@ export interface ExpressionInjectablesProps {
 }
 
 export function FormGenerator(props: FormGeneratorProps) {
+  const {
+    api: {
+      code: { gotoSource },
+    },
+  } = useDiagramContext();
   const [injectables, setInjectables] = useState<InjectableItem[]>([]);
   const { onCancel, configOverlayFormStatus, ...restProps } = props;
   const { formArgs, formType } = configOverlayFormStatus;
@@ -52,9 +60,20 @@ export function FormGenerator(props: FormGeneratorProps) {
   }
   const args = { onCancel, configOverlayFormStatus, formType, ...restProps }; // FixMe: Sort out form args
 
+  const handleConfirm = () => {
+    onCancel();
+    gotoSource({ startLine: 0, startColumn: 0 });
+  }
+
   return (
-    <Panel onClose={onCancel}>
-      <div className="form-generator">{getForm(formType, args)}</div>
-    </Panel>
+    <div>
+      {(formType === "ClassDefinition") ? (
+        <UnsupportedConfirmButtons onConfirm={handleConfirm} onCancel={onCancel} />
+      ) : (
+        <Panel onClose={onCancel}>
+          <div className="form-generator">{getForm(formType, args)}</div>
+        </Panel>
+      )}
+    </div>
   );
 }
