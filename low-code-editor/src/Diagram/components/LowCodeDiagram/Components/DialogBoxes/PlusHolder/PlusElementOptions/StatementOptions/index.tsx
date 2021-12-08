@@ -127,7 +127,7 @@ export function StatementOptions(props: StatementOptionsProps) {
         connectorStatement: {
             title: intl.formatMessage({
                 id: "lowcode.develop.plusHolder.plusElements.statements.connector.tooltip.title",
-                defaultMessage: "A connector can be used to link with external applications."
+                defaultMessage: "A connector can be used to integrate with external applications."
             })
         },
         actionStatement: {
