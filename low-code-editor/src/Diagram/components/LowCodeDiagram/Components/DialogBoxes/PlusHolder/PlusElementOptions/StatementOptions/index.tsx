@@ -17,7 +17,19 @@ import { QualifiedNameReference, STKindChecker } from "@wso2-enterprise/syntax-t
 import { Divider } from "@material-ui/core";
 import cn from "classnames";
 
-import { LogIcon, PropertyIcon, AssignmentIcon, IfIcon, ForEachIcon, ReturnIcon, RespondIcon, CustomStatementIcon, DataMapperIcon } from "../../../../../../../../assets/icons";
+import {
+    LogIcon,
+    PropertyIcon,
+    AssignmentIcon,
+    IfIcon,
+    ForEachIcon,
+    ReturnIcon,
+    RespondIcon,
+    CustomStatementIcon,
+    DataMapperIcon,
+    ConnectorIcon,
+    ActionIcon,
+} from "../../../../../../../../assets/icons";
 
 import { Context } from "../../../../../../../../Contexts/Diagram";
 import { isSTResourceFunction } from "../../../../../../../utils/st-util";
@@ -288,7 +300,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                     onClick={onSelectStatement.bind(undefined, "Connector")}
                 >
                     <div className="icon-wrapper">
-                        <LogIcon />
+                        <ConnectorIcon />
                     </div>
                     <div className="text-label">
                         <FormattedMessage
@@ -316,7 +328,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                     onClick={onSelectStatement.bind(undefined, "Action")}
                 >
                     <div className="icon-wrapper">
-                        <LogIcon />
+                        <ActionIcon />
                     </div>
                     <div className="text-label">
                         <FormattedMessage
