@@ -100,7 +100,7 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
     }
 
     if (!extension.getChoreoSession().loginStatus) {
-        showMessage("Please sign in to Choreo to view performance predictions.", MESSAGE_TYPE.INFO, true);
+        showChoreoSigninMessage(extension);
         return;
     }
 
@@ -336,4 +336,18 @@ export function openPerformanceDiagram(request: PerformanceGraphRequest) {
         `Performance Forecast of ${request.data.name}`, ViewColumn.Two, extension,
         WEBVIEW_TYPE.PERFORMANCE_FORECAST);
     return true;
+}
+
+export function showChoreoSigninMessage(extension: BallerinaExtension) {
+    if (!extension.getPerformanceForecastContext().infoMessageStatus.signinChoreo) {
+        return;
+    }
+    const action = 'Sign in to Choreo';
+    window.showInformationMessage("Please sign in to Choreo to view performance predictions.",
+        action).then((selection) => {
+            if (action === selection) {
+                commands.executeCommand('sessionExplorer.focus');
+            }
+        });
+    extension.getPerformanceForecastContext().infoMessageStatus.signinChoreo = false;
 }
