@@ -37,7 +37,7 @@ export interface ConfigObjectProps {
 
 }
 
-export const getConfigObject = (configObjectProps: ConfigObjectProps, classes: any) => {
+export const getConfigObject = (configObjectProps: ConfigObjectProps, classes: ReturnType<typeof useStyles>) => {
 
     if (configObjectProps === undefined) {
         return;

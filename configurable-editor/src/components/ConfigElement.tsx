@@ -26,7 +26,7 @@ import { CheckBoxInput } from "./elements/CheckBoxInput";
 import { TextFieldInput } from "./elements/TextFieldInput";
 import { ConfigType, ConfigValue } from "./model";
 import OutlinedLabel from "./OutlinedLabel";
-
+import { useStyles } from "./style";
 import { getType } from "./utils";
 
 /**
@@ -72,7 +72,7 @@ export function setConfigElementProps(
  * @param configElementProps The props required for the `ConfigElement` component.
  * @returns                  The `ConfigElement` component.
  */
-export const getConfigElement = (configElementProps: ConfigElementProps, classes: any) => {
+export const getConfigElement = (configElementProps: ConfigElementProps, classes: ReturnType<typeof useStyles>) => {
 
     if (configElementProps === undefined) {
         return null;
