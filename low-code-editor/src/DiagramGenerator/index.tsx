@@ -18,7 +18,10 @@ import { CirclePreloader } from "../PreLoader/CirclePreloader";
 import { MESSAGE_TYPE } from "../types";
 
 import { DiagramGenErrorBoundary } from "./ErrorBoundrary";
-import { getDefaultSelectedPosition, getLowcodeST, getModifyPosition, getSyntaxTree, isDeleteModificationAvailable, isUnresolvedModulesAvailable, resolveMissingDependencies } from "./generatorUtil";
+import {
+    getDefaultSelectedPosition, getLowcodeST, getModifyPosition, getSyntaxTree, isDeleteModificationAvailable,
+    isUnresolvedModulesAvailable
+} from "./generatorUtil";
 import { useGeneratorStyles } from "./styles";
 import { theme } from "./theme";
 import { EditorProps, PALETTE_COMMANDS } from "./vscode/Diagram";
