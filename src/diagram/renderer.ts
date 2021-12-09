@@ -152,11 +152,11 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
                     );
                 })
             }
-            function handlePerfErrors(file, data) {
+            function handlePerfErrors(response) {
                 return new Promise((resolve, _reject) => {
                     webViewRPCHandler.invokeRemoteMethod(
                         'handlePerfErrors',
-                        [file, data],
+                        [response],
                         (response) => {
                             resolve(response);
                         }
