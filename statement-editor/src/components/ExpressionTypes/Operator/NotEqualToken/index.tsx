@@ -12,19 +12,10 @@
  */
 import React from "react";
 
-import { NotEqualToken } from "@wso2-enterprise/syntax-tree";
-
-import { VariableUserInputs } from "../../../../models/definitions";
 import { InputEditor } from "../../../InputEditor";
+import { OperatorProps } from "../AsteriskToken";
 
-interface NotEqualTokenProps {
-    model:  NotEqualToken
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
-    isTypeDescriptor: boolean
-}
-
-export function NotEqualTokenComponent(props: NotEqualTokenProps) {
+export function NotEqualTokenComponent(props: OperatorProps) {
     const { model, userInputs, diagnosticHandler, isTypeDescriptor } = props;
 
     const inputEditorProps = {

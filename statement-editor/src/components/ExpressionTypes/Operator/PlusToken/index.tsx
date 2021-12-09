@@ -12,19 +12,10 @@
  */
 import React from "react";
 
-import { PlusToken } from "@wso2-enterprise/syntax-tree";
-
-import { VariableUserInputs } from "../../../../models/definitions";
 import { InputEditor } from "../../../InputEditor";
+import { OperatorProps } from "../AsteriskToken";
 
-interface PlusTokenProps {
-    model:  PlusToken
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
-    isTypeDescriptor: boolean
-}
-
-export function PlusTokenComponent(props: PlusTokenProps) {
+export function PlusTokenComponent(props: OperatorProps) {
     const { model, userInputs, diagnosticHandler, isTypeDescriptor } = props;
 
     const inputEditorProps = {

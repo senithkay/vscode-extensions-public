@@ -12,19 +12,10 @@
  */
 import React from "react";
 
-import { LogicalOrToken } from "@wso2-enterprise/syntax-tree";
-
-import { VariableUserInputs } from "../../../../models/definitions";
 import { InputEditor } from "../../../InputEditor";
+import { OperatorProps } from "../AsteriskToken";
 
-interface LogicalOrTokenProps {
-    model:  LogicalOrToken
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
-    isTypeDescriptor: boolean
-}
-
-export function LogicalOrTokenComponent(props: LogicalOrTokenProps) {
+export function LogicalOrTokenComponent(props: OperatorProps) {
     const { model, userInputs, diagnosticHandler, isTypeDescriptor } = props;
 
     const inputEditorProps = {

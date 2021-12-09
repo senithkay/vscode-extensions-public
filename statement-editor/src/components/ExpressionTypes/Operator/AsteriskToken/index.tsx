@@ -12,19 +12,19 @@
  */
 import React from "react";
 
-import { AsteriskToken } from "@wso2-enterprise/syntax-tree";
+import { AsteriskToken, BitwiseAndToken, BitwiseXorToken, DoubleDotLtToken, DoubleEqualToken, EllipsisToken, ElvisToken, GtEqualToken, GtToken, LogicalAndToken, LogicalOrToken, LtEqualToken, LtToken, NotDoubleEqualToken, NotEqualToken, PercentToken, PipeToken, PlusToken, SlashToken, TrippleEqualToken } from "@wso2-enterprise/syntax-tree";
 
 import { VariableUserInputs } from "../../../../models/definitions";
 import { InputEditor } from "../../../InputEditor";
 
-interface AsteriskTokenProps {
-    model:  AsteriskToken
+interface OperatorProps {
+    model:  AsteriskToken | BitwiseAndToken | BitwiseXorToken | DoubleDotLtToken | DoubleEqualToken | EllipsisToken | ElvisToken | GtEqualToken | GtToken | LogicalAndToken | LogicalOrToken | LtEqualToken | LtToken | NotDoubleEqualToken | NotEqualToken | PercentToken | PipeToken | PlusToken | SlashToken | TrippleEqualToken
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
     isTypeDescriptor: boolean
 }
 
-export function AsteriskTokenComponent(props: AsteriskTokenProps) {
+export function AsteriskTokenComponent(props: OperatorProps) {
     const { model, userInputs, diagnosticHandler, isTypeDescriptor } = props;
 
     const inputEditorProps = {

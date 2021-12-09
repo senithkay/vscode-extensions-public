@@ -12,19 +12,10 @@
  */
 import React from "react";
 
-import { DoubleEqualToken } from "@wso2-enterprise/syntax-tree";
-
-import { VariableUserInputs } from "../../../../models/definitions";
 import { InputEditor } from "../../../InputEditor";
+import { OperatorProps } from "../AsteriskToken";
 
-interface DoubleEqualTokenProps {
-    model:  DoubleEqualToken
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
-    isTypeDescriptor: boolean
-}
-
-export function DoubleEqualTokenComponent(props: DoubleEqualTokenProps) {
+export function DoubleEqualTokenComponent(props: OperatorProps) {
     const { model, userInputs, diagnosticHandler, isTypeDescriptor } = props;
 
     const inputEditorProps = {

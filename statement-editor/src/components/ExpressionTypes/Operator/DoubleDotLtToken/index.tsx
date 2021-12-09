@@ -12,19 +12,10 @@
  */
 import React from "react";
 
-import { DoubleDotLtToken } from "@wso2-enterprise/syntax-tree";
-
-import { VariableUserInputs } from "../../../../models/definitions";
 import { InputEditor } from "../../../InputEditor";
+import { OperatorProps } from "../AsteriskToken";
 
-interface DoubleDotLtTokenProps {
-    model:  DoubleDotLtToken
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
-    isTypeDescriptor: boolean
-}
-
-export function DoubleDotLtTokenComponent(props: DoubleDotLtTokenProps) {
+export function DoubleDotLtTokenComponent(props: OperatorProps) {
     const { model, userInputs, diagnosticHandler, isTypeDescriptor } = props;
 
     const inputEditorProps = {

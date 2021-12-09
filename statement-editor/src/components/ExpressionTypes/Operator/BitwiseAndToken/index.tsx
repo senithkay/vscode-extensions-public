@@ -12,19 +12,10 @@
  */
 import React from "react";
 
-import { BitwiseAndToken } from "@wso2-enterprise/syntax-tree";
-
-import { VariableUserInputs } from "../../../../models/definitions";
 import { InputEditor } from "../../../InputEditor";
+import { OperatorProps } from "../AsteriskToken";
 
-interface BitwiseAndTokenProps {
-    model:  BitwiseAndToken
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
-    isTypeDescriptor: boolean
-}
-
-export function BitwiseAndTokenComponent(props: BitwiseAndTokenProps) {
+export function BitwiseAndTokenComponent(props: OperatorProps) {
     const { model, userInputs, diagnosticHandler, isTypeDescriptor } = props;
 
     const inputEditorProps = {
