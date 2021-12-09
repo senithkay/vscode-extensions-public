@@ -69,3 +69,10 @@ export function isAllFieldsValid(allFieldChecks: Map<string, FormFieldChecks>, m
 
     return result;
 }
+
+const BALLERINA_CENTRAL_ROOT = 'https://lib.ballerina.io';
+
+export function generateDocUrl(org: string, module: string, method: string) {
+    return `${BALLERINA_CENTRAL_ROOT}/${org}/${module}/latest/clients/Client#${method}` ;
+}
+
