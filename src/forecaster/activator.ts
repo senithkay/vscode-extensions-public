@@ -190,43 +190,43 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
             log(error);
         });
     }
+}
 
-    function checkErrors(response: PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse) {
-        if (response.message === 'AUTHENTICATION_ERROR') {
-            // Choreo Auth Error
-            showMessage(CHOREO_AUTH_ERR, MESSAGE_TYPE.ERROR, true);
+export function checkErrors(response: PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse) {
+    if (response.message === 'AUTHENTICATION_ERROR') {
+        // Choreo Auth Error
+        showMessage(CHOREO_AUTH_ERR, MESSAGE_TYPE.ERROR, true);
 
-        } else if (response.message === 'CONNECTION_ERROR') {
-            // Internet Connection Error
-            showMessage(NETWORK_ERR, MESSAGE_TYPE.ERROR, true);
+    } else if (response.message === 'CONNECTION_ERROR') {
+        // Internet Connection Error
+        showMessage(NETWORK_ERR, MESSAGE_TYPE.ERROR, true);
 
-        } else if (response.message === 'MODEL_NOT_FOUND') {
-            // AI Error
-            showMessage(MODEL_NOT_FOUND, MESSAGE_TYPE.INFO, true);
+    } else if (response.message === 'MODEL_NOT_FOUND') {
+        // AI Error
+        showMessage(MODEL_NOT_FOUND, MESSAGE_TYPE.INFO, true);
 
-        } else if (response.message === 'NO_DATA') {
-            // This happens when there is no action invocations in the code.
-            // No need to show any error/info since there is no invocations.
+    } else if (response.message === 'NO_DATA') {
+        // This happens when there is no action invocations in the code.
+        // No need to show any error/info since there is no invocations.
 
-        } else if (response.message === 'ESTIMATOR_ERROR') {
-            // AI Error
-            showMessage(ESTIMATOR_ERROR, MESSAGE_TYPE.ERROR, true);
+    } else if (response.message === 'ESTIMATOR_ERROR') {
+        // AI Error
+        showMessage(ESTIMATOR_ERROR, MESSAGE_TYPE.ERROR, true);
 
-        } else if (response.message === 'UNKNOWN_ANALYSIS_TYPE') {
-            // AI Error
-            showMessage(UNKNOWN_ANALYSIS_TYPE, MESSAGE_TYPE.ERROR, true);
+    } else if (response.message === 'UNKNOWN_ANALYSIS_TYPE') {
+        // AI Error
+        showMessage(UNKNOWN_ANALYSIS_TYPE, MESSAGE_TYPE.ERROR, true);
 
-        } else if (response.message === 'INVALID_DATA') {
-            // AI Error
-            showMessage(INVALID_DATA, MESSAGE_TYPE.INFO, true);
+    } else if (response.message === 'INVALID_DATA') {
+        // AI Error
+        showMessage(INVALID_DATA, MESSAGE_TYPE.INFO, true);
 
-        } else {
-            retryAttempts++;
-            showMessage(`${UNABLE_TO_GET} ${response.message}`, MESSAGE_TYPE.ERROR, true);
+    } else {
+        retryAttempts++;
+        showMessage(`${UNABLE_TO_GET} ${response.message}`, MESSAGE_TYPE.ERROR, true);
 
-            if (retryAttempts >= maxRetries) {
-                showMessage(PERF_DISABLED, MESSAGE_TYPE.INFO, true);
-            }
+        if (retryAttempts >= maxRetries) {
+            showMessage(PERF_DISABLED, MESSAGE_TYPE.INFO, true);
         }
     }
 }

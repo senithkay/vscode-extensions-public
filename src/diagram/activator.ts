@@ -28,7 +28,7 @@ import { BallerinaExtension, Change } from '../core';
 import { getCommonWebViewOptions, isWindows, WebViewMethod, WebViewRPCHandler } from '../utils';
 import { join } from "path";
 import { TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, sendTelemetryEvent, TM_EVENT_OPEN_DIAGRAM, sendTelemetryException } from '../telemetry';
-import { CHOREO_API_PF, openPerformanceDiagram, PFSession } from '../forecaster';
+import { checkErrors, CHOREO_API_PF, openPerformanceDiagram, PFSession } from '../forecaster';
 import { showMessage } from '../utils/showMessage';
 import { Module } from '../tree-view';
 import { sep } from "path";
@@ -317,6 +317,13 @@ class DiagramPanel {
 				methodName: "showPerformanceGraph",
 				handler: async (args: any[]): Promise<boolean> => {
 					return openPerformanceDiagram(args[0]);
+				}
+			},
+			{
+				methodName: "handlePerfErrors",
+				handler: async (args: any[]): Promise<boolean> => {
+					checkErrors(args[0]);
+					return true;
 				}
 			},
 			{
