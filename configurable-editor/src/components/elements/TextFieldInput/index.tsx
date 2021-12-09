@@ -28,7 +28,7 @@ export interface TextFieldInputProps {
     isRequired: boolean;
     existingValue: any;
     type: string;
-    setTextFieldValue: (key: string, value: any) => void; 
+    setTextFieldValue: (key: string, value: any) => void;
 }
 
 export function TextFieldInput(props: TextFieldInputProps) {
