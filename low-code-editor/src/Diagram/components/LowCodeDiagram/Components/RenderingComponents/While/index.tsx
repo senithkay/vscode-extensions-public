@@ -22,7 +22,7 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../Contexts/Diagram";
-import { getDiagnosticMsgs, getDraftComponent, getSTComponents } from "../../../../../utils";
+import { getDiagnosticInfo, getDraftComponent, getSTComponents } from "../../../../../utils";
 import { getConditionConfig, getRandomInt } from "../../../../../utils/diagram-util";
 import { DefaultConfig } from "../../../../../visitors/default";
 import { FormGenerator } from "../../../../FormComponents/FormGenerator";
@@ -88,15 +88,16 @@ export function While(props: WhileProps) {
     const paddingUnfold = DefaultConfig.forEach.paddingUnfold;
     const diagnostics = modelWhile?.condition?.typeData?.diagnostics;
 
-    const diagnosticMsgs = getDiagnosticMsgs(diagnostics);
+    const diagnosticMsgs = getDiagnosticInfo(diagnostics);
     const whileWrapper = diagnosticMsgs ? "while-error-wrapper" : "while-wrapper" ;
 
     let codeSnippet = modelWhile?.source?.trim().split('{')[0];
     let codeSnippetOnSvg = "WHILE";
 
     const errorSnippet = {
-        diagnosticMsgs,
+        diagnosticMsgs: diagnosticMsgs?.message,
         code: codeSnippet,
+        severity: diagnosticMsgs?.severity
     }
 
     if (model) {

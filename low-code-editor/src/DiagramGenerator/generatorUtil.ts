@@ -100,3 +100,14 @@ export function isDeleteModificationAvailable(modifications: STModification[]): 
     }
     return isAvailable;
 }
+
+export interface ErrorSnippet{
+    diagnosticMsgs? : string,
+    code ?: string,
+    severity?: string
+}
+
+export interface DiagnosticMsgSeverity{
+    message: string,
+    severity: string
+}
