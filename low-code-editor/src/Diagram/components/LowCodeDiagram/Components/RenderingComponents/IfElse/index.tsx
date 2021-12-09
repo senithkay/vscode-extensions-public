@@ -22,7 +22,7 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../Contexts/Diagram";
-import { getDiagnosticMsgs, getDraftComponent, getSTComponents } from "../../../../../utils";
+import { getDiagnosticInfo, getDraftComponent, getSTComponents } from "../../../../../utils";
 import { getConditionConfig, getRandomInt } from "../../../../../utils/diagram-util";
 import { findActualEndPositionOfIfElseStatement } from "../../../../../utils/st-util";
 import { DefaultConfig } from "../../../../../visitors/default";
@@ -153,7 +153,7 @@ export function IfElse(props: IfElseProps) {
 
     let assignmentText: any = (!isDraftStatement && STKindChecker?.isIfElseStatement(model));
     assignmentText = (model as IfElseStatement)?.condition.source;
-    const diagnosticMsgs = getDiagnosticMsgs(diagnostics);
+    const diagnosticMsgs = getDiagnosticInfo(diagnostics);
 
     const conditionWrapper = isDraftStatement ? (diagnosticMsgs ?
         "main-condition-wrapper active-condition-error" : "main-condition-wrapper active-condition") :
@@ -161,8 +161,9 @@ export function IfElse(props: IfElseProps) {
         "main-condition-wrapper if-condition-error-wrapper" : "main-condition-wrapper if-condition-wrapper");
 
     const errorSnippet = {
-        diagnosticMsgs,
+        diagnosticMsgs: diagnosticMsgs?.message,
         code: codeSnippet,
+        severity: diagnosticMsgs?.severity
     }
     const assignmentTextWidth = assignmentText?.length * 8 + DefaultConfig.dotGap;
 
