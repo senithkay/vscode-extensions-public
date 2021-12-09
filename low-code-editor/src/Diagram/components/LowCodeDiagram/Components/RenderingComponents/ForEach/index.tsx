@@ -17,7 +17,7 @@ import { WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ForeachStatement, NodePosition, STKindChecker, STNode, TypedBindingPattern } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../Contexts/Diagram";
-import { getDiagnosticMsgs, getDraftComponent, getSTComponents } from "../../../../../utils";
+import { getDiagnosticInfo, getDraftComponent, getSTComponents } from "../../../../../utils";
 import { getConditionConfig, getRandomInt } from "../../../../../utils/diagram-util";
 import { DefaultConfig } from "../../../../../visitors/default";
 import { FormGenerator } from "../../../../FormComponents/FormGenerator";
@@ -223,11 +223,12 @@ export function ForEach(props: ForeachProps) {
     assignmentText = variableName + " " + keyWord + " " + forEachSource;
     const diagnostics = forEachModel?.actionOrExpressionNode?.typeData.diagnostics;
 
-    const diagnosticMsgs = getDiagnosticMsgs(diagnostics);
+    const diagnosticMsgs = getDiagnosticInfo(diagnostics);
     const foreachWrapper = diagnosticMsgs ? "foreach-block-error" : "foreach-block" ;
     const errorSnippet = {
-        diagnosticMsgs,
+        diagnosticMsgs: diagnosticMsgs?.message,
         code: codeSnippet,
+        severity: diagnosticMsgs?.severity
     }
 
     const unFoldedComponent = (
