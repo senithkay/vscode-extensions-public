@@ -201,14 +201,15 @@ export function DataProcessor(props: ProcessorProps) {
     const localModel = (model as LocalVarDecl);
     const editAndDeleteButtons = (
         <>
-            <g className={isReferencedVariable ? "disable" : ""}>
+            <g>
                 <DeleteBtn
                     model={model}
                     cx={viewState.bBox.cx - (DELETE_SVG_WIDTH_WITH_SHADOW) + PROCESS_SVG_WIDTH / 4}
                     cy={viewState.bBox.cy + (PROCESS_SVG_HEIGHT / 2) - (DELETE_SVG_HEIGHT_WITH_SHADOW / 3)}
                     toolTipTitle={toolTip}
-                    isButtonDisabled={isReferencedVariable}
+                    isReferencedInCode={isReferencedVariable}
                     onDraftDelete={onDraftDelete}
+                    showOnRight={true}
                 />
             </g>
             <EditBtn

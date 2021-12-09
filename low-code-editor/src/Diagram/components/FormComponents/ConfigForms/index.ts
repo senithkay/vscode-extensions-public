@@ -16,7 +16,6 @@ import { ConnectorForm } from "../ConnectorConfigWizard/Components/ConnectorForm
 import { APIConfigForm } from "./APIConfigForm";
 import { ConditionConfigForm } from "./ConditionConfigForms";
 import { ConfigurableForm } from "./ConfigurableForm";
-import { ConnectorInitForm } from "./ConnectorInitForm";
 import { ConnectorList } from "./ConnectorList";
 import { ConstantConfigForm } from "./ConstantConfigForm";
 import { EndConfigForm } from "./EndConfigForms";
@@ -35,7 +34,6 @@ import { TriggerList } from "./TriggerList";
 import { TypeDefinitionConfigForm } from "./TypeDefinitionConfigForm";
 
 export { APIConfigForm as apiConfig };
-export { ConnectorInitForm as connectorInit };
 export { ConditionConfigForm as If };
 export { ConditionConfigForm as ForEach };
 export { ConditionConfigForm as While };

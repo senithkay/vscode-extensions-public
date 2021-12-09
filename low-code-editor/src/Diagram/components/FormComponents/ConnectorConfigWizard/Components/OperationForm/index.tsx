@@ -20,22 +20,26 @@ import { ConnectorConfig, FormField, FunctionDefinitionInfo, PrimaryButton, STMo
 import { NodePosition } from '@wso2-enterprise/syntax-tree';
 import classNames from 'classnames';
 
+import {TooltipIcon} from "../../../../../../components/Tooltip";
 import { Context } from '../../../../../../Contexts/Diagram';
 import { getAllVariables } from "../../../../../utils/mixins";
 import { checkVariableName, genVariableName, getActionReturnType } from "../../../../Portals/utils";
+import { VariableTypeInput } from '../../../ConfigForms/Components/VariableTypeInput';
 import { Form } from "../../../DynamicConnectorForm";
 import { useStyles } from "../../../DynamicConnectorForm/style";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
 import { ExpressionInjectablesProps } from '../../../FormGenerator';
+import {generateDocUrl} from "../../../Utils";
 import { wizardStyles } from "../../style";
 import { ConnectorOperation } from '../ConnectorForm';
 import { OperationDropdown } from '../OperationDropdown';
+
 
 export interface OperationFormProps {
     operations: ConnectorOperation[];
     selectedOperation: string;
     showConnectionName: boolean;
-    onSave: (sourceModifications?: STModification[]) => void;
+    onSave: () => void;
     connectionDetails: ConnectorConfig;
     mutationInProgress: boolean;
     onConnectionChange: () => void;
@@ -46,7 +50,7 @@ export interface OperationFormProps {
 }
 
 export function OperationForm(props: OperationFormProps) {
-    const { props: { stSymbolInfo } } = useContext(Context);
+    const { props: { stSymbolInfo }, api: { webView: { showDocumentationView } } } = useContext(Context);
     const symbolInfo: STSymbolInfo = stSymbolInfo;
     const { operations, selectedOperation, showConnectionName, onSave, connectionDetails, onConnectionChange,
             mutationInProgress, isNewConnectorInitWizard, functionDefInfo, expressionInjectables, targetPosition } = props;
@@ -57,8 +61,13 @@ export function OperationForm(props: OperationFormProps) {
 
     const [selectedOperationState, setSelectedOperationState] = useState(selectedOperation);
     const [responseVarName, setResponseVarName] = useState<string>(connectionDetails?.action?.returnVariableName);
+    const [returnType, setReturnType] = useState<string>(connectionDetails?.action?.returnType);
+    const [validOutputValue, setValidOutputValue] = useState(false);
+
     const frmFields: FormField[] = connectionDetails?.action?.fields;
     const [formFields, setFormFields] = useState(frmFields);
+    const [docUrl, setDocUrl] = useState("");
+    const [tooltipInfo, setToolTipInfo] = useState("");
 
     const operationReturnType = getActionReturnType(selectedOperationState, functionDefInfo);
 
@@ -70,15 +79,32 @@ export function OperationForm(props: OperationFormProps) {
     const handleOperationChange = (operation: string) => {
         setSelectedOperationState(operation);
         if (operation) {
-            const derivedFormFields = functionDefInfo.get(operation).parameters;
+            const selectedFunction = functionDefInfo.get(operation);
+            const derivedFormFields = selectedFunction.parameters;
+            connectionDetails.action.isRemote = selectedFunction.isRemote;
             connectionDetails.action.name = operation;
             connectionDetails.action.fields = derivedFormFields;
             setFormFields(derivedFormFields);
+            if (functionDefInfo.get(operation)?.documentation &&
+                Array.isArray(functionDefInfo.get("init")?.parameters)) {
+                const connector = (functionDefInfo.get("init")?.parameters[0]?.typeInfo);
+                if (connector) {
+                    const {orgName, moduleName} = connector;
+                    if (orgName && moduleName) {
+                        setDocUrl(generateDocUrl(orgName, moduleName, operation));
+                        setToolTipInfo(functionDefInfo.get(operation).documentation);
+                    }
+                }
+
+            }
+
             if (!defaultResponseVarName) {
                 connectionDetails.action.returnVariableName = genVariableName(operation + "Response",
                     getAllVariables(symbolInfo));
                 setResponseVarName(connectionDetails.action.returnVariableName);
+
             }
+            setReturnType(connectionDetails.action.returnType);
         }
     }
 
@@ -110,6 +136,11 @@ export function OperationForm(props: OperationFormProps) {
         return true;
     };
 
+    const onTypeChange = (text: string) => {
+        connectionDetails.action.returnType = text;
+        setReturnType(text);
+    };
+
     let responseVariableHasReferences: boolean = false;
 
     if (!isNewConnectorInitWizard) {
@@ -118,6 +149,8 @@ export function OperationForm(props: OperationFormProps) {
     }
 
     connectionDetails.action.returnVariableName = responseVarName;
+    connectionDetails.action.returnType = returnType;
+
 
     const validateForm = (isRequiredFilled: boolean) => {
         setValidForm(isRequiredFilled);
@@ -140,6 +173,11 @@ export function OperationForm(props: OperationFormProps) {
         defaultMessage: "Response Variable Name"
     });
 
+    const addOutputTypeLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.addOutputType.label",
+        defaultMessage: "Output Type Name"
+    });
+
     const saveConnectionButtonText = intl.formatMessage({
         id: "lowcode.develop.configForms.saveConnectionButton.text",
         defaultMessage: "Save"
@@ -156,6 +194,40 @@ export function OperationForm(props: OperationFormProps) {
 
     const operationLabel = operations.find(operation => operation.name === selectedOperationState)?.label;
 
+    const onValidateOutputType = (fieldName: string, isInvalid: boolean) => {
+        setValidOutputValue(!isInvalid);
+    };
+
+    const hasTypeDesc = () => {
+        let typeDescStatus = false;
+        formFields.forEach((field) => {
+            if (field.typeName.includes("typedesc")) {
+                typeDescStatus = true;
+            }
+        })
+        return typeDescStatus;
+    }
+
+    const onToolTipURL = () => {
+        if (docUrl){
+            showDocumentationView(docUrl);
+        }
+    }
+
+    const docLinkComponent = (
+        <>
+            <p>{tooltipInfo}</p>
+            <a className={classes.buttonLink} onClick={onToolTipURL}>more info</a>
+        </>
+    );
+
+    const docToolTip = (
+        <div className={classes.tooltipContainer}>
+            <TooltipIcon title={docLinkComponent} />
+        </div>
+    );
+
+
     return (
         <div>
             {(!selectedOperationState || selectedOperationState === "") && <OperationDropdown operations={operations} onOperationSelect={handleOperationChange} connectionDetails={connectionDetails} showConnectionName={showConnectionName} />}
@@ -164,7 +236,10 @@ export function OperationForm(props: OperationFormProps) {
                     <div className={classNames(wizardClasses.configWizardAPIContainerAuto, wizardClasses.bottomRadius)}>
                         <div className={classes.fullWidth}>
                             <>
-                                <p className={wizardClasses.subTitle}>Operation<span className={wizardClasses.titleLabelRequired}>*</span></p>
+                                <div className={classes.operationTitle}>
+                                    <p className={wizardClasses.subTitle}>Operation<span className={wizardClasses.titleLabelRequired}>*</span></p>
+                                    {docUrl && docToolTip}
+                                </div>
                                 <Box border={1} borderRadius={5} className={wizardClasses.box}>
                                     <Typography variant="subtitle2">
                                         {(operationLabel?.length > operationLabelMaxLength ? operationLabel?.slice(0, operationLabelMaxLength) + "..." : operationLabel)
@@ -194,11 +269,11 @@ export function OperationForm(props: OperationFormProps) {
 
                             { operationReturnType?.hasReturn && (
                                 <FormTextInput
-                                    customProps={ {
+                                    customProps={{
                                         validate: validateNameValue,
                                         tooltipTitle: connectorOperationsTooltipMessages.responseVariableName.title,
                                         disabled: responseVariableHasReferences
-                                    } }
+                                    }}
                                     defaultValue={responseVarName}
                                     placeholder={addResponseVariablePlaceholder}
                                     onChange={onNameChange}
@@ -206,6 +281,18 @@ export function OperationForm(props: OperationFormProps) {
                                     errorMessage={responseVarError}
                                 />
                             ) }
+                            {operationReturnType?.hasReturn && hasTypeDesc() && (
+                                <Box className="exp-wrapper">
+                                    <VariableTypeInput
+                                        displayName={addOutputTypeLabel}
+                                        value={returnType ? returnType : operationReturnType.returnType}
+                                        hideTextLabel={false}
+                                        onValueChange={onTypeChange}
+                                        position={targetPosition}
+                                        validateExpression={onValidateOutputType}
+                                    />
+                                </Box>
+                            )}
                         </div>
                     </div>
                     <div className={classes.saveConnectorBtnHolder}>

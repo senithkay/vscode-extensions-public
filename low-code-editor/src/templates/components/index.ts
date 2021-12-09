@@ -101,7 +101,7 @@ service /{{{ BASE_PATH }}} on {{{ LISTENER_NAME }}}`,
 
       {{#each this.functions}}
         remote function {{ this.name }}({{#each this.parameters}}{{#if @index}}, {{/if}}{{../../../triggerType}}:{{this.typeInfo.name}} {{this.name}}{{/each}}) returns error? {
-            return error ("Not Implemented");
+            // Not Implemented
         }
       {{/each}}
     }

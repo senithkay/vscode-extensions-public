@@ -24,6 +24,8 @@ import {
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { Range } from "monaco-editor";
 
+import { MESSAGE_TYPE } from "../types";
+
 import { mergeAnalysisDetails } from "./mergePerformanceData";
 import { PFSession } from "./vscode/Diagram";
 
@@ -49,12 +51,6 @@ let showMessage: (message: string, type: MESSAGE_TYPE, isIgnorable: boolean) => 
 export interface PerformanceGraphRequest {
     file: string;
     data: GraphData;
-}
-
-export enum MESSAGE_TYPE {
-    ERROR,
-    WARNING,
-    INFO
 }
 
 export enum ANALYZE_TYPE {

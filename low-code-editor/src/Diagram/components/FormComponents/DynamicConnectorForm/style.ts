@@ -677,7 +677,8 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         middleCode: {
             color: '#8D91A3',
-            marginLeft: theme.spacing(3)
+            marginLeft: theme.spacing(3),
+            cursor: 'default'
         },
         endCode: {
             color: '#1D2028',
@@ -864,6 +865,26 @@ export const useStyles = makeStyles((theme: Theme) =>
             display: 'inline-flex',
             width: '100%',
             marginTop: theme.spacing(1)
+        },
+        tooltipContainer: {
+            marginLeft: 'auto',
+            marginRight: '0'
+        },
+        operationTitle: {
+            display: 'inline-flex',
+            alignItems: 'center',
+            width: '100%'
+        },
+        buttonLink: {
+            color: theme.palette.primary.main,
+            cursor: "pointer",
+            "&:hover": {
+                textDecoration: "underline"
+            }
+        },
+        componentWrapper: {
+            display: "flex",
+            justifyContent: "space-between",
         }
     }),
     { index: 1 }

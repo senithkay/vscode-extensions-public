@@ -2,8 +2,26 @@ import * as React from "react";
 
 import ErrorScreen from "./Error";
 
-export class DiagramGenErrorBoundaryC extends React.Component<{}, { hasError: boolean }> {
-    state = { hasError: false }
+export interface DiagramGenErrorBoundaryProps {
+    lastUpdatedAt: string;
+    children: React.ReactElement | React.ReactElement[];
+}
+
+export interface DiagramGenErrorBoundaryState {
+    hasError: boolean;
+    lastUpdatedAt: string;
+}
+
+export class DiagramGenErrorBoundaryC extends React.Component<DiagramGenErrorBoundaryProps, DiagramGenErrorBoundaryState> {
+    state = { hasError: false, lastUpdatedAt: this.props.lastUpdatedAt }
+
+    static getDerivedStateFromProps(props: DiagramGenErrorBoundaryProps,
+                                    state: DiagramGenErrorBoundaryState) {
+      return {
+        lastUpdatedAt: props.lastUpdatedAt,
+        hasError: state.lastUpdatedAt !== props.lastUpdatedAt ? false : state.hasError
+      };
+    }
 
     static getDerivedStateFromError() {
       return { hasError: true };
