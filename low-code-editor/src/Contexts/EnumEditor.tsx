@@ -23,7 +23,7 @@ export enum FormState {
     UPDATE_FIELD = 3,
 }
 
-export interface RecordEditorState {
+export interface EnumEditorState {
     enumModel?: EnumModel;
     currentRecord?: EnumModel;
     currentField?: SimpleField;
@@ -37,7 +37,7 @@ export interface RecordEditorState {
 }
 
 export interface EnumEditorProps {
-    state?: RecordEditorState;
+    state?: EnumEditorState;
     callBacks?: {
         onUpdateModel?: (mode: EnumModel) => void;
         onUpdateCurrentRecord?: (formState: EnumModel) => void;
@@ -49,7 +49,7 @@ export interface EnumEditorProps {
     };
 }
 
-const reducer = (state: RecordEditorState, action: any) => {
+const reducer = (state: EnumEditorState, action: any) => {
     switch (action.type) {
         case 'UPDATE_MODEL':
             return {
