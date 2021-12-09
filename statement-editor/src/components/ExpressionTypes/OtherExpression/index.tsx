@@ -12,26 +12,35 @@
  */
 import React from "react";
 
-import { TextField } from "@material-ui/core";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
+import { VariableUserInputs } from "../../../models/definitions";
+import { InputEditor } from "../../InputEditor";
 import { useStatementEditorStyles } from "../../styles";
 
 interface OtherExpressionProps {
     model: STNode
+    userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
+    isTypeDescriptor: boolean
 }
 
 export function OtherExpressionComponent(props: OtherExpressionProps) {
-    const { model } = props;
+    const { model, userInputs, diagnosticHandler, isTypeDescriptor } = props;
 
     const statementEditorClasses = useStatementEditorStyles();
 
+    const inputEditorProps = {
+        statementType: model.kind,
+        model,
+        userInputs,
+        diagnosticHandler,
+        isTypeDescriptor
+    };
+
     return (
-        <TextField
-            className={statementEditorClasses.expressionElement}
-            autoFocus={true}
-            defaultValue={model.source.trim()}
-        />
+        <button className={statementEditorClasses.expressionElement}>
+            <InputEditor {...inputEditorProps} />
+        </button>
     );
 }

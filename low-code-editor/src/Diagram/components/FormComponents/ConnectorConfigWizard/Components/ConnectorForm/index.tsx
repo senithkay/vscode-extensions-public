@@ -26,9 +26,9 @@ import {
     STModification,
     WizardType,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { CaptureBindingPattern, FunctionDefinition, LocalVarDecl, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { CaptureBindingPattern, FunctionDefinition, LocalVarDecl, ModulePart, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
-import { Context } from "../../../../../../Contexts/Diagram";
+import { Context, useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { useFunctionContext } from "../../../../../../Contexts/Function";
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
 import {
@@ -46,6 +46,7 @@ import {
     updatePropertyStatement,
 } from "../../../../../utils/modification-util";
 import {
+    checkDBConnector,
     genVariableName,
     getActionReturnType,
     getConnectorComponent,
@@ -108,6 +109,9 @@ export function ConnectorForm(props: FormGeneratorProps) {
         isAction,
         expressionInjectables,
     } = props.configOverlayFormStatus.formArgs as ConnectorConfigWizardProps;
+    const {
+        props: { syntaxTree },
+    } = useDiagramContext();
     const { connector, functionDefInfo, connectorConfig, wizardType, model, isLoading: isConnectorLoading } = configWizardArgs;
     const isOauthConnector = false;
     const connectorName = connector?.displayAnnotation?.label || `${connector?.package.name} / ${connector?.name}`;
@@ -166,7 +170,10 @@ export function ConnectorForm(props: FormGeneratorProps) {
         config.action.returnVariableName = ((model as LocalVarDecl).typedBindingPattern
             .bindingPattern as CaptureBindingPattern).variableName.value;
     }
-
+    if (model && !isNewConnectorInitWizard) {
+        config.action.returnType = ((model as LocalVarDecl).typedBindingPattern
+            .typeDescriptor.source.trim());
+    }
     const onCreateNew = () => {
         setConfigName(genVariableName(connectorModule + "Endpoint", getAllVariables(stSymbolInfo)));
         setConfigName(genVariableName(connectorModule + "Endpoint", getAllVariables(stSymbolInfo)));
@@ -188,6 +195,23 @@ export function ConnectorForm(props: FormGeneratorProps) {
         setFormState(FormStates.OperationForm);
     };
 
+    const addExtraImport = (modifications: STModification[], orgName: string, moduleName: string) => {
+        let importCounts: number = 0;
+        if (STKindChecker.isModulePart(syntaxTree)) {
+            (syntaxTree as ModulePart).imports?.forEach((imp) => {
+                if (imp.typeData.symbol.id.orgName === orgName && imp.typeData.symbol.id.moduleName === `${moduleName}.driver`) {
+                    importCounts = importCounts + 1;
+                }
+            })
+            if (importCounts === 0) {
+                if (checkDBConnector(connectorModule)) {
+                    const addDriverImport: STModification = createImportStatement(orgName, `${moduleName}.driver as _`, targetPosition);
+                    modifications.push(addDriverImport);
+                }
+            }
+        }
+    }
+
     const handleEndpointSave = () => {
         const modifications: STModification[] = [];
         expressionInjectables?.list?.forEach((item: InjectableItem) => {
@@ -206,13 +230,9 @@ export function ConnectorForm(props: FormGeneratorProps) {
             config.connectorInit
         ).join()});`;
 
-        const dbConnectors = ["mysql" , "mssql"]
         if (isNewConnectorInitWizard && targetPosition) {
             const addImport: STModification = createImportStatement(connector.package.organization, connectorModule, targetPosition);
-            if (dbConnectors.includes(connectorModule)) {
-                const addDriverImport: STModification = createImportStatement('ballerinax', `${connectorModule}.driver as _`, targetPosition);
-                modifications.push(addDriverImport);
-            }
+            addExtraImport(modifications, connector.package.organization, connectorModule);
             modifications.push(addImport);
             const addConnectorInit = createPropertyStatement(endpointStatement, targetPosition);
             modifications.push(addConnectorInit);
@@ -232,7 +252,11 @@ export function ConnectorForm(props: FormGeneratorProps) {
         const modifications: STModification[] = [];
         const isInitReturnError = getInitReturnType(functionDefInfo);
         const currentActionReturnType = getActionReturnType(config.action.name, functionDefInfo);
+        if (checkDBConnector(connectorModule) && config.action.returnType) {
+            currentActionReturnType.returnType = config.action.returnType;
+        }
         const moduleName = getFormattedModuleName(connectorModule);
+        addExtraImport(modifications, connector.package.organization, moduleName);
 
         expressionInjectables?.list?.forEach((item: InjectableItem) => {
             modifications.push(item.modification);
@@ -252,9 +276,9 @@ export function ConnectorForm(props: FormGeneratorProps) {
             addReturnImportsModifications(modifications, currentActionReturnType);
             actionStatement += `${currentActionReturnType.returnType} ${config.action.returnVariableName} = `;
         }
-        actionStatement += `${currentActionReturnType.hasError ? "check" : ""} ${config.name}->${config.action.name}(${getParams(
-            config.action.fields
-        ).join()});`;
+        actionStatement += `${currentActionReturnType.hasError ? "check" : ""} ${config.name}${
+            config.action.isRemote ? "->" : "."
+        }${config.action.name}(${getParams(config.action.fields).join()});`;
 
         if (!isNewConnectorInitWizard && isAction) {
             const updateActionInvocation = updatePropertyStatement(actionStatement, model.position);
@@ -430,6 +454,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
                             isNewConnectorInitWizard={isNewConnectorInitWizard}
                             operations={operations}
                             expressionInjectables={expressionInjectables}
+                            targetPosition={targetPosition}
                         />
                     )}
 
@@ -454,6 +479,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
                             isOauthConnector={isOauthConnector}
                             responseStatus={responseStatus}
                             expressionInjectables={expressionInjectables}
+                            targetPosition={targetPosition}
                         />
                     )}
 
@@ -470,6 +496,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
                             isOauthConnector={isOauthConnector}
                             responseStatus={responseStatus}
                             expressionInjectables={expressionInjectables}
+                            targetPosition={targetPosition}
                         />
                     )}
                 </div>
@@ -483,7 +510,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
                 onCancel={onClose}
                 statementEditor={false}
                 formTitle={"lowcode.develop.configForms.connector.title"}
-                defaultMessage={"API Connection"}
+                defaultMessage={"Connector"}
             />
             <div className={formClasses.formWrapper}>
                 <div className={formClasses.formFeilds}>

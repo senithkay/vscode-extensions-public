@@ -12,7 +12,7 @@ module.exports = (env, argv) => ({
         BLCEditor: path.join(__dirname, 'src', 'index.tsx')
     },
     target: 'web',
-    devtool: 'source-map',
+    devtool: argv.mode === "production" ? undefined : "source-map",
     resolve: {
         extensions: [".ts", ".tsx", ".js", ".mjs"],
         alias: {

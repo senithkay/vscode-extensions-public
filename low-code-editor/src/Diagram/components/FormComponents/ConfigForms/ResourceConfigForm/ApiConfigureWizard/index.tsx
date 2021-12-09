@@ -14,7 +14,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { Box, FormControl, Grid, Link, Typography } from "@material-ui/core";
-import { ConfigOverlayFormStatus, FormHeaderSection, PrimaryButton, SecondaryButton, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ConfigOverlayFormStatus, FormActionButtons, FormHeaderSection, PrimaryButton, SecondaryButton, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, NodePosition, ObjectMethodDefinition, RequiredParam, ResourceAccessorDefinition } from "@wso2-enterprise/syntax-tree";
 
 import { ResourceIcon } from "../../../../../../assets/icons";
@@ -51,6 +51,7 @@ import {
     generateQueryParamFromST,
     genrateBallerinaQueryParams,
     getBallerinaPayloadType,
+    getPathDiagnostics,
     getReturnType,
     getReturnTypePosition,
     getReturnTypeTemplate,
@@ -130,6 +131,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
             const returnTypeDesc: string = getReturnType(functionSignature?.returnTypeDesc);
             const stMethod: string = functionName?.value;
             const stPath: string = getPathOfResources(relativeResourcePath) || "";
+            const pathDiagnostics = getPathDiagnostics(relativeResourcePath);
 
             let resourceMember: Resource;
 
@@ -137,12 +139,13 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                 resourceMember = {
                     id: 0,
                     method: stMethod.toUpperCase(),
-                    path: (stPath === "." ? "" : stPath),
+                    path: (stPath),
                     queryParams: queryParam,
                     payload,
                     isCaller: callerParam,
                     isRequest: requestParam,
-                    returnType: returnTypeDesc
+                    returnType: returnTypeDesc,
+                    initialPathDiagnostics: pathDiagnostics,
                 };
                 setResource(resourceMember);
                 if (payload && payload !== "") {
@@ -156,6 +159,18 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     }, [model]);
 
     const onPathUIToggleSelect = () => {
+        if (!toggleMainAdvancedMenu && resource.path === '.') {
+            setResource({
+                ...resource,
+                path: '',
+            })
+        } else if (toggleMainAdvancedMenu && resource.path === '') {
+            setResource({
+                ...resource,
+                path: '.',
+            })
+        }
+
         setToggleMainAdvancedMenu(!toggleMainAdvancedMenu);
     }
 
@@ -198,7 +213,10 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     }
 
     function handleOnChangeReturnType(text: string) {
-        resource.returnType = text;
+        setResource({
+            ...resource,
+            returnType: text
+        })
     }
 
     function handleOnChangePathFromUI(text: string) {
@@ -306,20 +324,11 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
             const generatedBallerinaPayload: string = resource.payload ? getBallerinaPayloadType(payload, (resource.isCaller || resource.isRequest)) : "";
             const path: string = (resource.path === "" ? "." : resource.path.charAt(0) === "/" ? resource.path.substr(1, resource.path.length) : resource.path);
 
-
             const resourceModification: STModification = createResource(resource.method.toLowerCase(), path, generatedBallerinaQueryParam,
                 generatedBallerinaPayload, resource.isCaller, resource.isRequest,
                 resource.returnType, targetPosition);
 
             mutations.push(resourceModification)
-            // const event: LowcodeEvent = {
-            //   type: EVENT_TYPE_AZURE_APP_INSIGHTS,
-            //   name: TRIGGER_SELECTED_INSIGHTS,
-            //   property: "API"
-            // };
-            // onEvent(event);
-            // todo: handle dispatch
-            // dispatchGoToNextTourStep("CONFIG_SAVE");
         } else {
             const updatePosition: NodePosition = {
                 startLine: model.functionName.position.startLine,
@@ -529,39 +538,42 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     const lastRelativePath = model?.relativeResourcePath ? model?.relativeResourcePath[model?.relativeResourcePath?.length - 1] : {};
     const variableNameConfig: VariableNameInputProps = {
         displayName: 'Resource path',
-        value: resource.path,
-        onValueChange: (value) => setResource({...resource, path: value}),
+        value: resource.path === '.' ? '' : resource.path,
+        onValueChange: (value) => setResource({ ...resource, path: value }),
         validateExpression: updateResourcePathValidation,
         position: model ? {
             startLine: model?.functionName?.position?.startLine,
             startColumn: model?.functionName?.position?.startColumn,
-            endLine: lastRelativePath ? lastRelativePath.position?.endLine : 0,
-            endColumn: lastRelativePath ? lastRelativePath.position?.endColumn : 0,
+            endLine: lastRelativePath ? lastRelativePath.position?.endLine : model?.functionName?.position?.startLine,
+            endColumn: lastRelativePath ? lastRelativePath.position?.endColumn : model?.functionName?.position?.startColumn,
         } : {
             ...targetPosition,
-            endColumn: 0,
+            endColumn: targetPosition.startColumn,
+            endLine: targetPosition.startLine,
         },
         overrideTemplate: {
-            defaultCodeSnippet: `resource function ${resource.method} (){}`,
+            defaultCodeSnippet: `resource function ${resource.method.toLowerCase()} (){}`,
             targetColumn: 20 + resource.method.length,
         },
         overrideEditTemplate: {
-            defaultCodeSnippet: `${resource.method} `,
+            defaultCodeSnippet: `${resource.method.toLowerCase()} `,
             targetColumn: 2 + resource.method.length,
         },
         isEdit: !!model,
         hideLabel: true,
+        initialDiagnostics: resource.initialPathDiagnostics,
+        diagnosticsFilterExtraColumns: {
+            start: 1 + resource.method.length,
+        }
     }
 
     const pathUI = (
-        // <div className={classes.sectionSeparator}>
         <Section
             title={pathTitle}
             tooltipWithExample={{ title, content: pathExample }}
         >
-            {initialLoaded && <VariableNameInput {...variableNameConfig} key={resource.method}/>}
+            {initialLoaded && <VariableNameInput {...variableNameConfig} key={resource.method} />}
         </Section>
-        // </div>
     );
 
     const advanceSwitch = (
@@ -595,13 +607,13 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                     button={<SwitchToggle initSwitch={togglePayload} onChange={onPayloadToggleSelect} />}
                 >
                     <PayloadEditor
-                      model={model}
-                      targetPosition={targetPosition}
-                      disabled={!togglePayload}
-                      payload={resource.payload}
-                      onChange={handleOnChangePayloadFromUI}
-                      onError={handleOnPayloadErrorFromUI}
-                      setIsValid={setIsValidPayload}
+                        model={model}
+                        targetPosition={targetPosition}
+                        disabled={!togglePayload}
+                        payload={resource.payload}
+                        onChange={handleOnChangePayloadFromUI}
+                        onError={handleOnPayloadErrorFromUI}
+                        setIsValid={setIsValidPayload}
                     />
                 </Section>
             </div>
@@ -617,7 +629,6 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                     />
                 </Section>
             </div>
-
         </div>
     );
 
@@ -625,12 +636,14 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
         <div className={classes.returnTextBoxWrapper}>
             <VariableTypeInput
                 hideLabel={true}
-                displayName={"Variable Type"}
+                displayName={"Return Type"}
                 value={resource.returnType}
                 onValueChange={handleOnChangeReturnType}
                 validateExpression={validateReturnTypeExpression}
                 position={getReturnTypePosition(funcSignature, targetPosition)}
                 overrideTemplate={getReturnTypeTemplate(funcSignature, resource)}
+                initialDiagnostics={funcSignature?.returnTypeDesc?.typeData?.diagnostics}
+                changed={resource.isCaller}
             />
         </div>
     );
@@ -648,7 +661,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                     text={saveButtonText}
                     className={classes.saveBtn}
                     onClick={handleUserConfirm}
-                    disabled={isFileSaving || !isValidReturnExpr || (togglePayload && !isValidPayload)}
+                    disabled={isFileSaving || !isValidReturnExpr || (!isValidPath && !toggleMainAdvancedMenu) || (togglePayload && !isValidPayload)}
                 />
             </div>
         </div>
@@ -667,8 +680,8 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
             />
             <div className={formClasses.formWrapper}>
                 <div className={formClasses.formFeilds}>
-                    <div className={formClasses.resourceMethodPathWrapper} >
-                        <div>
+                    <div className={formClasses.resourceMethodPathWrapper}>
+                        <div className={formClasses.methodTypeContainer}>
                             <div className={formClasses.resourceMethodTitle}>{httpMethodTitle}</div>
                             <SelectDropdownWithButton
                                 dataTestId="api-return-type"
@@ -681,11 +694,11 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                             {!toggleMainAdvancedMenu && pathUI}
                         </div>
                     </div>
-                    <div>
-                        {toggleMainAdvancedMenu && advanceUI}
-                    </div>
                     <div className={formClasses.advancedSwitchText}>
                         {advanceSwitch}
+                    </div>
+                    <div>
+                        {toggleMainAdvancedMenu && advanceUI}
                     </div>
                     <Section
                         title={returnTypeTitle}
@@ -702,7 +715,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     );
 
     return (
-        <FormControl data-testid="resource-form" className={formClasses.wizardFormControl}>
+        <FormControl data-testid="resource-form" className={formClasses.wizardFormControlExtended}>
             {resource && resourceUI}
         </FormControl>
     );

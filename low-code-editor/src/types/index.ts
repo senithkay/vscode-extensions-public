@@ -100,6 +100,7 @@ export interface LowCodeEditorAPI {
     }
     webView: {
         showSwaggerView: (serviceName: string) => void;
+        showDocumentationView?: (url: string) => void;
     }
     project: {
         run: (args: any[]) => void;
@@ -158,4 +159,10 @@ export interface LowCodeEditorContext {
 
 export interface LowCodeEditorProps extends LowCodeEditorProperties {
     api: LowCodeEditorAPI;
+}
+
+export enum MESSAGE_TYPE {
+    ERROR,
+    WARNING,
+    INFO
 }

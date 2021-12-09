@@ -14,19 +14,25 @@
 import React, { useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { ElseBlock, IfElseStatement, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classnames from "classnames";
 import { Box, FormControl, IconButton, Typography } from "@material-ui/core";
 import { ControlPoint, RemoveCircleOutlineRounded } from "@material-ui/icons";
 
-import { FormActionButtons, FormField, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormActionButtons, FormField, FormHeaderSection, DiagramDiagnostic } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
-import { createIfStatement, getInitialSource } from "../../../../../../utils/modification-util";
+import {
+    createElseIfStatement,
+    createElseStatement,
+    createIfStatement,
+    getInitialSource
+} from "../../../../../../utils/modification-util";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
-import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
+import ExpressionEditor, { ExpressionEditorProps } from "../../../../FormFieldComponents/ExpressionEditor";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { ConditionConfig, ElseIfConfig, FormElementProps } from "../../../../Types";
+import Tooltip from '../../../../../../../components/TooltipV2'
 
 interface IfProps {
     condition: ConditionConfig;
@@ -40,66 +46,84 @@ export const DEFINE_CONDITION: string = "Define Condition Expression";
 export const EXISTING_PROPERTY: string = "Select Boolean Property";
 
 interface ExpressionsArray {
-    id: number, expression: string, position: NodePosition
+    id: number;
+    expression: string;
+    position: NodePosition;
+    diagnostics?: DiagramDiagnostic[];
+    isValid?: boolean;
 }
 
 export function AddIfForm(props: IfProps) {
     const {
-        props: {
-            isCodeEditorActive,
-            isMutationProgress: isMutationInProgress,
-            currentFile
-        },
+        props: { isMutationProgress: isMutationInProgress, currentFile },
         api: {
             ls: { getExpressionEditorLangClient },
-            code: { modifyDiagram }
-        }
+            code: { modifyDiagram },
+        },
     } = useContext(Context);
     const { condition, formArgs, onCancel, onSave, onWizardClose } = props;
     const classes = useStyles();
     const intl = useIntl();
 
-    const [isInvalid, setIsInvalid] = useState(true);
-
     let statementConditions: ExpressionsArray[];
-    statementConditions = ((condition.conditionExpression as ElseIfConfig)?.values)
+    statementConditions = (condition.conditionExpression as ElseIfConfig)?.values
         ? (condition.conditionExpression as ElseIfConfig).values
-        : [{ id: 0, expression: "", position: {} }];
-    const [compList, setCompList] = useState(statementConditions);
+        : [{ id: 0, expression: "", position: {}, isValid: false }];
+    const [compList, setCompList] = useState(
+        statementConditions.map((item) => ({
+            ...item,
+            isValid: item.diagnostics?.length === 0,
+        }))
+    );
 
     const handlePlusButton = (order: number) => () => {
         if (order === -1) {
             setCompList((prev) => {
-                return [...prev, { id: prev.length, expression: "", position: {} }]
+                return [...prev, { id: prev.length, expression: "", position: {}, isValid: false }];
             });
         } else {
             setCompList((prev) => {
-                return [...prev.slice(0, order), { id: order, expression: "", position: {} }, ...prev.slice(order, prev.length)];
+                return [...prev.slice(0, order), { id: order, expression: "", position: {}, isValid: false }, ...prev.slice(order, prev.length)];
             });
         }
-    }
+    };
 
     const handleMinusButton = (order: number) => () => {
-        setCompList(compList.filter((comp) => {
-            return comp.id !== order
-        }));
-    }
+        setCompList(
+            compList.filter((comp) => {
+                return comp.id !== order;
+            })
+        );
+    };
 
     const handleExpEditorChange = (order: number) => (value: string) => {
         setCompList((prevState) => {
             return [...prevState.slice(0, order), { ...prevState[order], expression: value }, ...prevState.slice(order + 1, prevState.length)];
         });
+    };
+
+    const validateExpEditor = (isInvalid: boolean, order: number) => {
+        setCompList((prevState) => {
+            return [...prevState.slice(0, order), { ...prevState[order], isValid: !isInvalid }, ...prevState.slice(order + 1, prevState.length)];
+        });
+    };
+
+    const updateElseIfExpressions = (obj: ElseBlock, element: ExpressionsArray): ElseBlock => {
+        if (STKindChecker.isIfElseStatement(obj.elseBody)) {
+            element.expression = obj.elseBody.condition.source.trim();
+            return obj.elseBody.elseBody;
+        }
+        return null;
     }
 
-    const validateField = (fieldName: string, isInvalidFromField: boolean) => {
-        let isInvalidForm = false;
-        for (const elem of compList) {
-            if (elem.expression === "") {
-                isInvalidForm = true;
-                break;
+    const handleStatementEditorChange = (partialModel: IfElseStatement) => {
+        compList[0].expression = partialModel.condition.source.trim();
+        let elseIfModel = partialModel.elseBody ? partialModel.elseBody : null;
+        compList.map((element, index) => {
+            if (index !== 0 && elseIfModel) {
+                elseIfModel = updateElseIfExpressions(elseIfModel, element)
             }
-        }
-        setIsInvalid(isInvalidFromField || isInvalidForm)
+        })
     }
 
     const setFormField = (order: number): FormField => {
@@ -107,30 +131,39 @@ export function AddIfForm(props: IfProps) {
             name: "condition",
             displayName: "Condition",
             typeName: "boolean",
-            value: compList[order]?.expression
-        }
-    }
+            value: compList[order]?.expression,
+        };
+    };
+
+    const getInitialDiagnostics = (order: number): DiagramDiagnostic[] => compList[order]?.diagnostics;
 
     const IFStatementTooltipMessages = {
         title: intl.formatMessage({
             id: "lowcode.develop.configForms.IFStatementTooltipMessages.expressionEditor.tooltip.title",
-            defaultMessage: "Enter a Ballerina expression."
+            defaultMessage: "Enter a Ballerina expression.",
         }),
         actionText: intl.formatMessage({
             id: "lowcode.develop.configForms.IFStatementTooltipMessages.expressionEditor.tooltip.actionText",
-            defaultMessage: "Learn Ballerina expressions"
+            defaultMessage: "Learn Ballerina expressions",
         }),
-        actionLink: intl.formatMessage({
-            id: "lowcode.develop.configForms.IFStatementTooltipMessages.expressionEditor.tooltip.actionTitle",
-            defaultMessage: "{learnBallerina}"
-        }, { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH })
+        actionLink: intl.formatMessage(
+            {
+                id: "lowcode.develop.configForms.IFStatementTooltipMessages.expressionEditor.tooltip.actionTitle",
+                defaultMessage: "{learnBallerina}",
+            },
+            { learnBallerina: BALLERINA_EXPRESSION_SYNTAX_PATH }
+        ),
+        codeBlockTooltip: intl.formatMessage({
+            id: "lowcode.develop.configForms.IFStatementTooltipMessages.expressionEditor.tooltip.codeBlock",
+            defaultMessage: "To add code inside the if block, save if condition and use the diagram add buttons",
+        }),
     };
 
-    const setElementProps = (order: number): FormElementProps => {
+    const setElementProps = (order: number): FormElementProps<ExpressionEditorProps> => {
         return {
             model: setFormField(order),
             customProps: {
-                validate: validateField,
+                validate: (_name: string, isInvalid: boolean) => validateExpEditor(isInvalid, order),
                 tooltipTitle: IFStatementTooltipMessages.title,
                 tooltipActionText: IFStatementTooltipMessages.actionText,
                 tooltipActionLink: IFStatementTooltipMessages.actionLink,
@@ -138,41 +171,65 @@ export function AddIfForm(props: IfProps) {
                 statementType: setFormField(order).typeName,
                 expressionInjectables: {
                     list: formArgs?.expressionInjectables?.list,
-                    setInjectables: formArgs?.expressionInjectables?.setInjectables
+                    setInjectables: formArgs?.expressionInjectables?.setInjectables,
+                },
+                initialDiagnostics: getInitialDiagnostics(order),
+                editPosition: {
+                    startLine: formArgs?.model ? formArgs?.model.position.startLine : formArgs.targetPosition.startLine,
+                    endLine: formArgs?.model ? formArgs?.model.position.startLine : formArgs.targetPosition.startLine,
+                    startColumn: 0,
+                    endColumn: 0
                 }
+
             },
             onChange: handleExpEditorChange(order),
-            defaultValue: compList[order]?.expression
-        }
-    }
+            defaultValue: compList[order]?.expression,
+        };
+    };
 
     const handleOnSaveClick = () => {
-        condition.conditionExpression = { values: compList }
+        condition.conditionExpression = { values: compList };
         onSave();
-    }
+    };
 
     const saveIfConditionButtonLabel = intl.formatMessage({
         id: "lowcode.develop.configForms.if.saveButton.label",
-        defaultMessage: "Save"
+        defaultMessage: "Save",
     });
 
     const cancelIfButtonLabel = intl.formatMessage({
         id: "lowcode.develop.configForms.if.cancelButton.label",
-        defaultMessage: "Cancel"
+        defaultMessage: "Cancel",
     });
 
-    const initialSource = formArgs.model ? formArgs.model.source : getInitialSource(createIfStatement(
-        condition.conditionExpression ? condition.conditionExpression as string : 'EXPRESSION'
-    ));
+    const validForm = compList.every((item) => item.isValid);
+
+    const getCompleteSource = () => {
+        let source = getInitialSource(createIfStatement(
+            compList[0].expression ? compList[0].expression : 'EXPRESSION'
+        ));
+        if (compList.length > 1) {
+            compList.map((element, index) => {
+                if (index !== 0){
+                    source = source + getInitialSource(createElseIfStatement(element.expression ? element.expression : 'EXPRESSION'))
+                }
+            })
+        }
+        source = source + getInitialSource(createElseStatement());
+        return source;
+    }
+
+    const initialSource = formArgs.model ? formArgs.model.source : getCompleteSource();
 
     const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
         {
             label: intl.formatMessage({ id: "lowcode.develop.configForms.if.statementEditor.label" }),
             initialSource,
             formArgs: { formArgs },
-            validForm: !isInvalid,
+            validForm,
             config: condition,
             onWizardClose,
+            handleStatementEditorChange,
             currentFile,
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram
@@ -202,7 +259,9 @@ export function AddIfForm(props: IfProps) {
                     <Typography variant='body2' className={classes.endCode}>{`{`}</Typography>
                 </div>
                 <div className={classes.middleDottedwrapper}>
-                    <Typography variant='body2' className={classes.middleCode}>...</Typography>
+                    <Tooltip type='info' text={{ content: IFStatementTooltipMessages.codeBlockTooltip }}>
+                        <Typography variant='body2' className={classes.middleCode}>...</Typography>
+                    </Tooltip>
                 </div>
             </div>
         )
@@ -213,7 +272,7 @@ export function AddIfForm(props: IfProps) {
             <FormControl data-testid="if-form" className={classes.wizardFormControl}>
                 <FormHeaderSection
                     onCancel={onCancel}
-                    statementEditor={false}
+                    statementEditor={true}
                     formTitle={"lowcode.develop.configForms.if.title"}
                     defaultMessage={"If"}
                     handleStmtEditorToggle={handleStmtEditorToggle}
@@ -230,7 +289,9 @@ export function AddIfForm(props: IfProps) {
                         </div>
                     </div>
                     <div className={classes.middleDottedwrapper}>
-                        <Typography variant='body2' className={classes.middleCode}>...</Typography>
+                        <Tooltip type='info' text={{ content: IFStatementTooltipMessages.codeBlockTooltip }}>
+                            <Typography variant='body2' className={classes.middleCode}>...</Typography>
+                        </Tooltip>
                     </div>
                     {compList.slice(1, compList.length).map((comp) => {
                         return <React.Fragment key={comp.id}>{ElseIfElement(comp.id)}</React.Fragment>
@@ -253,7 +314,9 @@ export function AddIfForm(props: IfProps) {
                     </div>
                     <div className={classes.formCodeBlockWrapper}>
                         <div className={classes.middleDottedwrapper}>
-                            <Typography variant='body2' className={classes.middleCode}>{`...`}</Typography>
+                            <Tooltip type='info' text={{ content: IFStatementTooltipMessages.codeBlockTooltip }}>
+                                <Typography variant='body2' className={classes.middleCode}>{`...`}</Typography>
+                            </Tooltip>
                         </div>
                         <Typography variant='body2' className={classes.endCode}>{`}`}</Typography>
                     </div>
@@ -263,14 +326,13 @@ export function AddIfForm(props: IfProps) {
                     cancelBtn={true}
                     saveBtnText={saveIfConditionButtonLabel}
                     isMutationInProgress={isMutationInProgress}
-                    validForm={!isInvalid}
+                    validForm={validForm}
                     onSave={handleOnSaveClick}
                     onCancel={onCancel}
                 />
             </FormControl>
         );
-    }
-    else {
+    } else {
         return stmtEditorComponent;
     }
 }

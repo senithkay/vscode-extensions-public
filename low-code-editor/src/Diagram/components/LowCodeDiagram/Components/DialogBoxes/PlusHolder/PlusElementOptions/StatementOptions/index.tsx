@@ -17,7 +17,19 @@ import { QualifiedNameReference, STKindChecker } from "@wso2-enterprise/syntax-t
 import { Divider } from "@material-ui/core";
 import cn from "classnames";
 
-import { LogIcon, PropertyIcon, AssignmentIcon, IfIcon, ForEachIcon, ReturnIcon, RespondIcon, CustomStatementIcon, DataMapperIcon } from "../../../../../../../../assets/icons";
+import {
+    LogIcon,
+    PropertyIcon,
+    AssignmentIcon,
+    IfIcon,
+    ForEachIcon,
+    ReturnIcon,
+    RespondIcon,
+    CustomStatementIcon,
+    DataMapperIcon,
+    ConnectorIcon,
+    ActionIcon,
+} from "../../../../../../../../assets/icons";
 
 import { Context } from "../../../../../../../../Contexts/Diagram";
 import { isSTResourceFunction } from "../../../../../../../utils/st-util";
@@ -127,13 +139,13 @@ export function StatementOptions(props: StatementOptionsProps) {
         connectorStatement: {
             title: intl.formatMessage({
                 id: "lowcode.develop.plusHolder.plusElements.statements.connector.tooltip.title",
-                defaultMessage: "An API connection can be used to make external app requests."
+                defaultMessage: "A connector can be used to integrate with external applications."
             })
         },
         actionStatement: {
             title: intl.formatMessage({
                 id: "lowcode.develop.plusHolder.plusElements.statements.action.tooltip.title",
-                defaultMessage: "An API invocation can be used to invoke operations of an existing API connection."
+                defaultMessage: "An action can be used to invoke operations of an existing connector."
             })
         }
     }
@@ -288,12 +300,12 @@ export function StatementOptions(props: StatementOptionsProps) {
                     onClick={onSelectStatement.bind(undefined, "Connector")}
                 >
                     <div className="icon-wrapper">
-                        <LogIcon />
+                        <ConnectorIcon />
                     </div>
                     <div className="text-label">
                         <FormattedMessage
                             id="lowcode.develop.plusHolder.plusElements.statements.connector.title"
-                            defaultMessage="API Connection"
+                            defaultMessage="Connector"
                         />
                     </div>
                 </div>
@@ -316,12 +328,12 @@ export function StatementOptions(props: StatementOptionsProps) {
                     onClick={onSelectStatement.bind(undefined, "Action")}
                 >
                     <div className="icon-wrapper">
-                        <LogIcon />
+                        <ActionIcon />
                     </div>
                     <div className="text-label">
                         <FormattedMessage
                             id="lowcode.develop.plusHolder.plusElements.statements.action.title"
-                            defaultMessage="API Invocation"
+                            defaultMessage="Action"
                         />
                     </div>
                 </div>
@@ -423,6 +435,8 @@ export function StatementOptions(props: StatementOptionsProps) {
     }
 
     const statements: StatementComponent[] = [];
+    statements.push(connectorStatement);
+    statements.push(actionStatement);
     statements.push(logStm);
     statements.push(propertyStm);
     statements.push(assignmentStm);
@@ -433,8 +447,6 @@ export function StatementOptions(props: StatementOptionsProps) {
     statements.push(respondStm);
     // statements.push(datamappingStatement);
     statements.push(customStatement);
-    statements.push(connectorStatement);
-    statements.push(actionStatement);
 
     const initStatements: Statements = {
         statement: statements,

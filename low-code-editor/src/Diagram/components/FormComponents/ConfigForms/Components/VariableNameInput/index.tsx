@@ -13,6 +13,7 @@
 
 import React from "react";
 
+import { DiagramDiagnostic } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import ExpressionEditor, { ExpressionEditorCustomTemplate, ExpressionEditorProps } from "../../../FormFieldComponents/ExpressionEditor";
@@ -29,10 +30,16 @@ export interface VariableNameInputProps {
     overrideTemplate?: ExpressionEditorCustomTemplate;
     overrideEditTemplate?: ExpressionEditorCustomTemplate;
     hideLabel?: boolean;
+    initialDiagnostics?: DiagramDiagnostic[];
+    diagnosticsFilterExtraColumns?: {
+        start?: number,
+        end?: number,
+    };
+    disabled?: boolean;
 }
 
 export function VariableNameInput(props: VariableNameInputProps) {
-    const { onValueChange, validateExpression, position, value, displayName, overrideTemplate, overrideEditTemplate, isEdit, hideLabel } = props;
+    const { onValueChange, validateExpression, position, value, displayName, overrideTemplate, overrideEditTemplate, isEdit, hideLabel, initialDiagnostics, diagnosticsFilterExtraColumns, disabled } = props;
     const formClasses = useFormStyles();
 
     let customTemplate;
@@ -76,6 +83,9 @@ export function VariableNameInput(props: VariableNameInputProps) {
             hideSuggestions: true,
             hideExpand: true,
             hideTextLabel: hideLabel,
+            initialDiagnostics,
+            diagnosticsFilterExtraColumns,
+            disabled
         },
         onChange: onValueChange,
         defaultValue: value,

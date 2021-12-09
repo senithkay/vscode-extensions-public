@@ -13,6 +13,7 @@
 import React, { ReactNode } from "react";
 
 import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { getFormElement } from "../../Portals/utils";
 import FormAccordion from "../FormAccordion";
@@ -27,21 +28,23 @@ export interface FormProps {
     onValidate?: (isRequiredFieldsFilled: boolean) => void;
     size?: "small" | "medium",
     expressionInjectables?: ExpressionInjectablesProps;
+    editPosition?: NodePosition;
 }
 
-const isAllOptionalFields = (recordFields: FormField[]): boolean => recordFields?.every(field => field.optional || field.defaultValue || (field.fields && isAllOptionalFields(field.fields)));
+const isAllDefaultableFields = (recordFields: FormField[]): boolean =>
+    recordFields?.every((field) => field.defaultValue || (field.fields && isAllDefaultableFields(field.fields)));
 
 export function Form(props: FormProps) {
-    const { fields, onValidate, expressionInjectables } = props;
+    const { fields, onValidate, expressionInjectables, editPosition } = props;
 
     const classes = useStyles();
-    const elements: ReactNode[] = [];
+    const requiredElements: ReactNode[] = [];
     const optionalElements: ReactNode[] = [];
     const allFieldChecks = React.useRef(new Map<string, FormFieldChecks>());
 
     React.useEffect(() => {
         // Set form as valid if there aren't any mandatory fields
-        if (fields && isAllOptionalFields(fields)){
+        if (fields && isAllDefaultableFields(fields)){
             onValidate(true);
         }
     }, []);
@@ -56,16 +59,18 @@ export function Form(props: FormProps) {
         onValidate(isAllFieldsValid(allFieldChecks.current, fields, true));
     };
 
-    const fieldTypesList = ["string" , "int" , "boolean" , "float" , "decimal" , "array" , "map" , "union" , "enum", "json" , "httpRequest" , "handle"]
+    const fieldTypesList = ["string" , "int" , "boolean" , "float" , "decimal" , "array" , "map" , "union" , "enum", "json" , "httpRequest" , "handle", "object"]
     fields?.map((field, index) => {
-        if (!field.hide && (fieldTypesList.includes(field.typeName) || field.typeName.includes("object {public string[]") || (field.typeName === 'record' && !field.isReference))) {
+        if (!field.hide && (fieldTypesList.includes(field.typeName) || (field.typeName === 'record' && !field.isReference))) {
             const elementProps: FormElementProps = {
                 model: field,
                 index,
                 customProps: {
                     validate: validateField,
-                    tooltipTitle: field.tooltip,
+                    tooltipTitle: field?.documentation ? field?.documentation : field.tooltip,
                     expressionInjectables,
+                    editPosition,
+                    initialDiagnostics: field.initialDiagnostics,
                 },
             };
 
@@ -83,13 +88,13 @@ export function Form(props: FormProps) {
                 type = "restParam"
             } else if (field.typeName === "handle"){
                 type = "expression";
-            } else if (field.typeName.includes("object {public string[]")){
+            } else if (field.typeName === "object"){
                 type = "expression";
             }
             const element = getFormElement(elementProps, type);
 
             if (element) {
-                elements.push(element);
+                field.defaultable || field.optional ? optionalElements.push(element) : requiredElements.push(element);
             }
         }
     });
@@ -98,7 +103,7 @@ export function Form(props: FormProps) {
         <form className={classes.fullWidth} noValidate={true} autoComplete="off">
             <FormAccordion
                 depth={1}
-                mandatoryFields={elements}
+                mandatoryFields={requiredElements}
                 optionalFields={optionalElements}
                 isMandatory={false}
             />

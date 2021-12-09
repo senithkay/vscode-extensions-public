@@ -22,10 +22,12 @@ import { createConfigurableDecl, updateConfigurableVarDecl } from '../../../../u
 import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
 import CheckBoxGroup from '../../FormFieldComponents/CheckBox';
 import { SelectDropdownWithButton } from '../../FormFieldComponents/DropDown/SelectDropdownWithButton';
-import ExpressionEditor from '../../FormFieldComponents/ExpressionEditor';
+import ExpressionEditor, { ExpressionEditorProps } from '../../FormFieldComponents/ExpressionEditor';
 import { TextLabel } from '../../FormFieldComponents/TextField/TextLabel';
 import { InjectableItem } from '../../FormGenerator';
+import { FormElementProps } from '../../Types';
 import { VariableNameInput } from '../Components/VariableNameInput';
+import { VariableTypeInput, VariableTypeInputProps } from '../Components/VariableTypeInput';
 
 import { ConfigurableFormState, getFormConfigFromModel, isFormConfigValid } from './util';
 import { ConfigurableFormActionTypes, moduleVarFormReducer } from './util/reducer';
@@ -116,11 +118,12 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
     }
 
 
-    const expressionEditorConfigForValue = {
+    const expressionEditorConfigForValue: FormElementProps<ExpressionEditorProps> = {
         model: {
             name: "valueExpression",
             displayName: "Value Expression",
-            typeName: state.varType
+            typeName: state.varType,
+            value: state.varValue,
         },
         customProps: {
             validate: updateExpressionValidity,
@@ -136,7 +139,8 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
                 defaultCodeSnippet: `configurable ${state.varType} temp_var_${uuid().replaceAll('-', '_')} = ;`,
                 targetColumn: 62 + state.varType.length,
             },
-            hideTextLabel: true
+            hideTextLabel: true,
+            initialDiagnostics: model?.initializer?.typeData?.diagnostics,
         },
         onChange: onValueChange,
         defaultValue: state.varValue,
@@ -178,6 +182,32 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
         namePosition.endLine = targetPosition.startLine;
     }
 
+    const validateExpression = (fieldName: string, isInvalidType: boolean) => {
+        updateExpressionValidity(fieldName, isInvalidType);
+    };
+
+    const variableTypeConfig: VariableTypeInputProps = {
+        displayName: 'Variable Type',
+        value: state.varType,
+        onValueChange: onVarTypeChange,
+        validateExpression,
+        position: model ? {
+            ...model.position,
+            endLine: 0,
+            endColumn: 0,
+        } : targetPosition,
+        overrideTemplate: {
+            defaultCodeSnippet: `|()  tempVarType = ();`,
+            targetColumn: 1
+        }
+    }
+
+    const variableTypeInput = (
+        <div className="exp-wrapper">
+            <VariableTypeInput {...variableTypeConfig} />
+        </div>
+    );
+
     return (
         <FormControl data-testid="module-variable-config-form" className={formClasses.wizardFormControl}>
             <FormHeaderSection
@@ -198,13 +228,7 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
                         defaultValues={state.isPublic ? ['public'] : []}
                         onChange={onAccessModifierChange}
                     />
-                    <SelectDropdownWithButton
-                        defaultValue={state.varType}
-                        customProps={typeSelectorCustomProps}
-                        label={isFromExpressionEditor ? "type" : "Select type"}
-                        onChange={onVarTypeChange}
-                        disabled={isFromExpressionEditor}
-                    />
+                    {variableTypeInput}
                     <VariableNameInput
                         // Fixme: Prevent editing name if the configurable is being referenced somewhere
                         displayName={'Configurable Name'}
@@ -213,6 +237,7 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
                         validateExpression={updateExpressionValidity}
                         position={namePosition}
                         isEdit={!isFromExpressionEditor && !!model}
+                        initialDiagnostics={model?.typedBindingPattern?.typeData?.diagnostics}
                     />
                     <TextLabel
                         required={true}

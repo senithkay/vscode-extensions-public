@@ -15,11 +15,14 @@ import React, { useState } from "react";
 import { useIntl } from "react-intl";
 
 import { Typography } from "@material-ui/core";
+import { FormField } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import classnames from "classnames";
 
 import DeleteButton from "../../../../../../assets/icons/DeleteButton";
 import { FormState, useRecordEditorContext } from "../../../../../../Contexts/RecordEditor";
+import ExpressionEditor from "../../../FormFieldComponents/ExpressionEditor";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
+import { FormElementProps } from "../../../Types";
 import { VariableTypeInput, VariableTypeInputProps } from "../../Components/VariableTypeInput";
 import { recordStyles } from "../style";
 import { RecordModel, SimpleField } from "../types";
@@ -46,9 +49,58 @@ export function FieldEditor(props: FieldEditorProps) {
     const { state, callBacks } = useRecordEditorContext();
 
     const [typeEditorFocussed, setTypeEditorFocussed] = useState<boolean>(false);
+    const [valueEditorFocussed, setValueEditorFocussed] = useState<boolean>(false);
     const [typeEditorVisible, setTypeEditorVisible] = useState<boolean>(false);
+    const [valueEditorVisible, setValueEditorVisible] = useState<boolean>(false);
 
     const typeProperty = `${field.isArray ? "[]" : ""}${field.isFieldTypeOptional ? "?" : ""}`;
+
+    const formField: FormField = {
+        name: "defaultValue",
+        optional: true,
+        typeName: field?.isArray ? `${field?.type}[]` : field?.type,
+        value: field?.value
+    };
+    const validateDefaultValue = (fName: string, isInvalidFromField: boolean) => {
+        if (state.currentField.value === "" && state.currentField.type === "" && state.currentField.name === "") {
+            // When we have empty values editor is valid
+            callBacks.updateEditorValidity(false);
+        } else {
+            field.isValueInvalid = isInvalidFromField;
+            callBacks.onUpdateCurrentField(field);
+            callBacks.updateEditorValidity(isInvalidFromField || state.currentField.isNameInvalid ||
+                state.currentField.isTypeInvalid);
+        }
+    };
+    const handleDefaultValueChange = (inputText: string) => {
+        field.value = inputText;
+        callBacks.onUpdateCurrentField(field);
+    };
+    const revertValueEditorFocus = () => {
+        setValueEditorFocussed(false);
+    };
+    const handleEnterPressed = () => {
+        if (!state.currentField.isNameInvalid && !state.currentField.isTypeInvalid &&
+            !state.currentField.isValueInvalid && state.currentField.type && state.currentField.name) {
+            state.currentField.isEditInProgress = false;
+            state.currentField.isActive = true;
+            callBacks.onUpdateCurrentField(field);
+        }
+    };
+    const defaultValueProps: FormElementProps = {
+        model: formField,
+        customProps: {
+            validate: validateDefaultValue,
+            statementType: formField.typeName,
+            hideTextLabel: true,
+            hideTypeLabel: true,
+            focus: valueEditorFocussed,
+            revertFocus: revertValueEditorFocus,
+            enterKeyPressed: handleEnterPressed
+        },
+        onChange: handleDefaultValueChange,
+        defaultValue: field?.value
+    };
 
     const handleDelete = () => {
         onDeleteClick(field);
@@ -89,18 +141,38 @@ export function FieldEditor(props: FieldEditorProps) {
         }
         callBacks.onUpdateCurrentField(state.currentField);
     };
+    const handleNameFocus = () => {
+        if (!state.currentField.isTypeInvalid && !state.currentField.isValueInvalid) {
+            callBacks.updateEditorValidity(true);
+        }
+    };
     const handleFocusLost = (event: any) => {
         onFocusLost(event);
     };
+    const handleDefaultValueFocus = () => {
+        handleValueClick();
+    };
     const validateTypeName = (fName: string, isInvalidFromField: boolean) => {
-        state.currentField.isTypeInvalid = isInvalidFromField;
-        callBacks.onUpdateCurrentField(state.currentField);
-        callBacks.updateEditorValidity(isInvalidFromField || state.currentField.isNameInvalid ||
-            state.currentField.isValueInvalid);
+        if ((state.currentField.value === "" || state.currentField.value === undefined) &&
+            state.currentField.type === "" && state.currentField.name === "") {
+            // When we have empty values editor is valid
+            callBacks.updateEditorValidity(false);
+        } else {
+            state.currentField.isTypeInvalid = isInvalidFromField;
+            callBacks.onUpdateCurrentField(state.currentField);
+            callBacks.updateEditorValidity(isInvalidFromField || state.currentField.isNameInvalid ||
+                state.currentField.isValueInvalid);
+        }
     };
     const handleTypeClick = () => {
         setTypeEditorVisible(true);
         setTypeEditorFocussed(true);
+        setValueEditorFocussed(false);
+    };
+    const handleValueClick = () => {
+        setValueEditorVisible(true);
+        setTypeEditorFocussed(false);
+        setValueEditorFocussed(true);
     };
 
     const varTypeProps: VariableTypeInputProps = {
@@ -110,12 +182,23 @@ export function FieldEditor(props: FieldEditorProps) {
         focus: typeEditorFocussed,
         onValueChange: handleTypeSelect,
         validateExpression: validateTypeName,
-        position: state.sourceModel?.position || state.targetPosition,
+        position: state.sourceModel ? {
+            ...state.sourceModel.position,
+            endLine: state.sourceModel.position?.startLine,
+            endColumn: state.sourceModel.position?.startColumn,
+        } : state.targetPosition,
         overrideTemplate: {
-            defaultCodeSnippet: `type tempRecordName record {  ${state.currentField.type === 'record' ? '{}' : ''} varType; };`,
+            defaultCodeSnippet: `type tempRecordName record {  varType; };`,
             targetColumn: 30
         },
         ignoredCompletions: ['tempRecordName'],
+        additionalCompletions: ['record'],
+    };
+    const handleFieldOptionality = () => {
+        state.currentField.isActive = false;
+        field.isActive = true;
+        field.isFieldOptional = !field.isFieldOptional;
+        callBacks.onUpdateCurrentField(field);
     };
 
     return (
@@ -134,6 +217,7 @@ export function FieldEditor(props: FieldEditorProps) {
                                 }}
                                 defaultValue={field.type}
                                 onClick={handleTypeClick}
+                                onFocus={handleNameFocus}
                                 placeholder={"Type"}
                             />
                         )}
@@ -153,30 +237,36 @@ export function FieldEditor(props: FieldEditorProps) {
                             size="small"
                         />
                     </div>
-                    {field.isFieldOptional && (
-                        <Typography
-                            variant='body2'
-                            className={classnames(recordClasses.editSingleTokenWrapper)}
-                        >
-                            ?
-                        </Typography>
-                    )}
-                    {/*{field.value && (*/}
-                    {/*    <div className={recordClasses.recordEditorContainer}>*/}
-                    {/*        <Typography*/}
-                    {/*            variant='body2'*/}
-                    {/*            className={classnames(recordClasses.equalTokenWrapper)}*/}
-                    {/*        >*/}
-                    {/*            =*/}
-                    {/*        </Typography>*/}
-                    {/*        <Typography*/}
-                    {/*            variant='body2'*/}
-                    {/*            className={classnames(recordClasses.defaultValWrapper)}*/}
-                    {/*        >*/}
-                    {/*            {field.value}*/}
-                    {/*        </Typography>*/}
-                    {/*    </div>*/}
-                    {/*)}*/}
+                    {/*<div style={{background: "blue", width: 25, height: 20}} onClick={handleFieldOptionality} />*/}
+                    <div className={recordClasses.recordEditorContainer}>
+                        {!field.isFieldOptional && (
+                            <>
+                                <Typography
+                                    variant='body2'
+                                    className={classnames(recordClasses.fieldEditorEqualsTokenWrapper)}
+                                >
+                                    =
+                                </Typography>
+                                {valueEditorVisible ? (
+                                    <div className={recordClasses.editTypeWrapper}>
+                                        <ExpressionEditor {...defaultValueProps} />
+                                    </div>
+                                ) : (
+                                    <FormTextInput
+                                        dataTestId="field-value"
+                                        customProps={{
+                                            isErrored: false,
+                                            focused: false
+                                        }}
+                                        defaultValue={field.value}
+                                        onClick={handleValueClick}
+                                        onFocus={handleDefaultValueFocus}
+                                        placeholder={"Value(Optional)"}
+                                    />
+                                )}
+                            </>
+                        )}
+                    </div>
                     <Typography
                         variant='body2'
                         className={classnames(recordClasses.editSingleTokenWrapper)}

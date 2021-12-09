@@ -36,7 +36,8 @@ export interface EditorAPI {
 
 export enum PALETTE_COMMANDS {
     RUN = 'ballerina.project.run',
-    SWAGGER_VIEW = 'ballerina.swaggerView.open'
+    SWAGGER_VIEW = 'ballerina.swaggerView.open',
+    DOCUMENTATION_VIEW = 'ballerina.documentationView.open'
 }
 
 export type EditorProps = EditorState & EditorAPI;
@@ -53,7 +54,7 @@ export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
 
     return (
         <div className="lowcode-main-wrapper">
-            <DiagramGenErrorBoundary>
+            <DiagramGenErrorBoundary lastUpdatedAt={restProps.lastUpdatedAt}>
                 <DiagramGenerator
                     {...state}
                     getFileContent={getFileContent}

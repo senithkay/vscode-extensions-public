@@ -23,7 +23,7 @@ import { useDiagramContext } from "../../../../../Contexts/Diagram";
 import { createImportStatement, createListenerDeclartion } from "../../../../utils/modification-util";
 import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
 import { SelectDropdownWithButton } from "../../FormFieldComponents/DropDown/SelectDropdownWithButton";
-import ExpressionEditor from "../../FormFieldComponents/ExpressionEditor";
+import ExpressionEditor, { ExpressionEditorProps } from "../../FormFieldComponents/ExpressionEditor";
 import { TextLabel } from "../../FormFieldComponents/TextField/TextLabel";
 import { FormElementProps } from "../../Types";
 import { VariableNameInput } from "../Components/VariableNameInput";
@@ -115,11 +115,12 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
         });
     }
 
-    const portNumberExpressionEditorProps: FormElementProps = {
+    const portNumberExpressionEditorProps: FormElementProps<ExpressionEditorProps>  = {
         model: {
             name: "listenerPort",
             displayName: "Listener Port",
-            typeName: "int"
+            typeName: "int",
+            value: config?.listenerPort
         },
         customProps: {
             validate: updateExpressionValidity,
@@ -130,7 +131,8 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                 endLine: model ? model.position.startLine : targetPosition.startLine,
                 startColumn: 0,
                 endColumn: 0
-            }
+            },
+            initialDiagnostics: model?.initializer?.typeData?.diagnostics
         },
         onChange: onListenerPortChange,
         defaultValue: config.listenerPort,
@@ -178,6 +180,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                         validateExpression={updateExpressionValidity}
                         position={namePosition}
                         isEdit={!!model}
+                        initialDiagnostics={model?.variableName?.typeData?.diagnostics}
                     />
                     {listenerPortInputComponent}
                 </div>

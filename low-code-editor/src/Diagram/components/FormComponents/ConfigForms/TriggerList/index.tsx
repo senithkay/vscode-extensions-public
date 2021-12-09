@@ -13,12 +13,11 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from "react";
 
-import { BallerinaModuleResponse, BallerinaTriggersRequest, DiagramEditorLangClientInterface, Trigger } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BallerinaModule, BallerinaModuleResponse, BallerinaTriggersRequest, DiagramEditorLangClientInterface, Trigger } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 
-import { Context } from "../../../../../Contexts/Diagram";
+import { Context, useDiagramContext } from "../../../../../Contexts/Diagram";
 import { UserState } from "../../../../../types";
-// import { Context } from "../../../LowCodeDiagram/Context/diagram";
 import { FormGenerator, FormGeneratorProps } from "../../FormGenerator";
 import { BallerinaModuleType, FilterStateMap, Marketplace } from "../Marketplace";
 
@@ -26,8 +25,9 @@ import { BallerinaModuleType, FilterStateMap, Marketplace } from "../Marketplace
 export function TriggerList(props: FormGeneratorProps) {
     const { onCancel, onSave, configOverlayFormStatus, model, targetPosition } = props
     const [isMarketPlaceOpen, setMarketPlaceOpen] = useState(true);
-
+    const [triggerArgs, setTriggerArgs] = useState<BallerinaModule>();
     const showTriggerForm = (trigger: Trigger, varNode: LocalVarDecl) => {
+        setTriggerArgs(trigger);
         setMarketPlaceOpen(false);
     };
 
@@ -35,10 +35,10 @@ export function TriggerList(props: FormGeneratorProps) {
         api: {
             ls: { getDiagramEditorLangClient },
         }
-    } = useContext(Context);
+    } = useDiagramContext();
 
-    const fetchTriggersList = async (searchQuery: string, selectedCategory: string, connectorLimit: number, currentFilePath: string,
-                                     filterState: FilterStateMap, userInfo: UserState, page?: number): Promise<BallerinaModuleResponse> => {
+    const fetchTriggersList = async (searchQuery: string, connectorLimit: number,
+                                     currentFilePath: string): Promise<BallerinaModuleResponse> => {
 
         const langClient: DiagramEditorLangClientInterface = await getDiagramEditorLangClient();
 
@@ -48,6 +48,10 @@ export function TriggerList(props: FormGeneratorProps) {
 
         return langClient.getTriggers(request);
     };
+
+    const handleTriggerFormClose = () => {
+        setMarketPlaceOpen(true)
+    }
 
     return (
         <>
@@ -59,18 +63,16 @@ export function TriggerList(props: FormGeneratorProps) {
                             onSelect={showTriggerForm}
                             fetchModulesList={fetchTriggersList}
                             title="Triggers"
+                            onCancel={onCancel}
                         />
                     ) : (
-                        // TODO:This is a temporary one. This form need to be rendered using the context.
                         <FormGenerator
-                            onCancel={onCancel}
-                            configOverlayFormStatus={{ formType: "TriggerForm", isLoading: false }}
+                            onCancel={handleTriggerFormClose}
+                            configOverlayFormStatus={{ formType: "TriggerForm", isLoading: true, formArgs: triggerArgs }}
                             targetPosition={targetPosition}
                             onSave={onSave}
                         />
                     )}
         </>
-
-
     );
 }

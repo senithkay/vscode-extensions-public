@@ -66,7 +66,7 @@ service /{{{ BASE_PATH }}} on {{{ LISTENER_NAME }}} {
 listener http:Listener {{{ LISTENER_NAME }}} = new ({{{ PORT }}});
 `,
     FUNCTION_DEFINITION: `
-function {{{ NAME }}} ({{{ PARAMETERS }}}) {{{ RETURN_TYPE }}} {
+{{{ ACCESS_MODIFIER }}} function {{{ NAME }}} ({{{ PARAMETERS }}}) {{{ RETURN_TYPE }}} {
 
 }`,
     FUNCTION_DEFINITION_SIGNATURE: `{{{ NAME }}} ({{{ PARAMETERS }}}) {{{ RETURN_TYPE }}}`,
@@ -101,7 +101,7 @@ service /{{{ BASE_PATH }}} on {{{ LISTENER_NAME }}}`,
 
       {{#each this.functions}}
         remote function {{ this.name }}({{#each this.parameters}}{{#if @index}}, {{/if}}{{../../../triggerType}}:{{this.typeInfo.name}} {{this.name}}{{/each}}) returns error? {
-            return error ("Not Implemented");
+            // Not Implemented
         }
       {{/each}}
     }

@@ -27,11 +27,13 @@ import { createForeachStatement, getInitialSource } from "../../../../../../util
 import { genVariableName } from "../../../../../Portals/utils";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
-import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
+import ExpressionEditor, { ExpressionEditorProps } from "../../../../FormFieldComponents/ExpressionEditor";
 import { FormTextInput } from "../../../../FormFieldComponents/TextField/FormTextInput";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { ConditionConfig, ForeachConfig, FormElementProps } from "../../../../Types";
 import { wizardStyles } from "../../../style";
+import { VariableTypeInput, VariableTypeInputProps } from "../../../Components/VariableTypeInput";
+import Tooltip from '../../../../../../../components/TooltipV2'
 
 interface Iterations {
     start?: string;
@@ -113,21 +115,13 @@ export function AddForeachForm(props: ForeachProps) {
         conditionExpression.variable = genVariableName("item", getAllVariables(stSymbolInfo));
     };
 
-    const [isInvalid, setIsInvalid] = useState(!!conditionExpression.collection);
+    const [expressionValue, setExpressionValue] = useState(conditionExpression.collection)
+    const [isValidExpression, setIsValidExpression] = useState(!!conditionExpression.collection);
 
-    // todo: Support other data types
+    // FIXME: Replace with type selection expression editor!
     const variableTypes: string[] = ["var", "int", "float", "decimal", "boolean", "string", "json", "xml"];
 
     const [selectedType, setSelectedType] = useState(conditionExpression.type ? conditionExpression.type : "var");
-    const [isDropDownOpen, setDropDownOpen] = useState(false);
-
-    const handleOnOpen = () => {
-        setDropDownOpen(true);
-    };
-
-    const handleOnClose = () => {
-        setDropDownOpen(false);
-    };
 
     const handleTypeChange = (type: string) => {
         setSelectedType(type);
@@ -136,6 +130,7 @@ export function AddForeachForm(props: ForeachProps) {
 
     const handleExpEditorChange = (value: string) => {
         conditionExpression.collection = value;
+        setExpressionValue(value);
     }
 
     const handleSave = () => {
@@ -145,15 +140,14 @@ export function AddForeachForm(props: ForeachProps) {
     }
 
     const validateField = (fieldName: string, isInvalidFromField: boolean) => {
-        const isValidExpression = !isInvalidFromField ? (conditionExpression.collection !== undefined && conditionExpression.collection !== "") : false;
-        setIsInvalid(!isValidExpression)
+        setIsValidExpression(!isInvalidFromField)
     }
 
     const formField: FormField = {
         name: "iterable expression",
         displayName: "Iterable Expression",
         typeName: selectedType + "[]",
-        selectedDataType: selectedType
+        value: expressionValue,
     };
 
     const forEachTooltipMessages = {
@@ -176,7 +170,11 @@ export function AddForeachForm(props: ForeachProps) {
                 id: "lowcode.develop.configForms.forEach.currentValueVariable.tooltip.title",
                 defaultMessage: "Current Value Variable"
             }),
-        }
+        },
+        codeBlockTooltip: intl.formatMessage({
+            id: "lowcode.develop.configForms.IFStatementTooltipMessages.expressionEditor.tooltip.codeBlock",
+            defaultMessage: "To add code inside the foreach block, save foreach statement form and use the diagram add buttons",
+        }),
     };
     const saveForEachButtonLabel = intl.formatMessage({
         id: "lowcode.develop.configForms.forEach.saveButton.label",
@@ -198,7 +196,7 @@ export function AddForeachForm(props: ForeachProps) {
         defaultMessage: "Cancel"
     });
 
-    const expElementProps: FormElementProps = {
+    const expElementProps: FormElementProps<ExpressionEditorProps> = {
         model: formField,
         customProps: {
             validate: validateField,
@@ -206,11 +204,19 @@ export function AddForeachForm(props: ForeachProps) {
             tooltipActionText: forEachTooltipMessages.expressionEditor.actionText,
             tooltipActionLink: forEachTooltipMessages.expressionEditor.actionLink,
             interactive: true,
-            statementType: formField.typeName,
+            statementType: selectedType,
+            changed: selectedType,
             customTemplate: {
                 defaultCodeSnippet: `foreach ${selectedType} temp_var in  {}`,
-                targetColumn: 25,
+                targetColumn: 22 + selectedType.length,
             },
+            initialDiagnostics: formArgs?.model?.actionOrExpressionNode?.typeData?.diagnostics,
+            editPosition: {
+                startLine: formArgs?.model ? formArgs?.model.position.startLine : formArgs.targetPosition.startLine,
+                endLine: formArgs?.model ? formArgs?.model.position.startLine : formArgs.targetPosition.startLine,
+                startColumn: 0,
+                endColumn: 0
+            }
         },
         onChange: handleExpEditorChange,
         defaultValue: conditionExpression.collection,
@@ -234,7 +240,7 @@ export function AddForeachForm(props: ForeachProps) {
             label: intl.formatMessage({ id: "lowcode.develop.configForms.forEach.statementEditor.label" }),
             initialSource,
             formArgs: { formArgs },
-            validForm: !isInvalid,
+            validForm: isValidExpression,
             config: condition,
             onWizardClose,
             handleStatementEditorChange,
@@ -243,6 +249,28 @@ export function AddForeachForm(props: ForeachProps) {
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram
         }
+    );
+
+    const validateExpression = (fieldName: string, isInvalidType: boolean) => {
+        setIsValidExpression(!isInvalidType)
+    };
+
+    const variableTypeConfig: VariableTypeInputProps = {
+        displayName: 'Variable Type',
+        value: selectedType,
+        onValueChange: handleTypeChange,
+        validateExpression,
+        position: formArgs?.model ? {
+            ...(formArgs?.model).position,
+            endLine: 0,
+            endColumn: 0,
+        } : formArgs.targetPosition,
+    }
+
+    const variableTypeInput = (
+        <div className="exp-wrapper">
+            <VariableTypeInput {...variableTypeConfig} />
+        </div>
     );
 
     if (!stmtEditorComponent) {
@@ -261,17 +289,7 @@ export function AddForeachForm(props: ForeachProps) {
                         <div className={classes.formCodeExpressionWrapper}>
                             <Typography variant='body2' className={classes.startTitleCode}>Foreach</Typography>
                             <div className={classes.variableExpEditorWrapper}>
-                                <SelectDropdownWithButton
-                                    defaultValue={selectedType}
-                                    customProps={{
-                                        disableCreateNew: true,
-                                        values: variableTypes,
-                                        onOpenSelect: handleOnOpen,
-                                        onCloseSelect: handleOnClose,
-                                    }}
-                                    label={"Type"}
-                                    onChange={handleTypeChange}
-                                />
+                                {variableTypeInput}
                             </div>
                             <div className={classes.variableExpEditorWrapper}>
                                 <FormTextInput
@@ -289,18 +307,18 @@ export function AddForeachForm(props: ForeachProps) {
                         <div className={classes.formCodeExpressionEndWrapper}>
                             <Typography variant='body2' className={classnames(classes.endCode)}>in</Typography>
                             <div className={classes.formCodeExpressionLargeField}>
-                                {!isDropDownOpen && (
-                                    <div className={classes.stmtEditorWrapper}>
-                                        <ExpressionEditor {...expElementProps} hideLabelTooltips={true} />
-                                    </div>
-                                )}
+                                <div className={classes.stmtEditorWrapper}>
+                                    <ExpressionEditor {...expElementProps} hideLabelTooltips={true} />
+                                </div>
                             </div>
                             <Typography variant='body2' className={classes.endCode}>{`{`}</Typography>
                         </div>
                     </div>
                     <div className={classes.formCodeBlockWrapper}>
                         <div className={classes.middleDottedwrapper}>
-                            <Typography variant='body2' className={classes.middleCode}>{`...`}</Typography>
+                            <Tooltip type='info' text={{ content: forEachTooltipMessages.codeBlockTooltip }}>
+                                <Typography variant='body2' className={classes.middleCode}>{`...`}</Typography>
+                            </Tooltip>
                         </div>
                         <Typography variant='body2' className={classes.endCode}>{`}`}</Typography>
                     </div>
@@ -310,7 +328,7 @@ export function AddForeachForm(props: ForeachProps) {
                     cancelBtn={true}
                     saveBtnText={saveForEachButtonLabel}
                     isMutationInProgress={isMutationInProgress}
-                    validForm={!isInvalid}
+                    validForm={isValidExpression && expressionValue.length > 0}
                     onSave={handleSave}
                     onCancel={onCancel}
                 />

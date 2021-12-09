@@ -424,6 +424,8 @@ export interface FormFiledCacheEntry {
 
 export const CONNECTOR_CACHE = "CONNECTOR_CACHE";
 export const CONNECTOR_LIST_CACHE = "CONNECTOR_LIST_CACHE";
+export const TRIGGER_CACHE = "TRIGGER_CACHE";
+export const TRIGER_LIST_CACHE = "TRIGGER_LIST_CACHE";
 export interface ConnectorCache {
     [key: string]: BallerinaConnectorInfo;
 }

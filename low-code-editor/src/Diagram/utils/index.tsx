@@ -1,8 +1,8 @@
 import React from "react";
 
+import { DiagramDiagnostic } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
-import { Diagnostic } from "../../DiagramGenerator/generatorUtil";
 import * as stComponents from '../components/LowCodeDiagram/Components/RenderingComponents';
 import { ActionProcessor } from "../components/LowCodeDiagram/Components/RenderingComponents/ActionInvocation/ActionProcess";
 import { ConnectorProcess } from "../components/LowCodeDiagram/Components/RenderingComponents/Connector/ConnectorProcess";
@@ -100,7 +100,7 @@ export function getDraftComponent(viewState: BlockViewState, state: any, insertC
     return draftComponents;
 }
 
-export function getDiagnosticMsgs(diagnostics: Diagnostic[]){
+export function getDiagnosticMsgs(diagnostics: DiagramDiagnostic[]){
      /* tslint:disable prefer-for-of */
     const diagnosticMsgsArray : string[] = [];
     if (diagnostics?.length === 0){

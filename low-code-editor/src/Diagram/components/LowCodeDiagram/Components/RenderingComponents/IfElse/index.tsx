@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js  jsx-wrap-multiline
 import React, { useContext, useState } from "react";
 
-import { WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { DiagramDiagnostic, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     BlockStatement,
     IfElseStatement, NodePosition,
@@ -283,17 +283,23 @@ export function IfElse(props: IfElseProps) {
         }
 
         const getExpressions = () : ElseIfConfig => {
-            const conditions: {id: number, expression: string, position: NodePosition}[] = [];
-            conditions.push({id: 0, expression: conditionExpr?.source.trim().match(/\(([^)]+)\)/)[1], position: conditionExpr?.position});
+            const conditions: {id: number, expression: string, position: NodePosition, diagnostics?: DiagramDiagnostic[]}[] = [];
+            conditions.push({
+                id: 0,
+                expression: conditionExpr?.source.trim(),
+                position: conditionExpr?.position,
+                diagnostics: conditionExpr?.typeData?.diagnostics
+            });
             if (model) {
                 if (isElseIfExist) {
                     let block = ifStatement.elseBody?.elseBody as IfElseStatement;
                     let isElseIfBlockExist: boolean = block?.kind === "IfElseStatement";
                     let id = 1;
                     while (isElseIfBlockExist) {
-                        const expression = block?.condition?.source.trim().match(/\(([^)]+)\)/)[1];
+                        const expression = block?.condition?.source.trim();
                         const position = block?.condition?.position;
-                        conditions.push({id, expression, position});
+                        const nodeDiagnostics = block?.condition?.typeData?.diagnostics;
+                        conditions.push({id, expression, position, diagnostics: nodeDiagnostics});
                         isElseIfBlockExist = (block?.elseBody?.elseBody as IfElseStatement)?.kind === "IfElseStatement";
                         block = block.elseBody?.elseBody as IfElseStatement;
                         id = id + 1;
@@ -308,7 +314,7 @@ export function IfElse(props: IfElseProps) {
                 getExpressions() : conditionExpr.source;
             const position = getExpressions()?.values[0]?.position;
             setConfigWizardOpen(true);
-            const conditionConfigState = getConditionConfig("If", position, WizardType.EXISTING, undefined, {
+            const conditionConfigState = getConditionConfig("If", model.position, WizardType.EXISTING, undefined, {
                 type: "If",
                 conditionExpression,
                 conditionPosition: getExpressions()?.values[0]?.position,

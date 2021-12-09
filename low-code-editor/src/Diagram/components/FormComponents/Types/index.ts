@@ -47,6 +47,7 @@ export interface FormElementEvents {
     // This callback is to detect focus out
     onBlur?: (event: any) => void;
     onClick?: () => void;
+    onFocus?: (event: any) => void;
     dispatchExprEditorStart?: (editor: ExpressionEditorState) => void;
     dispatchExprEditorContentChange?: (editor: ExpressionEditorState) => void;
     dispatchExprEditorClose?: (editor: ExpressionEditorState) => void;
