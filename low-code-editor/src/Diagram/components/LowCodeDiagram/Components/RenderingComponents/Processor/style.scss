@@ -79,18 +79,18 @@ $active_color : #c0ceff8a;
                 }
 
                 .log-icon {
-                    .log-icon-path{
+                    .log-icon-dark-path{
                         fill:$default_color
                     }
-                    .log-icon-com-shape{
+                    .log-icon-light-path{
                         fill:#ccd1f2
                     }
                 }
                 .call-icon {
-                    .call-icon-path{
+                    .call-icon-light-path{
                         fill: #ccd1f2
                     }
-                    .call-icon-com-shape{
+                    .call-icon-dark-path{
                         fill:$default_color
                     }
                 }
@@ -149,18 +149,18 @@ $active_color : #c0ceff8a;
                 }
 
                 .log-icon {
-                    .log-icon-path{
+                    .log-icon-dark-path{
                         fill:$error_color
                     }
-                    .log-icon-com-shape{
+                    .log-icon-light-path{
                         fill:$error_color
                     }
                 }
                 .call-icon {
-                    .call-icon-path{
+                    .call-icon-light-path{
                         fill: $error_color
                     }
-                    .call-icon-com-shape{
+                    .call-icon-dark-path{
                         fill:$error_color
                     }
                 }
@@ -219,18 +219,18 @@ $active_color : #c0ceff8a;
                 }
 
                 .log-icon {
-                    .log-icon-path{
+                    .log-icon-dark-path{
                         fill:$warning_color
                     }
-                    .log-icon-com-shape{
+                    .log-icon-light-path{
                         fill:$warning_color
                     }
                 }
                 .call-icon {
-                    .call-icon-path{
+                    .call-icon-light-path{
                         fill: $warning_color
                     }
-                    .call-icon-com-shape{
+                    .call-icon-dark-path{
                         fill:$warning_color
                     }
                 }
