@@ -15,8 +15,6 @@ import React, { useContext, useState } from "react";
 
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
-import { useDiagramContext } from "../../../../../../../Contexts/Diagram";
-import { UnsupportedConfirmButtons } from "../../../../../FormComponents/DialogBoxes/UnsupportedConfirmButtons";
 import { Context } from "../../../../Context/diagram";
 import { Margin } from "../index";
 import { PlusOptionRenderer } from "../PlusOptionRenderer";
@@ -69,7 +67,6 @@ const triggerEntries: PlusMenuEntry[] = [
 export const PlusOptionsSelector = (props: PlusOptionsProps) => {
     const { onClose, targetPosition, kind, isTriggerType } = props;
     const [selectedOption, setSelectedOption] = useState<PlusMenuEntry>(undefined);
-    let isUnsupportedType = false;
     const {
         api: {
             edit: {
@@ -77,12 +74,6 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
             }
         }
     } = useContext(Context);
-
-    const {
-        api: {
-            code: { gotoSource },
-        },
-    } = useDiagramContext();
 
     let menuEntries: PlusMenuEntry[] = [];
 
@@ -100,11 +91,6 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
         setSelectedOption(option);
     }
 
-    const handleConfirm = () => {
-        onClose();
-        gotoSource({ startLine: targetPosition.startLine, startColumn: targetPosition.startColumn });
-    }
-
     switch (kind) {
         case 'ModulePart':
             menuEntries = moduleLevelEntries;
@@ -113,16 +99,12 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
             isTriggerType ? menuEntries = triggerEntries : menuEntries = classMemberEntries;
             break;
         default:
-            isUnsupportedType = true;
-            break;
     }
 
     return (
         <>
             {
                 !selectedOption && (
-                    isUnsupportedType ?
-                    <UnsupportedConfirmButtons onConfirm={handleConfirm} onCancel={onClose} /> :
                     <PlusOptionRenderer
                         entries={menuEntries}
                         onClose={handleOnClose}
