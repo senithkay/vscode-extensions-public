@@ -29,12 +29,11 @@ export interface TextFieldInputProps {
     existingValue: any;
     type: string;
     setTextFieldValue: (key: string, value: any) => void;
-    size?: "small" | "medium";
 }
 
 export function TextFieldInput(props: TextFieldInputProps) {
     const classes = useStyles();
-    const { id, isRequired, existingValue, type, setTextFieldValue, size } =
+    const { id, isRequired, existingValue, type, setTextFieldValue } =
         props;
 
     let label: string = "";
@@ -61,12 +60,9 @@ export function TextFieldInput(props: TextFieldInputProps) {
             type={fieldType}
             margin="none"
             onChange={handleChange}
-            size={size}
+            size="small"
             classes={{ root: classes.textInputRoot }}
+            InputLabelProps={{ shrink: false }}
         />
     );
 }
-
-TextFieldInput.defaultProps = {
-    size: "medium",
-};
