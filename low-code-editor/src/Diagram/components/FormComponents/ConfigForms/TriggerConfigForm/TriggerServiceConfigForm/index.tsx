@@ -81,21 +81,24 @@ export function TriggerForm(props: FormGeneratorProps) {
         setIsDropDownOpen(false);
     }
     const createTriggerCode = () => {
-        const triggerType = triggerInfo.moduleName.split(".");
-        const newTriggerInfo = { ...triggerInfo, serviceTypes: selectedServiceTypes, triggerType: triggerType[triggerType.length - 1] }
-        modifyDiagram([
-            createImportStatement(
-                "ballerina",
-                "http",
-                targetPosition
-            ),
-            createImportStatement(
-                "ballerinax",
-                moduleName,
-                targetPosition
-            ),
+        let httpBased: boolean = true;
+        const triggerStr = triggerInfo.moduleName.split(".");
+        const triggerType = triggerStr[triggerStr.length - 1];
+        if (triggerType === 'sfdc' || triggerType === 'asb') {
+            httpBased = false;
+        }
+        const newTriggerInfo = { ...triggerInfo, serviceTypes: selectedServiceTypes, triggerType, httpBased };
+        const httpStModification = [
+            createImportStatement("ballerina", "http", targetPosition),
+            createImportStatement("ballerinax", moduleName, targetPosition),
             createTrigger(newTriggerInfo, targetPosition)
-        ]);
+        ];
+
+        const nonHttpStModification = [
+            createImportStatement("ballerinax", moduleName, targetPosition),
+            createTrigger(newTriggerInfo, targetPosition)
+        ];
+        modifyDiagram(httpBased ? httpStModification : nonHttpStModification);
         onSave();
     }
 

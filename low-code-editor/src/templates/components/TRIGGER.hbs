@@ -1,14 +1,14 @@
 import ballerinax/{{moduleName}};
-import ballerina/http;
+{{#if httpBased }}import ballerina/http;{{/if}}
 
 configurable {{triggerType}}:ListenerConfig userInput = {
-  {{#each this.listenerParams.0.fields}}
-  {{ this.name }}: ""{{#unless @last}},{{/unless}}
-  {{/each}}
+	{{#each this.listenerParams.0.fields}}
+    {{ this.name }}: ""{{#unless @last}},{{/unless}}
+    {{/each}}
 }; 
 
-listener http:Listener httpListener = new(8090);
-listener {{triggerType}}:Listener webhookListener = new(userInput, httpListener);
+{{#if httpBased }}listener http:Listener httpListener = new(8090);{{/if}}
+listener {{triggerType}}:Listener webhookListener = new(userInput{{#if httpBased }}, httpListener{{/if}});
 
 {{#each serviceTypes}}
 service {{../triggerType}}:{{ this.name }} on webhookListener {
@@ -21,4 +21,4 @@ service {{../triggerType}}:{{ this.name }} on webhookListener {
 }
 {{/each}}
 
-service /ignore on httpListener {}
+{{#if httpBased }}service /ignore on httpListener {}{{/if}}
