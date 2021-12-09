@@ -115,6 +115,10 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         runCommand(PALETTE_COMMANDS.SWAGGER_VIEW, [serviceName, filePath]);
     }
 
+    async function showDocumentationView(url: string) {
+        runCommand(PALETTE_COMMANDS.DOCUMENTATION_VIEW, [url]);
+    }
+
     async function run(args: any[]) {
         runCommand(PALETTE_COMMANDS.RUN, args);
     }
@@ -285,7 +289,8 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                     closeConfigPanel: () => undefined,
                                 },
                                 webView: {
-                                    showSwaggerView
+                                    showSwaggerView,
+                                    showDocumentationView
                                 },
                                 project: {
                                     run
