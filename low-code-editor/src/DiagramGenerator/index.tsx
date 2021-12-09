@@ -61,7 +61,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                 // }
                 const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, filePath,
                     langClient, pfSession,
-                    props.showPerformanceGraph, props.showMessage);
+                    props.showPerformanceGraph, props.handlePerfErrors, props.showMessage);
                 if (!vistedSyntaxTree) {
                     return (<div><h1>Parse error...!</h1></div>);
                 }
@@ -137,7 +137,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
             const pfSession = await props.getPFSession();
             const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, path,
                 langClient, pfSession,
-                props.showPerformanceGraph, props.showMessage);
+                props.showPerformanceGraph, props.handlePerfErrors, props.showMessage);
             setSyntaxTree(vistedSyntaxTree);
             setFileContent(lastsource);
             props.updateFileContent(path, lastsource);
@@ -164,7 +164,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
             const pfSession = await props.getPFSession();
             const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, path,
                 langClient, pfSession,
-                props.showPerformanceGraph, props.showMessage);
+                props.showPerformanceGraph, props.handlePerfErrors, props.showMessage);
             setSyntaxTree(vistedSyntaxTree);
             setFileContent(lastUndoSource);
             props.updateFileContent(path, lastUndoSource);
@@ -252,7 +252,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                             props.updateFileContent(filePath, source);
                                             const vistedSyntaxTree: STNode = await getLowcodeST(newST, filePath,
                                                 langClient, pfSession,
-                                                props.showPerformanceGraph, props.showMessage);
+                                                props.showPerformanceGraph, props.handlePerfErrors, props.showMessage);
                                             setSyntaxTree(vistedSyntaxTree);
                                         } else {
                                             // TODO show error
