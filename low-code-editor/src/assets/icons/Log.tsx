@@ -11,11 +11,11 @@
  * associated services.
  */
 import React from 'react';
-export interface ActionIconProps {
+export interface LogIconProps {
     className?: string
 }
 
-export default function Log(props: ActionIconProps) {
+export default function Log(props: LogIconProps) {
     return (
       <svg width="16" height="16" viewBox="0 0 20 20" {...props}>
           <path d="M11.2928932,10.2928932 C11.845178,10.2928932 12.2928932,10.7406085 12.2928932,11.2928932 L12.2928932,14.8778932 L15.8786797,14.8786797 C16.4309644,14.8786797 16.8786797,15.3263949 16.8786797,15.8786797 C16.8786797,16.4309644 16.4309644,16.8786797 15.8786797,16.8786797 L11.2928932,16.8786797 L11.2928932,16.8786797 C10.7406085,16.8786797 10.2928932,16.4309644 10.2928932,15.8786797 L10.2928932,11.2928932 C10.2928932,10.7406085 10.7406085,10.2928932 11.2928932,10.2928932 Z" id="Combined-Shape-Copy-7" fill="#5567D5" transform="translate(13.585786, 13.585786) scale(-1, 1) rotate(-315.000000) translate(-13.585786, -13.585786) "/>
