@@ -68,10 +68,21 @@ export function AssignmentStatementComponent(props: AssignmentStatementProps) {
         />
     );
 
-    const onClickOnVarRef = (event: any) => {
+    const onClickOnVarRef = async (event: any) => {
         event.stopPropagation();
-        expressionHandler(model.varRef, false, false,
-            {expressionSuggestions: [], typeSuggestions: [], variableSuggestions: []});
+
+        const content: string = await addStatementToTargetLine(
+            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
+
+        const completions: SuggestionItem[] = await getContextBasedCompletions(
+            fileURI, content, targetPosition, model.varRef.position,
+            false, isElseIfMember, model.varRef.source, getLangClient);
+
+        expressionHandler(model.varRef, false, false, {
+            expressionSuggestions: [],
+            typeSuggestions: [],
+            variableSuggestions: completions
+        });
     };
 
     const onClickOnExpression = async (event: any) => {
