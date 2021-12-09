@@ -35,6 +35,7 @@ import { BallerinaExtension } from "./index";
 import { showChoreoPushMessage } from "../editor-support/git-status";
 import { MESSAGE_TYPE } from "../utils/showMessage";
 import { Values } from "../forecaster/model";
+import { showChoreoSigninMessage } from "../forecaster";
 
 export const BALLERINA_LANG_ID = "ballerina";
 const NOT_SUPPORTED = {};
@@ -333,7 +334,8 @@ export class ExtendedLangClient extends LanguageClient {
     }
     getRealtimePerformanceData(params: PerformanceAnalyzerGraphRequest): Promise<PerformanceAnalyzerRealtimeResponse> {
         if (!this.ballerinaExtInstance?.enabledPerformanceForecasting() ||
-            !this.ballerinaExtInstance?.getChoreoSession().loginStatus) {
+            !this.ballerinaExtInstance?.getChoreoSession().loginStatus ||
+            this.ballerinaExtInstance.getPerformanceForecastContext().temporaryDisabled) {
             return Promise.resolve({
                 type: MESSAGE_TYPE.IGNORE, message: '', concurrency: { min: 0, max: 0 },
                 tps: { min: 0, max: 0 }, latency: { min: 0, max: 0 }
@@ -398,6 +400,7 @@ export class ExtendedLangClient extends LanguageClient {
     stModify(params: BallerinaSTModifyRequest): Thenable<BallerinaSTModifyResponse> {
         if (this.ballerinaExtInstance) {
             showChoreoPushMessage(this.ballerinaExtInstance);
+            showChoreoSigninMessage(this.ballerinaExtInstance);
         }
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_ST_MODIFY)) {
             Promise.resolve(NOT_SUPPORTED);

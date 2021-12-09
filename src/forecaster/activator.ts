@@ -29,8 +29,8 @@ import { PALETTE_COMMANDS } from "../project";
 export const SHOW_GRAPH_COMMAND = "ballerina.forecast.performance.showGraph";
 export const CHOREO_API_PF = "http://choreocontrolplane.preview-dv.choreo.dev/performance-analyzer/2.0.0/get_estimations/3.0";
 
-const CHOREO_AUTH_ERR = "Authentication error for accessing AI service (ID6)";
-const NETWORK_ERR = "Network error. Please check you internet connection";
+export const CHOREO_AUTH_ERR = "Authentication error for accessing AI service (ID6)";
+export const NETWORK_ERR = "Network error. Please check you internet connection";
 const MODEL_NOT_FOUND = "AI service does not have enough data to forecast";
 const ESTIMATOR_ERROR = "AI service is currently unavailable (ID2)";
 const UNKNOWN_ANALYSIS_TYPE = "Invalid request sent to AI service (ID7)";
@@ -95,12 +95,13 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
 export async function createPerformanceGraphAndCodeLenses(uri: string | undefined, pos: Range,
     type: ANALYZETYPE, name: String | undefined) {
 
-    if (!extension.enabledPerformanceForecasting() || retryAttempts >= maxRetries) {
+    if (!extension.enabledPerformanceForecasting() || retryAttempts >= maxRetries ||
+        extension.getPerformanceForecastContext().temporaryDisabled) {
         return;
     }
 
     if (!extension.getChoreoSession().loginStatus) {
-        showMessage("Please sign in to Choreo to view performance predictions.", MESSAGE_TYPE.INFO, true);
+        showChoreoSigninMessage(extension);
         return;
     }
 
@@ -195,10 +196,12 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
         if (response.message === 'AUTHENTICATION_ERROR') {
             // Choreo Auth Error
             showMessage(CHOREO_AUTH_ERR, MESSAGE_TYPE.ERROR, true);
+            handleRetries();
 
         } else if (response.message === 'CONNECTION_ERROR') {
             // Internet Connection Error
             showMessage(NETWORK_ERR, MESSAGE_TYPE.ERROR, true);
+            handleRetries();
 
         } else if (response.message === 'MODEL_NOT_FOUND') {
             // AI Error
@@ -221,13 +224,17 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
             showMessage(INVALID_DATA, MESSAGE_TYPE.INFO, true);
 
         } else {
-            retryAttempts++;
             showMessage(`${UNABLE_TO_GET} ${response.message}`, MESSAGE_TYPE.ERROR, true);
-
-            if (retryAttempts >= maxRetries) {
-                showMessage(PERF_DISABLED, MESSAGE_TYPE.INFO, true);
-            }
+            handleRetries();
         }
+    }
+}
+
+export function handleRetries() {
+    retryAttempts++;
+    if (retryAttempts >= maxRetries) {
+        showMessage(PERF_DISABLED, MESSAGE_TYPE.ERROR, true);
+        extension.getPerformanceForecastContext().temporaryDisabled = true;
     }
 }
 
@@ -336,4 +343,18 @@ export function openPerformanceDiagram(request: PerformanceGraphRequest) {
         `Performance Forecast of ${request.data.name}`, ViewColumn.Two, extension,
         WEBVIEW_TYPE.PERFORMANCE_FORECAST);
     return true;
+}
+
+export function showChoreoSigninMessage(extension: BallerinaExtension) {
+    if (!extension.getPerformanceForecastContext().infoMessageStatus.signinChoreo) {
+        return;
+    }
+    const action = 'Sign in to Choreo';
+    window.showInformationMessage("Please sign in to Choreo to view performance predictions.",
+        action).then((selection) => {
+            if (action === selection) {
+                commands.executeCommand('sessionExplorer.focus');
+            }
+        });
+    extension.getPerformanceForecastContext().infoMessageStatus.signinChoreo = false;
 }

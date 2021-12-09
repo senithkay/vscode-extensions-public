@@ -98,6 +98,13 @@ interface CodeServerContext {
     }
 }
 
+interface PerformanceForecastContext {
+    infoMessageStatus: {
+        signinChoreo: boolean;
+    };
+    temporaryDisabled?: boolean;
+}
+
 export interface WebviewContext {
     isOpen: boolean;
     type?: WEBVIEW_TYPE
@@ -118,6 +125,7 @@ export class BallerinaExtension {
     private choreoSessionTreeProvider: SessionDataProvider | undefined;
     private codeServerContext: CodeServerContext;
     private webviewContext: WebviewContext;
+    private perfForecastContext: PerformanceForecastContext;
 
     constructor() {
         this.ballerinaHome = '';
@@ -158,6 +166,11 @@ export class BallerinaExtension {
             commands.executeCommand('workbench.action.closeAllEditors');
         }
         this.webviewContext = { isOpen: false };
+        this.perfForecastContext = {
+            infoMessageStatus: {
+                signinChoreo: true
+            }
+        }
     }
 
     setContext(context: ExtensionContext) {
@@ -586,6 +599,14 @@ export class BallerinaExtension {
 
     public getCodeServerContext(): CodeServerContext {
         return this.codeServerContext;
+    }
+
+    public getPerformanceForecastContext(): PerformanceForecastContext {
+        return this.perfForecastContext;
+    }
+
+    public setPerformanceForecastContext(context: PerformanceForecastContext) {
+        this.perfForecastContext = context;
     }
 }
 
