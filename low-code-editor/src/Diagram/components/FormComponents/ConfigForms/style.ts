@@ -515,6 +515,12 @@ export const wizardStyles = makeStyles((theme: Theme) =>
             margin: '1rem 0 0.25rem',
             justifyContent: 'space-between',
         },
+        triggerDropDownList: {
+            margin: '1rem 0 0.25rem',
+        },
+        formActionButton: {
+            marginTop: 10
+        },
         headerLabel: {
             alignItems: 'center',
             overflow: 'hidden',
