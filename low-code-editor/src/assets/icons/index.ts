@@ -56,3 +56,4 @@ export { default as ResourceAccessorDefinition } from './ResourceIcon';
 export { default as Custom } from "./Custom";
 export { default as ErrorIcon } from "./Error";
 export { default as TriggerList } from "./ListenerIcon";
+export { default as WarningIcon} from "./Warning";
