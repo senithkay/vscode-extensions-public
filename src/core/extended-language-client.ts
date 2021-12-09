@@ -37,6 +37,7 @@ import { MESSAGE_TYPE } from "../utils/showMessage";
 import { Values } from "../forecaster/model";
 import { showChoreoSigninMessage } from "../forecaster";
 
+export const CONNECTOR_LIST_CACHE = "CONNECTOR_LIST_CACHE";
 export const BALLERINA_LANG_ID = "ballerina";
 const NOT_SUPPORTED = {};
 
@@ -361,9 +362,15 @@ export class ExtendedLangClient extends LanguageClient {
         }
         return this.sendRequest(EXTENDED_APIS.SYMBOL_TYPE, params);
     }
-    getConnectors(params: BallerinaConnectorsRequest): Thenable<BallerinaConnectorsResponse> {
+    getConnectors(params: BallerinaConnectorsRequest, reset?: boolean): Thenable<BallerinaConnectorsResponse> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.CONNECTOR_CONNECTORS)) {
             Promise.resolve(NOT_SUPPORTED);
+        }
+        if (!reset && params.query === "" && !params.keyword && !params.organization && !params.offset) {
+            let connectorList = this.ballerinaExtInstance?.context?.globalState.get(CONNECTOR_LIST_CACHE) as BallerinaConnectorsResponse;
+            if (connectorList && connectorList.central?.length > 0) {
+                return Promise.resolve().then(() => connectorList);
+            }
         }
         return this.sendRequest<BallerinaConnectorsResponse>(EXTENDED_APIS.CONNECTOR_CONNECTORS, params);
     }
