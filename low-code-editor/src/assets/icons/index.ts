@@ -17,6 +17,8 @@ export { default as GitHubIcon } from "./GitHub";
 export { default as IfIcon } from "./If";
 export { default as InfoIcon } from "./Info";
 export { default as LogIcon } from "./Log";
+export { default as ConnectorIcon } from "./Connector";
+export { default as ActionIcon } from "./Action";
 export { default as ManualIcon } from "./Manual";
 export { default as PropertyIcon } from "./Property";
 export { default as AssignmentIcon } from "./Assignment";
