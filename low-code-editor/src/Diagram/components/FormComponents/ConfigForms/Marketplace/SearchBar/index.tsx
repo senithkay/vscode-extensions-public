@@ -13,8 +13,10 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useState } from "react";
 
-import { Grid, InputBase } from "@material-ui/core";
-import { PrimaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { Box, Grid, InputBase } from "@material-ui/core";
+import { IconBtnWithText } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+
+import SearchIcon from "../../../../../../assets/icons/SearchIcon";
 
 import useStyles from "./style";
 
@@ -69,12 +71,9 @@ function SearchBar(props: SearchBarProps) {
                 />
             </Grid>
             <Grid item={true} container={true} xs={2} justifyContent="flex-end" data-testid="search-button">
-                <PrimaryButton
-                    variant="contained"
-                    className={classes.searchBtn}
-                    onClick={onSearchPress}
-                    text="Search"
-                />
+                <Box className={classes.searchBtn} onClick={onSearchPress}>
+                    <SearchIcon />
+                </Box>
             </Grid>
         </Grid>
     );

@@ -41,7 +41,7 @@ const useStyles = makeStyles((theme: Theme) =>
             marginBottom: theme.spacing(2),
         },
         filterByMenuDiv: {
-            marginTop: theme.spacing(6),
+            marginTop: theme.spacing(4.5),
         },
         filterByMenuTitle: {
             fontWeight: theme.spacing(62.5),
