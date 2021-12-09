@@ -101,6 +101,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             width: '43%',
             marginRight: theme.spacing(0.625),
             position: 'relative',
+            top: '-30px'
         },
         formCodeExpressionExtraSmallField: {
             width: '35%',
@@ -135,6 +136,10 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         formCodeExpressionWrapper: {
             display: 'inline-flex',
+        },
+        elseIfExpressionWrapper: {
+            display: 'inline-flex',
+            paddingTop: '25px'
         },
         formCodeExpressionEndWrapper: {
             display: 'inline-flex',
