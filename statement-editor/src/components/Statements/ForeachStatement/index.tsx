@@ -90,8 +90,6 @@ export function ForeachStatementC(props: ForeachStatementProps) {
             typeSuggestions: [],
             variableSuggestions: completions
         });
-        expressionHandler(model.actionOrExpressionNode, false, false,
-            {expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS)});
     };
 
     if (!currentModel.model) {
