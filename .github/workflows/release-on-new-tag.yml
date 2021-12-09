@@ -1,10 +1,11 @@
-# Create a plugin release without running tests.
-# This release updates the npm dependencies (doesn't honor the package-lock file ).
-name: Release Without Tests
+# Create a plugin release upon a new tag creation without running tests.
+# This release honors the package-lock files without updating the npm dependencies.
+name: Release for a new tag
 
 on:
-  workflow_dispatch:
-    branches: [main]
+  push:
+    tags:
+      - "v*"
 
 jobs:
   build:
@@ -13,6 +14,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Set env
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+      - name: Log release tag
+        run: |
+          echo $RELEASE_VERSION
+          echo ${{ env.RELEASE_VERSION }}
       - name: Build project
         uses: actions/setup-node@v1
         with:
@@ -21,23 +28,16 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: "11"
-      - name: Update npm dependencies
-        run: npm update @wso2-enterprise/ballerina-low-code-editor @wso2-enterprise/ballerina-configurable-editor @wso2-enterprise/ballerina-low-code-edtior-commons
-        env:
-          NPM_ACCESS_TOKEN: ${{ secrets.PUBLISH_PAT }}
       - name: Build repository without tests
         run: sudo apt-get install xvfb && xvfb-run --auto-servernum ./gradlew clean build -x test
         env:
           NPM_ACCESS_TOKEN: ${{ secrets.PUBLISH_PAT }}
       - run: find . -type f -name '*.vsix' -exec sh -c 'x="{}"; mv "$x" ballerina.vsix' \;
-      - name: Get current date
-        id: date
-        run: echo "::set-output name=date::$(date +'%Y%m%d-%H%M')"
       - name: Create a release in wso2/ballerina-plugin-vscode repo
         run: |
           createResponse=`curl -X POST  -H "Accept: application/vnd.github.v3+json" \
-          -H "Authorization:token ${{ secrets.PUBLISH_PAT }}" -d '{"tag_name":"v2x-${{ steps.date.outputs.date }}", \
-          "draft":false, "name": "Release 2x-${{ steps.date.outputs.date }}", "prerelease":true}' \
+          -H "Authorization:token ${{ secrets.PUBLISH_PAT }}" -d '{"tag_name":"${{ env.RELEASE_VERSION }}", \
+          "draft":false, "name": "Release ${{ env.RELEASE_VERSION }}", "prerelease":true}' \
           https://api.github.com/repos/wso2/ballerina-plugin-vscode/releases` \
            && id=`echo "$createResponse" | sed -n -e 's/"id":\ \([0-9]\+\),/\1/p' | head -n 1 | sed 's/[[:blank:]]//g'` && \
            uploadResponse=`curl -X POST -H "Authorization:token ${{ secrets.PUBLISH_PAT }}" -H "Content-Type:application/octet-stream" \

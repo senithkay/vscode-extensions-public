@@ -23,7 +23,7 @@ import { commands, Uri, window, workspace } from 'vscode';
 import {
     TREE_ELEMENT_EXECUTE_COMMAND, EXPLORER_TREE_REFRESH_COMMAND, EXPLORER_TREE_NEW_FILE_COMMAND,
     EXPLORER_TREE_NEW_FOLDER_COMMAND, ExplorerTreeItem, EXPLORER_TREE_NEW_MODULE_COMMAND,
-    EXPLRER_TREE_DELETE_FILE_COMMAND, CONFIG_EDITOR_EXECUTE_COMMAND, EXPLORER_ITEM_KIND
+    EXPLRER_TREE_DELETE_FILE_COMMAND, CONFIG_EDITOR_EXECUTE_COMMAND, EXPLORER_ITEM_KIND, DOCUMENTATION_VIEW
 } from "./model";
 import { SessionDataProvider } from "./session-tree-data-provider";
 import { ExplorerDataProvider } from "./explorer-tree-data-provider";
@@ -34,6 +34,7 @@ import { getChoreoKeytarSession } from "../choreo-auth/auth-session";
 import { showChoreoPushMessage } from "../editor-support/git-status";
 import { showConfigEditor } from "../config-editor/configEditorPanel";
 import { getCurrentBallerinaProject } from "../utils/project-utils";
+import {showDocumentationView} from "../documentation/docPanel";
 
 const CONFIG_FILE = 'Config.toml';
 export function activate(ballerinaExtInstance: BallerinaExtension) {
@@ -183,6 +184,10 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
             }
             showConfigEditor(ballerinaExtInstance, data.configSchema, Uri.parse(filePath));
         });
+    });
+
+    commands.registerCommand(DOCUMENTATION_VIEW, async (url: string) => {
+        await showDocumentationView(url);
     });
 
     ballerinaExtInstance.getDocumentContext().onDiagramTreeElementClicked((construct: ConstructIdentifier) => {
