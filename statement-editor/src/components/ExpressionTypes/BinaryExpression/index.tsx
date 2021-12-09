@@ -69,6 +69,16 @@ export function BinaryExpressionComponent(props: BinaryProps) {
         />
     );
 
+    const operator: ReactNode = (
+        <ExpressionComponent
+            model={model.operator}
+            isRoot={false}
+            userInputs={userInputs}
+            diagnosticHandler={diagnosticHandler}
+            isTypeDescriptor={false}
+        />
+    );
+
     const kind = getKindBasedOnOperator(model.operator.kind);
 
     const onClickOperator = (event: any) => {
@@ -107,7 +117,7 @@ export function BinaryExpressionComponent(props: BinaryProps) {
                 )}
                 onClick={onClickOperator}
             >
-                {model.operator.value ? model.operator.value : "operator"}
+                {operator}
             </button>
             <button
                 className={classNames(

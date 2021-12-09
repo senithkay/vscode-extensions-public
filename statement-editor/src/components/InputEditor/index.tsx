@@ -50,6 +50,7 @@ export interface InputEditorProps {
     diagnosticHandler: (diagnostics: string) => void;
     userInputs: VariableUserInputs;
     isTypeDescriptor: boolean;
+    isToken?: boolean;
 }
 
 export function InputEditor(props: InputEditorProps) {
@@ -62,7 +63,7 @@ export function InputEditor(props: InputEditorProps) {
         diagnostic: [],
     });
 
-    const { model, statementType, diagnosticHandler, userInputs, isTypeDescriptor } = props;
+    const { model, statementType, diagnosticHandler, userInputs, isTypeDescriptor, isToken } = props;
 
     const stmtCtx = useContext(StatementEditorContext);
     const inputEditorCtx = useContext(InputEditorContext);
@@ -106,6 +107,8 @@ export function InputEditor(props: InputEditorProps) {
         || STKindChecker.isJsonTypeDesc(model)
         || STKindChecker.isVarTypeDesc(model))) {
         value = model.name.value;
+    } else if (isToken) {
+        value = model.value;
     } else {
         value = model.source;
     }
@@ -380,7 +383,9 @@ export function InputEditor(props: InputEditorProps) {
     const debouncedContentChange = debounce(handleContentChange, 500);
 
     const handleDoubleClick = () => {
-        setIsEditing(true);
+        if (!isToken){
+            setIsEditing(true);
+        }
     };
 
     const handleEditEnd = () => {
