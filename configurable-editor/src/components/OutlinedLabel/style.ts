@@ -17,17 +17,17 @@
  *
  */
 
-import React from "react";
+ import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 
-import { Box, Button } from "@material-ui/core";
-import AddIcon from "@material-ui/icons/Add";
+ export const useStyles = makeStyles((theme: Theme) =>
+     createStyles({
+         chipRoot: {
+             fontSize: theme.spacing(1.3),
+             height: "auto",
+             padding: theme.spacing(0.75),
+             paddingBottom: theme.spacing(0.25),
+             paddingTop: theme.spacing(0.25),
+         },
 
-export function AddInputButton() {
-    return (
-        <Box mb={2} mt={2}>
-            <Button variant="text" color="primary" startIcon={<AddIcon />}>
-                Add
-            </Button>
-        </Box>
-    );
-}
+     }),
+ );
