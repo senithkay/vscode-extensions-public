@@ -38,11 +38,11 @@ export function StatementTypes(props: { x: number, y: number, key_id: number, st
 
     const maxStatementRectX = statementRectwidth + statementTextPadding;
 
-    const statmentTypeMaxWidth = statementType.length >= 12;
+    const statmentTypeMaxWidth = statementType && statementType.length >= 12;
     const statementReactX = statmentTypeMaxWidth ?
         (statementRectX - statementTextPadding) : (statementRectX - statementTextPadding / 2);
 
-    const statementTruncate = statmentTypeMaxWidth && statementType.slice(0, 10);
+    const statementTruncate = statmentTypeMaxWidth && statementType && statementType.slice(0, 10);
 
     const statementRect: ReactElement = (
         <g className="statement-text-wrapper">
@@ -83,7 +83,7 @@ export function StatementTypes(props: { x: number, y: number, key_id: number, st
                         {statmentTypeMaxWidth ? statementTruncateText : statementType}
                     </tspan>
                 </text>
-                {statementType.length > 0 && statementRect}
+                {statementType && statementType.length > 0 && statementRect}
             </g>
         </svg>
     );

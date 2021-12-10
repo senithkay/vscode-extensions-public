@@ -93,24 +93,17 @@ export function PathSegmentEditor(props: PathSegmentEditorProps) {
         <div className={classes.segmentEditorWrap}>
             <div>
                 <Grid container={true} spacing={1}>
-                    <Grid container={true} item={true} spacing={2}>
-                        <Grid item={true} xs={7}>
-                            <div className={classes.labelOfInputs}>
-                                Name
-                            </div>
-                        </Grid>
-                    </Grid>
-                    <Grid container={true} item={true} spacing={2}>
-                        <Grid item={true} xs={7}>
-                            <FormTextInput
-                                dataTestId="api-path-segment"
-                                defaultValue={segmentState?.name}
-                                onChange={onChangeSegmentName}
-                                customProps={{ validate: validateNameValue }}
-                                errorMessage={pathError}
-                            />
-                        </Grid>
-                    </Grid>
+                    <div className={classes.segmentNameContainer}>
+                        <FormTextInput
+                            customProps={{ validate: validateNameValue }}
+                            onChange={onChangeSegmentName}
+                            defaultValue={segmentState?.name}
+                            label="Name"
+                            placeholder={"Name"}
+                            errorMessage={pathError}
+                            dataTestId="api-path-segment"
+                        />
+                    </div>
                     <Grid container={true} item={true} spacing={2}>
                         <Grid item={true} xs={7}>
                             <CheckBoxGroup values={["Is Parameter"]} defaultValues={[segmentState.isParam ? "Is Parameter" : ""]} onChange={onParamCheckChange} />

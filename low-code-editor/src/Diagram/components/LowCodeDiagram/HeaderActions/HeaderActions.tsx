@@ -31,6 +31,7 @@ export interface HeaderActionsProps {
     isExpanded: boolean;
     deleteText: string;
     formType?: string;
+    showOnRight?: boolean;
     onExpandClick: () => void;
     onConfirmDelete: () => void;
     onConfirmEdit?: () => void;
@@ -41,8 +42,8 @@ export function HeaderActions(props: HeaderActionsProps) {
         model,
         isExpanded,
         deleteText,
+        showOnRight,
         onExpandClick,
-
         formType,
         onConfirmDelete,
         onConfirmEdit
@@ -50,8 +51,8 @@ export function HeaderActions(props: HeaderActionsProps) {
 
     const deleteBtnRef = useRef(null);
     const [isDeleteViewVisible, setIsDeleteViewVisible] = useState(false);
-    const handleDeleteBtnClick = () => setIsDeleteViewVisible(true);
-    const handleCancelDeleteBtn = () => setIsDeleteViewVisible(false);
+    const handleDeleteBtnClick = () => onConfirmDelete();
+    // const handleCancelDeleteBtn = () => setIsDeleteViewVisible(false);
 
     const [isEditViewVisible, setIsEditViewVisible] = useState(false);
     const handleEditBtnClick = () => setIsEditViewVisible(true);
@@ -83,14 +84,14 @@ export function HeaderActions(props: HeaderActionsProps) {
                 />
             </div>
 
-            {isDeleteViewVisible && (
+            {/* {isDeleteViewVisible && (
                 <DeleteConfirmDialog
                     onCancel={handleCancelDeleteBtn}
                     onConfirm={onConfirmDelete}
                     position={
                         deleteBtnRef.current
                             ? {
-                                x: deleteBtnRef.current.offsetLeft - 272,
+                                x: showOnRight ? deleteBtnRef.current.offsetLeft + 272: deleteBtnRef.current.offsetLeft - 272,
                                 y: deleteBtnRef.current.offsetTop,
                             }
                             : { x: 0, y: 0 }
@@ -98,7 +99,7 @@ export function HeaderActions(props: HeaderActionsProps) {
                     message={deleteText}
                     isFunctionMember={false}
                 />
-            )}
+            )} */}
             {isEditViewVisible && (STKindChecker.isEnumDeclaration(model)) && (
                 <UnsupportedConfirmButtons onConfirm={handleEnumEditBtnConfirm} onCancel={handleEditBtnCancel} />
             )}

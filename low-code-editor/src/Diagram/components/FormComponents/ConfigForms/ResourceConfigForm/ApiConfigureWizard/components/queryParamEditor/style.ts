@@ -31,14 +31,17 @@ export const useStyles = makeStyles((theme: Theme) =>
         addQueryParamBtn: {
             outline: "none",
             color: "#5567D5",
-            fontSize: 12,
+            fontSize: 13,
             letterSpacing: 0,
             lineHeight: "16px",
             cursor: "pointer",
             background: "#fff",
-            border: "1px solid #5567d55c",
+            border: "0px solid #5567d55c",
             padding: "4px 8px",
-            borderRadius: 8
+            borderRadius: 8,
+            marginTop: theme.spacing(1.5),
+            fontFamily: 'inherit',
+            marginBottom: theme.spacing(1.5),
         },
         addQueryParamBtnWrap: {
             display: "flex",

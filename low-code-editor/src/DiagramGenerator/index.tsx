@@ -3,7 +3,7 @@ import { IntlProvider } from "react-intl";
 import { monaco } from "react-monaco-editor";
 
 import { MuiThemeProvider } from "@material-ui/core/styles";
-import { Connector, STModification, STSymbolInfo, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { Connector, DiagramDiagnostic, STModification, STSymbolInfo, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, ModulePart, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import cloneDeep from "lodash.clonedeep";
 import Mousetrap from 'mousetrap';
@@ -15,9 +15,10 @@ import { UndoRedoManager } from "../Diagram/components/FormComponents/UndoRedoMa
 import { LowcodeEvent } from "../Diagram/models";
 import messages from '../lang/en.json';
 import { CirclePreloader } from "../PreLoader/CirclePreloader";
+import { MESSAGE_TYPE } from "../types";
 
 import { DiagramGenErrorBoundary } from "./ErrorBoundrary";
-import { Diagnostic, getDefaultSelectedPosition, getLowcodeST, getSyntaxTree, isUnresolvedModulesAvailable, resolveMissingDependencies } from "./generatorUtil";
+import { getDefaultSelectedPosition, getLowcodeST, getSyntaxTree, isDeleteModificationAvailable, isUnresolvedModulesAvailable, resolveMissingDependencies } from "./generatorUtil";
 import { useGeneratorStyles } from "./styles";
 import { theme } from "./theme";
 import { EditorProps, PALETTE_COMMANDS } from "./vscode/Diagram";
@@ -33,12 +34,13 @@ const MIN_ZOOM = 0.6;
 const undoRedo = new UndoRedoManager();
 
 export function DiagramGenerator(props: DiagramGeneratorProps) {
-    const { langClient, filePath, startLine, startColumn, lastUpdatedAt, scale, panX, panY, resolveMissingDependencyByCodeAction } = props;
+    const { langClient, filePath, startLine, startColumn, lastUpdatedAt, scale, panX, panY, resolveMissingDependency } = props;
     const classes = useGeneratorStyles();
     const defaultScale = scale ? Number(scale) : 1;
     const defaultPanX = panX ? Number(panX) : 0;
     const defaultPanY = panY ? Number(panY) : 0;
     const runCommand: (command: PALETTE_COMMANDS, args: any[]) => Promise<boolean> = props.runCommand;
+    const showMessage: (message: string, type: MESSAGE_TYPE, isIgnorable: boolean) => Promise<boolean> = props.showMessage;
 
     const defaultZoomStatus = {
         scale: defaultScale,
@@ -111,6 +113,10 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
 
     async function showSwaggerView(serviceName: string) {
         runCommand(PALETTE_COMMANDS.SWAGGER_VIEW, [serviceName, filePath]);
+    }
+
+    async function showDocumentationView(url: string) {
+        runCommand(PALETTE_COMMANDS.DOCUMENTATION_VIEW, [url]);
     }
 
     async function run(args: any[]) {
@@ -196,7 +202,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         <MuiThemeProvider theme={theme}>
             <div className={classes.lowCodeContainer}>
                 <IntlProvider locale='en' defaultLocale='en' messages={messages}>
-                    <DiagramGenErrorBoundary>
+                    <DiagramGenErrorBoundary lastUpdatedAt={lastUpdatedAt}>
                         <LowCodeEditor
                             {...missingProps}
                             selectedPosition={selectedPosition}
@@ -243,9 +249,9 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                             undoRedo.addModification(source);
                                             const pfSession = await props.getPFSession();
                                             if (newST?.typeData?.diagnostics && newST?.typeData?.diagnostics?.length > 0) {
-                                                const { isAvailable, diagnostic } = isUnresolvedModulesAvailable(newST?.typeData?.diagnostics as Diagnostic[]);
+                                                const { isAvailable } = isUnresolvedModulesAvailable(newST?.typeData?.diagnostics as DiagramDiagnostic[]);
                                                 if (isAvailable) {
-                                                    resolveMissingDependencyByCodeAction(filePath, source, diagnostic);
+                                                    resolveMissingDependency(filePath, source);
                                                 }
                                             }
                                             setFileContent(source);
@@ -254,10 +260,12 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                                 langClient, pfSession,
                                                 props.showPerformanceGraph, props.showMessage);
                                             setSyntaxTree(vistedSyntaxTree);
+                                            if (isDeleteModificationAvailable(mutations)) {
+                                                showMessage("Undo to revert the change you did by pressing Ctrl + Z", MESSAGE_TYPE.INFO, true);
+                                            }
                                         } else {
                                             // TODO show error
                                         }
-
                                     },
                                     onMutate: (type: string, options: any) => undefined,
                                     setCodeLocationToHighlight: (position: NodePosition) => undefined,
@@ -281,7 +289,8 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                     closeConfigPanel: () => undefined,
                                 },
                                 webView: {
-                                    showSwaggerView
+                                    showSwaggerView,
+                                    showDocumentationView
                                 },
                                 project: {
                                     run

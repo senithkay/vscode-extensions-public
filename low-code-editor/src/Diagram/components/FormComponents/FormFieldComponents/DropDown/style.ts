@@ -77,6 +77,10 @@ export const useStyles = makeStyles(() =>
                 "& .TextSpan": {
                     top: "calc(50% - 8px)",
                     position: "absolute",
+                    maxWidth: "156px",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
                 }
             },
             "& .MuiSelect-select.MuiSelect-select": {

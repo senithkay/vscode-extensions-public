@@ -24,7 +24,7 @@ import { DefaultConfig } from "../../../../../../visitors/default";
 import { ConnectorConfigWizard } from "../../../../../FormComponents/ConnectorConfigWizard";
 import { FormGenerator } from "../../../../../FormComponents/FormGenerator";
 import { Context } from "../../../../Context/diagram";
-import { BlockViewState, StatementViewState } from "../../../../ViewState";
+import { BlockViewState, PlusViewState, StatementViewState } from "../../../../ViewState";
 import { DraftStatementViewState } from "../../../../ViewState/draft";
 import { DeleteBtn } from "../../../DiagramActions/DeleteBtn";
 import { DELETE_SVG_HEIGHT_WITH_SHADOW, DELETE_SVG_WIDTH_WITH_SHADOW } from "../../../DiagramActions/DeleteBtn/DeleteSVG";
@@ -43,7 +43,7 @@ export interface ProcessorProps {
 
 export function ActionProcessor(props: ProcessorProps) {
     const {
-        actions: { diagramCleanDraw },
+        actions: { diagramCleanDraw, diagramRedraw },
         // api: {
         //     splitPanel: {
         //         handleRightPanelContent,
@@ -159,9 +159,11 @@ export function ActionProcessor(props: ProcessorProps) {
         setConnector(undefined);
     };
 
-    const onSave = () => {
-        setConfigWizardOpen(false);
-        // dispatchCloseConfigOverlayForm();
+    const onAddConnector = () => {
+        const draftVS = blockViewState.draft[1];
+        draftVS.type = "APIS";
+        draftVS.subType = "New";
+        diagramRedraw(syntaxTree);
     }
 
     const connectorsCollection: BallerinaConnectorInfo[] = [];
@@ -204,14 +206,15 @@ export function ActionProcessor(props: ProcessorProps) {
     const endpointList = (
         <FormGenerator
             onCancel={onWizardClose}
-            configOverlayFormStatus={ {
+            configOverlayFormStatus={{
                 formType: "EndpointList",
                 formArgs: {
                     onSelect: onEndpointSelect,
                     onCancel: onWizardClose,
+                    onAddConnector,
                 },
                 isLoading: true,
-            } }
+            }}
         />
     );
 
@@ -220,13 +223,14 @@ export function ActionProcessor(props: ProcessorProps) {
     // Else show the delete button only.
     const editAndDeleteButtons = (
         <>
-            <g className={isReferencedVariable ? "disable" : ""}>
+            <g>
                 <DeleteBtn
                     model={model}
                     cx={viewState.bBox.cx - (DELETE_SVG_WIDTH_WITH_SHADOW) + PROCESS_SVG_WIDTH / 4}
                     cy={viewState.bBox.cy + (PROCESS_SVG_HEIGHT / 2) - (DELETE_SVG_HEIGHT_WITH_SHADOW / 3)}
                     toolTipTitle={toolTip}
-                    isButtonDisabled={isReferencedVariable}
+                    isReferencedInCode={isReferencedVariable}
+                    showOnRight={true}
                     onDraftDelete={onDraftDelete}
                 />
             </g>
@@ -251,12 +255,16 @@ export function ActionProcessor(props: ProcessorProps) {
                 <React.Fragment>
                     {!isDraftStatement && statmentTypeText && processName && (
                         <>
-                            <StatementTypes
-                                statementType={statmentTypeText}
-                                x={cx - (VARIABLE_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
-                                y={cy + PROCESS_SVG_HEIGHT / 4}
-                                key_id={getRandomInt(1000)}
-                            />
+                            {statmentTypeText &&
+                                <>
+                                    <StatementTypes
+                                        statementType={statmentTypeText}
+                                        x={cx - (VARIABLE_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
+                                        y={cy + PROCESS_SVG_HEIGHT / 4}
+                                        key_id={getRandomInt(1000)}
+                                    />
+                                </>
+                            }
                             <VariableName
                                 processType={processType}
                                 variableName={processName}

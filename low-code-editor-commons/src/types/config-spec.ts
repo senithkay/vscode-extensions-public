@@ -95,6 +95,8 @@ export interface FormField {
     validationRegex?: any;
     leftTypeParam?: any;
     rightTypeParam?: any;
+    initialDiagnostics?: DiagramDiagnostic[];
+    documentation?: string;
 }
 export interface FormFieldReturnType {
     hasError: boolean;
@@ -114,8 +116,10 @@ export class ResponsePayloadMap {
 
 // tslint:disable-next-line: max-classes-per-file
 export class ActionConfig {
+    public isRemote: boolean = true;
     public name: string = "";
     public returnVariableName?: string = "";
+    public returnType?: string = "";
     public fields: FormField[] = [];
 }
 
@@ -194,4 +198,13 @@ export function getType(type: string): PrimitiveBalType {
 export interface ManualConfigType {
     name: string,
     value: string
+}
+
+export interface DiagramDiagnostic {
+    message: string,
+    diagnosticInfo: {
+        code: string,
+        severity: string
+    },
+    range: NodePosition
 }

@@ -63,23 +63,20 @@ export function ExpressionEditorArray(props: FormElementProps<ExpressionEditorPr
         setChanged(!changed)
     }
 
-    const mainEditorType: string = transformFormFieldTypeToString(model);
-    const subEditorType: string = mainEditorType.substring(0, mainEditorType.length - 2);
     const elementPropsSubEditor: FormElementProps = {
         model: {
-            name: "sub_editor_" + model.name,
-            displayName: "Item",
-            type: subEditorType,
-            value: subEditorValue,
-            tooltip: "Add elements to Array",
+            ...model.memberType,
             optional: true,
-            customAutoComplete: model.customAutoComplete
+            tooltip: "Add elements to Array",
+            displayName: "Item",
+            value: subEditorValue,
         },
         customProps: {
             validate: handleSubEditorValidation,
             clearInput,
             revertClearInput,
-            subEditor: true
+            subEditor: true,
+            editPosition: customProps?.editPosition,
         },
         onChange: handleSubEditorChange
     };
@@ -100,7 +97,10 @@ export function ExpressionEditorArray(props: FormElementProps<ExpressionEditorPr
                     />
                 </div>
                 <ExpressionEditor
-                    model={model}
+                    model={{
+                        ...model,
+                        typeInfo: model?.memberType?.typeInfo
+                    }}
                     customProps={{
                         ...customProps,
                         changed,

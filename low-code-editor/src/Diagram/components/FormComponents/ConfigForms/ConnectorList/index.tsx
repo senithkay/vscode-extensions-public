@@ -38,36 +38,30 @@ export function ConnectorList(props: FormGeneratorProps) {
         }
     } = useContext(Context);
     const { onSelect, onCancel } = props.configOverlayFormStatus.formArgs as ConnectorListProps;
-    const fetchConnectorsList = async (searchQuery: string, selectedCategory: string, connectorLimit: number, currentFilePath: string,
-                                       filterState: FilterStateMap, userInfo: UserState, page?: number): Promise<BallerinaModuleResponse> => {
+
+    const fetchConnectorsList = async (searchQuery: string, connectorLimit: number, currentFilePath: string,
+                                       userInfo?: UserState, page?: number): Promise<BallerinaModuleResponse> => {
         const langClient: DiagramEditorLangClientInterface = await getDiagramEditorLangClient();
         const request: BallerinaConnectorsRequest = {
             targetFile: currentFilePath,
             query: searchQuery,
-            keyword: selectedCategory,
             limit: connectorLimit,
         };
-
-        const hasUserOrgFilter = filterState.hasOwnProperty("My Organization") ? filterState["My Organization"] : false;
-        if (hasUserOrgFilter && userInfo) {
-            request.organization = userInfo.selectedOrgHandle;
-        }
 
         if (page) {
             request.offset = (page - 1) * connectorLimit;
         }
-
         return langClient.getConnectors(request);
-
     };
+
     return (
         <Marketplace
             balModuleType={BallerinaModuleType.Connector}
             onSelect={onSelect}
             onCancel={onCancel}
             fetchModulesList={fetchConnectorsList}
-            title="API Calls"
-            shortName="APIs"
+            title="Connectors"
+            shortName="Connectors"
         />
     );
 }

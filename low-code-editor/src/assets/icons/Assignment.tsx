@@ -14,7 +14,7 @@ import React from 'react';
 
 export default function AssignmentIcon(props: any) {
   return (
-    <svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <svg width="16" height="16" viewBox="0 0 20 20" {...props}>
         <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
             <g id="adding-new-Statements-updtd" transform="translate(-86.000000, -402.000000)" stroke-width="2">
                 <g id="Dropdown/Select/Default-Copy-2" transform="translate(76.000000, 392.000000)">

@@ -107,19 +107,23 @@ export function getFieldName(fieldName: string): string {
     return keywords.includes(fieldName) ? "'" + fieldName : fieldName;
 }
 
+const isAllFieldsEmpty = (recordFields: FormField[]): boolean => recordFields?.every(field => ((field.value ?? "") === "") || (field.fields && isAllFieldsEmpty(field.fields)));
+
 export function getParams(formFields: FormField[], depth = 1): string[] {
     const paramStrings: string[] = [];
     formFields.forEach(formField => {
-        const skipDefaultValue = (!formField.value && (formField.defaultable || formField.optional)) ||
+        const skipDefaultValue = (!formField.value && formField.typeName !== "record" && formField.defaultable) ||
             (formField.value && formField.defaultValue && formField.defaultValue === formField.value);
         let paramString: string = "";
         if (!skipDefaultValue) {
-            if (formField.defaultable && formField.value) {
+            if (formField.defaultable &&
+                ((formField.typeName !== "record" && formField.value) ||
+                    (formField.typeName === "record" && !isAllFieldsEmpty(formField.fields)))) {
                 paramString += `${formField.name} = `;
             }
             if (formField.typeName === "string" && (formField.value || formField.defaultValue)) {
                 paramString += formField.value || formField.defaultValue;
-            } else if (formField.typeName.includes("object {public string[]") && (formField.value || formField.defaultValue)) {
+            } else if (formField.typeName === "object" && (formField.value || formField.defaultValue)) {
                 paramString += formField.value || formField.defaultValue;
             }
             else if (formField.typeName === "array" && !formField.hide && (formField.value || formField.defaultValue)) {
@@ -341,6 +345,7 @@ export function matchEndpointToFormField(endPoint: LocalVarDecl, formFields: For
                 } else {
                     formField.value = positionalArg.expression.source;
                 }
+                formField.initialDiagnostics = positionalArg?.typeData?.diagnostics;
                 nextValueIndex++;
             } else if (formField.typeName === "record" && formField.fields && formField.fields.length > 0) {
                 const mappingConstructor: MappingConstructor = positionalArg.expression as MappingConstructor;
@@ -350,6 +355,7 @@ export function matchEndpointToFormField(endPoint: LocalVarDecl, formFields: For
                 }
             } else if (formField.typeName === "union") {
                 formField.value = positionalArg.expression?.source;
+                formField.initialDiagnostics = positionalArg?.typeData?.diagnostics;
             }
         }
     }
@@ -401,6 +407,7 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                         formField.value = listExpr.source;
                         formField.fields = formField?.fields ? formField.fields : [];
                     }
+                    formField.initialDiagnostics = specificField?.typeData?.diagnostics;
                 }
             })
         }
@@ -454,7 +461,11 @@ export function matchActionToFormField(remoteCall: RemoteMethodCallAction, formF
                 formField.value = positionalArg.expression?.source;
                 nextValueIndex++;
             }
-            else if (formField.typeName.includes("object {public string[]")) {
+            else if (formField.typeName === "object") {
+                formField.value = positionalArg.expression?.source;
+                nextValueIndex++;
+            }
+            else if (formField.typeName.includes("array")) {
                 formField.value = positionalArg.expression?.source;
                 nextValueIndex++;
             }
@@ -904,6 +915,9 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                         response.hasError = false;
                         type = `${formField.typeInfo.moduleName}:${formField.typeInfo.name}`
                     }
+                    if (formField.typeInfo) {
+                        response.importTypeInfo.push(formField.typeInfo);
+                    }
                 }
                 if (type === "" && formField.typeInfo && !formField.isErrorType) {
                     // set class/record types
@@ -932,7 +946,10 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                     type = formField.typeName;
                     response.hasReturn = true;
                 }
-
+                if (formField.typeName === "parameterized") {
+                    type = "record{}";
+                    response.hasReturn = true;
+                }
                 // filters
                 if (formField.typeName === PrimitiveBalType.Array) {
                     // set array type
@@ -942,19 +959,15 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                     // set optional tag
                     type = type.includes('|') ? `(${type})?` : `${type}?`;
                 }
-                // if (type !== "" && formField?.isStream) {
-                //     // set stream tags
-                //     type = `stream<${type}>`; // do for stream obj
-                // }
-                if (formField.typeName.includes("stream<rowType")) {
-                    type = "record{}"
-                }
                 if (type) {
                     response.returnType = type;
                 }
         }
     }
-
+    if (formField === null) {
+        response.returnType = "record{}";
+        response.hasReturn = true;
+    }
     return response;
 }
 
@@ -1119,3 +1132,11 @@ export function getManualConnectionTypeFromFormFields(formFields: FormField[]): 
     return selectedType
 }
 
+export function checkDBConnector(connectorModule: string): boolean {
+    let isDBConnectorStatus = false;
+    const dbConnectors = ["mysql", "mssql", "postgresql", "oracledb"]
+    if (dbConnectors.includes(connectorModule)) {
+        isDBConnectorStatus = true;
+    }
+    return isDBConnectorStatus;
+}

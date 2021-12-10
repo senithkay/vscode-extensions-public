@@ -152,10 +152,12 @@ export function updateConfigObjectProps(configObjects: ConfigObjectProps,
             if (instanceOfConfigElement(configObjects.properties[key])) {
                 const property: ConfigElementProps = configObjects.properties[key];
                 const existingConfig = configValues.findIndex((item) => item.key === property.id);
+                delete configObjects.properties[key].setConfigElement;
                 if (existingConfig > -1) {
                     configObjects.properties[key].value = configValues[existingConfig].value;
                 }
             } else {
+                delete configObjects.properties[key].setConfigElement;
                 updateConfigObjectProps(configObjects.properties[key], configValues);
             }
         });

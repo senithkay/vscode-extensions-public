@@ -25,6 +25,8 @@ import { AddInputButton } from "./elements/AddInputButton";
 import { CheckBoxInput } from "./elements/CheckBoxInput";
 import { TextFieldInput } from "./elements/TextFieldInput";
 import { ConfigType, ConfigValue } from "./model";
+import OutlinedLabel from "./OutlinedLabel";
+import { useStyles } from "./style";
 import { getType } from "./utils";
 
 /**
@@ -70,26 +72,35 @@ export function setConfigElementProps(
  * @param configElementProps The props required for the `ConfigElement` component.
  * @returns                  The `ConfigElement` component.
  */
-export const getConfigElement = (configElementProps: ConfigElementProps) => {
+export const getConfigElement = (configElementProps: ConfigElementProps, classes: ReturnType<typeof useStyles>) => {
+
     if (configElementProps === undefined) {
         return null;
     }
 
     return (
-        <Box mt={3}>
-            <Typography variant="body1" component="div" color="primary">
-                {configElementProps.name}
-            </Typography>
-            <Typography
-                variant="overline"
-                component="div"
-                style={{ color: "#04AA6D" }}
-            >
-                {configElementProps.type}
-            </Typography>
-            <Typography variant="body2" component="div">
+        <Box className={classes.formGroup}>
+            <Box className={classes.labelCont}>
+                <Box className={classes.mainLabel}>
+                    <Typography
+                        component="div"
+                        className={classes.mainLabelText}
+                    >
+                        {configElementProps.name}
+                    </Typography>
+                </Box>
+                <Box className={classes.labelTag}>
+                    <OutlinedLabel
+                        type="success"
+                        label={configElementProps.type}
+                        shape="square"
+                    />
+                </Box>
+            </Box>
+
+            <Box className={classes.formInputBox}>
                 {<ConfigElement {...configElementProps} />}
-            </Typography>
+            </Box>
         </Box>
     );
 };

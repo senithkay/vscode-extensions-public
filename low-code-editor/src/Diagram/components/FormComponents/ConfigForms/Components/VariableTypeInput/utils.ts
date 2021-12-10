@@ -5,7 +5,7 @@ import { CompletionItemKind, InsertTextFormat } from "vscode-languageserver-prot
 import { GetExpCompletionsParams } from "../../../FormFieldComponents/ExpressionEditor";
 import { createSortText } from "../../../FormFieldComponents/ExpressionEditor/utils";
 
-export const getVarTypeCompletions = (ignoredCompletions: string[] = []) => async ({
+export const getVarTypeCompletions = (ignoredCompletions: string[] = [], additionalCompletions: string[] = []) => async ({
     getExpressionEditorLangClient,
     langServerURL,
     completionParams,
@@ -34,9 +34,15 @@ export const getVarTypeCompletions = (ignoredCompletions: string[] = []) => asyn
         }
     });
 
-    if (completionItems.length > 0) {
-        completionItems[0] = { ...completionItems[0], preselect: true }
-    }
+    additionalCompletions.forEach((addition) => {
+        const completionItemTemplate: monaco.languages.CompletionItem = {
+            range: null,
+            label: addition,
+            kind: 1 as CompletionItemKind,
+            insertText: addition,
+        };
+        completionItems.push(completionItemTemplate);
+    });
 
     const completionList: monaco.languages.CompletionList = {
         incomplete: false,

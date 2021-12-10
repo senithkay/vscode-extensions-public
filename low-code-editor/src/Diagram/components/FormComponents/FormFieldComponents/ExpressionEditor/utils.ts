@@ -36,7 +36,7 @@ import "./style.scss";
 import { ExpressionEditorHintProps, HintType } from "../ExpressionEditorHint";
 import MonacoEditor from "react-monaco-editor";
 import { CompletionResponse, ExpressionEditorLangClientInterface, TextEdit,
-    FormField, NonPrimitiveBal, PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+    FormField, NonPrimitiveBal, PrimitiveBalType, DiagramDiagnostic } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { InjectableItem } from "../../FormGenerator";
 import { InsertorDelete } from "../../../../utils/modification-util";
 import { GetExpCompletionsParams } from "./index";
@@ -55,7 +55,7 @@ export function addToTargetLine(oldModelValue: string, targetPosition: NodePosit
     const modelContent: string[] = oldModelValue.split(/\n/g) || [];
     if (targetPosition?.startColumn) {
         // FIXME: The following logic fails completely when inserting code where target position is multiline
-        modelContent[targetPosition?.startLine] = addToTargetPosition(modelContent[targetPosition?.startLine], targetPosition?.startColumn, codeSnippet, targetPosition?.endColumn || targetPosition.startColumn);
+        modelContent[targetPosition?.startLine] = addToTargetPosition(modelContent[targetPosition?.startLine], targetPosition?.startColumn, codeSnippet, typeof targetPosition?.endColumn === 'number' ? targetPosition?.endColumn : targetPosition.startColumn);
     } else {
         modelContent.splice(targetPosition?.startLine, 0, codeSnippet);
     }
@@ -69,7 +69,7 @@ export function addToZerothLine(oldModelValue: string, codeSnippet: string): str
 }
 
 export function addToTargetPosition(oldLine: string, targetColumn: number, codeSnippet: string, endColumn?: number): string {
-    return oldLine.slice(0, targetColumn) + codeSnippet + oldLine.slice(endColumn || targetColumn);
+    return oldLine.slice(0, targetColumn) + codeSnippet + oldLine.slice(typeof endColumn === 'number' ? endColumn : targetColumn);
 }
 
 export function getDiagnostics(state: any): Diagnostic[] {
@@ -84,17 +84,17 @@ export function getTargetPosition(targetPosition: any, syntaxTree: any): NodePos
     if (targetPosition?.line) {
         return {
             startLine: targetPosition?.line,
-            endLine: undefined,
-            startColumn: undefined,
-            endColumn: undefined,
+            endLine: targetPosition?.line,
+            startColumn: 0,
+            endColumn: 0,
 
         }
     } else if (targetPosition?.startLine) {
         return {
             startLine: targetPosition.startLine,
-            endLine: targetPosition.endLine,
+            endLine: targetPosition.endLine || targetPosition.startLine,
             startColumn: targetPosition.startColumn,
-            endColumn: targetPosition.endColumn,
+            endColumn: targetPosition.endColumn || targetPosition.startColumn,
 
         }
     } else {
@@ -102,16 +102,16 @@ export function getTargetPosition(targetPosition: any, syntaxTree: any): NodePos
             const functionBodyPosition: NodePosition = (syntaxTree as FunctionDefinition).functionBody.position;
             return {
                 startLine: functionBodyPosition.endLine,
-                endLine: undefined,
-                startColumn: undefined,
-                endColumn: undefined,
+                endLine: functionBodyPosition.endLine,
+                startColumn: 0,
+                endColumn: 0,
             }
         } else {
             return {
                 startLine: 1,
-                endLine: undefined,
-                startColumn: undefined,
-                endColumn: undefined,
+                endLine: 1,
+                startColumn: 0,
+                endColumn: 0,
             }
         }
     }
@@ -123,9 +123,6 @@ export function getInitialValue(defaultValue: string, model: FormField): string 
     }
     if (model?.value) {
         return model.value;
-    }
-    if (model?.defaultValue && model.defaultValue !== "()") {
-        return model.defaultValue;
     }
     return "";
 }
@@ -198,9 +195,10 @@ export function addElvisChecker(expectedType?: string, foundType?: string) {
 }
 
 // FIXME: Use the response of ballerinaSymbol/type instead of below function
-function getTypesFromDiagnostics(diagnostic: Diagnostic): string[] {
-    if (diagnostic.code === INCOMPATIBLE_TYPE_ERR_CODE) {
-        const trimmedErrorMessage = diagnostic.message.replace("incompatible types: expected ", "");
+function getTypesFromDiagnostics(diagnostics: Diagnostic[]): string[] {
+    const incompatibleTypeDiag = diagnostics.find(diagnostic => diagnostic.message.includes("incompatible types: expected"));
+    if (incompatibleTypeDiag && incompatibleTypeDiag.code === INCOMPATIBLE_TYPE_ERR_CODE) {
+        const trimmedErrorMessage = incompatibleTypeDiag.message.replace("incompatible types: expected ", "");
         return trimmedErrorMessage.replace(/'/g, "").split(", found ");
     } else {
         return [];
@@ -443,18 +441,44 @@ export const getValueWithoutSemiColon = (currentContent: string) => {
     return currentContent;
 }
 
-export function getSelectedDiagnostics(diagnostics: Diagnostic[], varType: string): Diagnostic {
-    if (varType === 'string') {
-        const quotesError = diagnostics.find((diagnostic) => diagnostic.code === DOUBLE_QUOTE_ERR_CODE);
-        const undefSymbolError = diagnostics.find((diagnostic) => diagnostic.code === UNDEFINED_SYMBOL_ERR_CODE);
-        return quotesError ? quotesError : undefSymbolError ? undefSymbolError : diagnostics[0];
-    } else {
-        return diagnostics[0];
-    }
+export function getSelectedDiagnostics(
+    diagnostics: Diagnostic[],
+    targetPosition: NodePosition,
+    snippetColumn: number,
+    inputLength: number,
+    startExtraColumns: number = 0,
+    endExtraColumns: number = 0
+): Diagnostic[] {
+    const { startLine, endLine, startColumn } = targetPosition || {};
+    const inputStartCol = startColumn + snippetColumn - startExtraColumns;
+    const inputEndCol = startColumn + snippetColumn + inputLength + endExtraColumns - 1;
+
+    const filteredDiagnostics = diagnostics.filter((diagnostic) => {
+        const isError = diagnostic.severity === 1;
+        const { start, end } = diagnostic.range || {};
+        const diagnosticStartCol = start?.character;
+        const diagnosticEndCol = end?.character;
+        return isError && startLine === start.line && endLine === end.line && diagnosticEndCol >= inputStartCol && diagnosticStartCol <= inputEndCol;
+    });
+
+    return filteredDiagnostics;
 }
 
-export function getDiagnosticMessage(diagnostics: Diagnostic[], varType: string): string {
-    return getSelectedDiagnostics(diagnostics, varType)?.message;
+export function getDiagnosticMessage(
+    diagnostics: Diagnostic[],
+    targetPosition: NodePosition,
+    snippetColumn: number,
+    inputLength: number,
+    startExtraColumns: number = 0,
+    endExtraColumns: number = 0
+): string {
+    return getSelectedDiagnostics(diagnostics, targetPosition, snippetColumn, inputLength, startExtraColumns, endExtraColumns)
+        .reduce((errArr: string[], diagnostic) => (!errArr.includes(diagnostic.message) ? [...errArr, diagnostic.message] : errArr), [])
+        .join(". ");
+}
+
+export function getInitialDiagnosticMessage(diagnostics: DiagramDiagnostic[] = []): string {
+    return diagnostics.filter(diagnostic => diagnostic.diagnosticInfo.severity.toLowerCase() === 'error').reduce((errArr, diagnostic) => [...errArr, diagnostic.message], []).join(". ");
 }
 
 export function diagnosticInRange(diagnosticRange: Range, targetPosition: any, targetColumn: any) {
@@ -542,53 +566,72 @@ const hintHandlers = {
 }
 
 /** Get list of hints to be shown below the expression editor, for given diagnostics */
-export const getHints = (diagnostics: Diagnostic[], varType: string, varName: string, monacoRef: React.MutableRefObject<MonacoEditor>): ExpressionEditorHintProps[] => {
+export const getHints = (
+    diagnostics: Diagnostic[],
+    varType: string,
+    varName: string,
+    monacoRef: React.MutableRefObject<MonacoEditor>,
+    targetPosition: NodePosition,
+    snippetColumn: number,
+    startExtraColumns: number = 0,
+    endExtraColumns: number = 0
+): ExpressionEditorHintProps[] => {
+    if (monacoRef.current) {
+        const inputLength = monacoRef.current.editor.getPosition().column - 1;
+        const hints: ExpressionEditorHintProps[] = [];
+        if (diagnostics && Array.isArray(diagnostics) && diagnostics.length > 0) {
+            const [expectedType, foundType] = getTypesFromDiagnostics(
+                getSelectedDiagnostics(diagnostics, targetPosition, snippetColumn, inputLength, startExtraColumns, endExtraColumns)
+            );
 
-    const hints: ExpressionEditorHintProps[] = [];
-    if (diagnostics && Array.isArray(diagnostics) && diagnostics.length > 0) {
-        const [expectedType, foundType] = getTypesFromDiagnostics(getSelectedDiagnostics(diagnostics, varType));
-
-        if (typeCheckerExp(diagnostics, varName, varType)) {
-            // Prepend `check` to input in order to handle expressions that could throw an error
-            hints.push({ type: HintType.ADD_CHECK, onClickHere: () => hintHandlers.addCheck(monacoRef) })
-        } else if (addElvisChecker(expectedType, foundType)) {
-            // Add a default value for nullable inputs via Elvis operator
-            hints.push({ type: HintType.ADD_ELVIS_OPERATOR, onClickHere: () => hintHandlers.addElvisOperator(varType, monacoRef) })
-        } else if (checkIfStringExist(varType)) {
-            // handle string or string|other_types
-            if (addToStringChecker(diagnostics)) {
-                // Add .toString to the input
-                hints.push({ type: HintType.ADD_TO_STRING, onClickHere: () => hintHandlers.addToString(monacoRef) })
-            } else if (addQuotesChecker(diagnostics)) {
-                const editorContent = monacoRef.current.editor.getModel().getValue();
-                if (editorContent === "") {
-                    // Add empty double quotes if the input field is empty for string type
-                    hints.push({ type: HintType.ADD_DOUBLE_QUOTES_EMPTY, onClickHere: () => hintHandlers.addDoubleQuotes(monacoRef) })
-                } else {
-                    // Add double quotes around the input, if its string input type
-                    hints.push({ type: HintType.ADD_DOUBLE_QUOTES, onClickHere: () => hintHandlers.addDoubleQuotes(monacoRef), editorContent })
-                }
-            }
-        } else if (suggestCastChecker(expectedType, foundType)) {
-            hints.push({ type: HintType.SUGGEST_CAST, onClickHere: () => hintHandlers.addTypeCast(foundType, varType, monacoRef), expressionType: varType })
-        } else if (varType === "sql:ParameterizedQuery") {
-            if (monacoRef.current) {
-                const editorContent = monacoRef.current.editor.getModel().getValue();
-                // Check if the editor content already has backticks at the start and end positions
-                if ((editorContent.charAt(0) !== "`") || (editorContent.charAt(editorContent.length - 1) !== "`")) {
+            if (typeCheckerExp(diagnostics, varName, varType)) {
+                // Prepend `check` to input in order to handle expressions that could throw an error
+                hints.push({ type: HintType.ADD_CHECK, onClickHere: () => hintHandlers.addCheck(monacoRef) });
+            } else if (addElvisChecker(expectedType, foundType)) {
+                // Add a default value for nullable inputs via Elvis operator
+                hints.push({ type: HintType.ADD_ELVIS_OPERATOR, onClickHere: () => hintHandlers.addElvisOperator(varType, monacoRef) });
+            } else if (checkIfStringExist(varType)) {
+                // handle string or string|other_types
+                if (addToStringChecker(diagnostics)) {
+                    // Add .toString to the input
+                    hints.push({ type: HintType.ADD_TO_STRING, onClickHere: () => hintHandlers.addToString(monacoRef) });
+                } else if (addQuotesChecker(diagnostics)) {
+                    const editorContent = monacoRef.current.editor.getModel().getValue();
                     if (editorContent === "") {
-                        // Add empty back ticks if the input field is empty for string type
-                        hints.push({ type: HintType.ADD_BACK_TICKS_EMPTY, onClickHere: () => hintHandlers.addBackTicks(monacoRef) })
-                    } else{
-                        // Add back ticks around the input, if its parameterized query input type
-                        hints.push({ type: HintType.ADD_BACK_TICKS, onClickHere: () => hintHandlers.addBackTicks(monacoRef), editorContent })
+                        // Add empty double quotes if the input field is empty for string type
+                        hints.push({ type: HintType.ADD_DOUBLE_QUOTES_EMPTY, onClickHere: () => hintHandlers.addDoubleQuotes(monacoRef) });
+                    } else {
+                        // Add double quotes around the input, if its string input type
+                        hints.push({ type: HintType.ADD_DOUBLE_QUOTES, onClickHere: () => hintHandlers.addDoubleQuotes(monacoRef), editorContent });
+                    }
+                }
+            } else if (suggestCastChecker(expectedType, foundType)) {
+                hints.push({
+                    type: HintType.SUGGEST_CAST,
+                    onClickHere: () => hintHandlers.addTypeCast(foundType, varType, monacoRef),
+                    expressionType: varType,
+                });
+            } else if (varType === "sql:ParameterizedQuery" || varType === "sql:ParameterizedCallQuery") {
+                if (monacoRef.current) {
+                    const editorContent = monacoRef.current.editor.getModel().getValue();
+                    // Check if the editor content already has backticks at the start and end positions
+                    if (editorContent.charAt(0) !== "`" || editorContent.charAt(editorContent.length - 1) !== "`") {
+                        if (editorContent === "") {
+                            // Add empty back ticks if the input field is empty for string type
+                            hints.push({ type: HintType.ADD_BACK_TICKS_EMPTY, onClickHere: () => hintHandlers.addBackTicks(monacoRef) });
+                        } else {
+                            // Add back ticks around the input, if its parameterized query input type
+                            hints.push({ type: HintType.ADD_BACK_TICKS, onClickHere: () => hintHandlers.addBackTicks(monacoRef), editorContent });
+                        }
                     }
                 }
             }
         }
+        return hints;
+    } else {
+        return [];
     }
-    return hints;
-}
+};
 
 export const getStandardExpCompletions = async ({
     getExpressionEditorLangClient,

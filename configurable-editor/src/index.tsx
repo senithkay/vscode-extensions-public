@@ -20,10 +20,11 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
+import ConfigEditor from "./components/ConfigEditor";
 import { ConfigForm } from "./components/ConfigForm";
 import { ConfigObjectProps } from "./components/ConfigObject";
 import { ConfigSchema } from "./components/model";
-export { ConfigForm };
+export { ConfigForm, ConfigObjectProps, ConfigSchema };
 
 export function renderConfigEditor(
     data: ConfigSchema,
@@ -34,15 +35,18 @@ export function renderConfigEditor(
     onClickPrimaryButton: (configProperties: ConfigObjectProps) => void,
 ) {
     ReactDOM.render(
-        (
-          <ConfigForm
-            configSchema={data}
-            existingConfigs={existingConfigs}
-            defaultButtonText={defaultButtonText}
-            primaryButtonText={primaryButtonText}
-            onClickDefaultButton={onClickDefaultButton}
-            onClickPrimaryButton={onClickPrimaryButton}
-          />
+            (
+            <ConfigEditor>
+                <ConfigForm
+                    configSchema={data}
+                    existingConfigs={existingConfigs}
+                    defaultButtonText={defaultButtonText}
+                    primaryButtonText={primaryButtonText}
+                    onClickDefaultButton={onClickDefaultButton}
+                    onClickPrimaryButton={onClickPrimaryButton}
+                    isLowCode={true}
+                />
+            </ConfigEditor>
         ),
         document.getElementById("configEditor"),
     );
