@@ -41,7 +41,7 @@ export function TextFieldInput(props: TextFieldInputProps) {
         placeholder = "Required";
     }
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (e: any) => {
         setTextFieldValue(id, e.target.value);
     };
 
@@ -56,7 +56,7 @@ export function TextFieldInput(props: TextFieldInputProps) {
             variant="outlined"
             placeholder={placeholder}
             fullWidth={true}
-            defaultValue={existingValue || null}
+            defaultValue={existingValue}
             type={fieldType}
             margin="none"
             onChange={handleChange}

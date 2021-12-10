@@ -22,16 +22,10 @@ import React from "react";
 import { Box, Button } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 
-export interface AddInputButtonProps {
-    onAdd: () => void;
-}
-
-export function AddInputButton(props: AddInputButtonProps) {
-    const { onAdd } = props;
-
+export function AddInputButton() {
     return (
         <Box mb={2} mt={2}>
-            <Button variant="text" color="primary" startIcon={<AddIcon />} onClick={onAdd}>
+            <Button variant="text" color="primary" startIcon={<AddIcon />}>
                 Add
             </Button>
         </Box>
