@@ -107,30 +107,31 @@ export function ProcessConfigForm(props: any) {
                     break;
             }
         } else {
-            if (formArgs?.targetPosition) {
+            const modificationPosition = formArgs?.targetPosition || targetPosition;
+            if (modificationPosition) {
                 // todo: make this ST modification
                 if (processConfig.type === "Variable") {
                     const propertyConfig: string = processConfig.config as string;
                     const addPropertyStatement: STModification = createPropertyStatement(
-                        propertyConfig, formArgs?.targetPosition);
+                        propertyConfig, modificationPosition);
                     modifications.push(addPropertyStatement);
                 } else if (processConfig.type === "AssignmentStatement") {
                     const assignmentConfig: string = processConfig.config as string;
                     const addAssignmentStatement: STModification = createPropertyStatement(
-                        assignmentConfig, formArgs?.targetPosition);
+                        assignmentConfig, modificationPosition);
                     modifications.push(addAssignmentStatement);
                 } else if (processConfig.type === "Log") {
                     const logConfig: LogConfig = processConfig.config as
                         LogConfig;
                     const addLogStatement: STModification = createLogStatement(
-                        logConfig.type, logConfig.expression, formArgs?.targetPosition);
+                        logConfig.type, logConfig.expression, modificationPosition);
                     const addImportStatement: STModification = createImportStatement(
-                        "ballerina", "log", formArgs?.targetPosition);
+                        "ballerina", "log", modificationPosition);
                     modifications.push(addImportStatement);
                     modifications.push(addLogStatement);
                 } else if (processConfig.type === 'DataMapper') {
                     const datamapperConfig: DataMapperConfig = processConfig.config as DataMapperConfig;
-                    datamapperConfig.outputType.startLine = formArgs?.targetPosition.line;
+                    datamapperConfig.outputType.startLine = modificationPosition.line;
                     const defaultReturn = getDefaultValueForType(datamapperConfig.outputType, stSymbolInfo.recordTypeDescriptions, "");
                     let signatureString = '';
 
@@ -162,14 +163,14 @@ export function ProcessConfigForm(props: any) {
 
                     const functionString = `${datamapperConfig.outputType.generationType === GenerationType.NEW ? outputType : ''} ${datamapperConfig.outputType.variableName} = ${defaultReturn};`
 
-                    const dataMapperFunction: STModification = createPropertyStatement(functionString, formArgs?.targetPosition);
+                    const dataMapperFunction: STModification = createPropertyStatement(functionString, modificationPosition);
                     modifications.push(dataMapperFunction);
                     if (conversionStatement.length > 0) {
-                        modifications.push(createPropertyStatement(conversionStatement, formArgs?.targetPosition));
+                        modifications.push(createPropertyStatement(conversionStatement, modificationPosition));
                     }
                 } else if (processConfig.type === "Call" || processConfig.type === "Custom") {
                     const customConfig: CustomExpressionConfig = processConfig.config as CustomExpressionConfig;
-                    const addCustomStatement: STModification = createPropertyStatement(customConfig.expression, formArgs?.targetPosition);
+                    const addCustomStatement: STModification = createPropertyStatement(customConfig.expression, modificationPosition);
                     modifications.push(addCustomStatement);
                 }
                 const event: LowcodeEvent = {
