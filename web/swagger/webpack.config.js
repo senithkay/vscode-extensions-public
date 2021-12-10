@@ -1,11 +1,10 @@
 const path = require("path");
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 module.exports = {
   entry: "./src/components/index.tsx",
   target: "web",
-  mode: "development",
+  mode: "production",
   output: {
     path: path.resolve(__dirname, "build"),
     filename: "SwaggerView.js",
