@@ -89,7 +89,9 @@ export function While(props: WhileProps) {
     const diagnostics = modelWhile?.condition?.typeData?.diagnostics;
 
     const diagnosticMsgs = getDiagnosticInfo(diagnostics);
-    const whileWrapper = diagnosticMsgs ? "while-error-wrapper" : "while-wrapper" ;
+
+    const diagnosticStyles = diagnosticMsgs?.severity === "ERROR" ? "while-block-error" : "while-block-warning";
+    const whileRectStyles = diagnosticMsgs ? diagnosticStyles : "while-block" ;
 
     let codeSnippet = modelWhile?.source?.trim().split('{')[0];
     let codeSnippetOnSvg = "WHILE";
@@ -202,7 +204,7 @@ export function While(props: WhileProps) {
     }
 
     const unFoldedComponent = (
-        <g className="while-block" data-testid="while-block">
+        <g className={whileRectStyles} data-testid="while-block">
             <rect className="while-rect" {...rectProps} />
             <g className="while-polygon-wrapper">
                 <WhileSVG
@@ -271,7 +273,7 @@ export function While(props: WhileProps) {
     );
 
     const foldedComponent = (
-        <g className="while-block" data-testid="while-block">
+        <g className={whileRectStyles} data-testid="while-block">
             <rect className="while-rect" {...rectProps} />
             <g className="while-polygon-wrapper" onClick={onWhileHeadClick}>
                 <WhileSVG
@@ -346,7 +348,7 @@ export function While(props: WhileProps) {
     );
 
     return (
-        <g className={whileWrapper}>
+        <g className="while-wrapper">
             <g>
                 {whileComponent}
             </g>
