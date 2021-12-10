@@ -219,16 +219,6 @@ export function InputEditor(props: InputEditorProps) {
         });
     }
 
-    const revertContent = async () => {
-        if (inputEditorState?.uri) {
-            inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
-            inputEditorState.content = (currentFile.content);
-            inputEditorState.uri = inputEditorState?.uri;
-
-            sendDidChange(inputEditorState.uri, inputEditorState.content, getLangClient).then();
-        }
-    }
-
     // TODO: To be removed with expression editor integration
     const getContextBasedCompletions = async (codeSnippet: string) => {
         const completionParams: CompletionParams = {
@@ -275,10 +265,6 @@ export function InputEditor(props: InputEditorProps) {
                 }
             });
         });
-    }
-
-    if (stmtCtx.formCtx.onCancel) {
-        revertContent().then();
     }
 
     const inputEnterHandler = (event: React.KeyboardEvent<HTMLInputElement>) => {
