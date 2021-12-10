@@ -109,6 +109,15 @@
                 }
             }
 
+            .if-else-icon{
+                .if-icon-dark-path{
+                    fill:$default_color;
+                }
+                .if-icon-light-path{
+                   fill:#CCD1F2;
+                }
+            }
+
             .condition-text-italic {
                 tspan {
                     font-style: italic;
@@ -141,7 +150,7 @@
             &:hover {
                 .if-else-rect {
                     cursor: pointer;
-                    stroke: #c0ceff8a;
+                    stroke: $active_color;
                     @extend .rectStyle;
 
                     &.click-effect {
@@ -165,13 +174,22 @@
             .if-else-group-active {
                 rect {
                     cursor: pointer !important;
-                    stroke: #c0ceff8a !important;
+                    stroke:$active_color !important;
                     @extend .rectStyle;
 
                     &.click-effect {
                         stroke-width: 1px !important;
                         stroke:$error_color !important;
                     }
+                }
+            }
+
+            .if-else-icon{
+                .if-icon-dark-path{
+                    fill:$error_color;
+                }
+                .if-icon-light-path{
+                   fill: $error_color;
                 }
             }
 
@@ -195,7 +213,6 @@
 
     &.if-condition-wrapper {
 
-        /* stylelint-disable */
         .if-else {
             user-select: none;
 
@@ -219,12 +236,12 @@
                 :active {
                     .if-else-rect {
                         cursor: pointer;
-                        stroke: #c0ceff8a;
+                        stroke:$active_color;
                         @extend .rectStyle;
 
                         &.click-effect {
                             stroke-width: 1px !important;
-                            stroke: #5566d5 !important;
+                            stroke: $default_color !important;
                         }
                     }
                 }
@@ -244,7 +261,16 @@
 
             line {
                 stroke-width: 1px;
-                stroke: #5566d5;
+                stroke:$default_color;
+            }
+
+            .if-else-icon{
+                .if-icon-dark-path{
+                    fill:$default_color;
+                }
+                .if-icon-light-path{
+                   fill: #CCD1F2;
+                }
             }
 
             .if-head-wrapper {
@@ -267,12 +293,12 @@
                 &:hover {
                     .if-else-rect {
                         cursor: pointer;
-                        stroke: #c0ceff8a;
+                        stroke:$active_color;
                         @extend .rectStyle;
 
                         &.click-effect {
                             stroke-width: 1px !important;
-                            stroke: #5566d5 !important;
+                            stroke:$default_color !important;
                         }
                     }
 
@@ -299,7 +325,6 @@
             }
         }
 
-        /* stylelint-enable */
     }
     &.if-condition-error-wrapper {
 
@@ -324,7 +349,7 @@
                 :active {
                     .if-else-rect {
                         cursor: pointer;
-                        stroke: #c0ceff8a;
+                        stroke: $active_color;
                        @extend .rectStyle;
 
                         &.click-effect {
@@ -344,6 +369,15 @@
             .condition-text-italic {
                 tspan {
                     font-style: italic;
+                }
+            }
+
+            .if-else-icon{
+                .if-icon-dark-path{
+                    fill:$error_color;
+                }
+                .if-icon-light-path{
+                   fill:$error_color;
                 }
             }
 
@@ -404,17 +438,15 @@
             }
         }
 
-        /* stylelint-enable */
     }
     &.if-condition-warning-wrapper {
 
-        /* stylelint-disable */
         .if-else {
             user-select: none;
 
             .if-else-group {
                 rect {
-                    stroke: #FF9D52;
+                    stroke:$warning_color;
                     stroke-width: 1;
                     @extend .if-else-rect-styles
                 }
@@ -431,7 +463,7 @@
                 :active {
                     .if-else-rect {
                         cursor: pointer;
-                        stroke: #c0ceff8a;
+                        stroke: $active_color;
                         stroke-miterlimit: 10;
                         stroke-width: 9px;
                         fill: url(#IfElseLinearGradient) #fafafc;
@@ -439,7 +471,7 @@
 
                         &.click-effect {
                             stroke-width: 2px !important;
-                            stroke: #FF9D52 !important;
+                            stroke:$warning_color !important;
                         }
                     }
                 }
@@ -459,7 +491,16 @@
 
             line {
                 stroke-width: 1px;
-                stroke: #FF9D52;
+                stroke:$warning_color;
+            }
+
+            .if-else-icon{
+                .if-icon-dark-path{
+                    fill:$warning_color;
+                }
+                .if-icon-light-path{
+                   fill:$warning_color;
+                }
             }
 
             .if-head-wrapper {
@@ -487,7 +528,7 @@
 
                         &.click-effect {
                             stroke-width: 1px !important;
-                            stroke: #FF9D52 !important;
+                            stroke:$warning_color !important;
                         }
                     }
 
