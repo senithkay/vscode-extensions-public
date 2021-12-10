@@ -162,7 +162,7 @@ export class BallerinaExtension {
             }
         }
         if (this.getCodeServerContext().codeServerEnv) {
-            window.showInformationMessage('The Ballerina graphical editor is loading...', { modal: true });
+            window.showInformationMessage('The graphical editor loading takes a few seconds. Please wait...', { modal: true });
             commands.executeCommand('workbench.action.closeAllEditors');
         }
         this.webviewContext = { isOpen: false };
