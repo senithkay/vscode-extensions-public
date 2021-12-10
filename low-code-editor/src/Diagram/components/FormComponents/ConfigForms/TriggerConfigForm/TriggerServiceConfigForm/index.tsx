@@ -80,6 +80,23 @@ export function TriggerForm(props: FormGeneratorProps) {
         setNewChannel(false);
         setIsDropDownOpen(false);
     }
+    // TODO: The function needs to be removed once the default value is
+    // added from the ballerina central trigger api
+    // This function will add the defaultValue property to the linstenerParams
+    const handleListenerParamTypes = (triggerData: BallerinaTriggerResponse, triggerlabel: string) => {
+        const listenerParamFields = triggerData.listenerParams[0].fields;
+        const paramField = listenerParamFields.map((params) => {
+            if (params.typeName === "string") {
+                return { ...params, defaultValue: "\"\"" }
+            } else if (params.typeName === "enum") {
+                return { ...params, defaultValue: `${triggerlabel}:${params.members[0].typeName}` }
+            } else if (params.typeName === "union") {
+                return { ...params, defaultValue: params.members[0].typeName }
+            }
+        })
+        triggerData.listenerParams[0] = { ...triggerData.listenerParams[0], fields: paramField }
+        return triggerData.listenerParams;
+    }
     const createTriggerCode = () => {
         let httpBased: boolean = true;
         const triggerStr = triggerInfo.moduleName.split(".");
@@ -87,7 +104,13 @@ export function TriggerForm(props: FormGeneratorProps) {
         if (triggerType === 'sfdc' || triggerType === 'asb') {
             httpBased = false;
         }
-        const newTriggerInfo = { ...triggerInfo, serviceTypes: selectedServiceTypes, triggerType, httpBased };
+        const newListenerParams = handleListenerParamTypes(triggerInfo, triggerType)
+        const newTriggerInfo = {
+            ...triggerInfo,
+            serviceTypes: selectedServiceTypes,
+            triggerType, httpBased,
+            listenerParams: newListenerParams
+        };
         const httpStModification = [
             createImportStatement("ballerina", "http", targetPosition),
             createImportStatement("ballerinax", moduleName, targetPosition),
