@@ -55,6 +55,13 @@ const useStyles = makeStyles((theme: Theme) =>
             display: 'flex',
             alignContent: 'flex-start',
         },
+        filterBtn: {
+            '& h5': {
+                color: theme.palette.common.black,
+                fontWeight: 400,
+                marginLeft: theme.spacing(1)
+            },
+        },
         filterTagWrap: {
             maxHeight: '48px',
         },

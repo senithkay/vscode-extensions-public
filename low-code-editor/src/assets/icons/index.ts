@@ -29,7 +29,7 @@ export { default as SalesforceIcon } from "./Salesforce";
 export { default as WebhookIcon } from "./Webhook";
 export { default as CustomStatementIcon } from "./CustomStatement";
 export { default as DataMapperIcon } from "./DataMapper";
-export { default as FilterOutlineIcon } from "./FilterOutline";
+export { default as FilterIcon } from "./Filter";
 
 // Module level icons
 export { default as ServiceIcon } from './ServiceIcon';

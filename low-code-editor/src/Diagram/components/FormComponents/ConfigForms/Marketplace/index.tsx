@@ -25,7 +25,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 
-import { FilterOutlineIcon } from "../../../../../assets/icons";
+import { FilterIcon } from "../../../../../assets/icons";
 import { Context } from "../../../../../Contexts/Diagram";
 import { UserState } from "../../../../../types";
 import { EVENT_TYPE_AZURE_APP_INSIGHTS, LowcodeEvent, START_CONNECTOR_ADD_INSIGHTS } from "../../../../models";
@@ -301,7 +301,12 @@ export function Marketplace(props: MarketplaceProps) {
             <div id="module-list-container" className={formClasses.formWrapper} onWheel={preventDiagramScrolling}>
                 <Grid item={true} sm={12} container={true}>
                     <Grid item={true} sm={4} container={true}>
-                        <IconBtnWithText onClick={toggleFilters} text={showFilters ? "Hide Filters" : "Filters"} />
+                        <IconBtnWithText
+                            onClick={toggleFilters}
+                            className={classes.filterBtn}
+                            text={showFilters ? "Hide Filters" : "Filters"}
+                            icon={<FilterIcon filled={showFilters} />}
+                        />
                     </Grid>
                     <Grid item={true} sm={8} container={true}>
                         {searchBar}
