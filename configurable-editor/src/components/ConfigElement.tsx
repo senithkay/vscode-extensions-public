@@ -79,20 +79,28 @@ export const getConfigElement = (configElementProps: ConfigElementProps, classes
     }
 
     return (
-        <Box mt={3}>
-            <Typography variant="body1" component="div" color="primary">
-                {configElementProps.name}
-            </Typography>
-            <Typography
-                variant="overline"
-                component="div"
-                style={{ color: "#04AA6D" }}
-            >
-                {configElementProps.type}
-            </Typography>
-            <Typography variant="body2" component="div">
+        <Box className={classes.formGroup}>
+            <Box className={classes.labelCont}>
+                <Box className={classes.mainLabel}>
+                    <Typography
+                        component="div"
+                        className={classes.mainLabelText}
+                    >
+                        {configElementProps.name}
+                    </Typography>
+                </Box>
+                <Box className={classes.labelTag}>
+                    <OutlinedLabel
+                        type="success"
+                        label={configElementProps.type}
+                        shape="square"
+                    />
+                </Box>
+            </Box>
+
+            <Box className={classes.formInputBox}>
                 {<ConfigElement {...configElementProps} />}
-            </Typography>
+            </Box>
         </Box>
     );
 };
