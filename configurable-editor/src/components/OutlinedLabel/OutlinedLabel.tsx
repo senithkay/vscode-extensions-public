@@ -58,7 +58,7 @@ const OutlinedLabel = ({ type, label, isLink, shape }: OutlinedLabelProps) => {
             size="small"
             label={label}
             variant="outlined"
-            classes={{root:classes.chipRoot,label:classes.chiplabel}}
+            classes={{root: classes.chipRoot, label: classes.chiplabel}}
             style={{borderColor: chipColor, borderRadius: shape === "square" ? 3 : 10, color: chipColor, cursor}}
         />
     );
