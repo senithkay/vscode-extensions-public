@@ -91,25 +91,26 @@ service /{{{ BASE_PATH }}} on {{{ LISTENER_NAME }}}`,
     TRIGGER: `
     configurable {{triggerType}}:ListenerConfig userInput = {
         {{#each this.listenerParams.0.fields}}
-        {{ this.name }}: ""{{#unless @last}},{{/unless}}
-        {{/each}}
-    };
+            {{ this.name }}: {{{ this.defaultValue }}} {{#unless @last}},{{/unless}}
+            {{/each}}
+        };
 
-    {{#if httpBased }}listener http:Listener httpListener = new(8090);{{/if}}
-    listener {{triggerType}}:Listener webhookListener = new(userInput{{#if httpBased }}, httpListener{{/if}});
+        {{#if httpBased }}listener http:Listener httpListener = new(8090);{{/if}}
+        listener {{triggerType}}:Listener webhookListener = new(userInput{{#if httpBased }}, httpListener{{/if}});
 
-    {{#each serviceTypes}}
-    service {{../triggerType}}:{{ this.name }} on webhookListener {
+        {{#each serviceTypes}}
+        service {{../triggerType}}:{{ this.name }} on webhookListener {
 
-      {{#each this.functions}}
-        remote function {{ this.name }}({{#each this.parameters}}{{#if @index}}, {{/if}}{{../../../triggerType}}:{{this.typeInfo.name}} payload {{/each}}) returns error? {
-          //Not Implemented
+          {{#each this.functions}}
+            remote function {{ this.name }}({{#each this.parameters}}{{#if @index}},
+            {{/if}}{{../../../triggerType}}:{{this.typeInfo.name}} {{this.name}} {{/each}}) returns error? {
+              //Not Implemented
+            }
+          {{/each}}
         }
-      {{/each}}
-    }
-    {{/each}}
+        {{/each}}
 
-    {{#if httpBased }}service /ignore on httpListener {}{{/if}}`,
+        {{#if httpBased }}service /ignore on httpListener {}{{/if}}`,
     TRIGGER_UPDATE: `
     service {{{ TRIGGER_CHANNEL }}} on {{{ LISTENER_NAME }}}`
 }
