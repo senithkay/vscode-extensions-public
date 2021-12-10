@@ -29,8 +29,8 @@ import { PALETTE_COMMANDS } from "../project";
 export const SHOW_GRAPH_COMMAND = "ballerina.forecast.performance.showGraph";
 export const CHOREO_API_PF = "http://choreocontrolplane.preview-dv.choreo.dev/performance-analyzer/2.0.0/get_estimations/3.0";
 
-export const CHOREO_AUTH_ERR = "Authentication error for accessing AI service (ID6)";
-export const NETWORK_ERR = "Network error. Please check you internet connection";
+const CHOREO_AUTH_ERR = "Authentication error for accessing AI service (ID6)";
+const NETWORK_ERR = "Network error. Please check you internet connection";
 const MODEL_NOT_FOUND = "AI service does not have enough data to forecast";
 const ESTIMATOR_ERROR = "AI service is currently unavailable (ID2)";
 const UNKNOWN_ANALYSIS_TYPE = "Invalid request sent to AI service (ID7)";

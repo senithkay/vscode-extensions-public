@@ -407,7 +407,9 @@ export class ExtendedLangClient extends LanguageClient {
     stModify(params: BallerinaSTModifyRequest): Thenable<BallerinaSTModifyResponse> {
         if (this.ballerinaExtInstance) {
             showChoreoPushMessage(this.ballerinaExtInstance);
-            showChoreoSigninMessage(this.ballerinaExtInstance);
+            if (!this.ballerinaExtInstance.getChoreoSession().loginStatus) {
+                showChoreoSigninMessage(this.ballerinaExtInstance);
+            }
         }
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_ST_MODIFY)) {
             Promise.resolve(NOT_SUPPORTED);
