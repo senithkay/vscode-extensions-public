@@ -17,7 +17,7 @@
  *
  */
 
-import React, { ReactElement } from "react";
+import React, { ReactElement, useEffect, useState } from "react";
 
 import { Box, Typography } from "@material-ui/core";
 
@@ -79,65 +79,118 @@ export const getConfigElement = (configElementProps: ConfigElementProps, classes
     }
 
     return (
-        <Box className={classes.formGroup}>
-            <Box className={classes.labelCont}>
-                <Box className={classes.mainLabel}>
-                    <Typography
-                        component="div"
-                        className={classes.mainLabelText}
-                    >
-                        {configElementProps.name}
-                    </Typography>
-                </Box>
-                <Box className={classes.labelTag}>
-                    <OutlinedLabel
-                        type="success"
-                        label={configElementProps.type}
-                        shape="square"
-                    />
-                </Box>
-            </Box>
-
-            <Box className={classes.formInputBox}>
+        <Box mt={3}>
+            <Typography variant="body1" component="div" color="primary">
+                {configElementProps.name}
+            </Typography>
+            <Typography
+                variant="overline"
+                component="div"
+                style={{ color: "#04AA6D" }}
+            >
+                {configElementProps.type}
+            </Typography>
+            <Typography variant="body2" component="div">
                 {<ConfigElement {...configElementProps} />}
-            </Box>
+            </Typography>
         </Box>
     );
 };
 
 const ConfigElement = (configElement: ConfigElementProps): ReactElement => {
+    const [values, setValues] = useState<any[]>([]);
+
+    type ArrayElement<ArrayType extends readonly unknown[]> =
+        ArrayType extends Array<infer ElementType>
+            ? ElementType
+            : never;
+
+    useEffect(() => {
+        if (configElement.isArray && configElement.value !== undefined) {
+            switch (configElement.type) {
+                case ConfigType.BOOLEAN:
+                    setValues(configElement.value as boolean[]);
+                    break;
+                case ConfigType.STRING:
+                    setValues(configElement.value as string[]);
+                    break;
+                case ConfigType.INTEGER:
+                    setValues(configElement.value as number[]);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }, []);
+
+    useEffect(() => {
+        if (configElement.isArray) {
+            const configValue = { key: configElement.id, value: values };
+            configElement.setConfigElement(configValue);
+        }
+    }, [values]);
+
+    const handleValueChange = (key: string, value: string) => {
+        let configValue: ConfigValue = {
+            key,
+            value:
+                configElement.type === "integer" ? parseInt(value, 10) : value,
+        };
+        if (configElement.isArray) {
+            let convertedValue: any;
+            switch (configElement.type) {
+                case ConfigType.BOOLEAN:
+                    convertedValue = value === "true";
+                    break;
+                case ConfigType.STRING:
+                    convertedValue = value;
+                    break;
+                case ConfigType.INTEGER:
+                    convertedValue = parseInt(value, 10);
+                    break;
+                default:
+                    convertedValue = value;
+                    break;
+            }
+            setValues((prevValueArray) => {
+                return prevValueArray.map((confValue, index) =>
+                    index.toString() === key ? convertedValue : confValue,
+                );
+            });
+            configValue = { key: configElement.id, value: values };
+        }
+        configElement.setConfigElement(configValue);
+    };
+
     const returnElement: ReactElement[] = [];
 
     if (configElement.isArray) {
-        if (configElement.value) {
-            const values = configElement.value as Array<
-                string | number | boolean
-            >;
-            values.forEach((value, index) => {
-                const newElement = { ...configElement };
-                newElement.id = newElement.id + "." + index;
-                newElement.value = value;
-                returnElement.push(
-                    (
-                        <div key={newElement.id + "-ELEMENT"}>
-                            {getInnerElement(newElement)}
-                        </div>
-                    ),
-                );
+        const addArrayElement = () => {
+            setValues((prevValues) => {
+                type configArrayType = ArrayElement<typeof prevValues>;
+                return prevValues.concat(null as unknown as configArrayType);
             });
-            returnElement.push(
-                (
-                    <div key={configElement.id + "-ADD"}>
-                        <AddInputButton />
-                    </div>
-                ),
-            );
-        }
+        };
+
+        returnElement.push(
+            (
+                <div key={configElement.id + "-ELEMENT"}>
+                    {getInnerElement({...configElement, value: values }, handleValueChange)}
+                </div>
+            ),
+        );
+        returnElement.push(
+            (
+                <div key={configElement.id + "-ADD"}>
+                    <AddInputButton onAdd={addArrayElement} />
+                </div>
+            ),
+        );
     } else {
         returnElement.push(
             (
                 <div key={configElement.id + "-ELEMENT"}>
-                    {getInnerElement(configElement)}
+                    {getInnerElement(configElement, handleValueChange)}
                 </div>
             ),
         );
@@ -145,40 +198,61 @@ const ConfigElement = (configElement: ConfigElementProps): ReactElement => {
     return <>{returnElement}</>;
 };
 
-const getInnerElement = (configElementProps: ConfigElementProps) => {
-    const handleSetElementValue = (key: string, value: any) => {
-        const configValue: ConfigValue = { key, value };
-        configElementProps.setConfigElement(configValue);
+const getInnerElement = (
+    configElementProps: ConfigElementProps,
+    handleValueChange: (key: string, value: any) => void,
+) => {
+    const handleSetElementValue = (key: string, value: string) => {
+        handleValueChange(key, value);
     };
 
-    switch (configElementProps.type) {
-        case ConfigType.BOOLEAN:
-            return (
-                <div key={configElementProps.id + "-CHECK"}>
-                    <CheckBoxInput
-                        id={configElementProps.id}
-                        label={configElementProps.name}
-                        existingValue={configElementProps.value as boolean}
-                        isRequired={configElementProps.isRequired}
-                        setCheckBoxValue={handleSetElementValue}
-                    />
-                </div>
-            );
-        case ConfigType.STRING:
-        case ConfigType.INTEGER:
-            return (
-                <div key={configElementProps.id + "-FIELD"}>
-                    <TextFieldInput
-                        id={configElementProps.id}
-                        isRequired={configElementProps.isRequired}
-                        existingValue={configElementProps.value}
-                        type={configElementProps.type}
-                        setTextFieldValue={handleSetElementValue}
-                    />
-                </div>
-            );
+    const handleElementValues = (
+        value: string | number | boolean,
+        id?: string,
+    ) => {
+        switch (configElementProps.type) {
+            case ConfigType.BOOLEAN:
+                return (
+                    <div key={configElementProps.id + "-CHECK"}>
+                        <CheckBoxInput
+                            id={configElementProps.id}
+                            label={configElementProps.name}
+                            existingValue={value as boolean}
+                            isRequired={configElementProps.isRequired}
+                            setCheckBoxValue={handleSetElementValue}
+                        />
+                    </div>
+                );
+            case ConfigType.STRING:
+            case ConfigType.INTEGER:
+                return (
+                    <div key={configElementProps.id + "-" + id + "-FIELD"}>
+                        <TextFieldInput
+                            id={id ? id : configElementProps.id}
+                            isRequired={configElementProps.isRequired}
+                            existingValue={value}
+                            type={configElementProps.type}
+                            setTextFieldValue={handleSetElementValue}
+                        />
+                    </div>
+                );
+        }
+    };
+
+    if (configElementProps.isArray) {
+        const returnElement: ReactElement[] = [];
+        const values = configElementProps.value as
+            | string[]
+            | number[]
+            | boolean[];
+        values.forEach((value, index) => {
+            returnElement.push(handleElementValues(value, index.toString()));
+        });
+        return <>{returnElement}</>;
+    } else {
+        const value = configElementProps.value as string | number | boolean;
+        return handleElementValues(value);
     }
-    return null;
 };
 
 export default ConfigElement;
