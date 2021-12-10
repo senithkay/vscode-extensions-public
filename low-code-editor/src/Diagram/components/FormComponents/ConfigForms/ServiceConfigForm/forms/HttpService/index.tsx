@@ -11,8 +11,9 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useReducer } from "react";
+import React, {useReducer, useState} from "react";
 
+import {Typography} from "@material-ui/core";
 import { FormActionButtons } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ListenerDeclaration, NodePosition, ServiceDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
@@ -21,8 +22,8 @@ import { useDiagramContext } from "../../../../../../../Contexts/Diagram";
 import { isServicePathValid } from "../../../../../../../utils/validator";
 import { createImportStatement, createServiceDeclartion, updateServiceDeclartion } from "../../../../../../utils/modification-util";
 import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
-import { FormTextInput } from "../../../../FormFieldComponents/TextField/FormTextInput";
 import { TextLabel } from "../../../../FormFieldComponents/TextField/TextLabel";
+import {VariableNameInput, VariableNameInputProps} from "../../../Components/VariableNameInput";
 
 import { ListenerConfigForm } from "./ListenerConfigForm";
 import { getFormStateFromST, isServiceConfigValid } from "./util";
@@ -42,6 +43,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
     const { model, targetPosition, onCancel, onSave } = props;
     const { props: { stSymbolInfo }, api: { code: { modifyDiagram } } } = useDiagramContext();
     const [state, dispatch] = useReducer(serviceConfigReducer, getFormStateFromST(model, stSymbolInfo));
+    const [isValidPath, setIsValidPath] = useState(false);
 
     const listenerList = Array.from(stSymbolInfo.listeners)
         .filter(([key, value]) =>
@@ -86,21 +88,54 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         onSave();
     }
 
-    const saveBtnEnabled = isServiceConfigValid(state);
+    const saveBtnEnabled = isServiceConfigValid(state) && isValidPath;
+
+    const updateResourcePathValidation = (_name: string, isInValid: boolean) => setIsValidPath(!isInValid);
+
+    const getAbsolutePath = () => {
+        if (Array.isArray(model?.absoluteResourcePath)) {
+            return model?.absoluteResourcePath.find(element => element?.kind === "IdentifierToken")?.position;
+        }
+    }
+
+    const variableNameConfig: VariableNameInputProps = {
+        displayName: 'Resource path',
+        value: state.serviceBasePath,
+        onValueChange: onBasePathChange,
+        validateExpression: updateResourcePathValidation,
+        position: model ? {
+            ...getAbsolutePath()
+        } : {
+            ...targetPosition
+        },
+        overrideTemplate: {
+            defaultCodeSnippet: `service / on new http:Listener(1234) {}`,
+            targetColumn: 10,
+        },
+        overrideEditTemplate: {
+            defaultCodeSnippet: `${state.serviceBasePath}`,
+            targetColumn: getAbsolutePath()?.startColumn - 1,
+        },
+        isEdit: !!model
+    }
+
+    const servicePath = (
+        <div className={formClasses.servicePathWrapper}>
+            <div>
+                <Typography className={formClasses.pathStart}>/</Typography>
+            </div>
+            <div className={formClasses.pathExpEditor}>
+                <VariableNameInput {...variableNameConfig} />
+            </div>
+        </div>
+
+    );
 
     return (
         <>
             <div className={formClasses.formContentWrapper}>
                 <div className={formClasses.formNameWrapper}>
-                    <FormTextInput
-                        customProps={{
-                            validate: isServicePathValid,
-                            startAdornment: '/'
-                        }}
-                        onChange={onBasePathChange}
-                        defaultValue={state.serviceBasePath}
-                        label="Service Base Path :"
-                    />
+                    {servicePath}
                     <TextLabel
                         required={true}
                         textLabelId="lowcode.develop.connectorForms.HTTP.configureNewListener"
