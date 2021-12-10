@@ -25,6 +25,8 @@ import { AddInputButton } from "./elements/AddInputButton";
 import { CheckBoxInput } from "./elements/CheckBoxInput";
 import { TextFieldInput } from "./elements/TextFieldInput";
 import { ConfigType, ConfigValue } from "./model";
+import OutlinedLabel from "./OutlinedLabel";
+import { useStyles } from "./style";
 import { getType } from "./utils";
 
 /**
@@ -49,8 +51,13 @@ export interface ConfigElementProps {
  * @param isRequired The boolean property specifying whether the element is a required one.
  * @returns          Returns the config `ConfigElementProps` object.
  */
-export function setConfigElementProps(id: string, isArray: boolean, type: string, name: string,
-                                      isRequired: boolean): ConfigElementProps {
+export function setConfigElementProps(
+    id: string,
+    isArray: boolean,
+    type: string,
+    name: string,
+    isRequired: boolean,
+): ConfigElementProps {
     return {
         id,
         isArray,
@@ -65,22 +72,35 @@ export function setConfigElementProps(id: string, isArray: boolean, type: string
  * @param configElementProps The props required for the `ConfigElement` component.
  * @returns                  The `ConfigElement` component.
  */
-export const getConfigElement = (configElementProps: ConfigElementProps) => {
+export const getConfigElement = (configElementProps: ConfigElementProps, classes: ReturnType<typeof useStyles>) => {
+
     if (configElementProps === undefined) {
         return null;
     }
 
     return (
-        <Box mt={3}>
-            <Typography variant="body1" component="div" color="primary">
-                {configElementProps.name}
-            </Typography>
-            <Typography variant="overline" component="div" style={{color: "#04AA6D"}}>
-                {configElementProps.type}
-            </Typography>
-            <Typography variant="body2" component="div">
-                {<ConfigElement {...configElementProps}/>}
-            </Typography>
+        <Box className={classes.formGroup}>
+            <Box className={classes.labelCont}>
+                <Box className={classes.mainLabel}>
+                    <Typography
+                        component="div"
+                        className={classes.mainLabelText}
+                    >
+                        {configElementProps.name}
+                    </Typography>
+                </Box>
+                <Box className={classes.labelTag}>
+                    <OutlinedLabel
+                        type="success"
+                        label={configElementProps.type}
+                        shape="square"
+                    />
+                </Box>
+            </Box>
+
+            <Box className={classes.formInputBox}>
+                {<ConfigElement {...configElementProps} />}
+            </Box>
         </Box>
     );
 };
@@ -90,7 +110,9 @@ const ConfigElement = (configElement: ConfigElementProps): ReactElement => {
 
     if (configElement.isArray) {
         if (configElement.value) {
-            const values = configElement.value as Array<string | number | boolean>;
+            const values = configElement.value as Array<
+                string | number | boolean
+            >;
             values.forEach((value, index) => {
                 const newElement = { ...configElement };
                 newElement.id = newElement.id + "." + index;
@@ -120,11 +142,10 @@ const ConfigElement = (configElement: ConfigElementProps): ReactElement => {
             ),
         );
     }
-    return (<>{returnElement}</>);
+    return <>{returnElement}</>;
 };
 
 const getInnerElement = (configElementProps: ConfigElementProps) => {
-
     const handleSetElementValue = (key: string, value: any) => {
         const configValue: ConfigValue = { key, value };
         configElementProps.setConfigElement(configValue);

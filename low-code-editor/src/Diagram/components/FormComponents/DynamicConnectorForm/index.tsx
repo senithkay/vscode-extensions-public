@@ -67,7 +67,7 @@ export function Form(props: FormProps) {
                 index,
                 customProps: {
                     validate: validateField,
-                    tooltipTitle: field.tooltip,
+                    tooltipTitle: field?.documentation ? field?.documentation : field.tooltip,
                     expressionInjectables,
                     editPosition,
                     initialDiagnostics: field.initialDiagnostics,

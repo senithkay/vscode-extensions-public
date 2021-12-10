@@ -23,6 +23,7 @@ import { Box, Card, CardContent, Typography } from "@material-ui/core";
 
 import { ConfigElementProps, getConfigElement } from "./ConfigElement";
 import { ConfigValue } from "./model";
+import { useStyles } from "./style";
 import { instanceOfConfigElement } from "./utils";
 
 /**
@@ -33,9 +34,11 @@ export interface ConfigObjectProps {
     name: string;
     properties?: Array<ConfigElementProps | ConfigObjectProps>;
     setConfigElement?: (configValue: ConfigValue) => void;
+
 }
 
-export const getConfigObject = (configObjectProps: ConfigObjectProps) => {
+export const getConfigObject = (configObjectProps: ConfigObjectProps, classes: ReturnType<typeof useStyles>) => {
+
     if (configObjectProps === undefined) {
         return;
     }
@@ -45,22 +48,26 @@ export const getConfigObject = (configObjectProps: ConfigObjectProps) => {
     });
 
     return (
-        <Box pt={2}>
+        <Box className={classes.innerBoxCard}>
             <Card variant="outlined">
                 <CardContent>
-                    <Typography variant="body1" component="div" style={{fontWeight: "600"}}>
-                        {configObjectProps.name}
-                    </Typography>
-                    <Typography variant="body2" component="div">
-                        {<ConfigObject {...configObjectProps.properties}/>}
-                    </Typography>
+                    <Box className={classes.innerBoxHead}>
+                        <Typography className={classes.innerBoxTitle}>
+                            {configObjectProps.name}
+                        </Typography>
+                    </Box>
+
+                    {<ConfigObject {...configObjectProps.properties} />}
                 </CardContent>
             </Card>
         </Box>
     );
 };
 
-const ConfigObject = (configProperties: Array<ConfigElementProps | ConfigObjectProps>): ReactElement => {
+const ConfigObject = (
+    configProperties: Array<ConfigElementProps | ConfigObjectProps>,
+): ReactElement => {
+    const classes = useStyles();
     const returnElement: ReactElement[] = [];
 
     Object.keys(configProperties).forEach((key) => {
@@ -68,7 +75,7 @@ const ConfigObject = (configProperties: Array<ConfigElementProps | ConfigObjectP
             returnElement.push(
                 (
                     <div key={configProperties[key].id}>
-                        {getConfigElement(configProperties[key] as ConfigElementProps)}
+                        {getConfigElement(configProperties[key] as ConfigElementProps, classes)}
                     </div>
                 ),
             );
@@ -76,13 +83,13 @@ const ConfigObject = (configProperties: Array<ConfigElementProps | ConfigObjectP
             returnElement.push(
                 (
                     <div key={configProperties[key].id}>
-                        {getConfigObject(configProperties[key] as ConfigObjectProps)}
+                        {getConfigObject(configProperties[key] as ConfigObjectProps, classes)}
                     </div>
                 ),
             );
         }
     });
-    return (<>{returnElement}</>);
+    return <>{returnElement}</>;
 };
 
 export default ConfigObject;
