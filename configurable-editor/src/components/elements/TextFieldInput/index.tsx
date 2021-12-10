@@ -36,9 +36,9 @@ export function TextFieldInput(props: TextFieldInputProps) {
     const { id, isRequired, existingValue, type, setTextFieldValue } =
         props;
 
-    let label: string = "";
+    let placeholder: string = "";
     if (isRequired) {
-        label = "Required";
+        placeholder = "Required";
     }
 
     const handleChange = (e: any) => {
@@ -54,7 +54,7 @@ export function TextFieldInput(props: TextFieldInputProps) {
         <TextField
             required={isRequired}
             variant="outlined"
-            label={label}
+            placeholder={placeholder}
             fullWidth={true}
             defaultValue={existingValue}
             type={fieldType}
