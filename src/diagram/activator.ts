@@ -23,8 +23,8 @@ import {
 } from 'vscode';
 import * as _ from 'lodash';
 import { render } from './renderer';
-import { DocumentIdentifier, ExtendedLangClient } from '../core/extended-language-client';
-import { BallerinaExtension, Change } from '../core';
+import { CONNECTOR_LIST_CACHE, DocumentIdentifier, ExtendedLangClient } from '../core/extended-language-client';
+import { BallerinaExtension, ballerinaExtInstance, Change } from '../core';
 import { getCommonWebViewOptions, isWindows, WebViewMethod, WebViewRPCHandler } from '../utils';
 import { join } from "path";
 import { TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, sendTelemetryEvent, TM_EVENT_OPEN_DIAGRAM, sendTelemetryException } from '../telemetry';
@@ -81,6 +81,13 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 	}
 
 	DiagramPanel.create(isCommand ? ViewColumn.Two : ViewColumn.One);
+
+	// Reset cached connector list
+	langClient.getConnectors({ query: "", limit: 18 }, true).then((connectorList) => {
+		if (connectorList && connectorList.central?.length > 0) {
+			ballerinaExtInstance.context?.globalState.update(CONNECTOR_LIST_CACHE, connectorList);
+		}
+	})
 
 	// Update test view
 	createTests(Uri.parse(filePath));
