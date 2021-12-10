@@ -13,8 +13,9 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode } from "react";
 
-import Tooltip from "../../../../../../components/TooltipV2";
 import { ErrorSnippet } from "../../../../../../DiagramGenerator/generatorUtil";
+
+import { IfElseRectSVG } from "./IfElseRectSVG";
 
 export const IFELSE_SVG_WIDTH_WITH_SHADOW = 66.686;
 export const IFELSE_SVG_HEIGHT_WITH_SHADOW = 66.686;
@@ -112,34 +113,27 @@ export function IfElseSVG(props: {
                     <feComposite in="SourceGraphic" />
                 </filter>
             </defs>
+
             {diagnostics?.diagnosticMsgs ?
-            (
-             <Tooltip type={"diagram-diagnostic"} onClick={openInCodeView} diagnostic={diagnostics} placement="right" arrow={true}>
-             <g id="IfElse" className="if-else-group if-else-group-active" transform="translate(7 6)">
-                <g transform="matrix(1, 0, 0, 1, -7, -6)" >
-                    <g id="IfElsePolygon" transform="translate(33.5, 3) rotate(45)">
-                        <rect width="40.903" height="40.903" className="if-else-rect" rx="6" stroke="none" />
-                        <rect x="0.5" y="0.5" width="39.903" className="if-else-rect click-effect" height="39.903" rx="5.5" fill="none" />
-                    </g>
-                </g>
-                {icon}
-            </g>
-        </Tooltip>
-            )
-        :
-        (
-        <Tooltip type={"diagram-code"} onClick={openInCodeView} text={tooltipText} placement="right" arrow={true}>
-        <g id="IfElse" className="if-else-group if-else-group-active" transform="translate(7 6)">
-                    <g transform="matrix(1, 0, 0, 1, -7, -6)" >
-                        <g id="IfElsePolygon" transform="translate(33.5, 3) rotate(45)">
-                            <rect width="40.903" height="40.903" className="if-else-rect" rx="6" stroke="none" />
-                            <rect x="0.5" y="0.5" width="39.903" className="if-else-rect click-effect" height="39.903" rx="5.5" fill="none" />
-                        </g>
-                    </g>
-                    {icon}
-                </g>
-            </Tooltip>
-        )}
+                (
+                    <IfElseRectSVG
+                        type={"diagram-diagnostic"}
+                        onClick={openInCodeView}
+                        diagnostic={diagnostics}
+                        icon={icon}
+                        className="if-else-group if-else-group-active"
+                    />
+                )
+                :
+                (
+                    <IfElseRectSVG
+                        type={"diagram-code"}
+                        onClick={openInCodeView}
+                        text={tooltipText}
+                        icon={icon}
+                        className="if-else-group if-else-group-active"
+                    />
+                )}
         </svg>
     )
 }

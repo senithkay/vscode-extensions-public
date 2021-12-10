@@ -155,10 +155,11 @@ export function IfElse(props: IfElseProps) {
     assignmentText = (model as IfElseStatement)?.condition.source;
     const diagnosticMsgs = getDiagnosticInfo(diagnostics);
 
+    const diagnosticStyles = diagnosticMsgs?.severity === "ERROR" ? "main-condition-wrapper if-condition-error-wrapper" : "main-condition-wrapper if-condition-warning-wrapper";
     const conditionWrapper = isDraftStatement ? (diagnosticMsgs ?
         "main-condition-wrapper active-condition-error" : "main-condition-wrapper active-condition") :
         (diagnosticMsgs ?
-        "main-condition-wrapper if-condition-error-wrapper" : "main-condition-wrapper if-condition-wrapper");
+            diagnosticStyles : "main-condition-wrapper if-condition-wrapper");
 
     const errorSnippet = {
         diagnosticMsgs: diagnosticMsgs?.message,
@@ -283,8 +284,8 @@ export function IfElse(props: IfElseProps) {
             children.push(<Collapse blockViewState={bodyViewState} />)
         }
 
-        const getExpressions = () : ElseIfConfig => {
-            const conditions: {id: number, expression: string, position: NodePosition, diagnostics?: DiagramDiagnostic[]}[] = [];
+        const getExpressions = (): ElseIfConfig => {
+            const conditions: { id: number, expression: string, position: NodePosition, diagnostics?: DiagramDiagnostic[] }[] = [];
             conditions.push({
                 id: 0,
                 expression: conditionExpr?.source.trim(),
@@ -300,14 +301,14 @@ export function IfElse(props: IfElseProps) {
                         const expression = block?.condition?.source.trim();
                         const position = block?.condition?.position;
                         const nodeDiagnostics = block?.condition?.typeData?.diagnostics;
-                        conditions.push({id, expression, position, diagnostics: nodeDiagnostics});
+                        conditions.push({ id, expression, position, diagnostics: nodeDiagnostics });
                         isElseIfBlockExist = (block?.elseBody?.elseBody as IfElseStatement)?.kind === "IfElseStatement";
                         block = block.elseBody?.elseBody as IfElseStatement;
                         id = id + 1;
                     }
                 }
             }
-            return {values: conditions};
+            return { values: conditions };
         }
 
         const onIfHeadClick = () => {
@@ -424,8 +425,8 @@ export function IfElse(props: IfElseProps) {
                             }
                         </>
                     </g>
-                    {isElseExist && <Else model={ifStatement.elseBody.elseBody} />}
-                    {isDefaultElseExist && <Else defaultViewState={viewState.defaultElseVS as ElseViewState} />}
+                    {isElseExist && <Else diagnostics={diagnostics} model={ifStatement.elseBody.elseBody} />}
+                    {isDefaultElseExist && <Else diagnostics={diagnostics} defaultViewState={viewState.defaultElseVS as ElseViewState} />}
                     {isElseIfExist && <IfElse model={ifStatement.elseBody.elseBody} name={componentName} />}
                     {controlFlowLines}
                     {children}

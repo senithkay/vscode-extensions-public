@@ -10,6 +10,42 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+ $default_color :#5566d5;
+ $warning_color : #FF9D52;
+ $error_color : #FE523C;
+ $active_color : #c0ceff8a;
+ $active-warning-color :#ffc1916c;
+ $active_error_color : #e09f9667;
+
+ .rectStyle{
+    stroke-miterlimit: 10;
+    stroke-width: 9px;
+    fill: url(#IfElseLinearGradient) #fafafc;
+    filter: none;
+ }
+
+ .tspan{
+    font-weight: 500;
+    fill: #40404b;
+    font-size: 10px;
+    font-family: inherit;
+    letter-spacing: 0.05em;
+    user-select: none;
+ }
+
+ .if-else-rect-styles{
+    stroke-miterlimit: 10;
+    fill: url(#IfElseLinearGradient) #fafafc;
+    filter: url(#IfElseFilterDefault) #fafafc;
+ }
+
+ .then-text-style{
+    fill: #32324d;
+    letter-spacing: 0.05em;
+    font-weight: normal;
+    font-size: 10px !important;
+    font-family: inherit;
+ }
 
 .main-condition-wrapper {
     &.active-condition {
@@ -33,15 +69,12 @@
             &:hover {
                 .if-else-rect {
                     cursor: pointer;
-                    stroke: #c0ceff8a;
-                    stroke-miterlimit: 10;
-                    stroke-width: 9px;
-                    fill: url(#IfElseLinearGradient) #fafafc;
-                    filter: none;
+                    stroke:$active_color;
+                    @extend .rectStyle;
 
                     &.click-effect {
                         stroke-width: 0.5px !important;
-                        stroke: #5566d5 !important;
+                        stroke:$default_color !important;
                     }
                 }
 
@@ -60,27 +93,19 @@
             .if-else-group-active {
                 rect {
                     cursor: pointer !important;
-                    stroke: #c0ceff8a !important;
-                    stroke-miterlimit: 10 !important;
-                    stroke-width: 9px !important;
-                    filter: none !important;
-                    fill: url(#IfElseLinearGradient) #fafafc;
+                    stroke:$active_color !important;
+                    @extend .rectStyle;
 
                     &.click-effect {
                         stroke-width: 1px !important;
-                        stroke: #5566d5 !important;
+                        stroke:$default_color !important;
                     }
                 }
             }
 
             .condition-text {
                 tspan {
-                    font-weight: 500;
-                    fill: #40404b;
-                    font-size: 10px;
-                    font-family: inherit;
-                    letter-spacing: 0.05em;
-                    user-select: none;
+                    @extend .tspan
                 }
             }
 
@@ -91,11 +116,7 @@
             }
 
             .then-text {
-                fill: #32324d;
-                letter-spacing: 0.05em;
-                font-weight: normal;
-                font-size: 10px !important;
-                font-family: inherit;
+                @extend .then-text-style
             }
         }
     }
@@ -121,14 +142,11 @@
                 .if-else-rect {
                     cursor: pointer;
                     stroke: #c0ceff8a;
-                    stroke-miterlimit: 10;
-                    stroke-width: 9px;
-                    fill: url(#IfElseLinearGradient) #fafafc;
-                    filter: none;
+                    @extend .rectStyle;
 
                     &.click-effect {
                         stroke-width: 0.5px !important;
-                        stroke: #FE523C !important;
+                        stroke:$error_color !important;
                     }
                 }
 
@@ -148,26 +166,18 @@
                 rect {
                     cursor: pointer !important;
                     stroke: #c0ceff8a !important;
-                    stroke-miterlimit: 10 !important;
-                    stroke-width: 9px !important;
-                    filter: none !important;
-                    fill: url(#IfElseLinearGradient) #fafafc;
+                    @extend .rectStyle;
 
                     &.click-effect {
                         stroke-width: 1px !important;
-                        stroke: #FE523C !important;
+                        stroke:$error_color !important;
                     }
                 }
             }
 
             .condition-text {
                 tspan {
-                    font-weight: 500;
-                    fill: #40404b;
-                    font-size: 10px;
-                    font-family: inherit;
-                    letter-spacing: 0.05em;
-                    user-select: none;
+                    @extend .tspan
                 }
             }
 
@@ -178,11 +188,7 @@
             }
 
             .then-text {
-                fill: #32324d;
-                letter-spacing: 0.05em;
-                font-weight: normal;
-                font-size: 10px !important;
-                font-family: inherit;
+                @extend .then-text-style
             }
         }
     }
@@ -196,20 +202,17 @@
             .if-else-group {
                 rect {
                     stroke: #5567d5;
-                    stroke-miterlimit: 10;
                     stroke-width: 0.5;
-                    fill: url(#IfElseLinearGradient) #fafafc;
-                    filter: url(#IfElseFilterDefault) #fafafc;
+                    @extend .if-else-rect-styles
                 }
 
                 :hover {
                     rect {
                         cursor: pointer;
                         stroke: #5259d2;
-                        stroke-miterlimit: 10;
                         stroke-width: 0.5;
-                        fill: url(#IfElseLinearGradient) #fafafc;
-                        filter: url(#IfElseFilterHover) #fafafc;
+                        @extend .if-else-rect-styles
+
                     }
                 }
 
@@ -217,10 +220,7 @@
                     .if-else-rect {
                         cursor: pointer;
                         stroke: #c0ceff8a;
-                        stroke-miterlimit: 10;
-                        stroke-width: 9px;
-                        fill: url(#IfElseLinearGradient) #fafafc;
-                        filter: none;
+                        @extend .rectStyle;
 
                         &.click-effect {
                             stroke-width: 1px !important;
@@ -232,12 +232,7 @@
 
             .condition-text {
                 tspan {
-                    font-weight: 500;
-                    fill: #40404b;
-                    font-size: 12px;
-                    font-family: inherit;
-                    letter-spacing: 0.05em;
-                    user-select: none;
+                    @extend .tspan
                 }
             }
 
@@ -273,10 +268,7 @@
                     .if-else-rect {
                         cursor: pointer;
                         stroke: #c0ceff8a;
-                        stroke-miterlimit: 10;
-                        stroke-width: 9px;
-                        fill: url(#IfElseLinearGradient) #fafafc;
-                        filter: none;
+                        @extend .rectStyle;
 
                         &.click-effect {
                             stroke-width: 1px !important;
@@ -303,11 +295,7 @@
             }
 
             .then-text {
-                fill: #32324d;
-                letter-spacing: 0.05em;
-                font-weight: normal;
-                font-size: 10px !important;
-                font-family: inherit;
+                @extend .then-text-style
             }
         }
 
@@ -315,27 +303,21 @@
     }
     &.if-condition-error-wrapper {
 
-        /* stylelint-disable */
         .if-else {
             user-select: none;
 
             .if-else-group {
                 rect {
-                    stroke: #FE523C;
-                    stroke-miterlimit: 10;
-                    stroke-width: 2;
-                    fill: url(#IfElseLinearGradient) #fafafc;
-                    filter: url(#IfElseFilterDefault) #fafafc;
+                    stroke:$error_color;
+                    stroke-width: 1px;
+                    @extend .if-else-rect-styles
                 }
 
                 :hover {
                     rect {
                         cursor: pointer;
-                        stroke: #d25252;
-                        stroke-miterlimit: 10;
-                        stroke-width: 2;
-                        fill: url(#IfElseLinearGradient) #fafafc;
-                        filter: url(#IfElseFilterHover) #fafafc;
+                        stroke:$active_error_color;
+                        @extend .if-else-rect-styles
                     }
                 }
 
@@ -343,14 +325,11 @@
                     .if-else-rect {
                         cursor: pointer;
                         stroke: #c0ceff8a;
-                        stroke-miterlimit: 10;
-                        stroke-width: 9px;
-                        fill: url(#IfElseLinearGradient) #fafafc;
-                        filter: none;
+                       @extend .rectStyle;
 
                         &.click-effect {
                             stroke-width: 2px !important;
-                            stroke: #FE523C !important;
+                            stroke: $error_color !important;
                         }
                     }
                 }
@@ -358,12 +337,7 @@
 
             .condition-text {
                 tspan {
-                    font-weight: 500;
-                    fill: #40404b;
-                    font-size: 12px;
-                    font-family: inherit;
-                    letter-spacing: 0.05em;
-                    user-select: none;
+                    @extend .tspan
                 }
             }
 
@@ -374,8 +348,8 @@
             }
 
             line {
-                stroke-width: 2px;
-                stroke: #FE523C;
+                stroke-width: 1.5px;
+                stroke:$error_color;
             }
 
             .if-head-wrapper {
@@ -398,15 +372,12 @@
                 &:hover {
                     .if-else-rect {
                         cursor: pointer;
-                        stroke: #c0ceff8a;
-                        stroke-miterlimit: 10;
-                        stroke-width: 9px;
-                        fill: url(#IfElseLinearGradient) #fafafc;
-                        filter: none;
+                        stroke: $active_error_color;
+                        @extend .rectStyle;
 
                         &.click-effect {
                             stroke-width: 1px !important;
-                            stroke: #FE523C !important;
+                            stroke:$error_color !important;
                         }
                     }
 
@@ -429,14 +400,118 @@
             }
 
             .then-text {
-                fill: #32324d;
-                letter-spacing: 0.05em;
-                font-weight: normal;
-                font-size: 10px !important;
-                font-family: inherit;
+                @extend .then-text-style
             }
         }
 
         /* stylelint-enable */
+    }
+    &.if-condition-warning-wrapper {
+
+        /* stylelint-disable */
+        .if-else {
+            user-select: none;
+
+            .if-else-group {
+                rect {
+                    stroke: #FF9D52;
+                    stroke-width: 1;
+                    @extend .if-else-rect-styles
+                }
+
+                :hover {
+                    rect {
+                        cursor: pointer;
+                        stroke:$active-warning-color;
+                        stroke-width: 1;
+                        @extend .if-else-rect-styles
+                    }
+                }
+
+                :active {
+                    .if-else-rect {
+                        cursor: pointer;
+                        stroke: #c0ceff8a;
+                        stroke-miterlimit: 10;
+                        stroke-width: 9px;
+                        fill: url(#IfElseLinearGradient) #fafafc;
+                        filter: none;
+
+                        &.click-effect {
+                            stroke-width: 2px !important;
+                            stroke: #FF9D52 !important;
+                        }
+                    }
+                }
+            }
+
+            .condition-text {
+                tspan {
+                    @extend .tspan
+                }
+            }
+
+            .condition-text-italic {
+                tspan {
+                    font-style: italic;
+                }
+            }
+
+            line {
+                stroke-width: 1px;
+                stroke: #FF9D52;
+            }
+
+            .if-head-wrapper {
+                .condition-options-wrapper {
+                    fill: none;
+                    display: none;
+                    width: 100px;
+                    height: 30px;
+
+                    .disable {
+                        pointer-events: none !important;
+                        opacity: 0.5;
+
+                        &:hover {
+                            cursor: none !important;
+                        }
+                    }
+                }
+
+                &:hover {
+                    .if-else-rect {
+                        cursor: pointer;
+                        stroke:$active-warning-color;
+                        @extend .rectStyle;
+
+                        &.click-effect {
+                            stroke-width: 1px !important;
+                            stroke: #FF9D52 !important;
+                        }
+                    }
+
+                    .condition-options-wrapper {
+                        fill: #fbfbfd !important;
+                        display: inline !important;
+                    }
+
+                    .condition-rect {
+                        fill: #fbfbfd;
+                        height: 21px;
+                        width: 25px;
+                    }
+                }
+
+                .condition-assignment {
+                    fill: #5259d2;
+                    font-family: "Gilmer", sans-serif;
+                }
+            }
+
+            .then-text {
+                @extend .then-text-style
+            }
+        }
     }
 }
