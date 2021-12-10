@@ -17,7 +17,7 @@ import { AsteriskToken, BitwiseAndToken, BitwiseXorToken, DoubleDotLtToken, Doub
 import { VariableUserInputs } from "../../../../models/definitions";
 import { InputEditor } from "../../../InputEditor";
 
-interface OperatorProps {
+export interface OperatorProps {
     model:  AsteriskToken | BitwiseAndToken | BitwiseXorToken | DoubleDotLtToken | DoubleEqualToken | EllipsisToken | ElvisToken | GtEqualToken | GtToken | LogicalAndToken | LogicalOrToken | LtEqualToken | LtToken | NotDoubleEqualToken | NotEqualToken | PercentToken | PipeToken | PlusToken | SlashToken | TrippleEqualToken
     userInputs: VariableUserInputs
     diagnosticHandler: (diagnostics: string) => void
