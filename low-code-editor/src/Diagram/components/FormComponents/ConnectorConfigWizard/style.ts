@@ -43,7 +43,6 @@ export const wizardStyles = makeStyles((theme: Theme) =>
             }
         },
         configTitle: {
-            marginBottom: '1.2rem !important',
             fontWeight: 500,
             fontSize: 13,
             whiteSpace: 'nowrap',
@@ -74,7 +73,8 @@ export const wizardStyles = makeStyles((theme: Theme) =>
         },
         titleWrapper: {
             display: 'flex',
-            alignItems: 'flex-start'
+            alignItems: 'center',
+            marginBottom: '1rem',
         },
         title: {
             marginBottom: 12,

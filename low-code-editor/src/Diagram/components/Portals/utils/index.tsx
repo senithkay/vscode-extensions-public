@@ -12,11 +12,12 @@
  */
 import React, { ReactNode } from "react";
 
-import { Avatar, colors } from "@material-ui/core";
+import { Avatar, Box, colors } from "@material-ui/core";
 import {
     ActionConfig,
     BallerinaConnectorInfo,
     BallerinaConnectorRequest,
+    BallerinaModule,
     Connector,
     ConnectorConfig,
     DiagramEditorLangClientInterface,
@@ -515,27 +516,21 @@ export function getConnectorIcon(iconId: string, props?: any): React.ReactNode {
       );
 }
 
-export function getConnectorIconSVG(connector: Connector, scale: number = 1): React.ReactNode {
-    // TODO: update to render connector icon
-    const props = {
-        scale
+export function getModuleIcon(module: BallerinaModule, scale: number = 1): React.ReactNode {
+    const props = { scale };
+    module.package.icon = "https://bcentral-packageicons.azureedge.net/images/kanushkagayan_hello_0.1.0.png";
+    const width = 56 * scale;
+    if (module?.package?.icon) {
+        return (
+            <img
+                src={module.package.icon}
+                alt={module.package.name + "-icon"}
+                style={{ width: "auto", height: "100%", maxWidth: width, maxHeight: width }}
+            />
+        );
     }
-    return (
-        <DefaultConnectorIcon {...props}/>
-    );
+    return <DefaultConnectorIcon {...props} />;
 }
-
-export function getExistingConnectorIconSVG(iconId: string, scale: number = 1): React.ReactNode {
-    const Icon = (ConnectorIcons as any)[iconId.replace('.', '_')];
-    const DefaultIcon = (ConnectorIcons as any).default;
-    const props = {
-        scale
-    }
-    return Icon ? (
-        <Icon {...props} />
-    ) : <DefaultIcon {...props} />;
-}
-
 
 export function getConstructIcon(iconId: string) {
     const Icon = (ConstructIcons as any)[iconId];
