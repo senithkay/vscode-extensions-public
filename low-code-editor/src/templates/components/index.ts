@@ -90,25 +90,27 @@ service /{{{ BASE_PATH }}} on {{{ LISTENER_NAME }}}`,
 {{#if ACCESS_MODIFIER }}{{{ ACCESS_MODIFIER }}} {{/if}}type {{{ TYPE_NAME }}} {{{ TYPE_DESCRIPTOR }}}`,
     TRIGGER: `
     configurable {{triggerType}}:ListenerConfig userInput = {
-        verificationToken: "xxxxx"
-    };
+        {{#each this.listenerParams.0.fields}}
+            {{ this.name }}: {{{ this.defaultValue }}} {{#unless @last}},{{/unless}}
+            {{/each}}
+        };
 
-    listener http:Listener httpListener = new(8090);
-    listener {{triggerType}}:Listener webhookListener = new(userInput, httpListener);
+        {{#if httpBased }}listener http:Listener httpListener = new(8090);{{/if}}
+        listener {{triggerType}}:Listener webhookListener = new(userInput{{#if httpBased }}, httpListener{{/if}});
 
-    {{#each serviceTypes}}
-    service {{../triggerType}}:{{ this.name }} on webhookListener {
+        {{#each serviceTypes}}
+        service {{../triggerType}}:{{ this.name }} on webhookListener {
 
-      {{#each this.functions}}
-        remote function {{ this.name }}({{#each this.parameters}}{{#if @index}}, {{/if}}{{../../../triggerType}}:{{this.typeInfo.name}} {{this.name}}{{/each}}) returns error? {
-            // Not Implemented
+          {{#each this.functions}}
+            remote function {{ this.name }}({{#each this.parameters}}{{#if @index}},
+            {{/if}}{{../../../triggerType}}:{{this.typeInfo.name}} {{this.name}} {{/each}}) returns error? {
+              //Not Implemented
+            }
+          {{/each}}
         }
-      {{/each}}
-    }
-    {{/each}}
+        {{/each}}
 
-    service /ignore on httpListener {}`,
+        {{#if httpBased }}service /ignore on httpListener {}{{/if}}`,
     TRIGGER_UPDATE: `
     service {{{ TRIGGER_CHANNEL }}} on {{{ LISTENER_NAME }}}`
-
 }

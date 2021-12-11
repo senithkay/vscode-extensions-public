@@ -139,12 +139,8 @@ function FilterByMenu(props: FilterByMenuProps) {
                 classes={{ root: classes.filterByMenu }}
                 defaultCollapseIcon={<ExpandMore />}
                 defaultExpandIcon={<ChevronRight />}
-                defaultExpanded={[ connectorCategories.name, pricingCategories.name ]}
+                defaultExpanded={[ connectorCategories.name ]}
             >
-                { mainFilters.map((menuItem, index) => (
-                    <div key={index}>{renderTree(menuItem)}</div>
-                )) }
-                <Divider light={true} classes={{ root: classes.divider }} />
                 <Categories selectedCategory={selectedCategory} setCategory={updateCategory} />
                 <Divider light={true} classes={{ root: classes.divider }} />
                 <TreeItem
