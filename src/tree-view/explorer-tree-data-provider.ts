@@ -15,14 +15,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { BallerinaExtension, LANGUAGE } from "../core";
+
 import {
     Event, EventEmitter, FileStat, FileType, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri, workspace
 } from "vscode";
 import { ExplorerTreeItem, EXPLORER_ITEM_KIND, FILE_EXTENSION, FILE_NAME, TREE_ELEMENT_EXECUTE_COMMAND } from "./model";
 import * as fs from 'fs';
 import * as path from 'path';
-import { BAL_TOML } from "../project";
 
 /**
  * Tree data provider for explorer view.
@@ -32,25 +31,20 @@ export class ExplorerDataProvider implements TreeDataProvider<ExplorerTreeItem> 
         | undefined>();
     readonly onDidChangeTreeData: Event<ExplorerTreeItem | undefined> = this._onDidChangeTreeData.event;
 
-    constructor(ballerinaExtension: BallerinaExtension) {
-        workspace.onDidOpenTextDocument(document => {
-            if (document.languageId === LANGUAGE.BALLERINA || document.fileName.endsWith(BAL_TOML)) {
-                ballerinaExtension.setDiagramActiveContext(false);
-                this.refresh();
-            }
-        });
-        workspace.onDidChangeTextDocument(activatedTextEditor => {
-            if (activatedTextEditor && activatedTextEditor.document.languageId === LANGUAGE.BALLERINA ||
-                activatedTextEditor.document.fileName.endsWith(BAL_TOML)) {
-                ballerinaExtension.setDiagramActiveContext(false);
-                this.refresh();
-            }
-        });
+    constructor() {
         workspace.onDidChangeWorkspaceFolders(listener => {
             if (listener.added.length > 0 || listener.removed.length > 0) {
                 this.refresh();
             }
         });
+
+        const fileWatcher = workspace.createFileSystemWatcher("**/*", false, true, false);
+        fileWatcher.onDidCreate(_listeners => {
+            this.refresh();
+        });
+        fileWatcher.onDidDelete(_listener => {
+            this.refresh();
+        })
     }
 
     async _stat(path: string): Promise<FileStat> {

@@ -21,6 +21,7 @@ import { BallerinaExtension } from '../core';
 import { commands, StatusBarAlignment, StatusBarItem, ThemeColor, window, workspace } from 'vscode';
 import { PALETTE_COMMANDS } from '../project';
 import { debug } from './../utils';
+import { hasDiagram } from '../diagram';
 const schedule = require('node-schedule');
 
 export class gitStatusBarItem {
@@ -83,6 +84,9 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     const statusBarItem = new gitStatusBarItem();
     ballerinaExtInstance.getCodeServerContext().statusBarItem = statusBarItem;
     workspace.onDidChangeTextDocument(_event => {
+        if (hasDiagram) {
+            return;
+        }
         statusBarItem.updateGitStatus();
     });
     workspace.onDidOpenTextDocument(_event => {
@@ -109,7 +113,27 @@ export function showChoreoPushMessage(ballerinaExtInstance: BallerinaExtension, 
         (!isCommand && !ballerinaExtInstance.getCodeServerContext().infoMessageStatus.messageFirstEdit)) {
         return;
     }
+    if (isCommand) {
+        sourceControllerDetails(ballerinaExtInstance);
+        return;
+    }
+
+    const moreInfo = "More Information";
+    const sync = "Sync changes with Choreo";
+    window.showInformationMessage('Sync project changes using the VS Code Source Control activity and try out on ' +
+        'Choreo.', moreInfo, sync).then(selection => {
+            if (selection == moreInfo) {
+                sourceControllerDetails(ballerinaExtInstance);
+                return;
+            }
+            if (selection == sync) {
+                commands.executeCommand(PALETTE_COMMANDS.FOCUS_SOURCE_CONTROL);
+            }
+        });
     ballerinaExtInstance.getCodeServerContext().infoMessageStatus.messageFirstEdit = false;
+}
+
+export function sourceControllerDetails(ballerinaExtInstance: BallerinaExtension) {
     const stop = "Don't show again!";
     const sync = "Sync my changes with Choreo";
     window.showInformationMessage('Make sure you commit and push project changes using the VS Code Source Control ' +

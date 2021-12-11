@@ -38,6 +38,8 @@ import { runCommand } from '../utils/runCommand';
 import { Diagnostic } from '.';
 import { createTests } from '../testing/activator';
 
+export let hasDiagram: boolean = false;
+
 const NO_DIAGRAM_VIEWS: string = 'No Ballerina diagram views found!';
 
 let langClient: ExtendedLangClient;
@@ -240,6 +242,7 @@ class DiagramPanel {
 			{ viewColumn, preserveFocus: false },
 			getCommonWebViewOptions()
 		);
+		hasDiagram = true;
 		ballerinaExtension.setDiagramActiveContext(true);
 		panel.iconPath = {
 			light: Uri.file(join(ballerinaExtension.context!.extensionPath, 'resources/images/icons/design-view.svg')),
@@ -276,6 +279,7 @@ class DiagramPanel {
 						const edit = new WorkspaceEdit();
 						edit.replace(Uri.file(filePath), new Range(new Position(0, 0), doc.lineAt(doc.lineCount - 1).range.end), fileContent);
 						await workspace.applyEdit(edit);
+						langClient.updateStatusBar();
 						return doc.save();
 					} else {
 						langClient.didChange({
@@ -388,6 +392,7 @@ class DiagramPanel {
 		this.disposables.forEach(disposable => {
 			disposable.dispose();
 		});
+		hasDiagram = false;
 	}
 
 	private update() {

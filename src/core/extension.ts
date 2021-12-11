@@ -126,6 +126,7 @@ export class BallerinaExtension {
     private codeServerContext: CodeServerContext;
     private webviewContext: WebviewContext;
     private perfForecastContext: PerformanceForecastContext;
+    private ballerinaConfigPath: string;
 
     constructor() {
         this.ballerinaHome = '';
@@ -162,7 +163,6 @@ export class BallerinaExtension {
             }
         }
         if (this.getCodeServerContext().codeServerEnv) {
-            window.showInformationMessage('The Ballerina graphical editor is loading...', { modal: true });
             commands.executeCommand('workbench.action.closeAllEditors');
         }
         this.webviewContext = { isOpen: false };
@@ -171,6 +171,7 @@ export class BallerinaExtension {
                 signinChoreo: true
             }
         }
+        this.ballerinaConfigPath = '';
     }
 
     setContext(context: ExtensionContext) {
@@ -607,6 +608,14 @@ export class BallerinaExtension {
 
     public setPerformanceForecastContext(context: PerformanceForecastContext) {
         this.perfForecastContext = context;
+    }
+
+    public setBallerinaConfigPath(path: string) {
+        this.ballerinaConfigPath = path;
+    }
+
+    public getBallerinaConfigPath(): string {
+        return this.ballerinaConfigPath;
     }
 }
 

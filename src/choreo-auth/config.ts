@@ -39,18 +39,52 @@ export enum ChoreoSessionConfig {
 // }
 
 // Choreo V2 environment
-export enum ChoreoAuthConfig {
-    LoginUrl = "https://id.dv.choreo.dev/oauth2/authorize",
-    RedirectUrl = "http://localhost:3000/login",
-    ClientId = "GEjPOPRsoMMlNrDuO8fqCBL4mS8a",
-    ApimClientId = "Wxqy0liCfLBsdpXOhkcxZz6uLPka",
-    VSCodeClientId = "XR0UxDfbpjXEyp0Z2C4GuKy7Bdga",
-    ServerOrigin = "https://app.dv.choreo.dev/",
-    TokenUrl = "https://id.dv.choreo.dev/oauth2/token",
-    ApimTokenUrl = "https://apim.preview-dv.choreo.dev/oauth2/token",
-    Prompt = "login",
-    Scope = "openid",
-    GoogleFIdp = "google-choreo",
-    GitHubFIdp = "github-choreo",
-    AnonymousFIdp = "anonymous"
+export class ChoreoAuthConfig {
+    private loginUrl: string = "https://id.dv.choreo.dev/oauth2/authorize";
+    private redirectUrl: string = "http://localhost:3000/login";
+    private clientId: string = "GEjPOPRsoMMlNrDuO8fqCBL4mS8a";
+    private apimClientId: string = process.env.VSCODE_CHOREO_APIM_CLIENT_ID ? process.env.VSCODE_CHOREO_APIM_CLIENT_ID
+        : "Wxqy0liCfLBsdpXOhkcxZz6uLPka";
+    private vscodeClientId: string = "XR0UxDfbpjXEyp0Z2C4GuKy7Bdga";
+    private tokenUrl: string = "https://id.dv.choreo.dev/oauth2/token";
+    private apimTokenUrl: string = process.env.VSCODE_CHOREO_APIM_TOKEN_ENDPOINT ?
+        process.env.VSCODE_CHOREO_APIM_TOKEN_ENDPOINT : "https://apim.preview-dv.choreo.dev/oauth2/token";
+    private scope: string = "openid";
+    private googleFIdp: string = "google-choreo";
+
+    public getApimClientId(): string {
+        return this.apimClientId;
+    }
+
+    public getApimTokenUri(): string {
+        return this.apimTokenUrl;
+    }
+
+    public getLoginUrl(): string {
+        return this.loginUrl;
+    }
+
+    public getRedirectUri(): string {
+        return this.redirectUrl;
+    }
+
+    public getClientId(): string {
+        return this.clientId;
+    }
+
+    public getVscodeClientId(): string {
+        return this.vscodeClientId;
+    }
+
+    public getTokenUri(): string {
+        return this.tokenUrl;
+    }
+
+    public getScope(): string {
+        return this.scope;
+    }
+
+    public getGoogleFIdp(): string {
+        return this.googleFIdp;
+    }
 }

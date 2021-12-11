@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { BallerinaExtension, ChoreoSession, ConstructIdentifier } from "../core";
+import { BallerinaExtension, BallerinaProject, ChoreoSession, ConstructIdentifier } from "../core";
 import { renderFirstDiagramElement, showDiagramEditor } from '../diagram';
 import { sendTelemetryEvent, CMP_PACKAGE_VIEW, TM_EVENT_OPEN_PACKAGE_OVERVIEW } from "../telemetry";
 import { commands, Uri, window, workspace } from 'vscode';
@@ -28,20 +28,21 @@ import {
 import { SessionDataProvider } from "./session-tree-data-provider";
 import { ExplorerDataProvider } from "./explorer-tree-data-provider";
 import { existsSync, mkdirSync, open, openSync, rm, rmdir } from 'fs';
-import { join } from 'path';
-import { BALLERINA_COMMANDS, PALETTE_COMMANDS, runCommand } from "../project";
+import path, { join } from 'path';
+import os from 'os';
+import { BALLERINA_COMMANDS, BAL_TOML, PALETTE_COMMANDS, runCommand } from "../project";
 import { getChoreoKeytarSession } from "../choreo-auth/auth-session";
 import { showChoreoPushMessage } from "../editor-support/git-status";
 import { showConfigEditor } from "../config-editor/configEditorPanel";
 import { getCurrentBallerinaProject } from "../utils/project-utils";
-import {showDocumentationView} from "../documentation/docPanel";
+import { showDocumentationView } from "../documentation/docPanel";
 
 const CONFIG_FILE = 'Config.toml';
 export function activate(ballerinaExtInstance: BallerinaExtension) {
 
     sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_PACKAGE_OVERVIEW, CMP_PACKAGE_VIEW);
 
-    const explorerDataProvider = new ExplorerDataProvider(ballerinaExtInstance);
+    const explorerDataProvider = new ExplorerDataProvider();
     ballerinaExtInstance.context!.subscriptions.push(window.createTreeView('ballerinaExplorerTreeView', {
         treeDataProvider: explorerDataProvider, showCollapseAll: true
     }));
@@ -54,7 +55,6 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         const name = await window.showInputBox({ placeHolder: 'Enter file name...' });
         if (name && name.trim().length > 0) {
             open(join(item.getUri().fsPath, name), 'w', () => { });
-            explorerDataProvider.refresh();
         }
     });
 
@@ -65,7 +65,6 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
             if (!existsSync(filePath)) {
                 mkdirSync(filePath);
             }
-            explorerDataProvider.refresh();
         }
     });
 
@@ -77,7 +76,6 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
                 if (deleteAction === selection) {
                     item.getKind() == 'folder' ? rmdir(item.getUri().fsPath, { recursive: true }, () => { }) :
                         rm(item.getUri().fsPath, () => { });
-                    explorerDataProvider.refresh();
                 }
             });
     });
@@ -148,8 +146,10 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
             return;
         }
 
+        let configFile: string = filePath;
+
         if (!filePath.toString().endsWith(CONFIG_FILE)) {
-            let currentProject;
+            let currentProject: BallerinaProject = {};
             if (window.activeTextEditor) {
                 currentProject = await getCurrentBallerinaProject();
 
@@ -160,16 +160,24 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
                 }
             }
 
-            if (!currentProject) {
+            if (!currentProject || currentProject === {}) {
                 return;
             }
 
-            const configFile = `${currentProject.path}/${CONFIG_FILE}`;
+            filePath = `${currentProject.path}/${BAL_TOML}`;
+
+            const directory = path.join(os.tmpdir(), "ballerina-project", currentProject.packageName!);
+            if (!existsSync(directory)) {
+                mkdirSync(directory, { recursive: true });
+            }
+            console.debug("Project temp directory: " + directory);
+
+            configFile = `${directory}/${CONFIG_FILE}`;
             if (!existsSync(configFile)) {
                 openSync(configFile, 'w')
             }
 
-            filePath = configFile;
+            ballerinaExtInstance.setBallerinaConfigPath(configFile);
         }
 
         await ballerinaExtInstance.langClient.getBallerinaProjectConfigSchema({
@@ -182,7 +190,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
                     + 'retrieving the configurable schema.');
                 return Promise.reject();
             }
-            showConfigEditor(ballerinaExtInstance, data.configSchema, Uri.parse(filePath));
+            showConfigEditor(ballerinaExtInstance, data.configSchema, Uri.parse(configFile));
         });
     });
 

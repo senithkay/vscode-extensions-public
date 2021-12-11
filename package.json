@@ -338,10 +338,10 @@
             },
             {
                 "command": "ballerina.executeConfigEditor",
-                "title": "Run with configuration",
+                "title": "Run",
                 "icon": {
-                    "dark": "./resources/images/icons/run-conf-inverse.svg",
-                    "light": "./resources/images/icons/run-conf.svg"
+                    "dark": "./resources/images/icons/start-inverse.svg",
+                    "light": "./resources/images/icons/start.svg"
                 },
                 "category": "Ballerina"
             },
@@ -454,13 +454,13 @@
                     "command": "ballerina.project.run",
                     "group": "navigation@0",
                     "title": "Run project in terminal",
-                    "when": "resourceLangId == ballerina || isBallerinaDiagram"
+                    "when": "resourceLangId == ballerina"
                 },
                 {
                     "command": "ballerina.executeConfigEditor",
                     "group": "navigation@1",
                     "title": "Run with configuration",
-                    "when": "resourceLangId == ballerina || isBallerinaDiagram"
+                    "when": "isBallerinaDiagram"
                 },
                 {
                     "command": "ballerina.source.debug",

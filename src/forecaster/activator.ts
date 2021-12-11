@@ -27,7 +27,9 @@ import { MESSAGE_TYPE, showMessage } from "../utils/showMessage";
 import { PALETTE_COMMANDS } from "../project";
 
 export const SHOW_GRAPH_COMMAND = "ballerina.forecast.performance.showGraph";
-export const CHOREO_API_PF = "http://choreocontrolplane.preview-dv.choreo.dev/performance-analyzer/2.0.0/get_estimations/3.0";
+export const CHOREO_API_PF = process.env.VSCODE_CHOREO_GATEWAY_BASE_URI ?
+    `${process.env.VSCODE_CHOREO_GATEWAY_BASE_URI}/performance-analyzer/2.0.0/get_estimations/3.0` :
+    "https://choreocontrolplane.preview-dv.choreo.dev/performance-analyzer/2.0.0/get_estimations/3.0";
 
 const CHOREO_AUTH_ERR = "Authentication error for accessing AI service (ID6)";
 const NETWORK_ERR = "Network error. Please check you internet connection";

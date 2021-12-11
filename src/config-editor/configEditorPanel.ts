@@ -34,6 +34,11 @@ export function showConfigEditor(ballerinaExtInstance: BallerinaExtension,
         configEditorPanel.dispose();
     }
 
+    if (Object.keys(configSchema.properties).length === 0) {
+        commands.executeCommand(PALETTE_COMMANDS.RUN);
+        return;
+    }
+
     langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
     let projectOrg: string = "orgName"; // TODO: set the correct project organization name
     let packageName: string = "packageName"; // TODO: set the correct package name
@@ -49,9 +54,9 @@ export function showConfigEditor(ballerinaExtInstance: BallerinaExtension,
     function handleConfigInputs(configInputs: any) {
         writeFile(currentFileUri.fsPath, parseConfigToToml(configInputs), function (error) {
             if (error) {
-                return window.showInformationMessage("Unable to update the Config.toml file: " + error);
+                return window.showInformationMessage("Unable to update the configurable values: " + error);
             }
-            window.showInformationMessage("Successfully updated the Config.toml file.");
+            window.showInformationMessage("Successfully updated the configurable values.");
         });
     }
 

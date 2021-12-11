@@ -23,8 +23,11 @@ import { BallerinaExtension, ballerinaExtInstance } from "../core";
 import { OAuthListener } from "./auth-listener";
 import { deleteChoreoKeytarSession } from "./auth-session";
 import { initiateInbuiltAuth } from "./inbuilt-impl";
+import { ChoreoAuthConfig } from "./config";
 
+export let choreoAuthConfig: ChoreoAuthConfig;
 async function activate(extension: BallerinaExtension) {
+    choreoAuthConfig = new ChoreoAuthConfig();
     commands.registerCommand(PALETTE_COMMANDS.CHOREO_SIGNIN, async () => {
         try {
             await new OAuthListener(3000, extension).StartProcess();
