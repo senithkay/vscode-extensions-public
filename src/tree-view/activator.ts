@@ -35,14 +35,14 @@ import { getChoreoKeytarSession } from "../choreo-auth/auth-session";
 import { showChoreoPushMessage } from "../editor-support/git-status";
 import { showConfigEditor } from "../config-editor/configEditorPanel";
 import { getCurrentBallerinaProject } from "../utils/project-utils";
-import {showDocumentationView} from "../documentation/docPanel";
+import { showDocumentationView } from "../documentation/docPanel";
 
 const CONFIG_FILE = 'Config.toml';
 export function activate(ballerinaExtInstance: BallerinaExtension) {
 
     sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_PACKAGE_OVERVIEW, CMP_PACKAGE_VIEW);
 
-    const explorerDataProvider = new ExplorerDataProvider(ballerinaExtInstance);
+    const explorerDataProvider = new ExplorerDataProvider();
     ballerinaExtInstance.context!.subscriptions.push(window.createTreeView('ballerinaExplorerTreeView', {
         treeDataProvider: explorerDataProvider, showCollapseAll: true
     }));
@@ -55,7 +55,6 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         const name = await window.showInputBox({ placeHolder: 'Enter file name...' });
         if (name && name.trim().length > 0) {
             open(join(item.getUri().fsPath, name), 'w', () => { });
-            explorerDataProvider.refresh();
         }
     });
 
@@ -66,7 +65,6 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
             if (!existsSync(filePath)) {
                 mkdirSync(filePath);
             }
-            explorerDataProvider.refresh();
         }
     });
 
@@ -78,7 +76,6 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
                 if (deleteAction === selection) {
                     item.getKind() == 'folder' ? rmdir(item.getUri().fsPath, { recursive: true }, () => { }) :
                         rm(item.getUri().fsPath, () => { });
-                    explorerDataProvider.refresh();
                 }
             });
     });

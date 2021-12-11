@@ -65,7 +65,7 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
     {
         methodName: 'didOpen',
         handler: (args: any[]) => {
-            return langClient.didOpen(args[0]);
+            langClient.didOpen(args[0]);
         }
     }, {
         methodName: 'registerPublishDiagnostics',
@@ -75,12 +75,12 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
     }, {
         methodName: 'didClose',
         handler: (args: any[]) => {
-            return langClient.didClose(args[0]);
+            langClient.didClose(args[0]);
         }
     }, {
         methodName: 'didChange',
         handler: (args: any[]) => {
-            return langClient.didChange(args[0]);
+            langClient.didChange(args[0]);
         }
     }, {
         methodName: 'getConnectors',
@@ -221,13 +221,16 @@ export class WebViewRPCHandler {
             // this is a request from remote
             const method = this._getMethod(msg.methodName);
             if (method) {
-                method.handler(msg.arguments || [], this.webViewPanel)
-                    .then((response: Thenable<any>) => {
-                        this.webViewPanel.webview.postMessage({
-                            originId: msg.id,
-                            response: JSON.stringify(response)
-                        });
+                const handler = method.handler(msg.arguments || [], this.webViewPanel);
+                if (!handler) {
+                    return;
+                }
+                handler.then((response: Thenable<any>) => {
+                    this.webViewPanel.webview.postMessage({
+                        originId: msg.id,
+                        response: JSON.stringify(response)
                     });
+                });
             }
         } else if (msg.originId !== undefined) {
             // this is a response from remote to one of our requests

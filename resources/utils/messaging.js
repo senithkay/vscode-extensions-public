@@ -63,42 +63,54 @@ function getLangClient() {
         isInitialized: true,
         getProjectAST: (params) => {
             return new Promise((resolve, _reject) => {
+                const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getProjectAST', [params.sourceRoot], (resp) => {
+                    consoleLog(start, 'getProjectAST');
                     resolve(resp);
                 });
             });
         },
         getSyntaxTree: (params) => {
             return new Promise((resolve, _reject) => {
+                const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getSyntaxTree', [params], (resp) => {
+                    consoleLog(start, 'getSyntaxTree');
                     resolve(resp);
                 });
             });
         },
         getCompletion: (params) => {
             return new Promise((resolve, _reject) => {
+                const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getCompletion', [params], (resp) => {
+                    consoleLog(start, 'getCompletion');
                     resolve(resp);
                 });
             });
         },
         getType: (params) => {
             return new Promise((resolve, _reject) => {
+                const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getType', [params], (resp) => {
+                    consoleLog(start, 'getType');
                     resolve(resp);
                 });
             });
         },
         getDiagnostics: (params) => {
             return new Promise((resolve, _reject) => {
+                const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getDiagnostics', [params], (resp) => {
+                    consoleLog(start, 'getDiagnostics');
                     resolve(resp);
                 });
             });
         },
         getEndpoints: () => {
             return new Promise((resolve, _reject) => {
+                const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getEndpoints', [], (resp) => {
+                    consoleLog(start, 'getEndpoints');
                     resolve(resp);
                 });
             })
@@ -106,10 +118,12 @@ function getLangClient() {
         revealRange: (params) => {
             if (params) {
                 return new Promise((resolve, _reject) => {
+                    const start = new Date();
                     webViewRPCHandler.invokeRemoteMethod(
                         'revealRange',
                         [JSON.stringify(params)],
                         (resp) => {
+                            consoleLog(start, 'revealRange');
                             resolve(resp);
                         }
                     );
@@ -118,10 +132,12 @@ function getLangClient() {
         },
         goToSource: (params) => {
             return new Promise((resolve, _reject) => {
+                const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod(
                     'goToSource',
                     [JSON.stringify(params)],
                     (resp) => {
+                        consoleLog(start, 'goToSource');
                         resolve(resp);
                     }
                 );
@@ -129,192 +145,251 @@ function getLangClient() {
         },
         getExamples: () => {
             return new Promise((resolve, _reject) => {
+                const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getExamples', [], (resp) => {
+                    consoleLog(start, 'getExamples');
                     resolve(resp.samples);
                 });
             })
         },
         getDefinitionPosition: (params) => {
             return new Promise((resolve, _reject) => {
+                const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getDefinitionPosition', [params], (resp) => {
+                    consoleLog(start, 'getDefinitionPosition');
                     resolve(resp);
                 });
             })
         },
         didOpen: (params) => {
             return new Promise((resolve, _reject) => {
+                const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('didOpen', [params], (resp) => {
+                    consoleLog(start, 'didOpen');
                     resolve(resp);
                 });
             })
         },
         registerPublishDiagnostics: () => {
             return new Promise((resolve, _reject) => {
+                const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('registerPublishDiagnostics', [], (resp) => {
+                    consoleLog(start, 'registerPublishDiagnostics');
                     resolve(resp);
                 });
             })
         },
         didClose: (params) => {
             return new Promise((resolve, _reject) => {
+                const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('didClose', [params], (resp) => {
+                    consoleLog(start, 'didClose');
                     resolve(resp);
                 });
             })
         },
         didChange: (params) => {
             return new Promise((resolve, _reject) => {
+                const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('didChange', [params], (resp) => {
+                    consoleLog(start, 'didChange');
                     resolve(resp);
                 });
             })
         },
         syntaxTreeModify: (params) => {
             return new Promise((resolve, _reject) => {
+                const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('syntaxTreeModify', [params], (resp) => {
+                    consoleLog(start, 'syntaxTreeModify');
                     resolve(resp);
                 });
             })
         },
         getConnectors: (params) => {
             return new Promise((resolve, _reject) => {
+                const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getConnectors', [params], (resp) => {
+                    consoleLog(start, 'getConnectors');
                     resolve(resp);
                 });
             })
         },
         getTriggers: (params) => {
             return new Promise((resolve, _reject) => {
+                const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getTriggers', [params], (resp) => {
+                    consoleLog(start, 'getTriggers');
                     resolve(resp);
                 });
             })
         },
         getConnector: (params) => {
             return new Promise((resolve, _reject) => {
+                const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getConnector', [params], (resp) => {
+                    consoleLog(start, 'getConnector');
                     resolve(resp);
                 });
             })
         },
         getTrigger: (params) => {
             return new Promise((resolve, _reject) => {
+                const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getTrigger', [params], (resp) => {
+                    consoleLog(start, 'getTrigger');
                     resolve(resp);
                 });
             })
         },
         getRecord: (params) => {
             return new Promise((resolve, _reject) => {
+                const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getRecord', [params], (resp) => {
+                    consoleLog(start, 'getRecord');
                     resolve(resp);
                 });
             })
         },
         astModify: (params) => {
             return new Promise((resolve, _reject) => {
+                const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('astModify', [params], (resp) => {
+                    consoleLog(start, 'astModify');
                     resolve(resp);
                 });
             })
         },
         stModify: (params) => {
             return new Promise((resolve, _reject) => {
+                const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('stModify', [params], (resp) => {
+                    consoleLog(start, 'stModify');
                     resolve(resp);
                 });
             })
         },
         triggerModify: (params) => {
             return new Promise((resolve, _reject) => {
+                const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('triggerModify', [params], (resp) => {
+                    consoleLog(start, 'triggerModify');
                     resolve(resp);
                 });
             })
         },
         getDocumentSymbol: (params) => {
             return new Promise((resolve, _reject) => {
+                const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getDocumentSymbol', [params], (resp) => {
+                    consoleLog(start, 'getDocumentSymbol');
                     resolve(resp);
                 });
             })
         },
         close: () => {
             return new Promise((resolve, _reject) => {
+                const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('close', [], (resp) => {
+                    consoleLog(start, 'close');
                     resolve(resp);
                 });
             })
         },
         getDidOpenParams: () => {
             return new Promise((resolve, _reject) => {
+                const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getDidOpenParams', [], (resp) => {
+                    consoleLog(start, 'getDidOpenParams');
                     resolve(resp);
                 });
             })
         },
         getSyntaxTreeFileRange: (params) => {
             return new Promise((resolve, _reject) => {
+                const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getSyntaxTreeFileRange', [params], (resp) => {
+                    consoleLog(start, 'getSyntaxTreeFileRange');
                     resolve(resp);
                 });
             })
         },
         convert: (params) => {
             return new Promise((resolve, _reject) => {
+                const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('convert', [params], (resp) => {
+                    consoleLog(start, 'convert');
                     resolve(resp);
                 });
             })
         },
         getSTForSingleStatement: (params) => {
             return new Promise((resolve, _reject) => {
+                const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getSTForSingleStatement', [params], (resp) => {
+                    consoleLog(start, 'getSTForSingleStatement');
                     resolve(resp);
                 });
             })
         },
         getSTForExpression: (params) => {
             return new Promise((resolve, _reject) => {
+                const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getSTForExpression', [params], (resp) => {
+                    consoleLog(start, 'getSTForExpression');
                     resolve(resp);
                 });
             })
         },
         getSTForModuleMembers: (params) => {
             return new Promise((resolve, _reject) => {
+                const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getSTForModuleMembers', [params], (resp) => {
+                    consoleLog(start, 'getSTForModuleMembers');
                     resolve(resp);
                 });
             })
         },
         getRealtimePerformanceData: (params) => {
             return new Promise((resolve, _reject) => {
+                const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getRealtimePerformanceData', [params], (resp) => {
+                    consoleLog(start, 'getRealtimePerformanceData');
                     resolve(resp);
                 });
             })
         },
         getPerformanceGraphData: (params) => {
             return new Promise((resolve, _reject) => {
+                const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getPerformanceGraphData', [params], (resp) => {
+                    consoleLog(start, 'getPerformanceGraphData');
                     resolve(resp);
                 });
             })
         },
         resolveMissingDependencies: (params) => {
             return new Promise((resolve, _reject) => {
+                const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('resolveMissingDependencies', [params], (resp) => {
+                    consoleLog(start, 'resolveMissingDependencies');
                     resolve(resp);
                 });
             })
         },
         getExecutorPositions: (params) => {
             return new Promise((resolve, _reject) => {
+                const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getExecutorPositions', [params], (resp) => {
+                    consoleLog(start, 'getExecutorPositions');
                     resolve(resp);
                 });
             })
         }        
     }
+}
+
+function consoleLog(start, fnName) {
+    const end = new Date();
+    console.debug(`Time taken for ${fnName}: ${end - start}ms`);
 }

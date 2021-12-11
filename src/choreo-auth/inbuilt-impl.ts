@@ -20,9 +20,9 @@ import vscode from "vscode";
 import axios from "axios";
 import { BallerinaExtension } from "../core";
 import { OAuthListener } from "./auth-listener";
-import { ChoreoAuthConfig } from "./config";
 import { getChoreoKeytarSession, setChoreoKeytarSession } from "./auth-session";
 import jwt_decode from "jwt-decode";
+import { choreoAuthConfig } from "./activator";
 
 const url = require('url');
 
@@ -56,16 +56,16 @@ export class OAuthTokenHandler {
             process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
 
             const params = new url.URLSearchParams({
-                client_id: ChoreoAuthConfig.ClientId,
+                client_id: choreoAuthConfig.getClientId(),
                 code: authCode,
                 grant_type: 'authorization_code',
-                redirect_uri: ChoreoAuthConfig.RedirectUrl,
+                redirect_uri: choreoAuthConfig.getRedirectUri(),
                 // TODO: Use a PKCE generator here for the code_verifier.
                 code_verifier: '9H9Pfgaz4fVujpJqTRk4zPc-Hw4T9aWJKteIHdlXZj0'
             });
 
             await axios.post(
-                ChoreoAuthConfig.TokenUrl,
+                choreoAuthConfig.getTokenUri(),
                 params.toString(),
                 {
                     headers: {
@@ -100,7 +100,7 @@ export class OAuthTokenHandler {
         }
 
         const params = new url.URLSearchParams({
-            client_id: ChoreoAuthConfig.ApimClientId,
+            client_id: choreoAuthConfig.getApimClientId(),
             grant_type: 'urn:ietf:params:oauth:grant-type:token-exchange',
             subject_token_type: 'urn:ietf:params:oauth:token-type:jwt',
             requested_token_type: 'urn:ietf:params:oauth:token-type:jwt',
@@ -109,7 +109,7 @@ export class OAuthTokenHandler {
         });
 
         await axios.post(
-            ChoreoAuthConfig.ApimTokenUrl,
+            choreoAuthConfig.getApimTokenUri(),
             params.toString(),
             {
                 headers: {
@@ -137,7 +137,7 @@ export class OAuthTokenHandler {
         }
 
         const params = new url.URLSearchParams({
-            client_id: ChoreoAuthConfig.VSCodeClientId,
+            client_id: choreoAuthConfig.getVscodeClientId(),
             grant_type: 'urn:ietf:params:oauth:grant-type:token-exchange',
             subject_token_type: 'urn:ietf:params:oauth:token-type:jwt',
             requested_token_type: 'urn:ietf:params:oauth:token-type:jwt',
@@ -146,7 +146,7 @@ export class OAuthTokenHandler {
         });
 
         await axios.post(
-            ChoreoAuthConfig.ApimTokenUrl,
+            choreoAuthConfig.getApimTokenUri(),
             params.toString(),
             {
                 headers: {
@@ -189,13 +189,13 @@ export class OAuthTokenHandler {
         }
 
         const params = new url.URLSearchParams({
-            client_id: ChoreoAuthConfig.VSCodeClientId,
+            client_id: choreoAuthConfig.getVscodeClientId(),
             grant_type: 'refresh_token',
             refresh_token: refreshToken
         });
 
         await axios.post(
-            ChoreoAuthConfig.ApimTokenUrl,
+            choreoAuthConfig.getApimTokenUri(),
             params.toString(),
             {
                 headers: {
@@ -245,8 +245,8 @@ export class OAuthTokenHandler {
 
 function getAuthURL(): string {
     // TODO: Use a PKCE generator here for the code_challenge.
-    return `${ChoreoAuthConfig.LoginUrl}?response_mode=query&prompt=login&response_type=code`
+    return `${choreoAuthConfig.getLoginUrl()}?response_mode=query&prompt=login&response_type=code`
         + `&code_challenge_method=S256&code_challenge=73a9Bme8uDFD1aJ1uJSpQ4i-srQvjGyLsZn5g5EKrgI`
-        + `&fidp=${ChoreoAuthConfig.GoogleFIdp}&redirect_uri=${ChoreoAuthConfig.RedirectUrl}&`
-        + `client_id=${ChoreoAuthConfig.ClientId}&scope=${ChoreoAuthConfig.Scope}`;
+        + `&fidp=${choreoAuthConfig.getGoogleFIdp()}&redirect_uri=${choreoAuthConfig.getRedirectUri()}&`
+        + `client_id=${choreoAuthConfig.getClientId()}&scope=${choreoAuthConfig.getScope()}`;
 }
