@@ -18,7 +18,6 @@ import { ErrorSnippet } from "../../../../../../../DiagramGenerator/generatorUti
 
 import { ConnectorRectSVG } from "./ConnectorRectSVG";
 
-
 export const CONNECTOR_PROCESS_SVG_WIDTH_WITH_SHADOW = 65;
 export const CONNECTOR_PROCESS_SVG_HEIGHT_WITH_SHADOW = 65;
 export const CONNECTOR_PROCESS_SVG_WIDTH = 55;
