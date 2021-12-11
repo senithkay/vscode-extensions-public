@@ -65,7 +65,7 @@ function getLangClient() {
             return new Promise((resolve, _reject) => {
                 const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getProjectAST', [params.sourceRoot], (resp) => {
-                    logConsole(start, 'getProjectAST');
+                    consoleLog(start, 'getProjectAST');
                     resolve(resp);
                 });
             });
@@ -74,7 +74,7 @@ function getLangClient() {
             return new Promise((resolve, _reject) => {
                 const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getSyntaxTree', [params], (resp) => {
-                    logConsole(start, 'getSyntaxTree');
+                    consoleLog(start, 'getSyntaxTree');
                     resolve(resp);
                 });
             });
@@ -83,7 +83,7 @@ function getLangClient() {
             return new Promise((resolve, _reject) => {
                 const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getCompletion', [params], (resp) => {
-                    logConsole(start, 'getCompletion');
+                    consoleLog(start, 'getCompletion');
                     resolve(resp);
                 });
             });
@@ -92,7 +92,7 @@ function getLangClient() {
             return new Promise((resolve, _reject) => {
                 const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getType', [params], (resp) => {
-                    logConsole(start, 'getType');
+                    consoleLog(start, 'getType');
                     resolve(resp);
                 });
             });
@@ -101,7 +101,7 @@ function getLangClient() {
             return new Promise((resolve, _reject) => {
                 const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getDiagnostics', [params], (resp) => {
-                    logConsole(start, 'getDiagnostics');
+                    consoleLog(start, 'getDiagnostics');
                     resolve(resp);
                 });
             });
@@ -110,7 +110,7 @@ function getLangClient() {
             return new Promise((resolve, _reject) => {
                 const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getEndpoints', [], (resp) => {
-                    logConsole(start, 'getEndpoints');
+                    consoleLog(start, 'getEndpoints');
                     resolve(resp);
                 });
             })
@@ -123,7 +123,7 @@ function getLangClient() {
                         'revealRange',
                         [JSON.stringify(params)],
                         (resp) => {
-                            logConsole(start, 'revealRange');
+                            consoleLog(start, 'revealRange');
                             resolve(resp);
                         }
                     );
@@ -137,7 +137,7 @@ function getLangClient() {
                     'goToSource',
                     [JSON.stringify(params)],
                     (resp) => {
-                        logConsole(start, 'goToSource');
+                        consoleLog(start, 'goToSource');
                         resolve(resp);
                     }
                 );
@@ -147,7 +147,7 @@ function getLangClient() {
             return new Promise((resolve, _reject) => {
                 const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getExamples', [], (resp) => {
-                    logConsole(start, 'getExamples');
+                    consoleLog(start, 'getExamples');
                     resolve(resp.samples);
                 });
             })
@@ -156,7 +156,7 @@ function getLangClient() {
             return new Promise((resolve, _reject) => {
                 const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getDefinitionPosition', [params], (resp) => {
-                    logConsole(start, 'getDefinitionPosition');
+                    consoleLog(start, 'getDefinitionPosition');
                     resolve(resp);
                 });
             })
@@ -165,7 +165,7 @@ function getLangClient() {
             return new Promise((resolve, _reject) => {
                 const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('didOpen', [params], (resp) => {
-                    logConsole(start, 'didOpen');
+                    consoleLog(start, 'didOpen');
                     resolve(resp);
                 });
             })
@@ -174,7 +174,7 @@ function getLangClient() {
             return new Promise((resolve, _reject) => {
                 const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('registerPublishDiagnostics', [], (resp) => {
-                    logConsole(start, 'registerPublishDiagnostics');
+                    consoleLog(start, 'registerPublishDiagnostics');
                     resolve(resp);
                 });
             })
@@ -183,7 +183,7 @@ function getLangClient() {
             return new Promise((resolve, _reject) => {
                 const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('didClose', [params], (resp) => {
-                    logConsole(start, 'didClose');
+                    consoleLog(start, 'didClose');
                     resolve(resp);
                 });
             })
@@ -192,7 +192,7 @@ function getLangClient() {
             return new Promise((resolve, _reject) => {
                 const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('didChange', [params], (resp) => {
-                    logConsole(start, 'didChange');
+                    consoleLog(start, 'didChange');
                     resolve(resp);
                 });
             })
@@ -201,7 +201,7 @@ function getLangClient() {
             return new Promise((resolve, _reject) => {
                 const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('syntaxTreeModify', [params], (resp) => {
-                    logConsole(start, 'syntaxTreeModify');
+                    consoleLog(start, 'syntaxTreeModify');
                     resolve(resp);
                 });
             })
@@ -210,7 +210,7 @@ function getLangClient() {
             return new Promise((resolve, _reject) => {
                 const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getConnectors', [params], (resp) => {
-                    logConsole(start, 'getConnectors');
+                    consoleLog(start, 'getConnectors');
                     resolve(resp);
                 });
             })
@@ -219,7 +219,7 @@ function getLangClient() {
             return new Promise((resolve, _reject) => {
                 const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getTriggers', [params], (resp) => {
-                    logConsole(start, 'getTriggers');
+                    consoleLog(start, 'getTriggers');
                     resolve(resp);
                 });
             })
@@ -228,7 +228,7 @@ function getLangClient() {
             return new Promise((resolve, _reject) => {
                 const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getConnector', [params], (resp) => {
-                    logConsole(start, 'getConnector');
+                    consoleLog(start, 'getConnector');
                     resolve(resp);
                 });
             })
@@ -237,7 +237,7 @@ function getLangClient() {
             return new Promise((resolve, _reject) => {
                 const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getTrigger', [params], (resp) => {
-                    logConsole(start, 'getTrigger');
+                    consoleLog(start, 'getTrigger');
                     resolve(resp);
                 });
             })
@@ -246,7 +246,7 @@ function getLangClient() {
             return new Promise((resolve, _reject) => {
                 const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getRecord', [params], (resp) => {
-                    logConsole(start, 'getRecord');
+                    consoleLog(start, 'getRecord');
                     resolve(resp);
                 });
             })
@@ -255,7 +255,7 @@ function getLangClient() {
             return new Promise((resolve, _reject) => {
                 const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('astModify', [params], (resp) => {
-                    logConsole(start, 'astModify');
+                    consoleLog(start, 'astModify');
                     resolve(resp);
                 });
             })
@@ -264,7 +264,7 @@ function getLangClient() {
             return new Promise((resolve, _reject) => {
                 const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('stModify', [params], (resp) => {
-                    logConsole(start, 'stModify');
+                    consoleLog(start, 'stModify');
                     resolve(resp);
                 });
             })
@@ -273,7 +273,7 @@ function getLangClient() {
             return new Promise((resolve, _reject) => {
                 const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('triggerModify', [params], (resp) => {
-                    logConsole(start, 'triggerModify');
+                    consoleLog(start, 'triggerModify');
                     resolve(resp);
                 });
             })
@@ -282,7 +282,7 @@ function getLangClient() {
             return new Promise((resolve, _reject) => {
                 const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getDocumentSymbol', [params], (resp) => {
-                    logConsole(start, 'getDocumentSymbol');
+                    consoleLog(start, 'getDocumentSymbol');
                     resolve(resp);
                 });
             })
@@ -291,7 +291,7 @@ function getLangClient() {
             return new Promise((resolve, _reject) => {
                 const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('close', [], (resp) => {
-                    logConsole(start, 'close');
+                    consoleLog(start, 'close');
                     resolve(resp);
                 });
             })
@@ -300,7 +300,7 @@ function getLangClient() {
             return new Promise((resolve, _reject) => {
                 const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getDidOpenParams', [], (resp) => {
-                    logConsole(start, 'getDidOpenParams');
+                    consoleLog(start, 'getDidOpenParams');
                     resolve(resp);
                 });
             })
@@ -309,7 +309,7 @@ function getLangClient() {
             return new Promise((resolve, _reject) => {
                 const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getSyntaxTreeFileRange', [params], (resp) => {
-                    logConsole(start, 'getSyntaxTreeFileRange');
+                    consoleLog(start, 'getSyntaxTreeFileRange');
                     resolve(resp);
                 });
             })
@@ -318,7 +318,7 @@ function getLangClient() {
             return new Promise((resolve, _reject) => {
                 const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('convert', [params], (resp) => {
-                    logConsole(start, 'convert');
+                    consoleLog(start, 'convert');
                     resolve(resp);
                 });
             })
@@ -327,7 +327,7 @@ function getLangClient() {
             return new Promise((resolve, _reject) => {
                 const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getSTForSingleStatement', [params], (resp) => {
-                    logConsole(start, 'getSTForSingleStatement');
+                    consoleLog(start, 'getSTForSingleStatement');
                     resolve(resp);
                 });
             })
@@ -336,7 +336,7 @@ function getLangClient() {
             return new Promise((resolve, _reject) => {
                 const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getSTForExpression', [params], (resp) => {
-                    logConsole(start, 'getSTForExpression');
+                    consoleLog(start, 'getSTForExpression');
                     resolve(resp);
                 });
             })
@@ -345,7 +345,7 @@ function getLangClient() {
             return new Promise((resolve, _reject) => {
                 const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getSTForModuleMembers', [params], (resp) => {
-                    logConsole(start, 'getSTForModuleMembers');
+                    consoleLog(start, 'getSTForModuleMembers');
                     resolve(resp);
                 });
             })
@@ -354,7 +354,7 @@ function getLangClient() {
             return new Promise((resolve, _reject) => {
                 const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getRealtimePerformanceData', [params], (resp) => {
-                    logConsole(start, 'getRealtimePerformanceData');
+                    consoleLog(start, 'getRealtimePerformanceData');
                     resolve(resp);
                 });
             })
@@ -363,7 +363,7 @@ function getLangClient() {
             return new Promise((resolve, _reject) => {
                 const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getPerformanceGraphData', [params], (resp) => {
-                    logConsole(start, 'getPerformanceGraphData');
+                    consoleLog(start, 'getPerformanceGraphData');
                     resolve(resp);
                 });
             })
@@ -372,7 +372,7 @@ function getLangClient() {
             return new Promise((resolve, _reject) => {
                 const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('resolveMissingDependencies', [params], (resp) => {
-                    logConsole(start, 'resolveMissingDependencies');
+                    consoleLog(start, 'resolveMissingDependencies');
                     resolve(resp);
                 });
             })
@@ -381,7 +381,7 @@ function getLangClient() {
             return new Promise((resolve, _reject) => {
                 const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getExecutorPositions', [params], (resp) => {
-                    logConsole(start, 'getExecutorPositions');
+                    consoleLog(start, 'getExecutorPositions');
                     resolve(resp);
                 });
             })
@@ -389,7 +389,7 @@ function getLangClient() {
     }
 }
 
-function logConsole(start, fnName) {
+function consoleLog(start, fnName) {
     const end = new Date();
     console.debug(`Time taken for ${fnName}: ${end - start}ms`);
 }
