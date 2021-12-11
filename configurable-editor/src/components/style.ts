@@ -22,7 +22,7 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 export const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         formGroup: {
-            marginBottom: theme.spacing(3),
+            marginBottom: theme.spacing(2),
         },
         formInputBox: {
             width: "100%",
@@ -34,7 +34,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginBottom: theme.spacing(1),
         },
         innerBoxTitle: {
-            fontSize: theme.spacing(2),
+            fontSize: theme.spacing(1.8),
         },
         labelCont: {
             marginBottom: theme.spacing(1),
@@ -48,7 +48,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         mainLabelText: {
             color: "#1D2028",
-            fontSize: theme.spacing(1.8),
+            fontSize: theme.spacing(1.6),
         },
         textInputRoot: {
             "& .MuiInputBase-root": {

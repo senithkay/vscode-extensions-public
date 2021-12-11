@@ -38,9 +38,9 @@ export interface BallerinaModule {
     displayAnnotation?: any;
 }
 
-export interface Connector extends BallerinaModule {}
+export interface Connector extends BallerinaModule { }
 
-export interface Trigger extends BallerinaModule {}
+export interface Trigger extends BallerinaModule { }
 
 export interface Package {
     organization: string;
@@ -79,62 +79,69 @@ export interface BallerinaConnectorInfo extends Connector {
 }
 
 export interface BallerinaTriggerInfo extends Trigger {
-    serviceTypes:  ServiceType[],
+    serviceTypes: ServiceType[],
     listenerParams: Parameter[],
     documentation?: string,
 }
 
 export interface ServiceType {
-    name:        string;
+    name: string;
     description?: string;
-    functions?:   RemoteFunction[];
+    functions?: RemoteFunction[];
 }
 
 export interface RemoteFunction {
-    isRemote?:      boolean;
+    isRemote?: boolean;
     documentation?: string;
-    name:          string;
-    parameters?:    Parameter[];
-    returnType?:    ReturnType;
+    name: string;
+    parameters?: Parameter[];
+    returnType?: ReturnType;
 }
 
 export interface Parameter {
-    name:              string;
-    typeName:          string;
-    optional?:          boolean;
-    typeInfo?:          TypeInfo;
+    name: string;
+    typeName: string;
+    optional?: boolean;
+    typeInfo?: TypeInfo;
     displayAnnotation?: DisplayAnnotation;
-    fields?:            Field[];
-    hasRestType?:       boolean;
-    restType?:          ReturnType;
-    defaultable?:       boolean;
+    fields?: Field[];
+    hasRestType?: boolean;
+    restType?: ReturnType;
+    defaultable?: boolean;
 }
 
-export interface DisplayAnnotation {}
+export interface DisplayAnnotation { }
 
-export interface Field {
-    name?:        string;
-    typeName?:    string;
-    optional?:    boolean;
+export interface MemberField {
+    typeName?: string;
+    optional?: boolean;
     defaultable?: boolean;
-    fields?:      ReturnType[];
+}
+export interface Field {
+    name?: string;
+    typeName?: string;
+    optional?: boolean;
+    defaultable?: boolean;
+    fields?: ReturnType[];
     hasRestType?: boolean;
-    restType?:    ReturnType;
+    restType?: ReturnType;
+    members?: MemberField[];
+    defaultType?: string;
 }
 
 export interface ReturnType {
-    name?:              string;
-    typeName?:          string;
-    optional?:          boolean;
-    defaultable?:       boolean;
+    name?: string;
+    typeName?: string;
+    optional?: boolean;
+    defaultable?: boolean;
     displayAnnotation?: DisplayAnnotation;
 }
 
 export interface TypeInfo {
-    name?:       string;
-    orgName?:    string;
+    name?: string;
+    orgName?: string;
     moduleName?: string;
-    version?:    string;
+    version?: string;
 }
 
 export interface BallerinaModulesRequest {
@@ -154,9 +161,9 @@ export interface BallerinaModulesRequest {
     targetFile?: string;
 }
 
-export interface BallerinaConnectorsRequest extends BallerinaModulesRequest {}
+export interface BallerinaConnectorsRequest extends BallerinaModulesRequest { }
 
-export interface BallerinaTriggersRequest extends BallerinaModulesRequest {}
+export interface BallerinaTriggersRequest extends BallerinaModulesRequest { }
 
 export interface BallerinaModuleResponse {
     central: BallerinaModule[];

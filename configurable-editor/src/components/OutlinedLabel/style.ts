@@ -24,10 +24,14 @@
          chipRoot: {
              fontSize: theme.spacing(1.3),
              height: "auto",
-             padding: theme.spacing(0.75),
+             padding: theme.spacing(0.5),
              paddingBottom: theme.spacing(0.25),
              paddingTop: theme.spacing(0.25),
          },
-
+         chiplabel: {
+            lineHeight: "1.2em",
+            paddingLeft: theme.spacing(0.25),
+            paddingRight: theme.spacing(0.25),
+        },
      }),
  );

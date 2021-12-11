@@ -17,7 +17,7 @@ import { BallerinaConnectorInfo, WizardType } from "@wso2-enterprise/ballerina-l
 import { LocalVarDecl, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
-import { getDiagnosticMsgs } from "../../../../../../utils";
+import { getDiagnosticInfo } from "../../../../../../utils";
 import { getOverlayFormConfig, getRandomInt } from "../../../../../../utils/diagram-util";
 import { getMatchingConnector, getStatementTypesFromST } from "../../../../../../utils/st-util";
 import { DefaultConfig } from "../../../../../../visitors/default";
@@ -88,7 +88,7 @@ export function ActionProcessor(props: ProcessorProps) {
     let isReferencedVariable = false;
 
     const diagnostics = model?.typeData?.diagnostics;
-    const diagnosticMsgs = getDiagnosticMsgs(diagnostics);
+    const diagnosticMsgs = getDiagnosticInfo(diagnostics);
 
     if (model) {
         processType = "Variable";
@@ -199,8 +199,9 @@ export function ActionProcessor(props: ProcessorProps) {
     }
 
     const errorSnippet = {
-        diagnosticMsgs,
+        diagnosticMsgs: diagnosticMsgs?.message,
         code: sourceSnippet,
+        severity: diagnosticMsgs?.severity
     }
 
     const endpointList = (
