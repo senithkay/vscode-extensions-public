@@ -17,7 +17,7 @@ import { BallerinaConnectorInfo, WizardType } from "@wso2-enterprise/ballerina-l
 import { LocalVarDecl, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
-import { getDiagnosticMsgs } from "../../../../../../utils";
+import { getDiagnosticInfo } from "../../../../../../utils";
 import { getOverlayFormConfig, getRandomInt } from "../../../../../../utils/diagram-util";
 import { getMatchingConnector, getStatementTypesFromST } from "../../../../../../utils/st-util";
 import { DefaultConfig } from "../../../../../../visitors/default";
@@ -88,7 +88,7 @@ export function ActionProcessor(props: ProcessorProps) {
     let isReferencedVariable = false;
 
     const diagnostics = model?.typeData?.diagnostics;
-    const diagnosticMsgs = getDiagnosticMsgs(diagnostics);
+    const diagnosticMsgs = getDiagnosticInfo(diagnostics);
 
     if (model) {
         processType = "Variable";
@@ -199,8 +199,9 @@ export function ActionProcessor(props: ProcessorProps) {
     }
 
     const errorSnippet = {
-        diagnosticMsgs,
+        diagnosticMsgs: diagnosticMsgs?.message,
         code: sourceSnippet,
+        severity: diagnosticMsgs?.severity
     }
 
     const endpointList = (
@@ -246,12 +247,11 @@ export function ActionProcessor(props: ProcessorProps) {
     const localModel = model as LocalVarDecl;
     const statmentTypeText = getStatementTypesFromST(localModel);
 
-    const processWrapper = isDraftStatement ? cn("main-process-wrapper active-data-processor") : cn("main-process-wrapper data-processor");
-    const processStyles = diagnosticMsgs && !isDraftStatement ? "main-process-wrapper data-processor-error " : processWrapper;
+    const processWrapper = isDraftStatement ? cn("main-process-wrapper active-action-processor") : cn("main-process-wrapper action-processor");
 
     const component: React.ReactNode = !viewState.collapsed && (
         <g>
-            <g className={processStyles} data-testid="data-processor-block">
+            <g className={processWrapper} data-testid="data-processor-block">
                 <React.Fragment>
                     {!isDraftStatement && statmentTypeText && processName && (
                         <>

@@ -18,12 +18,25 @@
  */
 import React, { useState } from "react";
 
-import { Box, Button, Card, CardActions, CardContent, Container, Typography } from "@material-ui/core";
+import { Box, Button, CardActions } from "@material-ui/core";
 
+import ButtonContainer from "./ButtonContainer";
 import { ConfigElementProps, getConfigElement } from "./ConfigElement";
 import { ConfigObjectProps, getConfigObject } from "./ConfigObject";
-import { ConfigSchema, ConfigValue, MetaData, SchemaConstants, setMetaData } from "./model";
-import { getConfigProperties, instanceOfConfigElement, setExistingValues, updateConfigObjectProps } from "./utils";
+import {
+    ConfigSchema,
+    ConfigValue,
+    MetaData,
+    SchemaConstants,
+    setMetaData,
+} from "./model";
+import { useStyles } from "./style";
+import {
+    getConfigProperties,
+    instanceOfConfigElement,
+    setExistingValues,
+    updateConfigObjectProps,
+} from "./utils";
 
 let metaData: MetaData = null;
 
@@ -52,37 +65,34 @@ export interface ConfigFormProps {
     primaryButtonText: string;
     onClickDefaultButton: () => void;
     onClickPrimaryButton: (configProperties: ConfigObjectProps) => void;
+    isLowCode?: boolean;
 }
 
-const getConfigForm = (configProperty: ConfigObjectProps | ConfigElementProps) => {
-    if (instanceOfConfigElement(configProperty)) {
-        return (
-            <div key={configProperty.id}>
-                {getConfigElement(configProperty as ConfigElementProps)}
-            </div>
-        );
-    } else {
-        return (
-            <div key={configProperty.id}>
-                {getConfigObject(configProperty as ConfigObjectProps)}
-            </div>
-        );
-    }
-};
-
-export const ConfigForm = ({ configSchema, existingConfigs, defaultButtonText,
-                             primaryButtonText, onClickDefaultButton, onClickPrimaryButton }: ConfigFormProps) => {
+export const ConfigForm = ({
+    configSchema,
+    existingConfigs,
+    defaultButtonText,
+    primaryButtonText,
+    onClickDefaultButton,
+    onClickPrimaryButton,
+    isLowCode,
+}: ConfigFormProps) => {
+    const classes  = useStyles();
     const [configValue, setConfigValue] = useState(new Array<ConfigValue>());
     const [submitType, setSubmitType] = useState("");
 
     // The config property object retrieved from the config schema.
-    let configObjectProps: ConfigObjectProps = getConfigProperties(getPackageConfig(configSchema));
+    let configObjectProps: ConfigObjectProps = getConfigProperties(
+        getPackageConfig(configSchema),
+    );
 
     // Set the existing config values to the config property obtained.
     setExistingValues(configObjectProps, existingConfigs, metaData);
 
     const handleSetConfigValue = (config: ConfigValue) => {
-        const existingConfig = configValue.findIndex((property) => property.key === config.key);
+        const existingConfig = configValue.findIndex(
+            (property) => property.key === config.key,
+        );
         if (existingConfig > -1) {
             configValue[existingConfig].value = config.value;
         } else {
@@ -93,7 +103,10 @@ export const ConfigForm = ({ configSchema, existingConfigs, defaultButtonText,
 
     const handleSubmit = (event: any) => {
         event.preventDefault();
-        configObjectProps = updateConfigObjectProps(configObjectProps, configValue);
+        configObjectProps = updateConfigObjectProps(
+            configObjectProps,
+            configValue,
+        );
 
         if (submitType === defaultButtonText) {
             onClickDefaultButton();
@@ -110,50 +123,57 @@ export const ConfigForm = ({ configSchema, existingConfigs, defaultButtonText,
         entry.setConfigElement = handleSetConfigValue;
     });
 
+    const getConfigForm = (
+        configProperty: ConfigObjectProps | ConfigElementProps,
+    ) => {
+
+        if (instanceOfConfigElement(configProperty)) {
+            return (
+                <div key={configProperty.id}>
+                    {getConfigElement(configProperty as ConfigElementProps, classes)}
+                </div>
+            );
+        } else {
+            return (
+                <div key={configProperty.id}>
+                    {getConfigObject(configProperty as ConfigObjectProps, classes)}
+                </div>
+            );
+        }
+    };
+
     return (
-        <Box sx={{ mt: 5 }}>
-            <Container maxWidth="sm">
-                <Card variant="outlined">
-                    <CardContent>
-                        <Box m={2} pt={3} style={{ textAlign: "center" }}>
-                            <Typography gutterBottom={true} variant="h5" component="div">
-                                Configurable Editor
-                            </Typography>
-                        </Box>
-                        <Box m={3} p={1}>
-                            <Typography variant="body2" component="div">
-                                <form className="ConfigForm" onSubmit={handleSubmit}>
-                                    {configObjectProps.properties.map(getConfigForm)}
-                                    <CardActions style={{ justifyContent: "center" }}>
-                                        <Box m={2} pt={3} mb={6}>
-                                            <Button
-                                                variant="contained"
-                                                color="primary"
-                                                type="submit"
-                                                onClick={handleSetSubmitType.bind(this, defaultButtonText)}
-                                            >
-                                                {defaultButtonText}
-                                            </Button>
-                                        </Box>
-                                        <Box m={2} pt={3} mb={6}>
-                                            <Button
-                                                variant="contained"
-                                                color="primary"
-                                                type="submit"
-                                                onClick={handleSetSubmitType.bind(this, primaryButtonText)}
-                                            >
-                                                {primaryButtonText}
-                                            </Button>
-                                        </Box>
-                                    </CardActions>
-                                </form>
-                            </Typography>
-                        </Box>
-                    </CardContent>
-                </Card>
-            </Container>
+        <Box width="100%">
+            <form className="ConfigForm" onSubmit={handleSubmit}>
+                {configObjectProps.properties.map(getConfigForm)}
+                <CardActions>
+                    <ButtonContainer justifyContent="flex-end">
+                        <Button
+                            variant="contained"
+                            color="default"
+                            size="small"
+                            onClick={handleSetSubmitType.bind(this, defaultButtonText)}
+                        >
+                            {defaultButtonText}
+                        </Button>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            size="small"
+                            type="submit"
+                            onClick={handleSetSubmitType.bind(this, primaryButtonText)}
+                        >
+                            {primaryButtonText}
+                        </Button>
+                    </ButtonContainer>
+                </CardActions>
+            </form>
         </Box>
     );
 };
 
 export default ConfigForm;
+
+ConfigForm.defaultProps = {
+    isLowCode: false,
+};

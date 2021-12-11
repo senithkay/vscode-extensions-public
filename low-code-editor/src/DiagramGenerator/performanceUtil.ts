@@ -109,12 +109,8 @@ export async function addPerformanceData(st: any, file: string, lc: DiagramEdito
 }
 
 async function getRealtimeData(range: Range): Promise<PerformanceAnalyzerRealtimeResponse | undefined> {
-    if (!filePath || !langClient || !pfSession) {
+    if (!filePath || !langClient || !pfSession || !pfSession.choreoToken) {
         return;
-    }
-
-    if (!pfSession.choreoToken) {
-        showMessage("Please sign in to Choreo to view performance predictions.", MESSAGE_TYPE.INFO, true);
     }
 
     return new Promise<PerformanceAnalyzerRealtimeResponse>(async (resolve, reject) => {

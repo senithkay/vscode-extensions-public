@@ -21,6 +21,8 @@ import React from "react";
 
 import { TextField } from "@material-ui/core";
 
+import { useStyles } from "../../style";
+
 export interface TextFieldInputProps {
     id: string;
     isRequired: boolean;
@@ -30,14 +32,16 @@ export interface TextFieldInputProps {
 }
 
 export function TextFieldInput(props: TextFieldInputProps) {
-    const { id, isRequired, existingValue, type, setTextFieldValue } = props;
+    const classes = useStyles();
+    const { id, isRequired, existingValue, type, setTextFieldValue } =
+        props;
 
-    let label: string = "";
+    let placeholder: string = "";
     if (isRequired) {
-        label = "Required";
+        placeholder = "Required";
     }
 
-    const handleChange = (e: any) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setTextFieldValue(id, e.target.value);
     };
 
@@ -50,12 +54,15 @@ export function TextFieldInput(props: TextFieldInputProps) {
         <TextField
             required={isRequired}
             variant="outlined"
-            label={label}
+            placeholder={placeholder}
             fullWidth={true}
-            defaultValue={existingValue}
+            defaultValue={existingValue || null}
             type={fieldType}
-            margin="normal"
+            margin="none"
             onChange={handleChange}
+            size="small"
+            classes={{ root: classes.textInputRoot }}
+            InputLabelProps={{ shrink: false }}
         />
     );
 }
