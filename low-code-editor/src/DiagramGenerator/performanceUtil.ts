@@ -29,12 +29,6 @@ import { MESSAGE_TYPE } from "../types";
 import { mergeAnalysisDetails } from "./mergePerformanceData";
 import { PFSession } from "./vscode/Diagram";
 
-const CHOREO_AUTH_ERR = "Authentication error for accessing AI service (ID6)";
-const NETWORK_ERR = "Network error. Please check you internet connection";
-const MODEL_NOT_FOUND = "AI service does not have enough data to forecast";
-const ESTIMATOR_ERROR = "AI service is currently unavailable (ID2)";
-const UNKNOWN_ANALYSIS_TYPE = "Invalid request sent to AI service (ID7)";
-const INVALID_DATA = "Request with invalid data sent to AI service (ID8)";
 const SUCCESS = "Success";
 const IGNORE = "IGNORE";
 let syntaxTree: any;
@@ -46,6 +40,7 @@ let sequenceDiagramData: SequenceGraphPoint[];
 let diagramRedraw: any;
 let currentResourcePos: NodePosition;
 let showPerformanceGraph: (request: PerformanceGraphRequest) => Promise<boolean>;
+let handlePerfErrors: (response: PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse) => Promise<boolean>;
 let showMessage: (message: string, type: MESSAGE_TYPE, isIgnorable: boolean) => Promise<boolean>;
 
 export interface PerformanceGraphRequest {
@@ -65,9 +60,10 @@ export enum ANALYZE_TYPE {
  * @param lc language client
  * @param session choreo session
  * @param showPerf Show performance graph function
+ * @param handleErrors Show performance graph errors
  * @param showMsg Show alerts in vscode side
  */
-export async function addPerformanceData(st: any, file: string, lc: DiagramEditorLangClientInterface, session: PFSession, showPerf: (request: PerformanceGraphRequest) => Promise<boolean>, showMsg: (message: string, type: MESSAGE_TYPE, isIgnorable: boolean) => Promise<boolean>) {
+export async function addPerformanceData(st: any, file: string, lc: DiagramEditorLangClientInterface, session: PFSession, showPerf: (request: PerformanceGraphRequest) => Promise<boolean>, handleErrors: (response: PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse) => Promise<boolean>, showMsg: (message: string, type: MESSAGE_TYPE, isIgnorable: boolean) => Promise<boolean>) {
     if (!st || !file || !lc || !session) {
         return;
     }
@@ -78,6 +74,7 @@ export async function addPerformanceData(st: any, file: string, lc: DiagramEdito
     pfSession = session;
     showPerformanceGraph = showPerf;
     showMessage = showMsg;
+    handlePerfErrors = handleErrors;
 
     const members: any[] = syntaxTree.members;
     for (let currentService = 0; currentService < members.length; currentService++) {
@@ -139,7 +136,7 @@ async function getRealtimeData(range: Range): Promise<PerformanceAnalyzerRealtim
                 return;
             }
             if (response.type && response.type !== SUCCESS) {
-                checkErrors(response);
+                handlePerfErrors(response);
                 return resolve(null);
             }
             return resolve(response);
@@ -174,7 +171,7 @@ export async function addAdvancedLabels(name: string, range: NodePosition, diagr
     }).then(async (response: PerformanceAnalyzerGraphResponse) => {
 
         if (response.type !== SUCCESS) {
-            checkErrors(response);
+            handlePerfErrors(response);
             return;
         }
 
@@ -213,41 +210,6 @@ function updateAdvancedLabels(concurrency: number) {
     diagramRedraw(syntaxTree);
 }
 
-function checkErrors(response: PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse) {
-    if (response.message === 'AUTHENTICATION_ERROR') {
-        // Choreo Auth Error
-        showMessage(CHOREO_AUTH_ERR, MESSAGE_TYPE.ERROR, true);
-
-    } else if (response.message === 'CONNECTION_ERROR') {
-        // Internet Connection Error
-        showMessage(NETWORK_ERR, MESSAGE_TYPE.ERROR, true);
-
-    } else if (response.message === 'MODEL_NOT_FOUND') {
-        // AI Error
-        showMessage(MODEL_NOT_FOUND, MESSAGE_TYPE.INFO, true);
-
-    } else if (response.message === 'NO_DATA') {
-        // This happens when there is no action invocations in the code.
-        // No need to show any error/info since there is no invocations.
-
-    } else if (response.message === 'ESTIMATOR_ERROR') {
-        // AI Error
-        showMessage(ESTIMATOR_ERROR, MESSAGE_TYPE.ERROR, true);
-
-    } else if (response.message === 'UNKNOWN_ANALYSIS_TYPE') {
-        // AI Error
-        showMessage(UNKNOWN_ANALYSIS_TYPE, MESSAGE_TYPE.ERROR, true);
-
-    } else if (response.message === 'INVALID_DATA') {
-        // AI Error
-        showMessage(INVALID_DATA, MESSAGE_TYPE.INFO, true);
-
-    } else {
-        showMessage(response.message, MESSAGE_TYPE.ERROR, true);
-
-    }
-}
-
 async function showPerformanceChart(data: GraphData) {
     await showPerformanceGraph({
         file: filePath,
@@ -260,7 +222,7 @@ export async function updatePerformanceLabels(concurrency: number) {
     switch (concurrency) {
         case -1: {
             mergeAnalysisDetails(syntaxTree, null, null, null, null, true);
-            await addPerformanceData(syntaxTree, filePath, langClient, pfSession, showPerformanceGraph, showMessage);
+            await addPerformanceData(syntaxTree, filePath, langClient, pfSession, showPerformanceGraph, handlePerfErrors, showMessage);
             diagramRedraw(syntaxTree);
             return true;
         }
