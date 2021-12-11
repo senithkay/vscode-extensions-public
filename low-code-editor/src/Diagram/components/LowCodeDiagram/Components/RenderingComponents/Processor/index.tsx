@@ -245,13 +245,13 @@ export function DataProcessor(props: ProcessorProps) {
     }
 
     const processWrapper = isDraftStatement ? "main-process-wrapper active-data-processor" : "main-process-wrapper data-processor";
-    const processStyles = diagnosticMsgs && !isDraftStatement ? "main-process-wrapper data-processor-error " : processWrapper;
+
     const prosessTypes = (processType === "Log" || processType === "Call");
 
     const component: React.ReactNode = (!viewState.collapsed &&
         (
             <g>
-                <g className={processStyles} data-testid="data-processor-block" z-index="1000" >
+                <g className={processWrapper} data-testid="data-processor-block" z-index="1000" >
                     <React.Fragment>
                         {(processType !== "Log" && processType !== "Call") && !isDraftStatement &&
                             <>
