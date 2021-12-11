@@ -93,13 +93,24 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
     const updateResourcePathValidation = (_name: string, isInValid: boolean) => setIsValidPath(!isInValid);
 
     const getAbsolutePath = () => {
-        if (Array.isArray(model?.absoluteResourcePath)) {
-            const firstElement =  model?.absoluteResourcePath[0]?.position;
-            const lastElement =  model?.absoluteResourcePath[-1]?.position;
-            return {
-                ...lastElement,
-                startColumn: firstElement?.startColumn + 1,
-                startLine: firstElement?.startLine
+        const resourcePath = model?.absoluteResourcePath;
+        if (Array.isArray(resourcePath)) {
+            if (resourcePath.length) {
+                const firstElement =  resourcePath[0]?.position;
+                const lastElement =  resourcePath[-1]?.position;
+                return {
+                    ...lastElement,
+                    startColumn: firstElement?.startColumn + 1,
+                    startLine: firstElement?.startLine
+                }
+
+            } else {
+                const onKeyPath = model?.onKeyword?.position;
+                return {
+                    ...onKeyPath,
+                    startColumn: onKeyPath?.endColumn - 1,
+                    endColumn: onKeyPath?.endColumn - 1
+                }
             }
         }
     }
@@ -109,9 +120,9 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         value: state.serviceBasePath,
         onValueChange: onBasePathChange,
         validateExpression: updateResourcePathValidation,
-        position: model ? {
-            ...getAbsolutePath()
-        } : {
+        position: model
+            ? getAbsolutePath()
+            : {
             ...targetPosition
         },
         overrideTemplate: {
