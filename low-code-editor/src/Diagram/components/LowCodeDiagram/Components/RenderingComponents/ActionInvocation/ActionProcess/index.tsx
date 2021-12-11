@@ -247,12 +247,11 @@ export function ActionProcessor(props: ProcessorProps) {
     const localModel = model as LocalVarDecl;
     const statmentTypeText = getStatementTypesFromST(localModel);
 
-    const processWrapper = isDraftStatement ? cn("main-process-wrapper active-data-processor") : cn("main-process-wrapper data-processor");
-    const processStyles = diagnosticMsgs && !isDraftStatement ? "main-process-wrapper data-processor-error " : processWrapper;
+    const processWrapper = isDraftStatement ? cn("main-process-wrapper active-action-processor") : cn("main-process-wrapper action-processor");
 
     const component: React.ReactNode = !viewState.collapsed && (
         <g>
-            <g className={processStyles} data-testid="data-processor-block">
+            <g className={processWrapper} data-testid="data-processor-block">
                 <React.Fragment>
                     {!isDraftStatement && statmentTypeText && processName && (
                         <>
