@@ -94,7 +94,13 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
 
     const getAbsolutePath = () => {
         if (Array.isArray(model?.absoluteResourcePath)) {
-            return model?.absoluteResourcePath.find(element => element?.kind === "IdentifierToken")?.position;
+            const firstElement =  model?.absoluteResourcePath[0]?.position;
+            const lastElement =  model?.absoluteResourcePath[-1]?.position;
+            return {
+                ...lastElement,
+                startColumn: firstElement?.startColumn + 1,
+                startLine: firstElement?.startLine
+            }
         }
     }
 
