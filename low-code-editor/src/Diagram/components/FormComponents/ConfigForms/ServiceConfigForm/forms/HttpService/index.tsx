@@ -53,7 +53,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
 
 
     React.useEffect(() => {
-        if (listenerList.length === 0) {
+        if (listenerList.length === 0 && !model) {
             dispatch({ type: ServiceConfigActionTypes.CREATE_NEW_LISTENER });
         }
     }, []);

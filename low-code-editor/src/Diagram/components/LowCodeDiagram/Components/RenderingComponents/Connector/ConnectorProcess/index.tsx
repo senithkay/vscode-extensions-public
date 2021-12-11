@@ -18,7 +18,7 @@ import { CaptureBindingPattern, LocalVarDecl, STKindChecker, STNode } from "@wso
 import cn from "classnames";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
-import { getDiagnosticMsgs } from "../../../../../../utils";
+import { getDiagnosticInfo } from "../../../../../../utils";
 import { getMatchingConnector } from "../../../../../../utils/st-util";
 import { ConnectorConfigWizard } from "../../../../../FormComponents/ConnectorConfigWizard";
 import { FormGenerator } from "../../../../../FormComponents/FormGenerator";
@@ -67,11 +67,12 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
 
     const diagnostics = model?.typeData?.diagnostics;
 
-    const diagnosticMsgs = getDiagnosticMsgs(diagnostics);
+    const diagnosticMsgs = getDiagnosticInfo(diagnostics);
 
     const errorSnippet = {
-        diagnosticMsgs,
+        diagnosticMsgs: diagnosticMsgs?.message,
         code: sourceSnippet,
+        severity: diagnosticMsgs?.severity
     }
 
     const x = viewState.bBox.cx - CONNECTOR_PROCESS_SVG_WIDTH / 2;

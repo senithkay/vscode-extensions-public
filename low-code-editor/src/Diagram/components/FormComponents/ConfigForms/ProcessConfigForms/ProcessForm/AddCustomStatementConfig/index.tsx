@@ -143,6 +143,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                                 },
                                 editPosition: config?.model?.position || config?.targetPosition,
                                 initialDiagnostics: config?.model?.typeData?.diagnostics,
+                                disableFiltering: true
                             }}
                             onChange={onExpressionChange}
                         />
