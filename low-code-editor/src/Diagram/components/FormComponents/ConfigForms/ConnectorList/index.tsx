@@ -21,7 +21,7 @@ import { UserState } from "../../../../../types";
 import { APIHeightStates } from "../../../LowCodeDiagram/Components/DialogBoxes/PlusHolder";
 import { PlusViewState } from "../../../LowCodeDiagram/ViewState";
 import { FormGeneratorProps } from "../../FormGenerator";
-import { BallerinaModuleType, FilterStateMap, Marketplace } from "../Marketplace";
+import { BallerinaModuleType, FilterStateMap, Marketplace, SearchQueryParams } from "../Marketplace";
 
 export interface ConnectorListProps {
     onSelect: (connector: BallerinaConnectorInfo, selectedConnector: LocalVarDecl) => void;
@@ -39,17 +39,26 @@ export function ConnectorList(props: FormGeneratorProps) {
     } = useContext(Context);
     const { onSelect, onCancel } = props.configOverlayFormStatus.formArgs as ConnectorListProps;
 
-    const fetchConnectorsList = async (searchQuery: string, connectorLimit: number, currentFilePath: string,
-                                       userInfo?: UserState, page?: number): Promise<BallerinaModuleResponse> => {
+    const fetchConnectorsList = async (
+        queryParams: SearchQueryParams,
+        currentFilePath: string,
+        userInfo?: UserState
+    ): Promise<BallerinaModuleResponse> => {
+        const { query, category, filterState, limit, page } = queryParams;
         const langClient: DiagramEditorLangClientInterface = await getDiagramEditorLangClient();
         const request: BallerinaConnectorsRequest = {
             targetFile: currentFilePath,
-            query: searchQuery,
-            limit: connectorLimit,
+            query,
+            limit,
         };
-
+        if (category) {
+            request.keyword = category;
+        }
+        if (userInfo && filterState && filterState.hasOwnProperty("My Organization")) {
+            request.organization = userInfo.selectedOrgHandle;
+        }
         if (page) {
-            request.offset = (page - 1) * connectorLimit;
+            request.offset = (page - 1) * limit;
         }
         return langClient.getConnectors(request);
     };
@@ -61,7 +70,7 @@ export function ConnectorList(props: FormGeneratorProps) {
             onCancel={onCancel}
             fetchModulesList={fetchConnectorsList}
             title="Connectors"
-            shortName="Connectors"
+            shortName="connectors"
         />
     );
 }
