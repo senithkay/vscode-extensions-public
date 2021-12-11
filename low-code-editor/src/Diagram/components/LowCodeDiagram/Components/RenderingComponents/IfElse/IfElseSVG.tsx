@@ -14,7 +14,7 @@
 import React, { ReactNode } from "react";
 
 import Tooltip from "../../../../../../components/TooltipV2";
-import { ErrorSnippet } from "../../../Context/types";
+import { ErrorSnippet } from "../../../../../../DiagramGenerator/generatorUtil";
 
 export const IFELSE_SVG_WIDTH_WITH_SHADOW = 66.686;
 export const IFELSE_SVG_HEIGHT_WITH_SHADOW = 66.686;

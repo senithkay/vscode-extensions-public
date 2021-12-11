@@ -17,14 +17,14 @@ import { withStyles } from "@material-ui/core/styles";
 import TooltipBase, { TooltipProps } from '@material-ui/core/Tooltip';
 import * as MonacoEditor from 'monaco-editor';
 
-import { ErrorIcon , InfoIcon } from '../../assets/icons';
+import { ErrorIcon , InfoIcon , WarningIcon } from '../../assets/icons';
 
 import useStyles, { tooltipBaseStyles } from "./style";
 
 interface TooltipPropsExtended extends TooltipProps {
     type: string,
     text?: { heading?: string, content?: string, example?: string, code?: string },
-    diagnostic?: { diagnosticMsgs?: string, code?: string },
+    diagnostic?: { diagnosticMsgs?: string, code?: string, severity?: string },
     action?: { link: string, text: string },
     disabled?: boolean;
     onClick?: () => void;
@@ -235,7 +235,7 @@ function ExampleCodeInfoTooltip(props: Partial<TooltipPropsExtended>) {
 function DiagramDiagnosticTooltip(props: Partial<TooltipPropsExtended>) {
     const { diagnostic, onClick } = props;
     const classes = useStyles();
-    const errorIconComponent = <ErrorIcon />;
+    const iconComponent = diagnostic?.severity === "ERROR" ? <ErrorIcon /> : <WarningIcon />;
 
     const Code = () => (
         <React.Fragment>
@@ -251,9 +251,10 @@ function DiagramDiagnosticTooltip(props: Partial<TooltipPropsExtended>) {
     );
     const Diagnostic = () => (
         <div>
-            <div className={classes.iconWrapper}>{errorIconComponent}</div>
+            <div className={classes.iconWrapper}>{iconComponent}</div>
             <div className={classes.diagnosticWrapper}>{diagnostic.diagnosticMsgs}</div>
         </div>
+
     );
     const OpenInCodeLink = () => (
         <React.Fragment>

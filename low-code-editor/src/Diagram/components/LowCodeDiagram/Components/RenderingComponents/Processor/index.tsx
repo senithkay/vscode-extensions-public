@@ -26,7 +26,7 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../Contexts/Diagram";
-import { getDiagnosticMsgs } from "../../../../../utils";
+import { getDiagnosticInfo } from "../../../../../utils";
 import { getOverlayFormConfig, getRandomInt } from "../../../../../utils/diagram-util";
 import { getMethodCallFunctionName, getStatementTypesFromST } from "../../../../../utils/st-util";
 import { DefaultConfig } from "../../../../../visitors/default";
@@ -84,7 +84,7 @@ export function DataProcessor(props: ProcessorProps) {
     let isLogStmt = false;
 
     let isReferencedVariable = false;
-    const diagnosticMsgs = getDiagnosticMsgs(diagnostics);
+    const diagnosticMsgs = getDiagnosticInfo(diagnostics);
 
     if (model) {
         processType = "Variable";
@@ -132,8 +132,9 @@ export function DataProcessor(props: ProcessorProps) {
         processType = draftViewState.subType;
     }
     const errorSnippet = {
-        diagnosticMsgs,
+        diagnosticMsgs: diagnosticMsgs?.message,
         code: sourceSnippet,
+        severity: diagnosticMsgs?.severity
     }
     const h: number = viewState.dataProcess.h;
     const w: number = viewState.dataProcess.w;

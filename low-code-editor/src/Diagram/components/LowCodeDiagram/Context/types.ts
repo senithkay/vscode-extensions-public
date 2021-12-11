@@ -104,7 +104,3 @@ export interface STSymbolInfo {
     listeners: Map<string, STNode>;
 }
 
-export interface ErrorSnippet{
-    diagnosticMsgs? : string,
-    code ?: string,
-}
