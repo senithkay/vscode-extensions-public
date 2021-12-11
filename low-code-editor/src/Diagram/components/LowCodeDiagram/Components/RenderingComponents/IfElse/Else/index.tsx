@@ -13,11 +13,12 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext } from "react";
 
+import { DiagramDiagnostic } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { BlockStatement, STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
-import { getDraftComponent, getSTComponents } from "../../../../../../utils";
+import { getDiagnosticInfo, getDraftComponent, getSTComponents } from "../../../../../../utils";
 import { DefaultConfig } from "../../../../../../visitors/default";
 import { ControlFlowLineState, ElseViewState } from "../../../../ViewState";
 import { PlusButton } from "../../../PlusButtons/Plus";
@@ -30,14 +31,16 @@ import { BottomCurveSVG, BOTTOM_CURVE_SVG_HEIGHT, BOTTOM_CURVE_SVG_WIDTH } from 
 import "./style.scss";
 import { TopCurveSVG, TOP_CURVE_SVG_HEIGHT, TOP_CURVE_SVG_WIDTH } from "./TopCurve";
 
+
 export interface ElseProps {
     model?: STNode;
     defaultViewState?: ElseViewState;
+    diagnostics?: DiagramDiagnostic[];
 }
 
 export function Else(props: ElseProps) {
     const { state, actions: { insertComponentStart } } = useContext(Context);
-    const { model, defaultViewState } = props;
+    const { model, defaultViewState, diagnostics } = props;
 
     let viewState: ElseViewState;
     let elseBlock: BlockStatement;
@@ -60,6 +63,7 @@ export function Else(props: ElseProps) {
     }
 
     const classes = cn("else-line");
+    const diagnosticMsgs = getDiagnosticInfo(diagnostics);
 
     const topHorizontalLine: ReactNode = (
         <>
@@ -75,6 +79,7 @@ export function Else(props: ElseProps) {
 
     const topCurve: ReactNode = (
         <TopCurveSVG
+            diagnostics={diagnosticMsgs}
             x={viewState.elseTopHorizontalLine.x + viewState.elseTopHorizontalLine.length - TOP_CURVE_SVG_WIDTH}
             y={viewState.elseTopHorizontalLine.y - yOffsetForCurve}
         />
@@ -91,6 +96,7 @@ export function Else(props: ElseProps) {
 
     const bottomCurve: ReactNode = (
         <BottomCurveSVG
+            diagnostics={diagnosticMsgs}
             x={viewState.elseBody.x - BOTTOM_CURVE_SVG_WIDTH + yOffsetForCurve}
             y={viewState.elseBody.y + viewState.elseBody.length - BOTTOM_CURVE_SVG_HEIGHT}
         />
