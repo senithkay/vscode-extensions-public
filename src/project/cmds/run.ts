@@ -22,7 +22,7 @@ import { commands, window } from "vscode";
 import {
     TM_EVENT_PROJECT_RUN, CMP_PROJECT_RUN, sendTelemetryEvent, sendTelemetryException
 } from "../../telemetry";
-import { runCommand, BALLERINA_COMMANDS, PROJECT_TYPE, PALETTE_COMMANDS } from "./cmd-runner";
+import { runCommand, BALLERINA_COMMANDS, PROJECT_TYPE, PALETTE_COMMANDS, runCommandWithConf } from "./cmd-runner";
 import { getCurrentBallerinaProject, getCurrentBallerinaFile, getCurrenDirectoryPath } from "../../utils/project-utils";
 
 function activateRunCommand() {
@@ -49,8 +49,8 @@ function activateRunCommand() {
             }
 
             if (currentProject.kind !== PROJECT_TYPE.SINGLE_FILE) {
-                runCommand(currentProject, ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.RUN,
-                    currentProject.path!, ...args);
+                runCommandWithConf(currentProject, ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.RUN,
+                    ballerinaExtInstance.getBallerinaConfigPath(), currentProject.path!, ...args);
             } else {
                 runCurrentFile();
             }
