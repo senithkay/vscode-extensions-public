@@ -21,6 +21,7 @@ import { BallerinaExtension } from '../core';
 import { commands, StatusBarAlignment, StatusBarItem, ThemeColor, window, workspace } from 'vscode';
 import { PALETTE_COMMANDS } from '../project';
 import { debug } from './../utils';
+import { hasDiagram } from '../diagram';
 const schedule = require('node-schedule');
 
 export class gitStatusBarItem {
@@ -83,6 +84,9 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     const statusBarItem = new gitStatusBarItem();
     ballerinaExtInstance.getCodeServerContext().statusBarItem = statusBarItem;
     workspace.onDidChangeTextDocument(_event => {
+        if (hasDiagram) {
+            return;
+        }
         statusBarItem.updateGitStatus();
     });
     workspace.onDidOpenTextDocument(_event => {
