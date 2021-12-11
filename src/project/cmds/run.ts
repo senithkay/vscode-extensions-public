@@ -50,7 +50,7 @@ function activateRunCommand() {
 
             if (currentProject.kind !== PROJECT_TYPE.SINGLE_FILE) {
                 runCommandWithConf(currentProject, ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.RUN,
-                ballerinaExtInstance.getBallerinaConfigPath(), currentProject.path!, ...args);
+                    ballerinaExtInstance.getBallerinaConfigPath(), currentProject.path!, ...args);
             } else {
                 runCurrentFile();
             }

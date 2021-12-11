@@ -95,14 +95,12 @@ export function runCommandWithConf(file: BallerinaProject | string, executor: st
         commandText = `${executor} ${cmd} ${argsList}`;
         terminal = window.createTerminal({ name: TERMINAL_NAME, cwd: filePath });
     }
-
+    terminal.sendText(isWindows() ? 'cls' : 'clear', true);
+    terminal.show(true);
     if (confPath !== '') {
         const configEnv: string = 'BAL_CONFIG_FILES=' + confPath;
         terminal.sendText(isWindows() ? 'set ' + configEnv : 'export ' + configEnv, true);
     }
-
-    terminal.sendText(isWindows() ? 'cls' : 'clear', true);
-    terminal.show(true);
     terminal.sendText(commandText, true);
 }
 
