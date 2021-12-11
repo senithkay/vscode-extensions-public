@@ -97,6 +97,7 @@ export function LeftPane(props: ModelProps) {
                         <StatementRenderer
                             model={modelCtx.statementModel}
                             userInputs={userInputs}
+                            isElseIfMember={false}
                             diagnosticHandler={diagnosticHandler}
                         />
                     </div>

@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useIntl } from "react-intl";
 
 import {
@@ -20,13 +20,13 @@ import {
     SecondaryButton,
     STModification
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { VariableUserInputs } from '../../models/definitions';
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
-import { getCurrentModel, getModifications, getPartialSTForStatement } from "../../utils";
+import { getCurrentModel, getModifications } from "../../utils";
+import { getPartialSTForStatement } from "../../utils/ls-utils";
 import { LeftPane } from '../LeftPane';
-import { RightPane } from '../RightPane';
 import { useStatementEditorStyles } from "../styles";
 
 export interface LowCodeEditorProps {
