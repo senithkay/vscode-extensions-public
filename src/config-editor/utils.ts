@@ -20,7 +20,7 @@
 import toml from "toml";
 import { ConfigProperty, ConfigValue } from "./model";
 
-const configProperties: ConfigProperty[] = [];
+let configProperties: ConfigProperty[] = [];
 
 /**
  * Convert the TOML content into JSON object.
@@ -47,6 +47,7 @@ export function generateExistingValues(tomlContent: object, orgName: string, pac
  */
 export function parseConfigToToml(configInputs: any): string {
 
+    configProperties = [];
     // Iterate the root level configurable values.
     configInputs.properties.forEach((object: any) => {
         const configProperty: ConfigProperty = {
