@@ -16,6 +16,9 @@ import * as React from "react";
 import Tooltip from "../../../../../../../components/TooltipV2";
 import { ErrorSnippet } from "../../../../../../../DiagramGenerator/generatorUtil";
 
+import { ConnectorRectSVG } from "./ConnectorRectSVG";
+
+
 export const CONNECTOR_PROCESS_SVG_WIDTH_WITH_SHADOW = 65;
 export const CONNECTOR_PROCESS_SVG_HEIGHT_WITH_SHADOW = 65;
 export const CONNECTOR_PROCESS_SVG_WIDTH = 55;
@@ -24,7 +27,7 @@ export const CONNECTOR_PROCESS_SHADOW_OFFSET = CONNECTOR_PROCESS_SVG_WIDTH_WITH_
 
 export function ConnectorProcessSVG(props: {
     x: number, y: number,
-    sourceSnippet?: string, diagnostics?: ErrorSnippet ,
+    sourceSnippet?: string, diagnostics?: ErrorSnippet,
     openInCodeView?: () => void
 }) {
     const { sourceSnippet, diagnostics, openInCodeView, ...xyProps } = props;
@@ -47,37 +50,21 @@ export function ConnectorProcessSVG(props: {
                 </filter>
             </defs>
             {diagnostics?.diagnosticMsgs ?
-            (
-                <Tooltip type={"diagram-diagnostic"} diagnostic={diagnostics} placement="right" onClick={openInCodeView} arrow={true}>
-                     <g id="Group_2_Copy_2" transform="translate(5 1)" >
-                        <g transform="matrix(1, 0, 0, 1, -3, -5.5)">
-                            <g id="Rectangle_Copy_17-2" transform="translate(1 5.5)" stroke="#FE523C" strokeMiterlimit="10" strokeWidth="2" fill="url(#default-linear-gradient)">
-                                <rect width="48" height="48" rx="4" />
-                                <rect x="-0.5" y="-0.5" width="49" height="49" rx="4.5"  />
-                            </g>
-                        </g>
-                            <text id="new" transform="translate(12 27.5)" className="connector-text">
-                            <tspan x="0" y="0">new</tspan>
-                            </text>
-                        </g>
-                    </Tooltip>
-            )
-            :
-            (
-                    <Tooltip type={"diagram-code"} text={tooltipText} placement="right" onClick={openInCodeView}arrow={true}>
-                        <g id="Group_2_Copy_2" transform="translate(5 1)" >
-                            <g transform="matrix(1, 0, 0, 1, -3, -5.5)">
-                                <g id="Rectangle_Copy_17-2" transform="translate(1 5.5)" stroke="#5567d5" strokeMiterlimit="10" strokeWidth="1" fill="url(#default-linear-gradient)">
-                                    <rect width="48" height="48" rx="4" />
-                                    <rect x="-0.5" y="-0.5" width="49" height="49" rx="4.5" />
-                                </g>
-                            </g>
-                            <text id="new" transform="translate(12 27.5)" className="connector-text">
-                                <tspan x="0" y="0">new</tspan>
-                            </text>
-                        </g>
-                    </Tooltip>
-            )}
+                    (
+                        <ConnectorRectSVG
+                            type={"diagram-diagnostic"}
+                            onClick={openInCodeView}
+                            diagnostic={diagnostics}
+                        />
+                    )
+                    :
+                    (
+                        <ConnectorRectSVG
+                            type={"diagram-code"}
+                            onClick={openInCodeView}
+                            text={tooltipText}
+                        />
+                    )}
         </svg>
     )
 }

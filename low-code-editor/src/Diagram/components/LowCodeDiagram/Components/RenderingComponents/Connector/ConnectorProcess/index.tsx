@@ -213,7 +213,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
                             y={viewState.bBox.cy + CONNECTOR_PROCESS_SVG_HEIGHT / 4}
                             className="connector-process-rect"
                         />
-                        <g>
+                        <g className={isReferencedVariable ? "disable" : ""}>
                             <DeleteBtn
                                 cx={
                                     viewState.bBox.cx -
@@ -227,8 +227,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
                                 }
                                 model={model}
                                 toolTipTitle={toolTip}
-                                isReferencedInCode={isReferencedVariable}
-                                showOnRight={true}
+                                isButtonDisabled={isReferencedVariable}
                                 onDraftDelete={onDraftDelete}
                                 createModifications={connectorDefDeleteMutation}
                             />
