@@ -54,9 +54,9 @@ export function showConfigEditor(ballerinaExtInstance: BallerinaExtension,
     function handleConfigInputs(configInputs: any) {
         writeFile(currentFileUri.fsPath, parseConfigToToml(configInputs), function (error) {
             if (error) {
-                return window.showInformationMessage("Unable to update the Config.toml file: " + error);
+                return window.showInformationMessage("Unable to update the configurable values: " + error);
             }
-            window.showInformationMessage("Successfully updated the Config.toml file.");
+            window.showInformationMessage("Successfully updated the configurable values.");
         });
     }
 
