@@ -31,8 +31,8 @@ export const CHOREO_API_PF = process.env.VSCODE_CHOREO_GATEWAY_BASE_URI ?
     `${process.env.VSCODE_CHOREO_GATEWAY_BASE_URI}/performance-analyzer/2.0.0/get_estimations/3.0` :
     "https://choreocontrolplane.preview-dv.choreo.dev/performance-analyzer/2.0.0/get_estimations/3.0";
 
-export const CHOREO_AUTH_ERR = "Authentication error for accessing AI service (ID6)";
-export const NETWORK_ERR = "Network error. Please check you internet connection";
+const CHOREO_AUTH_ERR = "Authentication error for accessing AI service (ID6)";
+const NETWORK_ERR = "Network error. Please check you internet connection";
 const MODEL_NOT_FOUND = "AI service does not have enough data to forecast";
 const ESTIMATOR_ERROR = "AI service is currently unavailable (ID2)";
 const UNKNOWN_ANALYSIS_TYPE = "Invalid request sent to AI service (ID7)";
@@ -193,42 +193,42 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
             log(error);
         });
     }
+}
 
-    function checkErrors(response: PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse) {
-        if (response.message === 'AUTHENTICATION_ERROR') {
-            // Choreo Auth Error
-            showMessage(CHOREO_AUTH_ERR, MESSAGE_TYPE.ERROR, true);
-            handleRetries();
+export function checkErrors(response: PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse) {
+    if (response.message === 'AUTHENTICATION_ERROR') {
+        // Choreo Auth Error
+        showMessage(CHOREO_AUTH_ERR, MESSAGE_TYPE.ERROR, true);
+        handleRetries();
 
-        } else if (response.message === 'CONNECTION_ERROR') {
-            // Internet Connection Error
-            showMessage(NETWORK_ERR, MESSAGE_TYPE.ERROR, true);
-            handleRetries();
+    } else if (response.message === 'CONNECTION_ERROR') {
+        // Internet Connection Error
+        showMessage(NETWORK_ERR, MESSAGE_TYPE.ERROR, true);
+        handleRetries();
 
-        } else if (response.message === 'MODEL_NOT_FOUND') {
-            // AI Error
-            showMessage(MODEL_NOT_FOUND, MESSAGE_TYPE.INFO, true);
+    } else if (response.message === 'MODEL_NOT_FOUND') {
+        // AI Error
+        showMessage(MODEL_NOT_FOUND, MESSAGE_TYPE.INFO, true);
 
-        } else if (response.message === 'NO_DATA') {
-            // This happens when there is no action invocations in the code.
-            // No need to show any error/info since there is no invocations.
+    } else if (response.message === 'NO_DATA') {
+        // This happens when there is no action invocations in the code.
+        // No need to show any error/info since there is no invocations.
 
-        } else if (response.message === 'ESTIMATOR_ERROR') {
-            // AI Error
-            showMessage(ESTIMATOR_ERROR, MESSAGE_TYPE.ERROR, true);
+    } else if (response.message === 'ESTIMATOR_ERROR') {
+        // AI Error
+        showMessage(ESTIMATOR_ERROR, MESSAGE_TYPE.ERROR, true);
 
-        } else if (response.message === 'UNKNOWN_ANALYSIS_TYPE') {
-            // AI Error
-            showMessage(UNKNOWN_ANALYSIS_TYPE, MESSAGE_TYPE.ERROR, true);
+    } else if (response.message === 'UNKNOWN_ANALYSIS_TYPE') {
+        // AI Error
+        showMessage(UNKNOWN_ANALYSIS_TYPE, MESSAGE_TYPE.ERROR, true);
 
-        } else if (response.message === 'INVALID_DATA') {
-            // AI Error
-            showMessage(INVALID_DATA, MESSAGE_TYPE.INFO, true);
+    } else if (response.message === 'INVALID_DATA') {
+        // AI Error
+        showMessage(INVALID_DATA, MESSAGE_TYPE.INFO, true);
 
-        } else {
-            showMessage(`${UNABLE_TO_GET} ${response.message}`, MESSAGE_TYPE.ERROR, true);
-            handleRetries();
-        }
+    } else {
+        showMessage(`${UNABLE_TO_GET} ${response.message}`, MESSAGE_TYPE.ERROR, true);
+        handleRetries();
     }
 }
 

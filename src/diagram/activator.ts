@@ -28,8 +28,8 @@ import { BallerinaExtension, ballerinaExtInstance, Change } from '../core';
 import { getCommonWebViewOptions, isWindows, WebViewMethod, WebViewRPCHandler } from '../utils';
 import { join } from "path";
 import { TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, sendTelemetryEvent, TM_EVENT_OPEN_DIAGRAM, sendTelemetryException } from '../telemetry';
-import { CHOREO_API_PF, CHOREO_AUTH_ERR, handleRetries, NETWORK_ERR, openPerformanceDiagram, PFSession } from '../forecaster';
-import { MESSAGE_TYPE, showMessage } from '../utils/showMessage';
+import { checkErrors, CHOREO_API_PF, openPerformanceDiagram, PFSession } from '../forecaster';
+import { showMessage } from '../utils/showMessage';
 import { Module } from '../tree-view';
 import { sep } from "path";
 import { DiagramOptions, Member, SyntaxTree } from './model';
@@ -331,6 +331,13 @@ class DiagramPanel {
 				}
 			},
 			{
+				methodName: "handlePerfErrors",
+				handler: async (args: any[]): Promise<boolean> => {
+					checkErrors(args[0]);
+					return true;
+				}
+			},
+			{
 				methodName: "resolveMissingDependency",
 				handler: async (args: any[]): Promise<boolean> => {
 					resolveMissingDependency(args[0], args[1], langClient);
@@ -355,9 +362,6 @@ class DiagramPanel {
 						return false;
 					}
 					showMessage(args[0], args[1], args[2], args[3], args[4], callBack);
-					if (args[1] === MESSAGE_TYPE.ERROR && (args[0] === CHOREO_AUTH_ERR || args[0] === NETWORK_ERR)) {
-						handleRetries();
-					}
 					return true;
 				}
 			},

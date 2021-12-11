@@ -152,6 +152,17 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
                     );
                 })
             }
+            function handlePerfErrors(response) {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'handlePerfErrors',
+                        [response],
+                        (response) => {
+                            resolve(response);
+                        }
+                    );
+                })
+            }
             function resolveMissingDependency(filePath, fileContent) {
                 return new Promise((resolve, _reject) => {
                     webViewRPCHandler.invokeRemoteMethod(
@@ -215,6 +226,7 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
                             gotoSource,
                             getPFSession,
                             showPerformanceGraph,
+                            handlePerfErrors,
                             showMessage,
                             lastUpdatedAt,
                             resolveMissingDependency,
