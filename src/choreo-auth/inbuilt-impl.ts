@@ -26,12 +26,13 @@ import jwt_decode from "jwt-decode";
 
 const url = require('url');
 
-const AUTH_FAIL = "Choreo Login Failed: ";
+const AUTH_FAIL = "Choreo Login: ";
 const AuthCodeError = "Error while retreiving the authentication code details!";
 const AccessTokenError = "Error while retreiving the access token details!";
 const ApimTokenError = "Error while retreiving the apim token details!";
 const RefreshTokenError = "Error while retreiving the refresh token details!";
 const VSCodeTokenError = "Error while retreiving the VSCode token details!";
+const SessionExpired = "The session has expired, please login again!";
 
 export async function initiateInbuiltAuth(extension: BallerinaExtension) {
     vscode.commands.executeCommand("vscode.open", vscode.Uri.parse(getAuthURL()));
@@ -219,15 +220,26 @@ export class OAuthTokenHandler {
                         vscode.window.showInformationMessage(`Successfully Logged into Choreo!`);
                         this.extension.getChoreoSessionTreeProvider()?.refresh();
                     } else {
-                        vscode.window.showErrorMessage(AUTH_FAIL + ApimTokenError);
+                        vscode.window.showErrorMessage(AUTH_FAIL + VSCodeTokenError);
+                        this.signOut();
                     }
                 });
             } else {
-                vscode.window.showErrorMessage(AUTH_FAIL + ApimTokenError);
+                vscode.window.showErrorMessage(AUTH_FAIL + VSCodeTokenError);
+                this.signOut();
             }
         }).catch((err) => {
-            vscode.window.showErrorMessage(AUTH_FAIL + err);
+            console.debug(err);
+            vscode.window.showErrorMessage(AUTH_FAIL + SessionExpired);
+            this.signOut();
         });
+    }
+
+    signOut() {
+        this.extension.setChoreoSession({
+            loginStatus: false
+        });
+        this.extension.getChoreoSessionTreeProvider()?.refresh();
     }
 }
 
