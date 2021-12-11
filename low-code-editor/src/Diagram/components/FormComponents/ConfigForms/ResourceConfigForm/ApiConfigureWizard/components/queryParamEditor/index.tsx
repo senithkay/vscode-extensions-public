@@ -13,6 +13,8 @@
 import React, { useState } from "react";
 import { FormattedMessage } from "react-intl";
 
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+
 import { AddIcon } from "../../../../../../../../assets/icons";
 import { QueryParam, QueryParamCollection } from "../../types";
 import { convertQueryParamStringToSegments, generateQueryParamFromQueryCollection } from "../../util";
@@ -25,10 +27,12 @@ interface QueryParamEditorProps {
     queryParams?: string;
     defaultValue?: string;
     onChange?: (text: string) => void;
+    model?: STNode;
+    targetPosition?: NodePosition;
 }
 
 export function QueryParamEditor(props: QueryParamEditorProps) {
-    const { queryParams, onChange } = props;
+    const { queryParams, onChange, model, targetPosition } = props;
     const queryParamCollection: QueryParamCollection = convertQueryParamStringToSegments(queryParams ? queryParams : "");
     const classes = useStyles();
 
@@ -73,7 +77,13 @@ export function QueryParamEditor(props: QueryParamEditorProps) {
 
     const queryParamSegmentEditor = (
         <div>
-            <QueryParamSegmentEditor id={queryParamCollectionState.queryParams.length} onCancel={onCancel} onSave={onSave} />
+            <QueryParamSegmentEditor
+                id={queryParamCollectionState.queryParams.length}
+                onCancel={onCancel}
+                onSave={onSave}
+                model={model}
+                targetPosition={targetPosition}
+            />
         </div>
     );
 

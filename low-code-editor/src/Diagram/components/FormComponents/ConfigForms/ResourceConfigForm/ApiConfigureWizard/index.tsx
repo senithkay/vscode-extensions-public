@@ -589,7 +589,13 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                     title={pathSegmentTitle}
                     tooltipWithExample={{ title, content: pathExample }}
                 >
-                    <PathEditor pathString={resource.path} defaultValue={resource.path} onChange={handleOnChangePathFromUI} />
+                    <PathEditor
+                        pathString={resource.path}
+                        defaultValue={resource.path}
+                        onChange={handleOnChangePathFromUI}
+                        model={model}
+                        targetPosition={targetPosition}
+                    />
                 </Section>
             </div>
             <div className={classes.sectionSeparator}>
@@ -597,7 +603,12 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                     title={queryParamTitle}
                     tooltipWithExample={{ title: queryParamContenttitle, content: queryParamExample }}
                 >
-                    <QueryParamEditor queryParams={resource.queryParams} onChange={handleOnChangeQueryParamFromUI} />
+                    <QueryParamEditor
+                        queryParams={resource.queryParams}
+                        onChange={handleOnChangeQueryParamFromUI}
+                        model={model}
+                        targetPosition={targetPosition}
+                    />
                 </Section>
             </div>
             <div className={classes.sectionSeparator}>
