@@ -341,6 +341,7 @@ export interface Package {
     icon?: string;
     pullCount?: number;
     createdDate?: number;
+    visibility?: string;
     modules?: any[];
 }
 

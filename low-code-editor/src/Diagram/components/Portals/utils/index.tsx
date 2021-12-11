@@ -12,11 +12,12 @@
  */
 import React, { ReactNode } from "react";
 
-import { Avatar, colors } from "@material-ui/core";
+import { Avatar, Box, colors } from "@material-ui/core";
 import {
     ActionConfig,
     BallerinaConnectorInfo,
     BallerinaConnectorRequest,
+    BallerinaModule,
     Connector,
     ConnectorConfig,
     DiagramEditorLangClientInterface,
@@ -502,40 +503,19 @@ export function getVaribaleNamesFromVariableDefList(asts: STNode[]) {
     return (asts as LocalVarDecl[]).map((item) => (item?.typedBindingPattern?.bindingPattern as CaptureBindingPattern)?.variableName?.value);
 }
 
-export function getConnectorIcon(iconId: string, props?: any): React.ReactNode {
-    // const Icon = (Icons as any)[iconId.replace('.', '_')];
-    // const DefaultIcon = (Icons as any).default;
-    // return Icon ? (
-    //     <Icon {...props} />
-    // ) : <DefaultIcon {...props} />;
-    return (
-        <Avatar variant="rounded" style={{width: '32px', height: '28px', fontSize: 'small'}}>
-           {iconId.substring(0, 2).toUpperCase()}
-        </Avatar>
-      );
-}
-
-export function getConnectorIconSVG(connector: Connector, scale: number = 1): React.ReactNode {
-    // TODO: update to render connector icon
-    const props = {
-        scale
+export function getModuleIcon(module: BallerinaModule, scale: number = 1): React.ReactNode {
+    const width = 56 * scale;
+    if (module?.package?.icon) {
+        return (
+            <img
+                src={module.package.icon}
+                alt={module.package.name}
+                style={{ width: "auto", height: "100%", maxWidth: width, maxHeight: width }}
+            />
+        );
     }
-    return (
-        <DefaultConnectorIcon {...props}/>
-    );
+    return <DefaultConnectorIcon transform={`scale(${scale})`}/>;
 }
-
-export function getExistingConnectorIconSVG(iconId: string, scale: number = 1): React.ReactNode {
-    const Icon = (ConnectorIcons as any)[iconId.replace('.', '_')];
-    const DefaultIcon = (ConnectorIcons as any).default;
-    const props = {
-        scale
-    }
-    return Icon ? (
-        <Icon {...props} />
-    ) : <DefaultIcon {...props} />;
-}
-
 
 export function getConstructIcon(iconId: string) {
     const Icon = (ConstructIcons as any)[iconId];

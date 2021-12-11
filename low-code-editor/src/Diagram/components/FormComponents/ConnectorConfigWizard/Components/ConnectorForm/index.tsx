@@ -13,7 +13,6 @@
 // tslint:disable: jsx-no-multiline-js
 // tslint:disable: jsx-wrap-multiline
 import React, { ReactNode, useContext, useEffect, useState } from "react";
-import { FormattedMessage } from "react-intl";
 
 import { Box, Divider, FormControl, Typography } from "@material-ui/core";
 import {
@@ -50,9 +49,9 @@ import {
     genVariableName,
     getActionReturnType,
     getConnectorComponent,
-    getConnectorIcon,
     getFormattedModuleName,
     getInitReturnType,
+    getModuleIcon,
     getParams,
 } from "../../../../Portals/utils";
 import { wizardStyles as useFormStyles } from "../../../ConfigForms/style";
@@ -434,7 +433,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
                 <div className={wizardClasses.fullWidth}>
                     <div className={wizardClasses.topTitleWrapper}>
                         <div className={wizardClasses.titleWrapper}>
-                            <div className={wizardClasses.connectorIconWrapper}>{getConnectorIcon(connectorName)}</div>
+                            <div className={wizardClasses.connectorIconWrapper}>{getModuleIcon(connector, 0.5)}</div>
                             <Typography className={wizardClasses.configTitle} variant="h4">
                                 {connectorName}
                             </Typography>
