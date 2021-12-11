@@ -126,6 +126,7 @@ export class BallerinaExtension {
     private codeServerContext: CodeServerContext;
     private webviewContext: WebviewContext;
     private perfForecastContext: PerformanceForecastContext;
+    public ballerinaConfigPath: string;
 
     constructor() {
         this.ballerinaHome = '';
@@ -171,6 +172,7 @@ export class BallerinaExtension {
                 signinChoreo: true
             }
         }
+        this.ballerinaConfigPath = '';
     }
 
     setContext(context: ExtensionContext) {
@@ -607,6 +609,14 @@ export class BallerinaExtension {
 
     public setPerformanceForecastContext(context: PerformanceForecastContext) {
         this.perfForecastContext = context;
+    }
+
+    public setBallerinaConfigPath(path: string) {
+        this.ballerinaConfigPath = path;
+    }
+
+    public getBallerinaConfigPath(): string {
+        return this.ballerinaConfigPath;
     }
 }
 

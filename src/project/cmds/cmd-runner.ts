@@ -64,8 +64,14 @@ export const BAL_TOML = "Ballerina.toml";
 const TERMINAL_NAME = 'Terminal';
 
 let terminal: Terminal;
-export function runCommand(file: BallerinaProject | string, executor: string, cmd: BALLERINA_COMMANDS, ...args:
-    string[]) {
+
+export function runCommand(file: BallerinaProject | string, executor: string, cmd: BALLERINA_COMMANDS,
+    ...args: string[]) {
+    runCommandWithConf(file, executor, cmd, '', ...args);
+}
+
+export function runCommandWithConf(file: BallerinaProject | string, executor: string, cmd: BALLERINA_COMMANDS,
+    confPath: string, ...args: string[]) {
     if (terminal) {
         terminal.dispose();
     }
@@ -89,6 +95,12 @@ export function runCommand(file: BallerinaProject | string, executor: string, cm
         commandText = `${executor} ${cmd} ${argsList}`;
         terminal = window.createTerminal({ name: TERMINAL_NAME, cwd: filePath });
     }
+
+    if (confPath !== '') {
+        const configEnv: string = 'BAL_CONFIG_FILES=' + confPath;
+        terminal.sendText(isWindows() ? 'set ' + configEnv : 'export ' + configEnv, true);
+    }
+
     terminal.sendText(isWindows() ? 'cls' : 'clear', true);
     terminal.show(true);
     terminal.sendText(commandText, true);

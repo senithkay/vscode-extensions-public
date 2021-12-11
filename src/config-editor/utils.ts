@@ -122,7 +122,6 @@ function configToTomlString(configs: ConfigProperty[]): string {
             });
         }
     });
-    console.debug(configToml);
     return configToml;
 }
 
