@@ -16,9 +16,7 @@ import React from "react";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
-import { getConnectorIcon } from "../../../../../Portals/utils";
 import { EndpointViewState, StatementViewState } from "../../../../ViewState";
-import { DraftStatementViewState } from "../../../../ViewState/draft";
 
 import {
     CLIENT_RADIUS,
@@ -26,6 +24,7 @@ import {
     CLIENT_SVG_WIDTH_WITH_SHADOW,
     ConnectorSVG
 } from "./ConnectorClientSVG";
+import { ModuleIcon } from "./ModuleIcon";
 import "./style.scss";
 
 export interface ConnectorClientProps {
@@ -37,24 +36,23 @@ export function ConnectorHeaderC(props: ConnectorClientProps) {
     const connectorClientViewState: StatementViewState = model.viewState as StatementViewState;
     const epViewState: EndpointViewState = connectorClientViewState.endpoint as EndpointViewState;
 
-
     const x = connectorClientViewState.endpoint.lifeLine.cx - CLIENT_SVG_WIDTH_WITH_SHADOW / 2;
     const y = epViewState.isExternal
         ? connectorClientViewState.endpoint.lifeLine.cy - CLIENT_RADIUS * 2 - CLIENT_SHADOW_OFFSET / 2
         : connectorClientViewState.bBox.cy - CLIENT_SHADOW_OFFSET / 2;
 
-    const draftVS: any = connectorClientViewState as DraftStatementViewState;
-    const connectorIconId = (model?.viewState as StatementViewState)?.endpoint?.iconId;
     const connectorWrapper = cn("main-connector-wrapper connector-client");
+    const iconWidth = 36;
     const iconProps = {
-        cx: connectorClientViewState.endpoint.lifeLine.cx,
-        cy: epViewState.isExternal
-            ? connectorClientViewState.endpoint.lifeLine.cy - CLIENT_RADIUS
-            : connectorClientViewState.endpoint.lifeLine.cy + CLIENT_RADIUS,
-        scale: 0.1,
+        width: iconWidth,
+        height: iconWidth,
+        x: connectorClientViewState.endpoint.lifeLine.cx - iconWidth / 2,
+        y:
+            (epViewState.isExternal
+                ? connectorClientViewState.endpoint.lifeLine.cy - CLIENT_RADIUS
+                : connectorClientViewState.endpoint.lifeLine.cy + CLIENT_RADIUS) -
+            iconWidth / 2,
     };
-
-    const icon = getConnectorIcon(connectorIconId, iconProps);
 
     return (
             <g>
@@ -64,7 +62,7 @@ export function ConnectorHeaderC(props: ConnectorClientProps) {
                         y={y}
                     />
                     <g className="icon-wrapper">
-                        {icon}
+                        <ModuleIcon model={model} iconProps={iconProps}/>
                     </g>
                 </g>
             </g>

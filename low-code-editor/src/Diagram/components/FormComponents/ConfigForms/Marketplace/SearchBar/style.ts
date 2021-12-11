@@ -16,11 +16,12 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         searchBarRoot: {
-            height: theme.spacing(7),
-            borderRadius: '6px',
+            height: '58px',
+            borderRadius: '28px',
             backgroundColor: theme.palette.common.white,
-            padding: theme.spacing(1),
+            padding: theme.spacing(0.5),
             flexDirection: 'row',
+            justifyContent: 'center',
             alignItems: 'center',
             border: '1px solid #E6E7EC',
             width: '95%',
@@ -39,8 +40,15 @@ const useStyles = makeStyles((theme: Theme) =>
             ...theme.typography.subtitle2,
         },
         searchBtn: {
-            paddingLeft: theme.spacing(4),
-            paddingRight: theme.spacing(4),
+            backgroundColor: theme.palette.primary.main,
+            borderRadius: '100%',
+            height: theme.spacing(6),
+            width: theme.spacing(6),
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            paddingBottom: theme.spacing(0.25),
+            cursor: 'pointer',
         },
     })
 );

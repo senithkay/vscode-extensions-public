@@ -15,10 +15,9 @@ import * as React from "react";
 export const DEFAULT_LOGO_WIDTH = 47;
 export const DEFAULT_LOGO_HEIGHT = 47;
 
-export function DefaultConnectorIcon(props: { cx?: number, cy?: number, scale?: number; }) {
-    const { cx, cy, scale } = props;
+export function DefaultConnectorIcon(props: React.SVGProps<SVGSVGElement>) {
     return (
-        <svg transform={scale ? `scale(${scale})` : ''} x={!cx ? 0 : cx - (DEFAULT_LOGO_WIDTH / 2)} y={!cy ? 0 : cy - (DEFAULT_LOGO_HEIGHT / 2)} width={DEFAULT_LOGO_WIDTH} height={DEFAULT_LOGO_HEIGHT} >
+        <svg width={DEFAULT_LOGO_WIDTH} height={DEFAULT_LOGO_HEIGHT} {...props} >
             <g id="UI-kit" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                 <g id="Connectors" transform="translate(-120.000000, -336.000000)" fill="#5567D5" fill-rule="nonzero">
                     <g id="Connector/Ably-Copy" transform="translate(120.000000, 336.000000)">

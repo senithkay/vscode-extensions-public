@@ -70,7 +70,7 @@ export function AddLogConfig(props: LogConfigProps) {
     if (logModel) {
         const functionCallModel: FunctionCall = logModel.expression as FunctionCall;
         defaultType = logTypeFunctionNameMap.get((functionCallModel.functionName as QualifiedNameReference).identifier.value);
-        defaultExpression = functionCallModel.arguments[0].source;
+        defaultExpression = functionCallModel.arguments.length > 0 && functionCallModel.arguments[0].source;
     }
     const [logType, setLogType] = useState(defaultType);
     const [expression, setExpression] = useState(defaultExpression);
@@ -91,7 +91,7 @@ export function AddLogConfig(props: LogConfigProps) {
     };
 
     const validateExpression = (field: string, isInvalid: boolean) => {
-        setIsFormValid(!isInvalid && logType && logType.length >  0);
+        setIsFormValid(!isInvalid && logType && logType.length > 0);
     };
 
     const saveLogButtonLabel = intl.formatMessage({

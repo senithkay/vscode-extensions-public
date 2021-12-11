@@ -29,20 +29,19 @@ export interface TextFieldInputProps {
     existingValue: any;
     type: string;
     setTextFieldValue: (key: string, value: any) => void;
-    size?: "small" | "medium";
 }
 
 export function TextFieldInput(props: TextFieldInputProps) {
     const classes = useStyles();
-    const { id, isRequired, existingValue, type, setTextFieldValue, size } =
+    const { id, isRequired, existingValue, type, setTextFieldValue } =
         props;
 
-    let label: string = "";
+    let placeholder: string = "";
     if (isRequired) {
-        label = "Required";
+        placeholder = "Required";
     }
 
-    const handleChange = (e: any) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setTextFieldValue(id, e.target.value);
     };
 
@@ -55,18 +54,15 @@ export function TextFieldInput(props: TextFieldInputProps) {
         <TextField
             required={isRequired}
             variant="outlined"
-            label={label}
+            placeholder={placeholder}
             fullWidth={true}
-            defaultValue={existingValue}
+            defaultValue={existingValue || null}
             type={fieldType}
             margin="none"
             onChange={handleChange}
-            size={size}
+            size="small"
             classes={{ root: classes.textInputRoot }}
+            InputLabelProps={{ shrink: false }}
         />
     );
 }
-
-TextFieldInput.defaultProps = {
-    size: "medium",
-};

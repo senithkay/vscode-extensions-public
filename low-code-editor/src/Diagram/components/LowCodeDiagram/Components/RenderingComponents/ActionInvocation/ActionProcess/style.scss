@@ -10,161 +10,191 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+
+ $default_color :#5566d5;
+ $warning_color : #FF9D52;
+ $error_color : #FE523C;
+ $active_color : #c0ceff8a;
+ $active_error_color : #e09f9667;
+ $active-warning-color :#ffc1916c;
+
+.rectStyles{
+    stroke-miterlimit: 10;
+    stroke-width: 9;
+    fill: url(#ProcessLinearGradient) #fafafc;
+    filter: none;
+}
+
+.process-text-span{
+    font-weight: 500;
+    fill: #40404b;
+    font-size: 12px;
+    font-family: inherit;
+    letter-spacing: 0.05em;
+    text-anchor: middle;
+    text-align: center;
+    user-select: none;
+}
+
+.action-process-styles {
+    stroke-miterlimit: 10;
+    stroke-width: 1px !important;
+    fill: url(#ProcessLinearGradient) #fafafc;
+    filter: url(#ProcessFilterDefault) #fafafc;
+}
+
+.action-process-hover{
+    cursor: pointer;
+    stroke-miterlimit: 10;
+    stroke-width: 9px !important;
+    fill: url(#ProcessLinearGradient) #fafafc;
+    filter: none;
+}
+
 .main-process-wrapper {
-    &.active-data-processor {
-        .process {
-            .process-active {
-                rect {
-                    cursor: pointer;
-                    stroke: #c0ceff8a;
-                    stroke-miterlimit: 10;
-                    stroke-width: 9;
-                    fill: url(#ProcessLinearGradient) #fafafc;
-                    filter: none;
-                }
-
-                .click-effect {
-                    stroke-width: 1px !important;
-                    stroke: #5566d5 !important;
-                }
-
-                .process-text {
+    &.active-action-processor { 
+            rect{
+                user-select: none;
+                @extend .action-process-styles;
+                stroke: $default_color;
+            }
+                .connector-process-text {
                     tspan {
-                        font-weight: 500;
-                        fill: #40404b;
-                        font-size: 12px;
-                        font-family: inherit;
-                        letter-spacing: 0.05em;
-                        text-anchor: middle;
-                        text-align: center;
-                        user-select: none;
+                        @extend .process-text-span
                     }
                 }
-
-                .process-icon {
-                    fill: #5566d5;
+                .action-process-icon {
+                    fill: $default_color;
+                }
+                &:hover {
+                    rect {
+                        @extend .action-process-hover;
+                        stroke: $active_color;
+                    }
+        
+                    .click-effect {
+                        stroke-width: 1px !important;
+                        stroke: $default_color !important;
                 }
             }
-        }
+        
     }
 
-    &.data-processor {
-        .process {
-            user-select: none;
-
-            .data-processor {
-                rect {
-                    stroke: #5567d5;
-                    stroke-miterlimit: 10;
-                    stroke-width: 1;
-                    fill: url(#ProcessLinearGradient) #fafafc;
-                    filter: url(#ProcessFilterDefault) #fafafc;
+    &.action-processor { 
+        .connector-process {
+                user-select: none;
+                @extend .action-process-styles;
+                stroke: $default_color;
+                &:hover {
+                    rect {
+                        @extend .action-process-hover;
+                        stroke: $active_color;
+                    }
+        
+                    .click-effect {
+                        stroke-width: 1px !important;
+                        stroke: $default_color !important;
                 }
+        }
+        }
 
-                .process-text {
+                .connector-process-text {
                     tspan {
-                        font-weight: 500;
-                        fill: #40404b;
-                        font-size: 12px;
-                        font-family: inherit;
-                        letter-spacing: 0.05em;
-                        text-anchor: middle;
-                        text-align: center;
-                        user-select: none;
+                        @extend .process-text-span
                     }
                 }
+                .action-process-icon {
+                    fill: $default_color;
+                }
 
-                .process-icon {
-                    fill: #5566d5;
+
+            
+        }
+        .action-processor-warning{
+            .connector-process{
+                user-select: none;
+                @extend .action-process-styles;
+                stroke: $warning_color;
+                &:hover {
+                    rect {
+                        @extend .action-process-hover;
+                        stroke: $active_warning_color;
+                    }
+        
+                    .click-effect {
+                        stroke-width: 1px !important;
+                        stroke: $warning_color !important;
+                    }
                 }
             }
+            
+                .connector-process-text {
+                    tspan {
+                        @extend .process-text-span
 
-            :hover {
-                rect {
-                    cursor: pointer;
-                    stroke: #5567d5;
-                    stroke-miterlimit: 10;
-                    stroke-width: 1;
-                    fill: url(#ProcessLinearGradient) #fafafc;
-                    filter: url(#ProcessFilterHover) #fafafc;
+                    }
                 }
-            }
+                .action-process-icon {
+                    fill: $warning_color;
+                }
 
             :active {
                 rect {
+                    @extend .rectStyles;
                     cursor: pointer;
-                    stroke: #c0ceff8a;
-                    stroke-miterlimit: 10;
-                    stroke-width: 9;
-                    fill: url(#ProcessLinearGradient) #fafafc;
-                    filter: none;
+                    stroke: $warning_color;
                 }
 
                 .click-effect {
                     stroke-width: 1px !important;
-                    stroke: #5566d5 !important;
+                    stroke:$default_color !important;
                 }
             }
-        }
-    }
-    &.data-processor-error {
-        .process {
-            user-select: none;
+        } 
+        .action-processor-error{
+            .connector-process{            
+                user-select: none;
+                @extend .action-process-styles;
+                stroke: $error_color;
 
-            .data-processor {
+            &:hover {
                 rect {
-                    stroke: #FE523C;
-                    stroke-miterlimit: 10;
-                    stroke-width: 2;
-                    fill: url(#ProcessLinearGradient) #fafafc;
-                    filter: url(#ProcessFilterDefault) #fafafc;
+                    @extend .action-process-hover;
+                    stroke: $active_error_color;
                 }
-                .process-text {
+    
+                .click-effect {
+                    stroke-width: 1px !important;
+                    stroke: $error_color !important;
+                }
+            }
+            }
+
+                .connector-process-text {
                     tspan {
-                        font-weight: 500;
-                        fill: #40404b;
-                        font-size: 12px;
-                        font-family: inherit;
-                        letter-spacing: 0.05em;
-                        text-anchor: middle;
-                        text-align: center;
-                        user-select: none;
+                        @extend .process-text-span
+
                     }
                 }
-
-                .process-icon {
-                    fill: #5566d5;
+                .action-process-icon{
+                    fill: $error_color;
                 }
-            }
-
-            :hover {
-                rect {
-                    cursor: pointer;
-                    stroke: #FE523C;
-                    stroke-miterlimit: 10;
-                    stroke-width: 2;
-                    fill: url(#ProcessLinearGradient) #fafafc;
-                    filter: url(#ProcessFilterHover) #fafafc;
-                }
-            }
 
             :active {
                 rect {
+                    @extend .rectStyles;
                     cursor: pointer;
-                    stroke: #FE523C;
-                    stroke-miterlimit: 10;
-                    stroke-width: 9;
-                    fill: url(#ProcessLinearGradient) #fafafc;
-                    filter: none;
+                    stroke: $error_color;
                 }
 
                 .click-effect {
                     stroke-width: 1px !important;
-                    stroke: #FE523C !important;
+                    stroke:$error_color !important;
                 }
             }
-        }
+        
     }
+    
 
     .process-options-wrapper {
         fill: none;
@@ -192,42 +222,31 @@
             .process-active {
                 rect {
                     cursor: pointer;
-                    stroke: #c0ceff8a;
-                    stroke-miterlimit: 10;
-                    stroke-width: 9;
-                    fill: url(#ProcessLinearGradient) #fafafc;
-                    filter: none;
+                    stroke: $active_color;
+                    @extend .rectStyles
                 }
 
                 .click-effect {
                     stroke-width: 1px !important;
-                    stroke: #5566d5 !important;
+                    stroke: $default_color !important;
                 }
 
                 .process-text {
                     tspan {
-                        font-weight: 500;
-                        fill: #40404b;
-                        font-size: 12px;
-                        font-family: inherit;
-                        letter-spacing: 0.05em;
-                        text-anchor: middle;
-                        text-align: center;
-                        user-select: none;
+                        @extend .process-text-span
                     }
                 }
 
                 .process-icon {
-                    fill: #5566d5;
+                    fill:$default_color;
                 }
             }
         }
-    }
 
     /* stylelint-disable */
     .assignment-text {
         fill: #ff9d52;
         font-family: "Droid Sans Mono";
     }
-    /* stylelint-enable */
+}
 }

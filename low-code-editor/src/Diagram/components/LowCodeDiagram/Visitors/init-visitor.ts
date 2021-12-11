@@ -156,13 +156,6 @@ class InitVisitor implements Visitor {
             const actionName: SimpleNameReference = remoteActionCall.methodName as SimpleNameReference;
             stmtViewState.action.actionName = actionName.name.value;
 
-            // Set icon id for an action.
-            const endPoint = allEndpoints.get(stmtViewState.action.endpointName);
-            if (endPoint) {
-                const visibleEp = endPoint.visibleEndpoint;
-                stmtViewState.action.iconId = visibleEp.moduleName + '_' + visibleEp.typeName;
-            }
-
             if (currentFnBody && STKindChecker.isFunctionBodyBlock(currentFnBody) && currentFnBody.VisibleEndpoints) {
                 const callerParam = currentFnBody.VisibleEndpoints.find((vEP: any) => vEP.isCaller);
                 stmtViewState.isCallerAction = callerParam && callerParam.name === simpleName.name.value;
@@ -180,13 +173,6 @@ class InitVisitor implements Visitor {
             stmtViewState.isAction = expressionViewState.isAction;
             stmtViewState.action.endpointName = expressionViewState.action.endpointName;
             stmtViewState.action.actionName = expressionViewState.action.actionName;
-
-            // Set icon id for an action.
-            const endPoint = allEndpoints.get(stmtViewState.action.endpointName);
-            if (endPoint) {
-                const visibleEp = endPoint.visibleEndpoint;
-                stmtViewState.action.iconId = visibleEp.moduleName + '_' + visibleEp.typeName;
-            }
         }
     }
 
@@ -215,13 +201,6 @@ class InitVisitor implements Visitor {
                 const actionName: SimpleNameReference = remoteCall.methodName as SimpleNameReference;
                 stmtViewState.action.actionName = actionName.name.value;
 
-                // Set Icon Id for an action.
-                const endPoint = allEndpoints.get(stmtViewState.action.endpointName);
-                if (endPoint) {
-                    const visibleEp = endPoint.visibleEndpoint;
-                    stmtViewState.action.iconId = visibleEp.moduleName + '_' + visibleEp.typeName;
-                }
-
                 if (currentFnBody && STKindChecker.isFunctionBodyBlock(currentFnBody) && currentFnBody.VisibleEndpoints) {
                     const callerParam = currentFnBody.VisibleEndpoints.find((vEP: any) => vEP.isCaller);
                     stmtViewState.isCallerAction = callerParam && callerParam.name === simpleName.name.value;
@@ -233,13 +212,6 @@ class InitVisitor implements Visitor {
                 stmtViewState.isAction = exprViewState.isAction;
                 stmtViewState.action.endpointName = exprViewState.action.endpointName;
                 stmtViewState.action.actionName = exprViewState.action.actionName;
-
-                // Set Icon Id for an action.
-                const endPoint = allEndpoints.get(stmtViewState.action.endpointName);
-                if (endPoint) {
-                    const visibleEp = endPoint.visibleEndpoint;
-                    stmtViewState.action.iconId = visibleEp.moduleName + '_' + visibleEp.typeName;
-                }
             }
         }
     }
@@ -255,13 +227,6 @@ class InitVisitor implements Visitor {
                 const actionName: SimpleNameReference = remoteCall.methodName as SimpleNameReference;
                 stmtViewState.action.actionName = actionName.name.value;
 
-                // Set Icon Id for an action.
-                const endPoint = allEndpoints.get(stmtViewState.action.endpointName);
-                if (endPoint) {
-                    const visibleEp = endPoint.visibleEndpoint;
-                    stmtViewState.action.iconId = visibleEp.moduleName + '_' + visibleEp.typeName;
-                }
-
                 if (currentFnBody && STKindChecker.isFunctionBodyBlock(currentFnBody) && currentFnBody.VisibleEndpoints) {
                     const callerParam = currentFnBody.VisibleEndpoints.find((vEP: any) => vEP.isCaller);
                     stmtViewState.isCallerAction = callerParam && callerParam.name === simpleName.name.value;
@@ -273,13 +238,6 @@ class InitVisitor implements Visitor {
                 stmtViewState.isAction = exprViewState.isAction;
                 stmtViewState.action.endpointName = exprViewState.action.endpointName;
                 stmtViewState.action.actionName = exprViewState.action.actionName;
-
-                // Set Icon Id for an action.
-                const endPoint = allEndpoints.get(stmtViewState.action.endpointName);
-                if (endPoint) {
-                    const visibleEp = endPoint.visibleEndpoint;
-                    stmtViewState.action.iconId = visibleEp.moduleName + '_' + visibleEp.typeName;
-                }
             }
         }
     }
@@ -346,13 +304,6 @@ class InitVisitor implements Visitor {
                 stmtViewState.action.endpointName = varRef.name.value;
                 stmtViewState.action.actionName = remoteAction.methodName.name.value;
 
-                // Set icon id for an action.
-                const endPoint = allEndpoints.get(stmtViewState.action.endpointName);
-                if (endPoint) {
-                    const visibleEp = endPoint.visibleEndpoint;
-                    stmtViewState.action.iconId = visibleEp.moduleName + '_' + visibleEp.typeName;
-                }
-
                 if (currentFnBody && STKindChecker.isFunctionBodyBlock(currentFnBody) && currentFnBody.VisibleEndpoints) {
                     const callerParam = currentFnBody.VisibleEndpoints.find((vEP: any) => vEP.isCaller);
                     stmtViewState.isCallerAction = callerParam && callerParam.name === varRef.name.value;
@@ -362,13 +313,6 @@ class InitVisitor implements Visitor {
                 const varRef: SimpleNameReference = remoteAction.expression as SimpleNameReference;
                 stmtViewState.action.endpointName = varRef.name.value;
                 stmtViewState.action.actionName = remoteAction.methodName.name.value;
-
-                // Set icon id for an action.
-                const endPoint = allEndpoints.get(stmtViewState.action.endpointName);
-                if (endPoint) {
-                    const visibleEp = endPoint.visibleEndpoint;
-                    stmtViewState.action.iconId = visibleEp.moduleName + '_' + visibleEp.typeName;
-                }
 
                 if (currentFnBody && STKindChecker.isFunctionBodyBlock(currentFnBody) && currentFnBody.VisibleEndpoints) {
                     const callerParam = currentFnBody.VisibleEndpoints.find((vEP: any) => vEP.isCaller);
@@ -446,7 +390,6 @@ class InitVisitor implements Visitor {
                 if (endpoint) {
                     const vEp = endpoint.visibleEndpoint;
                     stmtViewState.isEndpoint = true;
-                    stmtViewState.endpoint.iconId = vEp.moduleName + "_" + vEp.typeName;
                 }
             }
 
@@ -500,14 +443,6 @@ class InitVisitor implements Visitor {
                     stmtViewState.action.endpointName = typeCastViewState.action.endpointName;
                     stmtViewState.action.actionName = typeCastViewState.action.actionName;
                     stmtViewState.isCallerAction = typeCastViewState.isCallerAction;
-                }
-                if (!stmtViewState.isCallerAction) {
-                    // Set icon id for an action.
-                    const endpoint = allEndpoints.get(stmtViewState.action.endpointName);
-                    if (endpoint) {
-                        const vEp = endpoint.visibleEndpoint;
-                        stmtViewState.action.iconId = vEp.moduleName + "_" + vEp.typeName;
-                    }
                 }
             }
         }
@@ -575,7 +510,6 @@ class InitVisitor implements Visitor {
                     const endpointViewState: EndpointViewState = new EndpointViewState();
                     endpointViewState.bBox.w = DefaultConfig.connectorStart.width;
                     endpointViewState.lifeLine.h = DefaultConfig.connectorLine.height;
-                    endpointViewState.iconId = ep.moduleName + "_" + ep.typeName;
 
                     // Update the endpoint sizing values in allEndpoint map.
                     const visibleEndpoint: any = endpoint.visibleEndpoint;

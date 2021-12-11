@@ -12,15 +12,21 @@
  */
 import React from "react";
 
+import { DiagnosticMsgSeverity } from "../../../../../../../DiagramGenerator/generatorUtil";
+
 import "./style.scss";
 
 export const BOTTOM_CURVE_SVG_WIDTH = 6.5;
 export const BOTTOM_CURVE_SVG_HEIGHT = 6.5;
 
-export function BottomCurveSVG(xyProps: { x: number, y: number }) {
+export function BottomCurveSVG(xyProps: { x: number, y: number , diagnostics: DiagnosticMsgSeverity}) {
+    const {diagnostics} = xyProps;
+    const diagnosticStyles = diagnostics?.severity === "ERROR" ? "line-curve-error" : "line-curve-warning";
+    const lineStyles = diagnostics ? diagnosticStyles : "line-curve"
+
     return (
         <svg {...xyProps} width={BOTTOM_CURVE_SVG_WIDTH} height={BOTTOM_CURVE_SVG_HEIGHT}>
-            <path className="line-curve" d="M6,0c0,3.3-2.7,6-6,6c0,0,0,0,0,0" />
+            <path className={lineStyles} d="M6,0c0,3.3-2.7,6-6,6c0,0,0,0,0,0" />
         </svg>
     );
 }
