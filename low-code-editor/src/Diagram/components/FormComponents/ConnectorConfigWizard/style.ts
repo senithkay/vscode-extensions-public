@@ -98,10 +98,9 @@ export const wizardStyles = makeStyles((theme: Theme) =>
         connectorIconWrapper: {
             width: 32,
             height: 28,
-            "& svg": {
-                transform: "scale(1, 1)",
-                transformOrigin: "top left"
-            }
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
         },
         buttonSm: {
             height: "35px !important",

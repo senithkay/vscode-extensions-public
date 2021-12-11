@@ -503,33 +503,18 @@ export function getVaribaleNamesFromVariableDefList(asts: STNode[]) {
     return (asts as LocalVarDecl[]).map((item) => (item?.typedBindingPattern?.bindingPattern as CaptureBindingPattern)?.variableName?.value);
 }
 
-export function getConnectorIcon(iconId: string, props?: any): React.ReactNode {
-    // const Icon = (Icons as any)[iconId.replace('.', '_')];
-    // const DefaultIcon = (Icons as any).default;
-    // return Icon ? (
-    //     <Icon {...props} />
-    // ) : <DefaultIcon {...props} />;
-    return (
-        <Avatar variant="rounded" style={{width: '32px', height: '28px', fontSize: 'small'}}>
-           {iconId.substring(0, 2).toUpperCase()}
-        </Avatar>
-      );
-}
-
 export function getModuleIcon(module: BallerinaModule, scale: number = 1): React.ReactNode {
-    const props = { scale };
-    module.package.icon = "https://bcentral-packageicons.azureedge.net/images/kanushkagayan_hello_0.1.0.png";
     const width = 56 * scale;
     if (module?.package?.icon) {
         return (
             <img
                 src={module.package.icon}
-                alt={module.package.name + "-icon"}
+                alt={module.package.name}
                 style={{ width: "auto", height: "100%", maxWidth: width, maxHeight: width }}
             />
         );
     }
-    return <DefaultConnectorIcon {...props} />;
+    return <DefaultConnectorIcon transform={`scale(${scale})`}/>;
 }
 
 export function getConstructIcon(iconId: string) {

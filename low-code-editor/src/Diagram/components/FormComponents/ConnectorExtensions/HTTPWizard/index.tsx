@@ -238,7 +238,7 @@ export function HTTPWizard(props: WizardProps) {
                     icon={<CloseRounded fontSize="small" />}
                 />
                 <div className={wizardClasses.titleWrapper}>
-                    <div className={wizardClasses.connectorIconWrapper}>{getModuleIcon(connector)}</div>
+                    <div className={wizardClasses.connectorIconWrapper}>{getModuleIcon(connector, 0.5)}</div>
                     <Typography className={wizardClasses.configTitle} variant="h4">{isNewConnectorInitWizard ? "New" : "Update"} {connector.displayName} <FormattedMessage id="lowcode.develop.connectorForms.HTTP.connection.title" defaultMessage="Connection" /></Typography>
                 </div>
             </div>
