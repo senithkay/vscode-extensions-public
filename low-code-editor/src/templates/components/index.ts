@@ -37,6 +37,7 @@ resource function {{{ METHOD }}} {{{ PATH }}} ({{{ QUERY_PARAM }}}{{{PAYLOAD}}}{
 
 }`,
     RESPOND_WITH_CHECK: 'check {{{ CALLER }}}->respond({{{ EXPRESSION }}});',
+    RESPOND: 'check {{{ CALLER }}}->respond({{{ EXPRESSION }}});',
     RETURN_STATEMENT: 'return {{{ RETURN_EXPR }}};',
     SERVICE_CALL_CHECK: '{{{ TYPE }}} {{{ VARIABLE }}} = check {{{ CALLER }}}.{{{ FUNCTION }}}({{{ PARAMS }}});',
     SERVICE_CALL: '{{{ TYPE }}} {{{ VARIABLE }}} = {{{ CALLER }}}.{{{ FUNCTION }}}({{{ PARAMS }}});',

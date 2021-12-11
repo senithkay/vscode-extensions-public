@@ -193,6 +193,8 @@ export const PlusButton = (props: PlusProps) => {
                 onChange={handlePlusHolderItemClick}
                 initPlus={initPlus}
                 viewState={viewState}
+                isCallerAvailable={(model.viewState as BlockViewState)?.isCallerAvailable}
+                isResource={(model.viewState as BlockViewState)?.isResource}
             />
         </g> : null;
     const smallPlus = !states.isPlusHolderShown && viewState.visible && !initPlus ?
