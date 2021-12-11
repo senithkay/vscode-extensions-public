@@ -126,7 +126,7 @@ export class BallerinaExtension {
     private codeServerContext: CodeServerContext;
     private webviewContext: WebviewContext;
     private perfForecastContext: PerformanceForecastContext;
-    public ballerinaConfigPath: string;
+    private ballerinaConfigPath: string;
 
     constructor() {
         this.ballerinaHome = '';

@@ -99,7 +99,7 @@ export function runCommandWithConf(file: BallerinaProject | string, executor: st
     terminal.show(true);
     if (confPath !== '') {
         const configEnv: string = 'BAL_CONFIG_FILES=' + confPath;
-        terminal.sendText(isWindows() ? 'set ' + configEnv : 'export ' + configEnv, true);
+        terminal.sendText(isWindows() ? `set ${configEnv}` : `export ${configEnv}`, true);
     }
     terminal.sendText(commandText, true);
 }
