@@ -34,7 +34,9 @@ export interface PlusElementsProps {
     initPlus: boolean,
     // todo: handle the dispatch for the tour
     // dispatchGoToNextTourStep: (nextStepId: string) => void
-    viewState: PlusViewState
+    viewState: PlusViewState;
+    isResource?: boolean;
+    isCallerAvailable?: boolean;
     setAPIholderHeight?: (value: APIHeightStates) => void;
 }
 
@@ -54,7 +56,7 @@ export const PLUS_HOLDER_API_HEIGHT_COLLAPSED = 321;
 export const EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED = 660;
 
 export function PlusElements(props: PlusElementsProps) {
-    const { position, onClose, onChange, initPlus, viewState } = props;
+    const { position, onClose, onChange, initPlus, viewState, isResource, isCallerAvailable } = props;
     const {
         props: { isCodeEditorActive, stSymbolInfo }
     } = useContext(Context);
@@ -98,7 +100,7 @@ export function PlusElements(props: PlusElementsProps) {
                     ) : null
             }
             <div className="element-options">
-                <StatementOptions onSelect={onStatementTypeSelect} viewState={viewState} />
+                <StatementOptions onSelect={onStatementTypeSelect} viewState={viewState} isResource={isResource} isCallerAvailable={isCallerAvailable} />
             </div>
         </div>
     );

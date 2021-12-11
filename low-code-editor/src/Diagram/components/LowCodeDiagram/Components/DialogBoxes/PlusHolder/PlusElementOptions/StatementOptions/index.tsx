@@ -36,7 +36,9 @@ export const PROCESS_TYPES = [""];
 
 export interface StatementOptionsProps {
     onSelect: (type: string) => void;
-    viewState: PlusViewState,
+    viewState: PlusViewState;
+    isResource?: boolean;
+    isCallerAvailable?: boolean;
 }
 
 export interface StatementComponent {
@@ -53,17 +55,7 @@ export interface Statements {
 export function StatementOptions(props: StatementOptionsProps) {
     const { props: { syntaxTree }, api: { insights: { onEvent }} } = useContext(Context);
     const intl = useIntl();
-    const isResource = STKindChecker.isFunctionDefinition(syntaxTree) && isSTResourceFunction(syntaxTree);
-    let isCallerAdded = false;
-    if (STKindChecker.isFunctionDefinition(syntaxTree)) {
-        syntaxTree?.functionSignature?.parameters?.forEach(param => {
-            if (STKindChecker.isRequiredParam(param) && (param?.typeName as QualifiedNameReference)?.
-                typeData?.symbol?.name === "Caller") {
-                isCallerAdded = true;
-            }
-        });
-    }
-    const { onSelect, viewState } = props;
+    const { onSelect, viewState, isCallerAvailable, isResource } = props;
 
     const plusHolderStatementTooltipMessages = {
         logStatement: {
@@ -337,7 +329,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                 title={plusHolderStatementTooltipMessages.returnStatement.title}
                 placement="left"
                 arrow={true}
-                disabled={!(!isResource && viewState.isLast)}
+                disabled={!viewState.isLast}
                 interactive={true}
             >
                 <div
@@ -365,9 +357,9 @@ export function StatementOptions(props: StatementOptionsProps) {
                 interactive={true}
             >
                 <div
-                    className={cn("sub-option", "product-tour-stop-respond", { enabled: isResource && isCallerAdded })}
+                    className={cn("sub-option", "product-tour-stop-respond", { enabled: isResource && isCallerAvailable })}
                     data-testid="addrespond"
-                    onClick={isResource && isCallerAdded ? onSelectStatement.bind(undefined, 'Respond') : null}
+                    onClick={isResource && isCallerAvailable ? onSelectStatement.bind(undefined, 'Respond') : null}
                 >
                     <div className="icon-wrapper">
                         <RespondIcon />
