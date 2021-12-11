@@ -34,6 +34,11 @@ export function showConfigEditor(ballerinaExtInstance: BallerinaExtension,
         configEditorPanel.dispose();
     }
 
+    if (Object.keys(configSchema.properties).length === 0) {
+        commands.executeCommand(PALETTE_COMMANDS.RUN);
+        return;
+    }
+
     langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
     let projectOrg: string = "orgName"; // TODO: set the correct project organization name
     let packageName: string = "packageName"; // TODO: set the correct package name
