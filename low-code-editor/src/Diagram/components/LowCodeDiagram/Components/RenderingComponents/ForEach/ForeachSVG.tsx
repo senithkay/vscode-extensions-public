@@ -17,7 +17,6 @@ import { ErrorSnippet } from "../../../../../../DiagramGenerator/generatorUtil";
 
 import { ForEachRectSVG } from "./ForEachRectSVG";
 
-
 export const FOREACH_SVG_WIDTH_WITH_SHADOW = 66.686;
 export const FOREACH_SVG_HEIGHT_WITH_SHADOW = 62.686;
 export const FOREACH_SVG_WIDTH = 54.845;
