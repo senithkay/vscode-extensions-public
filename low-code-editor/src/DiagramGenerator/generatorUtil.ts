@@ -111,3 +111,13 @@ export interface DiagnosticMsgSeverity{
     message: string,
     severity: string
 }
+
+export function getModifyPosition(modificationList: STModification[]): SelectedPosition {
+
+    const contentModifications = modificationList.filter(modification => modification.type !== 'IMPORT');
+
+    return contentModifications && contentModifications.length > 0 && {
+        startLine: contentModifications[0].startLine + 1,
+        startColumn: contentModifications[0].startColumn
+    };
+}
