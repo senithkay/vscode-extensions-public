@@ -71,7 +71,7 @@ export function IfElse(props: IfElseProps) {
         },
         api: {
             code: {
-                setCodeLocationToHighlight: setCodeToHighlight
+                gotoSource
             }
         },
         props: {
@@ -130,7 +130,10 @@ export function IfElse(props: IfElseProps) {
     }
 
     const onClickOpenInCodeView = () => {
-        setCodeToHighlight(model?.position)
+        if (model) {
+            const position: NodePosition = model.position as NodePosition;
+            gotoSource({ startLine: position.startLine, startColumn: position.startColumn });
+        }
     }
 
     let viewState: any = model === null ?

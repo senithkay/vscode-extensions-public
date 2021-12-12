@@ -16,6 +16,7 @@ import React, { ReactNode, useContext, useState } from "react"
 import { WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     BracedExpression,
+    NodePosition,
     STKindChecker,
     STNode,
     WhileStatement
@@ -63,7 +64,7 @@ export function While(props: WhileProps) {
         props: { isCodeEditorActive, syntaxTree,  stSymbolInfo, isReadOnly, isMutationProgress, isWaitingOnWorkspace },
         api: {
             code: {
-                setCodeLocationToHighlight: setCodeToHighlight
+                gotoSource
             }
         }
     } = useContext(Context);
@@ -110,7 +111,10 @@ export function While(props: WhileProps) {
     }
 
     const onClickOpenInCodeView = () => {
-        setCodeToHighlight(model?.position)
+        if (model) {
+            const position: NodePosition = model.position as NodePosition;
+            gotoSource({ startLine: position.startLine, startColumn: position.startColumn });
+        }
     }
 
     let drafts: React.ReactNode[] = [];
