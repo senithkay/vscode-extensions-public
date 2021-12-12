@@ -200,13 +200,14 @@ export function Marketplace(props: MarketplaceProps) {
     }
 
     const renderModulesList = (modulesListTitle: string, modules: ReactNode[]): ReactNode => {
+        // TODO: Uncomment this when the private triggers are enabled
         return (
             <>
-                <Grid item={true} sm={12} className={classes.balModuleSectionWrap}>
+                {/* <Grid item={true} sm={12} className={classes.balModuleSectionWrap}>
                     <Grid item={true} sm={6} md={6} lg={6}>
                         <Typography variant="h4">{modulesListTitle}</Typography>
                     </Grid>
-                </Grid>
+                </Grid> */}
                 {modules}
             </>
         );
