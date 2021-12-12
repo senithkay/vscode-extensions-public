@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from 'react';
 
-import { NodePosition, EnumDeclaration, STKindChecker, TypeDefinition } from "@wso2-enterprise/syntax-tree";
+import { EnumDeclaration, NodePosition, STKindChecker, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../Contexts/Diagram";
 import { FormState, Provider as EnumEditorProvider} from "../../../../../Contexts/EnumEditor"

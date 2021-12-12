@@ -13,7 +13,7 @@
 
 import React, { useContext, useReducer } from "react";
 
-import { NodePosition, EnumDeclaration, TypeDefinition } from "@wso2-enterprise/syntax-tree";
+import { EnumDeclaration, NodePosition, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 
 import { EnumModel, SimpleField } from "../Diagram/components/FormComponents/ConfigForms/EnumConfigForm/types";
 
