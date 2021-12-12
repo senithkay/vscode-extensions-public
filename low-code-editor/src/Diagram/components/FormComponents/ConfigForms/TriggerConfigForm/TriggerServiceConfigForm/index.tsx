@@ -92,6 +92,8 @@ export function TriggerForm(props: FormGeneratorProps) {
                 return { ...params, defaultValue: `${triggerlabel}:${params.members[0].typeName}` }
             } else if (params.typeName === "union") {
                 return { ...params, defaultValue: params.members[0].typeName }
+            } else if (params.typeName === "int") {
+                return { ...params, defaultValue: 0 }
             }
         })
         triggerData.listenerParams[0] = { ...triggerData.listenerParams[0], fields: paramField }
