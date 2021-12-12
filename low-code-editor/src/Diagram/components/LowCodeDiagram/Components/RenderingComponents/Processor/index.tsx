@@ -55,7 +55,7 @@ export function DataProcessor(props: ProcessorProps) {
         actions: { diagramCleanDraw, toggleDiagramOverlay },
         api: {
             code: {
-                setCodeLocationToHighlight: setCodeToHighlight,
+                gotoSource
             }
         },
         props: {
@@ -193,7 +193,10 @@ export function DataProcessor(props: ProcessorProps) {
     };
 
     const onClickOpenInCodeView = () => {
-        setCodeToHighlight(model.position)
+        if (model) {
+            const position: NodePosition = model.position as NodePosition;
+            gotoSource({ startLine: position.startLine, startColumn: position.startColumn });
+        }
     }
 
     const toolTip = isReferencedVariable ? "Variable is referred in the code below" : undefined;

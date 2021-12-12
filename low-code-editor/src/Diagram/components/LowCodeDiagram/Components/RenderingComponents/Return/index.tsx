@@ -14,7 +14,7 @@
 import React, { useContext, useState } from "react";
 
 import { ConfigOverlayFormStatus, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { ActionStatement, ReturnStatement, STNode } from "@wso2-enterprise/syntax-tree";
+import { ActionStatement, NodePosition, ReturnStatement, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { getDiagnosticInfo } from "../../../../../utils";
 import { getOverlayFormConfig, getRandomInt } from "../../../../../utils/diagram-util";
@@ -53,6 +53,9 @@ export function Return(props: ReturnProps) {
             edit: {
                 renderAddForm,
                 renderEditForm
+            },
+            code: {
+                gotoSource
             }
 
         }
@@ -93,7 +96,10 @@ export function Return(props: ReturnProps) {
     };
 
     const onClickOpenInCodeView = () => {
-        // setCodeToHighlight(model.position);
+        if (model) {
+            const position: NodePosition = model.position as NodePosition;
+            gotoSource({ startLine: position.startLine, startColumn: position.startColumn });
+        }
     }
     const errorSnippet = {
         diagnosticMsgs: diagnosticMsgs?.message,
