@@ -12,13 +12,13 @@
  */
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
-export const recordStyles = makeStyles((theme: Theme) =>
+export const enumStyles = makeStyles((theme: Theme) =>
     createStyles({
-        recordEditorContainer: {
+        enumEditorContainer: {
             display: "flex",
             flexDirection: "row"
         },
-        recordConfigSeparator: {
+        enumConfigSeparator: {
             position: "absolute",
             right: 310,
             top: 0,
@@ -26,7 +26,7 @@ export const recordStyles = makeStyles((theme: Theme) =>
             width: 1,
             borderLeft: "1px solid #d8d8d8",
         },
-        recordFieldWrapper: {
+        enumFieldWrapper: {
             height: "83vh",
             marginRight: 10,
             paddingRight: 10,
@@ -50,7 +50,7 @@ export const recordStyles = makeStyles((theme: Theme) =>
                 backgroundColor: 'transparent'
             }
         },
-        recordConfigTitleWrapper: {
+        enumConfigTitleWrapper: {
             position: "absolute",
             width: "auto",
             height: 48,
@@ -210,26 +210,26 @@ export const recordStyles = makeStyles((theme: Theme) =>
                 height: '18px !important',
             }
         },
-        recordEditorWrapper: {
+        enumEditorWrapper: {
             minWidth: 270
         },
-        activeRecordEditorWrapper: {
+        activeEnumEditorWrapper: {
             minWidth: 270,
             boxSizing: "border-box",
             borderRadius: 4
         },
-        recordHeader: {
+        enumHeader: {
             display: `flex`,
             flexDirection: `row`,
             "&:hover": {
-                "& $recordHeaderBtnWrapper": {
+                "& $enumHeaderBtnWrapper": {
                     display: "flex",
                     flexDirection: "row",
                     width: "25%",
                     marginTop: 8,
                     alignItems: "center"
                 },
-                "& $recordExpandBtnWrapper": {
+                "& $enumExpandBtnWrapper": {
                     marginTop: 13,
                     marginLeft: 0
                 },
@@ -242,7 +242,7 @@ export const recordStyles = makeStyles((theme: Theme) =>
                 }
             }
         },
-        recordHeading: {
+        enumHeading: {
             display: "flex",
             marginLeft: 20
         },
@@ -271,7 +271,7 @@ export const recordStyles = makeStyles((theme: Theme) =>
                 margin: '0',
             }
         },
-        recordKeywordWrapper: {
+        enumKeywordWrapper: {
             width: 40,
             marginLeft: 5,
             marginTop: "3px !important",
@@ -290,7 +290,7 @@ export const recordStyles = makeStyles((theme: Theme) =>
             marginTop: 3,
             cursor: "pointer"
         },
-        endRecordCode: {
+        endEnumCode: {
             maxWidth: 200,
             marginLeft: 5,
             marginTop: 3,
@@ -303,7 +303,7 @@ export const recordStyles = makeStyles((theme: Theme) =>
             fontFamily: "inherit",
             color: '#000'
         },
-        endRecordCodeWrapper: {
+        endEnumCodeWrapper: {
             display: "flex",
             flexDirection: "row",
             marginTop: "3px !important",
@@ -313,12 +313,12 @@ export const recordStyles = makeStyles((theme: Theme) =>
             width: 10,
             color: "#000"
         },
-        recordEndSemicolonWrapper: {
+        enumEndSemicolonWrapper: {
             width: 10,
             marginTop: "3px !important",
             color: "#000"
         },
-        editRecordEndSemicolonWrapper: {
+        editEnumEndSemicolonWrapper: {
             width: 10,
             marginTop: "3px !important",
             marginLeft: 5
@@ -328,13 +328,13 @@ export const recordStyles = makeStyles((theme: Theme) =>
             width: 10,
             color: "#000"
         },
-        recordHeaderBtnWrapper: {
+        enumHeaderBtnWrapper: {
             display: "none",
             flexDirection: "row",
             width: "15%",
             alignItems: "center"
         },
-        recordExpandBtnWrapper: {
+        enumExpandBtnWrapper: {
             width: 20,
             marginTop: 13
         },
@@ -366,13 +366,13 @@ export const recordStyles = makeStyles((theme: Theme) =>
         jsonButtonWrapper: {
             marginRight: 20,
         },
-        recordSubFieldWrapper: {
+        enumSubFieldWrapper: {
             display: `flex`,
             marginLeft: 20,
             flexDirection: `column`,
             borderLeft: `1px solid #e8e8e8`
         },
-        activeRecordSubFieldWrapper: {
+        activeEnumSubFieldWrapper: {
             display: `flex`,
             marginLeft: 20,
             flexDirection: `column`,

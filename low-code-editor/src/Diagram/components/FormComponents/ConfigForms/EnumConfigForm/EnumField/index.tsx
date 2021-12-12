@@ -25,33 +25,33 @@ import { keywords } from "../../../../Portals/utils/constants";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
 import { FieldEditor } from "../FieldEditor";
 import { FieldItem } from "../FieldItem";
-import { recordStyles } from "../style";
+import { enumStyles } from "../style";
 import { EnumModel, SimpleField } from "../types";
-import { genRecordName, getFieldNames } from "../utils";
+import { genEnumName, getFieldNames } from "../utils";
 
 export interface CodePanelProps {
     enumModel: EnumModel;
-    parentRecordModel?: EnumModel;
+    parentEnumModel?: EnumModel;
 }
 
 export function EnumField(props: CodePanelProps) {
-    const { enumModel, parentRecordModel } = props;
+    const { enumModel, parentEnumModel } = props;
 
-    const recordClasses = recordStyles();
+    const enumClasses = enumStyles();
 
     const intl = useIntl();
 
     const addFieldText = intl.formatMessage({
-        id: "lowcode.develop.configForms.enumEditor.recordField.addBtnText",
+        id: "lowcode.develop.configForms.enumEditor.enumField.addBtnText",
         defaultMessage: "Add Member"
     });
 
     const { state, callBacks } = useContext(Context);
 
-    const [isRecordExpanded, setIsRecordExpanded] = useState(true);
+    const [isEnumExpanded, setIsEnumExpanded] = useState(true);
     const [fieldNameError, setFieldNameError] = useState<string>("");
-    const [recordNameError, setRecordNameError] = useState<string>("");
-    const [isRecordEditInProgress, setIsRecordEditInProgress] = useState((enumModel.name === "") ||
+    const [enumNameError, setEnumNameError] = useState<string>("");
+    const [isEnumEditInProgress, setIsEnumEditInProgress] = useState((enumModel.name === "") ||
         (enumModel.name === undefined));
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 
@@ -60,7 +60,7 @@ export function EnumField(props: CodePanelProps) {
             const index = enumModel.fields.indexOf(field);
             if (index !== -1) {
                 // Changes the active state to selected enum model
-                state.currentRecord.isActive = false;
+                state.currentEnum.isActive = false;
                 enumModel.isActive = true;
 
                 // Changes the active state to selected field
@@ -72,7 +72,7 @@ export function EnumField(props: CodePanelProps) {
                 field.isEditInProgress = true;
 
                 callBacks.onUpdateCurrentField(field);
-                callBacks.onUpdateCurrentRecord(enumModel);
+                callBacks.onUpdateCurrentEnum(enumModel);
                 callBacks.onUpdateModel(state.enumModel);
                 callBacks.onChangeFormState(FormState.UPDATE_FIELD);
             }
@@ -85,7 +85,7 @@ export function EnumField(props: CodePanelProps) {
             enumModel.fields.splice(index, 1);
 
             // Changes the active state to selected enum model
-            state.currentRecord.isActive = false;
+            state.currentEnum.isActive = false;
             enumModel.isActive = true;
 
             callBacks.onUpdateModel(state.enumModel);
@@ -95,15 +95,15 @@ export function EnumField(props: CodePanelProps) {
         }
     };
 
-    const handleRecordDelete = () => {
-        if (parentRecordModel) {
-            const index = parentRecordModel.fields.indexOf(enumModel);
+    const handleEnumDelete = () => {
+        if (parentEnumModel) {
+            const index = parentEnumModel.fields.indexOf(enumModel);
             if (index !== -1) {
-                parentRecordModel.fields.splice(index, 1);
+                parentEnumModel.fields.splice(index, 1);
             }
-            state.currentRecord.isActive = false;
-            parentRecordModel.isActive = true;
-            state.currentRecord = parentRecordModel;
+            state.currentEnum.isActive = false;
+            parentEnumModel.isActive = true;
+            state.currentEnum = parentEnumModel;
             callBacks.onUpdateModel(state.enumModel);
             callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
         }
@@ -119,16 +119,16 @@ export function EnumField(props: CodePanelProps) {
 
     const handleAddField = () => {
         // Changes the active state to selected enum model
-        state.currentRecord.isActive = false;
+        state.currentEnum.isActive = false;
         if (state.currentField && state.currentField.name === "") {
-            state.currentField.name = genRecordName("fieldName", getFieldNames(state.currentRecord.fields));
+            state.currentField.name = genEnumName("fieldName", getFieldNames(state.currentEnum.fields));
         }
         enumModel.isActive = true;
 
         const newField = getNewField();
 
         if (!enumModel.name) {
-            enumModel.name = genRecordName("Enum", []);
+            enumModel.name = genEnumName("Enum", []);
         }
 
         // Changes the active state to selected field
@@ -138,40 +138,40 @@ export function EnumField(props: CodePanelProps) {
         }
 
         callBacks.onChangeFormState(FormState.ADD_FIELD);
-        callBacks.onUpdateCurrentRecord(enumModel);
+        callBacks.onUpdateCurrentEnum(enumModel);
         callBacks.onUpdateModel(state.enumModel);
         callBacks.onUpdateCurrentField(newField);
     };
 
-    const handleRecordExpand = () => {
-        setIsRecordExpanded(!isRecordExpanded);
+    const handleEnumExpand = () => {
+        setIsEnumExpanded(!isEnumExpanded);
     };
 
     const handleKeyUp = (event: any) => {
         if (event.key === 'Enter') {
             if (!event.target.value) {
-                enumModel.name = genRecordName("Enum", []);
+                enumModel.name = genEnumName("Enum", []);
                 state.currentField = getNewField();
                 callBacks.onUpdateCurrentField(state.currentField);
-                setIsRecordEditInProgress(false);
-                setRecordNameError("");
-                callBacks.onUpdateRecordSelection(false);
+                setIsEnumEditInProgress(false);
+                setEnumNameError("");
+                callBacks.onUpdateEnumSelection(false);
                 callBacks.onChangeFormState(FormState.UPDATE_FIELD);
                 callBacks.updateEditorValidity(false);
             } else if (nameRegex.test(event.target.value)) {
                 state.currentField = getNewField();
                 callBacks.onUpdateCurrentField(state.currentField);
-                setIsRecordEditInProgress(false);
-                setRecordNameError("");
-                callBacks.onUpdateRecordSelection(false);
+                setIsEnumEditInProgress(false);
+                setEnumNameError("");
+                callBacks.onUpdateEnumSelection(false);
                 callBacks.onChangeFormState(FormState.UPDATE_FIELD);
                 callBacks.updateEditorValidity(false);
             } else {
                 callBacks.updateEditorValidity(true);
-                setRecordNameError("Invalid name");
+                setEnumNameError("Invalid name");
             }
         } else {
-            state.currentRecord.name = event.target.value;
+            state.currentEnum.name = event.target.value;
             callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
         }
         callBacks.onUpdateModel(state.enumModel);
@@ -179,17 +179,17 @@ export function EnumField(props: CodePanelProps) {
 
     const handleOnBlur = (event: any) => {
         if (!event.target.value) {
-            enumModel.name = genRecordName("Enum", []);
+            enumModel.name = genEnumName("Enum", []);
             callBacks.onUpdateModel(state.enumModel);
         }
-        setIsRecordEditInProgress(false);
-        callBacks.onUpdateRecordSelection(false);
+        setIsEnumEditInProgress(false);
+        callBacks.onUpdateEnumSelection(false);
     };
 
     const handleFieldEditorChange = (event: any) => {
         if (event.key === 'Enter') {
             if (!event.target.value) {
-                state.currentField.name = genRecordName("fieldName", getFieldNames(state.currentRecord.fields));
+                state.currentField.name = genEnumName("fieldName", getFieldNames(state.currentEnum.fields));
             }
             if (!state.currentField.isNameInvalid) {
                 state.currentField.isEditInProgress = false;
@@ -198,7 +198,7 @@ export function EnumField(props: CodePanelProps) {
         } else {
             state.currentField.name = event.target.value;
         }
-        const isNameAlreadyExists = state.currentRecord.fields.find(field => (field.name === event.target.value)) &&
+        const isNameAlreadyExists = state.currentEnum.fields.find(field => (field.name === event.target.value)) &&
             !(state.currentField?.name === event.target.value);
         if (false) {
             setFieldNameError("Name already exists");
@@ -230,14 +230,14 @@ export function EnumField(props: CodePanelProps) {
         }
     };
 
-    const handleRecordClick = () => {
+    const handleEnumClick = () => {
         if (!(state.isEditorInvalid || state.currentField?.name === "" || state.currentField?.type === "")) {
-            state.currentRecord.isActive = false;
+            state.currentEnum.isActive = false;
             enumModel.isActive = true;
-            setIsRecordEditInProgress(true);
-            callBacks.onUpdateCurrentRecord(enumModel);
+            setIsEnumEditInProgress(true);
+            callBacks.onUpdateCurrentEnum(enumModel);
             callBacks.onUpdateModel(state.enumModel);
-            callBacks.onUpdateRecordSelection(true);
+            callBacks.onUpdateEnumSelection(true);
             callBacks.onChangeFormState(FormState.EDIT_RECORD_FORM);
         }
     };
@@ -266,17 +266,17 @@ export function EnumField(props: CodePanelProps) {
         }
     });
 
-    const recordTypeNVisibility = `${enumModel.isTypeDefinition ? `enum` : ""}`;
+    const enumTypeNVisibility = `${enumModel.isTypeDefinition ? `enum` : ""}`;
     const openBraceTokens = `{`;
-    const recordEn = `}`;
+    const enumEn = `}`;
     const typeDefName = enumModel.name ? enumModel.name : "";
 
     useEffect(() => {
         // Checks whether enum is clicked to edit, if so resetting field insertion
-        if (state.isRecordSelected) {
-            if (state.currentRecord !== enumModel) {
+        if (state.isEnumSelected) {
+            if (state.currentEnum !== enumModel) {
                 // Setting all other objects enum editing false except the enum being edited;
-                setIsRecordEditInProgress(false);
+                setIsEnumEditInProgress(false);
             }
             if (state.currentField) {
                 state.currentField.isEditInProgress = false;
@@ -284,26 +284,26 @@ export function EnumField(props: CodePanelProps) {
             }
             callBacks.onUpdateCurrentField(state.currentField);
         }
-    }, [state.isRecordSelected]);
+    }, [state.isEnumSelected]);
 
     return (
         <div>
             <div
-                className={enumModel.isActive ? recordClasses.activeRecordEditorWrapper :
-                    recordClasses.recordEditorWrapper}
+                className={enumModel.isActive ? enumClasses.activeEnumEditorWrapper :
+                    enumClasses.enumEditorWrapper}
             >
-                <div className={recordClasses.recordHeader}>
-                    <div className={recordClasses.recordHeading}>
-                        {recordTypeNVisibility && (
+                <div className={enumClasses.enumHeader}>
+                    <div className={enumClasses.enumHeading}>
+                        {enumTypeNVisibility && (
                             <Typography
                                 variant='body2'
-                                className={recordClasses.typeNVisibilityWrapper}
+                                className={enumClasses.typeNVisibilityWrapper}
                             >
-                                {recordTypeNVisibility}
+                                {enumTypeNVisibility}
                             </Typography>
                         )}
-                        {enumModel.isTypeDefinition && isRecordEditInProgress && (
-                            <div className={recordClasses.typeTextFieldWrapper}>
+                        {enumModel.isTypeDefinition && isEnumEditInProgress && (
+                            <div className={enumClasses.typeTextFieldWrapper}>
                                 <FormTextInput
                                     dataTestId="enum-name"
                                     customProps={{
@@ -319,57 +319,57 @@ export function EnumField(props: CodePanelProps) {
                                 />
                             </div>
                         )}
-                        {typeDefName && !isRecordEditInProgress && (
+                        {typeDefName && !isEnumEditInProgress && (
                             <Typography
                                 variant='body2'
-                                className={recordClasses.typeDefNameWrapper}
-                                onClick={handleRecordClick}
+                                className={enumClasses.typeDefNameWrapper}
+                                onClick={handleEnumClick}
                             >
                                 {typeDefName}
                             </Typography>
                         )}
                         <Typography
                             variant='body2'
-                            className={recordClasses.openBraceTokenWrapper}
+                            className={enumClasses.openBraceTokenWrapper}
                         >
                             {openBraceTokens}
                         </Typography>
-                        {!isRecordExpanded && (
-                            <div className={recordClasses.dotExpander} onClick={handleRecordExpand}>
+                        {!isEnumExpanded && (
+                            <div className={enumClasses.dotExpander} onClick={handleEnumExpand}>
                                 ....
                             </div>
                         )}
                     </div>
                     {!state.isEditorInvalid && (
-                        <div className={enumModel.isTypeDefinition ? recordClasses.typeDefEditBtnWrapper : recordClasses.recordHeaderBtnWrapper}>
-                            <div className={recordClasses.actionBtnWrapper}>
-                                <EditButton onClick={handleRecordClick}/>
+                        <div className={enumModel.isTypeDefinition ? enumClasses.typeDefEditBtnWrapper : enumClasses.enumHeaderBtnWrapper}>
+                            <div className={enumClasses.actionBtnWrapper}>
+                                <EditButton onClick={handleEnumClick}/>
                             </div>
                             {!enumModel.isTypeDefinition && (
-                                <div className={recordClasses.actionBtnWrapper}>
-                                    <DeleteButton onClick={handleRecordDelete}/>
+                                <div className={enumClasses.actionBtnWrapper}>
+                                    <DeleteButton onClick={handleEnumDelete}/>
                                 </div>
                             )}
                         </div>
                     )}
                 </div>
-                {isRecordExpanded && (
-                    <div className={enumModel?.isActive ? recordClasses.activeRecordSubFieldWrapper : recordClasses.recordSubFieldWrapper}>
+                {isEnumExpanded && (
+                    <div className={enumModel?.isActive ? enumClasses.activeEnumSubFieldWrapper : enumClasses.enumSubFieldWrapper}>
                         {fieldItems}
                         {!state.isEditorInvalid && (
-                            <div className={recordClasses.addFieldBtnWrap} onClick={handleAddField}>
+                            <div className={enumClasses.addFieldBtnWrap} onClick={handleAddField}>
                                 <AddIcon/>
                                 <p>{addFieldText}</p>
                             </div>
                         )}
                     </div>
                 )}
-                <div className={recordClasses.endRecordCodeWrapper}>
+                <div className={enumClasses.endEnumCodeWrapper}>
                     <Typography
                         variant='body2'
-                        className={recordClasses.closeBraceTokenWrapper}
+                        className={enumClasses.closeBraceTokenWrapper}
                     >
-                        {recordEn}
+                        {enumEn}
                     </Typography>
                 </div>
             </div>

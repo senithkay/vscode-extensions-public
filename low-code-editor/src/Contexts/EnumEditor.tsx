@@ -13,7 +13,7 @@
 
 import React, { useContext, useReducer } from "react";
 
-import { NodePosition, RecordTypeDesc, TypeDefinition } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, EnumDeclaration, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 
 import { EnumModel, SimpleField } from "../Diagram/components/FormComponents/ConfigForms/EnumConfigForm/types";
 
@@ -25,13 +25,13 @@ export enum FormState {
 
 export interface EnumEditorState {
     enumModel?: EnumModel;
-    currentRecord?: EnumModel;
+    currentEnum?: EnumModel;
     currentField?: SimpleField;
     currentForm?: FormState;
     targetPosition?: NodePosition;
     isEditorInvalid?: boolean;
-    isRecordSelected?: boolean;
-    sourceModel?: TypeDefinition | RecordTypeDesc;
+    isEnumSelected?: boolean;
+    sourceModel?: TypeDefinition | EnumDeclaration;
     onCancel?: () => void;
     onSave?: (typeDesc: string, recModel: EnumModel) => void;
 }
@@ -40,11 +40,11 @@ export interface EnumEditorProps {
     state?: EnumEditorState;
     callBacks?: {
         onUpdateModel?: (mode: EnumModel) => void;
-        onUpdateCurrentRecord?: (formState: EnumModel) => void;
+        onUpdateCurrentEnum?: (formState: EnumModel) => void;
         onUpdateCurrentField?: (field: SimpleField) => void;
         onChangeFormState?: (formState: FormState) => void;
         updateEditorValidity?: (isInvalid: boolean) => void;
-        onUpdateRecordSelection?: (isSelected: boolean) => void;
+        onUpdateEnumSelection?: (isSelected: boolean) => void;
         updateCurrentField?: (field: SimpleField) => void;
     };
 }
@@ -64,7 +64,7 @@ const reducer = (state: EnumEditorState, action: any) => {
         case 'UPDATE_CURRENT_RECORD':
             return {
                 ...state,
-                currentRecord: action.payload
+                currentEnum: action.payload
             }
         case 'UPDATE_CURRENT_FIELD':
             return {
@@ -90,7 +90,7 @@ const reducer = (state: EnumEditorState, action: any) => {
         case 'RECORD_SELECTED':
             return {
                 ...state,
-                isRecordSelected: action.payload
+                isEnumSelected: action.payload
             }
     }
 };
@@ -106,10 +106,10 @@ export const Context = React.createContext<EnumEditorProps>(initialState);
 
 export const Provider: React.FC<EnumEditorProps> = (props) => {
     const { children, state } = props;
-    const [recordEditorState, dispatch] = useReducer(reducer, {
+    const [enumEditorState, dispatch] = useReducer(reducer, {
         currentForm: state.currentForm,
         enumModel: state.enumModel,
-        currentRecord: state.currentRecord,
+        currentEnum: state.currentEnum,
         currentField: state.currentField,
         sourceModel: state.sourceModel,
         targetPosition: state.targetPosition,
@@ -122,7 +122,7 @@ export const Provider: React.FC<EnumEditorProps> = (props) => {
         dispatch({ type: 'UPDATE_MODEL', payload: enumModel });
     }
 
-    const updateCurrentRecord = (enumModel: EnumModel) => {
+    const updateCurrentEnum = (enumModel: EnumModel) => {
         dispatch({ type: 'UPDATE_CURRENT_RECORD', payload: enumModel });
     }
 
@@ -134,7 +134,7 @@ export const Provider: React.FC<EnumEditorProps> = (props) => {
         dispatch({ type: 'UPDATE_FORM_STATE', payload: formState });
     }
 
-    const updateRecordEditorValidity = (isInvalid: boolean) => {
+    const updateEnumEditorValidity = (isInvalid: boolean) => {
         dispatch({ type: 'UPDATE_RECORD_VALIDITY', payload: isInvalid });
     }
 
@@ -142,22 +142,22 @@ export const Provider: React.FC<EnumEditorProps> = (props) => {
         dispatch({ type: 'UPDATE_FIELD', payload: field });
     }
 
-    const updateRecordSelection = (isSelected: boolean) => {
+    const updateEnumSelection = (isSelected: boolean) => {
         dispatch({ type: 'RECORD_SELECTED', payload: isSelected });
     }
 
     const callBacks = {
         onUpdateModel: updateModel,
-        onUpdateCurrentRecord: updateCurrentRecord,
+        onUpdateCurrentEnum: updateCurrentEnum,
         onUpdateCurrentField: updateCurrentField,
         onChangeFormState: updateFormState,
-        updateEditorValidity: updateRecordEditorValidity,
+        updateEditorValidity: updateEnumEditorValidity,
         updateCurrentField: updateField,
-        onUpdateRecordSelection: updateRecordSelection
+        onUpdateEnumSelection: updateEnumSelection
     };
 
     return (
-        <Context.Provider value={{ state: recordEditorState, callBacks }}>
+        <Context.Provider value={{ state: enumEditorState, callBacks }}>
             {children}
         </Context.Provider>
     );

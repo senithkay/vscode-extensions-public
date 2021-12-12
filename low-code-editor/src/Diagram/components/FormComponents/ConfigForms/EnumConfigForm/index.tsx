@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from 'react';
 
-import { NodePosition, RecordTypeDesc, STKindChecker, TypeDefinition } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, EnumDeclaration, STKindChecker, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../Contexts/Diagram";
 import { FormState, Provider as EnumEditorProvider} from "../../../../../Contexts/EnumEditor"
@@ -22,17 +22,17 @@ import { Enumeration } from "./Enumeration";
 import { EnumModel } from "./types";
 import { getEnumModel } from "./utils";
 
-export interface RecordEditorProps {
+export interface EnumEditorProps {
     name: string;
     existingModel?: EnumModel;
-    model?: RecordTypeDesc | TypeDefinition;
+    model?: EnumDeclaration | TypeDefinition;
     targetPosition?: NodePosition;
     isTypeDefinition?: boolean;
     onCancel: () => void;
     onSave: (typeDesc: string, recModel: EnumModel) => void;
 }
 
-export function EnumConfigForm(props: RecordEditorProps) {
+export function EnumConfigForm(props: EnumEditorProps) {
     const { existingModel, name, onCancel, onSave, model, targetPosition, isTypeDefinition = true } = props;
     let enumModel: EnumModel;
     if (model && STKindChecker.isEnumDeclaration(model)) {
@@ -60,7 +60,7 @@ export function EnumConfigForm(props: RecordEditorProps) {
             state={{
                 enumModel,
                 currentForm: FormState.EDIT_RECORD_FORM,
-                currentRecord: enumModel,
+                currentEnum: enumModel,
                 sourceModel: model,
                 isEditorInvalid: false,
                 targetPosition,

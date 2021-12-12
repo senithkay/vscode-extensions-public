@@ -23,7 +23,7 @@ import { useEnumEditorContext } from "../../../../../../Contexts/EnumEditor";
 import { mutateEnumDefinition } from "../../../../../utils/modification-util";
 import { wizardStyles } from "../../style";
 import { EnumField } from "../EnumField";
-import { recordStyles } from "../style";
+import { enumStyles } from "../style";
 import { getGeneratedCode, getMemberArray } from "../utils";
 
 export function CodePanel() {
@@ -31,10 +31,10 @@ export function CodePanel() {
     const { api: { code: { modifyDiagram } } } = useDiagramContext();
 
     const overlayClasses = wizardStyles();
-    const recordClasses = recordStyles();
+    const enumClasses = enumStyles();
     const intl = useIntl();
 
-    const handleRecordSave = () => {
+    const handleEnumSave = () => {
         if (state.enumModel.isTypeDefinition) {
             const isNewTypeDesc = (state.targetPosition !== undefined);
             if (!isNewTypeDesc) {
@@ -78,14 +78,14 @@ export function CodePanel() {
                 defaultMessage={"Enumeration"}
             />
             <div className={overlayClasses.formWrapper}>
-                <div className={recordClasses.recordFieldWrapper}>
+                <div className={enumClasses.enumFieldWrapper}>
                     <EnumField enumModel={state.enumModel} />
                 </div>
                 <FormActionButtons
                     cancelBtnText="Cancel"
                     cancelBtn={true}
                     saveBtnText="Save"
-                    onSave={handleRecordSave}
+                    onSave={handleEnumSave}
                     onCancel={state.onCancel}
                     validForm={!(state.isEditorInvalid || (state.currentField && state.currentField.name === ""))}
                 />

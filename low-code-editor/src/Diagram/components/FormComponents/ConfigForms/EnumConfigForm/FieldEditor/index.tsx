@@ -21,7 +21,7 @@ import DeleteButton from "../../../../../../assets/icons/DeleteButton";
 import { FormState, useRecordEditorContext } from "../../../../../../Contexts/RecordEditor";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
 import { VariableTypeInput, VariableTypeInputProps } from "../../Components/VariableTypeInput";
-import { recordStyles } from "../style";
+import { enumStyles } from "../style";
 import { EnumModel, SimpleField } from "../types";
 
 export interface FieldEditorProps {
@@ -36,7 +36,7 @@ export interface FieldEditorProps {
 export function FieldEditor(props: FieldEditorProps) {
     const { field, nameError, onDeleteClick, onChange, onFocusLost } = props;
 
-    const recordClasses = recordStyles();
+    const enumClasses = enumStyles();
 
     const handleDelete = () => {
         onDeleteClick(field);
@@ -50,10 +50,10 @@ export function FieldEditor(props: FieldEditorProps) {
     };
 
     return (
-        <div className={recordClasses.itemWrapper}>
-            <div className={recordClasses.editItemContentWrapper}>
-                <div className={recordClasses.itemLabelWrapper}>
-                    <div className={recordClasses.editNameWrapper}>
+        <div className={enumClasses.itemWrapper}>
+            <div className={enumClasses.editItemContentWrapper}>
+                <div className={enumClasses.itemLabelWrapper}>
+                    <div className={enumClasses.editNameWrapper}>
                         <FormTextInput
                             dataTestId="member-name"
                             customProps={{
@@ -69,12 +69,12 @@ export function FieldEditor(props: FieldEditorProps) {
                         />
                         <Typography
                             variant='body2'
-                            className={classnames(recordClasses.editSingleTokenWrapper)}
+                            className={classnames(enumClasses.editSingleTokenWrapper)}
                         >
                             ,
                         </Typography>
                     </div>
-                    <div className={recordClasses.editFieldDelBtn}>
+                    <div className={enumClasses.editFieldDelBtn}>
                         <DeleteButton onClick={handleDelete} />
                     </div>
                 </div>

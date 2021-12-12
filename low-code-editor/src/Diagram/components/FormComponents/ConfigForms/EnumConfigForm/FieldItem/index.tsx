@@ -19,7 +19,7 @@ import classnames from "classnames";
 import DeleteButton from "../../../../../../assets/icons/DeleteButton";
 import EditButton from "../../../../../../assets/icons/EditButton";
 import { useRecordEditorContext } from "../../../../../../Contexts/RecordEditor";
-import { recordStyles } from "../style";
+import { enumStyles } from "../style";
 import { SimpleField } from "../types";
 
 export interface FieldItemProps {
@@ -31,7 +31,7 @@ export interface FieldItemProps {
 export function FieldItem(props: FieldItemProps) {
     const { field, onDeleteClick, onEditCLick } = props;
 
-    const recordClasses = recordStyles();
+    const enumClasses = enumStyles();
 
     const { state } = useRecordEditorContext();
 
@@ -44,29 +44,29 @@ export function FieldItem(props: FieldItemProps) {
     };
 
     return (
-        <div className={recordClasses.itemWrapper} onClick={handleEdit}>
-            <div className={field.isActive ? recordClasses.activeItemContentWrapper : recordClasses.itemContentWrapper}>
-                <div className={recordClasses.itemLabelWrapper}>
-                    <div className={recordClasses.fieldItem}>
+        <div className={enumClasses.itemWrapper} onClick={handleEdit}>
+            <div className={field.isActive ? enumClasses.activeItemContentWrapper : enumClasses.itemContentWrapper}>
+                <div className={enumClasses.itemLabelWrapper}>
+                    <div className={enumClasses.fieldItem}>
                         <Typography
                             variant='body2'
-                            className={classnames(recordClasses.nameWrapper)}
+                            className={classnames(enumClasses.nameWrapper)}
                         >
                             {field.name}
                         </Typography>
                         <Typography
                             variant='body2'
-                            className={classnames(recordClasses.singleTokenWrapper)}
+                            className={classnames(enumClasses.singleTokenWrapper)}
                         >
                             ,
                         </Typography>
                     </div>
                     {!state.isEditorInvalid && (
-                        <div className={recordClasses.btnWrapper}>
-                            <div className={recordClasses.actionBtnWrapper}>
+                        <div className={enumClasses.btnWrapper}>
+                            <div className={enumClasses.actionBtnWrapper}>
                                 <EditButton onClick={handleEdit} />
                             </div>
-                            <div className={recordClasses.actionBtnWrapper}>
+                            <div className={enumClasses.actionBtnWrapper}>
                                 <DeleteButton onClick={handleDelete} />
                             </div>
                         </div>

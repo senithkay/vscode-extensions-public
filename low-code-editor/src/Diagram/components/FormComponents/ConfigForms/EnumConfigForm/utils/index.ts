@@ -19,7 +19,7 @@ import { EnumModel, Field, SimpleField } from "../types";
 
 export function getEnumModel(typeDesc: EnumDeclaration, name: string, isInline: boolean, type?: string,
                              isOptional?: boolean): EnumModel {
-    const recordModel: EnumModel = {
+    const enumModel: EnumModel = {
         name, fields: [], isInline, type,
     };
     if (typeDesc.enumMemberList.length > 0) {
@@ -29,30 +29,29 @@ export function getEnumModel(typeDesc: EnumDeclaration, name: string, isInline: 
                 const recField: SimpleField = {
                     name: field.source.trim(),
                     type: 'member',
-                    isFieldOptional: STKindChecker.isRecordField(field) ? (field.questionMarkToken !== undefined) :
-                        false,
+                    isFieldOptional: false,
                 }
-                recordModel.fields.push(recField);
+                enumModel.fields.push(recField);
             }
         })
     }
-    return recordModel;
+    return enumModel;
 }
 
 
 export function getGeneratedCode(model: Field, isLast?: boolean): string {
     let codeGenerated: string;
     if (model.type === "enum") {
-        const recordModel = model as EnumModel;
+        const enumModel = model as EnumModel;
         // TODO: handle type reference fields
-        const recordBegin = `enum ${model.name} {\n`;
+        const enumBegin = `enum ${model.name} {\n`;
         let fieldCode = "";
-        if (recordModel?.fields.length > 0) {
-            recordModel.fields.forEach((field, index) => {
-                fieldCode += getGeneratedCode(field, index === (recordModel?.fields.length - 1));
+        if (enumModel?.fields.length > 0) {
+            enumModel.fields.forEach((field, index) => {
+                fieldCode += getGeneratedCode(field, index === (enumModel?.fields.length - 1));
             });
         }
-        codeGenerated = recordBegin + fieldCode + "\n}";
+        codeGenerated = enumBegin + fieldCode + "\n}";
     } else if (model.type === 'member') {
         codeGenerated = `${model.name} ${isLast ? '' : ','}\n`
     }
@@ -61,10 +60,10 @@ export function getGeneratedCode(model: Field, isLast?: boolean): string {
 
 export function getMemberArray(model: Field): string[] {
     const members: string[] = [];
-    const recordModel = model as EnumModel;
-    if (recordModel?.fields.length > 0) {
-        recordModel.fields.forEach((field, index) => {
-            if (index === (recordModel?.fields.length - 1)) {
+    const enumModel = model as EnumModel;
+    if (enumModel?.fields.length > 0) {
+        enumModel.fields.forEach((field, index) => {
+            if (index === (enumModel?.fields.length - 1)) {
                 members.push(field.name);
             } else {
                 members.push(field.name + ',');
@@ -74,7 +73,7 @@ export function getMemberArray(model: Field): string[] {
     return members;
 }
 
-export function genRecordName(defaultName: string, variables: string[]): string {
+export function genEnumName(defaultName: string, variables: string[]): string {
     let index = 0;
     let varName = defaultName;
     while (variables.includes(varName)) {

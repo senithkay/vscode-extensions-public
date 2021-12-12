@@ -61,7 +61,7 @@ const Template: Story<any> = (args: any) =>
                 state={{
                     enumModel,
                     currentForm: FormState.EDIT_RECORD_FORM,
-                    currentRecord: enumModel,
+                    currentEnum: enumModel,
                     sourceModel: null,
                 }}
             >

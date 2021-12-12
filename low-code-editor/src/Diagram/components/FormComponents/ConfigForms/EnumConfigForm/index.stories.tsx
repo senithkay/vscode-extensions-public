@@ -19,24 +19,24 @@ import { Story } from '@storybook/react/types-6-0';
 import { Provider as LowCodeEditorProvider } from "../../../../../Contexts/Diagram";
 import { mockedEditorProps } from "../ConditionConfigForms/ConditionsOverlayForm/AddWhileForm/index.stories";
 
-import { EnumConfigForm, RecordEditorProps } from "./index";
-import recordModel from "./story-data/record-decl-raw.json";
+import { EnumConfigForm, EnumEditorProps } from "./index";
+import enumModel from "./story-data/enum-decl-raw.json";
 
 export default {
-    title: 'Low Code Editor/Form/Record Editor/Record Editor',
+    title: 'Low Code Editor/Form/Enum Editor/Enum Editor',
     component: EnumConfigForm,
 };
 
-const Template: Story<RecordEditorProps> = (args: RecordEditorProps) => (
+const Template: Story<EnumEditorProps> = (args: EnumEditorProps) => (
     <LowCodeEditorProvider {...mockedEditorProps}>
         <EnumConfigForm {...args}/>
     </LowCodeEditorProvider>
 );
 
-export const RecordEditorComponent = Template.bind({});
-RecordEditorComponent.args = {
+export const EnumEditorComponent = Template.bind({});
+EnumEditorComponent.args = {
     name: "",
-    model: recordModel,
+    model: enumModel,
     onCancel: null,
     onSave: null
 };

@@ -14,13 +14,13 @@
 import React from 'react';
 
 import { CodePanel} from "../CodePanel";
-import { recordStyles } from "../style";
+import { enumStyles } from "../style";
 
 export function Enumeration() {
-    const recordClasses = recordStyles();
+    const enumClasses = enumStyles();
 
     return (
-        <div className={recordClasses.recordEditorContainer}>
+        <div className={enumClasses.enumEditorContainer}>
             <CodePanel />
         </div>
     );
