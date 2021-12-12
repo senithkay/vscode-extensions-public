@@ -17,7 +17,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { Box, FormControl, Typography } from "@material-ui/core";
 import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
-import { FunctionDefinition, ModulePart, ReturnStatement } from "@wso2-enterprise/syntax-tree";
+import { FunctionDefinition, ModulePart, ReturnStatement, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
@@ -64,13 +64,20 @@ export function AddReturnForm(props: ReturnFormProps) {
     const isOptionalReturn = () => {
         const st = syntaxTree as ModulePart;
         let noReturn = true;
+        /*
+         TODO: Revise this logic as this will not work for blocks like
+         Services and Class as functions are wrapped inside them. So you need to
+         again do a iteration to find the function level.
+        */
         st?.members.forEach((def: FunctionDefinition) => {
-            if (def.position?.startLine < formArgs?.targetPosition.startLine && formArgs?.targetPosition.startLine <= def.position?.endLine) {
-                if (def.functionSignature.returnTypeDesc) {
+            if (def.position?.startLine < formArgs?.targetPosition.startLine
+                && formArgs?.targetPosition.startLine <= def.position?.endLine
+                && (STKindChecker.isFunctionDefinition(def) || STKindChecker.isResourceAccessorDefinition(def))) {
+                if (def.functionSignature && def.functionSignature.returnTypeDesc) {
                     noReturn = false;
                 }
             }
-        })
+        });
         return noReturn;
     }
     const isOptional = isOptionalReturn();
