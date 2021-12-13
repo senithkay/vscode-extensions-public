@@ -27,13 +27,21 @@ interface PathSegmentEditorProps {
     id?: number;
     segment?: PathSegment,
     onSave?: (segment: PathSegment) => void;
+    onUpdate?: (segment: PathSegment) => void;
     onCancel?: () => void;
 }
 
 export function PathSegmentEditor(props: PathSegmentEditorProps) {
-    const { segment, onSave, id, onCancel } = props;
+    const { segment, onSave, id, onCancel, onUpdate } = props;
     const classes = useStyles();
-    const initValue: PathSegment = segment ? { ...segment } : {
+    let segmentValue = segment;
+    if (segmentValue) {
+        segmentValue = {
+            ...segmentValue,
+            type: "string"
+        }
+    }
+    const initValue: PathSegment = segmentValue ? { ...segmentValue } : {
         id: id ? id : 0,
         name: "",
         isParam: false,
@@ -88,6 +96,9 @@ export function PathSegmentEditor(props: PathSegmentEditorProps) {
     const handleOnSave = () => {
         onSave(segmentState);
     };
+    const handleOnUpdate = () => {
+        onUpdate(segmentState);
+    };
 
     return (
         <div className={classes.segmentEditorWrap}>
@@ -128,10 +139,10 @@ export function PathSegmentEditor(props: PathSegmentEditorProps) {
                                 />
                                 <PrimaryButton
                                     dataTestId={"custom-expression-save-btn"}
-                                    text={"Add"}
+                                    text={onUpdate ? "Update" : " Add"}
                                     disabled={!segmentState.name || segmentState.name === "" || (segmentState.isParam && (!segmentState.type || segmentState.type === "")) || pathError !== ""}
                                     fullWidth={false}
-                                    onClick={handleOnSave}
+                                    onClick={onUpdate ? handleOnUpdate : handleOnSave}
                                     className={classes.actionBtn}
                                 />
                             </div>

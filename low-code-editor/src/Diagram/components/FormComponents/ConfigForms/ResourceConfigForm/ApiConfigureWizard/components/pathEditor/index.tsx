@@ -35,6 +35,8 @@ export function PathEditor(props: PathEditorProps) {
 
     const [pathState, setPathState] = useState<Path>(path);
     const [addingSegment, setAddingSegment] = useState<boolean>(false);
+    // editingSegmentId > -1 when editing
+    const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
 
     const onDelete = (segment: PathSegment) => {
         const id = segment.id;
@@ -51,12 +53,14 @@ export function PathEditor(props: PathEditorProps) {
         }
     };
 
-    const pathSegements: React.ReactElement[] = [];
-    pathState.segments.forEach((value, index) => {
-        if (value.name) {
-            pathSegements.push(<PathSegmentItem segment={value} onDelete={onDelete} />);
+    const onEdit = (segment: PathSegment) => {
+        const id = pathState.segments.indexOf(segment);
+        // Once edit is clicked
+        if (id > -1) {
+            setEditingSegmentId(id);
         }
-    });
+        setAddingSegment(false);
+    };
 
     const onSave = (pathSegment: PathSegment) => {
         if (keywords.includes(pathSegment.name)) {
@@ -64,18 +68,55 @@ export function PathEditor(props: PathEditorProps) {
         }
         pathState.segments.push(pathSegment);
         setPathState(pathState);
-        setAddingSegment(!addingSegment);
+        setAddingSegment(false);
+        setEditingSegmentId(-1);
         if (onChange) {
             onChange(genrateBallerinaResourcePath(pathState));
         }
     };
 
-    const onCancel = () => {
-        setAddingSegment(!addingSegment);
+    const onUpdateSegment = (pathSegment: PathSegment) => {
+        const id = pathSegment.id;
+        if (id > -1) {
+            pathState.segments[id] = pathSegment;
+            setPathState(pathState);
+        }
+        setAddingSegment(false);
+        setEditingSegmentId(-1);
     };
 
+    const onCancel = () => {
+        setAddingSegment(false);
+        setEditingSegmentId(-1);
+    };
+
+    const pathSegments: React.ReactElement[] = [];
+    pathState.segments.forEach((value, index) => {
+        if (value.name) {
+            if (editingSegmentId !== index) {
+                pathSegments.push(
+                    <PathSegmentItem
+                        segment={value}
+                        onDelete={onDelete}
+                        onEditClick={onEdit}
+                        addInProgress={addingSegment}
+                    />
+                );
+            } else if (editingSegmentId === index) {
+                pathSegments.push(
+                    <PathSegmentEditor
+                        id={editingSegmentId}
+                        segment={value}
+                        onCancel={onCancel}
+                        onUpdate={onUpdateSegment}
+                    />
+                );
+            }
+        }
+    });
+
     const addPathBtn = () => {
-        setAddingSegment(!addingSegment);
+        setAddingSegment(true);
     }
 
     const pathSegmentEditor = (
@@ -101,10 +142,10 @@ export function PathEditor(props: PathEditorProps) {
     return (
         <div>
             <div id="listOfPaths" >
-                {pathSegements}
+                {pathSegments}
             </div>
             {addingSegment && pathSegmentEditor}
-            {!addingSegment && addPathBtnUI}
+            {!addingSegment && (editingSegmentId === -1) && addPathBtnUI}
         </div>
     );
 }
