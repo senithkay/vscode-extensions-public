@@ -80,8 +80,8 @@ export function BinaryExpressionComponent(props: BinaryProps) {
     const operator: ReactNode = (
         <ExpressionComponent
             model={model.operator}
-            isRoot={false}
             userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
         />

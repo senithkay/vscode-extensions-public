@@ -230,6 +230,7 @@ export function AddIfForm(props: IfProps) {
             config: condition,
             onWizardClose,
             handleStatementEditorChange,
+            onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram

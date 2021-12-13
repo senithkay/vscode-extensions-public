@@ -27,7 +27,6 @@ export const StatementEditorContext = React.createContext({
         updateModel: (codeSnippet: string, position: NodePosition) => {}
     },
     formCtx: {
-        onCancel: false,
         formModelPosition: null
     },
     statementCtx: {
@@ -46,7 +45,6 @@ interface CtxProviderProps extends LowCodeEditorProps {
     children?: React.ReactNode,
     model: STNode,
     currentModel: { model: STNode },
-    onCancelClicked: boolean,
     updateModel?: (codeSnippet: string, position: NodePosition) => void,
     formArgs?: any,
     validateStatement: (isValid: boolean) => void
@@ -57,7 +55,6 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         children,
         model,
         currentModel,
-        onCancelClicked,
         updateModel,
         formArgs,
         validateStatement,
@@ -73,7 +70,6 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                     updateModel
                 },
                 formCtx: {
-                    onCancel: onCancelClicked,
                     formModelPosition: formArgs.formArgs.targetPosition
                 },
                 statementCtx: {

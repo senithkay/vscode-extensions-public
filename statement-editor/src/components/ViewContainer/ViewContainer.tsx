@@ -25,7 +25,7 @@ import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tre
 import { VariableUserInputs } from '../../models/definitions';
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
 import { getCurrentModel, getModifications } from "../../utils";
-import { getPartialSTForStatement } from "../../utils/ls-utils";
+import { getPartialSTForStatement, sendDidChange } from "../../utils/ls-utils";
 import { LeftPane } from '../LeftPane';
 import { useStatementEditorStyles } from "../styles";
 
@@ -49,7 +49,7 @@ export interface ViewProps extends LowCodeEditorProps {
     }
     validForm?: boolean;
     onWizardClose: () => void;
-    onCancel?: () => void;
+    onCancel: () => void;
     handleNameOnChange?: (name: string) => void;
     handleTypeChange?: (name: string) => void;
     handleStatementEditorChange?: (partialModel: STNode) => void,
@@ -77,7 +77,7 @@ export function ViewContainer(props: ViewProps) {
     const [model, setModel] = useState<STNode>(null);
     const [isStatementValid, setIsStatementValid] = useState(false);
     const [currentModel, setCurrentModel] = useState({ model });
-    const [onCancelClicked, setOnCancel] = useState(false);
+    const fileURI = `expr://${currentFile.path}`;
 
     if (!userInputs?.varName && !!handleNameOnChange) {
         handleNameOnChange("default")
@@ -133,19 +133,9 @@ export function ViewContainer(props: ViewProps) {
         }
     }, [model])
 
-    const onCancelHandler = () => {
-        setOnCancel(true);
-    }
-
     const validateStatement = (isValid: boolean) => {
         setIsStatementValid(isValid);
     };
-
-    useEffect(() => {
-        return () => {
-            onCancel();
-        }
-    }, [onCancelClicked])
 
     const saveVariableButtonText = intl.formatMessage({
         id: "lowcode.develop.configForms.variable.saveButton.text",
@@ -163,6 +153,11 @@ export function ViewContainer(props: ViewProps) {
         onWizardClose();
     };
 
+    const onCancelClick = async () => {
+        await sendDidChange(fileURI, currentFile.content, getLangClient);
+        onCancel();
+    }
+
     return (
         model && (
             <div className={overlayClasses.mainStatementWrapper}>
@@ -170,7 +165,6 @@ export function ViewContainer(props: ViewProps) {
                     <StatementEditorContextProvider
                         model={model}
                         currentModel={currentModel}
-                        onCancelClicked={onCancelClicked}
                         updateModel={updateModel}
                         formArgs={formArgs}
                         validateStatement={validateStatement}
@@ -192,7 +186,7 @@ export function ViewContainer(props: ViewProps) {
                             <SecondaryButton
                                 text={cancelVariableButtonText}
                                 fullWidth={false}
-                                onClick={onCancelHandler}
+                                onClick={onCancelClick}
                             />
                             <PrimaryButton
                                 dataTestId="save-btn"

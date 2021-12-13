@@ -176,6 +176,7 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
             config,
             onWizardClose,
             handleStatementEditorChange,
+            onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram
