@@ -166,38 +166,40 @@ export function PayloadEditor(props: PayloadEditorProps) {
     }
 
     return (
-        <div className={classes.segmentEditorWrap}>
-            <div>
-                <Grid container={true} spacing={1}>
-                    <Grid container={true} item={true} spacing={2}>
-                        <Grid item={true} xs={5}>
-                            <div className={classes.labelOfInputs}>
-                                Type
-                            </div>
+        !disabled && (
+            <div className={classes.segmentEditorWrap}>
+                <div>
+                    <Grid container={true} spacing={1}>
+                        <Grid container={true} item={true} spacing={2}>
+                            <Grid item={true} xs={5}>
+                                <div className={classes.labelOfInputs}>
+                                    Type
+                                </div>
+                            </Grid>
+                            <Grid item={true} xs={7}>
+                                <div className={classes.labelOfInputs}>
+                                    Name
+                                </div>
+                            </Grid>
                         </Grid>
-                        <Grid item={true} xs={7}>
-                            <div className={classes.labelOfInputs}>
-                                Name
-                            </div>
+                        <Grid container={true} item={true} spacing={2}>
+                            <Grid item={true} xs={5}>
+                                <VariableTypeInput {...variableTypeConfig} />
+                            </Grid>
+                            <Grid item={true} xs={7}>
+                                <FormTextInput
+                                    dataTestId="api-extract-segment"
+                                    disabled={disabled}
+                                    defaultValue={segmentState?.name}
+                                    customProps={{ validate: validatePayloadNameValue }}
+                                    onChange={onChangeSegmentName}
+                                    errorMessage={payloadVarNameError}
+                                />
+                            </Grid>
                         </Grid>
                     </Grid>
-                    <Grid container={true} item={true} spacing={2}>
-                        <Grid item={true} xs={5}>
-                            <VariableTypeInput {...variableTypeConfig} />
-                        </Grid>
-                        <Grid item={true} xs={7}>
-                            <FormTextInput
-                                dataTestId="api-extract-segment"
-                                disabled={disabled}
-                                defaultValue={segmentState?.name}
-                                customProps={{ validate: validatePayloadNameValue }}
-                                onChange={onChangeSegmentName}
-                                errorMessage={payloadVarNameError}
-                            />
-                        </Grid>
-                    </Grid>
-                </Grid>
+                </div>
             </div>
-        </div>
+        )
     );
 }
