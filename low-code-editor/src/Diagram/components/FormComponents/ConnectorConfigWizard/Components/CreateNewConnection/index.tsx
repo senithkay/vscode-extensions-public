@@ -21,7 +21,7 @@ import classNames from "classnames";
 
 import { Section } from "../../../../../../components/ConfigPanel";
 import { Context } from "../../../../../../Contexts/Diagram";
-import { checkVariableName, getManualConnectionDetailsFromFormFields } from "../../../../Portals/utils";
+import { checkDBConnector, checkVariableName, getManualConnectionDetailsFromFormFields } from "../../../../Portals/utils";
 import { Form } from "../../../DynamicConnectorForm";
 import { useStyles } from "../../../DynamicConnectorForm/style";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
@@ -200,6 +200,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                                 onValidate={onValidate}
                                 expressionInjectables={expressionInjectables}
                                 editPosition={targetPosition}
+                                expandOptionals={checkDBConnector(connector.moduleName)}
                             />
                         </div>
                     </div>
