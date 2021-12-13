@@ -1,11 +1,7 @@
 import ballerinax/{{moduleName}};
 {{#if httpBased }}import ballerina/http;{{/if}}
 
-configurable {{triggerType}}:ListenerConfig userInput = {
-{{#each this.listenerParams.0.fields}}
-    {{ this.name }}: {{{ this.defaultValue }}} {{#unless @last}},{{/unless}}
-    {{/each}}
-};
+configurable {{triggerType}}:ListenerConfig userInput = ?;
 
 {{#if httpBased }}listener http:Listener httpListener = new(8090);{{/if}}
 listener {{triggerType}}:Listener webhookListener = new(userInput{{#if httpBased }}, httpListener{{/if}});
