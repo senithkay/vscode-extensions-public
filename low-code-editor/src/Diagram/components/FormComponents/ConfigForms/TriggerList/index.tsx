@@ -43,7 +43,7 @@ export function TriggerList(props: FormGeneratorProps) {
         const request: BallerinaTriggersRequest = {
             query: queryParams.query,
         };
-
+        request.organization = "ballerinax";
         return langClient.getTriggers(request);
     };
 
