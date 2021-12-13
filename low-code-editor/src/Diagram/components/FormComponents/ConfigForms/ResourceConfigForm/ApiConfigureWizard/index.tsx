@@ -107,6 +107,12 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
         returnType: 'error?'
     };
 
+    const segmentTargetPosition = model ? {
+        ...model.position,
+        endLine: 0,
+        endColumn: 0,
+    } : targetPosition;
+
     const [resource, setResource] = useState<Resource>(defaultConfig);
     const [toggleMainAdvancedMenu, setToggleMainAdvancedMenu] = useState(false);
     const [togglePayload, setTogglePayload] = useState(false);
@@ -589,7 +595,12 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                     title={pathSegmentTitle}
                     tooltipWithExample={{ title, content: pathExample }}
                 >
-                    <PathEditor pathString={resource.path} defaultValue={resource.path} onChange={handleOnChangePathFromUI} />
+                    <PathEditor
+                        pathString={resource.path}
+                        defaultValue={resource.path}
+                        onChange={handleOnChangePathFromUI}
+                        targetPosition={segmentTargetPosition}
+                    />
                 </Section>
             </div>
             <div className={classes.sectionSeparator}>
@@ -597,7 +608,11 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                     title={queryParamTitle}
                     tooltipWithExample={{ title: queryParamContenttitle, content: queryParamExample }}
                 >
-                    <QueryParamEditor queryParams={resource.queryParams} onChange={handleOnChangeQueryParamFromUI} />
+                    <QueryParamEditor
+                        queryParams={resource.queryParams}
+                        onChange={handleOnChangeQueryParamFromUI}
+                        targetPosition={segmentTargetPosition}
+                    />
                 </Section>
             </div>
             <div className={classes.sectionSeparator}>
