@@ -29,6 +29,8 @@ export { default as SalesforceIcon } from "./Salesforce";
 export { default as WebhookIcon } from "./Webhook";
 export { default as CustomStatementIcon } from "./CustomStatement";
 export { default as DataMapperIcon } from "./DataMapper";
+export { default as FilterIcon } from "./Filter";
+
 // Module level icons
 export { default as ServiceIcon } from './ServiceIcon';
 export { default as Configurable } from './Configurable';
@@ -56,3 +58,4 @@ export { default as ResourceAccessorDefinition } from './ResourceIcon';
 export { default as Custom } from "./Custom";
 export { default as ErrorIcon } from "./Error";
 export { default as TriggerList } from "./ListenerIcon";
+export { default as WarningIcon} from "./Warning";

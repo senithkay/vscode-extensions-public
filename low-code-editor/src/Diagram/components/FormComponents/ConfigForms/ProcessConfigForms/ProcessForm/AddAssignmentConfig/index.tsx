@@ -93,7 +93,7 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
         defaultMessage: "Cancel"
     });
 
-    const validForm: boolean = varName.length > 0 && variableExpression.length > 0 && validExpression && validName;
+    const validForm: boolean = varName.length > 0 && variableExpression.length > 0;
 
     const nameExpressionEditorConfig: FormElementProps<ExpressionEditorProps> = {
         model: {

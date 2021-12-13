@@ -47,6 +47,7 @@ const moduleLevelEntries: PlusMenuEntry[] = [
     },
     { name: 'Listener', type: 'ListenerDeclaration' },
     { name: 'Record', type: 'RecordEditor' },
+    { name: 'Enum', type: 'EnumDeclaration' },
     { name: 'Class', type: 'ClassDefinition' },
     { name: 'Function', type: 'FunctionDefinition' },
     { name: 'Trigger', type: 'TriggerList' },
@@ -54,9 +55,9 @@ const moduleLevelEntries: PlusMenuEntry[] = [
 ];
 
 const classMemberEntries: PlusMenuEntry[] = [
-    { name: 'Variable', type: 'ObjectField' },
+    // { name: 'Variable', type: 'ObjectField' },
     { name: 'Resource', type: 'ResourceAccessorDefinition' },
-    { name: 'Function', type: 'ObjectMethodDefinition' }
+    // { name: 'Function', type: 'ObjectMethodDefinition' }
 ]
 
 const triggerEntries: PlusMenuEntry[] = [

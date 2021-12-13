@@ -13,15 +13,20 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from "react";
 
-import { TooltipCodeSnippet } from "../../../../../../components/Tooltip";
+import { ErrorSnippet } from "../../../../../../DiagramGenerator/generatorUtil";
 import { DefaultConfig } from "../../../../../visitors/default";
 import { VARIABLE_NAME_WIDTH } from "../VariableName";
+
+import { ReturnRectSVG } from "./ReturnRectSVG";
 
 export const RETURN_SVG_HEIGHT = 42;
 export const RETURN_SVG_WIDTH = 83;
 
-export function ReturnSVG(props: { x: number, y: number, text?: string, openInCodeView?: () => void }) {
-    const { text, openInCodeView, ...xyProps } = props;
+export function ReturnSVG(props: { x: number, y: number, text?: string, openInCodeView?: () => void , codeSnippet?: string, diagnostics?: ErrorSnippet, }) {
+    const { codeSnippet, diagnostics, text, openInCodeView, ...xyProps } = props;
+    const tooltipText = {
+        code: codeSnippet
+    }
     return (
         <svg {...xyProps} height={RETURN_SVG_HEIGHT} width={RETURN_SVG_WIDTH} className="return">
             <defs>
@@ -44,25 +49,26 @@ export function ReturnSVG(props: { x: number, y: number, text?: string, openInCo
                     <feComposite in="SourceGraphic" />
                 </filter>
             </defs>
-            <TooltipCodeSnippet openInCodeView={openInCodeView} content={text} placement="right" arrow={true}>
-                <g className="return-comp return-active" transform="translate(7 6)">
-                    <g transform="matrix(1, 0, 0, 1, -14, -9)">
-                        <g id="Rectangle-2" transform="translate(7 6)">
-                            <rect width="82" height="32" rx="16" stroke="none" />
-                            <rect x="-0.5" y="-0.5" width="83" height="33" rx="16.5" fill="none" className="click-effect" />
-                        </g>
-                    </g>
-                    <g>
-                        <text transform="translate(26 17)" >
-                            <tspan x="0" y="0">return</tspan>
-                        </text>
-                        <g id="returnIcon" transform="translate(17 10)" className="return-icon">
-                            <path d="M-3.5,0-7,4H0Z" transform="translate(-11 -0.5) rotate(-90)" />
-                            <path d="M-7,.5H0" transform="translate(0 3)" />
-                        </g>
-                    </g>
-                </g>
-            </TooltipCodeSnippet >
+            {diagnostics?.diagnosticMsgs ?
+                (
+                    <ReturnRectSVG
+                        type={"diagram-diagnostic"}
+                        onClick={openInCodeView}
+                        diagnostic={diagnostics}
+                        className="while-group"
+                    />
+
+                )
+                :
+                (
+                    <ReturnRectSVG
+                        type={"diagram-code"}
+                        onClick={openInCodeView}
+                        text={tooltipText}
+                        className="while-group"
+                    />
+
+                )}
         </svg >
     )
 }

@@ -35,6 +35,11 @@ import { DefaultConfig } from "./visitors/default";
 
 export function Diagram() {
     const {
+        api: {
+            code: {
+                gotoSource
+            }
+        },
         props: {
             diagnostics,
             warnings,
@@ -166,6 +171,9 @@ export function Diagram() {
                         edit: {
                             renderAddForm: handleDiagramAdd,
                             renderEditForm: handleDiagramEdit
+                        },
+                        code: {
+                            gotoSource
                         }
                     }}
                 />

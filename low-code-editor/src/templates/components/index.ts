@@ -37,6 +37,7 @@ resource function {{{ METHOD }}} {{{ PATH }}} ({{{ QUERY_PARAM }}}{{{PAYLOAD}}}{
 
 }`,
     RESPOND_WITH_CHECK: 'check {{{ CALLER }}}->respond({{{ EXPRESSION }}});',
+    RESPOND: 'check {{{ CALLER }}}->respond({{{ EXPRESSION }}});',
     RETURN_STATEMENT: 'return {{{ RETURN_EXPR }}};',
     SERVICE_CALL_CHECK: '{{{ TYPE }}} {{{ VARIABLE }}} = check {{{ CALLER }}}.{{{ FUNCTION }}}({{{ PARAMS }}});',
     SERVICE_CALL: '{{{ TYPE }}} {{{ VARIABLE }}} = {{{ CALLER }}}.{{{ FUNCTION }}}({{{ PARAMS }}});',
@@ -112,5 +113,12 @@ service /{{{ BASE_PATH }}} on {{{ LISTENER_NAME }}}`,
 
         {{#if httpBased }}service /ignore on httpListener {}{{/if}}`,
     TRIGGER_UPDATE: `
-    service {{{ TRIGGER_CHANNEL }}} on {{{ LISTENER_NAME }}}`
+    service {{{ TRIGGER_CHANNEL }}} on {{{ LISTENER_NAME }}}`,
+
+    ENUM_DEFINITION: `
+    {{{ ACCESS_MODIFIER }}} enum {{{ NAME }}} {
+        {{#each MEMBERS}}
+            {{{ this }}}
+        {{/each}}
+    }`
 }

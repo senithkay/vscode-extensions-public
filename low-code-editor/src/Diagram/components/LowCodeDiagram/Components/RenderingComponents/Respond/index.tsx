@@ -14,7 +14,7 @@
 import React, { useContext, useState } from "react";
 
 import { ConfigOverlayFormStatus, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { ActionStatement, STNode } from "@wso2-enterprise/syntax-tree";
+import { ActionStatement, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { getOverlayFormConfig } from "../../../../../utils/diagram-util";
 import { DefaultConfig } from "../../../../../visitors/default";
@@ -51,8 +51,10 @@ export function Respond(props: RespondProps) {
             edit: {
                 renderAddForm,
                 renderEditForm
+            },
+            code: {
+                gotoSource
             }
-
         }
     } = useContext(Context);
 
@@ -95,7 +97,10 @@ export function Respond(props: RespondProps) {
     };
 
     const onClickOpenInCodeView = () => {
-        // setCodeToHighlight(model.position);
+        if (model) {
+            const position: NodePosition = model.position as NodePosition;
+            gotoSource({ startLine: position.startLine, startColumn: position.startColumn });
+        }
     }
 
     const component: React.ReactElement = (!model?.viewState.collapsed &&

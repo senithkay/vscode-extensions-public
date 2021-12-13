@@ -27,6 +27,8 @@ export class BlockViewState extends ViewState {
     public isDoBlock: boolean = false;
     public isOnErrorBlock: boolean = false;
     public controlFlow = new ControlFlowState();
+    public isResource: boolean = false;
+    public isCallerAvailable: boolean = false;
 
     constructor() {
         super();

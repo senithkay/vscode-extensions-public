@@ -14,11 +14,11 @@
 import React, { useContext, useState } from "react";
 
 import { BallerinaConnectorInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { CaptureBindingPattern, LocalVarDecl, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { CaptureBindingPattern, LocalVarDecl, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
-import { getDiagnosticMsgs } from "../../../../../../utils";
+import { getDiagnosticInfo } from "../../../../../../utils";
 import { getMatchingConnector } from "../../../../../../utils/st-util";
 import { ConnectorConfigWizard } from "../../../../../FormComponents/ConnectorConfigWizard";
 import { FormGenerator } from "../../../../../FormComponents/FormGenerator";
@@ -44,7 +44,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
         actions: { diagramCleanDraw },
         api: {
             code: {
-                setCodeLocationToHighlight: setCodeToHighlight,
+                gotoSource
             }
         },
         props: {
@@ -67,11 +67,12 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
 
     const diagnostics = model?.typeData?.diagnostics;
 
-    const diagnosticMsgs = getDiagnosticMsgs(diagnostics);
+    const diagnosticMsgs = getDiagnosticInfo(diagnostics);
 
     const errorSnippet = {
-        diagnosticMsgs,
+        diagnosticMsgs: diagnosticMsgs?.message,
         code: sourceSnippet,
+        severity: diagnosticMsgs?.severity
     }
 
     const x = viewState.bBox.cx - CONNECTOR_PROCESS_SVG_WIDTH / 2;
@@ -166,7 +167,10 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
     );
 
     const onClickOpenInCodeView = () => {
-        setCodeToHighlight(model.position)
+        if (model) {
+            const position: NodePosition = model.position as NodePosition;
+            gotoSource({ startLine: position.startLine, startColumn: position.startColumn });
+        }
     }
 
     const connectorWizard = (

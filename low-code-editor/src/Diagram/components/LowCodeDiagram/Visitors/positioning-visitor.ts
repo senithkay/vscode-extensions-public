@@ -21,6 +21,7 @@ import {
     ModulePart,
     ObjectMethodDefinition,
     OnFailClause,
+    QualifiedNameReference,
     ResourceAccessorDefinition,
     ServiceDeclaration,
     STKindChecker,
@@ -312,6 +313,13 @@ class PositioningVisitor implements Visitor {
         const viewState: FunctionViewState = node.viewState;
         const bodyViewState: BlockViewState = node.functionBody.viewState;
         const body: FunctionBodyBlock = node.functionBody as FunctionBodyBlock;
+        bodyViewState.isResource = true;
+        node?.functionSignature?.parameters?.forEach(param => {
+            if (STKindChecker.isRequiredParam(param) && (param?.typeName as QualifiedNameReference)?.
+                typeData?.symbol?.name === "Caller") {
+                bodyViewState.isCallerAvailable = true;
+            }
+        });
         viewState.workerBody = bodyViewState;
         viewState.end.bBox.cy = viewState.workerLine.h + viewState.workerLine.y;
         // viewState.bBox.h = viewState.workerLine.h + viewState.workerLine.y + viewState.end.bBox.h + DefaultConfig.canvasBottomOffset;
