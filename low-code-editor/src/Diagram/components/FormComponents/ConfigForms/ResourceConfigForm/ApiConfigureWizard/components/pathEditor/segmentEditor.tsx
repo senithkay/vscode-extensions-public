@@ -35,7 +35,7 @@ interface PathSegmentEditorProps {
 }
 
 export function PathSegmentEditor(props: PathSegmentEditorProps) {
-    const { segment, onSave, id, onCancel, model, targetPosition } = props;
+    const { segment, onSave, id, onCancel, targetPosition } = props;
     const classes = useStyles();
     const initValue: PathSegment = segment ? { ...segment } : {
         id: id ? id : 0,
@@ -103,11 +103,7 @@ export function PathSegmentEditor(props: PathSegmentEditorProps) {
         value: segmentState?.type,
         onValueChange: onChangeSegmentType,
         validateExpression: validateVarType,
-        position: model ? {
-            ...model.position,
-            endLine: 0,
-            endColumn: 0,
-        } : targetPosition
+        position: targetPosition
     }
 
     const variableTypeInput = (

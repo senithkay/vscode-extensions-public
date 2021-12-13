@@ -33,12 +33,11 @@ interface QueryParamSegmentEditorProps {
     onCancel?: () => void;
     types?: string[];
     validateParams?: (paramName: string) => { error: boolean, message: string };
-    model?: STNode;
     targetPosition?: NodePosition;
 }
 
 export function QueryParamSegmentEditor(props: QueryParamSegmentEditorProps) {
-    const { segment, onSave, id, onCancel, types, validateParams, model, targetPosition } = props;
+    const { segment, onSave, id, onCancel, types, validateParams, targetPosition } = props;
     const classes = useStyles();
     const { props: { stSymbolInfo } } = useContext(Context);
     const initValue: QueryParam = segment ? { ...segment } : {
@@ -92,11 +91,7 @@ export function QueryParamSegmentEditor(props: QueryParamSegmentEditorProps) {
         value: segmentState?.type,
         onValueChange: onChangeSegmentType,
         validateExpression: validateVarType,
-        position: model ? {
-            ...model.position,
-            endLine: 0,
-            endColumn: 0,
-        } : targetPosition
+        position: targetPosition
     }
 
     const variableTypeInput = (

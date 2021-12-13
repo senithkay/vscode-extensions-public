@@ -107,6 +107,12 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
         returnType: 'error?'
     };
 
+    const segmentTargetPosition = model ? {
+        ...model.position,
+        endLine: 0,
+        endColumn: 0,
+    } : targetPosition;
+
     const [resource, setResource] = useState<Resource>(defaultConfig);
     const [toggleMainAdvancedMenu, setToggleMainAdvancedMenu] = useState(false);
     const [togglePayload, setTogglePayload] = useState(false);
@@ -593,8 +599,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                         pathString={resource.path}
                         defaultValue={resource.path}
                         onChange={handleOnChangePathFromUI}
-                        model={model}
-                        targetPosition={targetPosition}
+                        targetPosition={segmentTargetPosition}
                     />
                 </Section>
             </div>
@@ -606,8 +611,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                     <QueryParamEditor
                         queryParams={resource.queryParams}
                         onChange={handleOnChangeQueryParamFromUI}
-                        model={model}
-                        targetPosition={targetPosition}
+                        targetPosition={segmentTargetPosition}
                     />
                 </Section>
             </div>

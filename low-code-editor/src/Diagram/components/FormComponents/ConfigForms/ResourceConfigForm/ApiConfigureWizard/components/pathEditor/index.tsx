@@ -28,12 +28,11 @@ interface PathEditorProps {
     pathString: string;
     defaultValue?: string;
     onChange?: (text: string) => void;
-    model?: STNode;
     targetPosition?: NodePosition;
 }
 
 export function PathEditor(props: PathEditorProps) {
-    const { pathString, onChange, model, targetPosition } = props;
+    const { pathString, onChange, targetPosition } = props;
     const path: Path = convertPathStringToSegments(pathString);
     const classes = useStyles();
 
@@ -88,7 +87,6 @@ export function PathEditor(props: PathEditorProps) {
                 id={pathState.segments.length}
                 onCancel={onCancel}
                 onSave={onSave}
-                model={model}
                 targetPosition={targetPosition}
             />
         </div>

@@ -27,12 +27,11 @@ interface QueryParamEditorProps {
     queryParams?: string;
     defaultValue?: string;
     onChange?: (text: string) => void;
-    model?: STNode;
     targetPosition?: NodePosition;
 }
 
 export function QueryParamEditor(props: QueryParamEditorProps) {
-    const { queryParams, onChange, model, targetPosition } = props;
+    const { queryParams, onChange, targetPosition } = props;
     const queryParamCollection: QueryParamCollection = convertQueryParamStringToSegments(queryParams ? queryParams : "");
     const classes = useStyles();
 
@@ -81,7 +80,6 @@ export function QueryParamEditor(props: QueryParamEditorProps) {
                 id={queryParamCollectionState.queryParams.length}
                 onCancel={onCancel}
                 onSave={onSave}
-                model={model}
                 targetPosition={targetPosition}
             />
         </div>
