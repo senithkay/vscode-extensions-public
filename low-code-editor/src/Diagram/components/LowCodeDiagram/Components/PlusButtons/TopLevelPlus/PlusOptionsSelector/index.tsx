@@ -47,6 +47,7 @@ const moduleLevelEntries: PlusMenuEntry[] = [
     },
     { name: 'Listener', type: 'ListenerDeclaration' },
     { name: 'Record', type: 'RecordEditor' },
+    { name: 'Enum', type: 'EnumDeclaration' },
     { name: 'Class', type: 'ClassDefinition' },
     { name: 'Function', type: 'FunctionDefinition' },
     { name: 'Trigger', type: 'TriggerList' },
