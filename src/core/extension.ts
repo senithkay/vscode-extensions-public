@@ -577,6 +577,7 @@ export class BallerinaExtension {
     }
 
     public setChoreoSession(choreoSession: ChoreoSession) {
+        debug(`choreoUser: ${choreoSession.choreoUser} \nchoreoAccessToken: ${choreoSession.choreoAccessToken} \nchoreoCookie: ${choreoSession.choreoCookie} \nchoreoRefreshToken: ${choreoSession.choreoRefreshToken}`);
         this.choreoSession = choreoSession;
     }
 
