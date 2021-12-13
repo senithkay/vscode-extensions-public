@@ -50,17 +50,17 @@ while ({{{ CONDITION }}}) {
 listener http:Listener {{{ LISTENER_NAME }}} = new ({{{ PORT }}});
 
 service /{{{ BASE_PATH }}} on {{{ LISTENER_NAME }}} {
-    resource function get .(http:Caller caller) returns error? {
+    resource function get .() returns error? {
     }
 }`,
     SERVICE_DECLARATION_WITH_NEW_INLINE_LISTENER: `
 service /{{{ BASE_PATH }}} on new http:Listener({{{ PORT }}}) {
-    resource function get .(http:Caller caller) returns error? {
+    resource function get .() returns error? {
     }
 }`,
     SERVICE_DECLARATION_WITH_SHARED_LISTENER: `
 service /{{{ BASE_PATH }}} on {{{ LISTENER_NAME }}} {
-    resource function get .(http:Caller caller) returns error? {
+    resource function get .() returns error? {
     }
 }`,
     LISTENER_DECLARATION: `
