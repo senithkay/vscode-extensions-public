@@ -40,12 +40,13 @@ interface ConfigurableFormProps {
     onSave: () => void;
     configOverlayFormStatus?: ConfigOverlayFormStatus;
     formType: string;
+    isLastMember?: boolean;
 }
 
 export function ConfigurableForm(props: ConfigurableFormProps) {
     const formClasses = useFormStyles();
     const { api: { code: { modifyDiagram } } } = useDiagramContext();
-    const { onSave, onCancel, targetPosition, model, configOverlayFormStatus, formType } = props;
+    const { onSave, onCancel, targetPosition, model, configOverlayFormStatus, formType, isLastMember } = props;
     const [state, dispatch] = useReducer(moduleVarFormReducer, getFormConfigFromModel(model));
 
     const { updateInjectables, updateParentConfigurable, configurableId } = configOverlayFormStatus?.formArgs || {};
@@ -57,7 +58,7 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
             varValue: state.hasDefaultValue ? state.varValue : '?',
         }
         if (isFromExpressionEditor && updateParentConfigurable) {
-            const modification = createConfigurableDecl(modifyState, targetPosition);
+            const modification = createConfigurableDecl(modifyState, targetPosition, isLastMember);
             const editItemIndex = updateInjectables?.list.findIndex((item: InjectableItem) => item.id === configurableId);
             let newInjectableList = updateInjectables?.list;
             const newInjectable = {

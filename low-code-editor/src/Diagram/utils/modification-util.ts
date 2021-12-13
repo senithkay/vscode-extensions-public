@@ -12,6 +12,7 @@
  */
 import { FormField, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { is } from "date-fns/locale";
 
 import { ConfigurableFormState } from "../components/FormComponents/ConfigForms/ConfigurableForm/util";
 import { ConstantConfigFormState } from "../components/FormComponents/ConfigForms/ConstantConfigForm/util";
@@ -144,12 +145,13 @@ export function updateWhileStatementCondition(conditionExpression: string, targe
     return updatedIfStatement;
 }
 
-export function createPropertyStatement(property: string, targetPosition?: NodePosition): STModification {
+export function createPropertyStatement(property: string, targetPosition?: NodePosition, 
+                                        isLastMember?: boolean): STModification {
     const propertyStatement: STModification = {
         startLine: targetPosition ? targetPosition.startLine : 0,
-        startColumn: 0,
+        startColumn: isLastMember ? targetPosition.endColumn : 0,
         endLine: targetPosition ? targetPosition.startLine : 0,
-        endColumn: 0,
+        endColumn: isLastMember ? targetPosition.endColumn : 0,
         type: "PROPERTY_STATEMENT",
         config: {
             "PROPERTY": property,
@@ -534,14 +536,15 @@ export function createCheckedPayloadFunctionInvocation(variable: string, type: s
     return checkedPayloadInvo;
 }
 
-export function createModuleVarDecl(config: ModuleVariableFormState, targetPosition?: NodePosition): STModification {
+export function createModuleVarDecl(config: ModuleVariableFormState, targetPosition?: NodePosition, 
+                                    isLastMember?: boolean): STModification {
     const { varName, varOptions, varType, varValue } = config;
 
     return {
         startLine: targetPosition ? targetPosition.startLine : 0,
         endLine: targetPosition ? targetPosition.startLine : 0,
-        startColumn: 0,
-        endColumn: 0,
+        startColumn: isLastMember ? targetPosition.endColumn : 0,
+        endColumn: isLastMember ? targetPosition.endColumn : 0,
         type: 'MODULE_VAR_DECL_WITH_INIT',
         config: {
             'ACCESS_MODIFIER': varOptions.indexOf('public') > -1 ? 'public' : '',
@@ -572,14 +575,15 @@ export function updateModuleVarDecl(config: ModuleVariableFormState, targetPosit
     }
 }
 
-export function createConfigurableDecl(config: ConfigurableFormState, targetPosition: NodePosition): STModification {
+export function createConfigurableDecl(config: ConfigurableFormState, targetPosition: NodePosition, 
+                                       isLastMember?: boolean): STModification {
     const { isPublic, varName, varType, varValue, label } = config;
 
     const modification: STModification = {
         startLine: targetPosition.startLine,
         endLine: targetPosition.startLine,
-        startColumn: 0,
-        endColumn: 0,
+        startColumn: isLastMember ? targetPosition.endColumn : 0,
+        endColumn: isLastMember ? targetPosition.endColumn : 0,
         type: 'MODULE_VAR_DECL_WITH_INIT',
         config: {
             'ACCESS_MODIFIER': isPublic ? 'public' : '',
@@ -624,14 +628,15 @@ export function updateConfigurableVarDecl(config: ConfigurableFormState, targetP
     return modification;
 }
 
-export function createConstDeclaration(config: ConstantConfigFormState, targetPosition: NodePosition): STModification {
+export function createConstDeclaration(config: ConstantConfigFormState, targetPosition: NodePosition, 
+                                       isLastMember?: boolean): STModification {
     const { isPublic, constantName, constantType, constantValue } = config;
 
     return {
         startLine: targetPosition.startLine,
         endLine: targetPosition.startLine,
-        startColumn: 0,
-        endColumn: 0,
+        startColumn: isLastMember ? targetPosition.endColumn : 0,
+        endColumn: isLastMember ? targetPosition.endColumn :  0,
         type: 'CONSTANT_DECLARATION',
         config: {
             'ACCESS_MODIFIER': isPublic ? 'public' : '',
@@ -660,14 +665,15 @@ export function updateConstDeclaration(config: ConstantConfigFormState, targetPo
     }
 }
 
-export function createServiceDeclartion(config: HTTPServiceConfigState, targetPosition: NodePosition): STModification {
+export function createServiceDeclartion(
+    config: HTTPServiceConfigState, targetPosition: NodePosition, isLastMember?: boolean): STModification {
     const { serviceBasePath, listenerConfig: { fromVar, listenerName, listenerPort, createNewListener } } = config;
 
     const modification: STModification = {
         startLine: targetPosition.startLine,
         endLine: targetPosition.startLine,
-        startColumn: 0,
-        endColumn: 0,
+        startColumn: isLastMember ? targetPosition.endColumn : 0,
+        endColumn: isLastMember ? targetPosition.endColumn : 0,
         type: ''
     };
 
@@ -703,15 +709,16 @@ export function createServiceDeclartion(config: HTTPServiceConfigState, targetPo
     }
 }
 
-export function createListenerDeclartion(config: ListenerConfig, targetPosition: NodePosition, isNew: boolean): STModification {
+export function createListenerDeclartion(config: ListenerConfig, targetPosition: NodePosition, isNew: boolean, 
+                                         isLastMember?: boolean): STModification {
     const { listenerName, listenerPort } = config;
     let modification: STModification;
     if (isNew) {
         modification = {
             startLine: targetPosition.startLine,
             endLine: targetPosition.startLine,
-            startColumn: 0,
-            endColumn: 0,
+            startColumn: isLastMember ? targetPosition.endColumn : 0,
+            endColumn: isLastMember ? targetPosition.endColumn : 0,
             type: ''
         };
     } else {
@@ -932,12 +939,13 @@ export async function InsertorDelete(modifications: STModification[]): Promise<S
     return stModifications;
 }
 
-export function createFunctionSignature(accessModifier: string, name: string, parameters: string, returnTypes: string, targetPosition: NodePosition): STModification {
+export function createFunctionSignature(accessModifier: string, name: string, parameters: string, returnTypes: string,
+    targetPosition: NodePosition, isLastMember?: boolean): STModification {
     const functionStatement: STModification = {
         startLine: targetPosition.startLine,
-        startColumn: 0,
+        startColumn: isLastMember ? targetPosition.endColumn : 0,
         endLine: targetPosition.startLine,
-        endColumn: 0,
+        endColumn: isLastMember ? targetPosition.endColumn : 0,
         type: "FUNCTION_DEFINITION",
         config: {
             "ACCESS_MODIFIER": accessModifier,
@@ -968,7 +976,7 @@ export function updateFunctionSignature(name: string, parameters: string, return
 }
 
 export function mutateTypeDefinition(typeName: string, typeDesc: string, targetPosition: NodePosition, isNew: boolean,
-                                     accessModifier?: string): STModification {
+    accessModifier?: string): STModification {
     let modification: STModification;
     if (isNew) {
         modification = {
@@ -1001,12 +1009,12 @@ export function getInitialSource(modification: STModification): string {
     return source;
 }
 
-export function createTrigger(config: any, targetPosition?: NodePosition): STModification {
+export function createTrigger(config: any, targetPosition?: NodePosition, isLastMember?: boolean): STModification {
     const triggerStatement: STModification = {
         startLine: targetPosition ? targetPosition.startLine : 0,
-        startColumn: 0,
+        startColumn: isLastMember ? targetPosition.endColumn : 0,
         endLine: targetPosition ? targetPosition.startLine : 0,
-        endColumn: 0,
+        endColumn: isLastMember ? targetPosition.endColumn : 0,
         type: "TRIGGER",
         config
     };

@@ -57,6 +57,7 @@ export function ModulePartComponent(props: ModulePartProps) {
                     targetPosition={model.eofToken.position}
                     isDocumentEmpty={model.members.length === 0}
                     isModuleLevel={true}
+                    isLastMember={true}
                 />
             </div>
         </>
