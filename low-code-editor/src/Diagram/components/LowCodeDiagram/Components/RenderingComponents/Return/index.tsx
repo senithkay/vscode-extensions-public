@@ -14,8 +14,9 @@
 import React, { useContext, useState } from "react";
 
 import { ConfigOverlayFormStatus, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { ActionStatement, ReturnStatement, STNode } from "@wso2-enterprise/syntax-tree";
+import { ActionStatement, NodePosition, ReturnStatement, STNode } from "@wso2-enterprise/syntax-tree";
 
+import { getDiagnosticInfo } from "../../../../../utils";
 import { getOverlayFormConfig, getRandomInt } from "../../../../../utils/diagram-util";
 import { DefaultConfig } from "../../../../../visitors/default";
 import { DeleteBtn } from "../../../Components/DiagramActions/DeleteBtn";
@@ -52,6 +53,9 @@ export function Return(props: ReturnProps) {
             edit: {
                 renderAddForm,
                 renderEditForm
+            },
+            code: {
+                gotoSource
             }
 
         }
@@ -64,6 +68,8 @@ export function Return(props: ReturnProps) {
     let cx: number;
     let cy: number;
     let sourceSnippet = "Source";
+    const diagnostics = model?.typeData?.diagnostics;
+    const diagnosticMsgs = getDiagnosticInfo(diagnostics);
 
     let compType: string = "";
     if (model) {
@@ -90,7 +96,15 @@ export function Return(props: ReturnProps) {
     };
 
     const onClickOpenInCodeView = () => {
-        // setCodeToHighlight(model.position);
+        if (model) {
+            const position: NodePosition = model.position as NodePosition;
+            gotoSource({ startLine: position.startLine, startColumn: position.startColumn });
+        }
+    }
+    const errorSnippet = {
+        diagnosticMsgs: diagnosticMsgs?.message,
+        code: sourceSnippet,
+        severity: diagnosticMsgs?.severity
     }
 
     const component: React.ReactElement = (!model?.viewState.collapsed &&
@@ -100,6 +114,8 @@ export function Return(props: ReturnProps) {
                     x={cx - (RETURN_SVG_WIDTH / 2)}
                     y={cy - DefaultConfig.dotGap / 4}
                     text={(model as ReturnStatement).expression?.source}
+                    codeSnippet={sourceSnippet}
+                    diagnostics={errorSnippet}
                     openInCodeView={!isWaitingOnWorkspace && model && model.position && onClickOpenInCodeView}
                 />
             </g>

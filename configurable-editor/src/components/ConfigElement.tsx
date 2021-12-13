@@ -247,10 +247,6 @@ const getInnerElement = (
         }
     };
 
-    if (configElementProps.value === undefined) {
-        return null;
-    }
-
     if (configElementProps.isArray) {
         const returnElement: ReactElement[] = [];
         const values = configElementProps.value as

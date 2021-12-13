@@ -21,9 +21,11 @@ import {
     BallerinaModuleResponse,
     ButtonWithIcon,
     FormHeaderSection,
+    IconBtnWithText,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 
+import { FilterIcon } from "../../../../../assets/icons";
 import { Context } from "../../../../../Contexts/Diagram";
 import { UserState } from "../../../../../types";
 import { EVENT_TYPE_AZURE_APP_INSIGHTS, LowcodeEvent, START_CONNECTOR_ADD_INSIGHTS } from "../../../../models";
@@ -44,14 +46,20 @@ export interface MarketplaceProps {
     collapsed?: (value: APIHeightStates) => void;
     balModuleType: BallerinaModuleType;
     fetchModulesList: (
-        searchQuery: string,
-        connectorLimit: number,
+        queryParams: SearchQueryParams,
         currentFilePath: string,
-        userInfo?: UserState,
-        page?: number
+        userInfo?: UserState
     ) => Promise<BallerinaModuleResponse>;
     title: string;
     shortName?: string;
+}
+
+export interface SearchQueryParams {
+    query: string;
+    category?: string;
+    filterState?: FilterStateMap;
+    page?: number;
+    limit?: number;
 }
 
 export interface FilterStateMap {
@@ -80,16 +88,20 @@ export function Marketplace(props: MarketplaceProps) {
     const [isSearchResultsFetching, setIsSearchResultsFetching] = useState(true);
     const [isNextPageFetching, setIsNextPageFetching] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
+    const [selectedCategory, setSelectedCategory] = useState("");
+    const [filterState, setFilterState] = useState<FilterStateMap>({});
+    const [showFilters, setShowFilters] = useState(false);
     const currentPage = useRef(1);
     const fetchCount = useRef(0);
+    const isLastPage = useRef(false);
 
-    const connectorLimit = 14;
+    const pageLimit = 18;
 
     const shortName = props.shortName || title;
 
     React.useEffect(() => {
         fetchModulesList();
-    }, [searchQuery]);
+    }, [searchQuery, selectedCategory]);
 
     let centralModuleComponents: ReactNode[] = [];
     let localModuleComponents: ReactNode[] = [];
@@ -108,7 +120,9 @@ export function Marketplace(props: MarketplaceProps) {
     const getModuleComponents = (balModules: BallerinaModule[]): ReactNode[] => {
         const componentList: ReactNode[] = [];
         balModules?.forEach((module: BallerinaModule) => {
-            const component = <ModuleCard module={module} onSelectModule={onSelectModule} />;
+            const component = (
+                <ModuleCard module={module} onSelectModule={onSelectModule} columns={showFilters ? 2 : 3} />
+            );
             componentList.push(component);
         });
         return componentList;
@@ -120,21 +134,25 @@ export function Marketplace(props: MarketplaceProps) {
         } else {
             // Keep track of fetch request count to show/hide preloader
             fetchCount.current = fetchCount.current + 1;
+            isLastPage.current = false;
             setIsSearchResultsFetching(true);
         }
 
-        const response: BallerinaModuleResponse = await props.fetchModulesList(
-            searchQuery,
-            connectorLimit,
-            currentFile.path,
-            userInfo,
-            page
-        );
+        const queryParams: SearchQueryParams = {
+            query: searchQuery,
+            category: selectedCategory,
+            filterState,
+            limit: pageLimit,
+            page,
+        };
+        const response: BallerinaModuleResponse = await props.fetchModulesList(queryParams, currentFile.path, userInfo);
         setLocalModules(response.local);
-        if (page && response.central?.length > 0) {
+        if (!page) {
+            setCentralModules(response.central);
+        } else if (response.central?.length > 0) {
             setCentralModules([...centralModules, ...response.central]);
         } else {
-            setCentralModules(response.central);
+            isLastPage.current = true;
         }
 
         if (page) {
@@ -156,9 +174,21 @@ export function Marketplace(props: MarketplaceProps) {
         setSearchQuery(query);
     };
 
+    const updateCategory = (category: string) => {
+        setSelectedCategory(category);
+    };
+
+    const clearCategory = () => {
+        setSelectedCategory("");
+    };
+
+    const toggleFilters = () => {
+        setShowFilters(!showFilters);
+    };
+
     const handleModulesListScroll = (e: React.UIEvent<HTMLElement>) => {
         const bottom = e.currentTarget.scrollHeight - e.currentTarget.scrollTop === e.currentTarget.clientHeight;
-        if (bottom && !isSearchResultsFetching) {
+        if (!isLastPage.current && bottom && !isSearchResultsFetching) {
             currentPage.current = currentPage.current + 1;
             fetchModulesList(currentPage.current);
         }
@@ -170,13 +200,16 @@ export function Marketplace(props: MarketplaceProps) {
     }
 
     const renderModulesList = (modulesListTitle: string, modules: ReactNode[]): ReactNode => {
+        // TODO: Uncomment this when the private triggers are enabled
         return (
             <>
-                <Grid item={true} sm={12} className={classes.balModuleSectionWrap}>
-                    <Grid item={true} sm={6} md={6} lg={6}>
-                        <Typography variant="h4">{modulesListTitle}</Typography>
+                {shortName !== "Triggers" ? (
+                    <Grid item={true} sm={12} className={classes.balModuleSectionWrap}>
+                        <Grid item={true} sm={6} md={6} lg={6}>
+                            <Typography variant="h4">{modulesListTitle}</Typography>
+                        </Grid>
                     </Grid>
-                </Grid>
+                ) : null}
                 {modules}
             </>
         );
@@ -188,8 +221,8 @@ export function Marketplace(props: MarketplaceProps) {
                 <Box display="flex" justifyContent="center">
                     <CircularProgress data-testid="marketplace-search-loader" />
                 </Box>
-                <Box display="flex" justifyContent="center">
-                    <Typography variant="body1">Loading...</Typography>
+                <Box display="flex" justifyContent="center" mt={2}>
+                    <Typography variant="body1">Loading {shortName}...</Typography>
                 </Box>
             </Grid>
         </Grid>
@@ -221,8 +254,11 @@ export function Marketplace(props: MarketplaceProps) {
             {centralModules?.length > 0 && renderModulesList("Public " + shortName, centralModuleComponents)}
             {isNextPageFetching && (
                 <Grid item={true} sm={12} className={classes.balModuleSectionWrap}>
-                    <Box display="flex" justifyContent="center">
-                        <Typography variant="body1">Loading more {shortName}...</Typography>
+                    <Box display="flex" justifyContent="center" alignItems="center">
+                        <CircularProgress data-testid="marketplace-next-page-loader" size={20} />
+                        <Typography variant="body1" className={classes.pageLoadingText}>
+                            Loading more {shortName}...
+                        </Typography>
                     </Box>
                 </Grid>
             )}
@@ -230,6 +266,31 @@ export function Marketplace(props: MarketplaceProps) {
     );
 
     const searchBar = <SearchBar searchQuery={searchQuery} onSearch={onSearchButtonClick} type={shortName} />;
+
+    const selectedCategoriesChips = (
+        <Grid sm={12} item={true} container={true} className={classes.filterTagWrap}>
+            <Box display="flex" justifyContent="center" alignItems="center" className={classes.filterTag}>
+                <Typography variant="body1">{selectedCategory}</Typography>
+                <ButtonWithIcon
+                    className={classes.filterRemoveBtn}
+                    onClick={clearCategory}
+                    icon={<CloseRounded fontSize="small" />}
+                />
+            </Box>
+        </Grid>
+    );
+
+    const leftSidePanel = (
+        <Grid item={true} sm={4}>
+            <FilterByMenu
+                filterState={filterState}
+                setFilterState={setFilterState}
+                filterValues={[]}
+                selectedCategory={selectedCategory}
+                setCategory={updateCategory}
+            />
+        </Grid>
+    );
 
     return (
         <FormControl data-testid="log-form" className={classes.container}>
@@ -240,24 +301,36 @@ export function Marketplace(props: MarketplaceProps) {
                 defaultMessage={title}
                 toggleChecked={false}
             />
-            <div className={formClasses.formWrapper}>
-                <div className={formClasses.formFeilds}>
-                    <div onWheel={preventDiagramScrolling} className={classes.container}>
+            <div id="module-list-container" className={formClasses.formWrapper} onWheel={preventDiagramScrolling}>
+                <Grid item={true} sm={12} container={true}>
+                    <Grid item={true} sm={4} container={true}>
+                        <IconBtnWithText
+                            onClick={toggleFilters}
+                            className={classes.filterBtn}
+                            text={showFilters ? "Hide Filters" : "Filters"}
+                            icon={<FilterIcon filled={showFilters} />}
+                        />
+                    </Grid>
+                    <Grid item={true} sm={8} container={true}>
                         {searchBar}
-                        <Grid item={true} sm={12} container={true}>
-                            <Grid sm={12} container={true} item={true} className={classes.resultsContainer}>
-                                {isSearchResultsFetching && loadingScreen}
-                                {!isSearchResultsFetching &&
-                                    (centralModules.length > 0 || localModules.length > 0) &&
-                                    modulesList}
-                                {!isSearchResultsFetching &&
-                                    centralModules.length === 0 &&
-                                    localModules.length === 0 &&
-                                    notFoundComponent}
-                            </Grid>
-                        </Grid>
-                    </div>
-                </div>
+                    </Grid>
+                </Grid>
+                <Grid item={true} sm={12} container={true}>
+                    {showFilters && leftSidePanel}
+                    <Grid container={true} item={true} sm={showFilters ? 8 : 12} className={classes.resultsContainer}>
+                        {isSearchResultsFetching && loadingScreen}
+
+                        {!isSearchResultsFetching && selectedCategory !== "" && selectedCategoriesChips}
+                        {!isSearchResultsFetching &&
+                            (centralModules.length > 0 || localModules.length > 0) &&
+                            modulesList}
+
+                        {!isSearchResultsFetching &&
+                            centralModules.length === 0 &&
+                            localModules.length === 0 &&
+                            notFoundComponent}
+                    </Grid>
+                </Grid>
             </div>
         </FormControl>
     );

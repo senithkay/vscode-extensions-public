@@ -15,9 +15,9 @@ import React, { ReactElement } from "react";
 
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
-import Tooltip from "../../../../../../components/TooltipV2";
-import { ErrorSnippet } from "../../../Context/types";
+import { ErrorSnippet } from "../../../../../../DiagramGenerator/generatorUtil";
 
+import { ProcessRectSVG } from "./ProcessRectSVG";
 import "./style.scss";
 
 export const PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW = 62;
@@ -35,23 +35,22 @@ export function ProcessSVG(props: {
     sourceSnippet: any, position: NodePosition,
     openInCodeView?: () => void,
     processType: string, diagnostics?: ErrorSnippet
-    })
-    {
+}) {
     const { varName, sourceSnippet, processType, openInCodeView, diagnostics, ...xyProps } = props;
     const processTypeIndicator: JSX.Element[] = [];
     const tooltipText = {
         code: sourceSnippet
     }
     const logIcon: ReactElement = (
-        <g transform="translate(242 522)">
-            <path id="Path_23" d="M7.2,0a.8.8,0,0,1,.093,1.595L7.2,1.6H.8A.8.8,0,0,1,.707.005L.8,0Z" transform="translate(8 11.2)" fill="#5567d5" />
-            <path id="Combined_Shape" d="M0,6.4a6.4,6.4,0,0,1,12.8,0c0,.024,0,.047,0,.071l1.837-1.836a.8.8,0,0,1,1.2,1.056l-.066.076L12,9.531,8.235,5.772a.8.8,0,0,1,1.055-1.2l.076.067L11.2,6.476c0-.025,0-.05,0-.076a4.8,4.8,0,1,0-4.8,4.8.8.8,0,1,1,0,1.6A6.4,6.4,0,0,1,0,6.4Zm12,.869L12.07,7.2c-.023,0-.046,0-.07,0s-.05,0-.075,0Z" transform="translate(0 1.6)" fill="#ccd1f2" />
+        <g className="log-icon" transform="translate(242 522)">
+            <path className="log-icon-dark-path" id="Path_23" d="M7.2,0a.8.8,0,0,1,.093,1.595L7.2,1.6H.8A.8.8,0,0,1,.707.005L.8,0Z" transform="translate(8 11.2)" fill="#5567d5" />
+            <path className="log-icon-light-path" id="Combined_Shape" d="M0,6.4a6.4,6.4,0,0,1,12.8,0c0,.024,0,.047,0,.071l1.837-1.836a.8.8,0,0,1,1.2,1.056l-.066.076L12,9.531,8.235,5.772a.8.8,0,0,1,1.055-1.2l.076.067L11.2,6.476c0-.025,0-.05,0-.076a4.8,4.8,0,1,0-4.8,4.8.8.8,0,1,1,0,1.6A6.4,6.4,0,0,1,0,6.4Zm12,.869L12.07,7.2c-.023,0-.046,0-.07,0s-.05,0-.075,0Z" transform="translate(0 1.6)" fill="#ccd1f2" />
         </g>
     );
     const callIcon: ReactElement = (
-        <g transform="translate(242 522)">
-            <path id="Combined-Shape" d="M17.189,1V5.094a.819.819,0,0,1-1.632.1l-.006-.1v-1.3L10.4,8.948A.819.819,0,0,1,9.172,7.867L9.24,7.79l5.151-5.152h-1.3a.818.818,0,0,1-.813-.723l-.006-.1A.818.818,0,0,1,13,1.006l.1-.006Z" transform="translate(-2.006 -0.181)" fill="#5567d5" />
-            <path id="Path" d="M8,0A.8.8,0,1,1,8,1.6,6.4,6.4,0,1,0,14.4,8,.8.8,0,1,1,16,8,8,8,0,1,1,8,0Z" fill="#ccd1f2" />
+        <g className="call-icon"transform="translate(242 522)">
+            <path className="call-icon-dark-path" id="Combined-Shape" d="M17.189,1V5.094a.819.819,0,0,1-1.632.1l-.006-.1v-1.3L10.4,8.948A.819.819,0,0,1,9.172,7.867L9.24,7.79l5.151-5.152h-1.3a.818.818,0,0,1-.813-.723l-.006-.1A.818.818,0,0,1,13,1.006l.1-.006Z" transform="translate(-2.006 -0.181)" fill="#5567d5" />
+            <path className="call-icon-light-path" id="Path" d="M8,0A.8.8,0,1,1,8,1.6,6.4,6.4,0,1,0,14.4,8,.8.8,0,1,1,16,8,8,8,0,1,1,8,0Z" fill="#ccd1f2" />
         </g>
     );
 
@@ -79,7 +78,7 @@ export function ProcessSVG(props: {
     }
 
     return (
-        <svg {...xyProps} width={PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW} height={PROCESS_SVG_HEIGHT_WITH_HOVER_SHADOW} className="process" >
+        <svg {...xyProps} width={PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW} height={PROCESS_SVG_HEIGHT_WITH_HOVER_SHADOW} className="process-rect" >
             <defs>
                 <linearGradient id="ProcessLinearGradient" x1=" " x2="0" y2="1" gradientUnits="objectBoundingBox">
                     <stop offset="0" stopColor="#fcfcfd" />
@@ -101,34 +100,24 @@ export function ProcessSVG(props: {
                 </filter>
             </defs>
             <g>
-            {diagnostics?.diagnosticMsgs ?
-            (
-                <Tooltip type={"diagram-diagnostic"} onClick={openInCodeView} diagnostic={diagnostics} placement="right" arrow={true}>
-                    <g id="Process" className="data-processor process-active" transform="translate(-221.5 -506)">
-                        <g transform="matrix(1, 0, 0, 1, 222, 509)">
-                            <g id="ProcessRect-2" transform="translate(5.5 4)">
-                                <rect width="48" height="48" rx="4" />
-                                <rect x="-0.5" y="-0.5" width="49" height="49" rx="4.5" className="click-effect" />
-                            </g>
-                        </g>
-                        {processTypeIndicator}
-                    </g>
-                </Tooltip>
-            )
-            :
-            (
-                <Tooltip type={"diagram-code"} onClick={openInCodeView} text={tooltipText} placement="right" arrow={true}>
-                    <g id="Process" className="data-processor process-active" transform="translate(-221.5 -506)">
-                        <g transform="matrix(1, 0, 0, 1, 222, 509)">
-                            <g id="ProcessRect-2" transform="translate(5.5 4)">
-                                <rect width="48" height="48" rx="4" />
-                                <rect x="-0.5" y="-0.5" width="49" height="49" rx="4.5" className="click-effect" />
-                            </g>
-                        </g>
-                        {processTypeIndicator}
-                    </g>
-                </Tooltip>
-            )}
+                {diagnostics?.diagnosticMsgs ?
+                    (
+                        <ProcessRectSVG
+                            type={"diagram-diagnostic"}
+                            onClick={openInCodeView}
+                            diagnostic={diagnostics}
+                            processTypeIndicator={processTypeIndicator}
+                        />
+                    )
+                    :
+                    (
+                        <ProcessRectSVG
+                            type={"diagram-code"}
+                            onClick={openInCodeView}
+                            text={tooltipText}
+                            processTypeIndicator={processTypeIndicator}
+                        />
+                    )}
             </g>
         </svg>
     )

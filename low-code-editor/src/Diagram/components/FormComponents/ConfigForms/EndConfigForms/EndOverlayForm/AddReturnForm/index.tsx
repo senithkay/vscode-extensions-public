@@ -17,7 +17,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { Box, FormControl, Typography } from "@material-ui/core";
 import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
-import { ReturnStatement } from "@wso2-enterprise/syntax-tree";
+import { FunctionDefinition, ModulePart, ReturnStatement, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
@@ -39,7 +39,8 @@ export function AddReturnForm(props: ReturnFormProps) {
     const {
         props: {
             isMutationProgress: isMutationInProgress,
-            currentFile
+            currentFile,
+            syntaxTree
         },
         api: {
             ls: { getExpressionEditorLangClient },
@@ -60,9 +61,30 @@ export function AddReturnForm(props: ReturnFormProps) {
         onSave();
     }
 
-    const [isValidValue, setIsValidValue] = useState(true);
+    const isOptionalReturn = () => {
+        const st = syntaxTree as ModulePart;
+        let noReturn = true;
+        /*
+         TODO: Revise this logic as this will not work for blocks like
+         Services and Class as functions are wrapped inside them. So you need to
+         again do a iteration to find the function level.
+        */
+        st?.members.forEach((def: FunctionDefinition) => {
+            if (def.position?.startLine < formArgs?.targetPosition.startLine
+                && formArgs?.targetPosition.startLine <= def.position?.endLine
+                && (STKindChecker.isFunctionDefinition(def) || STKindChecker.isResourceAccessorDefinition(def))) {
+                if (def.functionSignature && def.functionSignature.returnTypeDesc) {
+                    noReturn = false;
+                }
+            }
+        });
+        return noReturn;
+    }
+    const isOptional = isOptionalReturn();
+
+    const [isValidValue, setIsValidValue] = useState(isOptional);
     const validateExpression = (fieldName: string, isInvalid: boolean) => {
-        setIsValidValue(!isInvalid || (returnExpression === ""));
+        setIsValidValue(!isInvalid && (isOptional || returnExpression !== ""));
     };
 
     const saveReturnButtonLabel = intl.formatMessage({
@@ -123,7 +145,7 @@ export function AddReturnForm(props: ReturnFormProps) {
                 <div className={classes.formContentWrapper}>
                     <div className={classes.formNameWrapper}>
                         <ExpressionEditor
-                            model={{ name: "return expression", value: config.expression }}
+                            model={{ name: "return expression", value: config.expression, optional: isOptional }}
                             customProps={{
                                 validate: validateExpression,
                                 tooltipTitle: returnStatementTooltipMessages.title,

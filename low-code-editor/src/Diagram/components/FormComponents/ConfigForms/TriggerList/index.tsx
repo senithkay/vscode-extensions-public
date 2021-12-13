@@ -19,7 +19,7 @@ import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 import { Context, useDiagramContext } from "../../../../../Contexts/Diagram";
 import { UserState } from "../../../../../types";
 import { FormGenerator, FormGeneratorProps } from "../../FormGenerator";
-import { BallerinaModuleType, FilterStateMap, Marketplace } from "../Marketplace";
+import { BallerinaModuleType, FilterStateMap, Marketplace, SearchQueryParams } from "../Marketplace";
 
 
 export function TriggerList(props: FormGeneratorProps) {
@@ -37,15 +37,13 @@ export function TriggerList(props: FormGeneratorProps) {
         }
     } = useDiagramContext();
 
-    const fetchTriggersList = async (searchQuery: string, connectorLimit: number,
-                                     currentFilePath: string): Promise<BallerinaModuleResponse> => {
-
+    const fetchTriggersList = async (queryParams: SearchQueryParams): Promise<BallerinaModuleResponse> => {
         const langClient: DiagramEditorLangClientInterface = await getDiagramEditorLangClient();
 
         const request: BallerinaTriggersRequest = {
-            query: searchQuery,
+            query: queryParams.query,
         };
-
+        request.organization = "ballerinax";
         return langClient.getTriggers(request);
     };
 

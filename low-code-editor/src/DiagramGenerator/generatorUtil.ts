@@ -1,4 +1,4 @@
-import { DiagramDiagnostic, DiagramEditorLangClientInterface, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { DiagramDiagnostic, DiagramEditorLangClientInterface, PerformanceAnalyzerGraphResponse, PerformanceAnalyzerRealtimeResponse, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, ModulePart, NodePosition, ResourceAccessorDefinition, ServiceDeclaration, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import { cleanLocalSymbols, cleanModuleLevelSymbols } from "../Diagram/visitors/symbol-finder-visitor";
@@ -27,14 +27,14 @@ export async function resolveMissingDependencies(filePath: string, langClient: D
     return resp;
 }
 
-export async function getLowcodeST(payload: any, filePath: string, langClient: DiagramEditorLangClientInterface, pfSession: PFSession, showPerformanceGraph: () => Promise<boolean>, showMessage: (message: string, type: MESSAGE_TYPE, isIgnorable: boolean) => Promise<boolean>) {
+export async function getLowcodeST(payload: any, filePath: string, langClient: DiagramEditorLangClientInterface, pfSession: PFSession, showPerformanceGraph: () => Promise<boolean>, handlePerfErrors: (response: PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse) => Promise<boolean>, showMessage: (message: string, type: MESSAGE_TYPE, isIgnorable: boolean) => Promise<boolean>) {
     const modulePart: ModulePart = payload;
     const members: STNode[] = modulePart?.members || [];
     const st = sizingAndPositioningST(payload);
     cleanLocalSymbols();
     cleanModuleLevelSymbols();
     traversNode(st, SymbolVisitor);
-    await addPerformanceData(st, filePath, langClient, pfSession, showPerformanceGraph, showMessage);
+    await addPerformanceData(st, filePath, langClient, pfSession, showPerformanceGraph, handlePerfErrors, showMessage);
     await addExecutorPositions(st, langClient, filePath)
     return st;
 }
@@ -99,4 +99,25 @@ export function isDeleteModificationAvailable(modifications: STModification[]): 
         }
     }
     return isAvailable;
+}
+
+export interface ErrorSnippet{
+    diagnosticMsgs? : string,
+    code ?: string,
+    severity?: string
+}
+
+export interface DiagnosticMsgSeverity{
+    message: string,
+    severity: string
+}
+
+export function getModifyPosition(modificationList: STModification[]): SelectedPosition {
+
+    const contentModifications = modificationList.filter(modification => modification.type !== 'IMPORT');
+
+    return contentModifications && contentModifications.length > 0 && {
+        startLine: contentModifications[0].startLine + 1,
+        startColumn: contentModifications[0].startColumn
+    };
 }

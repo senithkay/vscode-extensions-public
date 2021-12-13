@@ -16,8 +16,8 @@ import { FormattedMessage } from "react-intl";
 
 import Typography from "@material-ui/core/Typography";
 import { CloseRounded } from "@material-ui/icons";
-import { ActionConfig, ButtonWithIcon, Connector, ConnectorConfig, FormField, FunctionDefinitionInfo, ResponsePayloadMap, STModification, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { CaptureBindingPattern, CheckAction, LocalVarDecl, NodePosition, PositionalArg, RemoteMethodCallAction, SimpleNameReference, STNode, TypeCastExpression } from "@wso2-enterprise/syntax-tree";
+import { ActionConfig, ButtonWithIcon, Connector, ConnectorConfig, FormField, FunctionDefinitionInfo, ResponsePayloadMap, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { CaptureBindingPattern, LocalVarDecl, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../Contexts/Diagram";
 import {
@@ -28,26 +28,14 @@ import {
     FINISH_CONNECTOR_INIT_ADD_INSIGHTS,
     LowcodeEvent
 } from "../../../../models";
-import { getAllVariables } from "../../../../utils/mixins";
 import {
-    createCheckedPayloadFunctionInvocation,
-    createCheckedRemoteServiceCall,
-    createHeaderObjectDeclaration,
     createImportStatement,
     createPropertyStatement,
-    createServiceCallForPayload,
-    updateCheckedPayloadFunctionInvocation,
-    updateCheckedRemoteServiceCall,
-    updateHeaderObjectDeclaration,
-    updatePropertyStatement,
-    updateServiceCallForPayload
-} from "../../../../utils/modification-util";
-import { genVariableName, getConnectorIcon, getParams } from "../../../Portals/utils";
+    updatePropertyStatement} from "../../../../utils/modification-util";
+import { getModuleIcon, getParams } from "../../../Portals/utils";
 import { wizardStyles } from "../../ConnectorConfigWizard/style";
 
 import { CreateConnectorForm } from "./CreateConnectorForm";
-import { HeaderObjectConfig } from "./HTTPHeaders";
-import { OperationDropdown } from "./OperationDropdown";
 import { SelectInputOutputForm } from "./SelectInputOutputForm";
 import "./style.scss"
 import { useStyles } from "./styles";
@@ -250,7 +238,7 @@ export function HTTPWizard(props: WizardProps) {
                     icon={<CloseRounded fontSize="small" />}
                 />
                 <div className={wizardClasses.titleWrapper}>
-                    <div className={wizardClasses.connectorIconWrapper}>{getConnectorIcon(`${connector.package.name}_${connector.name}`)}</div>
+                    <div className={wizardClasses.connectorIconWrapper}>{getModuleIcon(connector, 0.5)}</div>
                     <Typography className={wizardClasses.configTitle} variant="h4">{isNewConnectorInitWizard ? "New" : "Update"} {connector.displayName} <FormattedMessage id="lowcode.develop.connectorForms.HTTP.connection.title" defaultMessage="Connection" /></Typography>
                 </div>
             </div>

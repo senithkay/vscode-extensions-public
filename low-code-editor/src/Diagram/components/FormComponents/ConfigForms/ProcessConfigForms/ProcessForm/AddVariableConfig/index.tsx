@@ -172,8 +172,8 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
 
 
     const validForm: boolean = initialized
-        ? varName.length > 0 && variableExpression.length > 0 && validExpresssionValue && validVarName && validSelectedType
-        : varName.length > 0 && validVarName && validSelectedType;
+        ? varName.length > 0 && variableExpression.length > 0 && selectedType.length > 0
+        : varName.length > 0 && selectedType.length > 0;
 
     const userInputs = {
         selectedType,

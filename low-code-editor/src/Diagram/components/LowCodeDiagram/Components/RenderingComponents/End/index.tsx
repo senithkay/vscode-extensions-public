@@ -14,7 +14,7 @@
 import React, { useContext, useState } from "react";
 
 import { WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../Contexts/Diagram";
 import { getConditionConfig } from "../../../../../utils/diagram-util";
@@ -41,7 +41,7 @@ export function End(props: EndProps) {
     const {
         api: {
             code: {
-                setCodeLocationToHighlight: setCodeToHighlight
+                gotoSource
             },
             configPanel: {
                 dispactchConfigOverlayForm: openNewReturnConfigForm,
@@ -119,7 +119,10 @@ export function End(props: EndProps) {
     }
 
     const onClickOpenInCodeView = () => {
-        setCodeToHighlight(model?.position)
+        if (model) {
+            const position: NodePosition = model.position as NodePosition;
+            gotoSource({ startLine: position.startLine, startColumn: position.startColumn });
+        }
     }
 
     const draftVS = blockViewState?.draft[1] as DraftStatementViewState

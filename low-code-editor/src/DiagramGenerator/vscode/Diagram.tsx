@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { DiagramEditorLangClientInterface } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { DiagramEditorLangClientInterface, PerformanceAnalyzerGraphResponse, PerformanceAnalyzerRealtimeResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { DiagramGenerator } from "..";
 import { DiagramGenErrorBoundary } from "../ErrorBoundrary";
@@ -27,6 +27,7 @@ export interface EditorAPI {
     gotoSource: (filePath: string, position: { startLine: number, startColumn: number }) => Promise<boolean>;
     getPFSession: () => Promise<PFSession>;
     showPerformanceGraph: () => Promise<boolean>;
+    handlePerfErrors: (response: PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse) => Promise<boolean>;
     showMessage: () => Promise<boolean>;
     resolveMissingDependency: (filePath: string, fileContent: string) => Promise<boolean>;
     resolveMissingDependencyByCodeAction: (filePath: string, fileContent: string, diagnostic: any) => Promise<boolean>;
@@ -44,7 +45,7 @@ export type EditorProps = EditorState & EditorAPI;
 export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
 
     const { getFileContent, updateFileContent, gotoSource, getPFSession,
-            showPerformanceGraph, showMessage, resolveMissingDependency, resolveMissingDependencyByCodeAction, runCommand, ...restProps } = props;
+            showPerformanceGraph, handlePerfErrors, showMessage, resolveMissingDependency, resolveMissingDependencyByCodeAction, runCommand, ...restProps } = props;
     const [state, setState] = React.useState<EditorState>(restProps);
 
     React.useEffect(() => {
@@ -61,6 +62,7 @@ export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
                     gotoSource={gotoSource}
                     getPFSession={getPFSession}
                     showPerformanceGraph={showPerformanceGraph}
+                    handlePerfErrors={handlePerfErrors}
                     showMessage={showMessage}
                     resolveMissingDependency={resolveMissingDependency}
                     resolveMissingDependencyByCodeAction={resolveMissingDependencyByCodeAction}

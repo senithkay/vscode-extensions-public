@@ -30,6 +30,16 @@ export interface FormActionButtonsProps {
 export function FormActionButtons(props: FormActionButtonsProps) {
     const classes = useStyles();
     const { cancelBtnText, saveBtnText, isMutationInProgress, validForm, onSave, onCancel, cancelBtn } = props;
+
+    const [isClicked, setIsClicked] = React.useState<boolean>(isMutationInProgress);
+
+    const handleSave = () => {
+        if (!isClicked) {
+            onSave();
+            setIsClicked(true);
+        }
+    };
+
     return (
         <div className={classes.buttonWrapper}>
             <div className={classes.spaceBetween}>
@@ -39,9 +49,9 @@ export function FormActionButtons(props: FormActionButtonsProps) {
                 <PrimaryButton
                     data-testid="save-btn"
                     text={saveBtnText}
-                    disabled={isMutationInProgress || !validForm}
+                    disabled={isClicked || !validForm}
                     fullWidth={false}
-                    onClick={onSave}
+                    onClick={handleSave}
                 />
             </div>
         </div>
