@@ -43,10 +43,11 @@ export interface PlusProps {
     isTriggerType?: boolean;
     isDocumentEmpty?: boolean;
     isModuleLevel?: boolean;
+    isLastMember?: boolean;
 }
 
 export const TopLevelPlus = (props: PlusProps) => {
-    const { targetPosition, kind, isTriggerType, isDocumentEmpty, isModuleLevel } = props;
+    const { targetPosition, kind, isTriggerType, isDocumentEmpty, isModuleLevel, isLastMember } = props;
     const containerElement = useRef(null);
 
 
@@ -96,6 +97,7 @@ export const TopLevelPlus = (props: PlusProps) => {
                                 onClose={handlePlusOptionsClose}
                                 targetPosition={targetPosition}
                                 isTriggerType={isTriggerType}
+                                isLastMember={isLastMember}
                             />
                             {isPlusOptionsVisible && <OverlayBackground />}
                         </DiagramOverlay>
