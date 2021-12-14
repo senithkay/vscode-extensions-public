@@ -108,8 +108,26 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
                 const onKeyPath = model?.onKeyword?.position;
                 return {
                     ...onKeyPath,
-                    startColumn: onKeyPath?.startColumn - 2,
-                    endColumn: onKeyPath?.startColumn - 2
+                    startColumn: onKeyPath?.startColumn - 1,
+                    endColumn: onKeyPath?.startColumn - 1
+                }
+            }
+        }
+    }
+
+    const getOverrideTemplate = () => {
+        const resourcePath = model?.absoluteResourcePath;
+        if (Array.isArray(resourcePath)) {
+            if (resourcePath.length) {
+                return {
+                    defaultCodeSnippet: `${state.serviceBasePath}`,
+                    targetColumn: getAbsolutePath()?.startColumn - 1,
+                }
+
+            } else {
+                return {
+                    defaultCodeSnippet: `/${state.serviceBasePath} `,
+                    targetColumn: getAbsolutePath()?.startColumn,
                 }
             }
         }
@@ -129,10 +147,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
             defaultCodeSnippet: `service / on new http:Listener(1234) {}`,
             targetColumn: 10,
         },
-        overrideEditTemplate: {
-            defaultCodeSnippet: `${state.serviceBasePath}`,
-            targetColumn: getAbsolutePath()?.startColumn - 1,
-        },
+        overrideEditTemplate: getOverrideTemplate(),
         isEdit: !!model
     }
 
