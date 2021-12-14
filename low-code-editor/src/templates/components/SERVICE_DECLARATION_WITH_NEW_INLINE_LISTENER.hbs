@@ -1,4 +1,4 @@
 service /{{{ BASE_PATH }}} on new http:Listener({{{ PORT }}}) {
-    resource function get .(http:Caller caller) returns error? {
+    resource function get .() returns error? {
     }
 }

@@ -14,10 +14,12 @@ import React, { useState } from "react";
 
 import { Grid } from "@material-ui/core";
 import { PrimaryButton, SecondaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import CheckBoxGroup from "../../../../../FormFieldComponents/CheckBox";
 import { SelectDropdownWithButton } from "../../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import { FormTextInput } from "../../../../../FormFieldComponents/TextField/FormTextInput";
+import { VariableTypeInput, VariableTypeInputProps } from "../../../../Components/VariableTypeInput";
 import { PathSegment } from "../../types";
 import { pathParamTypes } from "../../util";
 
@@ -29,10 +31,12 @@ interface PathSegmentEditorProps {
     onSave?: (segment: PathSegment) => void;
     onUpdate?: (segment: PathSegment) => void;
     onCancel?: () => void;
+    model?: STNode;
+    targetPosition?: NodePosition;
 }
 
 export function PathSegmentEditor(props: PathSegmentEditorProps) {
-    const { segment, onSave, id, onCancel, onUpdate } = props;
+    const { segment, onSave, id, onCancel, onUpdate, targetPosition } = props;
     const classes = useStyles();
     let segmentValue = segment;
     if (segmentValue) {
@@ -50,6 +54,7 @@ export function PathSegmentEditor(props: PathSegmentEditorProps) {
 
     const [segmentState, setSegmentState] = useState<PathSegment>(initValue);
     const [pathError, setPathError] = useState<string>("");
+    const [validSelectedType, setValidSelectedType] = useState(false);
 
     const onChangeSegmentName = (text: string) => {
         setSegmentState({
@@ -100,6 +105,24 @@ export function PathSegmentEditor(props: PathSegmentEditorProps) {
         onUpdate(segmentState);
     };
 
+    const validateVarType = (fieldName: string, isInvalid: boolean) => {
+        setValidSelectedType(!isInvalid);
+    };
+
+    const variableTypeConfig: VariableTypeInputProps = {
+        displayName: 'Select type',
+        value: segmentState?.type,
+        onValueChange: onChangeSegmentType,
+        validateExpression: validateVarType,
+        position: targetPosition
+    }
+
+    const variableTypeInput = (
+        <div className="exp-wrapper">
+            <VariableTypeInput {...variableTypeConfig} />
+        </div>
+    );
+
     return (
         <div className={classes.segmentEditorWrap}>
             <div>
@@ -120,12 +143,9 @@ export function PathSegmentEditor(props: PathSegmentEditorProps) {
                             <CheckBoxGroup values={["Is Parameter"]} defaultValues={[segmentState.isParam ? "Is Parameter" : ""]} onChange={onParamCheckChange} />
                         </Grid>
                         <Grid item={true} xs={5}>
-                            <SelectDropdownWithButton
-                                defaultValue={segmentState?.type}
-                                disabled={!segmentState?.isParam}
-                                customProps={{ values: pathParamTypes, disableCreateNew: true }}
-                                onChange={onChangeSegmentType}
-                            />
+                            <div className={classes.segmentTypeEditor}>
+                                {segmentState?.isParam && variableTypeInput}
+                            </div>
                         </Grid>
                     </Grid>
                     <Grid container={true} item={true} spacing={2}>
@@ -140,7 +160,7 @@ export function PathSegmentEditor(props: PathSegmentEditorProps) {
                                 <PrimaryButton
                                     dataTestId={"custom-expression-save-btn"}
                                     text={onUpdate ? "Update" : " Add"}
-                                    disabled={!segmentState.name || segmentState.name === "" || (segmentState.isParam && (!segmentState.type || segmentState.type === "")) || pathError !== ""}
+                                    disabled={!segmentState.name || segmentState.name === "" || (segmentState.isParam && (!segmentState.type || segmentState.type === "")) || pathError !== "" || !validSelectedType}
                                     fullWidth={false}
                                     onClick={onUpdate ? handleOnUpdate : handleOnSave}
                                     className={classes.actionBtn}

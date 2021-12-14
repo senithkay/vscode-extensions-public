@@ -13,6 +13,8 @@
 import React, { useState } from "react";
 import { FormattedMessage } from "react-intl";
 
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+
 import { AddIcon } from "../../../../../../../../assets/icons";
 import { keywords } from "../../../../../../Portals/utils/constants";
 import { Path, PathSegment } from "../../types";
@@ -26,10 +28,11 @@ interface PathEditorProps {
     pathString: string;
     defaultValue?: string;
     onChange?: (text: string) => void;
+    targetPosition?: NodePosition;
 }
 
 export function PathEditor(props: PathEditorProps) {
-    const { pathString, onChange } = props;
+    const { pathString, onChange, targetPosition } = props;
     const path: Path = convertPathStringToSegments(pathString);
     const classes = useStyles();
 
@@ -121,7 +124,12 @@ export function PathEditor(props: PathEditorProps) {
 
     const pathSegmentEditor = (
         <div>
-            <PathSegmentEditor id={pathState.segments.length} onCancel={onCancel} onSave={onSave} />
+            <PathSegmentEditor
+                id={pathState.segments.length}
+                onCancel={onCancel}
+                onSave={onSave}
+                targetPosition={targetPosition}
+            />
         </div>
     );
 
