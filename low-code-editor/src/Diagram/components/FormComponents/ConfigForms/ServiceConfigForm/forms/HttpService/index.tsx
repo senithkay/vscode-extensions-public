@@ -126,7 +126,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
 
             } else {
                 return {
-                    defaultCodeSnippet: `/${state.serviceBasePath} `,
+                    defaultCodeSnippet: `${state.serviceBasePath} `,
                     targetColumn: getAbsolutePath()?.startColumn,
                 }
             }
@@ -134,7 +134,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
     }
 
     const variableNameConfig: VariableNameInputProps = {
-        displayName: 'Resource path',
+        displayName: 'Service path',
         value: state.serviceBasePath,
         onValueChange: onBasePathChange,
         validateExpression: updateResourcePathValidation,
@@ -144,30 +144,18 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
             ...targetPosition
         },
         overrideTemplate: {
-            defaultCodeSnippet: `service / on new http:Listener(1234) {}`,
-            targetColumn: 10,
+            defaultCodeSnippet: `service  on new http:Listener(1234) {}`,
+            targetColumn: 9,
         },
         overrideEditTemplate: getOverrideTemplate(),
         isEdit: !!model
     }
 
-    const servicePath = (
-        <div className={formClasses.servicePathWrapper}>
-            <div>
-                <Typography className={formClasses.pathStart}>/</Typography>
-            </div>
-            <div className={formClasses.pathExpEditor}>
-                <VariableNameInput {...variableNameConfig} />
-            </div>
-        </div>
-
-    );
-
     return (
         <>
             <div className={formClasses.formContentWrapper}>
                 <div className={formClasses.formNameWrapper}>
-                    {servicePath}
+                    <VariableNameInput {...variableNameConfig} />
                     <TextLabel
                         required={true}
                         textLabelId="lowcode.develop.connectorForms.HTTP.configureNewListener"

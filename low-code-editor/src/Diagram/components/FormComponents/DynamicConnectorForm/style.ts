@@ -890,21 +890,6 @@ export const useStyles = makeStyles((theme: Theme) =>
         componentWrapper: {
             display: "flex",
             justifyContent: "space-between",
-        },
-        servicePathWrapper: {
-            display: 'inline-flex'
-        },
-        pathStart: {
-            paddingTop: theme.spacing(5),
-            paddingRight: theme.spacing(0.2),
-            fontSize: theme.spacing(1.5),
-            fontWeight: 600
-        },
-        pathExpEditor : {
-            "& .exp-absolute-wrapper": {
-                position: 'absolute',
-                width: '96%'
-            }
         }
     }),
     { index: 1 }
