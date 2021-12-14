@@ -57,6 +57,7 @@ export function Service(props: ServiceProps) {
                     kind={model.kind}
                     targetPosition={member.position}
                     isTriggerType={isTriggerType}
+                    showCategorized={true}
                 />
                 {getSTComponent(member)}
             </div>
@@ -117,6 +118,7 @@ export function Service(props: ServiceProps) {
                                 targetPosition={model.closeBraceToken.position}
                                 isTriggerType={isTriggerType}
                                 isDocumentEmpty={model.members.length === 0}
+                                showCategorized={true}
                             />
                         </>
                     )}

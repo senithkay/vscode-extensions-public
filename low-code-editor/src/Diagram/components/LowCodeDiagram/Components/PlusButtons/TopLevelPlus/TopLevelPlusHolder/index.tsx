@@ -76,16 +76,13 @@ export function TopLevelPlusHolder(props: TopLevelPlusHolderProps) {
         <div className="plus-holder">
             <div className="holder-wrapper">
                 <div className="element-options">
-                    <div className="search-options-wrapper">
-                        <label>Select from list</label>
-                    </div>
                     <div className="element-option-holder" >
                         <div className='options-wrapper'>
-                            {constructs}
-                        </div>
-                        {entryPoints.length > 0 && <Divider />}
-                        <div className='options-wrapper'>
                             {entryPoints}
+                        </div>
+                        {entryPoints.length > 0 && constructs.length > 0 && <Divider />}
+                        <div className='options-wrapper'>
+                            {constructs}
                         </div>
                     </div>
                 </div>

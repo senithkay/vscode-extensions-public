@@ -18,7 +18,6 @@ import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { Context } from "../../../../Context/diagram";
 import { Margin } from "../index";
 import { PlusOptionRenderer } from "../PlusOptionRenderer";
-import { TopLevelPlusHolder } from "../TopLevelPlusHolder";
 
 export interface PlusOptionsProps {
     kind: string
@@ -43,17 +42,17 @@ export interface PlusMenuEntry {
 }
 
 export const moduleLevelEntries: PlusMenuEntry[] = [
-    { name: 'Service', type: 'ServiceDeclaration', category: PlusMenuCategories.ENTRY_POINT },
     { name: 'Main', type: 'FunctionDefinition', category: PlusMenuCategories.ENTRY_POINT },
-    { name: 'Constant', type: 'ConstDeclaration', category: PlusMenuCategories.CONSTRUCT },
+    { name: 'Service', type: 'ServiceDeclaration', category: PlusMenuCategories.ENTRY_POINT },
+    { name: 'Trigger', type: 'TriggerList', category: PlusMenuCategories.ENTRY_POINT },
     { name: 'Module Variable', type: 'ModuleVarDecl', category: PlusMenuCategories.CONSTRUCT },
-    { name: 'Configurable', type: 'Configurable', category: PlusMenuCategories.CONSTRUCT },
-    { name: 'Listener', type: 'ListenerDeclaration', category: PlusMenuCategories.CONSTRUCT },
     { name: 'Record', type: 'RecordEditor', category: PlusMenuCategories.CONSTRUCT },
+    { name: 'Function', type: 'FunctionDefinition', category: PlusMenuCategories.CONSTRUCT },
+    { name: 'Configurable', type: 'Configurable', category: PlusMenuCategories.CONSTRUCT },
+    { name: 'Constant', type: 'ConstDeclaration', category: PlusMenuCategories.CONSTRUCT },
+    { name: 'Listener', type: 'ListenerDeclaration', category: PlusMenuCategories.CONSTRUCT },
     { name: 'Enum', type: 'EnumDeclaration', category: PlusMenuCategories.CONSTRUCT },
     { name: 'Class', type: 'ClassDefinition', category: PlusMenuCategories.CONSTRUCT },
-    { name: 'Function', type: 'FunctionDefinition', category: PlusMenuCategories.CONSTRUCT },
-    { name: 'Trigger', type: 'TriggerList', category: PlusMenuCategories.ENTRY_POINT },
     { name: 'Other', type: 'Custom', category: PlusMenuCategories.CONSTRUCT }
 ];
 
