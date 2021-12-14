@@ -18,6 +18,7 @@ import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { Context } from "../../../../Context/diagram";
 import { Margin } from "../index";
 import { PlusOptionRenderer } from "../PlusOptionRenderer";
+import { TopLevelPlusHolder } from "../TopLevelPlusHolder";
 
 export interface PlusOptionsProps {
     kind: string
@@ -26,6 +27,7 @@ export interface PlusOptionsProps {
     targetPosition?: NodePosition;
     isTriggerType?: boolean;
     isLastMember?: boolean;
+    showCategorized?: boolean;
 }
 
 export enum PlusMenuCategories {
@@ -67,7 +69,7 @@ export const triggerEntries: PlusMenuEntry[] = [
 ]
 
 export const PlusOptionsSelector = (props: PlusOptionsProps) => {
-    const { onClose, targetPosition, kind, isTriggerType, isLastMember } = props;
+    const { onClose, targetPosition, kind, isTriggerType, isLastMember, showCategorized } = props;
     const [selectedOption, setSelectedOption] = useState<PlusMenuEntry>(undefined);
     const {
         api: {
@@ -112,6 +114,7 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
                         onClose={handleOnClose}
                         onOptionSelect={onOptionSelect}
                         targetPosition={targetPosition}
+                        showCategorized={showCategorized}
                     />
                 )
             }

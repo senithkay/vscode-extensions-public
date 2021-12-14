@@ -44,10 +44,11 @@ export interface PlusProps {
     isDocumentEmpty?: boolean;
     isModuleLevel?: boolean;
     isLastMember?: boolean;
+    showCategorized?: boolean;
 }
 
 export const TopLevelPlus = (props: PlusProps) => {
-    const { targetPosition, kind, isTriggerType, isDocumentEmpty, isModuleLevel, isLastMember } = props;
+    const { targetPosition, kind, isTriggerType, isDocumentEmpty, isModuleLevel, isLastMember, showCategorized } = props;
     const containerElement = useRef(null);
 
 
@@ -63,25 +64,6 @@ export const TopLevelPlus = (props: PlusProps) => {
         setPlusClicked(false);
         setIsPlusOptionsVisible(false);
     };
-
-    const getPlusMenuHeightOffset = (type: string) : number => {
-        let menuHeight: number = 0;
-        switch (type) {
-            case 'ModulePart':
-                menuHeight = (moduleLevelEntries.length * 51);
-                break;
-            case 'ServiceDeclaration':
-                menuHeight = isTriggerType ? (triggerEntries.length * 51) : (classMemberEntries.length * 51);
-                break;
-            default:
-        }
-
-        if (containerElement.current.offsetTop + menuHeight > window.innerHeight) {
-            return containerElement.current.offsetTop - menuHeight + (window.innerHeight - containerElement.current.offsetTop);
-        } else {
-            return containerElement.current.offsetTop - 10;
-        }
-    }
 
     return (
         <div className="plus-container" ref={containerElement}>
@@ -109,7 +91,7 @@ export const TopLevelPlus = (props: PlusProps) => {
                                 containerElement.current ?
                                     {
                                         x: containerElement.current.offsetLeft,
-                                        y: getPlusMenuHeightOffset(kind)
+                                        y: containerElement.current.offsetTop - 10
                                     } : {
                                         x: 0,
                                         y: 0
@@ -122,6 +104,7 @@ export const TopLevelPlus = (props: PlusProps) => {
                                 targetPosition={targetPosition}
                                 isTriggerType={isTriggerType}
                                 isLastMember={isLastMember}
+                                showCategorized={showCategorized}
                             />
                             {isPlusOptionsVisible && <OverlayBackground />}
                         </DiagramOverlay>
