@@ -65,7 +65,7 @@ export function ForEach(props: ForeachProps) {
         },
         api: {
             code: {
-                setCodeLocationToHighlight: setCodeToHighlight,
+                gotoSource
             }
         },
         props: {
@@ -208,7 +208,10 @@ export function ForEach(props: ForeachProps) {
     }
 
     const onClickOpenInCodeView = () => {
-        setCodeToHighlight(model?.position)
+        if (model) {
+            const position: NodePosition = model.position as NodePosition;
+            gotoSource({ startLine: position.startLine, startColumn: position.startColumn });
+        }
     }
 
     for (const controlFlowLine of bodyViewState.controlFlow.lineStates) {
@@ -221,10 +224,12 @@ export function ForEach(props: ForeachProps) {
     const keyWord = forEachModel.inKeyword.value
     const forEachSource = forEachModel?.actionOrExpressionNode?.source;
     assignmentText = variableName + " " + keyWord + " " + forEachSource;
-    const diagnostics = forEachModel?.actionOrExpressionNode?.typeData.diagnostics;
+    const diagnostics = (forEachModel?.actionOrExpressionNode?.typeData.diagnostics).length !== 0 ? (forEachModel?.actionOrExpressionNode?.typeData?.diagnostics) : (forEachModel?.typedBindingPattern?.typeData?.diagnostics);
 
     const diagnosticMsgs = getDiagnosticInfo(diagnostics);
-    const foreachWrapper = diagnosticMsgs ? "foreach-block-error" : "foreach-block" ;
+    const diagnosticStyles = diagnosticMsgs?.severity === "ERROR" ? "foreach-block-error" : "foreach-block-warning";
+    const forEachRectStyles = diagnosticMsgs ? diagnosticStyles : "foreach-block"
+
     const errorSnippet = {
         diagnosticMsgs: diagnosticMsgs?.message,
         code: codeSnippet,
@@ -232,7 +237,7 @@ export function ForEach(props: ForeachProps) {
     }
 
     const unFoldedComponent = (
-        <g className="foreach-block" data-testid="foreach-block">
+        <g className={forEachRectStyles} data-testid="foreach-block">
             <rect className="for-each-rect" {...rectProps} />
             <g className="foreach-polygon-wrapper">
                 <ForeachSVG
@@ -304,7 +309,7 @@ export function ForEach(props: ForeachProps) {
     );
 
     const foldedComponent = (
-        <g className="foreach-block" data-testid="foreach-block">
+        <g className={forEachRectStyles} data-testid="foreach-block">
             <rect className="for-each-rect" {...rectProps} />
             <g className="foreach-polygon-wrapper" onClick={onForeachHeadClick}>
                 <ForeachSVG x={x - FOREACH_SVG_WIDTH_WITH_SHADOW / 2} y={y} text="FOR EACH" />
@@ -374,7 +379,7 @@ export function ForEach(props: ForeachProps) {
     );
 
     return (
-        <g className={foreachWrapper}>
+        <g className="main-foreach-wrapper">
             <g>
                 {foreachComponent}
             </g>

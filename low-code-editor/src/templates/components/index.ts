@@ -37,6 +37,7 @@ resource function {{{ METHOD }}} {{{ PATH }}} ({{{ QUERY_PARAM }}}{{{PAYLOAD}}}{
 
 }`,
     RESPOND_WITH_CHECK: 'check {{{ CALLER }}}->respond({{{ EXPRESSION }}});',
+    RESPOND: 'check {{{ CALLER }}}->respond({{{ EXPRESSION }}});',
     RETURN_STATEMENT: 'return {{{ RETURN_EXPR }}};',
     SERVICE_CALL_CHECK: '{{{ TYPE }}} {{{ VARIABLE }}} = check {{{ CALLER }}}.{{{ FUNCTION }}}({{{ PARAMS }}});',
     SERVICE_CALL: '{{{ TYPE }}} {{{ VARIABLE }}} = {{{ CALLER }}}.{{{ FUNCTION }}}({{{ PARAMS }}});',
@@ -49,17 +50,17 @@ while ({{{ CONDITION }}}) {
 listener http:Listener {{{ LISTENER_NAME }}} = new ({{{ PORT }}});
 
 service {{{ BASE_PATH }}} on {{{ LISTENER_NAME }}} {
-    resource function get .(http:Caller caller) returns error? {
+    resource function get .() returns error? {
     }
 }`,
     SERVICE_DECLARATION_WITH_NEW_INLINE_LISTENER: `
 service {{{ BASE_PATH }}} on new http:Listener({{{ PORT }}}) {
-    resource function get .(http:Caller caller) returns error? {
+    resource function get .() returns error? {
     }
 }`,
     SERVICE_DECLARATION_WITH_SHARED_LISTENER: `
 service {{{ BASE_PATH }}} on {{{ LISTENER_NAME }}} {
-    resource function get .(http:Caller caller) returns error? {
+    resource function get .() returns error? {
     }
 }`,
     LISTENER_DECLARATION: `
@@ -89,14 +90,10 @@ service {{{ BASE_PATH }}} on {{{ LISTENER_NAME }}}`,
     TYPE_DEFINITION: `
 {{#if ACCESS_MODIFIER }}{{{ ACCESS_MODIFIER }}} {{/if}}type {{{ TYPE_NAME }}} {{{ TYPE_DESCRIPTOR }}}`,
     TRIGGER: `
-    configurable {{triggerType}}:ListenerConfig userInput = {
-        {{#each this.listenerParams.0.fields}}
-            {{ this.name }}: {{{ this.defaultValue }}} {{#unless @last}},{{/unless}}
-            {{/each}}
-        };
+    configurable {{triggerType}}:ListenerConfig config = ?;
 
         {{#if httpBased }}listener http:Listener httpListener = new(8090);{{/if}}
-        listener {{triggerType}}:Listener webhookListener = new(userInput{{#if httpBased }}, httpListener{{/if}});
+        listener {{triggerType}}:Listener webhookListener = new(config{{#if httpBased }}, httpListener{{/if}});
 
         {{#each serviceTypes}}
         service {{../triggerType}}:{{ this.name }} on webhookListener {
@@ -112,5 +109,12 @@ service {{{ BASE_PATH }}} on {{{ LISTENER_NAME }}}`,
 
         {{#if httpBased }}service /ignore on httpListener {}{{/if}}`,
     TRIGGER_UPDATE: `
-    service {{{ TRIGGER_CHANNEL }}} on {{{ LISTENER_NAME }}}`
+    service {{{ TRIGGER_CHANNEL }}} on {{{ LISTENER_NAME }}}`,
+
+    ENUM_DEFINITION: `
+    {{{ ACCESS_MODIFIER }}} enum {{{ NAME }}} {
+        {{#each MEMBERS}}
+            {{{ this }}}
+        {{/each}}
+    }`
 }

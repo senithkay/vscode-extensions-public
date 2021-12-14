@@ -27,12 +27,13 @@ interface FormAccordionProps {
     mandatoryFields?: React.ReactNode[];
     optionalFields?: React.ReactNode[];
     isMandatory?: boolean;
+    expandOptionals?: boolean;
 }
 
 export default function FormAccordion(props: FormAccordionProps) {
-    const { title, depth, mandatoryFields, optionalFields } = props;
+    const { title, depth, mandatoryFields, optionalFields, expandOptionals } = props;
     const classes = useStyles();
-    const [expanded, setExpanded] = React.useState<string | false>("mandatory");
+    const [expanded, setExpanded] = React.useState<string | false>(expandOptionals ? "optional" : "mandatory");
 
     const isMandatoryFieldsExist = mandatoryFields?.length > 0;
     const isOptionalFieldsExist = optionalFields?.length > 0;

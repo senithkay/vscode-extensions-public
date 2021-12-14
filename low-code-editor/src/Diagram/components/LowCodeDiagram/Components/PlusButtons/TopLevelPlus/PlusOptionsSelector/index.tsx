@@ -25,6 +25,7 @@ export interface PlusOptionsProps {
     onClose: () => void;
     targetPosition?: NodePosition;
     isTriggerType?: boolean;
+    isLastMember?: boolean;
 }
 
 export interface PlusMenuEntry {
@@ -47,6 +48,7 @@ const moduleLevelEntries: PlusMenuEntry[] = [
     },
     { name: 'Listener', type: 'ListenerDeclaration' },
     { name: 'Record', type: 'RecordEditor' },
+    { name: 'Enum', type: 'EnumDeclaration' },
     { name: 'Class', type: 'ClassDefinition' },
     { name: 'Function', type: 'FunctionDefinition' },
     { name: 'Trigger', type: 'TriggerList' },
@@ -54,9 +56,9 @@ const moduleLevelEntries: PlusMenuEntry[] = [
 ];
 
 const classMemberEntries: PlusMenuEntry[] = [
-    { name: 'Variable', type: 'ObjectField' },
+    // { name: 'Variable', type: 'ObjectField' },
     { name: 'Resource', type: 'ResourceAccessorDefinition' },
-    { name: 'Function', type: 'ObjectMethodDefinition' }
+    // { name: 'Function', type: 'ObjectMethodDefinition' }
 ]
 
 const triggerEntries: PlusMenuEntry[] = [
@@ -65,7 +67,7 @@ const triggerEntries: PlusMenuEntry[] = [
 ]
 
 export const PlusOptionsSelector = (props: PlusOptionsProps) => {
-    const { onClose, targetPosition, kind, isTriggerType } = props;
+    const { onClose, targetPosition, kind, isTriggerType, isLastMember } = props;
     const [selectedOption, setSelectedOption] = useState<PlusMenuEntry>(undefined);
     const {
         api: {
@@ -87,7 +89,7 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
     }
 
     const onOptionSelect = (option: PlusMenuEntry) => {
-        renderAddForm(targetPosition, { formType: option.type, formName: option.name, isLoading: false }, handleOnClose, handleOnSave);
+        renderAddForm(targetPosition, { formType: option.type, formName: option.name, isLoading: false, isLastMember }, handleOnClose, handleOnSave);
         setSelectedOption(option);
     }
 

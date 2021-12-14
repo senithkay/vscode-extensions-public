@@ -263,12 +263,6 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const validExpEditor = () => {
         const monacoModel = monacoRef.current?.editor?.getModel();
         const monacoValue = monacoModel?.getValue();
-        if (monacoValue) {
-            model.value = monacoValue;
-            if (onChange) {
-                onChange(monacoValue);
-            }
-        }
         validate(model.name, canIgnore ? false : monacoValue?.length === 0, isEmpty, canIgnore);
         setValidating(false);
         if (monacoRef.current) {
@@ -686,6 +680,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
 
     // ExpEditor onChange
     const handleContentChange = async (currentContent: string, EOL: string, lastPressedKey: string) => {
+        if (onChange) {
+            onChange(currentContent);
+        }
         if (expressionEditorState?.name === model.name && monacoRef.current && monacoRef.current.editor.hasTextFocus()) {
             let newModel: string = null;
             let newCodeSnippet: string = "";
@@ -709,9 +706,6 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
 
             // update the change of the field
             model.value = monacoRef.current.editor.getModel().getValue();
-            if (onChange) {
-                onChange(monacoRef.current.editor.getModel().getValue());
-            }
 
             const langClient = await getExpressionEditorLangClient();
             langClient.didChange({

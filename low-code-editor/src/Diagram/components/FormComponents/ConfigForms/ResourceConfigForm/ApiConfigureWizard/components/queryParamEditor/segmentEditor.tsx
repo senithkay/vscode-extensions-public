@@ -14,11 +14,13 @@ import React, { useContext, useState } from "react";
 
 import { Grid } from "@material-ui/core";
 import { PrimaryButton, SecondaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../../../Contexts/Diagram";
 import { checkVariableName } from "../../../../../../Portals/utils";
 import { SelectDropdownWithButton } from "../../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import { FormTextInput } from "../../../../../FormFieldComponents/TextField/FormTextInput";
+import { VariableTypeInput, VariableTypeInputProps } from "../../../../Components/VariableTypeInput";
 import { QueryParam } from "../../types";
 import { queryParamTypes } from "../../util";
 
@@ -31,10 +33,11 @@ interface QueryParamSegmentEditorProps {
     onCancel?: () => void;
     types?: string[];
     validateParams?: (paramName: string) => { error: boolean, message: string };
+    targetPosition?: NodePosition;
 }
 
 export function QueryParamSegmentEditor(props: QueryParamSegmentEditorProps) {
-    const { segment, onSave, id, onCancel, types, validateParams } = props;
+    const { segment, onSave, id, onCancel, types, validateParams, targetPosition } = props;
     const classes = useStyles();
     const { props: { stSymbolInfo } } = useContext(Context);
     const initValue: QueryParam = segment ? { ...segment } : {
@@ -45,6 +48,7 @@ export function QueryParamSegmentEditor(props: QueryParamSegmentEditorProps) {
 
     const [segmentState, setSegmentState] = useState<QueryParam>(initValue);
     const [pramError, setParamError] = useState<string>("");
+    const [validSelectedType, setValidSelectedType] = useState(false);
 
     const onChangeSegmentName = (text: string) => {
         setSegmentState({
@@ -78,15 +82,29 @@ export function QueryParamSegmentEditor(props: QueryParamSegmentEditorProps) {
         onSave(segmentState);
     };
 
+    const validateVarType = (fieldName: string, isInvalid: boolean) => {
+        setValidSelectedType(!isInvalid);
+    };
+
+    const variableTypeConfig: VariableTypeInputProps = {
+        displayName: 'Type',
+        value: segmentState?.type,
+        onValueChange: onChangeSegmentType,
+        validateExpression: validateVarType,
+        position: targetPosition
+    }
+
+    const variableTypeInput = (
+        <div className="exp-wrapper">
+            <VariableTypeInput {...variableTypeConfig} />
+        </div>
+    );
+
     return (
         <div className={classes.queryParamEditorWrap}>
             <div>
                 <Grid container={true} spacing={1}>
-                    <Grid item={true} xs={5}>
-                        <div className={classes.labelOfInputs}>
-                            Type
-                        </div>
-                    </Grid>
+                    <Grid item={true} xs={5} />
                     <Grid item={true} xs={7}>
                         <div className={classes.labelOfInputs}>
                             Name
@@ -95,12 +113,9 @@ export function QueryParamSegmentEditor(props: QueryParamSegmentEditorProps) {
                 </Grid>
                 <Grid container={true} item={true} spacing={2}>
                     <Grid item={true} xs={5}>
-                        <SelectDropdownWithButton
-                            dataTestId="api-query-param-type"
-                            defaultValue={segmentState?.type}
-                            customProps={{values: types || queryParamTypes, disableCreateNew: true}}
-                            onChange={onChangeSegmentType}
-                        />
+                        <div className={classes.segmentTypeEditor}>
+                            {variableTypeInput}
+                        </div>
                     </Grid>
                     <Grid item={true} xs={7}>
                         <FormTextInput
@@ -124,7 +139,7 @@ export function QueryParamSegmentEditor(props: QueryParamSegmentEditorProps) {
                             <PrimaryButton
                                 dataTestId={"custom-expression-save-btn"}
                                 text={"Add"}
-                                disabled={!segmentState.name || !segmentState.type || segmentState?.name === "" || segmentState?.type === "" || pramError !== ""}
+                                disabled={!segmentState.name || !segmentState.type || segmentState?.name === "" || segmentState?.type === "" || pramError !== "" || !validSelectedType}
                                 fullWidth={false}
                                 onClick={handleOnSave}
                             />

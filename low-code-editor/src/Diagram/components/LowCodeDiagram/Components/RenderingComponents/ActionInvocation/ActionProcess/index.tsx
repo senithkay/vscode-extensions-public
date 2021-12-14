@@ -14,16 +14,16 @@
 import React, { useContext, useState } from "react";
 
 import { BallerinaConnectorInfo, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { LocalVarDecl, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { LocalVarDecl, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
+import { Context } from "../../../../../../../Contexts/Diagram";
 import { getDiagnosticInfo } from "../../../../../../utils";
 import { getOverlayFormConfig, getRandomInt } from "../../../../../../utils/diagram-util";
 import { getMatchingConnector, getStatementTypesFromST } from "../../../../../../utils/st-util";
 import { DefaultConfig } from "../../../../../../visitors/default";
 import { ConnectorConfigWizard } from "../../../../../FormComponents/ConnectorConfigWizard";
 import { FormGenerator } from "../../../../../FormComponents/FormGenerator";
-import { Context } from "../../../../Context/diagram";
 import { BlockViewState, PlusViewState, StatementViewState } from "../../../../ViewState";
 import { DraftStatementViewState } from "../../../../ViewState/draft";
 import { DeleteBtn } from "../../../DiagramActions/DeleteBtn";
@@ -44,19 +44,11 @@ export interface ProcessorProps {
 export function ActionProcessor(props: ProcessorProps) {
     const {
         actions: { diagramCleanDraw, diagramRedraw },
-        // api: {
-        //     splitPanel: {
-        //         handleRightPanelContent,
-        //         maximize: maximizeCodeView,
-        //     },
-        //     code: {
-        //         setCodeLocationToHighlight: setCodeToHighlight,
-        //     },
-        //     configPanel: {
-        //         dispactchConfigOverlayForm: openNewProcessorConfig,
-        //         closeConfigOverlayForm: dispatchCloseConfigOverlayForm,
-        //     }
-        // },
+        api: {
+            code: {
+                gotoSource
+            }
+        },
         props: {
             // currentApp,
             // isCodeEditorActive,
@@ -187,7 +179,10 @@ export function ActionProcessor(props: ProcessorProps) {
     };
 
     const onClickOpenInCodeView = () => {
-        // setCodeToHighlight(model.position);
+        if (model) {
+            const position: NodePosition = model.position as NodePosition;
+            gotoSource({ startLine: position.startLine, startColumn: position.startColumn });
+        }
     }
 
     const onEndpointSelect = (actionInvo: STNode) => {
@@ -247,12 +242,11 @@ export function ActionProcessor(props: ProcessorProps) {
     const localModel = model as LocalVarDecl;
     const statmentTypeText = getStatementTypesFromST(localModel);
 
-    const processWrapper = isDraftStatement ? cn("main-process-wrapper active-data-processor") : cn("main-process-wrapper data-processor");
-    const processStyles = diagnosticMsgs && !isDraftStatement ? "main-process-wrapper data-processor-error " : processWrapper;
+    const processWrapper = isDraftStatement ? cn("main-process-wrapper active-action-processor") : cn("main-process-wrapper action-processor");
 
     const component: React.ReactNode = !viewState.collapsed && (
         <g>
-            <g className={processStyles} data-testid="data-processor-block">
+            <g className={processWrapper} data-testid="data-processor-block">
                 <React.Fragment>
                     {!isDraftStatement && statmentTypeText && processName && (
                         <>
