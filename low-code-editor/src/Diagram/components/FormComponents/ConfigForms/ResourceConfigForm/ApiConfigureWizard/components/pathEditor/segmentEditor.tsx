@@ -17,11 +17,9 @@ import { PrimaryButton, SecondaryButton } from "@wso2-enterprise/ballerina-low-c
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import CheckBoxGroup from "../../../../../FormFieldComponents/CheckBox";
-import { SelectDropdownWithButton } from "../../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import { FormTextInput } from "../../../../../FormFieldComponents/TextField/FormTextInput";
 import { VariableTypeInput, VariableTypeInputProps } from "../../../../Components/VariableTypeInput";
 import { PathSegment } from "../../types";
-import { pathParamTypes } from "../../util";
 
 import { useStyles } from './style';
 
@@ -160,7 +158,7 @@ export function PathSegmentEditor(props: PathSegmentEditorProps) {
                                 <PrimaryButton
                                     dataTestId={"custom-expression-save-btn"}
                                     text={onUpdate ? "Update" : " Add"}
-                                    disabled={!segmentState.name || segmentState.name === "" || (segmentState.isParam && (!segmentState.type || segmentState.type === "")) || pathError !== "" || !validSelectedType}
+                                    disabled={!segmentState.name || segmentState.name === "" || (segmentState.isParam && (!segmentState.type || segmentState.type === "" || !validSelectedType)) || pathError !== ""}
                                     fullWidth={false}
                                     onClick={onUpdate ? handleOnUpdate : handleOnSave}
                                     className={classes.actionBtn}
