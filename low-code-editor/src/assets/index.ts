@@ -19,3 +19,4 @@ export { default as ExpEditorExpandSvg } from "./images/exp-editor-expand.svg";
 export { default as DotBackground } from "./images/dot-background.svg";
 export { default as EditIcon } from "./images/edit_icon_green.svg";
 export { default as ConfigurableIconSvg } from "./images/configurable-icon.svg";
+export { default as DocIcon } from "./images/doc.svg";
