@@ -40,10 +40,18 @@ export class ExplorerDataProvider implements TreeDataProvider<ExplorerTreeItem> 
         });
 
         const fileWatcher = workspace.createFileSystemWatcher("**/*", false, true, false);
-        fileWatcher.onDidCreate(_listeners => {
+        fileWatcher.onDidCreate(listener => {
+            if (path.dirname(listener.fsPath).split(path.sep).pop() === '.git') {
+                return;
+            }
+            debug(`Refresh diagram explorer view for ${listener.fsPath} create.`);
             this.refresh();
         });
-        fileWatcher.onDidDelete(_listener => {
+        fileWatcher.onDidDelete(listener => {
+            if (path.dirname(listener.fsPath).split(path.sep).pop() === '.git') {
+                return;
+            }
+            debug(`Refresh diagram explorer view for ${listener.fsPath} delete`);
             this.refresh();
         })
     }
