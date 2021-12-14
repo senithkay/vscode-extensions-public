@@ -40,7 +40,7 @@ export function QueryParamItem(props: QueryParamItemProps) {
 
     return (
         <div className={classes.headerWrapper}>
-            <div className={ addInProgress ? classes.headerLabel : classes.headerLabelWithCursor } onClick={handleEdit}>
+            <div className={addInProgress ? classes.headerLabel : classes.headerLabelWithCursor} onClick={handleEdit}>
                 {segmentLabel}
                 <ButtonWithIcon
                     onClick={handleDelete}
