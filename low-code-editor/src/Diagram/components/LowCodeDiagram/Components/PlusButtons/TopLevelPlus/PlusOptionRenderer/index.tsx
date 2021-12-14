@@ -17,10 +17,10 @@ import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { getConstructIcon } from "../../../../../Portals/utils";
 import { PlusMenuEntry } from "../PlusOptionsSelector";
+import { TopLevelPlusHolder } from "../TopLevelPlusHolder";
 
 import { PlusOption } from "./PlusOption";
 import "./style.scss";
-import { TopLevelPlusHolder } from "../TopLevelPlusHolder";
 
 interface PlusOptionRendererProps {
     entries: PlusMenuEntry[];

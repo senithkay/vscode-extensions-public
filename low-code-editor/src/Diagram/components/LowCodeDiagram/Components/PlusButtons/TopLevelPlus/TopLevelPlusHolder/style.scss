@@ -120,6 +120,15 @@
                         display: flex;
                         align-items: center;
                         transform: scale(1.25);
+
+                        .svg-sub-menu-plus-option-icon {
+                            // fill: #5567D5;
+                            fill: #cbcddb;
+
+                            &.secondary {
+                                fill: #cbcddb;
+                            }
+                        }
                     }
 
                     .text-label {
