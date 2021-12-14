@@ -108,8 +108,8 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
                 const onKeyPath = model?.onKeyword?.position;
                 return {
                     ...onKeyPath,
-                    startColumn: onKeyPath?.endColumn - 1,
-                    endColumn: onKeyPath?.endColumn - 1
+                    startColumn: onKeyPath?.startColumn - 2,
+                    endColumn: onKeyPath?.startColumn - 2
                 }
             }
         }
