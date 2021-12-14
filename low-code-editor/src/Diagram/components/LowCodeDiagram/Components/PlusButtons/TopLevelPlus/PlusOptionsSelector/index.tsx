@@ -28,42 +28,42 @@ export interface PlusOptionsProps {
     isLastMember?: boolean;
 }
 
+export enum PlusMenuCategories {
+    CONSTRUCT,
+    ENTRY_POINT
+}
+
 export interface PlusMenuEntry {
     name: string,
     type: string,
+    category: PlusMenuCategories,
     subMenu?: PlusMenuEntry[]
 }
 
-const moduleLevelEntries: PlusMenuEntry[] = [
-    { name: 'Service', type: 'ServiceDeclaration' },
-    { name: 'Main', type: 'FunctionDefinition' },
-    {
-        name: 'Variable',
-        type: 'VariableIcon',
-        subMenu: [
-            { name: 'Constant', type: 'ConstDeclaration' },
-            { name: 'Module Variable', type: 'ModuleVarDecl' },
-            { name: 'Configurable', type: 'Configurable' }
-        ]
-    },
-    { name: 'Listener', type: 'ListenerDeclaration' },
-    { name: 'Record', type: 'RecordEditor' },
-    { name: 'Enum', type: 'EnumDeclaration' },
-    { name: 'Class', type: 'ClassDefinition' },
-    { name: 'Function', type: 'FunctionDefinition' },
-    { name: 'Trigger', type: 'TriggerList' },
-    { name: 'Other', type: 'Custom' }
+export const moduleLevelEntries: PlusMenuEntry[] = [
+    { name: 'Service', type: 'ServiceDeclaration', category: PlusMenuCategories.ENTRY_POINT },
+    { name: 'Main', type: 'FunctionDefinition', category: PlusMenuCategories.ENTRY_POINT },
+    { name: 'Constant', type: 'ConstDeclaration', category: PlusMenuCategories.CONSTRUCT },
+    { name: 'Module Variable', type: 'ModuleVarDecl', category: PlusMenuCategories.CONSTRUCT },
+    { name: 'Configurable', type: 'Configurable', category: PlusMenuCategories.CONSTRUCT },
+    { name: 'Listener', type: 'ListenerDeclaration', category: PlusMenuCategories.CONSTRUCT },
+    { name: 'Record', type: 'RecordEditor', category: PlusMenuCategories.CONSTRUCT },
+    { name: 'Enum', type: 'EnumDeclaration', category: PlusMenuCategories.CONSTRUCT },
+    { name: 'Class', type: 'ClassDefinition', category: PlusMenuCategories.CONSTRUCT },
+    { name: 'Function', type: 'FunctionDefinition', category: PlusMenuCategories.CONSTRUCT },
+    { name: 'Trigger', type: 'TriggerList', category: PlusMenuCategories.ENTRY_POINT },
+    { name: 'Other', type: 'Custom', category: PlusMenuCategories.CONSTRUCT }
 ];
 
-const classMemberEntries: PlusMenuEntry[] = [
+export const classMemberEntries: PlusMenuEntry[] = [
     // { name: 'Variable', type: 'ObjectField' },
-    { name: 'Resource', type: 'ResourceAccessorDefinition' },
+    { name: 'Resource', type: 'ResourceAccessorDefinition', category: PlusMenuCategories.ENTRY_POINT },
     // { name: 'Function', type: 'ObjectMethodDefinition' }
 ]
 
-const triggerEntries: PlusMenuEntry[] = [
-    { name: 'Variable', type: 'ObjectField' },
-    { name: 'Function', type: 'ObjectMethodDefinition' }
+export const triggerEntries: PlusMenuEntry[] = [
+    { name: 'Variable', type: 'ObjectField', category: PlusMenuCategories.CONSTRUCT },
+    { name: 'Function', type: 'ObjectMethodDefinition', category: PlusMenuCategories.CONSTRUCT }
 ]
 
 export const PlusOptionsSelector = (props: PlusOptionsProps) => {
@@ -98,7 +98,7 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
             menuEntries = moduleLevelEntries;
             break;
         case 'ServiceDeclaration':
-            isTriggerType ? menuEntries = triggerEntries : menuEntries = classMemberEntries;
+            menuEntries = isTriggerType ? triggerEntries : classMemberEntries;
             break;
         default:
     }

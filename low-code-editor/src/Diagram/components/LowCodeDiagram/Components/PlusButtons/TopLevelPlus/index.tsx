@@ -22,7 +22,7 @@ import { OverlayBackground } from "../../../../OverlayBackground";
 import { DiagramOverlay, DiagramOverlayContainer } from "../../../../Portals/Overlay";
 
 import { InitialPlusTooltipBubble } from "./InitialPlusTooltipBubble";
-import { PlusOptionsSelector } from "./PlusOptionsSelector";
+import { classMemberEntries, moduleLevelEntries, PlusOptionsSelector, triggerEntries } from "./PlusOptionsSelector";
 import "./style.scss";
 
 export const PLUS_WIDTH = 16;
@@ -64,6 +64,25 @@ export const TopLevelPlus = (props: PlusProps) => {
         setIsPlusOptionsVisible(false);
     };
 
+    const getPlusMenuHeightOffset = (type: string) : number => {
+        let menuHeight: number = 0;
+        switch (type) {
+            case 'ModulePart':
+                menuHeight = (moduleLevelEntries.length * 51);
+                break;
+            case 'ServiceDeclaration':
+                menuHeight = isTriggerType ? (triggerEntries.length * 51) : (classMemberEntries.length * 51);
+                break;
+            default:
+        }
+
+        if (containerElement.current.offsetTop + menuHeight > window.innerHeight) {
+            return containerElement.current.offsetTop - menuHeight + (window.innerHeight - containerElement.current.offsetTop);
+        } else {
+            return containerElement.current.offsetTop - 10;
+        }
+    }
+
     return (
         <div className="plus-container" ref={containerElement}>
             <div className={'plus-btn-wrapper'} onClick={handlePlusClick}>
@@ -79,7 +98,7 @@ export const TopLevelPlus = (props: PlusProps) => {
             </div>
             {
                 isModuleLevel && isDocumentEmpty && !isPlusClicked && (
-                   <InitialPlusTooltipBubble />
+                    <InitialPlusTooltipBubble />
                 )
             }
             {
@@ -88,8 +107,13 @@ export const TopLevelPlus = (props: PlusProps) => {
                         <DiagramOverlay
                             position={
                                 containerElement.current ?
-                                    { x: containerElement.current.offsetLeft, y: containerElement.current.offsetTop }
-                                    : { x: 0, y: 0 }
+                                    {
+                                        x: containerElement.current.offsetLeft,
+                                        y: getPlusMenuHeightOffset(kind)
+                                    } : {
+                                        x: 0,
+                                        y: 0
+                                    }
                             }
                         >
                             <PlusOptionsSelector
