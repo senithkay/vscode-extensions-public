@@ -39,12 +39,13 @@ interface FunctionConfigFormProps {
     onCancel: () => void;
     onSave: () => void;
     formType: string;
+    isLastMember?: boolean;
 }
 
 export function FunctionConfigForm(props: FunctionConfigFormProps) {
     const MAIN_TEXT: string = "Main";
     const formClasses = useFormStyles();
-    const { targetPosition, model, onSave, onCancel, formType, configOverlayFormStatus } = props;
+    const { targetPosition, model, onSave, onCancel, formType, configOverlayFormStatus, isLastMember } = props;
     const isMainFunction: boolean = (configOverlayFormStatus.formName && configOverlayFormStatus.formName === MAIN_TEXT) || (model && model.functionName.value ===  MAIN_TEXT.toLowerCase());
     const [functionName, setFunctionName] = useState(isMainFunction ? MAIN_TEXT.toLowerCase() : "");
     const [parameters, setParameters] = useState<FunctionParam[]>([]);
@@ -90,10 +91,8 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
                     functionName,
                     parametersStr,
                     returnTypeStr,
-                    {
-                        startLine: targetPosition.startLine,
-                        startColumn: 0,
-                    }
+                    targetPosition,
+                    isLastMember
                 )
             );
         }

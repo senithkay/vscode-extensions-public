@@ -14,7 +14,7 @@
 import React, { useContext, useState } from "react";
 
 import { BallerinaConnectorInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { CaptureBindingPattern, LocalVarDecl, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { CaptureBindingPattern, LocalVarDecl, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
@@ -44,7 +44,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
         actions: { diagramCleanDraw },
         api: {
             code: {
-                setCodeLocationToHighlight: setCodeToHighlight,
+                gotoSource
             }
         },
         props: {
@@ -167,7 +167,10 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
     );
 
     const onClickOpenInCodeView = () => {
-        setCodeToHighlight(model.position)
+        if (model) {
+            const position: NodePosition = model.position as NodePosition;
+            gotoSource({ startLine: position.startLine, startColumn: position.startColumn });
+        }
     }
 
     const connectorWizard = (

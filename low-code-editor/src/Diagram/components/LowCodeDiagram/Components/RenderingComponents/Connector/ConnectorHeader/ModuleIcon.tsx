@@ -19,14 +19,17 @@ import { DefaultConnectorIcon } from "../Icon/DefaultConnectorIcon";
 
 export interface ModuleIconProps {
     model: STNode;
-    iconProps: React.SVGProps<SVGSVGElement>;
+    cx?: number;
+    cy?: number;
+    width?: number;
 }
 
 export function ModuleIcon(props: ModuleIconProps) {
-    const { model, iconProps } = props;
+    const { model, cx, cy, width } = props;
     const balCentralCdn = "https://bcentral-packageicons.azureedge.net/images";
-    const width = 36;
+    const iconWidth = width || 36;
 
+    const marginError = iconWidth / 8;
     const module = model.typeData?.typeSymbol?.moduleID;
     let iconUrl = "";
 
@@ -41,15 +44,17 @@ export function ModuleIcon(props: ModuleIconProps) {
     };
 
     const moduleIcon = (
-        <svg width={width} height={width} xmlns="http://www.w3.org/2000/svg" {...iconProps}>
-            <image href={iconUrl} height={width} width={width} onError={handleLoadingError} />
+        <svg x={cx} y={cy} width={iconWidth} height={iconWidth} xmlns="http://www.w3.org/2000/svg">
+            <image href={iconUrl} height={iconWidth} width={iconWidth} onError={handleLoadingError} />
         </svg>
     );
 
     return (
         <>
             {!showDefaultIcon && moduleIcon}
-            {showDefaultIcon && <DefaultConnectorIcon transform="scale(0.5)" {...iconProps} viewBox="0 0 50 50" />}
+            {showDefaultIcon && (
+                <DefaultConnectorIcon cx={cx - marginError} cy={cy - marginError} width={iconWidth} scale={0.5} />
+            )}
         </>
     );
 }

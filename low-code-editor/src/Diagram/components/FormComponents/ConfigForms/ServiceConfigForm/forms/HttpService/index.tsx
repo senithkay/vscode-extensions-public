@@ -33,13 +33,14 @@ interface HttpServiceFormProps {
     targetPosition?: NodePosition;
     onCancel: () => void;
     onSave: () => void;
+    isLastMember?: boolean;
 }
 
 const HTTP_MODULE_QUALIFIER = 'http';
 
 export function HttpServiceForm(props: HttpServiceFormProps) {
     const formClasses = useFormStyles();
-    const { model, targetPosition, onCancel, onSave } = props;
+    const { model, targetPosition, onCancel, onSave, isLastMember } = props;
     const { props: { stSymbolInfo }, api: { code: { modifyDiagram } } } = useDiagramContext();
     const [state, dispatch] = useReducer(serviceConfigReducer, getFormStateFromST(model, stSymbolInfo));
 
@@ -80,7 +81,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         } else {
             modifyDiagram([
                 createImportStatement('ballerina', 'http', { startColumn: 0, startLine: 0 }),
-                createServiceDeclartion(state, targetPosition)
+                createServiceDeclartion(state, targetPosition, isLastMember)
             ]);
         }
         onSave();

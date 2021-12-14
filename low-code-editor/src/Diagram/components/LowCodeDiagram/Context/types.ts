@@ -83,6 +83,10 @@ export interface LowCodeDiagramAPI {
         closeConfigOverlayForm: () => void;
         configOverlayFormPrepareStart: () => void;
         closeConfigPanel: () => void;
+    };
+
+    code?: {
+        gotoSource: (position: { startLine: number, startColumn: number }) => void;
     }
 }
 
