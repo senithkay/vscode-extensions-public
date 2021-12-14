@@ -21,21 +21,26 @@ import { useStyles } from './style';
 
 interface QueryParamItemProps {
     queryParam: QueryParam;
+    addInProgress: boolean;
     onDelete?: (queryParam: QueryParam) => void;
-    onEdit?: (queryParam: QueryParam) => void;
+    onEditClick?: (queryParam: QueryParam) => void;
 }
 
 export function QueryParamItem(props: QueryParamItemProps) {
-    const { queryParam, onDelete } = props;
+    const { queryParam, addInProgress, onDelete, onEditClick } = props;
     const classes = useStyles();
 
     const segmentLabel = queryParam.type + " " + queryParam.name;
     const handleDelete = () => {
         onDelete(queryParam);
     };
+    const handleEdit = () => {
+        onEditClick(queryParam);
+    };
+
     return (
         <div className={classes.headerWrapper}>
-            <div className={classes.headerLabel}>
+            <div className={ addInProgress ? classes.headerLabel : classes.headerLabelWithCursor } onClick={handleEdit}>
                 {segmentLabel}
                 <ButtonWithIcon
                     onClick={handleDelete}
