@@ -12,10 +12,10 @@
  */
 
 import React, { useState } from "react";
-import {v4 as uuid} from 'uuid';
 
 import { DiagramDiagnostic } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import {v4 as uuid} from 'uuid';
 
 import ExpressionEditor, { ExpressionEditorCustomTemplate, ExpressionEditorProps } from "../../../FormFieldComponents/ExpressionEditor";
 import { FormElementProps } from "../../../Types";
