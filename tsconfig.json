@@ -16,5 +16,8 @@
       {
         "path": "./syntax-tree/tsconfig.ref.json"
       },
+      {
+        "path": "./expression-editor/tsconfig.ref.json"
+      }
     ],
   }
