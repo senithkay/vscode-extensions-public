@@ -15,7 +15,14 @@ import React, { useContext, useRef, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
-import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ExpressionEditor,
+    ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
+import {
+    CustomLowCodeContext,
+    FormActionButtons,
+    FormElementProps,
+    FormHeaderSection
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { LocalVarDecl, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
@@ -25,10 +32,11 @@ import { createModuleVarDecl, getInitialSource } from "../../../../../../utils/m
 import { getVariableNameFromST } from "../../../../../../utils/st-util";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
-import ExpressionEditor, { ExpressionEditorProps } from "../../../../FormFieldComponents/ExpressionEditor";
+import { ExpressionConfigurable } from "../../../../FormFieldComponents/ExpressionConfigurable";
+// import ExpressionEditor, { ExpressionEditorProps } from "../../../../FormFieldComponents/ExpressionEditor";
 import { SwitchToggle } from "../../../../FormFieldComponents/SwitchToggle";
 import { FormTextInput } from "../../../../FormFieldComponents/TextField/FormTextInput";
-import { FormElementProps, ProcessConfig } from "../../../../Types";
+import { ProcessConfig } from "../../../../Types";
 import { VariableNameInput, VariableNameInputProps } from "../../../Components/VariableNameInput";
 import {
     VariableTypeInput,
@@ -53,16 +61,29 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     const { config, formArgs, onCancel, onSave, onWizardClose } = props;
 
     const {
+        state: { targetPosition: targetPositionDraft },
         props: {
             currentFile,
             isMutationProgress: isMutationInProgress,
-            stSymbolInfo
+            stSymbolInfo,
+            langServerURL,
+            syntaxTree,
+            diagnostics: mainDiagnostics,
         },
         api: {
             ls: { getExpressionEditorLangClient },
             code: { modifyDiagram }
         }
     } = useContext(Context);
+
+    const lowCodeEditorContext: CustomLowCodeContext = {
+        targetPosition: targetPositionDraft,
+        currentFile,
+        langServerURL,
+        syntaxTree,
+        diagnostics: mainDiagnostics,
+        ls: { getExpressionEditorLangClient }
+    }
 
     let initialModelType: string = '';
     let variableName: string = '';
@@ -235,6 +256,8 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         },
         onChange: onPropertyChange,
         defaultValue: variableExpression,
+        expressionConfigurable: ExpressionConfigurable,
+        lowCodeEditorContext
     };
 
     const initialSource = formArgs.model ? formArgs.model.source : getInitialSource(createModuleVarDecl(
