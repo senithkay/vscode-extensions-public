@@ -14,7 +14,7 @@
 // tslint:disable: jsx-wrap-multiline
 import React, { ReactNode, useContext, useEffect, useState } from "react";
 
-import { Box, Divider, FormControl, Typography } from "@material-ui/core";
+import {Box, Divider, FormControl, IconButton, Typography} from "@material-ui/core";
 import {
     ActionConfig,
     BallerinaConnectorInfo,
@@ -27,6 +27,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { CaptureBindingPattern, FunctionDefinition, LocalVarDecl, ModulePart, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
+import {DocIcon} from "../../../../../../assets";
 import { Context, useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { useFunctionContext } from "../../../../../../Contexts/Function";
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
@@ -56,6 +57,7 @@ import {
 } from "../../../../Portals/utils";
 import { wizardStyles as useFormStyles } from "../../../ConfigForms/style";
 import { ExpressionInjectablesProps, FormGeneratorProps, InjectableItem } from "../../../FormGenerator";
+import {generateDocUrl} from "../../../Utils";
 import { ConfigWizardState } from "../../index";
 import { wizardStyles } from "../../style";
 import "../../style.scss";
@@ -94,6 +96,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
         api: {
             code: { modifyDiagram },
             insights: { onEvent },
+            webView: { showDocumentationView }
         },
         props: { stSymbolInfo, isMutationProgress },
     } = useContext(Context);
@@ -107,6 +110,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
         selectedConnector,
         isAction,
         expressionInjectables,
+        connectorInfo
     } = props.configOverlayFormStatus.formArgs as ConnectorConfigWizardProps;
     const {
         props: { syntaxTree },
@@ -391,6 +395,18 @@ export function ConnectorForm(props: FormGeneratorProps) {
         onEvent(event);
     };
 
+    const openDocPanel = () => {
+        if (connectorInfo?.package) {
+            const {organization, name} = connectorInfo?.package;
+            if (organization && name) {
+                const docURL = generateDocUrl(organization, name, "");
+                if (docURL){
+                    showDocumentationView(docURL);
+                }
+            }
+        }
+    }
+
     // TODO: fix AI suggestion issue with vscode implementation
     // useEffect(() => {
     //     if (connector) {
@@ -437,6 +453,11 @@ export function ConnectorForm(props: FormGeneratorProps) {
                             <Typography className={wizardClasses.configTitle} variant="h4">
                                 {connectorName}
                             </Typography>
+                            <IconButton
+                                onClick={openDocPanel}
+                            >
+                                <img src={DocIcon}/>
+                            </IconButton>
                         </div>
                         <Divider variant="fullWidth" />
                     </div>
@@ -454,6 +475,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
                             operations={operations}
                             expressionInjectables={expressionInjectables}
                             targetPosition={targetPosition}
+                            connectorInfo={connectorInfo}
                         />
                     )}
 

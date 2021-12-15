@@ -15,6 +15,7 @@ import React from "react";
 
 import { ModulePart, STNode } from "@wso2-enterprise/syntax-tree";
 
+import { useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { useStyles } from "../../../../../styles";
 import { getSTComponent } from "../../../../../utils";
 import { TopLevelPlus } from "../../PlusButtons/TopLevelPlus";
