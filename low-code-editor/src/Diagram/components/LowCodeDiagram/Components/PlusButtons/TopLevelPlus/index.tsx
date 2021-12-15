@@ -70,7 +70,7 @@ export const TopLevelPlus = (props: PlusProps) => {
 
         switch (kind) {
             case 'ModulePart':
-                menuHeight += 87;
+                menuHeight += 42;
                 const categroyMap: Map<PlusMenuCategories, number> = new Map();
                 let rows = 0;
 
