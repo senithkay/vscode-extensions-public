@@ -97,6 +97,18 @@ export function createForeachStatement(collection: string, variableName: string,
     return foreachStatement;
 }
 
+export function createQueryForeachStatement(targetPosition?: NodePosition): STModification {
+    const queryForeachStatement: STModification = {
+        startLine: targetPosition ? targetPosition.startLine : 0,
+        startColumn: 0,
+        endLine: targetPosition ? targetPosition.startLine : 0,
+        endColumn: 0,
+        type: "QUERY_FOREACH_STATEMENT",
+    };
+
+    return queryForeachStatement;
+}
+
 export function updateForEachCondition(collection: string, variableName: string, type: string, targetPosition: NodePosition): STModification {
     const foreachStatement: STModification = {
         startLine: targetPosition.startLine,

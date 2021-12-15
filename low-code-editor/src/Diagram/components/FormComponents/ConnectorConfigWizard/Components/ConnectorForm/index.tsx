@@ -41,6 +41,7 @@ import { getAllVariables } from "../../../../../utils/mixins";
 import {
     createImportStatement,
     createPropertyStatement,
+    createQueryForeachStatement,
     updateFunctionSignature,
     updatePropertyStatement,
 } from "../../../../../utils/modification-util";
@@ -269,7 +270,6 @@ export function ConnectorForm(props: FormGeneratorProps) {
             const addConnectorInit = createPropertyStatement(endpointStatement, targetPosition);
             modifications.push(addConnectorInit);
         }
-
         let actionStatement = "";
         if (currentActionReturnType.hasReturn) {
             addReturnImportsModifications(modifications, currentActionReturnType);
@@ -298,6 +298,10 @@ export function ConnectorForm(props: FormGeneratorProps) {
         if (modifications.length > 0) {
             modifyDiagram(modifications);
             onSave();
+        }
+        if(config.action.name === "query"){
+            const addConnectorInit = createQueryForeachStatement(targetPosition);
+            modifications.push(addConnectorInit);
         }
     };
 

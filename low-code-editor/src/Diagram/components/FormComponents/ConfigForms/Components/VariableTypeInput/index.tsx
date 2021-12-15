@@ -41,11 +41,12 @@ export interface VariableTypeInputProps {
         end?: number,
     },
     changed?: boolean | string;
+    tooltipTitle?: string,
 }
 
 export function VariableTypeInput(props: VariableTypeInputProps) {
     const { onValueChange, validateExpression, position, value, displayName, overrideTemplate, hideLabel, disabled,
-            ignoredCompletions = [], additionalCompletions = [], focus, enterKeyPressed, initialDiagnostics, diagnosticsFilterExtraColumns, changed } = props;
+            ignoredCompletions = [], additionalCompletions = [], focus, enterKeyPressed, initialDiagnostics, diagnosticsFilterExtraColumns, changed, tooltipTitle } = props;
 
     const [editorFocus, setEditorFocus] = useState<boolean>(focus);
 
@@ -78,6 +79,7 @@ export function VariableTypeInput(props: VariableTypeInputProps) {
             initialDiagnostics,
             diagnosticsFilterExtraColumns,
             changed,
+            tooltipTitle,
         },
         onChange: onValueChange,
         defaultValue: value

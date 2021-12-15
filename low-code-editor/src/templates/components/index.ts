@@ -66,6 +66,12 @@ service /{{{ BASE_PATH }}} on {{{ LISTENER_NAME }}} {
     LISTENER_DECLARATION: `
 listener http:Listener {{{ LISTENER_NAME }}} = new ({{{ PORT }}});
 `,
+QUERY_FOREACH_STATEMENT: `
+check queryResponse.forEach(function(record{} record) {
+    // can perform operations with record
+});
+
+`,
     FUNCTION_DEFINITION: `
 {{{ ACCESS_MODIFIER }}} function {{{ NAME }}} ({{{ PARAMETERS }}}) {{{ RETURN_TYPE }}} {
 
