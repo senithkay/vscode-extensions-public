@@ -93,6 +93,14 @@ export interface PartialSTModification {
     newCodeSnippet: string;
 }
 
+export interface LibraryDocRequest {
+    version?: string;
+}
+
+export interface LibraryDocResponse {
+    results?: string;
+}
+
 export interface ExpressionEditorLangClientInterface extends BaseLangClientInterface {
     getDiagnostics: (
         params: BallerinaProjectParams
@@ -112,4 +120,7 @@ export interface ExpressionEditorLangClientInterface extends BaseLangClientInter
     getSTForModuleMembers: (
         param: PartialSTRequest
     ) => Thenable<PartialSTResponse>;
+    getLibrariesList: (
+        param: LibraryDocRequest
+    ) => Thenable<LibraryDocResponse>;
 }

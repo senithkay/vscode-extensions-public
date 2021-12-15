@@ -16,14 +16,26 @@ import React, {useState} from "react";
 import classNames from "classnames";
 
 import { ComponentExpandButton } from "../Buttons/ComponentExpandButton";
+import { LibrariesList } from "../Libraries/LibrariesList";
 import { useStatementEditorStyles } from "../styles";
 
 export function RightPane() {
     const statementEditorClasses = useStatementEditorStyles();
     const [isLangLibExpanded, setIsLangLibExpanded] = useState(false);
     const [isStdLibExpanded, setIsStdLibExpanded] = useState(false);
+    const [libraries, setLibraries] = useState([]);
 
-    const langLibExpandButton = () => {
+    const langLibExpandButton = async () => {
+        const response = await fetch('https://api.staging-central.ballerina.io/2.0/docs/stdlib/slbeta5');
+        const data = await response.json();
+
+        const transformedLibraries = data.langLibs.map((libraryData: any) => {
+            return {
+                id: libraryData.id,
+                summary: libraryData.summary
+            };
+        });
+        setLibraries(transformedLibraries);
         setIsLangLibExpanded(prevState => {
             return !prevState;
         });
@@ -81,6 +93,9 @@ export function RightPane() {
                     onClick={standardLibExpandButton}
                     isExpanded={isStdLibExpanded}
                 />
+                <section>
+                    <LibrariesList libraries={libraries} />
+                </section>
             </div>
             <div className={statementEditorClasses.shortcutsDivider} />
         </div>
