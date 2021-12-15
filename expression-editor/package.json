@@ -10,10 +10,9 @@
   "typings": "lib/index",
   "scripts": {
     "prebuild": "npm run lint",
-    "build": "npm run build:webpack",
+    "build": "npm run build:tsc",
     "build:tsc": "tsc --pretty && npm run copy:assets",
-    "build:webpack": "webpack --config webpack.config.js --mode=production",
-    "copy:assets": "copyfiles -u 1 src/**/*.scss src/**/*.svg src/**/*.css src/**/*.png src/**/*.txt src/**/*.json build/",
+    "copy:assets": "copyfiles -u 1 src/**/*.scss src/**/*.svg src/**/*.css src/**/*.png src/**/*.txt src/**/*.json lib/",
     "clean": "rimraf build/",
     "clean:nm": "rimraf node_modules",
     "lint": "tslint --project .",
@@ -21,7 +20,6 @@
     "stylelint": "stylelint 'src/**/*.scss' --config ./.stylelintrc.json --syntax scss --fix",
     "watch": "npm run watch:webpack",
     "watch:tsc": "tsc --pretty --watch",
-    "watch:webpack": "webpack-dev-server --mode=development --progress",
     "deploy": "npm publish",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
