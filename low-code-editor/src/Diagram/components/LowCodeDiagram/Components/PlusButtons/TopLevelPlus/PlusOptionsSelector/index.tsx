@@ -45,7 +45,7 @@ export const moduleLevelEntries: PlusMenuEntry[] = [
     { name: 'Main', type: 'FunctionDefinition', category: PlusMenuCategories.ENTRY_POINT },
     { name: 'Service', type: 'ServiceDeclaration', category: PlusMenuCategories.ENTRY_POINT },
     { name: 'Trigger', type: 'TriggerList', category: PlusMenuCategories.ENTRY_POINT },
-    { name: 'Module Variable', type: 'ModuleVarDecl', category: PlusMenuCategories.CONSTRUCT },
+    { name: 'Variable', type: 'ModuleVarDecl', category: PlusMenuCategories.CONSTRUCT },
     { name: 'Record', type: 'RecordEditor', category: PlusMenuCategories.CONSTRUCT },
     { name: 'Function', type: 'FunctionDefinition', category: PlusMenuCategories.CONSTRUCT },
     { name: 'Configurable', type: 'Configurable', category: PlusMenuCategories.CONSTRUCT },
