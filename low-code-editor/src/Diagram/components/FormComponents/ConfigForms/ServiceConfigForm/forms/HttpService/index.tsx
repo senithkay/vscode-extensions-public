@@ -101,7 +101,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
                 const lastElement =  resourcePath[-1]?.position;
                 return {
                     ...lastElement,
-                    startColumn: firstElement?.startColumn + 1,
+                    startColumn: firstElement?.startColumn,
                     startLine: firstElement?.startLine
                 }
 
