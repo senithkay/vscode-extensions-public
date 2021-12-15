@@ -71,6 +71,7 @@ async function createSwaggerView(documentFilePath: string, serviceName: any) {
                 MESSAGE_TYPE.ERROR, false);
             return;
         }
+        showMessage("Please make sure the project is already running to use the try out feature", MESSAGE_TYPE.INFO, true)
         showSwaggerView(langClient, response.content, file, serviceName);
     }).catch((err) => {
         log(err);
