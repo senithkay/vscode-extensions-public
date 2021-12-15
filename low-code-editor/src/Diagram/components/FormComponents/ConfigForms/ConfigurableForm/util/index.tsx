@@ -11,7 +11,11 @@
  * associated services.
  */
 
+import {STSymbolInfo} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { CaptureBindingPattern, MappingConstructor, ModuleVarDecl, SimpleNameReference, SpecificField, STKindChecker, TypedBindingPattern } from "@wso2-enterprise/syntax-tree";
+
+import {getAllModuleVariables} from "../../../../../utils/mixins";
+import {genVariableName} from "../../../../Portals/utils";
 
 export const ModuleVarNameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 
@@ -31,7 +35,7 @@ export enum VariableQualifiers {
     CONFIGURABLE = 'configurable',
 }
 
-export function getFormConfigFromModel(model: any): ConfigurableFormState {
+export function getFormConfigFromModel(model: any, stSymbolInfo: STSymbolInfo): ConfigurableFormState {
     // FixMe: model is set to any type due to missing properties in ST interface
     const defaultFormState: ConfigurableFormState = {
         isPublic: false,
@@ -59,8 +63,9 @@ export function getFormConfigFromModel(model: any): ConfigurableFormState {
             && STKindChecker.isPublicKeyword(model.visibilityQualifier);
         defaultFormState.hasDefaultValue = !!model.initializer.source && model.initializer.source !== "?";
         defaultFormState.varValue = model.initializer.source === "?" ? "" : model.initializer.source;
-        defaultFormState.varName = ((model.typedBindingPattern as TypedBindingPattern)
+        const configurableNameValue = ((model.typedBindingPattern as TypedBindingPattern)
             .bindingPattern as CaptureBindingPattern).variableName.value;
+        defaultFormState.varName  = genVariableName(configurableNameValue, getAllModuleVariables(stSymbolInfo));
 
         const displayAnnotation = (model as ModuleVarDecl)
             .metadata?.annotations?.filter(annotation =>
