@@ -20,6 +20,7 @@ import { getSTComponent } from "../../../../../utils";
 import { TopLevelPlus } from "../../PlusButtons/TopLevelPlus";
 
 import './style.scss';
+import { useDiagramContext } from "../../../../../../Contexts/Diagram";
 
 export const GAP_BETWEEN_MEMBERS = 31;
 export const INIT_PLUS_MARGIN_LEFT = 24.5;
