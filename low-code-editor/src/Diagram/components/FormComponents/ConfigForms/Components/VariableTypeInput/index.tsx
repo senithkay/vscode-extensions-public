@@ -64,7 +64,7 @@ export function VariableTypeInput(props: VariableTypeInputProps) {
             interactive: true,
             editPosition: position,
             customTemplate: overrideTemplate ? overrideTemplate : {
-                defaultCodeSnippet: `  tempVarType;`,
+                defaultCodeSnippet: ` |()  tempVarType = ();`,
                 targetColumn: 1
             },
             hideExpand: true,
