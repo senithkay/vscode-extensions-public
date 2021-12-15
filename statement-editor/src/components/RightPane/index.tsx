@@ -11,31 +11,37 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, {useState} from "react";
+import React, { useContext, useState } from "react";
 
 import classNames from "classnames";
 
+import { StatementEditorContext } from "../../store/statement-editor-context";
+import { getLibrariesList } from "../../utils/ls-utils";
 import { ComponentExpandButton } from "../Buttons/ComponentExpandButton";
 import { LibrariesList } from "../Libraries/LibrariesList";
 import { useStatementEditorStyles } from "../styles";
 
 export function RightPane() {
     const statementEditorClasses = useStatementEditorStyles();
+    const stmtCtx = useContext(StatementEditorContext);
+
     const [isLangLibExpanded, setIsLangLibExpanded] = useState(false);
     const [isStdLibExpanded, setIsStdLibExpanded] = useState(false);
     const [libraries, setLibraries] = useState([]);
 
-    const langLibExpandButton = async () => {
-        const response = await fetch('https://api.staging-central.ballerina.io/2.0/docs/stdlib/slbeta5');
-        const data = await response.json();
+    const { getLangClient } = stmtCtx;
 
-        const transformedLibraries = data.langLibs.map((libraryData: any) => {
-            return {
-                id: libraryData.id,
-                summary: libraryData.summary
-            };
-        });
-        setLibraries(transformedLibraries);
+    const langLibExpandButton = async () => {
+        const response = await getLibrariesList(getLangClient);
+        // const data = await response;
+        //
+        // const transformedLibraries = data.langLibs.map((libraryData: any) => {
+        //     return {
+        //         id: libraryData.id,
+        //         summary: libraryData.summary
+        //     };
+        // });
+        setLibraries([{id: "array", summary: "some desc"}]);
         setIsLangLibExpanded(prevState => {
             return !prevState;
         });
