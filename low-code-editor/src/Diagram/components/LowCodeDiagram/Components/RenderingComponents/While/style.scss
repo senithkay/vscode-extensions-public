@@ -166,6 +166,10 @@ $active_error_color : #e09f9667;
                 fill:#CCD1F2
             }
         }
+        .condition-assignment {
+            fill: $warning_color;
+            font-family: "Gilmer", sans-serif;
+        }
     }
     .while-block-error{
         .while-polygon{
@@ -275,7 +279,10 @@ $active_error_color : #e09f9667;
                     fill:$error_color
                 }
             }
-        
+            .condition-assignment {
+                fill: $error_color;
+                font-family: "Gilmer", sans-serif;
+            }
     }
     
     .while-block-warning {
@@ -388,12 +395,11 @@ $active_error_color : #e09f9667;
                     fill:$warning_color
                 }
             }
-
+            .condition-assignment {
+                fill: $warning_color;
+                font-family: "Gilmer", sans-serif;
+            }
     }
 
-    .condition-assignment {
-        fill: $default_color;
-        font-family: "Gilmer", sans-serif;
-    }
 }
 

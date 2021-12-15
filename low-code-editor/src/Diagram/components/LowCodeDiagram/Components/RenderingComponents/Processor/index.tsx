@@ -248,6 +248,7 @@ export function DataProcessor(props: ProcessorProps) {
     }
 
     const processWrapper = isDraftStatement ? "main-process-wrapper active-data-processor" : "main-process-wrapper data-processor";
+    const assignmentTextStyles = diagnosticMsgs ? "assignment-text-error" : "assignment-text-default";
 
     const prosessTypes = (processType === "Log" || processType === "Call");
 
@@ -291,7 +292,7 @@ export function DataProcessor(props: ProcessorProps) {
                             x={cx + PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW / 2 + (DefaultConfig.dotGap * 3)}
                             y={prosessTypes ? (cy + PROCESS_SVG_HEIGHT / 2) : (cy + PROCESS_SVG_HEIGHT / 3)}
                             assignment={assignmentText}
-                            className="assignment-text"
+                            className={assignmentTextStyles}
                             key_id={getRandomInt(1000)}
                         />
                         <MethodCall
