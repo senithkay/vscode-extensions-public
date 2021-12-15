@@ -20,45 +20,61 @@
 import { WebViewMethod, WebViewRPCMessage } from './model';
 import { commands, WebviewPanel } from 'vscode';
 import { ExtendedLangClient } from 'src/core/extended-language-client';
+import { debug } from '..';
 
 const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] => {
     return [{
         methodName: 'getSyntaxTree',
         handler: (args: any[]) => {
+            const start = new Date().getTime();
             return langClient.onReady().then(() => {
-                return langClient.getSyntaxTree(args[0]);
+                const response = langClient.getSyntaxTree(args[0]);
+                consoleLog(start, 'getSyntaxTree');
+                return response;
             });
         }
     },
     {
         methodName: 'getCompletion',
         handler: (args: any[]) => {
+            const start = new Date().getTime();
             return langClient.onReady().then(() => {
-                return langClient.getCompletion(args[0]);
+                const response = langClient.getCompletion(args[0]);
+                consoleLog(start, 'getCompletion');
+                return response;
             });
         }
     },
     {
         methodName: 'getType',
         handler: (args: any[]) => {
+            const start = new Date().getTime();
             return langClient.onReady().then(() => {
-                return langClient.getType(args[0]);
+                const response = langClient.getType(args[0]);
+                consoleLog(start, 'getType');
+                return response;
             });
         }
     },
     {
         methodName: 'getDiagnostics',
         handler: (args: any[]) => {
+            const start = new Date().getTime();
             return langClient.onReady().then(() => {
-                return langClient.getDiagnostics(args[0]);
+                const response = langClient.getDiagnostics(args[0]);
+                consoleLog(start, 'getDiagnostics');
+                return response;
             });
         }
     },
     {
         methodName: 'getExamples',
         handler: (args: any[]) => {
+            const start = new Date().getTime();
             return langClient.onReady().then(() => {
-                return langClient.fetchExamples();
+                const response = langClient.fetchExamples();
+                consoleLog(start, 'getExamples');
+                return response;
             });
         }
     },
@@ -70,7 +86,10 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
     }, {
         methodName: 'registerPublishDiagnostics',
         handler: () => {
-            return langClient.registerPublishDiagnostics();
+            const start = new Date().getTime();
+            const response = langClient.registerPublishDiagnostics();
+            consoleLog(start, 'registerPublishDiagnostics');
+            return response;
         }
     }, {
         methodName: 'didClose',
@@ -85,97 +104,151 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
     }, {
         methodName: 'getConnectors',
         handler: (args: any[]) => {
-            return langClient.getConnectors(args[0]);
+            const start = new Date().getTime();
+            const response = langClient.getConnectors(args[0]);
+            consoleLog(start, 'getConnectors');
+            return response;
         }
     }, {
         methodName: 'getTriggers',
         handler: (args: any[]) => {
-            return langClient.getTriggers(args[0]);
+            const start = new Date().getTime();
+            const response = langClient.getTriggers(args[0]);
+            consoleLog(start, 'getTriggers');
+            return response;
         }
     }, {
         methodName: 'getConnector',
         handler: (args: any[]) => {
-            return langClient.getConnector(args[0]);
+            const start = new Date().getTime();
+            const response = langClient.getConnector(args[0]);
+            consoleLog(start, 'getConnector');
+            return response;
         }
     }, {
         methodName: 'getTrigger',
         handler: (args: any[]) => {
-            return langClient.getTrigger(args[0]);
+            const start = new Date().getTime();
+            const response = langClient.getTrigger(args[0]);
+            consoleLog(start, 'getTrigger');
+            return response;
         }
     }, {
         methodName: 'getRecord',
         handler: (args: any[]) => {
-            return langClient.getRecord(args[0]);
+            const start = new Date().getTime();
+            const response = langClient.getRecord(args[0]);
+            consoleLog(start, 'getRecord');
+            return response;
         }
     }, {
         methodName: 'astModify',
         handler: (args: any[]) => {
-            return langClient.astModify(args[0]);
+            const start = new Date().getTime();
+            const response = langClient.astModify(args[0]);
+            consoleLog(start, 'astModify');
+            return response;
         }
     }, {
         methodName: 'stModify',
         handler: (args: any[]) => {
-            return langClient.stModify(args[0]);
+            const start = new Date().getTime();
+            const response = langClient.stModify(args[0]);
+            consoleLog(start, 'stModify');
+            return response;
         }
     }, {
         methodName: 'triggerModify',
         handler: (args: any[]) => {
-            return langClient.triggerModify(args[0]);
+            const start = new Date().getTime();
+            const response = langClient.triggerModify(args[0]);
+            consoleLog(start, 'triggerModify');
+            return response;
         }
     }, {
         methodName: 'getDocumentSymbol',
         handler: (args: any[]) => {
-            return langClient.getDocumentSymbol(args[0]);
+            const start = new Date().getTime();
+            const response = langClient.getDocumentSymbol(args[0]);
+            consoleLog(start, 'getDocumentSymbol');
+            return response;
         }
     }, {
         methodName: 'close',
         handler: () => {
-            return langClient.close();
+            langClient.close();
         }
     }, {
         methodName: 'getDidOpenParams',
         handler: () => {
-            return langClient.getDidOpenParams();
+            const start = new Date().getTime();
+            const response = langClient.getDidOpenParams();
+            consoleLog(start, 'getDidOpenParams');
+            return response;
         }
     }, {
         methodName: 'convert',
         handler: (args: any[]) => {
-            return langClient.convertJsonToRecord(args[0]);
+            const start = new Date().getTime();
+            const response = langClient.convertJsonToRecord(args[0]);
+            consoleLog(start, 'convert');
+            return response;
         }
     }, {
         methodName: 'getSTForSingleStatement',
         handler: (args: any[]) => {
-            return langClient.getSTForSingleStatement(args[0]);
+            const start = new Date().getTime();
+            const response = langClient.getSTForSingleStatement(args[0]);
+            consoleLog(start, 'getSTForSingleStatement');
+            return response;
         }
     }, {
         methodName: 'getSTForExpression',
         handler: (args: any[]) => {
-            return langClient.getSTForExpression(args[0]);
+            const start = new Date().getTime();
+            const response = langClient.getSTForExpression(args[0]);
+            consoleLog(start, 'getSTForExpression');
+            return response;
         }
     }, {
         methodName: 'getSTForModuleMembers',
         handler: (args: any[]) => {
-            return langClient.getSTForModuleMembers(args[0]);
+            const start = new Date().getTime();
+            const response = langClient.getSTForModuleMembers(args[0]);
+            consoleLog(start, 'getSTForModuleMembers');
+            return response;
         }
     }, {
         methodName: 'getRealtimePerformanceData',
         handler: (args: any[]) => {
-            return langClient.getRealtimePerformanceData(args[0]);
+            const start = new Date().getTime();
+            const response = langClient.getRealtimePerformanceData(args[0]);
+            consoleLog(start, 'getRealtimePerformanceData');
+            return response;
         }
     }, {
         methodName: 'getPerformanceGraphData',
         handler: (args: any[]) => {
-            return langClient.getPerformanceGraphData(args[0]);
+            const start = new Date().getTime();
+            const response = langClient.getPerformanceGraphData(args[0]);
+            consoleLog(start, 'getPerformanceGraphData');
+            return response;
         }
     }, {
         methodName: 'resolveMissingDependencies',
         handler: (args: any[]) => {
-            return langClient.resolveMissingDependencies(args[0]);
+            const start = new Date().getTime();
+            const response = langClient.resolveMissingDependencies(args[0]);
+            consoleLog(start, 'resolveMissingDependencies');
+            return response;
         }
     }, {
         methodName: 'getExecutorPositions',
         handler: (args: any[]) => {
-            return langClient.getExecutorPositions(args[0]);
+            const start = new Date().getTime();
+            const response = langClient.getExecutorPositions(args[0]);
+            consoleLog(start, 'getExecutorPositions');
+            return response;
         }
     }
     ];
@@ -201,6 +274,11 @@ const undoRedoMethods = [{
     }
 }
 ];
+
+function consoleLog(start, fnName) {
+    const end = new Date().getTime();
+    debug(`Backend - Time taken for ${fnName}: ${end - start}ms`);
+}
 
 export class WebViewRPCHandler {
 
