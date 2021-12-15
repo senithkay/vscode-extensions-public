@@ -10,51 +10,77 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from "react";
+// tslint:disable: jsx-no-multiline-js
+import React, {useState} from "react";
 
-import { ButtonWithIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import classNames from "classnames";
 
-import ComponentExpandIcon from "../../assets/icons/ComponentExpandIcon";
+import { ComponentExpandButton } from "../Buttons/ComponentExpandButton";
 import { useStatementEditorStyles } from "../styles";
 
 export function RightPane() {
     const statementEditorClasses = useStatementEditorStyles();
+    const [isLangLibExpanded, setIsLangLibExpanded] = useState(false);
+    const [isStdLibExpanded, setIsStdLibExpanded] = useState(false);
+
+    const langLibExpandButton = () => {
+        setIsLangLibExpanded(prevState => {
+            return !prevState;
+        });
+        setIsStdLibExpanded(false);
+    };
+
+    const standardLibExpandButton = () => {
+        setIsStdLibExpanded(prevState => {
+            return !prevState;
+        });
+        setIsLangLibExpanded(false);
+    };
 
     return (
         <div className={statementEditorClasses.rightPane}>
-            <div className={statementEditorClasses.rhsShortcutPanel}>
+            <div
+                className={classNames(
+                    statementEditorClasses.rhsComponent,
+                    statementEditorClasses.propertiesMenuBar
+                )}
+            >
                 <div className={statementEditorClasses.shortcutTab} style={{borderBottom: '1px solid #40404B', color: '#1D2028'}}>Variables</div>
                 <div className={statementEditorClasses.shortcutTab}>Constants</div>
                 <div className={statementEditorClasses.shortcutTab}>Functions</div>
                 <div className={statementEditorClasses.shortcutTab} style={{width: '10%'}}>
-                    <div style={{ marginLeft: "auto", marginRight: 0, transform: 'rotate(270deg)' }}>
-                        <ButtonWithIcon
-                            icon={<ComponentExpandIcon/>}
-                            onClick={undefined}
-                        />
-                    </div>
+                    <ComponentExpandButton
+                        onClick={undefined}
+                        isExpanded={false}
+                    />
                 </div>
             </div>
             <div className={statementEditorClasses.rightPaneBlock} />
             <div className={statementEditorClasses.shortcutsDivider} />
-            <div className={statementEditorClasses.rhsShortcutPanel}>
+            <div
+                className={classNames(
+                    statementEditorClasses.rhsComponent,
+                    isLangLibExpanded && statementEditorClasses.libraryBrowser
+                )}
+            >
                 <span className={statementEditorClasses.subHeader}>Language Library</span>
-                <div style={{ marginLeft: "auto", marginRight: 0 }}>
-                    <ButtonWithIcon
-                        icon={<ComponentExpandIcon/>}
-                        onClick={undefined}
-                    />
-                </div>
+                <ComponentExpandButton
+                    onClick={langLibExpandButton}
+                    isExpanded={isLangLibExpanded}
+                />
             </div>
             <div className={statementEditorClasses.shortcutsDivider} />
-            <div className={statementEditorClasses.rhsShortcutPanel}>
+            <div
+                className={classNames(
+                    statementEditorClasses.rhsComponent,
+                    isStdLibExpanded && statementEditorClasses.libraryBrowser
+                )}
+            >
                 <span className={statementEditorClasses.subHeader}>Standard Library</span>
-                <div style={{ marginLeft: "auto", marginRight: 0 }}>
-                    <ButtonWithIcon
-                        icon={<ComponentExpandIcon/>}
-                        onClick={undefined}
-                    />
-                </div>
+                <ComponentExpandButton
+                    onClick={standardLibExpandButton}
+                    isExpanded={isStdLibExpanded}
+                />
             </div>
             <div className={statementEditorClasses.shortcutsDivider} />
         </div>

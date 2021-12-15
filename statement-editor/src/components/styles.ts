@@ -143,7 +143,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             display: 'flex',
             position: 'relative',
             // left: '5%',
-            height: '50%',
+            height: '30%',
             width: '100%'
         },
         templateEditor: {
@@ -270,11 +270,17 @@ export const useStatementEditorStyles = makeStyles(() =>
             margin: '4px 2px',
             borderRadius: '50%'
         },
-        rhsShortcutPanel: {
+        rhsComponent: {
             display: 'flex',
             flexDirection: 'row',
             width: '90%',
             marginLeft: '5%'
+        },
+        propertiesMenuBar: {
+            height: '10%'
+        },
+        libraryBrowser: {
+            height: '60%'
         },
         shortcutTab: {
             boxSizing: 'border-box',
