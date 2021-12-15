@@ -45,6 +45,7 @@ import {
     updateFunctionSignature,
     updatePropertyStatement,
 } from "../../../../../utils/modification-util";
+import { ModuleIcon } from "../../../../LowCodeDiagram/Components/RenderingComponents/Connector/ConnectorHeader/ModuleIcon";
 import {
     checkDBConnector,
     genVariableName,
@@ -449,7 +450,9 @@ export function ConnectorForm(props: FormGeneratorProps) {
                 <div className={wizardClasses.fullWidth}>
                     <div className={wizardClasses.topTitleWrapper}>
                         <div className={wizardClasses.titleWrapper}>
-                            <div className={wizardClasses.connectorIconWrapper}>{getModuleIcon(connector, 0.5)}</div>
+                            <div className={wizardClasses.connectorIconWrapper}>
+                                <ModuleIcon module={connector} scale={0.5}/>
+                            </div>
                             <Typography className={wizardClasses.configTitle} variant="h4">
                                 {connectorName}
                             </Typography>

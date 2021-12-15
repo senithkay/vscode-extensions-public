@@ -22,7 +22,9 @@ function ModuleCard(props: ModuleCardProps) {
         <Grid item={true} sm={itemWidth} alignItems="center">
             <div key={moduleName} onClick={onSelectModule.bind(this, module)} data-testid={moduleName.toLowerCase()}>
                 <div className={classes.balModule}>
-                    <div><ModuleIcon balModule={module} scale={1} /></div>
+                    <div>
+                        <ModuleIcon module={module} />
+                    </div>
                     <div className={classes.balModuleName}>{moduleName}</div>
                     <div className={classes.orgName}>by {module.package.organization}</div>
                 </div>
