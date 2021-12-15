@@ -21,10 +21,11 @@ import { ANALYZETYPE, DataLabel, GraphData, PerformanceGraphRequest } from "./mo
 import { commands, ExtensionContext, languages, Range, TextDocument, Uri, ViewColumn, window } from "vscode";
 import { BallerinaExtension, ExtendedLangClient, GraphPoint, LANGUAGE, PerformanceAnalyzerGraphResponse, PerformanceAnalyzerRealtimeResponse, WEBVIEW_TYPE } from "../core";
 import { CODELENSE_TYPE, ExecutorCodeLensProvider } from "./codelens-provider";
-import { log } from "../utils";
+import { debug } from "../utils";
 import { DefaultWebviewPanel } from "./performanceGraphPanel";
 import { MESSAGE_TYPE, showMessage } from "../utils/showMessage";
 import { PALETTE_COMMANDS } from "../project";
+import { URL } from "url";
 
 export const SHOW_GRAPH_COMMAND = "ballerina.forecast.performance.showGraph";
 export const CHOREO_API_PF = process.env.VSCODE_CHOREO_GATEWAY_BASE_URI ?
@@ -40,6 +41,7 @@ const UNABLE_TO_GET = "Error while connecting to Choreo API, unable to get perfo
 const PERF_DISABLED = "Error while connecting to Choreo API, Performance analyzer will be disabled for this session";
 const SUCCESS = "Success";
 const maxRetries = 3;
+const https = require('https');
 
 let langClient: ExtendedLangClient;
 let uiData: GraphData;
@@ -93,92 +95,50 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
     });
 }
 
-export async function createPerformanceGraphAndCodeLenses(uri: string | undefined, pos: Range,
-    type: ANALYZETYPE, name: String | undefined) {
+export async function createPerformanceGraphAndCodeLenses(uri: string | undefined, pos: Range, type: ANALYZETYPE, name: String) {
 
     if (!extension.enabledPerformanceForecasting() || retryAttempts >= maxRetries ||
         extension.getPerformanceForecastContext().temporaryDisabled) {
         return;
     }
 
-    if (!extension.getChoreoSession().loginStatus) {
-        showChoreoSigninMessage(extension);
-        return;
-    }
-
-    const choreoToken = extension.getChoreoSession().choreoAccessToken!;
-    const choreoCookie = "";
-
-    if (!uri || !langClient || !pos) {
+    if (!uri || !langClient || !pos || !name) {
         return;
     }
 
     currentFileUri = uri;
-    if (type == ANALYZETYPE.REALTIME) {
-        // add codelenses to resources
-        await langClient.getRealtimePerformanceData({
-            documentIdentifier: {
-                uri
-            },
-            range: {
-                start: {
-                    line: pos.start.line,
-                    character: pos.start.character,
-                },
-                end: {
-                    line: pos.end.line,
-                    character: pos.end.character
-                }
-            },
-            choreoAPI: CHOREO_API_PF,
-            choreoToken: `Bearer ${choreoToken}`,
-            choreoCookie: choreoCookie,
-        }).then(async (response) => {
-            if (response.type !== SUCCESS) {
-                checkErrors(response);
-                return;
-            }
-            if (!name) {
-                return;
-            }
-            currentResourceName = name;
-            currentResourcePos = pos;
-            addEndpointPerformanceLabels(response);
-        }).catch(error => {
-            log(error);
-        });
-    } else {
-        // add code lenses to invocations
-        await langClient.getPerformanceGraphData({
-            documentIdentifier: {
-                uri
-            },
-            range: {
-                start: {
-                    line: pos.start.line,
-                    character: pos.start.character,
-                },
-                end: {
-                    line: pos.end.line,
-                    character: pos.end.character
-                }
-            },
-            choreoAPI: CHOREO_API_PF,
-            choreoToken: `Bearer ${choreoToken}`,
-            choreoCookie: choreoCookie,
-        }).then(async (response) => {
-            if (response.type !== SUCCESS) {
-                checkErrors(response);
-                return;
-            }
+    currentResourceName = name;
+    currentResourcePos = pos;
 
-            if (!name) {
-                return;
+    await langClient.getEndpoints({
+        documentIdentifier: {
+            uri
+        },
+        range: {
+            start: {
+                line: pos.start.line,
+                character: pos.start.character,
+            },
+            end: {
+                line: pos.end.line,
+                character: pos.end.character
             }
+        },
+    }).then(async (response) => {
+        if (response.type !== SUCCESS) {
+            checkErrors(response);
+            return;
+        }
+        const data = await getDataFromChoreo(response, type);
 
-            advancedData = response;
-            currentResourceName = name;
-            currentResourcePos = pos;
+        if (!data) {
+            return;
+        }
+
+        if (type == ANALYZETYPE.REALTIME) {
+            addEndpointPerformanceLabels(data as PerformanceAnalyzerRealtimeResponse);
+        } else {
+            advancedData = data as PerformanceAnalyzerGraphResponse;
             addPerformanceLabels(1);
 
             if (!uiData || !currentFile) {
@@ -188,13 +148,14 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
             DefaultWebviewPanel.create(langClient, uiData, currentFile.uri, `Performance Forecast of ${uiData.name}`,
                 ViewColumn.Two, extension, WEBVIEW_TYPE.PERFORMANCE_FORECAST);
 
-        }).catch(error => {
-            log(error);
-        });
-    }
+        }
+
+    }).catch(error => {
+        debug(error);
+    });
 }
 
-export function checkErrors(response: PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse) {
+function checkErrors(response: PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse) {
     if (response.message === 'AUTHENTICATION_ERROR') {
         // Choreo Auth Error
         handleRetries();
@@ -357,4 +318,57 @@ export function showChoreoSigninMessage(extension: BallerinaExtension) {
             }
         });
     extension.getPerformanceForecastContext().infoMessageStatus.signinChoreo = false;
+}
+
+/**
+ * Get performance data from choreo API.
+ * @param data endpoints data
+ * @param analyzeType Analyze type
+ * @returns response
+ */
+export function getDataFromChoreo(data: any, analyzeType: ANALYZETYPE): Promise<PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse | undefined> {
+
+    return new Promise((resolve, reject) => {
+
+        if (!extension.getChoreoSession().loginStatus) {
+            showChoreoSigninMessage(extension);
+            reject();
+        }
+    
+        const choreoToken = extension.getChoreoSession().choreoAccessToken!;
+        data["analyzeType"] = analyzeType;
+        delete data.type;
+        delete data.message;
+        data = JSON.stringify(data)
+
+        const url = new URL(CHOREO_API_PF);
+
+        const options = {
+            hostname: url.hostname,
+            path: url.pathname,
+            port: 443,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': data.length,
+                'Authorization': `Bearer ${choreoToken}`
+            }
+        }
+
+        const req = https.request(options, res => {
+
+            res.on('data', data => {
+                resolve(JSON.parse(data));
+            })
+        })
+
+        req.on('error', error => {
+            debug(error);
+            reject();
+        })
+
+        req.write(data);
+        req.end();
+
+    });
 }

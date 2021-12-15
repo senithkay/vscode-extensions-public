@@ -23,12 +23,12 @@ import {
 } from 'vscode';
 import * as _ from 'lodash';
 import { render } from './renderer';
-import { CONNECTOR_LIST_CACHE, DocumentIdentifier, ExtendedLangClient } from '../core/extended-language-client';
+import { CONNECTOR_LIST_CACHE, DocumentIdentifier, ExtendedLangClient, PerformanceAnalyzerGraphResponse, PerformanceAnalyzerRealtimeResponse } from '../core/extended-language-client';
 import { BallerinaExtension, ballerinaExtInstance, Change } from '../core';
 import { getCommonWebViewOptions, isWindows, WebViewMethod, WebViewRPCHandler } from '../utils';
 import { join } from "path";
 import { TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, sendTelemetryEvent, TM_EVENT_OPEN_DIAGRAM, sendTelemetryException } from '../telemetry';
-import { checkErrors, CHOREO_API_PF, openPerformanceDiagram, PFSession } from '../forecaster';
+import { CHOREO_API_PF, getDataFromChoreo, openPerformanceDiagram, PFSession } from '../forecaster';
 import { showMessage } from '../utils/showMessage';
 import { Module } from '../tree-view';
 import { sep } from "path";
@@ -322,7 +322,7 @@ class DiagramPanel {
 				handler: async (): Promise<PFSession> => {
 					const choreoToken = ballerinaExtension.getChoreoSession().choreoAccessToken;
 					return { choreoAPI: CHOREO_API_PF, choreoToken: choreoToken, choreoCookie: "" };
-				}
+				}    
 			},
 			{
 				methodName: "showPerformanceGraph",
@@ -331,10 +331,9 @@ class DiagramPanel {
 				}
 			},
 			{
-				methodName: "handlePerfErrors",
-				handler: async (args: any[]): Promise<boolean> => {
-					checkErrors(args[0]);
-					return true;
+				methodName: "getPerfDataFromChoreo",
+				handler: async (args: any[]): Promise<PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse | undefined> => {
+					return await getDataFromChoreo(args[0], args[1]);
 				}
 			},
 			{

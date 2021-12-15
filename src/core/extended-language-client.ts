@@ -63,6 +63,7 @@ enum EXTENDED_APIS {
     PARTIAL_PARSE_EXPRESSION = 'partialParser/getSTForExpression',
     PARTIAL_PARSE_MODULE_MEMBER = 'partialParser/getSTForModuleMembers',
     EXAMPLE_LIST = 'ballerinaExample/list',
+    PERF_ANALYZER_ENDPOINTS = 'performanceAnalyzer/getEndpoints',
     PERF_ANALYZER_GRAPH_DATA = 'performanceAnalyzer/getGraphData',
     PERF_ANALYZER_REALTIME_DATA = 'performanceAnalyzer/getRealtimeData',
     RESOLVE_MISSING_DEPENDENCIES = 'ballerinaDocument/resolveMissingDependencies',
@@ -247,6 +248,11 @@ export interface PerformanceAnalyzerGraphRequest {
     choreoToken: String;
 }
 
+export interface PerformanceAnalyzerEndpointsRequest {
+    documentIdentifier: DocumentIdentifier;
+    range: Range;
+}
+
 export interface PerformanceAnalyzerGraphResponse {
     message: string;
     type: any;
@@ -326,6 +332,12 @@ export class ExtendedLangClient extends LanguageClient {
     }
     didChange(params: DidChangeParams): void {
         this.sendNotification("textDocument/didChange", params);
+    }
+    getEndpoints(params: PerformanceAnalyzerEndpointsRequest): Promise<any> {
+        if (!this.isExtendedServiceSupported(EXTENDED_APIS.PERF_ANALYZER_ENDPOINTS)) {
+            Promise.resolve(NOT_SUPPORTED);
+        }
+        return this.sendRequest(EXTENDED_APIS.PERF_ANALYZER_ENDPOINTS, params);
     }
     getPerformanceGraphData(params: PerformanceAnalyzerGraphRequest): Promise<PerformanceAnalyzerGraphResponse> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.PERF_ANALYZER_GRAPH_DATA)) {
@@ -573,7 +585,7 @@ export class ExtendedLangClient extends LanguageClient {
                 },
                 { name: EXTENDED_APIS_ORG.EXAMPLE, list: true },
                 { name: EXTENDED_APIS_ORG.JSON_TO_RECORD, convert: true },
-                { name: EXTENDED_APIS_ORG.PERF_ANALYZER, getGraphData: true, getRealtimeData: true },
+                { name: EXTENDED_APIS_ORG.PERF_ANALYZER, getEndpoints: true, getGraphData: true, getRealtimeData: true },
                 { name: EXTENDED_APIS_ORG.PARTIAL_PARSER, getSTForSingleStatement: true, getSTForExpression: true },
                 { name: EXTENDED_APIS_ORG.BALLERINA_TO_OPENAPI, generateOpenAPI: true }
             ]

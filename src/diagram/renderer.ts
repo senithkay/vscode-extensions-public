@@ -152,11 +152,11 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
                     );
                 })
             }
-            function handlePerfErrors(response) {
+            function getPerfDataFromChoreo(data, analyzeType) {
                 return new Promise((resolve, _reject) => {
                     webViewRPCHandler.invokeRemoteMethod(
-                        'handlePerfErrors',
-                        [response],
+                        'getPerfDataFromChoreo',
+                        [data, analyzeType],
                         (response) => {
                             resolve(response);
                         }
@@ -226,7 +226,7 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
                             gotoSource,
                             getPFSession,
                             showPerformanceGraph,
-                            handlePerfErrors,
+                            getPerfDataFromChoreo,
                             showMessage,
                             lastUpdatedAt,
                             resolveMissingDependency,
