@@ -35,6 +35,7 @@
     "@wso2-enterprise/ballerina-low-code-edtior-commons": "^1.0.0",
     "@wso2-enterprise/ballerina-statement-editor": "^1.0.0",
     "@wso2-enterprise/syntax-tree": "^1.0.0",
+    "@wso2-enterprise/ballerina-expression-editor": "^1.0.0",
     "classnames": "^2.2.6",
     "clipboard-copy": "^3.1.0",
     "clsx": "^1.1.0",
