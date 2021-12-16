@@ -70,7 +70,7 @@ export function getInsightProperties(extension: BallerinaExtension, component: s
         'ballerina.version': extension ? extension.ballerinaVersion : '',
         'low-code-editor.component': component,
         'low-code-editor.message': message,
-        'low-code-editor.idpid': process.env.VSCODE_CHOREO_USER_IDP_ID ? process.env.VSCODE_CHOREO_USER_IDP_ID : '',
+        'low-code-editor.idpId': process.env.VSCODE_CHOREO_USER_IDP_ID ? process.env.VSCODE_CHOREO_USER_IDP_ID : '',
         'low-code-editor.isWSO2User' : isWSO2User ? 'true' : 'false'
     };
 }
