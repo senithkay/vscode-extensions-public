@@ -3,6 +3,7 @@ import * as React from "react";
 import { DiagramEditorLangClientInterface, PerformanceAnalyzerGraphResponse, PerformanceAnalyzerRealtimeResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { DiagramGenerator } from "..";
+import { LowcodeEvent } from "../../Diagram/models";
 import { DiagramGenErrorBoundary } from "../ErrorBoundrary";
 
 import './style.scss';
@@ -32,6 +33,7 @@ export interface EditorAPI {
     resolveMissingDependency: (filePath: string, fileContent: string) => Promise<boolean>;
     resolveMissingDependencyByCodeAction: (filePath: string, fileContent: string, diagnostic: any) => Promise<boolean>;
     runCommand: (command: PALETTE_COMMANDS, args: any[]) => Promise<boolean>;
+    sendInsightEvent: (event: LowcodeEvent) => Promise<void>;
 }
 
 export enum PALETTE_COMMANDS {
@@ -45,7 +47,7 @@ export type EditorProps = EditorState & EditorAPI;
 export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
 
     const { getFileContent, updateFileContent, gotoSource, getPFSession,
-            showPerformanceGraph, handlePerfErrors, showMessage, resolveMissingDependency, resolveMissingDependencyByCodeAction, runCommand, ...restProps } = props;
+            showPerformanceGraph, handlePerfErrors, sendInsightEvent, showMessage, resolveMissingDependency, resolveMissingDependencyByCodeAction, runCommand, ...restProps } = props;
     const [state, setState] = React.useState<EditorState>(restProps);
 
     React.useEffect(() => {
@@ -67,6 +69,7 @@ export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
                     resolveMissingDependency={resolveMissingDependency}
                     resolveMissingDependencyByCodeAction={resolveMissingDependencyByCodeAction}
                     runCommand={runCommand}
+                    sendInsightEvent={sendInsightEvent}
                     panX="-30"
                     panY="0"
                     scale="0.9"
