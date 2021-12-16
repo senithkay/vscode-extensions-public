@@ -16,19 +16,25 @@ import { useIntl } from "react-intl";
 
 import {
   BallerinaConnectorInfo,
+  BallerinaConnectorsRequest,
+  BallerinaModule,
+  BallerinaModuleResponse,
   Connector,
   ConnectorConfig,
+  DiagramEditorLangClientInterface,
   FunctionDefinitionInfo,
-  WizardType,
+  WizardType
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { LocalVarDecl, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../Contexts/Diagram";
+import { UserState } from "../../../../types";
 import { DefaultConfig } from "../../../visitors/default";
 import {
   DiagramOverlayPosition,
 } from "../../Portals/Overlay";
 import { fetchConnectorInfo } from "../../Portals/utils";
+import { SearchQueryParams } from "../ConfigForms/Marketplace";
 import { FormGenerator } from "../FormGenerator";
 
 export interface ConfigWizardState {
@@ -43,6 +49,8 @@ export interface ConnectorConfigWizardProps {
     position: DiagramOverlayPosition;
     connectorInfo: BallerinaConnectorInfo;
     targetPosition: NodePosition;
+    // This prop is used to load connectors from statement menu
+    specialConnectorName?: string;
     model?: STNode;
     onClose: () => void;
     onSave: () => void;
@@ -60,7 +68,8 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
             isCodeEditorActive,
             userInfo,
             langServerURL,
-            stSymbolInfo
+            stSymbolInfo,
+            currentFile
         },
         api: {
             ls: {
@@ -88,7 +97,8 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
         onSave,
         selectedConnector,
         isAction,
-        isEdit
+        isEdit,
+        specialConnectorName
     } = props;
 
     const initWizardState: ConfigWizardState = {
@@ -109,6 +119,30 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
         defaultMessage: "Something went wrong. Couldn't load the connection.",
     });
 
+    const fetchConnectorsList = async (
+        queryParams: SearchQueryParams,
+        currentFilePath: string,
+        userDetail?: UserState
+    ): Promise<BallerinaModuleResponse> => {
+        const { query, category, filterState, limit, page } = queryParams;
+        const langClient: DiagramEditorLangClientInterface = await getDiagramEditorLangClient();
+        const request: BallerinaConnectorsRequest = {
+            targetFile: currentFilePath,
+            query,
+            limit,
+        };
+        if (category) {
+            request.keyword = category;
+        }
+        if (userDetail && filterState && filterState.hasOwnProperty("My Organization")) {
+            request.organization = userDetail.selectedOrgHandle;
+        }
+        if (page) {
+            request.offset = (page - 1) * limit;
+        }
+        return langClient.getConnectors(request);
+    };
+
     React.useEffect(() => {
         fitToScreen();
         pan(0, -position.y + DefaultConfig.dotGap * 3);
@@ -117,8 +151,23 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
     React.useEffect(() => {
         if (wizardState.isLoading) {
             (async () => {
+                const queryParams: SearchQueryParams = {
+                    query: "",
+                    category: "",
+                    filterState: {},
+                    limit: 18,
+                    page: 1,
+                };
+                let connector = connectorInfo;
+                if (specialConnectorName) {
+                    const ballerinaConnectorInfo = await fetchConnectorsList(queryParams, currentFile.path, userInfo);
+                    connector = ballerinaConnectorInfo.central.find((balModule: BallerinaModule) =>
+                            (balModule.moduleName === specialConnectorName.toLocaleLowerCase() &&
+                                balModule.name === "Client")) as BallerinaConnectorInfo;
+                }
+
                 const connectorInfoResponse = await fetchConnectorInfo(
-                    connectorInfo,
+                    connector,
                     model,
                     stSymbolInfo,
                     langServerURL,
