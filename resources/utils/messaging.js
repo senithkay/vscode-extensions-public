@@ -350,20 +350,11 @@ function getLangClient() {
                 });
             })
         },
-        getRealtimePerformanceData: (params) => {
+        getPerfEndpoints: (params) => {
             return new Promise((resolve, _reject) => {
                 const start = new Date();
-                webViewRPCHandler.invokeRemoteMethod('getRealtimePerformanceData', [params], (resp) => {
-                    consoleLog(start, 'getRealtimePerformanceData');
-                    resolve(resp);
-                });
-            })
-        },
-        getPerformanceGraphData: (params) => {
-            return new Promise((resolve, _reject) => {
-                const start = new Date();
-                webViewRPCHandler.invokeRemoteMethod('getPerformanceGraphData', [params], (resp) => {
-                    consoleLog(start, 'getPerformanceGraphData');
+                webViewRPCHandler.invokeRemoteMethod('getPerfEndpoints', [params], (resp) => {
+                    consoleLog(start, 'getPerfEndpoints');
                     resolve(resp);
                 });
             })
