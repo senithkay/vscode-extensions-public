@@ -19,7 +19,7 @@ interface LibraryProps {
 export function Library(props: LibraryProps) {
     return (
         <li>
-            <p>{props.name}</p>
+            <a href={""}>{props.name}</a>
         </li>
     );
 }

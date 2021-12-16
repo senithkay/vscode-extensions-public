@@ -13,6 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
+import { useStatementEditorStyles } from "../../styles";
 import { Library } from '../Library';
 
 interface LibraryInfo {
@@ -25,11 +26,15 @@ interface LibrariesListProps {
 }
 
 export function LibrariesList(props: LibrariesListProps) {
+    const statementEditorClasses = useStatementEditorStyles();
+
     return (
-        <ul>
-            {props.libraries.map((library: LibraryInfo, index: number) => (
-                <Library name={library.id} key={index} />
-            ))}
-        </ul>
+        <div className={statementEditorClasses.libraryBlock}>
+            <ul>
+                {props.libraries.map((library: LibraryInfo, index: number) => (
+                    <Library name={library.id} key={index} />
+                ))}
+            </ul>
+        </div>
     );
 }

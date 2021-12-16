@@ -51,7 +51,7 @@ export function RightPane() {
         <div className={statementEditorClasses.rightPane}>
             <div
                 className={classNames(
-                    statementEditorClasses.rhsComponent,
+                    statementEditorClasses.rhsComponentLabel,
                     statementEditorClasses.propertiesMenuBar
                 )}
             >
@@ -73,14 +73,14 @@ export function RightPane() {
                     isLangLibExpanded && statementEditorClasses.libraryBrowser
                 )}
             >
-                <span className={statementEditorClasses.subHeader}>Language Library</span>
-                <ComponentExpandButton
-                    onClick={langLibExpandButton}
-                    isExpanded={isLangLibExpanded}
-                />
-                <section>
-                    <LibrariesList libraries={libraries} />
-                </section>
+                <div className={statementEditorClasses.rhsComponentLabel}>
+                    <span className={statementEditorClasses.subHeader}>Language Library</span>
+                    <ComponentExpandButton
+                        onClick={langLibExpandButton}
+                        isExpanded={isLangLibExpanded}
+                    />
+                </div>
+                {isLangLibExpanded && <LibrariesList libraries={libraries} />}
             </div>
             <div className={statementEditorClasses.shortcutsDivider} />
             <div
@@ -89,11 +89,14 @@ export function RightPane() {
                     isStdLibExpanded && statementEditorClasses.libraryBrowser
                 )}
             >
-                <span className={statementEditorClasses.subHeader}>Standard Library</span>
-                <ComponentExpandButton
-                    onClick={standardLibExpandButton}
-                    isExpanded={isStdLibExpanded}
-                />
+                <div className={statementEditorClasses.rhsComponentLabel}>
+                    <span className={statementEditorClasses.subHeader}>Standard Library</span>
+                    <ComponentExpandButton
+                        onClick={standardLibExpandButton}
+                        isExpanded={isStdLibExpanded}
+                    />
+                </div>
+                {isStdLibExpanded && <LibrariesList libraries={libraries} />}
             </div>
             <div className={statementEditorClasses.shortcutsDivider} />
         </div>
