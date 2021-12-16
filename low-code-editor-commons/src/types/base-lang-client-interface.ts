@@ -43,7 +43,6 @@ export interface DidChangeParams {
 export interface BaseLangClientInterface {
     isInitialized: boolean;
     init: (params: InitializeParams) => Promise<InitializeResult>
-    didOpen: (Params: DidOpenParams) => void;
     didClose: (params: DidCloseParams) => void;
     didChange: (params: DidChangeParams) => void;
     close: () => void;

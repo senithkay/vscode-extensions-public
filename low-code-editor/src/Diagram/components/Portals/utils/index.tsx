@@ -514,7 +514,7 @@ export function getModuleIcon(module: BallerinaModule, scale: number = 1): React
             />
         );
     }
-    return <DefaultConnectorIcon transform={`scale(${scale})`}/>;
+    return <DefaultConnectorIcon scale={scale}/>;
 }
 
 export function getConstructIcon(iconId: string) {
