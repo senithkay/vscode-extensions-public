@@ -153,7 +153,7 @@ export const ConfigForm = ({
                             variant="contained"
                             color="default"
                             size="small"
-                            onClick={handleDefaultButtonClick.bind(this)}
+                            onClick={handleDefaultButtonClick}
                         >
                             {defaultButtonText}
                         </Button>
