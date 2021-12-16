@@ -360,6 +360,11 @@ export function getDataFromChoreo(data: any, analyzeType: ANALYZETYPE): Promise<
 
             res.on('data', response => {
                 const res = JSON.parse(response);
+
+                if (res.message) {
+                    checkErrors(res);
+                    return reject();
+                }
                 cachedResponses.set(data, res);
                 return resolve(res);
             })
