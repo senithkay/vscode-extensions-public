@@ -140,7 +140,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
         }
     }, []);
 
-    const connectorInitFormFields: FormField[] = functionDefInfo?.get("init")?.parameters;
+    const connectorInitFormFields: FormField[] = functionDefInfo?.get("init")?.parameters || [];
 
     // managing name set by the non oauth connectors
     config.name =
@@ -432,7 +432,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
     let connectorComponent: ReactNode = null;
 
     if (functionDefInfo) {
-        if (connectorModule === "http") {
+        if (connector.moduleName === "http" && connector.name === "Client") {
             connectorComponent = getConnectorComponent(connectorModule + connector.name, {
                 functionDefinitions: functionDefInfo,
                 connectorConfig: config,
