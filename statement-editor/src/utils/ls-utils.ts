@@ -14,6 +14,7 @@ import {
     CompletionParams,
     CompletionResponse,
     ExpressionEditorLangClientInterface,
+    LibraryDocResponse,
     PartialSTRequest,
     PublishDiagnosticsParams
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -159,9 +160,10 @@ async function getModifiedStatement(
 }
 
 export async function getLibrariesList(
-        getLangClient: () => Promise<ExpressionEditorLangClientInterface>): Promise<string> {
+        version: string,
+        getLangClient: () => Promise<ExpressionEditorLangClientInterface>): Promise<LibraryDocResponse> {
 
     const langClient: ExpressionEditorLangClientInterface = await getLangClient();
-    const resp = await langClient.getLibrariesList({version: ""});
-    return resp.results;
+    const resp = await langClient.getLibrariesList({version});
+    return resp;
 }

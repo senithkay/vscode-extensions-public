@@ -98,7 +98,15 @@ export interface LibraryDocRequest {
 }
 
 export interface LibraryDocResponse {
-    results?: string;
+    librariesList: LibraryInfo[];
+}
+
+export interface LibraryInfo {
+    id: string;
+    summary: string;
+    orgName: string;
+    version: string;
+    isDefaultModule: boolean;
 }
 
 export interface ExpressionEditorLangClientInterface extends BaseLangClientInterface {
