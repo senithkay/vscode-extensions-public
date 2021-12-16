@@ -27,6 +27,7 @@ import { useStyles } from "../../../DynamicConnectorForm/style";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
 import { ExpressionInjectablesProps } from "../../../FormGenerator";
 import { wizardStyles } from "../../style";
+import WarningBanner from "../../../../Banners/WarningBanner";
 
 interface CreateConnectorFormProps {
     initFields: FormField[];
@@ -41,6 +42,7 @@ interface CreateConnectorFormProps {
     responseStatus: number;
     expressionInjectables?: ExpressionInjectablesProps;
     targetPosition?: NodePosition;
+    warningMessage?:string,
 }
 
 interface NameState {
@@ -58,7 +60,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     } = useContext(Context);
 
     const { onSave, onSaveNext, initFields, connectorConfig, onConfigNameChange, isNewConnectorInitWizard,
-            connector, expressionInjectables, targetPosition } = props;
+            connector, expressionInjectables, targetPosition, warningMessage } = props;
     const classes = useStyles();
     const wizardClasses = wizardStyles();
     const intl = useIntl();
@@ -246,6 +248,11 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                             </>
                         )}
                     </div>
+                </div>
+                <div>
+                    {warningMessage && (
+                        <WarningBanner message={warningMessage} />
+                    )}
                 </div>
             </FormControl>
         </div>

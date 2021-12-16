@@ -67,7 +67,7 @@ service /{{{ BASE_PATH }}} on {{{ LISTENER_NAME }}} {
 listener http:Listener {{{ LISTENER_NAME }}} = new ({{{ PORT }}});
 `,
 QUERY_FOREACH_STATEMENT: `
-check queryResponse.forEach(function(record{} record) {
+check queryResponse.forEach(function(record{} rec) {
     // can perform operations with record
 });
 

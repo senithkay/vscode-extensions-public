@@ -395,6 +395,14 @@ export function ConnectorForm(props: FormGeneratorProps) {
         onEvent(event);
     };
 
+    function showDBWarningMessage() {
+        let closeConnectionWarning = "";
+        if (checkDBConnector(connectorModule)){
+            closeConnectionWarning = "Please close the connection";
+        }
+        return closeConnectionWarning;
+    };
+
     // TODO: fix AI suggestion issue with vscode implementation
     // useEffect(() => {
     //     if (connector) {
@@ -500,6 +508,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
                             responseStatus={responseStatus}
                             expressionInjectables={expressionInjectables}
                             targetPosition={targetPosition}
+                            warningMessage={showDBWarningMessage()}
                         />
                     )}
                 </div>
