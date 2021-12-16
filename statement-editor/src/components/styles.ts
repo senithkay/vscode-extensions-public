@@ -270,9 +270,11 @@ export const useStatementEditorStyles = makeStyles(() =>
             margin: '4px 2px',
             borderRadius: '50%'
         },
-        rhsComponent: {
+        rhsComponentLabel: {
             display: 'flex',
-            flexDirection: 'row',
+            flexDirection: 'row'
+        },
+        rhsComponent: {
             width: '90%',
             marginLeft: '5%'
         },
@@ -332,6 +334,11 @@ export const useStatementEditorStyles = makeStyles(() =>
         expressionComponent: {
             display: 'flex',
             flexDirection: 'row'
+        },
+        libraryBlock: {
+            height: '90%',
+            overflowY: 'scroll',
+            overflowX: 'hidden'
         }
     }),
 );
