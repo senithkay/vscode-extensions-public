@@ -36,6 +36,7 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { isVarTypeDescriptor } from "../../../utils/diagram-util";
+import expandTracker from "../../../utils/expand-tracker";
 import { Endpoint, getDraftComponentSizes, getPlusViewState, haveBlockStatement, isSTActionInvocation } from "../../../utils/st-util";
 import { DefaultConfig } from "../../../visitors/default";
 import { EXISTING_PLUS_HOLDER_API_HEIGHT, EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_API_HEIGHT, PLUS_HOLDER_API_HEIGHT_COLLAPSED, PLUS_HOLDER_STATEMENT_HEIGHT, PLUS_HOLDER_WIDTH } from "../Components/DialogBoxes/PlusHolder/PlusElements";
@@ -58,6 +59,7 @@ import { SERVICE_HEADER_HEIGHT } from "../Components/RenderingComponents/Service
 import { START_SVG_HEIGHT, START_SVG_WIDTH } from "../Components/RenderingComponents/Start/StartSVG";
 import { VARIABLE_NAME_WIDTH } from "../Components/RenderingComponents/VariableName";
 import { WHILE_SVG_HEIGHT, WHILE_SVG_WIDTH } from "../Components/RenderingComponents/While/WhileSVG";
+import { getNodeSignature } from "../Utils";
 import { BlockViewState, CollapseViewState, CompilationUnitViewState, DoViewState, ElseViewState, ForEachViewState, FunctionViewState, IfViewState, OnErrorViewState, PlusViewState, StatementViewState } from "../ViewState";
 import { DraftStatementViewState } from "../ViewState/draft";
 import { ModuleMemberViewState } from "../ViewState/module-member";
@@ -180,6 +182,7 @@ class SizingVisitor implements Visitor {
         const viewState: FunctionViewState = node.viewState as FunctionViewState;
         const body: FunctionBodyBlock = node.functionBody as FunctionBodyBlock;
         const bodyViewState: BlockViewState = body.viewState;
+        viewState.collapsed = !expandTracker.isExpanded(getNodeSignature(node));
 
         // If body has no statements and doesn't have a end component
         // Add the plus button to show up on the start end
@@ -203,6 +206,7 @@ class SizingVisitor implements Visitor {
 
     public beginVisitServiceDeclaration(node: ServiceDeclaration, parent?: STNode) {
         const viewState: ServiceViewState = node.viewState;
+        viewState.collapsed = !expandTracker.isExpanded(getNodeSignature(node));
         // setting up service lifeline initial height
 
         node.members.forEach((member, i) => {
@@ -258,6 +262,7 @@ class SizingVisitor implements Visitor {
         const viewState: FunctionViewState = node.viewState as FunctionViewState;
         const body: FunctionBodyBlock = node.functionBody as FunctionBodyBlock;
         const bodyViewState: BlockViewState = body.viewState;
+        viewState.collapsed = !expandTracker.isExpanded(getNodeSignature(node));
 
         // If body has no statements and doesn't have a end component
         // Add the plus button to show up on the start end

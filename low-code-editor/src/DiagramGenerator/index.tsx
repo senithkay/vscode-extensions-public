@@ -54,7 +54,6 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     const [syntaxTree, setSyntaxTree] = React.useState(undefined);
     const [zoomStatus, setZoomStatus] = React.useState(defaultZoomStatus);
     const [fileContent, setFileContent] = React.useState("");
-    const [selectedPosition, setSelectedPosition] = React.useState({ startLine: 0, startColumn: 0 });
     const [isMutationInProgress, setMutationInProgress] = React.useState<boolean>(false);
 
     React.useEffect(() => {
@@ -75,10 +74,6 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                 setSyntaxTree(vistedSyntaxTree);
                 undoRedo.updateContent(filePath, content);
                 setFileContent(content);
-
-                if (startLine === 0 && startColumn === 0 && genSyntaxTree) {
-                    setSelectedPosition(getDefaultSelectedPosition(genSyntaxTree));
-                }
             } catch (err) {
                 throw err;
             }
@@ -95,14 +90,6 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
             return false;
         });
     }, []);
-
-    React.useEffect(() => {
-        if (startLine === 0 && startColumn === 0 && syntaxTree) {
-            setSelectedPosition(getDefaultSelectedPosition(syntaxTree));
-        } else {
-            setSelectedPosition({ startLine, startColumn });
-        }
-    }, [startLine, startColumn]);
 
     function zoomIn() {
         const newZoomStatus = cloneDeep(zoomStatus);
@@ -208,6 +195,10 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     // on top of typed context
     const missingProps: any = {};
 
+    const selectedPosition = startColumn === 0 && startLine === 0 ? // TODO: change to use undefined for unselection
+                                    getDefaultSelectedPosition(syntaxTree)
+                                    : { startLine, startColumn }
+
     return (
         <MuiThemeProvider theme={theme}>
             <div className={classes.lowCodeContainer}>
@@ -250,7 +241,6 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                 code: {
                                     modifyDiagram: async (mutations: STModification[], options?: any) => {
                                         setMutationInProgress(true);
-                                        const modifyPosition = getModifyPosition(mutations);
                                         const { parseSuccess, source, syntaxTree: newST } = await langClient.stModify({
                                             astModifications: await InsertorDelete(mutations),
                                             documentIdentifier: {
@@ -275,7 +265,6 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                             if (isDeleteModificationAvailable(mutations)) {
                                                 showMessage("Undo to revert the change you did by pressing Ctrl + Z", MESSAGE_TYPE.INFO, true);
                                             }
-                                            setSelectedPosition(modifyPosition);
                                         } else {
                                             // TODO show error
                                         }

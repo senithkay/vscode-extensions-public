@@ -23,6 +23,8 @@ import { TopLevelPlus } from "../../PlusButtons/TopLevelPlus";
 
 import { ServiceHeader } from "./ServiceHeader";
 import "./style.scss";
+import { getNodeSignature } from "../../../Utils";
+import expandTracker from "../../../../../utils/expand-tracker";
 
 export const DEFAULT_SERVICE_WIDTH: number = 500;
 export const SERVICE_MARGIN_LEFT: number = 24.5;
@@ -36,15 +38,24 @@ export function Service(props: ServiceProps) {
     const { props: { stSymbolInfo } } = useDiagramContext();
 
     const isSelected = useSelectedStatus(model);
-    const [isExpanded, setIsExpanded] = useState(isSelected);
-
+    const [isExpanded, setIsExpanded] = useState(model && !model.viewState.collapsed || isSelected);
     const onExpandClick = () => {
         setIsExpanded(!isExpanded);
     }
 
     React.useEffect(() => {
-        setIsExpanded(isSelected);
+        if (!expandTracker.isExpanded(getNodeSignature(model))) {
+            setIsExpanded(isSelected);
+        }
     }, [isSelected])
+
+    React.useEffect(() => {
+        if (isExpanded) {
+            expandTracker.addExpandedSignature(getNodeSignature(model));
+        } else {
+            expandTracker.removeExpandedSignature(getNodeSignature(model));
+        }
+    }, [isExpanded]);
 
     const serviceType = getServiceTypeFromModel(model, stSymbolInfo);
     const isTriggerType = serviceType !== "http";

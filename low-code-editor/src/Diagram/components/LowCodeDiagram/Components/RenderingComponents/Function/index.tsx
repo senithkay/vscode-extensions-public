@@ -37,6 +37,8 @@ import PanAndZoom from "./PanAndZoom";
 import { PerformanceBar } from "./perBar/PerformanceBar";
 import { ResourceHeader } from "./ResourceHeader";
 import "./style.scss";
+import { getNodeSignature } from "../../../Utils";
+import expandTracker from "../../../../../utils/expand-tracker";
 
 export const FUNCTION_PLUS_MARGIN_TOP = 7.5;
 export const FUNCTION_PLUS_MARGIN_BOTTOM = 7.5;
@@ -64,12 +66,22 @@ export function Function(props: FunctionProps) {
 
     const containerRef = useRef(null);
     const isSelected = useSelectedStatus(model, containerRef);
-    const [diagramExpanded, setDiagramExpanded] = useState(isSelected);
+    const [diagramExpanded, setDiagramExpanded] = useState(model && !model.viewState.collapsed || isSelected);
     const [overlayNode, overlayRef] = useOverlayRef();
 
     React.useEffect(() => {
-        setDiagramExpanded(isSelected);
+        if (!expandTracker.isExpanded(getNodeSignature(model))) {
+            setDiagramExpanded(isSelected);
+        }
     }, [isSelected]);
+
+    React.useEffect(() => {
+        if (diagramExpanded) {
+            expandTracker.addExpandedSignature(getNodeSignature(model));
+        } else {
+            expandTracker.removeExpandedSignature(getNodeSignature(model));
+        }
+    }, [diagramExpanded]);
 
     const onExpandClick = () => {
         setDiagramExpanded(!diagramExpanded);
@@ -130,7 +142,7 @@ export function Function(props: FunctionProps) {
 
     const functionBody = (
         <div className={"lowcode-diagram"}>
-            <PerformanceBar model={model}/>
+            <PerformanceBar model={model} />
             <FunctionProvider overlayId={overlayId} overlayNode={overlayNode} functionNode={model}>
                 <PanAndZoom>
                     <div ref={overlayRef} id={overlayId} className={classes.OverlayContainer} />
