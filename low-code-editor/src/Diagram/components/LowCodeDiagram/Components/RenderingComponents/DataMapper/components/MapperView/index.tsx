@@ -14,12 +14,20 @@
 import React, { useContext, useRef, useState } from 'react';
 
 import Typography from '@material-ui/core/Typography';
-import { PrimaryButton, PrimitiveBalType, SecondaryButton, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { ExpressionEditor } from '@wso2-enterprise/ballerina-expression-editor';
+import {
+    CustomLowCodeContext,
+    PrimaryButton,
+    PrimitiveBalType,
+    SecondaryButton,
+    STModification
+} from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { CaptureBindingPattern, STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
 
+import { Context } from "../../../../../../../../Contexts/Diagram";
 import { updatePropertyStatement } from '../../../../../../../utils/modification-util';
 import { wizardStyles } from '../../../../../../FormComponents/ConfigForms/style';
-import ExpressionEditor from '../../../../../../FormComponents/FormFieldComponents/ExpressionEditor';
+import { ExpressionConfigurable } from "../../../../../../FormComponents/FormFieldComponents/ExpressionConfigurable";
 import { DataMapperInputTypeInfo } from '../../../../../../FormComponents/Types';
 import { DiagramOverlay, DiagramOverlayContainer } from '../../../../../../Portals/Overlay';
 import { Canvas } from '../../../../../Canvas';
@@ -406,6 +414,28 @@ export function MapperView() {
         }
     }
 
+    const {
+        state: { targetPosition: targetPositionDraft },
+        props: {
+            currentFile,
+            langServerURL,
+            syntaxTree,
+            diagnostics: mainDiagnostics,
+        },
+        api: {
+            ls: { getExpressionEditorLangClient },
+        }
+    } = useContext(Context);
+
+    const lowCodeEditorContext: CustomLowCodeContext = {
+        targetPosition: targetPositionDraft,
+        currentFile,
+        langServerURL,
+        syntaxTree,
+        diagnostics: mainDiagnostics,
+        ls: { getExpressionEditorLangClient }
+    }
+
 
     const onDataPointClick = (dataPointVS: SourcePointViewState | TargetPointViewState) => {
         // current element is wrapped by a <g/> element
@@ -505,6 +535,8 @@ export function MapperView() {
                         },
                         onChange,
                         defaultValue: dataPointVS.value,
+                        expressionConfigurable: ExpressionConfigurable,
+                        lowCodeEditorContext
                     }
                 });
                 setSelectedSourceDataPoint(dataPointVS);

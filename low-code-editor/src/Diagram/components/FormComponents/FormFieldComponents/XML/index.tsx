@@ -11,11 +11,15 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React from "react";
+import React, { useContext } from "react";
 
+import { ExpressionEditor } from "@wso2-enterprise/ballerina-expression-editor";
+import { CustomLowCodeContext } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+
+import { Context } from "../../../../../Contexts/Diagram";
 import { useStyles } from "../../DynamicConnectorForm/style";
 import { FormElementProps } from "../../Types";
-import ExpressionEditor from "../ExpressionEditor";
+import { ExpressionConfigurable } from "../ExpressionConfigurable";
 
 interface XMLProps {
     validate?: (field: string, isInvalid: boolean) => void;
@@ -39,6 +43,28 @@ export function XML(props: FormElementProps<XMLProps>) {
         }
     }
 
+    const {
+        state: { targetPosition: targetPositionDraft },
+        props: {
+            currentFile,
+            langServerURL,
+            syntaxTree,
+            diagnostics: mainDiagnostics,
+        },
+        api: {
+            ls: { getExpressionEditorLangClient },
+        }
+    } = useContext(Context);
+
+    const lowCodeEditorContext: CustomLowCodeContext = {
+        targetPosition: targetPositionDraft,
+        currentFile,
+        langServerURL,
+        syntaxTree,
+        diagnostics: mainDiagnostics,
+        ls: { getExpressionEditorLangClient }
+    }
+
     return (
         <div className={classes.arraySubWrapper}>
             <ExpressionEditor
@@ -49,6 +75,8 @@ export function XML(props: FormElementProps<XMLProps>) {
                 }}
                 defaultValue={model.value}
                 onChange={onPropertyChange}
+                expressionConfigurable={ExpressionConfigurable}
+                lowCodeEditorContext={lowCodeEditorContext}
             />
         </div>
     );

@@ -10,8 +10,9 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { ExpressionEditor } from "@wso2-enterprise/ballerina-expression-editor";
+
 import { Enum } from "./Enum";
-import ExpressionEditor from "./ExpressionEditor";
 import { ExpressionEditorArray } from "./ExpressionEditorArray";
 import { ExpressionEditorMap } from "./ExpressionEditorMap";
 import { FormJson } from "./Json/FormJson"

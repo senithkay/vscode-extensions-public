@@ -19,7 +19,14 @@ import classnames from "classnames";
 import { Box, FormControl, IconButton, Typography } from "@material-ui/core";
 import { ControlPoint, RemoveCircleOutlineRounded } from "@material-ui/icons";
 
-import { FormActionButtons, FormField, FormHeaderSection, DiagramDiagnostic } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    FormActionButtons,
+    FormElementProps,
+    FormField,
+    FormHeaderSection,
+    DiagramDiagnostic,
+    CustomLowCodeContext
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import {
@@ -29,10 +36,11 @@ import {
     getInitialSource
 } from "../../../../../../utils/modification-util";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
-import ExpressionEditor, { ExpressionEditorProps } from "../../../../FormFieldComponents/ExpressionEditor";
+import { ExpressionEditor, ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
-import { ConditionConfig, ElseIfConfig, FormElementProps } from "../../../../Types";
+import { ConditionConfig, ElseIfConfig } from "../../../../Types";
 import Tooltip from '../../../../../../../components/TooltipV2'
+import { ExpressionConfigurable } from "../../../../FormFieldComponents/ExpressionConfigurable";
 
 interface IfProps {
     condition: ConditionConfig;
@@ -55,7 +63,14 @@ interface ExpressionsArray {
 
 export function AddIfForm(props: IfProps) {
     const {
-        props: { isMutationProgress: isMutationInProgress, currentFile },
+        state: { targetPosition: targetPositionDraft },
+        props: {
+            isMutationProgress: isMutationInProgress,
+            currentFile,
+            langServerURL,
+            syntaxTree,
+            diagnostics: mainDiagnostics,
+        },
         api: {
             ls: { getExpressionEditorLangClient },
             code: { modifyDiagram },
@@ -159,6 +174,15 @@ export function AddIfForm(props: IfProps) {
         }),
     };
 
+    const lowCodeEditorContext: CustomLowCodeContext = {
+        targetPosition: targetPositionDraft,
+        currentFile,
+        langServerURL,
+        syntaxTree,
+        diagnostics: mainDiagnostics,
+        ls: { getExpressionEditorLangClient }
+    }
+
     const setElementProps = (order: number): FormElementProps<ExpressionEditorProps> => {
         return {
             model: setFormField(order),
@@ -184,6 +208,8 @@ export function AddIfForm(props: IfProps) {
             },
             onChange: handleExpEditorChange(order),
             defaultValue: compList[order]?.expression,
+            expressionConfigurable: ExpressionConfigurable,
+            lowCodeEditorContext
         };
     };
 

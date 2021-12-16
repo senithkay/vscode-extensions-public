@@ -17,15 +17,22 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { WhileStatement } from "@wso2-enterprise/syntax-tree";
 import { FormControl, Typography } from "@material-ui/core";
 
-import { FormField, FormActionButtons, FormHeaderSection, } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    FormField,
+    FormActionButtons,
+    FormElementProps,
+    FormHeaderSection,
+    CustomLowCodeContext,
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { createWhileStatement, getInitialSource } from "../../../../../../utils/modification-util";
-import ExpressionEditor, { ExpressionEditorProps } from "../../../../FormFieldComponents/ExpressionEditor";
+import { ExpressionEditor, ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
-import { ConditionConfig, FormElementProps } from "../../../../Types";
+import { ConditionConfig } from "../../../../Types";
 import Tooltip from '../../../../../../../components/TooltipV2'
+import { ExpressionConfigurable } from "../../../../FormFieldComponents/ExpressionConfigurable";
 
 export interface WhileProps {
     condition: ConditionConfig;
@@ -37,12 +44,27 @@ export interface WhileProps {
 
 export function AddWhileForm(props: WhileProps) {
     const {
-        props: { isMutationProgress: isMutationInProgress, currentFile },
+        state: { targetPosition: targetPositionDraft },
+        props: {
+            isMutationProgress: isMutationInProgress,
+            currentFile,
+            langServerURL,
+            syntaxTree,
+            diagnostics: mainDiagnostics,
+        },
         api: {
             ls: { getExpressionEditorLangClient },
             code: { modifyDiagram }
         }
     } = useContext(Context);
+    const lowCodeEditorContext: CustomLowCodeContext = {
+        targetPosition: targetPositionDraft,
+        currentFile,
+        langServerURL,
+        syntaxTree,
+        diagnostics: mainDiagnostics,
+        ls: { getExpressionEditorLangClient }
+    }
     const { condition, formArgs, onCancel, onSave, onWizardClose } = props;
     const classes = useStyles();
     const intl = useIntl();
@@ -110,7 +132,9 @@ export function AddWhileForm(props: WhileProps) {
             }
         },
         onChange: handleExpEditorChange,
-        defaultValue: condition.conditionExpression
+        defaultValue: condition.conditionExpression,
+        expressionConfigurable: ExpressionConfigurable,
+        lowCodeEditorContext
     };
 
     const handleOnSaveClick = () => {

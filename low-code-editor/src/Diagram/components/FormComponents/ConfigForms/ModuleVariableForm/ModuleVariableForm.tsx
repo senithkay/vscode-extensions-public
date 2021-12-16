@@ -10,23 +10,29 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useReducer } from 'react';
+import React, { useContext, useReducer } from 'react';
 import { FormattedMessage } from 'react-intl';
 
 import { Box, FormControl, FormHelperText, Typography } from '@material-ui/core';
-import { FormActionButtons, FormHeaderSection, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { ExpressionEditor, ExpressionEditorProps } from '@wso2-enterprise/ballerina-expression-editor';
+import {
+    CustomLowCodeContext,
+    FormActionButtons,
+    FormElementProps,
+    FormHeaderSection,
+    STModification
+} from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { ModuleVarDecl, NodePosition } from '@wso2-enterprise/syntax-tree';
 
 import { VariableIcon } from '../../../../../assets/icons';
-import { useDiagramContext } from '../../../../../Contexts/Diagram';
+import { Context, useDiagramContext } from '../../../../../Contexts/Diagram';
 import { createModuleVarDecl, updateModuleVarDecl } from '../../../../utils/modification-util';
 import { getVariableNameFromST } from '../../../../utils/st-util';
 import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
 import CheckBoxGroup from '../../FormFieldComponents/CheckBox';
 import { SelectDropdownWithButton } from '../../FormFieldComponents/DropDown/SelectDropdownWithButton';
-import ExpressionEditor, { ExpressionEditorProps } from '../../FormFieldComponents/ExpressionEditor';
+import { ExpressionConfigurable } from "../../FormFieldComponents/ExpressionConfigurable";
 import { TextLabel } from '../../FormFieldComponents/TextField/TextLabel';
-import { FormElementProps } from '../../Types';
 import { VariableNameInput } from '../Components/VariableNameInput';
 import { VariableTypeInput, VariableTypeInputProps } from '../Components/VariableTypeInput';
 
@@ -95,6 +101,28 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
         return true;
     };
 
+    const {
+        state: { targetPosition: targetPositionDraft },
+        props: {
+            currentFile,
+            langServerURL,
+            syntaxTree,
+            diagnostics: mainDiagnostics,
+        },
+        api: {
+            ls: { getExpressionEditorLangClient },
+        }
+    } = useContext(Context);
+
+    const lowCodeEditorContext: CustomLowCodeContext = {
+        targetPosition: targetPositionDraft,
+        currentFile,
+        langServerURL,
+        syntaxTree,
+        diagnostics: mainDiagnostics,
+        ls: { getExpressionEditorLangClient }
+    }
+
     const expressionEditorConfig: FormElementProps<ExpressionEditorProps> = {
         model: {
             name: "valueExpression",
@@ -116,6 +144,8 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
         },
         onChange: onValueChange,
         defaultValue: state.varValue,
+        expressionConfigurable: ExpressionConfigurable,
+        lowCodeEditorContext
     };
 
     const enableSaveBtn: boolean = isFormConfigValid(state);

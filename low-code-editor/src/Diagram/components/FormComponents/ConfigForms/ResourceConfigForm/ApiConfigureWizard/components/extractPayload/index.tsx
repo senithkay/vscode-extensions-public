@@ -13,12 +13,12 @@
 import React, { useContext, useEffect, useState } from "react";
 
 import { Grid } from "@material-ui/core";
+import { ExpressionEditorCustomTemplate } from "@wso2-enterprise/ballerina-expression-editor";
 import { FunctionDefinition, NodePosition, ObjectMethodDefinition, ResourceAccessorDefinition } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../../../Contexts/Diagram";
 import { checkVariableName } from "../../../../../../Portals/utils";
 import { SelectDropdownWithButton } from "../../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
-import { ExpressionEditorCustomTemplate } from "../../../../../FormFieldComponents/ExpressionEditor";
 import { FormTextInput } from "../../../../../FormFieldComponents/TextField/FormTextInput";
 import {
     VariableTypeInput,

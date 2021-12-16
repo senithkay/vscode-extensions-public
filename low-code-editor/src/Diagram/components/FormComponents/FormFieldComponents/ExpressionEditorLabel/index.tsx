@@ -14,13 +14,12 @@
 import React from "react";
 
 import { FormHelperText } from "@material-ui/core";
+import { ExpressionEditorProps, transformFormFieldTypeToString } from "@wso2-enterprise/ballerina-expression-editor";
 import * as MonacoEditor from 'monaco-editor';
 
 import { TooltipCodeSnippet, TooltipIcon } from "../../../../../components/Tooltip";
 import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
 import { FormElementProps } from "../../Types";
-import { ExpressionEditorProps } from "../ExpressionEditor";
-import { transformFormFieldTypeToString } from "../ExpressionEditor/utils";
 import { useStyles as useTextInputStyles } from "../TextField/style";
 
 import { getExampleForType, truncateText, variableNameMaxLength } from "./utils";

@@ -11,17 +11,23 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js no-empty jsx-curly-spacing
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { FormHelperText } from "@material-ui/core";
 import { AddRounded } from "@material-ui/icons";
 import CloseRounded from "@material-ui/icons/CloseRounded";
-import { ButtonWithIcon, IconBtnWithText } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ExpressionEditor, ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
+import {
+    ButtonWithIcon,
+    CustomLowCodeContext,
+    FormElementProps,
+    IconBtnWithText
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
+import { Context } from "../../../../../Contexts/Diagram";
 import { useStyles } from "../../DynamicConnectorForm/style"
-import { FormElementProps } from "../../Types";
-import ExpressionEditor, { ExpressionEditorProps } from "../ExpressionEditor";
+import { ExpressionConfigurable } from "../ExpressionConfigurable";
 import { ExpressionEditorLabel } from "../ExpressionEditorLabel";
 
 export function RestParam(props: FormElementProps<ExpressionEditorProps>) {
@@ -72,6 +78,28 @@ export function RestParam(props: FormElementProps<ExpressionEditorProps>) {
         setChanged(!changed);
     };
 
+    const {
+        state: { targetPosition: targetPositionDraft },
+        props: {
+            currentFile,
+            langServerURL,
+            syntaxTree,
+            diagnostics: mainDiagnostics,
+        },
+        api: {
+            ls: { getExpressionEditorLangClient },
+        }
+    } = useContext(Context);
+
+    const lowCodeEditorContext: CustomLowCodeContext = {
+        targetPosition: targetPositionDraft,
+        currentFile,
+        langServerURL,
+        syntaxTree,
+        diagnostics: mainDiagnostics,
+        ls: { getExpressionEditorLangClient }
+    }
+
     const elementPropsSubEditor: FormElementProps = {
         model: {
             name: "sub_editor_" + model.name,
@@ -87,7 +115,9 @@ export function RestParam(props: FormElementProps<ExpressionEditorProps>) {
             revertClearInput,
             subEditor: true
         },
-        onChange: handleSubEditorChange
+        onChange: handleSubEditorChange,
+        expressionConfigurable: ExpressionConfigurable,
+        lowCodeEditorContext
     };
 
     const deleteItem = (index: number) => {

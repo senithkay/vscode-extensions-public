@@ -10,22 +10,30 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useReducer } from "react"
+import React, { useContext, useReducer } from "react"
 import { FormattedMessage } from "react-intl";
 
 import { Box, FormControl, FormHelperText, Typography } from "@material-ui/core";
-import { FormActionButtons, FormHeaderSection, PrimaryButton, SecondaryButton, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ExpressionEditor, ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
+import {
+    CustomLowCodeContext,
+    FormActionButtons,
+    FormElementProps,
+    FormHeaderSection,
+    PrimaryButton,
+    SecondaryButton,
+    STModification
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ConstDeclaration, NodePosition } from "@wso2-enterprise/syntax-tree"
 import { v4 as uuid } from 'uuid';
 
-import { useDiagramContext } from "../../../../../Contexts/Diagram";
+import { Context, useDiagramContext } from "../../../../../Contexts/Diagram";
 import { createConstDeclaration, updateConstDeclaration } from "../../../../utils/modification-util";
 import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
 import CheckBoxGroup from "../../FormFieldComponents/CheckBox";
 import { SelectDropdownWithButton } from "../../FormFieldComponents/DropDown/SelectDropdownWithButton";
-import ExpressionEditor, { ExpressionEditorProps } from "../../FormFieldComponents/ExpressionEditor";
+import { ExpressionConfigurable } from "../../FormFieldComponents/ExpressionConfigurable";
 import { TextLabel } from "../../FormFieldComponents/TextField/TextLabel";
-import { FormElementProps } from "../../Types";
 import { VariableNameInput } from "../Components/VariableNameInput";
 
 import { ConstantVarNameRegex, generateConfigFromModel, isFormConfigValid } from "./util";
@@ -82,6 +90,28 @@ export function ConstantConfigForm(props: ConstantConfigFormProps) {
         dispatch({ type: ConstantConfigFormActionTypes.SET_CONSTANT_VALUE, payload: value })
     }
 
+    const {
+        state: { targetPosition: targetPositionDraft },
+        props: {
+            currentFile,
+            langServerURL,
+            syntaxTree,
+            diagnostics: mainDiagnostics,
+        },
+        api: {
+            ls: { getExpressionEditorLangClient },
+        }
+    } = useContext(Context);
+
+    const lowCodeEditorContext: CustomLowCodeContext = {
+        targetPosition: targetPositionDraft,
+        currentFile,
+        langServerURL,
+        syntaxTree,
+        diagnostics: mainDiagnostics,
+        ls: { getExpressionEditorLangClient }
+    }
+
     const expressionEditorConfig: FormElementProps<ExpressionEditorProps> = {
         model: {
             name: "valueExpression",
@@ -107,6 +137,8 @@ export function ConstantConfigForm(props: ConstantConfigFormProps) {
         },
         onChange: handleValueChange,
         defaultValue: config.constantValue,
+        expressionConfigurable: ExpressionConfigurable,
+        lowCodeEditorContext
     };
 
     const typeSelectorCustomProps = {

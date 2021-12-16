@@ -10,22 +10,31 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useReducer } from 'react';
+import React, { useContext, useReducer } from 'react';
 
 import { FormControl } from '@material-ui/core';
-import { ConfigOverlayFormStatus, FormActionButtons, FormHeaderSection, PrimaryButton, SecondaryButton, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { ExpressionEditor, ExpressionEditorProps } from '@wso2-enterprise/ballerina-expression-editor';
+import {
+    ConfigOverlayFormStatus,
+    CustomLowCodeContext,
+    FormActionButtons,
+    FormElementProps,
+    FormHeaderSection,
+    PrimaryButton,
+    SecondaryButton,
+    STModification
+} from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { CaptureBindingPattern, ModuleVarDecl, NodePosition } from '@wso2-enterprise/syntax-tree';
 import { v4 as uuid } from "uuid";
 
-import { useDiagramContext } from '../../../../../Contexts/Diagram';
+import { Context, useDiagramContext } from '../../../../../Contexts/Diagram';
 import { createConfigurableDecl, updateConfigurableVarDecl } from '../../../../utils/modification-util';
 import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
 import CheckBoxGroup from '../../FormFieldComponents/CheckBox';
 import { SelectDropdownWithButton } from '../../FormFieldComponents/DropDown/SelectDropdownWithButton';
-import ExpressionEditor, { ExpressionEditorProps } from '../../FormFieldComponents/ExpressionEditor';
+import { ExpressionConfigurable } from "../../FormFieldComponents/ExpressionConfigurable";
 import { TextLabel } from '../../FormFieldComponents/TextField/TextLabel';
 import { InjectableItem } from '../../FormGenerator';
-import { FormElementProps } from '../../Types';
 import { VariableNameInput } from '../Components/VariableNameInput';
 import { VariableTypeInput, VariableTypeInputProps } from '../Components/VariableTypeInput';
 
@@ -117,6 +126,27 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
         dispatch({ type: ConfigurableFormActionTypes.SET_VAR_NAME, payload: value });
     }
 
+    const {
+        state: { targetPosition: targetPositionDraft },
+        props: {
+            currentFile,
+            langServerURL,
+            syntaxTree,
+            diagnostics: mainDiagnostics,
+        },
+        api: {
+            ls: { getExpressionEditorLangClient },
+        }
+    } = useContext(Context);
+
+    const lowCodeEditorContext: CustomLowCodeContext = {
+        targetPosition: targetPositionDraft,
+        currentFile,
+        langServerURL,
+        syntaxTree,
+        diagnostics: mainDiagnostics,
+        ls: { getExpressionEditorLangClient }
+    }
 
     const expressionEditorConfigForValue: FormElementProps<ExpressionEditorProps> = {
         model: {
@@ -144,6 +174,8 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
         },
         onChange: onValueChange,
         defaultValue: state.varValue,
+        expressionConfigurable: ExpressionConfigurable,
+        lowCodeEditorContext
     };
 
     const expressionEditorConfigForLabel = {

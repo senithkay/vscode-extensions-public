@@ -11,17 +11,17 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js no-empty jsx-curly-spacing
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 
 import { AddRounded } from "@material-ui/icons";
-import { IconBtnWithText } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ExpressionEditor, ExpressionEditorProps, getInitialValue } from "@wso2-enterprise/ballerina-expression-editor";
+import { CustomLowCodeContext, FormElementProps, IconBtnWithText } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { useStyles } from "../../DynamicConnectorForm/style"
-import { FormElementProps } from "../../Types";
-import ExpressionEditor, { ExpressionEditorProps } from "../ExpressionEditor";
-import { getInitialValue, transformFormFieldTypeToString } from "../ExpressionEditor/utils";
 import { ExpressionEditorLabel } from "../ExpressionEditorLabel";
 
+import { Context } from "../../../../../Contexts/Diagram";
+import { ExpressionConfigurable } from "../ExpressionConfigurable";
 import "./style.scss";
 import { appendToArray } from "./utils";
 
@@ -63,6 +63,28 @@ export function ExpressionEditorArray(props: FormElementProps<ExpressionEditorPr
         setChanged(!changed)
     }
 
+    const {
+        state: { targetPosition: targetPositionDraft },
+        props: {
+            currentFile,
+            langServerURL,
+            syntaxTree,
+            diagnostics: mainDiagnostics,
+        },
+        api: {
+            ls: { getExpressionEditorLangClient },
+        }
+    } = useContext(Context);
+
+    const lowCodeEditorContext: CustomLowCodeContext = {
+        targetPosition: targetPositionDraft,
+        currentFile,
+        langServerURL,
+        syntaxTree,
+        diagnostics: mainDiagnostics,
+        ls: { getExpressionEditorLangClient }
+    }
+
     const elementPropsSubEditor: FormElementProps = {
         model: {
             ...model.memberType,
@@ -78,7 +100,9 @@ export function ExpressionEditorArray(props: FormElementProps<ExpressionEditorPr
             subEditor: true,
             editPosition: customProps?.editPosition,
         },
-        onChange: handleSubEditorChange
+        onChange: handleSubEditorChange,
+        expressionConfigurable: ExpressionConfigurable,
+        lowCodeEditorContext
     };
 
     model.displayName = "Array Expression";

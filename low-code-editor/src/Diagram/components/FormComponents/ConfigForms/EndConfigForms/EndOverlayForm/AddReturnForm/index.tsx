@@ -15,7 +15,12 @@ import React, { useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
-import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ExpressionEditor } from "@wso2-enterprise/ballerina-expression-editor";
+import {
+    CustomLowCodeContext,
+    FormActionButtons,
+    FormHeaderSection
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { ReturnStatement } from "@wso2-enterprise/syntax-tree";
 
@@ -23,7 +28,7 @@ import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { createReturnStatement, getInitialSource } from "../../../../../../utils/modification-util";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
-import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
+import { ExpressionConfigurable } from "../../../../FormFieldComponents/ExpressionConfigurable";
 import { EndConfig } from "../../../../Types";
 
 
@@ -37,15 +42,27 @@ interface ReturnFormProps {
 
 export function AddReturnForm(props: ReturnFormProps) {
     const {
+        state: { targetPosition: targetPositionDraft },
         props: {
             isMutationProgress: isMutationInProgress,
-            currentFile
+            currentFile,
+            langServerURL,
+            syntaxTree,
+            diagnostics: mainDiagnostics,
         },
         api: {
             ls: { getExpressionEditorLangClient },
             code: { modifyDiagram }
         }
     } = useContext(Context);
+    const lowCodeEditorContext: CustomLowCodeContext = {
+        targetPosition: targetPositionDraft,
+        currentFile,
+        langServerURL,
+        syntaxTree,
+        diagnostics: mainDiagnostics,
+        ls: { getExpressionEditorLangClient }
+    }
     const { config, formArgs, onCancel, onSave, onWizardClose } = props;
     const classes = useStyles();
     const intl = useIntl();
@@ -138,6 +155,8 @@ export function AddReturnForm(props: ReturnFormProps) {
                                 initialDiagnostics: formArgs?.model?.expression?.typeData?.diagnostics
                             }}
                             onChange={onReturnValueChange}
+                            expressionConfigurable={ExpressionConfigurable}
+                            lowCodeEditorContext={lowCodeEditorContext}
                         />
                     </div>
                 </div>

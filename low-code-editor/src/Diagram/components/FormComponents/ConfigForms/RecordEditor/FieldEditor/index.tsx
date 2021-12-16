@@ -11,18 +11,19 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { useIntl } from "react-intl";
 
 import { Typography } from "@material-ui/core";
-import { FormField } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { ExpressionEditor } from "@wso2-enterprise/ballerina-expression-editor";
+import { CustomLowCodeContext, FormElementProps, FormField } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import classnames from "classnames";
 
 import DeleteButton from "../../../../../../assets/icons/DeleteButton";
+import { Context } from "../../../../../../Contexts/Diagram";
 import { FormState, useRecordEditorContext } from "../../../../../../Contexts/RecordEditor";
-import ExpressionEditor from "../../../FormFieldComponents/ExpressionEditor";
+import { ExpressionConfigurable } from "../../../FormFieldComponents/ExpressionConfigurable";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
-import { FormElementProps } from "../../../Types";
 import { VariableTypeInput, VariableTypeInputProps } from "../../Components/VariableTypeInput";
 import { recordStyles } from "../style";
 import { RecordModel, SimpleField } from "../types";
@@ -87,6 +88,27 @@ export function FieldEditor(props: FieldEditorProps) {
             callBacks.onUpdateCurrentField(field);
         }
     };
+    const {
+        state: { targetPosition: targetPositionDraft },
+        props: {
+            currentFile,
+            langServerURL,
+            syntaxTree,
+            diagnostics: mainDiagnostics,
+        },
+        api: {
+            ls: { getExpressionEditorLangClient },
+        }
+    } = useContext(Context);
+
+    const lowCodeEditorContext: CustomLowCodeContext = {
+        targetPosition: targetPositionDraft,
+        currentFile,
+        langServerURL,
+        syntaxTree,
+        diagnostics: mainDiagnostics,
+        ls: { getExpressionEditorLangClient }
+    }
     const defaultValueProps: FormElementProps = {
         model: formField,
         customProps: {
@@ -99,7 +121,9 @@ export function FieldEditor(props: FieldEditorProps) {
             enterKeyPressed: handleEnterPressed
         },
         onChange: handleDefaultValueChange,
-        defaultValue: field?.value
+        defaultValue: field?.value,
+        expressionConfigurable: ExpressionConfigurable,
+        lowCodeEditorContext
     };
 
     const handleDelete = () => {

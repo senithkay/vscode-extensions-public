@@ -15,15 +15,21 @@ import React, { useContext, useState } from "react";
 import { useIntl } from "react-intl";
 
 import { FormControl, Typography } from "@material-ui/core";
-import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ExpressionEditor, ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
+import {
+    CustomLowCodeContext,
+    FormActionButtons,
+    FormElementProps,
+    FormHeaderSection
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { AssignmentStatement, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { createPropertyStatement, getInitialSource } from "../../../../../../utils/modification-util";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
-import ExpressionEditor, { ExpressionEditorProps } from "../../../../FormFieldComponents/ExpressionEditor";
-import { FormElementProps, ProcessConfig } from "../../../../Types";
+import { ExpressionConfigurable } from "../../../../FormFieldComponents/ExpressionConfigurable";
+import { ProcessConfig } from "../../../../Types";
 
 interface AddAssignmentConfigProps {
     config: ProcessConfig;
@@ -39,13 +45,27 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
     const { config, formArgs, onCancel, onSave, onWizardClose } = props;
 
     const {
-        props: { isMutationProgress: isMutationInProgress, currentFile },
+        state: { targetPosition: targetPositionDraft },
+        props: {
+            isMutationProgress: isMutationInProgress,
+            currentFile,
+            langServerURL,
+            syntaxTree,
+            diagnostics: mainDiagnostics,
+        },
         api: {
             ls: { getExpressionEditorLangClient },
             code: { modifyDiagram }
         }
     } = useContext(Context);
-
+    const lowCodeEditorContext: CustomLowCodeContext = {
+        targetPosition: targetPositionDraft,
+        currentFile,
+        langServerURL,
+        syntaxTree,
+        diagnostics: mainDiagnostics,
+        ls: { getExpressionEditorLangClient }
+    }
     let variableName: string = '';
     let varExpression: string = '';
 
@@ -114,6 +134,8 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
         },
         onChange: setVarName,
         defaultValue: varName,
+        expressionConfigurable: ExpressionConfigurable,
+        lowCodeEditorContext
     };
 
     const expressionEditorConfig: FormElementProps<ExpressionEditorProps> = {

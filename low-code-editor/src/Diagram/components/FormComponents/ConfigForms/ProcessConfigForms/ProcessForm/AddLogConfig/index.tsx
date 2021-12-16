@@ -22,11 +22,16 @@ import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
 import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
-import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
+import { ExpressionEditor } from "@wso2-enterprise/ballerina-expression-editor";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { LogConfig, ProcessConfig } from "../../../../Types";
 import { createLogStatement, getInitialSource } from "../../../../../../utils/modification-util";
-import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    CustomLowCodeContext,
+    FormActionButtons,
+    FormHeaderSection
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ExpressionConfigurable } from "../../../../FormFieldComponents/ExpressionConfigurable";
 
 interface LogConfigProps {
     config: ProcessConfig;
@@ -44,15 +49,27 @@ export function AddLogConfig(props: LogConfigProps) {
     const intl = useIntl();
 
     const {
+        state: { targetPosition: targetPositionDraft },
         props: {
             isMutationProgress: isMutationInProgress,
-            currentFile
+            currentFile,
+            langServerURL,
+            syntaxTree,
+            diagnostics: mainDiagnostics,
         },
         api: {
             ls: { getExpressionEditorLangClient },
             code: { modifyDiagram }
         }
     } = useContext(Context);
+    const lowCodeEditorContext: CustomLowCodeContext = {
+        targetPosition: targetPositionDraft,
+        currentFile,
+        langServerURL,
+        syntaxTree,
+        diagnostics: mainDiagnostics,
+        ls: { getExpressionEditorLangClient }
+    }
     const { config, formArgs, onCancel, onSave, onWizardClose } = props;
     const logTypeFunctionNameMap: Map<string, string> = new Map([
         ['printInfo', 'Info'],
@@ -191,6 +208,8 @@ export function AddLogConfig(props: LogConfigProps) {
                             }}
                             onChange={onExpressionChange}
                             defaultValue={expression}
+                            expressionConfigurable={ExpressionConfigurable}
+                            lowCodeEditorContext={lowCodeEditorContext}
                         />
                     </div>
                 </div>
