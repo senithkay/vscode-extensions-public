@@ -183,8 +183,7 @@ export function getNodeSignature(node: STNode): string {
         });
 
         return `${qualifiers}function ${node.functionName.value}${node.functionSignature.source}`;
-    } else if (STKindChecker.isTypeDefinition(node)) {
-        // todo: handle record and enum expansion
     }
+
     return '';
 }

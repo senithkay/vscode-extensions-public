@@ -17,17 +17,14 @@ class ExpandTracker {
     }
 
     isExpanded(signature: string): boolean {
-        console.log('expand tracker: check >>>', signature);
         return this.expandedSignatures.indexOf(signature) > -1;
     }
 
     addExpandedSignature(signature: string) {
-        console.log('expand tracker: add >>>', signature);
         this.expandedSignatures.push(signature);
     }
 
     removeExpandedSignature(signature: string) {
-        console.log('expand tracker: remove >>>', signature);
         const index = this.expandedSignatures.indexOf(signature);
 
         if (index > -1) {
