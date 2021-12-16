@@ -13,7 +13,6 @@
 // tslint:disable: jsx-no-multiline-js
 import React, {useReducer, useState} from "react";
 
-import {Typography} from "@material-ui/core";
 import { FormActionButtons } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ListenerDeclaration, NodePosition, ServiceDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
@@ -22,8 +21,9 @@ import { useDiagramContext } from "../../../../../../../Contexts/Diagram";
 import { isServicePathValid } from "../../../../../../../utils/validator";
 import { createImportStatement, createServiceDeclartion, updateServiceDeclartion } from "../../../../../../utils/modification-util";
 import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
+import ExpressionEditor, {ExpressionEditorProps} from "../../../../FormFieldComponents/ExpressionEditor";
 import { TextLabel } from "../../../../FormFieldComponents/TextField/TextLabel";
-import {VariableNameInput, VariableNameInputProps} from "../../../Components/VariableNameInput";
+import {FormElementProps} from "../../../../Types";
 
 import { ListenerConfigForm } from "./ListenerConfigForm";
 import { getFormStateFromST, isServiceConfigValid } from "./util";
@@ -116,47 +116,34 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         }
     }
 
-    const getOverrideTemplate = () => {
-        const resourcePath = model?.absoluteResourcePath;
-        if (Array.isArray(resourcePath)) {
-            if (resourcePath.length) {
-                return {
-                    defaultCodeSnippet: `${state.serviceBasePath}`,
-                    targetColumn: getAbsolutePath()?.startColumn - 1,
-                }
-
-            } else {
-                return {
-                    defaultCodeSnippet: `${state.serviceBasePath} `,
-                    targetColumn: getAbsolutePath()?.startColumn,
-                }
-            }
-        }
-    }
-
-    const variableNameConfig: VariableNameInputProps = {
-        displayName: 'Service path',
-        value: state.serviceBasePath,
-        onValueChange: onBasePathChange,
-        validateExpression: updateResourcePathValidation,
-        position: model
-            ? getAbsolutePath()
-            : {
-            ...targetPosition
+    const servicePathConfig: FormElementProps<ExpressionEditorProps> = {
+        model: {
+            name: "servicePath",
+            displayName: 'Service path',
+            isOptional: false,
+            value: state.serviceBasePath
         },
-        overrideTemplate: {
-            defaultCodeSnippet: `service  on new http:Listener(1234) {}`,
-            targetColumn: 9,
+        customProps: {
+            validate: updateResourcePathValidation,
+            interactive: true,
+            editPosition: getAbsolutePath(),
+            customTemplate: {
+                defaultCodeSnippet: `service  on new http:Listener(1234) {}`,
+                targetColumn: 9,
+            },
+            hideSuggestions: false,
+            hideExpand: true,
+            hideTextLabel: false
         },
-        overrideEditTemplate: getOverrideTemplate(),
-        isEdit: !!model
+        onChange: onBasePathChange,
+        defaultValue: state.serviceBasePath,
     }
 
     return (
         <>
             <div className={formClasses.formContentWrapper}>
                 <div className={formClasses.formNameWrapper}>
-                    <VariableNameInput {...variableNameConfig} />
+                    <ExpressionEditor {...servicePathConfig} />
                     <TextLabel
                         required={true}
                         textLabelId="lowcode.develop.connectorForms.HTTP.configureNewListener"
