@@ -32,16 +32,8 @@ export function RightPane() {
     const { getLangClient } = stmtCtx;
 
     const langLibExpandButton = async () => {
-        const response = await getLibrariesList(getLangClient);
-        // const data = await response;
-        //
-        // const transformedLibraries = data.langLibs.map((libraryData: any) => {
-        //     return {
-        //         id: libraryData.id,
-        //         summary: libraryData.summary
-        //     };
-        // });
-        setLibraries([{id: "array", summary: "some desc"}]);
+        const response = await getLibrariesList("slbeta5", getLangClient);
+        setLibraries(response.librariesList);
         setIsLangLibExpanded(prevState => {
             return !prevState;
         });
@@ -86,6 +78,9 @@ export function RightPane() {
                     onClick={langLibExpandButton}
                     isExpanded={isLangLibExpanded}
                 />
+                <section>
+                    <LibrariesList libraries={libraries} />
+                </section>
             </div>
             <div className={statementEditorClasses.shortcutsDivider} />
             <div
@@ -99,9 +94,6 @@ export function RightPane() {
                     onClick={standardLibExpandButton}
                     isExpanded={isStdLibExpanded}
                 />
-                <section>
-                    <LibrariesList libraries={libraries} />
-                </section>
             </div>
             <div className={statementEditorClasses.shortcutsDivider} />
         </div>
