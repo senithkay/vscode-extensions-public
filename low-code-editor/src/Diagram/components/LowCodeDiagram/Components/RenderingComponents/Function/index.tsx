@@ -25,7 +25,9 @@ import { Context, useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { Provider as FunctionProvider } from "../../../../../../Contexts/Function";
 import { useOverlayRef, useSelectedStatus } from "../../../../../hooks";
 import { useStyles } from "../../../../../styles";
+import expandTracker from "../../../../../utils/expand-tracker";
 import { Canvas } from "../../../Canvas";
+import { getNodeSignature } from "../../../Utils";
 import { BlockViewState, FunctionViewState } from "../../../ViewState";
 import { End } from "../End";
 import { StartButton } from "../Start";
@@ -37,8 +39,6 @@ import PanAndZoom from "./PanAndZoom";
 import { PerformanceBar } from "./perBar/PerformanceBar";
 import { ResourceHeader } from "./ResourceHeader";
 import "./style.scss";
-import { getNodeSignature } from "../../../Utils";
-import expandTracker from "../../../../../utils/expand-tracker";
 
 export const FUNCTION_PLUS_MARGIN_TOP = 7.5;
 export const FUNCTION_PLUS_MARGIN_BOTTOM = 7.5;

@@ -172,7 +172,7 @@ export function getNodeSignature(node: STNode): string {
         return `${qualifiers}function ${node.functionName.value} ${path}${node.functionSignature.source}`;
     } else if (STKindChecker.isFunctionDefinition(node)) {
         let qualifiers = '';
-        let path = '';
+        const path = '';
 
         node.qualifierList.forEach((qualifier: IsolatedKeyword | PublicKeyword, i: number) => {
             qualifiers += qualifier.value;

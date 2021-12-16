@@ -18,13 +18,13 @@ import { ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
 import { useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { useSelectedStatus } from "../../../../../hooks";
 import { getSTComponent } from "../../../../../utils";
+import expandTracker from "../../../../../utils/expand-tracker";
 import { getServiceTypeFromModel } from "../../../../FormComponents/ConfigForms/ServiceConfigForm/util";
+import { getNodeSignature } from "../../../Utils";
 import { TopLevelPlus } from "../../PlusButtons/TopLevelPlus";
 
 import { ServiceHeader } from "./ServiceHeader";
 import "./style.scss";
-import { getNodeSignature } from "../../../Utils";
-import expandTracker from "../../../../../utils/expand-tracker";
 
 export const DEFAULT_SERVICE_WIDTH: number = 500;
 export const SERVICE_MARGIN_LEFT: number = 24.5;
