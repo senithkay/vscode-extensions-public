@@ -14,13 +14,22 @@
 import React, { useContext, useState } from "react";
 
 import { AddRounded } from "@material-ui/icons";
-import { ExpressionEditor, ExpressionEditorProps, getInitialValue, transformFormFieldTypeToString } from "@wso2-enterprise/ballerina-expression-editor";
-import { CustomLowCodeContext, FormElementProps, IconBtnWithText } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    ExpressionEditor,
+    ExpressionEditorLabel,
+    ExpressionEditorProps,
+    getInitialValue,
+    transformFormFieldTypeToString
+} from "@wso2-enterprise/ballerina-expression-editor";
+import {
+    CustomLowCodeContext,
+    FormElementProps,
+    IconBtnWithText
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { Context } from "../../../../../Contexts/Diagram";
 import { useStyles } from "../../DynamicConnectorForm/style"
 import { ExpressionConfigurable } from "../ExpressionConfigurable";
-import { ExpressionEditorLabel } from "../ExpressionEditorLabel";
 
 import "./style.scss";
 import { appendToMap } from "./utils";

@@ -17,7 +17,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { FormHelperText } from "@material-ui/core";
 import { AddRounded } from "@material-ui/icons";
 import CloseRounded from "@material-ui/icons/CloseRounded";
-import { ExpressionEditor, ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
+import { ExpressionEditor, ExpressionEditorLabel, ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
 import {
     ButtonWithIcon,
     CustomLowCodeContext,
@@ -28,7 +28,6 @@ import {
 import { Context } from "../../../../../Contexts/Diagram";
 import { useStyles } from "../../DynamicConnectorForm/style"
 import { ExpressionConfigurable } from "../ExpressionConfigurable";
-import { ExpressionEditorLabel } from "../ExpressionEditorLabel";
 
 export function RestParam(props: FormElementProps<ExpressionEditorProps>) {
     const { model } = props;
