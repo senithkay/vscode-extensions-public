@@ -47,6 +47,7 @@ let currentResourcePos: Range;
 let currentFile: TextDocument | undefined;
 let currentFileUri: String | undefined;
 let retryAttempts = 0;
+const cachedResponses = new Map<any, any>();
 
 /**
  * Endpoint performance analyzer.
@@ -328,16 +329,20 @@ export function getDataFromChoreo(data: any, analyzeType: ANALYZETYPE): Promise<
 
         if (!extension.getChoreoSession().loginStatus) {
             showChoreoSigninMessage(extension);
-            reject();
+            return reject();
         }
 
-        const choreoToken = extension.getChoreoSession().choreoAccessToken!;
         data["analyzeType"] = analyzeType;
         delete data.type;
         delete data.message;
         data = JSON.stringify(data)
 
+        if (cachedResponses.has(data)) {
+            return resolve(cachedResponses.get(data));
+        }
+
         const url = new URL(CHOREO_API_PF);
+        const choreoToken = extension.getChoreoSession().choreoAccessToken!;
 
         const options = {
             hostname: url.hostname,
@@ -353,8 +358,10 @@ export function getDataFromChoreo(data: any, analyzeType: ANALYZETYPE): Promise<
 
         const req = https.request(options, res => {
 
-            res.on('data', data => {
-                resolve(JSON.parse(data));
+            res.on('data', response => {
+                const res = JSON.parse(response);
+                cachedResponses.set(data, res);
+                return resolve(res);
             })
         })
 
