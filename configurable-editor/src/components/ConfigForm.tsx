@@ -108,15 +108,16 @@ export const ConfigForm = ({
             configValue,
         );
 
-        if (submitType === defaultButtonText) {
-            onClickDefaultButton();
-        } else if (submitType === primaryButtonText) {
-            onClickPrimaryButton(configObjectProps);
-        }
+        onClickPrimaryButton(configObjectProps);
     };
 
     const handleSetSubmitType = (value: string) => {
         setSubmitType(value);
+    };
+
+    const handleDefaultButtonClick = () => {
+        handleSetSubmitType(defaultButtonText);
+        onClickDefaultButton();
     };
 
     configObjectProps.properties.forEach((entry) => {
@@ -152,7 +153,7 @@ export const ConfigForm = ({
                             variant="contained"
                             color="default"
                             size="small"
-                            onClick={handleSetSubmitType.bind(this, defaultButtonText)}
+                            onClick={handleDefaultButtonClick.bind(this)}
                         >
                             {defaultButtonText}
                         </Button>
