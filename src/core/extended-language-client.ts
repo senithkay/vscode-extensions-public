@@ -65,8 +65,6 @@ enum EXTENDED_APIS {
     PARTIAL_PARSE_MODULE_MEMBER = 'partialParser/getSTForModuleMembers',
     EXAMPLE_LIST = 'ballerinaExample/list',
     PERF_ANALYZER_ENDPOINTS = 'performanceAnalyzer/getEndpoints',
-    PERF_ANALYZER_GRAPH_DATA = 'performanceAnalyzer/getGraphData',
-    PERF_ANALYZER_REALTIME_DATA = 'performanceAnalyzer/getRealtimeData',
     RESOLVE_MISSING_DEPENDENCIES = 'ballerinaDocument/resolveMissingDependencies',
     BALLERINA_TO_OPENAPI = 'openAPILSExtension/generateOpenAPI'
 }
@@ -337,12 +335,6 @@ export class ExtendedLangClient extends LanguageClient {
         debug(`didChange at ${new Date()} - ${new Date().getTime()}`);
         this.sendNotification("textDocument/didChange", params);
     }
-    getPerformanceGraphData(params: PerformanceAnalyzerGraphRequest): Promise<PerformanceAnalyzerGraphResponse> {
-        if (!this.isExtendedServiceSupported(EXTENDED_APIS.PERF_ANALYZER_GRAPH_DATA)) {
-            Promise.resolve(NOT_SUPPORTED);
-        }
-        return this.sendRequest(EXTENDED_APIS.PERF_ANALYZER_GRAPH_DATA, params);
-    }
     getPerfEndpoints(params: PerformanceAnalyzerEndpointsRequest): Promise<any> {
         if (!this.ballerinaExtInstance?.enabledPerformanceForecasting() ||
             !this.ballerinaExtInstance?.getChoreoSession().loginStatus ||
@@ -352,7 +344,7 @@ export class ExtendedLangClient extends LanguageClient {
                 tps: { min: 0, max: 0 }, latency: { min: 0, max: 0 }
             });
         }
-        if (!this.isExtendedServiceSupported(EXTENDED_APIS.PERF_ANALYZER_REALTIME_DATA)) {
+        if (!this.isExtendedServiceSupported(EXTENDED_APIS.PERF_ANALYZER_ENDPOINTS)) {
             Promise.resolve(NOT_SUPPORTED);
         }
         return this.sendRequest(EXTENDED_APIS.PERF_ANALYZER_ENDPOINTS, params);
@@ -583,7 +575,7 @@ export class ExtendedLangClient extends LanguageClient {
                 },
                 { name: EXTENDED_APIS_ORG.EXAMPLE, list: true },
                 { name: EXTENDED_APIS_ORG.JSON_TO_RECORD, convert: true },
-                { name: EXTENDED_APIS_ORG.PERF_ANALYZER, getEndpoints: true, getGraphData: true, getRealtimeData: true },
+                { name: EXTENDED_APIS_ORG.PERF_ANALYZER, getEndpoints: true },
                 { name: EXTENDED_APIS_ORG.PARTIAL_PARSER, getSTForSingleStatement: true, getSTForExpression: true },
                 { name: EXTENDED_APIS_ORG.BALLERINA_TO_OPENAPI, generateOpenAPI: true }
             ]

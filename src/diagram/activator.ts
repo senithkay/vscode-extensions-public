@@ -322,7 +322,7 @@ class DiagramPanel {
 				handler: async (): Promise<PFSession> => {
 					const choreoToken = ballerinaExtension.getChoreoSession().choreoAccessToken;
 					return { choreoAPI: CHOREO_API_PF, choreoToken: choreoToken, choreoCookie: "" };
-				}    
+				}
 			},
 			{
 				methodName: "showPerformanceGraph",
