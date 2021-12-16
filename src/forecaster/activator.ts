@@ -47,7 +47,7 @@ let currentResourcePos: Range;
 let currentFile: TextDocument | undefined;
 let currentFileUri: String | undefined;
 let retryAttempts = 0;
-const cachedResponses = new Map<any, any>();
+const cachedResponses = new Map<any, PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse>();
 
 /**
  * Endpoint performance analyzer.
