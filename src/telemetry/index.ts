@@ -20,7 +20,8 @@
 import TelemetryReporter from "vscode-extension-telemetry";
 import { BallerinaExtension } from "../core";
 
-const INSTRUMENTATION_KEY = "3a82b093-5b7b-440c-9aa2-3b8e8e5704e7";
+const INSTRUMENTATION_KEY = process.env.VSCODE_CHOREO_INSTRUMENTATION_KEY ? process.env.VSCODE_CHOREO_INSTRUMENTATION_KEY : "3a82b093-5b7b-440c-9aa2-3b8e8e5704e7";
+const isWSO2User = process.env.VSCODE_CHOREO_USER_EMAIL ? process.env.VSCODE_CHOREO_USER_EMAIL.endsWith('@wso2.com') : false;
 
 export function createTelemetryReporter(ext: BallerinaExtension): TelemetryReporter {
     const reporter = new TelemetryReporter(ext.getID(), ext.getVersion(), INSTRUMENTATION_KEY);
@@ -68,7 +69,9 @@ export function getInsightProperties(extension: BallerinaExtension, component: s
     return {
         'ballerina.version': extension ? extension.ballerinaVersion : '',
         'low-code-editor.component': component,
-        'low-code-editor.message': message
+        'low-code-editor.message': message,
+        'low-code-editor.idpid': process.env.VSCODE_CHOREO_USER_IDP_ID ? process.env.VSCODE_CHOREO_USER_IDP_ID : '',
+        'low-code-editor.isWSO2User' : isWSO2User ? 'true' : 'false'
     };
 }
 
