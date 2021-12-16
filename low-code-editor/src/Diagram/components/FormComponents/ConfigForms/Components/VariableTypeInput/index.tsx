@@ -15,6 +15,7 @@ import React, { useState } from "react";
 
 import { DiagramDiagnostic } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import {v4 as uuid} from 'uuid';
 
 import ExpressionEditor, { ExpressionEditorCustomTemplate, ExpressionEditorProps } from "../../../FormFieldComponents/ExpressionEditor";
 import { FormElementProps } from "../../../Types";
@@ -65,7 +66,7 @@ export function VariableTypeInput(props: VariableTypeInputProps) {
             interactive: true,
             editPosition: position,
             customTemplate: overrideTemplate ? overrideTemplate : {
-                defaultCodeSnippet: `  tempVarType;`,
+                defaultCodeSnippet: ` |()  tempVar_${uuid().replaceAll('-', '_')} = ();`,
                 targetColumn: 1
             },
             hideExpand: true,

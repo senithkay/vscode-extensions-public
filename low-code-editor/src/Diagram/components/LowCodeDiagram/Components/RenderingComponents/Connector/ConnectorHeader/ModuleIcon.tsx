@@ -13,27 +13,35 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
+import { BallerinaModule } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { DefaultConnectorIcon } from "../Icon/DefaultConnectorIcon";
 
 export interface ModuleIconProps {
-    model: STNode;
-    iconProps: React.SVGProps<SVGSVGElement>;
+    model?: STNode;
+    cx?: number;
+    cy?: number;
+    width?: number;
+    balModule?: BallerinaModule;
+    scale?: number;
 }
 
 export function ModuleIcon(props: ModuleIconProps) {
-    const { model, iconProps } = props;
+    const { model, cx, cy, width, balModule, scale } = props;
     const balCentralCdn = "https://bcentral-packageicons.azureedge.net/images";
-    const width = 36;
+    const iconWidth = width || 36;
 
-    const module = model.typeData?.typeSymbol?.moduleID;
+    const marginError = iconWidth / 8;
+    const module = model?.typeData?.typeSymbol?.moduleID;
     let iconUrl = "";
 
     const [showDefaultIcon, setShowDefaultIcon] = useState(false);
 
     if (module) {
         iconUrl = `${balCentralCdn}/${module.orgName}_${module.moduleName}_${module.version}.png`;
+    } else if (balModule) {
+        iconUrl = `${balCentralCdn}/${balModule.package.organization}_${balModule.moduleName}_${balModule.package.version}.png`;
     }
 
     const handleLoadingError = () => {
@@ -41,15 +49,26 @@ export function ModuleIcon(props: ModuleIconProps) {
     };
 
     const moduleIcon = (
-        <svg width={width} height={width} xmlns="http://www.w3.org/2000/svg" {...iconProps}>
-            <image href={iconUrl} height={width} width={width} onError={handleLoadingError} />
+        <svg x={cx} y={cy} width={iconWidth} height={iconWidth} xmlns="http://www.w3.org/2000/svg">
+            <image href={iconUrl} height={iconWidth} width={iconWidth} onError={handleLoadingError} />
         </svg>
+    );
+
+    const balModuleIcon = (
+        <img
+            src={iconUrl}
+            alt={balModule?.moduleName}
+            style={{ width: "auto", height: "100%", maxWidth: 56 * scale, maxHeight: 56 * scale }}
+            onError={handleLoadingError}
+        />
     );
 
     return (
         <>
-            {!showDefaultIcon && moduleIcon}
-            {showDefaultIcon && <DefaultConnectorIcon transform="scale(0.5)" {...iconProps} viewBox="0 0 50 50" />}
+            {!showDefaultIcon && module && moduleIcon}
+            {!showDefaultIcon && balModule && balModuleIcon}
+            {showDefaultIcon && balModule && (<DefaultConnectorIcon scale={scale} />)}
+            {showDefaultIcon && module && (<DefaultConnectorIcon cx={cx - marginError} cy={cy - marginError} width={iconWidth} scale={0.5} />)}
         </>
     );
 }

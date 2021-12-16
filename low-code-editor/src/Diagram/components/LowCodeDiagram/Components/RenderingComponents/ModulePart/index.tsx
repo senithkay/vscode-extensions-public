@@ -15,6 +15,7 @@ import React from "react";
 
 import { ModulePart, STNode } from "@wso2-enterprise/syntax-tree";
 
+import { useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { useStyles } from "../../../../../styles";
 import { getSTComponent } from "../../../../../utils";
 import { TopLevelPlus } from "../../PlusButtons/TopLevelPlus";
@@ -57,6 +58,7 @@ export function ModulePartComponent(props: ModulePartProps) {
                     targetPosition={model.eofToken.position}
                     isDocumentEmpty={model.members.length === 0}
                     isModuleLevel={true}
+                    isLastMember={true}
                 />
             </div>
         </>

@@ -37,14 +37,14 @@ export function Diagram() {
     const {
         api: {
             code: {
-                gotoSource
+                gotoSource,
+                isMutationInProgress
             }
         },
         props: {
             diagnostics,
             warnings,
             syntaxTree,
-            isMutationProgress,
             isLoadingAST,
             isReadOnly,
             error,
@@ -119,7 +119,15 @@ export function Diagram() {
 
     const diagramErrorMessage = (
         <div className={classes.diagramErrorStateWrapper}>
-            <DiagramErrorState x={5} y={-100} errorCount={numberOfErrors} warningCount={numberOfWarnings} onClose={closeErrorDialog} onOpen={openErrorDialog} isErrorMsgVisible={isErrorStateDialogOpen} />
+            <DiagramErrorState
+                x={5}
+                y={-100}
+                errorCount={numberOfErrors}
+                warningCount={numberOfWarnings}
+                onClose={closeErrorDialog}
+                onOpen={openErrorDialog}
+                isErrorMsgVisible={isErrorStateDialogOpen}
+            />
         </div>
     );
 
@@ -154,8 +162,7 @@ export function Diagram() {
 
     return (
         <div id="canvas">
-            {(codeTriggerredUpdateInProgress || isMutationProgress) && textLoader}
-
+            {(codeTriggerredUpdateInProgress || isMutationInProgress) && textLoader}
             {(diagnosticInDiagram || warningsInDiagram) && (
                 <div className={classnames(classes.diagramErrorStateWrapper)}>
                     {diagnosticInDiagram && <OverlayBackground />}

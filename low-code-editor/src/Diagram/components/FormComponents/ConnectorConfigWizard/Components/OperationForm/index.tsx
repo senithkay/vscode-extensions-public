@@ -16,10 +16,19 @@ import { FormattedMessage, useIntl } from 'react-intl';
 
 import { Box, IconButton, Typography } from "@material-ui/core";
 import EditIcon from '@material-ui/icons/Edit';
-import { ConnectorConfig, FormField, FunctionDefinitionInfo, PrimaryButton, STModification, STSymbolInfo  } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    BallerinaConnectorInfo,
+    ConnectorConfig,
+    FormField,
+    FunctionDefinitionInfo,
+    PrimaryButton,
+    STModification,
+    STSymbolInfo
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from '@wso2-enterprise/syntax-tree';
 import classNames from 'classnames';
 
+import {DocIcon} from "../../../../../../assets";
 import {TooltipIcon} from "../../../../../../components/Tooltip";
 import { Context } from '../../../../../../Contexts/Diagram';
 import { getAllVariables } from "../../../../../utils/mixins";
@@ -47,13 +56,14 @@ export interface OperationFormProps {
     functionDefInfo: Map<string, FunctionDefinitionInfo>;
     expressionInjectables: ExpressionInjectablesProps;
     targetPosition?: NodePosition;
+    connectorInfo?: BallerinaConnectorInfo
 }
 
 export function OperationForm(props: OperationFormProps) {
     const { props: { stSymbolInfo }, api: { webView: { showDocumentationView } } } = useContext(Context);
     const symbolInfo: STSymbolInfo = stSymbolInfo;
     const { operations, selectedOperation, showConnectionName, onSave, connectionDetails, onConnectionChange,
-            mutationInProgress, isNewConnectorInitWizard, functionDefInfo, expressionInjectables, targetPosition } = props;
+            mutationInProgress, isNewConnectorInitWizard, functionDefInfo, expressionInjectables, targetPosition, connectorInfo } = props;
     const wizardClasses = wizardStyles();
     const classes = useStyles();
     const intl = useIntl();
@@ -85,17 +95,14 @@ export function OperationForm(props: OperationFormProps) {
             connectionDetails.action.name = operation;
             connectionDetails.action.fields = derivedFormFields;
             setFormFields(derivedFormFields);
-            if (functionDefInfo.get(operation)?.documentation &&
-                Array.isArray(functionDefInfo.get("init")?.parameters)) {
-                const connector = (functionDefInfo.get("init")?.parameters[0]?.typeInfo);
-                if (connector) {
-                    const {orgName, moduleName} = connector;
-                    if (orgName && moduleName) {
-                        setDocUrl(generateDocUrl(orgName, moduleName, operation));
+            if (functionDefInfo.get(operation)?.documentation) {
+                if (connectorInfo?.package) {
+                    const {organization, name} = connectorInfo?.package;
+                    if (organization && name) {
+                        setDocUrl(generateDocUrl(organization, name, operation));
                         setToolTipInfo(functionDefInfo.get(operation).documentation);
                     }
                 }
-
             }
 
             if (!defaultResponseVarName) {
@@ -243,6 +250,11 @@ export function OperationForm(props: OperationFormProps) {
                             <>
                                 <div className={classes.operationTitle}>
                                     <p className={wizardClasses.subTitle}>Operation<span className={wizardClasses.titleLabelRequired}>*</span></p>
+                                    {docUrl && (
+                                        <IconButton onClick={onToolTipURL} className={classes.docButton}>
+                                            <img src={DocIcon}/>
+                                        </IconButton>
+                                    )}
                                     {docUrl && docToolTip}
                                 </div>
                                 <Box border={1} borderRadius={5} className={wizardClasses.box}>

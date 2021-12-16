@@ -55,6 +55,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     const [zoomStatus, setZoomStatus] = React.useState(defaultZoomStatus);
     const [fileContent, setFileContent] = React.useState("");
     const [selectedPosition, setSelectedPosition] = React.useState({ startLine: 0, startColumn: 0 });
+    const [isMutationInProgress, setMutationInProgress] = React.useState<boolean>(false);
 
     React.useEffect(() => {
         (async () => {
@@ -248,6 +249,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                 },
                                 code: {
                                     modifyDiagram: async (mutations: STModification[], options?: any) => {
+                                        setMutationInProgress(true);
                                         const modifyPosition = getModifyPosition(mutations);
                                         const { parseSuccess, source, syntaxTree: newST } = await langClient.stModify({
                                             astModifications: await InsertorDelete(mutations),
@@ -277,12 +279,14 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                         } else {
                                             // TODO show error
                                         }
+                                        setMutationInProgress(false);
                                     },
                                     onMutate: (type: string, options: any) => undefined,
                                     setCodeLocationToHighlight: (position: NodePosition) => undefined,
                                     gotoSource: (position: { startLine: number, startColumn: number }) => {
                                         props.gotoSource(filePath, position);
-                                    }
+                                    },
+                                    isMutationInProgress
                                 },
                                 // FIXME Doesn't make sense to take these methods below from outside
                                 // Move these inside and get an external API for pref persistance

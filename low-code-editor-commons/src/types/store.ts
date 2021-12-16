@@ -60,6 +60,7 @@ export interface ConfigOverlayFormStatus {
     formName?: string;
     blockViewState?: any; // FIXME - For mono repo migration
     error?: any;
+    isLastMember?: boolean;
 }
 
 export interface DiagramState {
