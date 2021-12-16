@@ -33,11 +33,6 @@ export const CHOREO_API_PF = process.env.VSCODE_CHOREO_GATEWAY_BASE_URI ?
     "https://choreocontrolplane.preview-dv.choreo.dev/performance-analyzer/2.0.0/get_estimations/3.0";
 
 const NETWORK_ERR = "Network error. Please check you internet connection";
-const MODEL_NOT_FOUND = "AI service does not have enough data to forecast";
-const ESTIMATOR_ERROR = "AI service is currently unavailable (ID2)";
-const UNKNOWN_ANALYSIS_TYPE = "Invalid request sent to AI service (ID7)";
-const INVALID_DATA = "Request with invalid data sent to AI service (ID8)";
-const UNABLE_TO_GET = "Error while connecting to Choreo API, unable to get performance data";
 const PERF_DISABLED = "Error while connecting to Choreo API, Performance analyzer will be disabled for this session";
 const SUCCESS = "Success";
 const maxRetries = 3;
@@ -167,26 +162,27 @@ function checkErrors(response: PerformanceAnalyzerRealtimeResponse | Performance
 
     } else if (response.message === 'MODEL_NOT_FOUND') {
         // AI Error
-        showMessage(MODEL_NOT_FOUND, MESSAGE_TYPE.INFO, true);
+        debug(response.message);
 
     } else if (response.message === 'NO_DATA') {
         // This happens when there is no action invocations in the code.
         // No need to show any error/info since there is no invocations.
+        debug(response.message);
 
     } else if (response.message === 'ESTIMATOR_ERROR') {
         // AI Error
-        showMessage(ESTIMATOR_ERROR, MESSAGE_TYPE.ERROR, true);
+        debug(response.message);
 
     } else if (response.message === 'UNKNOWN_ANALYSIS_TYPE') {
         // AI Error
-        showMessage(UNKNOWN_ANALYSIS_TYPE, MESSAGE_TYPE.ERROR, true);
+        debug(response.message);
 
     } else if (response.message === 'INVALID_DATA') {
         // AI Error
-        showMessage(INVALID_DATA, MESSAGE_TYPE.INFO, true);
+        debug(response.message);
 
     } else {
-        showMessage(`${UNABLE_TO_GET} ${response.message}`, MESSAGE_TYPE.ERROR, true);
+        debug(response.message);
         handleRetries();
     }
 }
@@ -334,7 +330,7 @@ export function getDataFromChoreo(data: any, analyzeType: ANALYZETYPE): Promise<
             showChoreoSigninMessage(extension);
             reject();
         }
-    
+
         const choreoToken = extension.getChoreoSession().choreoAccessToken!;
         data["analyzeType"] = analyzeType;
         delete data.type;
