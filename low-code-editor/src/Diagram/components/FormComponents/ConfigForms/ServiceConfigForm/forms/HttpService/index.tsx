@@ -98,7 +98,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         if (Array.isArray(resourcePath)) {
             if (resourcePath.length) {
                 const firstElement =  resourcePath[0]?.position;
-                const lastElement =  resourcePath[-1]?.position;
+                const lastElement =  resourcePath[resourcePath.length - 1]?.position;
                 return {
                     ...lastElement,
                     startColumn: firstElement?.startColumn,
@@ -109,9 +109,35 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
                 const onKeyPath = model?.onKeyword?.position;
                 return {
                     ...onKeyPath,
-                    startColumn: onKeyPath?.startColumn - 1,
-                    endColumn: onKeyPath?.startColumn - 1
+                    startColumn: onKeyPath?.startColumn,
+                    endColumn: onKeyPath?.startColumn
                 }
+            }
+        }
+    }
+
+    const getCustomTemplate = () => {
+        if (model) {
+            const resourcePath = model?.absoluteResourcePath;
+            if (Array.isArray(resourcePath)) {
+                if (resourcePath.length) {
+                    return {
+                        defaultCodeSnippet: "",
+                        targetColumn: 1,
+                    }
+
+                } else {
+                    return {
+                        defaultCodeSnippet: " ",
+                        targetColumn: 1,
+                    }
+                }
+            }
+
+        }else {
+            return {
+                defaultCodeSnippet: `service  on new http:Listener(1234) {}`,
+                targetColumn: 9,
             }
         }
     }
@@ -120,23 +146,16 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         model: {
             name: "servicePath",
             displayName: 'Service path',
-            isOptional: false,
-            value: state.serviceBasePath
+            isOptional: false
         },
         customProps: {
             validate: updateResourcePathValidation,
             interactive: true,
             editPosition: getAbsolutePath(),
-            customTemplate: {
-                defaultCodeSnippet: `service  on new http:Listener(1234) {}`,
-                targetColumn: 9,
-            },
-            hideSuggestions: false,
-            hideExpand: true,
-            hideTextLabel: false
+            customTemplate: getCustomTemplate(),
         },
         onChange: onBasePathChange,
-        defaultValue: state.serviceBasePath,
+        defaultValue: state.serviceBasePath
     }
 
     return (
