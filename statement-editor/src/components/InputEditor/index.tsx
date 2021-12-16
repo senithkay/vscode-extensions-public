@@ -12,6 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
+import { monaco } from "react-monaco-editor";
 
 import {
     CompletionParams,
@@ -68,7 +69,6 @@ export function InputEditor(props: InputEditorProps) {
     const inputEditorCtx = useContext(InputEditorContext);
     const { expressionHandler } = useContext(SuggestionsContext);
     const { currentFile, getLangClient } = stmtCtx;
-    const fileURI = `expr://${currentFile.path}`;
 
     const statementEditorClasses = useStatementEditorStyles();
 
@@ -177,16 +177,9 @@ export function InputEditor(props: InputEditorProps) {
 
         inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
         inputEditorState.content = initContent;
-        inputEditorState.uri = fileURI;
+        inputEditorState.uri = monaco.Uri.file(currentFile.path).toString();
+
         const langClient = await getLangClient();
-        langClient.didOpen({
-            textDocument: {
-                uri: inputEditorState.uri,
-                languageId: "ballerina",
-                text: currentFile.content,
-                version: 1
-            }
-        });
         langClient.didChange({
             contentChanges: [
                 {
@@ -225,7 +218,8 @@ export function InputEditor(props: InputEditorProps) {
 
         inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
         inputEditorState.content = initContent;
-        inputEditorState.uri = fileURI;
+        inputEditorState.uri = monaco.Uri.file(currentFile.path).toString();
+
         const langClient = await getLangClient();
         langClient.didChange({
             contentChanges: [
@@ -257,12 +251,18 @@ export function InputEditor(props: InputEditorProps) {
     const handleOnOutFocus = async () => {
         inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
         inputEditorState.content = currentFile.content;
-        inputEditorState.uri = fileURI;
+        inputEditorState.uri = monaco.Uri.file(currentFile.path).toString();
 
         const langClient = await getLangClient();
-        langClient.didClose({
+        langClient.didChange({
+            contentChanges: [
+                {
+                    text: inputEditorState.content
+                }
+            ],
             textDocument: {
-                uri: inputEditorState.uri
+                uri: inputEditorState.uri,
+                version: 1
             }
         });
     }
