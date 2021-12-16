@@ -303,7 +303,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
             modifyDiagram(modifications);
             onSave();
         }
-        if (config.action.name === "query"){
+        if (config.action.name === "query" && checkDBConnector(connectorModule)){
             const addConnectorInit = createQueryForeachStatement(targetPosition);
             modifications.push(addConnectorInit);
         }
