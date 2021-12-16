@@ -45,6 +45,7 @@ import {
     updateFunctionSignature,
     updatePropertyStatement,
 } from "../../../../../utils/modification-util";
+import { ModuleIcon } from "../../../../LowCodeDiagram/Components/RenderingComponents/Connector/ConnectorHeader/ModuleIcon";
 import {
     checkDBConnector,
     genVariableName,
@@ -139,7 +140,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
         }
     }, []);
 
-    const connectorInitFormFields: FormField[] = functionDefInfo?.get("init")?.parameters;
+    const connectorInitFormFields: FormField[] = functionDefInfo?.get("init")?.parameters || [];
 
     // managing name set by the non oauth connectors
     config.name =
@@ -431,7 +432,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
     let connectorComponent: ReactNode = null;
 
     if (functionDefInfo) {
-        if (connectorModule === "http") {
+        if (connector.moduleName === "http" && connector.name === "Client") {
             connectorComponent = getConnectorComponent(connectorModule + connector.name, {
                 functionDefinitions: functionDefInfo,
                 connectorConfig: config,
@@ -449,7 +450,9 @@ export function ConnectorForm(props: FormGeneratorProps) {
                 <div className={wizardClasses.fullWidth}>
                     <div className={wizardClasses.topTitleWrapper}>
                         <div className={wizardClasses.titleWrapper}>
-                            <div className={wizardClasses.connectorIconWrapper}>{getModuleIcon(connector, 0.5)}</div>
+                            <div className={wizardClasses.connectorIconWrapper}>
+                                <ModuleIcon module={connector} scale={0.5}/>
+                            </div>
                             <Typography className={wizardClasses.configTitle} variant="h4">
                                 {connectorName}
                             </Typography>

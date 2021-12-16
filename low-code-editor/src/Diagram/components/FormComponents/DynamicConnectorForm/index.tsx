@@ -48,6 +48,10 @@ export function Form(props: FormProps) {
         if (fields && isAllDefaultableFields(fields)){
             onValidate(true);
         }
+        if (fields.length === 0){
+            // No fields to validate
+            onValidate(true);
+        }
     }, []);
 
     const validateField = (field: string, isInvalid: boolean, isEmpty: boolean, canIgnore?: boolean) => {

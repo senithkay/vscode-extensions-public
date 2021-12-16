@@ -72,6 +72,8 @@ import {
     truncateDiagnosticMsg,
 } from "./utils";
 
+const DEBOUNCE_DELAY = 1000;
+
 const MONACO_OPTIONS: monaco.editor.IEditorConstructionOptions = {
     scrollbar: {
         vertical: "hidden",
@@ -607,7 +609,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             textDocument: { uri: expressionEditorState.uri, version: 1 },
         });
     };
-    const debouncedValidateAndRevert = debounce(validateAndRevert, 500);
+    const debouncedValidateAndRevert = debounce(validateAndRevert, DEBOUNCE_DELAY);
 
     // ExpEditor start
     const handleOnFocus = async (currentContent: string, EOL: string) => {
@@ -748,7 +750,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             setValidating(false);
         }
     };
-    const debouncedContentChange = debounce(handleContentChange, 500);
+    const debouncedContentChange = debounce(handleContentChange, DEBOUNCE_DELAY);
 
     // ExpEditor close
     const handleOnOutFocus = async () => {
