@@ -4,6 +4,7 @@ import { DiagramEditorLangClientInterface, PerformanceAnalyzerGraphResponse, Per
 
 import { DiagramGenerator } from "..";
 import { DiagramGenErrorBoundary } from "../ErrorBoundrary";
+import { ANALYZE_TYPE } from "../performanceUtil";
 
 import './style.scss';
 
@@ -27,7 +28,7 @@ export interface EditorAPI {
     gotoSource: (filePath: string, position: { startLine: number, startColumn: number }) => Promise<boolean>;
     getPFSession: () => Promise<PFSession>;
     showPerformanceGraph: () => Promise<boolean>;
-    handlePerfErrors: (response: PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse) => Promise<boolean>;
+    getPerfDataFromChoreo: (data: any, analyzeType: ANALYZE_TYPE) => Promise<PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse | undefined>;
     showMessage: () => Promise<boolean>;
     resolveMissingDependency: (filePath: string, fileContent: string) => Promise<boolean>;
     resolveMissingDependencyByCodeAction: (filePath: string, fileContent: string, diagnostic: any) => Promise<boolean>;
@@ -45,7 +46,7 @@ export type EditorProps = EditorState & EditorAPI;
 export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
 
     const { getFileContent, updateFileContent, gotoSource, getPFSession,
-            showPerformanceGraph, handlePerfErrors, showMessage, resolveMissingDependency, resolveMissingDependencyByCodeAction, runCommand, ...restProps } = props;
+            showPerformanceGraph, getPerfDataFromChoreo, showMessage, resolveMissingDependency, resolveMissingDependencyByCodeAction, runCommand, ...restProps } = props;
     const [state, setState] = React.useState<EditorState>(restProps);
 
     React.useEffect(() => {
@@ -62,7 +63,7 @@ export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
                     gotoSource={gotoSource}
                     getPFSession={getPFSession}
                     showPerformanceGraph={showPerformanceGraph}
-                    handlePerfErrors={handlePerfErrors}
+                    getPerfDataFromChoreo={getPerfDataFromChoreo}
                     showMessage={showMessage}
                     resolveMissingDependency={resolveMissingDependency}
                     resolveMissingDependencyByCodeAction={resolveMissingDependencyByCodeAction}
