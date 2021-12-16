@@ -13,7 +13,6 @@
 // tslint:disable: jsx-no-multiline-js, ordered-imports
 import React, { ReactNode, useContext, useState } from "react";
 
-import { QualifiedNameReference, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { Divider } from "@material-ui/core";
 import cn from "classnames";
 
@@ -32,7 +31,6 @@ import {
 } from "../../../../../../../../assets/icons";
 
 import { Context } from "../../../../../../../../Contexts/Diagram";
-import { isSTResourceFunction } from "../../../../../../../utils/st-util";
 import { PlusViewState } from "../../../../../ViewState";
 import Tooltip from "../../../../../../../../components/Tooltip";
 import "../../style.scss";
@@ -43,6 +41,7 @@ import {
     LowcodeEvent,
     START_STATEMENT_ADD_INSIGHTS
 } from "../../../../../../../models";
+import { HttpLogo } from "../../../../RenderingComponents/Connector/Icon/HttpLogo";
 
 export const PROCESS_TYPES = [""];
 
@@ -120,6 +119,12 @@ export function StatementOptions(props: StatementOptionsProps) {
             title: intl.formatMessage({
                 id: "lowcode.develop.plusHolder.plusElements.statements.customStatement.tooltip.title",
                 defaultMessage: "A custom statement can be used to write a single or a multiline code snippet that is not supported by the low code diagram."
+            })
+        },
+        httpConnectorStatement: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.plusHolder.plusElements.statements.http.tooltip.title",
+                defaultMessage: "An HTTP connector can be used to integrate with external applications."
             })
         },
         dataMapperStatement: {
@@ -426,6 +431,30 @@ export function StatementOptions(props: StatementOptionsProps) {
         )
     }
 
+    const httpConnector: StatementComponent = {
+        name: "httpConnector",
+        category: 'process',
+        component: (
+            <Tooltip
+                title={plusHolderStatementTooltipMessages.httpConnectorStatement.title}
+                placement="left"
+                arrow={true}
+                interactive={true}
+            >
+                <div
+                    className={cn("sub-option enabled", { height: 'unset' })}
+                    data-testid="addHttp"
+                    onClick={onSelectStatement.bind(undefined, "HTTP")}
+                >
+                    <div className="icon-wrapper">
+                        <HttpLogo />
+                    </div>
+                    <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.httpConnectorStatement.title" defaultMessage="HTTP" /></div>
+                </div>
+            </Tooltip>
+        )
+    }
+
     const statements: StatementComponent[] = [];
     statements.push(connectorStatement);
     statements.push(actionStatement);
@@ -439,6 +468,7 @@ export function StatementOptions(props: StatementOptionsProps) {
     statements.push(respondStm);
     // statements.push(datamappingStatement);
     statements.push(customStatement);
+    statements.push(httpConnector);
 
     const initStatements: Statements = {
         statement: statements,
