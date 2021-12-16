@@ -21,13 +21,13 @@ import classNames from "classnames";
 
 import { Section } from "../../../../../../components/ConfigPanel";
 import { Context } from "../../../../../../Contexts/Diagram";
+import WarningBanner from "../../../../Banners/WarningBanner";
 import { checkVariableName, getManualConnectionDetailsFromFormFields } from "../../../../Portals/utils";
 import { Form } from "../../../DynamicConnectorForm";
 import { useStyles } from "../../../DynamicConnectorForm/style";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
 import { ExpressionInjectablesProps } from "../../../FormGenerator";
 import { wizardStyles } from "../../style";
-import WarningBanner from "../../../../Banners/WarningBanner";
 
 interface CreateConnectorFormProps {
     initFields: FormField[];
@@ -42,7 +42,7 @@ interface CreateConnectorFormProps {
     responseStatus: number;
     expressionInjectables?: ExpressionInjectablesProps;
     targetPosition?: NodePosition;
-    warningMessage?:string,
+    warningMessage?: string,
 }
 
 interface NameState {
