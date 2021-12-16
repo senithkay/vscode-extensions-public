@@ -12,7 +12,6 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, SyntheticEvent, useContext, useRef, useState } from "react";
-import { FormattedMessage } from "react-intl";
 
 import { Box, CircularProgress, FormControl, Grid, Typography } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
