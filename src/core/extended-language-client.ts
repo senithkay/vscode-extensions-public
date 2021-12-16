@@ -333,19 +333,13 @@ export class ExtendedLangClient extends LanguageClient {
     didChange(params: DidChangeParams): void {
         this.sendNotification("textDocument/didChange", params);
     }
-    getEndpoints(params: PerformanceAnalyzerEndpointsRequest): Promise<any> {
-        if (!this.isExtendedServiceSupported(EXTENDED_APIS.PERF_ANALYZER_ENDPOINTS)) {
-            Promise.resolve(NOT_SUPPORTED);
-        }
-        return this.sendRequest(EXTENDED_APIS.PERF_ANALYZER_ENDPOINTS, params);
-    }
     getPerformanceGraphData(params: PerformanceAnalyzerGraphRequest): Promise<PerformanceAnalyzerGraphResponse> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.PERF_ANALYZER_GRAPH_DATA)) {
             Promise.resolve(NOT_SUPPORTED);
         }
         return this.sendRequest(EXTENDED_APIS.PERF_ANALYZER_GRAPH_DATA, params);
     }
-    getRealtimePerformanceData(params: PerformanceAnalyzerGraphRequest): Promise<PerformanceAnalyzerRealtimeResponse> {
+    getPerfEndpoints(params: PerformanceAnalyzerEndpointsRequest): Promise<any> {
         if (!this.ballerinaExtInstance?.enabledPerformanceForecasting() ||
             !this.ballerinaExtInstance?.getChoreoSession().loginStatus ||
             this.ballerinaExtInstance.getPerformanceForecastContext().temporaryDisabled) {
@@ -357,7 +351,7 @@ export class ExtendedLangClient extends LanguageClient {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.PERF_ANALYZER_REALTIME_DATA)) {
             Promise.resolve(NOT_SUPPORTED);
         }
-        return this.sendRequest(EXTENDED_APIS.PERF_ANALYZER_REALTIME_DATA, params);
+        return this.sendRequest(EXTENDED_APIS.PERF_ANALYZER_ENDPOINTS, params);
     }
     getDiagnostics(params: BallerinaProjectParams): Promise<PublishDiagnosticsParams[]> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_DIAGNOSTICS)) {

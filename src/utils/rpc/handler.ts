@@ -219,19 +219,11 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
             return response;
         }
     }, {
-        methodName: 'getRealtimePerformanceData',
+        methodName: 'getPerfEndpoints',
         handler: (args: any[]) => {
             const start = new Date().getTime();
-            const response = langClient.getRealtimePerformanceData(args[0]);
-            consoleLog(start, 'getRealtimePerformanceData');
-            return response;
-        }
-    }, {
-        methodName: 'getPerformanceGraphData',
-        handler: (args: any[]) => {
-            const start = new Date().getTime();
-            const response = langClient.getPerformanceGraphData(args[0]);
-            consoleLog(start, 'getPerformanceGraphData');
+            const response = langClient.getPerfEndpoints(args[0]);
+            consoleLog(start, 'getPerfEndpoints');
             return response;
         }
     }, {

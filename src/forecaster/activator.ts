@@ -110,7 +110,7 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
     currentResourceName = name;
     currentResourcePos = pos;
 
-    await langClient.getEndpoints({
+    await langClient.getPerfEndpoints({
         documentIdentifier: {
             uri
         },
