@@ -123,20 +123,20 @@ async function getRealtimeData(range: Range): Promise<PerformanceAnalyzerRealtim
             }
         }).then(async (response) => {
             if (!response) {
-                resolve(null);
+                return resolve(null);
             }
 
             if (response.type && response.type !== SUCCESS) {
-                resolve(null);
+                return resolve(null);
             }
 
             const data = await getDataFromChoreo(response, ANALYZE_TYPE.REALTIME);
 
             if (!data) {
-                resolve(null);
+                return resolve(null);
             }
 
-            resolve(data as PerformanceAnalyzerRealtimeResponse);
+            return resolve(data as PerformanceAnalyzerRealtimeResponse);
         });
     });
 }
