@@ -55,6 +55,23 @@ export function getTelemetryProperties(extension: BallerinaExtension, component:
     };
 }
 
+export function sendInsightEvent(extension: BallerinaExtension, eventName: string, componentName: string,
+    message: string = '') {
+    if (extension.isTelemetryEnabled()) {
+        extension.telemetryReporter.sendTelemetryEvent(eventName, getInsightProperties(extension, componentName,
+            message));
+    }
+}
+
+export function getInsightProperties(extension: BallerinaExtension, component: string, message: string)
+    : { [key: string]: string; } {
+    return {
+        'ballerina.version': extension ? extension.ballerinaVersion : '',
+        'low-code-editor.component': component,
+        'low-code-editor.message': message
+    };
+}
+
 export * from "./events";
 export * from "./exceptions";
 export * from "./components";
