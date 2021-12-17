@@ -20,25 +20,20 @@ import './styles.scss'
 
 export interface TextPreLoaderProps {
     position: "relative" | "absolute";
+    text?: string;
 };
 
 export function TextPreLoader(props: TextPreLoaderProps) {
-    const { position } = props;
+    const { position, text = 'Loading...' } = props;
 
-    const loaderPosition = (position === "relative") ?  cn("preloader-wrapper-relative") : cn("preloader-wrapper-absolute");
-
-    const defaultOptions = {
-        loop: true,
-        autoplay: true,
-        animationData,
-        rendererSettings: {
-            preserveAspectRatio: 'xMidYMid slice'
-        }
-    };
+    const loaderPosition = (position === "relative") ? cn("preloader-wrapper-relative") : cn("preloader-wrapper-absolute");
 
     return (
         <div data-testid={"diagram-loader"} className={loaderPosition}>
-            <Lottie options={defaultOptions} height={`100%`} width={`100%`}/>
+            <div className="loader-container">
+                <div className="loader-circle"></div>
+                <div className="loader-text">{text}</div>
+            </div>
         </div>
     );
 }
