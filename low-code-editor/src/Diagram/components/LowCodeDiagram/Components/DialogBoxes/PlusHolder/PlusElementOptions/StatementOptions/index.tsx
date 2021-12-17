@@ -504,9 +504,6 @@ export function StatementOptions(props: StatementOptionsProps) {
 
     return (
         <>
-            <div className="search-options-wrapper">
-                <label><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.chooseFromList.label" defaultMessage="Select from list" /></label>
-            </div>
             <div className="element-option-holder" >
                 <div className="options-wrapper">
                     {processComp}

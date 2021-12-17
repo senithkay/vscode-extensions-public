@@ -152,7 +152,7 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
         if (wizardState.isLoading) {
             (async () => {
                 const queryParams: SearchQueryParams = {
-                    query: "",
+                    query: specialConnectorName.toLocaleLowerCase(),
                     category: "",
                     filterState: {},
                     limit: 18,
