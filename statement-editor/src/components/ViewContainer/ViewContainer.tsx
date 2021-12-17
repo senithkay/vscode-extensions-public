@@ -15,7 +15,7 @@ import React, { useEffect, useState } from 'react';
 import { useIntl } from "react-intl";
 
 import {
-    ExpressionEditorLangClientInterface,
+    ExpressionEditorLangClientInterface, LibraryDocResponse,
     PrimaryButton,
     SecondaryButton,
     STModification
@@ -32,6 +32,7 @@ import { useStatementEditorStyles } from "../styles";
 export interface LowCodeEditorProps {
     getLangClient: () => Promise<ExpressionEditorLangClientInterface>,
     applyModifications: (modifications: STModification[]) => void,
+    getLibrariesList: (version: string) => Promise<LibraryDocResponse>,
     currentFile: {
         content: string,
         path: string,
@@ -69,6 +70,7 @@ export function ViewContainer(props: ViewProps) {
         handleStatementEditorChange,
         getLangClient,
         applyModifications,
+        getLibrariesList,
         currentFile
     } = props;
     const intl = useIntl();
@@ -169,6 +171,7 @@ export function ViewContainer(props: ViewProps) {
                         formArgs={formArgs}
                         validateStatement={validateStatement}
                         applyModifications={applyModifications}
+                        getLibrariesList={getLibrariesList}
                         currentFile={currentFile}
                         getLangClient={getLangClient}
                     >

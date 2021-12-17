@@ -49,7 +49,8 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         api: {
             ls: { getExpressionEditorLangClient },
             code: { modifyDiagram },
-            insights: { onEvent }
+            insights: { onEvent },
+            library: { getLibrariesList }
         }
     } = useContext(Context);
     const { config, formArgs, onCancel, onSave, onWizardClose } = props;
@@ -128,7 +129,8 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,
-            applyModifications: modifyDiagram
+            applyModifications: modifyDiagram,
+            getLibrariesList
         }
     );
 

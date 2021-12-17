@@ -50,7 +50,8 @@ export function AddLogConfig(props: LogConfigProps) {
         },
         api: {
             ls: { getExpressionEditorLangClient },
-            code: { modifyDiagram }
+            code: { modifyDiagram },
+            library: { getLibrariesList }
         }
     } = useContext(Context);
     const { config, formArgs, onCancel, onSave, onWizardClose } = props;
@@ -139,7 +140,8 @@ export function AddLogConfig(props: LogConfigProps) {
             onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,
-            applyModifications: modifyDiagram
+            applyModifications: modifyDiagram,
+            getLibrariesList
         }
     );
 
