@@ -31,7 +31,7 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
             return langClient.onReady().then(() => {
                 return langClient.getSyntaxTree(args[0]).then((result) => {
                     consoleLog(start, 'getSyntaxTree');
-                    const zippedResult = deflateSync(Buffer.from(JSON.stringify(result), "base64"));
+                    const zippedResult = deflateSync(Buffer.from(JSON.stringify(result)));
                     return Promise.resolve(zippedResult);
                 });
             });
@@ -165,7 +165,7 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
             const start = new Date().getTime();
             return langClient.stModify(args[0]).then(result => {
                 consoleLog(start, 'stModify');
-                const zippedResult = deflateSync(Buffer.from(JSON.stringify(result), "base64"));
+                const zippedResult = deflateSync(Buffer.from(JSON.stringify(result)));
                 return Promise.resolve(zippedResult);
             });
         }
