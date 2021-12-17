@@ -267,7 +267,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                                 const { isAvailable } = isUnresolvedModulesAvailable(newST?.typeData?.diagnostics as DiagramDiagnostic[]);
                                                 if (isAvailable) {
                                                     setModulePullInProgress(true);
-                                                    setLoaderText('Pulling Modules...')
+                                                    setLoaderText('Pulling packages...')
                                                     await resolveMissingDependency(filePath, source);
                                                     setModulePullInProgress(false);
                                                 }
