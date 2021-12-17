@@ -40,7 +40,7 @@ interface TooltipPropsExtended extends TooltipProps {
 const TooltipComponent = withStyles(tooltipStyles)(TooltipBase);
 const TooltipBaseInverted = withStyles(tooltipInvertedStyles)(TooltipBase);
 
-export default function Tooltip(props: Partial<TooltipPropsExtended>) {
+export function Tooltip(props: Partial<TooltipPropsExtended>) {
     const styles = useStyles();
     const intl = useIntl();
 

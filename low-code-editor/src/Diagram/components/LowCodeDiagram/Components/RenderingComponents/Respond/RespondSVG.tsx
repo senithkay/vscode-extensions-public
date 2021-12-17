@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from "react";
 
-import { TooltipCodeSnippet } from "../../../../../../components/Tooltip";
+import { TooltipCodeSnippet } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 export const RESPOND_SVG_HEIGHT_WITH_SHADOW = 46;
 export const RESPOND_SVG_WIDTH_WITH_SHADOW = 96;
