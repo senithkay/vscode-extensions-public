@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 
 import { BallerinaConnectorInfo, BallerinaConnectorsRequest, BallerinaModuleResponse, DiagramEditorLangClientInterface } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
@@ -22,6 +22,7 @@ import { APIHeightStates } from "../../../LowCodeDiagram/Components/DialogBoxes/
 import { PlusViewState } from "../../../LowCodeDiagram/ViewState";
 import { FormGeneratorProps } from "../../FormGenerator";
 import { BallerinaModuleType, FilterStateMap, Marketplace, SearchQueryParams } from "../Marketplace";
+import { ADD_CONNECTOR, EVENT_TYPE_AZURE_APP_INSIGHTS, LowcodeEvent } from "../../../../models";
 
 export interface ConnectorListProps {
     onSelect: (connector: BallerinaConnectorInfo, selectedConnector: LocalVarDecl) => void;
@@ -35,9 +36,20 @@ export function ConnectorList(props: FormGeneratorProps) {
     const {
         api: {
             ls: { getDiagramEditorLangClient },
+            insights: { onEvent }
         }
     } = useContext(Context);
     const { onSelect, onCancel } = props.configOverlayFormStatus.formArgs as ConnectorListProps;
+
+    //Insight event to send when loading the component
+    useEffect(() => {
+        const event: LowcodeEvent = {
+            type: ADD_CONNECTOR,
+            name: '',
+            property: ''
+        };
+        onEvent(event);
+    }, []);
 
     const fetchConnectorsList = async (
         queryParams: SearchQueryParams,

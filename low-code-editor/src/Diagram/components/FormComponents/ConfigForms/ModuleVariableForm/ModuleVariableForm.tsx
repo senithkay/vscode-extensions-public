@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useReducer } from 'react';
+import React, { useEffect, useReducer } from 'react';
 import { FormattedMessage } from 'react-intl';
 
 import { Box, FormControl, FormHelperText, Typography } from '@material-ui/core';
@@ -32,6 +32,7 @@ import { VariableTypeInput, VariableTypeInputProps } from '../Components/Variabl
 
 import { getFormConfigFromModel, isFormConfigValid, ModuleVarNameRegex, VariableOptions } from './util';
 import { ModuleVarFormActionTypes, moduleVarFormReducer } from './util/reducer';
+import { ADD_VARIABLE, EVENT_TYPE_AZURE_APP_INSIGHTS, LowcodeEvent, SAVE_VARIABLE } from '../../../../models';
 
 
 interface ModuleVariableFormProps {
@@ -45,10 +46,20 @@ interface ModuleVariableFormProps {
 
 export function ModuleVariableForm(props: ModuleVariableFormProps) {
     const formClasses = useFormStyles();
-    const { api: { code: { modifyDiagram } } } = useDiagramContext();
+    const { api: { code: { modifyDiagram }, insights: { onEvent } } } = useDiagramContext();
     const { onSave, onCancel, targetPosition, model, formType, isLastMember } = props;
     const [state, dispatch] = useReducer(moduleVarFormReducer, getFormConfigFromModel(model));
     const variableTypes: string[] = ["int", "float", "boolean", "string", "json", "xml"];
+
+    //Insight event to send when loading the component
+    useEffect(() => {
+        const event: LowcodeEvent = {
+            type: ADD_VARIABLE,
+            name: '',
+            property: ''
+        };
+        onEvent(event);
+      }, []);
 
     if (state.varOptions.indexOf(VariableOptions.PUBLIC) === -1) {
         variableTypes.unshift('var');
@@ -63,6 +74,12 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
         }
         modifyDiagram(modifications);
         onSave();
+        const event: LowcodeEvent = {
+            type: SAVE_VARIABLE,
+            name: '',
+            property: ''
+        };
+        onEvent(event);
     }
 
     const onAccessModifierChange = (modifierList: string[]) => {

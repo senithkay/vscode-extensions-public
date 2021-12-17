@@ -27,6 +27,7 @@ import { useStyles } from "../../../DynamicConnectorForm/style";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
 import { ExpressionInjectablesProps } from "../../../FormGenerator";
 import { wizardStyles } from "../../style";
+import { EVENT_TYPE_AZURE_APP_INSIGHTS, LowcodeEvent, SAVE_CONNECTOR } from "../../../../../models";
 
 interface CreateConnectorFormProps {
     initFields: FormField[];
@@ -53,7 +54,8 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const {
         props: { stSymbolInfo },
         api: {
-            helpPanel: { openConnectorHelp }
+            helpPanel: { openConnectorHelp },
+            insights: { onEvent }
         }
     } = useContext(Context);
 
@@ -125,12 +127,22 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         connectorConfig.name !== text ? setIsEndpointNameUpdated(true) : setIsEndpointNameUpdated(false);
     };
 
+    const sendAppInsight = () => {
+        const event: LowcodeEvent = {
+            type: SAVE_CONNECTOR,
+            name: '',
+            property: ''
+        };
+        onEvent(event);
+    }
+
     const handleOnSave = () => {
         // update config connector name, when user click next button
         connectorConfig.name = nameState.value;
         connectorConfig.connectorInit = configForm;
         openConnectorHelp(connector);
         onSave();
+        sendAppInsight();
     };
 
     const createEndpointNameLabel = intl.formatMessage({
@@ -168,6 +180,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         connectorConfig.connectorInit = configForm;
         openConnectorHelp(connector);
         onSaveNext();
+        sendAppInsight();
     };
 
     const isEnabled = isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName;

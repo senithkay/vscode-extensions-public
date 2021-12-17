@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
-import React, { useContext, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
@@ -34,6 +34,7 @@ import {
     VariableTypeInput,
     VariableTypeInputProps
 } from "../../../Components/VariableTypeInput";
+import { ADD_VARIABLE, EVENT_TYPE_AZURE_APP_INSIGHTS, LowcodeEvent, SAVE_VARIABLE } from "../../../../../../models";
 
 interface AddVariableConfigProps {
     config: ProcessConfig;
@@ -60,7 +61,8 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         },
         api: {
             ls: { getExpressionEditorLangClient },
-            code: { modifyDiagram }
+            code: { modifyDiagram },
+            insights: { onEvent }
         }
     } = useContext(Context);
 
@@ -125,6 +127,16 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         setValidSelectedType(!isInvalid);
     };
 
+    //Insight event to send when loading the component
+    useEffect(() => {
+        const event: LowcodeEvent = {
+            type: ADD_VARIABLE,
+            name: '',
+            property: ''
+        };
+        onEvent(event);
+    }, []);
+
     const handleSave = () => {
         if (initialized) {
             if (variableExpression) {
@@ -135,6 +147,12 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             config.config = selectedType + " " + varName + ";";
             onSave();
         }
+        const event: LowcodeEvent = {
+            type: SAVE_VARIABLE,
+            name: '',
+            property: ''
+        };
+        onEvent(event);
     };
 
     const saveVariableButtonText = intl.formatMessage({

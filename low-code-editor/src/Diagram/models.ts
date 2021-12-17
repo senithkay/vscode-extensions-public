@@ -60,12 +60,20 @@ export const CONNECTOR_CLOSED = "connectorClosed";
 export const FINISH_CONNECTOR_ACTION_ADD_INSIGHTS = "finishConnectorAction";
 export const API_TAB_SELECTION_INSIGHTS = "apiTabSelection";
 
-export type EVENT_TYPE = typeof EVENT_TYPE_AZURE_APP_INSIGHTS;
+export const ADD_VARIABLE = "editor-workspace-add-variable";
+export const SAVE_VARIABLE = "editor-workspace-save-variable";
+export const ADD_CONNECTOR = "editor-workspace-add-connector";
+export const SAVE_CONNECTOR = "editor-workspace-save-connector";
+export const ADD_OTHER_STATEMENT = "editor-workspace-add-other-statement";
+export const SAVE_OTHER_STATEMENT = "editor-workspace-save-other-statement";
+
+export type EVENT_TYPE = typeof EVENT_TYPE_AZURE_APP_INSIGHTS | typeof ADD_VARIABLE | typeof SAVE_VARIABLE | typeof ADD_CONNECTOR | typeof SAVE_CONNECTOR |
+typeof ADD_OTHER_STATEMENT | typeof SAVE_OTHER_STATEMENT;
 export type EVENT_NAME = typeof TRIGGER_SELECTED_INSIGHTS | typeof START_STATEMENT_ADD_INSIGHTS |
     typeof FINISH_STATEMENT_ADD_INSIGHTS | typeof START_CONNECTOR_ADD_INSIGHTS |
     typeof FINISH_CONNECTOR_INIT_ADD_INSIGHTS | typeof FINISH_CONNECTOR_ACTION_ADD_INSIGHTS |
     typeof START_EXISTING_CONNECTOR_ADD_INSIGHTS | typeof API_TAB_SELECTION_INSIGHTS | typeof CONTINUE_TO_INVOKE_API |
-    typeof CONNECTOR_CLOSED;
+    typeof CONNECTOR_CLOSED | '';
 
 export interface LowcodeEvent {
     type: EVENT_TYPE;

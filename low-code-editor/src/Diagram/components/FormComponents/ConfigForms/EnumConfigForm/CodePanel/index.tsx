@@ -25,10 +25,11 @@ import { wizardStyles } from "../../style";
 import { EnumField } from "../EnumField";
 import { enumStyles } from "../style";
 import { getGeneratedCode, getMemberArray } from "../utils";
+import { ADD_VARIABLE, EVENT_TYPE_AZURE_APP_INSIGHTS, LowcodeEvent } from "../../../../../models";
 
 export function CodePanel() {
     const { state } = useEnumEditorContext();
-    const { api: { code: { modifyDiagram } } } = useDiagramContext();
+    const { api: { code: { modifyDiagram }, insights: { onEvent } } } = useDiagramContext();
 
     const overlayClasses = wizardStyles();
     const enumClasses = enumStyles();
@@ -68,6 +69,12 @@ export function CodePanel() {
         } else {
             state.onSave(getGeneratedCode(state.enumModel, true), state.enumModel);
         }
+        const event: LowcodeEvent = {
+            type: ADD_VARIABLE,
+            name: '',
+            property: ''
+        };
+        onEvent(event);
     };
 
     return (
