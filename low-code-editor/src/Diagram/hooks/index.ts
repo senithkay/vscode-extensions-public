@@ -4,8 +4,8 @@ import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../Contexts/Diagram";
 import { SelectedPosition } from "../../types";
-import expandTracker from "../utils/expand-tracker";
 import { getNodeSignature } from "../components/LowCodeDiagram/Utils";
+import expandTracker from "../utils/expand-tracker";
 
 /**
  * A custom hook for diagram components which returns a boolean indicating if a given
