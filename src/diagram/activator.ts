@@ -23,7 +23,15 @@ import {
 } from 'vscode';
 import * as _ from 'lodash';
 import { render } from './renderer';
-import { CONNECTOR_LIST_CACHE, DocumentIdentifier, ExtendedLangClient, HTTP_CONNECTOR_LIST_CACHE, PerformanceAnalyzerGraphResponse, PerformanceAnalyzerRealtimeResponse } from '../core/extended-language-client';
+import {
+	CONNECTOR_LIST_CACHE,
+	DocumentIdentifier,
+	ExtendedLangClient,
+	HTTP_CONNECTOR_LIST_CACHE,
+	LIBRARIES_LIST_CACHE,
+	PerformanceAnalyzerGraphResponse,
+	PerformanceAnalyzerRealtimeResponse
+} from '../core/extended-language-client';
 import { BallerinaExtension, ballerinaExtInstance, Change } from '../core';
 import { getCommonWebViewOptions, WebViewMethod, WebViewRPCHandler } from '../utils';
 import { join } from "path";
@@ -98,6 +106,13 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 			ballerinaExtInstance.context?.globalState.update(HTTP_CONNECTOR_LIST_CACHE, connectorList);
 		}
 	});
+
+	// Reset cached libraries list
+	langClient.getLibrariesList({ version: "slbeta5"}, true).then((librariesList) => {
+		if (librariesList) {
+			ballerinaExtInstance.context?.globalState.update(LIBRARIES_LIST_CACHE, librariesList);
+		}
+	})
 
 	// Update test view
 	if (filePath === '' && ballerinaExtInstance.getDocumentContext().isActiveDiagram()) {

@@ -39,6 +39,7 @@ import { CMP_LS_CLIENT_COMPLETIONS, CMP_LS_CLIENT_DIAGNOSTICS, sendTelemetryEven
 
 export const CONNECTOR_LIST_CACHE = "CONNECTOR_LIST_CACHE";
 export const HTTP_CONNECTOR_LIST_CACHE = "HTTP_CONNECTOR_LIST_CACHE";
+export const LIBRARIES_LIST_CACHE = "LIBRARIES_LIST_CACHE";
 export const BALLERINA_LANG_ID = "ballerina";
 const NOT_SUPPORTED = {};
 
@@ -600,9 +601,15 @@ export class ExtendedLangClient extends LanguageClient {
         return this.sendRequest("workspace/executeCommand", params);
     }
 
-    getLibrariesList(params: LibraryDocRequest): Thenable<LibraryDocResponse> {
+    getLibrariesList(params: LibraryDocRequest, reset?: boolean): Thenable<LibraryDocResponse> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.LIBRARY_LIBRARIES)) {
             Promise.resolve(NOT_SUPPORTED);
+        }
+        if (!reset) {
+            let librariesList = this.ballerinaExtInstance?.context?.globalState.get(LIBRARIES_LIST_CACHE) as LibraryDocResponse;
+            if (librariesList) {
+                return Promise.resolve().then(() => librariesList);
+            }
         }
         return this.sendRequest(EXTENDED_APIS.LIBRARY_LIBRARIES, params);
     }
