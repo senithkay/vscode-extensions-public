@@ -83,6 +83,8 @@ export interface LowCodeEditorAPI {
         setCodeLocationToHighlight: (position: NodePosition) => void;
         gotoSource: (position: { startLine: number, startColumn: number }) => void;
         isMutationInProgress: boolean;
+        isModulePullInProgress: boolean;
+        loaderText: string;
     }
     // FIXME Doesn't make sense to take these methods below from outside
     // Move these inside and get an external API for pref persistance
@@ -95,8 +97,8 @@ export interface LowCodeEditorAPI {
     };
     configPanel: {
         dispactchConfigOverlayForm: (type: string, targetPosition: NodePosition,
-                                     wizardType: WizardType, blockViewState?: BlockViewState, config?: ConditionConfig,
-                                     symbolInfo?: STSymbolInfo, model?: STNode) => void;
+            wizardType: WizardType, blockViewState?: BlockViewState, config?: ConditionConfig,
+            symbolInfo?: STSymbolInfo, model?: STNode) => void;
         closeConfigOverlayForm: () => void;
         configOverlayFormPrepareStart: () => void;
         closeConfigPanel: () => void;
