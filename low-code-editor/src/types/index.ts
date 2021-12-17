@@ -97,8 +97,8 @@ export interface LowCodeEditorAPI {
     };
     configPanel: {
         dispactchConfigOverlayForm: (type: string, targetPosition: NodePosition,
-            wizardType: WizardType, blockViewState?: BlockViewState, config?: ConditionConfig,
-            symbolInfo?: STSymbolInfo, model?: STNode) => void;
+                                     wizardType: WizardType, blockViewState?: BlockViewState, config?: ConditionConfig,
+                                     symbolInfo?: STSymbolInfo, model?: STNode) => void;
         closeConfigOverlayForm: () => void;
         configOverlayFormPrepareStart: () => void;
         closeConfigPanel: () => void;

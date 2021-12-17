@@ -31,7 +31,7 @@ export function TextPreLoader(props: TextPreLoaderProps) {
     return (
         <div data-testid={"diagram-loader"} className={loaderPosition}>
             <div className="loader-container">
-                <div className="loader-circle"></div>
+                <div className="loader-circle"/>
                 <div className="loader-text">{text}</div>
             </div>
         </div>
