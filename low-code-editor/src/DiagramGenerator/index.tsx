@@ -247,7 +247,9 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                     }
                                 },
                                 insights: {
-                                    onEvent: (event: LowcodeEvent) => undefined,
+                                    onEvent: (event: LowcodeEvent) => {
+                                        props.sendInsightEvent(event);
+                                    }
                                 },
                                 code: {
                                     modifyDiagram: async (mutations: STModification[], options?: any) => {
