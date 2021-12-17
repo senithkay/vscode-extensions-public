@@ -14,11 +14,10 @@
 import React, { useContext } from "react";
 
 import { ExpressionEditor } from "@wso2-enterprise/ballerina-expression-editor";
-import { CustomLowCodeContext } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { CustomLowCodeContext, FormElementProps } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { Context } from "../../../../../../Contexts/Diagram";
 import { useStyles } from "../../../DynamicConnectorForm/style";
-import { FormElementProps } from "../../../Types";
 import { ExpressionConfigurable } from "../../ExpressionConfigurable";
 
 interface FormJsonProps {
