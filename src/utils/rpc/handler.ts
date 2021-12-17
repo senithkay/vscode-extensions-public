@@ -16,6 +16,7 @@
  * under the License.
  *
  */
+import { deflateSync } from "zlib";
 
 import { WebViewMethod, WebViewRPCMessage } from './model';
 import { commands, WebviewPanel } from 'vscode';
@@ -30,7 +31,8 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
             return langClient.onReady().then(() => {
                 return langClient.getSyntaxTree(args[0]).then((result) => {
                     consoleLog(start, 'getSyntaxTree');
-                    return Promise.resolve(result);
+                    const zippedResult = deflateSync(Buffer.from(JSON.stringify(result), "base64"));
+                    return Promise.resolve(zippedResult);
                 });
             });
         }
@@ -163,7 +165,8 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
             const start = new Date().getTime();
             return langClient.stModify(args[0]).then(result => {
                 consoleLog(start, 'stModify');
-                return Promise.resolve(result);
+                const zippedResult = deflateSync(Buffer.from(JSON.stringify(result), "base64"));
+                return Promise.resolve(zippedResult);
             });
         }
     }, {

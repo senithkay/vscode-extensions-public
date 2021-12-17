@@ -75,7 +75,8 @@ function getLangClient() {
                 const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getSyntaxTree', [params], (resp) => {
                     consoleLog(start, 'getSyntaxTree');
-                    resolve(resp);
+                    const unzippedResp = pako.inflate(Buffer.from(resp, 'base64'), { to: 'string' });
+                    resolve(unzippedResp);
                 });
             });
         },
@@ -265,7 +266,8 @@ function getLangClient() {
                 const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('stModify', [params], (resp) => {
                     consoleLog(start, 'stModify');
-                    resolve(resp);
+                    const unzippedResp = pako.inflate(Buffer.from(resp, 'base64'), { to: 'string' });
+                    resolve(unzippedResp);
                 });
             })
         },

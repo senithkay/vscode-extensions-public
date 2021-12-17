@@ -16,7 +16,8 @@
             "LS_EXTENSIONS_PATH":  "",
             "LSDEBUG": "false",
             "COMPOSER_DEBUG": "false",
-            "COMPOSER_DEV_HOST": "http://localhost:9000"
+            "COMPOSER_DEV_HOST": "http://localhost:9000",
+            "BALLERINA_STAGE_CENTRAL": "false"
         },
         "outFiles": [
             "${workspaceFolder}/dist/**/*.js"
