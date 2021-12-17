@@ -56,6 +56,8 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     const [fileContent, setFileContent] = React.useState("");
     const [selectedPosition, setSelectedPosition] = React.useState({ startLine: 0, startColumn: 0 });
     const [isMutationInProgress, setMutationInProgress] = React.useState<boolean>(false);
+    const [isModulePullInProgress, setModulePullInProgress] = React.useState<boolean>(false);
+    const [loaderText, setLoaderText] = React.useState<string>('Loading...');
 
     React.useEffect(() => {
         (async () => {
@@ -252,6 +254,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                 code: {
                                     modifyDiagram: async (mutations: STModification[], options?: any) => {
                                         setMutationInProgress(true);
+                                        setLoaderText('Updating...');
                                         const modifyPosition = getModifyPosition(mutations);
                                         const { parseSuccess, source, syntaxTree: newST } = await langClient.stModify({
                                             astModifications: await InsertorDelete(mutations),
@@ -265,7 +268,10 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                             if (newST?.typeData?.diagnostics && newST?.typeData?.diagnostics?.length > 0) {
                                                 const { isAvailable } = isUnresolvedModulesAvailable(newST?.typeData?.diagnostics as DiagramDiagnostic[]);
                                                 if (isAvailable) {
-                                                    resolveMissingDependency(filePath, source);
+                                                    setModulePullInProgress(true);
+                                                    setLoaderText('Pulling packages...')
+                                                    await resolveMissingDependency(filePath, source);
+                                                    setModulePullInProgress(false);
                                                 }
                                             }
                                             setFileContent(source);
@@ -288,7 +294,9 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                     gotoSource: (position: { startLine: number, startColumn: number }) => {
                                         props.gotoSource(filePath, position);
                                     },
-                                    isMutationInProgress
+                                    isMutationInProgress,
+                                    isModulePullInProgress,
+                                    loaderText
                                 },
                                 // FIXME Doesn't make sense to take these methods below from outside
                                 // Move these inside and get an external API for pref persistance

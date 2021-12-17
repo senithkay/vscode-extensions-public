@@ -309,6 +309,10 @@ export function RecordField(props: CodePanelProps) {
         setIsRecordExpanded(!isRecordExpanded);
     };
 
+    const handleRecordEditInProgress = (isEditInProgress: boolean) => {
+        setIsRecordEditInProgress(isEditInProgress);
+    };
+
     let isDraftRecordAdded = false;
     const fieldItems: ReactNode[] = [];
     recordModel.fields.forEach((field: SimpleField | RecordModel) => {
@@ -366,7 +370,8 @@ export function RecordField(props: CodePanelProps) {
                     recordModel={recordModel}
                     parentRecordModel={parentRecordModel}
                     recordExpanded={isRecordExpanded}
-                    recordEditInProgress={isRecordEditInProgress}
+                    isRecordEditInProgress={isRecordEditInProgress}
+                    setIsRecordEditInProgress={handleRecordEditInProgress}
                     toggleRecordExpand={handleRecordExpand}
                     onEditRecord={handleRecordEdit}
                 />

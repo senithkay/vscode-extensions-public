@@ -42,7 +42,7 @@ export function ConnectorHeaderC(props: ConnectorClientProps) {
         : connectorClientViewState.bBox.cy - CLIENT_SHADOW_OFFSET / 2;
 
     const connectorWrapper = cn("main-connector-wrapper connector-client");
-    const iconWidth = 36;
+    const iconWidth = 24;
     const iconProps = {
         x: connectorClientViewState.endpoint.lifeLine.cx - iconWidth / 2,
         y: (epViewState.isExternal
@@ -58,7 +58,7 @@ export function ConnectorHeaderC(props: ConnectorClientProps) {
                         x={x}
                         y={y}
                     />
-                    <ModuleIcon model={model} width={iconWidth} cx={iconProps.x} cy={iconProps.y}/>
+                    <ModuleIcon node={model} width={iconWidth} cx={iconProps.x} cy={iconProps.y} scale={0.5}/>
                 </g>
             </g>
 

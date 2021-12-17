@@ -14,7 +14,14 @@ import * as React from "react";
 
 export const DEFAULT_LOGO_WIDTH = 47;
 
-export function DefaultConnectorIcon(props: { cx?: number; cy?: number; width?: number; scale?: number }) {
+export interface DefaultIconProps {
+    cx?: number;
+    cy?: number;
+    width?: number;
+    scale?: number;
+}
+
+export function DefaultConnectorIcon(props: DefaultIconProps) {
     const { cx, cy, width, scale } = props;
     const iconWidth = width || DEFAULT_LOGO_WIDTH;
     const translateDistance = scale < 1 ? iconWidth * scale : 0;

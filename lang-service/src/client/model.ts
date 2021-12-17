@@ -352,6 +352,7 @@ export interface BallerinaModule {
     moduleName?: string;
     package: Package;
     displayAnnotation?: any;
+    icon?: string;
 }
 
 export interface Connector extends BallerinaModule {}
