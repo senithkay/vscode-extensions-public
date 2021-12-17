@@ -250,6 +250,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
             const updateConnectorInit = updatePropertyStatement(endpointStatement, connectorConfig.initPosition);
             modifications.push(updateConnectorInit);
         }
+
         if (modifications.length > 0) {
             modifyDiagram(modifications);
             onSave();
@@ -278,8 +279,6 @@ export function ConnectorForm(props: FormGeneratorProps) {
             const addConnectorInit = createPropertyStatement(endpointStatement, targetPosition);
             modifications.push(addConnectorInit);
         }
-       
-        
         let actionStatement = "";
         if (currentActionReturnType.hasReturn) {
             addReturnImportsModifications(modifications, currentActionReturnType);
@@ -300,7 +299,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
         }
 
         if ((isNewConnectorInitWizard) && (config.action.name === "query" && checkDBConnector(connectorModule))) {
-            let resultUniqueName = genVariableName("recordResult", getAllVariables(stSymbolInfo));
+            const resultUniqueName = genVariableName("recordResult", getAllVariables(stSymbolInfo));
             const addQueryWhileStatement = createQueryWhileStatement(resultUniqueName, targetPosition);
             modifications.push(addQueryWhileStatement);
         }
