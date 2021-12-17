@@ -27,7 +27,7 @@ import { CONNECTOR_LIST_CACHE, DocumentIdentifier, ExtendedLangClient, HTTP_CONN
 import { BallerinaExtension, ballerinaExtInstance, Change } from '../core';
 import { getCommonWebViewOptions, isWindows, WebViewMethod, WebViewRPCHandler } from '../utils';
 import { join } from "path";
-import { TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, sendTelemetryEvent, TM_EVENT_OPEN_DIAGRAM, sendTelemetryException } from '../telemetry';
+import { TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, sendTelemetryEvent, TM_EVENT_OPEN_DIAGRAM, sendTelemetryException, sendInsightEvent } from '../telemetry';
 import { checkErrors, CHOREO_API_PF, openPerformanceDiagram, PFSession } from '../forecaster';
 import { showMessage } from '../utils/showMessage';
 import { Module } from '../tree-view';
@@ -385,7 +385,19 @@ class DiagramPanel {
 					await runCommand(args[0], args[1]);
 					return Promise.resolve(true);
 				}
-			}
+			},
+			{
+				methodName: "sendInsightEvent",
+				handler: async (args: any[]): Promise<boolean> => {
+					const event: {
+						type: any;
+						name: any;
+						property?: any;
+					} = args[0];
+					sendInsightEvent(ballerinaExtension, event.type, event.name, event.property);
+					return Promise.resolve(true);
+				}
+			},
 		];
 
 		webviewRPCHandler = WebViewRPCHandler.create(panel, langClient, remoteMethods);

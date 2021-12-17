@@ -387,7 +387,18 @@ function getLangClient() {
                     resolve(resp);
                 });
             })
-        }        
+        },
+        sendInsightEvent: (params) => {
+            return new Promise((resolve, _reject) => {
+                webViewRPCHandler.invokeRemoteMethod(
+                    'sendInsightEvent',
+                    [JSON.stringify(params)],
+                    (resp) => {
+                        resolve(resp);
+                    }
+                );
+            })
+        },        
     }
 }
 
