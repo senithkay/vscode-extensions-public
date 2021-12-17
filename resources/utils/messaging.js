@@ -391,5 +391,5 @@ function getLangClient() {
 
 function consoleLog(start, fnName) {
     const end = new Date();
-    console.log(`Frontend - Time taken for ${fnName}: ${end - start}ms`);
+    console.debug(`Frontend - Time taken for ${fnName}: ${end - start}ms`);
 }

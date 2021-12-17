@@ -92,9 +92,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     workspace.onDidOpenTextDocument(_event => {
         statusBarItem.updateGitStatus();
     });
-    const rule = new schedule.RecurrenceRule();
-    rule.second = 2;
-    schedule.scheduleJob(rule, function () {
+    schedule.scheduleJob('*/10 * * * * *', function () {
         debug(`Updated the git status at ${new Date()}`)
         statusBarItem.updateGitStatus();
     });

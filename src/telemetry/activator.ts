@@ -17,9 +17,12 @@
  *
  */
 
-import { BallerinaExtension, ExtendedLangClient } from "src/core";
+import { BallerinaExtension, ExtendedLangClient } from "../core";
+import { debug } from "../utils";
 import { window } from "vscode";
 import { getTelemetryProperties, TM_ERROR_LANG_SERVER, TM_FEATURE_USAGE_LANG_SERVER } from ".";
+
+const schedule = require('node-schedule');
 
 // Language server telemetry event types
 const TM_EVENT_TYPE_ERROR = "ErrorTelemetryEvent";
@@ -61,6 +64,13 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         .catch((e) => {
             window.showErrorMessage('Could not start telemetry listener feature', e.message);
         });
+
+    if (ballerinaExtInstance?.getCodeServerContext().codeServerEnv) {
+        schedule.scheduleJob('* * * * *', function () {
+            debug(`Publish LS API time consumption telemetry at ${new Date()}`);
+            langClient.pushLSClientTelemetries();
+        });
+    }
 }
 
 interface LSTelemetryEvent {

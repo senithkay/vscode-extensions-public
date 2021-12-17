@@ -31,7 +31,7 @@ export function createTelemetryReporter(ext: BallerinaExtension): TelemetryRepor
 }
 
 export function sendTelemetryEvent(extension: BallerinaExtension, eventName: string, componentName: string,
-    message: string = '') {
+    message: any = '') {
     if (extension.isTelemetryEnabled()) {
         extension.telemetryReporter.sendTelemetryEvent(eventName, getTelemetryProperties(extension, componentName,
             message));
@@ -46,13 +46,23 @@ export function sendTelemetryException(extension: BallerinaExtension, error: Err
     }
 }
 
-export function getTelemetryProperties(extension: BallerinaExtension, component: string, message: string)
+export function getTelemetryProperties(extension: BallerinaExtension, component: string, message: any)
     : { [key: string]: string; } {
-    return {
-        'ballerina.version': extension ? extension.ballerinaVersion : '',
-        'ballerina.component': component,
-        'ballerina.message': message
-    };
+    if (typeof message === 'string') {
+        return {
+            'ballerina.version': extension ? extension.ballerinaVersion : '',
+            'ballerina.component': component,
+            'ballerina.message': message
+        };
+    } else {
+        let object = {};
+        object['ballerina.version'] = extension ? extension.ballerinaVersion : '';
+        object['ballerina.component'] = component;
+        Object.keys(message).forEach(key => {
+            object[key] = message[key];
+        });
+        return object;
+    }
 }
 
 export * from "./events";
