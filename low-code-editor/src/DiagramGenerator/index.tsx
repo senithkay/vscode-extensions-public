@@ -246,7 +246,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                 },
                                 insights: {
                                     onEvent: (event: LowcodeEvent) => {
-                                        props.sendInsightEvent(event);
+                                        props.sendTelemetryEvent(event);
                                     }
                                 },
                                 code: {
