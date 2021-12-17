@@ -4,6 +4,8 @@ import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../Contexts/Diagram";
 import { SelectedPosition } from "../../types";
+import expandTracker from "../utils/expand-tracker";
+import { getNodeSignature } from "../components/LowCodeDiagram/Utils";
 
 /**
  * A custom hook for diagram components which returns a boolean indicating if a given
@@ -16,11 +18,12 @@ import { SelectedPosition } from "../../types";
  * @param containerRef Container ref to scroll to, if the passed node is selected.
  * @returns Returns true if the passed node is the currently selected node for viewing
  */
-export function useSelectedStatus(node: STNode, containerRef?: React.MutableRefObject<any>): boolean {
+export function useSelectedStatus(node: STNode, containerRef?: React.MutableRefObject<any>): [status: boolean, updateStatus: (nextState: boolean) => void] {
     const {
         props: { selectedPosition }
     } = useContext(Context);
     const [isSelected, setSelected] = React.useState(selectedPosition ? isNodeSelected(selectedPosition, node) : false);
+    const [isExpanded, setIsExpanded] = useState(node && !node.viewState.collapsed || isSelected);
 
     React.useEffect(() => {
         if (selectedPosition) {
@@ -31,7 +34,22 @@ export function useSelectedStatus(node: STNode, containerRef?: React.MutableRefO
             }
         }
     }, [selectedPosition, node]);
-    return isSelected;
+
+    React.useEffect(() => {
+        if (!expandTracker.isExpanded(getNodeSignature(node))) {
+            setIsExpanded(isSelected);
+        }
+    }, [isSelected])
+
+    React.useEffect(() => {
+        if (isExpanded) {
+            expandTracker.addExpandedSignature(getNodeSignature(node));
+        } else {
+            expandTracker.removeExpandedSignature(getNodeSignature(node));
+        }
+    }, [isExpanded]);
+
+    return [isExpanded, setIsExpanded];
 }
 
 export function isNodeSelected(selectedPosition: SelectedPosition, node: STNode): boolean {

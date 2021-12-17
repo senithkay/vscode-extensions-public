@@ -65,23 +65,8 @@ export function Function(props: FunctionProps) {
     );
 
     const containerRef = useRef(null);
-    const isSelected = useSelectedStatus(model, containerRef);
-    const [diagramExpanded, setDiagramExpanded] = useState(model && !model.viewState.collapsed || isSelected);
+    const [diagramExpanded, setDiagramExpanded] = useSelectedStatus(model, containerRef);
     const [overlayNode, overlayRef] = useOverlayRef();
-
-    React.useEffect(() => {
-        if (!expandTracker.isExpanded(getNodeSignature(model))) {
-            setDiagramExpanded(isSelected);
-        }
-    }, [isSelected]);
-
-    React.useEffect(() => {
-        if (diagramExpanded) {
-            expandTracker.addExpandedSignature(getNodeSignature(model));
-        } else {
-            expandTracker.removeExpandedSignature(getNodeSignature(model));
-        }
-    }, [diagramExpanded]);
 
     const onExpandClick = () => {
         setDiagramExpanded(!diagramExpanded);

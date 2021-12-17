@@ -37,25 +37,10 @@ export function Service(props: ServiceProps) {
     const { model } = props;
     const { props: { stSymbolInfo } } = useDiagramContext();
 
-    const isSelected = useSelectedStatus(model);
-    const [isExpanded, setIsExpanded] = useState(model && !model.viewState.collapsed || isSelected);
+    const [isExpanded, setIsExpanded] = useSelectedStatus(model);
     const onExpandClick = () => {
         setIsExpanded(!isExpanded);
     }
-
-    React.useEffect(() => {
-        if (!expandTracker.isExpanded(getNodeSignature(model))) {
-            setIsExpanded(isSelected);
-        }
-    }, [isSelected])
-
-    React.useEffect(() => {
-        if (isExpanded) {
-            expandTracker.addExpandedSignature(getNodeSignature(model));
-        } else {
-            expandTracker.removeExpandedSignature(getNodeSignature(model));
-        }
-    }, [isExpanded]);
 
     const serviceType = getServiceTypeFromModel(model, stSymbolInfo);
     const isTriggerType = serviceType !== "http";
