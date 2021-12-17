@@ -14,6 +14,7 @@
 import * as React from "react";
 
 import { TooltipCodeSnippet } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+
 import { DefaultConfig } from "../../../../../visitors/default";
 import { VARIABLE_NAME_WIDTH } from "../VariableName";
 
