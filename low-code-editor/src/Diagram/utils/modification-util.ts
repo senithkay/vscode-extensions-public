@@ -21,7 +21,7 @@ import { HTTPServiceConfigState, TriggerServiceConfigState } from "../components
 import { HeaderObjectConfig } from "../components/FormComponents/ConnectorExtensions/HTTPWizard/HTTPHeaders";
 import { getFormattedModuleName, getParams } from "../components/Portals/utils";
 
-import { getComponentSource, getInsertComponentSource } from "./template-utils";
+import { getComponentSource } from "./template-utils";
 
 /* tslint:disable ordered-imports */
 

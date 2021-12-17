@@ -23,15 +23,6 @@ export async function getSampleSource(sampleName: string, config: {[key: string]
     return hbTemplate(config);
 }
 
-export async function getInsertTemplate(insertTempName: string) {
-    return templates[insertTempName];
-}
-
-export async function getInsertComponentSource(insertTempName: string, config: { [key: string]: any }) {
-    const hbTemplate = compile(await getInsertTemplate(insertTempName));
-    return hbTemplate(config);
-}
-
 export function getComponentSource(insertTempName: string, config: { [key: string]: any }) {
     const hbTemplate = compile(templates[insertTempName]);
     return hbTemplate(config);
