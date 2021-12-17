@@ -42,6 +42,7 @@ import { getAllVariables } from "../../../../../utils/mixins";
 import {
     createImportStatement,
     createPropertyStatement,
+    createQueryWhileStatement,
     updateFunctionSignature,
     updatePropertyStatement,
 } from "../../../../../utils/modification-util";
@@ -241,6 +242,11 @@ export function ConnectorForm(props: FormGeneratorProps) {
             const addConnectorInit = createPropertyStatement(endpointStatement, targetPosition);
             modifications.push(addConnectorInit);
             onConnectorAddEvent();
+            if (checkDBConnector(moduleName)){
+                const closeStatement = `check ${config.name}.close();`
+                const addCloseStatement = createPropertyStatement(closeStatement, targetPosition);
+                modifications.push(addCloseStatement);
+             }
         } else {
             const updateConnectorInit = updatePropertyStatement(endpointStatement, connectorConfig.initPosition);
             modifications.push(updateConnectorInit);
@@ -281,7 +287,6 @@ export function ConnectorForm(props: FormGeneratorProps) {
             const addConnectorInit = createPropertyStatement(endpointStatement, targetPosition);
             modifications.push(addConnectorInit);
         }
-
         let actionStatement = "";
         if (currentActionReturnType.hasReturn) {
             addReturnImportsModifications(modifications, currentActionReturnType);
@@ -291,6 +296,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
             config.action.isRemote ? "->" : "."
         }${config.action.name}(${getParams(config.action.fields).join()});`;
 
+
         if (!isNewConnectorInitWizard && isAction) {
             const updateActionInvocation = updatePropertyStatement(actionStatement, model.position);
             modifications.push(updateActionInvocation);
@@ -298,6 +304,12 @@ export function ConnectorForm(props: FormGeneratorProps) {
             const addActionInvocation = createPropertyStatement(actionStatement, targetPosition);
             modifications.push(addActionInvocation);
             onActionAddEvent();
+        }
+
+        if ((isNewConnectorInitWizard) && (config.action.name === "query" && checkDBConnector(connectorModule))) {
+            const resultUniqueName = genVariableName("recordResult", getAllVariables(stSymbolInfo));
+            const addQueryWhileStatement = createQueryWhileStatement(resultUniqueName, targetPosition);
+            modifications.push(addQueryWhileStatement);
         }
 
         if (modifications.length > 0) {

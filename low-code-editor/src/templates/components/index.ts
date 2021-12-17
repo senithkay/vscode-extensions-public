@@ -46,6 +46,12 @@ resource function {{{ METHOD }}} {{{ PATH }}} ({{{ QUERY_PARAM }}}{{{PAYLOAD}}}{
 while ({{{ CONDITION }}}) {
 
 }`,
+    WHILE_NEXT_STATEMENT: `
+record {|record {} value;|}|error? {{{ VARIABLE }}} = queryResponse.next();
+while {{{ VARIABLE }}} is record {|record {} value;|} {
+    // do something
+    {{{ VARIABLE }}} = queryResponse.next();
+}`,
     SERVICE_AND_LISTENER_DECLARATION: `
 listener http:Listener {{{ LISTENER_NAME }}} = new ({{{ PORT }}});
 
