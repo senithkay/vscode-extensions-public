@@ -27,7 +27,7 @@ import { CONNECTOR_LIST_CACHE, DocumentIdentifier, ExtendedLangClient } from '..
 import { BallerinaExtension, ballerinaExtInstance, Change } from '../core';
 import { getCommonWebViewOptions, isWindows, WebViewMethod, WebViewRPCHandler } from '../utils';
 import { join } from "path";
-import { TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, sendTelemetryEvent, TM_EVENT_OPEN_DIAGRAM, sendTelemetryException, sendInsightEvent } from '../telemetry';
+import { TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, sendTelemetryEvent, TM_EVENT_OPEN_DIAGRAM, sendTelemetryException } from '../telemetry';
 import { checkErrors, CHOREO_API_PF, openPerformanceDiagram, PFSession } from '../forecaster';
 import { showMessage } from '../utils/showMessage';
 import { Module } from '../tree-view';
@@ -110,9 +110,11 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 		}
 		commands.executeCommand('workbench.action.splitEditor');
 		commands.executeCommand('vscode.open', path);
+		//editor-code-editor
 	});
 
 	const diagramRenderDisposable = commands.registerCommand('ballerina.show.diagram', () => {
+		//editor-lowcode-editor
 		sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_DIAGRAM, CMP_DIAGRAM_VIEW);
 		return ballerinaExtInstance.onReady()
 			.then(() => {
@@ -376,18 +378,19 @@ class DiagramPanel {
 				methodName: "runCommand",
 				handler: async (args: any[]): Promise<boolean> => {
 					await runCommand(args[0], args[1]);
+					//editor-lowcode-code-run
 					return Promise.resolve(true);
 				}
 			},
 			{
-				methodName: "sendInsightEvent",
+				methodName: "sendTelemetryEvent",
 				handler: async (args: any[]): Promise<boolean> => {
 					const event: {
 						type: any;
 						name: any;
 						property?: any;
 					} = args[0];
-					sendInsightEvent(ballerinaExtension, event.type, event.name, event.property);
+					sendTelemetryEvent(ballerinaExtension, event.type, event.name, event.property);
 					return Promise.resolve(true);
 				}
 			},

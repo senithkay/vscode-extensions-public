@@ -386,10 +386,10 @@ function getLangClient() {
                 });
             })
         },
-        sendInsightEvent: (params) => {
+        sendTelemetryEvent: (params) => {
             return new Promise((resolve, _reject) => {
                 webViewRPCHandler.invokeRemoteMethod(
-                    'sendInsightEvent',
+                    'sendTelemetryEvent',
                     [JSON.stringify(params)],
                     (resp) => {
                         resolve(resp);
