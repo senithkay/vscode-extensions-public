@@ -129,6 +129,7 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
                 <script>
                     ${scripts}
                 </script>
+                <script charset="UTF-8" src="${resourceRoot}/jslibs/pako.min.js"></script>
                 <script charset="UTF-8" src="${resourceRoot}/utils/messaging.js"></script>
                 <script charset="UTF-8" src="${resourceRoot}/utils/undo-redo.js"></script>
                 ${externalScripts}

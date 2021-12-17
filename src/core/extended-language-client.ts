@@ -36,8 +36,10 @@ import { showChoreoPushMessage } from "../editor-support/git-status";
 import { MESSAGE_TYPE } from "../utils/showMessage";
 import { Values } from "../forecaster/model";
 import { showChoreoSigninMessage } from "../forecaster";
+import { debug } from "../utils";
 
 export const CONNECTOR_LIST_CACHE = "CONNECTOR_LIST_CACHE";
+export const HTTP_CONNECTOR_LIST_CACHE = "HTTP_CONNECTOR_LIST_CACHE";
 export const BALLERINA_LANG_ID = "ballerina";
 const NOT_SUPPORTED = {};
 
@@ -315,6 +317,7 @@ export class ExtendedLangClient extends LanguageClient {
     }
 
     didOpen(params: DidOpenParams): void {
+        debug(`didOpen at ${new Date()} - ${new Date().getTime()}`);
         this.sendNotification("textDocument/didOpen", params);
     }
     registerPublishDiagnostics(): void {
@@ -322,9 +325,11 @@ export class ExtendedLangClient extends LanguageClient {
         });
     }
     didClose(params: DidCloseParams): void {
+        debug(`didClose at ${new Date()} - ${new Date().getTime()}`);
         this.sendNotification("textDocument/didClose", params);
     }
     didChange(params: DidChangeParams): void {
+        debug(`didChange at ${new Date()} - ${new Date().getTime()}`);
         this.sendNotification("textDocument/didChange", params);
     }
     getPerformanceGraphData(params: PerformanceAnalyzerGraphRequest): Promise<PerformanceAnalyzerGraphResponse> {
@@ -368,6 +373,11 @@ export class ExtendedLangClient extends LanguageClient {
         }
         if (!reset && params.query === "" && !params.keyword && !params.organization && !params.offset) {
             let connectorList = this.ballerinaExtInstance?.context?.globalState.get(CONNECTOR_LIST_CACHE) as BallerinaConnectorsResponse;
+            if (connectorList && connectorList.central?.length > 0) {
+                return Promise.resolve().then(() => connectorList);
+            }
+        } else if (!reset && params.query === "http" && !params.keyword && !params.organization && !params.offset) {
+            const connectorList = this.ballerinaExtInstance?.context?.globalState.get(HTTP_CONNECTOR_LIST_CACHE) as BallerinaConnectorsResponse;
             if (connectorList && connectorList.central?.length > 0) {
                 return Promise.resolve().then(() => connectorList);
             }

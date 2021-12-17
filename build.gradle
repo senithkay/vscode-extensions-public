@@ -50,12 +50,20 @@ task copyConfigEditorDeps(type: Copy) {
     include "ConfigEditor.js"
 }
 
+task copyPakoDeps(type: Copy) {
+    dependsOn installDeps
+    from "$rootDir/node_modules/pako/dist"
+    into "$rootDir/resources/jslibs"
+    include "pako.min.js"
+}
+
 npmBuild() {
     dependsOn ':bbe-viewer:buildBBEViewer'
     dependsOn ':perf-viewer:buildPerfViewer'
     dependsOn ':swagger-viewer:buildSwaggerViewer'
     dependsOn copyDeps
     dependsOn copyConfigEditorDeps
+    dependsOn copyPakoDeps
     PatternSet patternSet = new PatternSet();
     patternSet.exclude("**/node_modules/**");
     patternSet.exclude("**/dist/**");
@@ -64,11 +72,11 @@ npmBuild() {
     patternSet.exclude("**/coverage/**");
 
     FileTree src = files('.').asFileTree;
-    inputs.files(src.matching(patternSet))  
+    inputs.files(src.matching(patternSet))
 
     outputs.dir("out")
     outputs.dir("dist")
-    outputs.cacheIf { true } 
+    outputs.cacheIf { true }
 
     exec { commandLine 'git', 'submodule', 'update', '--init', '--recursive' }
     exec { commandLine 'git', 'submodule', 'foreach', 'git', 'pull', 'origin', 'master' }

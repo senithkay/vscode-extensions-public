@@ -23,7 +23,7 @@ import {
 } from 'vscode';
 import * as _ from 'lodash';
 import { render } from './renderer';
-import { CONNECTOR_LIST_CACHE, DocumentIdentifier, ExtendedLangClient } from '../core/extended-language-client';
+import { CONNECTOR_LIST_CACHE, DocumentIdentifier, ExtendedLangClient, HTTP_CONNECTOR_LIST_CACHE } from '../core/extended-language-client';
 import { BallerinaExtension, ballerinaExtInstance, Change } from '../core';
 import { getCommonWebViewOptions, isWindows, WebViewMethod, WebViewRPCHandler } from '../utils';
 import { join } from "path";
@@ -88,6 +88,13 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 	langClient.getConnectors({ query: "", limit: 18 }, true).then((connectorList) => {
 		if (connectorList && connectorList.central?.length > 0) {
 			ballerinaExtInstance.context?.globalState.update(CONNECTOR_LIST_CACHE, connectorList);
+		}
+	})
+
+	// Reset cached HTTP connector list
+	langClient.getConnectors({ query: "http", limit: 18 }, true).then((connectorList) => {
+		if (connectorList && connectorList.central?.length > 0) {
+			ballerinaExtInstance.context?.globalState.update(HTTP_CONNECTOR_LIST_CACHE, connectorList);
 		}
 	})
 
@@ -172,9 +179,9 @@ function resolveMissingDependencyByCodeAction(filePath: string, fileContent: str
 	});
 }
 
-function resolveMissingDependency(filePath: string, fileContent: string, langClient: ExtendedLangClient) {
+async function resolveMissingDependency(filePath: string, fileContent: string, langClient: ExtendedLangClient) {
 	// Show the progress bar.
-	window.withProgress({
+	await window.withProgress({
 		location: ProgressLocation.Window,
 		title: "Resolving dependencies...",
 		cancellable: false
@@ -342,7 +349,7 @@ class DiagramPanel {
 			{
 				methodName: "resolveMissingDependency",
 				handler: async (args: any[]): Promise<boolean> => {
-					resolveMissingDependency(args[0], args[1], langClient);
+					await resolveMissingDependency(args[0], args[1], langClient);
 					return true;
 				}
 			},
@@ -356,8 +363,8 @@ class DiagramPanel {
 			{
 				methodName: "showMessage",
 				handler: async (args: any[]): Promise<boolean> => {
-					let callBack = (filePath: string, fileContent: string) => {
-						resolveMissingDependency(filePath, fileContent, langClient);
+					let callBack = async (filePath: string, fileContent: string) => {
+						await resolveMissingDependency(filePath, fileContent, langClient);
 					};
 					if (!ballerinaExtension.enabledPerformanceForecasting() ||
 						ballerinaExtension.getPerformanceForecastContext().temporaryDisabled) {
