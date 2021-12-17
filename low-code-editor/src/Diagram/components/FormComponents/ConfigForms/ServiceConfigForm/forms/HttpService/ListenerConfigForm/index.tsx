@@ -42,6 +42,9 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
     }
 
     const handleListenerDefModeChange = (mode: string[]) => {
+        if (listenerList.length === 0) {
+            actionDispatch({ type: ServiceConfigActionTypes.CREATE_NEW_LISTENER });
+        }
         actionDispatch({ type: ServiceConfigActionTypes.DEFINE_LISTENER_INLINE, payload: mode.length === 0 })
     }
 

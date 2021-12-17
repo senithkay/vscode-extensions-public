@@ -39,7 +39,7 @@ export function isServiceConfigValid(config: HTTPServiceConfigState): boolean {
 export function getFormStateFromST(model: ServiceDeclaration, symbolInfo: STSymbolInfo): HTTPServiceConfigState {
 
     const state: HTTPServiceConfigState = {
-        serviceBasePath: '',
+        serviceBasePath: '/',
         listenerConfig: {
             createNewListener: false,
             fromVar: true,
@@ -52,7 +52,7 @@ export function getFormStateFromST(model: ServiceDeclaration, symbolInfo: STSymb
     if (model) {
         const serviceListenerExpression = model.expressions.length > 0 && model.expressions[0];
         const servicePath = model.absoluteResourcePath
-            .map((pathSegments, i) => i === 0 ? '' : pathSegments.value)
+            .map((pathSegments) => pathSegments.value)
             .join('');
 
         if (STKindChecker.isSimpleNameReference(serviceListenerExpression)) {
