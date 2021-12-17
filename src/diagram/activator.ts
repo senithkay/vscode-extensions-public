@@ -170,9 +170,9 @@ function resolveMissingDependencyByCodeAction(filePath: string, fileContent: str
 	});
 }
 
-function resolveMissingDependency(filePath: string, fileContent: string, langClient: ExtendedLangClient) {
+async function resolveMissingDependency(filePath: string, fileContent: string, langClient: ExtendedLangClient) {
 	// Show the progress bar.
-	window.withProgress({
+	await window.withProgress({
 		location: ProgressLocation.Window,
 		title: "Resolving dependencies...",
 		cancellable: false
@@ -340,7 +340,7 @@ class DiagramPanel {
 			{
 				methodName: "resolveMissingDependency",
 				handler: async (args: any[]): Promise<boolean> => {
-					resolveMissingDependency(args[0], args[1], langClient);
+					await resolveMissingDependency(args[0], args[1], langClient);
 					return true;
 				}
 			},
@@ -354,8 +354,8 @@ class DiagramPanel {
 			{
 				methodName: "showMessage",
 				handler: async (args: any[]): Promise<boolean> => {
-					let callBack = (filePath: string, fileContent: string) => {
-						resolveMissingDependency(filePath, fileContent, langClient);
+					let callBack = async (filePath: string, fileContent: string) => {
+						await resolveMissingDependency(filePath, fileContent, langClient);
 					};
 					if (!ballerinaExtension.enabledPerformanceForecasting() ||
 						ballerinaExtension.getPerformanceForecastContext().temporaryDisabled) {
