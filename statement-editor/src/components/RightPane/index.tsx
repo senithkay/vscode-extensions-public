@@ -16,7 +16,6 @@ import React, { useContext, useState } from "react";
 import classNames from "classnames";
 
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { getLibrariesList } from "../../utils/ls-utils";
 import { ComponentExpandButton } from "../Buttons/ComponentExpandButton";
 import { LibrariesList } from "../Libraries/LibrariesList";
 import { useStatementEditorStyles } from "../styles";
@@ -29,15 +28,16 @@ export function RightPane() {
     const [isStdLibExpanded, setIsStdLibExpanded] = useState(false);
     const [libraries, setLibraries] = useState([]);
 
-    const { getLangClient } = stmtCtx;
-
     const langLibExpandButton = async () => {
-        const response = await getLibrariesList("slbeta5", getLangClient);
-        setLibraries(response.librariesList);
-        setIsLangLibExpanded(prevState => {
-            return !prevState;
-        });
-        setIsStdLibExpanded(false);
+        const response = await stmtCtx.getLibrariesList("slbeta5");
+
+        if (response) {
+            setLibraries(response.librariesList);
+            setIsLangLibExpanded(prevState => {
+                return !prevState;
+            });
+            setIsStdLibExpanded(false);
+        }
     };
 
     const standardLibExpandButton = () => {

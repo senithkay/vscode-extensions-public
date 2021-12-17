@@ -34,6 +34,7 @@ export const StatementEditorContext = React.createContext({
     },
     getLangClient: () => (Promise.resolve({} as any)),
     applyModifications: (modifications: STModification[]) => (undefined),
+    getLibrariesList: (version: string) => (Promise.resolve({} as any)),
     currentFile: {
         content: "",
         path: "",
@@ -58,6 +59,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         updateModel,
         formArgs,
         validateStatement,
+        getLibrariesList,
         ...restProps
     } = props;
 
@@ -75,6 +77,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                 statementCtx: {
                     validateStatement
                 },
+                getLibrariesList,
                 ...restProps
             }}
         >

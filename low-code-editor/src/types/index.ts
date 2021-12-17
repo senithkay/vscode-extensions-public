@@ -16,7 +16,7 @@
 
 import {
     BallerinaConnectorInfo, ConfigOverlayFormStatus, ConfigPanelStatus, Connector,
-    DiagramEditorLangClientInterface, ExpressionEditorLangClientInterface, STModification,
+    DiagramEditorLangClientInterface, ExpressionEditorLangClientInterface, LibraryDocResponse, STModification,
     STSymbolInfo, WizardType
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ModulePart, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
@@ -110,6 +110,15 @@ export interface LowCodeEditorAPI {
     }
     project: {
         run: (args: any[]) => void;
+    }
+    library?: {
+        getLibrariesList: (version: string) => Promise<LibraryDocResponse>;
+    }
+}
+
+export interface LowCodeEditorLibrary {
+    library: {
+        getLibrariesList: (version: string) => Promise<LibraryDocResponse>;
     }
 }
 

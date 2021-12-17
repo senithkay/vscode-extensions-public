@@ -1,6 +1,11 @@
 import * as React from "react";
 
-import { DiagramEditorLangClientInterface, PerformanceAnalyzerGraphResponse, PerformanceAnalyzerRealtimeResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    DiagramEditorLangClientInterface,
+    LibraryDocResponse,
+    PerformanceAnalyzerGraphResponse,
+    PerformanceAnalyzerRealtimeResponse
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { DiagramGenerator } from "..";
 import { LowcodeEvent } from "../../Diagram/models";
@@ -35,6 +40,7 @@ export interface EditorAPI {
     resolveMissingDependencyByCodeAction: (filePath: string, fileContent: string, diagnostic: any) => Promise<boolean>;
     runCommand: (command: PALETTE_COMMANDS, args: any[]) => Promise<boolean>;
     sendTelemetryEvent: (event: LowcodeEvent) => Promise<void>;
+    getLibrariesList: (version: string) => Promise<LibraryDocResponse>;
 }
 
 export enum PALETTE_COMMANDS {
@@ -49,7 +55,8 @@ export type EditorProps = EditorState & EditorAPI;
 export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
 
     const { getFileContent, updateFileContent, gotoSource, getPFSession,
-            showPerformanceGraph, getPerfDataFromChoreo, sendTelemetryEvent, showMessage, resolveMissingDependency, resolveMissingDependencyByCodeAction, runCommand, ...restProps } = props;
+            showPerformanceGraph, getPerfDataFromChoreo, sendTelemetryEvent, showMessage, resolveMissingDependency,
+            resolveMissingDependencyByCodeAction, runCommand, getLibrariesList, ...restProps } = props;
     const [state, setState] = React.useState<EditorState>(restProps);
 
     React.useEffect(() => {
@@ -72,6 +79,7 @@ export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
                     resolveMissingDependencyByCodeAction={resolveMissingDependencyByCodeAction}
                     runCommand={runCommand}
                     sendTelemetryEvent={sendTelemetryEvent}
+                    getLibrariesList={getLibrariesList}
                     panX="-30"
                     panY="0"
                     scale="0.9"
