@@ -30,6 +30,7 @@ export interface FormGeneratorProps {
   // this model clean up or remove this
 }
 
+// Copy of this interface is maintained in low-code-commons
 export interface InjectableItem {
   id: string;
   modification: STModification;
@@ -37,6 +38,7 @@ export interface InjectableItem {
   value?: string;
 }
 
+// Copy of this interface is maintained in low-code-commons
 export interface ExpressionInjectablesProps {
   list: InjectableItem[];
   setInjectables: (InjectableItem: InjectableItem[]) => void;
