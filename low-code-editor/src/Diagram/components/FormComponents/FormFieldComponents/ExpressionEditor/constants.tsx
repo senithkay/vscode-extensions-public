@@ -5,6 +5,8 @@ export const acceptedKind: CompletionItemKind[] = [
     24 as CompletionItemKind,
     // Value
     12 as CompletionItemKind,
+    // Keyword
+    14 as CompletionItemKind,
     // Property
     10 as CompletionItemKind,
     // Variable
