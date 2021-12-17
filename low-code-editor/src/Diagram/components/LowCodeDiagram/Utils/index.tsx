@@ -111,6 +111,11 @@ export function getDraftComponent(viewState: BlockViewState, state: any, insertC
                 case "Custom":
                     draftComponents.push(<DataProcessor model={null} blockViewState={viewState} />);
                     break;
+                case "HTTP":
+                    draftComponents.push(
+                        <ConnectorProcess model={null} specialConnectorName={"HTTP"} blockViewState={viewState} />
+                    );
+                    break;
                 case "Respond":
                     draftComponents.push(<Respond blockViewState={viewState} />);
                     break;

@@ -55,17 +55,17 @@ while {{{ VARIABLE }}} is record {|record {} value;|} {
     SERVICE_AND_LISTENER_DECLARATION: `
 listener http:Listener {{{ LISTENER_NAME }}} = new ({{{ PORT }}});
 
-service /{{{ BASE_PATH }}} on {{{ LISTENER_NAME }}} {
+service {{{ BASE_PATH }}} on {{{ LISTENER_NAME }}} {
     resource function get .() returns error? {
     }
 }`,
     SERVICE_DECLARATION_WITH_NEW_INLINE_LISTENER: `
-service /{{{ BASE_PATH }}} on new http:Listener({{{ PORT }}}) {
+service {{{ BASE_PATH }}} on new http:Listener({{{ PORT }}}) {
     resource function get .() returns error? {
     }
 }`,
     SERVICE_DECLARATION_WITH_SHARED_LISTENER: `
-service /{{{ BASE_PATH }}} on {{{ LISTENER_NAME }}} {
+service {{{ BASE_PATH }}} on {{{ LISTENER_NAME }}} {
     resource function get .() returns error? {
     }
 }`,
@@ -80,11 +80,11 @@ listener http:Listener {{{ LISTENER_NAME }}} = new ({{{ PORT }}});
     SERVICE_WITH_LISTENER_DECLARATION_UPDATE: `
 listener http:Listener {{{ LISTENER_NAME }}} = new ({{{ PORT }}});
 
-service /{{{ BASE_PATH }}} on {{{ LISTENER_NAME }}}`,
+service {{{ BASE_PATH }}} on {{{ LISTENER_NAME }}}`,
     SERVICE_DECLARATION_WITH_INLINE_LISTENER_UPDATE: `
-service /{{{ BASE_PATH }}} on new http:Listener({{{ PORT }}})`,
+service {{{ BASE_PATH }}} on new http:Listener({{{ PORT }}})`,
     SERVICE_DECLARATION_WITH_SHARED_LISTENER_UPDATE: `
-service /{{{ BASE_PATH }}} on {{{ LISTENER_NAME }}}`,
+service {{{ BASE_PATH }}} on {{{ LISTENER_NAME }}}`,
     MODULE_VAR_DECL_WITH_INIT: `
 {{{ACCESS_MODIFIER}}} {{{VAR_QUALIFIER}}} {{{VAR_TYPE}}} {{{VAR_NAME}}} = {{{VAR_VALUE}}};`,
     CONSTANT_DECLARATION: `

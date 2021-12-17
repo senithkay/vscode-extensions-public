@@ -46,6 +46,7 @@ import {
     updateFunctionSignature,
     updatePropertyStatement,
 } from "../../../../../utils/modification-util";
+import { ModuleIcon } from "../../../../LowCodeDiagram/Components/RenderingComponents/Connector/ConnectorHeader/ModuleIcon";
 import {
     checkDBConnector,
     genVariableName,
@@ -140,7 +141,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
         }
     }, []);
 
-    const connectorInitFormFields: FormField[] = functionDefInfo?.get("init")?.parameters;
+    const connectorInitFormFields: FormField[] = functionDefInfo?.get("init")?.parameters || [];
 
     // managing name set by the non oauth connectors
     config.name =
@@ -203,7 +204,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
         let importCounts: number = 0;
         if (STKindChecker.isModulePart(syntaxTree)) {
             (syntaxTree as ModulePart).imports?.forEach((imp) => {
-                if (imp.typeData.symbol.id.orgName === orgName && imp.typeData.symbol.id.moduleName === `${moduleName}.driver`) {
+                if (imp.typeData?.symbol.id.orgName === orgName && imp.typeData?.symbol.id.moduleName === `${moduleName}.driver`) {
                     importCounts = importCounts + 1;
                 }
             })
@@ -271,6 +272,13 @@ export function ConnectorForm(props: FormGeneratorProps) {
             modifications.push(item.modification);
         });
 
+        if (isInitReturnError || currentActionReturnType.hasError) {
+            const functionSignature = updateFunctionSignatureWithError();
+            if (functionSignature) {
+                modifications.push(functionSignature);
+            }
+        }
+
         if (isNewConnectorInitWizard && !isAction) {
             const addImport: STModification = createImportStatement(connector.package.organization, connectorModule, targetPosition);
             modifications.push(addImport);
@@ -302,13 +310,6 @@ export function ConnectorForm(props: FormGeneratorProps) {
             const resultUniqueName = genVariableName("recordResult", getAllVariables(stSymbolInfo));
             const addQueryWhileStatement = createQueryWhileStatement(resultUniqueName, targetPosition);
             modifications.push(addQueryWhileStatement);
-        }
-
-        if (isInitReturnError || currentActionReturnType.hasError) {
-            const functionSignature = updateFunctionSignatureWithError();
-            if (functionSignature) {
-                modifications.push(functionSignature);
-            }
         }
 
         if (modifications.length > 0) {
@@ -443,7 +444,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
     let connectorComponent: ReactNode = null;
 
     if (functionDefInfo) {
-        if (connectorModule === "http") {
+        if (connector.moduleName === "http" && connector.name === "Client") {
             connectorComponent = getConnectorComponent(connectorModule + connector.name, {
                 functionDefinitions: functionDefInfo,
                 connectorConfig: config,
@@ -461,7 +462,9 @@ export function ConnectorForm(props: FormGeneratorProps) {
                 <div className={wizardClasses.fullWidth}>
                     <div className={wizardClasses.topTitleWrapper}>
                         <div className={wizardClasses.titleWrapper}>
-                            <div className={wizardClasses.connectorIconWrapper}>{getModuleIcon(connector, 0.5)}</div>
+                            <div className={wizardClasses.connectorIconWrapper}>
+                                <ModuleIcon module={connector} scale={0.5}/>
+                            </div>
                             <Typography className={wizardClasses.configTitle} variant="h4">
                                 {connectorName}
                             </Typography>
