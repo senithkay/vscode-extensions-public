@@ -622,20 +622,20 @@ export class ExtendedLangClient extends LanguageClient {
 
     pushLSClientTelemetries() {
         if (this.timeConsumption.completion.length > 0) {
-            const completionValues = calculateTelemetryValues(this.timeConsumption.completion);
-            sendTelemetryEvent(this.ballerinaExtInstance!, TM_EVENT_LANG_CLIENT, CMP_LS_CLIENT_COMPLETIONS, completionValues);
+            const completionValues = calculateTelemetryValues(this.timeConsumption.completion, 'completion');
+            sendTelemetryEvent(this.ballerinaExtInstance!, TM_EVENT_LANG_CLIENT, CMP_LS_CLIENT_COMPLETIONS, '', completionValues);
             this.timeConsumption.completion = [];
         }
 
         if (this.timeConsumption.diagnostics.length > 0) {
-            const diagnosticValues = calculateTelemetryValues(this.timeConsumption.diagnostics);
+            const diagnosticValues = calculateTelemetryValues(this.timeConsumption.diagnostics, 'diagnostic');
             this.timeConsumption.diagnostics = [];
-            sendTelemetryEvent(this.ballerinaExtInstance!, TM_EVENT_LANG_CLIENT, CMP_LS_CLIENT_DIAGNOSTICS, diagnosticValues);
+            sendTelemetryEvent(this.ballerinaExtInstance!, TM_EVENT_LANG_CLIENT, CMP_LS_CLIENT_DIAGNOSTICS, '', diagnosticValues);
         }
     }
 }
 
-function calculateTelemetryValues(array: number[]): any {
+function calculateTelemetryValues(array: number[], name: string): any {
     let values = {};
     let total = 0;
     let min = 99999999999;
@@ -649,8 +649,8 @@ function calculateTelemetryValues(array: number[]): any {
             min = array[i];
         }
     }
-    values['average'] = total / array.length;
-    values['min'] = min;
-    values['max'] = max;
+    values[name + '-average'] = total / array.length;
+    values[name + '-min'] = min;
+    values[name + '-max'] = max;
     return values;
 }

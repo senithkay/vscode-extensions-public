@@ -67,7 +67,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 
     if (ballerinaExtInstance?.getCodeServerContext().codeServerEnv) {
         schedule.scheduleJob('* * * * *', function () {
-            debug(`Publish LS API time consumption telemetry at ${new Date()}`);
+            debug(`Publish LS client telemetry at ${new Date()}`);
             langClient.pushLSClientTelemetries();
         });
     }
