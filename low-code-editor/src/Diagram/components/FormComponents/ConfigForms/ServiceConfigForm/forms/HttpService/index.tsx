@@ -93,7 +93,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
 
     const updateResourcePathValidation = (_name: string, isInValid: boolean) => setIsValidPath(!isInValid);
 
-    const getAbsolutePath = () => {
+    const getAbsolutePathPositions = () => {
         const resourcePath = model?.absoluteResourcePath;
         if (Array.isArray(resourcePath)) {
             if (resourcePath.length) {
@@ -151,7 +151,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         customProps: {
             validate: updateResourcePathValidation,
             interactive: true,
-            editPosition: getAbsolutePath(),
+            editPosition: getAbsolutePathPositions(),
             customTemplate: getCustomTemplate(),
         },
         onChange: onBasePathChange,
