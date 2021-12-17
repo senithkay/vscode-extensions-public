@@ -39,6 +39,7 @@ import { showChoreoSigninMessage } from "../forecaster";
 import { debug } from "../utils";
 
 export const CONNECTOR_LIST_CACHE = "CONNECTOR_LIST_CACHE";
+export const HTTP_CONNECTOR_LIST_CACHE = "HTTP_CONNECTOR_LIST_CACHE";
 export const BALLERINA_LANG_ID = "ballerina";
 const NOT_SUPPORTED = {};
 
@@ -372,6 +373,11 @@ export class ExtendedLangClient extends LanguageClient {
         }
         if (!reset && params.query === "" && !params.keyword && !params.organization && !params.offset) {
             let connectorList = this.ballerinaExtInstance?.context?.globalState.get(CONNECTOR_LIST_CACHE) as BallerinaConnectorsResponse;
+            if (connectorList && connectorList.central?.length > 0) {
+                return Promise.resolve().then(() => connectorList);
+            }
+        } else if (!reset && params.query === "http" && !params.keyword && !params.organization && !params.offset) {
+            const connectorList = this.ballerinaExtInstance?.context?.globalState.get(HTTP_CONNECTOR_LIST_CACHE) as BallerinaConnectorsResponse;
             if (connectorList && connectorList.central?.length > 0) {
                 return Promise.resolve().then(() => connectorList);
             }
