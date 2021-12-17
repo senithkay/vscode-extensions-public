@@ -23,6 +23,7 @@ const useStyles = makeStyles((theme: Theme) =>
             marginTop: theme.spacing(2),
             height: '80vh',
             overflowY: 'scroll',
+            scrollbarWidth: 'none',
         },
         balModuleSectionWrap: {
             marginTop: theme.spacing(6),
@@ -30,11 +31,17 @@ const useStyles = makeStyles((theme: Theme) =>
                 marginTop: 0
             }
         },
+        pageLoadingText: {
+            marginLeft: theme.spacing(2),
+        },
         container: {
             width: 540,
             height: '85vh',
             '& .MuiFormControl-marginNormal': {
                 margin: '0 !important',
+            },
+            '& #module-list-container': {
+                paddingRight: 0,
             },
         },
         msgContainer: {
@@ -44,6 +51,16 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         resultsContainer: {
             marginTop: theme.spacing(2),
+            scrollbarWidth: 'none',
+            display: 'flex',
+            alignContent: 'flex-start',
+        },
+        filterBtn: {
+            '& h5': {
+                color: theme.palette.common.black,
+                fontWeight: 400,
+                marginLeft: theme.spacing(1)
+            },
         },
         filterTagWrap: {
             maxHeight: '48px',

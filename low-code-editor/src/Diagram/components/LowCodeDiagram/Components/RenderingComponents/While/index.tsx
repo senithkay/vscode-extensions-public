@@ -16,13 +16,14 @@ import React, { ReactNode, useContext, useState } from "react"
 import { WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     BracedExpression,
+    NodePosition,
     STKindChecker,
     STNode,
     WhileStatement
 } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../Contexts/Diagram";
-import { getDiagnosticMsgs, getDraftComponent, getSTComponents } from "../../../../../utils";
+import { getDiagnosticInfo, getDraftComponent, getSTComponents } from "../../../../../utils";
 import { getConditionConfig, getRandomInt } from "../../../../../utils/diagram-util";
 import { DefaultConfig } from "../../../../../visitors/default";
 import { FormGenerator } from "../../../../FormComponents/FormGenerator";
@@ -63,7 +64,7 @@ export function While(props: WhileProps) {
         props: { isCodeEditorActive, syntaxTree,  stSymbolInfo, isReadOnly, isMutationProgress, isWaitingOnWorkspace },
         api: {
             code: {
-                setCodeLocationToHighlight: setCodeToHighlight
+                gotoSource
             }
         }
     } = useContext(Context);
@@ -88,15 +89,18 @@ export function While(props: WhileProps) {
     const paddingUnfold = DefaultConfig.forEach.paddingUnfold;
     const diagnostics = modelWhile?.condition?.typeData?.diagnostics;
 
-    const diagnosticMsgs = getDiagnosticMsgs(diagnostics);
-    const whileWrapper = diagnosticMsgs ? "while-error-wrapper" : "while-wrapper" ;
+    const diagnosticMsgs = getDiagnosticInfo(diagnostics);
+
+    const diagnosticStyles = diagnosticMsgs?.severity === "ERROR" ? "while-block-error" : "while-block-warning";
+    const whileRectStyles = diagnosticMsgs ? diagnosticStyles : "while-block" ;
 
     let codeSnippet = modelWhile?.source?.trim().split('{')[0];
     let codeSnippetOnSvg = "WHILE";
 
     const errorSnippet = {
-        diagnosticMsgs,
+        diagnosticMsgs: diagnosticMsgs?.message,
         code: codeSnippet,
+        severity: diagnosticMsgs?.severity
     }
 
     if (model) {
@@ -107,7 +111,10 @@ export function While(props: WhileProps) {
     }
 
     const onClickOpenInCodeView = () => {
-        setCodeToHighlight(model?.position)
+        if (model) {
+            const position: NodePosition = model.position as NodePosition;
+            gotoSource({ startLine: position.startLine, startColumn: position.startColumn });
+        }
     }
 
     let drafts: React.ReactNode[] = [];
@@ -201,7 +208,7 @@ export function While(props: WhileProps) {
     }
 
     const unFoldedComponent = (
-        <g className="while-block" data-testid="while-block">
+        <g className={whileRectStyles} data-testid="while-block">
             <rect className="while-rect" {...rectProps} />
             <g className="while-polygon-wrapper">
                 <WhileSVG
@@ -270,7 +277,7 @@ export function While(props: WhileProps) {
     );
 
     const foldedComponent = (
-        <g className="while-block" data-testid="while-block">
+        <g className={whileRectStyles} data-testid="while-block">
             <rect className="while-rect" {...rectProps} />
             <g className="while-polygon-wrapper" onClick={onWhileHeadClick}>
                 <WhileSVG
@@ -345,7 +352,7 @@ export function While(props: WhileProps) {
     );
 
     return (
-        <g className={whileWrapper}>
+        <g className="while-wrapper">
             <g>
                 {whileComponent}
             </g>

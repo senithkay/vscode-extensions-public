@@ -23,13 +23,14 @@ import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
 interface CallStatementProps {
-    model: CallStatement
-    userInputs: VariableUserInputs
-    diagnosticHandler: (diagnostics: string) => void
+    model: CallStatement;
+    userInputs: VariableUserInputs;
+    isElseIfMember: boolean;
+    diagnosticHandler: (diagnostics: string) => void;
 }
 
 export function CallStatementC(props: CallStatementProps) {
-    const { model, userInputs, diagnosticHandler } = props;
+    const { model, userInputs, isElseIfMember, diagnosticHandler } = props;
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
@@ -37,8 +38,8 @@ export function CallStatementC(props: CallStatementProps) {
     const expressionComponent: ReactNode = (
         <ExpressionComponent
             model={model.expression}
-            isRoot={false}
             userInputs={userInputs}
+            isElseIfMember={isElseIfMember}
             diagnosticHandler={diagnosticHandler}
             isTypeDescriptor={false}
         />

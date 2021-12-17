@@ -83,6 +83,10 @@ export interface LowCodeDiagramAPI {
         closeConfigOverlayForm: () => void;
         configOverlayFormPrepareStart: () => void;
         closeConfigPanel: () => void;
+    };
+
+    code?: {
+        gotoSource: (position: { startLine: number, startColumn: number }) => void;
     }
 }
 
@@ -104,7 +108,3 @@ export interface STSymbolInfo {
     listeners: Map<string, STNode>;
 }
 
-export interface ErrorSnippet{
-    diagnosticMsgs? : string,
-    code ?: string,
-}

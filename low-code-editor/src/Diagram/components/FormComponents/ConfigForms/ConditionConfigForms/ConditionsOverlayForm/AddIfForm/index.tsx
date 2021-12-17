@@ -256,6 +256,7 @@ export function AddIfForm(props: IfProps) {
             config: condition,
             onWizardClose,
             handleStatementEditorChange,
+            onCancel,
             currentFile,
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram
@@ -265,7 +266,7 @@ export function AddIfForm(props: IfProps) {
     const ElseIfElement = (order: number) => {
         return (
             <div className={classes.elseBlockWrapper}>
-                <div className={classes.formCodeExpressionWrapper}>
+                <div className={classes.elseIfExpressionWrapper}>
                     <Typography variant='body2' className={classes.endCode}>{`}`}</Typography>
                     {formArgs?.wizardType === 0 && (
                         <div className={classes.formCodeMinusWrapper}>

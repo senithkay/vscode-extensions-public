@@ -158,6 +158,7 @@ export interface GetExpCompletionsParams {
     varType: string;
     varName: string;
     snippetTargetPosition: number;
+    disableFiltering?: boolean;
 }
 
 export interface ExpressionEditorProps {
@@ -191,6 +192,7 @@ export interface ExpressionEditorProps {
         start?: number;
         end?: number;
     };
+    disableFiltering?: boolean;
     expressionConfigurable?: React.FC<ExpressionConfigurableProps>;
     lowCodeEditorContext?: CustomLowCodeContext;
 }
@@ -244,7 +246,8 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         enterKeyPressed,
         onFocus,
         initialDiagnostics = [],
-        diagnosticsFilterExtraColumns
+        diagnosticsFilterExtraColumns,
+        disableFiltering
     } = customProps;
     const targetPosition = getTargetPosition(editPosition || targetPositionDraft, syntaxTree);
     const [invalidSourceCode, setInvalidSourceCode] = useState(false);
@@ -275,12 +278,6 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
     const validExpEditor = () => {
         const monacoModel = monacoRef.current?.editor?.getModel();
         const monacoValue = monacoModel?.getValue();
-        if (monacoValue) {
-            model.value = monacoValue;
-            if (onChange) {
-                onChange(monacoValue);
-            }
-        }
         validate(model.name, canIgnore ? false : monacoValue?.length === 0, isEmpty, canIgnore);
         setValidating(false);
         if (monacoRef.current) {
@@ -474,6 +471,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                 varType,
                                 varName,
                                 snippetTargetPosition,
+                                disableFiltering
                             });
                         }
                     },
@@ -697,6 +695,9 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
 
     // ExpEditor onChange
     const handleContentChange = async (currentContent: string, EOL: string, lastPressedKey: string) => {
+        if (onChange) {
+            onChange(currentContent);
+        }
         if (expressionEditorState?.name === model.name && monacoRef.current && monacoRef.current.editor.hasTextFocus()) {
             let newModel: string = null;
             let newCodeSnippet: string = "";
@@ -720,9 +721,6 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
 
             // update the change of the field
             model.value = monacoRef.current.editor.getModel().getValue();
-            if (onChange) {
-                onChange(monacoRef.current.editor.getModel().getValue());
-            }
 
             const langClient = await getExpressionEditorLangClient();
             langClient.didChange({

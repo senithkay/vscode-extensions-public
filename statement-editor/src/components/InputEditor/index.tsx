@@ -22,7 +22,6 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     BooleanLiteral,
-    NodePosition,
     NumericLiteral,
     QualifiedNameReference,
     SimpleNameReference,
@@ -37,7 +36,11 @@ import { SuggestionItem, VariableUserInputs } from "../../models/definitions";
 import { InputEditorContext } from "../../store/input-editor-context";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { SuggestionsContext } from "../../store/suggestions-context";
-import { getPartialSTForStatement } from "../../utils";
+import {
+    addStatementToTargetLine,
+    getDiagnostics,
+    sendDidChange
+} from "../../utils/ls-utils";
 import { useStatementEditorStyles } from "../styles";
 
 import {
@@ -50,6 +53,7 @@ export interface InputEditorProps {
     diagnosticHandler: (diagnostics: string) => void;
     userInputs: VariableUserInputs;
     isTypeDescriptor: boolean;
+    isToken?: boolean;
 }
 
 export function InputEditor(props: InputEditorProps) {
@@ -62,7 +66,7 @@ export function InputEditor(props: InputEditorProps) {
         diagnostic: [],
     });
 
-    const { model, statementType, diagnosticHandler, userInputs, isTypeDescriptor } = props;
+    const { model, statementType, diagnosticHandler, userInputs, isTypeDescriptor, isToken } = props;
 
     const stmtCtx = useContext(StatementEditorContext);
     const inputEditorCtx = useContext(InputEditorContext);
@@ -106,11 +110,13 @@ export function InputEditor(props: InputEditorProps) {
         || STKindChecker.isJsonTypeDesc(model)
         || STKindChecker.isVarTypeDesc(model))) {
         value = model.name.value;
+    } else if (isToken) {
+        value = model.value;
     } else {
         value = model.source;
     }
 
-    const [userInput, setUserInput] = useState(value);
+    const [userInput, setUserInput] = useState<string>(value);
 
     const targetPosition = stmtCtx.formCtx.formModelPosition;
     const textLabel = userInputs && userInputs.formField ? userInputs.formField : "modelName"
@@ -134,11 +140,9 @@ export function InputEditor(props: InputEditorProps) {
 
     useEffect(() => {
         setUserInput(value);
-        if (isEditing) {
-            handleContentChange(currentContent).then(() => {
-                handleOnOutFocus().then();
-            });
-        }
+        handleContentChange(currentContent).then(() => {
+            handleOnOutFocus().then();
+        });
     }, [value]);
 
     useEffect(() => {
@@ -147,33 +151,9 @@ export function InputEditor(props: InputEditorProps) {
         }
     }, [isEditing, userInput]);
 
-    async function addStatementToTargetLine(currentFileContent: string, position: NodePosition, currentStatement: string): Promise<string> {
-        const modelContent: string[] = currentFileContent.split(/\n/g) || [];
-        if (position?.startColumn && position?.endColumn && position?.endLine) {
-            return getModifiedStatement(currentStatement, position);
-        } else {
-            modelContent.splice(position?.startLine, 0, currentStatement);
-            return modelContent.join('\n');
-        }
-    }
-
-    async function getModifiedStatement(codeSnippet: string, position: NodePosition): Promise<string> {
-        const stModification = {
-            startLine: position.startLine,
-            startColumn: position.startColumn,
-            endLine: position.endLine,
-            endColumn: position.endColumn,
-            newCodeSnippet: codeSnippet
-        }
-        const partialST: STNode = await getPartialSTForStatement({
-            codeSnippet: currentFile.content,
-            stModification
-        }, getLangClient);
-        return partialST.source;
-    }
-
     const handleOnFocus = async (currentStatement: string, EOL: string) => {
-        const initContent: string = await addStatementToTargetLine(currentFile.content, targetPosition, currentStatement);
+        const initContent: string = await addStatementToTargetLine(
+            currentFile.content, targetPosition, currentStatement, getLangClient);
 
         inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
         inputEditorState.content = initContent;
@@ -187,22 +167,8 @@ export function InputEditor(props: InputEditorProps) {
                 version: 1
             }
         });
-        langClient.didChange({
-            contentChanges: [
-                {
-                    text: inputEditorState.content
-                }
-            ],
-            textDocument: {
-                uri: inputEditorState.uri,
-                version: 1
-            }
-        });
-        const diagResp = await langClient.getDiagnostics({
-            documentIdentifier: {
-                uri: inputEditorState.uri,
-            }
-        })
+        sendDidChange(inputEditorState.uri, inputEditorState.content, getLangClient).then();
+        const diagResp = await getDiagnostics(inputEditorState.uri, getLangClient);
         setInputEditorState({
             ...inputEditorState,
             diagnostic: diagResp[0]?.diagnostics ? getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) : []
@@ -221,28 +187,14 @@ export function InputEditor(props: InputEditorProps) {
     }
 
     const handleContentChange = async (currentStatement: string, currentCodeSnippet?: string) => {
-        const initContent: string = await addStatementToTargetLine(currentFile.content, targetPosition, currentStatement);
+        const initContent: string = await addStatementToTargetLine(
+            currentFile.content, targetPosition, currentStatement, getLangClient);
 
         inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
         inputEditorState.content = initContent;
         inputEditorState.uri = fileURI;
-        const langClient = await getLangClient();
-        langClient.didChange({
-            contentChanges: [
-                {
-                    text: inputEditorState.content
-                }
-            ],
-            textDocument: {
-                uri: inputEditorState.uri,
-                version: 1
-            }
-        });
-        const diagResp = await langClient.getDiagnostics({
-            documentIdentifier: {
-                uri: inputEditorState.uri,
-            }
-        })
+        sendDidChange(inputEditorState.uri, inputEditorState.content, getLangClient).then();
+        const diagResp = await getDiagnostics(inputEditorState.uri, getLangClient);
         setInputEditorState({
             ...inputEditorState,
             diagnostic: diagResp[0]?.diagnostics ? getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) : []
@@ -267,28 +219,7 @@ export function InputEditor(props: InputEditorProps) {
         });
     }
 
-    const revertContent = async () => {
-        if (inputEditorState?.uri) {
-            inputEditorState.name = userInputs && userInputs.formField ? userInputs.formField : "modelName";
-            inputEditorState.content = (currentFile.content);
-            inputEditorState.uri = inputEditorState?.uri;
-
-            await getLangClient().then(async (langClient: ExpressionEditorLangClientInterface) => {
-                await langClient.didChange({
-                    contentChanges: [
-                        {
-                            text: inputEditorState.content
-                        }
-                    ],
-                    textDocument: {
-                        uri: inputEditorState.uri,
-                        version: 1
-                    }
-                });
-            });
-        }
-    }
-
+    // TODO: To be removed with expression editor integration
     const getContextBasedCompletions = async (codeSnippet: string) => {
         const completionParams: CompletionParams = {
             textDocument: {
@@ -336,10 +267,6 @@ export function InputEditor(props: InputEditorProps) {
         });
     }
 
-    if (stmtCtx.formCtx.onCancel) {
-        revertContent().then();
-    }
-
     const inputEnterHandler = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === "Enter" || event.key === "Tab" || event.key === "Escape") {
             setIsEditing(false);
@@ -380,7 +307,9 @@ export function InputEditor(props: InputEditorProps) {
     const debouncedContentChange = debounce(handleContentChange, 500);
 
     const handleDoubleClick = () => {
-        setIsEditing(true);
+        if (!isToken){
+            setIsEditing(true);
+        }
     };
 
     const handleEditEnd = () => {

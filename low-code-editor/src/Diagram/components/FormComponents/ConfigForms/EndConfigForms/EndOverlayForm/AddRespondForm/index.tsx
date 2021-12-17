@@ -158,7 +158,15 @@ export function AddRespondForm(props: RespondFormProps) {
                     value: respondFormConfig.responseCode,
                     type: PrimitiveBalType.Int,
                 }}
-                customProps={{ validate: statusCodeValidateExpression, statementType: PrimitiveBalType.Int }}
+                customProps={{
+                    validate: statusCodeValidateExpression,
+                    statementType: PrimitiveBalType.Int,
+                    customTemplate: {
+                        defaultCodeSnippet: 'http:Response temp14U3resp = new; temp14U3resp.statusCode = ;',
+                        targetColumn: 61
+                    },
+                    editPosition: formArgs.targetPosition,
+                }}
                 onChange={onStatusCodeChange}
                 expressionConfigurable={ExpressionConfigurable}
                 lowCodeEditorContext={lowCodeEditorContext}
@@ -228,7 +236,12 @@ export function AddRespondForm(props: RespondFormProps) {
                                 tooltipActionText: respondStatementTooltipMessages.actionText,
                                 tooltipActionLink: respondStatementTooltipMessages.actionLink,
                                 interactive: true,
-                                statementType
+                                statementType,
+                                customTemplate: {
+                                    defaultCodeSnippet: 'checkpanic caller->respond( );',
+                                    targetColumn: 28
+                                },
+                                editPosition: formArgs.targetPosition,
                             }}
                             onChange={onExpressionChange}
                         />

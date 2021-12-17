@@ -642,6 +642,7 @@ export const getStandardExpCompletions = async ({
     varType,
     varName,
     snippetTargetPosition,
+    disableFiltering
 }: GetExpCompletionsParams): Promise<monaco.languages.CompletionList> => {
     const langClient: ExpressionEditorLangClientInterface = await getExpressionEditorLangClient(langServerURL);
     const values: CompletionResponse[] = await langClient.getCompletion(completionParams);
@@ -692,7 +693,7 @@ export const getStandardExpCompletions = async ({
         completionItems.push(completionItemTemplate1);
     }
 
-    const filteredCompletionItem: CompletionResponse[] = values.filter((completionResponse: CompletionResponse) => (
+    const filteredCompletionItem: CompletionResponse[] = disableFiltering ? values : values.filter((completionResponse: CompletionResponse) => (
         (!completionResponse.kind || acceptedKind.includes(completionResponse.kind as CompletionItemKind)) &&
         completionResponse.label !== varName &&
         completionResponse.label !== model.aiSuggestion &&

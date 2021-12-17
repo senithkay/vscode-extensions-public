@@ -26,7 +26,7 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../Contexts/Diagram";
-import { getDiagnosticMsgs } from "../../../../../utils";
+import { getDiagnosticInfo } from "../../../../../utils";
 import { getOverlayFormConfig, getRandomInt } from "../../../../../utils/diagram-util";
 import { getMethodCallFunctionName, getStatementTypesFromST } from "../../../../../utils/st-util";
 import { DefaultConfig } from "../../../../../visitors/default";
@@ -55,7 +55,7 @@ export function DataProcessor(props: ProcessorProps) {
         actions: { diagramCleanDraw, toggleDiagramOverlay },
         api: {
             code: {
-                setCodeLocationToHighlight: setCodeToHighlight,
+                gotoSource
             }
         },
         props: {
@@ -84,7 +84,7 @@ export function DataProcessor(props: ProcessorProps) {
     let isLogStmt = false;
 
     let isReferencedVariable = false;
-    const diagnosticMsgs = getDiagnosticMsgs(diagnostics);
+    const diagnosticMsgs = getDiagnosticInfo(diagnostics);
 
     if (model) {
         processType = "Variable";
@@ -132,8 +132,9 @@ export function DataProcessor(props: ProcessorProps) {
         processType = draftViewState.subType;
     }
     const errorSnippet = {
-        diagnosticMsgs,
+        diagnosticMsgs: diagnosticMsgs?.message,
         code: sourceSnippet,
+        severity: diagnosticMsgs?.severity
     }
     const h: number = viewState.dataProcess.h;
     const w: number = viewState.dataProcess.w;
@@ -192,7 +193,10 @@ export function DataProcessor(props: ProcessorProps) {
     };
 
     const onClickOpenInCodeView = () => {
-        setCodeToHighlight(model.position)
+        if (model) {
+            const position: NodePosition = model.position as NodePosition;
+            gotoSource({ startLine: position.startLine, startColumn: position.startColumn });
+        }
     }
 
     const toolTip = isReferencedVariable ? "Variable is referred in the code below" : undefined;
@@ -244,13 +248,13 @@ export function DataProcessor(props: ProcessorProps) {
     }
 
     const processWrapper = isDraftStatement ? "main-process-wrapper active-data-processor" : "main-process-wrapper data-processor";
-    const processStyles = diagnosticMsgs && !isDraftStatement ? "main-process-wrapper data-processor-error " : processWrapper;
+
     const prosessTypes = (processType === "Log" || processType === "Call");
 
     const component: React.ReactNode = (!viewState.collapsed &&
         (
             <g>
-                <g className={processStyles} data-testid="data-processor-block" z-index="1000" >
+                <g className={processWrapper} data-testid="data-processor-block" z-index="1000" >
                     <React.Fragment>
                         {(processType !== "Log" && processType !== "Call") && !isDraftStatement &&
                             <>
