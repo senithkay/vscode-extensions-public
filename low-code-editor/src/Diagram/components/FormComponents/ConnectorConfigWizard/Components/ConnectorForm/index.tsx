@@ -203,7 +203,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
         let importCounts: number = 0;
         if (STKindChecker.isModulePart(syntaxTree)) {
             (syntaxTree as ModulePart).imports?.forEach((imp) => {
-                if (imp.typeData.symbol.id.orgName === orgName && imp.typeData.symbol.id.moduleName === `${moduleName}.driver`) {
+                if (imp.typeData?.symbol.id.orgName === orgName && imp.typeData?.symbol.id.moduleName === `${moduleName}.driver`) {
                     importCounts = importCounts + 1;
                 }
             })
@@ -266,6 +266,13 @@ export function ConnectorForm(props: FormGeneratorProps) {
             modifications.push(item.modification);
         });
 
+        if (isInitReturnError || currentActionReturnType.hasError) {
+            const functionSignature = updateFunctionSignatureWithError();
+            if (functionSignature) {
+                modifications.push(functionSignature);
+            }
+        }
+
         if (isNewConnectorInitWizard && !isAction) {
             const addImport: STModification = createImportStatement(connector.package.organization, connectorModule, targetPosition);
             modifications.push(addImport);
@@ -291,13 +298,6 @@ export function ConnectorForm(props: FormGeneratorProps) {
             const addActionInvocation = createPropertyStatement(actionStatement, targetPosition);
             modifications.push(addActionInvocation);
             onActionAddEvent();
-        }
-
-        if (isInitReturnError || currentActionReturnType.hasError) {
-            const functionSignature = updateFunctionSignatureWithError();
-            if (functionSignature) {
-                modifications.push(functionSignature);
-            }
         }
 
         if (modifications.length > 0) {
