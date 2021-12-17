@@ -180,7 +180,7 @@ function resolveMissingDependencyByCodeAction(filePath: string, fileContent: str
 function resolveMissingDependency(filePath: string, fileContent: string, langClient: ExtendedLangClient) {
 	// Show the progress bar.
 	window.withProgress({
-		location: ProgressLocation.Notification,
+		location: ProgressLocation.Window,
 		title: "Resolving dependencies...",
 		cancellable: false
 	}, async (progress) => {

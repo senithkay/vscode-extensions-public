@@ -36,6 +36,7 @@ import { showChoreoPushMessage } from "../editor-support/git-status";
 import { MESSAGE_TYPE } from "../utils/showMessage";
 import { Values } from "../forecaster/model";
 import { showChoreoSigninMessage } from "../forecaster";
+import { debug } from "../utils";
 
 export const CONNECTOR_LIST_CACHE = "CONNECTOR_LIST_CACHE";
 export const HTTP_CONNECTOR_LIST_CACHE = "HTTP_CONNECTOR_LIST_CACHE";
@@ -316,6 +317,7 @@ export class ExtendedLangClient extends LanguageClient {
     }
 
     didOpen(params: DidOpenParams): void {
+        debug(`didOpen at ${new Date()} - ${new Date().getTime()}`);
         this.sendNotification("textDocument/didOpen", params);
     }
     registerPublishDiagnostics(): void {
@@ -323,9 +325,11 @@ export class ExtendedLangClient extends LanguageClient {
         });
     }
     didClose(params: DidCloseParams): void {
+        debug(`didClose at ${new Date()} - ${new Date().getTime()}`);
         this.sendNotification("textDocument/didClose", params);
     }
     didChange(params: DidChangeParams): void {
+        debug(`didChange at ${new Date()} - ${new Date().getTime()}`);
         this.sendNotification("textDocument/didChange", params);
     }
     getPerformanceGraphData(params: PerformanceAnalyzerGraphRequest): Promise<PerformanceAnalyzerGraphResponse> {

@@ -1,3 +1,5 @@
+import { debug } from "../utils";
+
 /**
  * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
@@ -51,6 +53,11 @@ export class ChoreoAuthConfig {
         process.env.VSCODE_CHOREO_APIM_TOKEN_ENDPOINT : "https://apim.preview-dv.choreo.dev/oauth2/token";
     private scope: string = "openid";
     private googleFIdp: string = "google-choreo";
+
+    constructor() {
+        debug(`VSCODE_CHOREO_APIM_CLIENT_ID: ${process.env.VSCODE_CHOREO_APIM_CLIENT_ID} \napimClientId: ${this.apimClientId}`);
+        debug(`VSCODE_CHOREO_APIM_TOKEN_ENDPOINT: ${process.env.VSCODE_CHOREO_APIM_TOKEN_ENDPOINT} \napimTokenUrl: ${this.apimTokenUrl}`);
+    }
 
     public getApimClientId(): string {
         return this.apimClientId;

@@ -22,6 +22,7 @@ import {
 import { ExplorerTreeItem, EXPLORER_ITEM_KIND, FILE_EXTENSION, FILE_NAME, TREE_ELEMENT_EXECUTE_COMMAND } from "./model";
 import * as fs from 'fs';
 import * as path from 'path';
+import { debug } from "../utils";
 
 /**
  * Tree data provider for explorer view.
@@ -39,10 +40,18 @@ export class ExplorerDataProvider implements TreeDataProvider<ExplorerTreeItem> 
         });
 
         const fileWatcher = workspace.createFileSystemWatcher("**/*", false, true, false);
-        fileWatcher.onDidCreate(_listeners => {
+        fileWatcher.onDidCreate(listener => {
+            if (path.dirname(listener.fsPath).split(path.sep).pop() === '.git') {
+                return;
+            }
+            debug(`Refresh diagram explorer view for ${listener.fsPath} create.`);
             this.refresh();
         });
-        fileWatcher.onDidDelete(_listener => {
+        fileWatcher.onDidDelete(listener => {
+            if (path.dirname(listener.fsPath).split(path.sep).pop() === '.git') {
+                return;
+            }
+            debug(`Refresh diagram explorer view for ${listener.fsPath} delete`);
             this.refresh();
         })
     }
@@ -123,6 +132,7 @@ export class ExplorerDataProvider implements TreeDataProvider<ExplorerTreeItem> 
 
     refresh(): void {
         this._onDidChangeTreeData.fire(undefined);
+        debug("Refresh diagram explorer view.");
     }
 
     private addChildrenTreeItems(children: [string, FileType][], parentPath: string, files: ExplorerTreeItem[]):

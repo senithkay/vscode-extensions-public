@@ -202,7 +202,6 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         if (construct.kind == EXPLORER_ITEM_KIND.BAL_FILE) {
             showDiagramEditor(construct.startLine, construct.startColumn, construct.filePath);
             ballerinaExtInstance.getDocumentContext().setLatestDocument(Uri.file(construct.filePath));
-            explorerDataProvider.refresh();
         }
     });
 
