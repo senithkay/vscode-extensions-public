@@ -29,7 +29,7 @@ import "../style.scss";
 
 export function TriggerForm(props: FormGeneratorProps) {
     const { onCancel, onSave, targetPosition, configOverlayFormStatus } = props
-    const { formArgs, isLoading } = configOverlayFormStatus;
+    const { formArgs, isLoading, isLastMember } = configOverlayFormStatus;
     const { id, moduleName, displayAnnotation: { label } } = formArgs;
     const formClasses = useFormStyles();
     const [selectedChannels, setSelectedChannels] = useState<string[]>([]);
@@ -103,7 +103,7 @@ export function TriggerForm(props: FormGeneratorProps) {
         let httpBased: boolean = true;
         const triggerStr = triggerInfo.moduleName.split(".");
         const triggerType = triggerStr[triggerStr.length - 1];
-        if (triggerType === 'sfdc' || triggerType === 'asb') {
+        if (triggerType === 'sfdc' || triggerType === 'asb' || triggerType === 'salesforce') {
             httpBased = false;
         }
         const newListenerParams = handleListenerParamTypes(triggerInfo, triggerType)
@@ -116,12 +116,12 @@ export function TriggerForm(props: FormGeneratorProps) {
         const httpStModification = [
             createImportStatement("ballerina", "http", targetPosition),
             createImportStatement("ballerinax", moduleName, targetPosition),
-            createTrigger(newTriggerInfo, targetPosition)
+            createTrigger(newTriggerInfo, targetPosition, isLastMember)
         ];
 
         const nonHttpStModification = [
             createImportStatement("ballerinax", moduleName, targetPosition),
-            createTrigger(newTriggerInfo, targetPosition)
+            createTrigger(newTriggerInfo, targetPosition, isLastMember)
         ];
         modifyDiagram(httpBased ? httpStModification : nonHttpStModification);
         onSave();

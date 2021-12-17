@@ -29,13 +29,14 @@ export interface FormProps {
     size?: "small" | "medium",
     expressionInjectables?: ExpressionInjectablesProps;
     editPosition?: NodePosition;
+    expandOptionals?: boolean;
 }
 
 const isAllDefaultableFields = (recordFields: FormField[]): boolean =>
     recordFields?.every((field) => field.defaultValue || (field.fields && isAllDefaultableFields(field.fields)));
 
 export function Form(props: FormProps) {
-    const { fields, onValidate, expressionInjectables, editPosition } = props;
+    const { fields, onValidate, expressionInjectables, editPosition, expandOptionals} = props;
 
     const classes = useStyles();
     const requiredElements: ReactNode[] = [];
@@ -45,6 +46,10 @@ export function Form(props: FormProps) {
     React.useEffect(() => {
         // Set form as valid if there aren't any mandatory fields
         if (fields && isAllDefaultableFields(fields)){
+            onValidate(true);
+        }
+        if (fields.length === 0){
+            // No fields to validate
             onValidate(true);
         }
     }, []);
@@ -106,6 +111,7 @@ export function Form(props: FormProps) {
                 mandatoryFields={requiredElements}
                 optionalFields={optionalElements}
                 isMandatory={false}
+                expandOptionals={expandOptionals}
             />
         </form>
     );

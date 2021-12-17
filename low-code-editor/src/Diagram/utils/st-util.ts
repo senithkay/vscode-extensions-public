@@ -344,6 +344,10 @@ export function getDraftComponentSizes(type: string, subType: string): { h: numb
                     h = PROCESS_SVG_HEIGHT;
                     w = PROCESS_SVG_WIDTH;
                     break;
+                case "HTTP":
+                    h = PROCESS_SVG_HEIGHT;
+                    w = PROCESS_SVG_WIDTH;
+                    break;
                 case "Respond":
                     h = RESPOND_SVG_HEIGHT;
                     w = RESPOND_SVG_WIDTH;

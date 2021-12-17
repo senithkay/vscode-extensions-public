@@ -80,6 +80,9 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         iconBtn: {
             padding: 0
+        },
+        segmentTypeEditor: {
+            position: "relative"
         }
     })
 );

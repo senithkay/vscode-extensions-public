@@ -12,7 +12,6 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, SyntheticEvent, useContext, useRef, useState } from "react";
-import { FormattedMessage } from "react-intl";
 
 import { Box, CircularProgress, FormControl, Grid, Typography } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
@@ -83,17 +82,18 @@ export function Marketplace(props: MarketplaceProps) {
         },
     } = useContext(Context);
 
-    const [centralModules, setCentralModules] = useState<BallerinaModule[]>([]);
-    const [localModules, setLocalModules] = useState<BallerinaModule[]>([]);
     const [isSearchResultsFetching, setIsSearchResultsFetching] = useState(true);
     const [isNextPageFetching, setIsNextPageFetching] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("");
     const [filterState, setFilterState] = useState<FilterStateMap>({});
     const [showFilters, setShowFilters] = useState(false);
+
     const currentPage = useRef(1);
     const fetchCount = useRef(0);
     const isLastPage = useRef(false);
+    const centralModules = useRef(new Map<string, BallerinaModule>());
+    const localModules = useRef(new Map<string, BallerinaModule>());
 
     const pageLimit = 18;
 
@@ -117,11 +117,11 @@ export function Marketplace(props: MarketplaceProps) {
         openConnectorHelp(balModule);
     };
 
-    const getModuleComponents = (balModules: BallerinaModule[]): ReactNode[] => {
+    const getModuleComponents = (balModules: Map<string, BallerinaModule>): ReactNode[] => {
         const componentList: ReactNode[] = [];
-        balModules?.forEach((module: BallerinaModule) => {
+        balModules?.forEach((module: BallerinaModule, key: string) => {
             const component = (
-                <ModuleCard module={module} onSelectModule={onSelectModule} columns={showFilters ? 2 : 3} />
+                <ModuleCard key={key} module={module} onSelectModule={onSelectModule} columns={showFilters ? 2 : 3} />
             );
             componentList.push(component);
         });
@@ -146,11 +146,18 @@ export function Marketplace(props: MarketplaceProps) {
             page,
         };
         const response: BallerinaModuleResponse = await props.fetchModulesList(queryParams, currentFile.path, userInfo);
-        setLocalModules(response.local);
+        response.local?.forEach((module) => {
+            localModules.current.set((module.package?.name || module.name), module);
+        });
         if (!page) {
-            setCentralModules(response.central);
+            centralModules.current.clear();
+            response.central?.forEach((module) => {
+                centralModules.current.set(module.id, module);
+            });
         } else if (response.central?.length > 0) {
-            setCentralModules([...centralModules, ...response.central]);
+            response.central.forEach((module) => {
+                centralModules.current.set(module.id, module);
+            });
         } else {
             isLastPage.current = true;
         }
@@ -195,18 +202,21 @@ export function Marketplace(props: MarketplaceProps) {
     };
 
     if (!isSearchResultsFetching) {
-        centralModuleComponents = getModuleComponents(centralModules);
-        localModuleComponents = getModuleComponents(localModules);
+        centralModuleComponents = getModuleComponents(centralModules.current);
+        localModuleComponents = getModuleComponents(localModules.current);
     }
 
     const renderModulesList = (modulesListTitle: string, modules: ReactNode[]): ReactNode => {
+        // TODO: Uncomment this when the private triggers are enabled
         return (
             <>
-                <Grid item={true} sm={12} className={classes.balModuleSectionWrap}>
-                    <Grid item={true} sm={6} md={6} lg={6}>
-                        <Typography variant="h4">{modulesListTitle}</Typography>
+                {shortName !== "Triggers" ? (
+                    <Grid item={true} sm={12} className={classes.balModuleSectionWrap}>
+                        <Grid item={true} sm={6} md={6} lg={6}>
+                            <Typography variant="h4">{modulesListTitle}</Typography>
+                        </Grid>
                     </Grid>
-                </Grid>
+                ) : null}
                 {modules}
             </>
         );
@@ -247,8 +257,8 @@ export function Marketplace(props: MarketplaceProps) {
             className={classes.balModuleListWrap}
             onScroll={handleModulesListScroll}
         >
-            {localModules?.length > 0 && renderModulesList("Local " + shortName, localModuleComponents)}
-            {centralModules?.length > 0 && renderModulesList("Public " + shortName, centralModuleComponents)}
+            {localModules.current.size > 0 && renderModulesList("Local " + shortName, localModuleComponents)}
+            {centralModules.current.size > 0 && renderModulesList("Public " + shortName, centralModuleComponents)}
             {isNextPageFetching && (
                 <Grid item={true} sm={12} className={classes.balModuleSectionWrap}>
                     <Box display="flex" justifyContent="center" alignItems="center">
@@ -319,12 +329,12 @@ export function Marketplace(props: MarketplaceProps) {
 
                         {!isSearchResultsFetching && selectedCategory !== "" && selectedCategoriesChips}
                         {!isSearchResultsFetching &&
-                            (centralModules.length > 0 || localModules.length > 0) &&
+                            (centralModules.current.size > 0 || localModules.current.size > 0) &&
                             modulesList}
 
                         {!isSearchResultsFetching &&
-                            centralModules.length === 0 &&
-                            localModules.length === 0 &&
+                            centralModules.current.size === 0 &&
+                            localModules.current.size === 0 &&
                             notFoundComponent}
                     </Grid>
                 </Grid>

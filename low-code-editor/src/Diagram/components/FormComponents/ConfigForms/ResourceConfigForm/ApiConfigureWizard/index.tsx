@@ -107,6 +107,12 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
         returnType: 'error?'
     };
 
+    const segmentTargetPosition = model ? {
+        ...model.position,
+        endLine: 0,
+        endColumn: 0,
+    } : targetPosition;
+
     const [resource, setResource] = useState<Resource>(defaultConfig);
     const [toggleMainAdvancedMenu, setToggleMainAdvancedMenu] = useState(false);
     const [togglePayload, setTogglePayload] = useState(false);
@@ -176,7 +182,7 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
 
     const onPayloadToggleSelect = (checked: boolean) => {
         setTogglePayload(!togglePayload);
-        const updatedResources = resource;
+        const updatedResources = { ...resource };
         if (!checked && (!updatedResources.payload || updatedResources.payload !== "")) {
             const segment: Payload = {
                 name: "payload",
@@ -207,20 +213,20 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
 
         const formattedPath: Resource = extractPathData(text);
         // Update path
-        const updatedResource = resource;
+        const updatedResource = { ...resource };
         updatedResource.path = formattedPath.path;
         setResource(updatedResource);
     }
 
     function handleOnChangeReturnType(text: string) {
-        setResource({
-            ...resource,
+        setResource(oldResource => ({
+            ...oldResource,
             returnType: text
-        })
+        }));
     }
 
     function handleOnChangePathFromUI(text: string) {
-        const resClone = resource;
+        const resClone = { ...resource };
         resClone.path = text;
         setResource(resClone);
         setValidateToggle(!validateToggle);
@@ -231,13 +237,13 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
         }
 
         // Update path
-        const updatedResource = resource;
+        const updatedResource = { ...resource };
         updatedResource.path = text;
         setResource(updatedResource);
     }
 
     function handleOnChangeReturnTypeFormUI(text: string) {
-        const updatedResource = resource;
+        const updatedResource = { ...resource };
         updatedResource.returnType = text;
         setResource(updatedResource);
     }
@@ -251,21 +257,21 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
         const queryParams: QueryParamCollection = convertQueryParamStringToSegments(text);
 
         // Update path
-        const updatedResource = resource;
+        const updatedResource = { ...resource };
         updatedResource.queryParams = generateQueryParamFromQueryCollection(queryParams);
         setResource(updatedResource);
     }
 
     function handleOnPayloadErrorFromUI(isError: boolean) {
         // Update path
-        const updatedResource = resource;
+        const updatedResource = { ...resource };
         updatedResource.payloadError = isError;
         setResource(updatedResource);
     }
 
     function handleOnChangePayloadFromUI(segment: Payload) {
         // Update path
-        const updatedResource = resource;
+        const updatedResource = { ...resource };
         updatedResource.payload = getBallerinaPayloadType(segment);
         setResource(updatedResource);
     }
@@ -589,7 +595,12 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                     title={pathSegmentTitle}
                     tooltipWithExample={{ title, content: pathExample }}
                 >
-                    <PathEditor pathString={resource.path} defaultValue={resource.path} onChange={handleOnChangePathFromUI} />
+                    <PathEditor
+                        pathString={resource.path}
+                        defaultValue={resource.path}
+                        onChange={handleOnChangePathFromUI}
+                        targetPosition={segmentTargetPosition}
+                    />
                 </Section>
             </div>
             <div className={classes.sectionSeparator}>
@@ -597,7 +608,11 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                     title={queryParamTitle}
                     tooltipWithExample={{ title: queryParamContenttitle, content: queryParamExample }}
                 >
-                    <QueryParamEditor queryParams={resource.queryParams} onChange={handleOnChangeQueryParamFromUI} />
+                    <QueryParamEditor
+                        queryParams={resource.queryParams}
+                        onChange={handleOnChangeQueryParamFromUI}
+                        targetPosition={segmentTargetPosition}
+                    />
                 </Section>
             </div>
             <div className={classes.sectionSeparator}>

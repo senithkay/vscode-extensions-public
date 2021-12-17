@@ -37,6 +37,7 @@ export interface ConnectorProcessProps {
     model: STNode;
     blockViewState?: BlockViewState | any;
     selectedConnector?: LocalVarDecl;
+    specialConnectorName?: string;
 }
 
 export function ConnectorProcess(props: ConnectorProcessProps) {
@@ -56,7 +57,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
         },
     } = useContext(Context);
 
-    const { model, blockViewState } = props;
+    const { model, blockViewState, specialConnectorName } = props;
 
     const viewState: ViewState =
         model === null
@@ -82,8 +83,19 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
 
     const [ isEditConnector, setIsConnectorEdit ] = useState<boolean>(false);
     // const [isClosed, setIsClosed] = useState<boolean>(false);
+
+    // TODO: Update this when updating HTTP connector version
+    const httpConnector = {
+        "moduleName": "http",
+        "name": "Client",
+        "package": {
+            "organization": "ballerina",
+            "name": "http",
+            "version": "2.1.0",
+        }
+    }
     const [ connector, setConnector ] = useState<BallerinaConnectorInfo>(
-        draftVS.connector
+        specialConnectorName ? httpConnector : draftVS.connector
     );
 
     const toggleSelection = () => {
@@ -122,6 +134,10 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
     };
 
     const onConnectorFormClose = () => {
+        if (blockViewState && blockViewState.draft && specialConnectorName) {
+            blockViewState.draft = undefined;
+            diagramCleanDraw(syntaxTree);
+        }
         setIsConnectorEdit(false);
         setConnector(undefined);
     };
@@ -201,7 +217,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
                     openInCodeView={onClickOpenInCodeView}
 
                 />
-                {!model && !connector && connectorList}
+                {!model && !connector && !specialConnectorName && connectorList}
                 {connector && connectorWizard}
                 { model && !isReadOnly && !isMutationProgress && !isWaitingOnWorkspace && (
                     <g
