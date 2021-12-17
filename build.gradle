@@ -63,6 +63,7 @@ npmBuild() {
     dependsOn ':swagger-viewer:buildSwaggerViewer'
     dependsOn copyDeps
     dependsOn copyConfigEditorDeps
+    dependsOn copyPakoDeps
     PatternSet patternSet = new PatternSet();
     patternSet.exclude("**/node_modules/**");
     patternSet.exclude("**/dist/**");
@@ -71,11 +72,11 @@ npmBuild() {
     patternSet.exclude("**/coverage/**");
 
     FileTree src = files('.').asFileTree;
-    inputs.files(src.matching(patternSet))  
+    inputs.files(src.matching(patternSet))
 
     outputs.dir("out")
     outputs.dir("dist")
-    outputs.cacheIf { true } 
+    outputs.cacheIf { true }
 
     exec { commandLine 'git', 'submodule', 'update', '--init', '--recursive' }
     exec { commandLine 'git', 'submodule', 'foreach', 'git', 'pull', 'origin', 'master' }
