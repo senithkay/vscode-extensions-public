@@ -95,7 +95,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     const rule = new schedule.RecurrenceRule();
     rule.second = 2;
     schedule.scheduleJob(rule, function () {
-        debug(`Updated the git status at ${new Date()}`)
+        debug(`Updated the git status at ${new Date()}`);
         statusBarItem.updateGitStatus();
     });
 

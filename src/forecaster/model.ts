@@ -27,14 +27,14 @@ export enum ANALYZETYPE {
 }
 
 export interface GraphData {
-    name: String,
+    name: String;
     graphData: GraphPoint[];
 }
 
 export interface PFSession {
-    choreoAPI: String,
-    choreoToken: String | undefined,
-    choreoCookie?: String | undefined
+    choreoAPI: String;
+    choreoToken: String | undefined;
+    choreoCookie?: String | undefined;
 }
 
 export interface PerformanceGraphRequest {

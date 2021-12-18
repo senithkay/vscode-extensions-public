@@ -67,3 +67,11 @@ export const TM_EVENT_TEST_DEBUG_CODELENS = "execute.test.debug.codelens";
 
 // event for executing paste JSON as Record command
 export const TM_EVENT_PASTE_AS_RECORD = "execute.pasteAsRecord";
+
+// events for low-code
+export const TM_EVENT_OPEN_LOW_CODE = "editor-lowcode-editor";
+export const TM_EVENT_OPEN_CODE_EDITOR = "editor-code-editor";
+export const TM_EVENT_WORKSPACE_RUN = "editor-lowcode-workspace-run";
+export const TM_EVENT_LOW_CODE_RUN = "editor-lowcode-code-run";
+export const TM_EVENT_SWAGGER_RUN = "editor-lowcode-code-tryit";
+export const TM_EVENT_KILL_TERMINAL = "editor-terminal-kill";

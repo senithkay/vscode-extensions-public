@@ -20,19 +20,19 @@
 import axios, { Method } from "axios";
 
 interface Request {
-  url: string,
-  headers: string,
-  method: Method,
-  body?: string,
+  url: string;
+  headers: string;
+  method: Method;
+  body?: string;
 }
 interface Response {
-  status: number,
-  statusText: string,
-  data?: string,
-  text?: string,
-  body?: string,
-  obj?: string,
-  headers?: Record<string, string>,
+  status: number;
+  statusText: string;
+  data?: string;
+  text?: string;
+  body?: string;
+  obj?: string;
+  headers?: Record<string, string>;
 }
 
 const CONNECTION_REFUSED = 'ECONNREFUSED';
@@ -56,7 +56,7 @@ export class SwaggerServer {
             text: JSON.stringify(responseData),
             obj: responseData,
             headers: response.headers
-          }
+          };
           resolve(res);
         })
         .catch((error) => {
@@ -72,7 +72,7 @@ export class SwaggerServer {
               text: JSON.stringify(responseData),
               obj: responseData,
               headers: error.response.headers
-            }
+            };
             resolve(res);
           } else {
             const errorCode = error.code;

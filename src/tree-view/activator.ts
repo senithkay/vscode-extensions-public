@@ -18,7 +18,7 @@
 
 import { BallerinaExtension, BallerinaProject, ChoreoSession, ConstructIdentifier } from "../core";
 import { renderFirstDiagramElement, showDiagramEditor } from '../diagram';
-import { sendTelemetryEvent, CMP_PACKAGE_VIEW, TM_EVENT_OPEN_PACKAGE_OVERVIEW } from "../telemetry";
+import { sendTelemetryEvent, CMP_PACKAGE_VIEW, TM_EVENT_OPEN_PACKAGE_OVERVIEW, TM_EVENT_WORKSPACE_RUN } from "../telemetry";
 import { commands, Uri, window, workspace } from 'vscode';
 import {
     TREE_ELEMENT_EXECUTE_COMMAND, EXPLORER_TREE_REFRESH_COMMAND, EXPLORER_TREE_NEW_FILE_COMMAND,
@@ -98,11 +98,11 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
                     id: project.name,
                     uri: project.uri
                 });
-            })
+            });
 
             userSelection = await window.showQuickPick(projectOptions, { placeHolder: 'Select the project...' });
         } else {
-            userSelection = { uri: workspaceFolderProjects[0].uri }
+            userSelection = { uri: workspaceFolderProjects[0].uri };
         }
 
         const moduleName = await window.showInputBox({ placeHolder: 'Enter module name' });
@@ -174,7 +174,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 
             configFile = `${directory}/${CONFIG_FILE}`;
             if (!existsSync(configFile)) {
-                openSync(configFile, 'w')
+                openSync(configFile, 'w');
             }
 
             ballerinaExtInstance.setBallerinaConfigPath(configFile);
@@ -192,6 +192,8 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
             }
             showConfigEditor(ballerinaExtInstance, data.configSchema, Uri.parse(configFile));
         });
+        //editor-lowcode-workspace-run
+        sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_WORKSPACE_RUN, CMP_PACKAGE_VIEW);
     });
 
     commands.registerCommand(DOCUMENTATION_VIEW, async (url: string) => {

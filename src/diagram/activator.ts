@@ -27,7 +27,7 @@ import { CONNECTOR_LIST_CACHE, DocumentIdentifier, ExtendedLangClient, HTTP_CONN
 import { BallerinaExtension, ballerinaExtInstance, Change } from '../core';
 import { getCommonWebViewOptions, isWindows, WebViewMethod, WebViewRPCHandler } from '../utils';
 import { join } from "path";
-import { TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, sendTelemetryEvent, TM_EVENT_OPEN_DIAGRAM, sendTelemetryException } from '../telemetry';
+import { TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, sendTelemetryEvent, sendTelemetryException, TM_EVENT_OPEN_LOW_CODE, TM_EVENT_OPEN_CODE_EDITOR, TM_EVENT_LOW_CODE_RUN } from '../telemetry';
 import { checkErrors, CHOREO_API_PF, openPerformanceDiagram, PFSession } from '../forecaster';
 import { showMessage } from '../utils/showMessage';
 import { Module } from '../tree-view';
@@ -89,14 +89,14 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 		if (connectorList && connectorList.central?.length > 0) {
 			ballerinaExtInstance.context?.globalState.update(CONNECTOR_LIST_CACHE, connectorList);
 		}
-	})
+	});
 
 	// Reset cached HTTP connector list
 	langClient.getConnectors({ query: "http", limit: 18 }, true).then((connectorList) => {
 		if (connectorList && connectorList.central?.length > 0) {
 			ballerinaExtInstance.context?.globalState.update(HTTP_CONNECTOR_LIST_CACHE, connectorList);
 		}
-	})
+	});
 
 	// Update test view
 	createTests(Uri.parse(filePath));
@@ -118,11 +118,12 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 		commands.executeCommand('workbench.action.splitEditor');
 		commands.executeCommand('vscode.open', path);
 		//editor-code-editor
+		sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_CODE_EDITOR, CMP_DIAGRAM_VIEW);
 	});
 
 	const diagramRenderDisposable = commands.registerCommand('ballerina.show.diagram', () => {
 		//editor-lowcode-editor
-		sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_DIAGRAM, CMP_DIAGRAM_VIEW);
+		sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_LOW_CODE, CMP_DIAGRAM_VIEW);
 		return ballerinaExtInstance.onReady()
 			.then(() => {
 				showDiagramEditor(0, 0, '', true);
@@ -132,7 +133,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 				sendTelemetryException(ballerinaExtInstance, e, CMP_DIAGRAM_VIEW);
 			});
 	});
-	const context = <ExtensionContext>ballerinaExtInstance.context
+	const context = <ExtensionContext>ballerinaExtInstance.context;
 	context.subscriptions.push(diagramRenderDisposable);
 }
 
@@ -386,6 +387,7 @@ class DiagramPanel {
 				handler: async (args: any[]): Promise<boolean> => {
 					await runCommand(args[0], args[1]);
 					//editor-lowcode-code-run
+					sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_LOW_CODE_RUN, CMP_DIAGRAM_VIEW);
 					return Promise.resolve(true);
 				}
 			},
@@ -610,7 +612,7 @@ export async function renderFirstDiagramElement(client: ExtendedLangClient) {
 						fileUri: Uri.file(path),
 						startLine: mainFunctionNodes[0].endLine,
 						startColumn: mainFunctionNodes[0].endColumn - 1
-					}
+					};
 					callUpdateDiagramMethod();
 				} else if (defaultModules[0].services && defaultModules[0].services.length > 0) {
 					const path = join(folder.uri.path, defaultModules[0].services[0].filePath);
@@ -622,7 +624,7 @@ export async function renderFirstDiagramElement(client: ExtendedLangClient) {
 								fileUri: Uri.file(path),
 								startLine: defaultModules[0].services[i].resources[0].startLine,
 								startColumn: defaultModules[0].services[i].resources[0].startColumn
-							}
+							};
 							callUpdateDiagramMethod();
 							break;
 						}
@@ -635,7 +637,7 @@ export async function renderFirstDiagramElement(client: ExtendedLangClient) {
 						fileUri: Uri.file(path),
 						startLine: defaultModules[0].functions[0].endLine,
 						startColumn: defaultModules[0].functions[0].endColumn - 1
-					}
+					};
 					callUpdateDiagramMethod();
 				}
 			}

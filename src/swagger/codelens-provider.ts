@@ -24,8 +24,8 @@ import { SyntaxTree, Member } from '../diagram';
 import { PALETTE_COMMANDS } from '../project';
 
 interface Service {
-    position: Position,
-    name: string | undefined
+    position: Position;
+    name: string | undefined;
 }
 
 interface Position {
@@ -111,7 +111,7 @@ export class TryOutCodeLensProvider {
                         services.push({
                             position: service.serviceKeyword.position,
                             name: this.getResourcePath(service.absoluteResourcePath)
-                        })
+                        });
                     }
                 }
             });

@@ -53,7 +53,7 @@ export class SessionDataProvider implements TreeDataProvider<TreeItem> {
                     'resources', 'images', 'icons', 'user.svg'),
                 dark: join(this.ballerinaExtension.extension.extensionPath,
                     'resources', 'images', 'icons', 'user-inverse.svg')
-            }
+            };
             treeItems.push(session);
 
             if (this.ballerinaExtension.getCodeServerContext().codeServerEnv) {
@@ -67,7 +67,7 @@ export class SessionDataProvider implements TreeDataProvider<TreeItem> {
                         'resources', 'images', 'icons', 'choreo.svg'),
                     dark: join(this.ballerinaExtension.extension.extensionPath,
                         'resources', 'images', 'icons', 'choreo-inverse.svg')
-                }
+                };
                 treeItems.push(manage);
             }
 
@@ -82,7 +82,7 @@ export class SessionDataProvider implements TreeDataProvider<TreeItem> {
                         'resources', 'images', 'icons', 'disable.svg'),
                     dark: join(this.ballerinaExtension.extension.extensionPath,
                         'resources', 'images', 'icons', 'disable-inverse.svg')
-                }
+                };
                 treeItems.push(perf);
             } else {
                 const perf = new TreeItem(`Enable performance forecasting...`, TreeItemCollapsibleState.None);
@@ -95,7 +95,7 @@ export class SessionDataProvider implements TreeDataProvider<TreeItem> {
                         'resources', 'images', 'icons', 'enable.svg'),
                     dark: join(this.ballerinaExtension.extension.extensionPath,
                         'resources', 'images', 'icons', 'enable-inverse.svg')
-                }
+                };
                 treeItems.push(perf);
             }
 
@@ -105,7 +105,7 @@ export class SessionDataProvider implements TreeDataProvider<TreeItem> {
                     'resources', 'images', 'icons', 'signout.svg'),
                 dark: join(this.ballerinaExtension.extension.extensionPath,
                     'resources', 'images', 'icons', 'signout-inverse.svg')
-            }
+            };
             signoutItem.command = {
                 command: 'ballerina.choreo.signout',
                 title: "Sign out",

@@ -19,7 +19,7 @@
 
 import { BallerinaExtension, ExtendedLangClient } from "src/core";
 import { window } from "vscode";
-import { getTelemetryProperties, TM_ERROR_LANG_SERVER, TM_FEATURE_USAGE_LANG_SERVER } from ".";
+import { getTelemetryProperties, TM_ERROR_LANG_SERVER, TM_EVENT_KILL_TERMINAL, TM_FEATURE_USAGE_LANG_SERVER } from ".";
 
 // Language server telemetry event types
 const TM_EVENT_TYPE_ERROR = "ErrorTelemetryEvent";
@@ -61,6 +61,9 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         .catch((e) => {
             window.showErrorMessage('Could not start telemetry listener feature', e.message);
         });
+    window.onDidCloseTerminal(t => {
+        reporter.sendTelemetryEvent(TM_EVENT_KILL_TERMINAL, {});
+    });
 }
 
 interface LSTelemetryEvent {
