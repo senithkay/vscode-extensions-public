@@ -255,15 +255,6 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                         if (parseSuccess) {
                                             undoRedo.addModification(source);
                                             const pfSession = await props.getPFSession();
-                                            if (newST?.typeData?.diagnostics && newST?.typeData?.diagnostics?.length > 0) {
-                                                const { isAvailable } = isUnresolvedModulesAvailable(newST?.typeData?.diagnostics as DiagramDiagnostic[]);
-                                                if (isAvailable) {
-                                                    setModulePullInProgress(true);
-                                                    setLoaderText('Pulling packages...')
-                                                    await resolveMissingDependency(filePath, source);
-                                                    setModulePullInProgress(false);
-                                                }
-                                            }
                                             setFileContent(source);
                                             props.updateFileContent(filePath, source);
                                             const vistedSyntaxTree: STNode = await getLowcodeST(newST, filePath,
@@ -272,6 +263,15 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                             setSyntaxTree(vistedSyntaxTree);
                                             if (isDeleteModificationAvailable(mutations)) {
                                                 showMessage("Undo to revert the change you did by pressing Ctrl + Z", MESSAGE_TYPE.INFO, true);
+                                            }
+                                            if (newST?.typeData?.diagnostics && newST?.typeData?.diagnostics?.length > 0) {
+                                                const { isAvailable } = isUnresolvedModulesAvailable(newST?.typeData?.diagnostics as DiagramDiagnostic[]);
+                                                if (isAvailable) {
+                                                    setModulePullInProgress(true);
+                                                    setLoaderText('Pulling packages...');
+                                                    await resolveMissingDependency(filePath, source);
+                                                    setModulePullInProgress(false);
+                                                }
                                             }
                                         } else {
                                             // TODO show error
