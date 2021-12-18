@@ -19,6 +19,7 @@ import {
     BallerinaModule,
     BallerinaModuleResponse,
     ButtonWithIcon,
+    DiagramEditorLangClientInterface,
     FormHeaderSection,
     IconBtnWithText,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -47,6 +48,7 @@ export interface MarketplaceProps {
     fetchModulesList: (
         queryParams: SearchQueryParams,
         currentFilePath: string,
+        langClient: DiagramEditorLangClientInterface,
         userInfo?: UserState
     ) => Promise<BallerinaModuleResponse>;
     title: string;
@@ -78,6 +80,7 @@ export function Marketplace(props: MarketplaceProps) {
         props: { currentFile, userInfo },
         api: {
             helpPanel: { openConnectorHelp },
+            ls: { getDiagramEditorLangClient },
             insights: { onEvent },
         },
     } = useContext(Context);
@@ -145,7 +148,9 @@ export function Marketplace(props: MarketplaceProps) {
             limit: pageLimit,
             page,
         };
-        const response: BallerinaModuleResponse = await props.fetchModulesList(queryParams, currentFile.path, userInfo);
+        const langClient = await getDiagramEditorLangClient();
+        const response: BallerinaModuleResponse = await props.fetchModulesList(queryParams, currentFile.path,
+            langClient, userInfo);
         response.local?.forEach((module) => {
             localModules.current.set((module.package?.name || module.name), module);
         });
