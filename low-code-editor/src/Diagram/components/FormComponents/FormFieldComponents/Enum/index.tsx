@@ -39,6 +39,7 @@ export function Enum(props: FormElementProps<EnumProps>) {
                 setSelectedType(model.defaultValue || types[0]);
             }
         }
+        model.value = selectedType;
     }, [selectedType]);
 
     const getTypes = () => {
@@ -53,7 +54,6 @@ export function Enum(props: FormElementProps<EnumProps>) {
     };
 
     const handleTypeChange = (value: string) => {
-        model.value = value;
         setSelectedType(value);
         if (value === "nil") {
             customProps?.validate(model.name, false);
