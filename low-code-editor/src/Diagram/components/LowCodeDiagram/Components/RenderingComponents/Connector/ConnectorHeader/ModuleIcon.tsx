@@ -38,8 +38,8 @@ export function ModuleIcon(props: ModuleIconProps) {
     const [showDefaultIcon, setShowDefaultIcon] = useState(false);
 
     if (node) {
-        const moduleInfo = node?.typeData?.typeSymbol?.moduleID;
-        iconUrl = `${balCentralCdn}/${moduleInfo.orgName}_${moduleInfo.moduleName}_${moduleInfo.version}.png`;
+        const moduleInfo = node.typeData?.typeSymbol?.moduleID;
+        iconUrl = `${balCentralCdn}/${moduleInfo?.orgName}_${moduleInfo?.moduleName}_${moduleInfo?.version}.png`;
         defaultProps = {
             cx: cx - marginError,
             cy: cy - marginError,
@@ -53,6 +53,8 @@ export function ModuleIcon(props: ModuleIconProps) {
             module.icon ||
             module.package?.icon ||
             `${balCentralCdn}/${module.package.organization}_${module.moduleName}_${module.package.version}.png`;
+    } else if (!showDefaultIcon) {
+        setShowDefaultIcon(true);
     }
 
     const handleLoadingError = () => {
