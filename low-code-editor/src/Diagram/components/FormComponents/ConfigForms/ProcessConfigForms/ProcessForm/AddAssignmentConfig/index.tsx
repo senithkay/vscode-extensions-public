@@ -162,6 +162,8 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
         },
         onChange: onPropertyChange,
         defaultValue: variableExpression,
+        expressionConfigurable: ExpressionConfigurable,
+        lowCodeEditorContext
     };
 
     const initialSource = formArgs.model ? formArgs.model.source : getInitialSource(createPropertyStatement(
