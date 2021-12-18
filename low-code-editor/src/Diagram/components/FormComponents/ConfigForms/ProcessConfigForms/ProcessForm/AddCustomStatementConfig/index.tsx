@@ -56,7 +56,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
 
     const expressionFormConfig: CustomExpressionConfig = config.config as CustomExpressionConfig;
 
-    //Insight event to send when loading the component
+    // Insight event to send when loading the component
     useEffect(() => {
         const event: LowcodeEvent = {
             type: ADD_OTHER_STATEMENT,

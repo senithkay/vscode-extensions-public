@@ -21,6 +21,7 @@ import { LocalVarDecl, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
+import { ADD_VARIABLE, LowcodeEvent, SAVE_VARIABLE } from "../../../../../../models";
 import { createModuleVarDecl, getInitialSource } from "../../../../../../utils/modification-util";
 import { getVariableNameFromST } from "../../../../../../utils/st-util";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
@@ -34,7 +35,6 @@ import {
     VariableTypeInput,
     VariableTypeInputProps
 } from "../../../Components/VariableTypeInput";
-import { ADD_VARIABLE, EVENT_TYPE_AZURE_APP_INSIGHTS, LowcodeEvent, SAVE_VARIABLE } from "../../../../../../models";
 
 interface AddVariableConfigProps {
     config: ProcessConfig;
@@ -127,7 +127,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         setValidSelectedType(!isInvalid);
     };
 
-    //Insight event to send when loading the component
+    // Insight event to send when loading the component
     useEffect(() => {
         const event: LowcodeEvent = {
             type: ADD_VARIABLE,

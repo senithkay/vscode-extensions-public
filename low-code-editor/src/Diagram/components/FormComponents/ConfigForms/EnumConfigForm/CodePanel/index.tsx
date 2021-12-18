@@ -20,12 +20,12 @@ import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { useEnumEditorContext } from "../../../../../../Contexts/EnumEditor";
+import { ADD_VARIABLE, LowcodeEvent } from "../../../../../models";
 import { mutateEnumDefinition } from "../../../../../utils/modification-util";
 import { wizardStyles } from "../../style";
 import { EnumField } from "../EnumField";
 import { enumStyles } from "../style";
 import { getGeneratedCode, getMemberArray } from "../utils";
-import { ADD_VARIABLE, EVENT_TYPE_AZURE_APP_INSIGHTS, LowcodeEvent } from "../../../../../models";
 
 export function CodePanel() {
     const { state } = useEnumEditorContext();

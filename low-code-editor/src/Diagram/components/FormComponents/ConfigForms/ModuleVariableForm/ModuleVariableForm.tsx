@@ -19,6 +19,7 @@ import { ModuleVarDecl, NodePosition } from '@wso2-enterprise/syntax-tree';
 
 import { VariableIcon } from '../../../../../assets/icons';
 import { useDiagramContext } from '../../../../../Contexts/Diagram';
+import { ADD_VARIABLE, LowcodeEvent, SAVE_VARIABLE } from '../../../../models';
 import { createModuleVarDecl, updateModuleVarDecl } from '../../../../utils/modification-util';
 import { getVariableNameFromST } from '../../../../utils/st-util';
 import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
@@ -32,7 +33,6 @@ import { VariableTypeInput, VariableTypeInputProps } from '../Components/Variabl
 
 import { getFormConfigFromModel, isFormConfigValid, ModuleVarNameRegex, VariableOptions } from './util';
 import { ModuleVarFormActionTypes, moduleVarFormReducer } from './util/reducer';
-import { ADD_VARIABLE, EVENT_TYPE_AZURE_APP_INSIGHTS, LowcodeEvent, SAVE_VARIABLE } from '../../../../models';
 
 
 interface ModuleVariableFormProps {
@@ -51,7 +51,7 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
     const [state, dispatch] = useReducer(moduleVarFormReducer, getFormConfigFromModel(model));
     const variableTypes: string[] = ["int", "float", "boolean", "string", "json", "xml"];
 
-    //Insight event to send when loading the component
+    // Insight event to send when loading the component
     useEffect(() => {
         const event: LowcodeEvent = {
             type: ADD_VARIABLE,

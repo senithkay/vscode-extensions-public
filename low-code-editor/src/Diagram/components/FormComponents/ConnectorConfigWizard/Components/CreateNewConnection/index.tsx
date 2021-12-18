@@ -21,13 +21,13 @@ import classNames from "classnames";
 
 import { Section } from "../../../../../../components/ConfigPanel";
 import { Context } from "../../../../../../Contexts/Diagram";
+import { LowcodeEvent, SAVE_CONNECTOR } from "../../../../../models";
 import { checkDBConnector, checkVariableName, getManualConnectionDetailsFromFormFields } from "../../../../Portals/utils";
 import { Form } from "../../../DynamicConnectorForm";
 import { useStyles } from "../../../DynamicConnectorForm/style";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
 import { ExpressionInjectablesProps } from "../../../FormGenerator";
 import { wizardStyles } from "../../style";
-import { EVENT_TYPE_AZURE_APP_INSIGHTS, LowcodeEvent, SAVE_CONNECTOR } from "../../../../../models";
 
 interface CreateConnectorFormProps {
     initFields: FormField[];

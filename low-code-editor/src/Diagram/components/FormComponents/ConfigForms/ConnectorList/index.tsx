@@ -18,11 +18,11 @@ import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../Contexts/Diagram";
 import { UserState } from "../../../../../types";
+import { ADD_CONNECTOR, LowcodeEvent } from "../../../../models";
 import { APIHeightStates } from "../../../LowCodeDiagram/Components/DialogBoxes/PlusHolder";
 import { PlusViewState } from "../../../LowCodeDiagram/ViewState";
 import { FormGeneratorProps } from "../../FormGenerator";
-import { BallerinaModuleType, FilterStateMap, Marketplace, SearchQueryParams } from "../Marketplace";
-import { ADD_CONNECTOR, EVENT_TYPE_AZURE_APP_INSIGHTS, LowcodeEvent } from "../../../../models";
+import { BallerinaModuleType, Marketplace, SearchQueryParams } from "../Marketplace";
 
 export interface ConnectorListProps {
     onSelect: (connector: BallerinaConnectorInfo, selectedConnector: LocalVarDecl) => void;
@@ -41,7 +41,7 @@ export function ConnectorList(props: FormGeneratorProps) {
     } = useContext(Context);
     const { onSelect, onCancel } = props.configOverlayFormStatus.formArgs as ConnectorListProps;
 
-    //Insight event to send when loading the component
+    // Insight event to send when loading the component
     useEffect(() => {
         const event: LowcodeEvent = {
             type: ADD_CONNECTOR,
