@@ -76,7 +76,7 @@ export function While(props: WhileProps) {
 
     const pluses: React.ReactNode[] = [];
     const modelWhile: WhileStatement = model as WhileStatement;
-    const conditionExpr: BracedExpression = modelWhile.condition as BracedExpression;
+    const conditionExpr = modelWhile.condition;
     const children = getSTComponents(modelWhile.whileBody.statements);
     const controlFlowLines: React.ReactNode[] = [];
 
@@ -168,7 +168,7 @@ export function While(props: WhileProps) {
     };
 
     const onWhileHeadClick = () => {
-        const conditionExpression = conditionExpr.expression.source;
+        const conditionExpression = STKindChecker.isBracedExpression(conditionExpr) ? conditionExpr.expression.source : conditionExpr.source;
         setConfigWizardOpen(true);
         const conditionConfigState = getConditionConfig("While", model.position, WizardType.EXISTING, undefined, {
             type: "While",

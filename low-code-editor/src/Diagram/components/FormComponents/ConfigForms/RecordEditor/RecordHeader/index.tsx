@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 
 import { Typography } from "@material-ui/core";
 
@@ -36,21 +36,21 @@ export interface RecordHeaderProps {
     recordModel: RecordModel;
     parentRecordModel: RecordModel;
     recordExpanded: boolean;
-    recordEditInProgress: boolean;
+    isRecordEditInProgress: boolean;
     toggleRecordExpand: () => void;
+    setIsRecordEditInProgress: (isEditInProgress: boolean) => void;
     onEditRecord: () => void;
 }
 
 export function RecordHeader(props: RecordHeaderProps) {
-    const { recordModel, parentRecordModel, recordExpanded, recordEditInProgress, toggleRecordExpand,
-            onEditRecord } = props;
+    const { recordModel, parentRecordModel, recordExpanded, isRecordEditInProgress, toggleRecordExpand,
+            setIsRecordEditInProgress, onEditRecord } = props;
 
     const recordClasses = recordStyles();
 
     const { state, callBacks } = useContext(Context);
 
     const [recordNameError, setRecordNameError] = useState<string>("");
-    const [isRecordEditInProgress, setIsRecordEditInProgress] = useState(recordEditInProgress);
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 
     const handleIsClosedChange = () => {
@@ -157,10 +157,6 @@ export function RecordHeader(props: RecordHeaderProps) {
     const recordTypeNVisibility = `${recordModel.isTypeDefinition ? `${accessModifier} type` : ""}`;
     const openBraceTokens = `{ ${recordModel.isClosed ? "|" : ""}`;
     const typeDefName = `${recordModel.isTypeDefinition ? `${recordModel.name ? recordModel.name : ""}` : ""}`;
-
-    useEffect(() => {
-        setIsRecordEditInProgress(recordEditInProgress);
-    }, [recordEditInProgress]);
 
     return (
         <div>

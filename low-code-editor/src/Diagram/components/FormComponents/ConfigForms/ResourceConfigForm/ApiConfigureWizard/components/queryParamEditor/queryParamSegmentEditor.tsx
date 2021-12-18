@@ -28,8 +28,9 @@ import { useStyles } from './style';
 
 interface QueryParamSegmentEditorProps {
     id?: number;
-    segment?: QueryParam,
+    queryParam?: QueryParam,
     onSave?: (segment: QueryParam) => void;
+    onUpdate?: (segment: QueryParam) => void;
     onCancel?: () => void;
     types?: string[];
     validateParams?: (paramName: string) => { error: boolean, message: string };
@@ -37,10 +38,17 @@ interface QueryParamSegmentEditorProps {
 }
 
 export function QueryParamSegmentEditor(props: QueryParamSegmentEditorProps) {
-    const { segment, onSave, id, onCancel, types, validateParams, targetPosition } = props;
+    const { queryParam, onSave, id, onCancel, onUpdate, types, validateParams, targetPosition } = props;
     const classes = useStyles();
     const { props: { stSymbolInfo } } = useContext(Context);
-    const initValue: QueryParam = segment ? { ...segment } : {
+    let queryParamValue = queryParam;
+    if (queryParamValue) {
+        queryParamValue = {
+            ...queryParamValue,
+            type: "string"
+        }
+    }
+    const initValue: QueryParam = queryParamValue ? { ...queryParamValue } : {
         id: id ? id : 0,
         name: "",
         type: "string",
@@ -80,6 +88,10 @@ export function QueryParamSegmentEditor(props: QueryParamSegmentEditorProps) {
 
     const handleOnSave = () => {
         onSave(segmentState);
+    };
+
+    const handleOnUpdate = () => {
+        onUpdate(segmentState);
     };
 
     const validateVarType = (fieldName: string, isInvalid: boolean) => {
@@ -138,10 +150,10 @@ export function QueryParamSegmentEditor(props: QueryParamSegmentEditorProps) {
                             />
                             <PrimaryButton
                                 dataTestId={"custom-expression-save-btn"}
-                                text={"Add"}
+                                text={onUpdate ? "Update" : " Add"}
                                 disabled={!segmentState.name || !segmentState.type || segmentState?.name === "" || segmentState?.type === "" || pramError !== "" || !validSelectedType}
                                 fullWidth={false}
-                                onClick={handleOnSave}
+                                onClick={onUpdate ? handleOnUpdate : handleOnSave}
                             />
                         </div>
                     </Grid>

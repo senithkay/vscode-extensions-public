@@ -38,7 +38,9 @@ export function Diagram() {
         api: {
             code: {
                 gotoSource,
-                isMutationInProgress
+                isMutationInProgress,
+                isModulePullInProgress,
+                loaderText
             }
         },
         props: {
@@ -113,7 +115,7 @@ export function Diagram() {
 
     const textLoader = (
         <div className={classes.progressContainer}>
-            <TextPreLoader position="absolute" />
+            <TextPreLoader position="absolute" text={loaderText} />
         </div>
     );
 
@@ -162,7 +164,7 @@ export function Diagram() {
 
     return (
         <div id="canvas">
-            {(codeTriggerredUpdateInProgress || isMutationInProgress) && textLoader}
+            {(codeTriggerredUpdateInProgress || isMutationInProgress || isModulePullInProgress) && textLoader}
             {(diagnosticInDiagram || warningsInDiagram) && (
                 <div className={classnames(classes.diagramErrorStateWrapper)}>
                     {diagnosticInDiagram && <OverlayBackground />}
