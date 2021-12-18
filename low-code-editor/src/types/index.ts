@@ -83,6 +83,8 @@ export interface LowCodeEditorAPI {
         setCodeLocationToHighlight: (position: NodePosition) => void;
         gotoSource: (position: { startLine: number, startColumn: number }) => void;
         isMutationInProgress: boolean;
+        isModulePullInProgress: boolean;
+        loaderText: string;
     }
     // FIXME Doesn't make sense to take these methods below from outside
     // Move these inside and get an external API for pref persistance

@@ -59,48 +59,48 @@ export function PayloadEditor(props: PayloadEditorProps) {
 
     const [segmentState, setSegmentState] = useState<Payload>(initValue);
     const [payloadVarNameError, setPayloadVarNameError] = useState<string>("");
-
-    // When creating new resource
-    let updateNodePosition: NodePosition = {
-        ...targetPosition,
-        endLine: 0,
-        endColumn: 0,
-    };
-    let overrideTemplate: ExpressionEditorCustomTemplate = {
-        defaultCodeSnippet: `resource function post tempResource(@http:Payload  ${segmentState?.name || 'tempPayload'}) {}`,
-        targetColumn: 51
-    };
-
     const payloadNode = extractPayloadFromSTNode(funcSignature?.parameters);
 
-    if (extractPayloadPositionFromST(funcSignature?.parameters)){
-        // If @http:Payload already exists
-        updateNodePosition = extractPayloadPositionFromST(funcSignature?.parameters);
-        overrideTemplate = {
-            defaultCodeSnippet: `@http:Payload  ${segmentState?.name || 'tempPayload'}`,
-            targetColumn: 15
-        }
-    }else if (funcSignature?.parameters.length > 0){
-        // if some other payload already exists
-        updateNodePosition = {
-            ...funcSignature.openParenToken.position,
-            startColumn: funcSignature.openParenToken.position.startColumn + 1,
-        };
-        overrideTemplate = {
-            defaultCodeSnippet: `@http:Payload  ${segmentState?.name || 'tempPayload'},`,
-            targetColumn: 15
-        }
-    }else if (funcSignature?.parameters.length === 0){
-        // If no payload exists
-        updateNodePosition = {
-            ...funcSignature.openParenToken.position,
-            startColumn: funcSignature.openParenToken.position.startColumn + 1,
-        };
-        overrideTemplate = {
-            defaultCodeSnippet: `@http:Payload  ${segmentState?.name || 'tempPayload'}`,
-            targetColumn: 15
-        }
-    }
+    // TODO: Uncomment once payload suggestions are coming from LS
+    // When creating new resource
+    // let updateNodePosition: NodePosition = {
+    //     ...targetPosition,
+    //     endLine: 0,
+    //     endColumn: 0,
+    // };
+    // let overrideTemplate: ExpressionEditorCustomTemplate = {
+    //     defaultCodeSnippet: `resource function post tempResource(@http:Payload  ${segmentState?.name || 'tempPayload'}) {}`,
+    //     targetColumn: 51
+    // };
+
+    // if (extractPayloadPositionFromST(funcSignature?.parameters)){
+    //     // If @http:Payload already exists
+    //     updateNodePosition = extractPayloadPositionFromST(funcSignature?.parameters);
+    //     overrideTemplate = {
+    //         defaultCodeSnippet: `@http:Payload  ${segmentState?.name || 'tempPayload'}`,
+    //         targetColumn: 15
+    //     }
+    // }else if (funcSignature?.parameters.length > 0){
+    //     // if some other payload already exists
+    //     updateNodePosition = {
+    //         ...funcSignature.openParenToken.position,
+    //         startColumn: funcSignature.openParenToken.position.startColumn + 1,
+    //     };
+    //     overrideTemplate = {
+    //         defaultCodeSnippet: `@http:Payload  ${segmentState?.name || 'tempPayload'},`,
+    //         targetColumn: 15
+    //     }
+    // }else if (funcSignature?.parameters.length === 0){
+    //     // If no payload exists
+    //     updateNodePosition = {
+    //         ...funcSignature.openParenToken.position,
+    //         startColumn: funcSignature.openParenToken.position.startColumn + 1,
+    //     };
+    //     overrideTemplate = {
+    //         defaultCodeSnippet: `@http:Payload  ${segmentState?.name || 'tempPayload'}`,
+    //         targetColumn: 15
+    //     }
+    // }
 
     useEffect(() => {
         if (disabled) {
@@ -150,15 +150,29 @@ export function PayloadEditor(props: PayloadEditorProps) {
         setIsValid(!isInvalid);
     };
 
+    // TODO: Uncomment once payload suggestions are coming from LS
+    // const variableTypeConfig: VariableTypeInputProps = {
+    //     displayName: '',
+    //     value: segmentState?.type,
+    //     onValueChange: onChangeSegmentType,
+    //     validateExpression,
+    //     position: updateNodePosition,
+    //     overrideTemplate,
+    //     hideLabel: true,
+    //     disabled,
+    //     initialDiagnostics: payloadNode?.typeData?.diagnostics,
+    //     diagnosticsFilterExtraColumns: {
+    //         end: 1 + segmentState?.name?.length,
+    //     }
+    // }
     const variableTypeConfig: VariableTypeInputProps = {
         displayName: '',
         value: segmentState?.type,
         onValueChange: onChangeSegmentType,
         validateExpression,
-        position: updateNodePosition,
-        overrideTemplate,
         hideLabel: true,
         disabled,
+        position: targetPosition,
         initialDiagnostics: payloadNode?.typeData?.diagnostics,
         diagnosticsFilterExtraColumns: {
             end: 1 + segmentState?.name?.length,

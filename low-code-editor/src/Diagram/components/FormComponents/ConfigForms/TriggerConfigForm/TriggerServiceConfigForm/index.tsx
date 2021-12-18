@@ -103,7 +103,7 @@ export function TriggerForm(props: FormGeneratorProps) {
         let httpBased: boolean = true;
         const triggerStr = triggerInfo.moduleName.split(".");
         const triggerType = triggerStr[triggerStr.length - 1];
-        if (triggerType === 'sfdc' || triggerType === 'asb') {
+        if (triggerType === 'sfdc' || triggerType === 'asb' || triggerType === 'salesforce') {
             httpBased = false;
         }
         const newListenerParams = handleListenerParamTypes(triggerInfo, triggerType)

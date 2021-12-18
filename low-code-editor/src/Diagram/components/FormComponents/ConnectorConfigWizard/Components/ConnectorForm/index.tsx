@@ -42,6 +42,7 @@ import { getAllVariables } from "../../../../../utils/mixins";
 import {
     createImportStatement,
     createPropertyStatement,
+    createQueryWhileStatement,
     updateFunctionSignature,
     updatePropertyStatement,
 } from "../../../../../utils/modification-util";
@@ -203,7 +204,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
         let importCounts: number = 0;
         if (STKindChecker.isModulePart(syntaxTree)) {
             (syntaxTree as ModulePart).imports?.forEach((imp) => {
-                if (imp.typeData.symbol.id.orgName === orgName && imp.typeData.symbol.id.moduleName === `${moduleName}.driver`) {
+                if (imp.typeData?.symbol.id.orgName === orgName && imp.typeData?.symbol.id.moduleName === `${moduleName}.driver`) {
                     importCounts = importCounts + 1;
                 }
             })
@@ -241,6 +242,11 @@ export function ConnectorForm(props: FormGeneratorProps) {
             const addConnectorInit = createPropertyStatement(endpointStatement, targetPosition);
             modifications.push(addConnectorInit);
             onConnectorAddEvent();
+            if (checkDBConnector(moduleName)){
+                const closeStatement = `check ${config.name}.close();`
+                const addCloseStatement = createPropertyStatement(closeStatement, targetPosition);
+                modifications.push(addCloseStatement);
+             }
         } else {
             const updateConnectorInit = updatePropertyStatement(endpointStatement, connectorConfig.initPosition);
             modifications.push(updateConnectorInit);
@@ -266,6 +272,13 @@ export function ConnectorForm(props: FormGeneratorProps) {
             modifications.push(item.modification);
         });
 
+        if (isInitReturnError || currentActionReturnType.hasError) {
+            const functionSignature = updateFunctionSignatureWithError();
+            if (functionSignature) {
+                modifications.push(functionSignature);
+            }
+        }
+
         if (isNewConnectorInitWizard && !isAction) {
             const addImport: STModification = createImportStatement(connector.package.organization, connectorModule, targetPosition);
             modifications.push(addImport);
@@ -274,7 +287,6 @@ export function ConnectorForm(props: FormGeneratorProps) {
             const addConnectorInit = createPropertyStatement(endpointStatement, targetPosition);
             modifications.push(addConnectorInit);
         }
-
         let actionStatement = "";
         if (currentActionReturnType.hasReturn) {
             addReturnImportsModifications(modifications, currentActionReturnType);
@@ -283,6 +295,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
         actionStatement += `${currentActionReturnType.hasError ? "check" : ""} ${config.name}${
             config.action.isRemote ? "->" : "."
         }${config.action.name}(${getParams(config.action.fields).join()});`;
+
 
         if (!isNewConnectorInitWizard && isAction) {
             const updateActionInvocation = updatePropertyStatement(actionStatement, model.position);
@@ -293,11 +306,10 @@ export function ConnectorForm(props: FormGeneratorProps) {
             onActionAddEvent();
         }
 
-        if (isInitReturnError || currentActionReturnType.hasError) {
-            const functionSignature = updateFunctionSignatureWithError();
-            if (functionSignature) {
-                modifications.push(functionSignature);
-            }
+        if ((isNewConnectorInitWizard) && (config.action.name === "query" && checkDBConnector(connectorModule))) {
+            const resultUniqueName = genVariableName("recordResult", getAllVariables(stSymbolInfo));
+            const addQueryWhileStatement = createQueryWhileStatement(resultUniqueName, targetPosition);
+            modifications.push(addQueryWhileStatement);
         }
 
         if (modifications.length > 0) {
