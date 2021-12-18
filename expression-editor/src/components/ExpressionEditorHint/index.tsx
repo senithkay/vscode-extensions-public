@@ -18,7 +18,7 @@ import { FormHelperText } from "@material-ui/core";
 import * as MonacoEditor from 'monaco-editor';
 
 import { ErrorSvg } from "../../assests";
-import { useStyles as useFormStyles } from "../../themes/DefaultStyles/style";
+import { useStyles as useFormStyles } from "../../themes/DynamicConnectorForm/style";
 
 import { truncateText } from "./utils";
 

@@ -890,6 +890,9 @@ export const useStyles = makeStyles((theme: Theme) =>
             componentWrapper: {
                 display: "flex",
                 justifyContent: "space-between",
+            },
+            docButton : {
+                marginLeft: theme.spacing(15.75)
             }
         }),
     { index: 1 }

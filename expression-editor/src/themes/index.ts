@@ -1,1 +1,1 @@
-export * from "./DefaultStyles/style";
+export * from "./DynamicConnectorForm/style";
