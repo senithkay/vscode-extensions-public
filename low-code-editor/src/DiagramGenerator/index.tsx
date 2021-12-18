@@ -70,7 +70,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                 // }
                 const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, filePath,
                     langClient, pfSession,
-                    props.showPerformanceGraph, props.handlePerfErrors, props.showMessage);
+                    props.showPerformanceGraph, props.getPerfDataFromChoreo);
                 if (!vistedSyntaxTree) {
                     return (<div><h1>Parse error...!</h1></div>);
                 }
@@ -161,7 +161,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
             const pfSession = await props.getPFSession();
             const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, path,
                 langClient, pfSession,
-                props.showPerformanceGraph, props.handlePerfErrors, props.showMessage);
+                props.showPerformanceGraph, props.getPerfDataFromChoreo);
             setSyntaxTree(vistedSyntaxTree);
             setFileContent(lastsource);
             props.updateFileContent(path, lastsource);
@@ -188,7 +188,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
             const pfSession = await props.getPFSession();
             const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, path,
                 langClient, pfSession,
-                props.showPerformanceGraph, props.handlePerfErrors, props.showMessage);
+                props.showPerformanceGraph, props.getPerfDataFromChoreo);
             setSyntaxTree(vistedSyntaxTree);
             setFileContent(lastUndoSource);
             props.updateFileContent(path, lastUndoSource);
@@ -278,7 +278,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                             props.updateFileContent(filePath, source);
                                             const vistedSyntaxTree: STNode = await getLowcodeST(newST, filePath,
                                                 langClient, pfSession,
-                                                props.showPerformanceGraph, props.handlePerfErrors, props.showMessage);
+                                                props.showPerformanceGraph, props.getPerfDataFromChoreo);
                                             setSyntaxTree(vistedSyntaxTree);
                                             if (isDeleteModificationAvailable(mutations)) {
                                                 showMessage("Undo to revert the change you did by pressing Ctrl + Z", MESSAGE_TYPE.INFO, true);
