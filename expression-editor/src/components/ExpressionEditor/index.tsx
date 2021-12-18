@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js no-empty jsx-curly-spacing
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FormattedMessage } from "react-intl";
 import MonacoEditor, { EditorDidMount } from "react-monaco-editor";
 
@@ -32,12 +32,7 @@ import debounce from "lodash.debounce";
 import * as monaco from "monaco-editor";
 
 import grammar from "../../ballerina.monarch.json";
-// import { TooltipCodeSnippet } from "../../../../../components/Tooltip";
-// import { Context } from "../../../../../Contexts/Diagram";
 import { useStyles as useFormStyles } from "../../themes";
-// import { ExpressionInjectablesProps } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-// import { FormElementProps } from "../../Types";
-// import { configurableTypes, ExpressionConfigurable } from "../ExpressionConfigurable";
 import { ExpressionEditorHint, ExpressionEditorHintProps } from "../ExpressionEditorHint";
 import { ExpressionEditorLabel } from "../ExpressionEditorLabel";
 

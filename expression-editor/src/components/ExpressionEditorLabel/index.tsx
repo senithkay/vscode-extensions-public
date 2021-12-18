@@ -18,12 +18,10 @@ import { FormElementProps, TooltipCodeSnippet, TooltipIcon, useStyles as useText
 import * as MonacoEditor from 'monaco-editor';
 
 import { useStyles as useFormStyles } from "../../themes";
-// import { FormElementProps } from "../../Types";
 import { ExpressionEditorProps } from "../ExpressionEditor";
 import { transformFormFieldTypeToString } from "../ExpressionEditor/utils";
 
 import { getExampleForType, truncateText, variableNameMaxLength } from "./utils";
-// import { useStyles as useTextInputStyles } from "../TextField/style";
 
 
 export function ExpressionEditorLabel(props: FormElementProps<ExpressionEditorProps>) {
