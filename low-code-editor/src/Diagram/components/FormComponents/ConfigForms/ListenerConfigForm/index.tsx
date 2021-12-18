@@ -42,12 +42,13 @@ interface ListenerConfigFormProps {
     onCancel: () => void;
     onSave: () => void;
     formType?: string;
+    isLastMember?: boolean
 }
 
 // FixMe: show validation messages to listenerName and listenerPort
 export function ListenerConfigForm(props: ListenerConfigFormProps) {
     const formClasses = useFormStyles();
-    const { model, targetPosition, onCancel, onSave, formType } = props;
+    const { model, targetPosition, onCancel, onSave, formType, isLastMember } = props;
     const { api: { code: { modifyDiagram } } } = useDiagramContext();
     let defaultState: ListenerConfig;
 
@@ -107,7 +108,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
             isNewListener = true;
             modifyDiagram([
                 createImportStatement('ballerina', 'http', { startColumn: 0, startLine: 0 }),
-                createListenerDeclartion(config, targetPosition, isNewListener)
+                createListenerDeclartion(config, targetPosition, isNewListener, isLastMember)
             ]);
         }
         onSave();

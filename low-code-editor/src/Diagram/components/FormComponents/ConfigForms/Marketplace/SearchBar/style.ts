@@ -16,16 +16,18 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         searchBarRoot: {
-            height: '58px',
-            borderRadius: '28px',
-            backgroundColor: theme.palette.common.white,
+            height: '40px',
+            width: '95%',
+            marginTop: '10px',
             padding: theme.spacing(0.5),
             flexDirection: 'row',
             justifyContent: 'center',
             alignItems: 'center',
             border: '1px solid #E6E7EC',
-            width: '95%',
+            borderRadius: '28px',
+            backgroundColor: theme.palette.common.white,
         },
+
         searchIcon: {
             height: theme.spacing(2.375),
             width: theme.spacing(2.25),
@@ -42,12 +44,12 @@ const useStyles = makeStyles((theme: Theme) =>
         searchBtn: {
             backgroundColor: theme.palette.primary.main,
             borderRadius: '100%',
-            height: theme.spacing(6),
-            width: theme.spacing(6),
+            height: '30px',
+            width: '30px',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            paddingBottom: theme.spacing(0.25),
+            paddingBottom: '3px',
             cursor: 'pointer',
         },
     })

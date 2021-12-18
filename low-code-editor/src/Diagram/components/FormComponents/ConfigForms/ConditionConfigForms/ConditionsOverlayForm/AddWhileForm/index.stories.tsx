@@ -41,7 +41,8 @@ const api = {
         onMutate: dummyFunction,
         modifyTrigger: dummyFunction,
         setCodeLocationToHighlight: dummyFunction,
-        gotoSource: dummyFunction
+        gotoSource: dummyFunction,
+        isMutationInProgress: false
     },
     splitPanel: {
         maximize: dummyFunction,

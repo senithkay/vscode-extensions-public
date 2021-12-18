@@ -504,25 +504,21 @@ export function getVaribaleNamesFromVariableDefList(asts: STNode[]) {
 
 export function getModuleIcon(module: BallerinaModule, scale: number = 1): React.ReactNode {
     const width = 56 * scale;
-    if (module?.package?.icon) {
+    if (module?.icon || module?.package?.icon) {
         return (
             <img
-                src={module.package.icon}
+                src={module.icon || module.package.icon}
                 alt={module.package.name}
                 style={{ width: "auto", height: "100%", maxWidth: width, maxHeight: width }}
             />
         );
     }
-    return <DefaultConnectorIcon transform={`scale(${scale})`}/>;
+    return <DefaultConnectorIcon scale={scale}/>;
 }
 
 export function getConstructIcon(iconId: string) {
     const Icon = (ConstructIcons as any)[iconId];
     return <Icon/>
-}
-
-export function getConnectorIconId(connector: BallerinaConnectorInfo) {
-    return `${connector.moduleName}_${connector.name}`;
 }
 
 export function genVariableName(defaultName: string, variables: string[]): string {

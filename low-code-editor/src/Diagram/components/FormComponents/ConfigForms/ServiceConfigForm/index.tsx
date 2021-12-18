@@ -31,6 +31,7 @@ interface ServiceConfigFormProps {
     onCancel: () => void;
     onSave: () => void;
     formType: string;
+    isLastMember?: boolean;
 }
 
 export enum ServiceTypes {
@@ -39,7 +40,7 @@ export enum ServiceTypes {
 
 export function ServiceConfigForm(props: ServiceConfigFormProps) {
     const formClasses = useFormStyles();
-    const { model, targetPosition, onSave, onCancel, formType } = props;
+    const { model, targetPosition, onSave, onCancel, formType, isLastMember } = props;
     const { props: { stSymbolInfo } } = useDiagramContext();
     const [serviceType, setServiceType] = useState<string>(getServiceTypeFromModel(model, stSymbolInfo));
 
@@ -47,7 +48,7 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
 
     switch (serviceType) {
         case ServiceTypes.HTTP:
-            configForm = <HttpServiceForm onSave={onSave} onCancel={onCancel} model={model} targetPosition={targetPosition} />
+            configForm = <HttpServiceForm onSave={onSave} onCancel={onCancel} model={model} targetPosition={targetPosition} isLastMember={isLastMember} />
             break;
         default:
             configForm = <TriggerServiceForm onSave={onSave} onCancel={onCancel} model={model} targetPosition={targetPosition} />

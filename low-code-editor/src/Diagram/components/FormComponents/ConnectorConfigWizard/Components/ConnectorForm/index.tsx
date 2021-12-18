@@ -14,7 +14,7 @@
 // tslint:disable: jsx-wrap-multiline
 import React, { ReactNode, useContext, useEffect, useState } from "react";
 
-import { Box, Divider, FormControl, Typography } from "@material-ui/core";
+import {Box, Divider, FormControl, IconButton, Typography} from "@material-ui/core";
 import {
     ActionConfig,
     BallerinaConnectorInfo,
@@ -27,6 +27,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { CaptureBindingPattern, FunctionDefinition, LocalVarDecl, ModulePart, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
+import {DocIcon} from "../../../../../../assets";
 import { Context, useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { useFunctionContext } from "../../../../../../Contexts/Function";
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
@@ -44,6 +45,7 @@ import {
     updateFunctionSignature,
     updatePropertyStatement,
 } from "../../../../../utils/modification-util";
+import { ModuleIcon } from "../../../../LowCodeDiagram/Components/RenderingComponents/Connector/ConnectorHeader/ModuleIcon";
 import {
     checkDBConnector,
     genVariableName,
@@ -56,6 +58,7 @@ import {
 } from "../../../../Portals/utils";
 import { wizardStyles as useFormStyles } from "../../../ConfigForms/style";
 import { ExpressionInjectablesProps, FormGeneratorProps, InjectableItem } from "../../../FormGenerator";
+import {generateDocUrl} from "../../../Utils";
 import { ConfigWizardState } from "../../index";
 import { wizardStyles } from "../../style";
 import "../../style.scss";
@@ -94,6 +97,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
         api: {
             code: { modifyDiagram },
             insights: { onEvent },
+            webView: { showDocumentationView }
         },
         props: { stSymbolInfo, isMutationProgress },
     } = useContext(Context);
@@ -107,6 +111,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
         selectedConnector,
         isAction,
         expressionInjectables,
+        connectorInfo
     } = props.configOverlayFormStatus.formArgs as ConnectorConfigWizardProps;
     const {
         props: { syntaxTree },
@@ -135,7 +140,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
         }
     }, []);
 
-    const connectorInitFormFields: FormField[] = functionDefInfo?.get("init")?.parameters;
+    const connectorInitFormFields: FormField[] = functionDefInfo?.get("init")?.parameters || [];
 
     // managing name set by the non oauth connectors
     config.name =
@@ -391,6 +396,18 @@ export function ConnectorForm(props: FormGeneratorProps) {
         onEvent(event);
     };
 
+    const openDocPanel = () => {
+        if (connectorInfo?.package) {
+            const {organization, name} = connectorInfo?.package;
+            if (organization && name) {
+                const docURL = generateDocUrl(organization, name, "");
+                if (docURL){
+                    showDocumentationView(docURL);
+                }
+            }
+        }
+    }
+
     // TODO: fix AI suggestion issue with vscode implementation
     // useEffect(() => {
     //     if (connector) {
@@ -415,7 +432,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
     let connectorComponent: ReactNode = null;
 
     if (functionDefInfo) {
-        if (connectorModule === "http") {
+        if (connector.moduleName === "http" && connector.name === "Client") {
             connectorComponent = getConnectorComponent(connectorModule + connector.name, {
                 functionDefinitions: functionDefInfo,
                 connectorConfig: config,
@@ -433,10 +450,17 @@ export function ConnectorForm(props: FormGeneratorProps) {
                 <div className={wizardClasses.fullWidth}>
                     <div className={wizardClasses.topTitleWrapper}>
                         <div className={wizardClasses.titleWrapper}>
-                            <div className={wizardClasses.connectorIconWrapper}>{getModuleIcon(connector, 0.5)}</div>
+                            <div className={wizardClasses.connectorIconWrapper}>
+                                <ModuleIcon module={connector} scale={0.5}/>
+                            </div>
                             <Typography className={wizardClasses.configTitle} variant="h4">
                                 {connectorName}
                             </Typography>
+                            <IconButton
+                                onClick={openDocPanel}
+                            >
+                                <img src={DocIcon}/>
+                            </IconButton>
                         </div>
                         <Divider variant="fullWidth" />
                     </div>
@@ -454,6 +478,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
                             operations={operations}
                             expressionInjectables={expressionInjectables}
                             targetPosition={targetPosition}
+                            connectorInfo={connectorInfo}
                         />
                     )}
 

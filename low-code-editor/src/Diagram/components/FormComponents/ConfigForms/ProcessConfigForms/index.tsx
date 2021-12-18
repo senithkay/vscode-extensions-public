@@ -57,7 +57,7 @@ export function ProcessConfigForm(props: any) {
     } = useContext(Context);
 
     const { onCancel, onSave, configOverlayFormStatus, targetPosition } = props as AddProcessFormProps;
-    const { formArgs, formType } = configOverlayFormStatus;
+    const { formArgs, formType, isLastMember } = configOverlayFormStatus;
 
     const processConfig: ProcessConfig = {
         type: formType,
@@ -170,7 +170,7 @@ export function ProcessConfigForm(props: any) {
                     }
                 } else if (processConfig.type === "Call" || processConfig.type === "Custom") {
                     const customConfig: CustomExpressionConfig = processConfig.config as CustomExpressionConfig;
-                    const addCustomStatement: STModification = createPropertyStatement(customConfig.expression, modificationPosition);
+                    const addCustomStatement: STModification = createPropertyStatement(customConfig.expression, modificationPosition, isLastMember);
                     modifications.push(addCustomStatement);
                 }
                 const event: LowcodeEvent = {

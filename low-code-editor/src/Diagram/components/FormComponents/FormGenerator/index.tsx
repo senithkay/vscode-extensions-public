@@ -52,7 +52,7 @@ export function FormGenerator(props: FormGeneratorProps) {
   } = useDiagramContext();
   const [injectables, setInjectables] = useState<InjectableItem[]>([]);
   const { onCancel, configOverlayFormStatus, targetPosition, ...restProps } = props;
-  const { formArgs, formType } = configOverlayFormStatus;
+  const { isLastMember, formType } = configOverlayFormStatus;
   const expressionInjectables: ExpressionInjectablesProps = {
     list: injectables,
     setInjectables,
@@ -60,7 +60,7 @@ export function FormGenerator(props: FormGeneratorProps) {
   if (configOverlayFormStatus.formArgs) {
     configOverlayFormStatus.formArgs.expressionInjectables = expressionInjectables;
   }
-  const args = { onCancel, configOverlayFormStatus, formType, targetPosition, ...restProps }; // FixMe: Sort out form args
+  const args = { onCancel, configOverlayFormStatus, formType, targetPosition, isLastMember, ...restProps }; // FixMe: Sort out form args
 
   const handleConfirm = () => {
     onCancel();

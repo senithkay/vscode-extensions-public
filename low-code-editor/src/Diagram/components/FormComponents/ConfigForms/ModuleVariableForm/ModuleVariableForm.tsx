@@ -46,12 +46,13 @@ interface ModuleVariableFormProps {
     onCancel: () => void;
     onSave: () => void;
     formType: string;
+    isLastMember?: boolean;
 }
 
 export function ModuleVariableForm(props: ModuleVariableFormProps) {
     const formClasses = useFormStyles();
     const { api: { code: { modifyDiagram } } } = useDiagramContext();
-    const { onSave, onCancel, targetPosition, model, formType } = props;
+    const { onSave, onCancel, targetPosition, model, formType, isLastMember } = props;
     const [state, dispatch] = useReducer(moduleVarFormReducer, getFormConfigFromModel(model));
     const variableTypes: string[] = ["int", "float", "boolean", "string", "json", "xml"];
 
@@ -64,7 +65,7 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
         if (model) {
             modifications.push(updateModuleVarDecl(state, model.position));
         } else {
-            modifications.push(createModuleVarDecl(state, targetPosition));
+            modifications.push(createModuleVarDecl(state, targetPosition, isLastMember));
         }
         modifyDiagram(modifications);
         onSave();
