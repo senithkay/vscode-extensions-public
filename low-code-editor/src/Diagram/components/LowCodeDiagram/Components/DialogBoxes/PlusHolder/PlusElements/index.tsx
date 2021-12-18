@@ -48,7 +48,7 @@ export enum APIHeightStates {
 }
 
 export const PLUS_HOLDER_WIDTH = 376;
-export const PLUS_HOLDER_STATEMENT_HEIGHT = 464;
+export const PLUS_HOLDER_STATEMENT_HEIGHT = 420;
 export const PLUS_HOLDER_API_HEIGHT = 625;
 export const EXISTING_PLUS_HOLDER_API_HEIGHT = 612;
 export const EXISTING_PLUS_HOLDER_WIDTH = 498;

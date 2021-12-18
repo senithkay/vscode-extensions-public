@@ -54,7 +54,6 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     const [syntaxTree, setSyntaxTree] = React.useState(undefined);
     const [zoomStatus, setZoomStatus] = React.useState(defaultZoomStatus);
     const [fileContent, setFileContent] = React.useState("");
-    const [selectedPosition, setSelectedPosition] = React.useState({ startLine: 0, startColumn: 0 });
     const [isMutationInProgress, setMutationInProgress] = React.useState<boolean>(false);
     const [isModulePullInProgress, setModulePullInProgress] = React.useState<boolean>(false);
     const [loaderText, setLoaderText] = React.useState<string>('Loading...');
@@ -70,17 +69,13 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                 // }
                 const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, filePath,
                     langClient, pfSession,
-                    props.showPerformanceGraph, props.handlePerfErrors, props.showMessage);
+                    props.showPerformanceGraph, props.getPerfDataFromChoreo);
                 if (!vistedSyntaxTree) {
                     return (<div><h1>Parse error...!</h1></div>);
                 }
                 setSyntaxTree(vistedSyntaxTree);
                 undoRedo.updateContent(filePath, content);
                 setFileContent(content);
-
-                if (startLine === 0 && startColumn === 0 && genSyntaxTree) {
-                    setSelectedPosition(getDefaultSelectedPosition(genSyntaxTree));
-                }
             } catch (err) {
                 throw err;
             }
@@ -97,14 +92,6 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
             return false;
         });
     }, []);
-
-    React.useEffect(() => {
-        if (startLine === 0 && startColumn === 0 && syntaxTree) {
-            setSelectedPosition(getDefaultSelectedPosition(syntaxTree));
-        } else {
-            setSelectedPosition({ startLine, startColumn });
-        }
-    }, [startLine, startColumn]);
 
     function zoomIn() {
         const newZoomStatus = cloneDeep(zoomStatus);
@@ -161,7 +148,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
             const pfSession = await props.getPFSession();
             const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, path,
                 langClient, pfSession,
-                props.showPerformanceGraph, props.handlePerfErrors, props.showMessage);
+                props.showPerformanceGraph, props.getPerfDataFromChoreo);
             setSyntaxTree(vistedSyntaxTree);
             setFileContent(lastsource);
             props.updateFileContent(path, lastsource);
@@ -188,7 +175,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
             const pfSession = await props.getPFSession();
             const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, path,
                 langClient, pfSession,
-                props.showPerformanceGraph, props.handlePerfErrors, props.showMessage);
+                props.showPerformanceGraph, props.getPerfDataFromChoreo);
             setSyntaxTree(vistedSyntaxTree);
             setFileContent(lastUndoSource);
             props.updateFileContent(path, lastUndoSource);
@@ -209,6 +196,10 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     // FIXME: Doing this to make main branch build pass so others can continue merging changes
     // on top of typed context
     const missingProps: any = {};
+
+    const selectedPosition = startColumn === 0 && startLine === 0 ? // TODO: change to use undefined for unselection
+                                    getDefaultSelectedPosition(syntaxTree)
+                                    : { startLine, startColumn }
 
     return (
         <MuiThemeProvider theme={theme}>
@@ -255,7 +246,6 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                     modifyDiagram: async (mutations: STModification[], options?: any) => {
                                         setMutationInProgress(true);
                                         setLoaderText('Updating...');
-                                        const modifyPosition = getModifyPosition(mutations);
                                         const { parseSuccess, source, syntaxTree: newST } = await langClient.stModify({
                                             astModifications: await InsertorDelete(mutations),
                                             documentIdentifier: {
@@ -278,12 +268,11 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                             props.updateFileContent(filePath, source);
                                             const vistedSyntaxTree: STNode = await getLowcodeST(newST, filePath,
                                                 langClient, pfSession,
-                                                props.showPerformanceGraph, props.handlePerfErrors, props.showMessage);
+                                                props.showPerformanceGraph, props.getPerfDataFromChoreo);
                                             setSyntaxTree(vistedSyntaxTree);
                                             if (isDeleteModificationAvailable(mutations)) {
                                                 showMessage("Undo to revert the change you did by pressing Ctrl + Z", MESSAGE_TYPE.INFO, true);
                                             }
-                                            setSelectedPosition(modifyPosition);
                                         } else {
                                             // TODO show error
                                         }

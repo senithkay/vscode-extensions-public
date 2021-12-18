@@ -106,5 +106,6 @@ export interface STSymbolInfo {
     assignmentStatement: Map<string, STNode[]>;
     recordTypeDescriptions: Map<string, STNode>;
     listeners: Map<string, STNode>;
+    moduleVariables: Map<string, STNode>;
 }
 

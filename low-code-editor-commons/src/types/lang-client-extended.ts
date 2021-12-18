@@ -293,14 +293,6 @@ export interface Position {
     character: number;
 }
 
-export interface PerformanceAnalyzerGraphRequest {
-    documentIdentifier: DocumentIdentifier;
-    range: Range;
-    choreoAPI: string;
-    choreoCookie: string;
-    choreoToken: string;
-}
-
 export interface PerformanceAnalyzerGraphResponse {
     message: string;
     type: any;
@@ -311,9 +303,19 @@ export interface PerformanceAnalyzerGraphResponse {
 export interface PerformanceAnalyzerRealtimeResponse {
     message: string;
     type: any;
-    concurrency: string;
-    latency: string;
-    tps: string;
+    concurrency: Values;
+    latency: Values;
+    tps: Values;
+}
+
+export interface Values {
+    min?: number;
+    max: number;
+}
+
+export interface PerformanceAnalyzerEndpointsRequest {
+    documentIdentifier: DocumentIdentifier;
+    range: Range;
 }
 
 export interface GraphPoint {

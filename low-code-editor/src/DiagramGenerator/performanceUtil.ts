@@ -24,8 +24,6 @@ import {
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { Range } from "monaco-editor";
 
-import { MESSAGE_TYPE } from "../types";
-
 import { mergeAnalysisDetails } from "./mergePerformanceData";
 import { PFSession } from "./vscode/Diagram";
 
@@ -40,8 +38,7 @@ let sequenceDiagramData: SequenceGraphPoint[];
 let diagramRedraw: any;
 let currentResourcePos: NodePosition;
 let showPerformanceGraph: (request: PerformanceGraphRequest) => Promise<boolean>;
-let handlePerfErrors: (response: PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse) => Promise<boolean>;
-let showMessage: (message: string, type: MESSAGE_TYPE, isIgnorable: boolean) => Promise<boolean>;
+let getDataFromChoreo: (data: any, analyzeType: ANALYZE_TYPE) => Promise<PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse | undefined>;
 
 export interface PerformanceGraphRequest {
     file: string;
@@ -60,10 +57,10 @@ export enum ANALYZE_TYPE {
  * @param lc language client
  * @param session choreo session
  * @param showPerf Show performance graph function
- * @param handleErrors Show performance graph errors
+ * @param getPerfDataFromChoreo Show performance graph errors
  * @param showMsg Show alerts in vscode side
  */
-export async function addPerformanceData(st: any, file: string, lc: DiagramEditorLangClientInterface, session: PFSession, showPerf: (request: PerformanceGraphRequest) => Promise<boolean>, handleErrors: (response: PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse) => Promise<boolean>, showMsg: (message: string, type: MESSAGE_TYPE, isIgnorable: boolean) => Promise<boolean>) {
+export async function addPerformanceData(st: any, file: string, lc: DiagramEditorLangClientInterface, session: PFSession, showPerf: (request: PerformanceGraphRequest) => Promise<boolean>, getPerfDataFromChoreo: (data: any, analyzeType: ANALYZE_TYPE) => Promise<PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse | undefined>) {
     if (!st || !file || !lc || !session) {
         return;
     }
@@ -73,8 +70,7 @@ export async function addPerformanceData(st: any, file: string, lc: DiagramEdito
     filePath = file;
     pfSession = session;
     showPerformanceGraph = showPerf;
-    showMessage = showMsg;
-    handlePerfErrors = handleErrors;
+    getDataFromChoreo = getPerfDataFromChoreo;
 
     const members: any[] = syntaxTree.members;
     for (let currentService = 0; currentService < members.length; currentService++) {
@@ -111,7 +107,7 @@ async function getRealtimeData(range: Range): Promise<PerformanceAnalyzerRealtim
     }
 
     return new Promise<PerformanceAnalyzerRealtimeResponse>(async (resolve, reject) => {
-        await langClient.getRealtimePerformanceData({
+        await langClient.getPerfEndpoints({
             documentIdentifier: {
                 uri: filePath
             },
@@ -124,22 +120,23 @@ async function getRealtimeData(range: Range): Promise<PerformanceAnalyzerRealtim
                     line: range.endLineNumber,
                     character: range.endColumn
                 }
-            },
-            choreoAPI: pfSession.choreoAPI,
-            choreoToken: `Bearer ${pfSession.choreoToken}`,
-            choreoCookie: pfSession.choreoCookie,
-        }).then(async (response: PerformanceAnalyzerRealtimeResponse) => {
+            }
+        }).then(async (response) => {
             if (!response) {
                 return resolve(null);
             }
-            if (response.type && response.type === IGNORE) {
-                return;
-            }
+
             if (response.type && response.type !== SUCCESS) {
-                handlePerfErrors(response);
                 return resolve(null);
             }
-            return resolve(response);
+
+            const data = await getDataFromChoreo(response, ANALYZE_TYPE.REALTIME);
+
+            if (!data) {
+                return resolve(null);
+            }
+
+            return resolve(data as PerformanceAnalyzerRealtimeResponse);
         });
     });
 }
@@ -151,7 +148,7 @@ export async function addAdvancedLabels(name: string, range: NodePosition, diagr
     currentResourcePos = range;
 
     diagramRedraw = diagramRedrawFunc;
-    await langClient.getPerformanceGraphData({
+    await langClient.getPerfEndpoints({
         documentIdentifier: {
             uri: filePath
         },
@@ -164,19 +161,22 @@ export async function addAdvancedLabels(name: string, range: NodePosition, diagr
                 line: range.endLine,
                 character: range.endColumn
             }
-        },
-        choreoAPI: pfSession.choreoAPI,
-        choreoToken: `Bearer ${pfSession.choreoToken}`,
-        choreoCookie: pfSession.choreoCookie,
+        }
     }).then(async (response: PerformanceAnalyzerGraphResponse) => {
 
-        if (response.type !== SUCCESS) {
-            handlePerfErrors(response);
+        if (response.type && response.type !== SUCCESS) {
             return;
         }
 
-        sequenceDiagramData = response.sequenceDiagramData;
-        graphData = response.graphData;
+        let data = await getDataFromChoreo(response, ANALYZE_TYPE.ADVANCED);
+
+        if (!data) {
+            return;
+        }
+        data = data as PerformanceAnalyzerGraphResponse;
+
+        sequenceDiagramData = data.sequenceDiagramData;
+        graphData = data.graphData;
         updateAdvancedLabels(0);
         showPerformanceChart({ name, graphData })
     });
@@ -222,7 +222,7 @@ export async function updatePerformanceLabels(concurrency: number) {
     switch (concurrency) {
         case -1: {
             mergeAnalysisDetails(syntaxTree, null, null, null, null, true);
-            await addPerformanceData(syntaxTree, filePath, langClient, pfSession, showPerformanceGraph, handlePerfErrors, showMessage);
+            await addPerformanceData(syntaxTree, filePath, langClient, pfSession, showPerformanceGraph, getDataFromChoreo);
             diagramRedraw(syntaxTree);
             return true;
         }

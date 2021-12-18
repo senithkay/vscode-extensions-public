@@ -18,7 +18,9 @@ import { ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
 import { useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { useSelectedStatus } from "../../../../../hooks";
 import { getSTComponent } from "../../../../../utils";
+import expandTracker from "../../../../../utils/expand-tracker";
 import { getServiceTypeFromModel } from "../../../../FormComponents/ConfigForms/ServiceConfigForm/util";
+import { getNodeSignature } from "../../../Utils";
 import { TopLevelPlus } from "../../PlusButtons/TopLevelPlus";
 
 import { ServiceHeader } from "./ServiceHeader";
@@ -35,16 +37,10 @@ export function Service(props: ServiceProps) {
     const { model } = props;
     const { props: { stSymbolInfo } } = useDiagramContext();
 
-    const isSelected = useSelectedStatus(model);
-    const [isExpanded, setIsExpanded] = useState(isSelected);
-
+    const [isExpanded, setIsExpanded] = useSelectedStatus(model);
     const onExpandClick = () => {
         setIsExpanded(!isExpanded);
     }
-
-    React.useEffect(() => {
-        setIsExpanded(isSelected);
-    }, [isSelected])
 
     const serviceType = getServiceTypeFromModel(model, stSymbolInfo);
     const isTriggerType = serviceType !== "http";
@@ -57,6 +53,7 @@ export function Service(props: ServiceProps) {
                     kind={model.kind}
                     targetPosition={member.position}
                     isTriggerType={isTriggerType}
+                    showCategorized={true}
                 />
                 {getSTComponent(member)}
             </div>
@@ -117,6 +114,7 @@ export function Service(props: ServiceProps) {
                                 targetPosition={model.closeBraceToken.position}
                                 isTriggerType={isTriggerType}
                                 isDocumentEmpty={model.members.length === 0}
+                                showCategorized={true}
                             />
                         </>
                     )}
