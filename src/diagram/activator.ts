@@ -23,11 +23,11 @@ import {
 } from 'vscode';
 import * as _ from 'lodash';
 import { render } from './renderer';
-import { CONNECTOR_LIST_CACHE, DocumentIdentifier, ExtendedLangClient, PerformanceAnalyzerGraphResponse, PerformanceAnalyzerRealtimeResponse } from '../core/extended-language-client';
+import { CONNECTOR_LIST_CACHE, DocumentIdentifier, ExtendedLangClient, HTTP_CONNECTOR_LIST_CACHE, PerformanceAnalyzerGraphResponse, PerformanceAnalyzerRealtimeResponse } from '../core/extended-language-client';
 import { BallerinaExtension, ballerinaExtInstance, Change } from '../core';
 import { getCommonWebViewOptions, isWindows, WebViewMethod, WebViewRPCHandler } from '../utils';
 import { join } from "path";
-import { TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, sendTelemetryEvent, TM_EVENT_OPEN_DIAGRAM, sendTelemetryException } from '../telemetry';
+import { TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, sendTelemetryEvent, TM_EVENT_OPEN_DIAGRAM, sendTelemetryException, sendInsightEvent } from '../telemetry';
 import { CHOREO_API_PF, getDataFromChoreo, openPerformanceDiagram, PFSession } from '../forecaster';
 import { showMessage } from '../utils/showMessage';
 import { Module } from '../tree-view';
@@ -88,6 +88,13 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 	langClient.getConnectors({ query: "", limit: 18 }, true).then((connectorList) => {
 		if (connectorList && connectorList.central?.length > 0) {
 			ballerinaExtInstance.context?.globalState.update(CONNECTOR_LIST_CACHE, connectorList);
+		}
+	})
+
+	// Reset cached HTTP connector list
+	langClient.getConnectors({ query: "http", limit: 18 }, true).then((connectorList) => {
+		if (connectorList && connectorList.central?.length > 0) {
+			ballerinaExtInstance.context?.globalState.update(HTTP_CONNECTOR_LIST_CACHE, connectorList);
 		}
 	})
 
@@ -170,9 +177,9 @@ function resolveMissingDependencyByCodeAction(filePath: string, fileContent: str
 	});
 }
 
-function resolveMissingDependency(filePath: string, fileContent: string, langClient: ExtendedLangClient) {
+async function resolveMissingDependency(filePath: string, fileContent: string, langClient: ExtendedLangClient) {
 	// Show the progress bar.
-	window.withProgress({
+	await window.withProgress({
 		location: ProgressLocation.Window,
 		title: "Resolving dependencies...",
 		cancellable: false
@@ -339,7 +346,7 @@ class DiagramPanel {
 			{
 				methodName: "resolveMissingDependency",
 				handler: async (args: any[]): Promise<boolean> => {
-					resolveMissingDependency(args[0], args[1], langClient);
+					await resolveMissingDependency(args[0], args[1], langClient);
 					return true;
 				}
 			},
@@ -353,8 +360,8 @@ class DiagramPanel {
 			{
 				methodName: "showMessage",
 				handler: async (args: any[]): Promise<boolean> => {
-					let callBack = (filePath: string, fileContent: string) => {
-						resolveMissingDependency(filePath, fileContent, langClient);
+					let callBack = async (filePath: string, fileContent: string) => {
+						await resolveMissingDependency(filePath, fileContent, langClient);
 					};
 					if (!ballerinaExtension.enabledPerformanceForecasting() ||
 						ballerinaExtension.getPerformanceForecastContext().temporaryDisabled) {
@@ -377,7 +384,19 @@ class DiagramPanel {
 					await runCommand(args[0], args[1]);
 					return Promise.resolve(true);
 				}
-			}
+			},
+			{
+				methodName: "sendInsightEvent",
+				handler: async (args: any[]): Promise<boolean> => {
+					const event: {
+						type: any;
+						name: any;
+						property?: any;
+					} = args[0];
+					sendInsightEvent(ballerinaExtension, event.type, event.name, event.property);
+					return Promise.resolve(true);
+				}
+			},
 		];
 
 		webviewRPCHandler = WebViewRPCHandler.create(panel, langClient, remoteMethods);

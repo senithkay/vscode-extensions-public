@@ -207,6 +207,17 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
                     );
                 })
             }
+            function sendInsightEvent(args) {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'sendInsightEvent',
+                        [args],
+                        (response) => {
+                            resolve(response);
+                        }
+                    );
+                })
+            }
             function drawDiagram({
                 filePath,
                 startLine,
@@ -231,7 +242,8 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
                             lastUpdatedAt,
                             resolveMissingDependency,
                             resolveMissingDependencyByCodeAction,
-                            runCommand
+                            runCommand,
+                            sendInsightEvent
                         }
                     };
                     BLCEditor.renderDiagramEditor(options);
