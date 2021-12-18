@@ -1,6 +1,6 @@
 import React from "react";
 
-import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { IsolatedKeyword, NodePosition, PublicKeyword, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import * as stComponents from '../Components/RenderingComponents';
 import { ActionProcessor } from "../Components/RenderingComponents/ActionInvocation/ActionProcess";
@@ -128,4 +128,62 @@ export function getDraftComponent(viewState: BlockViewState, state: any, insertC
     }
 
     return draftComponents;
+}
+
+export function getNodeSignature(node: STNode): string {
+    if (STKindChecker.isServiceDeclaration(node)) {
+        let qualifiers = '';
+        let path = '';
+
+        node.qualifiers.forEach((qualifier: IsolatedKeyword | PublicKeyword, i: number) => {
+            qualifiers += qualifier.value;
+
+            if (i <= node.qualifiers.length - 1) {
+                qualifiers += ' ';
+            }
+        });
+
+        node.absoluteResourcePath.forEach((pathSegment, i) => {
+            path += pathSegment.value;
+
+            if (i === node.absoluteResourcePath.length - 1) {
+                path += ' ';
+            }
+        });
+
+        return `${qualifiers}service ${path}on ${node.expressions[0].source}`;
+
+    } else if (STKindChecker.isResourceAccessorDefinition(node)) {
+        let qualifiers = '';
+        let path = '';
+
+        node.qualifierList.forEach((qualifier: IsolatedKeyword | PublicKeyword, i: number) => {
+            qualifiers += qualifier.value;
+
+            if (i <= node.qualifierList.length - 1) {
+                qualifiers += ' ';
+            }
+        });
+
+        node.relativeResourcePath.forEach((pathSegment, i) => {
+            path += pathSegment.value;
+        });
+
+        return `${qualifiers}function ${node.functionName.value} ${path}${node.functionSignature.source}`;
+    } else if (STKindChecker.isFunctionDefinition(node)) {
+        let qualifiers = '';
+        const path = '';
+
+        node.qualifierList.forEach((qualifier: IsolatedKeyword | PublicKeyword, i: number) => {
+            qualifiers += qualifier.value;
+
+            if (i <= node.qualifierList.length - 1) {
+                qualifiers += ' ';
+            }
+        });
+
+        return `${qualifiers}function ${node.functionName.value}${node.functionSignature.source}`;
+    }
+
+    return '';
 }
