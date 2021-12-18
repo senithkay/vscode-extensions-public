@@ -13,7 +13,7 @@
 // tslint:disable: ordered-imports
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
-import { formCreateSvg } from "../../assests";
+import { formCreateSvg } from "../../assets";
 
 export const useStyles = makeStyles((theme: Theme) =>
         createStyles({

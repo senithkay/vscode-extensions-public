@@ -13,7 +13,7 @@
 // tslint:disable: ordered-imports
 import { FunctionDefinition, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import {  CompletionItemKind, Diagnostic, InsertTextFormat, Range  } from "vscode-languageserver-protocol";
-import { ExpEditorExpandSvg, ExpEditorCollapseSvg, ConfigurableIconSvg } from "../../assests";
+import { ExpEditorExpandSvg, ExpEditorCollapseSvg, ConfigurableIconSvg } from "../../assets";
 
 import * as monaco from 'monaco-editor';
 
