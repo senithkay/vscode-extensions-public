@@ -98,6 +98,7 @@ export function getForm(type: string, args: any) {
 }
 
 export function getConnectorComponent(type: string, args: any) {
+    const ConnectorExtensionComponent = (ConnectorExtension as any)[type];
     return ConnectorExtensionComponent ? (
         <ConnectorExtensionComponent {...args} />
     ) : undefined;
