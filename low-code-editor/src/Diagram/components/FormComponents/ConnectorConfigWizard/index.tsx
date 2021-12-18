@@ -119,30 +119,6 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
         defaultMessage: "Something went wrong. Couldn't load the connection.",
     });
 
-    const fetchConnectorsList = async (
-        queryParams: SearchQueryParams,
-        currentFilePath: string,
-        userDetail?: UserState
-    ): Promise<BallerinaModuleResponse> => {
-        const { query, category, filterState, limit, page } = queryParams;
-        const langClient: DiagramEditorLangClientInterface = await getDiagramEditorLangClient();
-        const request: BallerinaConnectorsRequest = {
-            targetFile: currentFilePath,
-            query,
-            limit,
-        };
-        if (category) {
-            request.keyword = category;
-        }
-        if (userDetail && filterState && filterState.hasOwnProperty("My Organization")) {
-            request.organization = userDetail.selectedOrgHandle;
-        }
-        if (page) {
-            request.offset = (page - 1) * limit;
-        }
-        return langClient.getConnectors(request);
-    };
-
     React.useEffect(() => {
         fitToScreen();
         pan(0, -position.y + DefaultConfig.dotGap * 3);
@@ -151,19 +127,19 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
     React.useEffect(() => {
         if (wizardState.isLoading) {
             (async () => {
-                const queryParams: SearchQueryParams = {
-                    query: specialConnectorName.toLocaleLowerCase(),
-                    category: "",
-                    filterState: {},
-                    limit: 18,
-                    page: 1,
-                };
                 let connector = connectorInfo;
                 if (specialConnectorName) {
-                    const ballerinaConnectorInfo = await fetchConnectorsList(queryParams, currentFile.path, userInfo);
+                    const request: BallerinaConnectorsRequest = {
+                        targetFile: currentFile.path,
+                        query: specialConnectorName.toLocaleLowerCase(),
+                        keyword: "",
+                        limit: 18
+                    };
+                    const langClient: DiagramEditorLangClientInterface = await getDiagramEditorLangClient();
+                    const ballerinaConnectorInfo = await langClient.getConnectors(request);
                     connector = ballerinaConnectorInfo.central.find((balModule: BallerinaModule) =>
-                            (balModule.moduleName === specialConnectorName.toLocaleLowerCase() &&
-                                balModule.name === "Client")) as BallerinaConnectorInfo;
+                        (balModule.moduleName === specialConnectorName.toLocaleLowerCase() &&
+                            balModule.name === "Client")) as BallerinaConnectorInfo;
                 }
 
                 const connectorInfoResponse = await fetchConnectorInfo(
