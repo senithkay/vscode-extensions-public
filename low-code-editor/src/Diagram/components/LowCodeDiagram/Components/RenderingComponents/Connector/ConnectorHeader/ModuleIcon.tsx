@@ -37,9 +37,9 @@ export function ModuleIcon(props: ModuleIconProps) {
 
     const [showDefaultIcon, setShowDefaultIcon] = useState(false);
 
-    if (node && node.typeData?.typeSymbol?.moduleID) {
-        const moduleInfo = node.typeData.typeSymbol.moduleID;
-        iconUrl = `${balCentralCdn}/${moduleInfo.orgName}_${moduleInfo.moduleName}_${moduleInfo.version}.png`;
+    if (node) {
+        const moduleInfo = node.typeData?.typeSymbol?.moduleID;
+        iconUrl = `${balCentralCdn}/${moduleInfo?.orgName}_${moduleInfo?.moduleName}_${moduleInfo?.version}.png`;
         defaultProps = {
             cx: cx - marginError,
             cy: cy - marginError,
