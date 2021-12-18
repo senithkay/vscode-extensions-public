@@ -854,8 +854,8 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                     response.importTypeInfo = [...response.importTypeInfo, ...returnTypeResponseRight.importTypeInfo];
                 }
                 if (returnTypeResponseLeft.returnType && (returnTypeResponseRight.returnType || returnTypeResponseRight.hasError)) {
-                    const leftType = returnTypeResponseRight.hasError ? "error?" : returnTypeResponseRight.returnType;
-                    response.returnType = `stream<${returnTypeResponseLeft.returnType},${leftType}>`
+                    const rightType = returnTypeResponseRight.hasError ? "error?" : returnTypeResponseRight.returnType;
+                    response.returnType = `stream<${returnTypeResponseLeft.returnType},${rightType}>`
                 }
                 if (returnTypeResponseLeft.returnType && !returnTypeResponseRight.returnType) {
                     response.returnType = `stream<${returnTypeResponseLeft.returnType}>`
