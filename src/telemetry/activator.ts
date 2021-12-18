@@ -20,7 +20,7 @@
 import { BallerinaExtension, ExtendedLangClient } from "../core";
 import { debug } from "../utils";
 import { window } from "vscode";
-import { getTelemetryProperties, TM_ERROR_LANG_SERVER, TM_EVENT_KILL_TERMINAL, TM_FEATURE_USAGE_LANG_SERVER } from ".";
+import { getTelemetryProperties, sendTelemetryEvent, TM_ERROR_LANG_SERVER, TM_EVENT_KILL_TERMINAL, TM_FEATURE_USAGE_LANG_SERVER } from ".";
 
 const schedule = require('node-schedule');
 
@@ -72,8 +72,9 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         });
     }
 
+    //editor-terminal-kill
     window.onDidCloseTerminal(t => {
-        reporter.sendTelemetryEvent(TM_EVENT_KILL_TERMINAL, {});
+        sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_KILL_TERMINAL, '');
     });
 }
 

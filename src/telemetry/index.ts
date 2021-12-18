@@ -20,7 +20,8 @@
 import TelemetryReporter from "vscode-extension-telemetry";
 import { BallerinaExtension } from "../core";
 
-const INSTRUMENTATION_KEY = process.env.CODE_SERVER_ENV && process.env.VSCODE_CHOREO_INSTRUMENTATION_KEY ? process.env.VSCODE_CHOREO_INSTRUMENTATION_KEY : "e7703a9d-bb5c-4e3a-b4e3-05c773fd87d1";
+const DEFAULT_KEY = "3a82b093-5b7b-440c-9aa2-3b8e8e5704e7";
+const INSTRUMENTATION_KEY = process.env.CODE_SERVER_ENV && process.env.VSCODE_CHOREO_INSTRUMENTATION_KEY ? process.env.VSCODE_CHOREO_INSTRUMENTATION_KEY : DEFAULT_KEY;
 const isWSO2User = process.env.VSCODE_CHOREO_USER_EMAIL ? process.env.VSCODE_CHOREO_USER_EMAIL.endsWith('@wso2.com') : false;
 
 export function createTelemetryReporter(ext: BallerinaExtension): TelemetryReporter {
