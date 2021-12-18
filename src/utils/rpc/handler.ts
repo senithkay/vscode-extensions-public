@@ -237,22 +237,12 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
             });
         }
     }, {
-        methodName: 'getRealtimePerformanceData',
+        methodName: 'getPerfEndpoints',
         handler: (args: any[]) => {
             const start = new Date().getTime();
-            return langClient.getRealtimePerformanceData(args[0]).then(result => {
-                consoleLog(start, 'getRealtimePerformanceData');
-                return result;
-            });
-        }
-    }, {
-        methodName: 'getPerformanceGraphData',
-        handler: (args: any[]) => {
-            const start = new Date().getTime();
-            return langClient.getPerformanceGraphData(args[0]).then(result => {
-                consoleLog(start, 'getPerformanceGraphData');
-                return result;
-            });
+            const response = langClient.getPerfEndpoints(args[0]);
+            consoleLog(start, 'getPerfEndpoints');
+            return response;
         }
     }, {
         methodName: 'resolveMissingDependencies',

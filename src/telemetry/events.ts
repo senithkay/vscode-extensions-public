@@ -75,3 +75,5 @@ export const TM_EVENT_WORKSPACE_RUN = "editor-lowcode-workspace-run";
 export const TM_EVENT_LOW_CODE_RUN = "editor-lowcode-code-run";
 export const TM_EVENT_SWAGGER_RUN = "editor-lowcode-code-tryit";
 export const TM_EVENT_KILL_TERMINAL = "editor-terminal-kill";
+
+export const TM_EVENT_LANG_CLIENT = "ballerina.langclient.event";

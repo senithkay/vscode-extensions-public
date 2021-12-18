@@ -34,9 +34,9 @@ import { BallerinaConnectorsRequest, BallerinaTriggerRequest, BallerinaTriggerRe
 import { BallerinaExtension } from "./index";
 import { showChoreoPushMessage } from "../editor-support/git-status";
 import { MESSAGE_TYPE } from "../utils/showMessage";
-import { Values } from "../forecaster/model";
-import { showChoreoSigninMessage } from "../forecaster";
+import { showChoreoSigninMessage, Values } from "../forecaster";
 import { debug } from "../utils";
+import { CMP_LS_CLIENT_COMPLETIONS, CMP_LS_CLIENT_DIAGNOSTICS, sendTelemetryEvent, TM_EVENT_LANG_CLIENT } from "../telemetry";
 
 export const CONNECTOR_LIST_CACHE = "CONNECTOR_LIST_CACHE";
 export const HTTP_CONNECTOR_LIST_CACHE = "HTTP_CONNECTOR_LIST_CACHE";
@@ -65,8 +65,7 @@ enum EXTENDED_APIS {
     PARTIAL_PARSE_EXPRESSION = 'partialParser/getSTForExpression',
     PARTIAL_PARSE_MODULE_MEMBER = 'partialParser/getSTForModuleMembers',
     EXAMPLE_LIST = 'ballerinaExample/list',
-    PERF_ANALYZER_GRAPH_DATA = 'performanceAnalyzer/getGraphData',
-    PERF_ANALYZER_REALTIME_DATA = 'performanceAnalyzer/getRealtimeData',
+    PERF_ANALYZER_ENDPOINTS = 'performanceAnalyzer/getEndpoints',
     RESOLVE_MISSING_DEPENDENCIES = 'ballerinaDocument/resolveMissingDependencies',
     BALLERINA_TO_OPENAPI = 'openAPILSExtension/generateOpenAPI'
 }
@@ -249,6 +248,11 @@ export interface PerformanceAnalyzerGraphRequest {
     choreoToken: String;
 }
 
+export interface PerformanceAnalyzerEndpointsRequest {
+    documentIdentifier: DocumentIdentifier;
+    range: Range;
+}
+
 export interface PerformanceAnalyzerGraphResponse {
     message: string;
     type: any;
@@ -303,17 +307,24 @@ export interface OADiagnostic {
     location?: LineRange;
 }
 
+export interface APITimeConsumption {
+    diagnostics: number[];
+    completion: number[];
+}
+
 export class ExtendedLangClient extends LanguageClient {
     private ballerinaExtendedServices: Set<String> | undefined;
     private isDynamicRegistrationSupported: boolean;
     isInitialized: boolean = true;
     private ballerinaExtInstance: BallerinaExtension | undefined;
+    private timeConsumption: APITimeConsumption;
 
     constructor(id: string, name: string, serverOptions: ServerOptions, clientOptions: LanguageClientOptions,
         ballerinaExtInstance: BallerinaExtension | undefined, forceDebug?: boolean) {
         super(id, name, serverOptions, clientOptions, forceDebug);
         this.isDynamicRegistrationSupported = true;
         this.ballerinaExtInstance = ballerinaExtInstance;
+        this.timeConsumption = { diagnostics: [], completion: [] };
     }
 
     didOpen(params: DidOpenParams): void {
@@ -332,13 +343,7 @@ export class ExtendedLangClient extends LanguageClient {
         debug(`didChange at ${new Date()} - ${new Date().getTime()}`);
         this.sendNotification("textDocument/didChange", params);
     }
-    getPerformanceGraphData(params: PerformanceAnalyzerGraphRequest): Promise<PerformanceAnalyzerGraphResponse> {
-        if (!this.isExtendedServiceSupported(EXTENDED_APIS.PERF_ANALYZER_GRAPH_DATA)) {
-            Promise.resolve(NOT_SUPPORTED);
-        }
-        return this.sendRequest(EXTENDED_APIS.PERF_ANALYZER_GRAPH_DATA, params);
-    }
-    getRealtimePerformanceData(params: PerformanceAnalyzerGraphRequest): Promise<PerformanceAnalyzerRealtimeResponse> {
+    getPerfEndpoints(params: PerformanceAnalyzerEndpointsRequest): Promise<any> {
         if (!this.ballerinaExtInstance?.enabledPerformanceForecasting() ||
             !this.ballerinaExtInstance?.getChoreoSession().loginStatus ||
             this.ballerinaExtInstance.getPerformanceForecastContext().temporaryDisabled) {
@@ -347,19 +352,25 @@ export class ExtendedLangClient extends LanguageClient {
                 tps: { min: 0, max: 0 }, latency: { min: 0, max: 0 }
             });
         }
-        if (!this.isExtendedServiceSupported(EXTENDED_APIS.PERF_ANALYZER_REALTIME_DATA)) {
+        if (!this.isExtendedServiceSupported(EXTENDED_APIS.PERF_ANALYZER_ENDPOINTS)) {
             Promise.resolve(NOT_SUPPORTED);
         }
-        return this.sendRequest(EXTENDED_APIS.PERF_ANALYZER_REALTIME_DATA, params);
+        return this.sendRequest(EXTENDED_APIS.PERF_ANALYZER_ENDPOINTS, params);
     }
-    getDiagnostics(params: BallerinaProjectParams): Promise<PublishDiagnosticsParams[]> {
+    async getDiagnostics(params: BallerinaProjectParams): Promise<PublishDiagnosticsParams[]> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_DIAGNOSTICS)) {
             Promise.resolve(NOT_SUPPORTED);
         }
-        return this.sendRequest<PublishDiagnosticsParams[]>(EXTENDED_APIS.DOCUMENT_DIAGNOSTICS, params);
+        const start = new Date().getTime();
+        const response = await this.sendRequest<PublishDiagnosticsParams[]>(EXTENDED_APIS.DOCUMENT_DIAGNOSTICS, params);
+        this.timeConsumption.diagnostics.push(new Date().getTime() - start);
+        return response;
     }
-    getCompletion(params: CompletionParams): Promise<CompletionResponse[]> {
-        return this.sendRequest("textDocument/completion", params);
+    async getCompletion(params: CompletionParams): Promise<CompletionResponse[]> {
+        const start = new Date().getTime();
+        const resoponse: CompletionResponse[] = await this.sendRequest("textDocument/completion", params);
+        this.timeConsumption.completion.push(new Date().getTime() - start);
+        return resoponse;
     }
     getType(params: ExpressionTypeRequest): Promise<ExpressionTypeResponse> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.SYMBOL_TYPE)) {
@@ -583,7 +594,7 @@ export class ExtendedLangClient extends LanguageClient {
                 },
                 { name: EXTENDED_APIS_ORG.EXAMPLE, list: true },
                 { name: EXTENDED_APIS_ORG.JSON_TO_RECORD, convert: true },
-                { name: EXTENDED_APIS_ORG.PERF_ANALYZER, getGraphData: true, getRealtimeData: true },
+                { name: EXTENDED_APIS_ORG.PERF_ANALYZER, getEndpoints: true },
                 { name: EXTENDED_APIS_ORG.PARTIAL_PARSER, getSTForSingleStatement: true, getSTForExpression: true },
                 { name: EXTENDED_APIS_ORG.BALLERINA_TO_OPENAPI, generateOpenAPI: true }
             ]
@@ -612,4 +623,38 @@ export class ExtendedLangClient extends LanguageClient {
         }
         return this.ballerinaExtendedServices?.has(serviceName) || true;
     }
+
+    pushLSClientTelemetries() {
+        if (this.timeConsumption.completion.length > 0) {
+            const completionValues = calculateTelemetryValues(this.timeConsumption.completion, 'completion');
+            sendTelemetryEvent(this.ballerinaExtInstance!, TM_EVENT_LANG_CLIENT, CMP_LS_CLIENT_COMPLETIONS, '', completionValues);
+            this.timeConsumption.completion = [];
+        }
+
+        if (this.timeConsumption.diagnostics.length > 0) {
+            const diagnosticValues = calculateTelemetryValues(this.timeConsumption.diagnostics, 'diagnostic');
+            this.timeConsumption.diagnostics = [];
+            sendTelemetryEvent(this.ballerinaExtInstance!, TM_EVENT_LANG_CLIENT, CMP_LS_CLIENT_DIAGNOSTICS, '', diagnosticValues);
+        }
+    }
+}
+
+function calculateTelemetryValues(array: number[], name: string): any {
+    let values = {};
+    let total = 0;
+    let min = 99999999999;
+    let max = -1;
+    for (let i = 0; i < array.length; i++) {
+        total += array[i];
+        if (max < array[i]) {
+            max = array[i];
+        }
+        if (min > array[i]) {
+            min = array[i];
+        }
+    }
+    values[name + '-average'] = total / array.length;
+    values[name + '-min'] = min;
+    values[name + '-max'] = max;
+    return values;
 }

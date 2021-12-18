@@ -34,6 +34,8 @@ export enum CODELENSE_TYPE {
     ADVANCED
 }
 
+const debounceTime: number = 5000;
+let lastRefresh: number = Date.now();
 let langClient: ExtendedLangClient;
 
 /**
@@ -72,7 +74,11 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
                     DefaultWebviewPanel.currentPanel?.dispose();
                 }
 
-                await ExecutorCodeLensProvider.addCodeLenses(uri);
+                const currentTime: number = Date.now();
+                if (currentTime - lastRefresh > debounceTime) {
+                    await ExecutorCodeLensProvider.addCodeLenses(uri);
+                    lastRefresh = currentTime;
+                }
             }
         });
 

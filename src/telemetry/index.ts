@@ -32,10 +32,19 @@ export function createTelemetryReporter(ext: BallerinaExtension): TelemetryRepor
 }
 
 export function sendTelemetryEvent(extension: BallerinaExtension, eventName: string, componentName: string,
-    message: string = '') {
+    message: string = '', measurements?: any) {
     if (extension.isTelemetryEnabled()) {
-        extension.telemetryReporter.sendTelemetryEvent(eventName, getTelemetryProperties(extension, componentName,
-            message));
+        if (measurements) {
+            let properties = {};
+            Object.keys(measurements).forEach(key => {
+                properties[key] = measurements[key];
+            });
+            extension.telemetryReporter.sendTelemetryEvent(eventName, getTelemetryProperties(extension, componentName,
+                message), properties);
+        } else {
+            extension.telemetryReporter.sendTelemetryEvent(eventName, getTelemetryProperties(extension, componentName,
+                message));
+        }
     }
 }
 
