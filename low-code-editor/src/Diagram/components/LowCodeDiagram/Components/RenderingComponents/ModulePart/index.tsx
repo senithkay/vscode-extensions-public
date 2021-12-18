@@ -41,7 +41,7 @@ export function ModulePartComponent(props: ModulePartProps) {
         moduleMembers.push(
             <>
                 <div className={'member-container'} >
-                    <TopLevelPlus kind={model.kind} targetPosition={member.position} />
+                    <TopLevelPlus kind={model.kind} targetPosition={member.position} showCategorized={true} />
                     {getSTComponent(member)}
                 </div>
             </>
@@ -59,6 +59,7 @@ export function ModulePartComponent(props: ModulePartProps) {
                     isDocumentEmpty={model.members.length === 0}
                     isModuleLevel={true}
                     isLastMember={true}
+                    showCategorized={true}
                 />
             </div>
         </>
