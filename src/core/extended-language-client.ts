@@ -65,8 +65,7 @@ enum EXTENDED_APIS {
     PARTIAL_PARSE_EXPRESSION = 'partialParser/getSTForExpression',
     PARTIAL_PARSE_MODULE_MEMBER = 'partialParser/getSTForModuleMembers',
     EXAMPLE_LIST = 'ballerinaExample/list',
-    PERF_ANALYZER_GRAPH_DATA = 'performanceAnalyzer/getGraphData',
-    PERF_ANALYZER_REALTIME_DATA = 'performanceAnalyzer/getRealtimeData',
+    PERF_ANALYZER_ENDPOINTS = 'performanceAnalyzer/getEndpoints',
     RESOLVE_MISSING_DEPENDENCIES = 'ballerinaDocument/resolveMissingDependencies',
     BALLERINA_TO_OPENAPI = 'openAPILSExtension/generateOpenAPI'
 }
@@ -249,6 +248,11 @@ export interface PerformanceAnalyzerGraphRequest {
     choreoToken: String;
 }
 
+export interface PerformanceAnalyzerEndpointsRequest {
+    documentIdentifier: DocumentIdentifier;
+    range: Range;
+}
+
 export interface PerformanceAnalyzerGraphResponse {
     message: string;
     type: any;
@@ -332,13 +336,7 @@ export class ExtendedLangClient extends LanguageClient {
         debug(`didChange at ${new Date()} - ${new Date().getTime()}`);
         this.sendNotification("textDocument/didChange", params);
     }
-    getPerformanceGraphData(params: PerformanceAnalyzerGraphRequest): Promise<PerformanceAnalyzerGraphResponse> {
-        if (!this.isExtendedServiceSupported(EXTENDED_APIS.PERF_ANALYZER_GRAPH_DATA)) {
-            Promise.resolve(NOT_SUPPORTED);
-        }
-        return this.sendRequest(EXTENDED_APIS.PERF_ANALYZER_GRAPH_DATA, params);
-    }
-    getRealtimePerformanceData(params: PerformanceAnalyzerGraphRequest): Promise<PerformanceAnalyzerRealtimeResponse> {
+    getPerfEndpoints(params: PerformanceAnalyzerEndpointsRequest): Promise<any> {
         if (!this.ballerinaExtInstance?.enabledPerformanceForecasting() ||
             !this.ballerinaExtInstance?.getChoreoSession().loginStatus ||
             this.ballerinaExtInstance.getPerformanceForecastContext().temporaryDisabled) {
@@ -347,10 +345,10 @@ export class ExtendedLangClient extends LanguageClient {
                 tps: { min: 0, max: 0 }, latency: { min: 0, max: 0 }
             });
         }
-        if (!this.isExtendedServiceSupported(EXTENDED_APIS.PERF_ANALYZER_REALTIME_DATA)) {
+        if (!this.isExtendedServiceSupported(EXTENDED_APIS.PERF_ANALYZER_ENDPOINTS)) {
             Promise.resolve(NOT_SUPPORTED);
         }
-        return this.sendRequest(EXTENDED_APIS.PERF_ANALYZER_REALTIME_DATA, params);
+        return this.sendRequest(EXTENDED_APIS.PERF_ANALYZER_ENDPOINTS, params);
     }
     getDiagnostics(params: BallerinaProjectParams): Promise<PublishDiagnosticsParams[]> {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_DIAGNOSTICS)) {
@@ -583,7 +581,7 @@ export class ExtendedLangClient extends LanguageClient {
                 },
                 { name: EXTENDED_APIS_ORG.EXAMPLE, list: true },
                 { name: EXTENDED_APIS_ORG.JSON_TO_RECORD, convert: true },
-                { name: EXTENDED_APIS_ORG.PERF_ANALYZER, getGraphData: true, getRealtimeData: true },
+                { name: EXTENDED_APIS_ORG.PERF_ANALYZER, getEndpoints: true },
                 { name: EXTENDED_APIS_ORG.PARTIAL_PARSER, getSTForSingleStatement: true, getSTForExpression: true },
                 { name: EXTENDED_APIS_ORG.BALLERINA_TO_OPENAPI, generateOpenAPI: true }
             ]
