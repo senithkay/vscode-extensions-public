@@ -16,19 +16,15 @@ import { useIntl } from "react-intl";
 
 import {
   BallerinaConnectorInfo,
-  BallerinaConnectorsRequest,
   BallerinaModule,
-  BallerinaModuleResponse,
   Connector,
   ConnectorConfig,
-  DiagramEditorLangClientInterface,
   FunctionDefinitionInfo,
   WizardType
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { LocalVarDecl, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../Contexts/Diagram";
-import { UserState } from "../../../../types";
 import { DefaultConfig } from "../../../visitors/default";
 import {
   DiagramOverlayPosition,
@@ -36,6 +32,7 @@ import {
 import { fetchConnectorInfo } from "../../Portals/utils";
 import { SearchQueryParams } from "../ConfigForms/Marketplace";
 import { FormGenerator } from "../FormGenerator";
+import { fetchConnectorsList } from "../ConfigForms/ConnectorList";
 
 export interface ConfigWizardState {
     isLoading: boolean;
@@ -129,14 +126,16 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
             (async () => {
                 let connector = connectorInfo;
                 if (specialConnectorName) {
-                    const request: BallerinaConnectorsRequest = {
-                        targetFile: currentFile.path,
+                    const queryParams: SearchQueryParams = {
                         query: specialConnectorName.toLocaleLowerCase(),
-                        keyword: "",
-                        limit: 18
+                        category: "",
+                        filterState: {},
+                        limit: 18,
+                        page: 1,
                     };
-                    const langClient: DiagramEditorLangClientInterface = await getDiagramEditorLangClient();
-                    const ballerinaConnectorInfo = await langClient.getConnectors(request);
+                    const langClient = await getDiagramEditorLangClient();
+                    const ballerinaConnectorInfo = await fetchConnectorsList(queryParams, currentFile.path,
+                        langClient, userInfo);
                     connector = ballerinaConnectorInfo.central.find((balModule: BallerinaModule) =>
                         (balModule.moduleName === specialConnectorName.toLocaleLowerCase() &&
                             balModule.name === "Client")) as BallerinaConnectorInfo;
