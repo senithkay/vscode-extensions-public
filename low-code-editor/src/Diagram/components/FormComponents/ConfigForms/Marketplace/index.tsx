@@ -19,9 +19,9 @@ import {
     BallerinaModule,
     BallerinaModuleResponse,
     ButtonWithIcon,
+    DiagramEditorLangClientInterface,
     FormHeaderSection,
     IconBtnWithText,
-    DiagramEditorLangClientInterface,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 

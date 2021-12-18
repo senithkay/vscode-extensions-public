@@ -30,9 +30,9 @@ import {
   DiagramOverlayPosition,
 } from "../../Portals/Overlay";
 import { fetchConnectorInfo } from "../../Portals/utils";
+import { fetchConnectorsList } from "../ConfigForms/ConnectorList";
 import { SearchQueryParams } from "../ConfigForms/Marketplace";
 import { FormGenerator } from "../FormGenerator";
-import { fetchConnectorsList } from "../ConfigForms/ConnectorList";
 
 export interface ConfigWizardState {
     isLoading: boolean;
