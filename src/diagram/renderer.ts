@@ -207,10 +207,10 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
                     );
                 })
             }
-            function sendTelemetryEvent(args) {
+            function sendInsightEvent(args) {
                 return new Promise((resolve, _reject) => {
                     webViewRPCHandler.invokeRemoteMethod(
-                        'sendTelemetryEvent',
+                        'sendInsightEvent',
                         [args],
                         (response) => {
                             resolve(response);
@@ -243,7 +243,7 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
                             resolveMissingDependency,
                             resolveMissingDependencyByCodeAction,
                             runCommand,
-                            sendTelemetryEvent
+                            sendInsightEvent
                         }
                     };
                     BLCEditor.renderDiagramEditor(options);
