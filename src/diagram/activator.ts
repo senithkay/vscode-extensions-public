@@ -386,7 +386,7 @@ class DiagramPanel {
 				}
 			},
 			{
-				methodName: "sendTelemetryEvent",
+				methodName: "sendInsightEvent",
 				handler: async (args: any[]): Promise<boolean> => {
 					const event: {
 						type: any;
