@@ -97,7 +97,7 @@ export function createForeachStatement(collection: string, variableName: string,
     return foreachStatement;
 }
 
-export function createQueryWhileStatement(recordResultName: string, targetPosition?: NodePosition): STModification {
+export function createQueryWhileStatement(recordResultName: string, returnVariableName: string, targetPosition?: NodePosition): STModification {
     const queryForeachStatement: STModification = {
         startLine: targetPosition ? targetPosition.startLine : 0,
         startColumn: 0,
@@ -106,6 +106,7 @@ export function createQueryWhileStatement(recordResultName: string, targetPositi
         type: "WHILE_NEXT_STATEMENT",
         config: {
             "VARIABLE": recordResultName,
+            "RETURN_TYPE": returnVariableName,
         }
     };
 
