@@ -26,6 +26,7 @@ interface FunctionParamSegmentEditorProps {
     id?: number;
     segment?: FunctionParam,
     onSave?: (segment: FunctionParam) => void;
+    onUpdate?: (segment: FunctionParam) => void;
     onCancel?: () => void;
     validateParams?: (paramName: string) => { error: boolean, message: string };
     position?: NodePosition;
@@ -34,7 +35,7 @@ interface FunctionParamSegmentEditorProps {
 }
 
 export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProps) {
-    const { segment, onSave, id, onCancel, validateParams, position, isEdit, paramCount } = props;
+    const { segment, onSave, onUpdate, id, onCancel, validateParams, position, isEdit, paramCount } = props;
     const classes = useStyles();
     const initValue: FunctionParam = segment ? { ...segment } : {
         id: id ? id : 0,
@@ -50,7 +51,7 @@ export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProp
     const validateNameValue = (value: string) => {
         if (value) {
             const varValidationResponse = validateParams(value);
-            if (varValidationResponse?.error) {
+            if (varValidationResponse?.error && (segment?.name !== value)) {
                 setParamError(varValidationResponse.message);
                 return false;
             }
@@ -61,6 +62,14 @@ export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProp
 
     const handleOnSave = () => {
         onSave({
+            ...initValue,
+            name: segmentName,
+            type: segmentType,
+        });
+    };
+
+    const handleOnUpdate = () => {
+        onUpdate({
             ...initValue,
             name: segmentName,
             type: segmentType,
@@ -128,10 +137,10 @@ export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProp
                             />
                             <PrimaryButton
                                 dataTestId={"custom-expression-save-btn"}
-                                text={"Add"}
+                                text={onUpdate ? "Update" : " Add"}
                                 disabled={!segmentName || !segmentType || pramError !== "" || !isValidParam}
                                 fullWidth={false}
-                                onClick={handleOnSave}
+                                onClick={onUpdate ? handleOnUpdate : handleOnSave}
                             />
                         </div>
                     </Grid>

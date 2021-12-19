@@ -14,7 +14,7 @@
 import React, { useEffect, useRef, useState } from "react";
 
 import { Divider, FormControl } from "@material-ui/core";
-import { ConfigOverlayFormStatus, FormActionButtons, FormHeaderSection, PrimaryButton, SecondaryButton, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ConfigOverlayFormStatus, FormActionButtons, FormHeaderSection, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { AddIcon } from "../../../../../assets/icons";
@@ -27,6 +27,7 @@ import {
 import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
 import { VariableNameInput, VariableNameInputProps } from "../Components/VariableNameInput";
 import { VariableTypeInput, VariableTypeInputProps } from "../Components/VariableTypeInput";
+import { recalculateItemIds } from "../ResourceConfigForm/ApiConfigureWizard/util";
 
 import { FunctionParamItem } from "./FunctionParamEditor/FunctionParamItem";
 import { FunctionParamSegmentEditor } from "./FunctionParamEditor/FunctionSegmentEditor";
@@ -53,6 +54,8 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
     const [validReturnType, setValidReturnType] = useState(false)
     const [addingNewParam, setAddingNewParam] = useState(false);
     const [isFunctionNameValid, setIsFunctionNameValid] = useState(false);
+    // editingSegmentId > -1 when editing
+    const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
 
     const {
         props: { syntaxTree },
@@ -61,6 +64,15 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
         },
     } = useDiagramContext();
     const existingFunctionNames = useRef([]);
+
+    const handleOnEdit = (param: FunctionParam) => {
+        const id = parameters.indexOf(param);
+        // Once edit is clicked
+        if (id > -1) {
+            setEditingSegmentId(id);
+        }
+        setAddingNewParam(false);
+    };
 
     const handleOnSave = () => {
         const parametersStr = parameters
@@ -107,14 +119,32 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
     const onFunctionNameChange = (name: string) => setFunctionName(name);
 
     // Param related functions
-    const openNewParamView = () => setAddingNewParam(true);
-    const closeNewParamView = () => setAddingNewParam(false);
+    const openNewParamView = () => {
+        setAddingNewParam(true);
+        setEditingSegmentId(-1);
+    };
+    const closeNewParamView = () => {
+        setAddingNewParam(false);
+        setEditingSegmentId(-1);
+    };
+    const handleOnUpdateParam = (param: FunctionParam) => {
+        const id = param.id;
+        if (id > -1) {
+            parameters[id] = param;
+            setParameters(parameters);
+        }
+        setAddingNewParam(false);
+        setEditingSegmentId(-1);
+    };
     const onSaveNewParam = (param: FunctionParam) => {
         setParameters([...parameters, param]);
         setAddingNewParam(false);
+        setEditingSegmentId(-1);
     };
-    const onDeleteParam = (paramItem: FunctionParam) =>
+    const onDeleteParam = (paramItem: FunctionParam) => {
         setParameters(parameters.filter((item) => item.id !== paramItem.id));
+        recalculateItemIds(parameters);
+    }
 
     useEffect(() => {
         // Getting all function names for function name validation
@@ -217,7 +247,35 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
     }
 
     const isValidReturnType = returnType ? validReturnType : true;
-
+    const paramElements: React.ReactElement[] = [];
+    parameters.forEach((value, index) => {
+        if (value.name) {
+            if (editingSegmentId !== index) {
+                paramElements.push(
+                    <FunctionParamItem
+                        key={index}
+                        functionParam={value}
+                        addInProgress={addingNewParam}
+                        onDelete={onDeleteParam}
+                        onEditClick={handleOnEdit}
+                    />
+                );
+            } else if (editingSegmentId === index) {
+                paramElements.push(
+                    <FunctionParamSegmentEditor
+                        id={editingSegmentId}
+                        segment={value}
+                        onCancel={closeNewParamView}
+                        onUpdate={handleOnUpdateParam}
+                        validateParams={validateParams}
+                        position={paramPosition}
+                        isEdit={!!model}
+                        paramCount={parameters.length}
+                    />
+                );
+            }
+        }
+    });
     return (
         <FormControl data-testid="function-form" className={formClasses.wizardFormControl}  >
             <FormHeaderSection
@@ -231,13 +289,7 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
                     <VariableNameInput {...functionNameConfig} />
                     <Divider className={formClasses.sectionSeperatorHR} />
                     <Section title={"Parameters"}>
-                        {parameters.map((param) => (
-                            <FunctionParamItem
-                                key={param.id}
-                                functionParam={param}
-                                onDelete={onDeleteParam}
-                            />
-                        ))}
+                        {paramElements}
                         {addingNewParam ? (
                             <FunctionParamSegmentEditor
                                 id={parameters.length}
