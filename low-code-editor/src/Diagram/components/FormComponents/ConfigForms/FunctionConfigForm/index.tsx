@@ -216,6 +216,8 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
         initialDiagnostics: model?.functionSignature?.returnTypeDesc?.typeData?.diagnostics,
     }
 
+    const isValidReturnType = returnType ? validReturnType : true;
+
     return (
         <FormControl data-testid="function-form" className={formClasses.wizardFormControl}  >
             <FormHeaderSection
@@ -268,7 +270,7 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
                 saveBtnText="Save"
                 onSave={handleOnSave}
                 onCancel={onCancel}
-                validForm={(functionName.length > 0) && isFunctionNameValid && !addingNewParam && validReturnType}
+                validForm={(functionName.length > 0) && isFunctionNameValid && !addingNewParam && isValidReturnType}
             />
         </FormControl>
     );
