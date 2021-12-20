@@ -160,8 +160,7 @@ export function RecordDefinitionComponent(props: RecordDefComponentProps) {
                     <FormGenerator
                         model={model}
                         configOverlayFormStatus={{
-                            formType: STKindChecker.isRecordTypeDesc(model.typeDescriptor) ?
-                                "RecordEditor" : model.kind, isLoading: false
+                            formType: STKindChecker.isRecordTypeDesc(model.typeDescriptor) ? "RecordEditor" : model.kind, isLoading: false
                         }}
                         onCancel={handleEditBtnCancel}
                         onSave={handleEditBtnCancel}
