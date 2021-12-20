@@ -21,7 +21,6 @@ import {
 	commands, window, Uri, ViewColumn, WebviewPanel, Disposable, workspace, WorkspaceEdit, Range, Position,
 	TextDocumentShowOptions, ProgressLocation, ExtensionContext
 } from 'vscode';
-import * as _ from 'lodash';
 import { render } from './renderer';
 import {
 	CONNECTOR_LIST_CACHE,
@@ -46,6 +45,7 @@ import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { runCommand } from '../utils/runCommand';
 import { Diagnostic } from '.';
 import { createTests } from '../testing/activator';
+import { getBallerinaLibrariesList } from "../documentation/library";
 
 export let hasDiagram: boolean = false;
 
@@ -433,16 +433,7 @@ class DiagramPanel {
 				methodName: "getLibrariesList",
 				handler: async (args: any[]): Promise<LibraryDocResponse> => {
 					const version = args[0];
-					const response = await fetch(`https://api.staging-central.ballerina.io/2.0/docs/stdlib/${version}`);
-					const data = await response.json();
-
-					const transformedLibraries = data.langLibs.map((libraryData: any) => {
-						return {
-							librariesList: libraryData.langLibs
-						};
-					});
-
-					return transformedLibraries;
+					return await getBallerinaLibrariesList(version);
 				}
 			}
 		];
