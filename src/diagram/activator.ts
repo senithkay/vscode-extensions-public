@@ -27,7 +27,7 @@ import { CONNECTOR_LIST_CACHE, DocumentIdentifier, ExtendedLangClient, HTTP_CONN
 import { BallerinaExtension, ballerinaExtInstance, Change } from '../core';
 import { getCommonWebViewOptions, isWindows, WebViewMethod, WebViewRPCHandler } from '../utils';
 import { join } from "path";
-import { TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, sendTelemetryEvent, TM_EVENT_OPEN_DIAGRAM, sendTelemetryException, TM_EVENT_OPEN_CODE_EDITOR, TM_EVENT_OPEN_LOW_CODE, TM_EVENT_LOW_CODE_RUN } from '../telemetry';
+import { TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, sendTelemetryEvent, sendTelemetryException, TM_EVENT_OPEN_CODE_EDITOR, TM_EVENT_OPEN_LOW_CODE, TM_EVENT_LOW_CODE_RUN } from '../telemetry';
 import { CHOREO_API_PF, getDataFromChoreo, openPerformanceDiagram, PFSession } from '../forecaster';
 import { showMessage } from '../utils/showMessage';
 import { Module } from '../tree-view';
