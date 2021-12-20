@@ -321,6 +321,7 @@ export function getDataFromChoreo(data: any, analyzeType: ANALYZETYPE): Promise<
             }
         }
 
+        debug(`Calling perf API - ${url.hostname}/${url.pathname}`);
         const req = https.request(options, res => {
             var str = ''
             res.on('data', function (chunk) {
