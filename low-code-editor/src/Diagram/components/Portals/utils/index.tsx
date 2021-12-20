@@ -845,12 +845,10 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                 let returnTypeResponseRight = null
                 if (formField?.leftTypeParam) {
                     returnTypeResponseLeft = getFormFieldReturnType(formField.leftTypeParam, depth + 1);
-                    response.hasError = returnTypeResponseLeft.hasError || response.hasError;
                     response.importTypeInfo = [...response.importTypeInfo, ...returnTypeResponseLeft.importTypeInfo];
                 }
                 if (formField?.rightTypeParam) {
                     returnTypeResponseRight = getFormFieldReturnType(formField.rightTypeParam, depth + 1);
-                    response.hasError = returnTypeResponseRight.hasError || response.hasError;
                     response.importTypeInfo = [...response.importTypeInfo, ...returnTypeResponseRight.importTypeInfo];
                 }
                 if (returnTypeResponseLeft.returnType && (returnTypeResponseRight.returnType || returnTypeResponseRight.hasError)) {
@@ -862,6 +860,8 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                 }
                 if (response.returnType) {
                     response.hasReturn = true;
+                    formField.isErrorType = false;
+                    response.hasError = false;
                 }
                 break;
 
@@ -888,15 +888,6 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                 if (formField.typeName.trim() === "error" || formField.isErrorType) {
                     formField.isErrorType = true;
                     response.hasError = true;
-                    // special case for db connectors: show error in this format -> sql:Error?
-                    if (formField.typeInfo && formField.typeInfo.moduleName === "sql" && depth >= 2) {
-                        formField.isErrorType = false;
-                        response.hasError = false;
-                        type = `${formField.typeInfo.moduleName}:${formField.typeInfo.name}`
-                    }
-                    if (formField.typeInfo) {
-                        response.importTypeInfo.push(formField.typeInfo);
-                    }
                 }
                 if (type === "" && formField.typeInfo && !formField.isErrorType) {
                     // set class/record types
