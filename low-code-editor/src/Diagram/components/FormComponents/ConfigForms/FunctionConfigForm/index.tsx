@@ -46,7 +46,7 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
     const MAIN_TEXT: string = "Main";
     const formClasses = useFormStyles();
     const { targetPosition, model, onSave, onCancel, formType, configOverlayFormStatus, isLastMember } = props;
-    const isMainFunction: boolean = (configOverlayFormStatus.formName && configOverlayFormStatus.formName === MAIN_TEXT) || (model && model.functionName.value ===  MAIN_TEXT.toLowerCase());
+    const isMainFunction: boolean = (configOverlayFormStatus.formName && configOverlayFormStatus.formName === MAIN_TEXT) || (model && model.functionName.value === MAIN_TEXT.toLowerCase());
     const [functionName, setFunctionName] = useState(isMainFunction ? MAIN_TEXT.toLowerCase() : "");
     const [parameters, setParameters] = useState<FunctionParam[]>([]);
     const [returnType, setReturnType] = useState(model ? model?.functionSignature?.returnTypeDesc?.type?.source : "error?");
@@ -104,7 +104,9 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
         setIsFunctionNameValid(!isInValid);
     }
 
-    const onFunctionNameChange = (name: string) => setFunctionName(name);
+    const onFunctionNameChange = (name: string) => {
+        setFunctionName(name)
+    };
 
     // Param related functions
     const openNewParamView = () => setAddingNewParam(true);
@@ -268,7 +270,8 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
                 saveBtnText="Save"
                 onSave={handleOnSave}
                 onCancel={onCancel}
-                validForm={(functionName.length > 0) && isFunctionNameValid && !addingNewParam && validReturnType}
+                validForm={(functionName.length > 0) && (isMainFunction || isFunctionNameValid)
+                    && !addingNewParam && validReturnType}
             />
         </FormControl>
     );
