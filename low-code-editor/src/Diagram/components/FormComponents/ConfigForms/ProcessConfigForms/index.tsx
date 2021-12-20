@@ -18,7 +18,7 @@ import { ConfigOverlayFormStatus, STModification } from "@wso2-enterprise/baller
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../Contexts/Diagram";
-import { SAVE_STATEMENT, LowcodeEvent } from "../../../../models";
+import { LowcodeEvent, SAVE_STATEMENT } from "../../../../models";
 import {
     createImportStatement,
     createLogStatement,

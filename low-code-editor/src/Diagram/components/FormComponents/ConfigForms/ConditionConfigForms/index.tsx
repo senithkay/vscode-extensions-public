@@ -18,7 +18,7 @@ import { ConfigOverlayFormStatus, STModification, WizardType  } from "@wso2-ente
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../Contexts/Diagram";
-import { SAVE_STATEMENT, LowcodeEvent } from "../../../../models";
+import { LowcodeEvent, SAVE_STATEMENT } from "../../../../models";
 import {
     createElseIfStatement, createElseStatement,
     createForeachStatement, createIfStatement, createWhileStatement, updateForEachCondition,

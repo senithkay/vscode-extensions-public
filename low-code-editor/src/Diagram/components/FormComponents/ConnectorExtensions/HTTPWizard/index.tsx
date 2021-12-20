@@ -22,10 +22,10 @@ import { CaptureBindingPattern, LocalVarDecl, NodePosition, STNode } from "@wso2
 import { Context } from "../../../../../Contexts/Diagram";
 import {
     CONNECTOR_CLOSED,
+    LowcodeEvent,
     SAVE_CONNECTOR_INVOKE,
     SAVE_CONNECTOR,
-    SAVE_CONNECTOR_INIT,
-    LowcodeEvent
+    SAVE_CONNECTOR_INIT
 } from "../../../../models";
 import {
     createImportStatement,

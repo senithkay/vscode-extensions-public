@@ -32,10 +32,10 @@ import { Context, useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { useFunctionContext } from "../../../../../../Contexts/Function";
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
 import {
+    LowcodeEvent,
     SAVE_CONNECTOR_INVOKE,
     SAVE_CONNECTOR,
-    SAVE_CONNECTOR_INIT,
-    LowcodeEvent,
+    SAVE_CONNECTOR_INIT
 } from "../../../../../models";
 import { getAllVariables } from "../../../../../utils/mixins";
 import {
