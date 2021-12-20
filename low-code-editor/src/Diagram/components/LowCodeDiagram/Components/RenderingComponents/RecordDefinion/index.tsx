@@ -15,10 +15,14 @@
 import React, { useContext, useState } from "react"
 
 import { RecordFieldWithDefaultValue, RecordTypeDesc, STKindChecker, TypeDefinition } from "@wso2-enterprise/syntax-tree";
+import classNames from "classnames";
 
+import DeleteButton from "../../../../../../assets/icons/DeleteButton";
+import EditButton from "../../../../../../assets/icons/EditButton";
 import RecordIcon from "../../../../../../assets/icons/RecordIcon";
 import { Context } from "../../../../../../Contexts/Diagram";
 import { removeStatement } from "../../../../../utils/modification-util";
+import { FormGenerator } from "../../../../FormComponents/FormGenerator";
 import { HeaderActions } from "../../../HeaderActions";
 
 import "./style.scss";
@@ -41,12 +45,19 @@ export function RecordDefinitionComponent(props: RecordDefComponentProps) {
     } = useContext(Context);
 
     const [isExpanded, setIsExpanded] = useState(false);
+    const [isEditFormVisible, setIsEditFormVisible] = useState(false);
 
     const onExpandClick = () => {
         setIsExpanded(!isExpanded);
     };
     const handleDeleteConfirm = () => {
         modifyDiagram([removeStatement(model.position)]);
+    };
+    const handleEditClick = () => {
+        setIsEditFormVisible(true);
+    };
+    const handleEditBtnCancel = () => {
+        setIsEditFormVisible(false);
     };
 
     const component: JSX.Element[] = [];
@@ -85,32 +96,33 @@ export function RecordDefinitionComponent(props: RecordDefComponentProps) {
                             {varName}
                         </div>
                     </div>
-                    <HeaderActions
-                        model={model}
-                        deleteText="Delete this Record?"
-                        isExpanded={isExpanded}
-                        formType="RecordEditor"
-                        onExpandClick={onExpandClick}
-                        onConfirmDelete={handleDeleteConfirm}
-                    />
+                    <div className="amendment-options">
+                        <div className={classNames("edit-btn-wrapper", "show-on-hover")}>
+                            <EditButton onClick={handleEditClick} />
+                        </div>
+                        <div className={classNames("delete-btn-wrapper", "show-on-hover")}>
+                            <DeleteButton onClick={handleDeleteConfirm} />
+                        </div>
+                    </div>
                 </div>
                 <div className="record-separator" />
-                {isExpanded && (
-                    <>
-                        <div className="record-fields" >
-                            {record.map(recordfield => (
-                                <div className="record-field" key={recordfield[1]}>
-                                    <div className="record-field-type">
-                                        {recordfield[0]}
-                                    </div>
-                                    <div className="record-field-name">
-                                        {recordfield[1]};
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </>
-                )}
+                {/* FIXME: Fix record render for record previewing */}
+                {/*{isExpanded && (*/}
+                {/*    <>*/}
+                {/*        <div className="record-fields" >*/}
+                {/*            {record.map(recordfield => (*/}
+                {/*                <div className="record-field" key={recordfield[1]}>*/}
+                {/*                    <div className="record-field-type">*/}
+                {/*                        {recordfield[0]}*/}
+                {/*                    </div>*/}
+                {/*                    <div className="record-field-name">*/}
+                {/*                        {recordfield[1]};*/}
+                {/*                    </div>*/}
+                {/*                </div>*/}
+                {/*            ))}*/}
+                {/*        </div>*/}
+                {/*    </>*/}
+                {/*)}*/}
             </div>
         )
     } else {
@@ -143,6 +155,19 @@ export function RecordDefinitionComponent(props: RecordDefComponentProps) {
         <>
             <div id={"edit-div"} />
             {component}
+            {
+                isEditFormVisible && (
+                    <FormGenerator
+                        model={model}
+                        configOverlayFormStatus={{
+                            formType: STKindChecker.isRecordTypeDesc(model.typeDescriptor) ?
+                                "RecordEditor" : model.kind, isLoading: false
+                        }}
+                        onCancel={handleEditBtnCancel}
+                        onSave={handleEditBtnCancel}
+                    />
+                )
+            }
         </>
     );
 }
