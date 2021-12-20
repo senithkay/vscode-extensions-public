@@ -23,9 +23,9 @@ import { Context } from "../../../../../Contexts/Diagram";
 import {
     CONNECTOR_CLOSED,
     LowcodeEvent,
-    SAVE_CONNECTOR_INVOKE,
     SAVE_CONNECTOR,
-    SAVE_CONNECTOR_INIT
+    SAVE_CONNECTOR_INIT,
+    SAVE_CONNECTOR_INVOKE
 } from "../../../../models";
 import {
     createImportStatement,
