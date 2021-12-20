@@ -47,10 +47,10 @@ while ({{{ CONDITION }}}) {
 
 }`,
     WHILE_NEXT_STATEMENT: `
-record {|record {} value;|}|error? {{{ VARIABLE }}} = queryResponse.next();
+record {|record {} value;|}|error? {{{ VARIABLE }}} = {{{ RETURN_TYPE }}}.next();
 while {{{ VARIABLE }}} is record {|record {} value;|} {
     // do something
-    {{{ VARIABLE }}} = queryResponse.next();
+    {{{ VARIABLE }}} = {{{ RETURN_TYPE }}}.next();
 }`,
     SERVICE_AND_LISTENER_DECLARATION: `
 listener http:Listener {{{ LISTENER_NAME }}} = new ({{{ PORT }}});
