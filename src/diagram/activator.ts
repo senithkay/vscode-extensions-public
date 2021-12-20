@@ -339,9 +339,11 @@ class DiagramPanel {
 			},
 			{
 				methodName: "getPerfDataFromChoreo",
-				handler: async (args: any[]): Promise<PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse | undefined> => {
-					return await getDataFromChoreo(args[0], args[1]);
-				}
+				handler: async (args: any[]): Promise<PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse | undefined | boolean> => getDataFromChoreo(args[0], args[1]).then(data => {
+					return data;
+				}).catch(e => {
+					return false;
+				})
 			},
 			{
 				methodName: "resolveMissingDependency",
