@@ -29,6 +29,7 @@ import {
 	ExtendedLangClient,
 	HTTP_CONNECTOR_LIST_CACHE,
 	LIBRARIES_LIST_CACHE,
+	LibraryDocResponse,
 	PerformanceAnalyzerGraphResponse,
 	PerformanceAnalyzerRealtimeResponse
 } from '../core/extended-language-client';
@@ -428,6 +429,22 @@ class DiagramPanel {
 					return Promise.resolve(true);
 				}
 			},
+			{
+				methodName: "getLibrariesList",
+				handler: async (args: any[]): Promise<LibraryDocResponse> => {
+					const version = args[0];
+					const response = await fetch(`https://api.staging-central.ballerina.io/2.0/docs/stdlib/${version}`);
+					const data = await response.json();
+
+					const transformedLibraries = data.langLibs.map((libraryData: any) => {
+						return {
+							librariesList: libraryData.langLibs
+						};
+					});
+
+					return transformedLibraries;
+				}
+			}
 		];
 
 		webviewRPCHandler = WebViewRPCHandler.create(panel, langClient, remoteMethods);

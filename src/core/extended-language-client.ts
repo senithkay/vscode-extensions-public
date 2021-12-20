@@ -605,12 +605,12 @@ export class ExtendedLangClient extends LanguageClient {
         if (!this.isExtendedServiceSupported(EXTENDED_APIS.LIBRARY_LIBRARIES)) {
             Promise.resolve(NOT_SUPPORTED);
         }
-        if (!reset) {
-            let librariesList = this.ballerinaExtInstance?.context?.globalState.get(LIBRARIES_LIST_CACHE) as LibraryDocResponse;
-            if (librariesList) {
-                return Promise.resolve().then(() => librariesList);
-            }
-        }
+        // if (!reset) {
+        //     let librariesList = this.ballerinaExtInstance?.context?.globalState.get(LIBRARIES_LIST_CACHE) as LibraryDocResponse;
+        //     if (librariesList) {
+        //         return Promise.resolve().then(() => librariesList);
+        //     }
+        // }
         return this.sendRequest(EXTENDED_APIS.LIBRARY_LIBRARIES, params);
     }
 
