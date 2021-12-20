@@ -32,8 +32,6 @@ export const CHOREO_API_PF = process.env.VSCODE_CHOREO_GATEWAY_BASE_URI ?
     `${process.env.VSCODE_CHOREO_GATEWAY_BASE_URI}/performance-analyzer/2.0.0/get_estimations/3.0` :
     "https://choreocontrolplane.preview-dv.choreo.dev/performance-analyzer/2.0.0/get_estimations/3.0";
 
-const NETWORK_ERR = "Network error. Please check you internet connection";
-const PERF_DISABLED = "Error while connecting to Choreo API, Performance analyzer will be disabled for this session";
 const SUCCESS = "Success";
 const maxRetries = 3;
 const https = require('https');
@@ -152,46 +150,13 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
 }
 
 function checkErrors(response: PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse) {
-    if (response.message === 'AUTHENTICATION_ERROR') {
-        // Choreo Auth Error
-        handleRetries();
-
-    } else if (response.message === 'CONNECTION_ERROR') {
-        // Internet Connection Error
-        showMessage(NETWORK_ERR, MESSAGE_TYPE.ERROR, true);
-        handleRetries();
-
-    } else if (response.message === 'MODEL_NOT_FOUND') {
-        // AI Error
-        debug(response.message);
-
-    } else if (response.message === 'NO_DATA') {
-        // This happens when there is no action invocations in the code.
-        // No need to show any error/info since there is no invocations.
-        debug(response.message);
-
-    } else if (response.message === 'ESTIMATOR_ERROR') {
-        // AI Error
-        debug(response.message);
-
-    } else if (response.message === 'UNKNOWN_ANALYSIS_TYPE') {
-        // AI Error
-        debug(response.message);
-
-    } else if (response.message === 'INVALID_DATA') {
-        // AI Error
-        debug(response.message);
-
-    } else {
-        debug(response.message);
-        handleRetries();
-    }
+    debug(response.message);
+    handleRetries();
 }
 
 export function handleRetries() {
     retryAttempts++;
     if (retryAttempts >= maxRetries) {
-        showMessage(PERF_DISABLED, MESSAGE_TYPE.ERROR, true);
         extension.getPerformanceForecastContext().temporaryDisabled = true;
     }
 }
@@ -357,20 +322,32 @@ export function getDataFromChoreo(data: any, analyzeType: ANALYZETYPE): Promise<
         }
 
         const req = https.request(options, res => {
+            var str = ''
+            res.on('data', function (chunk) {
+                str += chunk;
+            });
 
-            res.on('data', response => {
-                const res = JSON.parse(response);
+            res.on('end', function () {
+                try {
+                    const res = JSON.parse(str);
 
-                if (res.message) {
-                    checkErrors(res);
-                    return reject();
+                    if (res.message) {
+                        checkErrors(res);
+                        return reject();
+                    }
+                    cachedResponses.set(data, res);
+                    return resolve(res);
+
+                } catch (e) {
+                    debug("Perf Error");
+                    debug(str);
+                    reject();
                 }
-                cachedResponses.set(data, res);
-                return resolve(res);
             })
         })
 
         req.on('error', error => {
+            debug("Perf Error");
             debug(error);
             reject();
         })
