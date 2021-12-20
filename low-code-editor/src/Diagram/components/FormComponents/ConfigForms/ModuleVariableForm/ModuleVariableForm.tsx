@@ -55,7 +55,7 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
     useEffect(() => {
         const event: LowcodeEvent = {
             type: ADD_VARIABLE,
-            name: model.source,
+            name: `${state.varType} ${state.varName} = ${state.varValue};`
         };
         onEvent(event);
       }, []);
@@ -75,7 +75,7 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
         onSave();
         const event: LowcodeEvent = {
             type: SAVE_VARIABLE,
-            name: model.source
+            name: `${state.varType} ${state.varName} = ${state.varValue};`
         };
         onEvent(event);
     }
