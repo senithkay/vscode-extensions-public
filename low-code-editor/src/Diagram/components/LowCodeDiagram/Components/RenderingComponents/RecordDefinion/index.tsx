@@ -106,23 +106,6 @@ export function RecordDefinitionComponent(props: RecordDefComponentProps) {
                     </div>
                 </div>
                 <div className="record-separator" />
-                {/* FIXME: Fix record render for record previewing */}
-                {/*{isExpanded && (*/}
-                {/*    <>*/}
-                {/*        <div className="record-fields" >*/}
-                {/*            {record.map(recordfield => (*/}
-                {/*                <div className="record-field" key={recordfield[1]}>*/}
-                {/*                    <div className="record-field-type">*/}
-                {/*                        {recordfield[0]}*/}
-                {/*                    </div>*/}
-                {/*                    <div className="record-field-name">*/}
-                {/*                        {recordfield[1]};*/}
-                {/*                    </div>*/}
-                {/*                </div>*/}
-                {/*            ))}*/}
-                {/*        </div>*/}
-                {/*    </>*/}
-                {/*)}*/}
             </div>
         )
     } else {
