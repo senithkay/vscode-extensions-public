@@ -26,7 +26,7 @@ import { CustomExpressionConfig, ProcessConfig } from "../../../../Types";
 import { wizardStyles } from "../../../style";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { ADD_OTHER_STATEMENT, EVENT_TYPE_AZURE_APP_INSIGHTS, LowcodeEvent, SAVE_OTHER_STATEMENT } from "../../../../../../models";
+import { ADD_OTHER_STATEMENT, LowcodeEvent, SAVE_OTHER_STATEMENT } from "../../../../../../models";
 
 interface LogConfigProps {
     config: ProcessConfig;
@@ -60,8 +60,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
     useEffect(() => {
         const event: LowcodeEvent = {
             type: ADD_OTHER_STATEMENT,
-            name: '',
-            property: ''
+            name: expression,
         };
         onEvent(event);
     }, []);
@@ -83,8 +82,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         onSave();
         const event: LowcodeEvent = {
             type: SAVE_OTHER_STATEMENT,
-            name: '',
-            property: ''
+            name: expression
         };
         onEvent(event);
     }

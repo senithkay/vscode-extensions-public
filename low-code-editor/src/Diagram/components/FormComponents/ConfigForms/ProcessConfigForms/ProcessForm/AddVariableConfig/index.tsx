@@ -131,8 +131,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     useEffect(() => {
         const event: LowcodeEvent = {
             type: ADD_VARIABLE,
-            name: '',
-            property: ''
+            name: config.config
         };
         onEvent(event);
     }, []);
@@ -149,8 +148,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         }
         const event: LowcodeEvent = {
             type: SAVE_VARIABLE,
-            name: '',
-            property: ''
+            name: config.config
         };
         onEvent(event);
     };

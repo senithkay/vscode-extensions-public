@@ -37,9 +37,8 @@ import "../../style.scss";
 import While from "../../../../../../../../assets/icons/While";
 import { FormattedMessage, useIntl } from "react-intl";
 import {
-    EVENT_TYPE_AZURE_APP_INSIGHTS,
-    LowcodeEvent,
-    START_STATEMENT_ADD_INSIGHTS
+    ADD_STATEMENT,
+    LowcodeEvent
 } from "../../../../../../../models";
 import { HttpLogo } from "../../../../RenderingComponents/Connector/Icon/HttpLogo";
 
@@ -149,9 +148,8 @@ export function StatementOptions(props: StatementOptionsProps) {
 
     const onSelectStatement = (type: string) => {
         const event: LowcodeEvent = {
-            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
-            name: START_STATEMENT_ADD_INSIGHTS,
-            property: type
+            type: ADD_STATEMENT,
+            name: type
         };
         onEvent(event);
         onSelect(type);

@@ -32,10 +32,9 @@ import { Context, useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { useFunctionContext } from "../../../../../../Contexts/Function";
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
 import {
-    CONTINUE_TO_INVOKE_API,
-    EVENT_TYPE_AZURE_APP_INSIGHTS,
-    FINISH_CONNECTOR_ACTION_ADD_INSIGHTS,
-    FINISH_CONNECTOR_INIT_ADD_INSIGHTS,
+    SAVE_CONNECTOR_INVOKE,
+    SAVE_CONNECTOR,
+    SAVE_CONNECTOR_INIT,
     LowcodeEvent,
 } from "../../../../../models";
 import { getAllVariables } from "../../../../../utils/mixins";
@@ -382,18 +381,16 @@ export function ConnectorForm(props: FormGeneratorProps) {
     // TODO: Created common function to send Azure analytics.
     const onActionAddEvent = () => {
         const event: LowcodeEvent = {
-            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
-            name: FINISH_CONNECTOR_ACTION_ADD_INSIGHTS,
-            property: connectorName,
+            type: SAVE_CONNECTOR,
+            name: connectorName
         };
         onEvent(event);
     };
 
     const onConnectorAddEvent = () => {
         const event: LowcodeEvent = {
-            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
-            name: FINISH_CONNECTOR_INIT_ADD_INSIGHTS,
-            property: connectorName,
+            type: SAVE_CONNECTOR_INIT,
+            name: connectorName
         };
         onEvent(event);
     };
@@ -401,9 +398,8 @@ export function ConnectorForm(props: FormGeneratorProps) {
     const handleCreateConnectorSaveNext = () => {
         setFormState(FormStates.OperationForm);
         const event: LowcodeEvent = {
-            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
-            name: CONTINUE_TO_INVOKE_API,
-            property: connectorName,
+            type: SAVE_CONNECTOR_INVOKE,
+            name: connectorName
         };
         onEvent(event);
     };

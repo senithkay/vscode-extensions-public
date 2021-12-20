@@ -130,8 +130,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const sendAppInsight = () => {
         const event: LowcodeEvent = {
             type: SAVE_CONNECTOR,
-            name: '',
-            property: ''
+            name: connector?.displayAnnotation?.label || `${connector?.package.name} / ${connector?.name}`
         };
         onEvent(event);
     }

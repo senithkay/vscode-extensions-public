@@ -18,7 +18,7 @@ import { ConfigOverlayFormStatus, STModification } from "@wso2-enterprise/baller
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../Contexts/Diagram";
-import { EVENT_TYPE_AZURE_APP_INSIGHTS, FINISH_STATEMENT_ADD_INSIGHTS, LowcodeEvent } from "../../../../models";
+import { SAVE_STATEMENT, LowcodeEvent } from "../../../../models";
 import {
     createImportStatement,
     createLogStatement,
@@ -174,9 +174,8 @@ export function ProcessConfigForm(props: any) {
                     modifications.push(addCustomStatement);
                 }
                 const event: LowcodeEvent = {
-                    type: EVENT_TYPE_AZURE_APP_INSIGHTS,
-                    name: FINISH_STATEMENT_ADD_INSIGHTS,
-                    property: processConfig.type
+                    type: SAVE_STATEMENT,
+                    name: processConfig.type
                 };
                 onEvent(event);
             }

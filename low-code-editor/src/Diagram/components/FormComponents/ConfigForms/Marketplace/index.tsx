@@ -28,7 +28,7 @@ import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 import { FilterIcon } from "../../../../../assets/icons";
 import { Context } from "../../../../../Contexts/Diagram";
 import { UserState } from "../../../../../types";
-import { ADD_CONNECTOR, EVENT_TYPE_AZURE_APP_INSIGHTS, LowcodeEvent, START_CONNECTOR_ADD_INSIGHTS } from "../../../../models";
+import { ADD_CONNECTOR, LowcodeEvent } from "../../../../models";
 import { APIHeightStates } from "../../../LowCodeDiagram/Components/DialogBoxes/PlusHolder/PlusElements";
 import { PlusViewState } from "../../../LowCodeDiagram/ViewState/plus";
 import { wizardStyles as useFormStyles } from "../style";
@@ -106,24 +106,13 @@ export function Marketplace(props: MarketplaceProps) {
         fetchModulesList();
     }, [searchQuery, selectedCategory]);
 
-    // Insight event to send when loading the component
-    React.useEffect(() => {
-        const event: LowcodeEvent = {
-            type: ADD_CONNECTOR,
-            name: '',
-            property: ''
-        };
-        onEvent(event);
-    }, []);
-
     let centralModuleComponents: ReactNode[] = [];
     let localModuleComponents: ReactNode[] = [];
 
     const onSelectModule = (balModule: BallerinaModule) => {
         const event: LowcodeEvent = {
-            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
-            name: START_CONNECTOR_ADD_INSIGHTS,
-            property: balModule.displayName || balModule.package.name,
+            type: ADD_CONNECTOR,
+            name: balModule.displayName || balModule.package.name,
         };
         onEvent(event);
         onSelect(balModule, undefined);

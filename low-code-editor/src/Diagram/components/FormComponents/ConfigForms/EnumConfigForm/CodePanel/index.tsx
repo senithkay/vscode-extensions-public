@@ -20,7 +20,6 @@ import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { useEnumEditorContext } from "../../../../../../Contexts/EnumEditor";
-import { ADD_VARIABLE, LowcodeEvent } from "../../../../../models";
 import { mutateEnumDefinition } from "../../../../../utils/modification-util";
 import { wizardStyles } from "../../style";
 import { EnumField } from "../EnumField";
@@ -29,7 +28,7 @@ import { getGeneratedCode, getMemberArray } from "../utils";
 
 export function CodePanel() {
     const { state } = useEnumEditorContext();
-    const { api: { code: { modifyDiagram }, insights: { onEvent } } } = useDiagramContext();
+    const { api: { code: { modifyDiagram } } } = useDiagramContext();
 
     const overlayClasses = wizardStyles();
     const enumClasses = enumStyles();
@@ -69,12 +68,6 @@ export function CodePanel() {
         } else {
             state.onSave(getGeneratedCode(state.enumModel, true), state.enumModel);
         }
-        const event: LowcodeEvent = {
-            type: ADD_VARIABLE,
-            name: '',
-            property: ''
-        };
-        onEvent(event);
     };
 
     return (

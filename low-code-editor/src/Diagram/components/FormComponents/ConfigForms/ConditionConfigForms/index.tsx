@@ -18,7 +18,7 @@ import { ConfigOverlayFormStatus, STModification, WizardType  } from "@wso2-ente
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../Contexts/Diagram";
-import { EVENT_TYPE_AZURE_APP_INSIGHTS, FINISH_STATEMENT_ADD_INSIGHTS, LowcodeEvent } from "../../../../models";
+import { SAVE_STATEMENT, LowcodeEvent } from "../../../../models";
 import {
     createElseIfStatement, createElseStatement,
     createForeachStatement, createIfStatement, createWhileStatement, updateForEachCondition,
@@ -107,9 +107,8 @@ export function ConditionConfigForm(props: ConditionConfigFormProps) {
                 const compList = ifConfig?.values;
                 if (!formArgs?.config) {
                     const event: LowcodeEvent = {
-                        type: EVENT_TYPE_AZURE_APP_INSIGHTS,
-                        name: FINISH_STATEMENT_ADD_INSIGHTS,
-                        property: formType
+                        type: SAVE_STATEMENT,
+                        name: formType
                     };
                     onEvent(event);
                     modifications.push(createIfStatement(compList[0]?.expression, formArgs?.targetPosition));
@@ -129,9 +128,8 @@ export function ConditionConfigForm(props: ConditionConfigFormProps) {
                     ForeachConfig;
                 if (!formArgs?.config) {
                     const event: LowcodeEvent = {
-                        type: EVENT_TYPE_AZURE_APP_INSIGHTS,
-                        name: FINISH_STATEMENT_ADD_INSIGHTS,
-                        property: formType
+                        type: SAVE_STATEMENT,
+                        name: formType
                     };
                     onEvent(event);
                     modifications.push(createForeachStatement(conditionExpression.collection, conditionExpression.variable,
@@ -146,9 +144,8 @@ export function ConditionConfigForm(props: ConditionConfigFormProps) {
                 const conditionExpression: string = whileConfig.conditionExpression as string;
                 if (!formArgs?.config) {
                     const event: LowcodeEvent = {
-                        type: EVENT_TYPE_AZURE_APP_INSIGHTS,
-                        name: FINISH_STATEMENT_ADD_INSIGHTS,
-                        property: formType
+                        type: SAVE_STATEMENT,
+                        name: formType
                     };
                     onEvent(event);
                     modifications.push(createWhileStatement(conditionExpression, formArgs?.targetPosition));

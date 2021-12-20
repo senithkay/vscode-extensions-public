@@ -22,10 +22,9 @@ import { CaptureBindingPattern, LocalVarDecl, NodePosition, STNode } from "@wso2
 import { Context } from "../../../../../Contexts/Diagram";
 import {
     CONNECTOR_CLOSED,
-    CONTINUE_TO_INVOKE_API,
-    EVENT_TYPE_AZURE_APP_INSIGHTS,
-    FINISH_CONNECTOR_ACTION_ADD_INSIGHTS,
-    FINISH_CONNECTOR_INIT_ADD_INSIGHTS,
+    SAVE_CONNECTOR_INVOKE,
+    SAVE_CONNECTOR,
+    SAVE_CONNECTOR_INIT,
     LowcodeEvent
 } from "../../../../models";
 import {
@@ -129,9 +128,8 @@ export function HTTPWizard(props: WizardProps) {
     const handleCreateConnectorOnSaveNext = () => {
         setState(InitFormState.SelectInputOutput);
         const event: LowcodeEvent = {
-            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
-            name: CONTINUE_TO_INVOKE_API,
-            property: connector.displayName
+            type: SAVE_CONNECTOR_INVOKE,
+            name: connector.displayName
         };
         onEvent(event);
     };
@@ -142,9 +140,8 @@ export function HTTPWizard(props: WizardProps) {
 
     const handleFormClose = () => {
         const event: LowcodeEvent = {
-            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
-            name: CONNECTOR_CLOSED,
-            property: connector.displayName
+            type: CONNECTOR_CLOSED,
+            name: connector.displayName
         };
         onEvent(event);
         onClose();
@@ -152,9 +149,8 @@ export function HTTPWizard(props: WizardProps) {
 
     const handleCreateConnectorOnSave = () => {
         const event: LowcodeEvent = {
-            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
-            name: FINISH_CONNECTOR_INIT_ADD_INSIGHTS,
-            property: connector.displayName
+            type: SAVE_CONNECTOR_INIT,
+            name: connector.displayName
         };
         onEvent(event);
         const modifications: STModification[] = [];
@@ -222,9 +218,8 @@ export function HTTPWizard(props: WizardProps) {
 
     const onActionAddEvent = () => {
         const event: LowcodeEvent = {
-            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
-            name: FINISH_CONNECTOR_ACTION_ADD_INSIGHTS,
-            property: "http",
+            type: SAVE_CONNECTOR,
+            name: "http"
         };
         onEvent(event);
     };
