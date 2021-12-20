@@ -65,8 +65,8 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
     } = useDiagramContext();
     const existingFunctionNames = useRef([]);
 
-    const handleOnEdit = (param: FunctionParam) => {
-        const id = parameters.indexOf(param);
+    const handleOnEdit = (funcParam: FunctionParam) => {
+        const id = parameters.findIndex(param => param.id === funcParam.id);
         // Once edit is clicked
         if (id > -1) {
             setEditingSegmentId(id);
