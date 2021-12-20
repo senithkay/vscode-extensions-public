@@ -21,22 +21,26 @@ import { useStyles } from './style';
 
 interface PathSegmentProps {
     segment: PathSegment;
+    addInProgress: boolean;
     onDelete?: (segment: PathSegment) => void;
-    onEdit?: (segment: PathSegment) => void;
+    onEditClick?: (segment: PathSegment) => void;
 }
 
 export function PathSegmentItem(props: PathSegmentProps) {
-    const { segment, onDelete,  onEdit} = props;
+    const { segment, onDelete,  onEditClick, addInProgress } = props;
     const classes = useStyles();
 
     const segmentLabel = segment.isParam ? "[" + segment.type + " " + segment.name + "]" : segment.name;
     const handleDelete = () => {
         onDelete(segment);
     };
+    const handleEdit = () => {
+        onEditClick(segment);
+    };
 
     return (
         <div className={classes.headerWrapper}>
-            <div className={classes.headerLabel}>
+            <div className={addInProgress ? classes.headerLabel : classes.headerLabelWithCursor} onClick={handleEdit}>
                 {segmentLabel}
                 <ButtonWithIcon
                     onClick={handleDelete}

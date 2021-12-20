@@ -42,7 +42,7 @@ export function InitialPlusTooltipBubble() {
                         </g>
                     </g>
                     <g id="Group_202" data-name="Group 202">
-                        <text className="bubble-text" id="Get_started_by_selecting_Add_Constructor_here" transform="translate(765 319)" ><tspan x="0" y="0" >Get started by selecting  “</tspan><tspan y="0" font-family="GilmerMedium, Gilmer Medium">Add Constructor</tspan><tspan y="0">” here</tspan></text>
+                        <text className="bubble-text" id="Get_started_by_selecting_Add_Constructor_here" transform="translate(765 319)" ><tspan x="0" y="0" >Click here to get started.</tspan></text>
                     </g>
                     <g id="Group_201" data-name="Group 201">
                         <g id="Group_118" data-name="Group 118" transform="translate(-17.566 -213.5)">

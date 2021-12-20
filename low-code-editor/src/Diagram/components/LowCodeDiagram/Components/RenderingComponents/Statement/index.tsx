@@ -36,7 +36,6 @@ export function StatementC(props: StatementProps) {
     const statements: React.ReactNode[] = [];
     let doStatement: React.ReactNode = null;
     let externalConnector: React.ReactNode = null;
-    const classes = cn("statement");
 
     if (STKindChecker.isLocalVarDecl(model)
         || STKindChecker.isAssignmentStatement(model)
@@ -107,7 +106,7 @@ export function StatementC(props: StatementProps) {
     return (
         <g>
             {externalConnector}
-            <g className={classes}>
+            <g>
                 {statements}
             </g>
             {doStatement}

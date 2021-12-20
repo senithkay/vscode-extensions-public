@@ -23,6 +23,14 @@ export function getAllVariables(symbolInfo: STSymbolInfo): string[] {
     return variableCollection;
 }
 
+export function getAllModuleVariables(symbolInfo: STSymbolInfo): string[] {
+    const moduleVariableCollection: string[] = [];
+    symbolInfo?.moduleVariables?.forEach((stNode, key) => {
+        moduleVariableCollection.push(key);
+    });
+    return moduleVariableCollection;
+}
+
 // this function will return existing module variable name
 export function getModuleVariable(symbolInfo: STSymbolInfo, connectorInfo: BallerinaConnectorInfo): string {
     const moduleName = getFormattedModuleName(connectorInfo.package.name);

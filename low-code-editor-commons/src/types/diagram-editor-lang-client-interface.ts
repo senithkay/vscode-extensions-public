@@ -33,9 +33,7 @@ import {
     DocumentIdentifier,
     JsonToRecordRequest,
     JsonToRecordResponse,
-    PerformanceAnalyzerGraphRequest as PerformanceAnalyzerRequest,
-    PerformanceAnalyzerGraphResponse,
-    PerformanceAnalyzerRealtimeResponse,
+    PerformanceAnalyzerEndpointsRequest,
     TriggerModifyRequest,
 } from "./lang-client-extended";
 
@@ -113,12 +111,9 @@ export interface DiagramEditorLangClientInterface extends BaseLangClientInterfac
     convert: (
         params: JsonToRecordRequest
     ) => Thenable<JsonToRecordResponse>;
-    getPerformanceGraphData: (
-        params: PerformanceAnalyzerRequest
-    ) => Thenable<PerformanceAnalyzerGraphResponse>;
-    getRealtimePerformanceData: (
-        params: PerformanceAnalyzerRequest
-    ) => Thenable<PerformanceAnalyzerRealtimeResponse>;
+    getPerfEndpoints: (
+        params: PerformanceAnalyzerEndpointsRequest
+    ) => Thenable<any>;
     resolveMissingDependencies: (
         params: GetSyntaxTreeParams
     ) => Thenable<GetSyntaxTreeResponse>;

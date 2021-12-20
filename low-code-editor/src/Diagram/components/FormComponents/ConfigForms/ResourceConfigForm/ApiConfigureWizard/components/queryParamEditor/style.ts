@@ -28,6 +28,18 @@ export const useStyles = makeStyles((theme: Theme) =>
             width: '100%',
             alignItems: 'center',
         },
+        headerLabelWithCursor: {
+            background: 'white',
+            padding: 10,
+            borderRadius: 5,
+            cursor: "pointer",
+            border: '1px solid #dee0e7',
+            margin: '1rem 0 0.25rem',
+            justifyContent: 'space-between',
+            display: 'flex',
+            width: '100%',
+            alignItems: 'center',
+        },
         addQueryParamBtn: {
             outline: "none",
             color: "#5567D5",

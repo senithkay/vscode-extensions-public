@@ -84,18 +84,8 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
     const [ isEditConnector, setIsConnectorEdit ] = useState<boolean>(false);
     // const [isClosed, setIsClosed] = useState<boolean>(false);
 
-    // TODO: Update this when updating HTTP connector version
-    const httpConnector = {
-        "moduleName": "http",
-        "name": "Client",
-        "package": {
-            "organization": "ballerina",
-            "name": "http",
-            "version": "2.1.0",
-        }
-    }
     const [ connector, setConnector ] = useState<BallerinaConnectorInfo>(
-        specialConnectorName ? httpConnector : draftVS.connector
+        specialConnectorName ? null : draftVS.connector
     );
 
     const toggleSelection = () => {
@@ -198,6 +188,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
             } }
             targetPosition={draftVS.targetPosition}
             selectedConnector={draftVS.selectedConnector}
+            specialConnectorName={specialConnectorName}
             model={model}
             onClose={onConnectorFormClose}
             onSave={onWizardClose}
@@ -218,7 +209,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
 
                 />
                 {!model && !connector && !specialConnectorName && connectorList}
-                {connector && connectorWizard}
+                {(connector || specialConnectorName) && connectorWizard}
                 { model && !isReadOnly && !isMutationProgress && !isWaitingOnWorkspace && (
                     <g
                         className="connector-process-options-wrapper"

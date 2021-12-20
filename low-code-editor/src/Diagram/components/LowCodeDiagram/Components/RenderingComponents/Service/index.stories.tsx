@@ -38,6 +38,7 @@ const symbolInfo: STSymbolInfo = {
     assignmentStatement: new Map<string, STNode[]>(),
     recordTypeDescriptions: new Map<string, STNode>(),
     listeners: new Map<string, STNode>(),
+    moduleVariables: new Map<string, STNode>()
 };
 
 symbolInfo.listeners.set("defaultListener", listenerDecl)

@@ -17,10 +17,14 @@ import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { AddIcon } from "../../../../../../../../assets/icons";
 import { QueryParam, QueryParamCollection } from "../../types";
-import { convertQueryParamStringToSegments, generateQueryParamFromQueryCollection } from "../../util";
+import {
+    convertQueryParamStringToSegments,
+    generateQueryParamFromQueryCollection,
+    recalculateItemIds
+} from "../../util";
 
 import { QueryParamItem } from "./queryParamItem";
-import { QueryParamSegmentEditor } from "./segmentEditor";
+import { QueryParamSegmentEditor } from "./queryParamSegmentEditor";
 import { useStyles } from './style';
 
 interface QueryParamEditorProps {
@@ -37,14 +41,17 @@ export function QueryParamEditor(props: QueryParamEditorProps) {
 
     const [queryParamCollectionState, setQueryParamCollectionState] = useState<QueryParamCollection>(queryParamCollection);
     const [addingQueryParam, setAddingQueryParam] = useState<boolean>(false);
+    // editingSegmentId > -1 when editing
+    const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
 
     const onDelete = (queryParam: QueryParam) => {
         const id = queryParam.id;
         if (id > -1) {
             const queryParamCollectionClone: QueryParamCollection = {
-                queryParams: queryParamCollection.queryParams
+                queryParams: queryParamCollectionState.queryParams
             };
             queryParamCollectionClone.queryParams.splice(id, 1);
+            recalculateItemIds(queryParamCollectionClone.queryParams);
             setQueryParamCollectionState(queryParamCollectionClone);
             if (onChange) {
                 onChange(generateQueryParamFromQueryCollection(queryParamCollectionClone));
@@ -52,26 +59,65 @@ export function QueryParamEditor(props: QueryParamEditorProps) {
         }
     };
 
-    const queryParamsItems: React.ReactElement[] = [];
-    queryParamCollectionState.queryParams.forEach((value, index) => {
-        queryParamsItems.push(<QueryParamItem queryParam={value} onDelete={onDelete} />);
-    });
-
-    const onSave = (queryParam: QueryParam) => {
+    const handleOnSave = (queryParam: QueryParam) => {
         queryParamCollectionState.queryParams.push(queryParam);
         setQueryParamCollectionState(queryParamCollectionState);
-        setAddingQueryParam(!addingQueryParam);
+        setAddingQueryParam(false);
+        setEditingSegmentId(-1);
         if (onChange) {
             onChange(generateQueryParamFromQueryCollection(queryParamCollectionState));
         }
     };
 
-    const onCancel = () => {
-        setAddingQueryParam(!addingQueryParam);
+    const onEdit = (queryParam: QueryParam) => {
+        const id = queryParamCollectionState.queryParams.indexOf(queryParam);
+        // Once edit is clicked
+        if (id > -1) {
+            setEditingSegmentId(id);
+        }
+        setAddingQueryParam(false);
     };
 
+    const onUpdate = (queryParam: QueryParam) => {
+        const id = queryParam.id;
+        if (id > -1) {
+            queryParamCollectionState.queryParams[id] = queryParam;
+            setQueryParamCollectionState(queryParamCollectionState);
+        }
+        setAddingQueryParam(false);
+        setEditingSegmentId(-1);
+    };
+
+    const onCancel = () => {
+        setAddingQueryParam(false);
+        setEditingSegmentId(-1);
+    };
+
+    const queryParamsItems: React.ReactElement[] = [];
+    queryParamCollectionState.queryParams.forEach((value, index) => {
+        if (editingSegmentId !== index) {
+            queryParamsItems.push(
+                <QueryParamItem
+                    queryParam={value}
+                    onDelete={onDelete}
+                    onEditClick={onEdit}
+                    addInProgress={addingQueryParam}
+                />
+            );
+        } else if (editingSegmentId === index) {
+            queryParamsItems.push(
+                <QueryParamSegmentEditor
+                    id={editingSegmentId}
+                    queryParam={value}
+                    onCancel={onCancel}
+                    onUpdate={onUpdate}
+                />
+            );
+        }
+    });
+
     const addQueryParam = () => {
-        setAddingQueryParam(!addingQueryParam);
+        setAddingQueryParam(true);
     }
 
     const queryParamSegmentEditor = (
@@ -79,7 +125,7 @@ export function QueryParamEditor(props: QueryParamEditorProps) {
             <QueryParamSegmentEditor
                 id={queryParamCollectionState.queryParams.length}
                 onCancel={onCancel}
-                onSave={onSave}
+                onSave={handleOnSave}
                 targetPosition={targetPosition}
             />
         </div>
@@ -105,7 +151,7 @@ export function QueryParamEditor(props: QueryParamEditorProps) {
                 {queryParamsItems}
             </div>
             {addingQueryParam && queryParamSegmentEditor}
-            {!addingQueryParam && addQueryParamBtnUI}
+            {!addingQueryParam && (editingSegmentId === -1) && addQueryParamBtnUI}
         </div>
     );
 }

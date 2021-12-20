@@ -16,7 +16,7 @@ export function generatePerfData(model: FunctionDefinition) {
         const latencies = perfData.latency;
         const tpss = perfData.tps;
 
-        if (analyzeType === ANALYZE_TYPE.REALTIME) {
+        if (analyzeType === ANALYZE_TYPE.REALTIME && latencies && concurrencies && tpss) {
             isPerfDataAvailable = true;
             const minLatency = latencies.min ? `${latencies.min > 1000 ? latencies.min / 1000 :
                 latencies.min} ${latencies.min > 1000 ? " s" : " ms"}` : '0';

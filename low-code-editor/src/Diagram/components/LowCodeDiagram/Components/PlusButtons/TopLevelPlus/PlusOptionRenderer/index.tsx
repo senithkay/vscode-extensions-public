@@ -17,6 +17,7 @@ import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { getConstructIcon } from "../../../../../Portals/utils";
 import { PlusMenuEntry } from "../PlusOptionsSelector";
+import { TopLevelPlusHolder } from "../TopLevelPlusHolder";
 
 import { PlusOption } from "./PlusOption";
 import "./style.scss";
@@ -26,14 +27,31 @@ interface PlusOptionRendererProps {
     onClose: () => void;
     onOptionSelect: (entry: PlusMenuEntry) => void;
     targetPosition: NodePosition;
+    showCategorized?: boolean;
 }
 
 export function PlusOptionRenderer(props: PlusOptionRendererProps) {
-    const { entries, onClose, onOptionSelect } = props;
+    const { entries, onClose, onOptionSelect, showCategorized } = props;
 
-    const plusOptions: JSX.Element[] = entries.map(entry =>
-        <PlusOption key={`plus-option-${entry.name.trim()}}`} entry={entry} onOptionSelect={onOptionSelect} />
+
+    const simpleMenu = () => {
+        const plusOptions: JSX.Element[] = entries.map(entry =>
+            <PlusOption key={`plus-option-${entry.name.trim()}}`} entry={entry} onOptionSelect={onOptionSelect} />
+        );
+
+        return (
+            <ul className="dropdown-menu">
+                {plusOptions}
+            </ul>
+        );
+    }
+
+    const categorizedMenu = (
+        <div className="dropdown-menu">
+            <TopLevelPlusHolder entries={entries} onOptionSelect={onOptionSelect} />
+        </div>
     );
+
     return (
         <ClickAwayListener
             mouseEvent="onMouseDown"
@@ -41,9 +59,7 @@ export function PlusOptionRenderer(props: PlusOptionRendererProps) {
             onClickAway={onClose}
         >
             <div className={'dropdown'}>
-                <ul className="dropdown-menu">
-                    {plusOptions}
-                </ul>
+                {showCategorized ? categorizedMenu : simpleMenu()}
             </div>
         </ClickAwayListener>
     )

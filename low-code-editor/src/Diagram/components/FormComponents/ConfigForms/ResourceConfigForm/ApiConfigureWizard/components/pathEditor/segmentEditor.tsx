@@ -17,11 +17,9 @@ import { PrimaryButton, SecondaryButton } from "@wso2-enterprise/ballerina-low-c
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import CheckBoxGroup from "../../../../../FormFieldComponents/CheckBox";
-import { SelectDropdownWithButton } from "../../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import { FormTextInput } from "../../../../../FormFieldComponents/TextField/FormTextInput";
 import { VariableTypeInput, VariableTypeInputProps } from "../../../../Components/VariableTypeInput";
 import { PathSegment } from "../../types";
-import { pathParamTypes } from "../../util";
 
 import { useStyles } from './style';
 
@@ -29,15 +27,23 @@ interface PathSegmentEditorProps {
     id?: number;
     segment?: PathSegment,
     onSave?: (segment: PathSegment) => void;
+    onUpdate?: (segment: PathSegment) => void;
     onCancel?: () => void;
     model?: STNode;
     targetPosition?: NodePosition;
 }
 
 export function PathSegmentEditor(props: PathSegmentEditorProps) {
-    const { segment, onSave, id, onCancel, targetPosition } = props;
+    const { segment, onSave, id, onCancel, onUpdate, targetPosition } = props;
     const classes = useStyles();
-    const initValue: PathSegment = segment ? { ...segment } : {
+    let segmentValue = segment;
+    if (segmentValue) {
+        segmentValue = {
+            ...segmentValue,
+            type: "string"
+        }
+    }
+    const initValue: PathSegment = segmentValue ? { ...segmentValue } : {
         id: id ? id : 0,
         name: "",
         isParam: false,
@@ -92,6 +98,9 @@ export function PathSegmentEditor(props: PathSegmentEditorProps) {
 
     const handleOnSave = () => {
         onSave(segmentState);
+    };
+    const handleOnUpdate = () => {
+        onUpdate(segmentState);
     };
 
     const validateVarType = (fieldName: string, isInvalid: boolean) => {
@@ -148,10 +157,10 @@ export function PathSegmentEditor(props: PathSegmentEditorProps) {
                                 />
                                 <PrimaryButton
                                     dataTestId={"custom-expression-save-btn"}
-                                    text={"Add"}
-                                    disabled={!segmentState.name || segmentState.name === "" || (segmentState.isParam && (!segmentState.type || segmentState.type === "")) || pathError !== "" || !validSelectedType}
+                                    text={onUpdate ? "Update" : " Add"}
+                                    disabled={!segmentState.name || segmentState.name === "" || (segmentState.isParam && (!segmentState.type || segmentState.type === "" || !validSelectedType)) || pathError !== ""}
                                     fullWidth={false}
-                                    onClick={handleOnSave}
+                                    onClick={onUpdate ? handleOnUpdate : handleOnSave}
                                     className={classes.actionBtn}
                                 />
                             </div>
