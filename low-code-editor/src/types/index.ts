@@ -116,12 +116,6 @@ export interface LowCodeEditorAPI {
     }
 }
 
-export interface LowCodeEditorLibrary {
-    library: {
-        getLibrariesList: (version: string) => Promise<LibraryDocResponse>;
-    }
-}
-
 // FIXME Some of these props should be moved to low code state
 // and need to avoid getting from outside
 export interface LowCodeEditorProperties {

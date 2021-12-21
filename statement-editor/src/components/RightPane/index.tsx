@@ -13,10 +13,11 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from "react";
 
+import { ButtonWithIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import classNames from "classnames";
 
+import ComponentExpandIcon from "../../assets/icons/ComponentExpandIcon";
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { ComponentExpandButton } from "../Buttons/ComponentExpandButton";
 import { LibrariesList } from "../Libraries/LibrariesList";
 import { useStatementEditorStyles } from "../styles";
 
@@ -58,10 +59,10 @@ export function RightPane() {
                 <div className={statementEditorClasses.shortcutTab} style={{borderBottom: '1px solid #40404B', color: '#1D2028'}}>Variables</div>
                 <div className={statementEditorClasses.shortcutTab}>Constants</div>
                 <div className={statementEditorClasses.shortcutTab}>Functions</div>
-                <div className={statementEditorClasses.shortcutTab} style={{width: '10%'}}>
-                    <ComponentExpandButton
+                <div className={statementEditorClasses.shortcutTab} style={{width: '10%', transform: 'rotate(270deg)'}}>
+                    <ButtonWithIcon
+                        icon={<ComponentExpandIcon/>}
                         onClick={undefined}
-                        isExpanded={false}
                     />
                 </div>
             </div>
@@ -75,10 +76,11 @@ export function RightPane() {
             >
                 <div className={statementEditorClasses.rhsComponentLabel}>
                     <span className={statementEditorClasses.subHeader}>Language Library</span>
-                    <ComponentExpandButton
+                    <button
                         onClick={langLibExpandButton}
-                        isExpanded={isLangLibExpanded}
-                    />
+                    >
+                        langLibs
+                    </button>
                 </div>
                 {isLangLibExpanded && <LibrariesList libraries={libraries} />}
             </div>
@@ -91,10 +93,11 @@ export function RightPane() {
             >
                 <div className={statementEditorClasses.rhsComponentLabel}>
                     <span className={statementEditorClasses.subHeader}>Standard Library</span>
-                    <ComponentExpandButton
+                    <button
                         onClick={standardLibExpandButton}
-                        isExpanded={isStdLibExpanded}
-                    />
+                    >
+                        stdLibs
+                    </button>
                 </div>
                 {isStdLibExpanded && <LibrariesList libraries={libraries} />}
             </div>
