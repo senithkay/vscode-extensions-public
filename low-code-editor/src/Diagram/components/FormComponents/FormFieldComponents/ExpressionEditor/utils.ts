@@ -297,7 +297,7 @@ export const transformFormFieldTypeToString = (model?: FormField, returnUndefine
                 const fieldTypeString = transformFormFieldTypeToString(field);
                 returnTypesList.push(fieldTypeString);
             });
-            return `map<${returnTypesList.join(',')}>${model.optional ? '?' : ''}`;
+            return `map<${returnTypesList.join(',')}>`;
         }
     } else if (model.typeName) {
         return model.typeName;
@@ -750,4 +750,12 @@ export const getStandardExpCompletions = async ({
         suggestions: completionItems
     };
     return completionList;
+}
+
+export function withQuotes(fields: string[]) {
+    return fields?.map(field => {
+        if (field && field.trim() !== ""){
+            return `"${field.trim().replaceAll('"', '')}"`;
+        }
+    });
 }

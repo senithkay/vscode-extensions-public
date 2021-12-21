@@ -27,6 +27,7 @@ import { Form } from "../../../DynamicConnectorForm";
 import { useStyles } from "../../../DynamicConnectorForm/style";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
 import '../style.scss';
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 interface CreateConnectorFormProps {
     functionDefinitions: Map<string, FunctionDefinitionInfo>;
@@ -37,6 +38,7 @@ interface CreateConnectorFormProps {
     onSave?: () => void;
     isNewConnectorInitWizard?: boolean;
     homePageEnabled: boolean;
+    targetPosition?: NodePosition;
 }
 
 interface NameState {
@@ -46,7 +48,7 @@ interface NameState {
 }
 
 export function CreateConnectorForm(props: CreateConnectorFormProps) {
-    const { onSaveNext, functionDefinitions, connectorConfig, connector, isNewConnectorInitWizard, onSave } = props;
+    const { onSaveNext, functionDefinitions, connectorConfig, connector, isNewConnectorInitWizard, onSave, targetPosition } = props;
     const { props: { stSymbolInfo: symbolInfo } } = useContext(Context);
 
     const connectorConfigFormFields: FormField[] = connectorConfig && connectorConfig.connectorInit && connectorConfig.connectorInit.length > 0 ? connectorConfig.connectorInit : functionDefinitions.get("init") ? functionDefinitions.get("init").parameters : functionDefinitions.get("__init").parameters;
@@ -185,7 +187,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                             />
                         </Section>
                         <div className={classNames("product-tour-url")}>
-                            <Form fields={connectorInitFormFields} onValidate={onValidateWithTour} />
+                            <Form fields={connectorInitFormFields} onValidate={onValidateWithTour} editPosition={targetPosition} />
                         </div>
                     </div>
                 </div>

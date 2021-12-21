@@ -18,22 +18,23 @@ import { Box, FormControl, FormHelperText, IconButton, Typography } from "@mater
 import EditIcon from "@material-ui/icons/Edit";
 import {
     ActionConfig,
-    Connector,
     ConnectorConfig,
     FormField,
     FunctionDefinitionInfo, PrimaryButton, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { LocalVarDecl, STNode } from "@wso2-enterprise/syntax-tree";
+import { LocalVarDecl, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { Context } from "../../../../../../Contexts/Diagram";
 import { getAllVariables } from "../../../../../utils/mixins";
 import { checkVariableName, genVariableName } from "../../../../Portals/utils";
+import { VariableTypeInput } from "../../../ConfigForms/Components/VariableTypeInput";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";
 import { Form } from "../../../DynamicConnectorForm";
 import { useStyles } from "../../../DynamicConnectorForm/style";
 import { SelectDropdownWithButton } from "../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
-import { SwitchToggle } from "../../../FormFieldComponents/SwitchToggle";
+import { withQuotes } from "../../../FormFieldComponents/ExpressionEditor/utils";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
+import { httpHeaderKeys, httpHeaderValues } from "../HTTPHeaders";
 import { OperationDropdown } from "../OperationDropdown";
 import '../style.scss'
 
@@ -43,6 +44,7 @@ interface SelectInputOutputFormProps {
     onConnectionChange?: () => void;
     onSave?: () => void;
     isNewConnectorInitWizard: boolean;
+    targetPosition?: NodePosition;
     model?: STNode,
 }
 
@@ -61,7 +63,7 @@ interface PayloadState {
 }
 
 export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
-    const { onSave, functionDefinitions, connectorConfig, isNewConnectorInitWizard, model } = props;
+    const { onSave, functionDefinitions, connectorConfig, isNewConnectorInitWizard, targetPosition, model } = props;
     const actions = functionDefinitions;
     const {
         props: { isMutationProgress, stSymbolInfo },
@@ -76,8 +78,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
     const classes = useStyles();
     const wizardClasses = wizardStyles();
     const intl = useIntl();
-    const defaultTargetType = "http:Response";
-    const targetTypes = [defaultTargetType, "string", "json", "xml"];
+    const defaultTargetType = "json"; // TODO: Change default value to "http:Response" after fixing expression editor temp module import
 
     const defaultActionName = connectorConfig && connectorConfig.action && connectorConfig.action.name ? connectorConfig.action.name : "";
     const [state, setDefaultActionName] = useState(defaultActionName);
@@ -90,7 +91,8 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             connectorConfig.responsePayloadMap.selectedPayloadType === undefined));
     const [isGenFieldsFilled, setIsGenFieldsFilled] = useState(false);
     const [selectedOperation, setSelectedOperation] = useState<string>(connectorConfig?.action?.name);
-    const [selectedTargetType, setSelectedTargetType] = useState("");
+    const [returnType, setReturnType] = useState<string>("");
+    const [validReturnType, setValidReturnType] = useState(false);
     const httpVar = model as LocalVarDecl;
     const initialReturnNameState: ReturnNameState = {
         value: connectorConfig.action.returnVariableName,
@@ -98,8 +100,27 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         isValidName: true
     };
 
+    if (actions) {
+        // TODO: Remove this FormField once Map metadata generation fixed in LS
+        const headerValueField: FormField = {
+            typeName: "string",
+            optional: false,
+            defaultValue: false,
+            customAutoComplete: withQuotes(httpHeaderValues),
+        };
+        actions.forEach((selectedAction) => {
+            selectedAction.parameters.forEach((formField) => {
+                if (formField.name === "headers") {
+                    formField.typeName = "map";
+                    formField.customAutoComplete = withQuotes(httpHeaderKeys);
+                    formField.fields = [headerValueField];
+                }
+            });
+        });
+    }
+
     if (selectedOperation) {
-        connectorConfig.action.fields = functionDefinitions.get(selectedOperation).parameters;
+        connectorConfig.action.fields = actions.get(selectedOperation).parameters;
     }
 
     if (selectedOperation !== connectorConfig?.action?.name) {
@@ -111,7 +132,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         selectedPayload: payloadType,
         isNameProvided: !!connectorConfig?.responsePayloadMap?.payloadVariableName,
         validPayloadName: true,
-        variableName: connectorConfig.responsePayloadMap ? connectorConfig.responsePayloadMap.payloadVariableName : ""
+        variableName: connectorConfig.responsePayloadMap ? connectorConfig.responsePayloadMap.payloadVariableName : "",
     };
 
     const [returnNameState, setReturnNameState] = useState<ReturnNameState>(initialReturnNameState);
@@ -130,11 +151,11 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         const symbolRefArray = symbolInfo.variableNameReferences.get(returnNameState.value);
         responseVariableHasReferences = symbolRefArray ? symbolRefArray.length > 0 : false;
         const actionReturnType = httpVar.typedBindingPattern.typeDescriptor.source.trim();
-        if (selectedTargetType === "" && actionReturnType) {
-            setSelectedTargetType(actionReturnType);
+        if (returnType === "" && actionReturnType) {
+            setReturnType(actionReturnType);
         }
-    } else if (isNewConnectorInitWizard && selectedTargetType === "") {
-        setSelectedTargetType(defaultTargetType);
+    } else if (isNewConnectorInitWizard && returnType === "") {
+        setReturnType(defaultTargetType);
     }
 
     const onValidate = (isRequiredFieldsFilled: boolean) => {
@@ -165,7 +186,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
 
     const handleOnSave = () => {
         action.returnVariableName = returnNameState.value;
-        action.fields.find(subField => subField.name === "targetType").selectedDataType = selectedTargetType;
+        action.fields.find(subField => subField.name === "targetType").selectedDataType = returnType;
         onSave();
     };
 
@@ -191,6 +212,15 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         connectorConfig.action.returnVariableName = text;
     };
 
+    const onReturnTypeChange = (text: string) => {
+        connectorConfig.action.returnType = text;
+        setReturnType(text);
+    };
+
+    const onValidateReturnType = (fieldName: string, isInvalid: boolean) => {
+        setValidReturnType(!isInvalid);
+    };
+
     const operations: string[] = [];
     if (actions) {
         actions.forEach((value, key) => {
@@ -200,12 +230,18 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         });
     }
 
-    const selectedOperationParams = state && isFieldsAvailable && action.name &&
-        (<Form fields={formFields} onValidate={onValidate} />);
+    const selectedOperationParams = state && isFieldsAvailable && action.name && (
+        <Form fields={formFields} onValidate={onValidate} editPosition={targetPosition}/>
+    );
 
     const payloadTypePlaceholder = intl.formatMessage({
         id: "lowcode.develop.configForms.HTTP.seletPayloadType",
-        defaultMessage: "Select Type"
+        defaultMessage: "Select Type",
+    });
+
+    const addReturnTypeLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.HTTP.returnType",
+        defaultMessage: "Response Type",
     });
 
     let payloadComponent: React.ReactNode = null;
@@ -221,9 +257,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
                     <FormHelperText className={classes.inputLabelForRequired}><FormattedMessage id="lowcode.develop.connectorForms.HTTP.seletPayloadType" defaultMessage="Select payload type :"/></FormHelperText>
                     <FormHelperText className={classes.starLabelForRequired}>*</FormHelperText>
                 </div>
-                <div
-                    className="product-tour-payload-click"
-                >
+                <div className="product-tour-payload-click">
                     <SelectDropdownWithButton
                         defaultValue={connectorConfig.responsePayloadMap.selectedPayloadType}
                         onChange={onPayloadTypeSelect}
@@ -238,7 +272,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
         );
     }
 
-    const isSaveDisabled = isMutationProgress || !isGenFieldsFilled;
+    const isSaveDisabled = isMutationProgress || !isGenFieldsFilled || !validReturnType;
 
     React.useEffect(() => {
         if (!isNewConnectorInitWizard) {
@@ -277,11 +311,11 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             setReturnNameState({
                 value: genVariableName(operation + "Response", getAllVariables(symbolInfo)),
                 isValidName: true,
-                isNameProvided: true
+                isNameProvided: true,
             });
         }
         if (operation) {
-            const derivedFormFields = functionDefinitions.get(operation).parameters;
+            const derivedFormFields = actions.get(operation).parameters;
             connectorConfig.action.name = operation;
             connectorConfig.action.fields = derivedFormFields;
             setDefaultActionName(connectorConfig.action.name);
@@ -293,7 +327,7 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
             selectedPayload: "",
             isNameProvided: false,
             validPayloadName: true,
-            variableName: undefined
+            variableName: undefined,
         });
         connectorConfig.responsePayloadMap.selectedPayloadType = "";
         connectorConfig.responsePayloadMap.isPayloadSelected = true;
@@ -301,86 +335,78 @@ export function SelectInputOutputForm(props: SelectInputOutputFormProps) {
 
     const handleOperationChange = () => {
         setOnOperationChange(true);
-    }
-
-    const handleTypeChange = (value: string) => {
-        setSelectedTargetType(value);
-    }
+    };
 
     return (
         <div>
-            {((!selectedOperation || onOperationChange) && (
+            {(!selectedOperation || onOperationChange) && (
                 <OperationDropdown
                     operations={["get", "post", "put", "delete", "patch", "forward"]}
                     onOperationSelect={handleOnOperationSelect}
                     selectedValue={selectedOperation}
                 />
-            )
             )}
-            {(selectedOperation && !onOperationChange &&
-                (
-                    <FormControl className={wizardClasses.mainWrapper}>
-                        <div className={wizardClasses.configWizardAPIContainer}>
-                            <div className={classes.fullWidth}>
-                                <>
-                                    <p className={wizardClasses.subTitle}>Operation</p>
-                                    <Box border={1} borderRadius={5} className={wizardClasses.box}>
-                                        <Typography variant="subtitle2">
-                                            {connectorConfig.action.name}
-                                        </Typography>
-                                        <IconButton
-                                            color="primary"
-                                            classes={{
-                                                root: wizardClasses.changeConnectionBtn
-                                            }}
-                                            onClick={handleOperationChange}
-                                        >
-                                            <EditIcon />
-                                        </IconButton>
-                                    </Box>
-                                </>
-                                <FormHelperText className={classes.subtitle}>Operation Inputs</FormHelperText>
-
-                                <div className={classNames(classes.groupedForm, classes.marginTB)}>
-                                    {selectedOperationParams}
-                                </div>
-                                <SelectDropdownWithButton
-                                    onChange={handleTypeChange}
-                                    customProps={{
-                                        values: targetTypes,
-                                        disableCreateNew: true,
-                                    }}
-                                    defaultValue={selectedTargetType}
-                                    placeholder="Select Target Type"
-                                    label="Target Type"
-                                />
-                                <div className={classes.marginTB}>
-                                    <FormTextInput
-                                        dataTestId={"response-variable-name"}
-                                        customProps={{
-                                            validate: validateResponseNameValue,
-                                            disabled: responseVariableHasReferences
+            {selectedOperation && !onOperationChange && (
+                <FormControl className={wizardClasses.mainWrapper}>
+                    <div className={wizardClasses.configWizardAPIContainer}>
+                        <div className={classes.fullWidth}>
+                            <>
+                                <p className={wizardClasses.subTitle}>Operation</p>
+                                <Box border={1} borderRadius={5} className={wizardClasses.box}>
+                                    <Typography variant="subtitle2">{connectorConfig.action.name}</Typography>
+                                    <IconButton
+                                        color="primary"
+                                        classes={{
+                                            root: wizardClasses.changeConnectionBtn,
                                         }}
-                                        defaultValue={returnNameState.value}
-                                        placeholder={"Enter Response Variable Name"}
-                                        onChange={onNameChange}
-                                        label={"Response Variable Name"}
-                                        errorMessage={responseVarError}
+                                        onClick={handleOperationChange}
+                                    >
+                                        <EditIcon />
+                                    </IconButton>
+                                </Box>
+                            </>
+                            <FormHelperText className={classes.subtitle}>Operation Inputs</FormHelperText>
+                            <div className={classNames(classes.groupedForm, classes.marginTB)}>
+                                {selectedOperationParams}
+                            </div>
+                            <div className={classes.marginTB}>
+                                <FormTextInput
+                                    dataTestId={"response-variable-name"}
+                                    customProps={{
+                                        validate: validateResponseNameValue,
+                                        disabled: responseVariableHasReferences,
+                                    }}
+                                    defaultValue={returnNameState.value}
+                                    placeholder={"Enter Response Variable Name"}
+                                    onChange={onNameChange}
+                                    label={"Response Variable Name"}
+                                    errorMessage={responseVarError}
+                                />
+                            </div>
+                            <div className={classes.marginTB}>
+                                <Box className="exp-wrapper">
+                                    <VariableTypeInput
+                                        displayName={addReturnTypeLabel}
+                                        value={returnType}
+                                        hideTextLabel={false}
+                                        onValueChange={onReturnTypeChange}
+                                        position={targetPosition}
+                                        validateExpression={onValidateReturnType}
                                     />
-                                </div>
+                                </Box>
                             </div>
                         </div>
-                        <div className={classes.saveConnectorBtnHolder}>
-                            <PrimaryButton
-                                dataTestId={"http-save-done"}
-                                text="Save &amp; Done"
-                                fullWidth={false}
-                                disabled={isSaveDisabled}
-                                onClick={handleOnSave}
-                            />
-                        </div>
-                    </FormControl>
-                )
+                    </div>
+                    <div className={classes.saveConnectorBtnHolder}>
+                        <PrimaryButton
+                            dataTestId={"http-save-done"}
+                            text="Save &amp; Done"
+                            fullWidth={false}
+                            disabled={isSaveDisabled}
+                            onClick={handleOnSave}
+                        />
+                    </div>
+                </FormControl>
             )}
         </div>
     );
