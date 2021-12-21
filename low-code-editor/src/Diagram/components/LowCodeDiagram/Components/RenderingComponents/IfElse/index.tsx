@@ -291,7 +291,7 @@ export function IfElse(props: IfElseProps) {
             const conditions: { id: number, expression: string, position: NodePosition, diagnostics?: DiagramDiagnostic[] }[] = [];
             conditions.push({
                 id: 0,
-                expression: conditionExpr?.source.trim(),
+                expression: conditionExpr?.source.trim().match(/\((.*)\)/)[1],
                 position: conditionExpr?.position,
                 diagnostics: conditionExpr?.typeData?.diagnostics
             });
@@ -301,7 +301,7 @@ export function IfElse(props: IfElseProps) {
                     let isElseIfBlockExist: boolean = block?.kind === "IfElseStatement";
                     let id = 1;
                     while (isElseIfBlockExist) {
-                        const expression = block?.condition?.source.trim();
+                        const expression = block?.condition?.source.trim().match(/\((.*)\)/)[1];
                         const position = block?.condition?.position;
                         const nodeDiagnostics = block?.condition?.typeData?.diagnostics;
                         conditions.push({ id, expression, position, diagnostics: nodeDiagnostics });
@@ -314,9 +314,20 @@ export function IfElse(props: IfElseProps) {
             return { values: conditions };
         }
 
+        const getExpressionsForUnary = () : ElseIfConfig => {
+            const conditions: {id: number, expression: string, position: NodePosition, diagnostics?: DiagramDiagnostic[]}[] = [];
+            conditions.push({
+                id: 0,
+                expression: conditionExpr.source,
+                position: conditionExpr?.position,
+                diagnostics: conditionExpr?.typeData?.diagnostics
+            });
+            return {values: conditions};
+        }
+
         const onIfHeadClick = () => {
             const conditionExpression = STKindChecker.isBracedExpression(conditionExpr) ?
-                getExpressions() : conditionExpr.source;
+                getExpressions() : getExpressionsForUnary();
             const position = getExpressions()?.values[0]?.position;
             setConfigWizardOpen(true);
             const conditionConfigState = getConditionConfig("If", model.position, WizardType.EXISTING, undefined, {
