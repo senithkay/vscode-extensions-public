@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext } from "react";
+import React from "react";
 
 import { BallerinaConnectorInfo, BallerinaConnectorsRequest, BallerinaModuleResponse, DiagramEditorLangClientInterface } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
