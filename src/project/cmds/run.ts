@@ -49,8 +49,10 @@ function activateRunCommand() {
             }
 
             if (currentProject.kind !== PROJECT_TYPE.SINGLE_FILE) {
+                const configPath: string = ballerinaExtInstance.getBallerinaConfigPath();
+                ballerinaExtInstance.setBallerinaConfigPath('');
                 runCommandWithConf(currentProject, ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.RUN,
-                    ballerinaExtInstance.getBallerinaConfigPath(), currentProject.path!, ...args);
+                    configPath, currentProject.path!, ...args);
             } else {
                 runCurrentFile();
             }

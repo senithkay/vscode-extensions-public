@@ -148,7 +148,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 
         let configFile: string = filePath;
 
-        if (!filePath.toString().endsWith(CONFIG_FILE)) {
+        if (!filePath || !filePath.toString().endsWith(CONFIG_FILE)) {
             let currentProject: BallerinaProject = {};
             if (window.activeTextEditor) {
                 currentProject = await getCurrentBallerinaProject();
@@ -176,8 +176,6 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
             if (!existsSync(configFile)) {
                 openSync(configFile, 'w')
             }
-
-            ballerinaExtInstance.setBallerinaConfigPath(configFile);
         }
 
         await ballerinaExtInstance.langClient.getBallerinaProjectConfigSchema({
