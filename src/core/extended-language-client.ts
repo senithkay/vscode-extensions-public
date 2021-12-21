@@ -607,8 +607,8 @@ export class ExtendedLangClient extends LanguageClient {
                     if (key != 'name') {
                         this.ballerinaExtendedServices!.add(`${org}/${key}`);
                     }
-                })
-            })
+                });
+            });
         }).catch(_error => {
             this.isDynamicRegistrationSupported = false;
         });

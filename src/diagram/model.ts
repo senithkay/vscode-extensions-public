@@ -53,12 +53,12 @@ interface ResourcePath {
 }
 
 export interface DiagnosticInfo {
-    code: string,
-    severity: string
+    code: string;
+    severity: string;
 }
 
 export interface Diagnostic {
-    message: string,
-    diagnosticInfo: DiagnosticInfo,
-    range: Position
+    message: string;
+    diagnosticInfo: DiagnosticInfo;
+    range: Position;
 }

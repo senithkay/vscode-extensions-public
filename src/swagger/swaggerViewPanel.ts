@@ -20,8 +20,9 @@
 import { ViewColumn, window, WebviewPanel } from "vscode";
 import { WebViewRPCHandler, getCommonWebViewOptions } from '../utils';
 import { render } from './render';
-import { ExtendedLangClient, OASpec } from "../core";
+import { ballerinaExtInstance, ExtendedLangClient, OASpec } from "../core";
 import { SwaggerServer } from "./server";
+import { CMP_PACKAGE_VIEW, sendTelemetryEvent, TM_EVENT_SWAGGER_RUN } from "../telemetry";
 
 let swaggerViewPanel: WebviewPanel | undefined;
 
@@ -60,4 +61,6 @@ export async function showSwaggerView(langClient: ExtendedLangClient,
     if (swaggerViewPanel && html) {
         swaggerViewPanel.webview.html = html;
     }
+    //editor-lowcode-code-tryit
+    sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_SWAGGER_RUN, CMP_PACKAGE_VIEW);
 }

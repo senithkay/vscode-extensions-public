@@ -28,7 +28,7 @@ export async function getChoreoKeytarSession(): Promise<ChoreoSession> {
             choreoAccessToken: process.env.VSCODE_CHOREO_SESSION_TOKEN,
             choreoRefreshToken: process.env.VSCODE_CHOREO_REFRESH_TOKEN,
             choreoLoginTime: new Date()
-        }
+        };
     }
 
     let choreoAccessToken: string | null = null;

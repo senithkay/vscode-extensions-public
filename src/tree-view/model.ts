@@ -56,12 +56,12 @@ export class ExplorerTreeItem extends TreeItem {
         TreeItemCollapsibleState, kind: string, uri: Uri, type: FileType) {
         super(label, collapsibleState);
         this.uri = uri;
-        this.type = type
+        this.type = type;
         this.kind = kind;
     }
 
     getFolder(): WorkspaceFolder | undefined {
-        return this.folder
+        return this.folder;
     }
 
     getUri(): Uri {
@@ -91,7 +91,7 @@ export interface ChildrenData {
     listeners?: Leaf[];
     moduleVariables?: Leaf[];
     methods?: Leaf[];
-    entryPoint?: Leaf[]
+    entryPoint?: Leaf[];
 }
 
 export interface Package {

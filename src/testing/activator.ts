@@ -289,7 +289,7 @@ export async function createTests(uri: Uri) {
       ctrl.items.delete(item.id);
     });
   }
-  currentProjectRoot = root
+  currentProjectRoot = root;
 
   // Get tests from LS.
   langClient.getExecutorPositions({

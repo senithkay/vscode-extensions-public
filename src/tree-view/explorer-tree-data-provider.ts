@@ -53,7 +53,7 @@ export class ExplorerDataProvider implements TreeDataProvider<ExplorerTreeItem> 
             }
             debug(`Refresh diagram explorer view for ${listener.fsPath} delete`);
             this.refresh();
-        })
+        });
     }
 
     async _stat(path: string): Promise<FileStat> {

@@ -95,7 +95,7 @@ interface CodeServerContext {
     infoMessageStatus: {
         messageFirstEdit: boolean;
         sourceControlMessage: boolean;
-    }
+    };
 }
 
 interface PerformanceForecastContext {
@@ -107,7 +107,7 @@ interface PerformanceForecastContext {
 
 export interface WebviewContext {
     isOpen: boolean;
-    type?: WEBVIEW_TYPE
+    type?: WEBVIEW_TYPE;
 }
 
 export class BallerinaExtension {
@@ -161,7 +161,7 @@ export class BallerinaExtension {
                 sourceControlMessage: true,
                 messageFirstEdit: true
             }
-        }
+        };
         if (this.getCodeServerContext().codeServerEnv) {
             commands.executeCommand('workbench.action.closeAllEditors');
         }
@@ -170,7 +170,7 @@ export class BallerinaExtension {
             infoMessageStatus: {
                 signinChoreo: true
             }
-        }
+        };
         this.ballerinaConfigPath = '';
     }
 
