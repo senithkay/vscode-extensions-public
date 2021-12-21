@@ -1,4 +1,4 @@
-import { FunctionDefinition, NodePosition } from "@wso2-enterprise/syntax-tree";
+import { FunctionDefinition } from "@wso2-enterprise/syntax-tree";
 
 import { ANALYZE_TYPE, PerformanceData } from "../../../../../../../DiagramGenerator/performanceUtil";
 
