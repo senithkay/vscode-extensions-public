@@ -576,6 +576,10 @@ export class BallerinaExtension {
         commands.executeCommand('setContext', 'isBallerinaDiagram', value);
     }
 
+    public setOverrideChoreoAuth(value: boolean) {
+        commands.executeCommand('setContext', 'isChoreoAuthEnabled', value);
+    }
+
     public setChoreoSession(choreoSession: ChoreoSession) {
         debug(`choreoUser: ${choreoSession.choreoUser} \nchoreoAccessToken: ${choreoSession.choreoAccessToken} \nchoreoCookie: ${choreoSession.choreoCookie} \nchoreoRefreshToken: ${choreoSession.choreoRefreshToken}`);
         this.choreoSession = choreoSession;

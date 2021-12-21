@@ -185,6 +185,7 @@ export class OAuthTokenHandler {
     public async exchangeRefreshToken(refreshToken: string) {
         if (!refreshToken) {
             vscode.window.showErrorMessage(AUTH_FAIL + RefreshTokenError);
+            this.signOut();
             return;
         }
 
