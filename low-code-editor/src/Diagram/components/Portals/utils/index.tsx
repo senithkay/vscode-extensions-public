@@ -791,7 +791,7 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
         returnType: "var",
         importTypeInfo: []
     };
-    const primitives = [ "string", "int", "float", "decimal", "boolean", "json", "xml", "handle" ];
+    const primitives = [ "string", "int", "float", "decimal", "boolean", "json", "xml", "handle", "byte", "object", "handle", "anydata" ];
     const returnTypes: string[] = [];
 
     if (formField) {
