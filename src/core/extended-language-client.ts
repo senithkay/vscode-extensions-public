@@ -327,6 +327,11 @@ export interface LibraryDocResponse {
     librariesList: LibraryInfo[];
 }
 
+export enum LibraryKind {
+    langLib = 'langLibs',
+    stdLib = 'modules',
+}
+
 export interface LibraryInfo {
     id: string;
     summary: string;

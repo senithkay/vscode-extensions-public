@@ -267,11 +267,11 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
                 <div class="loader"></div>
                 \`;
             }
-            function getLibrariesList(version) {
+            function getLibrariesList(version, kind) {
                 return new Promise((resolve, _reject) => {
                     webViewRPCHandler.invokeRemoteMethod(
                         'getLibrariesList',
-                        [version],
+                        [version, kind],
                         (resp) => {
                             resolve(resp);
                         }

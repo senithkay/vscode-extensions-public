@@ -28,6 +28,7 @@ import {
 	ExtendedLangClient,
 	HTTP_CONNECTOR_LIST_CACHE,
 	LibraryDocResponse,
+	LibraryKind,
 	PerformanceAnalyzerGraphResponse,
 	PerformanceAnalyzerRealtimeResponse
 } from '../core/extended-language-client';
@@ -44,7 +45,7 @@ import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { runCommand } from '../utils/runCommand';
 import { Diagnostic } from '.';
 import { createTests } from '../testing/activator';
-import { getBallerinaLibrariesList } from "../documentation/library";
+import { getLanguageLibrariesList, getStandardLibrariesList } from "../documentation/library";
 
 export let hasDiagram: boolean = false;
 
@@ -424,7 +425,10 @@ class DiagramPanel {
 			{
 				methodName: "getLibrariesList",
 				handler: async (args: any[]): Promise<LibraryDocResponse | undefined> => {
-					return await getBallerinaLibrariesList(args[0]);
+					if (args[1] === LibraryKind.langLib) {
+						return await getLanguageLibrariesList(args[0]);
+					}
+					return await getStandardLibrariesList(args[0]);
 				}
 			}
 		];
