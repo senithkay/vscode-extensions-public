@@ -107,12 +107,15 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 
 export function showChoreoPushMessage(ballerinaExtInstance: BallerinaExtension, isCommand: boolean = false) {
     if (!ballerinaExtInstance.getCodeServerContext().codeServerEnv ||
-        !ballerinaExtInstance.getCodeServerContext().infoMessageStatus.sourceControlMessage ||
         (!isCommand && !ballerinaExtInstance.getCodeServerContext().infoMessageStatus.messageFirstEdit)) {
         return;
     }
     if (isCommand) {
-        sourceControllerDetails(ballerinaExtInstance);
+        if (ballerinaExtInstance.getCodeServerContext().infoMessageStatus.sourceControlMessage) {
+            sourceControllerDetails(ballerinaExtInstance);
+        } else {
+            commands.executeCommand(PALETTE_COMMANDS.FOCUS_SOURCE_CONTROL);
+        }
         return;
     }
 
