@@ -14,7 +14,7 @@
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
 import { formCreateSvg } from "../../../../assets";
-// Copy of styles is maintained in low-code-commons
+// Copy of styles is maintained in expression-editor module
 export const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         wizardFormControl: {
