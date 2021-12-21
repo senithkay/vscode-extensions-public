@@ -143,7 +143,7 @@ export interface LowCodeEditorProperties {
     isReadOnly: boolean;
     zoomStatus: ZoomStatus;
     selectedPosition?: SelectedPosition;
-    performanceData?: Map<NodePosition, PerformanceData>;
+    performanceData?: Map<string, PerformanceData>;
 }
 
 export interface FunctionProperties {

@@ -2,7 +2,7 @@ import { FunctionDefinition, NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { ANALYZE_TYPE, PerformanceData } from "../../../../../../../DiagramGenerator/performanceUtil";
 
-export function generatePerfData(model: FunctionDefinition, performanceData: Map<NodePosition, PerformanceData>) {
+export function generatePerfData(model: FunctionDefinition, performanceData: Map<string, PerformanceData>) {
     let concurrency: string;
     let latency: string;
     let tps: string;
@@ -15,12 +15,14 @@ export function generatePerfData(model: FunctionDefinition, performanceData: Map
 
     let data;
     let analyzeType: ANALYZE_TYPE;
+    const pos = model.position;
+    const position = `${pos.startLine},${pos.startColumn},${pos.endLine},${pos.endColumn}`;
     if ((model as any).performance) {
         data = (model as any).performance;
         analyzeType = data.analyzeType;
-    } else if (performanceData.get(model.position)) {
-        data = performanceData.get(model.position).data;
-        analyzeType = performanceData.get(model.position).type;
+    } else if (performanceData.get(position)) {
+        data = performanceData.get(position).data;
+        analyzeType = performanceData.get(position).type;
     }
 
     if (data) {

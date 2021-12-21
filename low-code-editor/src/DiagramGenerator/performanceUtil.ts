@@ -21,7 +21,7 @@ import {
     DiagramEditorLangClientInterface, GraphData, GraphPoint, PerformanceAnalyzerGraphResponse,
     PerformanceAnalyzerRealtimeResponse, SequenceGraphPoint, SequenceGraphPointValue
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, NodePosition as string } from "@wso2-enterprise/syntax-tree";
 import { Range } from "monaco-editor";
 
 import { mergeAnalysisDetails } from "./mergePerformanceData";
@@ -67,7 +67,7 @@ export enum ANALYZE_TYPE {
  */
 export async function addPerformanceData(st: any, file: string, lc: DiagramEditorLangClientInterface,
                                          session: PFSession, showPerf: (request: PerformanceGraphRequest) => Promise<boolean>,
-                                         getPerfDataFromChoreo: (data: any, analyzeType: ANALYZE_TYPE) => Promise<PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse | undefined>): Promise<Map<NodePosition, PerformanceData>> {
+                                         getPerfDataFromChoreo: (data: any, analyzeType: ANALYZE_TYPE) => Promise<PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse | undefined>): Promise<Map<string, PerformanceData>> {
     if (!st || !file || !lc || !session) {
         return;
     }
@@ -80,7 +80,7 @@ export async function addPerformanceData(st: any, file: string, lc: DiagramEdito
     getDataFromChoreo = getPerfDataFromChoreo;
 
     const members: any[] = syntaxTree.members;
-    const performanceBarData = new Map<NodePosition, PerformanceData>();
+    const performanceBarData = new Map<string, PerformanceData>();
     for (const member of members) {
         if (member.kind === 'ServiceDeclaration') {
             const serviceMembers: any[] = member.members;
@@ -99,7 +99,8 @@ export async function addPerformanceData(st: any, file: string, lc: DiagramEdito
                     const realtimeData = await getRealtimeData(range);
 
                     if (realtimeData) {
-                        performanceBarData.set(serviceMember.position, { data: realtimeData, type: ANALYZE_TYPE.REALTIME });
+                        const position = `${pos.startLine},${pos.startColumn},${pos.endLine},${pos.endColumn}`;
+                        performanceBarData.set(position, { data: realtimeData, type: ANALYZE_TYPE.REALTIME });
                     }
                 }
             }

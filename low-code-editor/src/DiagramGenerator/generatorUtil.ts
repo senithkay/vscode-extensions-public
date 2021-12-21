@@ -6,8 +6,6 @@ import { initVisitor, positionVisitor, sizingVisitor, SymbolVisitor } from "../i
 import { MESSAGE_TYPE, SelectedPosition } from "../types";
 
 import { addExecutorPositions } from "./executor";
-import { addPerformanceData, ANALYZE_TYPE } from "./performanceUtil";
-import { PALETTE_COMMANDS, PFSession } from "./vscode/Diagram";
 
 export async function getSyntaxTree(filePath: string, langClient: DiagramEditorLangClientInterface) {
     const resp = await langClient.getSyntaxTree({

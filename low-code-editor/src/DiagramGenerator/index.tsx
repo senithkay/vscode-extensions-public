@@ -3,7 +3,7 @@ import { IntlProvider } from "react-intl";
 import { monaco } from "react-monaco-editor";
 
 import { MuiThemeProvider } from "@material-ui/core/styles";
-import { Connector, DiagramDiagnostic, STModification, STSymbolInfo, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { Connector, DiagramDiagnostic, DiagramEditorLangClientInterface, STModification, STSymbolInfo, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, ModulePart, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import cloneDeep from "lodash.clonedeep";
 import Mousetrap from 'mousetrap';
@@ -36,6 +36,8 @@ const ZOOM_STEP = 0.1;
 const MAX_ZOOM = 2;
 const MIN_ZOOM = 0.6;
 const undoRedo = new UndoRedoManager();
+const debounceTime: number = 5000;
+let lastPerfUpdate = 0;
 
 export function DiagramGenerator(props: DiagramGeneratorProps) {
     const { langClient, filePath, startLine, startColumn, lastUpdatedAt, scale, panX, panY, resolveMissingDependency } = props;
@@ -77,9 +79,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                 setFileContent(content);
 
                 // Add performance data
-                const pfSession = await props.getPFSession();
-                const perfData = await addPerformanceData(vistedSyntaxTree, filePath, langClient, pfSession, props.showPerformanceGraph, props.getPerfDataFromChoreo);
-                setPerformanceData(perfData);
+                await addPerfData(vistedSyntaxTree);
 
             } catch (err) {
                 throw err;
@@ -156,10 +156,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
             setFileContent(lastsource);
             props.updateFileContent(path, lastsource);
 
-            // Add performance data
-            const pfSession = await props.getPFSession();
-            const perfData = await addPerformanceData(vistedSyntaxTree, filePath, langClient, pfSession, props.showPerformanceGraph, props.getPerfDataFromChoreo);
-            setPerformanceData(perfData);
+            await addPerfData(vistedSyntaxTree);
 
         }
     }
@@ -187,10 +184,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
             setFileContent(lastUndoSource);
             props.updateFileContent(path, lastUndoSource);
 
-            // Add performance data
-            const pfSession = await props.getPFSession();
-            const perfData = await addPerformanceData(vistedSyntaxTree, filePath, langClient, pfSession, props.showPerformanceGraph, props.getPerfDataFromChoreo);
-            setPerformanceData(perfData);
+            await addPerfData(vistedSyntaxTree);
 
         }
     }
@@ -291,10 +285,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                         }
                                         setMutationInProgress(false);
 
-                                        // Add performance data
-                                        const pfSession = await props.getPFSession();
-                                        const perfData = await addPerformanceData(vistedSyntaxTree, filePath, langClient, pfSession, props.showPerformanceGraph, props.getPerfDataFromChoreo);
-                                        setPerformanceData(perfData);
+                                        await addPerfData(vistedSyntaxTree);
                                     },
                                     onMutate: (type: string, options: any) => undefined,
                                     setCodeLocationToHighlight: (position: NodePosition) => undefined,
@@ -334,4 +325,15 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
             </div>
         </MuiThemeProvider>
     );
+
+    async function addPerfData(vistedSyntaxTree: STNode) {
+        const currentTime: number = Date.now();
+
+        if (currentTime - lastPerfUpdate > debounceTime) {
+            const pfSession = await props.getPFSession();
+            const perfData = await addPerformanceData(vistedSyntaxTree, filePath, langClient, pfSession, props.showPerformanceGraph, props.getPerfDataFromChoreo);
+            setPerformanceData(perfData);
+            lastPerfUpdate = currentTime;
+        }
+    }
 }
