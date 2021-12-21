@@ -151,7 +151,17 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
 
 function checkErrors(response: PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse) {
     debug(response.message);
-    handleRetries();
+    if (response.message === 'AUTHENTICATION_ERROR' || response.message === 'CONNECTION_ERROR') {
+        // Choreo Auth Error
+        handleRetries();
+
+    } else if (response.message === 'MODEL_RANGE_EXCEEDED') {
+        // AI Error
+        showMessage("Performance plots are not available due to insufficient data", MESSAGE_TYPE.INFO, false);
+
+    } else if (response.message !== 'NO_DATA' && response.message !== 'ESTIMATOR_ERROR' && response.message !== 'INVALID_DATA') {
+        handleRetries();
+    }
 }
 
 export function handleRetries() {
@@ -342,6 +352,7 @@ export function getDataFromChoreo(data: any, analyzeType: ANALYZETYPE): Promise<
                 } catch (e) {
                     debug("Perf Error");
                     debug(str);
+                    handleRetries();
                     reject();
                 }
             })
@@ -350,6 +361,7 @@ export function getDataFromChoreo(data: any, analyzeType: ANALYZETYPE): Promise<
         req.on('error', error => {
             debug("Perf Error");
             debug(error);
+            handleRetries();
             reject();
         })
 
