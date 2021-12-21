@@ -627,14 +627,16 @@ export class ExtendedLangClient extends LanguageClient {
     pushLSClientTelemetries() {
         if (this.timeConsumption.completion.length > 0) {
             const completionValues = calculateTelemetryValues(this.timeConsumption.completion, 'completion');
-            sendTelemetryEvent(this.ballerinaExtInstance!, TM_EVENT_LANG_CLIENT, CMP_LS_CLIENT_COMPLETIONS, '', completionValues);
+            sendTelemetryEvent(this.ballerinaExtInstance!, TM_EVENT_LANG_CLIENT, CMP_LS_CLIENT_COMPLETIONS,
+                process.env.HOSTNAME, completionValues);
             this.timeConsumption.completion = [];
         }
 
         if (this.timeConsumption.diagnostics.length > 0) {
             const diagnosticValues = calculateTelemetryValues(this.timeConsumption.diagnostics, 'diagnostic');
             this.timeConsumption.diagnostics = [];
-            sendTelemetryEvent(this.ballerinaExtInstance!, TM_EVENT_LANG_CLIENT, CMP_LS_CLIENT_DIAGNOSTICS, '', diagnosticValues);
+            sendTelemetryEvent(this.ballerinaExtInstance!, TM_EVENT_LANG_CLIENT, CMP_LS_CLIENT_DIAGNOSTICS,
+                process.env.HOSTNAME, diagnosticValues);
         }
     }
 }
