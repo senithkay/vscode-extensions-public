@@ -16,6 +16,7 @@ import { useIntl } from "react-intl";
 
 import { FormControl } from "@material-ui/core";
 import { Connector, ConnectorConfig, FormField, FunctionDefinitionInfo, LinePrimaryButton, PrimaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { Section } from "../../../../../../components/ConfigPanel";
@@ -27,7 +28,6 @@ import { Form } from "../../../DynamicConnectorForm";
 import { useStyles } from "../../../DynamicConnectorForm/style";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
 import '../style.scss';
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 interface CreateConnectorFormProps {
     functionDefinitions: Map<string, FunctionDefinitionInfo>;
