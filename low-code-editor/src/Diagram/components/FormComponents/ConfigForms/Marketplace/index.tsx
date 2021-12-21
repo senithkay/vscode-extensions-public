@@ -183,7 +183,7 @@ export function Marketplace(props: MarketplaceProps) {
 
     const onSearchButtonClick = (query: string) => {
         setSearchQuery(query);
-        if(query && query.length >= 3) {
+        if (query && query.length >= 3) {
             const event: LowcodeEvent = {
                 type: SEARCH_CONNECTOR,
                 name: query,
