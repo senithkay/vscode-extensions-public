@@ -40,7 +40,7 @@ export interface EditorAPI {
     resolveMissingDependencyByCodeAction: (filePath: string, fileContent: string, diagnostic: any) => Promise<boolean>;
     runCommand: (command: PALETTE_COMMANDS, args: any[]) => Promise<boolean>;
     sendTelemetryEvent: (event: LowcodeEvent) => Promise<void>;
-    getLibrariesList: (version: string) => Promise<LibraryDocResponse>;
+    getLibrariesList: (version: string) => Promise<LibraryDocResponse | undefined>;
 }
 
 export enum PALETTE_COMMANDS {
