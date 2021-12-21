@@ -37,8 +37,6 @@ import { ExpressionEditorHintProps, HintType } from "../ExpressionEditorHint";
 import MonacoEditor from "react-monaco-editor";
 import { CompletionResponse, ExpressionEditorLangClientInterface, TextEdit,
     FormField, NonPrimitiveBal, PrimitiveBalType, DiagramDiagnostic, InjectableItem, InsertorDelete } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-// import { InjectableItem } from "../../FormGenerator";
-// import { InsertorDelete } from "../../../../utils/modification-util";
 import { GetExpCompletionsParams } from "./index";
 
 

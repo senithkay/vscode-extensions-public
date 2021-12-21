@@ -195,14 +195,6 @@ export interface ExpressionEditorProps {
 }
 
 export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>) {
-    // const {
-    //     state: { targetPosition: targetPositionDraft },
-    //     // FIXME: REMOVE mainDiagnostics as it does'nt seem to be used anymore
-    //     props: { currentFile, langServerURL, syntaxTree, diagnostics: mainDiagnostics },
-    //     api: {
-    //         ls: { getExpressionEditorLangClient },
-    //     },
-    // } = useContext(Context);
 
     const [expressionEditorState, setExpressionEditorState] = useState<ExpressionEditorState>({
         name: undefined,
@@ -220,7 +212,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         currentFile,
         langServerURL,
         syntaxTree,
-        diagnostics: mainDiagnostics,
+        diagnostics: mainDiagnostics, // FIXME: REMOVE mainDiagnostics as it doesn't seem to be used anymore
         ls: { getExpressionEditorLangClient }
     } =  lowCodeEditorContext;
     const {
