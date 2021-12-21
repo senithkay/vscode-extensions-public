@@ -37,7 +37,7 @@ export function ClassComponent(props: ClassComponentProps) {
     model.members.forEach(member => {
         children.push(
             <div className={'class-member'} >
-                <TopLevelPlus kind={model.kind} targetPosition={member.position} />
+                {/* <TopLevelPlus kind={model.kind} targetPosition={member.position} /> */}
                 {getSTComponent(member)}
             </div>
         )
@@ -47,7 +47,7 @@ export function ClassComponent(props: ClassComponentProps) {
         <>
             {children}
             <div className={'class-member'} >
-                <TopLevelPlus kind={model.kind} targetPosition={model.closeBrace.position} />
+                {/* <TopLevelPlus kind={model.kind} targetPosition={model.closeBrace.position} /> */}
             </div>
         </>
     );

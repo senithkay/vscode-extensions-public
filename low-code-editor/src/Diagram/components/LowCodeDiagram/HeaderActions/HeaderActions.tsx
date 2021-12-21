@@ -102,7 +102,7 @@ export function HeaderActions(props: HeaderActionsProps) {
             )} */}
             {isEditViewVisible && (
                 <FormGenerator
-                    model={model}
+                    targetPosition={model.position}
                     configOverlayFormStatus={{ formType: (formType ? formType : model.kind), isLoading: false }}
                     onCancel={handleEditBtnCancel}
                     onSave={handleEditBtnCancel}
