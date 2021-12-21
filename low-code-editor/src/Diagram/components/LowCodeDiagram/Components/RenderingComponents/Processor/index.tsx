@@ -248,7 +248,7 @@ export function DataProcessor(props: ProcessorProps) {
     }
 
     const processWrapper = isDraftStatement ? "main-process-wrapper active-data-processor" : "main-process-wrapper data-processor";
-    const assignmentTextStyles = diagnosticMsgs ? "assignment-text-error" : "assignment-text-default";
+    const assignmentTextStyles = diagnosticMsgs?.severity === "ERROR" ? "assignment-text-error" : "assignment-text-default";
 
     const prosessTypes = (processType === "Log" || processType === "Call");
 

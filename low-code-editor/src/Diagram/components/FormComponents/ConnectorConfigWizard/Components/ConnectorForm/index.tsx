@@ -32,11 +32,10 @@ import { Context, useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { useFunctionContext } from "../../../../../../Contexts/Function";
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
 import {
-    CONTINUE_TO_INVOKE_API,
-    EVENT_TYPE_AZURE_APP_INSIGHTS,
-    FINISH_CONNECTOR_ACTION_ADD_INSIGHTS,
-    FINISH_CONNECTOR_INIT_ADD_INSIGHTS,
     LowcodeEvent,
+    SAVE_CONNECTOR,
+    SAVE_CONNECTOR_INIT,
+    SAVE_CONNECTOR_INVOKE
 } from "../../../../../models";
 import { getAllVariables } from "../../../../../utils/mixins";
 import {
@@ -260,6 +259,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
 
     const handleActionSave = () => {
         const modifications: STModification[] = [];
+        const configActionName = config.action.name;
         const isInitReturnError = getInitReturnType(functionDefInfo);
         const currentActionReturnType = getActionReturnType(config.action.name, functionDefInfo);
         if (checkDBConnector(connectorModule) && config.action.returnType) {
@@ -308,10 +308,20 @@ export function ConnectorForm(props: FormGeneratorProps) {
 
         if ((isNewConnectorInitWizard) && (config.action.name === "query" && checkDBConnector(connectorModule))) {
             const resultUniqueName = genVariableName("recordResult", getAllVariables(stSymbolInfo));
-            const addQueryWhileStatement = createQueryWhileStatement(resultUniqueName, targetPosition);
+            const returnTypeName = config.action.returnVariableName;
+            const addQueryWhileStatement = createQueryWhileStatement(resultUniqueName, returnTypeName, targetPosition);
             modifications.push(addQueryWhileStatement);
-        }
 
+            const closeStreamStatement = `check ${returnTypeName}.close();`
+            const addCloseStreamStatement = createPropertyStatement(closeStreamStatement, targetPosition);
+            modifications.push(addCloseStreamStatement);
+        }
+        if (isNewConnectorInitWizard && !isAction  && checkDBConnector(connectorModule)) {
+            const resp = config.name;
+            const closeStatement = `check ${resp}.close();`
+            const addCloseStatement = createPropertyStatement(closeStatement, targetPosition);
+            modifications.push(addCloseStatement);
+        }
         if (modifications.length > 0) {
             modifyDiagram(modifications);
             onSave();
@@ -382,18 +392,16 @@ export function ConnectorForm(props: FormGeneratorProps) {
     // TODO: Created common function to send Azure analytics.
     const onActionAddEvent = () => {
         const event: LowcodeEvent = {
-            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
-            name: FINISH_CONNECTOR_ACTION_ADD_INSIGHTS,
-            property: connectorName,
+            type: SAVE_CONNECTOR,
+            name: connectorName
         };
         onEvent(event);
     };
 
     const onConnectorAddEvent = () => {
         const event: LowcodeEvent = {
-            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
-            name: FINISH_CONNECTOR_INIT_ADD_INSIGHTS,
-            property: connectorName,
+            type: SAVE_CONNECTOR_INIT,
+            name: connectorName
         };
         onEvent(event);
     };
@@ -401,9 +409,8 @@ export function ConnectorForm(props: FormGeneratorProps) {
     const handleCreateConnectorSaveNext = () => {
         setFormState(FormStates.OperationForm);
         const event: LowcodeEvent = {
-            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
-            name: CONTINUE_TO_INVOKE_API,
-            property: connectorName,
+            type: SAVE_CONNECTOR_INVOKE,
+            name: connectorName
         };
         onEvent(event);
     };

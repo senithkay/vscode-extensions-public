@@ -642,7 +642,8 @@ export const getStandardExpCompletions = async ({
     varType,
     varName,
     snippetTargetPosition,
-    disableFiltering
+    disableFiltering,
+    targetPosition
 }: GetExpCompletionsParams): Promise<monaco.languages.CompletionList> => {
     const langClient: ExpressionEditorLangClientInterface = await getExpressionEditorLangClient(langServerURL);
     const values: CompletionResponse[] = await langClient.getCompletion(completionParams);
@@ -712,8 +713,10 @@ export const getStandardExpCompletions = async ({
                 command: {
                     id: monacoRef.current.editor.addCommand(0, (_, args: TextEdit[]) => {
                         if (args.length > 0) {
-                            const startColumn = args[0].range.start.character - snippetTargetPosition + 2
-                            const endColumn = args[0].range.end.character - snippetTargetPosition + 2
+                            const startColumn = args[0].range.start.character - snippetTargetPosition -
+                                targetPosition.startColumn + 2;
+                            const endColumn = args[0].range.end.character - snippetTargetPosition -
+                                targetPosition.startColumn + 2;
                             const edit: monaco.editor.IIdentifiedSingleEditOperation[] = [{
                                 text: args[0].newText,
                                 range: new monaco.Range(1, startColumn, 1, endColumn)

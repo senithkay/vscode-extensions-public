@@ -12,7 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 // tslint:disable: ordered-imports
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
@@ -26,6 +26,7 @@ import { CustomExpressionConfig, ProcessConfig } from "../../../../Types";
 import { wizardStyles } from "../../../style";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ADD_OTHER_STATEMENT, LowcodeEvent, SAVE_OTHER_STATEMENT } from "../../../../../../models";
 
 interface LogConfigProps {
     config: ProcessConfig;
@@ -47,12 +48,22 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         },
         api: {
             ls: { getExpressionEditorLangClient },
-            code: { modifyDiagram }
+            code: { modifyDiagram },
+            insights: { onEvent }
         }
     } = useContext(Context);
     const { config, formArgs, onCancel, onSave, onWizardClose } = props;
 
     const expressionFormConfig: CustomExpressionConfig = config.config as CustomExpressionConfig;
+
+    // Insight event to send when loading the component
+    useEffect(() => {
+        const event: LowcodeEvent = {
+            type: ADD_OTHER_STATEMENT,
+            name: expression,
+        };
+        onEvent(event);
+    }, []);
 
     let defaultExpression = "";
     if (config?.model) {
@@ -69,6 +80,11 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
     const onSaveBtnClick = () => {
         expressionFormConfig.expression = expression;
         onSave();
+        const event: LowcodeEvent = {
+            type: SAVE_OTHER_STATEMENT,
+            name: expression
+        };
+        onEvent(event);
     }
 
     const validateExpression = (_field: string, isInvalid: boolean) => {
@@ -141,7 +157,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                                     defaultCodeSnippet: '',
                                     targetColumn: 1,
                                 },
-                                editPosition: config?.model?.position || config?.targetPosition,
+                                editPosition: config?.model?.position || formArgs?.targetPosition,
                                 initialDiagnostics: config?.model?.typeData?.diagnostics,
                                 disableFiltering: true
                             }}
