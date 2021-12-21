@@ -31,7 +31,7 @@ import { EndConfig, RespondConfig } from "../../Types";
 import { genVariableName } from "../../../Portals/utils";
 
 import { EndOverlayForm } from "./EndOverlayForm";
-import { EVENT_TYPE_AZURE_APP_INSIGHTS, FINISH_STATEMENT_ADD_INSIGHTS, LowcodeEvent } from "../../../../models";
+import { SAVE_STATEMENT, LowcodeEvent } from "../../../../models";
 
 export interface AddEndFormProps {
     type: string;
@@ -93,9 +93,8 @@ export function EndConfigForm(props: any) {
             } else {
                 if (endConfig.type === "Return") {
                     const event: LowcodeEvent = {
-                        type: EVENT_TYPE_AZURE_APP_INSIGHTS,
-                        name: FINISH_STATEMENT_ADD_INSIGHTS,
-                        property: endConfig.type
+                        type: SAVE_STATEMENT,
+                        name: endConfig.type
                     };
                     onEvent(event);
                     const addReturnStatement: STModification = createReturnStatement(
@@ -139,9 +138,8 @@ export function EndConfigForm(props: any) {
 
                     } else {
                         const event: LowcodeEvent = {
-                            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
-                            name: FINISH_STATEMENT_ADD_INSIGHTS,
-                            property: endConfig.type
+                            type: SAVE_STATEMENT,
+                            name: endConfig.type
                         };
                         onEvent(event);
                         let respondExpression = "check $caller->respond($expression);";

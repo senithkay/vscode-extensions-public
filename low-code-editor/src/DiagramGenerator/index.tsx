@@ -125,7 +125,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     }
 
     async function run(args: any[]) {
-        runCommand(PALETTE_COMMANDS.RUN, args);
+        runCommand(PALETTE_COMMANDS.RUN_WITH_CONFIGS, args);
     }
 
     const undo = async () => {
@@ -239,7 +239,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                 },
                                 insights: {
                                     onEvent: (event: LowcodeEvent) => {
-                                        props.sendInsightEvent(event);
+                                        props.sendTelemetryEvent(event);
                                     }
                                 },
                                 code: {
