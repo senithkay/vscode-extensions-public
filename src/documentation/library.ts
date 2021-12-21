@@ -20,10 +20,16 @@
 import { LibraryDocResponse } from "../core";
 import https from "https";
 import { debug } from "../utils";
+const cachedResponses = new Map<string, LibraryDocResponse>();
+const LIBRARIES_LIST_CACHE = "LIBRARIES_LIST_CACHE";
 
-export function getBallerinaLibrariesList(version: string): Promise<LibraryDocResponse> {
+export function getBallerinaLibrariesList(version: string): Promise<LibraryDocResponse | undefined> {
 
     return new Promise((resolve, reject) => {
+
+        if (cachedResponses.has(LIBRARIES_LIST_CACHE)) {
+            return resolve(cachedResponses.get(LIBRARIES_LIST_CACHE));
+        }
 
         const options = {
             hostname: 'api.staging-central.ballerina.io',
@@ -45,8 +51,11 @@ export function getBallerinaLibrariesList(version: string): Promise<LibraryDocRe
                 if (res.statusCode !== 200) {
                     debug('Failed to fetch the libraries list');
                 } else {
-                    const responseJson = JSON.parse(body);
-                    return resolve({'librariesList': responseJson.langLibs});
+                    const responseJson = {
+                        'librariesList': JSON.parse(body).langLibs
+                    };
+                    cachedResponses.set(LIBRARIES_LIST_CACHE, responseJson);
+                    return resolve(responseJson);
                 }
             });
         });

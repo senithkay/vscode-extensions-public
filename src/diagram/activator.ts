@@ -431,7 +431,7 @@ class DiagramPanel {
 			},
 			{
 				methodName: "getLibrariesList",
-				handler: async (args: any[]): Promise<LibraryDocResponse> => {
+				handler: async (args: any[]): Promise<LibraryDocResponse | undefined> => {
 					const version = args[0];
 					return await getBallerinaLibrariesList(version);
 				}
