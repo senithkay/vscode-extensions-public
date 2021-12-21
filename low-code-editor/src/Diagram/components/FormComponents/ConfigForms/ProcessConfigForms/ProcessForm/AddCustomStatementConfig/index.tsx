@@ -157,7 +157,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                                     defaultCodeSnippet: '',
                                     targetColumn: 1,
                                 },
-                                editPosition: config?.model?.position || config?.targetPosition,
+                                editPosition: config?.model?.position || formArgs?.targetPosition,
                                 initialDiagnostics: config?.model?.typeData?.diagnostics,
                                 disableFiltering: true
                             }}

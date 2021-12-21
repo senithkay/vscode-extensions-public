@@ -127,8 +127,8 @@ export function OperationForm(props: OperationFormProps) {
 
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
     const onNameChange = (text: string) => {
-        setValidName((text !== '') && nameRegex.test(text));
         connectionDetails.action.returnVariableName = text;
+        setValidName((text !== '') && nameRegex.test(text));
         setResponseVarName(text);
     };
     const validateNameValue = (value: string) => {
@@ -158,7 +158,6 @@ export function OperationForm(props: OperationFormProps) {
     connectionDetails.action.returnVariableName = responseVarName;
     connectionDetails.action.returnType = returnType;
 
-
     const validateForm = (isRequiredFilled: boolean) => {
         setValidForm(isRequiredFilled);
     };
@@ -182,7 +181,7 @@ export function OperationForm(props: OperationFormProps) {
 
     const addOutputTypeLabel = intl.formatMessage({
         id: "lowcode.develop.configForms.addOutputType.label",
-        defaultMessage: "Output Type Name"
+        defaultMessage: "Output Type"
     });
 
     const saveConnectionButtonText = intl.formatMessage({

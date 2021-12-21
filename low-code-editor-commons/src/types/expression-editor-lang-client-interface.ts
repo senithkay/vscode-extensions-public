@@ -37,6 +37,7 @@ export interface CompletionResponse {
     label: string;
     additionalTextEdits?: TextEdit[];
     documentation?: string;
+    sortText?: string;
 }
 
 export interface TextEdit {

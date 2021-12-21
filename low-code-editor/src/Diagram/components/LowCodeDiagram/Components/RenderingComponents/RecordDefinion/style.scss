@@ -54,14 +54,14 @@
             }
         }
 
-        .record-amendment-options {
+        .amendment-options {
             display: flex;
+            flex-direction: row;
             width: 25%;
             align-items: center;
 
-            .record-edit,
-            .record-delete,
-            .record-expand {
+            .edit-btn-wrapper,
+            .delete-btn-wrapper {
                 width: 25px;
                 text-align: center;
                 padding-right: 5px;
