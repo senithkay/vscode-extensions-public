@@ -23,6 +23,7 @@ import {
     ExpressionEditorState,
     PrimitiveBalType,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 import debounce from "lodash.debounce";
 import * as monaco from "monaco-editor";
@@ -157,6 +158,7 @@ export interface GetExpCompletionsParams {
     varName: string;
     snippetTargetPosition: number;
     disableFiltering?: boolean;
+    targetPosition?: NodePosition;
 }
 
 export interface ExpressionEditorProps {
@@ -458,7 +460,8 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                 varType,
                                 varName,
                                 snippetTargetPosition,
-                                disableFiltering
+                                disableFiltering,
+                                targetPosition
                             });
                         }
                     },
