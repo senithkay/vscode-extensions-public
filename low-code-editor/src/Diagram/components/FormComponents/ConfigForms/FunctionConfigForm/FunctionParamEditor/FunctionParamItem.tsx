@@ -21,22 +21,28 @@ import { useStyles } from './style';
 
 interface FunctionParamItemProps {
     functionParam: FunctionParam;
+    addInProgress: boolean;
     onDelete?: (functionParam: FunctionParam) => void;
-    onEdit?: (functionParam: FunctionParam) => void;
+    onEditClick?: (functionParam: FunctionParam) => void;
 }
 
 export function FunctionParamItem(props: FunctionParamItemProps) {
-    const { functionParam, onDelete } = props;
+    const { functionParam, addInProgress, onDelete, onEditClick } = props;
     const classes = useStyles();
 
     const segmentLabel = functionParam.type + " " + functionParam.name;
     const handleDelete = () => {
         onDelete(functionParam);
     };
+    const handleEdit = () => {
+        onEditClick(functionParam);
+    };
     return (
         <div className={classes.headerWrapper}>
             <div className={classes.headerLabel}>
-                {segmentLabel}
+                <div className={classes.headerLabelCursor} onClick={handleEdit}>
+                    {segmentLabel}
+                </div>
                 <ButtonWithIcon
                     onClick={handleDelete}
                     icon={<CloseRounded fontSize="small" />}

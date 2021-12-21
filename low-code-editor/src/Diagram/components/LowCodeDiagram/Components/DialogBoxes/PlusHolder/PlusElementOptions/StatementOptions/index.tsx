@@ -37,9 +37,8 @@ import "../../style.scss";
 import While from "../../../../../../../../assets/icons/While";
 import { FormattedMessage, useIntl } from "react-intl";
 import {
-    EVENT_TYPE_AZURE_APP_INSIGHTS,
-    LowcodeEvent,
-    START_STATEMENT_ADD_INSIGHTS
+    ADD_STATEMENT,
+    LowcodeEvent
 } from "../../../../../../../models";
 import { HttpLogo } from "../../../../RenderingComponents/Connector/Icon/HttpLogo";
 
@@ -149,9 +148,8 @@ export function StatementOptions(props: StatementOptionsProps) {
 
     const onSelectStatement = (type: string) => {
         const event: LowcodeEvent = {
-            type: EVENT_TYPE_AZURE_APP_INSIGHTS,
-            name: START_STATEMENT_ADD_INSIGHTS,
-            property: type
+            type: ADD_STATEMENT,
+            name: type
         };
         onEvent(event);
         onSelect(type);
@@ -283,7 +281,7 @@ export function StatementOptions(props: StatementOptionsProps) {
     }
     const connectorStatement: StatementComponent = {
         name: "connector",
-        category: "process",
+        category: "connector",
         component: (
             <Tooltip
                 title={plusHolderStatementTooltipMessages.connectorStatement.title}
@@ -311,7 +309,7 @@ export function StatementOptions(props: StatementOptionsProps) {
     };
     const actionStatement: StatementComponent = {
         name: "action",
-        category: "process",
+        category: "connector",
         component: (
             <Tooltip
                 title={plusHolderStatementTooltipMessages.actionStatement.title}
@@ -337,6 +335,29 @@ export function StatementOptions(props: StatementOptionsProps) {
             </Tooltip>
         ),
     };
+    const httpConnector: StatementComponent = {
+        name: "httpConnector",
+        category: 'connector',
+        component: (
+            <Tooltip
+                title={plusHolderStatementTooltipMessages.httpConnectorStatement.title}
+                placement="left"
+                arrow={true}
+                interactive={true}
+            >
+                <div
+                    className={cn("sub-option enabled", { height: 'unset' })}
+                    data-testid="addHttp"
+                    onClick={onSelectStatement.bind(undefined, "HTTP")}
+                >
+                    <div className="icon-wrapper">
+                        <HttpLogo />
+                    </div>
+                    <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.httpConnectorStatement.title" defaultMessage="HTTP" /></div>
+                </div>
+            </Tooltip>
+        )
+    }
 
     const returnStm: StatementComponent = {
         name: "return",
@@ -431,30 +452,6 @@ export function StatementOptions(props: StatementOptionsProps) {
         )
     }
 
-    const httpConnector: StatementComponent = {
-        name: "httpConnector",
-        category: 'process',
-        component: (
-            <Tooltip
-                title={plusHolderStatementTooltipMessages.httpConnectorStatement.title}
-                placement="left"
-                arrow={true}
-                interactive={true}
-            >
-                <div
-                    className={cn("sub-option enabled", { height: 'unset' })}
-                    data-testid="addHttp"
-                    onClick={onSelectStatement.bind(undefined, "HTTP")}
-                >
-                    <div className="icon-wrapper">
-                        <HttpLogo />
-                    </div>
-                    <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.httpConnectorStatement.title" defaultMessage="HTTP" /></div>
-                </div>
-            </Tooltip>
-        )
-    }
-
     const statements: StatementComponent[] = [];
     statements.push(connectorStatement);
     statements.push(actionStatement);
@@ -476,13 +473,16 @@ export function StatementOptions(props: StatementOptionsProps) {
     };
     const [selectedCompName, setSelectedCompName] = useState("");
 
+    const connectorComp: ReactNode[] = [];
     const processComp: ReactNode[] = [];
     const conditionComp: ReactNode[] = [];
     const stopComp: ReactNode[] = [];
     if (selectedCompName !== "") {
         const stmts: StatementComponent[] = initStatements.statement.filter(el => el.name.toLowerCase().includes(selectedCompName.toLowerCase()));
         stmts.forEach((stmt) => {
-            if (stmt.category === "process") {
+            if (stmt.category === "connector") {
+                connectorComp.push(stmt.component);
+            } else if (stmt.category === "process") {
                 processComp.push(stmt.component);
             } else if (stmt.category === "condition") {
                 conditionComp.push(stmt.component);
@@ -492,7 +492,9 @@ export function StatementOptions(props: StatementOptionsProps) {
         });
     } else {
         initStatements.statement.forEach((stmt) => {
-            if (stmt.category === "process") {
+            if (stmt.category === "connector") {
+                connectorComp.push(stmt.component);
+            } else if (stmt.category === "process") {
                 processComp.push(stmt.component);
             } else if (stmt.category === "condition") {
                 conditionComp.push(stmt.component);
@@ -504,11 +506,10 @@ export function StatementOptions(props: StatementOptionsProps) {
 
     return (
         <>
-            <div className="search-options-wrapper">
-                <label><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.chooseFromList.label" defaultMessage="Select from list" /></label>
-            </div>
             <div className="element-option-holder" >
                 <div className="options-wrapper">
+                    {connectorComp}
+                    {(processComp.length > 0 ? <Divider /> : null)}
                     {processComp}
                     {(conditionComp.length > 0 ? <Divider /> : null)}
                     {conditionComp}

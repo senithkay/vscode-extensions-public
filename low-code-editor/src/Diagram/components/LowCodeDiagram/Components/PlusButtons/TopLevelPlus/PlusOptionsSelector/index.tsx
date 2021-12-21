@@ -26,48 +26,49 @@ export interface PlusOptionsProps {
     targetPosition?: NodePosition;
     isTriggerType?: boolean;
     isLastMember?: boolean;
+    showCategorized?: boolean;
+}
+
+export enum PlusMenuCategories {
+    CONSTRUCT,
+    ENTRY_POINT
 }
 
 export interface PlusMenuEntry {
     name: string,
     type: string,
+    category: PlusMenuCategories,
     subMenu?: PlusMenuEntry[]
 }
 
-const moduleLevelEntries: PlusMenuEntry[] = [
-    { name: 'Service', type: 'ServiceDeclaration' },
-    { name: 'Main', type: 'FunctionDefinition' },
-    {
-        name: 'Variable',
-        type: 'VariableIcon',
-        subMenu: [
-            { name: 'Constant', type: 'ConstDeclaration' },
-            { name: 'Module Variable', type: 'ModuleVarDecl' },
-            { name: 'Configurable', type: 'Configurable' }
-        ]
-    },
-    { name: 'Listener', type: 'ListenerDeclaration' },
-    { name: 'Record', type: 'RecordEditor' },
-    { name: 'Enum', type: 'EnumDeclaration' },
-    { name: 'Class', type: 'ClassDefinition' },
-    { name: 'Function', type: 'FunctionDefinition' },
-    { name: 'Trigger', type: 'TriggerList' },
-    { name: 'Other', type: 'Custom' }
+export const moduleLevelEntries: PlusMenuEntry[] = [
+    { name: 'Main', type: 'FunctionDefinition', category: PlusMenuCategories.ENTRY_POINT },
+    { name: 'Service', type: 'ServiceDeclaration', category: PlusMenuCategories.ENTRY_POINT },
+    { name: 'Trigger', type: 'TriggerList', category: PlusMenuCategories.ENTRY_POINT },
+    { name: 'Variable', type: 'ModuleVarDecl', category: PlusMenuCategories.CONSTRUCT },
+    { name: 'Record', type: 'RecordEditor', category: PlusMenuCategories.CONSTRUCT },
+    { name: 'Function', type: 'FunctionDefinition', category: PlusMenuCategories.CONSTRUCT },
+    { name: 'Configurable', type: 'Configurable', category: PlusMenuCategories.CONSTRUCT },
+    { name: 'Constant', type: 'ConstDeclaration', category: PlusMenuCategories.CONSTRUCT },
+    { name: 'Listener', type: 'ListenerDeclaration', category: PlusMenuCategories.CONSTRUCT },
+    { name: 'Enum', type: 'EnumDeclaration', category: PlusMenuCategories.CONSTRUCT },
+    { name: 'Class', type: 'ClassDefinition', category: PlusMenuCategories.CONSTRUCT },
+    { name: 'Other', type: 'Custom', category: PlusMenuCategories.CONSTRUCT }
 ];
 
-const classMemberEntries: PlusMenuEntry[] = [
+export const classMemberEntries: PlusMenuEntry[] = [
     // { name: 'Variable', type: 'ObjectField' },
-    { name: 'Resource', type: 'ResourceAccessorDefinition' },
+    { name: 'Resource', type: 'ResourceAccessorDefinition', category: PlusMenuCategories.ENTRY_POINT },
     // { name: 'Function', type: 'ObjectMethodDefinition' }
 ]
 
-const triggerEntries: PlusMenuEntry[] = [
-    { name: 'Variable', type: 'ObjectField' },
-    { name: 'Function', type: 'ObjectMethodDefinition' }
+export const triggerEntries: PlusMenuEntry[] = [
+    { name: 'Variable', type: 'ObjectField', category: PlusMenuCategories.CONSTRUCT },
+    { name: 'Function', type: 'ObjectMethodDefinition', category: PlusMenuCategories.CONSTRUCT }
 ]
 
 export const PlusOptionsSelector = (props: PlusOptionsProps) => {
-    const { onClose, targetPosition, kind, isTriggerType, isLastMember } = props;
+    const { onClose, targetPosition, kind, isTriggerType, isLastMember, showCategorized } = props;
     const [selectedOption, setSelectedOption] = useState<PlusMenuEntry>(undefined);
     const {
         api: {
@@ -98,7 +99,7 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
             menuEntries = moduleLevelEntries;
             break;
         case 'ServiceDeclaration':
-            isTriggerType ? menuEntries = triggerEntries : menuEntries = classMemberEntries;
+            menuEntries = isTriggerType ? triggerEntries : classMemberEntries;
             break;
         default:
     }
@@ -112,6 +113,7 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
                         onClose={handleOnClose}
                         onOptionSelect={onOptionSelect}
                         targetPosition={targetPosition}
+                        showCategorized={showCategorized}
                     />
                 )
             }

@@ -21,6 +21,7 @@ import classNames from "classnames";
 
 import { Section } from "../../../../../../components/ConfigPanel";
 import { Context } from "../../../../../../Contexts/Diagram";
+import { LowcodeEvent, SAVE_CONNECTOR } from "../../../../../models";
 import { checkDBConnector, checkVariableName, getManualConnectionDetailsFromFormFields } from "../../../../Portals/utils";
 import { Form } from "../../../DynamicConnectorForm";
 import { useStyles } from "../../../DynamicConnectorForm/style";
@@ -53,7 +54,8 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
     const {
         props: { stSymbolInfo },
         api: {
-            helpPanel: { openConnectorHelp }
+            helpPanel: { openConnectorHelp },
+            insights: { onEvent }
         }
     } = useContext(Context);
 
@@ -125,12 +127,21 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         connectorConfig.name !== text ? setIsEndpointNameUpdated(true) : setIsEndpointNameUpdated(false);
     };
 
+    const sendAppInsight = () => {
+        const event: LowcodeEvent = {
+            type: SAVE_CONNECTOR,
+            name: connector?.displayAnnotation?.label || `${connector?.package.name} / ${connector?.name}`
+        };
+        onEvent(event);
+    }
+
     const handleOnSave = () => {
         // update config connector name, when user click next button
         connectorConfig.name = nameState.value;
         connectorConfig.connectorInit = configForm;
         openConnectorHelp(connector);
         onSave();
+        sendAppInsight();
     };
 
     const createEndpointNameLabel = intl.formatMessage({
@@ -168,6 +179,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
         connectorConfig.connectorInit = configForm;
         openConnectorHelp(connector);
         onSaveNext();
+        sendAppInsight();
     };
 
     const isEnabled = isGenFieldsFilled && nameState.isNameProvided && nameState.isValidName;

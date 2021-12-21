@@ -16,10 +16,11 @@ import { useIntl } from "react-intl";
 
 import {
   BallerinaConnectorInfo,
+  BallerinaModule,
   Connector,
   ConnectorConfig,
   FunctionDefinitionInfo,
-  WizardType,
+  WizardType
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { LocalVarDecl, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
@@ -29,6 +30,8 @@ import {
   DiagramOverlayPosition,
 } from "../../Portals/Overlay";
 import { fetchConnectorInfo } from "../../Portals/utils";
+import { fetchConnectorsList } from "../ConfigForms/ConnectorList";
+import { SearchQueryParams } from "../ConfigForms/Marketplace";
 import { FormGenerator } from "../FormGenerator";
 
 export interface ConfigWizardState {
@@ -43,6 +46,8 @@ export interface ConnectorConfigWizardProps {
     position: DiagramOverlayPosition;
     connectorInfo: BallerinaConnectorInfo;
     targetPosition: NodePosition;
+    // This prop is used to load connectors from statement menu
+    specialConnectorName?: string;
     model?: STNode;
     onClose: () => void;
     onSave: () => void;
@@ -60,7 +65,8 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
             isCodeEditorActive,
             userInfo,
             langServerURL,
-            stSymbolInfo
+            stSymbolInfo,
+            currentFile
         },
         api: {
             ls: {
@@ -88,7 +94,8 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
         onSave,
         selectedConnector,
         isAction,
-        isEdit
+        isEdit,
+        specialConnectorName
     } = props;
 
     const initWizardState: ConfigWizardState = {
@@ -117,8 +124,25 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
     React.useEffect(() => {
         if (wizardState.isLoading) {
             (async () => {
+                let connector = connectorInfo;
+                if (specialConnectorName) {
+                    const queryParams: SearchQueryParams = {
+                        query: specialConnectorName.toLocaleLowerCase(),
+                        category: "",
+                        filterState: {},
+                        limit: 18,
+                        page: 1,
+                    };
+                    const langClient = await getDiagramEditorLangClient();
+                    const ballerinaConnectorInfo = await fetchConnectorsList(queryParams, currentFile.path,
+                        langClient, userInfo);
+                    connector = ballerinaConnectorInfo.central.find((balModule: BallerinaModule) =>
+                        (balModule.moduleName === specialConnectorName.toLocaleLowerCase() &&
+                            balModule.name === "Client")) as BallerinaConnectorInfo;
+                }
+
                 const connectorInfoResponse = await fetchConnectorInfo(
-                    connectorInfo,
+                    connector,
                     model,
                     stSymbolInfo,
                     langServerURL,

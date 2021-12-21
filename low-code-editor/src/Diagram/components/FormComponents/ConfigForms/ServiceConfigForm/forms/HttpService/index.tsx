@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useReducer } from "react";
+import React, {useReducer, useState} from "react";
 
 import { FormActionButtons } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ListenerDeclaration, NodePosition, ServiceDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
@@ -21,8 +21,9 @@ import { useDiagramContext } from "../../../../../../../Contexts/Diagram";
 import { isServicePathValid } from "../../../../../../../utils/validator";
 import { createImportStatement, createServiceDeclartion, updateServiceDeclartion } from "../../../../../../utils/modification-util";
 import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
-import { FormTextInput } from "../../../../FormFieldComponents/TextField/FormTextInput";
+import ExpressionEditor, {ExpressionEditorProps} from "../../../../FormFieldComponents/ExpressionEditor";
 import { TextLabel } from "../../../../FormFieldComponents/TextField/TextLabel";
+import {FormElementProps} from "../../../../Types";
 
 import { ListenerConfigForm } from "./ListenerConfigForm";
 import { getFormStateFromST, isServiceConfigValid } from "./util";
@@ -43,6 +44,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
     const { model, targetPosition, onCancel, onSave, isLastMember } = props;
     const { props: { stSymbolInfo }, api: { code: { modifyDiagram } } } = useDiagramContext();
     const [state, dispatch] = useReducer(serviceConfigReducer, getFormStateFromST(model, stSymbolInfo));
+    const [isValidPath, setIsValidPath] = useState(false);
 
     const listenerList = Array.from(stSymbolInfo.listeners)
         .filter(([key, value]) =>
@@ -87,21 +89,80 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         onSave();
     }
 
-    const saveBtnEnabled = isServiceConfigValid(state);
+    const saveBtnEnabled = isServiceConfigValid(state) && isValidPath;
+
+    const updateResourcePathValidation = (_name: string, isInValid: boolean) => setIsValidPath(!isInValid);
+
+    const getAbsolutePathPositions = () => {
+        const resourcePath = model?.absoluteResourcePath;
+        if (Array.isArray(resourcePath)) {
+            if (resourcePath.length) {
+                const firstElement =  resourcePath[0]?.position;
+                const lastElement =  resourcePath[resourcePath.length - 1]?.position;
+                return {
+                    ...lastElement,
+                    startColumn: firstElement?.startColumn,
+                    startLine: firstElement?.startLine
+                }
+
+            } else {
+                const onKeyPath = model?.onKeyword?.position;
+                return {
+                    ...onKeyPath,
+                    startColumn: onKeyPath?.startColumn,
+                    endColumn: onKeyPath?.startColumn
+                }
+            }
+        }
+    }
+
+    const getCustomTemplate = () => {
+        if (model) {
+            const resourcePath = model?.absoluteResourcePath;
+            if (Array.isArray(resourcePath)) {
+                if (resourcePath.length) {
+                    return {
+                        defaultCodeSnippet: "",
+                        targetColumn: 1,
+                    }
+
+                } else {
+                    return {
+                        defaultCodeSnippet: " ",
+                        targetColumn: 1,
+                    }
+                }
+            }
+
+        }else {
+            return {
+                defaultCodeSnippet: `service  on new http:Listener(1234) {}`,
+                targetColumn: 9,
+            }
+        }
+    }
+
+    const servicePathConfig: FormElementProps<ExpressionEditorProps> = {
+        model: {
+            name: "servicePath",
+            displayName: 'Service path',
+            isOptional: false
+        },
+        customProps: {
+            validate: updateResourcePathValidation,
+            interactive: true,
+            editPosition: getAbsolutePathPositions(),
+            customTemplate: getCustomTemplate(),
+        },
+        onChange: onBasePathChange,
+        defaultValue: state.serviceBasePath
+    }
 
     return (
         <>
             <div className={formClasses.formContentWrapper}>
                 <div className={formClasses.formNameWrapper}>
-                    <FormTextInput
-                        customProps={{
-                            validate: isServicePathValid,
-                            startAdornment: '/'
-                        }}
-                        onChange={onBasePathChange}
-                        defaultValue={state.serviceBasePath}
-                        label="Service Base Path :"
-                    />
+                    <ExpressionEditor {...servicePathConfig} />
                     <TextLabel
                         required={true}
                         textLabelId="lowcode.develop.connectorForms.HTTP.configureNewListener"

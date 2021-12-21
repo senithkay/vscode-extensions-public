@@ -42,7 +42,9 @@ const api = {
         modifyTrigger: dummyFunction,
         setCodeLocationToHighlight: dummyFunction,
         gotoSource: dummyFunction,
-        isMutationInProgress: false
+        isMutationInProgress: false,
+        isModulePullInProgress: false,
+        loaderText: ''
     },
     splitPanel: {
         maximize: dummyFunction,

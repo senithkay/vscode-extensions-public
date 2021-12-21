@@ -22,7 +22,7 @@ import { OverlayBackground } from "../../../../OverlayBackground";
 import { DiagramOverlay, DiagramOverlayContainer } from "../../../../Portals/Overlay";
 
 import { InitialPlusTooltipBubble } from "./InitialPlusTooltipBubble";
-import { PlusOptionsSelector } from "./PlusOptionsSelector";
+import { classMemberEntries, moduleLevelEntries, PlusMenuCategories, PlusOptionsSelector, triggerEntries } from "./PlusOptionsSelector";
 import "./style.scss";
 
 export const PLUS_WIDTH = 16;
@@ -44,10 +44,11 @@ export interface PlusProps {
     isDocumentEmpty?: boolean;
     isModuleLevel?: boolean;
     isLastMember?: boolean;
+    showCategorized?: boolean;
 }
 
 export const TopLevelPlus = (props: PlusProps) => {
-    const { targetPosition, kind, isTriggerType, isDocumentEmpty, isModuleLevel, isLastMember } = props;
+    const { targetPosition, kind, isTriggerType, isDocumentEmpty, isModuleLevel, isLastMember, showCategorized } = props;
     const containerElement = useRef(null);
 
 
@@ -64,6 +65,43 @@ export const TopLevelPlus = (props: PlusProps) => {
         setIsPlusOptionsVisible(false);
     };
 
+    const getPlusMenuYPosition = (): number => {
+        let menuHeight = 0;
+
+        switch (kind) {
+            case 'ModulePart':
+                menuHeight += 42;
+                const categroyMap: Map<PlusMenuCategories, number> = new Map();
+                let rows = 0;
+
+                moduleLevelEntries.forEach(entry => {
+                    if (categroyMap.has(entry.category)) {
+                        categroyMap.set(entry.category, categroyMap.get(entry.category) + 1);
+                    } else {
+                        categroyMap.set(entry.category, 1);
+                    }
+                });
+
+                categroyMap.forEach(value => {
+                    rows += Math.floor(value / 2) + value % 2;
+                })
+
+                menuHeight += 48 * rows;
+                break;
+            case 'ServiceDeclaration':
+                menuHeight = isTriggerType ? (52 * triggerEntries.length) : (52 * classMemberEntries.length);
+                break;
+            default:
+            // not used
+        }
+
+        if (containerElement.current.offsetTop + menuHeight >= window.innerHeight) {
+            return containerElement.current.offsetTop - menuHeight;
+        } else {
+            return containerElement.current.offsetTop - 10;
+        }
+    }
+
     return (
         <div className="plus-container" ref={containerElement}>
             <div className={'plus-btn-wrapper'} onClick={handlePlusClick}>
@@ -79,7 +117,7 @@ export const TopLevelPlus = (props: PlusProps) => {
             </div>
             {
                 isModuleLevel && isDocumentEmpty && !isPlusClicked && (
-                   <InitialPlusTooltipBubble />
+                    <InitialPlusTooltipBubble />
                 )
             }
             {
@@ -88,8 +126,13 @@ export const TopLevelPlus = (props: PlusProps) => {
                         <DiagramOverlay
                             position={
                                 containerElement.current ?
-                                    { x: containerElement.current.offsetLeft, y: containerElement.current.offsetTop }
-                                    : { x: 0, y: 0 }
+                                    {
+                                        x: containerElement.current.offsetLeft,
+                                        y: getPlusMenuYPosition()
+                                    } : {
+                                        x: 0,
+                                        y: 0
+                                    }
                             }
                         >
                             <PlusOptionsSelector
@@ -98,6 +141,7 @@ export const TopLevelPlus = (props: PlusProps) => {
                                 targetPosition={targetPosition}
                                 isTriggerType={isTriggerType}
                                 isLastMember={isLastMember}
+                                showCategorized={showCategorized}
                             />
                             {isPlusOptionsVisible && <OverlayBackground />}
                         </DiagramOverlay>

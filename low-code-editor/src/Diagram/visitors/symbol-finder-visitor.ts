@@ -44,6 +44,7 @@ const assignmentStatement: Map<string, STNode[]> = new Map();
 const variableNameReferences: Map<string, STNode[]> = new Map();
 const recordTypeDescriptions: Map<string, STNode> = new Map();
 const listeners: Map<string, STNode> = new Map();
+const moduleVariables: Map<string, STNode> = new Map();
 
 
 class SymbolFindingVisitor implements Visitor {
@@ -162,6 +163,7 @@ class SymbolFindingVisitor implements Visitor {
             if (bindingPattern.typeData?.isEndpoint) {
                 moduleEndpoints.set(varName, node);
             }
+            moduleVariables.set(varName, node);
         }
     }
 
@@ -245,6 +247,7 @@ export function cleanLocalSymbols() {
 export function cleanModuleLevelSymbols(){
     configurables.clear();
     recordTypeDescriptions.clear();
+    moduleVariables.clear();
 
 }
 
@@ -259,7 +262,8 @@ export function getSymbolInfo(): STSymbolInfo {
         variableNameReferences,
         assignmentStatement,
         recordTypeDescriptions,
-        listeners
+        listeners,
+        moduleVariables
     }
 }
 

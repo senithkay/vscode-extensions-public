@@ -45,9 +45,9 @@ interface ConfigurableFormProps {
 
 export function ConfigurableForm(props: ConfigurableFormProps) {
     const formClasses = useFormStyles();
-    const { api: { code: { modifyDiagram } } } = useDiagramContext();
+    const { api: { code: { modifyDiagram } }, props: { stSymbolInfo } } = useDiagramContext();
     const { onSave, onCancel, targetPosition, model, configOverlayFormStatus, formType, isLastMember } = props;
-    const [state, dispatch] = useReducer(moduleVarFormReducer, getFormConfigFromModel(model));
+    const [state, dispatch] = useReducer(moduleVarFormReducer, getFormConfigFromModel(model, stSymbolInfo));
 
     const { updateInjectables, updateParentConfigurable, configurableId } = configOverlayFormStatus?.formArgs || {};
     const isFromExpressionEditor = !!updateInjectables;
