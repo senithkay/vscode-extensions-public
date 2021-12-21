@@ -62,8 +62,8 @@ export function getTelemetryProperties(extension: BallerinaExtension, component:
     : { [key: string]: string; } {
     return {
         'ballerina.version': extension ? extension.ballerinaVersion : '',
-        'ballerina.component': component,
         'ballerina.message': message,
+        'scope': component,
         'idpId': process.env.VSCODE_CHOREO_USER_IDP_ID ? process.env.VSCODE_CHOREO_USER_IDP_ID : '',
         'isWSO2User' : isWSO2User ? 'true' : 'false'
     };
