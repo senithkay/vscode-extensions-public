@@ -39,6 +39,7 @@ export interface EditorAPI {
 
 export enum PALETTE_COMMANDS {
     RUN = 'ballerina.project.run',
+    RUN_WITH_CONFIGS = 'ballerina.executeConfigEditor',
     SWAGGER_VIEW = 'ballerina.swaggerView.open',
     DOCUMENTATION_VIEW = 'ballerina.documentationView.open'
 }
