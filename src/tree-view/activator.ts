@@ -47,6 +47,12 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         treeDataProvider: explorerDataProvider, showCollapseAll: true
     }));
 
+    let enableChoreoAuth: boolean = true;
+    if (process.env.OVERRIDE_CHOREO_AUTHENTICATION === 'true') {
+        enableChoreoAuth = false;
+    }
+    ballerinaExtInstance.setChoreoAuthEnabled(enableChoreoAuth);
+
     commands.registerCommand(EXPLORER_TREE_REFRESH_COMMAND, () =>
         explorerDataProvider.refresh()
     );

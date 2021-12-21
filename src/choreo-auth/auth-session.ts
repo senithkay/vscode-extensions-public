@@ -21,7 +21,8 @@ import { ChoreoSession } from "../core";
 import { ChoreoSessionConfig } from "./config";
 
 export async function getChoreoKeytarSession(): Promise<ChoreoSession> {
-    if (process.env.OVERRIDE_CHOREO_AUTHENTICATION === 'true') {
+    if (process.env.OVERRIDE_CHOREO_AUTHENTICATION === 'true' && process.env.VSCODE_CHOREO_SESSION_USERNAME
+            && process.env.VSCODE_CHOREO_SESSION_TOKEN) {
         return {
             loginStatus: true,
             choreoUser: process.env.VSCODE_CHOREO_SESSION_USERNAME,
