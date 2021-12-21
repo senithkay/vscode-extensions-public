@@ -576,7 +576,7 @@ export class BallerinaExtension {
         commands.executeCommand('setContext', 'isBallerinaDiagram', value);
     }
 
-    public setOverrideChoreoAuth(value: boolean) {
+    public setChoreoAuthEnabled(value: boolean) {
         commands.executeCommand('setContext', 'isChoreoAuthEnabled', value);
     }
 

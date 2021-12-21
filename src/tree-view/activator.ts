@@ -51,7 +51,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     if (process.env.OVERRIDE_CHOREO_AUTHENTICATION === 'true') {
         enableChoreoAuth = false;
     }
-    ballerinaExtInstance.setOverrideChoreoAuth(enableChoreoAuth);
+    ballerinaExtInstance.setChoreoAuthEnabled(enableChoreoAuth);
 
     commands.registerCommand(EXPLORER_TREE_REFRESH_COMMAND, () =>
         explorerDataProvider.refresh()
