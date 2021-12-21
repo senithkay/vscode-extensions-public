@@ -15,7 +15,8 @@ import React, { useEffect, useState } from 'react';
 import { useIntl } from "react-intl";
 
 import {
-    ExpressionEditorLangClientInterface, LibraryDocResponse,
+    ExpressionEditorLangClientInterface,
+    LibraryDocResponse,
     PrimaryButton,
     SecondaryButton,
     STModification

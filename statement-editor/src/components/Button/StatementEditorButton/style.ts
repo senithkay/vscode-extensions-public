@@ -51,10 +51,6 @@ export const useStyles = makeStyles((theme: Theme) =>
             fontWeight: 300,
             color: theme.palette.primary.main,
             margin: '1px 0 0 12px',
-        },
-        componentExpandIconContainer: {
-            marginLeft: "auto",
-            marginRight: 0
         }
     }),
 );
