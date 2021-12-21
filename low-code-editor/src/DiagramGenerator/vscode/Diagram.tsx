@@ -3,6 +3,7 @@ import * as React from "react";
 import {
     DiagramEditorLangClientInterface,
     LibraryDocResponse,
+    LibraryKind,
     PerformanceAnalyzerGraphResponse,
     PerformanceAnalyzerRealtimeResponse
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -40,7 +41,7 @@ export interface EditorAPI {
     resolveMissingDependencyByCodeAction: (filePath: string, fileContent: string, diagnostic: any) => Promise<boolean>;
     runCommand: (command: PALETTE_COMMANDS, args: any[]) => Promise<boolean>;
     sendTelemetryEvent: (event: LowcodeEvent) => Promise<void>;
-    getLibrariesList: (version: string) => Promise<LibraryDocResponse | undefined>;
+    getLibrariesList: (version: string, kind?: LibraryKind) => Promise<LibraryDocResponse | undefined>;
 }
 
 export enum PALETTE_COMMANDS {

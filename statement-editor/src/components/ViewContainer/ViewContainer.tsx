@@ -17,6 +17,7 @@ import { useIntl } from "react-intl";
 import {
     ExpressionEditorLangClientInterface,
     LibraryDocResponse,
+    LibraryKind,
     PrimaryButton,
     SecondaryButton,
     STModification
@@ -33,7 +34,7 @@ import { useStatementEditorStyles } from "../styles";
 export interface LowCodeEditorProps {
     getLangClient: () => Promise<ExpressionEditorLangClientInterface>,
     applyModifications: (modifications: STModification[]) => void,
-    getLibrariesList: (version: string) => Promise<LibraryDocResponse | undefined>,
+    getLibrariesList: (version: string, kind?: LibraryKind) => Promise<LibraryDocResponse | undefined>,
     currentFile: {
         content: string,
         path: string,

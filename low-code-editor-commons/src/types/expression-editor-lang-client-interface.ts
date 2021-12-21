@@ -109,6 +109,11 @@ export interface LibraryInfo {
     isDefaultModule: boolean;
 }
 
+export enum LibraryKind {
+    langLib = 'langLibs',
+    stdLib = 'modules',
+}
+
 export interface ExpressionEditorLangClientInterface extends BaseLangClientInterface {
     getDiagnostics: (
         params: BallerinaProjectParams
