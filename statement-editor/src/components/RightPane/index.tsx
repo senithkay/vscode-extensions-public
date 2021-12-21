@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from "react";
 
-import { ButtonWithIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ButtonWithIcon, LibraryKind } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import classNames from "classnames";
 
 import ComponentExpandIcon from "../../assets/icons/ComponentExpandIcon";
@@ -30,7 +30,7 @@ export function RightPane() {
     const [libraries, setLibraries] = useState([]);
 
     const langLibExpandButton = async () => {
-        const response = await stmtCtx.getLibrariesList("slbeta5");
+        const response = await stmtCtx.getLibrariesList("slbeta5", LibraryKind.langLib);
 
         if (response) {
             setLibraries(response.librariesList);
@@ -41,11 +41,16 @@ export function RightPane() {
         }
     };
 
-    const standardLibExpandButton = () => {
-        setIsStdLibExpanded(prevState => {
-            return !prevState;
-        });
-        setIsLangLibExpanded(false);
+    const standardLibExpandButton = async () => {
+        const response = await stmtCtx.getLibrariesList("slbeta5", LibraryKind.stdLib);
+
+        if (response) {
+            setLibraries(response.librariesList);
+            setIsStdLibExpanded(prevState => {
+                return !prevState;
+            });
+            setIsLangLibExpanded(false);
+        }
     };
 
     return (

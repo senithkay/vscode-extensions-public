@@ -13,7 +13,7 @@
 // tslint:disable: no-empty jsx-no-multiline-js
 import React from 'react';
 
-import { STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { LibraryKind, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { LowCodeEditorProps } from '../components/ViewContainer/ViewContainer';
@@ -34,7 +34,7 @@ export const StatementEditorContext = React.createContext({
     },
     getLangClient: () => (Promise.resolve({} as any)),
     applyModifications: (modifications: STModification[]) => (undefined),
-    getLibrariesList: (version: string) => (Promise.resolve({} as any)),
+    getLibrariesList: (version: string, kind?: LibraryKind) => (Promise.resolve({} as any)),
     currentFile: {
         content: "",
         path: "",
