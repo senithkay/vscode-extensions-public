@@ -28,7 +28,7 @@ export const getVarTypeCompletions = (ignoredCompletions: string[] = [], additio
             insertText: completionResponse.insertText,
             insertTextFormat: completionResponse.insertTextFormat as InsertTextFormat,
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-            sortText: createSortText(order),
+            sortText: completionResponse.sortText,
             documentation: completionResponse.documentation
         }
     });

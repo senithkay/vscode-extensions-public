@@ -25,7 +25,9 @@ import { Context, useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { Provider as FunctionProvider } from "../../../../../../Contexts/Function";
 import { useOverlayRef, useSelectedStatus } from "../../../../../hooks";
 import { useStyles } from "../../../../../styles";
+import expandTracker from "../../../../../utils/expand-tracker";
 import { Canvas } from "../../../Canvas";
+import { getNodeSignature } from "../../../Utils";
 import { BlockViewState, FunctionViewState } from "../../../ViewState";
 import { End } from "../End";
 import { StartButton } from "../Start";
@@ -63,13 +65,8 @@ export function Function(props: FunctionProps) {
     );
 
     const containerRef = useRef(null);
-    const isSelected = useSelectedStatus(model, containerRef);
-    const [diagramExpanded, setDiagramExpanded] = useState(isSelected);
+    const [diagramExpanded, setDiagramExpanded] = useSelectedStatus(model, containerRef);
     const [overlayNode, overlayRef] = useOverlayRef();
-
-    React.useEffect(() => {
-        setDiagramExpanded(isSelected);
-    }, [isSelected]);
 
     const onExpandClick = () => {
         setDiagramExpanded(!diagramExpanded);
@@ -130,7 +127,7 @@ export function Function(props: FunctionProps) {
 
     const functionBody = (
         <div className={"lowcode-diagram"}>
-            <PerformanceBar model={model}/>
+            <PerformanceBar model={model} />
             <FunctionProvider overlayId={overlayId} overlayNode={overlayNode} functionNode={model}>
                 <PanAndZoom>
                     <div ref={overlayRef} id={overlayId} className={classes.OverlayContainer} />

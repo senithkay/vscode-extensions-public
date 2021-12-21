@@ -133,6 +133,8 @@ export function getParams(formFields: FormField[], depth = 1): string[] {
             } else if ((formField.typeName === "int" || formField.typeName === "boolean" || formField.typeName === "float" || formField.typeName === "decimal" ||
                 formField.typeName === "json" || formField.typeName === "httpRequest") && (formField.value || formField.defaultValue)) {
                 paramString += formField.value || formField.defaultValue;
+            } else if ((formField.typeName === "enum") && (formField.value || formField.defaultValue)) {
+                paramString += `"${formField.value || formField.defaultValue}"`;
             } else if (formField.typeName === "record" && formField.fields  && formField.fields.length > 0 && !formField.isReference) {
                 let recordFieldsString: string = "";
                 let firstRecordField = false;
@@ -842,22 +844,23 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                 let returnTypeResponseRight = null
                 if (formField?.leftTypeParam) {
                     returnTypeResponseLeft = getFormFieldReturnType(formField.leftTypeParam, depth + 1);
-                    response.hasError = returnTypeResponseLeft.hasError || response.hasError;
                     response.importTypeInfo = [...response.importTypeInfo, ...returnTypeResponseLeft.importTypeInfo];
                 }
                 if (formField?.rightTypeParam) {
                     returnTypeResponseRight = getFormFieldReturnType(formField.rightTypeParam, depth + 1);
-                    response.hasError = returnTypeResponseRight.hasError || response.hasError;
                     response.importTypeInfo = [...response.importTypeInfo, ...returnTypeResponseRight.importTypeInfo];
                 }
-                if (returnTypeResponseLeft.returnType && returnTypeResponseRight.returnType) {
-                    response.returnType = `stream<${returnTypeResponseLeft.returnType},${returnTypeResponseRight.returnType}>`
+                if (returnTypeResponseLeft.returnType && (returnTypeResponseRight.returnType || returnTypeResponseRight.hasError)) {
+                    const rightType = returnTypeResponseRight.hasError ? "error?" : returnTypeResponseRight.returnType;
+                    response.returnType = `stream<${returnTypeResponseLeft.returnType},${rightType}>`
                 }
                 if (returnTypeResponseLeft.returnType && !returnTypeResponseRight.returnType) {
                     response.returnType = `stream<${returnTypeResponseLeft.returnType}>`
                 }
                 if (response.returnType) {
                     response.hasReturn = true;
+                    formField.isErrorType = false;
+                    response.hasError = false;
                 }
                 break;
 
@@ -884,15 +887,6 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                 if (formField.typeName.trim() === "error" || formField.isErrorType) {
                     formField.isErrorType = true;
                     response.hasError = true;
-                    // special case for db connectors: show error in this format -> sql:Error?
-                    if (formField.typeInfo && formField.typeInfo.moduleName === "sql" && depth >= 2) {
-                        formField.isErrorType = false;
-                        response.hasError = false;
-                        type = `${formField.typeInfo.moduleName}:${formField.typeInfo.name}`
-                    }
-                    if (formField.typeInfo) {
-                        response.importTypeInfo.push(formField.typeInfo);
-                    }
                 }
                 if (type === "" && formField.typeInfo && !formField.isErrorType) {
                     // set class/record types
@@ -926,11 +920,11 @@ function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldRetur
                     response.hasReturn = true;
                 }
                 // filters
-                if (formField.typeName === PrimitiveBalType.Array) {
+                if (type !== "" && formField.typeName === PrimitiveBalType.Array) {
                     // set array type
                     type = type.includes('|') ? `(${type})[]` : `${type}[]`;
                 }
-                if (formField?.optional) {
+                if (type !== "" && formField?.optional) {
                     // set optional tag
                     type = type.includes('|') ? `(${type})?` : `${type}?`;
                 }

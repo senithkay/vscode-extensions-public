@@ -660,7 +660,6 @@ export const getStandardExpCompletions = async ({
     }
     if (model.aiSuggestion) {
         const completionItemAI: monaco.languages.CompletionItem = {
-            preselect: true,
             range: null,
             label: model.aiSuggestion,
             kind: 1 as CompletionItemKind,
@@ -671,7 +670,6 @@ export const getStandardExpCompletions = async ({
     }
     if (varType === "boolean") {
         const completionItemTemplate: monaco.languages.CompletionItem = {
-            preselect: true,
             range: null,
             label: 'true',
             kind: monaco.languages.CompletionItemKind.Keyword,
@@ -707,7 +705,7 @@ export const getStandardExpCompletions = async ({
                 insertText: completionResponse.insertText,
                 insertTextFormat: completionResponse.insertTextFormat as InsertTextFormat,
                 insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                sortText: createSortText(order),
+                sortText: completionResponse.sortText,
                 documentation: completionResponse.documentation,
                 command: {
                     id: monacoRef.current.editor.addCommand(0, (_, args: TextEdit[]) => {
@@ -734,16 +732,13 @@ export const getStandardExpCompletions = async ({
                 insertText: completionResponse.insertText,
                 insertTextFormat: completionResponse.insertTextFormat as InsertTextFormat,
                 insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                sortText: createSortText(order),
+                sortText: completionResponse.sortText,
                 documentation: completionResponse.documentation
             }
         }
     });
     completionItems.push(...lsCompletionItems);
 
-    if (completionItems.length > 0) {
-        completionItems[0] = { ...completionItems[0], preselect: true }
-    }
 
     const completionList: monaco.languages.CompletionList = {
         incomplete: false,

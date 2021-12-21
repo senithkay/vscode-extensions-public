@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useContext, useReducer } from 'react';
+import React, { useContext, useEffect, useReducer } from 'react';
 import { FormattedMessage } from 'react-intl';
 
 import { Box, FormControl, FormHelperText, Typography } from '@material-ui/core';
@@ -26,6 +26,7 @@ import { ModuleVarDecl, NodePosition } from '@wso2-enterprise/syntax-tree';
 
 import { VariableIcon } from '../../../../../assets/icons';
 import { Context, useDiagramContext } from '../../../../../Contexts/Diagram';
+import { ADD_VARIABLE, LowcodeEvent, SAVE_VARIABLE } from '../../../../models';
 import { createModuleVarDecl, updateModuleVarDecl } from '../../../../utils/modification-util';
 import { getVariableNameFromST } from '../../../../utils/st-util';
 import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
@@ -51,10 +52,19 @@ interface ModuleVariableFormProps {
 
 export function ModuleVariableForm(props: ModuleVariableFormProps) {
     const formClasses = useFormStyles();
-    const { api: { code: { modifyDiagram } } } = useDiagramContext();
+    const { api: { code: { modifyDiagram }, insights: { onEvent } } } = useDiagramContext();
     const { onSave, onCancel, targetPosition, model, formType, isLastMember } = props;
     const [state, dispatch] = useReducer(moduleVarFormReducer, getFormConfigFromModel(model));
     const variableTypes: string[] = ["int", "float", "boolean", "string", "json", "xml"];
+
+    // Insight event to send when loading the component
+    useEffect(() => {
+        const event: LowcodeEvent = {
+            type: ADD_VARIABLE,
+            name: `${state.varType} ${state.varName} = ${state.varValue};`
+        };
+        onEvent(event);
+      }, []);
 
     if (state.varOptions.indexOf(VariableOptions.PUBLIC) === -1) {
         variableTypes.unshift('var');
@@ -69,6 +79,11 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
         }
         modifyDiagram(modifications);
         onSave();
+        const event: LowcodeEvent = {
+            type: SAVE_VARIABLE,
+            name: `${state.varType} ${state.varName} = ${state.varValue};`
+        };
+        onEvent(event);
     }
 
     const onAccessModifierChange = (modifierList: string[]) => {

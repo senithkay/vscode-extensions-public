@@ -117,7 +117,9 @@ export function FormTextInput(props: FormElementProps<FormTextInputProps>) {
     };
 
     const handleOnBlur = (event: any) => {
-        onBlur(event);
+        if (onBlur) {
+            onBlur(event);
+        }
     };
 
     const handleOnClick = () => {
