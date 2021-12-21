@@ -1,20 +1,32 @@
-import { FunctionDefinition } from "@wso2-enterprise/syntax-tree";
+import { FunctionDefinition, NodePosition } from "@wso2-enterprise/syntax-tree";
 
-import { ANALYZE_TYPE } from "../../../../../../../DiagramGenerator/performanceUtil";
+import { ANALYZE_TYPE, PerformanceData } from "../../../../../../../DiagramGenerator/performanceUtil";
 
-export function generatePerfData(model: FunctionDefinition) {
+export function generatePerfData(model: FunctionDefinition, performanceData: Map<NodePosition, PerformanceData>) {
     let concurrency: string;
     let latency: string;
     let tps: string;
     let isPerfDataAvailable = false;
     let isAdvancedPerfDataAvailable = false;
 
+    if (!performanceData) {
+        return { concurrency, latency, tps, isPerfDataAvailable, isAdvancedPerfDataAvailable };
+    }
+
+    let data;
+    let analyzeType: ANALYZE_TYPE;
     if ((model as any).performance) {
-        const perfData = (model as any).performance;
-        const analyzeType: ANALYZE_TYPE = perfData.analyzeType;
-        const concurrencies = perfData.concurrency;
-        const latencies = perfData.latency;
-        const tpss = perfData.tps;
+        data = (model as any).performance;
+        analyzeType = data.analyzeType;
+    } else if (performanceData.get(model.position)) {
+        data = performanceData.get(model.position).data;
+        analyzeType = performanceData.get(model.position).type;
+    }
+
+    if (data) {
+        const concurrencies = data.concurrency as any;
+        const latencies = data.latency as any;
+        const tpss = data.tps;
 
         if (analyzeType === ANALYZE_TYPE.REALTIME && latencies && concurrencies && tpss) {
             isPerfDataAvailable = true;
