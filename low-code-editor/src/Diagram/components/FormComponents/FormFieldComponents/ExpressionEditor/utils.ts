@@ -410,9 +410,16 @@ export function getRandomInt(max: number) {
 }
 
 export function getFilteredDiagnostics(diagnostics: Diagnostic[], isCustomStatement: boolean) {
-    return diagnostics
+    const selectedDiagnostics =  diagnostics
         .filter(diagnostic =>
             !IGNORED_DIAGNOSTIC_MESSAGES.includes(diagnostic.message.toString()) && diagnostic.severity === 1);
+
+    if (selectedDiagnostics.length) {
+        if (selectedDiagnostics[0]?.code === "BCE0400") {
+            selectedDiagnostics[0].message = "cannot start a resource path with a /"
+        }
+    }
+    return selectedDiagnostics;
 }
 
 
