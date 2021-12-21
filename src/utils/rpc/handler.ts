@@ -262,12 +262,8 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
                 return result;
             });
         }
-    }, {
-        methodName: 'getLibrariesList',
-        handler: (args: any[]) => {
-            return langClient.getLibrariesList(args[0]);
-        }
-    }];
+    }
+    ];
 };
 
 const undoRedoMethods = [{

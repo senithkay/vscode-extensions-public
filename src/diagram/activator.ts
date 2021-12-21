@@ -27,7 +27,6 @@ import {
 	DocumentIdentifier,
 	ExtendedLangClient,
 	HTTP_CONNECTOR_LIST_CACHE,
-	LIBRARIES_LIST_CACHE,
 	LibraryDocResponse,
 	PerformanceAnalyzerGraphResponse,
 	PerformanceAnalyzerRealtimeResponse
@@ -107,13 +106,6 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 			ballerinaExtInstance.context?.globalState.update(HTTP_CONNECTOR_LIST_CACHE, connectorList);
 		}
 	});
-
-	// Reset cached libraries list
-	langClient.getLibrariesList({ version: "slbeta5"}, true).then((librariesList) => {
-		if (librariesList) {
-			ballerinaExtInstance.context?.globalState.update(LIBRARIES_LIST_CACHE, librariesList);
-		}
-	})
 
 	// Update test view
 	if (filePath === '' && ballerinaExtInstance.getDocumentContext().isActiveDiagram()) {
@@ -432,8 +424,7 @@ class DiagramPanel {
 			{
 				methodName: "getLibrariesList",
 				handler: async (args: any[]): Promise<LibraryDocResponse | undefined> => {
-					const version = args[0];
-					return await getBallerinaLibrariesList(version);
+					return await getBallerinaLibrariesList(args[0]);
 				}
 			}
 		];

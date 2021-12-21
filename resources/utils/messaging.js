@@ -390,13 +390,6 @@ function getLangClient() {
                 );
             })
         },
-        getLibrariesList: (params) => {
-            return new Promise((resolve, _reject) => {
-                webViewRPCHandler.invokeRemoteMethod('getLibrariesList', [params], (resp) => {
-                    resolve(resp);
-                });
-            })
-        },
     }
 }
 

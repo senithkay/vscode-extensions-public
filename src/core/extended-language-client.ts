@@ -39,7 +39,6 @@ import { CMP_LS_CLIENT_COMPLETIONS, CMP_LS_CLIENT_DIAGNOSTICS, sendTelemetryEven
 
 export const CONNECTOR_LIST_CACHE = "CONNECTOR_LIST_CACHE";
 export const HTTP_CONNECTOR_LIST_CACHE = "HTTP_CONNECTOR_LIST_CACHE";
-export const LIBRARIES_LIST_CACHE = "LIBRARIES_LIST_CACHE";
 export const BALLERINA_LANG_ID = "ballerina";
 const NOT_SUPPORTED = {};
 
@@ -67,8 +66,7 @@ enum EXTENDED_APIS {
     EXAMPLE_LIST = 'ballerinaExample/list',
     PERF_ANALYZER_RESOURCES_ENDPOINTS = 'performanceAnalyzer/getResourcesWithEndpoints',
     RESOLVE_MISSING_DEPENDENCIES = 'ballerinaDocument/resolveMissingDependencies',
-    BALLERINA_TO_OPENAPI = 'openAPILSExtension/generateOpenAPI',
-    LIBRARY_LIBRARIES = 'ballerinaLibDoc/getLibrariesList'
+    BALLERINA_TO_OPENAPI = 'openAPILSExtension/generateOpenAPI'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -81,8 +79,7 @@ enum EXTENDED_APIS_ORG {
     TRIGGER = 'ballerinaTrigger',
     PERF_ANALYZER = 'performanceAnalyzer',
     PARTIAL_PARSER = 'partialParser',
-    BALLERINA_TO_OPENAPI = 'openAPILSExtension',
-    LIBRARY = 'ballerinaLibDoc'
+    BALLERINA_TO_OPENAPI = 'openAPILSExtension'
 }
 
 export interface ExtendedClientCapabilities extends ClientCapabilities {
@@ -337,7 +334,6 @@ export interface LibraryInfo {
     version: string;
     isDefaultModule: boolean;
 }
-
 
 export class ExtendedLangClient extends LanguageClient {
     private ballerinaExtendedServices: Set<String> | undefined;
@@ -601,19 +597,6 @@ export class ExtendedLangClient extends LanguageClient {
         return this.sendRequest("workspace/executeCommand", params);
     }
 
-    getLibrariesList(params: LibraryDocRequest, reset?: boolean): Thenable<LibraryDocResponse> {
-        if (!this.isExtendedServiceSupported(EXTENDED_APIS.LIBRARY_LIBRARIES)) {
-            Promise.resolve(NOT_SUPPORTED);
-        }
-        // if (!reset) {
-        //     let librariesList = this.ballerinaExtInstance?.context?.globalState.get(LIBRARIES_LIST_CACHE) as LibraryDocResponse;
-        //     if (librariesList) {
-        //         return Promise.resolve().then(() => librariesList);
-        //     }
-        // }
-        return this.sendRequest(EXTENDED_APIS.LIBRARY_LIBRARIES, params);
-    }
-
     async registerExtendedAPICapabilities() {
         if (!this.isDynamicRegistrationSupported) {
             return;
@@ -638,8 +621,7 @@ export class ExtendedLangClient extends LanguageClient {
                 { name: EXTENDED_APIS_ORG.JSON_TO_RECORD, convert: true },
                 { name: EXTENDED_APIS_ORG.PERF_ANALYZER, getResourcesWithEndpoints: true },
                 { name: EXTENDED_APIS_ORG.PARTIAL_PARSER, getSTForSingleStatement: true, getSTForExpression: true },
-                { name: EXTENDED_APIS_ORG.BALLERINA_TO_OPENAPI, generateOpenAPI: true },
-                { name: EXTENDED_APIS_ORG.LIBRARY, getLibrariesList: true },
+                { name: EXTENDED_APIS_ORG.BALLERINA_TO_OPENAPI, generateOpenAPI: true }
             ]
         }).then(response => {
             this.ballerinaExtendedServices = new Set();
