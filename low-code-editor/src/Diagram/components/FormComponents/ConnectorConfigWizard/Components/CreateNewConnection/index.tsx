@@ -39,7 +39,6 @@ interface CreateConnectorFormProps {
     onConfigNameChange: (name: string) => void;
     isNewConnectorInitWizard?: boolean;
     isOauthConnector: boolean;
-    responseStatus: number;
     expressionInjectables?: ExpressionInjectablesProps;
     targetPosition?: NodePosition;
 }
