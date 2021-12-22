@@ -167,6 +167,7 @@ function checkErrors(response: PerformanceAnalyzerRealtimeResponse | Performance
 export function handleRetries() {
     retryAttempts++;
     if (retryAttempts >= maxRetries) {
+        debug("Perf analyzer disabled. Max retry count reached.")
         extension.getPerformanceForecastContext().temporaryDisabled = true;
     }
 }
@@ -331,7 +332,7 @@ export function getDataFromChoreo(data: any, analyzeType: ANALYZETYPE): Promise<
             }
         }
 
-        debug(`Calling perf API - ${url.hostname}/${url.pathname}`);
+        debug(`Calling perf API - ${url.toString()} - ${choreoToken}`);
         const req = https.request(options, res => {
             var str = ''
             res.on('data', function (chunk) {
@@ -339,10 +340,20 @@ export function getDataFromChoreo(data: any, analyzeType: ANALYZETYPE): Promise<
             });
 
             res.on('end', function () {
+                if (res.statusCode != 200) {
+                    debug("Perf Error");
+                    debug(str);
+                    handleRetries();
+                    reject();
+                }
+
                 try {
                     const res = JSON.parse(str);
+                    debug("Perf Data received");
+                    debug(str);
 
                     if (res.message) {
+                        debug("Perf Error");
                         checkErrors(res);
                         return reject();
                     }
