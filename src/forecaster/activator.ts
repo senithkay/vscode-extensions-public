@@ -160,7 +160,7 @@ function checkErrors(response: PerformanceAnalyzerRealtimeResponse | Performance
         // AI Error
         showMessage("Performance plots are not available due to insufficient data", MESSAGE_TYPE.INFO, false);
 
-    } else if (response.message !== 'NO_DATA' && response.message !== 'ESTIMATOR_ERROR' && response.message !== 'INVALID_DATA') {
+    } else if (response.message !== 'NO_DATA' && response.message !== 'ESTIMATOR_ERROR' && response.message !== 'INVALID_DATA' && response.message !== 'MODEL_NOT_FOUND') {
         debug(`Retry counted. ${new Date()}`);
         handleRetries();
     }
