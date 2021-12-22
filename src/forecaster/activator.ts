@@ -145,14 +145,15 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
         }
 
     }).catch(error => {
-        debug(error);
+        debug(`${error} ${new Date()}`);
     });
 }
 
 function checkErrors(response: PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse) {
-    debug(response.message);
+    debug(`${response.message} ${new Date()}`);
     if (response.message === 'AUTHENTICATION_ERROR' || response.message === 'CONNECTION_ERROR') {
         // Choreo Auth Error
+        debug("Retry counted.");
         handleRetries();
 
     } else if (response.message === 'MODEL_RANGE_EXCEEDED') {
@@ -160,6 +161,7 @@ function checkErrors(response: PerformanceAnalyzerRealtimeResponse | Performance
         showMessage("Performance plots are not available due to insufficient data", MESSAGE_TYPE.INFO, false);
 
     } else if (response.message !== 'NO_DATA' && response.message !== 'ESTIMATOR_ERROR' && response.message !== 'INVALID_DATA') {
+        debug(`Retry counted. ${new Date()}`);
         handleRetries();
     }
 }
@@ -167,6 +169,7 @@ function checkErrors(response: PerformanceAnalyzerRealtimeResponse | Performance
 export function handleRetries() {
     retryAttempts++;
     if (retryAttempts >= maxRetries) {
+        debug(`Perf analyzer disabled. Max retry count reached. ${new Date()}`)
         extension.getPerformanceForecastContext().temporaryDisabled = true;
     }
 }
@@ -331,7 +334,7 @@ export function getDataFromChoreo(data: any, analyzeType: ANALYZETYPE): Promise<
             }
         }
 
-        debug(`Calling perf API - ${url.hostname}/${url.pathname}`);
+        debug(`Calling perf API - ${url.toString()} - ${choreoToken} ${new Date()}`);
         const req = https.request(options, res => {
             var str = ''
             res.on('data', function (chunk) {
@@ -339,19 +342,30 @@ export function getDataFromChoreo(data: any, analyzeType: ANALYZETYPE): Promise<
             });
 
             res.on('end', function () {
+                if (res.statusCode != 200) {
+                    debug(`Perf Error - ${res.statusCode} Status code. Retry counted. ${new Date()}`);
+                    debug(str);
+                    handleRetries();
+                    reject();
+                }
+
                 try {
                     const res = JSON.parse(str);
+                    debug(`Perf Data received ${new Date()}`);
+                    debug(str);
 
                     if (res.message) {
+                        debug(`Perf Error ${new Date()}`);
                         checkErrors(res);
                         return reject();
                     }
                     cachedResponses.set(data, res);
                     return resolve(res);
 
-                } catch (e) {
-                    debug("Perf Error");
+                } catch (e: any) {
+                    debug(`Perf Error - Response json parsing failed. Retry counted. ${new Date()}`);
                     debug(str);
+                    debug(e.toString())
                     handleRetries();
                     reject();
                 }
@@ -359,7 +373,7 @@ export function getDataFromChoreo(data: any, analyzeType: ANALYZETYPE): Promise<
         })
 
         req.on('error', error => {
-            debug("Perf Error");
+            debug(`Perf Error - Connection Error. Retry counted. ${new Date()}`);
             debug(error);
             handleRetries();
             reject();
