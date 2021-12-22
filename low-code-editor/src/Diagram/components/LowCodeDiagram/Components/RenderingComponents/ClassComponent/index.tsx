@@ -31,6 +31,7 @@ export function ClassComponent(props: ClassComponentProps) {
     const onExpandClick = () => {
         setIsExpanded(!isExpanded);
     }
+    // TODO: Enable expansion of class components
 
     // const children: JSX.Element[] = []
 
