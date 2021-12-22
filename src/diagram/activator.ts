@@ -618,17 +618,24 @@ export async function renderFirstDiagramElement(client: ExtendedLangClient) {
 				} else if (defaultModules[0].services && defaultModules[0].services.length > 0) {
 					const path = join(folder.uri.path, defaultModules[0].services[0].filePath);
 					for (let i = 0; i < defaultModules[0].services.length; i++) {
+						await showDiagramEditor(0, 0, path);
+						let startLine: number;
+						let startColumn: number;
 						if (defaultModules[0].services[i].resources && defaultModules[0].services[i].resources.length > 0) {
-							await showDiagramEditor(0, 0, path);
-							diagramElement = {
-								isDiagram: true,
-								fileUri: Uri.file(path),
-								startLine: defaultModules[0].services[i].resources[0].startLine,
-								startColumn: defaultModules[0].services[i].resources[0].startColumn
-							};
-							callUpdateDiagramMethod();
-							break;
+							startLine = defaultModules[0].services[i].resources[0].startLine;
+							startColumn = defaultModules[0].services[i].resources[0].startColumn;
+						} else {
+							startLine = defaultModules[0].services[i].startLine;
+							startColumn = defaultModules[0].services[i].startColumn;
 						}
+						diagramElement = {
+							isDiagram: true,
+							fileUri: Uri.file(path),
+							startLine,
+							startColumn
+						};
+						callUpdateDiagramMethod();
+						break;
 					}
 				} else if (defaultModules[0].functions.length > 0) {
 					const path = join(folder.uri.path, defaultModules[0].functions[0].filePath);
