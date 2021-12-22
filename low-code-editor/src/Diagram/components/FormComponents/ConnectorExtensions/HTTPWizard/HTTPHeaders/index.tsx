@@ -51,68 +51,6 @@ export function HTTPHeaders(props: HeaderConfig) {
 
     const [isInvalid, setIsInvalid] = useState(true);
 
-    const headers = ["Accept",
-        "Accept-Charset",
-        "Accept-Datetime",
-        "Accept-Encoding",
-        "Accept-Language",
-        "Access-Control-Request-Method",
-        "Access-Control-Request-Headers",
-        "Authorization",
-        "Cache-Control",
-        "Connection",
-        "Permanent",
-        "Content-Encoding",
-        "Content-Length",
-        "Content-MD5",
-        "Content-Type",
-        "Cookie",
-        "Date",
-        "Expect",
-        "Forwarded",
-        "From",
-        "Host",
-    ]
-
-    const headerVal = [
-        "audio/aac",
-        "application/x-abiword",
-        "application/x-freearc",
-        "video/x-msvideo",
-        "application/vnd.amazon.ebook",
-        "application/octet-stream",
-        "image/bmp",
-        "application/x-bzip",
-        "application/x-bzip2",
-        "application/x-csh",
-        "text/css",
-        "text/csv",
-        "application/msword",
-        "application/epub+zip",
-        "application/gzip",
-        "image/gif",
-        "text/html",
-        "text/calendar",
-        "application/java-archive",
-        "image/jpeg",
-        "text/javascript",
-        "application/json",
-        "application/ld+json",
-        "audio/mpeg",
-        "video/mpeg",
-        "image/png",
-        "application/pdf",
-        "image/svg+xml",
-        "application/x-shockwave-flash",
-        "application/x-tar",
-        "image/tiff",
-        "font/ttf",
-        "text/plain",
-        "font/woff",
-        "font/woff2",
-        "application/xml",
-        "text/xml",
-    ]
 
     const handleKeyChange = (value: string) => {
         setObjectKey(value);
@@ -212,7 +150,7 @@ export function HTTPHeaders(props: HeaderConfig) {
             >
                 <Autocomplete
                     className={headerClasses.autocompleteDropdown}
-                    options={headers}
+                    options={httpHeaderKeys}
                     freeSolo={true}
                     clearOnBlur={false}
                     closeIcon={false}
@@ -240,7 +178,7 @@ export function HTTPHeaders(props: HeaderConfig) {
             >
                 <Autocomplete
                     className={headerClasses.autocompleteDropdown}
-                    options={headerVal}
+                    options={httpHeaderValues}
                     freeSolo={true}
                     clearOnBlur={false}
                     closeIcon={false}
@@ -280,3 +218,66 @@ export function HTTPHeaders(props: HeaderConfig) {
         </div>
     );
 }
+
+export const httpHeaderKeys = [ "Accept",
+    "Accept-Charset",
+    "Accept-Datetime",
+    "Accept-Encoding",
+    "Accept-Language",
+    "Access-Control-Request-Method",
+    "Access-Control-Request-Headers",
+    "Authorization",
+    "Cache-Control",
+    "Connection",
+    "Permanent",
+    "Content-Encoding",
+    "Content-Length",
+    "Content-MD5",
+    "Content-Type",
+    "Cookie",
+    "Date",
+    "Expect",
+    "Forwarded",
+    "From",
+    "Host",
+];
+
+export const httpHeaderValues = [
+    "audio/aac",
+    "application/x-abiword",
+    "application/x-freearc",
+    "video/x-msvideo",
+    "application/vnd.amazon.ebook",
+    "application/octet-stream",
+    "image/bmp",
+    "application/x-bzip",
+    "application/x-bzip2",
+    "application/x-csh",
+    "text/css",
+    "text/csv",
+    "application/msword",
+    "application/epub+zip",
+    "application/gzip",
+    "image/gif",
+    "text/html",
+    "text/calendar",
+    "application/java-archive",
+    "image/jpeg",
+    "text/javascript",
+    "application/json",
+    "application/ld+json",
+    "audio/mpeg",
+    "video/mpeg",
+    "image/png",
+    "application/pdf",
+    "image/svg+xml",
+    "application/x-shockwave-flash",
+    "application/x-tar",
+    "image/tiff",
+    "font/ttf",
+    "text/plain",
+    "font/woff",
+    "font/woff2",
+    "application/xml",
+    "text/xml",
+];

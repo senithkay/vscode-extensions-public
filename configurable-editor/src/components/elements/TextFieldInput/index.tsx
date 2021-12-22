@@ -56,7 +56,7 @@ export function TextFieldInput(props: TextFieldInputProps) {
             variant="outlined"
             placeholder={placeholder}
             fullWidth={true}
-            defaultValue={existingValue || null}
+            defaultValue={existingValue}
             type={fieldType}
             margin="none"
             onChange={handleChange}

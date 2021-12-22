@@ -16,10 +16,11 @@ interface PerformanceProps {
 export function PerformanceBar(props: PerformanceProps) {
     const { model } = props;
     const {
+        props: { performanceData },
         actions: { diagramCleanDraw },
     } = useDiagramContext();
 
-    const { concurrency, latency, tps, isPerfDataAvailable, isAdvancedPerfDataAvailable } = generatePerfData(model);
+    const { concurrency, latency, tps, isPerfDataAvailable, isAdvancedPerfDataAvailable } = generatePerfData(model, performanceData);
 
     const onClickPerformance = async () => {
         if (!isAdvancedPerfDataAvailable) {

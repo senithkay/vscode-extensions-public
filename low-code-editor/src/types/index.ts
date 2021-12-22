@@ -26,6 +26,7 @@ import { BlockViewState } from "..";
 import { ConditionConfig, DataMapperConfig } from "../Diagram/components/FormComponents/Types";
 import { LowcodeEvent } from "../Diagram/models";
 import { Warning } from "../Diagram/utils/st-util";
+import { PerformanceData } from "../DiagramGenerator/performanceUtil";
 
 export interface ZoomStatus {
     scale: number,
@@ -142,6 +143,7 @@ export interface LowCodeEditorProperties {
     isReadOnly: boolean;
     zoomStatus: ZoomStatus;
     selectedPosition?: SelectedPosition;
+    performanceData?: Map<string, PerformanceData>;
 }
 
 export interface FunctionProperties {

@@ -298,7 +298,7 @@ export const transformFormFieldTypeToString = (model?: FormField, returnUndefine
                 const fieldTypeString = transformFormFieldTypeToString(field);
                 returnTypesList.push(fieldTypeString);
             });
-            return `map<${returnTypesList.join(',')}>${model.optional ? '?' : ''}`;
+            return `map<${returnTypesList.join(',')}>`;
         }
     } else if (model.typeName) {
         return model.typeName;
@@ -410,10 +410,17 @@ export function getRandomInt(max: number) {
     return Math.floor(Math.random() * Math.floor(max));
 }
 
-export function getFilteredDiagnostics(diagnostics: Diagnostic[], isCustomStatement: boolean) {
-    return diagnostics
+export function getFilteredDiagnostics(diagnostics: Diagnostic[], isCustomStatement: boolean, isStartWithSlash?: boolean) {
+    const selectedDiagnostics =  diagnostics
         .filter(diagnostic =>
             !IGNORED_DIAGNOSTIC_MESSAGES.includes(diagnostic.message.toString()) && diagnostic.severity === 1);
+
+    if (selectedDiagnostics.length && isStartWithSlash) {
+        if (selectedDiagnostics[0]?.code === "BCE0400") {
+            selectedDiagnostics[0].message = "resource path cannot begin with a slash"
+        }
+    }
+    return selectedDiagnostics;
 }
 
 
@@ -814,4 +821,12 @@ export const getStandardExpCompletions = async ({
         suggestions: completionItems
     };
     return completionList;
+}
+
+export function withQuotes(fields: string[]) {
+    return fields?.map(field => {
+        if (field && field.trim() !== ""){
+            return `"${field.trim().replaceAll('"', '')}"`;
+        }
+    });
 }
