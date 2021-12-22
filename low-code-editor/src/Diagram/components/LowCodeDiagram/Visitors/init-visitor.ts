@@ -155,6 +155,7 @@ class InitVisitor implements Visitor {
             stmtViewState.action.endpointName = simpleName.name.value;
             const actionName: SimpleNameReference = remoteActionCall.methodName as SimpleNameReference;
             stmtViewState.action.actionName = actionName.name.value;
+            stmtViewState.isAction = true;
 
             if (currentFnBody && STKindChecker.isFunctionBodyBlock(currentFnBody) && currentFnBody.VisibleEndpoints) {
                 const callerParam = currentFnBody.VisibleEndpoints.find((vEP: any) => vEP.isCaller);
