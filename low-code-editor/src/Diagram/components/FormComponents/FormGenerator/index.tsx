@@ -65,18 +65,9 @@ export function FormGenerator(props: FormGeneratorProps) {
     gotoSource({ startLine: targetPosition.startLine, startColumn: targetPosition.startColumn });
   }
 
-  let unsupportedType = false;
-  switch (formType) {
-    case "ClassDefinition" :
-    case "ObjectField":
-    case "ObjectMethodDefinition":
-      unsupportedType = true;
-      break;
-  }
-
   return (
     <div>
-      {unsupportedType ? (
+      {(formType === "ClassDefinition") ? (
         <UnsupportedConfirmButtons onConfirm={handleConfirm} onCancel={onCancel} />
       ) : (
         <Panel onClose={onCancel}>
