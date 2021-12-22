@@ -79,7 +79,6 @@ export function ClassHeader(props: ClassHeaderProps) {
                     <DeleteButton onClick={handleDeleteBtnClick} />
                 </div>
             </div>
-            <ComponentExpandButton isExpanded={isExpanded} onClick={onExpandClick} />
             {editingEnabled && <UnsupportedConfirmButtons onConfirm={handleEditBtnConfirm} onCancel={handleEditBtnCancel} />}
         </HeaderWrapper>
     );
