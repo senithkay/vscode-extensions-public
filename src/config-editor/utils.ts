@@ -84,7 +84,7 @@ function getLeafConfig(object: any, configProperty: ConfigProperty) {
     const value: string = "value";
     const headers = [...configProperty.headerNames];
 
-    if (object[name] === undefined || object[value] === undefined) {
+    if (object[name] === undefined || object[value] === undefined || object[value] === '' || object[value] === null) {
         return;
     }
 
