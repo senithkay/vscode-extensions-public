@@ -410,10 +410,17 @@ export function getRandomInt(max: number) {
     return Math.floor(Math.random() * Math.floor(max));
 }
 
-export function getFilteredDiagnostics(diagnostics: Diagnostic[], isCustomStatement: boolean) {
-    return diagnostics
+export function getFilteredDiagnostics(diagnostics: Diagnostic[], isCustomStatement: boolean, isStartWithSlash?: boolean) {
+    const selectedDiagnostics =  diagnostics
         .filter(diagnostic =>
             !IGNORED_DIAGNOSTIC_MESSAGES.includes(diagnostic.message.toString()) && diagnostic.severity === 1);
+
+    if (selectedDiagnostics.length && isStartWithSlash) {
+        if (selectedDiagnostics[0]?.code === "BCE0400") {
+            selectedDiagnostics[0].message = "resource path cannot begin with a slash"
+        }
+    }
+    return selectedDiagnostics;
 }
 
 
