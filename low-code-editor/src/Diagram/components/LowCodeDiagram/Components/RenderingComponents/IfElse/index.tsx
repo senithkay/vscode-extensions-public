@@ -315,8 +315,7 @@ export function IfElse(props: IfElseProps) {
         }
 
         const onIfHeadClick = () => {
-            const conditionExpression = STKindChecker.isBracedExpression(conditionExpr) ?
-                getExpressions() : conditionExpr.source;
+            const conditionExpression = getExpressions();
             const position = getExpressions()?.values[0]?.position;
             setConfigWizardOpen(true);
             const conditionConfigState = getConditionConfig("If", model.position, WizardType.EXISTING, undefined, {
