@@ -153,6 +153,7 @@ function checkErrors(response: PerformanceAnalyzerRealtimeResponse | Performance
     debug(response.message);
     if (response.message === 'AUTHENTICATION_ERROR' || response.message === 'CONNECTION_ERROR') {
         // Choreo Auth Error
+        debug("Retry counted.");
         handleRetries();
 
     } else if (response.message === 'MODEL_RANGE_EXCEEDED') {
@@ -160,6 +161,7 @@ function checkErrors(response: PerformanceAnalyzerRealtimeResponse | Performance
         showMessage("Performance plots are not available due to insufficient data", MESSAGE_TYPE.INFO, false);
 
     } else if (response.message !== 'NO_DATA' && response.message !== 'ESTIMATOR_ERROR' && response.message !== 'INVALID_DATA') {
+        debug("Retry counted.");
         handleRetries();
     }
 }
@@ -341,7 +343,7 @@ export function getDataFromChoreo(data: any, analyzeType: ANALYZETYPE): Promise<
 
             res.on('end', function () {
                 if (res.statusCode != 200) {
-                    debug("Perf Error");
+                    debug(`Perf Error - ${res.statusCode} Status code. Retry counted.`);
                     debug(str);
                     handleRetries();
                     reject();
@@ -361,7 +363,7 @@ export function getDataFromChoreo(data: any, analyzeType: ANALYZETYPE): Promise<
                     return resolve(res);
 
                 } catch (e) {
-                    debug("Perf Error");
+                    debug("Perf Error - Response json parsing failed. Retry counted.");
                     debug(str);
                     handleRetries();
                     reject();
@@ -370,7 +372,7 @@ export function getDataFromChoreo(data: any, analyzeType: ANALYZETYPE): Promise<
         })
 
         req.on('error', error => {
-            debug("Perf Error");
+            debug("Perf Error - Connection Error. Retry counted.");
             debug(error);
             handleRetries();
             reject();
