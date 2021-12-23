@@ -14,11 +14,13 @@
 import React, { useContext, useState } from "react";
 import { FormattedMessage } from "react-intl";
 
+import {IconButton} from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
 import { CloseRounded } from "@material-ui/icons";
 import { ActionConfig, ButtonWithIcon, Connector, ConnectorConfig, FormField, FunctionDefinitionInfo, ResponsePayloadMap, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { CaptureBindingPattern, FunctionDefinition, LocalVarDecl, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
+import {DocIcon} from "../../../../../assets";
 import { Context } from "../../../../../Contexts/Diagram";
 import { useFunctionContext } from "../../../../../Contexts/Function";
 import {
@@ -35,6 +37,7 @@ import {
     updatePropertyStatement} from "../../../../utils/modification-util";
 import { getModuleIcon, getParams } from "../../../Portals/utils";
 import { wizardStyles } from "../../ConnectorConfigWizard/style";
+import {generateDocUrl} from "../../Utils";
 
 import { CreateConnectorForm } from "./CreateConnectorForm";
 import { SelectInputOutputForm } from "./SelectInputOutputForm";
@@ -69,6 +72,9 @@ export function HTTPWizard(props: WizardProps) {
         api: {
             insights: {
                 onEvent
+            },
+            webView: {
+                showDocumentationView
             }
         },
         props: {
@@ -260,6 +266,18 @@ export function HTTPWizard(props: WizardProps) {
         onEvent(event);
     };
 
+    const openDocPanel = () => {
+        if (connector?.package) {
+            const {organization, name} = connector?.package;
+            if (organization && name) {
+                const docURL = generateDocUrl(organization, name, "");
+                if (docURL){
+                    showDocumentationView(docURL);
+                }
+            }
+        }
+    }
+
     return (
         <div className={classes.root}>
             <div className={wizardClasses.topTitleWrapper}>
@@ -271,6 +289,11 @@ export function HTTPWizard(props: WizardProps) {
                 <div className={wizardClasses.titleWrapper}>
                     <div className={wizardClasses.connectorIconWrapper}>{getModuleIcon(connector, 0.5)}</div>
                     <Typography className={wizardClasses.configTitle} variant="h4">{isNewConnectorInitWizard ? "New" : "Update"} {connector.displayName} <FormattedMessage id="lowcode.develop.connectorForms.HTTP.connection.title" defaultMessage="Connection" /></Typography>
+                    <IconButton
+                        onClick={openDocPanel}
+                    >
+                        <img src={DocIcon}/>
+                    </IconButton>
                 </div>
             </div>
             <>
