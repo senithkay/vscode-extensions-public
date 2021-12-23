@@ -127,6 +127,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
     const [formState, setFormState] = useState<FormStates>(FormStates.CreateNewConnection);
     const [isNewConnection, setIsNewConnection] = useState(isNewConnectorInitWizard);
     const [isLoading, setIsLoading] = useState(true);
+    const [responseStatus, setResponseStatus] = useState<number>();
 
     useEffect(() => {
         if (isAction) {
@@ -173,8 +174,9 @@ export function ConnectorForm(props: FormGeneratorProps) {
         config.action.returnVariableName = ((model as LocalVarDecl).typedBindingPattern
             .bindingPattern as CaptureBindingPattern).variableName.value;
     }
-    if (model && !isNewConnectorInitWizard && STKindChecker.isLocalVarDecl(model)) {
-        config.action.returnType = ((model as LocalVarDecl).typedBindingPattern?.typeDescriptor.source.trim());
+    if (model && !isNewConnectorInitWizard) {
+        config.action.returnType = ((model as LocalVarDecl).typedBindingPattern
+            .typeDescriptor.source.trim());
     }
     const onCreateNew = () => {
         setConfigName(genVariableName(connectorModule + "Endpoint", getAllVariables(stSymbolInfo)));
@@ -518,6 +520,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
                             connector={connector}
                             isNewConnectorInitWizard={isNewConnectorInitWizard}
                             isOauthConnector={isOauthConnector}
+                            responseStatus={responseStatus}
                             expressionInjectables={expressionInjectables}
                             targetPosition={targetPosition}
                         />
@@ -534,6 +537,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
                             connector={connector}
                             isNewConnectorInitWizard={isNewConnectorInitWizard}
                             isOauthConnector={isOauthConnector}
+                            responseStatus={responseStatus}
                             expressionInjectables={expressionInjectables}
                             targetPosition={targetPosition}
                         />
