@@ -3,7 +3,7 @@ import { IntlProvider } from "react-intl";
 import { monaco } from "react-monaco-editor";
 
 import { MuiThemeProvider } from "@material-ui/core/styles";
-import { Connector, DiagramDiagnostic, STModification, STSymbolInfo, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { Connector, DiagramDiagnostic, DiagramEditorLangClientInterface, STModification, STSymbolInfo, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, ModulePart, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import cloneDeep from "lodash.clonedeep";
 import Mousetrap from 'mousetrap';
@@ -22,6 +22,7 @@ import {
     getDefaultSelectedPosition, getLowcodeST, getModifyPosition, getSyntaxTree, isDeleteModificationAvailable,
     isUnresolvedModulesAvailable
 } from "./generatorUtil";
+import { addPerformanceData } from "./performanceUtil";
 import { useGeneratorStyles } from "./styles";
 import { theme } from "./theme";
 import { EditorProps, PALETTE_COMMANDS } from "./vscode/Diagram";
@@ -35,6 +36,8 @@ const ZOOM_STEP = 0.1;
 const MAX_ZOOM = 2;
 const MIN_ZOOM = 0.6;
 const undoRedo = new UndoRedoManager();
+const debounceTime: number = 5000;
+let lastPerfUpdate = 0;
 
 export function DiagramGenerator(props: DiagramGeneratorProps) {
     const { langClient, filePath, startLine, startColumn, lastUpdatedAt, scale, panX, panY, resolveMissingDependency } = props;
@@ -57,25 +60,27 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     const [isMutationInProgress, setMutationInProgress] = React.useState<boolean>(false);
     const [isModulePullInProgress, setModulePullInProgress] = React.useState<boolean>(false);
     const [loaderText, setLoaderText] = React.useState<string>('Loading...');
+    const [performanceData, setPerformanceData] = React.useState(undefined);
 
     React.useEffect(() => {
         (async () => {
             try {
                 const genSyntaxTree: ModulePart = await getSyntaxTree(filePath, langClient);
-                const pfSession = await props.getPFSession();
                 const content = await props.getFileContent(filePath);
                 // if (genSyntaxTree?.typeData?.diagnostics && genSyntaxTree?.typeData?.diagnostics?.length > 0) {
                 //     resolveMissingDependency(filePath, content);
                 // }
-                const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, filePath,
-                    langClient, pfSession,
-                    props.showPerformanceGraph, props.getPerfDataFromChoreo);
+                const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, filePath, langClient);
                 if (!vistedSyntaxTree) {
                     return (<div><h1>Parse error...!</h1></div>);
                 }
                 setSyntaxTree(vistedSyntaxTree);
                 undoRedo.updateContent(filePath, content);
                 setFileContent(content);
+
+                // Add performance data
+                await addPerfData(vistedSyntaxTree);
+
             } catch (err) {
                 throw err;
             }
@@ -125,7 +130,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     }
 
     async function run(args: any[]) {
-        runCommand(PALETTE_COMMANDS.RUN, args);
+        runCommand(PALETTE_COMMANDS.RUN_WITH_CONFIGS, args);
     }
 
     const undo = async () => {
@@ -145,13 +150,14 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                 }
             });
             const genSyntaxTree = await getSyntaxTree(path, langClient);
-            const pfSession = await props.getPFSession();
             const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, path,
-                langClient, pfSession,
-                props.showPerformanceGraph, props.getPerfDataFromChoreo);
+                langClient);
             setSyntaxTree(vistedSyntaxTree);
             setFileContent(lastsource);
             props.updateFileContent(path, lastsource);
+
+            await addPerfData(vistedSyntaxTree);
+
         }
     }
 
@@ -172,13 +178,14 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                 }
             });
             const genSyntaxTree = await getSyntaxTree(path, langClient);
-            const pfSession = await props.getPFSession();
             const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, path,
-                langClient, pfSession,
-                props.showPerformanceGraph, props.getPerfDataFromChoreo);
+                langClient);
             setSyntaxTree(vistedSyntaxTree);
             setFileContent(lastUndoSource);
             props.updateFileContent(path, lastUndoSource);
+
+            await addPerfData(vistedSyntaxTree);
+
         }
     }
 
@@ -198,8 +205,8 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     const missingProps: any = {};
 
     const selectedPosition = startColumn === 0 && startLine === 0 ? // TODO: change to use undefined for unselection
-                                    getDefaultSelectedPosition(syntaxTree)
-                                    : { startLine, startColumn }
+        getDefaultSelectedPosition(syntaxTree)
+        : { startLine, startColumn }
 
     return (
         <MuiThemeProvider theme={theme}>
@@ -220,6 +227,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                 size: 1,
                                 type: "File"
                             }}
+                            performanceData={performanceData}
                             // tslint:disable-next-line: jsx-no-multiline-js
                             api={{
                                 helpPanel: {
@@ -252,14 +260,13 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                                 uri: `file://${filePath}`
                                             }
                                         });
+                                        let vistedSyntaxTree: STNode;
                                         if (parseSuccess) {
                                             undoRedo.addModification(source);
-                                            const pfSession = await props.getPFSession();
                                             setFileContent(source);
                                             props.updateFileContent(filePath, source);
-                                            const vistedSyntaxTree: STNode = await getLowcodeST(newST, filePath,
-                                                langClient, pfSession,
-                                                props.showPerformanceGraph, props.getPerfDataFromChoreo);
+                                            vistedSyntaxTree = await getLowcodeST(newST, filePath,
+                                                langClient);
                                             setSyntaxTree(vistedSyntaxTree);
                                             if (isDeleteModificationAvailable(mutations)) {
                                                 showMessage("Undo to revert the change you did by pressing Ctrl + Z", MESSAGE_TYPE.INFO, true);
@@ -277,6 +284,8 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                             // TODO show error
                                         }
                                         setMutationInProgress(false);
+
+                                        await addPerfData(vistedSyntaxTree);
                                     },
                                     onMutate: (type: string, options: any) => undefined,
                                     setCodeLocationToHighlight: (position: NodePosition) => undefined,
@@ -316,4 +325,15 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
             </div>
         </MuiThemeProvider>
     );
+
+    async function addPerfData(vistedSyntaxTree: STNode) {
+        const currentTime: number = Date.now();
+
+        if (currentTime - lastPerfUpdate > debounceTime) {
+            const pfSession = await props.getPFSession();
+            const perfData = await addPerformanceData(vistedSyntaxTree, filePath, langClient, pfSession, props.showPerformanceGraph, props.getPerfDataFromChoreo);
+            setPerformanceData(perfData);
+            lastPerfUpdate = currentTime;
+        }
+    }
 }

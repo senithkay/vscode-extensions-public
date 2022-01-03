@@ -28,7 +28,7 @@ import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 import { FilterIcon } from "../../../../../assets/icons";
 import { Context } from "../../../../../Contexts/Diagram";
 import { UserState } from "../../../../../types";
-import { ADD_CONNECTOR, LowcodeEvent } from "../../../../models";
+import { ADD_CONNECTOR, LowcodeEvent, SEARCH_CONNECTOR } from "../../../../models";
 import { APIHeightStates } from "../../../LowCodeDiagram/Components/DialogBoxes/PlusHolder/PlusElements";
 import { PlusViewState } from "../../../LowCodeDiagram/ViewState/plus";
 import { wizardStyles as useFormStyles } from "../style";
@@ -183,6 +183,13 @@ export function Marketplace(props: MarketplaceProps) {
 
     const onSearchButtonClick = (query: string) => {
         setSearchQuery(query);
+        if (query && query.length >= 3) {
+            const event: LowcodeEvent = {
+                type: SEARCH_CONNECTOR,
+                name: query,
+            };
+            onEvent(event);
+        }
     };
 
     const updateCategory = (category: string) => {

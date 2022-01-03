@@ -17,9 +17,10 @@ import { FormattedMessage } from "react-intl";
 import Typography from "@material-ui/core/Typography";
 import { CloseRounded } from "@material-ui/icons";
 import { ActionConfig, ButtonWithIcon, Connector, ConnectorConfig, FormField, FunctionDefinitionInfo, ResponsePayloadMap, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { CaptureBindingPattern, LocalVarDecl, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { CaptureBindingPattern, FunctionDefinition, LocalVarDecl, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../Contexts/Diagram";
+import { useFunctionContext } from "../../../../../Contexts/Function";
 import {
     CONNECTOR_CLOSED,
     LowcodeEvent,
@@ -30,6 +31,7 @@ import {
 import {
     createImportStatement,
     createPropertyStatement,
+    updateFunctionSignature,
     updatePropertyStatement} from "../../../../utils/modification-util";
 import { getModuleIcon, getParams } from "../../../Portals/utils";
 import { wizardStyles } from "../../ConnectorConfigWizard/style";
@@ -73,6 +75,7 @@ export function HTTPWizard(props: WizardProps) {
             stSymbolInfo
         }
     } = useContext(Context);
+    const { functionNode } = useFunctionContext();
 
     const connectorInitFormFields: FormField[] = functionDefinitions.get("init")?.parameters;
     const enableConnectorInitalizePage = !isAction;
@@ -147,6 +150,32 @@ export function HTTPWizard(props: WizardProps) {
         onClose();
     };
 
+    const updateFunctionSignatureWithError = () => {
+        if (!(functionNode && STKindChecker.isFunctionDefinition(functionNode))) {
+            return undefined;
+        }
+        const activeFunction = functionNode as FunctionDefinition;
+        const parametersStr = activeFunction.functionSignature.parameters.map((item) => item.source).join(",");
+        let returnTypeStr = activeFunction.functionSignature.returnTypeDesc?.source.trim();
+
+        if (returnTypeStr?.includes("error")) {
+            return undefined;
+        }
+
+        if (returnTypeStr?.includes("?") || returnTypeStr?.includes("()")) {
+            returnTypeStr = returnTypeStr + "|error";
+        } else if (returnTypeStr) {
+            returnTypeStr = returnTypeStr + "|error?";
+        } else {
+            returnTypeStr = "returns error?";
+        }
+
+        return updateFunctionSignature(activeFunction.functionName.value, parametersStr, returnTypeStr, {
+            ...activeFunction.functionSignature.position,
+            startColumn: activeFunction.functionName.position.startColumn,
+        });
+    };
+
     const handleCreateConnectorOnSave = () => {
         const event: LowcodeEvent = {
             type: SAVE_CONNECTOR_INIT,
@@ -154,6 +183,10 @@ export function HTTPWizard(props: WizardProps) {
         };
         onEvent(event);
         const modifications: STModification[] = [];
+        const functionSignature = updateFunctionSignatureWithError();
+        if (functionSignature) {
+            modifications.push(functionSignature);
+        }
         if (!isNewConnectorInitWizard) {
             const updatedConnectorInit = updatePropertyStatement(
                 `${connector.moduleName}:${connector.name} ${connectorConfig.name} = check new (${getParams(
@@ -185,7 +218,10 @@ export function HTTPWizard(props: WizardProps) {
         const selectedPayloadType = connectorConfig.action.fields.find(
             (field) => field.name === "targetType"
         ).selectedDataType;
-
+        const functionSignature = updateFunctionSignatureWithError();
+        if (functionSignature) {
+            modifications.push(functionSignature);
+        }
         if (isNewConnectorInitWizard && !isAction) {
             const addImport: STModification = createImportStatement(
                 connector.package.organization,
@@ -248,6 +284,7 @@ export function HTTPWizard(props: WizardProps) {
                         // onBackClick={handleBack}
                         connector={connector}
                         isNewConnectorInitWizard={isNewConnectorInitWizard}
+                        targetPosition={targetPosition}
                     />
                 )}
                 {state === InitFormState.SelectInputOutput && (
@@ -257,6 +294,7 @@ export function HTTPWizard(props: WizardProps) {
                         onConnectionChange={handleConnectionChange}
                         connectorConfig={connectorConfig}
                         isNewConnectorInitWizard={isNewConnectorInitWizard}
+                        targetPosition={targetPosition}
                         model={model}
                     />
                 )}

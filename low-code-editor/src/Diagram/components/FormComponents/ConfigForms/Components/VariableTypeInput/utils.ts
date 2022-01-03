@@ -3,7 +3,7 @@ import * as monaco from 'monaco-editor';
 import { CompletionItemKind, InsertTextFormat } from "vscode-languageserver-protocol";
 
 import { GetExpCompletionsParams } from "../../../FormFieldComponents/ExpressionEditor";
-import { createSortText } from "../../../FormFieldComponents/ExpressionEditor/utils";
+import { createSortText, translateCompletionItemKindToMonaco } from "../../../FormFieldComponents/ExpressionEditor/utils";
 
 export const getVarTypeCompletions = (ignoredCompletions: string[] = [], additionalCompletions: string[] = []) => async ({
     getExpressionEditorLangClient,
@@ -25,7 +25,7 @@ export const getVarTypeCompletions = (ignoredCompletions: string[] = [], additio
             range: null,
             label: completionResponse.label,
             detail: completionResponse.detail,
-            kind: completionResponse.kind as CompletionItemKind,
+            kind: translateCompletionItemKindToMonaco(completionResponse.kind as CompletionItemKind),
             insertText: completionResponse.insertText,
             insertTextFormat: completionResponse.insertTextFormat as InsertTextFormat,
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,

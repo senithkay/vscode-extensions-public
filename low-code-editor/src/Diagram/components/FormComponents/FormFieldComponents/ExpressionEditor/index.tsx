@@ -23,6 +23,7 @@ import {
     ExpressionEditorState,
     PrimitiveBalType,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 import debounce from "lodash.debounce";
 import * as monaco from "monaco-editor";
@@ -157,6 +158,7 @@ export interface GetExpCompletionsParams {
     varName: string;
     snippetTargetPosition: number;
     disableFiltering?: boolean;
+    targetPosition?: NodePosition;
 }
 
 export interface ExpressionEditorProps {
@@ -458,7 +460,8 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                 varType,
                                 varName,
                                 snippetTargetPosition,
-                                disableFiltering
+                                disableFiltering,
+                                targetPosition
                             });
                         }
                     },
@@ -688,6 +691,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         if (expressionEditorState?.name === model.name && monacoRef.current && monacoRef.current.editor.hasTextFocus()) {
             let newModel: string = null;
             let newCodeSnippet: string = "";
+            const isStartWithSlash: boolean = currentContent?.startsWith("/");
             // tslint:disable-next-line:prefer-conditional-expression
             if (model.optional === true && (currentContent === undefined || currentContent === "")) {
                 // No need to send didChange with the template because this is an optional field and empty content is allowed.
@@ -719,7 +723,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
             });
             setExpressionEditorState({
                 ...expressionEditorState,
-                diagnostic: diagResp[0]?.diagnostics ? getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate) : [],
+                diagnostic: diagResp[0]?.diagnostics ? getFilteredDiagnostics(diagResp[0]?.diagnostics, isCustomTemplate, isStartWithSlash) : [],
             });
 
             // FIXME: Uncomment this once the ballerinaSymbol/type request is enabled in LS

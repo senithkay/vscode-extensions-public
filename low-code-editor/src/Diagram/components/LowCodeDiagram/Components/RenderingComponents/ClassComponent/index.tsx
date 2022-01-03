@@ -32,32 +32,9 @@ export function ClassComponent(props: ClassComponentProps) {
         setIsExpanded(!isExpanded);
     }
 
-    const children: JSX.Element[] = []
-
-    model.members.forEach(member => {
-        children.push(
-            <div className={'class-member'} >
-                <TopLevelPlus kind={model.kind} targetPosition={member.position} />
-                {getSTComponent(member)}
-            </div>
-        )
-    });
-
-    const classComponentBody = isExpanded && (
-        <>
-            {children}
-            <div className={'class-member'} >
-                <TopLevelPlus kind={model.kind} targetPosition={model.closeBrace.position} />
-            </div>
-        </>
-    );
-
     return (
         <div className={'class-component'}>
             <ClassHeader model={model} onExpandClick={onExpandClick} isExpanded={isExpanded} />
-            <div className={'content-container'}>
-                {classComponentBody}
-            </div>
         </div>
     );
 }

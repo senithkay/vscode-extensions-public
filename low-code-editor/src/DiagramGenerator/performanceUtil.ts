@@ -45,6 +45,11 @@ export interface PerformanceGraphRequest {
     data: GraphData;
 }
 
+export interface PerformanceData {
+    data: PerformanceAnalyzerRealtimeResponse,
+    type: ANALYZE_TYPE
+}
+
 export enum ANALYZE_TYPE {
     ADVANCED = "advanced",
     REALTIME = "realtime",
@@ -60,7 +65,9 @@ export enum ANALYZE_TYPE {
  * @param getPerfDataFromChoreo Show performance graph errors
  * @param showMsg Show alerts in vscode side
  */
-export async function addPerformanceData(st: any, file: string, lc: DiagramEditorLangClientInterface, session: PFSession, showPerf: (request: PerformanceGraphRequest) => Promise<boolean>, getPerfDataFromChoreo: (data: any, analyzeType: ANALYZE_TYPE) => Promise<PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse | undefined>) {
+export async function addPerformanceData(st: any, file: string, lc: DiagramEditorLangClientInterface,
+                                         session: PFSession, showPerf: (request: PerformanceGraphRequest) => Promise<boolean>,
+                                         getPerfDataFromChoreo: (data: any, analyzeType: ANALYZE_TYPE) => Promise<PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse | undefined>): Promise<Map<string, PerformanceData>> {
     if (!st || !file || !lc || !session) {
         return;
     }
@@ -73,10 +80,11 @@ export async function addPerformanceData(st: any, file: string, lc: DiagramEdito
     getDataFromChoreo = getPerfDataFromChoreo;
 
     const members: any[] = syntaxTree.members;
-    for (let currentService = 0; currentService < members.length; currentService++) {
-        if (members[currentService].kind === 'ServiceDeclaration') {
-            const serviceMembers: any[] = members[currentService].members;
-            for (let currentResource = 0; currentResource < members[currentService].members.length; currentResource++) {
+    const performanceBarData = new Map<string, PerformanceData>();
+    for (const member of members) {
+        if (member.kind === 'ServiceDeclaration') {
+            const serviceMembers: any[] = member.members;
+            for (let currentResource = 0; currentResource < member.members.length; currentResource++) {
                 const serviceMember: any = serviceMembers[currentResource];
                 if (serviceMember.kind === 'ResourceAccessorDefinition') {
                     const pos = serviceMember.position;
@@ -91,14 +99,14 @@ export async function addPerformanceData(st: any, file: string, lc: DiagramEdito
                     const realtimeData = await getRealtimeData(range);
 
                     if (realtimeData) {
-                        syntaxTree.members[currentService].members[currentResource].performance = realtimeData;
-                        syntaxTree.members[currentService].members[currentResource].performance.analyzeType = ANALYZE_TYPE.REALTIME;
+                        const position = `${pos.startLine},${pos.startColumn},${pos.endLine},${pos.endColumn}`;
+                        performanceBarData.set(position, { data: realtimeData, type: ANALYZE_TYPE.REALTIME });
                     }
                 }
             }
         }
     }
-
+    return performanceBarData;
 }
 
 async function getRealtimeData(range: Range): Promise<PerformanceAnalyzerRealtimeResponse | undefined> {

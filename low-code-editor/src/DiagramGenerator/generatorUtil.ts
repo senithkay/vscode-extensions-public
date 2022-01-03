@@ -6,8 +6,6 @@ import { initVisitor, positionVisitor, sizingVisitor, SymbolVisitor } from "../i
 import { MESSAGE_TYPE, SelectedPosition } from "../types";
 
 import { addExecutorPositions } from "./executor";
-import { addPerformanceData, ANALYZE_TYPE } from "./performanceUtil";
-import { PALETTE_COMMANDS, PFSession } from "./vscode/Diagram";
 
 export async function getSyntaxTree(filePath: string, langClient: DiagramEditorLangClientInterface) {
     const resp = await langClient.getSyntaxTree({
@@ -27,15 +25,13 @@ export async function resolveMissingDependencies(filePath: string, langClient: D
     return resp;
 }
 
-export async function getLowcodeST(payload: any, filePath: string, langClient: DiagramEditorLangClientInterface, pfSession: PFSession, showPerformanceGraph: () => Promise<boolean>,
-                                   getPerfDataFromChoreo: (data: any, analyzeType: ANALYZE_TYPE) => Promise<PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse | undefined>) {
+export async function getLowcodeST(payload: any, filePath: string, langClient: DiagramEditorLangClientInterface) {
     const modulePart: ModulePart = payload;
     const members: STNode[] = modulePart?.members || [];
     const st = sizingAndPositioningST(payload);
     cleanLocalSymbols();
     cleanModuleLevelSymbols();
     traversNode(st, SymbolVisitor);
-    await addPerformanceData(st, filePath, langClient, pfSession, showPerformanceGraph, getPerfDataFromChoreo);
     await addExecutorPositions(st, langClient, filePath)
     return st;
 }

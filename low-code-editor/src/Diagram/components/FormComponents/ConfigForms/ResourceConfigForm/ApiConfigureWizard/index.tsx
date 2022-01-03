@@ -483,6 +483,9 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                 <li>
                     <FormattedMessage id="lowcode.develop.apiConfigWizard.path.instructions.tooltip.bulletPoint3" defaultMessage="<b>NOT</b> include keywords such as <code>Return</code>, <code>Foreach</code>, <code>Resource</code>, <code>Object</code>, etc." values={{ b: (chunks: string) => <b>{chunks}</b>, code: (chunks: string) => <code>{chunks}</code> }} />
                 </li>
+                <li>
+                    <FormattedMessage id="lowcode.develop.apiConfigWizard.path.instructions.tooltip.bulletPoint4" defaultMessage="<b>NOT</b> start with a /" values={{ b: (chunks: string) => <b>{chunks}</b> }} />
+                </li>
             </ul>
         </div>
     );

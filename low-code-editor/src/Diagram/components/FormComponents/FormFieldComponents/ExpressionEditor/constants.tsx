@@ -19,6 +19,13 @@ export const acceptedKind: CompletionItemKind[] = [
     3 as CompletionItemKind,
 ];
 
+export const rejectedKinds: CompletionItemKind[] = [
+    // Snippet
+    15 as CompletionItemKind,
+    // Module
+    9 as CompletionItemKind,
+];
+
 export const TRIGGER_CHARACTERS: string[] = [".", " "];
 
 export const EXPAND_WIDGET_ID = "expand-widget";
