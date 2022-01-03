@@ -59,6 +59,7 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
         const activeEditor = window.activeTextEditor;
         const document = activeEditor?.document;
         const uri = activeEditor?.document.uri.fsPath.toString();
+        const currentDataLabels: DataLabel[] = Array.from(ExecutorCodeLensProvider.dataLabels);
         currentFile = document;
         currentFileUri = uri;
         ExecutorCodeLensProvider.dataLabels = [];
@@ -68,6 +69,11 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
             return;
         }
         await createPerformanceGraphAndCodeLenses(uri, args[0], ANALYZETYPE.ADVANCED, args[1]);
+
+        // if no advanced code lenses
+        if (ExecutorCodeLensProvider.dataLabels.length === 0) {
+            ExecutorCodeLensProvider.dataLabels = currentDataLabels;
+        }
         ExecutorCodeLensProvider.onDidChangeCodeLenses.fire();
 
     });
