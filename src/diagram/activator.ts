@@ -45,7 +45,13 @@ import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { runCommand } from '../utils/runCommand';
 import { Diagnostic } from '.';
 import { createTests } from '../testing/activator';
-import { getLanguageLibrariesList, getStandardLibrariesList } from "../documentation/library";
+import {
+	cachedLibraryList,
+	getLanguageLibrariesList,
+	getStandardLibrariesList,
+	LANG_LIB_LIST_CACHE,
+	STD_LIB_LIST_CACHE
+} from "../documentation/library";
 
 export let hasDiagram: boolean = false;
 
@@ -105,6 +111,20 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 	langClient.getConnectors({ query: "http", limit: 18 }, true).then((connectorList) => {
 		if (connectorList && connectorList.central?.length > 0) {
 			ballerinaExtInstance.context?.globalState.update(HTTP_CONNECTOR_LIST_CACHE, connectorList);
+		}
+	});
+
+	// Cache the lang lib list
+	getLanguageLibrariesList("slbeta5").then((libs) => {
+		if (libs && libs.librariesList.length > 0) {
+			cachedLibraryList.set(LANG_LIB_LIST_CACHE, libs);
+		}
+	});
+
+	// Cache the std lib list
+	getStandardLibrariesList("slbeta5").then((libs) => {
+		if (libs && libs.librariesList.length > 0) {
+			cachedLibraryList.set(STD_LIB_LIST_CACHE, libs);
 		}
 	});
 

@@ -21,29 +21,28 @@ import { LibraryDocResponse, LibraryKind } from "../core";
 import https from "https";
 import { debug } from "../utils";
 
-const cachedResponses = new Map<string, LibraryDocResponse>();
-const LANG_LIB_LIST_CACHE = "LANG_LIB_LIST_CACHE";
-const STD_LIB_LIST_CACHE = "STD_LIB_LIST_CACHE";
+export const cachedLibraryList = new Map<string, LibraryDocResponse>();
+export const LANG_LIB_LIST_CACHE = "LANG_LIB_LIST_CACHE";
+export const STD_LIB_LIST_CACHE = "STD_LIB_LIST_CACHE";
+const options = {
+    hostname: 'api.staging-central.ballerina.io',
+    port: 443,
+    method: 'GET',
+    headers: {
+        'Content-Type': 'application/json'
+    }
+};
 
 export function getLanguageLibrariesList(version: string): Promise<LibraryDocResponse | undefined> {
 
     return new Promise((resolve, reject) => {
 
-        if (cachedResponses.has(LANG_LIB_LIST_CACHE)) {
-            return resolve(cachedResponses.get(LANG_LIB_LIST_CACHE));
+        if (cachedLibraryList.has(LANG_LIB_LIST_CACHE)) {
+            return resolve(cachedLibraryList.get(LANG_LIB_LIST_CACHE));
         }
 
-        const options = {
-            hostname: 'api.staging-central.ballerina.io',
-            path: `/2.0/docs/stdlib/${version}`,
-            port: 443,
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        };
         let body = '';
-        const req = https.request(options, res => {
+        const req = https.request({ path: `/2.0/docs/stdlib/${version}`, ...options }, res => {
             res.on('data', function (chunk) {
                 body = body + chunk;
             });
@@ -56,7 +55,6 @@ export function getLanguageLibrariesList(version: string): Promise<LibraryDocRes
                     const responseJson = {
                         'librariesList': JSON.parse(body)[LibraryKind.langLib]
                     };
-                    cachedResponses.set(LANG_LIB_LIST_CACHE, responseJson);
                     return resolve(responseJson);
                 }
             });
@@ -75,21 +73,12 @@ export function getStandardLibrariesList(version: string): Promise<LibraryDocRes
 
     return new Promise((resolve, reject) => {
 
-        if (cachedResponses.has(STD_LIB_LIST_CACHE)) {
-            return resolve(cachedResponses.get(STD_LIB_LIST_CACHE));
+        if (cachedLibraryList.has(STD_LIB_LIST_CACHE)) {
+            return resolve(cachedLibraryList.get(STD_LIB_LIST_CACHE));
         }
 
-        const options = {
-            hostname: 'api.staging-central.ballerina.io',
-            path: `/2.0/docs/stdlib/${version}`,
-            port: 443,
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        };
         let body = '';
-        const req = https.request(options, res => {
+        const req = https.request({ path: `/2.0/docs/stdlib/${version}`, ...options }, res => {
             res.on('data', function (chunk) {
                 body = body + chunk;
             });
@@ -102,7 +91,6 @@ export function getStandardLibrariesList(version: string): Promise<LibraryDocRes
                     const responseJson = {
                         'librariesList': JSON.parse(body)[LibraryKind.stdLib]
                     };
-                    cachedResponses.set(STD_LIB_LIST_CACHE, responseJson);
                     return resolve(responseJson);
                 }
             });
