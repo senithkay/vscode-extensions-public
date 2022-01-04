@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 Inc. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -37,7 +37,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             formContentWrapper: {
                 width: '100%',
                 flexDirection: "row",
-                padding: '15px 20px',
+                padding: 'theme.spacing(1.875, 2.5)',
             },
             formDeclarationWrapper: {
                 display: 'flex',
@@ -184,7 +184,7 @@ export const useStyles = makeStyles((theme: Theme) =>
                 color: "#1D2028 !important",
                 fontSize: "13px !important",
                 textTransform: 'capitalize',
-                lineHeight: '40px',
+                lineHeight: '40',
             },
             titleIcon: {
                 display: 'flex',
@@ -202,23 +202,23 @@ export const useStyles = makeStyles((theme: Theme) =>
                 fontSize: 13,
                 textTransform: 'capitalize',
                 display: 'inline-block',
-                lineHeight: '35px',
+                lineHeight: '35',
                 fontWeight: 300,
             },
             starLabelForRequired: {
                 padding: 0,
                 color: '#DC143C',
-                fontSize: "13px",
+                fontSize: "13",
                 textTransform: 'capitalize',
                 display: 'inline-block'
             },
             optionalLabel: {
-                paddingRight: '5px',
+                paddingRight: '5',
                 color: '#CBCEDB',
-                fontSize: '12px',
+                fontSize: '12',
                 textTransform: 'capitalize',
                 display: 'inline-block',
-                lineHeight: '40px',
+                lineHeight: '40',
                 marginBottom: '0.06rem',
                 marginLeft: '0.25rem',
                 marginTop: '0.094375rem'
@@ -228,7 +228,7 @@ export const useStyles = makeStyles((theme: Theme) =>
                 height: "auto",
                 width: "100%",
                 border: "1px solid #DEE0E7",
-                borderRadius: "6px",
+                borderRadius: "6",
                 backgroundColor: "#FFF",
                 padding: "0.5rem 1rem 1rem",
                 "& .MuiInputBase-root": {
@@ -243,7 +243,7 @@ export const useStyles = makeStyles((theme: Theme) =>
                 height: "auto",
                 width: "100%",
                 border: "1px solid #DEE0E7",
-                borderRadius: "6px",
+                borderRadius: "6",
                 backgroundColor: "#FFF",
                 padding: "0.5rem 1rem 1rem",
                 marginTop: "0.5rem !important",
@@ -413,10 +413,10 @@ export const useStyles = makeStyles((theme: Theme) =>
                 fontSize: 12,
             },
             emailFormTo: {
-                marginTop: "0px"
+                marginTop: "0"
             },
             emailFormSubject: {
-                marginTop: "24px"
+                marginTop: "24"
             },
             unionDropdown: {
                 marginTop: '0 !important',
@@ -477,7 +477,7 @@ export const useStyles = makeStyles((theme: Theme) =>
                 backgroundColor: '#fff !important',
                 width: '12px !important',
                 height: '12px !important',
-                padding: '13px',
+                padding: '13',
                 marginLeft: '1rem',
                 marginTop: '0.25rem'
             },
@@ -485,7 +485,7 @@ export const useStyles = makeStyles((theme: Theme) =>
                 backgroundColor: '#fff !important',
                 width: '12px !important',
                 height: '12px !important',
-                padding: '13px',
+                padding: '13',
                 marginLeft: '1rem',
                 position: 'relative',
                 top: -18,
@@ -502,7 +502,7 @@ export const useStyles = makeStyles((theme: Theme) =>
                 backgroundColor: '#fff !important',
                 width: '12px !important',
                 height: '12px !important',
-                padding: '13px',
+                padding: '13',
                 marginLeft: '1rem',
                 position: 'relative',
                 top: -18,
@@ -553,13 +553,13 @@ export const useStyles = makeStyles((theme: Theme) =>
             },
             suggestionsWrapper: {
                 display: 'flex',
-                marginTop: '4px'
+                marginTop: '4'
             },
             suggestionsIcon: {
-                marginRight: '6px',
-                marginTop: '3px',
-                height: '20px',
-                width: '20px'
+                marginRight: '6',
+                marginTop: '3',
+                height: '20',
+                width: '20'
             },
             suggestionsText: {
                 fontSize: '13px !important',
@@ -586,8 +586,8 @@ export const useStyles = makeStyles((theme: Theme) =>
             suggestionsTextCodeSnippet: {
                 backgroundColor: "#eff1f5",
                 color: "#526acf",
-                fontSize: "12px",
-                padding: "5px"
+                fontSize: "12",
+                padding: "5"
             },
             pre: {
                 margin: 0,
