@@ -50,9 +50,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
     if (model && STKindChecker.isListenerDeclaration(model)) {
         defaultState = {
             listenerName: model.variableName.value,
-            listenerPort: (model.initializer.parenthesizedArgList ?
-                           model.initializer.parenthesizedArgList.arguments[0].source :
-                           ""),
+            listenerPort: model.initializer.parenthesizedArgList.arguments[0].source,
             listenerType: model.typeDescriptor.modulePrefix.value.toUpperCase(),
             isExpressionValid: true
         };

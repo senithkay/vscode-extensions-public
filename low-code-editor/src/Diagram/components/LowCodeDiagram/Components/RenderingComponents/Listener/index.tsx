@@ -40,7 +40,8 @@ export function ListenerC(props: ListenerProps) {
         },
         api: {
             code: {
-                modifyDiagram
+                modifyDiagram,
+                gotoSource
             }
         }
     } = useContext(Context);
@@ -72,7 +73,13 @@ export function ListenerC(props: ListenerProps) {
     }
 
     const handleEditBtnClick = () => {
-        setEditingEnabled(true);
+        const supportedListenerType: boolean = listenerModel.initializer.parenthesizedArgList !== undefined;
+        if (supportedListenerType) {
+            setEditingEnabled(true);
+        } else {
+            const targetposition = model.position;
+            gotoSource({ startLine: targetposition.startLine, startColumn: targetposition.startColumn });
+        }
     }
 
     const handleEditBtnCancel = () => {
