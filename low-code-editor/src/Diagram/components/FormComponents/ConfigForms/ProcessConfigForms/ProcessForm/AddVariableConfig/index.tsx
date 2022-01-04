@@ -63,7 +63,10 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             ls: { getExpressionEditorLangClient },
             code: { modifyDiagram },
             insights: { onEvent },
-            library: { getLibrariesList }
+            library: {
+                getLibrariesList,
+                getLibrariesData
+            }
         }
     } = useContext(Context);
 
@@ -280,7 +283,8 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             currentFile,
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
-            getLibrariesList
+            getLibrariesList,
+            getLibrariesData
         }
     );
 

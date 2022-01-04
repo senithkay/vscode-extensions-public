@@ -62,7 +62,10 @@ export function AddForeachForm(props: ForeachProps) {
         api: {
             ls: { getExpressionEditorLangClient },
             code: { modifyDiagram },
-            library: { getLibrariesList }
+            library: {
+                getLibrariesList,
+                getLibrariesData
+            }
         }
     } = useContext(Context);
     const { condition, formArgs, onCancel, onSave, onWizardClose } = props;
@@ -249,7 +252,8 @@ export function AddForeachForm(props: ForeachProps) {
             currentFile,
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
-            getLibrariesList
+            getLibrariesList,
+            getLibrariesData,
         }
     );
 

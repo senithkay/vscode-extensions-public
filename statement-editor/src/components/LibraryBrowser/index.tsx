@@ -11,20 +11,41 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
-import { LibraryKind } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { LibraryKind, LibrarySearchResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { StatementEditorContext } from "../../store/statement-editor-context";
+import { FunctionsList } from "../Libraries/FunctionsList";
 import { LibrariesList } from "../Libraries/LibrariesList";
 import { useStatementEditorStyles } from "../styles";
+
+import { filterByKeyword } from "./utils";
 
 export function LibraryBrowser() {
     const statementEditorClasses = useStatementEditorStyles();
     const stmtCtx = useContext(StatementEditorContext);
 
     const [keyword, setKeyword] = useState('');
+    const [libraryData, setLibraryData] = useState<LibrarySearchResponse>();
     const [libraries, setLibraries] = useState([]);
+    const [functions, setFunctions] = useState([]);
+
+    useEffect(() => {
+        (async () => {
+            const response = await stmtCtx.getLibrariesData("slbeta5");
+            if (response) {
+                setLibraryData(response);
+            }
+        })();
+    }, []);
+
+    useEffect(() => {
+        if (libraryData) {
+            const f = filterByKeyword(libraryData, keyword);
+            setFunctions(f);
+        }
+    }, [keyword]);
 
     const langLibExpandButton = async () => {
         const response = await stmtCtx.getLibrariesList("slbeta5", LibraryKind.langLib);
@@ -69,7 +90,8 @@ export function LibraryBrowser() {
                 placeholder={"search"}
                 onChange={(e) => setKeyword(e.target.value)}
             />
-            {<LibrariesList libraries={libraries} />}
+            {keyword === '' && <LibrariesList libraries={libraries} />}
+            {keyword !== '' && <FunctionsList functions={functions} />}
         </div>
     );
 }

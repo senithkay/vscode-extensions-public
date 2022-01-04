@@ -49,7 +49,10 @@ export function AddRespondForm(props: RespondFormProps) {
         api: {
             ls: { getExpressionEditorLangClient },
             code: { modifyDiagram },
-            library: { getLibrariesList }
+            library: {
+                getLibrariesList,
+                getLibrariesData
+            }
         }
     } = useContext(Context);
     const { config, formArgs, onCancel, onSave, onWizardClose } = props;
@@ -176,7 +179,8 @@ export function AddRespondForm(props: RespondFormProps) {
             currentFile,
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
-            getLibrariesList
+            getLibrariesList,
+            getLibrariesData
         }
     );
     const fieilTypes = [

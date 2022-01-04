@@ -4,6 +4,7 @@ import {
     DiagramEditorLangClientInterface,
     LibraryDocResponse,
     LibraryKind,
+    LibrarySearchResponse,
     PerformanceAnalyzerGraphResponse,
     PerformanceAnalyzerRealtimeResponse
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -42,6 +43,7 @@ export interface EditorAPI {
     runCommand: (command: PALETTE_COMMANDS, args: any[]) => Promise<boolean>;
     sendTelemetryEvent: (event: LowcodeEvent) => Promise<void>;
     getLibrariesList: (version: string, kind?: LibraryKind) => Promise<LibraryDocResponse | undefined>;
+    getLibrariesData: (version: string) => Promise<LibrarySearchResponse | undefined>;
 }
 
 export enum PALETTE_COMMANDS {
@@ -57,7 +59,8 @@ export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
 
     const { getFileContent, updateFileContent, gotoSource, getPFSession,
             showPerformanceGraph, getPerfDataFromChoreo, sendTelemetryEvent, showMessage, resolveMissingDependency,
-            resolveMissingDependencyByCodeAction, runCommand, getLibrariesList, ...restProps } = props;
+            resolveMissingDependencyByCodeAction, runCommand, getLibrariesList, getLibrariesData, ...restProps
+    } = props;
     const [state, setState] = React.useState<EditorState>(restProps);
 
     React.useEffect(() => {
@@ -81,6 +84,7 @@ export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
                     runCommand={runCommand}
                     sendTelemetryEvent={sendTelemetryEvent}
                     getLibrariesList={getLibrariesList}
+                    getLibrariesData={getLibrariesData}
                     panX="-30"
                     panY="0"
                     scale="0.9"

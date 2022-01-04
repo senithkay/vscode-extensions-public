@@ -45,7 +45,10 @@ export function AddReturnForm(props: ReturnFormProps) {
         api: {
             ls: { getExpressionEditorLangClient },
             code: { modifyDiagram },
-            library: { getLibrariesList }
+            library: {
+                getLibrariesList,
+                getLibrariesData
+            }
         }
     } = useContext(Context);
     const { config, formArgs, onCancel, onSave, onWizardClose } = props;
@@ -129,7 +132,8 @@ export function AddReturnForm(props: ReturnFormProps) {
             currentFile,
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
-            getLibrariesList
+            getLibrariesList,
+            getLibrariesData
         }
     );
 
