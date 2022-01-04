@@ -325,9 +325,21 @@ export const useStatementEditorStyles = makeStyles(() =>
         libraryBlock: {
             position: 'relative',
             top: '5%',
-            height: '85%',
+            height: '80%',
             overflowY: 'scroll',
             overflowX: 'hidden'
+        },
+        librarySearchBox: {
+            position: 'relative',
+            top: '5%',
+            height: '32px',
+            width: '304px',
+            border: '1px #E0E3E9',
+            borderRadius: '5px',
+            backgroundColor: '#FFFFFF',
+            boxShadow: 'inset 0 0 0 1px #DEE0E7, inset 0 2px 1px 0 rgba(0,0,0,0.07), 0 0 0 0 rgba(50,50,77,0.07)',
+            color: '#CBCEDB',
+            textIndent: '5px'
         }
     }),
 );

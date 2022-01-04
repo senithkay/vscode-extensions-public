@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
+// tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext, useState } from "react";
 
 import { LibraryKind } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -23,6 +23,7 @@ export function LibraryBrowser() {
     const statementEditorClasses = useStatementEditorStyles();
     const stmtCtx = useContext(StatementEditorContext);
 
+    const [keyword, setKeyword] = useState('');
     const [libraries, setLibraries] = useState([]);
 
     const langLibExpandButton = async () => {
@@ -61,6 +62,13 @@ export function LibraryBrowser() {
                     Standard
                 </button>
             </div>
+            <input
+                className={statementEditorClasses.librarySearchBox}
+                key="random1"
+                value={keyword}
+                placeholder={"search"}
+                onChange={(e) => setKeyword(e.target.value)}
+            />
             {<LibrariesList libraries={libraries} />}
         </div>
     );
