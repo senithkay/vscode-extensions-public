@@ -158,12 +158,3 @@ async function getModifiedStatement(
     }, getLangClient);
     return partialST.source;
 }
-
-export async function getLibrariesList(
-        version: string,
-        getLangClient: () => Promise<ExpressionEditorLangClientInterface>): Promise<LibraryDocResponse> {
-
-    const langClient: ExpressionEditorLangClientInterface = await getLangClient();
-    const resp = await langClient.getLibrariesList({version});
-    return resp;
-}

@@ -29,6 +29,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             display: 'flex',
             borderBottom: '1px solid #e6e7ec',
             minHeight: '50vh',
+            height: '60vh'
         },
         sugessionsMainWrapper: {
             backgroundColor: '#f9fafc',
@@ -43,7 +44,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             padding: theme.spacing(1.5),
             borderRight: '1px solid #e6e7ec'
         },
-        projectSugessionsWrapper: {
+        LibraryBrowsingWrapper: {
             width: '50%',
         },
         statementExpressionTitle: {
@@ -111,11 +112,14 @@ export const useStatementEditorStyles = makeStyles(() =>
             top: '2%',
             bottom: '10%'
         },
-        rightPane: {
+        LibraryBrowser: {
             display: 'flex',
             flexDirection: 'column',
             width: 'auto%',
-            height: '100%'
+            height: '100%',
+            position: 'relative',
+            top: '10px',
+            marginLeft: '5%'
         },
         leftPane: {
             display: 'flex',
@@ -270,32 +274,15 @@ export const useStatementEditorStyles = makeStyles(() =>
             margin: '4px 2px',
             borderRadius: '50%'
         },
-        rhsComponentLabel: {
+        LibraryDropdown: {
             display: 'flex',
             flexDirection: 'row'
         },
         rhsComponent: {
+            position: 'relative',
+            top: '10px',
             width: '90%',
             marginLeft: '5%'
-        },
-        propertiesMenuBar: {
-            height: '10%'
-        },
-        libraryBrowser: {
-            height: '60%'
-        },
-        shortcutTab: {
-            boxSizing: 'border-box',
-            height: '100%',
-            width: '30%',
-            color: '#8D91A3',
-            fontSize: '13px',
-            letterSpacing: 0,
-            lineHeight: '14px',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            borderBottom: '1px solid #DCDEE4'
         },
         shortcutsDivider: {
             height: '1px',
@@ -336,7 +323,9 @@ export const useStatementEditorStyles = makeStyles(() =>
             flexDirection: 'row'
         },
         libraryBlock: {
-            height: '90%',
+            position: 'relative',
+            top: '5%',
+            height: '85%',
             overflowY: 'scroll',
             overflowX: 'hidden'
         }

@@ -21,7 +21,7 @@ import { StatementEditorContext } from "../../store/statement-editor-context";
 import { SuggestionsContext } from "../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../utils";
 import { Diagnostics } from "../Diagnostics";
-import { RightPane } from "../RightPane";
+import { LibraryBrowser } from "../LibraryBrowser";
 import { StatementRenderer } from "../StatementRenderer";
 import { useStatementEditorStyles } from "../styles";
 import { ExpressionSuggestions } from "../Suggestions/ExpressionSuggestions";
@@ -147,8 +147,8 @@ export function LeftPane(props: ModelProps) {
                         </div>
                     </div>
                 </div>
-                <div className={statementEditorClasses.projectSugessionsWrapper}>
-                    <RightPane />
+                <div className={statementEditorClasses.LibraryBrowsingWrapper}>
+                    <LibraryBrowser />
                 </div>
             </div>
         </div>
