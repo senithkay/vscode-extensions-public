@@ -20,16 +20,18 @@ import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { Form } from "../../DynamicConnectorForm";
 import { useStyles } from "../../DynamicConnectorForm/style";
+import { ExpressionInjectablesProps } from "../../FormGenerator";
 import { SelectDropdownWithButton } from "../DropDown/SelectDropdownWithButton";
 
 interface UnionProps {
     validate: (field: string, isInvalid: boolean) => void;
+    expressionInjectables?: ExpressionInjectablesProps;
     editPosition?: NodePosition;
 }
 
 export function Union(props: FormElementProps<UnionProps>) {
     const { model, customProps } = props;
-    const {validate, editPosition} = customProps;
+    const {validate, expressionInjectables, editPosition} = customProps;
     const classes = useStyles();
     const textLabel = model && model.displayName ? model.displayName : model.name;
 
@@ -76,6 +78,7 @@ export function Union(props: FormElementProps<UnionProps>) {
                         fields={selectedField.fields}
                         onValidate={validateForm}
                         key={selectedType}
+                        expressionInjectables={expressionInjectables}
                         editPosition={editPosition}
                     />
                 </div>
@@ -87,6 +90,7 @@ export function Union(props: FormElementProps<UnionProps>) {
                         fields={[selectedField]}
                         onValidate={validateForm}
                         key={selectedType}
+                        expressionInjectables={expressionInjectables}
                         editPosition={editPosition}
                     />
                 </div>

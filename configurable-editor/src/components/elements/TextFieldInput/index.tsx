@@ -42,7 +42,11 @@ export function TextFieldInput(props: TextFieldInputProps) {
     }
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setTextFieldValue(id, e.target.value);
+        let value = e.target.value;
+        if (type === "string") {
+            value = handleQuotes(value);
+        }
+        setTextFieldValue(id, value);
     };
 
     let fieldType: string = type;
@@ -56,7 +60,7 @@ export function TextFieldInput(props: TextFieldInputProps) {
             variant="outlined"
             placeholder={placeholder}
             fullWidth={true}
-            defaultValue={existingValue || null}
+            defaultValue={existingValue}
             type={fieldType}
             margin="none"
             onChange={handleChange}
@@ -65,4 +69,14 @@ export function TextFieldInput(props: TextFieldInputProps) {
             InputLabelProps={{ shrink: false }}
         />
     );
+}
+
+function handleQuotes(strValue: string): string {
+    const startChar = strValue.charAt(0);
+    const endChar = strValue.charAt(strValue.length - 1);
+
+    if ((startChar === "\"" && endChar === "\"") || (startChar === "\'" && endChar === "\'")) {
+        strValue = strValue.slice(1, -1);
+    }
+    return strValue;
 }

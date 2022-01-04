@@ -115,11 +115,8 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         initializedState = true;
     }
 
-    const [validSelectedType, setValidSelectedType] = useState(false);
     const [selectedType, setSelectedType] = useState(initialModelType);
-    const [validVarName, setValidVarName] = useState(false);
     const [varName, setVarName] = useState(variableName);
-    const [validExpresssionValue, setValidExpresssionValue] = useState(config.config !== "");
     const [variableExpression, setVariableExpression] = useState<string>(varExpression);
     const [initialized, setIsInitialized] = useState<boolean>(initializedState);
 
@@ -136,15 +133,15 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     }
 
     const validateExpression = (fieldName: string, isInvalid: boolean) => {
-        setValidExpresssionValue(!isInvalid);
+        // TODO Implement when validations are re-enabled
     };
 
     const validateVarName = (fieldName: string, isInvalid: boolean) => {
-        setValidVarName(!isInvalid);
+        // TODO Implement when validations are re-enabled
     };
 
     const validateVarType = (fieldName: string, isInvalid: boolean) => {
-        setValidSelectedType(!isInvalid);
+        // TODO Implement when validations are re-enabled
     };
 
     // Insight event to send when loading the component
@@ -288,7 +285,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         setSelectedType(partialModel.typedBindingPattern.typeDescriptor.source.trim())
         setVarName(partialModel.typedBindingPattern.bindingPattern.source.trim())
         setVariableExpression(partialModel.initializer.source.trim())
-        setValidExpresssionValue(false);
     }
 
     const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(

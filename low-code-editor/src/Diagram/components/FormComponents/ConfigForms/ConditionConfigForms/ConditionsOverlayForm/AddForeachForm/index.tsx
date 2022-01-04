@@ -308,7 +308,7 @@ export function AddForeachForm(props: ForeachProps) {
                 <div className={classes.formContentWrapper}>
                     <div className={classes.formCodeBlockWrapper}>
                         <div className={classes.formCodeExpressionWrapper}>
-                            <Typography variant='body2' className={classes.startTitleCode}>Foreach</Typography>
+                            <Typography variant='body2' className={classes.startTitleCode}>foreach</Typography>
                             <div className={classes.variableExpEditorWrapper}>
                                 {variableTypeInput}
                             </div>

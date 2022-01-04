@@ -325,7 +325,7 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
                 onSave={handleOnSave}
                 onCancel={onCancel}
                 validForm={(functionName.length > 0) && (isMainFunction || isFunctionNameValid)
-                    && !addingNewParam && validReturnType}
+                    && !addingNewParam && isValidReturnType}
             />
         </FormControl>
     );

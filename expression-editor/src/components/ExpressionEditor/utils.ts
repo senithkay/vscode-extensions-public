@@ -12,7 +12,7 @@
  */
 // tslint:disable: ordered-imports
 import { FunctionDefinition, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-import {  CompletionItemKind, Diagnostic, InsertTextFormat, Range  } from "vscode-languageserver-protocol";
+import {  CompletionItemKind as VSCodeCompletionItemKind, Diagnostic, InsertTextFormat, Range  } from "vscode-languageserver-protocol";
 import { ExpEditorExpandSvg, ExpEditorCollapseSvg, ConfigurableIconSvg } from "../../assets";
 
 import * as monaco from 'monaco-editor';
@@ -30,7 +30,8 @@ import {
     DIAGNOSTIC_MAX_LENGTH,
     SUGGEST_CAST_MAP,
     CONFIGURABLE_WIDGET_ID,
-    acceptedKind
+    acceptedKind,
+    rejectedKinds
 } from "./constants";
 import "./style.scss";
 import { ExpressionEditorHintProps, HintType } from "../ExpressionEditorHint";
@@ -295,7 +296,7 @@ export const transformFormFieldTypeToString = (model?: FormField, returnUndefine
                 const fieldTypeString = transformFormFieldTypeToString(field);
                 returnTypesList.push(fieldTypeString);
             });
-            return `map<${returnTypesList.join(',')}>${model.optional ? '?' : ''}`;
+            return `map<${returnTypesList.join(',')}>`;
         }
     } else if (model.typeName) {
         return model.typeName;
@@ -407,10 +408,17 @@ export function getRandomInt(max: number) {
     return Math.floor(Math.random() * Math.floor(max));
 }
 
-export function getFilteredDiagnostics(diagnostics: Diagnostic[], isCustomStatement: boolean) {
-    return diagnostics
+export function getFilteredDiagnostics(diagnostics: Diagnostic[], isCustomStatement: boolean, isStartWithSlash?: boolean) {
+    const selectedDiagnostics =  diagnostics
         .filter(diagnostic =>
             !IGNORED_DIAGNOSTIC_MESSAGES.includes(diagnostic.message.toString()) && diagnostic.severity === 1);
+
+    if (selectedDiagnostics.length && isStartWithSlash) {
+        if (selectedDiagnostics[0]?.code === "BCE0400") {
+            selectedDiagnostics[0].message = "resource path cannot begin with a slash"
+        }
+    }
+    return selectedDiagnostics;
 }
 
 
@@ -631,6 +639,91 @@ export const getHints = (
     }
 };
 
+
+export function translateCompletionItemKindToMonaco(kind: VSCodeCompletionItemKind) {
+    let monacoCompletionItemKind: monaco.languages.CompletionItemKind;
+    switch (kind) {
+        case VSCodeCompletionItemKind.Class:
+            monacoCompletionItemKind = monaco.languages.CompletionItemKind.Class
+            break;
+        case VSCodeCompletionItemKind.Color:
+            monacoCompletionItemKind = monaco.languages.CompletionItemKind.Color
+            break;
+        case VSCodeCompletionItemKind.Constant:
+            monacoCompletionItemKind = monaco.languages.CompletionItemKind.Constant
+            break;
+        case VSCodeCompletionItemKind.Constructor:
+            monacoCompletionItemKind = monaco.languages.CompletionItemKind.Constructor
+            break;
+        case VSCodeCompletionItemKind.Enum:
+            monacoCompletionItemKind = monaco.languages.CompletionItemKind.Enum
+            break;
+        case VSCodeCompletionItemKind.EnumMember:
+            monacoCompletionItemKind = monaco.languages.CompletionItemKind.EnumMember
+            break;
+        case VSCodeCompletionItemKind.Event:
+            monacoCompletionItemKind = monaco.languages.CompletionItemKind.Event
+            break;
+        case VSCodeCompletionItemKind.Field:
+            monacoCompletionItemKind = monaco.languages.CompletionItemKind.Field
+            break;
+            case VSCodeCompletionItemKind.File:
+            monacoCompletionItemKind = monaco.languages.CompletionItemKind.File
+            break;
+        case VSCodeCompletionItemKind.Folder:
+            monacoCompletionItemKind = monaco.languages.CompletionItemKind.Folder
+            break;
+        case VSCodeCompletionItemKind.Function:
+            monacoCompletionItemKind = monaco.languages.CompletionItemKind.Function
+            break;
+        case VSCodeCompletionItemKind.Interface:
+            monacoCompletionItemKind = monaco.languages.CompletionItemKind.Interface
+            break;
+        case VSCodeCompletionItemKind.Keyword:
+            monacoCompletionItemKind = monaco.languages.CompletionItemKind.Keyword
+            break;
+        case VSCodeCompletionItemKind.Method:
+            monacoCompletionItemKind = monaco.languages.CompletionItemKind.Method
+            break;
+        case VSCodeCompletionItemKind.Module:
+            monacoCompletionItemKind = monaco.languages.CompletionItemKind.Module
+            break;
+        case VSCodeCompletionItemKind.Operator:
+            monacoCompletionItemKind = monaco.languages.CompletionItemKind.Operator
+            break;
+        case VSCodeCompletionItemKind.Property:
+            monacoCompletionItemKind = monaco.languages.CompletionItemKind.Property
+            break;
+        case VSCodeCompletionItemKind.Reference:
+            monacoCompletionItemKind = monaco.languages.CompletionItemKind.Reference
+            break;
+        case VSCodeCompletionItemKind.Snippet:
+            monacoCompletionItemKind = monaco.languages.CompletionItemKind.Snippet
+            break;
+        case VSCodeCompletionItemKind.Struct:
+            monacoCompletionItemKind = monaco.languages.CompletionItemKind.Struct
+            break;
+        case VSCodeCompletionItemKind.Text:
+            monacoCompletionItemKind = monaco.languages.CompletionItemKind.Text
+            break;
+        case VSCodeCompletionItemKind.TypeParameter:
+            monacoCompletionItemKind = monaco.languages.CompletionItemKind.TypeParameter
+            break;
+        case VSCodeCompletionItemKind.Unit:
+            monacoCompletionItemKind = monaco.languages.CompletionItemKind.Unit
+            break;
+        case VSCodeCompletionItemKind.Value:
+            monacoCompletionItemKind = monaco.languages.CompletionItemKind.Value
+            break;
+        case VSCodeCompletionItemKind.Variable:
+            monacoCompletionItemKind = monaco.languages.CompletionItemKind.Variable
+            break;
+        default:
+            monacoCompletionItemKind = kind;
+    }
+    return monacoCompletionItemKind;
+}
+
 export const getStandardExpCompletions = async ({
     getExpressionEditorLangClient,
     langServerURL,
@@ -640,7 +733,8 @@ export const getStandardExpCompletions = async ({
     varType,
     varName,
     snippetTargetPosition,
-    disableFiltering
+    disableFiltering,
+    targetPosition
 }: GetExpCompletionsParams): Promise<monaco.languages.CompletionList> => {
     const langClient: ExpressionEditorLangClientInterface = await getExpressionEditorLangClient(langServerURL);
     const values: CompletionResponse[] = await langClient.getCompletion(completionParams);
@@ -662,46 +756,24 @@ export const getStandardExpCompletions = async ({
         const completionItemAI: monaco.languages.CompletionItem = {
             range: null,
             label: model.aiSuggestion,
-            kind: 1 as CompletionItemKind,
+            kind: 1 as VSCodeCompletionItemKind,
             insertText: model.aiSuggestion,
             sortText: '1'
         }
         completionItems.push(completionItemAI);
     }
-    if (varType === "boolean") {
-        const completionItemTemplate: monaco.languages.CompletionItem = {
-            range: null,
-            label: 'true',
-            kind: monaco.languages.CompletionItemKind.Keyword,
-            insertText: 'true',
-            insertTextRules: monaco.languages.CompletionItemInsertTextRule.KeepWhitespace,
-            sortText: '2'
-        }
-        const completionItemTemplate1: monaco.languages.CompletionItem = {
-            range: null,
-            label: 'false',
-            kind: monaco.languages.CompletionItemKind.Keyword,
-            insertText: 'false',
-            insertTextRules: monaco.languages.CompletionItemInsertTextRule.KeepWhitespace,
-            sortText: '2'
-        }
-        completionItems.push(completionItemTemplate);
-        completionItems.push(completionItemTemplate1);
-    }
 
     const filteredCompletionItem: CompletionResponse[] = disableFiltering ? values : values.filter((completionResponse: CompletionResponse) => (
-        (!completionResponse.kind || acceptedKind.includes(completionResponse.kind as CompletionItemKind)) &&
-        completionResponse.label !== varName &&
-        completionResponse.label !== model.aiSuggestion &&
-        !(completionResponse.label.includes("main") && completionResponse.detail === "Function")
+        !(completionResponse.kind && rejectedKinds.includes(completionResponse.kind as VSCodeCompletionItemKind)) &&
+        completionResponse.label !== varName
     ));
     const lsCompletionItems: monaco.languages.CompletionItem[] = filteredCompletionItem.map((completionResponse: CompletionResponse, order: number) => {
-        if (completionResponse.kind === CompletionItemKind.Field && completionResponse.additionalTextEdits) {
+        if (completionResponse.kind === VSCodeCompletionItemKind.Field && completionResponse.additionalTextEdits) {
             return {
                 range: null,
                 label: completionResponse.label,
                 detail: completionResponse.detail,
-                kind: completionResponse.kind as CompletionItemKind,
+                kind: translateCompletionItemKindToMonaco(completionResponse.kind),
                 insertText: completionResponse.insertText,
                 insertTextFormat: completionResponse.insertTextFormat as InsertTextFormat,
                 insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
@@ -710,8 +782,10 @@ export const getStandardExpCompletions = async ({
                 command: {
                     id: monacoRef.current.editor.addCommand(0, (_, args: TextEdit[]) => {
                         if (args.length > 0) {
-                            const startColumn = args[0].range.start.character - snippetTargetPosition + 2
-                            const endColumn = args[0].range.end.character - snippetTargetPosition + 2
+                            const startColumn = args[0].range.start.character - snippetTargetPosition -
+                                targetPosition.startColumn + 2;
+                            const endColumn = args[0].range.end.character - snippetTargetPosition -
+                                targetPosition.startColumn + 2;
                             const edit: monaco.editor.IIdentifiedSingleEditOperation[] = [{
                                 text: args[0].newText,
                                 range: new monaco.Range(1, startColumn, 1, endColumn)
@@ -728,7 +802,7 @@ export const getStandardExpCompletions = async ({
                 range: null,
                 label: completionResponse.label,
                 detail: completionResponse.detail,
-                kind: completionResponse.kind as CompletionItemKind,
+                kind: translateCompletionItemKindToMonaco(completionResponse.kind as VSCodeCompletionItemKind),
                 insertText: completionResponse.insertText,
                 insertTextFormat: completionResponse.insertTextFormat as InsertTextFormat,
                 insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
@@ -745,4 +819,12 @@ export const getStandardExpCompletions = async ({
         suggestions: completionItems
     };
     return completionList;
+}
+
+export function withQuotes(fields: string[]) {
+    return fields?.map(field => {
+        if (field && field.trim() !== ""){
+            return `"${field.trim().replaceAll('"', '')}"`;
+        }
+    });
 }

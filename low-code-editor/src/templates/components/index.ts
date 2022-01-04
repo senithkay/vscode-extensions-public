@@ -7,20 +7,20 @@ export default {
 foreach {{{ TYPE }}} {{{ VARIABLE }}} in {{{ COLLECTION }}} {
 
 }`,
-    IF_STATEMENT_CONDITION: '({{{ CONDITION }}})',
+    IF_STATEMENT_CONDITION: '{{{ CONDITION }}}',
     IF_STATEMENT: `
-if ({{{ CONDITION }}}) {
+if {{{ CONDITION }}} {
 
 } else {
 
 }`,
 
     IF_CONDITION: `
-if ({{{ CONDITION }}}) {
+if {{{ CONDITION }}} {
 
 `,
     ELSE_IF_CONDITION: `
-} else if ({{{ CONDITION }}}) {
+} else if {{{ CONDITION }}} {
 
 `,
     ELSE_STATEMENT: `

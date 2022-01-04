@@ -1,4 +1,4 @@
-import { createSortText, GetExpCompletionsParams } from "@wso2-enterprise/ballerina-expression-editor";
+import { createSortText, GetExpCompletionsParams, translateCompletionItemKindToMonaco } from "@wso2-enterprise/ballerina-expression-editor";
 import { CompletionResponse, ExpressionEditorLangClientInterface } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import * as monaco from 'monaco-editor';
 import { CompletionItemKind, InsertTextFormat } from "vscode-languageserver-protocol";
@@ -24,7 +24,7 @@ export const getVarTypeCompletions = (ignoredCompletions: string[] = [], additio
             range: null,
             label: completionResponse.label,
             detail: completionResponse.detail,
-            kind: completionResponse.kind as CompletionItemKind,
+            kind: translateCompletionItemKindToMonaco(completionResponse.kind as CompletionItemKind),
             insertText: completionResponse.insertText,
             insertTextFormat: completionResponse.insertTextFormat as InsertTextFormat,
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,

@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { createSortText, getInitialValue, transformFormFieldTypeToString } from "./ExpressionEditor/utils";
+import { createSortText, getInitialValue, transformFormFieldTypeToString, translateCompletionItemKindToMonaco, withQuotes } from "./ExpressionEditor/utils";
 import { truncateText } from "./ExpressionEditorHint/utils";
 
 export * from "./ExpressionEditorHint";
@@ -20,3 +20,5 @@ export { createSortText };
 export { transformFormFieldTypeToString };
 export { getInitialValue };
 export { truncateText };
+export { translateCompletionItemKindToMonaco };
+export { withQuotes };
