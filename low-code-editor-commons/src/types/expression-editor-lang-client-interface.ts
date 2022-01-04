@@ -93,17 +93,14 @@ export interface PartialSTModification {
     newCodeSnippet: string;
 }
 
-export interface LibraryDocRequest {
-    version?: string;
-}
-
 export interface LibraryDocResponse {
     librariesList: LibraryInfo[];
 }
 
 export interface LibraryInfo {
     id: string;
-    summary: string;
+    summary?: string;
+    description?: string;
     orgName: string;
     version: string;
     isDefaultModule: boolean;
@@ -112,6 +109,29 @@ export interface LibraryInfo {
 export enum LibraryKind {
     langLib = 'langLibs',
     stdLib = 'modules',
+}
+
+export interface LibrarySearchResponse {
+    modules: LibraryInfo[];
+    classes: ModuleProperty[];
+    functions: ModuleProperty[];
+    records: ModuleProperty[];
+    constants: ModuleProperty[];
+    errors: ModuleProperty[];
+    types: ModuleProperty[];
+    clients: ModuleProperty[];
+    listeners: ModuleProperty[];
+    annotations: ModuleProperty[];
+    objectTypes: ModuleProperty[];
+    enums: ModuleProperty[];
+}
+
+export interface ModuleProperty {
+    id: string;
+    description: string;
+    moduleId: string;
+    moduleOrgName: string;
+    moduleVersion: string;
 }
 
 export interface ExpressionEditorLangClientInterface extends BaseLangClientInterface {

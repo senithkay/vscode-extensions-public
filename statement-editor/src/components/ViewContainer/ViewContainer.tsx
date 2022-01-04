@@ -18,6 +18,7 @@ import {
     ExpressionEditorLangClientInterface,
     LibraryDocResponse,
     LibraryKind,
+    LibrarySearchResponse,
     PrimaryButton,
     SecondaryButton,
     STModification
@@ -36,6 +37,7 @@ export interface LowCodeEditorProps {
     getLangClient: () => Promise<ExpressionEditorLangClientInterface>,
     applyModifications: (modifications: STModification[]) => void,
     getLibrariesList: (version: string, kind?: LibraryKind) => Promise<LibraryDocResponse | undefined>,
+    getLibrariesData: (version: string) => Promise<LibrarySearchResponse | undefined>,
     currentFile: {
         content: string,
         path: string,
@@ -74,6 +76,7 @@ export function ViewContainer(props: ViewProps) {
         getLangClient,
         applyModifications,
         getLibrariesList,
+        getLibrariesData,
         currentFile
     } = props;
     const intl = useIntl();
@@ -197,6 +200,7 @@ export function ViewContainer(props: ViewProps) {
                         validateStatement={validateStatement}
                         applyModifications={applyModifications}
                         getLibrariesList={getLibrariesList}
+                        getLibrariesData={getLibrariesData}
                         currentFile={currentFile}
                         getLangClient={getLangClient}
                     >
