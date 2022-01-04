@@ -65,7 +65,8 @@ export function getTelemetryProperties(extension: BallerinaExtension, component:
         'ballerina.message': message,
         'scope': component,
         'idpId': process.env.VSCODE_CHOREO_USER_IDP_ID ? process.env.VSCODE_CHOREO_USER_IDP_ID : '',
-        'isWSO2User' : isWSO2User ? 'true' : 'false'
+        'isWSO2User' : isWSO2User ? 'true' : 'false',
+        'timeZone': Intl.DateTimeFormat().resolvedOptions().timeZone
     };
 }
 
