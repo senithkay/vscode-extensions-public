@@ -184,7 +184,7 @@ export const useStyles = makeStyles((theme: Theme) =>
                 color: "#1D2028 !important",
                 fontSize: "13px !important",
                 textTransform: 'capitalize',
-                lineHeight: 40,
+                lineHeight: '40px',
             },
             titleIcon: {
                 display: 'flex',
@@ -202,23 +202,23 @@ export const useStyles = makeStyles((theme: Theme) =>
                 fontSize: 13,
                 textTransform: 'capitalize',
                 display: 'inline-block',
-                lineHeight: 35,
+                lineHeight: '35px',
                 fontWeight: 300,
             },
             starLabelForRequired: {
                 padding: 0,
                 color: '#DC143C',
-                fontSize: 13,
+                fontSize: '13px',
                 textTransform: 'capitalize',
                 display: 'inline-block'
             },
             optionalLabel: {
-                paddingRight: 5,
+                paddingRight: '5px',
                 color: '#CBCEDB',
-                fontSize: 12,
+                fontSize: '12px',
                 textTransform: 'capitalize',
                 display: 'inline-block',
-                lineHeight: 40,
+                lineHeight: '40px',
                 marginBottom: '0.06rem',
                 marginLeft: '0.25rem',
                 marginTop: '0.094375rem'
@@ -228,7 +228,7 @@ export const useStyles = makeStyles((theme: Theme) =>
                 height: "auto",
                 width: "100%",
                 border: "1px solid #DEE0E7",
-                borderRadius: 6,
+                borderRadius: '6px',
                 backgroundColor: "#FFF",
                 padding: "0.5rem 1rem 1rem",
                 "& .MuiInputBase-root": {
@@ -243,7 +243,7 @@ export const useStyles = makeStyles((theme: Theme) =>
                 height: "auto",
                 width: "100%",
                 border: "1px solid #DEE0E7",
-                borderRadius: 6,
+                borderRadius: '6px',
                 backgroundColor: "#FFF",
                 padding: "0.5rem 1rem 1rem",
                 marginTop: "0.5rem !important",
@@ -413,10 +413,10 @@ export const useStyles = makeStyles((theme: Theme) =>
                 fontSize: 12,
             },
             emailFormTo: {
-                marginTop: 0
+                marginTop: '0px'
             },
             emailFormSubject: {
-                marginTop: 24
+                marginTop: '24px'
             },
             unionDropdown: {
                 marginTop: '0 !important',
@@ -477,7 +477,7 @@ export const useStyles = makeStyles((theme: Theme) =>
                 backgroundColor: '#fff !important',
                 width: '12px !important',
                 height: '12px !important',
-                padding: 13,
+                padding: '13px',
                 marginLeft: '1rem',
                 marginTop: '0.25rem'
             },
@@ -485,7 +485,7 @@ export const useStyles = makeStyles((theme: Theme) =>
                 backgroundColor: '#fff !important',
                 width: '12px !important',
                 height: '12px !important',
-                padding: 13,
+                padding: '13px',
                 marginLeft: '1rem',
                 position: 'relative',
                 top: -18,
@@ -502,7 +502,7 @@ export const useStyles = makeStyles((theme: Theme) =>
                 backgroundColor: '#fff !important',
                 width: '12px !important',
                 height: '12px !important',
-                padding: 13,
+                padding: '13px',
                 marginLeft: '1rem',
                 position: 'relative',
                 top: -18,
@@ -553,13 +553,13 @@ export const useStyles = makeStyles((theme: Theme) =>
             },
             suggestionsWrapper: {
                 display: 'flex',
-                marginTop: 4
+                marginTop: '4px'
             },
             suggestionsIcon: {
-                marginRight: 6,
-                marginTop: 3,
-                height: 20,
-                width: 20
+                marginRight: '6px',
+                marginTop: '3px',
+                height: '20px',
+                width: '20px'
             },
             suggestionsText: {
                 fontSize: '13px !important',
@@ -586,8 +586,8 @@ export const useStyles = makeStyles((theme: Theme) =>
             suggestionsTextCodeSnippet: {
                 backgroundColor: "#eff1f5",
                 color: "#526acf",
-                fontSize: 12,
-                padding: 5
+                fontSize: '12px',
+                padding: '5px'
             },
             pre: {
                 margin: 0,
