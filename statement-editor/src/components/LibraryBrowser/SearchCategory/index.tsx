@@ -26,6 +26,7 @@ interface SearchCategoryProps {
 
 export function SearchCategory(props: SearchCategoryProps) {
     const statementEditorClasses = useStatementEditorStyles();
+    const { label, searchResult } = props;
 
     return (
         <div className={statementEditorClasses.libraryElementBlock}>
@@ -35,11 +36,16 @@ export function SearchCategory(props: SearchCategoryProps) {
                     statementEditorClasses.libraryElementBlockLabel
                 )}
             >
-                {props.label}
+                {label}
             </div>
             <div className={statementEditorClasses.libraryElementBlockContent}>
-                {props.searchResult.map((property: ModuleProperty, index: number) => (
-                    <ModuleElement name={property.id} moduleId={property.moduleId} key={index} />
+                {searchResult.map((property: ModuleProperty, index: number) => (
+                    <ModuleElement
+                        name={property.id}
+                        moduleId={property.moduleId}
+                        key={index}
+                        isFunction={label === 'Functions'}
+                    />
                 ))}
             </div>
             <div className={statementEditorClasses.propertyDivider} />

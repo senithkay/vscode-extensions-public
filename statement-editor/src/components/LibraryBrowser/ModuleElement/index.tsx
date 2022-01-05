@@ -10,23 +10,41 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from 'react';
+import React, { useContext } from 'react';
 
+import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { useStatementEditorStyles } from "../../styles";
 
 interface ModuleElementProps {
     name: string,
-    moduleId: string
+    moduleId: string,
+    key: number,
+    isFunction: boolean
 }
 
 export function ModuleElement(props: ModuleElementProps) {
     const statementEditorClasses = useStatementEditorStyles();
+    const { name, moduleId, key, isFunction } = props;
+
+    const {
+        modelCtx: {
+            currentModel,
+            updateModel
+        }
+    } = useContext(StatementEditorContext);
+
+    const onClickOnModuleElement = () => {
+        const content = isFunction ? `${moduleId}:${name}(EXPRESSION)` : `${moduleId}:${name}`;
+        updateModel(content, currentModel.model.position);
+    }
 
     return (
         <button
             className={statementEditorClasses.libraryResourceButton}
+            key={key}
+            onClick={onClickOnModuleElement}
         >
-            {`${props.moduleId}:${props.name}`}
+            {`${moduleId}:${name}`}
         </button>
     );
 }
