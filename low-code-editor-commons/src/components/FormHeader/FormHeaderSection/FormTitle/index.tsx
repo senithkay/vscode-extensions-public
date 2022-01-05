@@ -41,7 +41,7 @@ export function FormTitle(props: FormTitleProps) {
                 </Typography>
             </div>
             {/* TODO: Uncomment the below line to display the statement editor toggle (Disabled for Dec 15th release)*/}
-            {/*{statementEditor && <StatementEditorButton handleChange={handleStmtEditorToggle} checked={toggleChecked} />}*/}
+            {statementEditor && <StatementEditorButton handleChange={handleStmtEditorToggle} checked={toggleChecked} />}
         </div>
     );
 }
