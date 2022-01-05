@@ -12,14 +12,18 @@
  */
 import React from 'react';
 
+import { useStatementEditorStyles } from "../../styles";
+
 interface LibraryProps {
     name: string
 }
 
 export function Library(props: LibraryProps) {
+    const statementEditorClasses = useStatementEditorStyles();
+
     return (
-        <li>
-            <a href={""}>{props.name}</a>
-        </li>
+        <div>
+            <button className={statementEditorClasses.libraryListButton}>{props.name}</button>
+        </div>
     );
 }

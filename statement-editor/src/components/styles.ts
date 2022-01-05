@@ -388,6 +388,14 @@ export const useStatementEditorStyles = makeStyles(() =>
             height: '80%',
             overflowY: 'scroll',
             overflowX: 'hidden'
+        },
+        libraryListButton: {
+            border: 'none',
+            backgroundColor: '#FFF',
+            color: '#5567D5',
+            '&:hover': {
+                color: '#3a479c'
+            },
         }
     }),
 );
