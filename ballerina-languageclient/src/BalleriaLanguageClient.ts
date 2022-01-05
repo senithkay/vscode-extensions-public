@@ -32,7 +32,7 @@ export class BalleriaLanguageClient implements IBallerinaLangClient {
     private _diagnosticsReady: any = null;
     private _diagnosticsError: any = null;
 
-    // constructor 
+    // constructor
     public constructor(connection: LSConnection) {
         this._lsConnection = connection;
         this._id = 1;

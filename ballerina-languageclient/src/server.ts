@@ -2,6 +2,7 @@
 import { StdioConnection } from "./StdioConnection";
 import { Server } from "ws";
 import { toSocket } from "vscode-ws-jsonrpc";
+// tslint:disable-next-line: no-submodule-imports
 import * as serverRPC from "vscode-ws-jsonrpc/lib/server";
 
 const port = 9095;
@@ -20,7 +21,7 @@ export function startBallerinaLS() {
         serverRPC.forward(clientConnection, serverConnection);
 
         stdioConnection.getChildProcess().on("exit", () => {
-            //process.exit(0);
+            // process.exit(0);
         })
 
         socket.onclose = () => {
