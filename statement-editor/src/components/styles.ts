@@ -326,7 +326,7 @@ export const useStatementEditorStyles = makeStyles(() =>
         libraryBlock: {
             position: 'relative',
             top: '5%',
-            height: '80%',
+            height: '75%',
             overflowY: 'scroll',
             overflowX: 'hidden'
         },
@@ -372,6 +372,13 @@ export const useStatementEditorStyles = makeStyles(() =>
             lineHeight: '12px',
             paddingTop: '10px',
             paddingBottom: '10px'
+        },
+        libraryElementBlock: {
+            position: 'relative',
+            top: '5%',
+            maxHeight: '20vh',
+            overflowY: 'scroll',
+            overflowX: 'hidden'
         }
     }),
 );

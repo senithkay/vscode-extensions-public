@@ -13,27 +13,24 @@
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
+import { ModuleProperty } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+
 import { useStatementEditorStyles } from "../../styles";
-import { Function } from "../Function";
+import { ModuleElement } from "../ModuleElement";
 
-interface FunctionInfo {
-    id: string,
-    description: string,
-    moduleId: string
+interface SearchCategoryProps {
+    label: string,
+    searchResult: ModuleProperty[]
 }
 
-interface FunctionsListProps {
-    functions: FunctionInfo[]
-}
-
-export function FunctionsList(props: FunctionsListProps) {
+export function SearchCategory(props: SearchCategoryProps) {
     const statementEditorClasses = useStatementEditorStyles();
 
     return (
-        <div className={statementEditorClasses.libraryBlock}>
-            <div className={statementEditorClasses.librarySearchSubHeader}>Functions</div>
-            {props.functions.map((funcInfo: FunctionInfo, index: number) => (
-                <Function name={funcInfo.id} moduleId={funcInfo.moduleId} key={index} />
+        <div className={statementEditorClasses.libraryElementBlock}>
+            <div className={statementEditorClasses.librarySearchSubHeader}>{props.label}</div>
+            {props.searchResult.map((property: ModuleProperty, index: number) => (
+                <ModuleElement name={property.id} moduleId={property.moduleId} key={index} />
             ))}
             <div className={statementEditorClasses.propertyDivider} />
         </div>
