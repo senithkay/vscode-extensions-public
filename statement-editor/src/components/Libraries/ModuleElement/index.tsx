@@ -14,12 +14,12 @@ import React from 'react';
 
 import { useStatementEditorStyles } from "../../styles";
 
-interface FunctionProps {
+interface ModuleElementProps {
     name: string,
-    moduleId: string,
+    moduleId: string
 }
 
-export function Function(props: FunctionProps) {
+export function ModuleElement(props: ModuleElementProps) {
     const statementEditorClasses = useStatementEditorStyles();
 
     return (

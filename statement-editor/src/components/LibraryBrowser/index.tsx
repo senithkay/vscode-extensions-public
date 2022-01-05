@@ -16,8 +16,8 @@ import React, { useContext, useEffect, useState } from "react";
 import { LibraryKind, LibrarySearchResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { FunctionsList } from "../Libraries/FunctionsList";
 import { LibrariesList } from "../Libraries/LibrariesList";
+import { SearchResult } from "../Libraries/SearchResult";
 import { useStatementEditorStyles } from "../styles";
 
 import { filterByKeyword } from "./utils";
@@ -29,7 +29,7 @@ export function LibraryBrowser() {
     const [keyword, setKeyword] = useState('');
     const [libraryData, setLibraryData] = useState<LibrarySearchResponse>();
     const [libraries, setLibraries] = useState([]);
-    const [functions, setFunctions] = useState([]);
+    const [searchResult, setSearchResult] = useState<LibrarySearchResponse>();
 
     useEffect(() => {
         (async () => {
@@ -42,8 +42,8 @@ export function LibraryBrowser() {
 
     useEffect(() => {
         if (libraryData) {
-            const f = filterByKeyword(libraryData, keyword);
-            setFunctions(f);
+            const f = filterByKeyword(libraryData, keyword)
+            setSearchResult(f);
         }
     }, [keyword]);
 
@@ -91,7 +91,7 @@ export function LibraryBrowser() {
                 onChange={(e) => setKeyword(e.target.value)}
             />
             {keyword === '' && <LibrariesList libraries={libraries} />}
-            {keyword !== '' && <FunctionsList functions={functions} />}
+            {keyword !== '' && searchResult && <SearchResult {...searchResult} />}
         </div>
     );
 }
