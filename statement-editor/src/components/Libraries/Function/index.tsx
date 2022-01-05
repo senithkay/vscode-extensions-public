@@ -24,7 +24,7 @@ export function Function(props: FunctionProps) {
 
     return (
         <button
-            className={statementEditorClasses.suggestionButton}
+            className={statementEditorClasses.libraryResourceButton}
         >
             {`${props.moduleId}:${props.name}`}
         </button>
