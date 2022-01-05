@@ -31,11 +31,11 @@ export function FunctionsList(props: FunctionsListProps) {
 
     return (
         <div className={statementEditorClasses.libraryBlock}>
-            <ul>
-                {props.functions.map((funcInfo: FunctionInfo, index: number) => (
-                    <Function name={funcInfo.id} moduleId={funcInfo.moduleId} key={index} />
-                ))}
-            </ul>
+            <div className={statementEditorClasses.librarySearchSubHeader}>Functions</div>
+            {props.functions.map((funcInfo: FunctionInfo, index: number) => (
+                <Function name={funcInfo.id} moduleId={funcInfo.moduleId} key={index} />
+            ))}
+            <div className={statementEditorClasses.propertyDivider} />
         </div>
     );
 }

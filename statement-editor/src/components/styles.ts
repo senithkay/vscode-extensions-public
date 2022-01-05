@@ -284,10 +284,11 @@ export const useStatementEditorStyles = makeStyles(() =>
             width: '90%',
             marginLeft: '5%'
         },
-        shortcutsDivider: {
+        propertyDivider: {
             height: '1px',
-            marginLeft: '5%',
-            width: '90%',
+            marginLeft: '2%',
+            marginTop: '2%',
+            width: '94%',
             opacity: 0.52,
             backgroundColor: '#DCDEE4'
         },
@@ -340,6 +341,37 @@ export const useStatementEditorStyles = makeStyles(() =>
             boxShadow: 'inset 0 0 0 1px #DEE0E7, inset 0 2px 1px 0 rgba(0,0,0,0.07), 0 0 0 0 rgba(50,50,77,0.07)',
             color: '#CBCEDB',
             textIndent: '5px'
+        },
+        libraryResourceButton: {
+            boxSizing: 'border-box',
+            border: '1px solid #CBCEDB',
+            borderRadius: '4px',
+            fontFamily: 'inherit',
+            backgroundColor: 'rgba(255,255,255,0.5)',
+            marginLeft: '2%',
+            marginTop: '3%',
+            color: '#40404B',
+            fontSize: 11,
+            padding: '5px 10px',
+            letterSpacing: 0,
+            '&:hover': {
+                backgroundColor: '#8e9bdc',
+                color: 'white'
+            },
+            '&:disabled': {
+                backgroundColor: 'rgba(0,0,0,0.1)',
+                color: '#404040',
+            }
+        },
+        librarySearchSubHeader: {
+            height: '12px',
+            color: '#1D2028',
+            fontFamily: 'Gilmer,sans-serif',
+            fontSize: '11px',
+            letterSpacing: 0,
+            lineHeight: '12px',
+            paddingTop: '10px',
+            paddingBottom: '10px'
         }
     }),
 );
