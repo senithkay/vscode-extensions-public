@@ -377,6 +377,15 @@ export const useStatementEditorStyles = makeStyles(() =>
             position: 'relative',
             top: '5%',
             maxHeight: '20vh',
+            display: 'flex',
+            flexDirection: 'column',
+        },
+        libraryElementBlockLabel: {
+            height: '10%',
+        },
+        libraryElementBlockContent: {
+            top: '10%',
+            height: '80%',
             overflowY: 'scroll',
             overflowX: 'hidden'
         }

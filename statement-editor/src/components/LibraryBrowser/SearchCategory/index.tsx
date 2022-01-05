@@ -14,6 +14,7 @@
 import React from 'react';
 
 import { ModuleProperty } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import classNames from "classnames";
 
 import { useStatementEditorStyles } from "../../styles";
 import { ModuleElement } from "../ModuleElement";
@@ -28,10 +29,19 @@ export function SearchCategory(props: SearchCategoryProps) {
 
     return (
         <div className={statementEditorClasses.libraryElementBlock}>
-            <div className={statementEditorClasses.librarySearchSubHeader}>{props.label}</div>
-            {props.searchResult.map((property: ModuleProperty, index: number) => (
-                <ModuleElement name={property.id} moduleId={property.moduleId} key={index} />
-            ))}
+            <div
+                className={classNames(
+                    statementEditorClasses.librarySearchSubHeader,
+                    statementEditorClasses.libraryElementBlockLabel
+                )}
+            >
+                {props.label}
+            </div>
+            <div className={statementEditorClasses.libraryElementBlockContent}>
+                {props.searchResult.map((property: ModuleProperty, index: number) => (
+                    <ModuleElement name={property.id} moduleId={property.moduleId} key={index} />
+                ))}
+            </div>
             <div className={statementEditorClasses.propertyDivider} />
         </div>
     );
