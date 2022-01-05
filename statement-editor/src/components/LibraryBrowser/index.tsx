@@ -16,10 +16,10 @@ import React, { useContext, useEffect, useState } from "react";
 import { LibraryKind, LibrarySearchResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { LibrariesList } from "../Libraries/LibrariesList";
-import { SearchResult } from "../Libraries/SearchResult";
 import { useStatementEditorStyles } from "../styles";
 
+import { LibrariesList } from "./LibrariesList";
+import { SearchResult } from "./SearchResult";
 import { filterByKeyword } from "./utils";
 
 export function LibraryBrowser() {
