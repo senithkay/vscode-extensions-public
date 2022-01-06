@@ -56,13 +56,6 @@ export function ResourceHeader(props: ResourceHeaderProps) {
         const modification = removeStatement(model.position);
         modifyDiagram([modification]);
     };
-    const errorIcon = diagnosticMsgs?.severity === "ERROR" ? <ErrorIcon /> : <WarningIcon />;
-
-    const errorSnippet = {
-        diagnosticMsgs: diagnosticMsgs?.message,
-        code: sourceSnippet,
-        severity: diagnosticMsgs?.severity
-    }
 
     const onClickOpenInCodeView = () => {
         if (model) {
@@ -70,7 +63,16 @@ export function ResourceHeader(props: ResourceHeaderProps) {
             gotoSource({ startLine: position.startLine, startColumn: position.startColumn });
         }
     }
-    const openInCodeView = !isReadOnly && !isCodeEditorActive && !isWaitingOnWorkspace && model && model.position && onClickOpenInCodeView
+    const openInCodeView = !isReadOnly && !isCodeEditorActive &&
+                            !isWaitingOnWorkspace && model && model.position && onClickOpenInCodeView
+
+    const errorIcon = diagnosticMsgs?.severity === "ERROR" ? <ErrorIcon /> : <WarningIcon />;
+
+    const errorSnippet = {
+        diagnosticMsgs: diagnosticMsgs?.message,
+        code: sourceSnippet,
+        severity: diagnosticMsgs?.severity
+    }
 
     return (
         <HeaderWrapper
@@ -90,7 +92,13 @@ export function ResourceHeader(props: ResourceHeaderProps) {
             {diagnosticMsgs ?
                 (
                     <div>
-                        <Tooltip type="diagram-diagnostic" diagnostic={errorSnippet} placement="left" onClick={openInCodeView} arrow={true}>
+                        <Tooltip
+                            type="diagram-diagnostic"
+                            diagnostic={errorSnippet}
+                            placement="left"
+                            onClick={openInCodeView}
+                            arrow={true}
+                        >
                             <div className="error-icon-wrapper">
                                 {errorIcon}
                             </div>
