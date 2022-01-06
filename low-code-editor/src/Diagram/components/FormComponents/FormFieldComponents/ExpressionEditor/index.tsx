@@ -447,7 +447,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                                 context: { triggerKind: 1 },
                                 position: {
                                     character: targetPosition.startColumn + monacoRef.current.editor.getPosition().column - 1 + (snippetTargetPosition - 1),
-                                    line: targetPosition.startLine,
+                                    line: targetPosition.startLine + (expressionInjectables?.list?.length || 0),
                                 },
                             };
 
