@@ -13,10 +13,13 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { ResourceAccessorDefinition } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, ResourceAccessorDefinition } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
+import { ErrorIcon, WarningIcon } from "../../../../../../assets/icons";
+import Tooltip from "../../../../../../components/TooltipV2";
 import { useDiagramContext } from "../../../../../../Contexts/Diagram";
+import { getDiagnosticInfo } from "../../../../../utils";
 import { removeStatement } from "../../../../../utils/modification-util";
 import { HeaderActions } from "../../../HeaderActions";
 import { HeaderWrapper } from "../../../HeaderWrapper";
@@ -34,16 +37,40 @@ interface ResourceHeaderProps {
 export function ResourceHeader(props: ResourceHeaderProps) {
     const { model, onExpandClick, isExpanded } = props;
 
+    const sourceSnippet = model?.source;
+    const diagnostics = model?.typeData?.diagnostics;
+    const diagnosticMsgs = getDiagnosticInfo(diagnostics);
+
     const {
         api: {
-            code: { modifyDiagram },
+            code: { modifyDiagram, gotoSource },
         },
+        props: {
+            isCodeEditorActive,
+            isWaitingOnWorkspace,
+            isReadOnly,
+        }
     } = useDiagramContext();
 
     const onDeleteClick = () => {
         const modification = removeStatement(model.position);
         modifyDiagram([modification]);
     };
+    const errorIcon = diagnosticMsgs?.severity === "ERROR" ? <ErrorIcon /> : <WarningIcon />;
+
+    const errorSnippet = {
+        diagnosticMsgs: diagnosticMsgs?.message,
+        code: sourceSnippet,
+        severity: diagnosticMsgs?.severity
+    }
+
+    const onClickOpenInCodeView = () => {
+        if (model) {
+            const position: NodePosition = model.position as NodePosition;
+            gotoSource({ startLine: position.startLine, startColumn: position.startColumn });
+        }
+    }
+    const openInCodeView = !isReadOnly && !isCodeEditorActive && !isWaitingOnWorkspace && model && model.position && onClickOpenInCodeView
 
     return (
         <HeaderWrapper
@@ -60,6 +87,20 @@ export function ResourceHeader(props: ResourceHeaderProps) {
                 />
                 <ResourceOtherParams parameters={model.functionSignature.parameters} />
             </div>
+            {diagnosticMsgs ?
+                (
+                    <div>
+                        <Tooltip type="diagram-diagnostic" diagnostic={errorSnippet} placement="left" onClick={openInCodeView} arrow={true}>
+                            <div className="error-icon-wrapper">
+                                {errorIcon}
+                            </div>
+                        </Tooltip>
+                    </div>
+
+                )
+                : null
+            }
+
             <HeaderActions
                 model={model}
                 deleteText="Are you sure you want to delete resource?"
