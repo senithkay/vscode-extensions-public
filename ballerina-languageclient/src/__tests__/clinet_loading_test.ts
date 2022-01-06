@@ -8,7 +8,7 @@ describe('Test Ballerina Language Client Load', () => {
     let bls: BalleriaLanguageClient;
 
     beforeAll(() => {
-        bls = new BalleriaLanguageClient(new StdioConnection(mainFile));
+        bls = new BalleriaLanguageClient(new StdioConnection());
     });
 
     test('Open a file', () => {

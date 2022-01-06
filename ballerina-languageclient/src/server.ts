@@ -13,7 +13,8 @@ export function startBallerinaLS() {
     wsServer.on("connection", (socket: WebSocket) => {
         // start lang-server process
         const stdioConnection = new StdioConnection();
-
+        // tslint:disable-next-line: no-console
+        console.log("Established new connection")
 
         const serverConnection = serverRPC.createProcessStreamConnection(stdioConnection.getChildProcess());
         // forward websocket messages to stdio of ls process
