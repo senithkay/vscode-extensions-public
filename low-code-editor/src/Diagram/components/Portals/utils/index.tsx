@@ -565,12 +565,10 @@ export function getAllVariablesForAi(symbolInfo: STSymbolInfo): { [key: string]:
         variableNodes.forEach((variableNode) => {
             if (STKindChecker.isRequiredParam(variableNode)) {
                 // Handle function definition params
-                if (STKindChecker.isRequiredParam(variableNode)) {
-                    variableCollection[variableNode.paramName.value] = {
-                        "type": type,
-                        "position": 0,
-                        "isUsed": 0
-                    }
+                variableCollection[variableNode.paramName.value] = {
+                    "type": type,
+                    "position": 0,
+                    "isUsed": 0
                 }
             } else if (STKindChecker.isLocalVarDecl(variableNode)) {
                 const variableDef: LocalVarDecl = variableNode as LocalVarDecl;
