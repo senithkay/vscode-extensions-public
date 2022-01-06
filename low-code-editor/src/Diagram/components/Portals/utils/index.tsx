@@ -565,19 +565,20 @@ export function getAllVariablesForAi(symbolInfo: STSymbolInfo): { [key: string]:
         variableNodes.forEach((variableNode) => {
             if (STKindChecker.isRequiredParam(variableNode)) {
                 // Handle function definition params
-                variableCollection[(variableNode as RequiredParam).paramName.value] = {
+                variableCollection[variableNode.paramName.value] = {
                     "type": type,
                     "position": 0,
                     "isUsed": 0
                 }
             } else if (STKindChecker.isLocalVarDecl(variableNode)) {
                 const variableDef: LocalVarDecl = variableNode as LocalVarDecl;
-                const variable: CaptureBindingPattern = variableDef.typedBindingPattern.bindingPattern as
-                    CaptureBindingPattern;
-                variableCollection[variable.variableName.value] = {
-                    "type": type,
-                    "position": 0,
-                    "isUsed": 0
+                if (STKindChecker.isCaptureBindingPattern(variableDef.typedBindingPattern.bindingPattern) &&
+                    variableDef.typedBindingPattern.bindingPattern.variableName) {
+                    variableCollection[variableDef.typedBindingPattern.bindingPattern.variableName.value] = {
+                        "type": type,
+                        "position": 0,
+                        "isUsed": 0
+                    }
                 }
             }
         });
