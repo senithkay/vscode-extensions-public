@@ -39,15 +39,11 @@ export const getVarTypeCompletions = (ignoredCompletions: string[] = [], additio
 
     // This is to set the fist completion selected
     const initialSortedText = sortText.sort()[0];
-    const initialSortTextCompletions: monaco.languages.CompletionItem[] = [];
+    const sortedItems: string[] = [];
     completionItems.forEach(completion => {
         if (completion.sortText === initialSortedText) {
-            initialSortTextCompletions.push(completion);
+            sortedItems.push(completion.label as string);
         }
-    });
-    const sortedItems: string[] = [];
-    initialSortTextCompletions.forEach(completion => {
-        sortedItems.push(completion.label as string);
     });
     const sortedText = sortedItems.sort()[0];
     const initialItemCompletionIndex = completionItems.findIndex(item => item.label === sortedText);
