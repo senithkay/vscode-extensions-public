@@ -54,6 +54,7 @@ import {
 	getLibraryData,
 	getStandardLibrariesList,
 	LANG_LIB_LIST_CACHE,
+	LIB_BROWSING_BAL_VERSION,
 	LIBRARY_SEARCH_CACHE,
 	STD_LIB_LIST_CACHE
 } from "../documentation/library";
@@ -120,21 +121,21 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 	});
 
 	// Cache the lang lib list
-	getLanguageLibrariesList("slbeta5").then((libs) => {
+	getLanguageLibrariesList(LIB_BROWSING_BAL_VERSION).then((libs) => {
 		if (libs && libs.librariesList.length > 0) {
 			cachedLibrariesList.set(LANG_LIB_LIST_CACHE, libs);
 		}
 	});
 
 	// Cache the std lib list
-	getStandardLibrariesList("slbeta5").then((libs) => {
+	getStandardLibrariesList(LIB_BROWSING_BAL_VERSION).then((libs) => {
 		if (libs && libs.librariesList.length > 0) {
 			cachedLibrariesList.set(STD_LIB_LIST_CACHE, libs);
 		}
 	});
 
 	// Cache the library search data
-	getAllResources("slbeta5").then((data) => {
+	getAllResources(LIB_BROWSING_BAL_VERSION).then((data) => {
 		if (data && data.modules.length > 0) {
 			cachedSearchList.set(LIBRARY_SEARCH_CACHE, data);
 		}

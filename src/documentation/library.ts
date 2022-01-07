@@ -27,6 +27,8 @@ export const cachedLibraryData = new Map<string, LibraryDataResponse>();
 export const LANG_LIB_LIST_CACHE = "LANG_LIB_LIST_CACHE";
 export const STD_LIB_LIST_CACHE = "STD_LIB_LIST_CACHE";
 export const LIBRARY_SEARCH_CACHE = "LIBRARY_SEARCH_CACHE";
+// TODO: Use environment variable or determine some other way to fetch the required Ballerina version
+export const LIB_BROWSING_BAL_VERSION = "slbeta5";
 const options = {
     hostname: 'api.staging-central.ballerina.io',
     port: 443,
