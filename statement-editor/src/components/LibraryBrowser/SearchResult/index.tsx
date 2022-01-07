@@ -36,11 +36,16 @@ export function SearchResult(props: SearchResultProps) {
 
     return (
         <div className={statementEditorClasses.libraryBlock}>
-            <div className={statementEditorClasses.librarySearchSubHeader}>Modules</div>
-            {modules.map((library: LibraryInfo, index: number) => (
-                <Library libraryInfo={library} key={index} libraryBrowsingHandler={libraryBrowsingHandler} />
-            ))}
-            <div className={statementEditorClasses.propertyDivider} />
+            {modules.length > 0 && (
+                    <div>
+                        <div className={statementEditorClasses.librarySearchSubHeader}>Modules</div>
+                        {modules.map((library: LibraryInfo, index: number) => (
+                            <Library libraryInfo={library} key={index} libraryBrowsingHandler={libraryBrowsingHandler}/>
+                        ))}
+                        <div className={statementEditorClasses.propertyDivider}/>
+                    </div>
+                )
+            }
 
             {classes.length > 0 && <SearchCategory label='Classes' searchResult={classes} />}
             {functions.length > 0 && <SearchCategory label='Functions' searchResult={functions}/>}
