@@ -1,6 +1,6 @@
 import { doesNotMatch } from 'assert';
 import { BalleriaLanguageClient } from '../index';
-import { file } from '../messages';
+import { didOpenTextDocumentParams, file } from '../messages';
 import { StdioConnection } from '../StdioConnection';
 
 describe('Test Ballerina Language Client Load', () => {
@@ -13,7 +13,7 @@ describe('Test Ballerina Language Client Load', () => {
 
     test('Open a file', () => {
         return bls.onReady().then(() => {
-            return bls.didOpen(mainFile);
+            return bls.doOpen(mainFile);
         });
     });
 

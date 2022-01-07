@@ -1,73 +1,65 @@
 import React from 'react';
 
-import { ComponentStory } from '@storybook/react';
-import { Connector, STModification, STSymbolInfo, WizardType } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
-import { ModulePart, NodePosition, STNode } from '@wso2-enterprise/syntax-tree';
+import { storiesOf } from '@storybook/react';
+import { BalleriaLanguageClient, WSConnection } from '@wso2-enterprise/ballerina-languageclient';
 
-import { ConditionConfig } from '../Diagram/components/FormComponents/Types';
-import { LowcodeEvent, TriggerType } from '../Diagram/models';
-import { sizingAndPositioningST } from '../DiagramGenerator/generatorUtil';
+import { DiagramGenerator, DiagramGeneratorProps } from '../DiagramGenerator';
 
-import LowCodeEditor, { BlockViewState, LowCodeEditorProps } from './../index';
-import syntaxTree from "./data/st-raw.json"
+import bbesList from "./data/bbes.json";
 
-export default {
-  title: 'LowCodeEditor/Diagram',
-  component: LowCodeEditor,
-};
+const MOCK_SERVER_URL = "http://localhost:3000"
+const LANG_SERVER_URL = "ws://localhost:9095"
 
-const Template: ComponentStory<typeof LowCodeEditor> = (args) => <LowCodeEditor {...args} />;
+const langClientPromise = WSConnection.initialize(LANG_SERVER_URL).then((wsConnection: WSConnection) => {
+  return new BalleriaLanguageClient(wsConnection);
+});
 
-export const Diagram = Template.bind({});
+bbesList.forEach(bbe => {
+  const stories = storiesOf('Low Code Editor/Read Only BBEs/' + bbe.title, module);
+  bbe.samples.forEach((bbeItem) => {
+    stories.add(bbeItem.name, () => <DiagramGenerator {...getDiagramGeneratorProps("/usr/lib/ballerina/distributions/ballerina-slbeta6/examples/" + bbeItem.url + "/" + bbeItem.url.replaceAll('-', '_') + ".bal")} />)
+  });
+});
 
-// FIXME: Doing this to make main branch build pass so others can continue merging changes
-// on top of typed context
-const missingProps: any = {};
+async function getFileContent(filePath: string): Promise<string> {
+  return fetch(MOCK_SERVER_URL + "/file/" + encodeURIComponent(filePath))
+    .then(response => {
+      return response.text()
+    })
+}
 
-const lowCodeEditorArgs: LowCodeEditorProps = {
-  ...missingProps,
-  syntaxTree: sizingAndPositioningST(syntaxTree),
-  api: {
-    helpPanel: {
-        openConnectorHelp: (connector?: Partial<Connector>, method?: string) => undefined,
-    },
-    notifications: {
-        triggerErrorNotification: (msg: Error | string) => undefined,
-        triggerSuccessNotification: (msg: Error | string) => undefined,
-    },
-    ls: {
-        getDiagramEditorLangClient: () => {
-          return {} as any;
-        },
-        getExpressionEditorLangClient: () => {
-          return {} as any;
+function getDiagramGeneratorProps(filePath: string): DiagramGeneratorProps {
+  langClientPromise.then((blc) => {
+    getFileContent(filePath).then((text) => {
+      blc.didOpen({
+        textDocument: {
+          languageId: "ballerina",
+          text,
+          uri: `file://${filePath}`,
+          version: 1
         }
-    },
-    insights: {
-        onEvent: (event: LowcodeEvent) => undefined,
-    },
-    code: {
-        modifyDiagram: (mutations: STModification[], options?: any) => undefined,
-        onMutate: (type: string, options: any) => undefined,
-        setCodeLocationToHighlight: (position: NodePosition) => undefined,
-    },
-    // FIXME Doesn't make sense to take these methods below from outside
-    // Move these inside and get an external API for pref persistance
-    // against a unique ID (eg AppID) for rerender from prev state
-    panNZoom: {
-        pan: (panX: number, panY: number) => undefined,
-        fitToScreen: () => undefined,
-        zoomIn: () => undefined,
-        zoomOut: () => undefined,
-    },
-    configPanel: {
-        dispactchConfigOverlayForm: (type: string, targetPosition: NodePosition,
-                                     wizardType: WizardType, blockViewState?: BlockViewState, config?: ConditionConfig,
-                                     symbolInfo?: STSymbolInfo, model?: STNode) => undefined,
-        closeConfigOverlayForm: () => undefined,
-        configOverlayFormPrepareStart: () => undefined,
-        closeConfigPanel: () => undefined,
-    }
+      })
+    });
+  })
+  return {
+    langClientPromise,
+    scale: "1",
+    panX: "0",
+    panY: "0",
+    filePath,
+    startColumn: 0,
+    startLine: 0,
+    getFileContent,
+    getPFSession: () => Promise.resolve({} as any),
+    getPerfDataFromChoreo: () =>  Promise.resolve({} as any),
+    gotoSource: () => Promise.resolve(false),
+    lastUpdatedAt: (new Date()).toISOString(),
+    resolveMissingDependency: () => Promise.resolve(false),
+    resolveMissingDependencyByCodeAction: () => Promise.resolve(false),
+    runCommand: () => Promise.resolve(false),
+    sendTelemetryEvent: () => Promise.resolve(undefined),
+    showMessage: () => Promise.resolve(false),
+    showPerformanceGraph: () => Promise.resolve(false),
+    updateFileContent: () => Promise.resolve(false),
   }
-};
-Diagram.args = lowCodeEditorArgs;
+}

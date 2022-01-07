@@ -25,6 +25,8 @@
     "@types/jest": "^27.0.2",
     "@types/node": "^16.11.1",
     "@types/ws": "^8.2.1",
+    "cors": "^2.8.5",
+    "express": "^4.17.2",
     "jest": "^27.2.5",
     "prettier": "^2.4.1",
     "ts-jest": "^27.0.7",
@@ -34,6 +36,7 @@
   },
   "dependencies": {
     "@types/vscode": "^1.61.0",
+    "@wso2-enterprise/syntax-tree": "^1.0.0",
     "isomorphic-ws": "^4.0.1",
     "prepend-transform": "^0.0.1019",
     "vscode-jsonrpc": "^6.0.0",
@@ -47,5 +50,8 @@
   "license": "UNLICENSED",
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
+  },
+  "engines": {
+    "node": ">=0.10.3 <15"
   }
 }
