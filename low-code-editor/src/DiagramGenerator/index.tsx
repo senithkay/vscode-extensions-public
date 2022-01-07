@@ -257,7 +257,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                         const { parseSuccess, source, syntaxTree: newST } = await langClient.stModify({
                                             astModifications: await InsertorDelete(mutations),
                                             documentIdentifier: {
-                                                uri: `file://${filePath}`
+                                                uri: monaco.Uri.file(filePath).toString()
                                             }
                                         });
                                         let vistedSyntaxTree: STNode;

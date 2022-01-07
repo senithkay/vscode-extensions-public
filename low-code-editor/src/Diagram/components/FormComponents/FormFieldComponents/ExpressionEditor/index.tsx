@@ -46,6 +46,8 @@ import {
     EDITOR_MAXIMUM_CHARACTERS,
     EXPAND_EDITOR_MAXIMUM_CHARACTERS,
     EXPAND_WIDGET_ID,
+    EXPR_SCHEME,
+    FILE_SCHEME,
     TRIGGER_CHARACTERS,
 } from "./constants";
 import "./style.scss";
@@ -582,7 +584,8 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
 
         expressionEditorState.name = model.name;
         expressionEditorState.content = initContent;
-        expressionEditorState.uri = `expr://${currentFile.path}`;
+        expressionEditorState.uri = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
+
         const langClient: ExpressionEditorLangClientInterface = await getExpressionEditorLangClient();
         langClient.didChange({
             contentChanges: [
@@ -633,7 +636,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
 
         expressionEditorState.name = model.name;
         expressionEditorState.content = initContent;
-        expressionEditorState.uri = `expr://${currentFile.path}`;
+        expressionEditorState.uri = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
 
         const langClient: ExpressionEditorLangClientInterface = await getExpressionEditorLangClient();
         langClient.didOpen({
