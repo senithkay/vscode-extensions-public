@@ -69,7 +69,8 @@ export function AddForeachForm(props: ForeachProps) {
             code: { modifyDiagram },
             library: {
                 getLibrariesList,
-                getLibrariesData
+                getLibrariesData,
+                getLibraryData
             }
         }
     } = useContext(Context);
@@ -260,6 +261,7 @@ export function AddForeachForm(props: ForeachProps) {
             applyModifications: modifyDiagram,
             getLibrariesList,
             getLibrariesData,
+            getLibraryData
         }
     );
 

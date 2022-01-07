@@ -55,7 +55,8 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
             insights: { onEvent },
             library: {
                 getLibrariesList,
-                getLibrariesData
+                getLibrariesData,
+                getLibraryData
             }
         }
     } = useContext(Context);
@@ -138,7 +139,8 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
             getLibrariesList,
-            getLibrariesData
+            getLibrariesData,
+            getLibraryData
         }
     );
 

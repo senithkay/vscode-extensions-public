@@ -13,22 +13,32 @@
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
-import { LibraryInfo, LibrarySearchResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    LibraryDataResponse,
+    LibraryInfo,
+    LibrarySearchResponse
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { useStatementEditorStyles } from "../../styles";
 import { Library } from "../Library";
 import { SearchCategory } from "../SearchCategory";
 
-export function SearchResult(props: LibrarySearchResponse) {
+interface SearchResultProps {
+    librarySearchResponse: LibrarySearchResponse,
+    libraryBrowsingHandler: (libraryData: LibraryDataResponse) => void
+}
+
+export function SearchResult(props: SearchResultProps) {
     const statementEditorClasses = useStatementEditorStyles();
+    const { librarySearchResponse, libraryBrowsingHandler } = props;
     const { modules, classes, functions, records, constants, errors, types, clients, listeners, annotations,
-            objectTypes, enums } = props;
+            objectTypes, enums } = librarySearchResponse;
 
     return (
         <div className={statementEditorClasses.libraryBlock}>
             <div className={statementEditorClasses.librarySearchSubHeader}>Modules</div>
-            {modules.map((funcInfo: LibraryInfo, index: number) => (
-                <Library name={funcInfo.id} key={index} />
+            {modules.map((library: LibraryInfo, index: number) => (
+                <Library libraryInfo={library} key={index} libraryBrowsingHandler={libraryBrowsingHandler} />
             ))}
             <div className={statementEditorClasses.propertyDivider} />
 

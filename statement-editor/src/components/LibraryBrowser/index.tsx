@@ -13,7 +13,11 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext, useEffect, useState } from "react";
 
-import { LibraryKind, LibrarySearchResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    LibraryDataResponse,
+    LibraryKind,
+    LibrarySearchResponse
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { useStatementEditorStyles } from "../styles";
@@ -27,25 +31,30 @@ export function LibraryBrowser() {
     const stmtCtx = useContext(StatementEditorContext);
 
     const [keyword, setKeyword] = useState('');
-    const [libraryData, setLibraryData] = useState<LibrarySearchResponse>();
+    const [librariesSearchData, setLibrariesSearchData] = useState<LibrarySearchResponse>();
     const [libraries, setLibraries] = useState([]);
-    const [searchResult, setSearchResult] = useState<LibrarySearchResponse>();
+    const [filteredSearchData, setFilteredSearchData] = useState<LibrarySearchResponse>();
+    const [libraryData, setLibraryData] = useState<LibraryDataResponse>();
 
     useEffect(() => {
         (async () => {
             const response = await stmtCtx.getLibrariesData("slbeta5");
             if (response) {
-                setLibraryData(response);
+                setLibrariesSearchData(response);
             }
         })();
     }, []);
 
     useEffect(() => {
-        if (libraryData) {
-            const f = filterByKeyword(libraryData, keyword)
-            setSearchResult(f);
+        if (librariesSearchData) {
+            const filteredData = filterByKeyword(librariesSearchData, keyword)
+            setFilteredSearchData(filteredData);
         }
     }, [keyword]);
+
+    const libraryBrowsingHandler = (data: LibraryDataResponse) => {
+        setLibraryData(data)
+    }
 
     const langLibExpandButton = async () => {
         const response = await stmtCtx.getLibrariesList("slbeta5", LibraryKind.langLib);
@@ -90,8 +99,8 @@ export function LibraryBrowser() {
                 placeholder={"search"}
                 onChange={(e) => setKeyword(e.target.value)}
             />
-            {keyword === '' && <LibrariesList libraries={libraries} />}
-            {keyword !== '' && searchResult && <SearchResult {...searchResult} />}
+            {keyword === '' && <LibrariesList libraries={libraries} libraryBrowsingHandler={libraryBrowsingHandler} />}
+            {keyword !== '' && filteredSearchData && <SearchResult librarySearchResponse={filteredSearchData} libraryBrowsingHandler={libraryBrowsingHandler} />}
         </div>
     );
 }
