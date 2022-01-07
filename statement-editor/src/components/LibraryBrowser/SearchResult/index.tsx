@@ -25,7 +25,7 @@ import { SearchCategory } from "../SearchCategory";
 
 interface SearchResultProps {
     librarySearchResponse: LibrarySearchResponse,
-    libraryBrowsingHandler: (libraryData: LibraryDataResponse) => void
+    libraryBrowsingHandler?: (libraryData: LibraryDataResponse) => void
 }
 
 export function SearchResult(props: SearchResultProps) {
