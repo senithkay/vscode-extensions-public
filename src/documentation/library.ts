@@ -23,6 +23,7 @@ import { debug } from "../utils";
 
 export const cachedLibrariesList = new Map<string, LibrariesListResponse>();
 export const cachedSearchList = new Map<string, LibrarySearchResponse>();
+export const cachedLibraryData = new Map<string, LibraryDataResponse>();
 export const LANG_LIB_LIST_CACHE = "LANG_LIB_LIST_CACHE";
 export const STD_LIB_LIST_CACHE = "STD_LIB_LIST_CACHE";
 export const LIBRARY_SEARCH_CACHE = "LIBRARY_SEARCH_CACHE";
@@ -124,6 +125,41 @@ export function getAllResources(version: string): Promise<LibrarySearchResponse 
                     debug('Failed to fetch the library data');
                 } else {
                     return resolve(JSON.parse(body));
+                }
+            });
+        });
+
+        req.on('error', error => {
+            debug(error.message);
+            reject();
+        });
+
+        req.end();
+    });
+}
+
+export function getLibraryData(orgName: string, moduleName: string, version: string)
+    : Promise<LibraryDataResponse | undefined> {
+
+    return new Promise((resolve, reject) => {
+
+        if (cachedLibraryData.has(`${orgName}_${moduleName}_${version}`)) {
+            return resolve(cachedLibraryData.get(`${orgName}_${moduleName}_${version}`));
+        }
+
+        let body = '';
+        const req = https.request({ path: `/2.0/docs/${orgName}/${moduleName}/${version}`, ...options }, res => {
+            res.on('data', function (chunk) {
+                body = body + chunk;
+            });
+
+            res.on('end',function(){
+                if (res.statusCode !== 200) {
+                    debug(`Failed to fetch the library data for ${orgName}:${moduleName}`);
+                } else {
+                    const libraryData = JSON.parse(body);
+                    cachedLibraryData.set(`${orgName}_${moduleName}_${version}`, libraryData);
+                    return resolve(libraryData);
                 }
             });
         });

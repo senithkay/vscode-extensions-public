@@ -28,6 +28,7 @@ import {
 	ExtendedLangClient,
 	HTTP_CONNECTOR_LIST_CACHE,
 	LibrariesListResponse,
+	LibraryDataResponse,
 	LibraryKind, LibrarySearchResponse,
 	PerformanceAnalyzerGraphResponse,
 	PerformanceAnalyzerRealtimeResponse
@@ -50,6 +51,7 @@ import {
 	cachedSearchList,
 	getAllResources,
 	getLanguageLibrariesList,
+	getLibraryData,
 	getStandardLibrariesList,
 	LANG_LIB_LIST_CACHE,
 	LIBRARY_SEARCH_CACHE,
@@ -465,6 +467,12 @@ class DiagramPanel {
 				methodName: "getLibrariesData",
 				handler: async (args: any[]): Promise<LibrarySearchResponse | undefined> => {
 					return await getAllResources(args[0]);
+				}
+			},
+			{
+				methodName: "getLibraryData",
+				handler: async (args: any[]): Promise<LibraryDataResponse | undefined> => {
+					return await getLibraryData(args[0], args[1], args[2]);
 				}
 			}
 		];

@@ -353,7 +353,7 @@ export interface LibrarySearchResponse {
 }
 
 export interface LibraryDataResponse {
-    docsData: LibraryInfo[];
+    docsData: LibraryDocsData;
     searchData: LibrarySearchResponse;
 }
 
