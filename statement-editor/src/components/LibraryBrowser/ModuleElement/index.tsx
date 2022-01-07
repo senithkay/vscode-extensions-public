@@ -34,6 +34,7 @@ export function ModuleElement(props: ModuleElementProps) {
     } = useContext(StatementEditorContext);
 
     const onClickOnModuleElement = () => {
+        // TODO: Invoke the library endpont to get the exact parameters and return types for functions
         const content = isFunction ? `${moduleId}:${name}(EXPRESSION)` : `${moduleId}:${name}`;
         updateModel(content, currentModel.model.position);
     }
