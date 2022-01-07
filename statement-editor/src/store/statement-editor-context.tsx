@@ -36,6 +36,7 @@ export const StatementEditorContext = React.createContext({
     applyModifications: (modifications: STModification[]) => (undefined),
     getLibrariesList: (version: string, kind?: LibraryKind) => (Promise.resolve({} as any)),
     getLibrariesData: (version: string) => (Promise.resolve({} as any)),
+    getLibraryData: (orgName: string, moduleName: string, version: string) => (Promise.resolve({} as any)),
     currentFile: {
         content: "",
         path: "",
@@ -62,6 +63,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         validateStatement,
         getLibrariesList,
         getLibrariesData,
+        getLibraryData,
         ...restProps
     } = props;
 
@@ -81,6 +83,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                 },
                 getLibrariesList,
                 getLibrariesData,
+                getLibraryData,
                 ...restProps
             }}
         >

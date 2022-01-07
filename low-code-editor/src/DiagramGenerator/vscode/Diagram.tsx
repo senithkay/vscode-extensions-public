@@ -2,6 +2,7 @@ import * as React from "react";
 
 import {
     DiagramEditorLangClientInterface,
+    LibraryDataResponse,
     LibraryDocResponse,
     LibraryKind,
     LibrarySearchResponse,
@@ -44,6 +45,7 @@ export interface EditorAPI {
     sendTelemetryEvent: (event: LowcodeEvent) => Promise<void>;
     getLibrariesList: (version: string, kind?: LibraryKind) => Promise<LibraryDocResponse | undefined>;
     getLibrariesData: (version: string) => Promise<LibrarySearchResponse | undefined>;
+    getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse | undefined>;
 }
 
 export enum PALETTE_COMMANDS {
@@ -57,10 +59,9 @@ export type EditorProps = EditorState & EditorAPI;
 
 export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
 
-    const { getFileContent, updateFileContent, gotoSource, getPFSession,
-            showPerformanceGraph, getPerfDataFromChoreo, sendTelemetryEvent, showMessage, resolveMissingDependency,
-            resolveMissingDependencyByCodeAction, runCommand, getLibrariesList, getLibrariesData, ...restProps
-    } = props;
+    const { getFileContent, updateFileContent, gotoSource, getPFSession, showPerformanceGraph, getPerfDataFromChoreo,
+            sendTelemetryEvent, showMessage, resolveMissingDependency, resolveMissingDependencyByCodeAction,
+            runCommand, getLibrariesList, getLibrariesData, getLibraryData, ...restProps } = props;
     const [state, setState] = React.useState<EditorState>(restProps);
 
     React.useEffect(() => {
@@ -85,6 +86,7 @@ export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
                     sendTelemetryEvent={sendTelemetryEvent}
                     getLibrariesList={getLibrariesList}
                     getLibrariesData={getLibrariesData}
+                    getLibraryData={getLibraryData}
                     panX="-30"
                     panY="0"
                     scale="0.9"

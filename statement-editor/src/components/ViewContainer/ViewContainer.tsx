@@ -16,6 +16,7 @@ import { useIntl } from "react-intl";
 
 import {
     ExpressionEditorLangClientInterface,
+    LibraryDataResponse,
     LibraryDocResponse,
     LibraryKind,
     LibrarySearchResponse,
@@ -37,6 +38,7 @@ export interface LowCodeEditorProps {
     applyModifications: (modifications: STModification[]) => void,
     getLibrariesList: (version: string, kind?: LibraryKind) => Promise<LibraryDocResponse | undefined>,
     getLibrariesData: (version: string) => Promise<LibrarySearchResponse | undefined>,
+    getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse | undefined>,
     currentFile: {
         content: string,
         path: string,
@@ -76,6 +78,7 @@ export function ViewContainer(props: ViewProps) {
         applyModifications,
         getLibrariesList,
         getLibrariesData,
+        getLibraryData,
         currentFile
     } = props;
     const intl = useIntl();
@@ -178,6 +181,7 @@ export function ViewContainer(props: ViewProps) {
                         applyModifications={applyModifications}
                         getLibrariesList={getLibrariesList}
                         getLibrariesData={getLibrariesData}
+                        getLibraryData={getLibraryData}
                         currentFile={currentFile}
                         getLangClient={getLangClient}
                     >

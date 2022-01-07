@@ -53,7 +53,8 @@ export function AddLogConfig(props: LogConfigProps) {
             code: { modifyDiagram },
             library: {
                 getLibrariesList,
-                getLibrariesData
+                getLibrariesData,
+                getLibraryData
             }
         }
     } = useContext(Context);
@@ -145,7 +146,8 @@ export function AddLogConfig(props: LogConfigProps) {
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
             getLibrariesList,
-            getLibrariesData
+            getLibrariesData,
+            getLibraryData
         }
     );
 

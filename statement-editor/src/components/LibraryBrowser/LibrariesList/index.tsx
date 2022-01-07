@@ -13,26 +13,25 @@
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
+import { LibraryDataResponse, LibraryInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+
 import { useStatementEditorStyles } from "../../styles";
 import { Library } from '../Library';
 
-interface LibraryInfo {
-    id: string,
-    summary: string
-}
-
 interface LibrariesListProps {
-    libraries: LibraryInfo[]
+    libraries: LibraryInfo[],
+    libraryBrowsingHandler: (libraryData: LibraryDataResponse) => void
 }
 
 export function LibrariesList(props: LibrariesListProps) {
     const statementEditorClasses = useStatementEditorStyles();
+    const { libraries, libraryBrowsingHandler } = props;
 
     return (
         <div className={statementEditorClasses.libraryBlock}>
             <ul>
-                {props.libraries.map((library: LibraryInfo, index: number) => (
-                    <Library name={library.id} key={index} />
+                {libraries.map((library: LibraryInfo, index: number) => (
+                    <Library libraryInfo={library} key={index} libraryBrowsingHandler={libraryBrowsingHandler} />
                 ))}
             </ul>
         </div>

@@ -10,20 +10,43 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from 'react';
 
+import React, { useContext } from 'react';
+
+import { LibraryDataResponse, LibraryInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+
+import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { useStatementEditorStyles } from "../../styles";
 
 interface LibraryProps {
-    name: string
+    libraryInfo: LibraryInfo,
+    key: number,
+    libraryBrowsingHandler: (libraryData: LibraryDataResponse) => void
 }
 
 export function Library(props: LibraryProps) {
+    const stmtCtx = useContext(StatementEditorContext);
     const statementEditorClasses = useStatementEditorStyles();
+    const { libraryInfo, key, libraryBrowsingHandler } = props;
+    const { id, orgName, version } = libraryInfo;
+
+    const onClickOnLibrary = async () => {
+        const response = await stmtCtx.getLibraryData(orgName, id, version);
+
+        if (response) {
+            libraryBrowsingHandler(response);
+        }
+    }
 
     return (
         <div>
-            <button className={statementEditorClasses.libraryListButton}>{props.name}</button>
+            <button
+                className={statementEditorClasses.libraryListButton}
+                key={key}
+                onClick={onClickOnLibrary}
+            >
+                {id}
+            </button>
         </div>
     );
 }

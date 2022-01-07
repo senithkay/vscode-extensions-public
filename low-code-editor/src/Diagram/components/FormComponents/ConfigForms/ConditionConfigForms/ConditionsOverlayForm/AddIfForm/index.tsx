@@ -61,7 +61,8 @@ export function AddIfForm(props: IfProps) {
             code: { modifyDiagram },
             library: {
                 getLibrariesList,
-                getLibrariesData
+                getLibrariesData,
+                getLibraryData
             }
         },
     } = useContext(Context);
@@ -239,7 +240,8 @@ export function AddIfForm(props: IfProps) {
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
             getLibrariesList,
-            getLibrariesData
+            getLibrariesData,
+            getLibraryData
         }
     );
 

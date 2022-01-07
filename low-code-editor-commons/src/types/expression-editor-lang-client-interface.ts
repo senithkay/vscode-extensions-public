@@ -126,12 +126,45 @@ export interface LibrarySearchResponse {
     enums: ModuleProperty[];
 }
 
+export interface LibraryDataResponse {
+    docsData: LibraryDocsData;
+    searchData: LibrarySearchResponse;
+}
+
 export interface ModuleProperty {
     id: string;
     description: string;
     moduleId: string;
     moduleOrgName: string;
     moduleVersion: string;
+}
+
+export interface LibraryDocsData {
+    releaseVersion: string;
+    langLibs: any;
+    modules: LibraryModule[];
+}
+
+export interface LibraryModule {
+    relatedModules: any;
+    records: any;
+    classes: any;
+    objectTypes: any;
+    clients: any;
+    listeners: any;
+    functions: any;
+    constants: any;
+    annotations: any;
+    errors: any;
+    types: any;
+    enums: any;
+    variables: any;
+    id: string;
+    summary: string;
+    description: string;
+    orgName: string;
+    version: string;
+    isDefaultModule: boolean;
 }
 
 export interface ExpressionEditorLangClientInterface extends BaseLangClientInterface {

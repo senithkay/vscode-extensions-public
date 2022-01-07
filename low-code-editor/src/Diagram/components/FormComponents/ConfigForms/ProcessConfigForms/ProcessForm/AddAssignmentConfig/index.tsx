@@ -45,7 +45,8 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
             code: { modifyDiagram },
             library: {
                 getLibrariesList,
-                getLibrariesData
+                getLibrariesData,
+                getLibraryData
             }
         }
     } = useContext(Context);
@@ -185,7 +186,8 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
             getLibrariesList,
-            getLibrariesData
+            getLibrariesData,
+            getLibraryData
         }
     );
 

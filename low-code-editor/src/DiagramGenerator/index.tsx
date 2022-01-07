@@ -19,6 +19,7 @@ import {
     Connector,
     DiagramDiagnostic,
     DiagramEditorLangClientInterface,
+    LibraryDataResponse,
     LibraryDocResponse,
     LibraryKind,
     LibrarySearchResponse,
@@ -71,6 +72,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     const showMessage: (message: string, type: MESSAGE_TYPE, isIgnorable: boolean) => Promise<boolean> = props.showMessage;
     const getLibrariesList: (version: string, kind?: LibraryKind) => Promise<LibraryDocResponse | undefined> = props.getLibrariesList;
     const getLibrariesData: (version: string) => Promise<LibrarySearchResponse | undefined> = props.getLibrariesData;
+    const getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse | undefined> = props.getLibraryData;
 
     const defaultZoomStatus = {
         scale: defaultScale,
@@ -344,7 +346,8 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                 },
                                 library: {
                                     getLibrariesList,
-                                    getLibrariesData
+                                    getLibrariesData,
+                                    getLibraryData
                                 }
                             }}
                         />
