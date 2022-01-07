@@ -26,10 +26,17 @@ import { LibrariesList } from "./LibrariesList";
 import { SearchResult } from "./SearchResult";
 import { filterByKeyword } from "./utils";
 
+enum LibraryBrowserMode {
+    LIB_LIST = 'libraries_list',
+    LIB_SEARCH = 'libraries_search',
+    LIB_BROWSE = 'library_browse',
+}
+
 export function LibraryBrowser() {
     const statementEditorClasses = useStatementEditorStyles();
     const stmtCtx = useContext(StatementEditorContext);
 
+    const [libraryBrowserMode, setLibraryBrowserMode] = useState(LibraryBrowserMode.LIB_LIST);
     const [keyword, setKeyword] = useState('');
     const [librariesSearchData, setLibrariesSearchData] = useState<LibrarySearchResponse>();
     const [libraries, setLibraries] = useState([]);
@@ -50,47 +57,42 @@ export function LibraryBrowser() {
             const filteredData = filterByKeyword(librariesSearchData, keyword)
             setFilteredSearchData(filteredData);
         }
+        setLibraryBrowserMode(LibraryBrowserMode.LIB_SEARCH);
     }, [keyword]);
 
     const libraryBrowsingHandler = (data: LibraryDataResponse) => {
-        setLibraryData(data)
+        setLibraryData(data);
+        setLibraryBrowserMode(LibraryBrowserMode.LIB_BROWSE);
     }
 
-    const langLibExpandButton = async () => {
+    const onLangLibSelection = async () => {
         const response = await stmtCtx.getLibrariesList("slbeta5", LibraryKind.langLib);
 
         if (response) {
             setLibraries(response.librariesList);
         }
+
+        setLibraryBrowserMode(LibraryBrowserMode.LIB_LIST);
     };
 
-    const standardLibExpandButton = async () => {
+    const onStdLibSelection = async () => {
         const response = await stmtCtx.getLibrariesList("slbeta5", LibraryKind.stdLib);
 
         if (response) {
             setLibraries(response.librariesList);
         }
+
+        setLibraryBrowserMode(LibraryBrowserMode.LIB_LIST);
     };
 
     return (
         <div className={statementEditorClasses.LibraryBrowser}>
             <div className={statementEditorClasses.LibraryDropdown}>
                 <span className={statementEditorClasses.subHeader}>Libraries</span>
-                <button
-                    onClick={langLibExpandButton}
-                >
-                    All
-                </button>
-                <button
-                    onClick={langLibExpandButton}
-                >
-                    Language
-                </button>
-                <button
-                    onClick={standardLibExpandButton}
-                >
-                    Standard
-                </button>
+                {/*TODO: Replace below buttons with a dropdown menu*/}
+                <button onClick={onLangLibSelection}>All</button>
+                <button onClick={onLangLibSelection}>Language</button>
+                <button onClick={onStdLibSelection}>Standard</button>
             </div>
             <input
                 className={statementEditorClasses.librarySearchBox}
@@ -99,8 +101,23 @@ export function LibraryBrowser() {
                 placeholder={"search"}
                 onChange={(e) => setKeyword(e.target.value)}
             />
-            {keyword === '' && <LibrariesList libraries={libraries} libraryBrowsingHandler={libraryBrowsingHandler} />}
-            {keyword !== '' && filteredSearchData && <SearchResult librarySearchResponse={filteredSearchData} libraryBrowsingHandler={libraryBrowsingHandler} />}
+            {libraryBrowserMode === LibraryBrowserMode.LIB_LIST && (
+                <LibrariesList
+                    libraries={libraries}
+                    libraryBrowsingHandler={libraryBrowsingHandler}
+                />
+            )}
+            {libraryBrowserMode === LibraryBrowserMode.LIB_SEARCH  && filteredSearchData && (
+                <SearchResult
+                    librarySearchResponse={filteredSearchData}
+                    libraryBrowsingHandler={libraryBrowsingHandler}
+                />
+            )}
+            {libraryBrowserMode === LibraryBrowserMode.LIB_BROWSE  && (
+                <SearchResult
+                    librarySearchResponse={libraryData.searchData}
+                />
+            )}
         </div>
     );
 }
