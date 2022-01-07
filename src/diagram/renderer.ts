@@ -241,7 +241,8 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
                             resolveMissingDependencyByCodeAction,
                             runCommand,
                             sendTelemetryEvent,
-                            getLibrariesList
+                            getLibrariesList,
+                            getLibrariesData,                            
                             experimentalEnabled
                         }
                     };
@@ -272,6 +273,17 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
                     webViewRPCHandler.invokeRemoteMethod(
                         'getLibrariesList',
                         [version, kind],
+                        (resp) => {
+                            resolve(resp);
+                        }
+                    );
+                })
+            }
+            function getLibrariesData(version) {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'getLibrariesData',
+                        [version],
                         (resp) => {
                             resolve(resp);
                         }

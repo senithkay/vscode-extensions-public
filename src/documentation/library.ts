@@ -17,13 +17,15 @@
  *
  */
 
-import { LibraryDocResponse, LibraryKind } from "../core";
+import { LibrariesListResponse, LibraryDataResponse, LibraryKind, LibrarySearchResponse } from "../core";
 import https from "https";
 import { debug } from "../utils";
 
-export const cachedLibraryList = new Map<string, LibraryDocResponse>();
+export const cachedLibrariesList = new Map<string, LibrariesListResponse>();
+export const cachedSearchList = new Map<string, LibrarySearchResponse>();
 export const LANG_LIB_LIST_CACHE = "LANG_LIB_LIST_CACHE";
 export const STD_LIB_LIST_CACHE = "STD_LIB_LIST_CACHE";
+export const LIBRARY_SEARCH_CACHE = "LIBRARY_SEARCH_CACHE";
 const options = {
     hostname: 'api.staging-central.ballerina.io',
     port: 443,
@@ -33,12 +35,12 @@ const options = {
     }
 };
 
-export function getLanguageLibrariesList(version: string): Promise<LibraryDocResponse | undefined> {
+export function getLanguageLibrariesList(version: string): Promise<LibrariesListResponse | undefined> {
 
     return new Promise((resolve, reject) => {
 
-        if (cachedLibraryList.has(LANG_LIB_LIST_CACHE)) {
-            return resolve(cachedLibraryList.get(LANG_LIB_LIST_CACHE));
+        if (cachedLibrariesList.has(LANG_LIB_LIST_CACHE)) {
+            return resolve(cachedLibrariesList.get(LANG_LIB_LIST_CACHE));
         }
 
         let body = '';
@@ -48,9 +50,8 @@ export function getLanguageLibrariesList(version: string): Promise<LibraryDocRes
             });
 
             res.on('end',function(){
-                console.log("Body :" + body);
                 if (res.statusCode !== 200) {
-                    debug('Failed to fetch the libraries list');
+                    debug('Failed to fetch the language libraries list');
                 } else {
                     const responseJson = {
                         'librariesList': JSON.parse(body)[LibraryKind.langLib]
@@ -69,12 +70,12 @@ export function getLanguageLibrariesList(version: string): Promise<LibraryDocRes
     });
 }
 
-export function getStandardLibrariesList(version: string): Promise<LibraryDocResponse | undefined> {
+export function getStandardLibrariesList(version: string): Promise<LibrariesListResponse | undefined> {
 
     return new Promise((resolve, reject) => {
 
-        if (cachedLibraryList.has(STD_LIB_LIST_CACHE)) {
-            return resolve(cachedLibraryList.get(STD_LIB_LIST_CACHE));
+        if (cachedLibrariesList.has(STD_LIB_LIST_CACHE)) {
+            return resolve(cachedLibrariesList.get(STD_LIB_LIST_CACHE));
         }
 
         let body = '';
@@ -84,14 +85,45 @@ export function getStandardLibrariesList(version: string): Promise<LibraryDocRes
             });
 
             res.on('end',function(){
-                console.log("Body :" + body);
                 if (res.statusCode !== 200) {
-                    debug('Failed to fetch the libraries list');
+                    debug('Failed to fetch the standard libraries list');
                 } else {
                     const responseJson = {
                         'librariesList': JSON.parse(body)[LibraryKind.stdLib]
                     };
                     return resolve(responseJson);
+                }
+            });
+        });
+
+        req.on('error', error => {
+            debug(error.message);
+            reject();
+        });
+
+        req.end();
+    });
+}
+
+export function getAllResources(version: string): Promise<LibrarySearchResponse | undefined> {
+
+    return new Promise((resolve, reject) => {
+
+        if (cachedSearchList.has(LIBRARY_SEARCH_CACHE)) {
+            return resolve(cachedSearchList.get(LIBRARY_SEARCH_CACHE));
+        }
+
+        let body = '';
+        const req = https.request({ path: `/2.0/docs/stdlib/${version}/search`, ...options }, res => {
+            res.on('data', function (chunk) {
+                body = body + chunk;
+            });
+
+            res.on('end',function(){
+                if (res.statusCode !== 200) {
+                    debug('Failed to fetch the library data');
+                } else {
+                    return resolve(JSON.parse(body));
                 }
             });
         });

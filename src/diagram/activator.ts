@@ -27,8 +27,8 @@ import {
 	DocumentIdentifier,
 	ExtendedLangClient,
 	HTTP_CONNECTOR_LIST_CACHE,
-	LibraryDocResponse,
-	LibraryKind,
+	LibrariesListResponse,
+	LibraryKind, LibrarySearchResponse,
 	PerformanceAnalyzerGraphResponse,
 	PerformanceAnalyzerRealtimeResponse
 } from '../core/extended-language-client';
@@ -46,10 +46,13 @@ import { runCommand } from '../utils/runCommand';
 import { Diagnostic } from '.';
 import { createTests } from '../testing/activator';
 import {
-	cachedLibraryList,
+	cachedLibrariesList,
+	cachedSearchList,
+	getAllResources,
 	getLanguageLibrariesList,
 	getStandardLibrariesList,
 	LANG_LIB_LIST_CACHE,
+	LIBRARY_SEARCH_CACHE,
 	STD_LIB_LIST_CACHE
 } from "../documentation/library";
 
@@ -117,14 +120,21 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 	// Cache the lang lib list
 	getLanguageLibrariesList("slbeta5").then((libs) => {
 		if (libs && libs.librariesList.length > 0) {
-			cachedLibraryList.set(LANG_LIB_LIST_CACHE, libs);
+			cachedLibrariesList.set(LANG_LIB_LIST_CACHE, libs);
 		}
 	});
 
 	// Cache the std lib list
 	getStandardLibrariesList("slbeta5").then((libs) => {
 		if (libs && libs.librariesList.length > 0) {
-			cachedLibraryList.set(STD_LIB_LIST_CACHE, libs);
+			cachedLibrariesList.set(STD_LIB_LIST_CACHE, libs);
+		}
+	});
+
+	// Cache the library search data
+	getAllResources("slbeta5").then((data) => {
+		if (data && data.modules.length > 0) {
+			cachedSearchList.set(LIBRARY_SEARCH_CACHE, data);
 		}
 	});
 
@@ -444,11 +454,17 @@ class DiagramPanel {
 			},
 			{
 				methodName: "getLibrariesList",
-				handler: async (args: any[]): Promise<LibraryDocResponse | undefined> => {
+				handler: async (args: any[]): Promise<LibrariesListResponse | undefined> => {
 					if (args[1] === LibraryKind.langLib) {
 						return await getLanguageLibrariesList(args[0]);
 					}
 					return await getStandardLibrariesList(args[0]);
+				}
+			},
+			{
+				methodName: "getLibrariesData",
+				handler: async (args: any[]): Promise<LibrarySearchResponse | undefined> => {
+					return await getAllResources(args[0]);
 				}
 			}
 		];
