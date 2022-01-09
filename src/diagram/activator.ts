@@ -99,7 +99,7 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 	});
 
 	// Update test view
-	createTests(Uri.parse(filePath));
+	createTests(Uri.file(filePath));
 }
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
