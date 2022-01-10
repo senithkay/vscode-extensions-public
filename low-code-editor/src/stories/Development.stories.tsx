@@ -1,27 +1,20 @@
 import React from 'react';
 
 import { storiesOf } from '@storybook/react';
-import { BalleriaLanguageClient, WSConnection } from '@wso2-enterprise/ballerina-languageclient';
 
-import { DiagramGenerator, DiagramGeneratorProps } from '../DiagramGenerator';
+import { DiagramGeneratorProps } from '../DiagramGenerator';
 
 import balDist from "./data/baldist.json";
 import bbesList from "./data/bbes.json";
 import { DiagramGeneratorWrapper } from './DiagramGeneratorWrapper';
-
-const MOCK_SERVER_URL = "http://localhost:3000"
-const LANG_SERVER_URL = "ws://localhost:9095"
-
-const langClientPromise = WSConnection.initialize(LANG_SERVER_URL).then((wsConnection: WSConnection) => {
-  return new BalleriaLanguageClient(wsConnection);
-});
+import { getFileContent, langClientPromise } from './story-utils';
 
 function getBBEFilePath(bbeID: string) {
   return balDist.balHome + "/examples/"  + bbeID + "/" + bbeID.replaceAll('-', '_') + ".bal";
 }
 
 bbesList.forEach(bbe => {
-  const stories = storiesOf('Low Code Editor/BBEs/' + bbe.title, module);
+  const stories = storiesOf('Development Stories/' + bbe.title, module);
   bbe.samples.forEach((bbeItem) => {
     stories.add(
       bbeItem.name,
@@ -32,13 +25,6 @@ bbesList.forEach(bbe => {
     )
   });
 });
-
-async function getFileContent(filePath: string): Promise<string> {
-  return fetch(MOCK_SERVER_URL + "/file/" + encodeURIComponent(filePath))
-    .then(response => {
-      return response.text()
-    })
-}
 
 function getDiagramGeneratorProps(filePath: string): DiagramGeneratorProps {
   return {
