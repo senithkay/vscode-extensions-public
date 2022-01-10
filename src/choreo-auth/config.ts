@@ -42,17 +42,17 @@ export enum ChoreoSessionConfig {
 
 // Choreo V2 environment
 export class ChoreoAuthConfig {
-    private loginUrl: string = "https://id.dv.choreo.dev/oauth2/authorize";
-    private redirectUrl: string = "http://localhost:3000/login";
-    private clientId: string = "GEjPOPRsoMMlNrDuO8fqCBL4mS8a";
+    private loginUrl: string = "https://dev.api.asgardeo.io/t/a/oauth2/authorize";
+    private redirectUrl: string = "vscode://wso2.ballerina/choreo-signin";
+    private clientId: string = "_eEveWFdTSJPaui7DmCuU5DUrUEa";
     private apimClientId: string = process.env.VSCODE_CHOREO_APIM_CLIENT_ID ? process.env.VSCODE_CHOREO_APIM_CLIENT_ID
         : "Wxqy0liCfLBsdpXOhkcxZz6uLPka";
     private vscodeClientId: string = "XR0UxDfbpjXEyp0Z2C4GuKy7Bdga";
-    private tokenUrl: string = "https://id.dv.choreo.dev/oauth2/token";
+    private tokenUrl: string = "https://dev.api.asgardeo.io/t/a/oauth2/token";
     private apimTokenUrl: string = process.env.VSCODE_CHOREO_APIM_TOKEN_ENDPOINT ?
-        process.env.VSCODE_CHOREO_APIM_TOKEN_ENDPOINT : "https://apim.preview-dv.choreo.dev/oauth2/token";
-    private scope: string = "openid";
-    private googleFIdp: string = "google-choreo";
+        process.env.VSCODE_CHOREO_APIM_TOKEN_ENDPOINT : "https://sts.preview-dv.choreo.dev/oauth2/token";
+    private scope: string = "openid+email+profile";
+    private googleFIdp: string = "google";
 
     constructor() {
         debug(`VSCODE_CHOREO_APIM_CLIENT_ID: ${process.env.VSCODE_CHOREO_APIM_CLIENT_ID} \napimClientId: ${this.apimClientId}`);
