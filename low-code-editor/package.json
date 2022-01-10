@@ -23,7 +23,7 @@
     "watch:tsc": "tsc --pretty --watch",
     "watch:webpack": "webpack-dev-server --mode=development --progress",
     "deploy": "npm publish",
-    "storybook": "npm run storybook:setup && start-storybook -p 6006",
+    "storybook": "npm run storybook:setup",
     "storybook:setup": "node tools/setup-storybook.js",
     "build-storybook": "build-storybook"
   },

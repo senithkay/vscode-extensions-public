@@ -15,10 +15,22 @@ const langClientPromise = WSConnection.initialize(LANG_SERVER_URL).then((wsConne
   return new BalleriaLanguageClient(wsConnection);
 });
 
+const ballerinaHomePath = "/usr/lib/ballerina/distributions/ballerina-slbeta6/examples/";
+
+function getBBEFilePath(bbeID: string) {
+  return ballerinaHomePath + bbeID + "/" + bbeID.replaceAll('-', '_') + ".bal";
+}
+
 bbesList.forEach(bbe => {
-  const stories = storiesOf('Low Code Editor/Read Only BBEs/' + bbe.title, module);
+  const stories = storiesOf('Low Code Editor/BBEs/' + bbe.title, module);
   bbe.samples.forEach((bbeItem) => {
-    stories.add(bbeItem.name, () => <DiagramGeneratorWrapper {...getDiagramGeneratorProps("/usr/lib/ballerina/distributions/ballerina-slbeta6/examples/" + bbeItem.url + "/" + bbeItem.url.replaceAll('-', '_') + ".bal")} />)
+    stories.add(
+      bbeItem.name,
+      () => {
+        const diagramProps = getDiagramGeneratorProps(getBBEFilePath(bbeItem.url));
+        return <DiagramGeneratorWrapper {...diagramProps} />
+      }
+    )
   });
 });
 
