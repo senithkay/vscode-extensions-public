@@ -5,6 +5,7 @@ import { BalleriaLanguageClient, WSConnection } from '@wso2-enterprise/ballerina
 
 import { DiagramGenerator, DiagramGeneratorProps } from '../DiagramGenerator';
 
+import balDist from "./data/baldist.json";
 import bbesList from "./data/bbes.json";
 import { DiagramGeneratorWrapper } from './DiagramGeneratorWrapper';
 
@@ -15,10 +16,8 @@ const langClientPromise = WSConnection.initialize(LANG_SERVER_URL).then((wsConne
   return new BalleriaLanguageClient(wsConnection);
 });
 
-const ballerinaHomePath = "/usr/lib/ballerina/distributions/ballerina-slbeta6/examples/";
-
 function getBBEFilePath(bbeID: string) {
-  return ballerinaHomePath + bbeID + "/" + bbeID.replaceAll('-', '_') + ".bal";
+  return balDist.balHome + "/examples/"  + bbeID + "/" + bbeID.replaceAll('-', '_') + ".bal";
 }
 
 bbesList.forEach(bbe => {

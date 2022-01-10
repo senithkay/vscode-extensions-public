@@ -1,15 +1,24 @@
 const { spawn, execSync } = require("child_process");
-const { cp } = require("fs");
+const { cp, writeFile } = require("fs");
 const path = require("path");
 
 function copyBBEJson() {
+    const storyDataDir = path.join(__dirname, "..", "src", "stories", "data");
     const balHome = execSync("bal home").toString().trim();
     cp(
         path.join(balHome, "examples", "index.json"),
-        path.join(__dirname, "..", "src", "stories", "data", "bbes.json"),
+        path.join(storyDataDir, "bbes.json"),
         { force: true },
         (err) => err ? console.log("copy error: " + err ) : console.log("copy successful")
     );
+    writeFile(path.join(storyDataDir, "baldist.json"),
+`
+{
+    "balHome": "${balHome}"
+}
+`    ,
+    (err) => err ? console.log("dist json make error: " + err ) : console.log("dist json make successful")
+    )
 }
 
 function startLS() {
