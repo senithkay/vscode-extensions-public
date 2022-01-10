@@ -87,7 +87,6 @@ export function HeaderActions(props: HeaderActionsProps) {
 
     const unSupportedEditCancel = () => setEditingEnabled(false);
 
-
     React.useEffect(() => {
         setIsDeleteViewVisible(false);
     }, [model]);
