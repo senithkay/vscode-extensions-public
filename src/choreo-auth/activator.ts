@@ -46,7 +46,7 @@ async function activate(extension: BallerinaExtension) {
     choreoAuthConfig = new ChoreoAuthConfig();
     commands.registerCommand(PALETTE_COMMANDS.CHOREO_SIGNIN, async () => {
         try {
-            initiateInbuiltAuth(extension);
+            await initiateInbuiltAuth(extension);
         } catch (error) {
             if (error instanceof Error) {
                 sendTelemetryException(ballerinaExtInstance, error, CMP_PROJECT_ADD);
