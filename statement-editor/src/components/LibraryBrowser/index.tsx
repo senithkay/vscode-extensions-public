@@ -58,10 +58,13 @@ export function LibraryBrowser() {
     }, []);
 
     useEffect(() => {
-        if (librariesSearchData) {
-            const filteredData = filterByKeyword(librariesSearchData, keyword)
-            setFilteredSearchData(filteredData);
+        let filteredData;
+        if (librariesSearchData && searchScope === DEFAULT_SEARCH_SCOPE) {
+            filteredData = filterByKeyword(librariesSearchData, keyword);
+        } else if (libraryData && searchScope !== DEFAULT_SEARCH_SCOPE) {
+            filteredData = filterByKeyword(libraryData.searchData, keyword);
         }
+        setFilteredSearchData(filteredData);
         setLibraryBrowserMode(LibraryBrowserMode.LIB_SEARCH);
     }, [keyword]);
 
