@@ -63,10 +63,10 @@ export function HeaderActions(props: HeaderActionsProps) {
     // const handleCancelDeleteBtn = () => setIsDeleteViewVisible(false);
 
     const [isEditViewVisible, setIsEditViewVisible] = useState(false);
+    const [editingEnabled, setEditingEnabled] = useState(false);
     const handleEditBtnClick = () => {
         if (unsupportedType) {
-            const targetposition = model.position;
-            gotoSource({ startLine: targetposition.startLine, startColumn: targetposition.startColumn });
+            setEditingEnabled(true);
         } else {
             setIsEditViewVisible(true);
         }
@@ -78,6 +78,15 @@ export function HeaderActions(props: HeaderActionsProps) {
         setIsEditViewVisible(false);
         onConfirmEdit();
     }
+
+    const unsupportedEditConfirm = () => {
+        const targetposition = model.position;
+        setEditingEnabled(false);
+        gotoSource({ startLine: targetposition.startLine, startColumn: targetposition.startColumn });
+    }
+
+    const unSupportedEditCancel = () => setEditingEnabled(false);
+
 
     React.useEffect(() => {
         setIsDeleteViewVisible(false);
@@ -124,6 +133,7 @@ export function HeaderActions(props: HeaderActionsProps) {
                     onSave={handleEditBtnCancel}
                 />
             )}
+            {editingEnabled && <UnsupportedConfirmButtons onConfirm={unsupportedEditConfirm} onCancel={unSupportedEditCancel} />}
         </div>
     );
 }
