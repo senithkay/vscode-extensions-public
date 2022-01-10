@@ -18,8 +18,7 @@
  */
 
 import { Uri } from 'vscode';
-import { getLibraryWebViewContent, WebViewOptions, getComposerWebViewOptions, isWindows } from '../utils';
-import { sep } from "path";
+import { getLibraryWebViewContent, WebViewOptions, getComposerWebViewOptions } from '../utils';
 
 export function render(filePath: Uri, startLine: number, startColumn: number): string {
     return renderDiagram(filePath, startLine, startColumn);
@@ -90,9 +89,6 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number): s
     `;
 
     let ballerinaFilePath = filePath.fsPath;
-    if (isWindows()) {
-        ballerinaFilePath = '/' + ballerinaFilePath.split(sep).join("/");
-    }
 
     const scripts = `
         function loadedScript() {
