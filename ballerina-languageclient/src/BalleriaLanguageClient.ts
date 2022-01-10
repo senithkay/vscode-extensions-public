@@ -149,7 +149,7 @@ export class BalleriaLanguageClient implements IBallerinaLangClient {
 
 
     public getConnectors(params: BallerinaConnectorsRequest): Thenable<BallerinaConnectorsResponse> {
-        return this._clientConnection.sendRequest<BallerinaConnectorsResponse>("ballerinaConnector/connectors");
+        return this._clientConnection.sendRequest<BallerinaConnectorsResponse>("ballerinaConnector/connectors", params);
     }
 
     public getConnector(params: BallerinaConnectorRequest): Thenable<BallerinaConnectorResponse> {

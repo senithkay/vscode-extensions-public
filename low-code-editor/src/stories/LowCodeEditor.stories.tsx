@@ -6,6 +6,7 @@ import { BalleriaLanguageClient, WSConnection } from '@wso2-enterprise/ballerina
 import { DiagramGenerator, DiagramGeneratorProps } from '../DiagramGenerator';
 
 import bbesList from "./data/bbes.json";
+import { DiagramGeneratorWrapper } from './DiagramGeneratorWrapper';
 
 const MOCK_SERVER_URL = "http://localhost:3000"
 const LANG_SERVER_URL = "ws://localhost:9095"
@@ -17,7 +18,7 @@ const langClientPromise = WSConnection.initialize(LANG_SERVER_URL).then((wsConne
 bbesList.forEach(bbe => {
   const stories = storiesOf('Low Code Editor/Read Only BBEs/' + bbe.title, module);
   bbe.samples.forEach((bbeItem) => {
-    stories.add(bbeItem.name, () => <DiagramGenerator {...getDiagramGeneratorProps("/usr/lib/ballerina/distributions/ballerina-slbeta6/examples/" + bbeItem.url + "/" + bbeItem.url.replaceAll('-', '_') + ".bal")} />)
+    stories.add(bbeItem.name, () => <DiagramGeneratorWrapper {...getDiagramGeneratorProps("/usr/lib/ballerina/distributions/ballerina-slbeta6/examples/" + bbeItem.url + "/" + bbeItem.url.replaceAll('-', '_') + ".bal")} />)
   });
 });
 
@@ -29,18 +30,6 @@ async function getFileContent(filePath: string): Promise<string> {
 }
 
 function getDiagramGeneratorProps(filePath: string): DiagramGeneratorProps {
-  langClientPromise.then((blc) => {
-    getFileContent(filePath).then((text) => {
-      blc.didOpen({
-        textDocument: {
-          languageId: "ballerina",
-          text,
-          uri: `file://${filePath}`,
-          version: 1
-        }
-      })
-    });
-  })
   return {
     langClientPromise,
     scale: "1",
