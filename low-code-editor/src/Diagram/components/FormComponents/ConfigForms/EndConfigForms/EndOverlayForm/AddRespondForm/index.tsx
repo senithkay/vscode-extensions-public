@@ -15,9 +15,7 @@ import React, { ReactNode, useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { FormControl } from "@material-ui/core";
-import { ExpressionEditor } from "@wso2-enterprise/ballerina-expression-editor";
 import {
-    CustomLowCodeContext,
     FormActionButtons,
     FormHeaderSection,
     httpResponse,
@@ -31,7 +29,7 @@ import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { createRespond, getInitialSource } from "../../../../../../utils/modification-util";
 import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
-import { ExpressionConfigurable } from "../../../../FormFieldComponents/ExpressionConfigurable";
+import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
 import { EndConfig, RespondConfig } from "../../../../Types";
 
 interface RespondFormProps {
@@ -48,28 +46,16 @@ export const EXISTING_PROPERTY: string = "Select Existing Property";
 export function AddRespondForm(props: RespondFormProps) {
     const formClasses = useFormStyles();
     const {
-        state: { targetPosition: targetPositionDraft },
         props: {
-            isCodeEditorActive,
             isMutationProgress: isMutationInProgress,
-            currentFile,
-            langServerURL,
-            syntaxTree,
-            diagnostics: mainDiagnostics,
+            currentFile
         },
         api: {
             ls: { getExpressionEditorLangClient },
             code: { modifyDiagram }
         }
     } = useContext(Context);
-    const lowCodeEditorContext: CustomLowCodeContext = {
-        targetPosition: targetPositionDraft,
-        currentFile,
-        langServerURL,
-        syntaxTree,
-        diagnostics: mainDiagnostics,
-        ls: { getExpressionEditorLangClient }
-    }
+
     const { config, formArgs, onCancel, onSave, onWizardClose } = props;
 
     const respondFormConfig: RespondConfig = config.expression as RespondConfig;
@@ -151,7 +137,7 @@ export function AddRespondForm(props: RespondFormProps) {
 
     const statusCodeComp: ReactNode = (
         <div>
-            <ExpressionEditor
+            <LowCodeExpressionEditor
                 model={{
                     optional: true,
                     name: "Status Code",
@@ -168,8 +154,6 @@ export function AddRespondForm(props: RespondFormProps) {
                     editPosition: formArgs.targetPosition,
                 }}
                 onChange={onStatusCodeChange}
-                expressionConfigurable={ExpressionConfigurable}
-                lowCodeEditorContext={lowCodeEditorContext}
             />
             {!validStatusCode ? <p className={formClasses.invalidCode}> <FormattedMessage id="lowcode.develop.configForms.Respond.invalidCodeError" defaultMessage="Invalid status code" /></p> : null}
         </div>
@@ -223,7 +207,7 @@ export function AddRespondForm(props: RespondFormProps) {
                 />
                 <div className={formClasses.formContentWrapper}>
                     <div className={formClasses.formNameWrapper}>
-                        <ExpressionEditor
+                        <LowCodeExpressionEditor
                             model={{
                                 name: "respond expression",
                                 value: respondFormConfig.respondExpression,

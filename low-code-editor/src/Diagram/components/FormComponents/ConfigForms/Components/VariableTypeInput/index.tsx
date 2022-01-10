@@ -11,23 +11,20 @@
  * associated services.
  */
 
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 
 import {
-    ExpressionEditor,
     ExpressionEditorCustomTemplate,
     ExpressionEditorProps
 } from "@wso2-enterprise/ballerina-expression-editor";
 import {
-    CustomLowCodeContext,
     DiagramDiagnostic,
     FormElementProps
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import {v4 as uuid} from 'uuid';
 
-import { Context } from "../../../../../../Contexts/Diagram";
-import { ExpressionConfigurable } from "../../../FormFieldComponents/ExpressionConfigurable";
+import { LowCodeExpressionEditor } from "../../../FormFieldComponents/LowCodeExpressionEditor";
 
 import { getVarTypeCompletions } from './utils';
 
@@ -64,27 +61,6 @@ export function VariableTypeInput(props: VariableTypeInputProps) {
         setEditorFocus(false);
     };
 
-    const {
-        state: { targetPosition: targetPositionDraft },
-        props: {
-            currentFile,
-            langServerURL,
-            syntaxTree,
-            diagnostics: mainDiagnostics,
-        },
-        api: {
-            ls: { getExpressionEditorLangClient },
-        }
-    } = useContext(Context);
-
-    const lowCodeEditorContext: CustomLowCodeContext = {
-        targetPosition: targetPositionDraft,
-        currentFile,
-        langServerURL,
-        syntaxTree,
-        diagnostics: mainDiagnostics,
-        ls: { getExpressionEditorLangClient }
-    }
     const expressionEditorNameConfig: FormElementProps<ExpressionEditorProps> = {
         model: {
             name: "variableType",
@@ -114,12 +90,10 @@ export function VariableTypeInput(props: VariableTypeInputProps) {
             tooltipTitle,
         },
         onChange: onValueChange,
-        defaultValue: value,
-        expressionConfigurable: ExpressionConfigurable,
-        lowCodeEditorContext
+        defaultValue: value
     };
 
     return (
-        <ExpressionEditor {...expressionEditorNameConfig} />
+        <LowCodeExpressionEditor {...expressionEditorNameConfig} />
     )
 }

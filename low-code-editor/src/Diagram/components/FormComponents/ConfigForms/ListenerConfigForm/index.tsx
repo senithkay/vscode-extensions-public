@@ -10,13 +10,12 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { FormattedMessage } from "react-intl";
 
 import { Box, FormControl, FormHelperText, Typography } from "@material-ui/core";
-import { ExpressionEditor, ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
+import { ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
 import {
-    CustomLowCodeContext,
     FormActionButtons,
     FormElementProps,
     FormHeaderSection
@@ -25,11 +24,11 @@ import { ListenerDeclaration, NodePosition, STKindChecker } from "@wso2-enterpri
 
 import { ListenerFormIcon } from "../../../../../assets/icons";
 import { PrimaryButton } from "../../../../../components/Buttons/PrimaryButton";
-import { Context, useDiagramContext } from "../../../../../Contexts/Diagram";
+import { useDiagramContext } from "../../../../../Contexts/Diagram";
 import { createImportStatement, createListenerDeclartion } from "../../../../utils/modification-util";
 import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
 import { SelectDropdownWithButton } from "../../FormFieldComponents/DropDown/SelectDropdownWithButton";
-import { ExpressionConfigurable } from "../../FormFieldComponents/ExpressionConfigurable";
+import { LowCodeExpressionEditor } from "../../FormFieldComponents/LowCodeExpressionEditor";
 import { TextLabel } from "../../FormFieldComponents/TextField/TextLabel";
 import { VariableNameInput } from "../Components/VariableNameInput";
 
@@ -121,28 +120,6 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
         });
     }
 
-    const {
-        state: { targetPosition: targetPositionDraft },
-        props: {
-            currentFile,
-            langServerURL,
-            syntaxTree,
-            diagnostics: mainDiagnostics,
-        },
-        api: {
-            ls: { getExpressionEditorLangClient },
-        }
-    } = useContext(Context);
-
-    const lowCodeEditorContext: CustomLowCodeContext = {
-        targetPosition: targetPositionDraft,
-        currentFile,
-        langServerURL,
-        syntaxTree,
-        diagnostics: mainDiagnostics,
-        ls: { getExpressionEditorLangClient }
-    }
-
     const portNumberExpressionEditorProps: FormElementProps<ExpressionEditorProps>  = {
         model: {
             name: "listenerPort",
@@ -163,13 +140,11 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
             initialDiagnostics: model?.initializer?.typeData?.diagnostics
         },
         onChange: onListenerPortChange,
-        defaultValue: config.listenerPort,
-        expressionConfigurable: ExpressionConfigurable,
-        lowCodeEditorContext
+        defaultValue: config.listenerPort
     };
 
     const listenerPortInputComponent = (
-        <ExpressionEditor
+        <LowCodeExpressionEditor
             {...portNumberExpressionEditorProps}
         />
     )

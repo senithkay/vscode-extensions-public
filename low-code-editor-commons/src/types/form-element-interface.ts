@@ -1,10 +1,11 @@
 import React from "react";
 
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
 import { FormField } from "./config-spec"
-import { CustomLowCodeContext } from "./custom-lowcode-interface";
 import { ExpressionConfigurableProps } from "./expression-configurable-interface";
+import { ExpressionEditorLangClientInterface } from "./expression-editor-lang-client-interface";
 import { ExpressionEditorState } from "./store";
 
 export interface FormElementProps<T = {}> extends FormElementEvents {
@@ -29,7 +30,14 @@ export interface FormElementProps<T = {}> extends FormElementEvents {
     tooltip?: string;
     hideLabelTooltips?: boolean;
     expressionConfigurable?: React.FC<ExpressionConfigurableProps>;
-    lowCodeEditorContext?: CustomLowCodeContext
+    currentFile?: {
+        content: string,
+        path: string,
+        size: number
+    };
+    langServerURL?: string;
+    syntaxTree?: STNode;
+    getExpressionEditorLangClient?: () => Promise<ExpressionEditorLangClientInterface>;
 }
 
 export interface FormElementEvents {

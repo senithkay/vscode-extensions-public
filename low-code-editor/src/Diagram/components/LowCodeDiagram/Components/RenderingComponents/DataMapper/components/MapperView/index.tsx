@@ -14,9 +14,7 @@
 import React, { useContext, useRef, useState } from 'react';
 
 import Typography from '@material-ui/core/Typography';
-import { ExpressionEditor } from '@wso2-enterprise/ballerina-expression-editor';
 import {
-    CustomLowCodeContext,
     PrimaryButton,
     PrimitiveBalType,
     SecondaryButton,
@@ -24,10 +22,9 @@ import {
 } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { CaptureBindingPattern, STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
 
-import { Context } from "../../../../../../../../Contexts/Diagram";
 import { updatePropertyStatement } from '../../../../../../../utils/modification-util';
 import { wizardStyles } from '../../../../../../FormComponents/ConfigForms/style';
-import { ExpressionConfigurable } from "../../../../../../FormComponents/FormFieldComponents/ExpressionConfigurable";
+import { LowCodeExpressionEditor } from "../../../../../../FormComponents/FormFieldComponents/LowCodeExpressionEditor";
 import { DataMapperInputTypeInfo } from '../../../../../../FormComponents/Types';
 import { DiagramOverlay, DiagramOverlayContainer } from '../../../../../../Portals/Overlay';
 import { Canvas } from '../../../../../Canvas';
@@ -414,29 +411,6 @@ export function MapperView() {
         }
     }
 
-    const {
-        state: { targetPosition: targetPositionDraft },
-        props: {
-            currentFile,
-            langServerURL,
-            syntaxTree,
-            diagnostics: mainDiagnostics,
-        },
-        api: {
-            ls: { getExpressionEditorLangClient },
-        }
-    } = useContext(Context);
-
-    const lowCodeEditorContext: CustomLowCodeContext = {
-        targetPosition: targetPositionDraft,
-        currentFile,
-        langServerURL,
-        syntaxTree,
-        diagnostics: mainDiagnostics,
-        ls: { getExpressionEditorLangClient }
-    }
-
-
     const onDataPointClick = (dataPointVS: SourcePointViewState | TargetPointViewState) => {
         // current element is wrapped by a <g/> element
         const parentSVG = (drawingLineRef.current as SVGGraphicsElement).parentElement.parentElement.parentElement;
@@ -534,9 +508,7 @@ export function MapperView() {
                             editPosition: { line: dataMapperConfig.outputType.startLine, column: undefined }
                         },
                         onChange,
-                        defaultValue: dataPointVS.value,
-                        expressionConfigurable: ExpressionConfigurable,
-                        lowCodeEditorContext
+                        defaultValue: dataPointVS.value
                     }
                 });
                 setSelectedSourceDataPoint(dataPointVS);
@@ -1171,7 +1143,7 @@ export function MapperView() {
                             stylePosition="absolute"
                         >
                             <div className='expression-wrapper'>
-                                <ExpressionEditor {...expressionConfig.config} />
+                                <LowCodeExpressionEditor {...expressionConfig.config} />
                                 <div className={overlayClasses.buttonWrapper}>
                                     <SecondaryButton
                                         text="Cancel"
@@ -1204,7 +1176,7 @@ export function MapperView() {
                                     {`Mapping an Optional type, please provide a default value of type
                                      ${defaultInputConfig.config.model.type}`}
                                 </Typography>
-                                <ExpressionEditor {...defaultInputConfig.config} />
+                                <LowCodeExpressionEditor {...defaultInputConfig.config} />
                                 <div className={overlayClasses.buttonWrapper}>
                                     <SecondaryButton
                                         text="Cancel"

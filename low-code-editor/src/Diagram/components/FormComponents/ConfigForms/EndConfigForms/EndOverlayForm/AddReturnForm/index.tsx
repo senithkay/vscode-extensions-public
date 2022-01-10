@@ -15,9 +15,7 @@ import React, { useContext, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
-import { ExpressionEditor } from "@wso2-enterprise/ballerina-expression-editor";
 import {
-    CustomLowCodeContext,
     FormActionButtons,
     FormHeaderSection
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -28,7 +26,7 @@ import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { createReturnStatement, getInitialSource } from "../../../../../../utils/modification-util";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
-import { ExpressionConfigurable } from "../../../../FormFieldComponents/ExpressionConfigurable";
+import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
 import { EndConfig } from "../../../../Types";
 
 
@@ -42,27 +40,17 @@ interface ReturnFormProps {
 
 export function AddReturnForm(props: ReturnFormProps) {
     const {
-        state: { targetPosition: targetPositionDraft },
         props: {
             isMutationProgress: isMutationInProgress,
             currentFile,
-            langServerURL,
-            syntaxTree,
-            diagnostics: mainDiagnostics,
+            syntaxTree
         },
         api: {
             ls: { getExpressionEditorLangClient },
             code: { modifyDiagram }
         }
     } = useContext(Context);
-    const lowCodeEditorContext: CustomLowCodeContext = {
-        targetPosition: targetPositionDraft,
-        currentFile,
-        langServerURL,
-        syntaxTree,
-        diagnostics: mainDiagnostics,
-        ls: { getExpressionEditorLangClient }
-    }
+
     const { config, formArgs, onCancel, onSave, onWizardClose } = props;
     const classes = useStyles();
     const intl = useIntl();
@@ -160,7 +148,7 @@ export function AddReturnForm(props: ReturnFormProps) {
                 />
                 <div className={classes.formContentWrapper}>
                     <div className={classes.formNameWrapper}>
-                        <ExpressionEditor
+                        <LowCodeExpressionEditor
                             model={{ name: "return expression", value: config.expression, optional: isOptional }}
                             customProps={{
                                 validate: validateExpression,
@@ -176,8 +164,6 @@ export function AddReturnForm(props: ReturnFormProps) {
                                 initialDiagnostics: formArgs?.model?.expression?.typeData?.diagnostics
                             }}
                             onChange={onReturnValueChange}
-                            expressionConfigurable={ExpressionConfigurable}
-                            lowCodeEditorContext={lowCodeEditorContext}
                         />
                     </div>
                 </div>

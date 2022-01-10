@@ -18,8 +18,8 @@ import MonacoEditor, { EditorDidMount } from "react-monaco-editor";
 import { FormHelperText, LinearProgress } from "@material-ui/core";
 import {
     CompletionParams,
-    configurableTypes, CustomLowCodeContext,
-    DiagramDiagnostic, ExpressionConfigurableProps,
+    configurableTypes,
+    DiagramDiagnostic,
     ExpressionEditorLangClientInterface,
     ExpressionEditorState,
     ExpressionInjectablesProps,
@@ -192,8 +192,6 @@ export interface ExpressionEditorProps {
         end?: number;
     };
     disableFiltering?: boolean;
-    expressionConfigurable?: React.FC<ExpressionConfigurableProps>;
-    lowCodeEditorContext?: CustomLowCodeContext;
 }
 
 export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>) {
@@ -207,16 +205,15 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
 
     const [disposableTriggers] = useState([]);
 
-    const { index, defaultValue, model, onChange, customProps, expressionConfigurable: ExpressionConfigurable,
-            lowCodeEditorContext } = props;
-    const {
-        targetPosition: targetPositionDraft,
-        currentFile,
-        langServerURL,
-        syntaxTree,
-        diagnostics: mainDiagnostics, // FIXME: REMOVE mainDiagnostics as it doesn't seem to be used anymore
-        ls: { getExpressionEditorLangClient }
-    } =  lowCodeEditorContext;
+    const { index, defaultValue, model, onChange, customProps,
+            expressionConfigurable : ExpressionConfigurable,
+            targetPositionDraft,
+            currentFile,
+            langServerURL,
+            syntaxTree,
+            mainDiagnostics, // FIXME: REMOVE mainDiagnostics as it doesn't seem to be used anymore
+            getExpressionEditorLangClient
+        } = props;
     const {
         validate,
         statementType,
@@ -903,15 +900,21 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
                     </div>
                 </div>
             </div>
-            <ExpressionConfigurable
-                model={model}
-                monacoRef={monacoRef}
-                textLabel={textLabel}
-                varType={varType}
-                expressionInjectables={expressionInjectables}
-                showConfigurableView={showConfigurableView}
-                setShowConfigurableView={setShowConfigurableView}
-            />
+            {
+                ExpressionConfigurable !== undefined && (
+                    <ExpressionConfigurable
+                        model={model}
+                        monacoRef={monacoRef}
+                        textLabel={textLabel}
+                        varType={varType}
+                        expressionInjectables={expressionInjectables}
+                        showConfigurableView={showConfigurableView}
+                        setShowConfigurableView={setShowConfigurableView}
+                    />
+                )
+
+            }
+
             {invalidSourceCode ? (
                 <>
                     {!(subEditor && cursorOnEditor) && <DiagnosticView message={mainDiagnostics[0]?.message} />}

@@ -19,19 +19,17 @@ import { Box, FormControl, Typography } from "@material-ui/core";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
-import { ExpressionEditor } from "@wso2-enterprise/ballerina-expression-editor";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
 import { CustomExpressionConfig, ProcessConfig } from "../../../../Types";
 import { wizardStyles } from "../../../style";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import {
-    CustomLowCodeContext,
     FormActionButtons,
     FormHeaderSection
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { ExpressionConfigurable } from "../../../../FormFieldComponents/ExpressionConfigurable";
 import { ADD_OTHER_STATEMENT, LowcodeEvent, SAVE_OTHER_STATEMENT } from "../../../../../../models";
+import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
 
 interface LogConfigProps {
     config: ProcessConfig;
@@ -47,13 +45,9 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
     const intl = useIntl();
 
     const {
-        state: { targetPosition: targetPositionDraft },
         props: {
             isMutationProgress: isMutationInProgress,
-            currentFile,
-            langServerURL,
-            syntaxTree,
-            diagnostics: mainDiagnostics,
+            currentFile
         },
         api: {
             ls: { getExpressionEditorLangClient },
@@ -62,14 +56,6 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         }
     } = useContext(Context);
 
-    const lowCodeEditorContext: CustomLowCodeContext = {
-        targetPosition: targetPositionDraft,
-        currentFile,
-        langServerURL,
-        syntaxTree,
-        diagnostics: mainDiagnostics,
-        ls: { getExpressionEditorLangClient }
-    }
     const { config, formArgs, onCancel, onSave, onWizardClose } = props;
 
     const expressionFormConfig: CustomExpressionConfig = config.config as CustomExpressionConfig;
@@ -163,7 +149,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                 />
                 <div className={formClasses.formContentWrapper}>
                     <div className={formClasses.formNameWrapper}>
-                        <ExpressionEditor
+                        <LowCodeExpressionEditor
                             model={{ name: "statement", value: expression }}
                             customProps={{
                                 validate: validateExpression,
@@ -180,8 +166,6 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                                 disableFiltering: true
                             }}
                             onChange={onExpressionChange}
-                            expressionConfigurable={ExpressionConfigurable}
-                            lowCodeEditorContext={lowCodeEditorContext}
                         />
                     </div>
                 </div>

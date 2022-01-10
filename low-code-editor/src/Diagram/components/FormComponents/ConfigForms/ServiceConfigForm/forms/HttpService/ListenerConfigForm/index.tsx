@@ -11,18 +11,16 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext } from "react";
+import React from "react";
 import { FormattedMessage } from "react-intl";
 
 import { FormHelperText } from "@material-ui/core";
-import { ExpressionEditor } from "@wso2-enterprise/ballerina-expression-editor";
-import { CustomLowCodeContext, FormElementProps } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormElementProps } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
-import { Context } from "../../../../../../../../Contexts/Diagram";
 import CheckBoxGroup from "../../../../../FormFieldComponents/CheckBox";
 import { SelectDropdownWithButton } from "../../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
-import { ExpressionConfigurable } from "../../../../../FormFieldComponents/ExpressionConfigurable";
+import { LowCodeExpressionEditor } from "../../../../../FormFieldComponents/LowCodeExpressionEditor";
 import { VariableNameInput } from "../../../../Components/VariableNameInput";
 import { wizardStyles as useFormStyles } from "../../../../style";
 import { ListenerConfigFormState, ServiceConfigActions, ServiceConfigActionTypes } from "../util/reducer";
@@ -103,28 +101,6 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
         />
     )
 
-    const {
-        state: { targetPosition: targetPositionDraft },
-        props: {
-            currentFile,
-            langServerURL,
-            syntaxTree,
-            diagnostics: mainDiagnostics,
-        },
-        api: {
-            ls: { getExpressionEditorLangClient },
-        }
-    } = useContext(Context);
-
-    const lowCodeEditorContext: CustomLowCodeContext = {
-        targetPosition: targetPositionDraft,
-        currentFile,
-        langServerURL,
-        syntaxTree,
-        diagnostics: mainDiagnostics,
-        ls: { getExpressionEditorLangClient }
-    }
-
     const portNumberExpressionEditorProps: FormElementProps = {
         model: {
             name: "listenerPort",
@@ -143,13 +119,11 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
             }
         },
         onChange: onListenerPortChange,
-        defaultValue: state.listenerPort,
-        expressionConfigurable: ExpressionConfigurable,
-        lowCodeEditorContext
+        defaultValue: state.listenerPort
     };
 
     const listenerPortInputComponent = (
-        <ExpressionEditor
+        <LowCodeExpressionEditor
             {...portNumberExpressionEditorProps}
         />
     )

@@ -11,15 +11,14 @@
  * associated services.
  */
 
-import React, { useContext } from "react";
+import React from "react";
 
-import { ExpressionEditor, ExpressionEditorCustomTemplate, ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
-import { CustomLowCodeContext, DiagramDiagnostic,
+import { ExpressionEditorCustomTemplate, ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
+import { DiagramDiagnostic,
     FormElementProps } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
-import { Context } from "../../../../../../Contexts/Diagram";
-import { ExpressionConfigurable } from "../../../FormFieldComponents/ExpressionConfigurable";
+import { LowCodeExpressionEditor } from "../../../FormFieldComponents/LowCodeExpressionEditor";
 import { wizardStyles as useFormStyles } from "../../style";
 
 export interface VariableNameInputProps {
@@ -66,28 +65,6 @@ export function VariableNameInput(props: VariableNameInputProps) {
         }
     }
 
-    const {
-        state: { targetPosition: targetPositionDraft },
-        props: {
-            currentFile,
-            langServerURL,
-            syntaxTree,
-            diagnostics: mainDiagnostics,
-        },
-        api: {
-            ls: { getExpressionEditorLangClient },
-        }
-    } = useContext(Context);
-
-    const lowCodeEditorContext: CustomLowCodeContext = {
-        targetPosition: targetPositionDraft,
-        currentFile,
-        langServerURL,
-        syntaxTree,
-        diagnostics: mainDiagnostics,
-        ls: { getExpressionEditorLangClient }
-    }
-
     const expressionEditorNameConfig: FormElementProps<ExpressionEditorProps> = {
         model: {
             name: "variableName",
@@ -112,14 +89,12 @@ export function VariableNameInput(props: VariableNameInputProps) {
             disabled
         },
         onChange: onValueChange,
-        defaultValue: value,
-        expressionConfigurable: ExpressionConfigurable,
-        lowCodeEditorContext
+        defaultValue: value
     };
 
     return (
         <div className={formClasses.expStatementWrapper}>
-            <ExpressionEditor {...expressionEditorNameConfig} />
+            <LowCodeExpressionEditor {...expressionEditorNameConfig} />
         </div>
     )
 }

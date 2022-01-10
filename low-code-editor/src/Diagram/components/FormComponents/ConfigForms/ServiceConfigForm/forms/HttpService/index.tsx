@@ -11,22 +11,21 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useReducer, useState } from "react";
+import React, { useReducer, useState } from "react";
 
-import { ExpressionEditor, ExpressionEditorProps} from "@wso2-enterprise/ballerina-expression-editor";
+import { ExpressionEditorProps} from "@wso2-enterprise/ballerina-expression-editor";
 import {
-    CustomLowCodeContext,
     FormActionButtons,
     FormElementProps
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ListenerDeclaration, NodePosition, ServiceDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { Context, useDiagramContext } from "../../../../../../../Contexts/Diagram";
+import { useDiagramContext } from "../../../../../../../Contexts/Diagram";
 import { isServicePathValid } from "../../../../../../../utils/validator";
 import { createImportStatement, createServiceDeclartion, updateServiceDeclartion } from "../../../../../../utils/modification-util";
 import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
-import { ExpressionConfigurable } from "../../../../FormFieldComponents/ExpressionConfigurable";
+import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
 import { TextLabel } from "../../../../FormFieldComponents/TextField/TextLabel";
 
 import { ListenerConfigForm } from "./ListenerConfigForm";
@@ -146,28 +145,6 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         }
     }
 
-    const {
-        state: { targetPosition: targetPositionDraft },
-        props: {
-            currentFile,
-            langServerURL,
-            syntaxTree,
-            diagnostics: mainDiagnostics,
-        },
-        api: {
-            ls: { getExpressionEditorLangClient },
-        }
-    } = useContext(Context);
-
-    const lowCodeEditorContext: CustomLowCodeContext = {
-        targetPosition: targetPositionDraft,
-        currentFile,
-        langServerURL,
-        syntaxTree,
-        diagnostics: mainDiagnostics,
-        ls: { getExpressionEditorLangClient }
-    }
-
     const servicePathConfig: FormElementProps<ExpressionEditorProps> = {
         model: {
             name: "servicePath",
@@ -181,16 +158,14 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
             customTemplate: getCustomTemplate(),
         },
         onChange: onBasePathChange,
-        defaultValue: state.serviceBasePath,
-        expressionConfigurable: ExpressionConfigurable,
-        lowCodeEditorContext
+        defaultValue: state.serviceBasePath
     }
 
     return (
         <>
             <div className={formClasses.formContentWrapper}>
                 <div className={formClasses.formNameWrapper}>
-                    <ExpressionEditor {...servicePathConfig} />
+                    <LowCodeExpressionEditor {...servicePathConfig} />
                     <TextLabel
                         required={true}
                         textLabelId="lowcode.develop.connectorForms.HTTP.configureNewListener"

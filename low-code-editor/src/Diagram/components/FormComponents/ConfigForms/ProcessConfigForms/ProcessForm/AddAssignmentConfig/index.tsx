@@ -15,9 +15,8 @@ import React, { useContext, useState } from "react";
 import { useIntl } from "react-intl";
 
 import { FormControl, Typography } from "@material-ui/core";
-import { ExpressionEditor, ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
+import { ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
 import {
-    CustomLowCodeContext,
     FormActionButtons,
     FormElementProps,
     FormHeaderSection
@@ -28,7 +27,7 @@ import { AssignmentStatement, STKindChecker } from "@wso2-enterprise/syntax-tree
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { createPropertyStatement, getInitialSource } from "../../../../../../utils/modification-util";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
-import { ExpressionConfigurable } from "../../../../FormFieldComponents/ExpressionConfigurable";
+import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
 import { ProcessConfig } from "../../../../Types";
 
 interface AddAssignmentConfigProps {
@@ -45,27 +44,16 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
     const { config, formArgs, onCancel, onSave, onWizardClose } = props;
 
     const {
-        state: { targetPosition: targetPositionDraft },
         props: {
             isMutationProgress: isMutationInProgress,
-            currentFile,
-            langServerURL,
-            syntaxTree,
-            diagnostics: mainDiagnostics,
+            currentFile
         },
         api: {
             ls: { getExpressionEditorLangClient },
             code: { modifyDiagram }
         }
     } = useContext(Context);
-    const lowCodeEditorContext: CustomLowCodeContext = {
-        targetPosition: targetPositionDraft,
-        currentFile,
-        langServerURL,
-        syntaxTree,
-        diagnostics: mainDiagnostics,
-        ls: { getExpressionEditorLangClient }
-    }
+
     let variableName: string = '';
     let varExpression: string = '';
 
@@ -133,9 +121,7 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
             initialDiagnostics: (config.model as AssignmentStatement)?.varRef?.typeData?.diagnostics
         },
         onChange: setVarName,
-        defaultValue: varName,
-        expressionConfigurable: ExpressionConfigurable,
-        lowCodeEditorContext
+        defaultValue: varName
     };
 
     const expressionEditorConfig: FormElementProps<ExpressionEditorProps> = {
@@ -161,9 +147,7 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
             initialDiagnostics: (config.model as AssignmentStatement)?.expression?.typeData?.diagnostics
         },
         onChange: onPropertyChange,
-        defaultValue: variableExpression,
-        expressionConfigurable: ExpressionConfigurable,
-        lowCodeEditorContext
+        defaultValue: variableExpression
     };
 
     const initialSource = formArgs.model ? formArgs.model.source : getInitialSource(createPropertyStatement(
@@ -172,7 +156,7 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
 
     const nameExpressionEditor = (
         <div className="exp-wrapper">
-            <ExpressionEditor
+            <LowCodeExpressionEditor
                 {...nameExpressionEditorConfig}
             />
         </div>
@@ -180,7 +164,7 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
 
     const expressionEditor = (
         <div className="exp-wrapper">
-            <ExpressionEditor
+            <LowCodeExpressionEditor
                 {...expressionEditorConfig}
             />
         </div>

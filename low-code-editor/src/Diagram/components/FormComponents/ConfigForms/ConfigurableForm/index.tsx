@@ -13,10 +13,9 @@
 import React, { useContext, useReducer } from 'react';
 
 import { FormControl } from '@material-ui/core';
-import { ExpressionEditor, ExpressionEditorProps } from '@wso2-enterprise/ballerina-expression-editor';
+import { ExpressionEditorProps } from '@wso2-enterprise/ballerina-expression-editor';
 import {
     ConfigOverlayFormStatus,
-    CustomLowCodeContext,
     FormActionButtons,
     FormElementProps,
     FormHeaderSection,
@@ -32,7 +31,7 @@ import { createConfigurableDecl, updateConfigurableVarDecl } from '../../../../u
 import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
 import CheckBoxGroup from '../../FormFieldComponents/CheckBox';
 import { SelectDropdownWithButton } from '../../FormFieldComponents/DropDown/SelectDropdownWithButton';
-import { ExpressionConfigurable } from "../../FormFieldComponents/ExpressionConfigurable";
+import { LowCodeExpressionEditor } from "../../FormFieldComponents/LowCodeExpressionEditor";
 import { TextLabel } from '../../FormFieldComponents/TextField/TextLabel';
 import { InjectableItem } from '../../FormGenerator';
 import { VariableNameInput } from '../Components/VariableNameInput';
@@ -127,28 +126,6 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
         dispatch({ type: ConfigurableFormActionTypes.SET_VAR_NAME, payload: value });
     }
 
-    const {
-        state: { targetPosition: targetPositionDraft },
-        props: {
-            currentFile,
-            langServerURL,
-            syntaxTree,
-            diagnostics: mainDiagnostics,
-        },
-        api: {
-            ls: { getExpressionEditorLangClient },
-        }
-    } = useContext(Context);
-
-    const lowCodeEditorContext: CustomLowCodeContext = {
-        targetPosition: targetPositionDraft,
-        currentFile,
-        langServerURL,
-        syntaxTree,
-        diagnostics: mainDiagnostics,
-        ls: { getExpressionEditorLangClient }
-    }
-
     const expressionEditorConfigForValue: FormElementProps<ExpressionEditorProps> = {
         model: {
             name: "valueExpression",
@@ -174,9 +151,7 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
             initialDiagnostics: model?.initializer?.typeData?.diagnostics,
         },
         onChange: onValueChange,
-        defaultValue: state.varValue,
-        expressionConfigurable: ExpressionConfigurable,
-        lowCodeEditorContext
+        defaultValue: state.varValue
     };
 
     const expressionEditorConfigForLabel = {
@@ -283,7 +258,7 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
                         onChange={onHasDefaultValChange}
                     />
                     <div hidden={!state.hasDefaultValue}>
-                        <ExpressionEditor
+                        <LowCodeExpressionEditor
                             {...expressionEditorConfigForValue}
                         />
                     </div>

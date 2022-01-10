@@ -21,18 +21,17 @@ import {
     FormField,
     FormActionButtons,
     FormElementProps,
-    FormHeaderSection,
-    CustomLowCodeContext,
+    FormHeaderSection
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { createWhileStatement, getInitialSource } from "../../../../../../utils/modification-util";
-import { ExpressionEditor, ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
+import { ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { ConditionConfig } from "../../../../Types";
-import Tooltip from '../../../../../../../components/TooltipV2'
-import { ExpressionConfigurable } from "../../../../FormFieldComponents/ExpressionConfigurable";
+import Tooltip from '../../../../../../../components/TooltipV2';
+import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
 
 export interface WhileProps {
     condition: ConditionConfig;
@@ -44,27 +43,16 @@ export interface WhileProps {
 
 export function AddWhileForm(props: WhileProps) {
     const {
-        state: { targetPosition: targetPositionDraft },
         props: {
             isMutationProgress: isMutationInProgress,
-            currentFile,
-            langServerURL,
-            syntaxTree,
-            diagnostics: mainDiagnostics,
+            currentFile
         },
         api: {
             ls: { getExpressionEditorLangClient },
             code: { modifyDiagram }
         }
     } = useContext(Context);
-    const lowCodeEditorContext: CustomLowCodeContext = {
-        targetPosition: targetPositionDraft,
-        currentFile,
-        langServerURL,
-        syntaxTree,
-        diagnostics: mainDiagnostics,
-        ls: { getExpressionEditorLangClient }
-    }
+
     const { condition, formArgs, onCancel, onSave, onWizardClose } = props;
     const classes = useStyles();
     const intl = useIntl();
@@ -132,9 +120,7 @@ export function AddWhileForm(props: WhileProps) {
             }
         },
         onChange: handleExpEditorChange,
-        defaultValue: condition.conditionExpression,
-        expressionConfigurable: ExpressionConfigurable,
-        lowCodeEditorContext
+        defaultValue: condition.conditionExpression
     };
 
     const handleOnSaveClick = () => {
@@ -188,7 +174,7 @@ export function AddWhileForm(props: WhileProps) {
                         <div className={classes.formCodeExpressionEndWrapper}>
                             <Typography variant='body2' className={classes.startCode}>while</Typography>
                             <div className={classes.formCodeExpressionField}>
-                                <ExpressionEditor {...expElementProps} hideLabelTooltips={true} />
+                                <LowCodeExpressionEditor {...expElementProps} hideLabelTooltips={true} />
                             </div>
                             <Typography variant='body2' className={classes.endCode}>{`{`}</Typography>
                         </div>

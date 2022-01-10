@@ -23,8 +23,7 @@ import {
     FormField,
     FormActionButtons,
     FormElementProps,
-    FormHeaderSection,
-    CustomLowCodeContext
+    FormHeaderSection
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
@@ -33,14 +32,14 @@ import { createForeachStatement, getInitialSource } from "../../../../../../util
 import { genVariableName } from "../../../../../Portals/utils";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
-import { ExpressionEditor, ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
+import { ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
 import { FormTextInput } from "../../../../FormFieldComponents/TextField/FormTextInput";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { ConditionConfig, ForeachConfig } from "../../../../Types";
 import { wizardStyles } from "../../../style";
 import { VariableTypeInput, VariableTypeInputProps } from "../../../Components/VariableTypeInput";
 import Tooltip from '../../../../../../../components/TooltipV2'
-import { ExpressionConfigurable } from "../../../../FormFieldComponents/ExpressionConfigurable";
+import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
 
 interface Iterations {
     start?: string;
@@ -60,29 +59,17 @@ export const EXISTING_PROPERTY: string = "Select Existing Property";
 
 export function AddForeachForm(props: ForeachProps) {
     const {
-        state: { targetPosition: targetPositionDraft },
         props: {
-            isCodeEditorActive,
             isMutationProgress: isMutationInProgress,
             stSymbolInfo,
-            currentFile,
-            langServerURL,
-            syntaxTree,
-            diagnostics: mainDiagnostics,
+            currentFile
         },
         api: {
             ls: { getExpressionEditorLangClient },
             code: { modifyDiagram }
         }
     } = useContext(Context);
-    const lowCodeEditorContext: CustomLowCodeContext = {
-        targetPosition: targetPositionDraft,
-        currentFile,
-        langServerURL,
-        syntaxTree,
-        diagnostics: mainDiagnostics,
-        ls: { getExpressionEditorLangClient }
-    }
+
     const { condition, formArgs, onCancel, onSave, onWizardClose } = props;
 
     const [conditionExpression] = useState(condition.conditionExpression);
@@ -238,9 +225,7 @@ export function AddForeachForm(props: ForeachProps) {
             }
         },
         onChange: handleExpEditorChange,
-        defaultValue: conditionExpression.collection,
-        expressionConfigurable: ExpressionConfigurable,
-        lowCodeEditorContext
+        defaultValue: conditionExpression.collection
     };
 
     const initialSource = formArgs.model ? formArgs.model.source : getInitialSource(createForeachStatement(
@@ -329,7 +314,7 @@ export function AddForeachForm(props: ForeachProps) {
                             <Typography variant='body2' className={classnames(classes.endCode)}>in</Typography>
                             <div className={classes.formCodeExpressionLargeField}>
                                 <div className={classes.stmtEditorWrapper}>
-                                    <ExpressionEditor {...expElementProps} hideLabelTooltips={true} />
+                                    <LowCodeExpressionEditor {...expElementProps} hideLabelTooltips={true} />
                                 </div>
                             </div>
                             <Typography variant='body2' className={classes.endCode}>{`{`}</Typography>

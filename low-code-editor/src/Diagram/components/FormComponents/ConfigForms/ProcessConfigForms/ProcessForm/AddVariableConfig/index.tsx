@@ -15,10 +15,8 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
-import { ExpressionEditor,
-    ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
+import { ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
 import {
-    CustomLowCodeContext,
     FormActionButtons,
     FormElementProps,
     FormHeaderSection
@@ -33,7 +31,7 @@ import { createModuleVarDecl, getInitialSource } from "../../../../../../utils/m
 import { getVariableNameFromST } from "../../../../../../utils/st-util";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
-import { ExpressionConfigurable } from "../../../../FormFieldComponents/ExpressionConfigurable";
+import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
 import { SwitchToggle } from "../../../../FormFieldComponents/SwitchToggle";
 import { FormTextInput } from "../../../../FormFieldComponents/TextField/FormTextInput";
 import { ProcessConfig } from "../../../../Types";
@@ -61,14 +59,10 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
     const { config, formArgs, onCancel, onSave, onWizardClose } = props;
 
     const {
-        state: { targetPosition: targetPositionDraft },
         props: {
             currentFile,
             isMutationProgress: isMutationInProgress,
             stSymbolInfo,
-            langServerURL,
-            syntaxTree,
-            diagnostics: mainDiagnostics,
         },
         api: {
             ls: { getExpressionEditorLangClient },
@@ -76,15 +70,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             insights: { onEvent }
         }
     } = useContext(Context);
-
-    const lowCodeEditorContext: CustomLowCodeContext = {
-        targetPosition: targetPositionDraft,
-        currentFile,
-        langServerURL,
-        syntaxTree,
-        diagnostics: mainDiagnostics,
-        ls: { getExpressionEditorLangClient }
-    }
 
     let initialModelType: string = '';
     let variableName: string = '';
@@ -268,8 +253,6 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         },
         onChange: onPropertyChange,
         defaultValue: variableExpression,
-        expressionConfigurable: ExpressionConfigurable,
-        lowCodeEditorContext
     };
 
     const initialSource = formArgs.model ? formArgs.model.source : getInitialSource(createModuleVarDecl(
@@ -318,7 +301,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
 
     const expressionEditor = (
         <div className="exp-wrapper">
-            <ExpressionEditor
+            <LowCodeExpressionEditor
                 hideLabelTooltips={true}
                 {...expressionEditorConfig}
             />

@@ -11,25 +11,22 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js no-empty jsx-curly-spacing
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 
 import { AddRounded } from "@material-ui/icons";
 import {
-    ExpressionEditor,
     ExpressionEditorLabel,
     ExpressionEditorProps,
     getInitialValue,
     transformFormFieldTypeToString
 } from "@wso2-enterprise/ballerina-expression-editor";
 import {
-    CustomLowCodeContext,
     FormElementProps,
     IconBtnWithText
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { Context } from "../../../../../Contexts/Diagram";
 import { useStyles } from "../../DynamicConnectorForm/style"
-import { ExpressionConfigurable } from "../ExpressionConfigurable";
+import { LowCodeExpressionEditor } from "../LowCodeExpressionEditor";
 
 import "./style.scss";
 import { appendToMap } from "./utils";
@@ -77,28 +74,6 @@ export function ExpressionEditorMap(props: FormElementProps<ExpressionEditorProp
         setKeyEditorContent(value)
     }
 
-    const {
-        state: { targetPosition: targetPositionDraft },
-        props: {
-            currentFile,
-            langServerURL,
-            syntaxTree,
-            diagnostics: mainDiagnostics,
-        },
-        api: {
-            ls: { getExpressionEditorLangClient },
-        }
-    } = useContext(Context);
-
-    const lowCodeEditorContext: CustomLowCodeContext = {
-        targetPosition: targetPositionDraft,
-        currentFile,
-        langServerURL,
-        syntaxTree,
-        diagnostics: mainDiagnostics,
-        ls: { getExpressionEditorLangClient }
-    }
-
     const elementPropsKeyEditor: FormElementProps = {
         model: {
             name: "key_editor_" + model.name,
@@ -115,9 +90,7 @@ export function ExpressionEditorMap(props: FormElementProps<ExpressionEditorProp
             revertClearInput,
             subEditor: true
         },
-        onChange: handleKeyEditorChange,
-        expressionConfigurable: ExpressionConfigurable,
-        lowCodeEditorContext
+        onChange: handleKeyEditorChange
     };
 
 
@@ -161,8 +134,8 @@ export function ExpressionEditorMap(props: FormElementProps<ExpressionEditorProp
         <>
             <ExpressionEditorLabel {...props} model={{...model, label: model.name}} />
             <div className={classes.groupedForm}>
-                <ExpressionEditor {...elementPropsKeyEditor} />
-                <ExpressionEditor {...elementPropsValueEditor} />
+                <LowCodeExpressionEditor {...elementPropsKeyEditor} />
+                <LowCodeExpressionEditor {...elementPropsValueEditor} />
                 <div className="add-element-button">
                     <IconBtnWithText
                         disabled={keyEditorValid || valueEditorValid}
@@ -171,7 +144,7 @@ export function ExpressionEditorMap(props: FormElementProps<ExpressionEditorProp
                         icon={<AddRounded fontSize="small" className={classes.iconButton} />}
                     />
                 </div>
-                <ExpressionEditor
+                <LowCodeExpressionEditor
                     model={model}
                     customProps={{
                         ...customProps,

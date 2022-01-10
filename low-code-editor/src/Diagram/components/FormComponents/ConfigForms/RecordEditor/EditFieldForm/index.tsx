@@ -11,24 +11,21 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useIntl } from "react-intl";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
-import { ExpressionEditor } from '@wso2-enterprise/ballerina-expression-editor';
 import {
-    CustomLowCodeContext,
     FormElementProps,
     FormField,
     FormHeaderSection,
     PrimaryButton
 } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
-import { Context } from "../../../../../../Contexts/Diagram";
 import { useRecordEditorContext } from '../../../../../../Contexts/RecordEditor';
 import { keywords } from "../../../../Portals/utils/constants";
 import CheckBoxGroup from '../../../FormFieldComponents/CheckBox';
-import { ExpressionConfigurable } from "../../../FormFieldComponents/ExpressionConfigurable";
+import { LowCodeExpressionEditor } from "../../../FormFieldComponents/LowCodeExpressionEditor";
 import { wizardStyles as useStyles } from "../../style";
 import { recordStyles } from "../style";
 import { genRecordName, getFieldNames } from "../utils";
@@ -115,27 +112,7 @@ export function EditFieldForm() {
             callBacks.onUpdateCurrentField(state.currentField);
         }
     };
-    const {
-        state: { targetPosition: targetPositionDraft },
-        props: {
-            currentFile,
-            langServerURL,
-            syntaxTree,
-            diagnostics: mainDiagnostics,
-        },
-        api: {
-            ls: { getExpressionEditorLangClient },
-        }
-    } = useContext(Context);
 
-    const lowCodeEditorContext: CustomLowCodeContext = {
-        targetPosition: targetPositionDraft,
-        currentFile,
-        langServerURL,
-        syntaxTree,
-        diagnostics: mainDiagnostics,
-        ls: { getExpressionEditorLangClient }
-    }
     const defaultValueProps: FormElementProps = {
         model: formField,
         customProps: {
@@ -146,9 +123,7 @@ export function EditFieldForm() {
             onFocus: handleDefaultValueFocus,
         },
         onChange: handleDefaultValueChange,
-        defaultValue,
-        expressionConfigurable: ExpressionConfigurable,
-        lowCodeEditorContext
+        defaultValue
     };
 
     useEffect(() => {
@@ -177,7 +152,7 @@ export function EditFieldForm() {
                 {!state.currentField?.isFieldOptional && (state.currentField?.type !== "record") && (
                     <div>
                         <div className={classes.sectionSeparator} />
-                        <ExpressionEditor {...defaultValueProps} />
+                        <LowCodeExpressionEditor {...defaultValueProps} />
                     </div>
                 )}
 

@@ -11,24 +11,21 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js no-empty jsx-curly-spacing
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 
 import { AddRounded } from "@material-ui/icons";
 import {
-    ExpressionEditor,
     ExpressionEditorLabel,
     ExpressionEditorProps,
     getInitialValue
 } from "@wso2-enterprise/ballerina-expression-editor";
 import {
-    CustomLowCodeContext,
     FormElementProps,
     IconBtnWithText
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { Context } from "../../../../../Contexts/Diagram";
 import { useStyles } from "../../DynamicConnectorForm/style"
-import { ExpressionConfigurable } from "../ExpressionConfigurable";
+import { LowCodeExpressionEditor } from "../LowCodeExpressionEditor";
 
 import "./style.scss";
 import { appendToArray } from "./utils";
@@ -71,28 +68,6 @@ export function ExpressionEditorArray(props: FormElementProps<ExpressionEditorPr
         setChanged(!changed)
     }
 
-    const {
-        state: { targetPosition: targetPositionDraft },
-        props: {
-            currentFile,
-            langServerURL,
-            syntaxTree,
-            diagnostics: mainDiagnostics,
-        },
-        api: {
-            ls: { getExpressionEditorLangClient },
-        }
-    } = useContext(Context);
-
-    const lowCodeEditorContext: CustomLowCodeContext = {
-        targetPosition: targetPositionDraft,
-        currentFile,
-        langServerURL,
-        syntaxTree,
-        diagnostics: mainDiagnostics,
-        ls: { getExpressionEditorLangClient }
-    }
-
     const elementPropsSubEditor: FormElementProps = {
         model: {
             ...model.memberType,
@@ -108,9 +83,7 @@ export function ExpressionEditorArray(props: FormElementProps<ExpressionEditorPr
             subEditor: true,
             editPosition: customProps?.editPosition,
         },
-        onChange: handleSubEditorChange,
-        expressionConfigurable: ExpressionConfigurable,
-        lowCodeEditorContext
+        onChange: handleSubEditorChange
     };
 
     model.displayName = "Array Expression";
@@ -119,7 +92,7 @@ export function ExpressionEditorArray(props: FormElementProps<ExpressionEditorPr
         <>
             <ExpressionEditorLabel {...props} model={{...model, displayName: model.name || model.displayName}} />
             <div className={classes.groupedForm}>
-                <ExpressionEditor {...elementPropsSubEditor} />
+                <LowCodeExpressionEditor {...elementPropsSubEditor} />
                 <div className="add-element-button">
                     <IconBtnWithText
                         disabled={addButtonDisabled}
@@ -128,7 +101,7 @@ export function ExpressionEditorArray(props: FormElementProps<ExpressionEditorPr
                         icon={<AddRounded fontSize="small" className={classes.iconButton} />}
                     />
                 </div>
-                <ExpressionEditor
+                <LowCodeExpressionEditor
                     model={{
                         ...model,
                         typeInfo: model?.memberType?.typeInfo
