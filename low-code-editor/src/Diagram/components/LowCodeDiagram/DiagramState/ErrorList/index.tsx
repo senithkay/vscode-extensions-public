@@ -80,7 +80,7 @@ export function ErrorList() {
                     },
                     range: diagnostic.range,
                     textDocument: {
-                        uri: `file://${currentFile.path}`
+                        uri: monaco.Uri.file(currentFile.path).toString()
                     }
                 }
                 const action = await langClient.codeAction(params);
