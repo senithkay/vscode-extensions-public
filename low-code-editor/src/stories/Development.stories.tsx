@@ -4,26 +4,21 @@ import { storiesOf } from '@storybook/react';
 
 import { DiagramGeneratorProps } from '../DiagramGenerator';
 
-import balDist from "./data/baldist.json";
-import bbesList from "./data/bbes.json";
+import devProject from "./data/devproject.json";
 import { DiagramGeneratorWrapper } from './DiagramGeneratorWrapper';
 import { getFileContent, langClientPromise } from './story-utils';
 
-function getBBEFilePath(bbeID: string) {
-  return balDist.balHome + "/examples/"  + bbeID + "/" + bbeID.replaceAll('-', '_') + ".bal";
-}
+const stories = storiesOf('Low Code Editor/Development/project', module);
 
-bbesList.forEach(bbe => {
-  const stories = storiesOf('Low Code Editor/Development/' + bbe.title, module);
-  bbe.samples.forEach((bbeItem) => {
-    stories.add(
-      bbeItem.name,
-      () => {
-        const diagramProps = getDiagramGeneratorProps(getBBEFilePath(bbeItem.url));
-        return <DiagramGeneratorWrapper {...diagramProps} />
-      }
-    )
-  });
+devProject.balFiles.forEach(balFile => {
+  const relativePath = balFile.substring(devProject.projectPath.length);
+  stories.add(
+    relativePath,
+    () => {
+      const diagramProps = getDiagramGeneratorProps(balFile);
+      return <DiagramGeneratorWrapper {...diagramProps} />
+    }
+  )
 });
 
 function getDiagramGeneratorProps(filePath: string): DiagramGeneratorProps {

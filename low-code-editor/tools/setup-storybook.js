@@ -1,5 +1,6 @@
 const { spawn, execSync } = require("child_process");
-const { cp, writeFile } = require("fs");
+var glob = require( 'glob' );  
+const { cp, writeFile, existsSync } = require("fs");
 const path = require("path");
 
 function copyBBEJson() {
@@ -9,7 +10,7 @@ function copyBBEJson() {
         path.join(balHome, "examples", "index.json"),
         path.join(storyDataDir, "bbes.json"),
         { force: true },
-        (err) => err ? console.log("copy error: " + err ) : console.log("copy successful")
+        (err) => err ? console.log("BBE copy error: " + err ) : console.log("BBE copy successful")
     );
     writeFile(path.join(storyDataDir, "baldist.json"),
 `
@@ -19,6 +20,38 @@ function copyBBEJson() {
 `    ,
     (err) => err ? console.log("dist json make error: " + err ) : console.log("dist json make successful")
     )
+}
+
+function setupDevBalProject() {
+    const storyDataDir = path.join(__dirname, "..", "src", "stories", "data");
+    const devProjectFolder = path.join(storyDataDir, "project");
+    if (existsSync(devProjectFolder)) {
+        console.log("Development project alreay exists at " + devProjectFolder)
+    } else {
+        const balNewOutput = execSync("bal new project").toString().trim();
+        if (balNewOutput.startsWith("Created new")) {
+            console.log("Initialized new Ballerina Project at " + devProjectFolder)
+        } else {
+            console.log("Unable to initialize new Ballerina project at " + devProjectFolder)
+        }
+    }
+
+    glob(path.join(devProjectFolder, '**/*.bal'), function( err, files ) {
+        if (err) {
+            console.log("Error while analyzing development project. ", err)
+            return
+        }
+        writeFile(path.join(storyDataDir, "devproject.json"),
+`
+{
+    "projectPath": "${devProjectFolder}/",
+    "balFiles": ${JSON.stringify(files)}
+}
+`    ,
+    (err) => err ? console.log("dev project json make error: " + err ) : console.log("dev project json make successful")
+    )
+    });
+    
 }
 
 function startLS() {
@@ -70,6 +103,7 @@ function startStoryBook() {
 }
 
 copyBBEJson();
+setupDevBalProject();
 startLS();
 startVSCodeMockServer();
 
