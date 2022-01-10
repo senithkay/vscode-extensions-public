@@ -34,12 +34,15 @@ enum LibraryBrowserMode {
 // TODO: Use environment variable or determine some other way to fetch the required Ballerina version
 const LIB_BROWSING_BAL_VERSION = "slbeta5";
 
+const DEFAULT_SEARCH_SCOPE = "distribution";
+
 export function LibraryBrowser() {
     const statementEditorClasses = useStatementEditorStyles();
     const stmtCtx = useContext(StatementEditorContext);
 
     const [libraryBrowserMode, setLibraryBrowserMode] = useState(LibraryBrowserMode.LIB_LIST);
     const [keyword, setKeyword] = useState('');
+    const [searchScope, setSearchScope] = useState(DEFAULT_SEARCH_SCOPE);
     const [librariesSearchData, setLibrariesSearchData] = useState<LibrarySearchResponse>();
     const [libraries, setLibraries] = useState([]);
     const [filteredSearchData, setFilteredSearchData] = useState<LibrarySearchResponse>();
@@ -65,6 +68,7 @@ export function LibraryBrowser() {
     const libraryBrowsingHandler = (data: LibraryDataResponse) => {
         setLibraryData(data);
         setLibraryBrowserMode(LibraryBrowserMode.LIB_BROWSE);
+        setSearchScope(data.searchData.modules[0].id);
     }
 
     const onLangLibSelection = async () => {
@@ -75,6 +79,8 @@ export function LibraryBrowser() {
         }
 
         setLibraryBrowserMode(LibraryBrowserMode.LIB_LIST);
+        setSearchScope(DEFAULT_SEARCH_SCOPE);
+        setKeyword('');
     };
 
     const onStdLibSelection = async () => {
@@ -85,6 +91,8 @@ export function LibraryBrowser() {
         }
 
         setLibraryBrowserMode(LibraryBrowserMode.LIB_LIST);
+        setSearchScope(DEFAULT_SEARCH_SCOPE);
+        setKeyword('');
     };
 
     return (
@@ -100,7 +108,7 @@ export function LibraryBrowser() {
                 className={statementEditorClasses.librarySearchBox}
                 key="random1"
                 value={keyword}
-                placeholder={"search"}
+                placeholder={`search in ${searchScope}`}
                 onChange={(e) => setKeyword(e.target.value)}
             />
             {libraryBrowserMode === LibraryBrowserMode.LIB_LIST && (
