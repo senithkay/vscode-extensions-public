@@ -14,7 +14,7 @@ function getBBEFilePath(bbeID: string) {
 }
 
 bbesList.forEach(bbe => {
-  const stories = storiesOf('Low Code Editor/BBEs/' + bbe.title, module);
+  const stories = storiesOf('Low Code Editor/Testing/BBEs/' + bbe.title, module);
   bbe.samples.forEach((bbeItem) => {
     stories.add(
       bbeItem.name,

@@ -23,7 +23,7 @@ import { EnumConfigForm, EnumEditorProps } from "./index";
 import enumModel from "./story-data/enum-decl-raw.json";
 
 export default {
-    title: 'Low Code Editor/Form/Enum Editor/Enum Editor',
+    title: 'Low Code Editor/Testing/Form/Enum Editor/Enum Editor',
     component: EnumConfigForm,
 };
 
