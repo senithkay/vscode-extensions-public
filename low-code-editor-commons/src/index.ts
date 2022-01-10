@@ -13,5 +13,5 @@
 export * from "./lib";
 export * from "./types";
 export * from "./components";
-export * from "./themes"
-export * from "./templates/components";
+export * from "./themes";
+export { default as templates } from "./templates/components"
