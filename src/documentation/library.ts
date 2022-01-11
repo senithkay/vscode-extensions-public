@@ -19,6 +19,7 @@
 
 import https from "https";
 import { debug } from "../utils";
+import { ballerinaExtInstance } from "../core";
 
 export interface LibrariesListResponse {
     librariesList: LibraryInfo[];
@@ -100,8 +101,7 @@ export const cachedLibraryData = new Map<string, LibraryDataResponse>();
 export const LANG_LIB_LIST_CACHE = "LANG_LIB_LIST_CACHE";
 export const STD_LIB_LIST_CACHE = "STD_LIB_LIST_CACHE";
 export const LIBRARY_SEARCH_CACHE = "LIBRARY_SEARCH_CACHE";
-// TODO: Use environment variable or determine some other way to fetch the required Ballerina version
-export const LIB_BROWSING_BAL_VERSION = "slbeta5";
+const BAL_VERSION_CAPTURING_REGEXP = /\/ballerina-([a-z]+\d+)/g;
 const options = {
     hostname: 'api.staging-central.ballerina.io',
     port: 443,
@@ -114,15 +114,20 @@ const options = {
 export function getLanguageLibrariesList(): Promise<LibrariesListResponse | undefined> {
 
     return new Promise((resolve, reject) => {
-        // const ballerinaHome = ballerinaExtInstance.getBallerinaHome().split('-', 2)[1];
-        const ballerinaHome = 'slbeta5';
+        const ballerinaHome = ballerinaExtInstance.getBallerinaHome();
+        const match = BAL_VERSION_CAPTURING_REGEXP.exec(ballerinaHome);
+
+        let version = 'slbeta2';
+        if (match) {
+            [, version] = match;
+        }
 
         if (cachedLibrariesList.has(LANG_LIB_LIST_CACHE)) {
             return resolve(cachedLibrariesList.get(LANG_LIB_LIST_CACHE));
         }
 
         let body = '';
-        const req = https.request({ path: `/2.0/docs/stdlib/${ballerinaHome}`, ...options }, res => {
+        const req = https.request({ path: `/2.0/docs/stdlib/${version}`, ...options }, res => {
             res.on('data', function (chunk) {
                 body = body + chunk;
             });
