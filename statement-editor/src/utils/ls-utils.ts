@@ -14,7 +14,6 @@ import {
     CompletionParams,
     CompletionResponse,
     ExpressionEditorLangClientInterface,
-    LibraryDocResponse,
     PartialSTRequest,
     PublishDiagnosticsParams
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
