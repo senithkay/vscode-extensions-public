@@ -6,7 +6,7 @@ import { DiagramGeneratorProps } from '../DiagramGenerator';
 
 import devProject from "./data/devproject.json";
 import { DiagramGeneratorWrapper } from './DiagramGeneratorWrapper';
-import { getFileContent, langClientPromise } from './story-utils';
+import { getFileContent, langClientPromise, updateFileContent } from './story-utils';
 
 const stories = storiesOf('Low Code Editor/Development/project', module);
 
@@ -41,6 +41,6 @@ function getDiagramGeneratorProps(filePath: string): DiagramGeneratorProps {
     sendTelemetryEvent: () => Promise.resolve(undefined),
     showMessage: () => Promise.resolve(false),
     showPerformanceGraph: () => Promise.resolve(false),
-    updateFileContent: () => Promise.resolve(false),
+    updateFileContent
   }
 }
