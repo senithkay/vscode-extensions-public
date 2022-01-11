@@ -14,7 +14,6 @@
 import React, { useEffect, useState } from "react";
 
 import { Box, Grid, InputBase } from "@material-ui/core";
-import { IconBtnWithText } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import debounce from "lodash.debounce";
 
 import SearchIcon from "../../../../../../assets/icons/SearchIcon";

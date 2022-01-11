@@ -46,6 +46,7 @@ import * as Forms from "../../FormComponents/ConfigForms";
 import { ConfigWizardState } from "../../FormComponents/ConnectorConfigWizard";
 import * as ConnectorExtension from "../../FormComponents/ConnectorExtensions";
 import * as Elements from "../../FormComponents/FormFieldComponents";
+import ExpressionEditor from "../../FormComponents/FormFieldComponents/ExpressionEditor";
 import { getUnionFormFieldName } from "../../FormComponents/FormFieldComponents/Union";
 import { FormElementProps } from "../../FormComponents/Types";
 import * as OverlayElement from "../../LowCodeDiagram/Components/DialogBoxes";
@@ -53,7 +54,6 @@ import { DefaultConnectorIcon } from "../../LowCodeDiagram/Components/RenderingC
 import { StatementViewState } from "../../LowCodeDiagram/ViewState";
 
 import { keywords, symbolKind } from "./constants";
-import ExpressionEditor from "../../FormComponents/FormFieldComponents/ExpressionEditor";
 
 export function getOverlayElement(
     type: string,
@@ -84,19 +84,7 @@ export function getFormElement(elementProps: FormElementProps, type: string) {
     }
 
     const FormElement = (Elements as any)[type];
-
-    // todo: check if this logic should be moved down to element component level
-    // if (elementProps.model.value) {
-    //     if (type === "xml") {
-    //         const xmlRegex = /xml\ \`(.*\n?)\`/g;
-    //         const matchedRegex = xmlRegex.exec(elementProps.model.value);
-    //         elementProps.defaultValue = matchedRegex ? matchedRegex[1] : elementProps.model.value;
-    //     } else if (type === "json") {
-    //         elementProps.defaultValue = elementProps.model.value;
-    //     }
-    // }
-
-    if(FormElement){
+    if (FormElement){
         return <FormElement {...elementProps} />;
     }
 
@@ -1117,13 +1105,4 @@ export function getManualConnectionDetailsFromFormFields(formFields: FormField[]
 export function getManualConnectionTypeFromFormFields(formFields: FormField[]): any {
     const selectedType = (formFields[0]?.fields[0]?.selectedDataType) ? ((formFields[0]?.fields[0]?.selectedDataType)) : (formFields[0].selectedDataType)
     return selectedType
-}
-
-export function checkDBConnector(connectorModule: string): boolean {
-    let isDBConnectorStatus = false;
-    const dbConnectors = ["mysql", "mssql", "postgresql", "oracledb"]
-    if (dbConnectors.includes(connectorModule)) {
-        isDBConnectorStatus = true;
-    }
-    return isDBConnectorStatus;
 }
