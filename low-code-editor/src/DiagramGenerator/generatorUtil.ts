@@ -39,7 +39,7 @@ export async function getLowcodeST(payload: any, filePath: string, langClient: D
 }
 
 export function getFnStartPosition(node: FunctionDefinition | ResourceAccessorDefinition): SelectedPosition {
-    const { startColumn, startLine } = node.functionName.position;
+    const { startColumn, startLine } = node.functionName ? node.functionName.position : node.position;
     return {
         startColumn,
         startLine
