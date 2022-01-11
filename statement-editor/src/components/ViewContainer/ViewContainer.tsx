@@ -36,8 +36,8 @@ import { useStatementEditorStyles } from "../styles";
 export interface LowCodeEditorProps {
     getLangClient: () => Promise<ExpressionEditorLangClientInterface>,
     applyModifications: (modifications: STModification[]) => void,
-    getLibrariesList: (version: string, kind?: LibraryKind) => Promise<LibraryDocResponse | undefined>,
-    getLibrariesData: (version: string) => Promise<LibrarySearchResponse | undefined>,
+    getLibrariesList: (kind: LibraryKind) => Promise<LibraryDocResponse | undefined>,
+    getLibrariesData: () => Promise<LibrarySearchResponse | undefined>,
     getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse | undefined>,
     currentFile: {
         content: string,

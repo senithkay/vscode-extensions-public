@@ -112,8 +112,8 @@ export interface LowCodeEditorAPI {
         run: (args: any[]) => void;
     }
     library?: {
-        getLibrariesList: (version: string, kind?: string) => Promise<LibraryDocResponse>;
-        getLibrariesData: (version: string) => Promise<LibrarySearchResponse>;
+        getLibrariesList: (kind: string) => Promise<LibraryDocResponse>;
+        getLibrariesData: () => Promise<LibrarySearchResponse>;
         getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse>;
     }
 }

@@ -31,8 +31,6 @@ enum LibraryBrowserMode {
     LIB_SEARCH = 'libraries_search',
     LIB_BROWSE = 'library_browse',
 }
-// TODO: Use environment variable or determine some other way to fetch the required Ballerina version
-const LIB_BROWSING_BAL_VERSION = "slbeta5";
 
 const DEFAULT_SEARCH_SCOPE = "distribution";
 
@@ -50,7 +48,7 @@ export function LibraryBrowser() {
 
     useEffect(() => {
         (async () => {
-            const response = await stmtCtx.getLibrariesData(LIB_BROWSING_BAL_VERSION);
+            const response = await stmtCtx.getLibrariesData();
             if (response) {
                 setLibrariesSearchData(response);
             }
@@ -72,10 +70,10 @@ export function LibraryBrowser() {
         setLibraryData(data);
         setLibraryBrowserMode(LibraryBrowserMode.LIB_BROWSE);
         setSearchScope(data.searchData.modules[0].id);
-    }
+    };
 
     const onLangLibSelection = async () => {
-        const response = await stmtCtx.getLibrariesList(LIB_BROWSING_BAL_VERSION, LibraryKind.langLib);
+        const response = await stmtCtx.getLibrariesList(LibraryKind.langLib);
 
         if (response) {
             setLibraries(response.librariesList);
@@ -87,7 +85,7 @@ export function LibraryBrowser() {
     };
 
     const onStdLibSelection = async () => {
-        const response = await stmtCtx.getLibrariesList(LIB_BROWSING_BAL_VERSION, LibraryKind.stdLib);
+        const response = await stmtCtx.getLibrariesList(LibraryKind.stdLib);
 
         if (response) {
             setLibraries(response.librariesList);
