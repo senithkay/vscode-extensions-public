@@ -43,8 +43,8 @@ export interface EditorAPI {
     resolveMissingDependencyByCodeAction: (filePath: string, fileContent: string, diagnostic: any) => Promise<boolean>;
     runCommand: (command: PALETTE_COMMANDS, args: any[]) => Promise<boolean>;
     sendTelemetryEvent: (event: LowcodeEvent) => Promise<void>;
-    getLibrariesList: (version: string, kind?: LibraryKind) => Promise<LibraryDocResponse | undefined>;
-    getLibrariesData: (version: string) => Promise<LibrarySearchResponse | undefined>;
+    getLibrariesList: (kind: LibraryKind) => Promise<LibraryDocResponse | undefined>;
+    getLibrariesData: () => Promise<LibrarySearchResponse | undefined>;
     getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse | undefined>;
 }
 
