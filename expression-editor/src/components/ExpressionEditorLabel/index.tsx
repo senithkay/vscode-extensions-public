@@ -23,7 +23,6 @@ import { transformFormFieldTypeToString } from "../ExpressionEditor/utils";
 
 import { getExampleForType, truncateText, variableNameMaxLength } from "./utils";
 
-
 export function ExpressionEditorLabel(props: FormElementProps<ExpressionEditorProps>) {
     const { model, customProps, hideLabelTooltips } = props;
 
