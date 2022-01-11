@@ -15,7 +15,11 @@
 
 describe("Validate VS code", () => {
   it("initial test verification", () => {
-    cy.visit(Cypress.env("workspaceUrl"));
+    cy.visit(Cypress.env("workspaceUrl"), {
+      headers: {
+        "Accept-Encoding": "gzip, deflate",
+      },
+    });
     // cy.get(".category-description-container > .category-title", {
     //   timeout: 60000,
     // })
