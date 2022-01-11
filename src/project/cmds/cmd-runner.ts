@@ -93,14 +93,14 @@ export function runCommandWithConf(file: BallerinaProject | string, executor: st
         terminal = window.createTerminal({ name: TERMINAL_NAME });
     } else {
         commandText = `${executor} ${cmd} ${argsList}`;
-        terminal = window.createTerminal({ name: TERMINAL_NAME, cwd: filePath });
+        let configEnv = {};
+        if (confPath !== '') {
+            configEnv = { "BAL_CONFIG_FILES": confPath };
+        }
+        terminal = window.createTerminal({ name: TERMINAL_NAME, cwd: filePath, env: configEnv });
     }
     terminal.sendText(isWindows() ? 'cls' : 'clear', true);
     terminal.show(true);
-    if (confPath !== '') {
-        const configEnv: string = 'BAL_CONFIG_FILES=' + confPath;
-        terminal.sendText(isWindows() ? `set ${configEnv}` : `export ${configEnv}`, true);
-    }
     terminal.sendText(commandText, true);
 }
 

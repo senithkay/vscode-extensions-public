@@ -25,7 +25,7 @@ import * as _ from 'lodash';
 import { render } from './renderer';
 import { CONNECTOR_LIST_CACHE, DocumentIdentifier, ExtendedLangClient, HTTP_CONNECTOR_LIST_CACHE, PerformanceAnalyzerGraphResponse, PerformanceAnalyzerRealtimeResponse } from '../core/extended-language-client';
 import { BallerinaExtension, ballerinaExtInstance, Change } from '../core';
-import { getCommonWebViewOptions, isWindows, WebViewMethod, WebViewRPCHandler } from '../utils';
+import { getCommonWebViewOptions, WebViewMethod, WebViewRPCHandler } from '../utils';
 import { join } from "path";
 import { TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, sendTelemetryEvent, sendTelemetryException, TM_EVENT_OPEN_CODE_EDITOR, TM_EVENT_OPEN_LOW_CODE, TM_EVENT_LOW_CODE_RUN } from '../telemetry';
 import { CHOREO_API_PF, getDataFromChoreo, openPerformanceDiagram, PFSession } from '../forecaster';
@@ -99,7 +99,7 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 	});
 
 	// Update test view
-	createTests(Uri.parse(filePath));
+	createTests(Uri.file(filePath));
 }
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
@@ -168,7 +168,7 @@ function resolveMissingDependencyByCodeAction(filePath: string, fileContent: str
 			}
 		},
 		textDocument: {
-			uri: `file://${filePath}`
+			uri: Uri.file(filePath).toString()
 		}
 	}).then(codeaction => {
 		if (codeaction.length > 0 && codeaction[0].command) {
@@ -192,7 +192,7 @@ async function resolveMissingDependency(filePath: string, fileContent: string, l
 		// Resolve missing dependencies.
 		const response = await langClient.resolveMissingDependencies({
 			documentIdentifier: {
-				uri: `file://${filePath}`
+				uri: Uri.file(filePath).toString()
 			}
 		});
 
@@ -468,9 +468,6 @@ function callUpdateDiagramMethod() {
 	let ballerinaFilePath = diagramElement!.fileUri!.fsPath;
 	const fileName: string | undefined = getCurrentFileName();
 	DiagramPanel.currentPanel?.updateTitle(fileName ? `${fileName} Diagram` : `Ballerina Diagram`);
-	if (isWindows()) {
-		ballerinaFilePath = '/' + ballerinaFilePath.split(sep).join("/");
-	}
 	const args = [{
 		filePath: ballerinaFilePath,
 		startLine: diagramElement!.startLine,
