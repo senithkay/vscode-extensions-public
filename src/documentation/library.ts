@@ -17,9 +17,82 @@
  *
  */
 
-import { LibrariesListResponse, LibraryDataResponse, LibraryKind, LibrarySearchResponse } from "../core";
 import https from "https";
 import { debug } from "../utils";
+
+export interface LibrariesListResponse {
+    librariesList: LibraryInfo[];
+}
+
+export enum LibraryKind {
+    langLib = 'langLibs',
+    stdLib = 'modules',
+}
+
+export interface LibraryInfo {
+    id: string;
+    summary?: string;
+    description?: string;
+    orgName: string;
+    version: string;
+    isDefaultModule: boolean;
+}
+
+export interface LibrarySearchResponse {
+    modules: LibraryInfo[];
+    classes: ModuleProperty[];
+    functions: ModuleProperty[];
+    records: ModuleProperty[];
+    constants: ModuleProperty[];
+    errors: ModuleProperty[];
+    types: ModuleProperty[];
+    clients: ModuleProperty[];
+    listeners: ModuleProperty[];
+    annotations: ModuleProperty[];
+    objectTypes: ModuleProperty[];
+    enums: ModuleProperty[];
+}
+
+export interface LibraryDataResponse {
+    docsData: LibraryDocsData;
+    searchData: LibrarySearchResponse;
+}
+
+export interface ModuleProperty {
+    id: string;
+    description: string;
+    moduleId: string;
+    moduleOrgName: string;
+    moduleVersion: string;
+}
+
+export interface LibraryDocsData {
+    releaseVersion: string;
+    langLibs: any;
+    modules: LibraryModule[];
+}
+
+export interface LibraryModule {
+    relatedModules: any;
+    records: any;
+    classes: any;
+    objectTypes: any;
+    clients: any;
+    listeners: any;
+    functions: any;
+    constants: any;
+    annotations: any;
+    errors: any;
+    types: any;
+    enums: any;
+    variables: any;
+    id: string;
+    summary: string;
+    description: string;
+    orgName: string;
+    version: string;
+    isDefaultModule: boolean;
+}
 
 export const cachedLibrariesList = new Map<string, LibrariesListResponse>();
 export const cachedSearchList = new Map<string, LibrarySearchResponse>();

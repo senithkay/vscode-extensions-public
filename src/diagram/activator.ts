@@ -27,9 +27,6 @@ import {
 	DocumentIdentifier,
 	ExtendedLangClient,
 	HTTP_CONNECTOR_LIST_CACHE,
-	LibrariesListResponse,
-	LibraryDataResponse,
-	LibraryKind, LibrarySearchResponse,
 	PerformanceAnalyzerGraphResponse,
 	PerformanceAnalyzerRealtimeResponse
 } from '../core/extended-language-client';
@@ -55,7 +52,11 @@ import {
 	getStandardLibrariesList,
 	LANG_LIB_LIST_CACHE,
 	LIB_BROWSING_BAL_VERSION,
+	LibrariesListResponse,
 	LIBRARY_SEARCH_CACHE,
+	LibraryDataResponse,
+	LibraryKind,
+	LibrarySearchResponse,
 	STD_LIB_LIST_CACHE
 } from "../documentation/library";
 
