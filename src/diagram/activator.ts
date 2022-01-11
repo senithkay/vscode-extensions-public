@@ -51,13 +51,15 @@ import {
 	getLibraryData,
 	getStandardLibrariesList,
 	LANG_LIB_LIST_CACHE,
-	LibrariesListResponse,
 	LIBRARY_SEARCH_CACHE,
+	STD_LIB_LIST_CACHE
+} from "../library-browser";
+import {
+	LibrariesListResponse,
 	LibraryDataResponse,
 	LibraryKind,
-	LibrarySearchResponse,
-	STD_LIB_LIST_CACHE
-} from "../documentation/library";
+	LibrarySearchResponse
+} from "../library-browser/model";
 
 export let hasDiagram: boolean = false;
 

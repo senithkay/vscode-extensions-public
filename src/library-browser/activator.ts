@@ -19,81 +19,8 @@
 
 import https from "https";
 import { debug } from "../utils";
-import { ballerinaExtInstance } from "../core";
-
-export interface LibrariesListResponse {
-    librariesList: LibraryInfo[];
-}
-
-export enum LibraryKind {
-    langLib = 'langLibs',
-    stdLib = 'modules',
-}
-
-export interface LibraryInfo {
-    id: string;
-    summary?: string;
-    description?: string;
-    orgName: string;
-    version: string;
-    isDefaultModule: boolean;
-}
-
-export interface LibrarySearchResponse {
-    modules: LibraryInfo[];
-    classes: ModuleProperty[];
-    functions: ModuleProperty[];
-    records: ModuleProperty[];
-    constants: ModuleProperty[];
-    errors: ModuleProperty[];
-    types: ModuleProperty[];
-    clients: ModuleProperty[];
-    listeners: ModuleProperty[];
-    annotations: ModuleProperty[];
-    objectTypes: ModuleProperty[];
-    enums: ModuleProperty[];
-}
-
-export interface LibraryDataResponse {
-    docsData: LibraryDocsData;
-    searchData: LibrarySearchResponse;
-}
-
-export interface ModuleProperty {
-    id: string;
-    description: string;
-    moduleId: string;
-    moduleOrgName: string;
-    moduleVersion: string;
-}
-
-export interface LibraryDocsData {
-    releaseVersion: string;
-    langLibs: any;
-    modules: LibraryModule[];
-}
-
-export interface LibraryModule {
-    relatedModules: any;
-    records: any;
-    classes: any;
-    objectTypes: any;
-    clients: any;
-    listeners: any;
-    functions: any;
-    constants: any;
-    annotations: any;
-    errors: any;
-    types: any;
-    enums: any;
-    variables: any;
-    id: string;
-    summary: string;
-    description: string;
-    orgName: string;
-    version: string;
-    isDefaultModule: boolean;
-}
+import { BallerinaExtension } from "../core";
+import { LibrariesListResponse, LibraryDataResponse, LibraryKind, LibrarySearchResponse } from "./model";
 
 export const cachedLibrariesList = new Map<string, LibrariesListResponse>();
 export const cachedSearchList = new Map<string, LibrarySearchResponse>();
@@ -103,31 +30,36 @@ export const STD_LIB_LIST_CACHE = "STD_LIB_LIST_CACHE";
 export const LIBRARY_SEARCH_CACHE = "LIBRARY_SEARCH_CACHE";
 const BAL_VERSION_CAPTURING_REGEXP = /\/ballerina-([a-z]+\d+)/g;
 const options = {
-    hostname: 'api.staging-central.ballerina.io',
+    hostname: 'api.central.ballerina.io',
     port: 443,
     method: 'GET',
     headers: {
         'Content-Type': 'application/json'
     }
 };
+let balVersion = 'slbeta6'; // This will overwrite if the ballerina version can be derived from the ballerina home (Cannot be derived when using the custom packs).
+const DOC_API_PATH = '/2.0/docs';
+const LIBRARIES_LIST_ENDPOINT = DOC_API_PATH + '/stdlib' + balVersion;
+const LIBRARIES_SEARCH_ENDPOINT = LIBRARIES_LIST_ENDPOINT + '/search';
+
+export function activate(ballerinaExtInstance: BallerinaExtension) {
+    const balHome = ballerinaExtInstance.getBallerinaHome();
+    const match = BAL_VERSION_CAPTURING_REGEXP.exec(balHome);
+    if (match) {
+        [, balVersion] = match;
+    }
+}
 
 export function getLanguageLibrariesList(): Promise<LibrariesListResponse | undefined> {
 
     return new Promise((resolve, reject) => {
-        const ballerinaHome = ballerinaExtInstance.getBallerinaHome();
-        const match = BAL_VERSION_CAPTURING_REGEXP.exec(ballerinaHome);
-
-        let version = 'slbeta2';
-        if (match) {
-            [, version] = match;
-        }
 
         if (cachedLibrariesList.has(LANG_LIB_LIST_CACHE)) {
             return resolve(cachedLibrariesList.get(LANG_LIB_LIST_CACHE));
         }
 
         let body = '';
-        const req = https.request({ path: `/2.0/docs/stdlib/${version}`, ...options }, res => {
+        const req = https.request({ path: LIBRARIES_LIST_ENDPOINT, ...options }, res => {
             res.on('data', function (chunk) {
                 body = body + chunk;
             });
@@ -157,14 +89,12 @@ export function getStandardLibrariesList(): Promise<LibrariesListResponse | unde
 
     return new Promise((resolve, reject) => {
 
-        // const ballerinaHome = ballerinaExtInstance.getBallerinaHome().split('-', 2)[1];
-        const ballerinaHome = 'slbeta5';
         if (cachedLibrariesList.has(STD_LIB_LIST_CACHE)) {
             return resolve(cachedLibrariesList.get(STD_LIB_LIST_CACHE));
         }
 
         let body = '';
-        const req = https.request({ path: `/2.0/docs/stdlib/${ballerinaHome}`, ...options }, res => {
+        const req = https.request({ path: LIBRARIES_LIST_ENDPOINT, ...options }, res => {
             res.on('data', function (chunk) {
                 body = body + chunk;
             });
@@ -193,14 +123,13 @@ export function getStandardLibrariesList(): Promise<LibrariesListResponse | unde
 export function getAllResources(): Promise<LibrarySearchResponse | undefined> {
 
     return new Promise((resolve, reject) => {
-        // const ballerinaHome = ballerinaExtInstance.getBallerinaHome().split('-', 1)[0];
-        const ballerinaHome = 'slbeta5';
+
         if (cachedSearchList.has(LIBRARY_SEARCH_CACHE)) {
             return resolve(cachedSearchList.get(LIBRARY_SEARCH_CACHE));
         }
 
         let body = '';
-        const req = https.request({ path: `/2.0/docs/stdlib/${ballerinaHome}/search`, ...options }, res => {
+        const req = https.request({ path: LIBRARIES_SEARCH_ENDPOINT, ...options }, res => {
             res.on('data', function (chunk) {
                 body = body + chunk;
             });
@@ -233,7 +162,7 @@ export function getLibraryData(orgName: string, moduleName: string, version: str
         }
 
         let body = '';
-        const req = https.request({ path: `/2.0/docs/${orgName}/${moduleName}/${version}`, ...options }, res => {
+        const req = https.request({ path: `${DOC_API_PATH}/${orgName}/${moduleName}/${version}`, ...options }, res => {
             res.on('data', function (chunk) {
                 body = body + chunk;
             });
