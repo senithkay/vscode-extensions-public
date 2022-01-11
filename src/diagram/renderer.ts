@@ -269,22 +269,22 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
                 <div class="loader"></div>
                 \`;
             }
-            function getLibrariesList(version, kind) {
+            function getLibrariesList(kind) {
                 return new Promise((resolve, _reject) => {
                     webViewRPCHandler.invokeRemoteMethod(
                         'getLibrariesList',
-                        [version, kind],
+                        [kind],
                         (resp) => {
                             resolve(resp);
                         }
                     );
                 })
             }
-            function getLibrariesData(version) {
+            function getLibrariesData() {
                 return new Promise((resolve, _reject) => {
                     webViewRPCHandler.invokeRemoteMethod(
                         'getLibrariesData',
-                        [version],
+                        [],
                         (resp) => {
                             resolve(resp);
                         }

@@ -111,16 +111,18 @@ const options = {
     }
 };
 
-export function getLanguageLibrariesList(version: string): Promise<LibrariesListResponse | undefined> {
+export function getLanguageLibrariesList(): Promise<LibrariesListResponse | undefined> {
 
     return new Promise((resolve, reject) => {
+        // const ballerinaHome = ballerinaExtInstance.getBallerinaHome().split('-', 2)[1];
+        const ballerinaHome = 'slbeta5';
 
         if (cachedLibrariesList.has(LANG_LIB_LIST_CACHE)) {
             return resolve(cachedLibrariesList.get(LANG_LIB_LIST_CACHE));
         }
 
         let body = '';
-        const req = https.request({ path: `/2.0/docs/stdlib/${version}`, ...options }, res => {
+        const req = https.request({ path: `/2.0/docs/stdlib/${ballerinaHome}`, ...options }, res => {
             res.on('data', function (chunk) {
                 body = body + chunk;
             });
@@ -146,16 +148,18 @@ export function getLanguageLibrariesList(version: string): Promise<LibrariesList
     });
 }
 
-export function getStandardLibrariesList(version: string): Promise<LibrariesListResponse | undefined> {
+export function getStandardLibrariesList(): Promise<LibrariesListResponse | undefined> {
 
     return new Promise((resolve, reject) => {
 
+        // const ballerinaHome = ballerinaExtInstance.getBallerinaHome().split('-', 2)[1];
+        const ballerinaHome = 'slbeta5';
         if (cachedLibrariesList.has(STD_LIB_LIST_CACHE)) {
             return resolve(cachedLibrariesList.get(STD_LIB_LIST_CACHE));
         }
 
         let body = '';
-        const req = https.request({ path: `/2.0/docs/stdlib/${version}`, ...options }, res => {
+        const req = https.request({ path: `/2.0/docs/stdlib/${ballerinaHome}`, ...options }, res => {
             res.on('data', function (chunk) {
                 body = body + chunk;
             });
@@ -181,16 +185,17 @@ export function getStandardLibrariesList(version: string): Promise<LibrariesList
     });
 }
 
-export function getAllResources(version: string): Promise<LibrarySearchResponse | undefined> {
+export function getAllResources(): Promise<LibrarySearchResponse | undefined> {
 
     return new Promise((resolve, reject) => {
-
+        // const ballerinaHome = ballerinaExtInstance.getBallerinaHome().split('-', 1)[0];
+        const ballerinaHome = 'slbeta5';
         if (cachedSearchList.has(LIBRARY_SEARCH_CACHE)) {
             return resolve(cachedSearchList.get(LIBRARY_SEARCH_CACHE));
         }
 
         let body = '';
-        const req = https.request({ path: `/2.0/docs/stdlib/${version}/search`, ...options }, res => {
+        const req = https.request({ path: `/2.0/docs/stdlib/${ballerinaHome}/search`, ...options }, res => {
             res.on('data', function (chunk) {
                 body = body + chunk;
             });

@@ -51,7 +51,6 @@ import {
 	getLibraryData,
 	getStandardLibrariesList,
 	LANG_LIB_LIST_CACHE,
-	LIB_BROWSING_BAL_VERSION,
 	LibrariesListResponse,
 	LIBRARY_SEARCH_CACHE,
 	LibraryDataResponse,
@@ -122,21 +121,21 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 	});
 
 	// Cache the lang lib list
-	getLanguageLibrariesList(LIB_BROWSING_BAL_VERSION).then((libs) => {
+	getLanguageLibrariesList().then((libs) => {
 		if (libs && libs.librariesList.length > 0) {
 			cachedLibrariesList.set(LANG_LIB_LIST_CACHE, libs);
 		}
 	});
 
 	// Cache the std lib list
-	getStandardLibrariesList(LIB_BROWSING_BAL_VERSION).then((libs) => {
+	getStandardLibrariesList().then((libs) => {
 		if (libs && libs.librariesList.length > 0) {
 			cachedLibrariesList.set(STD_LIB_LIST_CACHE, libs);
 		}
 	});
 
 	// Cache the library search data
-	getAllResources(LIB_BROWSING_BAL_VERSION).then((data) => {
+	getAllResources().then((data) => {
 		if (data && data.modules.length > 0) {
 			cachedSearchList.set(LIBRARY_SEARCH_CACHE, data);
 		}
@@ -459,16 +458,16 @@ class DiagramPanel {
 			{
 				methodName: "getLibrariesList",
 				handler: async (args: any[]): Promise<LibrariesListResponse | undefined> => {
-					if (args[1] === LibraryKind.langLib) {
-						return await getLanguageLibrariesList(args[0]);
+					if (args[0] === LibraryKind.langLib) {
+						return await getLanguageLibrariesList();
 					}
-					return await getStandardLibrariesList(args[0]);
+					return await getStandardLibrariesList();
 				}
 			},
 			{
 				methodName: "getLibrariesData",
-				handler: async (args: any[]): Promise<LibrarySearchResponse | undefined> => {
-					return await getAllResources(args[0]);
+				handler: async (): Promise<LibrarySearchResponse | undefined> => {
+					return await getAllResources();
 				}
 			},
 			{
