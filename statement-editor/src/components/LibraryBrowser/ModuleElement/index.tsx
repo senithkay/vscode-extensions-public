@@ -12,19 +12,26 @@
  */
 import React, { useContext } from 'react';
 
+import {
+    LibraryDataResponse,
+    LibraryFunction,
+    ModuleProperty
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { useStatementEditorStyles } from "../../styles";
 
 interface ModuleElementProps {
-    name: string,
-    moduleId: string,
+    moduleProperty: ModuleProperty,
     key: number,
     isFunction: boolean
 }
 
 export function ModuleElement(props: ModuleElementProps) {
+    const stmtCtx = useContext(StatementEditorContext);
     const statementEditorClasses = useStatementEditorStyles();
-    const { name, moduleId, key, isFunction } = props;
+    const { moduleProperty, key, isFunction } = props;
+    const { id, moduleId, moduleOrgName, moduleVersion } = moduleProperty;
 
     const {
         modelCtx: {
@@ -33,9 +40,33 @@ export function ModuleElement(props: ModuleElementProps) {
         }
     } = useContext(StatementEditorContext);
 
-    const onClickOnModuleElement = () => {
-        // TODO: Invoke the library endpont to get the exact parameters and return types for functions
-        const content = isFunction ? `${moduleId}:${name}(EXPRESSION)` : `${moduleId}:${name}`;
+    const onClickOnModuleElement = async () => {
+        const response: LibraryDataResponse = await stmtCtx.getLibraryData(moduleOrgName, moduleId, moduleVersion);
+
+        let content = `${moduleId}:${id}`;
+
+        if (isFunction) {
+            let functionProperties: LibraryFunction = null;
+            response.docsData.modules[0].functions.map((libFunction: LibraryFunction) => {
+                if (libFunction.name === id) {
+                    functionProperties =  libFunction;
+                }
+            });
+
+            if (functionProperties) {
+                const noOfParams = functionProperties.parameters.length;
+                let params = '(';
+                for (let i = 1; i <= noOfParams; i++) {
+                    if (noOfParams === 1) {
+                        params += 'PARAM';
+                    } else {
+                        params += i !== noOfParams ? `PARAM${i},` : `PARAM${i}`;
+                    }
+                }
+                params += ')';
+                content += params;
+            }
+        }
         updateModel(content, currentModel.model.position);
     }
 
@@ -45,7 +76,7 @@ export function ModuleElement(props: ModuleElementProps) {
             key={key}
             onClick={onClickOnModuleElement}
         >
-            {`${moduleId}:${name}`}
+            {`${moduleId}:${id}`}
         </button>
     );
 }
