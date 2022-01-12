@@ -10,7 +10,11 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { LibraryInfo, LibrarySearchResponse, ModuleProperty } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    LibraryInfo,
+    LibrarySearchResponse,
+    ModuleProperty
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 export function filterByKeyword(libraryData: LibrarySearchResponse , searchTxt: string): LibrarySearchResponse {
     const filteredModuleList = getFilteredModulesList(libraryData.modules, searchTxt);

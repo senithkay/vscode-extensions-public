@@ -69,7 +69,7 @@ export interface LibraryModule {
     objectTypes: any;
     clients: any;
     listeners: any;
-    functions: any;
+    functions: LibraryFunction[];
     constants: any;
     annotations: any;
     errors: any;
@@ -82,4 +82,25 @@ export interface LibraryModule {
     orgName: string;
     version: string;
     isDefaultModule: boolean;
+}
+
+export interface LibraryFunction {
+    isIsolated: boolean;
+    isRemote: boolean;
+    isExtern: boolean;
+    parameters: FunctionParams[];
+    returnParameters: any;
+    name: string;
+    description: string;
+    isDeprecated: boolean;
+    isReadOnly: boolean;
+}
+
+export interface FunctionParams {
+    defaultValue: string;
+    type: any;
+    name: string;
+    description: string;
+    isDeprecated: boolean;
+    isReadOnly: boolean;
 }

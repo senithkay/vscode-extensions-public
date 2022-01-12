@@ -41,8 +41,7 @@ export function SearchCategory(props: SearchCategoryProps) {
             <div className={statementEditorClasses.libraryElementBlockContent}>
                 {searchResult.map((property: ModuleProperty, index: number) => (
                     <ModuleElement
-                        name={property.id}
-                        moduleId={property.moduleId}
+                        moduleProperty={property}
                         key={index}
                         isFunction={label === 'Functions'}
                     />
