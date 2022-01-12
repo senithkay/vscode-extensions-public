@@ -30,7 +30,7 @@ import { RecordFromJson } from "./RecordEditor/RecordFromJson";
 import { ApiConfigureWizard } from "./ResourceConfigForm/ApiConfigureWizard";
 import { ServiceConfigForm } from './ServiceConfigForm';
 import {TriggerForm} from "./TriggerConfigForm/TriggerServiceConfigForm";
-import { TriggerList } from "./TriggerList";
+import { TriggerList } from "./TriggerWizard";
 import { TypeDefinitionConfigForm } from "./TypeDefinitionConfigForm";
 
 export { APIConfigForm as apiConfig };
