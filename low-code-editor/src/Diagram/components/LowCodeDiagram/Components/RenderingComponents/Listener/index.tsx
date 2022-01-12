@@ -40,7 +40,8 @@ export function ListenerC(props: ListenerProps) {
         },
         api: {
             code: {
-                modifyDiagram
+                modifyDiagram,
+                gotoSource
             }
         }
     } = useContext(Context);
@@ -52,7 +53,7 @@ export function ListenerC(props: ListenerProps) {
     const listenerName = listenerModel.variableName.value;
     const listenerType = listenerModel.typeDescriptor.modulePrefix.value;
     let listenerPort = "";
-    listenerModel.initializer.parenthesizedArgList.arguments.forEach((argument) => {
+    listenerModel.initializer.parenthesizedArgList?.arguments.forEach((argument) => {
         listenerPort += argument.source?.trim();
     });
     const typeMaxWidth = listenerType.length >= 10;
@@ -72,7 +73,13 @@ export function ListenerC(props: ListenerProps) {
     }
 
     const handleEditBtnClick = () => {
-        setEditingEnabled(true);
+        const supportedListenerType: boolean = listenerModel.initializer.parenthesizedArgList !== undefined;
+        if (supportedListenerType) {
+            setEditingEnabled(true);
+        } else {
+            const targetposition = model.position;
+            gotoSource({ startLine: targetposition.startLine, startColumn: targetposition.startColumn });
+        }
     }
 
     const handleEditBtnCancel = () => {
