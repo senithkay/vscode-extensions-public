@@ -19,14 +19,17 @@ import { Box, FormControl, Typography } from "@material-ui/core";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
-import ExpressionEditor from "../../../../FormFieldComponents/ExpressionEditor";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
 import { CustomExpressionConfig, ProcessConfig } from "../../../../Types";
 import { wizardStyles } from "../../../style";
 import { STNode } from "@wso2-enterprise/syntax-tree";
-import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    FormActionButtons,
+    FormHeaderSection
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ADD_OTHER_STATEMENT, LowcodeEvent, SAVE_OTHER_STATEMENT } from "../../../../../../models";
+import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
 
 interface LogConfigProps {
     config: ProcessConfig;
@@ -57,6 +60,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
             }
         }
     } = useContext(Context);
+
     const { config, formArgs, onCancel, onSave, onWizardClose } = props;
 
     const expressionFormConfig: CustomExpressionConfig = config.config as CustomExpressionConfig;
@@ -153,7 +157,7 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                 />
                 <div className={formClasses.formContentWrapper}>
                     <div className={formClasses.formNameWrapper}>
-                        <ExpressionEditor
+                        <LowCodeExpressionEditor
                             model={{ name: "statement", value: expression }}
                             customProps={{
                                 validate: validateExpression,

@@ -1,6 +1,5 @@
+import { templates } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { compile } from "handlebars";
-
-import templates from "../../templates/components";
 
 export async function getTriggerTemplate(templateName: string) {
     const resp = await fetch(`/templates/triggers/${templateName}.hbs`);
@@ -20,15 +19,6 @@ export async function getSampleTemplate(sampleName: string, kind?: string) {
 
 export async function getSampleSource(sampleName: string, config: {[key: string]: any}, kind?: string) {
     const hbTemplate = compile(await getSampleTemplate(sampleName, kind));
-    return hbTemplate(config);
-}
-
-export async function getInsertTemplate(insertTempName: string) {
-    return templates[insertTempName];
-}
-
-export async function getInsertComponentSource(insertTempName: string, config: { [key: string]: any }) {
-    const hbTemplate = compile(await getInsertTemplate(insertTempName));
     return hbTemplate(config);
 }
 

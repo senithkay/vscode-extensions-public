@@ -19,6 +19,7 @@ import {
     Connector,
     DiagramDiagnostic,
     DiagramEditorLangClientInterface,
+    InsertorDelete,
     LibraryDataResponse,
     LibraryDocResponse,
     LibraryKind,
@@ -31,7 +32,7 @@ import { FunctionDefinition, ModulePart, NodePosition, STKindChecker, STNode } f
 import cloneDeep from "lodash.clonedeep";
 import Mousetrap from 'mousetrap';
 
-import LowCodeEditor, { BlockViewState, getSymbolInfo, InsertorDelete } from "..";
+import LowCodeEditor, { BlockViewState, getSymbolInfo } from "..";
 import "../assets/fonts/Glimer/glimer.css";
 import { ConditionConfig } from "../Diagram/components/FormComponents/Types";
 import { UndoRedoManager } from "../Diagram/components/FormComponents/UndoRedoManager";
