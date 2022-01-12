@@ -13,14 +13,14 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormElementProps, FormField} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { getFormElement } from "../../../Portals/utils";
 import { useStyles } from "../../DynamicConnectorForm/style";
 import FormAccordion from "../../FormAccordion";
 import { ExpressionInjectablesProps } from "../../FormGenerator";
-import { FormElementProps, FormFieldChecks } from "../../Types";
+import { FormFieldChecks } from "../../Types";
 import { isAllEmpty, isAllFieldsValid } from "../../Utils";
 
 interface RecordProps {

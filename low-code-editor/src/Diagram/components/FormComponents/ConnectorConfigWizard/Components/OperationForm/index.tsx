@@ -23,13 +23,13 @@ import {
     FunctionDefinitionInfo,
     PrimaryButton,
     STModification,
-    STSymbolInfo
+    STSymbolInfo,
+    TooltipIcon
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from '@wso2-enterprise/syntax-tree';
 import classNames from 'classnames';
 
 import {DocIcon} from "../../../../../../assets";
-import {TooltipIcon} from "../../../../../../components/Tooltip";
 import { Context } from '../../../../../../Contexts/Diagram';
 import { getAllVariables } from "../../../../../utils/mixins";
 import { checkVariableName, genVariableName, getActionReturnType } from "../../../../Portals/utils";

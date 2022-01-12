@@ -21,7 +21,7 @@ import {
     Connector,
     ConnectorConfig,
     DiagramEditorLangClientInterface,
-    FormField, FormFieldReturnType,
+    FormElementProps, FormField, FormFieldReturnType,
     FunctionDefinitionInfo, PrimitiveBalType, STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
@@ -48,7 +48,6 @@ import { ConfigWizardState } from "../../FormComponents/ConnectorConfigWizard";
 import * as ConnectorExtension from "../../FormComponents/ConnectorExtensions";
 import * as Elements from "../../FormComponents/FormFieldComponents";
 import { getUnionFormFieldName } from "../../FormComponents/FormFieldComponents/Union";
-import { FormElementProps } from "../../FormComponents/Types";
 import * as OverlayElement from "../../LowCodeDiagram/Components/DialogBoxes";
 import * as ConnectorIcons from "../../LowCodeDiagram/Components/RenderingComponents/Connector/Icon";
 import { DefaultConnectorIcon } from "../../LowCodeDiagram/Components/RenderingComponents/Connector/Icon/DefaultConnectorIcon";

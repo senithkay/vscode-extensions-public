@@ -21,7 +21,7 @@ import { HTTPServiceConfigState } from "../components/FormComponents/ConfigForms
 import { HeaderObjectConfig } from "../components/FormComponents/ConnectorExtensions/HTTPWizard/HTTPHeaders";
 import { getFormattedModuleName, getParams } from "../components/Portals/utils";
 
-import { getComponentSource, getInsertComponentSource } from "./template-utils";
+import { getComponentSource } from "./template-utils";
 
 /* tslint:disable ordered-imports */
 
@@ -912,47 +912,6 @@ export function updateHeaderObjectDeclaration(headerObject: HeaderObjectConfig[]
     return requestGeneration;
 }
 
-export async function InsertorDelete(modifications: STModification[]): Promise<STModification[]> {
-    const stModifications: STModification[] = [];
-    /* tslint:disable prefer-for-of */
-    for (let i = 0; i < modifications.length; i++) {
-        const value: STModification = modifications[i];
-        let stModification: STModification;
-        if (value.type && value.type.toLowerCase() === "delete") {
-            stModification = value;
-        } else if (value.type && value.type.toLowerCase() === "import") {
-            const source = await getInsertComponentSource(value.type, value.config);
-            stModification = {
-                startLine: value.startLine,
-                startColumn: value.startColumn,
-                endLine: value.endLine,
-                endColumn: value.endColumn,
-                type: "INSERT",
-                isImport: true,
-                config: {
-                    "TYPE": value?.config?.TYPE,
-                    "STATEMENT": source,
-                }
-            }
-        } else if (value.type && value.type.toLowerCase() === 'insert') {
-            stModification = value;
-        } else {
-            const source = await getInsertComponentSource(value.type, value.config);
-            stModification = {
-                startLine: value.startLine,
-                startColumn: value.startColumn,
-                endLine: value.endLine,
-                endColumn: value.endColumn,
-                type: "INSERT",
-                config: {
-                    "STATEMENT": source,
-                }
-            };
-        }
-        stModifications.push(stModification);
-    }
-    return stModifications;
-}
 
 export function createFunctionSignature(accessModifier: string, name: string, parameters: string, returnTypes: string,
                                         targetPosition: NodePosition, isLastMember?: boolean): STModification {

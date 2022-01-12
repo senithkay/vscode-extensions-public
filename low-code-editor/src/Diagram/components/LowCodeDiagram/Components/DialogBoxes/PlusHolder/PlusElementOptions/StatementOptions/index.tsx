@@ -32,7 +32,7 @@ import {
 
 import { Context } from "../../../../../../../../Contexts/Diagram";
 import { PlusViewState } from "../../../../../ViewState";
-import Tooltip from "../../../../../../../../components/Tooltip";
+import { Tooltip } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import "../../style.scss";
 import While from "../../../../../../../../assets/icons/While";
 import { FormattedMessage, useIntl } from "react-intl";
