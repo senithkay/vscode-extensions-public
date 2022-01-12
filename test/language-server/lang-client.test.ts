@@ -540,9 +540,11 @@ suite("Language Server Tests", function () {
                     }
                 };
                 langClient.sendRequest('textDocument/codeAction', actionParam).then((response: any) => {
-                    assert.equal(response.length, 1, 'Invalid number of code actions.');
+                    assert.equal(response.length, 2, 'Invalid number of code actions.');
                     assert.equal(response[0].title, 'Optimize all imports', 'Invalid \'Optimize all imports\' action.');
-                    assert.equal(response[0].kind, "quickfix", "Invalid code action kind.");
+                    assert.equal(response[0].kind, "quickfix", "Invalid code action kind - 1st.");
+                    assert.equal(response[1].title, 'Pull unresolved modules', 'Invalid \'Pull unresolved modules\' action.');
+                    assert.equal(response[1].kind, "quickfix", "Invalid code action kind - 2nd.");
                     done();
                 });
             });
@@ -573,11 +575,9 @@ suite("Language Server Tests", function () {
                 };
 
                 langClient.sendRequest('textDocument/codeAction', actionParam).then((response: any) => {
-                    assert.equal(response.length, 2, 'Invalid number of code actions.');
-                    assert.equal(response[1].title, "Change variable 'piValue' type to 'string'", 'Invalid change variable action.');
-                    assert.equal(response[1].kind, "quickfix", "Invalid code action kind - 1st.");
-                    assert.equal(response[0].title, "Add type cast to assignment", 'Invalid type cast action.');
-                    assert.equal(response[0].kind, "quickfix", "Invalid code action kind - 0th.");
+                    assert.equal(response.length, 1, 'Invalid number of code actions.');
+                    assert.equal(response[0].title, "Change variable 'piValue' type to 'string'", 'Invalid change variable action.');
+                    assert.equal(response[0].kind, "quickfix", "Invalid code action kind - 1st.");
                     done();
                 });
             });
