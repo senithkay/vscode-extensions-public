@@ -1,6 +1,6 @@
 const { spawn, execSync } = require("child_process");
 var glob = require( 'glob' );  
-const { cp, writeFile, existsSync } = require("fs");
+const { cp, writeFile, existsSync, writeFileSync } = require("fs");
 const path = require("path");
 
 function copyBBEJson() {
@@ -35,6 +35,8 @@ function setupDevBalProject() {
             console.log("Unable to initialize new Ballerina project at " + devProjectFolder)
         }
     }
+
+    writeFileSync(path.join(devProjectFolder, "empty.bal"), "");
 
     glob(path.join(devProjectFolder, '**/*.bal'), function( err, files ) {
         if (err) {
@@ -90,11 +92,13 @@ function startStoryBook() {
     const sb = spawn('npx', ['start-storybook', '-p', '6006']);
 
     sb.stdout.on('data', (data) => {
-        console.log(`storybook:stdout: ${data}`);
+        console.log(`storybook: ${data}`);
     });
 
     sb.stderr.on('data', (data) => {
-        console.error(`storybook:stderr: ${data}`);
+        if (!data.includes("webpack.Progress") && !data.includes("webpack-dev-middleware")) {
+            console.log(`storybook: ${data}`);
+        }
     });
 
     sb.on('close', (code) => {

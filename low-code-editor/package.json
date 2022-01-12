@@ -25,6 +25,7 @@
     "deploy": "npm publish",
     "storybook": "npm run storybook:setup",
     "storybook:setup": "node tools/setup-storybook.js",
+    "cypress": "cypress open",
     "build-storybook": "build-storybook"
   },
   "dependencies": {
@@ -95,6 +96,7 @@
     "copy-webpack-plugin": "^9.0.1",
     "copyfiles": "^2.4.1",
     "css-loader": "^3.4.2",
+    "cypress": "^9.2.1",
     "file-loader": "^5.0.2",
     "fork-ts-checker-webpack-plugin": "^6.2.0",
     "glob": "^7.2.0",
