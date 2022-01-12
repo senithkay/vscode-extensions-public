@@ -13,6 +13,7 @@
 import React, { useContext } from 'react';
 
 import {
+    FunctionParams,
     LibraryDataResponse,
     LibraryFunction,
     ModuleProperty
@@ -43,7 +44,7 @@ export function ModuleElement(props: ModuleElementProps) {
     const onClickOnModuleElement = async () => {
         const response: LibraryDataResponse = await stmtCtx.getLibraryData(moduleOrgName, moduleId, moduleVersion);
 
-        let content = `${moduleId}:${id}`;
+        let content = moduleId.startsWith('lang.') ? `${moduleId.split('.')[1]}:${id}` : `${moduleId}:${id}`;
 
         if (isFunction) {
             let functionProperties: LibraryFunction = null;
@@ -54,17 +55,16 @@ export function ModuleElement(props: ModuleElementProps) {
             });
 
             if (functionProperties) {
-                const noOfParams = functionProperties.parameters.length;
-                let params = '(';
-                for (let i = 1; i <= noOfParams; i++) {
-                    if (noOfParams === 1) {
-                        params += 'PARAM';
+                const parameters: string[] = [];
+                functionProperties.parameters.map((param: FunctionParams) => {
+                    if (param.defaultValue === '') {
+                        parameters.push('PARAM');
                     } else {
-                        params += i !== noOfParams ? `PARAM${i},` : `PARAM${i}`;
+                        parameters.push('OPTIONAL_PARAM');
                     }
-                }
-                params += ')';
-                content += params;
+                });
+
+                content += `(${parameters.join(',')})`;
             }
         }
         updateModel(content, currentModel.model.position);
