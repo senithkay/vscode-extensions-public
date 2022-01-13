@@ -30,7 +30,7 @@ describe("Code server smoke test", () => {
       timeout: 60000,
     }).should("be.visible");
     //Verify extension
-    // cy.get("div[id='wso2.ballerina']").contains("Ballerina SDK: Swan Lake");
+    cy.get("div[id='wso2.ballerina']").contains("Ballerina SDK: Swan Lake");
     cy.get('a[class="action-label codicon codicon-extensions-view-icon"]', {
       timeout: 60000,
     }).click();
@@ -45,7 +45,8 @@ describe("Code server smoke test", () => {
         cy.xpath("//span[text()='test_package_01']").click();
       }
     });
-    cy.get("div[aria-label='main.bal']").click();
+    cy.xpath("//span[text()='main.bal']").click();
+    // cy.get("div[aria-label='main.bal']").click();
     cy.wait(6000);
     //Verify the lines in opened bal
     cy.get(".view-lines", { timeout: 60000 }).contains(
@@ -79,7 +80,7 @@ describe("Code server smoke test", () => {
         cy.xpath("//span[text()='test_service_01']").click();
       }
     });
-    cy.get("div[aria-label='service.bal']").click();
+    cy.xpath("//span[text()='service.bal']").click();
     // Verify code rendering
     cy.get(".view-lines", { timeout: 60000 }).contains(
       "service /hello on new http:Listener(9090)"
