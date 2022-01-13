@@ -47,9 +47,8 @@ import {
 	cachedLibrariesList,
 	cachedSearchList,
 	getAllResources,
-	getLanguageLibrariesList,
+	getLibrariesList,
 	getLibraryData,
-	getStandardLibrariesList,
 	LANG_LIB_LIST_CACHE,
 	LIBRARY_SEARCH_CACHE,
 	STD_LIB_LIST_CACHE
@@ -123,14 +122,14 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 	});
 
 	// Cache the lang lib list
-	getLanguageLibrariesList().then((libs) => {
+	getLibrariesList(LibraryKind.langLib).then((libs) => {
 		if (libs && libs.librariesList.length > 0) {
 			cachedLibrariesList.set(LANG_LIB_LIST_CACHE, libs);
 		}
 	});
 
 	// Cache the std lib list
-	getStandardLibrariesList().then((libs) => {
+	getLibrariesList(LibraryKind.stdLib).then((libs) => {
 		if (libs && libs.librariesList.length > 0) {
 			cachedLibrariesList.set(STD_LIB_LIST_CACHE, libs);
 		}
@@ -460,10 +459,7 @@ class DiagramPanel {
 			{
 				methodName: "getLibrariesList",
 				handler: async (args: any[]): Promise<LibrariesListResponse | undefined> => {
-					if (args[0] === LibraryKind.langLib) {
-						return await getLanguageLibrariesList();
-					}
-					return await getStandardLibrariesList();
+					return await getLibrariesList(args[0]);
 				}
 			},
 			{

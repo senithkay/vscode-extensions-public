@@ -50,46 +50,13 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     }
 }
 
-export function getLanguageLibrariesList(): Promise<LibrariesListResponse | undefined> {
+export function getLibrariesList(kind: LibraryKind): Promise<LibrariesListResponse | undefined> {
 
     return new Promise((resolve, reject) => {
 
-        if (cachedLibrariesList.has(LANG_LIB_LIST_CACHE)) {
+        if (kind === LibraryKind.langLib && cachedLibrariesList.has(LANG_LIB_LIST_CACHE)) {
             return resolve(cachedLibrariesList.get(LANG_LIB_LIST_CACHE));
-        }
-
-        let body = '';
-        const req = https.request({ path: LIBRARIES_LIST_ENDPOINT, ...options }, res => {
-            res.on('data', function (chunk) {
-                body = body + chunk;
-            });
-
-            res.on('end',function(){
-                if (res.statusCode !== 200) {
-                    debug('Failed to fetch the language libraries list');
-                } else {
-                    const responseJson = {
-                        'librariesList': JSON.parse(body)[LibraryKind.langLib]
-                    };
-                    return resolve(responseJson);
-                }
-            });
-        });
-
-        req.on('error', error => {
-            debug(error.message);
-            reject();
-        });
-
-        req.end();
-    });
-}
-
-export function getStandardLibrariesList(): Promise<LibrariesListResponse | undefined> {
-
-    return new Promise((resolve, reject) => {
-
-        if (cachedLibrariesList.has(STD_LIB_LIST_CACHE)) {
+        } else if (kind === LibraryKind.stdLib && cachedLibrariesList.has(STD_LIB_LIST_CACHE)) {
             return resolve(cachedLibrariesList.get(STD_LIB_LIST_CACHE));
         }
 
@@ -101,10 +68,11 @@ export function getStandardLibrariesList(): Promise<LibrariesListResponse | unde
 
             res.on('end',function(){
                 if (res.statusCode !== 200) {
-                    debug('Failed to fetch the standard libraries list');
+                    debug('Failed to fetch the libraries list');
+                    return null;
                 } else {
                     const responseJson = {
-                        'librariesList': JSON.parse(body)[LibraryKind.stdLib]
+                        'librariesList': JSON.parse(body)[kind]
                     };
                     return resolve(responseJson);
                 }
@@ -137,6 +105,7 @@ export function getAllResources(): Promise<LibrarySearchResponse | undefined> {
             res.on('end',function(){
                 if (res.statusCode !== 200) {
                     debug('Failed to fetch the library data');
+                    return null;
                 } else {
                     return resolve(JSON.parse(body));
                 }
@@ -170,6 +139,7 @@ export function getLibraryData(orgName: string, moduleName: string, version: str
             res.on('end',function(){
                 if (res.statusCode !== 200) {
                     debug(`Failed to fetch the library data for ${orgName}:${moduleName}`);
+                    return null;
                 } else {
                     const libraryData = JSON.parse(body);
                     cachedLibraryData.set(`${orgName}_${moduleName}_${version}`, libraryData);
