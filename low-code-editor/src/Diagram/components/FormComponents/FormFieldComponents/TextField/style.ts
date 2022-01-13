@@ -12,6 +12,7 @@
  */
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 
+// Copy of the styles is maintained in low-code-commons
 export const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     textFeild: {

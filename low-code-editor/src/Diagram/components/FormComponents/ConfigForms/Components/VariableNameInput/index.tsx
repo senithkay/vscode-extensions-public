@@ -13,11 +13,12 @@
 
 import React from "react";
 
-import { DiagramDiagnostic } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ExpressionEditorCustomTemplate, ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
+import { DiagramDiagnostic,
+    FormElementProps } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
-import ExpressionEditor, { ExpressionEditorCustomTemplate, ExpressionEditorProps } from "../../../FormFieldComponents/ExpressionEditor";
-import { FormElementProps } from "../../../Types";
+import { LowCodeExpressionEditor } from "../../../FormFieldComponents/LowCodeExpressionEditor";
 import { wizardStyles as useFormStyles } from "../../style";
 
 export interface VariableNameInputProps {
@@ -88,12 +89,12 @@ export function VariableNameInput(props: VariableNameInputProps) {
             disabled
         },
         onChange: onValueChange,
-        defaultValue: value,
+        defaultValue: value
     };
 
     return (
         <div className={formClasses.expStatementWrapper}>
-            <ExpressionEditor {...expressionEditorNameConfig} />
+            <LowCodeExpressionEditor {...expressionEditorNameConfig} />
         </div>
     )
 }

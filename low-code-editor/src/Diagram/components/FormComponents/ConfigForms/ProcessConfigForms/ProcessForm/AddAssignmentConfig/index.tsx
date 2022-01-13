@@ -15,15 +15,20 @@ import React, { useContext, useState } from "react";
 import { useIntl } from "react-intl";
 
 import { FormControl, Typography } from "@material-ui/core";
-import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
+import {
+    FormActionButtons,
+    FormElementProps,
+    FormHeaderSection
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { AssignmentStatement, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { createPropertyStatement, getInitialSource } from "../../../../../../utils/modification-util";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
-import ExpressionEditor, { ExpressionEditorProps } from "../../../../FormFieldComponents/ExpressionEditor";
-import { FormElementProps, ProcessConfig } from "../../../../Types";
+import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
+import { ProcessConfig } from "../../../../Types";
 
 interface AddAssignmentConfigProps {
     config: ProcessConfig;
@@ -39,7 +44,10 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
     const { config, formArgs, onCancel, onSave, onWizardClose } = props;
 
     const {
-        props: { isMutationProgress: isMutationInProgress, currentFile },
+        props: {
+            isMutationProgress: isMutationInProgress,
+            currentFile
+        },
         api: {
             ls: { getExpressionEditorLangClient },
             code: { modifyDiagram }
@@ -113,7 +121,7 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
             initialDiagnostics: (config.model as AssignmentStatement)?.varRef?.typeData?.diagnostics
         },
         onChange: setVarName,
-        defaultValue: varName,
+        defaultValue: varName
     };
 
     const expressionEditorConfig: FormElementProps<ExpressionEditorProps> = {
@@ -139,7 +147,7 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
             initialDiagnostics: (config.model as AssignmentStatement)?.expression?.typeData?.diagnostics
         },
         onChange: onPropertyChange,
-        defaultValue: variableExpression,
+        defaultValue: variableExpression
     };
 
     const initialSource = formArgs.model ? formArgs.model.source : getInitialSource(createPropertyStatement(
@@ -148,7 +156,7 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
 
     const nameExpressionEditor = (
         <div className="exp-wrapper">
-            <ExpressionEditor
+            <LowCodeExpressionEditor
                 {...nameExpressionEditorConfig}
             />
         </div>
@@ -156,7 +164,7 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
 
     const expressionEditor = (
         <div className="exp-wrapper">
-            <ExpressionEditor
+            <LowCodeExpressionEditor
                 {...expressionEditorConfig}
             />
         </div>

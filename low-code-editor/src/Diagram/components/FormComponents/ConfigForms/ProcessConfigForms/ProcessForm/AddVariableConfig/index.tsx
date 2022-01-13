@@ -15,7 +15,12 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { Box, FormControl, Typography } from "@material-ui/core";
-import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
+import {
+    FormActionButtons,
+    FormElementProps,
+    FormHeaderSection
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { LocalVarDecl, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
@@ -26,10 +31,10 @@ import { createModuleVarDecl, getInitialSource } from "../../../../../../utils/m
 import { getVariableNameFromST } from "../../../../../../utils/st-util";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
-import ExpressionEditor, { ExpressionEditorProps } from "../../../../FormFieldComponents/ExpressionEditor";
+import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
 import { SwitchToggle } from "../../../../FormFieldComponents/SwitchToggle";
 import { FormTextInput } from "../../../../FormFieldComponents/TextField/FormTextInput";
-import { FormElementProps, ProcessConfig } from "../../../../Types";
+import { ProcessConfig } from "../../../../Types";
 import { VariableNameInput, VariableNameInputProps } from "../../../Components/VariableNameInput";
 import {
     VariableTypeInput,
@@ -57,7 +62,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         props: {
             currentFile,
             isMutationProgress: isMutationInProgress,
-            stSymbolInfo
+            stSymbolInfo,
         },
         api: {
             ls: { getExpressionEditorLangClient },
@@ -296,7 +301,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
 
     const expressionEditor = (
         <div className="exp-wrapper">
-            <ExpressionEditor
+            <LowCodeExpressionEditor
                 hideLabelTooltips={true}
                 {...expressionEditorConfig}
             />
@@ -324,7 +329,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             <FormControl data-testid="property-form" className={classes.wizardFormControlExtended}>
                 <FormHeaderSection
                     onCancel={onCancel}
-                    statementEditor={true}
+                    statementEditor={initialized}
                     formTitle={"lowcode.develop.configForms.variable.title"}
                     defaultMessage={"Variable"}
                     handleStmtEditorToggle={handleStmtEditorToggle}
