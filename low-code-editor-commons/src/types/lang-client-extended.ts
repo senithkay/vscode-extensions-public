@@ -315,7 +315,6 @@ export interface Values {
 
 export interface PerformanceAnalyzerEndpointsRequest {
     documentIdentifier: DocumentIdentifier;
-    range: Range;
 }
 
 export interface GraphPoint {
