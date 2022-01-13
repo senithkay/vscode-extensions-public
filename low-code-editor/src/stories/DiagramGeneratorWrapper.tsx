@@ -6,9 +6,10 @@ import { CodeEditor } from './CodeEditor/CodeEditor';
 
 
 export function DiagramGeneratorWrapper(props: DiagramGeneratorProps) {
-    const { langClientPromise, getFileContent, filePath, updateFileContent } = props;
+    const { langClientPromise, getFileContent, filePath, updateFileContent, lastUpdatedAt } = props;
     const [didOpen, setDidOpen ] = React.useState(false);
     const [fileContent, setFileContent ] = React.useState("");
+    const [lastUpdated, setLastUpdated ] = React.useState(lastUpdatedAt);
 
     const updateFileContentOverride = (fPath: string, newContent: string) => {
         setFileContent(newContent);
@@ -17,6 +18,7 @@ export function DiagramGeneratorWrapper(props: DiagramGeneratorProps) {
 
     const newProps = {
         ...props,
+        lastUpdatedAt: lastUpdated,
         updateFileContent: updateFileContentOverride
     }
 
@@ -64,6 +66,20 @@ export function DiagramGeneratorWrapper(props: DiagramGeneratorProps) {
                     // tslint:disable-next-line: jsx-no-lambda
                     (fPath, newContent) => {
                         updateFileContentOverride(fPath, newContent);
+                        langClientPromise.then((langClient) => {
+                            langClient.didChange({
+                                textDocument: {
+                                    uri: `file://${filePath}`,
+                                    version: 1
+                                },
+                                contentChanges: [
+                                    {
+                                        text: newContent
+                                    }
+                                ]
+                            });
+                            setLastUpdated((new Date()).toISOString());
+                        })
                     }
                 }
             />
