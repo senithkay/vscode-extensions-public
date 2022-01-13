@@ -75,7 +75,8 @@ describe("Code server smoke test", () => {
   it("Open a service bal and verify the code rendered", () => {
     cy.get("body").then(($body) => {
       if ($body.find("div[aria-label='service.bal']").length == 0) {
-        cy.get('a[class="label-name"]').contains(serviceName).click();
+        cy.get('a[class="label-name"]').contains(serviceName);
+        cy.xpath("//span[text()='test_service_01']").click();
       }
     });
     cy.get("div[aria-label='service.bal']").click();
