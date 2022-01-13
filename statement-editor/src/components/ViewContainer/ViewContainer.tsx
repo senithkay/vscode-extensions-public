@@ -22,6 +22,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
+import { OTHER_STATEMENT } from "../../constants";
 import { VariableUserInputs } from '../../models/definitions';
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
 import { getCurrentModel, getModifications } from "../../utils";
@@ -85,11 +86,10 @@ export function ViewContainer(props: ViewProps) {
 
     useEffect(() => {
         (async () => {
-            let partialST: STNode = await getPartialSTForStatement(
+            const partialST: STNode = await getPartialSTForStatement(
                 { codeSnippet: initialSource.trim() }, getLangClient);
-            if (STKindChecker.isLocalVarDecl(partialST) && !partialST.equalsToken) {
-                partialST = await getPartialSTForStatement(
-                    { codeSnippet: initialSource.trim() + " = EXPRESSION" }, getLangClient);
+            if (STKindChecker.isLocalVarDecl(partialST) && initialSource === "EXPRESSION") {
+                partialST.kind = OTHER_STATEMENT;
             }
             setModel(partialST);
         })();

@@ -329,7 +329,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             <FormControl data-testid="property-form" className={classes.wizardFormControlExtended}>
                 <FormHeaderSection
                     onCancel={onCancel}
-                    statementEditor={true}
+                    statementEditor={initialized}
                     formTitle={"lowcode.develop.configForms.variable.title"}
                     defaultMessage={"Variable"}
                     handleStmtEditorToggle={handleStmtEditorToggle}
