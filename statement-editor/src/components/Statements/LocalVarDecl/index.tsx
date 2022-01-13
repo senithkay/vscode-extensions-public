@@ -40,7 +40,7 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
     const hasTypedBindingPatternSelected = currentModel.model &&
         isPositionsEquals(currentModel.model.position, model.typedBindingPattern.position);
     const hasInitializerSelected = currentModel.model &&
-        isPositionsEquals(currentModel.model.position, model.initializer.position);
+        isPositionsEquals(currentModel.model.position, model.initializer ? model.initializer.position : null);
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
@@ -115,23 +115,30 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
             >
                 {typedBindingComponent}
             </button>
-            <span
-                className={classNames(
-                    statementEditorClasses.expressionBlock,
-                    statementEditorClasses.expressionBlockDisabled
-                )}
-            >
-                &nbsp;{model.equalsToken.value}
-            </span>
-            <button
-                className={classNames(
-                    statementEditorClasses.expressionElement,
-                    hasInitializerSelected && statementEditorClasses.expressionElementSelected
-                )}
-                onClick={onClickOnInitializer}
-            >
-                {expressionComponent}
-            </button>
+            {
+                model.equalsToken && (
+                    <>
+                        <span
+                            className={classNames(
+                                statementEditorClasses.expressionBlock,
+                                statementEditorClasses.expressionBlockDisabled
+                            )}
+                        >
+                            &nbsp;{model.equalsToken.value}
+                        </span>
+                        <button
+                            className={classNames(
+                                statementEditorClasses.expressionElement,
+                                hasInitializerSelected && statementEditorClasses.expressionElementSelected
+                            )}
+                            onClick={onClickOnInitializer}
+                        >
+                            {expressionComponent}
+                        </button>
+                    </>
+                )
+            }
+
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,
