@@ -58,6 +58,7 @@ export function DiagramGeneratorWrapper(props: DiagramGeneratorProps) {
         // tslint:disable-next-line: jsx-wrap-multiline
         <>
             <DiagramGenerator {...newProps} />
+            <hr/>
             <CodeEditor
                 content={fileContent}
                 filePath={filePath}
