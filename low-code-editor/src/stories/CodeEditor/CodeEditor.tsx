@@ -2,10 +2,12 @@ import * as React from "react";
 import MonacoEditor, { EditorDidMount } from "react-monaco-editor";
 
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import debounce from "lodash.debounce";
 import * as monaco from 'monaco-editor'
-// import { MonacoServices } from 'monaco-languageclient';
 
 import grammar from "./../../ballerina.monarch.json";
+// import { MonacoServices } from 'monaco-languageclient';
+
 
 const BALLERINA_LANG = "ballerina";
 
@@ -46,6 +48,8 @@ let codeHighlightOldDecoration: string[] = [];
 export function CodeEditor(props: CodeEditorProps) {
     const { filePath, content, onChange, selectedArea } = props;
 
+    const debouncedOnChange = debounce(onChange, 1500);
+
     const monacoRef: React.MutableRefObject<MonacoEditor> = React.useRef<MonacoEditor>(null);
 
     React.useEffect(() => {
@@ -64,7 +68,7 @@ export function CodeEditor(props: CodeEditorProps) {
 
     const handleCodeChange = (newCode: string, event: monaco.editor.IModelContentChangedEvent) => {
         if (!storeTriggerredChange) {
-            onChange(filePath, newCode);
+            debouncedOnChange(filePath, newCode);
         }
     };
 
