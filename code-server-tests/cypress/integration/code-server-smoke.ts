@@ -30,7 +30,9 @@ describe("Code server smoke test", () => {
       timeout: 60000,
     }).should("be.visible");
     //Verify extension
-    cy.get("div[id='wso2.ballerina']").contains("Ballerina SDK: Swan Lake");
+    cy.get("div[id='wso2.ballerina']", { timeout: 60000 }).contains(
+      "Ballerina SDK: Swan Lake"
+    );
     cy.get('a[class="action-label codicon codicon-extensions-view-icon"]', {
       timeout: 60000,
     }).click();
