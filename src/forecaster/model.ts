@@ -17,8 +17,7 @@
  *
  */
 
-import { GraphPoint } from "../core";
-import { Range } from "vscode";
+import { GraphPoint, Range } from "../core";
 import { CODELENSE_TYPE } from "./codelens-provider";
 
 export enum ANALYZETYPE {

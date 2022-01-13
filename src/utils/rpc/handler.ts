@@ -240,7 +240,7 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
         methodName: 'getPerfEndpoints',
         handler: (args: any[]) => {
             const start = new Date().getTime();
-            const response = langClient.getPerfEndpoints(args[0]);
+            const response = langClient.getResourcesWithEndpoints(args[0]);
             consoleLog(start, 'getPerfEndpoints');
             return response;
         }
