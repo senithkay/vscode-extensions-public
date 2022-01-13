@@ -45,8 +45,6 @@ function setupDevBalProject() {
         }
     }
 
-    writeFileSync(path.join(devProjectFolder, "empty.bal"), "");
-
     glob(path.join(devProjectFolder, '**/*.bal'), function( err, files ) {
         if (err) {
             console.log("Error while analyzing development project. ", err)
@@ -60,6 +58,36 @@ function setupDevBalProject() {
 }
 `    ,
     (err) => err ? console.log("dev project json make error: " + err ) : console.log("dev project json make successful")
+    )
+    });
+    
+}
+
+function setupTestBalProject() {
+    const testProjectFolder = path.join(__dirname, "..", "cypress", "fixtures", "integration-test-project");
+    const storyDataDir = path.join(__dirname, "..", "src", "stories", "data");
+
+    if (existsSync(testProjectFolder)) {
+        console.log("Integration Test project found at " + testProjectFolder)
+    } else {
+        console.error("Cannot find integration test project at " + devProjectFolder)
+        return
+    }
+
+
+    glob(path.join(testProjectFolder, '**/*.bal'), function( err, files ) {
+        if (err) {
+            console.log("Error while analyzing integration test project. ", err)
+            return
+        }
+        writeFile(path.join(storyDataDir, "testproject.json"),
+`
+{
+    "projectPath": "${testProjectFolder}/",
+    "balFiles": ${JSON.stringify(files)}
+}
+`    ,
+    (err) => err ? console.log("test project json make error: " + err ) : console.log("test project json make successful")
     )
     });
     
@@ -117,6 +145,7 @@ function startStoryBook() {
 
 copyBBEJson();
 setupDevBalProject();
+setupTestBalProject();
 startLS();
 startVSCodeMockServer();
 

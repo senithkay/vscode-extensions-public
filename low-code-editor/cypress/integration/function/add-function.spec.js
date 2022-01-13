@@ -1,9 +1,10 @@
 /// <reference types="cypress" />
 
+const { getIntegrationTestStoryURL } = require("../../utils/story-url-utils")
 
-describe('add function to a file', () => {
+describe('add function to an empty file', () => {
     beforeEach(() => {
-      cy.visit('http://localhost:6006/iframe.html?id=low-code-editor-development-project--empty-bal&args=')
+      cy.visit(getIntegrationTestStoryURL("function/add-function-to-empty-file.bal"))
     })
   
     it('Displays add construct message', () => {
