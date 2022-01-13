@@ -4,27 +4,45 @@ const { getIntegrationTestStoryURL } = require("../../utils/story-url-utils")
 
 const BAL_FILE_PATH = "function/add-function-to-empty-file.bal";
 
-describe('add function to an empty file', () => {
+describe('Add functions via Low Code', () => {
     beforeEach(() => {
       cy.visit(getIntegrationTestStoryURL(BAL_FILE_PATH))
     })
   
-    it('Displays add construct message', () => {
-        cy.get('#Get_started_by_selecting_Add_Constructor_here', { timeout: 6000 })
+    it('Add a function to empty file', () => {
+        // verify if welcome message is shown for the empty file.
+        cy.get('#Get_started_by_selecting_Add_Constructor_here')
             .find('tspan')
             .should('have.text', 'Click here to get started.')
+        
         cy.get('#Top_plus')
-            .click()
+            .click() // click on the top level plus button.
             .get(".options-wrapper")
             .contains("Function")
-            .click()
+            .click() // click on the function option in plus widget.
             .get('[data-testid="function-form"]')
             .get('.view-lines')
             .first()
-            .type('myfunction')
+            .type('myfunction') // type 'myfunction' in the expression editor for fn name.
             .get('button')
             .contains("Save")
-            .click()
+            .click() // click save button.
+            .get('.function-signature .path-text')
+            .should('have.text', 'myfunction') // check if the added function signature is drawn.
+            .get('#file-content-holder')
+            .should('have.text', 
+`
+function myfunction() returns error? {
+
+}
+`
+            ) // verify if the generated code is correct.
+            .get('[data-testid="diagram-canvas"]')
+            .should("be.visible") // verify if the diagram body is rendered correctly.
+            .get('.diagram-canvas .start-wrapper .start-button .start-text')
+            .should("be.visible")
+            .should("have.text", " START  ")
+
     })
   })
   

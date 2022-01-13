@@ -67,5 +67,8 @@ export function DiagramGeneratorWrapper(props: DiagramGeneratorProps) {
                     }
                 }
             />
+            <code id='file-content-holder' style={{ display: "none" }}>
+                {fileContent}
+            </code>
         </>;
 }
