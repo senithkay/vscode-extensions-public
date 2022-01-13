@@ -24,11 +24,20 @@ function copyBBEJson() {
 
 function setupDevBalProject() {
     const storyDataDir = path.join(__dirname, "..", "src", "stories", "data");
-    const devProjectFolder = path.join(storyDataDir, "project");
+    let devProjectFolder = path.join(storyDataDir, "project");
+    if (process.env.LOW_CODE_DEV_PROJECT_PATH) {
+        devProjectFolder = process.env.LOW_CODE_DEV_PROJECT_PATH;
+        console.log("Dev Project Path is set via env var LOW_CODE_DEV_PROJECT_PATH. Path: " + devProjectFolder)
+    } else {
+        console.log("Using default dev project path. Override using LOW_CODE_DEV_PROJECT_PATH env var.")
+    }
     if (existsSync(devProjectFolder)) {
         console.log("Development project alreay exists at " + devProjectFolder)
     } else {
-        const balNewOutput = execSync("bal new project").toString().trim();
+        const projectName = path.parse(devProjectFolder).name;
+        const cwd = path.resolve(path.parse(devProjectFolder).dir);
+        console.log(cwd)
+        const balNewOutput = execSync("bal new " + projectName, { cwd }).toString().trim();
         if (balNewOutput.startsWith("Created new")) {
             console.log("Initialized new Ballerina Project at " + devProjectFolder)
         } else {
