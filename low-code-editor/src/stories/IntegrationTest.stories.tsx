@@ -41,6 +41,6 @@ function getDiagramGeneratorProps(filePath: string): DiagramGeneratorProps {
     sendTelemetryEvent: () => Promise.resolve(undefined),
     showMessage: () => Promise.resolve(false),
     showPerformanceGraph: () => Promise.resolve(false),
-    updateFileContent
+    updateFileContent: () => Promise.resolve(false),
   }
 }

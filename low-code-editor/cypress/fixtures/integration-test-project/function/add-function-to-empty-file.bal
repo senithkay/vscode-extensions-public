@@ -1,4 +1,0 @@
-
-function myfunction() returns error? {
-
-}

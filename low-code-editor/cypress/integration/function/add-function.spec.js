@@ -2,9 +2,11 @@
 
 const { getIntegrationTestStoryURL } = require("../../utils/story-url-utils")
 
+const BAL_FILE_PATH = "function/add-function-to-empty-file.bal";
+
 describe('add function to an empty file', () => {
     beforeEach(() => {
-      cy.visit(getIntegrationTestStoryURL("function/add-function-to-empty-file.bal"))
+      cy.visit(getIntegrationTestStoryURL(BAL_FILE_PATH))
     })
   
     it('Displays add construct message', () => {
@@ -24,6 +26,5 @@ describe('add function to an empty file', () => {
             .contains("Save")
             .click()
     })
-
   })
   
