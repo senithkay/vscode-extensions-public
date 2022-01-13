@@ -44,6 +44,7 @@ module.exports = {
       modules: [path.resolve(__dirname, '../src'), 'node_modules'],
       alias: {
         handlebars: 'handlebars/dist/handlebars.min.js',
+        vscode: require.resolve('monaco-languageclient/lib/vscode-compatibility'),
         "crypto": false,
         "net": false,
         "os": false,
