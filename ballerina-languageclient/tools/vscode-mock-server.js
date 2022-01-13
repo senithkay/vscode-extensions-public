@@ -22,8 +22,13 @@ app.post('/file/*', (request,response) => {
   const body = request.body;
   const filePathEncoded = request.params[0];
   const filePath = decodeURIComponent(filePathEncoded);
-  const text = body.text;
-  writeFileSync(filePath, text)
+  if (!filePath.includes("no-save")) {
+    const text = body.text;
+    writeFileSync(filePath, text);
+  } else {
+    console.log("Ignoring save to " + filePath)
+  }
+  
   response.send({
       success: true
   })
