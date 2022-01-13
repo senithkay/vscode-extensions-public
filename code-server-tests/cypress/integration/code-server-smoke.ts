@@ -12,6 +12,7 @@
  */
 
 /// <reference types="cypress" />
+/// <reference types="cypress-xpath" />
 
 describe("Code server smoke test", () => {
   const packageName = "test_package_01";
@@ -40,10 +41,12 @@ describe("Code server smoke test", () => {
     ).click();
     cy.get("body").then(($body) => {
       if ($body.find("div[aria-label='main.bal']").length == 0) {
-        cy.get('a[class="label-name"]').contains("test_package_01").click;
+        cy.get('a[class="label-name"]').contains(packageName);
+        cy.xpath("//span[text()='test_package_01']").click();
       }
     });
     cy.get("div[aria-label='main.bal']").click();
+    cy.wait(6000);
     //Verify the lines in opened bal
     cy.get(".view-lines", { timeout: 60000 }).contains(
       "public function main() {"
@@ -72,7 +75,7 @@ describe("Code server smoke test", () => {
   it("Open a service bal and verify the code rendered", () => {
     cy.get("body").then(($body) => {
       if ($body.find("div[aria-label='service.bal']").length == 0) {
-        cy.get('a[class="label-name"]').contains("test_service_01").click();
+        cy.get('a[class="label-name"]').contains(serviceName).click();
       }
     });
     cy.get("div[aria-label='service.bal']").click();
