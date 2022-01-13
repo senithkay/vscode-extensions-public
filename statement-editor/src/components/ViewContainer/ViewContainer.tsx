@@ -89,7 +89,7 @@ export function ViewContainer(props: ViewProps) {
                 { codeSnippet: initialSource.trim() }, getLangClient);
             if (STKindChecker.isLocalVarDecl(partialST) && !partialST.equalsToken) {
                 partialST = await getPartialSTForStatement(
-                    { codeSnippet: initialSource.trim() + " = EXPRESSION" }, getLangClient);
+                    { codeSnippet: initialSource.trim() + " = EXPRESSION ;" }, getLangClient);
             }
             setModel(partialST);
         })();
