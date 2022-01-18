@@ -43,7 +43,7 @@ export enum ChoreoSessionConfig {
 // Choreo V2 environment
 export class ChoreoAuthConfig {
     private loginUrl: string = "https://dev.api.asgardeo.io/t/a/oauth2/authorize";
-    private redirectUrl: string = "vscode://wso2.ballerina/choreo-signin";
+    private redirectUrl: string = "https://consolev2.preview-dv.choreo.dev/vscode-auth";
     private clientId: string = "_eEveWFdTSJPaui7DmCuU5DUrUEa";
     private apimClientId: string = process.env.VSCODE_CHOREO_APIM_CLIENT_ID ? process.env.VSCODE_CHOREO_APIM_CLIENT_ID
         : "Wxqy0liCfLBsdpXOhkcxZz6uLPka";
