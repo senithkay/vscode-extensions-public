@@ -7,7 +7,8 @@
     "low-code-editor-commons",
     "statement-editor",
     "configurable-editor",
-    "low-code-editor"
+    "low-code-editor",
+    "integration-tests"
   ],
   "scripts": {
       "prebuild": "npm i --legacy-peer-deps",

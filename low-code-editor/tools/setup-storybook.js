@@ -64,7 +64,7 @@ function setupDevBalProject() {
 }
 
 function setupTestBalProject() {
-    const testProjectFolder = path.join(__dirname, "..", "cypress", "fixtures", "integration-test-project");
+    const testProjectFolder = path.join(__dirname, "..", "..", "integration-tests", "bal-project");
     const storyDataDir = path.join(__dirname, "..", "src", "stories", "data");
 
     if (existsSync(testProjectFolder)) {
