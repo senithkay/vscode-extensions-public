@@ -1,5 +1,6 @@
 import { DiagramCanvas } from "../../utils/components/canvas";
 import { CodeView } from "../../utils/components/code-view";
+import { TopLevelPlusWidget } from "../../utils/components/to-level-plus-widget";
 import { getCurrentSpecFolder } from "../../utils/file-utils";
 import { getIntegrationTestStoryURL } from "../../utils/story-url-utils"
 
@@ -12,12 +13,10 @@ describe('Add functions via Low Code', () => {
   
     it('Add a function to empty file', () => {
         DiagramCanvas.welcomeMessageShouldBeVisible();
-        
-        cy.get('#Top_plus')
-            .click() // click on the top level plus button.
-            .get(".options-wrapper")
-            .contains("Function")
-            .click() // click on the function option in plus widget.
+        DiagramCanvas.clickTopLevelPlusButton();
+        TopLevelPlusWidget.clickPlusWidgetItem("Function");
+
+          cy        // click on the function option in plus widget.
             .get('[data-testid="function-form"]')
             .get('.view-lines')
             .first()
@@ -28,7 +27,8 @@ describe('Add functions via Low Code', () => {
             .get('.function-signature .path-text')
             .should('have.text', 'myfunction') // check if the added function signature is drawn.
 
-      CodeView.currentCodeShouldBeEqualToFile(getCurrentSpecFolder() + "add-function.expected.bal");
+      CodeView.currentCodeShouldBeEqualToFile(
+          getCurrentSpecFolder() + "add-function.expected.bal");
             
             cy // verify if the generated code is correct.
             .get('[data-testid="diagram-canvas"]')

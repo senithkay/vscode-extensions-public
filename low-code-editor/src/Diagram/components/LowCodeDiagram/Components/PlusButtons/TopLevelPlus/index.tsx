@@ -25,6 +25,7 @@ import { DiagramOverlay, DiagramOverlayContainer } from "../../../../Portals/Ove
 import { InitialPlusTooltipBubble } from "./InitialPlusTooltipBubble";
 import { classMemberEntries, moduleLevelEntries, PlusMenuCategories, PlusOptionsSelector, triggerEntries } from "./PlusOptionsSelector";
 import "./style.scss";
+import { getTargetPositionString } from "../../../Utils";
 
 export const PLUS_WIDTH = 16;
 export const PLUS_AND_OPTIONS_GAP = 6;
@@ -104,7 +105,7 @@ export const TopLevelPlus = (props: PlusProps) => {
     }
 
     return (
-        <div className="plus-container" ref={containerElement}>
+        <div className="plus-container" ref={containerElement} target-line={targetPosition.startLine}>
             <div className={'plus-btn-wrapper'} onClick={handlePlusClick}>
                 {
                     !isDocumentEmpty ?
