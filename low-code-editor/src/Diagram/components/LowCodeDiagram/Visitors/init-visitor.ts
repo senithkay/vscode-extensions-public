@@ -538,21 +538,21 @@ class InitVisitor implements Visitor {
     }
 
     private removeXMLNameSpaces(parent?: STNode) {
-        if(STKindChecker.isModulePart(parent)) {
+        if (STKindChecker.isModulePart(parent)) {
             const modulePart = parent as ModulePart;
             const members = modulePart.members.filter(member => {
-                if(member.kind !== "ModuleXmlNamespaceDeclaration") {
+                if (member.kind !== "ModuleXmlNamespaceDeclaration") {
                     return member;
                 }
             })
             modulePart.members = members;
             parent = modulePart;
-        } else if(STKindChecker.isServiceDeclaration(parent)) {
+        } else if (STKindChecker.isServiceDeclaration(parent)) {
             const service = parent as ServiceDeclaration;
-            service.members.forEach(member => { 
+            service.members.forEach(member => {
                 const body = member.functionBody as FunctionBodyBlock;
-                const filteredStatements = body.statements.filter(statement => { 
-                    if(statement.kind !== "XmlNamespaceDeclaration") {
+                const filteredStatements = body.statements.filter(statement => {
+                    if (statement.kind !== "XmlNamespaceDeclaration") {
                         return statement;
                     }
                 })
@@ -560,10 +560,10 @@ class InitVisitor implements Visitor {
                 member.functionBody = body;
             })
             parent = service;
-        } else if(STKindChecker.isFunctionDefinition(parent)) {
+        } else if (STKindChecker.isFunctionDefinition(parent)) {
             const body = parent.functionBody as FunctionBodyBlock;
-            const filteredStatements = body.statements.filter(statement => { 
-                if(statement.kind !== "XmlNamespaceDeclaration") {
+            const filteredStatements = body.statements.filter(statement => {
+                if (statement.kind !== "XmlNamespaceDeclaration") {
                     return statement;
                 }
             })
