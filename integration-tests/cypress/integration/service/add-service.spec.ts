@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-const { getIntegrationTestStoryURL } = require("../../utils/story-url-utils")
+import { getIntegrationTestStoryURL } from "../../utils/story-url-utils"
 
 describe('add a http service to an empty file', () => {
     beforeEach(() => {

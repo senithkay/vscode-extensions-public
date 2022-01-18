@@ -21,6 +21,6 @@
       "build:lcec": "npm run build --workspace=low-code-editor-commons",
       "build": "npm run build --workspaces",
       "storybook": "npm run storybook --workspace=low-code-editor",
-      "cypress": "npm run cypress --workspace=low-code-editor"
+      "test:integration": "npm run cypress --workspace=integration-tests"
   }
 }        

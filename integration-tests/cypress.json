@@ -1,3 +1,15 @@
 {
-    "defaultCommandTimeout": 10000
+    "defaultCommandTimeout": 120000,
+    "pageLoadTimeout": 120000,
+    "responseTimeout": 120000,
+    "integrationFolder": "cypress/integration",
+    "testFiles": [
+        "./**/*.ts"
+    ],
+    "viewportHeight": 1440,
+    "viewportWidth": 2560,
+    "chromeWebSecurity": false,
+    "video":true,
+    "videosFolder": "./cypress/videos",
+    "videoCompression":32
 }

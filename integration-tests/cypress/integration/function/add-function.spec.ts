@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-const { getIntegrationTestStoryURL } = require("../../utils/story-url-utils")
+import { getIntegrationTestStoryURL } from "../../utils/story-url-utils"
 
 const BAL_FILE_PATH = "function/add-function-to-empty-file.bal";
 
