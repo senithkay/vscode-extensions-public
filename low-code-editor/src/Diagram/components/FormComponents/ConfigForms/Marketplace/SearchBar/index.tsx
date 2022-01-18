@@ -34,12 +34,12 @@ function SearchBar(props: SearchBarProps) {
 
     const [query, setQuery] = useState(searchQuery);
 
+    const debouncedQueryChanged = debounce(onSearch, DEBOUNCE_DELAY);
+
     useEffect(() => {
         debouncedQueryChanged(query);
         return () => debouncedQueryChanged.cancel();
     }, [query]);
-
-    const debouncedQueryChanged = debounce(onSearch, DEBOUNCE_DELAY);
 
     const onQueryChanged = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
         setQuery(event.target.value);
