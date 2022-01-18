@@ -1,5 +1,6 @@
-/// <reference types="cypress" />
-
+import { DiagramCanvas } from "../../utils/components/canvas";
+import { CodeView } from "../../utils/components/code-view";
+import { getCurrentSpecFolder } from "../../utils/file-utils";
 import { getIntegrationTestStoryURL } from "../../utils/story-url-utils"
 
 const BAL_FILE_PATH = "function/add-function-to-empty-file.bal";
@@ -10,10 +11,7 @@ describe('Add functions via Low Code', () => {
     })
   
     it('Add a function to empty file', () => {
-        // verify if welcome message is shown for the empty file.
-        cy.get('#Get_started_by_selecting_Add_Constructor_here')
-            .find('tspan')
-            .should('have.text', 'Click here to get started.')
+        DiagramCanvas.welcomeMessageShouldBeVisible();
         
         cy.get('#Top_plus')
             .click() // click on the top level plus button.
@@ -29,14 +27,10 @@ describe('Add functions via Low Code', () => {
             .click() // click save button.
             .get('.function-signature .path-text')
             .should('have.text', 'myfunction') // check if the added function signature is drawn.
-            .get('#file-content-holder')
-            .should('have.text', 
-`
-function myfunction() returns error? {
 
-}
-`
-            ) // verify if the generated code is correct.
+      CodeView.currentCodeShouldBeEqualToFile(getCurrentSpecFolder() + "add-function.expected.bal");
+            
+            cy // verify if the generated code is correct.
             .get('[data-testid="diagram-canvas"]')
             .should("be.visible") // verify if the diagram body is rendered correctly.
             .get('.diagram-canvas .start-wrapper .start-button .start-text')
