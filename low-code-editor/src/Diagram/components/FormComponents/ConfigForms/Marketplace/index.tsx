@@ -218,7 +218,6 @@ export function Marketplace(props: MarketplaceProps) {
     }
 
     const renderModulesList = (modulesListTitle: string, modules: ReactNode[]): ReactNode => {
-        // TODO: Uncomment this when the private triggers are enabled
         return (
             <>
                 {shortName !== "Triggers" ? (
