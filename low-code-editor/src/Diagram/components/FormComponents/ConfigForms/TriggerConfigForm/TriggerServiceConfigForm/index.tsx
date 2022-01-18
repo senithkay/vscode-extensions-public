@@ -10,11 +10,11 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { FormControl, Typography } from "@material-ui/core";
-import { BallerinaTriggerRequest, BallerinaTriggerResponse, DiagramEditorLangClientInterface, FormHeaderSection, ServiceType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BallerinaTriggerRequest, BallerinaTriggerResponse, DiagramEditorLangClientInterface, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { AddIcon } from "../../../../../../assets/icons";
 import DeleteButton from "../../../../../../assets/icons/DeleteButton";
@@ -40,18 +40,11 @@ export function TriggerForm(props: FormGeneratorProps) {
     const [isTriggersLoading, setIsTriggersLoading] = useState(isLoading)
     const [triggerInfo, setTriggerInfo] = useState<BallerinaTriggerResponse>();
     const [isDropDownOpen, setIsDropDownOpen] = useState(false);
-    const unSelectedChannels = useRef<string[]>();
+    const unSelectedChannels = channelList === undefined ? [] : channelList.filter((channel) => !selectedChannels.includes(channel));
 
     useEffect(() => {
         handleFetchTrigger(id);
     }, []);
-
-    useEffect(() => {
-        if (channelList.length !== 0) {
-            unSelectedChannels.current = channelList.filter((channel) => !selectedChannels.includes(channel));
-        }
-    }, [selectedChannels]);
-
 
     const {
         api: {
@@ -71,7 +64,6 @@ export function TriggerForm(props: FormGeneratorProps) {
         setTriggerInfo(triggerData);
         if (triggerData.serviceTypes) {
             setChannelList(triggerData.serviceTypes.map(channel => channel.name));
-            unSelectedChannels.current = triggerData.serviceTypes.map(channel => channel.name)
             setIsTriggersLoading(false);
         }
     }
@@ -168,7 +160,7 @@ export function TriggerForm(props: FormGeneratorProps) {
             isTriggersLoading ? preLoader : (
                 <div className={formClasses.triggerDropDownList}>
                     <FormAutocomplete
-                        itemList={unSelectedChannels.current}
+                        itemList={unSelectedChannels}
                         onChange={handleOnChannelSelect}
                         placeholder={operationDropdownPlaceholder}
                         handleDropDownOpen={handleDropDownOpen}
