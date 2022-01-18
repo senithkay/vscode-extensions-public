@@ -29,6 +29,7 @@ import { DiagramErrorState } from "./components/LowCodeDiagram/DiagramState/Diag
 import { ErrorList } from "./components/LowCodeDiagram/DiagramState/ErrorList";
 import { ViewState } from "./components/LowCodeDiagram/ViewState";
 import { OverlayBackground } from "./components/OverlayBackground";
+import { LowcodeEvent, OPEN_LOW_CODE } from "./models";
 import "./style.scss";
 import { useStyles } from "./styles";
 import { DefaultConfig } from "./visitors/default";
@@ -41,6 +42,9 @@ export function Diagram() {
                 isMutationInProgress,
                 isModulePullInProgress,
                 loaderText
+            },
+            insights: {
+                onEvent
             }
         },
         props: {
@@ -69,6 +73,14 @@ export function Diagram() {
         setIsErrorStateDialogOpen(diagramErrors);
         setIsErrorDetailsOpen(diagramErrors);
     }, [diagramErrors, diagramWarnings])
+
+    React.useEffect(() => {
+        // Identify low-code open event
+        const event: LowcodeEvent = {
+            type: OPEN_LOW_CODE,
+        };
+        onEvent(event);
+    }, []);
 
     const openErrorDialog = () => {
         setIsErrorStateDialogOpen(true);
