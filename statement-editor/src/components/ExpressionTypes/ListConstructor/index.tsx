@@ -21,7 +21,6 @@ import { SuggestionItem, VariableUserInputs } from "../../../models/definitions"
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { SuggestionsContext } from "../../../store/suggestions-context";
 import { getSuggestionsBasedOnExpressionKind } from "../../../utils";
-import { addStatementToTargetLine, getContextBasedCompletions } from "../../../utils/ls-utils";
 import { ExpressionComponent } from "../../Expression";
 import { useStatementEditorStyles } from "../../styles";
 
@@ -37,27 +36,19 @@ export function ListConstructorComponent(props: ListConstructorProps) {
     const stmtCtx = useContext(StatementEditorContext);
     const { modelCtx } = stmtCtx;
     const { currentModel } = modelCtx;
+    const {
+        modelCtx: {
+            updateModel,
+        }
+    } = useContext(StatementEditorContext);
 
     const statementEditorClasses = useStatementEditorStyles();
     const { expressionHandler } = useContext(SuggestionsContext);
-    const { currentFile, getLangClient } = stmtCtx;
-    const targetPosition = stmtCtx.formCtx.formModelPosition;
-    const fileURI = `expr://${currentFile.path}`;
 
     const onClickOnExpression = async (clickedExpression: STNode, event: any) => {
         event.stopPropagation();
-
-        const content: string = await addStatementToTargetLine(
-            currentFile.content, targetPosition, stmtCtx.modelCtx.statementModel.source, getLangClient);
-
-        const completions: SuggestionItem[] = await getContextBasedCompletions(
-            fileURI, content, targetPosition, clickedExpression.position,
-            false, isElseIfMember, clickedExpression.source, getLangClient);
-
         expressionHandler(clickedExpression, false, false, {
-            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS),
-            typeSuggestions: [],
-            variableSuggestions: completions
+            expressionSuggestions: getSuggestionsBasedOnExpressionKind(DEFAULT_EXPRESSIONS)
         });
     };
 
@@ -99,6 +90,11 @@ export function ListConstructorComponent(props: ListConstructorProps) {
         </span>
     );
 
+    const onClickOnPlusIcon = () => {
+        const newExpression = model.expressions.length !== 0 ? `, EXPRESSION ]` : `EXPRESSION ]`;
+        updateModel(newExpression, model.closeBracket.position);
+    };
+
     return (
         <span>
             <span
@@ -107,9 +103,15 @@ export function ListConstructorComponent(props: ListConstructorProps) {
                     statementEditorClasses.expressionBlockDisabled
                 )}
             >
-                &nbsp;{model.openBracket.value}
+                {model.openBracket.value}
             </span>
             {expressionComponent}
+            <button
+                className={statementEditorClasses.plusIconBorder}
+                onClick={onClickOnPlusIcon}
+            >
+                +
+            </button>
             <span
                 className={classNames(
                     statementEditorClasses.expressionBlock,
