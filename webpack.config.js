@@ -40,6 +40,7 @@ const config = {
         ]
       }
     ]
-  }
+  },
+  stats: 'normal'
 };
 module.exports = config;
