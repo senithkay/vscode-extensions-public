@@ -14,7 +14,7 @@
 
 import React, { useState } from "react";
 
-import { BallerinaModule, BallerinaModuleResponse, BallerinaTriggersRequest, DiagramEditorLangClientInterface, Trigger } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BallerinaConstruct, BallerinaModuleResponse, BallerinaTriggersRequest, DiagramEditorLangClientInterface, Trigger } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 
 import { useDiagramContext } from "../../../../../Contexts/Diagram";
@@ -25,7 +25,8 @@ import { BallerinaModuleType, Marketplace, SearchQueryParams } from "../Marketpl
 export function TriggerList(props: FormGeneratorProps) {
     const { onCancel, onSave, targetPosition } = props
     const [isMarketPlaceOpen, setMarketPlaceOpen] = useState(true);
-    const [triggerArgs, setTriggerArgs] = useState<BallerinaModule>();
+    const [triggerArgs, setTriggerArgs] = useState<BallerinaConstruct>();
+
     const {
         api: {
             ls: { getDiagramEditorLangClient },
