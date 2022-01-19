@@ -26,7 +26,7 @@ export const rejectedKinds: CompletionItemKind[] = [
     9 as CompletionItemKind,
 ];
 
-export const TRIGGER_CHARACTERS: string[] = [".", " ","(",",",...'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')];
+export const TRIGGER_CHARACTERS: string[] = [".", " ", "(", ",", ...'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')];
 
 export const EXPAND_WIDGET_ID = "expand-widget";
 export const COLLAPSE_WIDGET_ID = "collapse-widget";
