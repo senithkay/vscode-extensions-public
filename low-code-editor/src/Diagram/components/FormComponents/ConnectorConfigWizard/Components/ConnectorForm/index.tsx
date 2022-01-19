@@ -174,7 +174,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
         config.action.returnVariableName = ((model as LocalVarDecl).typedBindingPattern
             .bindingPattern as CaptureBindingPattern).variableName.value;
     }
-    if (model && !isNewConnectorInitWizard) {
+    if (model && STKindChecker.isLocalVarDecl(model) && !isNewConnectorInitWizard) {
         config.action.returnType = ((model as LocalVarDecl).typedBindingPattern
             .typeDescriptor.source.trim());
     }
