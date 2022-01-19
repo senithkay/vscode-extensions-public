@@ -560,7 +560,7 @@ class InitVisitor implements Visitor {
         }
         return parent;
     }
-    
+
     private setActionInvocationInfo(node: ActionStatement, remoteCall: RemoteMethodCallAction) {
         const stmtViewState: StatementViewState = node.viewState as StatementViewState;
         const simpleName: SimpleNameReference = remoteCall.expression as SimpleNameReference;
