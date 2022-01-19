@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 Inc. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -11,31 +11,32 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useState } from "react";
+
+import React, { useState } from "react";
 
 import { BallerinaConstruct, BallerinaModuleResponse, BallerinaTriggersRequest, DiagramEditorLangClientInterface, Trigger } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 
-import { Context, useDiagramContext } from "../../../../../Contexts/Diagram";
-import { UserState } from "../../../../../types";
+import { useDiagramContext } from "../../../../../Contexts/Diagram";
 import { FormGenerator, FormGeneratorProps } from "../../FormGenerator";
-import { BallerinaModuleType, FilterStateMap, Marketplace, SearchQueryParams } from "../Marketplace";
+import { BallerinaModuleType, Marketplace, SearchQueryParams } from "../Marketplace";
 
 
 export function TriggerList(props: FormGeneratorProps) {
-    const { onCancel, onSave, configOverlayFormStatus, model, targetPosition } = props
+    const { onCancel, onSave, targetPosition } = props
     const [isMarketPlaceOpen, setMarketPlaceOpen] = useState(true);
     const [triggerArgs, setTriggerArgs] = useState<BallerinaConstruct>();
-    const showTriggerForm = (trigger: Trigger, varNode: LocalVarDecl) => {
-        setTriggerArgs(trigger);
-        setMarketPlaceOpen(false);
-    };
 
     const {
         api: {
             ls: { getDiagramEditorLangClient },
         }
     } = useDiagramContext();
+
+    const showTriggerForm = (trigger: Trigger, varNode: LocalVarDecl) => {
+        setTriggerArgs(trigger);
+        setMarketPlaceOpen(false);
+    };
 
     const fetchTriggersList = async (queryParams: SearchQueryParams): Promise<BallerinaModuleResponse> => {
         const langClient: DiagramEditorLangClientInterface = await getDiagramEditorLangClient();
@@ -50,7 +51,7 @@ export function TriggerList(props: FormGeneratorProps) {
     const handleTriggerFormClose = () => {
         setMarketPlaceOpen(true)
     }
-
+    // TODO: Change the component name as Trigger Wizard
     return (
         <>
             {

@@ -257,7 +257,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                         const { parseSuccess, source, syntaxTree: newST } = await langClient.stModify({
                                             astModifications: await InsertorDelete(mutations),
                                             documentIdentifier: {
-                                                uri: `file://${filePath}`
+                                                uri: monaco.Uri.file(filePath).toString()
                                             }
                                         });
                                         let vistedSyntaxTree: STNode;
@@ -269,7 +269,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                                 langClient);
                                             setSyntaxTree(vistedSyntaxTree);
                                             if (isDeleteModificationAvailable(mutations)) {
-                                                showMessage("Undo to revert the change you did by pressing Ctrl + Z", MESSAGE_TYPE.INFO, true);
+                                                showMessage("Undo your changes by using Ctrl + Z or Cmd + Z", MESSAGE_TYPE.INFO, true);
                                             }
                                             if (newST?.typeData?.diagnostics && newST?.typeData?.diagnostics?.length > 0) {
                                                 const { isAvailable } = isUnresolvedModulesAvailable(newST?.typeData?.diagnostics as DiagramDiagnostic[]);

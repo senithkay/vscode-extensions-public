@@ -20,7 +20,10 @@ export const getVarTypeCompletions = (ignoredCompletions: string[] = [], additio
           acceptedKind.includes(completionResponse.kind as CompletionItemKind) &&
           !ignoredCompletions.includes(completionResponse.label)
       );
+
+    const sortText: string[] = [];
     const completionItems: monaco.languages.CompletionItem[] = filteredCompletionItem.map((completionResponse: CompletionResponse, order: number) => {
+        sortText.push(completionResponse.sortText);
         return {
             range: null,
             label: completionResponse.label,
@@ -33,6 +36,20 @@ export const getVarTypeCompletions = (ignoredCompletions: string[] = [], additio
             documentation: completionResponse.documentation
         }
     });
+
+    // This is to set the fist completion selected
+    const initialSortedText = sortText.sort()[0];
+    const sortedItems: string[] = [];
+    completionItems.forEach(completion => {
+        if (completion.sortText === initialSortedText) {
+            sortedItems.push(completion.label as string);
+        }
+    });
+    const sortedText = sortedItems.sort()[0];
+    const initialItemCompletionIndex = completionItems.findIndex(item => item.label === sortedText);
+    if (initialItemCompletionIndex !== -1) {
+        completionItems[initialItemCompletionIndex].preselect = true;
+    }
 
     additionalCompletions.forEach((addition) => {
         const completionItemTemplate: monaco.languages.CompletionItem = {

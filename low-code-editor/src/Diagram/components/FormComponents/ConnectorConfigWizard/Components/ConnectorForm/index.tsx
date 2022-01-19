@@ -175,8 +175,9 @@ export function ConnectorForm(props: FormGeneratorProps) {
             (model as LocalVarDecl).typedBindingPattern.bindingPattern as CaptureBindingPattern
         ).variableName.value;
     }
-    if (model && !isNewConnectorInitWizard) {
-        config.action.returnType = (model as LocalVarDecl).typedBindingPattern.typeDescriptor.source.trim();
+    if (model && STKindChecker.isLocalVarDecl(model) && !isNewConnectorInitWizard) {
+        config.action.returnType = ((model as LocalVarDecl).typedBindingPattern
+            .typeDescriptor.source.trim());
     }
 
     const onCreateNew = () => {
