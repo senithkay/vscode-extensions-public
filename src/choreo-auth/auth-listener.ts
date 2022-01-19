@@ -16,7 +16,7 @@
  * under the License.
  *
  */
-import {window, Uri} from "vscode";
+import { window, Uri } from "vscode";
 import express from "express";
 import * as fs from "fs";
 import * as path from "path";
@@ -40,7 +40,7 @@ export class OAuthListener {
         this.server = this.app.listen(this.port);
         this.app.get(PATH_OAUTH, async (req, res) => {
             try {
-                const authCode = req.query.code? req.query.code.toString() : '';
+                const authCode = req.query.code ? req.query.code.toString() : '';
                 console.debug("Choreo Authentication Code: " + authCode);
 
                 let tokenHandler = new OAuthTokenHandler(this.extension);
