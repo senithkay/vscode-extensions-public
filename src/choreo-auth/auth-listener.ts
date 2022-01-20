@@ -40,7 +40,7 @@ export class OAuthListener {
         this.server = this.app.listen(this.port);
         this.app.get(PATH_OAUTH, async (req, res) => {
             try {
-                const authCode = req.query.code;
+                const authCode = req.query.code ? req.query.code.toString() : '';
                 console.debug("Choreo Authentication Code: " + authCode);
 
                 let tokenHandler = new OAuthTokenHandler(this.extension);
