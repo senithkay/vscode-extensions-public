@@ -25,6 +25,7 @@ import {
 import { LocalVarDecl, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../Contexts/Diagram";
+import { CONNECTOR_CLOSED, LowcodeEvent } from "../../../models";
 import { DefaultConfig } from "../../../visitors/default";
 import {
   DiagramOverlayPosition,
@@ -81,6 +82,9 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
             },
             configPanel: {
                 closeConfigOverlayForm: dispatchOverlayClose,
+            },
+            insights: {
+                onEvent
             }
         }
     } = useContext(Context);
@@ -165,6 +169,11 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
         onClose();
         dispatchOverlayClose();
         toggleDiagramOverlay();
+        const event: LowcodeEvent = {
+            type: CONNECTOR_CLOSED,
+            name: connectorInfo?.displayName
+        };
+        onEvent(event);
     };
 
     const handleSave = () => {
