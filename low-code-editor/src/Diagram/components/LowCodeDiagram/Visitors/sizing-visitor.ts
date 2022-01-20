@@ -449,11 +449,11 @@ class SizingVisitor implements Visitor {
 
     public beginVisitFunctionBodyBlock(node: FunctionBodyBlock) {
         const viewState: BlockViewState = node.viewState;
+        allEndpoints = viewState.connectors;
         if (node.statements.length > 0 && STKindChecker.isReturnStatement(node.statements[node.statements.length - 1])) {
             viewState.isEndComponentInMain = true;
         }
         this.beginSizingBlock(node);
-        allEndpoints = viewState.connectors;
     }
 
     public beginVisitExpressionFunctionBody(node: ExpressionFunctionBody) {

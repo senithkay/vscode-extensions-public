@@ -73,6 +73,7 @@ export function ActionProcessor(props: ProcessorProps) {
     let processType = "Action";
     let processName = "Variable";
     let sourceSnippet = "Source";
+    let statmentTypeText = "";
 
     let isIntializedVariable = false;
     const isLogStmt = false;
@@ -96,10 +97,10 @@ export function ActionProcessor(props: ProcessorProps) {
             } else if (STKindChecker.isMappingBindingPattern(bindingPattern)) {
                 // TODO: handle this type binding pattern.
             }
-
             if (model?.initializer && !STKindChecker.isImplicitNewExpression(model?.initializer)) {
                 isIntializedVariable = true;
             }
+            statmentTypeText = getStatementTypesFromST(model);
         } else if (STKindChecker.isAssignmentStatement(model)) {
             processType = "AssignmentStatement";
             processName = "Assignment";
@@ -238,9 +239,6 @@ export function ActionProcessor(props: ProcessorProps) {
             />
         </>
     );
-
-    const localModel = model as LocalVarDecl;
-    const statmentTypeText = getStatementTypesFromST(localModel);
 
     const processWrapper = isDraftStatement ? cn("main-process-wrapper active-action-processor") : cn("main-process-wrapper action-processor");
 
