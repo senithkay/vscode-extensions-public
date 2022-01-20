@@ -52,7 +52,10 @@ const exampleMaps = new Map([
     ['nats-streaming-durable-subscriptions', 'publisher.bal'],
     ['nats-streaming-queue-group', 'publisher.bal'],
     ['nats-streaming-start-position', 'publisher.bal'],
-    ['tcp-transport-security', 'tcp_transport_security_client.bal']
+    ['tcp-transport-security', 'tcp_transport_security_client.bal'],
+    ['nats-basic-secure-connection', 'publisher.bal'],
+    ['websocket-client-oauth2-client-cred-grant-type', 'websocket_client_oauth2_client_credentials_grant_type.bal'],
+    ['rabbitmq-secure-connection', 'producer.bal']
 ]);
 
 function showExamples(context: ExtensionContext, langClient: ExtendedLangClient): void {
