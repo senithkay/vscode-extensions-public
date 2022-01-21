@@ -1,5 +1,3 @@
-import { debug } from "../utils";
-
 /**
  * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
